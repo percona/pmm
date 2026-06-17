@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	defaultPlatformAddress    = "https://check.percona.com"
+	defaultPlatformAddress    = "https://check-dev.percona.com"
 	defaultPlatformAPITimeout = 30 * time.Second
 	// EnvVMAgentPrefix is the prefix for environment variables related to the VMAgent.
 	EnvVMAgentPrefix = "VMAGENT_"
