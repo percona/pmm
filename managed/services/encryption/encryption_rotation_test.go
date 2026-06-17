@@ -17,11 +17,11 @@ package encryption
 
 import (
 	"database/sql"
+	"errors"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 

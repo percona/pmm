@@ -16,7 +16,8 @@
 package backup
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
+
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -123,7 +124,7 @@ func (s *RetentionService) retentionPITR(storage Storage, scheduleID string, ret
 	}
 
 	if len(artifacts) > 1 {
-		return errors.Errorf("Can be only one artifact entity for PITR in the database but found %d", len(artifacts))
+		return fmt.Errorf("can be only one artifact entity for PITR in the database but found %d", len(artifacts))
 	}
 
 	artifact := artifacts[0]
