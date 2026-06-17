@@ -155,15 +155,13 @@ export const InlineCode: Story = {
       <div>
         <span style={labelStyle}>body1 + code</span>
         <Typography variant="body1">
-          Run <code>pnpm build</code> to compile the library, then import{' '}
-          <code>{'{ CodeBlock }'}</code> from <code>@percona/percona-ui</code>.
+          If you want to use the Code Block component instead of the inline code, then run <code>pnpm build</code> to compile the library, then import <code>{'{ CodeBlock }'}</code> from <code>@percona/percona-ui</code> so you can use in your pages.
         </Typography>
       </div>
       <div>
         <span style={labelStyle}>body2 + code</span>
         <Typography variant="body2">
-          Connect with <code>mongodb://admin:password@localhost:27017/?authSource=admin</code> to
-          access the database.
+          Connect to the database with <code>mongodb://admin:password@localhost:27017/?authSource=admin</code> to be abble to manage it.
         </Typography>
       </div>
       <div>
