@@ -53,7 +53,7 @@ Notes:
 
 - The Vite port is configurable via `PMM_PORT_VITE` in your `.env` (see `.env.dev.example`); it defaults to `5173`.
 - `run-ui` installs an EXIT trap that restores the original `pmm-compat-app` plugin and restarts Grafana when you Ctrl-C. Don't kill the container mid-run, or the restore is skipped.
-- For a one-shot build deployed into the container's system paths, use `make run-ui-build` instead.
+- For a one-shot build deployed into the container's system paths, use `make build-ui` instead.
 
 ## Run locally on the host
 

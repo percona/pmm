@@ -71,7 +71,7 @@ run-ui: ui-setup setup-livereload    ## Start vite dev server for UI with HMR
 	trap 'rm -f /srv/grafana/plugins/pmm-compat-app; mv /srv/grafana/plugins/pmm-compat-app.bak /srv/grafana/plugins/pmm-compat-app; supervisorctl restart grafana' EXIT; \
 	cd ui && yarn dev
 
-run-ui-build: ui-setup               ## Build UI and deploy to system dirs
+build-ui: ui-setup               ## Build UI and deploy to system dirs
 	cd ui && yarn build
 	rm -rf /usr/share/pmm-ui
 	cp -r ui/apps/pmm/dist /usr/share/pmm-ui

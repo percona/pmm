@@ -9,6 +9,7 @@ const CERT_KEY = '/srv/nginx/certificate.key';
 const CERT_CRT = '/srv/nginx/certificate.crt';
 const hasNginxCerts = fs.existsSync(CERT_KEY) && fs.existsSync(CERT_CRT);
 const port = hasNginxCerts ? 5173 : 5174;
+const target = hasNginxCerts ? 'https://localhost:8443' : 'https://localhost';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -42,31 +43,23 @@ export default defineConfig({
       // Watch the linked package for changes (negated pattern means "don't ignore")
       ignored: ['!**/node_modules/@percona/percona-ui/**'],
     },
-    proxy: hasNginxCerts
-      ? {
-          '/v1': {
-            target: 'https://localhost:443',
-            secure: false,
-            changeOrigin: true,
-          },
-          '/graph': {
-            target: 'https://localhost:443',
-            secure: false,
-            changeOrigin: true,
-          },
-        }
-      : {
-          '/v1': {
-            target: 'https://localhost',
-            secure: false,
-            changeOrigin: true,
-          },
-          '/graph': {
-            target: 'https://localhost',
-            secure: false,
-            changeOrigin: true,
-          },
-        },
+    proxy: {
+      '/v1': {
+        target,
+        secure: false,
+        changeOrigin: true,
+      },
+      '/graph': {
+        target,
+        secure: false,
+        changeOrigin: true,
+      },
+      '/logs.zip': {
+        target,
+        secure: false,
+        changeOrigin: true,
+      },
+    },
     host: '0.0.0.0',
     port,
     strictPort: true,
