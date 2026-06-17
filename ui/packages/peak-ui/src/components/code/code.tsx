@@ -15,8 +15,10 @@ const codeSx = (theme: Theme) => ({
   wordBreak: 'break-word',
 });
 
-const Code = forwardRef<HTMLElement, CodeProps>(({ sx, ...rest }, ref) => (
-  <Box ref={ref} component="code" sx={[codeSx, ...(Array.isArray(sx) ? sx : [sx])]} {...rest} />
+const Code = forwardRef<HTMLElement, CodeProps>(({ content, sx, ...rest }, ref) => (
+  <Box ref={ref} component="code" sx={[codeSx, ...(Array.isArray(sx) ? sx : [sx])]} {...rest}>
+    {content}
+  </Box>
 ));
 
 Code.displayName = 'Code';

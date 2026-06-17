@@ -44,7 +44,7 @@ const resolveScheme = (
 const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
   (
     {
-      children,
+      content,
       copyable = false,
       showCopyButtonText = false,
       value,
@@ -56,7 +56,7 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
     ref
   ) => {
     const theme = useTheme();
-    const codeText = value ?? (typeof children === 'string' ? children : '');
+    const codeText = value ?? (typeof content === 'string' ? content : '');
     const [prism, setPrism] = useState<PrismModule | null>(null);
     const [prismFailed, setPrismFailed] = useState(false);
 
@@ -126,7 +126,7 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
           sx={[preSx(copyable, false), ...(Array.isArray(sx) ? sx : [sx])]}
           {...rest}
         >
-          <code>{children}</code>
+          <code>{content}</code>
         </Box>
         {copyButton}
       </Box>

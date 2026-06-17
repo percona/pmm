@@ -16,7 +16,7 @@ export type CodeColorScheme =
   | 'okaidia';
 
 export type CodeBlockProps = Omit<BoxProps<'pre'>, 'component' | 'children'> & {
-  children: ReactNode;
+  content: ReactNode;
   copyable?: boolean;
   showCopyButtonText?: boolean;
   value?: string;
