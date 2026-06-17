@@ -720,7 +720,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
     components: {
       MuiCssBaseline: {
         styleOverrides: {
-          code: {
+          'code:not(pre code)': {
             fontFamily: '"Roboto Mono", "Courier New", monospace',
             fontSize: '0.875em',
             color: tokens.text.primary,
@@ -728,8 +728,8 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             border: `1px solid ${tokens.lines.divider}`,
             borderRadius: '4px',
             padding: '0.1em 0.3em',
-            whiteSpace: 'break-spaces',
-            wordBreak: 'break-word',
+            whiteSpace: 'break-spaces' as const,
+            wordBreak: 'break-word' as const,
           },
         },
       },
