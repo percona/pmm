@@ -30,4 +30,4 @@ Per-mode opacity is mandatory: dark mode uses higher alpha (8% hover vs 4% light
 
 ## Theme extension contract
 
-PMM and SEP must NOT redeclare `MuiX.styleOverrides.root` as a function — `deepmerge` will replace BaseTheme's function entirely (see `mui.mdc`). If a brand tweak is needed, use a sibling slot (`colorPrimary`, `sizeSmall`, etc.) or a CSS selector inside an existing object-typed slot. When in doubt: add the override to BaseTheme and let PMM/SEP inherit it.
+PMM and SEP extend BaseTheme with `mergeThemeOptions` (see `mui.mdc`). Child themes may freely override any `styleOverrides` slot (object or function) and add `variants` — both compose with Base instead of replacing it, so baseline styles are always respected and the child wins only on genuine conflicts. Shared behavior belongs in BaseTheme; brand-specific tweaks belong in PMM/SEP.

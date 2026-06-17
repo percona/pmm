@@ -34,9 +34,14 @@ npx @mui/codemod@latest v5.0.0/path-imports <path>
 
 ## Theme overrides — gotchas
 
-### `deepmerge` does NOT merge style functions
+### Child themes use `mergeThemeOptions`, not raw `deepmerge`
 
-When PMM/SEP extend BaseTheme via `deepmerge`, a function-based `styleOverrides.<slot>` in the child theme **replaces** the parent's function entirely. It does not call both. If you only need a brand tweak, use a different slot (`colorPrimary`, `sizeSmall`, etc.) or a targeted CSS selector — never re-declare `root` as a function in PMM/SEP unless you intend to drop everything BaseTheme set on `root`.
+PMM/SEP extend BaseTheme via `mergeThemeOptions` in `src/design/merge-theme-options.ts`. It deep-merges theme options and additionally:
+
+- **composes `styleOverrides`** (object or function, at top level or per slot) instead of replacing them — child wins on conflicting keys, base slots survive.
+- **concatenates `variants`** base-first so base variants survive and child variants cascade last (win on conflict).
+
+Use `mergeThemeOptions(baseThemeOptions(mode), newOptions)` in child themes; never raw `deepmerge` for theme extension. Note other array-valued config (anything besides `variants`) is still replaced by `deepmerge`, not merged — if a new array slot needs to compose, extend `mergeThemeOptions` rather than redeclaring it in the child.
 
 ### MUI v7 drives hover backgrounds via CSS custom properties
 
