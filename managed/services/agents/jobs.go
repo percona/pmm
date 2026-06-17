@@ -714,7 +714,7 @@ func (s *JobsService) runMongoPostRestore(querier *reform.Querier, serviceID str
 		s.l.Debugf("found service: %s in replica set: %s", service.ServiceName, service.ReplicationSet)
 		serviceAgents, err := models.FindPMMAgentsForService(querier, service.ServiceID)
 		if err != nil {
-			return fmt.Errorf("failed to get pmm agent for replica set member %q: %w", service.ServiceID, err)
+			return fmt.Errorf("failed to get pmm agent for replica set member %s: %w", service.ServiceID, err)
 		}
 		if len(serviceAgents) == 0 {
 			return fmt.Errorf("cannot find pmm agent for service %s", service.ServiceID)
@@ -767,11 +767,11 @@ func (s *JobsService) restartSystemService(agentID string, service agentv1.Start
 
 	agent, err := s.r.get(agentID)
 	if err != nil {
-		return fmt.Errorf("failed to get information about PMM agent %q: %w", agentID, err)
+		return fmt.Errorf("failed to get information about PMM agent %s: %w", agentID, err)
 	}
 	_, err = agent.channel.SendAndWaitResponse(req)
 	if err != nil {
-		return fmt.Errorf("failed to restart %s on agent %q: %w", service, agentID, err)
+		return fmt.Errorf("failed to restart %s on agent %s: %w", service, agentID, err)
 	}
 	return nil
 }

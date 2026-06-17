@@ -510,7 +510,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		if agent.RunsOnNodeID == nil && agent.PMMAgentID != nil {
 			pmmAgent, err := models.FindAgentByID(q, *agent.PMMAgentID)
 			if err != nil {
-				return nil, fmt.Errorf("cannot find pmm_agent by id %q, for external_exporter id %q without node_id: %w", *agent.PMMAgentID, agent.AgentID, err)
+				return nil, fmt.Errorf("cannot find pmm_agent by id %s, for external_exporter id %s without node_id: %w", *agent.PMMAgentID, agent.AgentID, err)
 			}
 			agent.RunsOnNodeID = pmmAgent.RunsOnNodeID
 		}
