@@ -21,7 +21,7 @@ on:
     inputs:
       BRANCH:
         description: "The branch to pull API tests from"
-        default: "v3"
+        default: "main"
         required: true
         type: string
       PMM_SERVER_IMAGE:
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       PMM_URL: https://admin:admin@127.0.0.1
-      BRANCH: ${{ github.event.inputs.BRANCH || 'v3' }}
+      BRANCH: ${{ github.event.inputs.BRANCH || 'main' }}
       PMM_SERVER_IMAGE: ${{ github.event.inputs.PMM_SERVER_IMAGE }}
 
     steps:
