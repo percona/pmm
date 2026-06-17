@@ -1,15 +1,11 @@
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef } from 'react';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import type { Theme } from '@mui/material/styles';
+import { Highlight, themes } from 'prism-react-renderer';
 import type { PrismTheme } from 'prism-react-renderer';
 import CopyToClipboardButton from '../buttons/copy-to-clipboard-button';
 import type { CodeBlockProps, CodeColorScheme } from './code-block.types';
-
-type PrismModule = {
-  Highlight: typeof import('prism-react-renderer').Highlight;
-  themes: typeof import('prism-react-renderer').themes;
-};
 
 const preSx = (copyable: boolean, highlighted: boolean) => (theme: Theme) => ({
   margin: 0,
@@ -21,7 +17,6 @@ const preSx = (copyable: boolean, highlighted: boolean) => (theme: Theme) => ({
   padding: theme.spacing(2),
   paddingRight: copyable ? theme.spacing(7) : theme.spacing(2),
   overflowX: 'auto',
-  // When highlighted, the prism scheme supplies color/background.
   ...(highlighted
     ? {}
     : {
@@ -32,7 +27,6 @@ const preSx = (copyable: boolean, highlighted: boolean) => (theme: Theme) => ({
 
 const resolveScheme = (
   colorScheme: CodeColorScheme | PrismTheme | undefined,
-  themes: PrismModule['themes'],
   mode: Theme['palette']['mode']
 ): PrismTheme => {
   if (colorScheme == null) {
@@ -57,21 +51,7 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
   ) => {
     const theme = useTheme();
     const codeText = value ?? (typeof content === 'string' ? content : '');
-    const [prism, setPrism] = useState<PrismModule | null>(null);
-    const [prismFailed, setPrismFailed] = useState(false);
-
-    useEffect(() => {
-      if (!language || !codeText) return;
-      let active = true;
-      import('prism-react-renderer')
-        .then((m) => active && setPrism({ Highlight: m.Highlight, themes: m.themes }))
-        .catch(() => active && setPrismFailed(true));
-      return () => {
-        active = false;
-      };
-    }, [language, codeText]);
-
-    const highlighted = !!language && !!codeText && !!prism && !prismFailed;
+    const highlighted = !!language && !!codeText;
 
     const copyButton = copyable && (
       <Box sx={{ position: 'absolute', top: 4, right: 4 }}>
@@ -83,9 +63,8 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
       </Box>
     );
 
-    if (highlighted && prism) {
-      const { Highlight } = prism;
-      const prismTheme = resolveScheme(colorScheme, prism.themes, theme.palette.mode);
+    if (highlighted) {
+      const prismTheme = resolveScheme(colorScheme, theme.palette.mode);
 
       return (
         <Box sx={{ position: 'relative' }}>
