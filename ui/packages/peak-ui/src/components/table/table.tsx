@@ -61,6 +61,7 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     muiTableBodyProps,
     muiDetailPanelProps,
     muiTableContainerProps,
+    tableInstanceRef,
     ...rest
   } = props;
   const [columnVisibility, setColumnVisibility] = usePersistentColumnVisibility(tableName);
@@ -426,6 +427,17 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
       };
     },
   });
+
+  if (tableInstanceRef) {
+    tableInstanceRef.current = table;
+  }
+
+  useEffect(() => {
+    if (!tableInstanceRef) return;
+    return () => {
+      tableInstanceRef.current = null;
+    };
+  }, [tableInstanceRef]);
 
   return <MaterialReactTable table={table} />;
 }
