@@ -453,7 +453,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	}()
 
 	<-ctx.Done()
-	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout) // nolint:contextcheck
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout) //nolint:contextcheck
 	err = server.Shutdown(ctx)
 	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
