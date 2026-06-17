@@ -266,8 +266,8 @@ export const semanticTokensLight = {
   },
   text: {
     primary: 'rgb(40, 39, 39)',
-    secondary: 'rgba(40, 39, 39, 0.7)',
-    disabled: 'rgba(40, 39, 39, 0.4)',
+    secondary: 'rgba(40, 39, 39, 0.55)',
+    disabled: 'rgba(40, 39, 39, 0.41)',
     accent1: primitives.tech.kubernetes[600],
     accent2: primitives.primary.purple[500],
     accent3: primitives.primary.yellow[800],
@@ -347,8 +347,8 @@ export const semanticTokensDark = {
   },
   text: {
     primary: 'rgb(246, 245, 245)',
-    secondary: 'rgba(246, 245, 245, 0.7)',
-    disabled: 'rgba(246, 245, 245, 0.4)',
+    secondary: 'rgba(246, 245, 245, 0.71)',
+    disabled: 'rgba(246, 245, 245, 0.56)',
     accent1: primitives.tech.kubernetes[300],
     accent2: primitives.primary.purple[300],
     accent3: primitives.primary.yellow[200],

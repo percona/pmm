@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { AlertProps } from '@mui/material';
-import { MRT_Row, type MaterialReactTableProps } from 'material-react-table';
+import { type MRT_Row, type MRT_RowData, type MRT_TableOptions } from 'material-react-table';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface TableProps<T extends Record<string, any>> extends MaterialReactTableProps<T> {
+export interface TableProps<T extends MRT_RowData> extends MRT_TableOptions<T> {
   noDataMessage?: string;
   emptyFilterResultsMessage?: string;
   hideExpandAllIcon?: boolean;

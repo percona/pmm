@@ -18,10 +18,16 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import InboxOutlinedIcon from '@mui/icons-material/InboxOutlined';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Drawer from '@mui/material/Drawer';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import CloseIcon from '@mui/icons-material/Close';
 import { type MRT_ColumnDef, type MRT_Row } from 'material-react-table';
 import Chip from '../chip';
 import Table from './table';
 import type { TableProps } from './table.types';
+import { useNavigableRows } from './useNavigableRows';
+import { useDetailsPaneNavigation } from './useDetailsPaneNavigation';
 
 type ServerStatus = 'healthy' | 'warning' | 'error';
 
@@ -673,6 +679,99 @@ export const EmptyStateCustom: Story = {
     columns: baseColumns,
     data: [],
     emptyState: <EmptyStateIllustration />,
+  },
+};
+
+export const WithDetailsPaneNavigation: Story = {
+  name: 'With details pane navigation (prev/next)',
+  parameters: {
+    docs: {
+      description: {
+        story: [
+          'A common pattern: click a row to open a details pane that has prev/next arrows. The arrows must walk the rows the user actually sees after filtering and sorting, **not** the raw `data` array.',
+          '',
+          'Two Peak Design hooks make this reusable without hand-wiring the table instance:',
+          "- **`useNavigableRows`** owns the table's filter/sort state and returns `navigableRows` (the filtered + sorted rows, across all pages by default) plus `tableProps` to spread onto `<Table>`. It emits `onChange` whenever that list changes, and exposes `refresh()` to recompute right before opening the pane on a row click. Use `scope: 'currentPage'` to navigate only the visible page.",
+          '- **`useDetailsPaneNavigation`** turns that list plus the current selection into `next` / `previous` actions and `isFirst` / `isLast` flags. If the selection is filtered out, navigation disables itself instead of jumping to an unrelated row.',
+          '',
+          'Try it: filter by Status or Environment, then open a row and use the arrows — navigation stays within the filtered set.',
+        ].join('\n'),
+      },
+    },
+  },
+  render: function Render(args: TableProps<Server>) {
+    const { data: tableData } = args;
+    const [selected, setSelected] = useState<Server | undefined>();
+
+    const { navigableRows, tableProps, refresh } = useNavigableRows<Server>({
+      data: tableData,
+    });
+
+    const { isFirst, isLast, next, previous } = useDetailsPaneNavigation<Server>({
+      rows: navigableRows,
+      selected,
+      getRowId: (row) => row.id,
+      onSelect: setSelected,
+    });
+
+    return (
+      <>
+        <Table
+          {...args}
+          {...tableProps}
+          enableRowHoverAction
+          rowHoverAction={(row) => {
+            refresh();
+            setSelected(row.original);
+          }}
+        />
+        <Drawer anchor="right" open={!!selected} onClose={() => setSelected(undefined)}>
+          <Stack sx={{ width: 320, p: 2 }} gap={2}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between">
+              <Stack direction="row" gap={0.5}>
+                <Tooltip title="Previous">
+                  <span>
+                    <IconButton
+                      size="small"
+                      aria-label="Previous"
+                      disabled={isFirst}
+                      onClick={previous}
+                    >
+                      <ChevronLeftIcon />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+                <Tooltip title="Next">
+                  <span>
+                    <IconButton size="small" aria-label="Next" disabled={isLast} onClick={next}>
+                      <ChevronRightIcon />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              </Stack>
+              <IconButton size="small" aria-label="Close" onClick={() => setSelected(undefined)}>
+                <CloseIcon />
+              </IconButton>
+            </Stack>
+            {selected && (
+              <Box>
+                <Typography variant="subtitle1">{selected.name}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {selected.environment} — {selected.region} — {selected.status}
+                </Typography>
+              </Box>
+            )}
+          </Stack>
+        </Drawer>
+      </>
+    );
+  },
+  args: {
+    tableName: 'with-details-pane-navigation-table',
+    columns: baseColumns,
+    data: SERVERS_30,
+    enableColumnFilters: true,
+    initialState: { showColumnFilters: true },
   },
 };
 

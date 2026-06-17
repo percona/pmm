@@ -1,7 +1,7 @@
 {
   "name": "@percona/percona-ui",
   "type": "module",
-  "version": "1.0.18",
+  "version": "1.0.21",
   "private": false,
   "scripts": {
     "build": "rollup -c",
@@ -40,7 +40,7 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@mui/utils": "^7.3.7",
-    "@mui/x-date-pickers": "^7.6.2",
+    "@mui/x-date-pickers": "^7.29.4",
     "@rollup/plugin-commonjs": "^29.0.0",
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^0.4.4",
@@ -60,7 +60,6 @@
     "jsdom": "^29.1.1",
     "notistack": "^3.0.2",
     "prettier": "^3.8.3",
-    "prism-react-renderer": "^2.4.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "rollup": "^4.53.5",
@@ -82,7 +81,7 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@mui/utils": "^7.3.7",
-    "@mui/x-date-pickers": "^7.6.2",
+    "@mui/x-date-pickers": "^7.29.4",
     "notistack": "^3.0.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -92,7 +91,7 @@
     "@fontsource/poppins": "^5.2.7",
     "@fontsource/roboto": "^5.2.9",
     "@fontsource/roboto-mono": "^5.2.8",
-    "material-react-table": "^1.15.1",
+    "material-react-table": "^3.2.1",
     "prism-react-renderer": "^2.4.1",
     "react-is": "18.3.1"
   },
