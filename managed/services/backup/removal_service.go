@@ -18,10 +18,10 @@ package backup
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"path"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -185,8 +185,8 @@ func (s *RemovalService) lockArtifact(artifactID string, lockingStatus models.Ba
 	var currentStatus models.BackupStatus
 
 	if models.IsArtifactFinalStatus(lockingStatus) {
-		return nil, "", errors.Wrapf(ErrIncorrectArtifactStatus, "couldn't lock artifact, requested new status %s (present in list of final statuses) for artifact %s",
-			lockingStatus, artifactID)
+		return nil, "", fmt.Errorf("couldn't lock artifact, requested new status %s (present in list of final statuses) for artifact %s: %w",
+			lockingStatus, artifactID, ErrIncorrectArtifactStatus)
 	}
 
 	var (
@@ -203,7 +203,7 @@ func (s *RemovalService) lockArtifact(artifactID string, lockingStatus models.Ba
 		currentStatus = artifact.Status
 
 		if !models.IsArtifactFinalStatus(artifact.Status) {
-			return errors.Wrapf(ErrIncorrectArtifactStatus, "artifact with ID %q isn't in a final status", artifact.ID)
+			return fmt.Errorf("artifact with ID %q isn't in a final status: %w", artifact.ID, ErrIncorrectArtifactStatus)
 		}
 
 		restoreItems, err := models.FindRestoreHistoryItems(tx.Querier, models.RestoreHistoryItemFilters{
@@ -239,8 +239,8 @@ func (s *RemovalService) lockArtifact(artifactID string, lockingStatus models.Ba
 // releaseArtifact releases artifact lock by setting one of the final artifact statuses.
 func (s *RemovalService) releaseArtifact(artifactID string, setStatus models.BackupStatus) error {
 	if !models.IsArtifactFinalStatus(setStatus) {
-		return errors.Wrapf(ErrIncorrectArtifactStatus, "couldn't release artifact, requested new status %s (not present in list of final statuses) for artifact %s",
-			setStatus, artifactID)
+		return fmt.Errorf("couldn't release artifact, requested new status %s (not present in list of final statuses) for artifact %s: %w",
+			setStatus, artifactID, ErrIncorrectArtifactStatus)
 	}
 
 	err := s.setArtifactStatus(artifactID, setStatus)
@@ -280,7 +280,7 @@ func (s *RemovalService) deleteArtifactFiles(ctx context.Context, storage Storag
 		s.l.Debugf("Deleting folder %s.", folderName)
 		err := storage.RemoveRecursive(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, folderName)
 		if err != nil {
-			return errors.Wrapf(err, "failed to remove folder %s of artifact %s", folderName, artifact.ID)
+			return fmt.Errorf("failed to remove folder %s of artifact %s: %w", folderName, artifact.ID, err)
 		}
 
 		return nil
@@ -297,14 +297,14 @@ func (s *RemovalService) deleteArtifactFiles(ctx context.Context, storage Storag
 				s.l.Debugf("Deleting folder %s.", folderName)
 				err := storage.RemoveRecursive(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, folderName)
 				if err != nil {
-					return errors.Wrapf(err, "failed to remove folder %s of artifact %s", folderName, artifact.ID)
+					return fmt.Errorf("failed to remove folder %s of artifact %s: %w", folderName, artifact.ID, err)
 				}
 			} else {
 				fileName := path.Join(artifact.Folder, file.Name)
 				s.l.Debugf("Deleting file %s.", fileName)
 				err := storage.Remove(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, fileName)
 				if err != nil {
-					return errors.Wrapf(err, "failed to remove file %s of artifact %s", file.Name, artifact.ID)
+					return fmt.Errorf("failed to remove file %s of artifact %s: %w", file.Name, artifact.ID, err)
 				}
 			}
 		}
@@ -329,7 +329,7 @@ func (s *RemovalService) deleteArtifactPITRChunks(
 
 	chunks, err := s.pbmPITRService.GetPITRFiles(ctx, storage, location, artifact, until)
 	if err != nil {
-		return errors.Wrap(err, "failed to get pitr chunks")
+		return fmt.Errorf("failed to get pitr chunks: %w", err)
 	}
 
 	if len(chunks) == 0 {
@@ -342,7 +342,7 @@ func (s *RemovalService) deleteArtifactPITRChunks(
 
 		err := storage.Remove(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, chunk.FName)
 		if err != nil {
-			return errors.Wrapf(err, "failed to remove pitr chunk '%s' (%v) from storage", chunk.FName, chunk)
+			return fmt.Errorf("failed to remove pitr chunk '%s' (%v) from storage: %w", chunk.FName, chunk, err)
 		}
 	}
 

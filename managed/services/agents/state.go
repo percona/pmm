@@ -17,11 +17,11 @@ package agents
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/encoding/prototext"
 	"gopkg.in/reform.v1"
@@ -80,7 +80,7 @@ func (u *StateUpdater) RequestStateUpdate(ctx context.Context, pmmAgentID string
 func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 	pmmAgents, err := models.FindAllPMMAgentsIDs(u.db.Querier)
 	if err != nil {
-		return errors.Wrap(err, "cannot find pmmAgentsIDs for AgentsState update")
+		return fmt.Errorf("cannot find pmmAgentsIDs for AgentsState update: %w", err)
 	}
 	var wg sync.WaitGroup
 	limiter := make(chan struct{}, 10) //nolint:mnd
@@ -153,16 +153,16 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	}()
 	pmmAgent, err := models.FindAgentByID(u.db.Querier, agent.id)
 	if err != nil {
-		return errors.Wrap(err, "failed to get PMM Agent")
+		return fmt.Errorf("failed to get PMM Agent: %w", err)
 	}
 	pmmAgentVersion, err := version.Parse(*pmmAgent.Version)
 	if err != nil {
-		return errors.Wrapf(err, "failed to parse PMM agent version %q", *pmmAgent.Version)
+		return fmt.Errorf("failed to parse PMM agent version %q: %w", *pmmAgent.Version, err)
 	}
 
 	settings, err := models.GetSettings(u.db.Querier)
 	if err != nil {
-		return errors.Wrap(err, "failed to get settings")
+		return fmt.Errorf("failed to get settings: %w", err)
 	}
 
 	filters := models.AgentFilters{
@@ -173,7 +173,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	}
 	agents, err := models.FindAgents(u.db.Querier, filters)
 	if err != nil {
-		return errors.Wrap(err, "failed to collect agents")
+		return fmt.Errorf("failed to collect agents: %w", err)
 	}
 
 	redactMode := redactSecrets
@@ -191,7 +191,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		case models.VMAgentType:
 			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(ctx, agent.id)
 			if err != nil {
-				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
+				return fmt.Errorf("cannot get agent scrape config for agent %s: %w", agent.id, err)
 			}
 			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
 		case models.NomadAgentType:
@@ -289,7 +289,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			}
 
 		default:
-			return errors.Errorf("cannot send request for unknown agent type %s", row.AgentType)
+			return fmt.Errorf("cannot send request for unknown agent type %s", row.AgentType)
 		}
 	}
 
