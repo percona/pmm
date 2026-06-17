@@ -428,16 +428,13 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     },
   });
 
-  if (tableInstanceRef) {
-    tableInstanceRef.current = table;
-  }
-
   useEffect(() => {
     if (!tableInstanceRef) return;
+    tableInstanceRef.current = table;
     return () => {
       tableInstanceRef.current = null;
     };
-  }, [tableInstanceRef]);
+  }, [table, tableInstanceRef]);
 
   return <MaterialReactTable table={table} />;
 }
