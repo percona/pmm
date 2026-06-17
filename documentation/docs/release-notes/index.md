@@ -1,4 +1,5 @@
 # Release notes
+- [Percona Monitoring and Management 3.8.1](3.8.1.md)
 - [Percona Monitoring and Management 3.8.0](3.8.0.md)
 - [Percona Monitoring and Management 3.7.1](3.7.1.md)
 - [Percona Monitoring and Management 3.7.0](3.7.0.md)
