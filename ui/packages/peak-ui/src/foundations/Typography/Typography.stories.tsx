@@ -150,7 +150,6 @@ export const Body: Story = {
 
 export const InlineCode: Story = {
   name: 'Inline code',
-  tags: ['!dev'],
   render: () => (
     <div style={stackStyle}>
       <div>
