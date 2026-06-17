@@ -49,13 +49,13 @@ pnpm install
 ## Publishing
 
 ```bash
-# 1. Bump the version in package.json (e.g. 1.0.21)
+# 1. Bump the version in package.json (e.g. X.Y.Z)
 
 # 2. Commit the change
-git commit -am "release: v1.0.21"
+git commit -am "release: vX.Y.Z"
 
 # 3. Create an annotated tag
-git tag -a v1.0.21 -m "v1.0.21"
+git tag -a vX.Y.Z -m "vX.Y.Z"
 
 # 4. Push the commit and the tag
 git push && git push --tags
@@ -64,5 +64,5 @@ git push && git push --tags
 npm login
 
 # 6. Publish
-pnpm publish --access public --no-git-checks --registry https://registry.npmjs.org/
+pnpm publish --access public --registry https://registry.npmjs.org/
 ```
