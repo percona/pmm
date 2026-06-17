@@ -17,6 +17,7 @@ package grafana
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -24,7 +25,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -461,11 +461,11 @@ func TestCurrentUserHTTPResponse(t *testing.T) {
 		wantMsg  string
 	}{
 		{"generic", errors.New("boom"), http.StatusBadGateway, "Bad Gateway"},
-		{"401 with message", errors.WithStack(&clientError{Code: http.StatusUnauthorized, ErrorMessage: "Invalid"}), http.StatusUnauthorized, "Invalid"},
-		{"401 empty message", errors.WithStack(&clientError{Code: http.StatusUnauthorized}), http.StatusUnauthorized, "Unauthorized"},
-		{"403", errors.WithStack(&clientError{Code: http.StatusForbidden}), http.StatusForbidden, "Forbidden"},
-		{"404", errors.WithStack(&clientError{Code: http.StatusNotFound, ErrorMessage: "nf"}), http.StatusBadGateway, "Bad Gateway"},
-		{"500 upstream", errors.WithStack(&clientError{Code: http.StatusInternalServerError}), http.StatusBadGateway, "Bad Gateway"},
+		{"401 with message", &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Invalid"}, http.StatusUnauthorized, "Invalid"},
+		{"401 empty message", &clientError{Code: http.StatusUnauthorized}, http.StatusUnauthorized, "Unauthorized"},
+		{"403", &clientError{Code: http.StatusForbidden}, http.StatusForbidden, "Forbidden"},
+		{"404", &clientError{Code: http.StatusNotFound, ErrorMessage: "nf"}, http.StatusBadGateway, "Bad Gateway"},
+		{"500 upstream", &clientError{Code: http.StatusInternalServerError}, http.StatusBadGateway, "Bad Gateway"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -503,7 +503,7 @@ func TestClient(t *testing.T) {
 
 			u, err := c.getAuthUser(ctx, nil, l)
 			role := u.role
-			clientError, _ := errors.Cause(err).(*clientError) //nolint:errorlint
+			clientError, _ := errors.AsType[*clientError](err)
 			require.NotNil(t, clientError, "got role %s", role)
 			assert.Equal(t, 401, clientError.Code)
 
