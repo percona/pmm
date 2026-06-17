@@ -45,21 +45,12 @@ const (
 // sys.x$processlist is the machine-readable (raw) version of sys.processlist
 // (https://dev.mysql.com/doc/refman/8.4/en/sys-processlist.html); it exposes
 // the same columns but with unformatted numeric latencies.
-// We exclude background threads, idle ("Sleep") connections, the RTA agent's
-// own connection and rows without a current statement.
+// We select all columns so the complete row is preserved in the raw payload
+// (mirroring how the MongoDB RTA agent dumps the whole currentOp document), and
+// exclude background threads, idle ("Sleep") connections, the RTA agent's own
+// connection and rows without a current statement.
 const currentQueriesSQL = `
-SELECT
-    conn_id,
-    COALESCE(user, ''),
-    COALESCE(db, ''),
-    COALESCE(command, ''),
-    COALESCE(state, ''),
-    COALESCE(statement_latency, 0),
-    COALESCE(current_statement, ''),
-    COALESCE(rows_examined, 0),
-    COALESCE(rows_sent, 0),
-    COALESCE(full_scan, ''),
-    COALESCE(program_name, '')
+SELECT *
 FROM sys.x$processlist
 WHERE conn_id IS NOT NULL
   AND conn_id <> CONNECTION_ID()
@@ -203,6 +194,11 @@ func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, 
 		_ = rows.Close()
 	}()
 
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read processlist columns: %w", err)
+	}
+
 	collectTime := timestamppb.New(time.Now())
 
 	var results []*rtav1.QueryData
@@ -213,14 +209,13 @@ func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, 
 		default:
 		}
 
-		var r processlistRow
-		if err := rows.Scan(&r.connID, &r.user, &r.db, &r.command, &r.state, &r.latencyPicos,
-			&r.currentStmt, &r.rowsExamined, &r.rowsSent, &r.fullScan, &r.programName); err != nil {
+		row, err := scanRow(rows, columns)
+		if err != nil {
 			m.l.Warnf("Failed to scan processlist row: %v", err)
 			continue
 		}
 
-		queryData := m.buildQueryData(&r)
+		queryData := m.buildQueryData(row)
 		queryData.QueryCollectTime = collectTime
 
 		results = append(results, queryData)
@@ -234,50 +229,64 @@ func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, 
 	return results, nil
 }
 
-// processlistRow holds a single row scanned from sys.x$processlist.
-type processlistRow struct {
-	connID       uint64
-	user         string
-	db           string
-	command      string
-	state        string
-	latencyPicos float64
-	currentStmt  string
-	rowsExamined int64
-	rowsSent     int64
-	fullScan     string
-	programName  string
+// scanRow scans a single result row into a map keyed by column name. Values are
+// coerced to int64/float64 when numeric and to nil for SQL NULLs, so the raw
+// payload is human-readable JSON with native types.
+func scanRow(rows *sql.Rows, columns []string) (map[string]any, error) {
+	rawValues := make([]sql.RawBytes, len(columns))
+	scanArgs := make([]any, len(columns))
+	for i := range rawValues {
+		scanArgs[i] = &rawValues[i]
+	}
+
+	if err := rows.Scan(scanArgs...); err != nil {
+		return nil, err
+	}
+
+	row := make(map[string]any, len(columns))
+	for i, col := range columns {
+		row[col] = coerceValue(rawValues[i])
+	}
+
+	return row, nil
+}
+
+// coerceValue converts a raw column value into nil (NULL), int64, float64 or string.
+func coerceValue(b sql.RawBytes) any {
+	if b == nil {
+		return nil
+	}
+
+	s := string(b)
+	if i, err := strconv.ParseInt(s, 10, 64); err == nil {
+		return i
+	}
+	if f, err := strconv.ParseFloat(s, 64); err == nil {
+		return f
+	}
+
+	return s
 }
 
 // buildQueryData converts a single sys.x$processlist row into a *QueryData.
-func (m *MySQLRTA) buildQueryData(r *processlistRow) *rtav1.QueryData {
-	execDuration := durationpb.New(time.Duration(r.latencyPicos/picosecondsPerNanosecond) * time.Nanosecond)
+// The complete row is preserved in QueryRawJson; a curated subset is exposed
+// via the MySQL payload for the details view.
+func (m *MySQLRTA) buildQueryData(row map[string]any) *rtav1.QueryData {
+	execDuration := durationpb.New(time.Duration(mapFloat(row, "statement_latency")/picosecondsPerNanosecond) * time.Nanosecond)
 
 	mysqlPayload := &rtav1.QueryMySQLData{
 		DbInstanceAddress: m.dbInstanceAddress,
-		ProgramName:       r.programName,
-		DatabaseName:      r.db,
-		Command:           r.command,
-		State:             r.state,
-		Username:          r.user,
-		RowsExamined:      r.rowsExamined,
-		RowsSent:          r.rowsSent,
-		FullScan:          strings.EqualFold(r.fullScan, "YES"),
+		ProgramName:       mapString(row, "program_name"),
+		DatabaseName:      mapString(row, "db"),
+		Command:           mapString(row, "command"),
+		State:             mapString(row, "state"),
+		Username:          mapString(row, "user"),
+		RowsExamined:      mapInt(row, "rows_examined"),
+		RowsSent:          mapInt(row, "rows_sent"),
+		FullScan:          strings.EqualFold(mapString(row, "full_scan"), "YES"),
 	}
 
-	rawJSON, err := json.Marshal(map[string]any{
-		"conn_id":           r.connID,
-		"user":              r.user,
-		"db":                r.db,
-		"command":           r.command,
-		"state":             r.state,
-		"statement_latency": r.latencyPicos,
-		"current_statement": r.currentStmt,
-		"rows_examined":     r.rowsExamined,
-		"rows_sent":         r.rowsSent,
-		"full_scan":         r.fullScan,
-		"program_name":      r.programName,
-	})
+	rawJSON, err := json.MarshalIndent(row, "", "    ")
 	if err != nil {
 		m.l.Warnf("Failed to marshal raw query data: %v", err)
 	}
@@ -285,13 +294,57 @@ func (m *MySQLRTA) buildQueryData(r *processlistRow) *rtav1.QueryData {
 	return &rtav1.QueryData{
 		ServiceId:              m.serviceID,
 		ServiceName:            m.serviceName,
-		QueryId:                strconv.FormatUint(r.connID, 10),
-		QueryText:              r.currentStmt,
+		QueryId:                mapString(row, "conn_id"),
+		QueryText:              mapString(row, "current_statement"),
 		QueryRawJson:           string(rawJSON),
 		QueryExecutionDuration: execDuration,
 		Payload: &rtav1.QueryData_MySqlPayload{
 			MySqlPayload: mysqlPayload,
 		},
+	}
+}
+
+// mapString reads a column from the row as a string regardless of its scanned type.
+func mapString(row map[string]any, key string) string {
+	switch v := row[key].(type) {
+	case string:
+		return v
+	case int64:
+		return strconv.FormatInt(v, 10)
+	case float64:
+		return strconv.FormatFloat(v, 'f', -1, 64)
+	default:
+		return ""
+	}
+}
+
+// mapInt reads a column from the row as an int64.
+func mapInt(row map[string]any, key string) int64 {
+	switch v := row[key].(type) {
+	case int64:
+		return v
+	case float64:
+		return int64(v)
+	case string:
+		i, _ := strconv.ParseInt(v, 10, 64)
+		return i
+	default:
+		return 0
+	}
+}
+
+// mapFloat reads a column from the row as a float64.
+func mapFloat(row map[string]any, key string) float64 {
+	switch v := row[key].(type) {
+	case float64:
+		return v
+	case int64:
+		return float64(v)
+	case string:
+		f, _ := strconv.ParseFloat(v, 64)
+		return f
+	default:
+		return 0
 	}
 }
 
