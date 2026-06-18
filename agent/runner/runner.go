@@ -19,13 +19,14 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
+	"errors"
+	"fmt"
 	"net/url"
 	"runtime/pprof"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/semaphore"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -249,7 +250,7 @@ func createTokenFromDSN(dsn string) (string, error) {
 	}
 	u, err := url.Parse(dsn)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to parse DSN")
+		return "", fmt.Errorf("failed to parse DSN: %w", err)
 	}
 
 	host := u.Host

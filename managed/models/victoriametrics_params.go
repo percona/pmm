@@ -16,12 +16,12 @@
 package models
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"strings"
 
 	config "github.com/percona/promconfig"
-	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 )
 
@@ -69,7 +69,7 @@ func NewVictoriaMetricsParams(basePath string, vmURL string) (*VictoriaMetricsPa
 func (vmp *VictoriaMetricsParams) UpdateParams() error {
 	err := vmp.loadVMAlertParams()
 	if err != nil {
-		return errors.Wrap(err, "cannot update VMAlertFlags config param")
+		return fmt.Errorf("cannot update VMAlertFlags config param: %w", err)
 	}
 
 	return nil
@@ -80,7 +80,7 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 	buf, err := os.ReadFile(vmp.BaseConfigPath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			return errors.Wrap(err, "cannot read baseConfigPath for VMAlertParams")
+			return fmt.Errorf("cannot read baseConfigPath for VMAlertParams: %w", err)
 		}
 		// fast return if users configuration doesn't exist with path
 		// /srv/prometheus/prometheus.base.yml,
@@ -90,7 +90,7 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 	var cfg config.Config
 	err = yaml.Unmarshal(buf, &cfg)
 	if err != nil {
-		return errors.Wrap(err, "cannot unmarshal baseConfigPath for VMAlertFlags")
+		return fmt.Errorf("cannot unmarshal baseConfigPath for VMAlertFlags: %w", err)
 	}
 	vmalertFlags := make([]string, 0, len(vmp.VMAlertFlags))
 	for _, r := range cfg.RuleFiles {

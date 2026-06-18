@@ -18,9 +18,9 @@ package tlshelpers
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/pkg/errors"
 )
 
 // RegisterMySQLCerts is used for register TLS config before sql.Open is called.
@@ -38,7 +38,7 @@ func RegisterMySQLCerts(files map[string]string, tlsSkipVerify bool) error {
 	if files["tlsCert"] != "" && files["tlsKey"] != "" {
 		cert, err := tls.X509KeyPair([]byte(files["tlsCert"]), []byte(files["tlsKey"]))
 		if err != nil {
-			return errors.Wrap(err, "register MySQL client cert failed")
+			return fmt.Errorf("register MySQL client cert failed: %w", err)
 		}
 
 		certs = append(certs, cert)
@@ -55,7 +55,7 @@ func RegisterMySQLCerts(files map[string]string, tlsSkipVerify bool) error {
 
 	err := mysql.RegisterTLSConfig("custom", tlsConfig)
 	if err != nil {
-		return errors.Wrap(err, "register MySQL CA cert failed")
+		return fmt.Errorf("register MySQL CA cert failed: %w", err)
 	}
 
 	return nil
