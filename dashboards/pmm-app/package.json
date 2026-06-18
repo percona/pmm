@@ -46,7 +46,7 @@
     "@openfeature/web-sdk": "^1.4.0",
     "@tippyjs/react": "^4.2.6",
     "antd": "^5.19.2",
-    "axios": "^1.13.5",
+    "axios": "^1.16.0",
     "chart.js": "^3.7.0",
     "chartjs-plugin-datalabels": "^2.0.0",
     "d3": "^7.9.0",
@@ -71,11 +71,11 @@
     "sql-formatter": "^2.3.3",
     "tippy.js": "^6.3.7",
     "tslib": "2.5.3",
-    "uuid": "^8.3.0",
+    "uuid": "^14.0.0",
     "yaml": "^1.10.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.21.4",
+    "@babel/core": "^7.29.6",
     "@babel/preset-env": "^7.21.4",
     "@grafana/eslint-config": "^7.0.0",
     "@grafana/tsconfig": "^1.2.0-rc1",
