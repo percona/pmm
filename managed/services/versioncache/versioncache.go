@@ -18,9 +18,10 @@ package versioncache
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -117,7 +118,7 @@ func (s *Service) findServiceForUpdate() (*service, error) {
 			return err
 		}
 		if len(pmmAgents) == 0 {
-			return errors.Errorf("pmmAgent not found for service")
+			return errors.New("pmmAgent not found for service")
 		}
 
 		results.PMMAgentID = pmmAgents[0].AgentID
@@ -155,7 +156,7 @@ func (s *Service) updateVersionsForNextService() (time.Duration, error) {
 
 	softwareList := serviceForUpdate.BackupSoftwareList
 	if len(softwareList) == 0 {
-		return minCheckInterval, errors.Wrapf(ErrInvalidArgument, "no required software found for service type %q", serviceForUpdate.ServiceType)
+		return minCheckInterval, fmt.Errorf("no required software found for service type %q: %w", serviceForUpdate.ServiceType, ErrInvalidArgument)
 	}
 
 	versions, err := s.v.GetVersions(serviceForUpdate.PMMAgentID, softwareList)
@@ -163,7 +164,7 @@ func (s *Service) updateVersionsForNextService() (time.Duration, error) {
 		return minCheckInterval, err
 	}
 	if len(versions) != len(softwareList) {
-		return minCheckInterval, errors.Errorf("slices length mismatch: versions len %d != softwares len %d",
+		return minCheckInterval, fmt.Errorf("slices length mismatch: versions len %d != softwares len %d",
 			len(versions), len(softwareList))
 	}
 
