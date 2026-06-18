@@ -146,6 +146,22 @@ export const Body: Story = {
   render: (args) => <Typography variant={args.variant}>{args.children}</Typography>,
 };
 
+/* ── Code ─────────────────────────────────────────── */
+
+const codeSample = "SELECT * FROM users WHERE email LIKE '%@percona.com%' LIMIT 50;";
+
+export const CodeShowcase: Story = {
+  tags: ['!dev'],
+  render: () => (
+    <div style={stackStyle}>
+      <div>
+        <span style={labelStyle}>code</span>
+        <Typography variant="code">{codeSample}</Typography>
+      </div>
+    </div>
+  ),
+};
+
 /* ── Inline code ─────────────────────────────────── */
 
 export const InlineCode: Story = {

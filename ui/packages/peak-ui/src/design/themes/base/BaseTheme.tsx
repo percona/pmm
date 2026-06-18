@@ -22,7 +22,14 @@ declare module '@mui/material/styles' {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface Palette extends PaletteOptions {}
+  interface Palette extends PaletteOptions {
+    dividers: {
+      divider: string;
+      dividerStrong: string;
+      dividerStronger: string;
+      contour: string;
+    };
+  }
   interface SimplePaletteColorOptions {
     surface?: string;
     hover?: string;
@@ -49,6 +56,7 @@ declare module '@mui/material/styles' {
   }
 
   interface TypographyVariants {
+    code: React.CSSProperties;
     sectionHeading: React.CSSProperties;
     subHead1: React.CSSProperties;
     subHead2: React.CSSProperties;
@@ -59,6 +67,7 @@ declare module '@mui/material/styles' {
   }
 
   interface TypographyVariantsOptions {
+    code?: React.CSSProperties;
     sectionHeading: React.CSSProperties;
     subHead1: React.CSSProperties;
     subHead2: React.CSSProperties;
@@ -85,6 +94,7 @@ declare module '@mui/material/styles' {
 
 declare module '@mui/material/Typography' {
   interface TypographyPropsVariantOverrides {
+    code: true;
     sectionHeading: true;
     subHead1: true;
     subHead2: true;
@@ -109,6 +119,16 @@ declare module '@mui/material/Paper' {
 
 const fontDisplay =
   "'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
+
+const fontMonospace =
+  '"Roboto Mono", ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Monaco, Consolas, "Cascadia Mono", "DejaVu Sans Mono", "Liberation Mono", monospace';
+
+// Shared code typography identity. Consumers own font-size and line-height (context-dependent).
+const codeTypography: React.CSSProperties = {
+  fontFamily: fontMonospace,
+  fontWeight: 450,
+  letterSpacing: 0,
+};
 
 // Color Primitives — Shared across all themes (Figma: primary / tech / extra / pure)
 export const primitives = {
@@ -540,6 +560,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       },
     },
     typography: {
+      code: codeTypography,
       h1: {
         fontFamily: fontDisplay,
         fontWeight: 600,
@@ -721,9 +742,8 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiCssBaseline: {
         styleOverrides: {
           'code:not(pre code)': {
-            fontFamily: '"Roboto Mono", "Courier New", monospace',
+            ...codeTypography,
             fontSize: '0.875em',
-            fontWeight: 450,
             color: tokens.text.secondary,
             backgroundColor: tokens.action.hover,
             border: `1px solid ${tokens.lines.contour}`,

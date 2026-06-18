@@ -9,10 +9,10 @@ import type { CodeBlockProps, CodeColorScheme } from './code-block.types';
 
 const preSx = (copyable: boolean, highlighted: boolean) => (theme: Theme) => ({
   margin: 0,
-  fontFamily: '"Roboto Mono", "Courier New", monospace',
+  ...theme.typography.code,
   fontSize: '0.875rem',
-  lineHeight: 1.6,
-  border: `1px solid ${theme.palette.dividers?.divider ?? theme.palette.divider}`,
+  lineHeight: 1.5,
+  border: `1px solid ${theme.palette.dividers?.contour ?? theme.palette.divider}`,
   borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(2),
   paddingRight: copyable ? theme.spacing(7) : theme.spacing(2),
