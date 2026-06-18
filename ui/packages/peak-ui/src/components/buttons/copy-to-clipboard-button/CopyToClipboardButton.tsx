@@ -10,7 +10,7 @@ const CopyToClipboardButton = ({
   buttonProps,
   iconSx,
   showCopyButtonText,
-  copyCommand = 'Copy command',
+  copyCommand = 'Copy code',
 }: CopyToClipboardButtonProps) => {
   const [open, setOpen] = useState(false);
   const clipboardAvailable = !!navigator.clipboard;

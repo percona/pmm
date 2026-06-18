@@ -7,22 +7,19 @@ import type { PrismTheme } from 'prism-react-renderer';
 import CopyToClipboardButton from '../buttons/copy-to-clipboard-button';
 import type { CodeBlockProps, CodeColorScheme } from './code-block.types';
 
-const preSx = (copyable: boolean, highlighted: boolean) => (theme: Theme) => ({
+// Background and text color always come from the prism scheme (applied via the inline `style`),
+// so every block — highlighted or plain — shares the picked scheme's canvas.
+const preSx = (wrap: boolean) => (theme: Theme) => ({
   margin: 0,
   ...theme.typography.code,
   fontSize: '0.875rem',
   lineHeight: 1.5,
   border: `1px solid ${theme.palette.dividers?.contour ?? theme.palette.divider}`,
-  borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(2),
-  paddingRight: copyable ? theme.spacing(7) : theme.spacing(2),
-  overflowX: 'auto',
-  ...(highlighted
-    ? {}
-    : {
-        color: theme.palette.text.primary,
-        backgroundColor: theme.palette.surfaces?.low ?? theme.palette.background.paper,
-      }),
+  borderRadius: '5px',
+  padding: theme.spacing(1.25, 1.5),
+  ...(wrap
+    ? { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }
+    : { overflowX: 'auto' }),
 });
 
 const resolveScheme = (
@@ -30,7 +27,7 @@ const resolveScheme = (
   mode: Theme['palette']['mode']
 ): PrismTheme => {
   if (colorScheme == null) {
-    return mode === 'dark' ? themes.vsDark : themes.github;
+    return mode === 'dark' ? themes.okaidia : themes.nightOwlLight;
   }
   return typeof colorScheme === 'string' ? themes[colorScheme] : colorScheme;
 };
@@ -44,6 +41,7 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
       value,
       language,
       colorScheme,
+      wrap = false,
       sx,
       ...rest
     },
@@ -52,9 +50,20 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
     const theme = useTheme();
     const codeText = value ?? (typeof content === 'string' ? content : '');
     const highlighted = !!language && !!codeText;
+    const prismTheme = resolveScheme(colorScheme, theme.palette.mode);
 
     const copyButton = copyable && (
-      <Box sx={{ position: 'absolute', top: 4, right: 4 }}>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 2,
+          right: 2,
+          display: 'flex',
+          // Knock the scrolling code out from behind the button using the block's own surface
+          borderRadius: showCopyButtonText ? 1.5 : '50%',
+          backgroundColor: prismTheme.plain.backgroundColor,
+        }}
+      >
         <CopyToClipboardButton
           textToCopy={value ?? codeText}
           showCopyButtonText={showCopyButtonText}
@@ -64,8 +73,6 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
     );
 
     if (highlighted) {
-      const prismTheme = resolveScheme(colorScheme, theme.palette.mode);
-
       return (
         <Box sx={{ position: 'relative' }}>
           <Highlight code={codeText.replace(/\n$/, '')} language={language} theme={prismTheme}>
@@ -74,7 +81,7 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
                 ref={ref}
                 component="pre"
                 style={style}
-                sx={[preSx(copyable, true), ...(Array.isArray(sx) ? sx : [sx])]}
+                sx={[preSx(wrap), ...(Array.isArray(sx) ? sx : [sx])]}
                 {...rest}
               >
                 <code>
@@ -102,7 +109,8 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
         <Box
           ref={ref}
           component="pre"
-          sx={[preSx(copyable, false), ...(Array.isArray(sx) ? sx : [sx])]}
+          style={prismTheme.plain}
+          sx={[preSx(wrap), ...(Array.isArray(sx) ? sx : [sx])]}
           {...rest}
         >
           <code>{content}</code>

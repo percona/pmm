@@ -31,4 +31,5 @@ export type CodeBlockProps = Omit<BoxProps<'pre'>, 'component' | 'children'> & {
   value?: string;
   language?: string;
   colorScheme?: CodeColorScheme | PrismTheme;
+  wrap?: boolean;
 };
