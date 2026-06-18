@@ -16,9 +16,10 @@
 package models
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -80,14 +81,14 @@ func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, erro
 	case errors.Is(err, reform.ErrNoRows):
 		break
 	default:
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	// Add user entry
 	row = &UserDetails{ID: params.UserID}
 	err = q.Insert(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create user")
+		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
 	return row, nil
@@ -122,7 +123,7 @@ func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, erro
 
 	err = q.Update(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to update user")
+		return nil, fmt.Errorf("failed to update user: %w", err)
 	}
 
 	return row, nil
@@ -140,7 +141,7 @@ func FindUser(q *reform.Querier, userID int) (*UserDetails, error) {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, ErrNotFound
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return row, nil

@@ -16,11 +16,12 @@
 package models
 
 import (
+	"errors"
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
@@ -73,7 +74,7 @@ func FindRestoreHistoryItems(q *reform.Querier, filters RestoreHistoryItemFilter
 	}
 	rows, err := q.SelectAllFrom(RestoreHistoryItemTable, whereClause+" ORDER BY started_at DESC", args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select restore history")
+		return nil, fmt.Errorf("failed to select restore history: %w", err)
 	}
 
 	items := make([]*RestoreHistoryItem, 0, len(rows))
@@ -94,9 +95,9 @@ func FindRestoreHistoryItemByID(q *reform.Querier, id string) (*RestoreHistoryIt
 	err := q.Reload(item)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, errors.Wrapf(ErrNotFound, "restore history item by id '%s'", id)
+			return nil, fmt.Errorf("restore history item by id '%s': %w", id, ErrNotFound)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return item, nil
@@ -133,10 +134,10 @@ func CreateRestoreHistoryItem(q *reform.Querier, params CreateRestoreHistoryItem
 	_, err = FindRestoreHistoryItemByID(q, id)
 	switch {
 	case err == nil:
-		return nil, errors.Errorf("restore history item with id '%s' already exists", id)
+		return nil, fmt.Errorf("restore history item with id '%s' already exists", id)
 	case errors.Is(err, ErrNotFound):
 	default:
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	row := &RestoreHistoryItem{
@@ -148,7 +149,7 @@ func CreateRestoreHistoryItem(q *reform.Querier, params CreateRestoreHistoryItem
 	}
 	err = q.Insert(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to insert restore history item")
+		return nil, fmt.Errorf("failed to insert restore history item: %w", err)
 	}
 
 	return row, nil
@@ -178,7 +179,7 @@ func ChangeRestoreHistoryItem(
 
 	err = q.Update(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to update restore history item")
+		return nil, fmt.Errorf("failed to update restore history item: %w", err)
 	}
 
 	return row, nil
@@ -193,7 +194,7 @@ func RemoveRestoreHistoryItem(q *reform.Querier, id string) error {
 
 	err = q.Delete(&RestoreHistoryItem{ID: id})
 	if err != nil {
-		return errors.Wrapf(err, "failed to remove restore history item by id '%s'", id)
+		return fmt.Errorf("failed to remove restore history item by id '%s': %w", id, err)
 	}
 	return nil
 }
