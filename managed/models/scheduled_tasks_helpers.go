@@ -16,12 +16,12 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/robfig/cron/v3"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -38,9 +38,9 @@ func FindScheduledTaskByID(q *reform.Querier, id string) (*ScheduledTask, error)
 	err := q.Reload(res)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, errors.Wrapf(ErrNotFound, "couldn't get scheduled task with ID %q", id)
+			return nil, fmt.Errorf("couldn't get scheduled task with ID %q: %w", id, ErrNotFound)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return res, nil
@@ -184,7 +184,7 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 
 	err = checkUniqueScheduledTaskName(q, newName)
 	if err != nil {
-		return nil, errors.Wrapf(err, "couldn't create task with name %s", newName)
+		return nil, fmt.Errorf("couldn't create task with name %s: %w", newName, err)
 	}
 
 	id := uuid.New().String()
@@ -204,7 +204,7 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 	}
 	err = q.Insert(task)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return task, nil
 }
@@ -273,7 +273,7 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 		if newName != oldName {
 			err = checkUniqueScheduledTaskName(q, newName)
 			if err != nil {
-				return nil, errors.Wrapf(err, "couldn't change task name to %s", newName)
+				return nil, fmt.Errorf("couldn't change task name to %s: %w", newName, err)
 			}
 		}
 
@@ -290,7 +290,7 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 
 	err = q.Update(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to update scheduled task")
+		return nil, fmt.Errorf("failed to update scheduled task: %w", err)
 	}
 
 	return row, nil
@@ -304,7 +304,7 @@ func RemoveScheduledTask(q *reform.Querier, id string) error {
 	}
 	err = q.Delete(&ScheduledTask{ID: id})
 	if err != nil {
-		return errors.Wrap(err, "failed to delete scheduled task")
+		return fmt.Errorf("failed to delete scheduled task: %w", err)
 	}
 
 	return nil
@@ -321,7 +321,7 @@ func checkUniqueScheduledTaskID(q *reform.Querier, id string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Scheduled task with ID %q already exists.", id)
@@ -405,9 +405,9 @@ func (s *ScheduledTask) CommonBackupData() (*CommonBackupTaskData, error) {
 				return &s.Data.MongoDBBackupTask.CommonBackupTaskData, nil
 			}
 		default:
-			return nil, errors.Errorf("invalid backup type %s of scheduled task %s", s.Type, s.ID)
+			return nil, fmt.Errorf("invalid backup type %s of scheduled task %s", s.Type, s.ID)
 		}
 	}
 
-	return nil, errors.Errorf("empty backup data of scheduled task %s", s.ID)
+	return nil, fmt.Errorf("empty backup data of scheduled task %s", s.ID)
 }
