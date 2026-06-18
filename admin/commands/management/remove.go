@@ -15,7 +15,7 @@
 package management
 
 import (
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
