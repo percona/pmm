@@ -16,7 +16,6 @@
 package agents
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -103,7 +102,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	if autoDiscovery {
 		args = append(args,
 			"--auto-discover-databases",
-			fmt.Sprintf("--exclude-databases=%s", strings.Join(postgresExcludedDatabases(), ",")))
+			"--exclude-databases="+strings.Join(postgresExcludedDatabases(), ","))
 	}
 
 	if !pmmAgentVersion.Less(postgresMaxExporterConnsVersion) &&
@@ -118,7 +117,11 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	args = collectors.FilterOutCollectors("--collect.", args, exporter.ExporterOptions.DisabledCollectors)
 
 	if !pmmAgentVersion.Less(postgresExporterCollectorsVersion) {
-		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors("--no-collector.", defaultPostgresExporterCollectors, exporter.ExporterOptions.DisabledCollectors) //nolint:lll
+		disableCollectorArgs := collectors.DisableDefaultEnabledCollectors(
+			"--no-collector.",
+			defaultPostgresExporterCollectors,
+			exporter.ExporterOptions.DisabledCollectors,
+		)
 		args = append(args, disableCollectorArgs...)
 	}
 
@@ -140,7 +143,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, dsnParams, nil, pmmAgentVersion)),
+			"DATA_SOURCE_NAME=" + exporter.DSN(service, dsnParams, nil, pmmAgentVersion),
 		},
 		TextFiles: exporter.Files(),
 	}
@@ -149,7 +152,8 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		res.RedactWords = redactWords(exporter)
 	}
 
-	if err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion, false); err != nil {
+	err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion, false)
+	if err != nil {
 		return nil, err
 	}
 
@@ -170,7 +174,11 @@ func postgresExporterDialTimeout(node *models.Node, exporter *models.Agent) time
 }
 
 // qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-postgresql-pgstatements-agent built-in agent.
-func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent { //nolint:lll
+func qanPostgreSQLPgStatementsAgentConfig(
+	service *models.Service,
+	agent *models.Agent,
+	pmmAgentVersion *version.Parsed,
+) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	dnsParams := models.DSNParams{
 		DialTimeout:              5 * time.Second,

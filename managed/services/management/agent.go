@@ -20,7 +20,6 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -273,7 +272,7 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 
 		serverVersion, err := version.Parse(version.PMMVersion)
 		if err != nil {
-			return errors.Wrap(err, fmt.Sprintf("could not parse the server version: %s", version.PMMVersion))
+			return fmt.Errorf("could not parse the server version '%s': %w", version.PMMVersion, err)
 		}
 
 		for _, agent := range agents {

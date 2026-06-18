@@ -62,6 +62,32 @@ func TestNextPrefix(t *testing.T) {
 	}
 }
 
+func TestResolveRule(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		method   string
+		path     string
+		wantRole role
+	}{
+		// Alerting: only listing templates is viewable; writes need editor.
+		{http.MethodGet, "/v1/alerting/templates", viewer},        // ListTemplates
+		{http.MethodPost, "/v1/alerting/templates", editor},       // CreateTemplate
+		{http.MethodPut, "/v1/alerting/templates/foo", editor},    // UpdateTemplate
+		{http.MethodDelete, "/v1/alerting/templates/foo", editor}, // DeleteTemplate
+		{http.MethodPost, "/v1/alerting/rules", editor},           // CreateRule
+		// No matching rule falls back to grafanaAdmin.
+		{http.MethodGet, "/v1/unknown", grafanaAdmin},
+	} {
+		t.Run(fmt.Sprintf("%s %s", tc.method, tc.path), func(t *testing.T) {
+			t.Parallel()
+
+			got, _ := resolveRule(tc.method, tc.path, logrus.WithField("test", t.Name()))
+			assert.Equal(t, tc.wantRole, got)
+		})
+	}
+}
+
 func TestAuthServerAuthenticate(t *testing.T) {
 	t.Parallel()
 
@@ -119,7 +145,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 				if minRole <= role {
 					assert.Nil(t, res)
 				} else {
-					assert.Equal(t, &authError{code: codes.PermissionDenied, message: "Access denied."}, res)
+					assert.Equal(t, &authError{code: codes.PermissionDenied, message: "Access denied"}, res)
 				}
 			})
 		}
@@ -174,7 +200,7 @@ func TestServerClientConnection(t *testing.T) {
 
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
 		require.NoError(t, err)
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
+		req.Header.Set("Authorization", "Bearer "+serviceToken)
 
 		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 		assert.Nil(t, authError)

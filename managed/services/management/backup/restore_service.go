@@ -18,8 +18,8 @@ package backup
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -221,7 +221,8 @@ func (s *RestoreService) RestoreBackup(ctx context.Context, req *backupv1.Restor
 		}
 
 		if disablePITR {
-			if err := s.backupService.SwitchMongoPITR(ctx, serviceID, false); err != nil {
+			err := s.backupService.SwitchMongoPITR(ctx, serviceID, false)
+			if err != nil {
 				s.l.WithError(err).Error("failed to disable PITR")
 			}
 		}
@@ -247,7 +248,7 @@ func convertRestoreStatus(status models.RestoreStatus) (*backupv1.RestoreStatus,
 	case models.ErrorRestoreStatus:
 		s = backupv1.RestoreStatus_RESTORE_STATUS_ERROR
 	default:
-		return nil, errors.Errorf("invalid status '%s'", status)
+		return nil, fmt.Errorf("invalid status '%s'", status)
 	}
 
 	return &s, nil
@@ -261,36 +262,39 @@ func convertRestoreHistoryItem(
 	locations map[string]*models.BackupLocation,
 ) (*backupv1.RestoreHistoryItem, error) {
 	startedAt := timestamppb.New(i.StartedAt)
-	if err := startedAt.CheckValid(); err != nil {
-		return nil, errors.Wrap(err, "failed to convert startedAt timestamp")
+	err := startedAt.CheckValid()
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert startedAt timestamp: %w", err)
 	}
 
 	var finishedAt *timestamppb.Timestamp
 	if i.FinishedAt != nil {
 		finishedAt = timestamppb.New(*i.FinishedAt)
-		if err := finishedAt.CheckValid(); err != nil {
-			return nil, errors.Wrap(err, "failed to convert finishedAt timestamp")
+		err = finishedAt.CheckValid()
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert finishedAt timestamp: %w", err)
 		}
 	}
 
 	var pitrTimestamp *timestamppb.Timestamp
 	if i.PITRTimestamp != nil {
 		pitrTimestamp = timestamppb.New(*i.PITRTimestamp)
-		if err := pitrTimestamp.CheckValid(); err != nil {
-			return nil, errors.Wrap(err, "failed to convert PITR timestamp")
+		err = pitrTimestamp.CheckValid()
+		if err != nil {
+			return nil, fmt.Errorf("failed to convert PITR timestamp: %w", err)
 		}
 	}
 
 	artifact, ok := artifacts[i.ArtifactID]
 	if !ok {
-		return nil, errors.Errorf(
+		return nil, fmt.Errorf(
 			"failed to convert restore history item with id '%s': no artifact id '%s' in the map", i.ID, i.ArtifactID,
 		)
 	}
 
 	l, ok := locations[artifact.LocationID]
 	if !ok {
-		return nil, errors.Errorf(
+		return nil, fmt.Errorf(
 			"failed to convert restore history item with id '%s': no location id '%s' in the map",
 			i.ID, artifact.LocationID,
 		)
@@ -298,19 +302,19 @@ func convertRestoreHistoryItem(
 
 	s, ok := services[i.ServiceID]
 	if !ok {
-		return nil, errors.Errorf(
+		return nil, fmt.Errorf(
 			"failed to convert restore history item with id '%s': no service id '%s' in the map", i.ID, i.ServiceID,
 		)
 	}
 
 	dm, err := convertDataModel(artifact.DataModel)
 	if err != nil {
-		return nil, errors.Wrapf(err, "restore history item id '%s'", i.ID)
+		return nil, fmt.Errorf("restore history item id '%s': %w", i.ID, err)
 	}
 
 	status, err := convertRestoreStatus(i.Status)
 	if err != nil {
-		return nil, errors.Wrapf(err, "restore history item id '%s'", i.ID)
+		return nil, fmt.Errorf("restore history item id '%s': %w", i.ID, err)
 	}
 
 	return &backupv1.RestoreHistoryItem{
