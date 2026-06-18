@@ -28,7 +28,7 @@ const meta: Meta<CodeBlockProps> = {
         component: [
           'Multi-line code block rendered as semantic `<pre><code>`. Theme-aware across light/dark and the base/pmm/sep themes. Pass `copyable` to show a copy button that reuses `CopyToClipboardButton`. Extends MUI `BoxProps`.',
           '',
-          'Set `language` to enable syntax highlighting (SQL, JS, YAML, …). Highlighting is powered by `prism-react-renderer`. Pick a `colorScheme` (defaults to GitHub in light mode, VS Dark in dark mode).',
+          'Set `language` to enable syntax highlighting (SQL, JS, YAML, etc.). Highlighting is powered by `prism-react-renderer`. With no `colorScheme` set it follows the color mode (nightOwlLight in light, okaidia in dark). In that logic, chosing a `colorScheme` locks it, regardless of the chosen light/dark mode.',
         ].join('\n'),
       },
       page: () => (
@@ -93,11 +93,13 @@ const meta: Meta<CodeBlockProps> = {
         'vsLight',
       ],
       description:
-        'Highlighting color scheme. **Only applies when `language` is set.** Defaults to `github` (light mode) / `vsDark` (dark mode). Accepts a custom `PrismTheme` object too.',
+        'Highlighting color scheme. **Only applies when `language` is set.** Defaults to `nightOwlLight` (light mode) / `okaidia` (dark mode). Accepts a custom `PrismTheme` object too.',
     },
-    sx: {
-      control: false,
-      description: 'MUI System prop for style overrides.',
+    wrap: {
+      control: 'boolean',
+      description:
+        'Wrap long lines instead of scrolling. Defaults to `false`, where lines longer than the container overflow horizontally with a scrollbar.',
+      table: { defaultValue: { summary: 'false' } },
     },
   },
   args: {
@@ -122,14 +124,13 @@ export const Playground: Story = {
     docs: {
       description: {
         story:
-          'Highlighted by default so the `colorScheme` control is visible — change it to see GitHub, Dracula, and the rest. Clear `language` to fall back to a plain block.',
+          'Highlighted by default. With no `colorScheme` selected it follows the color mode (nightOwlLight in light, okaidia in dark) — toggle the Storybook light/dark control to see it switch. Pick a `colorScheme` to pin a specific one, or clear `language` for a plain block.',
       },
     },
   },
   args: {
     content: SQL_SAMPLE,
     language: 'sql',
-    colorScheme: 'github',
     copyable: true,
   },
 };
@@ -171,7 +172,7 @@ export const Highlighted: Story = {
     docs: {
       description: {
         story:
-          'Set `language` to syntax-highlight. The default scheme follows the color mode (GitHub in light, VS Dark in dark).',
+          'Set `language` to syntax-highlight. The default scheme follows the color mode (GitHub in light, Okaidia in dark).',
       },
     },
   },
@@ -236,12 +237,29 @@ export const Overflowing: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Lines longer than the container scroll horizontally rather than wrapping.',
+        story:
+          'Default behavior: lines longer than the container scroll horizontally rather than wrapping. Set `wrap` to make them wrap instead.',
       },
     },
   },
   args: {
     copyable: true,
+    content:
+      "kubectl get pods --all-namespaces -o jsonpath=\"{range .items[*]}{.metadata.name}{'\\t'}{.status.phase}{'\\n'}{end}\"",
+  },
+};
+
+export const Wrapped: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Set `wrap` so long lines wrap to the next line instead of scrolling horizontally.',
+      },
+    },
+  },
+  args: {
+    copyable: true,
+    wrap: true,
     content:
       "kubectl get pods --all-namespaces -o jsonpath=\"{range .items[*]}{.metadata.name}{'\\t'}{.status.phase}{'\\n'}{end}\"",
   },
