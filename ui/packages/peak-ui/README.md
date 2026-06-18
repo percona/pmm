@@ -4,8 +4,6 @@
 
 Browse the components in [Storybook](https://percona.github.io/percona-ui/).
 
-Licensed under AGPL-3.0-or-later.
-
 ## Usage
 
 Install the package and its peer dependencies:
