@@ -62,7 +62,6 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     muiTableBodyProps,
     muiDetailPanelProps,
     muiTableContainerProps,
-    tableInstanceRef,
     ...rest
   } = props;
   const [columnVisibility, setColumnVisibility] = usePersistentColumnVisibility(tableName);
