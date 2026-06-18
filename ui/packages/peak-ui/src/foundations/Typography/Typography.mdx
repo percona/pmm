@@ -31,8 +31,12 @@ Text styles used within interactive components like buttons, menus, and form ele
 
 <Canvas of={TypographyStories.ComponentStylesShowcase} sourceState="none" />
 
-## Inline code
+## Code
 
-Inline code is used to highlight code snippets within text. It is styled to be easy to read and follow, and is used for code snippets within text.
+The `code` style is the centralized monospace identity (font-family, weight, letter-spacing) shared by all code surfaces. Size and line-height are left to each consumer, since they are context-dependent and mostly used inline. For code snippets, use the `CodeBlock` component.
+
+<Canvas of={TypographyStories.CodeShowcase} sourceState="none" />
+
+Inline code can used to highlight code snippets within text.
 
 <Canvas of={TypographyStories.InlineCode} sourceState="none" />
