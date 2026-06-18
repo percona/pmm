@@ -26,17 +26,12 @@ Query Analytics offers two ways to analyze queries:
 | **Query details** | Raw operation data from `db.currentOp()` (no aggregation, grouping, or processing) | Aggregated metrics and query fingerprints |
 | **Best for** | "What's slowing down my database right now?" | "Which queries should I optimize?" |
 
-### Requirements for Profiler
+### Query Analytics requirements by query source
 
-    - Profiling enabled for Query Analytics
-    - Appropriate user roles: `clusterMonitor`, `read` (local), and custom monitoring roles. For MongoDB 8.0+: Additional `directShardOperations` role required for sharded clusters
+See [QAN Stored metrics](QAN-stored-metrics.md#supported-databases) for per-database requirements. Setup details are in the install guides:
 
-    ### Requirements for Mongolog
-
-    - MongoDB configured to log slow operations to a file
-    - MongoDB server has write permissions to the log directory and file
-    - PMM agent has read permissions to the MongoDB log file
-    - Appropriate user roles: `clusterMonitor`, or custom monitoring roles (`getCmdLineOpts` privilege on `{ cluster: true }`)
+- [MongoDB](../../install-pmm/install-pmm-client/connect-database/mongodb.md#prerequisites)
+- [MySQL](../../install-pmm/install-pmm-client/connect-database/mysql/mysql.md#prerequisites)
 
 ## Dashboard components
 Query Analytics displays metrics in both visual and numeric form. Performance-related characteristics appear as plotted graphics with summaries.

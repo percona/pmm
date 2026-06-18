@@ -238,7 +238,7 @@ Once PMM is set up, choose the database or the application that you want it to m
     To connect a MongoDB database:
     { .power-number}
     
-    1.  Run the following command in `mongo` shell to create a role with the monitoring permissions: 
+    1.  Run the following command in `mongo` shell to create a role with the permissions required for **metrics collection**:
  
         ```
         db.createRole({
@@ -252,15 +252,13 @@ Once PMM is set up, choose the database or the application that you want it to m
                {
                  "resource": { "db": "", "collection": "system.version" },
                  "actions": [ "find" ]
-               },
-               {
-                 "resource": { "db": "", "collection": "system.profile" },
-                 "actions": [ "dbStats", "collStats", "indexStats" ]
-               }                  
+               }
             ],
             "roles": []
         })
         ```
+
+        For Profiler QAN, also run `grantPrivilegesToRole` from [Step 1](../install-pmm/install-pmm-client/connect-database/mongodb.md#step-1-configure-query-analytics). For mongolog, configure log file access there instead.
 
     2. Create a user and grant it the role created above:
 
