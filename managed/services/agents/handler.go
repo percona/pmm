@@ -17,13 +17,13 @@ package agents
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"runtime/pprof"
 	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -107,7 +107,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 				err = agent.channel.Wait()
 				h.r.unregister(ctx, agent.id, disconnectReason)
 				if err != nil {
-					l.Error(errors.WithStack(err))
+					l.Error(err)
 				}
 				return nil
 			}
