@@ -6,7 +6,7 @@ Browse the components in [Storybook](https://percona.github.io/percona-ui/).
 
 ## Usage
 
-Install the package and its peer dependencies:
+Install the package and its peer dependencies (for date/time picker inputs, also install a date adapter such as `date-fns` and set up MUI X `LocalizationProvider`):
 
 ```bash
 pnpm add @percona/percona-ui \
