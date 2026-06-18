@@ -17,6 +17,8 @@ package jobs
 import (
 	"bytes"
 	"context"
+	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -27,7 +29,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -90,22 +91,22 @@ func (j *MySQLRestoreJob) DSN() string {
 // Run executes backup restore steps.
 func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
 	if j.locationConfig.S3Config == nil {
-		return errors.New("S3 config is not set")
+		return errors.New("s3 config is not set")
 	}
 
 	err := j.binariesInstalled()
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	_, _, err = mySQLUserAndGroupIDs()
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	tmpDir, err := os.MkdirTemp("", "backup-restore")
 	if err != nil {
-		return errors.Wrap(err, "cannot create temporary directory")
+		return fmt.Errorf("cannot create temporary directory: %w", err)
 	}
 	defer func() {
 		err := os.RemoveAll(tmpDir)
@@ -116,34 +117,34 @@ func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
 
 	mySQLServiceName, err := getMysqlServiceName(ctx)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	j.l.Debugf("Using MySQL service name: %s", mySQLServiceName)
 
 	err = j.restoreMySQLFromS3(ctx, tmpDir)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	active, err := mySQLActive(ctx, mySQLServiceName)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	if active {
 		err = stopMySQL(ctx, mySQLServiceName)
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 	}
 
 	err = restoreBackup(ctx, tmpDir, mySQLDirectory)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	err = startMySQL(ctx, mySQLServiceName)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	send(&agentv1.JobResult{
@@ -160,22 +161,22 @@ func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
 func (j *MySQLRestoreJob) binariesInstalled() error {
 	_, err := exec.LookPath(xtrabackupBin)
 	if err != nil {
-		return errors.Wrapf(err, "lookpath: %s", xtrabackupBin)
+		return fmt.Errorf("lookpath=%s: %w", xtrabackupBin, err)
 	}
 
 	_, err = exec.LookPath(xbcloudBin)
 	if err != nil {
-		return errors.Wrapf(err, "lookpath: %s", xbcloudBin)
+		return fmt.Errorf("lookpath=%s: %w", xbcloudBin, err)
 	}
 
 	_, err = exec.LookPath(xbstreamBin)
 	if err != nil {
-		return errors.Wrapf(err, "lookpath: %s", xbstreamBin)
+		return fmt.Errorf("lookpath=%s: %w", xbstreamBin, err)
 	}
 
 	_, err = exec.LookPath(qpressBin)
 	if err != nil {
-		return errors.Wrapf(err, "lookpath: %s", qpressBin)
+		return fmt.Errorf("lookpath=%s: %w", qpressBin, err)
 	}
 
 	return nil
@@ -206,7 +207,7 @@ func prepareRestoreCommands( //nolint:nonamedreturns
 
 	xbcloudStdout, err := xbcloudCmd.StdoutPipe()
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "failed to get xbcloud stdout pipe")
+		return nil, nil, fmt.Errorf("failed to get xbcloud stdout pipe: %w", err)
 	}
 
 	xbstreamCmd := exec.CommandContext( //nolint:gosec
@@ -247,22 +248,22 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 	}
 
 	wrapError := func(err error) error {
-		return errors.Wrapf(err, "stderr: %s\n stdout: %s\n", stderr.String(), stdout.String()) //nolint:revive
+		return fmt.Errorf("stderr: %s\n stdout: %s\n error: %w", stderr.String(), stdout.String(), err)
 	}
 
 	err = xbcloudCmd.Start()
 	if err != nil {
 		cancel()
-		return errors.Wrap(wrapError(err), "xbcloud start failed")
+		return fmt.Errorf("xbcloud start failed: %w", wrapError(err))
 	}
 	defer func() {
 		err := xbcloudCmd.Wait()
 		if err != nil {
 			cancel()
 			if rerr != nil {
-				rerr = errors.Wrapf(rerr, "xbcloud wait error: %s", err)
+				rerr = errors.Join(rerr, fmt.Errorf("xbcloud wait failed: %w", err))
 			} else {
-				rerr = errors.Wrap(wrapError(err), "xbcloud wait failed")
+				rerr = fmt.Errorf("xbcloud wait failed: %w", wrapError(err))
 			}
 		}
 	}()
@@ -270,16 +271,16 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 	err = xbstreamCmd.Start()
 	if err != nil {
 		cancel()
-		return errors.Wrap(wrapError(err), "xbstream start failed")
+		return fmt.Errorf("xbstream start failed: %w", wrapError(err))
 	}
 	defer func() {
 		err := xbstreamCmd.Wait()
 		if err != nil {
 			cancel()
 			if rerr != nil {
-				rerr = errors.Wrapf(rerr, "xbstream wait error: %s", err)
+				rerr = errors.Join(rerr, fmt.Errorf("xbstream wait failed: %w", err))
 			} else {
-				rerr = errors.Wrap(wrapError(err), "xbstream wait failed")
+				rerr = fmt.Errorf("xbstream wait failed: %w", wrapError(err))
 			}
 		}
 	}()
@@ -294,7 +295,7 @@ func mySQLActive(ctx context.Context, mySQLServiceName string) (bool, error) {
 	cmd := exec.CommandContext(ctx, "systemctl", "is-active", "--quiet", mySQLServiceName)
 	err := cmd.Start()
 	if err != nil {
-		return false, errors.Wrap(err, "starting systemctl is-active command failed")
+		return false, fmt.Errorf("starting systemctl is-active command failed: %w", err)
 	}
 
 	// systemctl is-active returns an exit code 0 if service is active, or non-zero otherwise
@@ -306,7 +307,7 @@ func mySQLActive(ctx context.Context, mySQLServiceName string) (bool, error) {
 	case errors.As(err, &exitError):
 		return false, nil
 	default:
-		return false, errors.WithStack(err)
+		return false, err
 	}
 }
 
@@ -317,10 +318,14 @@ func stopMySQL(ctx context.Context, mySQLServiceName string) error {
 	cmd := exec.CommandContext(ctx, "systemctl", "stop", mySQLServiceName)
 	err := cmd.Start()
 	if err != nil {
-		return errors.Wrap(err, "starting systemctl stop command failed")
+		return fmt.Errorf("starting systemctl stop command failed: %w", err)
 	}
 
-	return errors.Wrap(cmd.Wait(), "waiting systemctl stop command failed")
+	err = cmd.Wait()
+	if err != nil {
+		return fmt.Errorf("waiting systemctl stop command failed: %w", err)
+	}
+	return nil
 }
 
 func startMySQL(ctx context.Context, mySQLServiceName string) error {
@@ -330,10 +335,14 @@ func startMySQL(ctx context.Context, mySQLServiceName string) error {
 	cmd := exec.CommandContext(ctx, "systemctl", "start", mySQLServiceName)
 	err := cmd.Start()
 	if err != nil {
-		return errors.Wrap(err, "starting systemctl start command failed")
+		return fmt.Errorf("starting systemctl start command failed: %w", err)
 	}
 
-	return errors.Wrap(cmd.Wait(), "waiting systemctl start command failed")
+	err = cmd.Wait()
+	if err != nil {
+		return fmt.Errorf("waiting systemctl start command failed: %w", err)
+	}
+	return nil
 }
 
 func chownRecursive(path string, uid, gid int) error {
@@ -342,7 +351,7 @@ func chownRecursive(path string, uid, gid int) error {
 			return err
 		}
 
-		return errors.WithStack(os.Chown(name, uid, gid))
+		return os.Chown(name, uid, gid) //nolint:gosec
 	})
 }
 
@@ -350,22 +359,22 @@ func chownRecursive(path string, uid, gid int) error {
 func mySQLUserAndGroupIDs() (int, int, error) {
 	u, err := user.Lookup(mySQLSystemUserName)
 	if err != nil {
-		return 0, 0, errors.WithStack(err)
+		return 0, 0, err
 	}
 
 	uid, err := strconv.Atoi(u.Uid)
 	if err != nil {
-		return 0, 0, errors.WithStack(err)
+		return 0, 0, err
 	}
 
 	g, err := user.LookupGroup(mySQLSystemGroupName)
 	if err != nil {
-		return 0, 0, errors.WithStack(err)
+		return 0, 0, err
 	}
 
 	gid, err := strconv.Atoi(g.Gid)
 	if err != nil {
-		return 0, 0, errors.WithStack(err)
+		return 0, 0, err
 	}
 
 	return uid, gid, nil
@@ -379,14 +388,14 @@ func isPathExists(path string) (bool, error) {
 	case os.IsNotExist(err):
 		return false, nil
 	default:
-		return false, errors.WithStack(err)
+		return false, err
 	}
 }
 
 func getPermissions(path string) (os.FileMode, error) {
 	info, err := os.Stat(path)
 	if err != nil {
-		return 0, errors.Wrapf(err, "failed to get permissions for path: %s", path)
+		return 0, fmt.Errorf("failed to get permissions for path=%s: %w", path, err)
 	}
 	return info.Mode(), nil
 }
@@ -403,7 +412,7 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 		"--target-dir="+backupDirectory,
 	).CombinedOutput()
 	if err != nil {
-		return errors.Wrapf(err, "failed to decompress, output: %s", string(output))
+		return fmt.Errorf("failed to decompress, output=%s: %w", string(output), err)
 	}
 
 	output, err = exec.CommandContext( //nolint:gosec
@@ -413,22 +422,22 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 		"--target-dir="+backupDirectory,
 	).CombinedOutput()
 	if err != nil {
-		return errors.Wrapf(err, "failed to prepare, output: %s", string(output))
+		return fmt.Errorf("failed to prepare, output=%s: %w", string(output), err)
 	}
 
 	exists, err := isPathExists(mySQLDirectory)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	if exists {
 		mysqlDirPermissions, err = getPermissions(mySQLDirectory)
 		if err != nil {
-			return errors.Wrap(err, "failed to get MySQL base directory permissions")
+			return fmt.Errorf("failed to get MySQL base directory permissions: %w", err)
 		}
 		postfix := ".old" + strconv.FormatInt(time.Now().Unix(), 10)
 		err = os.Rename(mySQLDirectory, mySQLDirectory+postfix)
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 	}
 
@@ -440,16 +449,16 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 		"--target-dir="+backupDirectory,
 	).CombinedOutput()
 	if err != nil {
-		return errors.Wrapf(err, "failed to copy back, output: %s", string(output))
+		return fmt.Errorf("failed to copy back, output=%s: %w", string(output), err)
 	}
 
 	uid, gid, err := mySQLUserAndGroupIDs()
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	err = chownRecursive(mySQLDirectory, uid, gid)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	// Set such permissions as original directory has before restoring.
@@ -457,7 +466,7 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 	// Permissions inside DB's main directory are managed by xtrabackup utility, and we don't change them.
 	err = os.Chmod(mySQLDirectory, mysqlDirPermissions)
 	if err != nil {
-		return errors.Wrap(err, "failed to change permissions for MySQL base directory")
+		return fmt.Errorf("failed to change permissions for MySQL base directory: %w", err)
 	}
 
 	return nil
@@ -471,7 +480,7 @@ func getMysqlServiceName(ctx context.Context) (string, error) {
 	cmd := exec.CommandContext(ctx, "systemctl", "list-unit-files", "--type=service")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to list system services, output: %s", string(output))
+		return "", fmt.Errorf("failed to list system services, output %q: %w", string(output), err)
 	}
 
 	if serviceName := mysqlServiceRegex.Find(output); serviceName != nil {
