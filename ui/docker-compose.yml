@@ -22,8 +22,8 @@ services:
       # PMM UI (only useful if testing rendering server, for example. Otherwise, just stick with the vite dev server)
       # - ./apps/pmm/dist:/usr/share/pmm-ui
       # Uncomment to use custom (FE) Grafana dashboards
-      # - ../../grafana-dashboards/pmm-app/dist:/srv/grafana/plugins/pmm-app
-      # Mount repo so you can run the backend built from this codebase
+      - ../dashboards/dashboards:/usr/share/percona-dashboards/panels/pmm-app/dist/dashboards
+      - ../dashboards/dashboards:/srv/grafana/plugins/pmm-app/dashboards
       # - ..:/root/go/src/github.com/percona/pmm
       # - ../Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro
       # should be followed by running:
@@ -53,6 +53,7 @@ services:
         sed -i 's|</body>|<script src="http://localhost:35729/livereload.js"></script></body>|g' /usr/share/grafana/public/views/index.html;
         /opt/entrypoint.sh;
       "
+    
 
   mysql:
     image: percona:5.7.30
@@ -72,6 +73,53 @@ services:
     volumes:
       - ./testdata/mysql:/mysql
 
+  mongo-rs-1:
+    image: percona/percona-server-mongodb:7.0
+    platform: linux/amd64
+    container_name: pmm-ui_mongo-rs-1
+    hostname: mongo-rs-1
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-rs-1-data:/data/db
+
+  mongo-rs-2:
+    image: percona/percona-server-mongodb:7.0
+    platform: linux/amd64
+    container_name: pmm-ui_mongo-rs-2
+    hostname: mongo-rs-2
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-rs-2-data:/data/db
+
+  mongo-rs-3:
+    image: percona/percona-server-mongodb:7.0
+    platform: linux/amd64
+    container_name: pmm-ui_mongo-rs-3
+    hostname: mongo-rs-3
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo-rs-3-data:/data/db
+
+  mongo-rs-init:
+    image: percona/percona-server-mongodb:7.0
+    platform: linux/amd64
+    container_name: pmm-ui_mongo-rs-init
+    depends_on:
+      - mongo-rs-1
+      - mongo-rs-2
+      - mongo-rs-3
+    volumes:
+      - ./testdata/mongo/init-replset.sh:/init-replset.sh:ro
+      - ./testdata/mongo/seed-data.sh:/seed-data.sh:ro
+    entrypoint: ["/bin/bash", "/init-replset.sh"]
+    restart: "no"
+
   watchtower:
     container_name: watchtower
     platform: linux/amd64
@@ -82,6 +130,10 @@ services:
     environment:
       - WATCHTOWER_HTTP_API_UPDATE=1
       - WATCHTOWER_HTTP_API_TOKEN=123
+      - DOCKER_API_VERSION=1.53
 
 volumes:
   pmm-data:
+  mongo-rs-1-data:
+  mongo-rs-2-data:
+  mongo-rs-3-data:
