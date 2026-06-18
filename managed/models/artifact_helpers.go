@@ -16,11 +16,11 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -85,7 +85,7 @@ func FindArtifacts(q *reform.Querier, filters ArtifactFilters) ([]*Artifact, err
 	}
 	rows, err := q.SelectAllFrom(ArtifactTable, whereClause+" ORDER BY created_at DESC", args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select artifacts")
+		return nil, fmt.Errorf("failed to select artifacts: %w", err)
 	}
 
 	artifacts := make([]*Artifact, 0, len(rows))
@@ -111,7 +111,7 @@ func FindArtifactsByIDs(q *reform.Querier, ids []string) (map[string]*Artifact, 
 
 	all, err := q.SelectAllFrom(ArtifactTable, tail, args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	artifacts := make(map[string]*Artifact, len(all))
@@ -132,9 +132,9 @@ func FindArtifactByID(q *reform.Querier, id string) (*Artifact, error) {
 	err := q.Reload(artifact)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, errors.Wrapf(ErrNotFound, "artifact with id '%s'", id)
+			return nil, fmt.Errorf("artifact with id '%s': %w", id, ErrNotFound)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return artifact, nil
@@ -149,9 +149,9 @@ func FindArtifactByName(q *reform.Querier, name string) (*Artifact, error) {
 	err := q.FindOneTo(artifact, "name", name)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, errors.Wrapf(ErrNotFound, "backup artifact with name %q not found.", name) //nolint:revive
+			return nil, fmt.Errorf("backup artifact with name %q not found: %w", name, ErrNotFound)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return artifact, nil
@@ -168,7 +168,7 @@ func checkUniqueArtifactName(q *reform.Querier, name string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Artifact with name %q already exists.", name)
@@ -228,10 +228,10 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 	_, err = FindArtifactByID(q, id)
 	switch {
 	case err == nil:
-		return nil, errors.Errorf("artifact with id '%s' already exists", id)
+		return nil, fmt.Errorf("artifact with id '%s' already exists", id)
 	case errors.Is(err, ErrNotFound):
 	default:
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	err = checkUniqueArtifactName(q, params.Name)
@@ -261,7 +261,7 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 
 	err = q.Insert(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to insert artifact")
+		return nil, fmt.Errorf("failed to insert artifact: %w", err)
 	}
 
 	return row, nil
@@ -308,7 +308,7 @@ func UpdateArtifact(q *reform.Querier, artifactID string, params UpdateArtifactP
 
 	err = q.Update(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to update backup artifact")
+		return nil, fmt.Errorf("failed to update backup artifact: %w", err)
 	}
 
 	return row, nil
@@ -323,7 +323,7 @@ func DeleteArtifact(q *reform.Querier, id string) error {
 
 	err = q.Delete(&Artifact{ID: id})
 	if err != nil {
-		return errors.Wrapf(err, "failed to delete artifact by id '%s'", id)
+		return fmt.Errorf("failed to delete artifact by id '%s': %w", id, err)
 	}
 	return nil
 }
@@ -336,7 +336,7 @@ func (s *Artifact) MetadataRemoveFirstN(q *reform.Querier, n uint32) error {
 	s.MetadataList = s.MetadataList[n:]
 	err := q.Update(s)
 	if err != nil {
-		return errors.Wrap(err, "failed to remove artifact metadata records")
+		return fmt.Errorf("failed to remove artifact metadata records: %w", err)
 	}
 	return nil
 }
