@@ -13,7 +13,7 @@ Before you start, ensure you have:
 
 | Query source | Database QAN permissions | Host file access |
 | :--- | :--- | :--- |
-| **Profiler** (default) | `find` on `system.profile` — [Step 1](#step-1-configure-query-analytics) | Not required |
+| **Profiler** (default) | `find` on `system.profile` in `pmmMonitor` role | Not required |
 | **Mongolog** | Not required | Read access to the MongoDB log file for `pmm-agent` — [Step 1](#step-1-configure-query-analytics) |
 
 ### Create MongoDB monitoring user (for metrics)
@@ -27,7 +27,9 @@ Role privileges depend on:
 - MongoDB version: 8.0+ requires the additional `directShardOperations` role for shard metrics
 - Required features: basic monitoring only, or monitoring plus backup management
 
-#### Minimum privileges (metrics collection)
+#### Create pmmMonitor role
+
+Include all three privilege blocks below for **Profiler** (default). If you use **mongolog**, omit the `system.profile` block.
 
 ```javascript
 db.getSiblingDB("admin").createRole({
@@ -40,6 +42,10 @@ db.getSiblingDB("admin").createRole({
     {
     "resource": { "db": "", "collection": "system.version" },
     "actions": [ "find" ]
+    },
+    {
+    "resource": { "db": "", "collection": "system.profile" },
+    "actions": [ "find", "dbStats", "collStats", "indexStats" ]
     }
 ],
 "roles": [ ]
@@ -167,19 +173,6 @@ Complete the section for your query source before [adding the service](#step-2-a
     - No additional file system access required
     - Works with managed MongoDB services
     - Immediate data availability after profiling is enabled
-
-    #### Database permissions for Profiler QAN
-
-    Add `find` on `system.profile` to the `pmmMonitor` role:
-
-    ```javascript
-    db.getSiblingDB("admin").grantPrivilegesToRole("pmmMonitor", [
-        {
-        "resource": { "db": "", "collection": "system.profile" },
-        "actions": [ "find", "dbStats", "collStats", "indexStats" ]
-        }
-    ])
-    ```
 
     To enable the MongoDB Profiler, choose one of the following methods:
 
