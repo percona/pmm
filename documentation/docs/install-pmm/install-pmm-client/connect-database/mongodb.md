@@ -16,7 +16,7 @@ Before you start, ensure you have:
 | **Profiler** (default) | `find` on `system.profile` in `pmmMonitor` role | Not required |
 | **Mongolog** | Not required | Read access to the MongoDB log file for `pmm-agent` — [Step 1](#step-1-configure-query-analytics) |
 
-### Create MongoDB monitoring user (for metrics)
+### Create MongoDB monitoring user
 
 PMM needs a dedicated MongoDB user for **dashboard metrics** (`mongodb_exporter`), regardless of the Query Analytics query source.
 
