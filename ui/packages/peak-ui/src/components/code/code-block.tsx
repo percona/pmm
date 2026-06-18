@@ -17,9 +17,7 @@ const preSx = (wrap: boolean) => (theme: Theme) => ({
   border: `1px solid ${theme.palette.dividers?.contour ?? theme.palette.divider}`,
   borderRadius: '5px',
   padding: theme.spacing(1.25, 1.5),
-  ...(wrap
-    ? { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }
-    : { overflowX: 'auto' }),
+  ...(wrap ? { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' } : { overflowX: 'auto' }),
 });
 
 const resolveScheme = (
