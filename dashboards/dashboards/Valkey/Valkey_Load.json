@@ -16,14 +16,14 @@
                 "showIn": 0,
                 "tags": [
                     "pmm_annotation",
-                    "$node_name"
+                    "$service_name"
                 ],
                 "target": {
                     "limit": 100,
                     "matchAny": true,
                     "tags": [
                         "pmm_annotation",
-                        "$node_name"
+                        "$service_name"
                     ],
                     "type": "tags"
                 },
