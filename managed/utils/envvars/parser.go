@@ -246,6 +246,10 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			// This variable is not part of the settings and is parsed separately.
 			continue
 
+		case pkgenv.PlatformAddress:
+			// This variable is not part of the settings and is parsed separately.
+			continue
+
 		default:
 			// handle prefixes
 
