@@ -105,7 +105,7 @@ func TestParserRunning(t *testing.T) {
 		Ns: "test.test",
 		Ts: timeStart,
 		Query: bson.D{
-			{"find", "test"},
+			{Key: "find", Value: "test"},
 		},
 		Op:             "query",
 		ResponseLength: 100,
@@ -136,7 +136,7 @@ func TestParserRunning(t *testing.T) {
 		assert.Equal(t, expected.StartTS, actual.StartTS)
 		assert.Equal(t, expected.EndTS, actual.EndTS)
 		assert.Len(t, actual.Buckets, 1)
-		assert.InEpsilon(t, 1, actual.Buckets[0].Common.NumQueries, 0.001)
+		assert.InDelta(t, 1, actual.Buckets[0].Common.NumQueries, 0.001)
 
 	case <-time.After(d + 5*time.Second):
 		t.Error("test timeout")

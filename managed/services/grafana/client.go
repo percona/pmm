@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -29,7 +30,6 @@ import (
 	"time"
 
 	gapi "github.com/grafana/grafana-api-golang-client"
-	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -112,10 +112,40 @@ func (e *clientError) Error() string {
 	return fmt.Sprintf("clientError: %s %s -> %d %s", e.Method, e.URL, e.Code, e.Body)
 }
 
+// CurrentUserHTTPResponse maps errors returned by Client calls used from current-user HTTP handlers
+// to an HTTP status and a small JSON body. Non-Grafana errors (e.g. dial failures) map to 502.
+func CurrentUserHTTPResponse(err error) (int, map[string]string) {
+	var cErr *clientError
+	if !errors.As(err, &cErr) {
+		return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
+	}
+
+	switch cErr.Code {
+	case http.StatusUnauthorized:
+		msg := cErr.ErrorMessage
+		if msg == "" {
+			msg = "Unauthorized"
+		}
+		return http.StatusUnauthorized, map[string]string{"message": msg}
+	case http.StatusForbidden:
+		msg := cErr.ErrorMessage
+		if msg == "" {
+			msg = "Forbidden"
+		}
+		return http.StatusForbidden, map[string]string{"message": msg}
+	default:
+		if cErr.Code >= 500 {
+			return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
+		}
+		// Other Grafana 4xx responses are treated as upstream errors for this proxy endpoint.
+		return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
+	}
+}
+
 // do makes HTTP request with given parameters, and decodes JSON response with 200 OK status
 // to respBody. It returns wrapped clientError on any other status, or other fatal errors.
 // Ctx is used only for cancelation.
-func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte, target interface{}) error {
+func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte, target any) error { //nolint:funcorder
 	u := url.URL{
 		Scheme:   "http",
 		Host:     c.addr,
@@ -124,7 +154,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	}
 	req, err := http.NewRequest(method, u.String(), bytes.NewReader(body))
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to create http request: %w", err)
 	}
 	if len(body) != 0 {
 		req.Header.Set("Content-Type", "application/json; charset=utf-8")
@@ -136,13 +166,13 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	req = req.WithContext(ctx)
 	resp, err := c.http.Do(req)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to execute http request: %w", err)
 	}
 	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to read http response body: %w", err)
 	}
 	if resp.StatusCode < 200 || resp.StatusCode > 202 {
 		cErr := &clientError{
@@ -152,12 +182,13 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 			Body:   string(b),
 		}
 		_ = json.Unmarshal(b, cErr) // add ErrorMessage
-		return errors.WithStack(cErr)
+		return cErr
 	}
 
 	if len(b) != 0 && target != nil {
-		if err = json.Unmarshal(b, target); err != nil {
-			return errors.WithStack(err)
+		err = json.Unmarshal(b, target)
+		if err != nil {
+			return fmt.Errorf("failed to unmarshal http response body: %w", err)
 		}
 	}
 	return nil
@@ -166,6 +197,30 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 type authUser struct {
 	role   role
 	userID int
+}
+
+// CurrentUser represents Grafana user payload.
+type CurrentUser struct {
+	ID                             int    `json:"id"`
+	Email                          string `json:"email"`
+	Name                           string `json:"name"`
+	Login                          string `json:"login"`
+	CreatedAt                      string `json:"createdAt"`
+	OrgID                          int    `json:"orgId"`
+	IsAnonymous                    bool   `json:"isAnonymous"`
+	IsDisabled                     bool   `json:"isDisabled"`
+	IsExternal                     bool   `json:"isExternal"`
+	IsExtarnallySynced             bool   `json:"isExtarnallySynced"`
+	IsGrafanaAdmin                 bool   `json:"isGrafanaAdmin"`
+	IsGrafanaAdminExternallySynced bool   `json:"isGrafanaAdminExternallySynced"`
+	Theme                          string `json:"theme"`
+}
+
+// CurrentUserOrg represents Grafana org payload.
+type CurrentUserOrg struct {
+	OrgID int    `json:"orgId"`
+	Name  string `json:"name"`
+	Role  string `json:"role"`
 }
 
 // role defines Grafana user role within the organization
@@ -205,7 +260,7 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 		return 0, err
 	}
 
-	var m map[string]interface{}
+	var m map[string]any
 	err = c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
 		return 0, err
@@ -243,9 +298,27 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	}
 
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
-	var m map[string]interface{}
+	var m map[string]any
 	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
+		if hasAuthorizationHeader(authHeaders) {
+			return emptyUser, err
+		}
+		var cErr *clientError
+		if !errors.As(err, &cErr) {
+			return emptyUser, err
+		}
+		if cErr.Code != http.StatusUnauthorized {
+			return emptyUser, err
+		}
+		anonymousEnabled, anonymousRole := c.getAnonymousRoleFromSettings(ctx, l)
+		if anonymousEnabled {
+			l.Debugf("Grafana returned 401 for /api/user with no credentials; using anonymous role %q.", anonymousRole.String())
+			return authUser{
+				role:   anonymousRole,
+				userID: 0,
+			}, nil
+		}
 		return emptyUser, err
 	}
 
@@ -259,8 +332,9 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	}
 
 	// works only with Basic auth
-	var s []interface{}
-	if err := c.do(ctx, http.MethodGet, "/api/user/orgs", "", authHeaders, nil, &s); err != nil {
+	var s []any
+	err = c.do(ctx, http.MethodGet, "/api/user/orgs", "", authHeaders, nil, &s)
+	if err != nil {
 		return authUser{
 			role:   none,
 			userID: userID,
@@ -268,7 +342,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	}
 
 	for _, el := range s {
-		m, _ := el.(map[string]interface{})
+		m, _ := el.(map[string]any)
 		if m == nil {
 			continue
 		}
@@ -302,12 +376,176 @@ func (c *Client) convertRole(role string) role {
 	}
 }
 
+// Grafana /api/frontend/settings may include user org id/name; org role for anonymous comes from anonymousOrgRole.
+type frontendUserSettingsFull struct {
+	OrgID   int    `json:"orgId"`
+	OrgName string `json:"orgName"`
+}
+
+type frontendSettingsFull struct {
+	AnonymousEnabled bool                     `json:"anonymousEnabled"`
+	AnonymousOrgRole string                   `json:"anonymousOrgRole"`
+	User             frontendUserSettingsFull `json:"user"`
+}
+
+func (c *Client) getAnonymousRoleFromSettings(ctx context.Context, l *logrus.Entry) (bool, role) {
+	settings, err := c.getFrontendSettings(ctx)
+	if err != nil {
+		return false, none
+	}
+
+	if !settings.AnonymousEnabled {
+		return false, none
+	}
+
+	parsedRole := c.convertRole(resolveAnonymousOrgRole(settings.AnonymousOrgRole))
+	if parsedRole == none {
+		return false, none
+	}
+	l.Debugf("Grafana anonymous mode is enabled with role %q.", parsedRole.String())
+	return true, parsedRole
+}
+
+func (c *Client) getFrontendSettings(ctx context.Context) (frontendSettingsFull, error) {
+	var settings frontendSettingsFull
+	err := c.do(ctx, http.MethodGet, "/api/frontend/settings", "", nil, nil, &settings)
+	if err != nil {
+		return frontendSettingsFull{}, err
+	}
+
+	return settings, nil
+}
+
+func hasAuthorizationHeader(authHeaders http.Header) bool {
+	return authHeaders.Get("Authorization") != ""
+}
+
+// Grafana organization role strings as returned by /api/frontend/settings (camelCase JSON keys).
+const (
+	grafanaOrgRoleViewer       = "Viewer"
+	grafanaOrgRoleEditor       = "Editor"
+	grafanaOrgRoleAdmin        = "Admin"
+	grafanaOrgRoleGrafanaAdmin = "GrafanaAdmin"
+	grafanaOrgRoleNone         = "None"
+)
+
+// resolveAnonymousOrgRole maps anonymousOrgRole from /api/frontend/settings ([auth.anonymous] org_role)
+// to the org role string PMM uses for anonymous Grafana auth. Grafana does not populate user.orgRole
+// in this payload; only anonymousOrgRole is authoritative. Deprecated elevated roles are clamped to Viewer.
+func resolveAnonymousOrgRole(anonymousOrgRole string) string {
+	anonymousOrgRole = strings.TrimSpace(anonymousOrgRole)
+
+	switch anonymousOrgRole {
+	case grafanaOrgRoleViewer:
+		return grafanaOrgRoleViewer
+	case grafanaOrgRoleEditor, grafanaOrgRoleAdmin, grafanaOrgRoleGrafanaAdmin:
+		return grafanaOrgRoleViewer
+	default:
+		return grafanaOrgRoleNone
+	}
+}
+
+// GetCurrentUser returns current Grafana user.
+// If anonymous mode is enabled and no auth headers are present, it returns
+// a synthetic anonymous user when /api/user responds with 401.
+func (c *Client) GetCurrentUser(ctx context.Context, authHeaders http.Header) (CurrentUser, error) {
+	var user CurrentUser
+	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &user)
+	if err == nil {
+		return user, nil
+	}
+
+	if hasAuthorizationHeader(authHeaders) {
+		return CurrentUser{}, err
+	}
+	var cErr *clientError
+	if !errors.As(err, &cErr) {
+		return CurrentUser{}, err
+	}
+	if cErr.Code != http.StatusUnauthorized {
+		return CurrentUser{}, err
+	}
+
+	settings, settingsErr := c.getFrontendSettings(ctx)
+	if settingsErr != nil || !settings.AnonymousEnabled {
+		return CurrentUser{}, err
+	}
+	role := resolveAnonymousOrgRole(settings.AnonymousOrgRole)
+	if role == grafanaOrgRoleNone {
+		return CurrentUser{}, err
+	}
+
+	orgID := settings.User.OrgID
+	if orgID == 0 {
+		orgID = 1
+	}
+
+	return CurrentUser{
+		ID:             0,
+		Email:          "",
+		Name:           "Anonymous",
+		Login:          "anonymous",
+		OrgID:          orgID,
+		IsAnonymous:    true,
+		IsGrafanaAdmin: false,
+	}, nil
+}
+
+// GetCurrentUserOrgs returns current Grafana user organizations.
+// If anonymous mode is enabled and no auth headers are present, it returns
+// a synthetic org list when /api/user/orgs responds with 401.
+func (c *Client) GetCurrentUserOrgs(ctx context.Context, authHeaders http.Header) ([]CurrentUserOrg, error) {
+	var orgs []CurrentUserOrg
+	err := c.do(ctx, http.MethodGet, "/api/user/orgs", "", authHeaders, nil, &orgs)
+	if err == nil {
+		return orgs, nil
+	}
+
+	if hasAuthorizationHeader(authHeaders) {
+		return nil, err
+	}
+	var cErr *clientError
+	if !errors.As(err, &cErr) {
+		return nil, err
+	}
+	if cErr.Code != http.StatusUnauthorized {
+		return nil, err
+	}
+
+	settings, settingsErr := c.getFrontendSettings(ctx)
+	if settingsErr != nil || !settings.AnonymousEnabled {
+		return nil, err
+	}
+	role := resolveAnonymousOrgRole(settings.AnonymousOrgRole)
+	if role == grafanaOrgRoleNone {
+		return nil, err
+	}
+
+	orgID := settings.User.OrgID
+	if orgID == 0 {
+		orgID = 1
+	}
+	orgName := settings.User.OrgName
+	if orgName == "" {
+		orgName = "Main Org."
+	}
+
+	return []CurrentUserOrg{
+		{
+			OrgID: orgID,
+			Name:  orgName,
+			Role:  role,
+		},
+	}, nil
+}
+
 func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
 	header := http.Header{}
-	header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	header.Add("Authorization", "Bearer "+token)
 
-	var k map[string]interface{}
-	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k); err != nil {
+	var k map[string]any
+	err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k)
+	if err != nil {
 		return none, err
 	}
 
@@ -327,7 +565,8 @@ type serviceAccountSearch struct {
 func (c *Client) getServiceAccountIDFromName(ctx context.Context, nodeName string, authHeaders http.Header) (int, error) {
 	var res serviceAccountSearch
 	serviceAccountName := grafana.SanitizeSAName(fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName))
-	if err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", fmt.Sprintf("query=%s", serviceAccountName), authHeaders, nil, &res); err != nil {
+	err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", "query="+serviceAccountName, authHeaders, nil, &res)
+	if err != nil {
 		return 0, err
 	}
 	for _, serviceAccount := range res.ServiceAccounts {
@@ -337,7 +576,7 @@ func (c *Client) getServiceAccountIDFromName(ctx context.Context, nodeName strin
 		return serviceAccount.ID, nil
 	}
 
-	return 0, errors.Errorf("service account %s not found", serviceAccountName)
+	return 0, fmt.Errorf("service account %s not found", serviceAccountName)
 }
 
 func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, nodeName string) (int, error) {
@@ -352,7 +591,8 @@ func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, 
 	}
 
 	var tokens []serviceToken
-	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
+	err = c.do(ctx, http.MethodGet, fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens)
+	if err != nil {
 		return 0, err
 	}
 
@@ -376,10 +616,11 @@ func (c *Client) testCreateUser(ctx context.Context, login string, role role, au
 		"password": login,
 	})
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, fmt.Errorf("failed to marshal a new user request body: %w", err)
 	}
-	var m map[string]interface{}
-	if err = c.do(ctx, "POST", "/api/admin/users", "", authHeaders, b, &m); err != nil {
+	var m map[string]any
+	err = c.do(ctx, "POST", "/api/admin/users", "", authHeaders, b, &m)
+	if err != nil {
 		return 0, err
 	}
 	userID := int(m["id"].(float64)) //nolint:forcetypeassert
@@ -394,9 +635,10 @@ func (c *Client) testCreateUser(ctx context.Context, login string, role role, au
 		"role": role.String(),
 	})
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, fmt.Errorf("failed to marshal a new user role: %w", err)
 	}
-	if err = c.do(ctx, "PATCH", "/api/org/users/"+strconv.Itoa(userID), "", authHeaders, b, nil); err != nil {
+	err = c.do(ctx, "PATCH", "/api/org/users/"+strconv.Itoa(userID), "", authHeaders, b, nil)
+	if err != nil {
 		return 0, err
 	}
 	return userID, nil
@@ -495,7 +737,8 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 		group.Interval = interval
 	}
 
-	if err = validateDurations(group.Interval, rule.For); err != nil {
+	err = validateDurations(group.Interval, rule.For)
+	if err != nil {
 		return err
 	}
 
@@ -504,8 +747,10 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 		return err
 	}
 
-	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderUID), "", authHeaders, body, nil); err != nil {
-		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
+	err = c.do(ctx, "POST", "/api/ruler/grafana/api/v1/rules/"+folderUID, "", authHeaders, body, nil)
+	if err != nil {
+		cErr, ok := errors.AsType[*clientError](err)
+		if ok {
 			return status.Error(codes.InvalidArgument, cErr.ErrorMessage)
 		}
 		return err
@@ -536,7 +781,7 @@ func validateDurations(intervalD, forD string) error {
 func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to create grafana client")
+		return "", fmt.Errorf("failed to create grafana client: %w", err)
 	}
 
 	ds, err := grafanaClient.DataSource(id)
@@ -550,12 +795,12 @@ func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, er
 func (c *Client) CreateFolder(ctx context.Context, title string) (*gapi.Folder, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create grafana client")
+		return nil, fmt.Errorf("failed to create grafana client: %w", err)
 	}
 
 	folder, err := grafanaClient.NewFolder(title)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create folder")
+		return nil, fmt.Errorf("failed to create folder: %w", err)
 	}
 
 	return &folder, nil
@@ -565,7 +810,7 @@ func (c *Client) CreateFolder(ctx context.Context, title string) (*gapi.Folder, 
 func (c *Client) DeleteFolder(ctx context.Context, id string, force bool) error {
 	grafanaClient, err := c.createGrafanaClient(ctx)
 	if err != nil {
-		return errors.Wrap(err, "failed to create grafana client")
+		return fmt.Errorf("failed to create grafana client: %w", err)
 	}
 
 	params := make(url.Values)
@@ -575,7 +820,7 @@ func (c *Client) DeleteFolder(ctx context.Context, id string, force bool) error 
 
 	err = grafanaClient.DeleteFolder(id, params)
 	if err != nil {
-		return errors.Wrap(err, "failed to delete folder")
+		return fmt.Errorf("failed to delete folder: %w", err)
 	}
 
 	return nil
@@ -585,12 +830,12 @@ func (c *Client) DeleteFolder(ctx context.Context, id string, force bool) error 
 func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create grafana client")
+		return nil, fmt.Errorf("failed to create grafana client: %w", err)
 	}
 
 	folder, err := grafanaClient.FolderByUID(uid)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to find folder")
+		return nil, fmt.Errorf("failed to find folder: %w", err)
 	}
 
 	return folder, nil
@@ -599,7 +844,7 @@ func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, 
 func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf("failed to get auth headers from incoming context: %w", err)
 	}
 
 	headers := make(map[string]string, len(authHeaders))
@@ -609,7 +854,7 @@ func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) 
 
 	grafanaClient, err := gapi.New("http://"+c.addr, gapi.Config{HTTPHeaders: headers})
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf("failed to create a new grafana client: %w", err)
 	}
 
 	return grafanaClient, nil
@@ -635,11 +880,12 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
 	b, err := json.Marshal(serviceAccount{Name: serviceAccountName, Role: role.String(), Force: reregister})
 	if err != nil {
-		return 0, errors.WithStack(err)
+		return 0, fmt.Errorf("failed to marshal service account: %w", err)
 	}
 
-	var m map[string]interface{}
-	if err = c.do(ctx, "POST", "/api/serviceaccounts", "", authHeaders, b, &m); err != nil {
+	var m map[string]any
+	err = c.do(ctx, "POST", "/api/serviceaccounts", "", authHeaders, b, &m)
+	if err != nil {
 		return 0, err
 	}
 
@@ -647,7 +893,8 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 
 	// orgId is ignored during creating service account and default is -1
 	// orgId should be set to 1
-	if err = c.do(ctx, "PATCH", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, []byte("{\"orgId\": 1}"), &m); err != nil {
+	err = c.do(ctx, "PATCH", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, []byte("{\"orgId\": 1}"), &m)
+	if err != nil {
 		return 0, err
 	}
 
@@ -669,11 +916,12 @@ func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, n
 
 	b, err := json.Marshal(serviceToken{Name: serviceTokenName, Role: admin.String()})
 	if err != nil {
-		return 0, "", errors.WithStack(err)
+		return 0, "", fmt.Errorf("failed to marshal service token: %w", err)
 	}
 
-	var m map[string]interface{}
-	if err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m); err != nil {
+	var m map[string]any
+	err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m)
+	if err != nil {
 		return 0, "", err
 	}
 	serviceTokenID := int(m["id"].(float64)) //nolint:forcetypeassert
@@ -684,7 +932,8 @@ func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, n
 
 func (c *Client) serviceTokenExists(ctx context.Context, serviceAccountID int, nodeName string, authHeaders http.Header) (bool, error) {
 	var tokens []serviceToken
-	if err := c.do(ctx, "GET", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
+	err := c.do(ctx, "GET", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens)
+	if err != nil {
 		return false, err
 	}
 
@@ -702,14 +951,16 @@ func (c *Client) serviceTokenExists(ctx context.Context, serviceAccountID int, n
 
 func (c *Client) deletePMMAgentServiceToken(ctx context.Context, serviceAccountID int, nodeName string, authHeaders http.Header) error {
 	var tokens []serviceToken
-	if err := c.do(ctx, "GET", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
+	err := c.do(ctx, "GET", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens)
+	if err != nil {
 		return err
 	}
 
 	serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	for _, token := range tokens {
 		if strings.HasPrefix(token.Name, grafana.SanitizeSAName(serviceTokenName)) {
-			if err := c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d/tokens/%d", serviceAccountID, token.ID), "", authHeaders, nil, nil); err != nil {
+			err := c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d/tokens/%d", serviceAccountID, token.ID), "", authHeaders, nil, nil)
+			if err != nil {
 				return err
 			}
 
@@ -764,7 +1015,7 @@ func (c *Client) CreateAnnotation(ctx context.Context, tags []string, from time.
 
 	b, err := json.Marshal(request)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to marshal request")
+		return "", fmt.Errorf("failed to marshal request: %w", err)
 	}
 
 	headers := make(http.Header)
@@ -774,8 +1025,9 @@ func (c *Client) CreateAnnotation(ctx context.Context, tags []string, from time.
 		Message string `json:"message"`
 	}
 
-	if err := c.do(ctx, "POST", "/api/annotations", "", headers, b, &response); err != nil {
-		return "", errors.Wrap(err, "failed to create annotation")
+	err = c.do(ctx, "POST", "/api/annotations", "", headers, b, &response)
+	if err != nil {
+		return "", fmt.Errorf("failed to create annotation: %w", err)
 	}
 
 	return response.Message, nil
@@ -793,7 +1045,8 @@ func (c *Client) findAnnotations(ctx context.Context, from, to time.Time, author
 	}.Encode()
 
 	var response []annotation
-	if err := c.do(ctx, http.MethodGet, "/api/annotations", params, headers, nil, &response); err != nil {
+	err := c.do(ctx, http.MethodGet, "/api/annotations", params, headers, nil, &response)
+	if err != nil {
 		return nil, err
 	}
 
@@ -813,7 +1066,8 @@ type grafanaHealthResponse struct {
 // IsReady calls Grafana API to check its status.
 func (c *Client) IsReady(ctx context.Context) error {
 	var status grafanaHealthResponse
-	if err := c.do(ctx, http.MethodGet, "/api/health", "", nil, nil, &status); err != nil {
+	err := c.do(ctx, http.MethodGet, "/api/health", "", nil, nil, &status)
+	if err != nil {
 		return fmt.Errorf("grafana health check failed: %w", err)
 	}
 
@@ -830,14 +1084,14 @@ type currentUser struct {
 	AccessToken string `json:"access_token"`
 }
 
-var errCookieIsNotSet = errors.Errorf("cookie %q is not set", grpcGatewayCookie)
+var errCookieIsNotSet = fmt.Errorf("cookie %q is not set", grpcGatewayCookie)
 
 // GetCurrentUserAccessToken return users access token from Grafana.
 func (c *Client) GetCurrentUserAccessToken(ctx context.Context) (string, error) {
 	// We need to set cookie to the request to make it execute in grafana user context.
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return "", errors.Wrap(errCookieIsNotSet, "metada not set in the context")
+		return "", fmt.Errorf("metadata not set in the context: %w", errCookieIsNotSet)
 	}
 	cookies := md.Get(grpcGatewayCookie)
 	if len(cookies) == 0 {
@@ -847,12 +1101,13 @@ func (c *Client) GetCurrentUserAccessToken(ctx context.Context) (string, error) 
 	headers.Set("Cookie", strings.Join(cookies, "; "))
 
 	var user currentUser
-	if err := c.do(ctx, http.MethodGet, "/graph/percona-api/user/oauth-token", "", headers, nil, &user); err != nil {
+	err := c.do(ctx, http.MethodGet, "/graph/percona-api/user/oauth-token", "", headers, nil, &user)
+	if err != nil {
 		var e *clientError
 		if errors.As(err, &e) && e.ErrorMessage == "Failed to get token" && e.Code == http.StatusInternalServerError {
 			return "", ErrFailedToGetToken
 		}
-		return "", errors.Wrap(err, "unknown error occurred during getting of user's token")
+		return "", fmt.Errorf("unknown error occurred during getting of user's token: %w", err)
 	}
 
 	return user.AccessToken, nil

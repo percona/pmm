@@ -28,15 +28,14 @@ import (
 )
 
 func TestSummary(t *testing.T) {
-	agentlocal.SetTransport(t.Context(), true, agentlocal.DefaultPMMAgentListenPort)
+	agentlocal.SetTransport(true, agentlocal.DefaultPMMAgentListenPort)
 
-	f, err := os.CreateTemp("", "pmm-admin-test-summary-*.zip") //nolint:usetesting
+	f, err := os.CreateTemp(t.TempDir(), "pmm-admin-test-summary-*.zip")
 	require.NoError(t, err)
 	filename := f.Name()
 	t.Logf("Using temp file: %s", filename)
 
-	defer os.Remove(filename) //nolint:errcheck
-	assert.NoError(t, f.Close())
+	require.NoError(t, f.Close())
 
 	t.Run("Summary default", func(t *testing.T) {
 		cmd := &SummaryCommand{
@@ -81,7 +80,7 @@ func TestSummary(t *testing.T) {
 
 		// Check there is a pprof dir with data inside the zip file
 		reader, err := zip.OpenReader(filename)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, expected, res)
 
 		hasPprofDir := false

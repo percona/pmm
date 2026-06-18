@@ -16,10 +16,10 @@
 package channel
 
 import (
+	"fmt"
 	"sync"
 	"sync/atomic"
 
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	protostatus "google.golang.org/genproto/googleapis/rpc/status"
@@ -29,6 +29,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
+	"github.com/percona/pmm/utils/logger"
 )
 
 const (
@@ -70,7 +71,7 @@ type Channel struct {
 
 	mRecv, mSend prometheus.Counter
 
-	lastSentRequestID uint32
+	lastSentRequestID atomic.Uint32
 
 	sendM sync.Mutex
 
@@ -166,7 +167,7 @@ func (c *Channel) Send(resp *AgentResponse) {
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
 func (c *Channel) SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error) { //nolint:ireturn,nolintlint
-	id := atomic.AddUint32(&c.lastSentRequestID, 1)
+	id := c.lastSentRequestID.Add(1)
 	ch := c.subscribe(id)
 
 	c.send(&agentv1.AgentMessage{
@@ -192,16 +193,16 @@ func (c *Channel) send(msg *agentv1.AgentMessage) {
 	if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 		// do not use default compact representation for large/complex messages
 		if size := proto.Size(msg); size < 100 {
-			c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
+			c.l.Debugf("Sending message (%d bytes): %s.", size, logger.RedactMessage(msg))
 		} else {
-			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(msg))
+			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(logger.RedactMessage(msg)))
 		}
 	}
 
 	err := c.s.Send(msg)
 	c.sendM.Unlock()
 	if err != nil {
-		c.close(errors.Wrap(err, "failed to send message"))
+		c.close(fmt.Errorf("failed to send message: %w", err))
 		return
 	}
 	c.mSend.Inc()
@@ -217,7 +218,7 @@ func (c *Channel) runReceiver() {
 	for {
 		msg, err := c.s.Recv()
 		if err != nil {
-			c.close(errors.Wrap(err, "failed to receive message"))
+			c.close(fmt.Errorf("failed to receive message: %w", err))
 			return
 		}
 		c.mRecv.Inc()
@@ -227,9 +228,9 @@ func (c *Channel) runReceiver() {
 		if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 			// do not use default compact representation for large/complex messages
 			if size := proto.Size(msg); size < 100 {
-				c.l.Debugf("Received message (%d bytes): %s.", size, msg)
+				c.l.Debugf("Received message (%d bytes): %s.", size, logger.RedactMessage(msg))
 			} else {
-				c.l.Debugf("Received message (%d bytes):\n%s\n", size, prototext.Format(msg))
+				c.l.Debugf("Received message (%d bytes):\n%s\n", size, prototext.Format(logger.RedactMessage(msg)))
 			}
 		}
 
@@ -307,7 +308,7 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, msg.Status, p.ActionResult)
 
 		default:
-			c.cancel(msg.Id, errors.Errorf("unimplemented: failed to handle received message %s", msg))
+			c.cancel(msg.Id, fmt.Errorf("unimplemented: failed to handle received message %s", msg))
 			if msg.Status != nil && grpcstatus.FromProto(msg.Status).Code() == codes.Unimplemented {
 				// This means pmm-managed does not know the message payload type we just sent.
 				// We continue here to stop endless cycle of Unimplemented messages between pmm-agent and pmm-managed.

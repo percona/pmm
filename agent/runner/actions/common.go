@@ -23,7 +23,6 @@ import (
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/tlshelpers"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -41,16 +40,16 @@ var whiteSpacesRegExp = regexp.MustCompile(`\s+`)
 //	…
 //
 // ].
-func jsonRows(columns []string, dataRows [][]interface{}) ([]byte, error) {
-	res := make([][]interface{}, len(dataRows)+1)
+func jsonRows(columns []string, dataRows [][]any) ([]byte, error) {
+	res := make([][]any, len(dataRows)+1)
 
-	res[0] = make([]interface{}, len(columns))
+	res[0] = make([]any, len(columns))
 	for i, col := range columns {
 		res[0][i] = col
 	}
 
 	for i, row := range dataRows {
-		res[i+1] = make([]interface{}, len(columns))
+		res[i+1] = make([]any, len(columns))
 		copy(res[i+1], row)
 	}
 
@@ -68,12 +67,12 @@ func mysqlOpen(dsn string, tlsFiles *agentv1.TextFiles, tlsSkipVerify bool) (*sq
 
 	cfg, err := mysql.ParseDSN(dsn)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	connector, err := mysql.NewConnector(cfg)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return sql.OpenDB(connector), nil

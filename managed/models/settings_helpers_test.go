@@ -16,11 +16,10 @@
 package models_test
 
 import (
+	"errors"
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -90,16 +89,17 @@ func TestSettings(t *testing.T) {
 				AWSPartitions: []string{"foo"},
 			}
 			_, err := models.UpdateSettings(sqlDB, s)
-			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: aws_partitions: partition "foo" is invalid`)
+			_, ok := errors.AsType[*models.InvalidArgumentError](err)
+			assert.True(t, ok)
+			require.EqualError(t, err, `invalid argument: aws_partitions: partition "foo" is invalid`)
 
 			s = &models.ChangeSettingsParams{
 				AWSPartitions: []string{"foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo"},
 			}
 			_, err = models.UpdateSettings(sqlDB, s)
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: aws_partitions: list is too long`)
+			_, ok = errors.AsType[*models.InvalidArgumentError](err)
+			assert.True(t, ok)
+			require.EqualError(t, err, `invalid argument: aws_partitions: list is too long`)
 
 			s = &models.ChangeSettingsParams{
 				AWSPartitions: []string{"aws", "aws-cn", "aws-cn"},
@@ -128,37 +128,37 @@ func TestSettings(t *testing.T) {
 			})
 			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: mr: minimal resolution is 1s`)
+			require.EqualError(t, err, `invalid argument: mr: minimal resolution is 1s`)
 
 			mr = models.MetricsResolutions{MR: 2*time.Second + (500 * time.Millisecond)} // 2.5s
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				MetricsResolutions: mr,
 			})
 			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: mr: should be a natural number of seconds`)
+			require.EqualError(t, err, `invalid argument: mr: should be a natural number of seconds`)
 
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				DataRetention: 90000 * time.Second, // 25h
 			})
 			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: data_retention: should be a natural number of days`)
+			require.EqualError(t, err, `invalid argument: data_retention: should be a natural number of days`)
 
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				DataRetention: 43200 * time.Second, // 12h
 			})
 			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: data_retention: minimal resolution is 24h`)
+			require.EqualError(t, err, `invalid argument: data_retention: minimal resolution is 24h`)
 		})
 
 		t.Run("Updates validation", func(t *testing.T) {
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableUpdates: pointer.ToBool(true),
+				EnableUpdates: new(true),
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Updates.Enabled)
 
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableUpdates: pointer.ToBool(false),
+				EnableUpdates: new(false),
 			})
 
 			require.NoError(t, err)
@@ -175,8 +175,8 @@ func TestSettings(t *testing.T) {
 		t.Run("Telemetry and Advisors validation", func(t *testing.T) {
 			// ensure initial default state
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableTelemetry: pointer.ToBool(true),
-				EnableAdvisors:  pointer.ToBool(true),
+				EnableTelemetry: new(true),
+				EnableAdvisors:  new(true),
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
@@ -184,8 +184,8 @@ func TestSettings(t *testing.T) {
 
 			// disable telemetry, enable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableTelemetry: pointer.ToBool(false),
-				EnableAdvisors:  pointer.ToBool(true),
+				EnableTelemetry: new(false),
+				EnableAdvisors:  new(true),
 			})
 			require.NoError(t, err)
 			assert.False(t, *ns.Telemetry.Enabled)
@@ -193,8 +193,8 @@ func TestSettings(t *testing.T) {
 
 			// disable Advisors, enable Telemetry
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableTelemetry: pointer.ToBool(true),
-				EnableAdvisors:  pointer.ToBool(false),
+				EnableTelemetry: new(true),
+				EnableAdvisors:  new(false),
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
@@ -202,8 +202,8 @@ func TestSettings(t *testing.T) {
 
 			// enable both
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableAdvisors:  pointer.ToBool(true),
-				EnableTelemetry: pointer.ToBool(true),
+				EnableAdvisors:  new(true),
+				EnableTelemetry: new(true),
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
@@ -211,7 +211,7 @@ func TestSettings(t *testing.T) {
 
 			// disable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableAdvisors: pointer.ToBool(false),
+				EnableAdvisors: new(false),
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
@@ -219,7 +219,7 @@ func TestSettings(t *testing.T) {
 
 			// enable Advisors
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableAdvisors: pointer.ToBool(true),
+				EnableAdvisors: new(true),
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
@@ -227,8 +227,8 @@ func TestSettings(t *testing.T) {
 
 			// restore initial default state
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableAdvisors:  pointer.ToBool(true),
-				EnableTelemetry: pointer.ToBool(true),
+				EnableAdvisors:  new(true),
+				EnableTelemetry: new(true),
 			})
 			require.NoError(t, err)
 			assert.True(t, *ns.Telemetry.Enabled)
@@ -237,7 +237,7 @@ func TestSettings(t *testing.T) {
 
 		t.Run("Check that telemetry disabling resets telemetry UUID", func(t *testing.T) {
 			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableTelemetry: pointer.ToBool(true),
+				EnableTelemetry: new(true),
 			})
 			require.NoError(t, err)
 
@@ -251,7 +251,7 @@ func TestSettings(t *testing.T) {
 			assert.Equal(t, uuid, ns.Telemetry.UUID)
 
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableTelemetry: pointer.ToBool(false),
+				EnableTelemetry: new(false),
 			})
 			require.NoError(t, err)
 			assert.Empty(t, ns.Telemetry.UUID)
@@ -279,31 +279,31 @@ func TestSettings(t *testing.T) {
 		})
 
 		t.Run("enable azure discover", func(t *testing.T) {
-			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAzurediscover: pointer.ToBool(false)})
+			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAzurediscover: new(false)})
 			require.NoError(t, err)
 			assert.False(t, *s.Azurediscover.Enabled)
 
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAzurediscover: pointer.ToBool(true)})
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAzurediscover: new(true)})
 			require.NoError(t, err)
 			assert.True(t, *ns.Azurediscover.Enabled)
 		})
 
 		t.Run("enable Access Control", func(t *testing.T) {
-			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAccessControl: pointer.ToBool(false)})
+			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAccessControl: new(false)})
 			require.NoError(t, err)
 			assert.False(t, *s.AccessControl.Enabled)
 
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAccessControl: pointer.ToBool(true)})
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAccessControl: new(true)})
 			require.NoError(t, err)
 			assert.True(t, *ns.AccessControl.Enabled)
 		})
 
 		t.Run("disable percona alerting", func(t *testing.T) {
-			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAlerting: pointer.ToBool(false)})
+			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAlerting: new(false)})
 			require.NoError(t, err)
 			assert.False(t, *s.Alerting.Enabled)
 
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAlerting: pointer.ToBool(true)})
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAlerting: new(true)})
 			require.NoError(t, err)
 			assert.True(t, *ns.Alerting.Enabled)
 		})

@@ -29,7 +29,7 @@ import (
 )
 
 // AddHAProxy adds an HAProxy service based on the provided request.
-func (s *ManagementService) addHAProxy(ctx context.Context, req *managementv1.AddHAProxyServiceParams) (*managementv1.AddServiceResponse, error) {
+func (s *ManagementService) addHAProxy(ctx context.Context, req *managementv1.AddHAProxyServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
 	var pmmAgentID *string
 	haproxy := &managementv1.HAProxyServiceResult{}
 
@@ -91,7 +91,8 @@ func (s *ManagementService) addHAProxy(ctx context.Context, req *managementv1.Ad
 		}
 
 		if !req.SkipConnectionCheck {
-			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}

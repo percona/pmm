@@ -16,8 +16,8 @@
 package services
 
 import (
-	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
+	"fmt"
+
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -30,7 +30,7 @@ import (
 // WARNING: This function is valid only when executed as part of transaction with serializable isolation level.
 func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, clusterName, serviceID, scheduleID string) error {
 	filter := models.ScheduledTasksFilter{
-		Disabled:    pointer.ToBool(false),
+		Disabled:    new(false),
 		ClusterName: clusterName,
 	}
 
@@ -95,12 +95,12 @@ func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 // in the same folder may cause data inconsistency.
 //
 // WARNING: This function is valid only when executed as part of transaction with serializable isolation level.
-func CheckArtifactOverlapping(q *reform.Querier, serviceID, locationID, folder string) error {
+func CheckArtifactOverlapping(q *reform.Querier, serviceID, locationID, folder string) error { //nolint:gocognit
 	// TODO This doesn't work for all cases. For example, there may exist more than one storage locations pointing to the same place.
 
 	const (
-		usedByArtifactMsg      = "Same location and folder already used for artifact %s of other service: %s"
-		usedByScheduledTaskMsg = "Same location and folder already used for scheduled task %s of other service: %s"
+		usedByArtifactMsg      = "same location and folder already used for artifact %s of other service: %s"
+		usedByScheduledTaskMsg = "same location and folder already used for scheduled task %s of other service: %s"
 	)
 
 	service, err := models.FindServiceByID(q, serviceID)
@@ -131,12 +131,12 @@ func CheckArtifactOverlapping(q *reform.Querier, serviceID, locationID, folder s
 
 			if service.ServiceType == models.MongoDBServiceType && svc.ServiceType == models.MongoDBServiceType {
 				if svc.Cluster != service.Cluster {
-					return errors.Wrapf(ErrLocationFolderPairAlreadyUsed, usedByArtifactMsg, artifact.ID, serviceID)
+					return fmt.Errorf(usedByArtifactMsg+": %w", artifact.ID, serviceID, ErrLocationFolderPairAlreadyUsed)
 				}
 				continue
 			}
 
-			return errors.Wrapf(ErrLocationFolderPairAlreadyUsed, usedByArtifactMsg, artifact.ID, serviceID)
+			return fmt.Errorf(usedByArtifactMsg+": %w", artifact.ID, serviceID, ErrLocationFolderPairAlreadyUsed)
 		}
 	}
 
@@ -163,12 +163,12 @@ func CheckArtifactOverlapping(q *reform.Querier, serviceID, locationID, folder s
 
 			if service.ServiceType == models.MongoDBServiceType && task.Type == models.ScheduledMongoDBBackupTask {
 				if task.Data.MongoDBBackupTask.ClusterName != service.Cluster {
-					return errors.Wrapf(ErrLocationFolderPairAlreadyUsed, usedByScheduledTaskMsg, task.ID, serviceID)
+					return fmt.Errorf(usedByScheduledTaskMsg+": %w", task.ID, serviceID, ErrLocationFolderPairAlreadyUsed)
 				}
 				continue
 			}
 
-			return errors.Wrapf(ErrLocationFolderPairAlreadyUsed, usedByScheduledTaskMsg, task.ID, serviceID)
+			return fmt.Errorf(usedByScheduledTaskMsg+": %w", task.ID, serviceID, ErrLocationFolderPairAlreadyUsed)
 		}
 	}
 

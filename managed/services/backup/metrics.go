@@ -19,7 +19,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -54,7 +53,8 @@ func NewMetricsCollector(db *reform.DB) *MetricsCollector {
 				"artifact_id", "artifact_name", "artifact_vendor", "service_id", "service_name",
 				"type", "db_version", "data_model", "mode", "status",
 			},
-			nil),
+			nil,
+		),
 	}
 }
 
@@ -74,7 +74,7 @@ func (c *MetricsCollector) Collect(ch chan<- prom.Metric) {
 		var err error
 		artifacts, err = models.FindArtifacts(t.Querier, models.ArtifactFilters{})
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 
 		serviceIDs := make([]string, 0, len(artifacts))
@@ -84,7 +84,7 @@ func (c *MetricsCollector) Collect(ch chan<- prom.Metric) {
 
 		services, err = models.FindServicesByIDs(t.Querier, serviceIDs)
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 		return nil
 	})
@@ -112,6 +112,7 @@ func (c *MetricsCollector) Collect(ch chan<- prom.Metric) {
 			artifact.DBVersion,
 			string(artifact.DataModel),
 			string(artifact.Mode),
-			string(artifact.Status))
+			string(artifact.Status),
+		)
 	}
 }

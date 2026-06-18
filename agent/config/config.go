@@ -139,6 +139,7 @@ type Setup struct {
 	DisableCollectors string
 	CustomLabels      string
 	AgentPassword     string
+	ProcMountsPath    string
 
 	Force            bool
 	SkipRegistration bool
@@ -154,6 +155,7 @@ type Config struct {
 	ListenPort                     uint16 `yaml:"listen-port"`
 	RunnerCapacity                 uint16 `yaml:"runner-capacity,omitempty"`
 	RunnerMaxConnectionsPerService uint16 `yaml:"runner-max-connections-per-service,omitempty"`
+	ProcMountsPath                 string `yaml:"proc-mounts-path,omitempty"`
 
 	Server Server `yaml:"server"`
 	Paths  Paths  `yaml:"paths"`
@@ -191,7 +193,7 @@ func getFromCmdLine(cfg *Config, l *logrus.Entry) (string, error) {
 }
 
 // get is Get for unit tests: it parses args instead of command-line.
-func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint:cyclop
+func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint:gocognit,cyclop
 	var configFileF string
 	var err error
 	// tweak configuration on exit to cover all return points
@@ -305,7 +307,8 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		}
 
 		if cfg.Server.Address != "" {
-			if _, _, e := net.SplitHostPort(cfg.Server.Address); e != nil {
+			_, _, e := net.SplitHostPort(cfg.Server.Address)
+			if e != nil {
 				host := cfg.Server.Address
 				cfg.Server.Address = net.JoinHostPort(host, "443")
 				l.Infof("Updating PMM Server address from %q to %q.", host, cfg.Server.Address)
@@ -323,14 +326,16 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 
 	// parse command-line flags and environment variables
 	app, cfgFileF := Application(cfg)
-	if _, err = app.Parse(args); err != nil {
+	_, err = app.Parse(args)
+	if err != nil {
 		return configFileF, err
 	}
 	if *cfgFileF == "" {
 		return configFileF, err
 	}
 
-	if configFileF, err = filepath.Abs(*cfgFileF); err != nil {
+	configFileF, err = filepath.Abs(*cfgFileF)
+	if err != nil {
 		return configFileF, err
 	}
 	l.Infof("Loading configuration file %s.", configFileF)
@@ -341,7 +346,8 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 
 	// re-parse flags into configuration from file
 	app, _ = Application(fileCfg)
-	if _, err = app.Parse(args); err != nil {
+	_, err = app.Parse(args)
+	if err != nil {
 		return configFileF, err
 	}
 
@@ -521,6 +527,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SETUP_NODE_PASSWORD").StringVar(&cfg.Setup.AgentPassword)
 	setupCmd.Flag("expose-exporter", "Expose the address of the agent's node-exporter publicly on 0.0.0.0").
 		Envar("PMM_AGENT_EXPOSE_EXPORTER").BoolVar(&cfg.Setup.ExposeExporter)
+	setupCmd.Flag("proc-mounts-path", "Path to /proc/mounts file for the filesystem collector [PMM_AGENT_SETUP_PROC_MOUNTS_PATH]").
+		Envar("PMM_AGENT_SETUP_PROC_MOUNTS_PATH").StringVar(&cfg.Setup.ProcMountsPath)
 
 	return app, configFileF
 }
@@ -530,7 +538,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 // Other errors are returned if file exists, but configuration can't be loaded due to permission problems,
 // YAML parsing problems, etc.
 func loadFromFile(path string, enc *Encryption) (*Config, error) {
-	if _, err := os.Stat(path); errors.Is(err, fs.ErrNotExist) {
+	_, err := os.Stat(path)
+	if errors.Is(err, fs.ErrNotExist) {
 		return nil, ConfigFileDoesNotExistError(path)
 	}
 
@@ -547,7 +556,8 @@ func loadFromFile(path string, enc *Encryption) (*Config, error) {
 	}
 
 	cfg := &Config{}
-	if err = yaml.Unmarshal(b, cfg); err != nil { //nolint:musttag // false positive
+	err = yaml.Unmarshal(b, cfg) //nolint:musttag // false positive
+	if err != nil {
 		return nil, err
 	}
 

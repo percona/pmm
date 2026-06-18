@@ -17,13 +17,11 @@ package actions
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/utils/templates"
@@ -47,7 +45,7 @@ func NewPostgreSQLShowIndexAction(id string, timeout time.Duration, params *agen
 	tmpDir := filepath.Join(tempDir, postgreSQLShowIndexActionType, id)
 	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, tmpDir)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &postgresqlShowIndexAction{
@@ -85,13 +83,13 @@ func (a *postgresqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 
 	connector, err := pq.NewConnector(a.dsn)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
 	var namespaceQuery string
-	var args []interface{}
+	var args []any
 	table := strings.Split(a.params.Table, ".")
 	switch len(table) {
 	case 2:
@@ -101,14 +99,14 @@ func (a *postgresqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 		args = append(args, table[0])
 	}
 	// TODO: Throw error if table doesn't exist.
-	rows, err := db.QueryContext(ctx, fmt.Sprintf("SELECT /* pmm-agent */ * FROM pg_indexes WHERE tablename = $1 %s", namespaceQuery), args...)
+	rows, err := db.QueryContext(ctx, "SELECT /* pmm-agent */ * FROM pg_indexes WHERE tablename = $1 "+namespaceQuery, args...) //nolint:gosec
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return jsonRows(columns, dataRows)
 }

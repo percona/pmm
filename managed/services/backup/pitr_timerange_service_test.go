@@ -16,13 +16,13 @@
 package backup
 
 import (
+	"errors"
 	"fmt"
 	"path"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -111,7 +111,7 @@ func TestGetPITROplogs(t *testing.T) {
 
 		service := NewPBMPITRService()
 		timelines, err := service.getPITROplogs(ctx, mockedStorage, location, &models.Artifact{})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Len(t, timelines, 1)
 	})
 
@@ -120,7 +120,7 @@ func TestGetPITROplogs(t *testing.T) {
 
 		service := NewPBMPITRService()
 		timelines, err := service.getPITROplogs(ctx, mockedStorage, location, &models.Artifact{})
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, timelines)
 	})
 
@@ -137,7 +137,7 @@ func TestGetPITROplogs(t *testing.T) {
 
 		service := NewPBMPITRService()
 		timelines, err := service.getPITROplogs(ctx, mockedStorage, location, &models.Artifact{})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Empty(t, timelines)
 	})
 
@@ -481,7 +481,7 @@ func BenchmarkMergeTimelines(b *testing.B) {
 			{Start: 20, End: 30},
 		},
 	}
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		mergeTimelines(tl...)
 	}
 }

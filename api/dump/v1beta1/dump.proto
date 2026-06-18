@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package dump.v1beta1;
 
+import "extensions/v1/redact.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -21,6 +22,8 @@ message Dump {
   google.protobuf.Timestamp start_time = 4;
   google.protobuf.Timestamp end_time = 5;
   google.protobuf.Timestamp created_at = 7;
+  // This field is set to true if the dump was created with encryption enabled, and false otherwise.
+  bool encrypted = 8;
 }
 
 message StartDumpRequest {
@@ -29,6 +32,10 @@ message StartDumpRequest {
   google.protobuf.Timestamp end_time = 3;
   bool export_qan = 4;
   bool ignore_load = 5;
+  // If true, the dump will be encrypted. Note that enabling encryption may increase the time required to create the dump.
+  bool enable_encryption = 6;
+  // The password used for encryption. It must be at least 8 characters long. This field is required if enable_encryption is true.
+  string encryption_password = 7;
 }
 
 message StartDumpResponse {
@@ -69,8 +76,14 @@ message LogChunk {
 
 message SFTPParameters {
   string address = 1 [(validate.rules).string.min_len = 1];
-  string user = 2 [(validate.rules).string.min_len = 1];
-  string password = 3 [(validate.rules).string.min_len = 1];
+  string user = 2 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
+  string password = 3 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   string directory = 4;
 }
 

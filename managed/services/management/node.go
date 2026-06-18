@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -36,7 +35,7 @@ import (
 )
 
 // RegisterNode performs the registration of a new node.
-func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
+func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) { //nolint:gocognit
 	res := &managementv1.RegisterNodeResponse{}
 
 	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -148,14 +147,14 @@ func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv
 		return nil, err
 	}
 
-	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		mode := models.RemoveRestrict
 		if req.Force {
 			mode = models.RemoveCascade
 
 			agents, err := models.FindPMMAgentsRunningOnNode(tx.Querier, node.NodeID)
 			if err != nil {
-				return errors.WithStack(err)
+				return fmt.Errorf("failed to find pmm-agent on node %s: %w", node.NodeID, err)
 			}
 			for _, a := range agents {
 				idsToKick[a.AgentID] = struct{}{}
@@ -163,7 +162,7 @@ func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv
 
 			agents, err = models.FindAgents(tx.Querier, models.AgentFilters{NodeID: node.NodeID})
 			if err != nil {
-				return errors.WithStack(err)
+				return fmt.Errorf("failed to find agents on node %s: %w", node.NodeID, err)
 			}
 			for _, a := range agents {
 				if a.PMMAgentID != nil {
@@ -173,14 +172,15 @@ func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv
 
 			agents, err = models.FindPMMAgentsForServicesOnNode(tx.Querier, node.NodeID)
 			if err != nil {
-				return errors.WithStack(err)
+				return fmt.Errorf("failed to find pmm-agent on node %s: %w", node.NodeID, err)
 			}
 			for _, a := range agents {
 				idsToSetState[a.AgentID] = struct{}{}
 			}
 		}
 		return models.RemoveNode(tx.Querier, node.NodeID, mode)
-	}); e != nil {
+	})
+	if e != nil {
 		return nil, e
 	}
 
@@ -213,7 +213,7 @@ func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv
 const upQuery = `up{job=~".*_hr$"}`
 
 // ListNodes returns a filtered list of Nodes.
-func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.ListNodesRequest) (*managementv1.ListNodesResponse, error) {
+func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.ListNodesRequest) (*managementv1.ListNodesResponse, error) { //nolint:gocognit
 	filters := models.NodeFilters{
 		NodeType: services.ProtoToModelNodeType(req.NodeType),
 	}
@@ -290,7 +290,7 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 
 	result, _, err := s.vmClient.Query(ctx, upQuery, time.Now())
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to execute an instant VM query")
+		return nil, fmt.Errorf("failed to execute an instant VM query: %w", err)
 	}
 
 	metrics := make(map[string]int, len(result.(model.Vector))) //nolint:forcetypeassert
@@ -367,7 +367,7 @@ func (s *ManagementService) GetNode(ctx context.Context, req *managementv1.GetNo
 
 	result, _, err := s.vmClient.Query(ctx, fmt.Sprintf(nodeUpQuery, req.NodeId), time.Now())
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to execute an instant VM query")
+		return nil, fmt.Errorf("failed to execute an instant VM query: %w", err)
 	}
 
 	metrics := make(map[string]int, len(result.(model.Vector))) //nolint:forcetypeassert

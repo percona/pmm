@@ -112,11 +112,12 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
-		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
+		cmd.MetricsPath = "/" + cmd.MetricsPath
 	}
 
 	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
+		err := cmd.GetCredentials()
+		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
 	}
@@ -136,7 +137,7 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 				Cluster:             cmd.Cluster,
 				ReplicationSet:      cmd.ReplicationSet,
 				CustomLabels:        *customLabels,
-				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				MetricsMode:         cmd.MetricsMode.EnumValue(),
 				Group:               cmd.Group,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 				TLSSkipVerify:       cmd.TLSSkipVerify,

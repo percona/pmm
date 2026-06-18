@@ -64,21 +64,23 @@ var commonExpectedFiles = []string{
 }
 
 func TestReadLog(t *testing.T) {
-	f, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
+	t.Parallel()
+
+	f, err := os.CreateTemp(t.TempDir(), "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
-	fNoNewLineEnding, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
+	fNoNewLineEnding, err := os.CreateTemp(t.TempDir(), "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
 
 	for i := range 10 {
-		fmt.Fprintf(f, "line #%03d\n", i)                //nolint:errcheck // 10 bytes
-		fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) //nolint:errcheck // 10 bytes
+		_, err = fmt.Fprintf(f, "line #%03d\n", i) // 10 bytes
+		require.NoError(t, err)
+		_, err = fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) // 10 bytes
+		require.NoError(t, err)
 	}
-	fmt.Fprintf(fNoNewLineEnding, "some string without new line") //nolint:errcheck
+	_, err = fmt.Fprintf(fNoNewLineEnding, "some string without new line")
+	require.NoError(t, err)
 	require.NoError(t, f.Close())
 	require.NoError(t, fNoNewLineEnding.Close())
-
-	defer os.Remove(f.Name())                //nolint:errcheck
-	defer os.Remove(fNoNewLineEnding.Name()) //nolint:errcheck
 
 	t.Run("LimitByLines", func(t *testing.T) {
 		b, m, err := readLog(f.Name(), 5)
@@ -100,21 +102,23 @@ func TestReadLog(t *testing.T) {
 }
 
 func TestReadLogUnlimited(t *testing.T) {
-	f, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
+	t.Parallel()
+
+	f, err := os.CreateTemp(t.TempDir(), "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
-	fNoNewLineEnding, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
+	fNoNewLineEnding, err := os.CreateTemp(t.TempDir(), "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
 
 	for i := range 10 {
-		fmt.Fprintf(f, "line #%03d\n", i)                // 10 bytes
-		fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) // 10 bytes
+		_, err = fmt.Fprintf(f, "line #%03d\n", i) // 10 bytes
+		require.NoError(t, err)
+		_, err = fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) // 10 bytes
+		require.NoError(t, err)
 	}
-	fmt.Fprintf(fNoNewLineEnding, "some string without new line")
+	_, err = fmt.Fprintf(fNoNewLineEnding, "some string without new line")
+	require.NoError(t, err)
 	require.NoError(t, f.Close())
 	require.NoError(t, fNoNewLineEnding.Close())
-
-	defer os.Remove(f.Name())                //nolint:errcheck
-	defer os.Remove(fNoNewLineEnding.Name()) //nolint:errcheck
 
 	t.Run("UnlimitedLineCount", func(t *testing.T) {
 		b, m, err := readLogUnlimited(f.Name())
@@ -138,17 +142,17 @@ func TestReadLogUnlimited(t *testing.T) {
 func TestAddAdminSummary(t *testing.T) {
 	t.Skip("FIXME")
 
-	zipfile, err := os.CreateTemp("", "*-test.zip")
-	assert.NoError(t, err)
+	zipfile, err := os.CreateTemp(t.TempDir(), "*-test.zip")
+	require.NoError(t, err)
 
 	zw := zip.NewWriter(zipfile)
 	err = addAdminSummary(t.Context(), zw)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
-	assert.NoError(t, zw.Close())
+	require.NoError(t, zw.Close())
 
 	reader, err := zip.OpenReader(zipfile.Name())
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	hasClientDir := false
 	for _, file := range reader.File {
@@ -161,6 +165,8 @@ func TestAddAdminSummary(t *testing.T) {
 }
 
 func TestFiles(t *testing.T) {
+	t.Parallel()
+
 	updater := &Updater{}
 	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
@@ -171,18 +177,18 @@ func TestFiles(t *testing.T) {
 	actual := make([]string, 0, len(files))
 	for _, f := range files {
 		if f.Name == "prometheus.base.yml" {
-			assert.EqualError(t, f.Err, "open /srv/prometheus/prometheus.base.yml: no such file or directory")
+			require.EqualError(t, f.Err, "open /srv/prometheus/prometheus.base.yml: no such file or directory")
 			continue
 		}
 
 		if f.Name == "supervisorctl_status.log" {
-			assert.EqualError(t, f.Err, "exit status 3")
+			require.EqualError(t, f.Err, "exit status 3")
 			// NOTE: this fails in supervisorctl v4+ if there are stopped services; it is not critical because the call succeeds
 			actual = append(actual, f.Name)
 			continue
 		}
 
-		assert.NoError(t, f.Err, "name = %q", f.Name)
+		require.NoError(t, f.Err, "name = %q", f.Name)
 
 		actual = append(actual, f.Name)
 	}

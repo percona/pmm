@@ -16,6 +16,7 @@ package jobs
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -23,7 +24,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -101,8 +101,9 @@ func (j *MongoDBRestoreJob) DSN() string {
 func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	defer j.jobLogger.sendLog(send, "", true)
 
-	if _, err := exec.LookPath(pbmBin); err != nil {
-		return errors.Wrapf(err, "lookpath: %s", pbmBin)
+	_, err := exec.LookPath(pbmBin)
+	if err != nil {
+		return fmt.Errorf("lookpath=%s: %w", pbmBin, err)
 	}
 
 	artifactFolder := j.folder
@@ -114,12 +115,12 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 
 	conf, err := createPBMConfig(&j.locationConfig, artifactFolder, false)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to create PBM config: %w", err)
 	}
 
 	confFile, err := writePBMConfigFile(conf)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to write to PBM config: %w", err)
 	}
 	defer os.Remove(confFile) //nolint:errcheck
 
@@ -128,33 +129,35 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		forceResync:    true,
 		dsn:            j.dbURL,
 	}
-	if err := pbmConfigure(ctx, j.l, configParams); err != nil {
-		return errors.Wrap(err, "failed to configure pbm")
+	err = pbmConfigure(ctx, j.l, configParams)
+	if err != nil {
+		return fmt.Errorf("failed to configure pbm: %w", err)
 	}
 
 	rCtx, cancel := context.WithTimeout(ctx, resyncTimeout)
-	if err := waitForPBMNoRunningOperations(rCtx, j.l, j.dbURL); err != nil {
+	err = waitForPBMNoRunningOperations(rCtx, j.l, j.dbURL)
+	if err != nil {
 		cancel()
-		return errors.Wrap(err, "failed to wait pbm configuration completion")
+		return fmt.Errorf("failed to wait pbm configuration completion: %w", err)
 	}
 	cancel()
 
 	snapshot, err := j.findCurrentSnapshot(ctx, j.pbmBackupName)
 	if err != nil {
 		j.jobLogger.sendLog(send, err.Error(), false)
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to find current snapshot: %w", err)
 	}
 
 	if snapshot.Status == "error" { //nolint:goconst
 		j.jobLogger.sendLog(send, snapshot.Error, false)
-		return errors.Wrap(ErrPBMArtifactProblem, snapshot.Error)
+		return fmt.Errorf("%s: %w", snapshot.Error, ErrPBMArtifactProblem)
 	}
 
 	defer j.agentsRestarter.RestartAgents()
 	restoreOut, err := j.startRestore(ctx, snapshot.Name)
 	if err != nil {
 		j.jobLogger.sendLog(send, err.Error(), false)
-		return errors.Wrap(err, "failed to start backup restore")
+		return fmt.Errorf("failed to start backup restore: %w", err)
 	}
 
 	streamCtx, streamCancel := context.WithCancel(ctx)
@@ -166,9 +169,10 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		}
 	}()
 
-	if err := waitForPBMRestore(ctx, j.l, j.dbURL, restoreOut, snapshot.Type, confFile); err != nil {
+	err = waitForPBMRestore(ctx, j.l, j.dbURL, restoreOut, snapshot.Type, confFile)
+	if err != nil {
 		j.jobLogger.sendLog(send, err.Error(), false)
-		return errors.Wrap(err, "failed to wait backup restore completion")
+		return fmt.Errorf("failed to wait backup restore completion: %w", err)
 	}
 
 	send(&agentv1.JobResult{
@@ -200,7 +204,7 @@ func (j *MongoDBRestoreJob) findCurrentSnapshot(ctx context.Context, snapshotNam
 			return &s, nil
 		}
 	}
-	return nil, errors.WithStack(ErrNotFound)
+	return nil, ErrNotFound
 }
 
 func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string) (*pbmRestore, error) {
@@ -221,7 +225,7 @@ func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string)
 			if j.pitrTimestamp.Unix() == 0 {
 				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
 			} else {
-				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", fmt.Sprintf(`--time=%s`, j.pitrTimestamp.Format("2006-01-02T15:04:05")))
+				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", "--time="+j.pitrTimestamp.Format("2006-01-02T15:04:05"))
 			}
 
 			if err != nil {
@@ -229,7 +233,7 @@ func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string)
 					retryCount--
 					continue
 				}
-				return nil, errors.Wrapf(err, "pbm restore error: %v", err)
+				return nil, fmt.Errorf("pbm restore error: %w", err)
 			}
 
 			restoreOutput.StartedAt = startTime

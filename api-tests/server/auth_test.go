@@ -27,7 +27,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -44,7 +43,11 @@ const (
 )
 
 func TestAuth(t *testing.T) {
+	t.Parallel()
+
 	t.Run("AuthErrors", func(t *testing.T) {
+		t.Parallel()
+
 		for user, code := range map[*url.Userinfo]int{
 			nil:                              401,
 			url.UserPassword("bad", "wrong"): 401,
@@ -65,7 +68,9 @@ func TestAuth(t *testing.T) {
 				req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				resp, err := http.DefaultClient.Do(req)
 				require.NoError(t, err)
-				defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+				t.Cleanup(func() {
+					assert.NoError(t, resp.Body.Close())
+				})
 
 				b, err := httputil.DumpResponse(resp, true)
 				require.NoError(t, err)
@@ -76,6 +81,8 @@ func TestAuth(t *testing.T) {
 	})
 
 	t.Run("NormalErrors", func(t *testing.T) {
+		t.Parallel()
+
 		for grpcCode, httpCode := range map[codes.Code]int{
 			codes.Unauthenticated:  401,
 			codes.PermissionDenied: 403,
@@ -84,7 +91,7 @@ func TestAuth(t *testing.T) {
 				t.Parallel()
 
 				res, err := serverClient.Default.ServerService.Version(&server.VersionParams{
-					Dummy:   pointer.ToString(fmt.Sprintf("grpccode-%d", grpcCode)),
+					Dummy:   new(fmt.Sprintf("grpccode-%d", grpcCode)),
 					Context: pmmapitests.Context,
 				})
 				assert.Empty(t, res)
@@ -121,7 +128,9 @@ func TestSwagger(t *testing.T) {
 
 				resp, err := http.DefaultClient.Do(req)
 				require.NoError(t, err)
-				defer resp.Body.Close() //nolint:errcheck
+				t.Cleanup(func() {
+					assert.NoError(t, resp.Body.Close())
+				})
 
 				assert.Equal(t, 401, resp.StatusCode)
 			})
@@ -149,7 +158,9 @@ func TestSwagger(t *testing.T) {
 
 				resp, err := client.Do(req)
 				require.NoError(t, err)
-				defer resp.Body.Close() //nolint:errcheck
+				t.Cleanup(func() {
+					assert.NoError(t, resp.Body.Close())
+				})
 
 				assert.Equal(t, 200, resp.StatusCode)
 			})
@@ -162,7 +173,9 @@ func doRequest(tb testing.TB, client *http.Client, req *http.Request) (*http.Res
 	resp, err := client.Do(req)
 	require.NoError(tb, err)
 
-	defer resp.Body.Close() //nolint:errcheck
+	tb.Cleanup(func() {
+		assert.NoError(tb, resp.Body.Close())
+	})
 
 	b, err := io.ReadAll(resp.Body)
 	require.NoError(tb, err)
@@ -171,6 +184,8 @@ func doRequest(tb testing.TB, client *http.Client, req *http.Request) (*http.Res
 }
 
 func TestBasicAuthPermissions(t *testing.T) {
+	t.Parallel()
+
 	ts := strconv.FormatInt(time.Now().Unix(), 10)
 	none := "none-" + ts
 	viewer := "viewer-" + ts
@@ -202,9 +217,9 @@ func TestBasicAuthPermissions(t *testing.T) {
 		userCase []userCase
 	}{
 		{name: "settings", url: "/v1/server/settings", method: "GET", userCase: []userCase{
-			{userType: "default", login: none, statusCode: 401},
-			{userType: "viewer", login: viewer, statusCode: 401},
-			{userType: "editor", login: editor, statusCode: 401},
+			{userType: "default", login: none, statusCode: 403},
+			{userType: "viewer", login: viewer, statusCode: 403},
+			{userType: "editor", login: editor, statusCode: 403},
 			{userType: "admin", login: admin, statusCode: 200},
 		}},
 	}
@@ -212,7 +227,7 @@ func TestBasicAuthPermissions(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			for _, user := range test.userCase {
-				t.Run(fmt.Sprintf("Basic auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
+				t.Run("Basic auth "+user.userType, func(t *testing.T) {
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
@@ -224,7 +239,9 @@ func TestBasicAuthPermissions(t *testing.T) {
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+					t.Cleanup(func() {
+						assert.NoError(t, resp.Body.Close())
+					})
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
@@ -278,7 +295,7 @@ func createUser(t *testing.T, login string) int {
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create user, status code: %d, response: %s", resp.StatusCode, b)
 
-	var m map[string]interface{}
+	var m map[string]any
 	err = json.Unmarshal(b, &m)
 	require.NoError(t, err)
 
@@ -307,6 +324,8 @@ func setRole(t *testing.T, userID int, role string) {
 }
 
 func TestServiceAccountPermissions(t *testing.T) {
+	t.Parallel()
+
 	// service account role options: viewer, editor, admin
 	// service token role options: editor, admin
 	// basic auth format is skipped, endpoint /auth/serviceaccount (to get info about currently used token in request) requires Bearer authorization
@@ -314,19 +333,19 @@ func TestServiceAccountPermissions(t *testing.T) {
 	nodeName, err := stringsgen.GenerateRandomString(256)
 	require.NoError(t, err)
 
-	viewerNodeName := fmt.Sprintf("%s-viewer", nodeName)
+	viewerNodeName := nodeName + "-viewer"
 	viewerAccountID := createServiceAccountWithRole(t, "Viewer", viewerNodeName)
 	viewerTokenID, viewerToken := createServiceToken(t, viewerAccountID, viewerNodeName)
 	defer deleteServiceAccount(t, viewerAccountID)
 	defer deleteServiceToken(t, viewerAccountID, viewerTokenID)
 
-	editorNodeName := fmt.Sprintf("%s-editor", nodeName)
+	editorNodeName := nodeName + "-editor"
 	editorAccountID := createServiceAccountWithRole(t, "Editor", editorNodeName)
 	editorTokenID, editorToken := createServiceToken(t, editorAccountID, editorNodeName)
 	defer deleteServiceAccount(t, editorAccountID)
 	defer deleteServiceToken(t, editorAccountID, editorTokenID)
 
-	adminNodeName := fmt.Sprintf("%s-admin", nodeName)
+	adminNodeName := nodeName + "-admin"
 	adminAccountID := createServiceAccountWithRole(t, "Admin", adminNodeName)
 	adminTokenID, adminToken := createServiceToken(t, adminAccountID, adminNodeName)
 	defer deleteServiceAccount(t, adminAccountID)
@@ -346,8 +365,8 @@ func TestServiceAccountPermissions(t *testing.T) {
 	}{
 		{name: "settings", url: "/v1/server/settings", method: "GET", userCase: []userCase{
 			{userType: "default", statusCode: 401},
-			{userType: "viewer", serviceToken: viewerToken, statusCode: 401},
-			{userType: "editor", serviceToken: editorToken, statusCode: 401},
+			{userType: "viewer", serviceToken: viewerToken, statusCode: 403},
+			{userType: "editor", serviceToken: editorToken, statusCode: 403},
 			{userType: "admin", serviceToken: adminToken, statusCode: 200},
 		}},
 	}
@@ -355,7 +374,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			for _, user := range test.userCase {
-				t.Run(fmt.Sprintf("Service Token auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
+				t.Run("Service Token auth "+user.userType, func(t *testing.T) {
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
@@ -365,16 +384,18 @@ func TestServiceAccountPermissions(t *testing.T) {
 					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
 					require.NoError(t, err)
 
-					req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", user.serviceToken))
+					req.Header.Set("Authorization", "Bearer "+user.serviceToken)
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:errcheck
+					t.Cleanup(func() {
+						assert.NoError(t, resp.Body.Close())
+					})
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
 
-				t.Run(fmt.Sprintf("Basic auth with Service Token %s", user.userType), func(t *testing.T) { //nolint:perfsprint
+				t.Run("Basic auth with Service Token "+user.userType, func(t *testing.T) {
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
 					u.User = url.UserPassword("service_token", user.serviceToken)
@@ -385,7 +406,9 @@ func TestServiceAccountPermissions(t *testing.T) {
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:errcheck
+					t.Cleanup(func() {
+						assert.NoError(t, resp.Body.Close())
+					})
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
@@ -412,12 +435,11 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
-	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:errcheck
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusCreated, resp.StatusCode, "failed to create Service account, status code: %d, response: %s", resp.StatusCode, b)
 
-	var m map[string]interface{}
+	var m map[string]any
 	err = json.Unmarshal(b, &m)
 	require.NoError(t, err)
 
@@ -433,10 +455,9 @@ func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
-	resp1, b := doRequest(t, http.DefaultClient, req)
-	defer resp1.Body.Close() //nolint:errcheck
+	resp, b = doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
-	require.Equalf(t, http.StatusCreated, resp.StatusCode, "failed to set orgId=1 to Service account, status code: %d, response: %s", resp.StatusCode, b)
+	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set orgId=1 to Service account, status code: %d, response: %s", resp.StatusCode, b)
 
 	return serviceAccountID
 }
@@ -450,8 +471,7 @@ func deleteServiceAccount(t *testing.T, serviceAccountID int) {
 	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
 	require.NoError(t, err)
 
-	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service account, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -473,12 +493,11 @@ func createServiceToken(t *testing.T, serviceAccountID int, nodeName string) (in
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
-	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create Service account, status code: %d, response: %s", resp.StatusCode, b)
 
-	var m map[string]interface{}
+	var m map[string]any
 	err = json.Unmarshal(b, &m)
 	require.NoError(t, err)
 
@@ -494,8 +513,7 @@ func deleteServiceToken(t *testing.T, serviceAccountID, serviceTokenID int) {
 	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
 	require.NoError(t, err)
 
-	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:errcheck
+	resp, b := doRequest(t, http.DefaultClient, req) //nolint:bodyclose
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service token, status code: %d, response: %s", resp.StatusCode, b)
 }

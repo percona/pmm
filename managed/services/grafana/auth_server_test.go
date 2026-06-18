@@ -24,7 +24,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -63,6 +62,32 @@ func TestNextPrefix(t *testing.T) {
 	}
 }
 
+func TestResolveRule(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		method   string
+		path     string
+		wantRole role
+	}{
+		// Alerting: only listing templates is viewable; writes need editor.
+		{http.MethodGet, "/v1/alerting/templates", viewer},        // ListTemplates
+		{http.MethodPost, "/v1/alerting/templates", editor},       // CreateTemplate
+		{http.MethodPut, "/v1/alerting/templates/foo", editor},    // UpdateTemplate
+		{http.MethodDelete, "/v1/alerting/templates/foo", editor}, // DeleteTemplate
+		{http.MethodPost, "/v1/alerting/rules", editor},           // CreateRule
+		// No matching rule falls back to grafanaAdmin.
+		{http.MethodGet, "/v1/unknown", grafanaAdmin},
+	} {
+		t.Run(fmt.Sprintf("%s %s", tc.method, tc.path), func(t *testing.T) {
+			t.Parallel()
+
+			got, _ := resolveRule(tc.method, tc.path, logrus.WithField("test", t.Name()))
+			assert.Equal(t, tc.wantRole, got)
+		})
+	}
+}
+
 func TestAuthServerAuthenticate(t *testing.T) {
 	t.Parallel()
 
@@ -96,61 +121,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		assert.Equal(t, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, res)
 	})
 
-	for uri, minRole := range map[string]role{
-		"/agent.v1.AgentService/Connect":                 admin,
-		"/agent.Agent/Connect":                           admin,
-		"/realtimeanalytics.v1.CollectorService/Collect": admin,
-
-		"/inventory.v1.Nodes/ListNodes":                  admin,
-		"/actions.v1.ActionsService/StartServiceAction":  viewer,
-		"/management.v1.ManagementService/RemoveService": admin,
-		"/management.v1.ManagementService/ListServices":  admin,
-		"/management.v1.ManagementService/AddAnnotation": admin,
-		"/server.v1.ServerService/CheckUpdates":          viewer,
-		"/server.v1.ServerService/StartUpdate":           admin,
-		"/server.v1.ServerService/UpdateStatus":          none,
-		"/server.v1.ServerService/AWSInstanceCheck":      none,
-
-		"/v1/inventory/nodes":               admin,
-		"/v1/actions:startServiceAction":    viewer,
-		"/v1/advisors":                      editor,
-		"/v1/advisors/checks:start":         editor,
-		"/v1/advisors/failedServices":       editor,
-		"/v1/ha/status":                     viewer,
-		"/v1/ha/nodes":                      viewer,
-		"/v1/management/services":           admin,
-		"/v1/management/agents":             admin,
-		"/v1/server/updates":                viewer,
-		"/v1/server/updates:start":          admin,
-		"/v1/server/updates:getStatus":      none,
-		"/v1/server/settings":               admin,
-		"/v1/server/settings/readonly":      viewer,
-		"/v1/server/AWSInstance":            none,
-		"/v1/backups":                       admin,
-		"/v1/dumps":                         admin,
-		"/v1/accesscontrol":                 admin,
-		"/v1/users":                         viewer,
-		"/v1/platform:connect":              admin,
-		"/v1/platform:disconnect":           admin,
-		"/v1/platform/contact":              viewer,
-		"/v1/platform/user":                 viewer,
-		"/v1/platform/server":               viewer,
-		"/v1/platform/organization/tickets": viewer,
-
-		"/v1/server/AWSInstance/..%2f..%2finventory/Services/List": admin,
-		"/v1/server/AWSInstance/..%2flogs.zip":                     admin,
-
-		"/v1/server/version": viewer,
-		"/v1/server/readyz":  none,
-		"/ping":              none,
-
-		"/v1/qan/query:getExample": viewer,
-		"/v1/qan:getMetrics":       viewer,
-
-		"/prometheus/":        admin,
-		"/nomad/":             admin,
-		"/v1/server/logs.zip": admin,
-	} {
+	for uri, minRole := range rules {
 		for _, role := range []role{viewer, editor, admin} {
 			t.Run(fmt.Sprintf("uri=%s,minRole=%s,role=%s", uri, minRole, role), func(t *testing.T) {
 				t.Parallel()
@@ -174,7 +145,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 				if minRole <= role {
 					assert.Nil(t, res)
 				} else {
-					assert.Equal(t, &authError{code: codes.PermissionDenied, message: "Access denied."}, res)
+					assert.Equal(t, &authError{code: codes.PermissionDenied, message: "Access denied"}, res)
 				}
 			})
 		}
@@ -229,7 +200,7 @@ func TestServerClientConnection(t *testing.T) {
 
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
 		require.NoError(t, err)
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
+		req.Header.Set("Authorization", "Bearer "+serviceToken)
 
 		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 		assert.Nil(t, authError)
@@ -288,7 +259,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 
 	// Enable access control
 	_, err = models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
-		EnableAccessControl: pointer.ToBool(true),
+		EnableAccessControl: new(true),
 	})
 	require.NoError(t, err)
 

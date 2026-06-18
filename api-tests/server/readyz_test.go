@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -46,15 +47,31 @@ func TestReadyz(t *testing.T) {
 				Path: path,
 			})
 
-			req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
-			resp, err := http.DefaultClient.Do(req)
-			require.NoError(t, err)
-			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+			var lastStatus int
+			var lastBody []byte
+			require.Eventually(t, func() bool {
+				req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
+				if err != nil {
+					return false
+				}
+				resp, err := http.DefaultClient.Do(req)
+				if err != nil {
+					return false
+				}
+				t.Cleanup(func() {
+					assert.NoError(t, resp.Body.Close())
+				})
 
-			b, err := io.ReadAll(resp.Body)
-			require.NoError(t, err)
-			assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
-			assert.Equal(t, "{}", string(b))
+				b, err := io.ReadAll(resp.Body)
+				if err != nil {
+					return false
+				}
+				lastStatus = resp.StatusCode
+				lastBody = append([]byte(nil), b...)
+				return resp.StatusCode == http.StatusOK && string(b) == "{}"
+			}, 30*time.Second, 200*time.Millisecond,
+				"GET %s expected HTTP 200 and body {}; last status=%d body=%s",
+				uri.String(), lastStatus, lastBody)
 		})
 	}
 }

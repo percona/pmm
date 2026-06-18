@@ -15,8 +15,6 @@
 package management
 
 import (
-	"github.com/AlekSi/pointer"
-
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
 	"github.com/percona/pmm/api/management/v1/json/client"
@@ -71,7 +69,7 @@ func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
 
 	params := &mservice.RegisterNodeParams{
 		Body: mservice.RegisterNodeBody{
-			NodeType:      pointer.ToString(allNodeTypes[cmd.NodeType]),
+			NodeType:      new(allNodeTypes[cmd.NodeType]),
 			NodeName:      cmd.NodeName,
 			MachineID:     cmd.MachineID,
 			Distro:        cmd.Distro,
@@ -85,7 +83,7 @@ func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
 			AgentPassword: cmd.AgentPassword,
 
 			Reregister:        cmd.Force,
-			MetricsMode:       cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+			MetricsMode:       cmd.MetricsMode.EnumValue(),
 			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
 		},
 		Context: commands.Ctx,

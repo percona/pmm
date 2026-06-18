@@ -17,18 +17,20 @@ package process
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/templates"
+	extensionsv1 "github.com/percona/pmm/api/extensions/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -76,13 +78,17 @@ type Params struct {
 	Env              []string
 	Type             inventoryv1.AgentType
 	TemplateRenderer *templates.TemplateRenderer
-	TemplateParams   map[string]interface{}
+	TemplateParams   map[string]any
 }
 
 func (p *Params) String() string {
 	res := p.Path + " " + strings.Join(p.Args, " ")
 	if len(p.Env) != 0 {
-		res += " (environment: " + strings.Join(p.Env, ", ") + ")"
+		printEnv := make([]string, len(p.Env))
+		for i, item := range p.Env {
+			printEnv[i] = logger.RedactString(item, extensionsv1.RedactType_REDACT_TYPE_DSN)
+		}
+		res += " (environment: " + strings.Join(printEnv, ", ") + ")"
 	}
 
 	return res
@@ -140,7 +146,8 @@ func (p *Process) toStarting() {
 
 	p.cmdDone = make(chan struct{})
 
-	if err := p.cmd.Start(); err != nil {
+	err := p.cmd.Start()
+	if err != nil {
 		p.l.Warnf("Process: failed to start: %s.", err)
 		go p.toFailing(err)
 		return
@@ -222,7 +229,8 @@ func (p *Process) toStopping() {
 	p.l.Tracef("Process: stopping (sending SIGTERM)...")
 	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_STOPPING
 
-	if err := p.cmd.Process.Signal(unix.SIGTERM); err != nil {
+	err := p.cmd.Process.Signal(unix.SIGTERM)
+	if err != nil {
 		p.l.Errorf("Process: failed to send SIGTERM: %s.", err)
 	}
 
@@ -233,7 +241,8 @@ func (p *Process) toStopping() {
 		// nothing
 	case <-t.C:
 		p.l.Warnf("Process: still alive after %s, sending SIGKILL...", killT)
-		if err := p.cmd.Process.Signal(unix.SIGKILL); err != nil {
+		err := p.cmd.Process.Signal(unix.SIGKILL)
+		if err != nil {
 			p.l.Errorf("Process: failed to send SIGKILL: %s.", err)
 		}
 		<-p.cmdDone

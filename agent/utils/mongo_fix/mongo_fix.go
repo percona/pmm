@@ -19,14 +19,14 @@ package mongo_fix //nolint:revive
 import (
 	"net/url"
 
-	"github.com/AlekSi/pointer"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // ClientOptionsForDSN applies URI to Client.
 func ClientOptionsForDSN(dsn string) (*options.ClientOptions, error) {
 	clientOptions := options.Client().ApplyURI(dsn)
-	if e := clientOptions.Validate(); e != nil {
+	e := clientOptions.Validate()
+	if e != nil {
 		return nil, e
 	}
 
@@ -44,7 +44,7 @@ func ClientOptionsForDSN(dsn string) (*options.ClientOptions, error) {
 		clientOptions.Auth.Password = password
 
 		// set this flag to connect to arbiter when there authentication is enabled
-		clientOptions.AuthenticateToAnything = pointer.ToBool(true) //nolint:staticcheck
+		clientOptions.AuthenticateToAnything = new(true) //nolint:staticcheck
 	}
 
 	return clientOptions, nil

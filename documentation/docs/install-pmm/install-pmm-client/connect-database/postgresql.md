@@ -194,7 +194,7 @@ For a more detailed comparison of extensions, see the [pg_stat_monitor documenta
     {.power-number}
     
     1. Install the required package:
-        -  Debian/Ubuntu: `apt install -y postgresql-contrib`
+        - Debian/Ubuntu: `apt install -y postgresql-contrib`
         - Red Hat/CentOS: `yum install -y postgresql-contrib`
     
     2. Add these lines to your `postgresql.conf` file:
@@ -247,29 +247,11 @@ For `pg_stat_statements`, query examples are never collected by design, providin
 
 ## Add service to PMM
 
-After configuring your database server with the appropriate extension, you need to add it as a service to PMM. You can do this either through the PMM user interface or via the command line.
+After configuring your database server with the appropriate extension, you need to add it as a service to PMM. You can do this using the command line or the UI.
 
-=== "Via UI"
+The **command line** (`pmm-admin`) deploys an exporter directly on the database host and automatically collects node-level metrics (CPU, memory, disk I/O) alongside PostgreSQL metrics. Use the UI only if you cannot install PMM Client on the database host.
 
-    To add the service from the user interface:
-    {.power-number}
-    
-    1. Go to  **PMM Configuration > Add Service > PostgreSQL**.
-    
-    2. Enter or select values for the fields.
-
-    3. (Optional) If using `pgstatmonitor`, check **Disable query examples** under **Additional options** to prevent collection of actual query values. This protects sensitive data while preserving all query metrics and performance statistics in QAN.    
-
-    4. Click **Add service**.
-    ![!](../../../images/PMM_Add_Instance_PostgreSQL.png)
-
-    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key.        
-    For TLS connection, make sure SSL is configured in your PostgreSQL instance. 
-    
-    Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. 
-    See PostgreSQL documentation on [Secure TCP/IP Connections with SSL].
-
-=== "Via command line"
+=== "Via command line (recommended)"
 
     === "Basic setup"
     
@@ -334,6 +316,26 @@ After configuring your database server with the appropriate extension, you need 
         - `PORT`: PostgreSQL service port number
         - `USER`: Database user allowed to connect via TLS (should match the CN in the client certificate)
         - `SERVICE-NAME`: Name to give to the service within PMM
+
+=== "Via UI"
+
+    To add the service from the user interface:
+    {.power-number}
+    
+    1. Go to  **Inventory > Add service > PostgreSQL**.
+    
+    2. Enter or select values for the fields.
+
+    3. (Optional) Under **Additional options**, if using `pgstatmonitor`, check **Disable query examples** to prevent collection of actual query values. This protects sensitive data while preserving all query metrics and performance statistics in QAN.
+
+    4. Click **Add service**.
+    ![!](../../../images/PMM_Add_Instance_PostgreSQL.png)
+
+    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key.        
+    For TLS connection, make sure SSL is configured in your PostgreSQL instance. 
+    
+    Make sure SSL is enabled in the server configuration file `postgresql.conf`, and that hosts are allowed to connect in the client authentication configuration file `pg_hba.conf`. 
+    See PostgreSQL documentation on [Secure TCP/IP Connections with SSL].
 
 ### Configure auto-discovery
 
@@ -408,9 +410,7 @@ After adding a PostgreSQL service, verify that it's properly connected and sendi
     Use the UI to confirm that your service was added and is actively monitored:
     {.power-number}
     
-    1. Select **Configuration > Inventory**.
-    
-    2. In the **Services** tab, verify that **Service name** matches what you configured, **Address** points to your PostgreSQL instance and **Status** shows as "Active".
+    1. Select **Inventory > Services** and verify that **Service name** matches what you configured, **Address** points to your PostgreSQL instance and **Status** shows as "Active".
     
     3. In the **Options** column, expand the **Details** section to check that agents are properly registered and that the expected data source is being used.
 
@@ -491,12 +491,12 @@ The PostgreSQL exporter can execute custom queries to collect additional metrics
 - [Running custom MySQL queries in PMM][BLOG_CUSTOM_QUERIES_MYSQL]
 
 [PostgreSQL]: https://www.postgresql.org/
-[Percona Distribution for PostgreSQL]: https://www.percona.com/software/postgresql-distribution
+[Percona Distribution for PostgreSQL]: https://www.percona.com/postgresql/software/
 [POSTGRESQL_VERSIONING]: https://www.postgresql.org/support/versioning/
-[PERCONA_LIFECYCLE]: https://www.percona.com/services/policies/percona-software-platform-lifecycle/
+[PERCONA_LIFECYCLE]: https://www.percona.com/services/policies/percona-services-lifecycle-policy/
 [PERCONA_RELEASE]: https://www.percona.com/doc/percona-repo-config/percona-release.html
 [PERCONA_POSTGRESQL_INSTALL]: https://www.percona.com/doc/postgresql/LATEST/installing.html
 [PG_STAT_MONITOR_INSTALL]: https://github.com/percona/pg_stat_monitor#installation
 [PMM_ADMIN]: ../../../use/commands/pmm-admin/pmm-admin.md
 [Secure TCP/IP Connections with SSL]: https://www.postgresql.org/docs/current/ssl-tcp.html
-[BLOG_CUSTOM_QUERIES_MYSQL]: https://www.percona.com/blog/2020/06/10/running-custom-queries-in-percona-monitoring-and-management/
+[BLOG_CUSTOM_QUERIES_MYSQL]: https://www.percona.com/blog/running-custom-queries-in-percona-monitoring-and-management/

@@ -18,6 +18,7 @@ package pgstatmonitor
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +27,6 @@ import (
 	"github.com/AlekSi/pointer"
 	ver "github.com/hashicorp/go-version"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -152,7 +152,15 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 	return false, nil
 }
 
-func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableCommentsParsing, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) { //nolint:lll
+func newPgStatMonitorQAN(
+	q *reform.Querier,
+	dbCloser io.Closer,
+	agentID string,
+	disableCommentsParsing,
+	disableQueryExamples bool,
+	maxQueryLength int32,
+	l *logrus.Entry,
+) (*PGStatMonitorQAN, error) {
 	return &PGStatMonitorQAN{
 		q:                      q,
 		dbCloser:               dbCloser,
@@ -181,16 +189,16 @@ func getPGVersion(q *reform.Querier) (pgVersion, error) {
 	return pgVersion(parsed), err
 }
 
-//nolint:mnd
+//nolint:mnd,cyclop
 func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitorPrerelease, error) {
 	var result string
 	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ pg_stat_monitor_version()", queryTag)).Scan(&result)
 	if err != nil {
-		return pgStatMonitorVersion06, "", errors.Wrap(err, "failed to get pg_stat_monitor version from DB")
+		return pgStatMonitorVersion06, "", fmt.Errorf("failed to get pg_stat_monitor version from DB: %w", err)
 	}
 	vPGSM, err := ver.NewVersion(result)
 	if err != nil {
-		return pgStatMonitorVersion06, "", errors.Wrap(err, "failed to parse pg_stat_monitor version")
+		return pgStatMonitorVersion06, "", fmt.Errorf("failed to parse pg_stat_monitor version: %w", err)
 	}
 
 	vPG, err := getPGVersion(q)
@@ -298,7 +306,8 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	// add current stat monitor to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
-	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength); err == nil {
+	current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength)
+	if err == nil {
 		m.monitorCache.refresh(current)
 		m.l.Debugf("Got %d initial stat monitor.", len(current))
 		running = true
@@ -365,7 +374,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			m.resetWaitTime(t, waitTime)
 
 			if err != nil {
-				m.l.Error(errors.Wrap(err, "getNewBuckets failed"))
+				m.l.WithError(err).Error("getNewBuckets failed")
 				running = false
 				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 				continue
@@ -379,6 +388,21 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			m.changes <- agents.Change{MetricsBucket: buckets}
 		}
 	}
+}
+
+// Changes returns channel that should be read until it is closed.
+func (m *PGStatMonitorQAN) Changes() <-chan agents.Change {
+	return m.changes
+}
+
+// Describe implements prometheus.Collector.
+func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+	// This method is needed to satisfy interface.
+}
+
+// Collect implement prometheus.Collector.
+func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:revive
+	// This method is needed to satisfy interface.
 }
 
 func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime time.Duration) {
@@ -418,7 +442,8 @@ func getPGSM20Settings(q *reform.Querier) (settings, error) {
 		var setting pgsm20Settings
 		err = rows.Scan(
 			&setting.Name,
-			&setting.Setting)
+			&setting.Setting,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -503,7 +528,7 @@ func (s settings) getWaitTime() (time.Duration, error) {
 
 	valueInt, err := strconv.ParseInt(s[key].Value, 10, 64)
 	if err != nil {
-		return defaultWaitTime, errors.Wrap(err, "property pgsm_bucket_time cannot be parsed as integer, wait time set on 60 seconds")
+		return defaultWaitTime, fmt.Errorf("property pgsm_bucket_time cannot be parsed as integer, wait time set on 60 seconds: %w", err)
 	}
 
 	return time.Duration(valueInt) * time.Second, nil
@@ -536,13 +561,13 @@ func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs u
 
 // makeBuckets uses current state of pg_stat_monitor table and accumulated previous state
 // to make metrics buckets.
-func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*pgStatMonitorExtended) []*agentv1.MetricsBucket {
+func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*pgStatMonitorExtended) []*agentv1.MetricsBucket { //nolint:gocognit
 	res := make([]*agentv1.MetricsBucket, 0, len(current))
 
 	for bucketStartTime, bucket := range current {
 		vPGSM, _, err := getPGMonitorVersion(m.q)
 		if err != nil {
-			m.l.Error(errors.Wrap(err, "failed to get row and view for pg_stat_monitor version"))
+			m.l.WithError(err).Error("Failed to get row and view for pg_stat_monitor version")
 			continue
 		}
 
@@ -588,12 +613,12 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				},
 				Postgresql: &agentv1.MetricsBucket_PostgreSQL{},
 			}
-			if currentPSM.pgStatMonitor.CmdType >= 0 &&
-				currentPSM.pgStatMonitor.CmdType < int32(len(commandTypeToText)) { //nolint:gosec // len(commandTypeToText) is not expected to overflow int32
-				mb.Postgresql.CmdType = commandTypeToText[currentPSM.pgStatMonitor.CmdType]
+			if currentPSM.CmdType >= 0 &&
+				currentPSM.CmdType < int32(len(commandTypeToText)) { //nolint:gosec // len(commandTypeToText) is not expected to overflow int32
+				mb.Postgresql.CmdType = commandTypeToText[currentPSM.CmdType]
 			} else {
 				mb.Postgresql.CmdType = commandTextNotAvailable
-				m.l.Warnf("failed to translate command type '%d' into text", currentPSM.pgStatMonitor.CmdType)
+				m.l.Warnf("failed to translate command type '%d' into text", currentPSM.CmdType)
 			}
 
 			mb.Postgresql.TopQueryid = pointer.GetString(currentPSM.TopQueryID)
@@ -702,7 +727,7 @@ func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.Stri
 	for k, v := range respCalls {
 		val, err := strconv.ParseInt(v, 10, 32)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse histogram")
+			return nil, fmt.Errorf("failed to parse histogram: %w", err)
 		}
 
 		histogram[k].Frequency = uint32(val)
@@ -711,7 +736,7 @@ func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.Stri
 	for k, v := range prevRespCalls {
 		val, err := strconv.ParseInt(v, 10, 32)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse histogram")
+			return nil, fmt.Errorf("failed to parse histogram: %w", err)
 		}
 
 		histogram[k].Frequency -= uint32(val)
@@ -763,21 +788,6 @@ func getHistogramRangesArray(vPGSM pgStatMonitorVersion) []*agentv1.HistogramIte
 		{Range: "(10000 - 31622)"},
 		{Range: "(31622 - 100000)"},
 	}
-}
-
-// Changes returns channel that should be read until it is closed.
-func (m *PGStatMonitorQAN) Changes() <-chan agents.Change {
-	return m.changes
-}
-
-// Describe implements prometheus.Collector.
-func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
-	// This method is needed to satisfy interface.
-}
-
-// Collect implement prometheus.Collector.
-func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:revive
-	// This method is needed to satisfy interface.
 }
 
 // check interfaces.

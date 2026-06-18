@@ -23,12 +23,12 @@ import (
 
 // Parameter represents alerting template or rule parameter.
 type Parameter struct {
-	Name    string        `yaml:"name"`                 // required
-	Summary string        `yaml:"summary"`              // required
-	Unit    Unit          `yaml:"unit,omitempty"`       // optional
-	Type    Type          `yaml:"type"`                 // required
-	Range   []interface{} `yaml:"range,flow,omitempty"` //nolint:modernize
-	Value   interface{}   `yaml:"value,omitempty"`      //nolint:modernize
+	Name    string `yaml:"name"`           // required
+	Summary string `yaml:"summary"`        // required
+	Unit    Unit   `yaml:"unit,omitempty"` // optional
+	Type    Type   `yaml:"type"`           // required
+	Range   []any  `yaml:"range,flow,omitempty"`
+	Value   any    `yaml:"value,omitempty"`
 }
 
 // GetValueForBool casts parameter value to the bool.
@@ -193,7 +193,7 @@ func (p *Parameter) validateRange() error {
 	return fmt.Errorf("unknown parameter type: %s", p.Type)
 }
 
-func castValueToFloat64(v interface{}) (float64, error) { //nolint:modernize
+func castValueToFloat64(v any) (float64, error) {
 	switch v := v.(type) {
 	case nil:
 		return 0, errors.New("value is nil")

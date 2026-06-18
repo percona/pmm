@@ -17,13 +17,13 @@ package agents
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"runtime/pprof"
 	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -64,7 +64,7 @@ func NewHandler(db *reform.DB, qanClient qanClient, vmdb prometheusService, regi
 }
 
 // Run takes over pmm-agent gRPC stream and runs it until completion.
-func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
+func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolint:gocognit
 	disconnectReason := "unknown"
 
 	ctx := stream.Context()
@@ -107,7 +107,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 				err = agent.channel.Wait()
 				h.r.unregister(ctx, agent.id, disconnectReason)
 				if err != nil {
-					l.Error(errors.WithStack(err))
+					l.Error(err)
 				}
 				return nil
 			}
@@ -123,7 +123,8 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 
 			case *agentv1.StateChangedRequest:
 				pprof.Do(ctx, pprof.Labels("request", "StateChangedRequest"), func(ctx context.Context) {
-					if err := h.stateChanged(ctx, p); err != nil {
+					err := h.stateChanged(ctx, p)
+					if err != nil {
 						l.Errorf("%+v", err)
 					}
 
@@ -135,7 +136,8 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 
 			case *agentv1.QANCollectRequest:
 				pprof.Do(ctx, pprof.Labels("request", "QANCollectRequest"), func(ctx context.Context) {
-					if err := h.qanClient.Collect(ctx, p.MetricsBucket); err != nil {
+					err := h.qanClient.Collect(ctx, p.MetricsBucket)
+					if err != nil {
 						l.Errorf("%+v", err)
 					}
 
@@ -199,7 +201,8 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 				req.Status,
 				req.ListenPort,
 				pointer.ToStringOrNil(req.ProcessExecPath),
-				pointer.ToStringOrNil(req.Version))
+				pointer.ToStringOrNil(req.Version),
+			)
 			if err != nil {
 				return err
 			}
@@ -214,7 +217,8 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 	// VictoriaMetrics from scraping stale ports (PMM-14267)
 	if portsChanged {
 		l.Debug("Listen port changed, forcing immediate VictoriaMetrics configuration update")
-		if err := h.vmdb.ForceConfigurationUpdate(ctx); err != nil {
+		err := h.vmdb.ForceConfigurationUpdate(ctx)
+		if err != nil {
 			return fmt.Errorf("failed to force configuration update: %w", err)
 		}
 	} else {
@@ -282,7 +286,7 @@ func updateAgentStatus(
 
 	agent.Status = status.String()
 	agent.ProcessExecPath = processExecPath
-	agent.ListenPort = pointer.ToUint16(uint16(listenPort)) //nolint:gosec // port is uint16
+	agent.ListenPort = new(uint16(listenPort)) //nolint:gosec // port is uint16
 	if version != nil {
 		agent.Version = version
 	}

@@ -1,0 +1,64 @@
+button#ask-percona-ai {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 0.45rem;
+
+    /* Match MkDocs Material search field */
+    height: 1.8rem;
+    padding: 0 0.9rem;
+    margin-left: 0.5rem;
+
+    border: none;
+    border-radius: 0.1rem;
+
+    background: #4B2EB5;
+    color: #CAC1E9;
+
+    box-shadow: var(--md-shadow-z1);
+
+    cursor: pointer;
+
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 400;
+    line-height: 1;
+
+    white-space: nowrap;
+
+    transition:
+        background-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+button#ask-percona-ai:hover {
+    background: #7855F6;
+}
+
+button#ask-percona-ai:focus-visible {
+    outline: none;
+    box-shadow:
+        0 0 0 0.1rem rgba(120, 85, 246, 0.35),
+        var(--md-shadow-z2);
+}
+
+button#ask-percona-ai .percona-star,
+button#ask-percona-ai .percona-text {
+    color: inherit;
+}
+
+button#ask-percona-ai .percona-star {
+    font-size: 0.85rem;
+    line-height: 1;
+}
+
+@media screen and (max-width: 768px) {
+    button#ask-percona-ai {
+        padding: 0 0.75rem;
+    }
+
+    button#ask-percona-ai .percona-text {
+        display: none;
+    }
+}

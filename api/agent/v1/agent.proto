@@ -4,6 +4,7 @@ package agent.v1;
 
 import "agent/v1/collector.proto";
 import "backup/v1/common.proto";
+import "extensions/v1/redact.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/rpc/status.proto";
@@ -14,7 +15,7 @@ import "inventory/v1/services.proto";
 // TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
 message TextFiles {
   // files contains files which can be used to connect to DB (certificates, keys and etc).
-  map<string, string> files = 1;
+  map<string, string> files = 1 [(extensions.v1.sensitive) = REDACT_TYPE_MASK];
   // template_left_delim is used to replace placeholders in templates (DSN and etc.) with paths to files.
   string template_left_delim = 2;
   // template_right_delim is used to replace placeholders in templates (DSN and etc.) with paths to files.
@@ -57,9 +58,9 @@ message SetStateRequest {
     string template_left_delim = 2;
     string template_right_delim = 3;
     repeated string args = 4;
-    repeated string env = 5;
-    map<string, string> text_files = 6;
-    repeated string redact_words = 7;
+    repeated string env = 5 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
+    map<string, string> text_files = 6 [(extensions.v1.sensitive) = REDACT_TYPE_MASK];
+    repeated string redact_words = 7 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
     // Environment variable names to be resolved from pmm-agent's environment.
     repeated string env_variable_names = 8;
   }
@@ -67,7 +68,7 @@ message SetStateRequest {
   // BuiltinAgent describes desired configuration of a single built-in agent for pmm-agent.
   message BuiltinAgent {
     inventory.v1.AgentType type = 1;
-    string dsn = 2;
+    string dsn = 2 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     // Limit query length in QAN (default: server-defined; -1: no limit).
     int32 max_query_length = 3;
     // Disable parsing comments from queries and showing them in QAN.
@@ -83,7 +84,7 @@ message SetStateRequest {
     // TLS certificate wont be verified.
     bool tls_skip_verify = 9;
     // Environment variables to be passed to the built-in agent.
-    map<string, string> env = 10;
+    map<string, string> env = 10 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     // Real-Time Analytics options.
     inventory.v1.RTAOptions rta_options = 11;
     // Service identifier of the service where the agent connects to.
@@ -162,7 +163,7 @@ message StartActionRequest {
   // MySQLExplainParams describes MySQL EXPLAIN action parameters.
   message MySQLExplainParams {
     // DSN for the service. May contain connection (dial) timeout.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     string query = 2;
     repeated string values = 3;
     string schema = 4;
@@ -175,7 +176,7 @@ message StartActionRequest {
   // MySQLShowCreateTableParams describes MySQL SHOW CREATE TABLE action parameters.
   message MySQLShowCreateTableParams {
     // DSN for the service. May contain connection (dial) timeout.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     string table = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
@@ -185,9 +186,9 @@ message StartActionRequest {
   // MySQLShowTableStatusParams describes MySQL SHOW TABLE STATUS action parameters.
   message MySQLShowTableStatusParams {
     // DSN for the service. May contain connection (dial) timeout.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     string table = 2;
-    // Contains files and their contents which can be used in DSN.
+    // Contains files and their contents which can be used in REDACT_TYPE_DSN.
     TextFiles tls_files = 3;
     // TLS certificate wont be verified.
     bool tls_skip_verify = 4;
@@ -195,7 +196,7 @@ message StartActionRequest {
   // MySQLShowIndexParams describes MySQL SHOW INDEX action parameters.
   message MySQLShowIndexParams {
     // DSN for the service. May contain connection (dial) timeout.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     string table = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
@@ -205,7 +206,7 @@ message StartActionRequest {
   // PostgreSQLShowCreateTableParams describes PostgreSQL SHOW CREATE TABLE action parameters.
   message PostgreSQLShowCreateTableParams {
     // DSN for the service. May contain connection (dial) timeout.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     string table = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
@@ -215,7 +216,7 @@ message StartActionRequest {
   // PostgreSQLShowIndexParams describes PostgreSQL SHOW INDEX action parameters.
   message PostgreSQLShowIndexParams {
     // DSN for the service. May contain connection (dial) timeout.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     string table = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 3;
@@ -226,7 +227,7 @@ message StartActionRequest {
   message MongoDBExplainParams {
     // DSN for the service. May contain connection (dial) timeout.
     // May contain placeholders for file paths in DSN.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     string query = 2;
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 3;
@@ -238,28 +239,28 @@ message StartActionRequest {
   message PTPgSummaryParams {
     string host = 1;
     uint32 port = 2;
-    string username = 3;
-    string password = 4;
+    string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+    string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   }
   // PTMongoDBSummaryParams describes parameters for PT MongoDB summary.
   message PTMongoDBSummaryParams {
     string host = 1;
     uint32 port = 2;
-    string username = 3;
-    string password = 4;
+    string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+    string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   }
   // PTMySQLSummaryParams describes parameters for PT MySQL summary.
   message PTMySQLSummaryParams {
     string host = 1;
     uint32 port = 2;
     string socket = 3;
-    string username = 4;
-    string password = 5;
+    string username = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+    string password = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   }
   // MySQLQueryShowParams describes MySQL SHOW query action parameters.
   message MySQLQueryShowParams {
     // DSN for the service. May contain connection (dial) timeout.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     // Query suffix (without leading SHOW).
     string query = 2;
     // Contains files and their contents which can be used in DSN.
@@ -270,10 +271,10 @@ message StartActionRequest {
   // MySQLQuerySelectParams describes MySQL SELECT query action parameters.
   message MySQLQuerySelectParams {
     // DSN for the service. May contain connection (dial) timeout.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     // Query suffix (without leading SELECT).
     string query = 2;
-    // Contains files and their contents which can be used in DSN.
+    // Contains files and their contents which can be used in REDACT_TYPE_DSN.
     TextFiles tls_files = 3;
     // TLS certificate wont be verified.
     bool tls_skip_verify = 4;
@@ -281,7 +282,7 @@ message StartActionRequest {
   // PostgreSQLQueryShowParams describes PostgreSQL SHOW query action parameters.
   message PostgreSQLQueryShowParams {
     // DSN for the service. May contain connection (dial) timeout.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 2;
     // TLS certificate wont be verified.
@@ -290,7 +291,7 @@ message StartActionRequest {
   // PostgreSQLQuerySelectParams describes PostgreSQL SELECT query action parameters.
   message PostgreSQLQuerySelectParams {
     // DSN for the service. May contain connection (dial) timeout.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     // Query suffix (without leading SELECT).
     string query = 2;
     // Contains files and their contents which can be used in DSN.
@@ -302,7 +303,7 @@ message StartActionRequest {
   message MongoDBQueryGetParameterParams {
     // DSN for the service. May contain connection (dial) timeout.
     // May contain placeholders for file paths in DSN.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
   }
@@ -310,7 +311,7 @@ message StartActionRequest {
   message MongoDBQueryBuildInfoParams {
     // DSN for the service. May contain connection (dial) timeout.
     // May contain placeholders for file paths in DSN.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
   }
@@ -318,7 +319,7 @@ message StartActionRequest {
   message MongoDBQueryGetCmdLineOptsParams {
     // DSN for the service. May contain connection (dial) timeout.
     // May contain placeholders for file paths in DSN.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
   }
@@ -326,7 +327,7 @@ message StartActionRequest {
   message MongoDBQueryReplSetGetStatusParams {
     // DSN for the service. May contain connection (dial) timeout.
     // May contain placeholders for file paths in DSN.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
   }
@@ -334,7 +335,7 @@ message StartActionRequest {
   message MongoDBQueryGetDiagnosticDataParams {
     // DSN for the service. May contain connection (dial) timeout.
     // May contain placeholders for file paths in DSN.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
   }
@@ -408,7 +409,7 @@ message ActionResultResponse {}
 message PBMSwitchPITRRequest {
   // DSN for the MongoDB service. May contain connection (dial) timeout.
   // May contain placeholders for file paths in DSN.
-  string dsn = 1;
+  string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
   // Contains files and their contents which can be used in DSN.
   TextFiles text_files = 2;
   // Specifies if PITR should be enabled or disabled.
@@ -438,7 +439,7 @@ message CheckConnectionRequest {
   // Service type.
   inventory.v1.ServiceType type = 1;
   // DSN for the service. May contain connection (dial) timeout.
-  string dsn = 2;
+  string dsn = 2 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
   // Timeout for the whole request.
   google.protobuf.Duration timeout = 3;
   // Contains files and their contents which can be used in DSN.
@@ -465,7 +466,7 @@ message ServiceInfoRequest {
   // Service type.
   inventory.v1.ServiceType type = 1;
   // DSN for the service. May contain connection (dial) timeout.
-  string dsn = 2;
+  string dsn = 2 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
   // Timeout for the whole request.
   google.protobuf.Duration timeout = 3;
   // Contains files and their contents which can be used in DSN.
@@ -503,8 +504,8 @@ message JobStatusResponse {
 // S3LocationConfig represents S3 bucket configuration.
 message S3LocationConfig {
   string endpoint = 1;
-  string access_key = 2;
-  string secret_key = 3;
+  string access_key = 2 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  string secret_key = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   string bucket_name = 4;
   string bucket_region = 5;
 }
@@ -523,9 +524,9 @@ message StartJobRequest {
     reserved "filesystem_config";
 
     // Database user;
-    string user = 1;
+    string user = 1 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
     // Database password.
-    string password = 2;
+    string password = 2 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
     // Database address. Can't be specified with socket.
     string address = 3;
     // Database port. Can't be specified with socket.
@@ -562,7 +563,7 @@ message StartJobRequest {
   message MongoDBBackup {
     // DSN for the MongoDB service. May contain connection (dial) timeout.
     // May contain placeholders for file paths in DSN.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
     // Backup name.
@@ -583,7 +584,7 @@ message StartJobRequest {
   message MongoDBRestoreBackup {
     // DSN for the MongoDB service. May contain connection (dial) timeout.
     // May contain placeholders for file paths in DSN.
-    string dsn = 1;
+    string dsn = 1 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
     // Backup name.

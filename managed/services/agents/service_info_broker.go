@@ -18,11 +18,9 @@ package agents
 import (
 	"context"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -33,6 +31,8 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
 )
+
+const loggerComponentNameServiceInfoBroker = "service-info-broker"
 
 // ServiceInfoBroker helps query various information from services.
 type ServiceInfoBroker struct {
@@ -138,14 +138,14 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 			},
 		}
 	default:
-		return nil, errors.Errorf("unhandled Service type %s", service.ServiceType)
+		return nil, fmt.Errorf("unhandled Service type %s", service.ServiceType)
 	}
 	return request, nil
 }
 
 // GetInfoFromService sends a request to pmm-agent to query information from a service.
 func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) error {
-	l := logger.Get(ctx)
+	l := logger.Get(ctx).WithField("component", loggerComponentNameServiceInfoBroker)
 	start := time.Now()
 	defer func() {
 		if dur := time.Since(start); dur > 4*time.Second {
@@ -169,11 +169,8 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		return err
 	}
 
-	sanitizedDSN := request.Dsn
-	for _, word := range redactWords(agent) {
-		sanitizedDSN = strings.ReplaceAll(sanitizedDSN, word, "****")
-	}
-	l.Infof("ServiceInfoRequest: type: %s, DSN: %s timeout: %s.", request.Type, sanitizedDSN, request.Timeout)
+	l.Infof("ServiceInfoRequest: type: %s, DSN: %s timeout: %s.",
+		request.Type, logger.MaskDSN(request.Dsn), request.Timeout)
 
 	resp, err := pmmAgent.channel.SendAndWaitResponse(request)
 	if err != nil {
@@ -197,9 +194,9 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	case models.MySQLServiceType:
 		agent.MySQLOptions.TableCount = &sInfo.TableCount
 		l.Debugf("Updating table count: %d.", sInfo.TableCount)
-		encryptedAgent := models.EncryptAgent(*agent)
-		if err = q.Update(&encryptedAgent); err != nil {
-			return errors.Wrap(err, "failed to update table count")
+		err = q.Update(new(models.EncryptAgent(*agent)))
+		if err != nil {
+			return fmt.Errorf("failed to update table count: %w", err)
 		}
 
 		return updateServiceVersion(ctx, q, resp, service)
@@ -219,9 +216,9 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		agent.PostgreSQLOptions.DatabaseCount = int32(databaseCount - excludedDatabaseCount)
 
 		l.Debugf("Updating PostgreSQL options, database count: %d.", agent.PostgreSQLOptions.DatabaseCount)
-		encryptedAgent := models.EncryptAgent(*agent)
-		if err = q.Update(&encryptedAgent); err != nil {
-			return errors.Wrap(err, "failed to update database count")
+		err = q.Update(new(models.EncryptAgent(*agent)))
+		if err != nil {
+			return fmt.Errorf("failed to update database count: %w", err)
 		}
 
 		return updateServiceVersion(ctx, q, resp, service)
@@ -232,12 +229,12 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	case models.ExternalServiceType, models.HAProxyServiceType:
 		return nil
 	default:
-		return errors.Errorf("unhandled Service type %s", service.ServiceType)
+		return fmt.Errorf("unhandled Service type %s", service.ServiceType)
 	}
 }
 
 func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentv1.AgentResponsePayload, service *models.Service) error {
-	l := logger.Get(ctx)
+	l := logger.Get(ctx).WithField("component", loggerComponentNameServiceInfoBroker)
 
 	version := resp.(*agentv1.ServiceInfoResponse).Version //nolint:forcetypeassert
 	if version == "" {
@@ -246,8 +243,9 @@ func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentv1.A
 
 	l.Debugf("Updating service version: %s.", version)
 	service.Version = &version
-	if err := q.Update(service); err != nil {
-		return errors.Wrap(err, "failed to update service version")
+	err := q.Update(service)
+	if err != nil {
+		return fmt.Errorf("failed to update service version: %w", err)
 	}
 
 	return nil
