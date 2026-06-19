@@ -1,4 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CodeBlock from './code-block';
 
 describe('CodeBlock', () => {
@@ -60,18 +61,24 @@ describe('CodeBlock', () => {
     await waitFor(() => expect(writeText).toHaveBeenCalledWith('SELECT 1;'));
   });
 
-  it('applies different token colors for different colorSchemes', async () => {
+  it('follows the color mode: light and dark yield different token colors', async () => {
     const { unmount } = render(
-      <CodeBlock language="sql" colorScheme="github" content="SELECT 1;" />
+      <ThemeProvider theme={createTheme({ palette: { mode: 'light' } })}>
+        <CodeBlock language="sql" content="SELECT 1;" />
+      </ThemeProvider>
     );
-    const githubColor = (await screen.findByText('SELECT')).style.color;
+    const lightColor = (await screen.findByText('SELECT')).style.color;
     unmount();
 
-    render(<CodeBlock language="sql" colorScheme="dracula" content="SELECT 1;" />);
-    const draculaColor = (await screen.findByText('SELECT')).style.color;
+    render(
+      <ThemeProvider theme={createTheme({ palette: { mode: 'dark' } })}>
+        <CodeBlock language="sql" content="SELECT 1;" />
+      </ThemeProvider>
+    );
+    const darkColor = (await screen.findByText('SELECT')).style.color;
 
-    expect(githubColor).toBeTruthy();
-    expect(draculaColor).toBeTruthy();
-    expect(githubColor).not.toBe(draculaColor);
+    expect(lightColor).toBeTruthy();
+    expect(darkColor).toBeTruthy();
+    expect(lightColor).not.toBe(darkColor);
   });
 });

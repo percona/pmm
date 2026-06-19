@@ -5,7 +5,7 @@ import type { Theme } from '@mui/material/styles';
 import { Highlight, themes } from 'prism-react-renderer';
 import type { PrismTheme } from 'prism-react-renderer';
 import CopyToClipboardButton from '../buttons/copy-to-clipboard-button';
-import type { CodeBlockProps, CodeColorScheme } from './code-block.types';
+import type { CodeBlockProps } from './code-block.types';
 
 // Background and text color always come from the prism scheme (applied via the inline `style`),
 // so every block — highlighted or plain — shares the picked scheme's canvas.
@@ -20,15 +20,9 @@ const preSx = (wrap: boolean) => (theme: Theme) => ({
   ...(wrap ? { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' } : { overflowX: 'auto' }),
 });
 
-const resolveScheme = (
-  colorScheme: CodeColorScheme | PrismTheme | undefined,
-  mode: Theme['palette']['mode']
-): PrismTheme => {
-  if (colorScheme == null) {
-    return mode === 'dark' ? themes.okaidia : themes.nightOwlLight;
-  }
-  return typeof colorScheme === 'string' ? themes[colorScheme] : colorScheme;
-};
+// Scheme follows the app color mode — locked to brand-aligned light/dark for consistency.
+const resolveScheme = (mode: Theme['palette']['mode']): PrismTheme =>
+  mode === 'dark' ? themes.okaidia : themes.nightOwlLight;
 
 const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
   (
@@ -38,7 +32,6 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
       showCopyButtonText = false,
       value,
       language,
-      colorScheme,
       wrap = false,
       sx,
       ...rest
@@ -48,18 +41,18 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
     const theme = useTheme();
     const codeText = value ?? (typeof content === 'string' ? content : '');
     const highlighted = !!language && !!codeText;
-    const prismTheme = resolveScheme(colorScheme, theme.palette.mode);
+    const prismTheme = resolveScheme(theme.palette.mode);
 
     const copyButton = copyable && (
       <Box
         sx={{
           position: 'absolute',
-          top: 2,
-          right: 2,
           display: 'flex',
-          // Knock the scrolling code out from behind the button using the block's own surface
           borderRadius: showCopyButtonText ? 1.5 : '50%',
           backgroundColor: prismTheme.plain.backgroundColor,
+          ...(showCopyButtonText
+            ? { top: 12, right: 12 } // labeled
+            : { top: 2, right: 2 }), // icon-only
         }}
       >
         <CopyToClipboardButton

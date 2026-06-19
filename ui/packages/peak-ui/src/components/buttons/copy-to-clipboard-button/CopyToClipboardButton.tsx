@@ -41,12 +41,11 @@ const CopyToClipboardButton = ({
     >
       {showCopyButtonText ? (
         <Button
-          sx={{ ...buttonProps?.sx, display: 'flex', gap: 1 }}
+          startIcon={<ContentCopyOutlinedIcon sx={iconSx} />}
           onClick={handleClick}
           disabled={!clipboardAvailable}
           {...buttonProps}
         >
-          <ContentCopyOutlinedIcon sx={iconSx} />
           {copyCommand}
         </Button>
       ) : (
