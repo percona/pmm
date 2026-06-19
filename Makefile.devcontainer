@@ -100,8 +100,8 @@ setup-livereload:                ## Add livereload scripts to grafana index file
 		sed -i 's|</body>|<script src="http://localhost:35730/livereload.js"></script></body>|g' /usr/share/grafana/public/views/index.html
 
 link-pmm-compat:          ## Links the dist folder of pmm compat to the plugin directory
-	rm -rf /srv/grafana/plugins/pmm-compat
-	ln -sfn $(CURDIR)/ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat
+	rm -rf /srv/grafana/plugins/pmm-compat-app
+	ln -sfn $(CURDIR)/ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat-app
 
 grafana-be-build:
 	cd /root/go/src/github.com/percona/grafana && \

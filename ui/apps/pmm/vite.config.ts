@@ -67,7 +67,10 @@ export default defineConfig({
     strictPort: true,
     hmr: {
       protocol: 'wss',
-      clientPort: port,
+      // Don't force clientPort: in the devcontainer flow the browser loads Vite
+      // from the docker-mapped host port (PMM_PORT_VITE), which may differ from
+      // the container-internal `port`. Let Vite infer the port from
+      // window.location so HMR connects to whatever port served the page.
     },
   },
   test: {
