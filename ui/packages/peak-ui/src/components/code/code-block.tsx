@@ -1,28 +1,10 @@
 import { forwardRef } from 'react';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
-import type { Theme } from '@mui/material/styles';
-import { Highlight, themes } from 'prism-react-renderer';
-import type { PrismTheme } from 'prism-react-renderer';
+import { Highlight } from 'prism-react-renderer';
 import CopyToClipboardButton from '../buttons/copy-to-clipboard-button';
 import type { CodeBlockProps } from './code-block.types';
-
-// Background and text color always come from the prism scheme (applied via the inline `style`),
-// so every block — highlighted or plain — shares the picked scheme's canvas.
-const preSx = (wrap: boolean) => (theme: Theme) => ({
-  margin: 0,
-  ...theme.typography.code,
-  fontSize: '0.875rem',
-  lineHeight: 1.5,
-  border: `1px solid ${theme.palette.dividers?.contour ?? theme.palette.divider}`,
-  borderRadius: '5px',
-  padding: theme.spacing(1.25, 1.5),
-  ...(wrap ? { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' } : { overflowX: 'auto' }),
-});
-
-// Scheme follows the app color mode — locked to brand-aligned light/dark for consistency.
-const resolveScheme = (mode: Theme['palette']['mode']): PrismTheme =>
-  mode === 'dark' ? themes.okaidia : themes.nightOwlLight;
+import { preSx, resolveScheme } from './code-block.utils';
 
 const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
   (
