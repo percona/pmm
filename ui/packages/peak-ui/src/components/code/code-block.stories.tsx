@@ -3,7 +3,7 @@ import { type Meta, type StoryObj } from '@storybook/react';
 import * as DocBlock from '@storybook/addon-docs/blocks';
 import Box from '@mui/material/Box';
 import CodeBlock from './code-block';
-import type { CodeBlockProps, CodeColorScheme } from './code-block.types';
+import type { CodeBlockProps } from './code-block.types';
 
 const CodeBlockComp = CodeBlock as React.ComponentType<CodeBlockProps>;
 
@@ -28,7 +28,7 @@ const meta: Meta<CodeBlockProps> = {
         component: [
           'Multi-line code block rendered as semantic `<pre><code>`. Theme-aware across light/dark and the base/pmm/sep themes. Pass `copyable` to show a copy button that reuses `CopyToClipboardButton`. Extends MUI `BoxProps`.',
           '',
-          'Set `language` to enable syntax highlighting (SQL, JS, YAML, etc.). Highlighting is powered by `prism-react-renderer`. With no `colorScheme` set it follows the color mode (nightOwlLight in light, okaidia in dark). In that logic, chosing a `colorScheme` locks it, regardless of the chosen light/dark mode.',
+          'Set `language` to enable syntax highlighting (SQL, JS, YAML, etc.). Highlighting is powered by `prism-react-renderer` and follows the app color mode automatically — a light scheme in light mode, a dark scheme in dark mode — so it stays consistent across products.',
         ].join('\n'),
       },
       page: () => (
@@ -68,33 +68,6 @@ const meta: Meta<CodeBlockProps> = {
       description:
         'Prism language id (e.g. `sql`, `javascript`, `yaml`). When set, the block is syntax-highlighted.',
     },
-    colorScheme: {
-      control: 'select',
-      options: [
-        'dracula',
-        'duotoneDark',
-        'duotoneLight',
-        'github',
-        'gruvboxMaterialDark',
-        'gruvboxMaterialLight',
-        'jettwaveDark',
-        'jettwaveLight',
-        'nightOwl',
-        'nightOwlLight',
-        'oceanicNext',
-        'okaidia',
-        'oneDark',
-        'oneLight',
-        'palenight',
-        'shadesOfPurple',
-        'synthwave84',
-        'ultramin',
-        'vsDark',
-        'vsLight',
-      ],
-      description:
-        'Highlighting color scheme. **Only applies when `language` is set.** Defaults to `nightOwlLight` (light mode) / `okaidia` (dark mode). Accepts a custom `PrismTheme` object too.',
-    },
     wrap: {
       control: 'boolean',
       description:
@@ -124,7 +97,7 @@ export const Playground: Story = {
     docs: {
       description: {
         story:
-          'Highlighted by default. With no `colorScheme` selected it follows the color mode (nightOwlLight in light, okaidia in dark) — toggle the Storybook light/dark control to see it switch. Pick a `colorScheme` to pin a specific one, or clear `language` for a plain block.',
+          'Highlighted by default. The scheme follows the app color mode — toggle the Storybook light/dark control to see it switch. Clear `language` for a plain block.',
       },
     },
   },
@@ -172,7 +145,7 @@ export const Highlighted: Story = {
     docs: {
       description: {
         story:
-          'Set `language` to syntax-highlight. The default scheme follows the color mode (GitHub in light, Okaidia in dark).',
+          'Set `language` to syntax-highlight. The scheme follows the color mode (a light scheme in light mode, a dark scheme in dark mode).',
       },
     },
   },
@@ -180,56 +153,6 @@ export const Highlighted: Story = {
     language: 'sql',
     copyable: true,
     content: SQL_SAMPLE,
-  },
-};
-
-export const ColorSchemes: Story = {
-  name: 'Color schemes',
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Pick any bundled scheme via `colorScheme`, including popular ones like GitHub and Dracula.',
-      },
-    },
-  },
-  render: (args) => {
-    const allSchemes: CodeColorScheme[] = [
-      'github',
-      'vsLight',
-      'ultramin',
-      'duotoneLight',
-      'gruvboxMaterialLight',
-      'jettwaveLight',
-      'nightOwlLight',
-      'oneLight',
-      'dracula',
-      'vsDark',
-      'duotoneDark',
-      'gruvboxMaterialDark',
-      'jettwaveDark',
-      'nightOwl',
-      'oceanicNext',
-      'okaidia',
-      'oneDark',
-      'palenight',
-      'shadesOfPurple',
-      'synthwave84',
-    ];
-    return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {allSchemes.map((scheme) => (
-          <CodeBlockComp
-            key={scheme}
-            {...args}
-            language="sql"
-            colorScheme={scheme}
-            copyable
-            content={`-- ${scheme}\n${SQL_SAMPLE}`}
-          />
-        ))}
-      </Box>
-    );
   },
 };
 
