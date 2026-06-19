@@ -635,26 +635,35 @@ func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.Agent
 }
 
 // rtaMinAgentVersion returns the minimum pmm-agent version that ships the RTA
-// collector for the given service type. Different database collectors landed in
-// different releases, so the gate must be per-service-type.
-func rtaMinAgentVersion(serviceType models.ServiceType) version.FeatureVersion {
+// collector for the given service type, and whether RTA is supported for that
+// type at all. Different database collectors landed in different releases, so
+// the gate must be per-service-type; unsupported types return ok=false.
+func rtaMinAgentVersion(serviceType models.ServiceType) (version.FeatureVersion, bool) {
 	switch serviceType {
+	case models.MongoDBServiceType:
+		return version.MongoDBRtaAgentSupportVersion, true
 	case models.MySQLServiceType:
-		return version.MySQLRtaAgentSupportVersion
+		return version.MySQLRtaAgentSupportVersion, true
 	default:
-		return version.MongoDBRtaAgentSupportVersion
+		return nil, false
 	}
 }
 
 // isRtaFeatureSupported checks if the passed pmm-agent's version supports RTA for
-// the given service type.
+// the given service type. It returns false for service types that do not support
+// RTA at all, rather than assuming a default version.
 func isRtaFeatureSupported(pmmAgentVersion string, serviceType models.ServiceType) bool {
+	minVersion, ok := rtaMinAgentVersion(serviceType)
+	if !ok {
+		return false
+	}
+
 	versionParsed, versionParseErr := version.Parse(pmmAgentVersion)
 	if versionParseErr != nil {
 		return false
 	}
 
-	return versionParsed.IsFeatureSupported(rtaMinAgentVersion(serviceType))
+	return versionParsed.IsFeatureSupported(minVersion)
 }
 
 // check interfaces.

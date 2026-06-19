@@ -49,7 +49,8 @@ func createConnection(ctx context.Context, dsn string, files map[string]string, 
 		return nil, "", err
 	}
 
-	// RTA agent needs only a single short-lived connection at a time.
+	// The collector runs one query per interval, so a single long-lived connection
+	// is kept open and reused across collection cycles (no maximum lifetime).
 	db.SetMaxIdleConns(1)
 	db.SetMaxOpenConns(1)
 	db.SetConnMaxLifetime(0)

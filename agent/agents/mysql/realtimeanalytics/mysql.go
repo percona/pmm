@@ -248,9 +248,11 @@ func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, 
 	queryCtx, cancel := context.WithTimeout(ctx, mysqlQueryTimeout)
 	defer cancel()
 
+	// An empty processlist is not an error: QueryContext does not return sql.ErrNoRows,
+	// it simply yields no rows below, so we only get here on a real query failure.
 	rows, err := m.db.QueryContext(queryCtx, currentQueriesSQL)
 	if err != nil {
-		return nil, fmt.Errorf("sys.x$processlist not available or permission denied: %w", err)
+		return nil, fmt.Errorf("failed to query sys.x$processlist: %w", err)
 	}
 	defer func() {
 		_ = rows.Close()
