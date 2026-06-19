@@ -101,6 +101,12 @@ link-pmm-compat-plugin:          ## Links the dist folder of pmm compat to the p
 	rm -rf /srv/grafana/plugins/pmm-compat
 	lns -sfn $(CURDIR)/ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat
 
+grafana-be-build:
+	cd /root/go/src/github.com/percona/grafana && \
+	make build-go && \
+	cp ./bin/linux/amd64/grafana /usr/sbin/grafana && \
+	supervisorctl restart grafana
+
 # TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go
 # run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
 # 	go test -coverpkg="github.com/percona/pmm/managed/..." \

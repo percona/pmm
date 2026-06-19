@@ -55,6 +55,9 @@ services:
       - ./build/ansible/roles/nginx/files/conf.d/pmm.conf:/etc/nginx/conf.d/pmm.conf:ro
       # percona-ui
       # - ../percona-ui:/root/go/src/github.com/percona/percona-ui
+      # grafana
+      # - ../grafana:/root/go/src/github.com/percona/grafana
+      # - ../grafana/public:/usr/share/grafana/public
 
   
   mail-server:
