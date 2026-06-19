@@ -236,6 +236,8 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 		return s.s.AddQANPostgreSQLPgStatMonitorAgent(ctx, req.GetQanPostgresqlPgstatmonitorAgent())
 	case *inventoryv1.AddAgentRequest_RtaMongodbAgent:
 		return s.s.AddRTAMongoDBAgent(ctx, req.GetRtaMongodbAgent())
+	case *inventoryv1.AddAgentRequest_RtaMysqlAgent:
+		return s.s.AddRTAMySQLAgent(ctx, req.GetRtaMysqlAgent())
 	default:
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid agent type %T", req.Agent))
 	}
@@ -280,6 +282,8 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 		return s.s.ChangeNomadAgent(ctx, agentID, req.GetNomadAgent())
 	case *inventoryv1.ChangeAgentRequest_RtaMongodbAgent:
 		return s.s.ChangeRTAMongoDBAgent(ctx, agentID, req.GetRtaMongodbAgent())
+	case *inventoryv1.ChangeAgentRequest_RtaMysqlAgent:
+		return s.s.ChangeRTAMySQLAgent(ctx, agentID, req.GetRtaMysqlAgent())
 	default:
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("invalid agent type %T", req.Agent))
 	}
