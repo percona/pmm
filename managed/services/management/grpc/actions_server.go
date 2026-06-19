@@ -18,9 +18,9 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -95,7 +95,7 @@ func (s *actionsServer) StartServiceAction(ctx context.Context, req *actionsv1.S
 	case *actionsv1.StartServiceActionRequest_PtPostgresSummary:
 		return s.StartPTPgSummaryAction(ctx, req.GetPtPostgresSummary())
 	default:
-		return nil, errors.Errorf("invalid request %v", req.GetAction())
+		return nil, fmt.Errorf("invalid request %v", req.GetAction())
 	}
 }
 
