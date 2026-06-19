@@ -153,6 +153,9 @@ message Settings {
   uint32 default_role_id = 18;
   // True if Query Analytics for PMM's internal PG database is enabled.
   bool enable_internal_pg_qan = 19;
+  // Field 20 (update_snooze_duration) was removed when GUI-triggered upgrades were deprecated.
+  reserved 20;
+  reserved "update_snooze_duration";
 }
 
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
@@ -211,6 +214,9 @@ message ChangeSettingsRequest {
   optional bool enable_access_control = 13;
   // Enable Query Analytics for PMM's internal PG database.
   optional bool enable_internal_pg_qan = 14;
+  // Field 15 (update_snooze_duration) was removed when GUI-triggered upgrades were deprecated.
+  reserved 15;
+  reserved "update_snooze_duration";
 }
 
 message ChangeSettingsResponse {

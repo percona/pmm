@@ -1563,7 +1563,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13AdvisorRunIntervals\x12F\n" +
 	"\x11standard_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x10standardInterval\x12>\n" +
 	"\rrare_interval\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\frareInterval\x12F\n" +
-	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\x9e\a\n" +
+	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xbc\a\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12N\n" +
@@ -1583,7 +1583,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13telemetry_summaries\x18\x10 \x03(\tR\x12telemetrySummaries\x122\n" +
 	"\x15enable_access_control\x18\x11 \x01(\bR\x13enableAccessControl\x12&\n" +
 	"\x0fdefault_role_id\x18\x12 \x01(\rR\rdefaultRoleId\x123\n" +
-	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQan\"\x8f\x03\n" +
+	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQanJ\x04\b\x14\x10\x15R\x16update_snooze_duration\"\x8f\x03\n" +
 	"\x10ReadOnlySettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12'\n" +
@@ -1598,7 +1598,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13GetSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"V\n" +
 	"\x1bGetReadOnlySettingsResponse\x127\n" +
-	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\x9f\b\n" +
+	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\xbd\b\n" +
 	"\x15ChangeSettingsRequest\x12*\n" +
 	"\x0eenable_updates\x18\x01 \x01(\bH\x00R\renableUpdates\x88\x01\x01\x12.\n" +
 	"\x10enable_telemetry\x18\x02 \x01(\bH\x01R\x0fenableTelemetry\x88\x01\x01\x12N\n" +
@@ -1627,7 +1627,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x15_enable_azurediscoverB\x1b\n" +
 	"\x19_enable_backup_managementB\x18\n" +
 	"\x16_enable_access_controlB\x19\n" +
-	"\x17_enable_internal_pg_qan\"I\n" +
+	"\x17_enable_internal_pg_qanJ\x04\b\x0f\x10\x10R\x16update_snooze_duration\"I\n" +
 	"\x16ChangeSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings*\xce\x01\n" +
 	"\x12DistributionMethod\x12#\n" +
