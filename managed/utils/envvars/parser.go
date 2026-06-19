@@ -135,7 +135,8 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 			envSettings.EnableUpdates = &b
 		case "PMM_UPDATE_SNOOZE_DURATION":
-			if envSettings.UpdateSnoozeDuration, err = parseStringDuration(v); err != nil {
+			envSettings.UpdateSnoozeDuration, err = parseStringDuration(v)
+			if err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}
@@ -154,22 +155,26 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 			envSettings.EnableInternalPgQAN = &b
 		case "PMM_METRICS_RESOLUTION", "PMM_METRICS_RESOLUTION_HR":
-			if envSettings.MetricsResolutions.HR, err = parseStringDuration(v); err != nil {
+			envSettings.MetricsResolutions.HR, err = parseStringDuration(v)
+			if err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}
 		case "PMM_METRICS_RESOLUTION_MR":
-			if envSettings.MetricsResolutions.MR, err = parseStringDuration(v); err != nil {
+			envSettings.MetricsResolutions.MR, err = parseStringDuration(v)
+			if err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}
 		case "PMM_METRICS_RESOLUTION_LR":
-			if envSettings.MetricsResolutions.LR, err = parseStringDuration(v); err != nil {
+			envSettings.MetricsResolutions.LR, err = parseStringDuration(v)
+			if err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}
 		case "PMM_DATA_RETENTION":
-			if envSettings.DataRetention, err = parseStringDuration(v); err != nil {
+			envSettings.DataRetention, err = parseStringDuration(v)
+			if err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}
@@ -339,7 +344,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
-			warns = append(warns, fmt.Sprintf("unknown environment variable %s", env))
+			warns = append(warns, "unknown environment variable "+env)
 		}
 	}
 
@@ -410,7 +415,8 @@ func GetInterfaceToBind() string {
 
 // GetEnv returns env with fallback option.
 func GetEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok && value != "" {
+	value, ok := os.LookupEnv(key)
+	if ok && value != "" {
 		return value
 	}
 	return fallback

@@ -16,11 +16,11 @@
 package victoriametrics
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/AlekSi/pointer"
 	config "github.com/percona/promconfig"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -35,7 +35,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 ) error {
 	agents, err := models.FindAgentsForScrapeConfig(q, pmmAgentID, pushMetrics)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to find agent for scrape config: %w", err)
 	}
 
 	var rdsParams []*scrapeConfigParams
@@ -80,7 +80,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 			// find a related pmm-agent to get the node address (runs_on_node_id)
 			pmmAgent, err = models.FindAgentByID(q, *agent.PMMAgentID)
 			if err != nil {
-				return errors.WithStack(err)
+				return fmt.Errorf("failed to find pmm-agent for scrape config: %w", err)
 			}
 			paramPMMAgentVersion, err = version.Parse(pointer.GetString(pmmAgent.Version))
 			if err != nil {
@@ -94,14 +94,14 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 			pmmAgentNode = &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
 			err = q.Reload(pmmAgentNode)
 			if err != nil {
-				return errors.WithStack(err)
+				return fmt.Errorf("failed to reload Node by pmm-agent for scrape config: %w", err)
 			}
 			paramsHost = pmmAgentNode.Address
 		case agent.RunsOnNodeID != nil:
 			externalExporterNode := &models.Node{NodeID: pointer.GetString(agent.RunsOnNodeID)}
 			err = q.Reload(externalExporterNode)
 			if err != nil {
-				return errors.WithStack(err)
+				return fmt.Errorf("failed to reload Node for scrape config: %w", err)
 			}
 			paramsHost = externalExporterNode.Address
 		default:
@@ -265,7 +265,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 	if pmmAgentID != nil && pushMetrics {
 		otelRows, oerr := models.FindOtelCollectorAgentsForPMMAgent(q, pointer.GetString(pmmAgentID))
 		if oerr != nil {
-			return errors.WithStack(oerr)
+			return fmt.Errorf("failed to find OTel collector agents: %w", oerr)
 		}
 		for _, oc := range otelRows {
 			ocl, lerr := oc.GetCustomLabels()

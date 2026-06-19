@@ -16,6 +16,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"path/filepath"
@@ -23,7 +24,6 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -42,7 +42,7 @@ func checkUniqueBackupLocationID(q *reform.Querier, id string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Location with ID %q already exists.", id)
@@ -59,7 +59,7 @@ func checkUniqueBackupLocationName(q *reform.Querier, name string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Location with name %q already exists.", name)
@@ -158,7 +158,7 @@ func checkS3Config(c *S3LocationConfig, withBucketLocation bool) error {
 func FindBackupLocations(q *reform.Querier) ([]*BackupLocation, error) {
 	rows, err := q.SelectAllFrom(BackupLocationTable, "")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select backup locations")
+		return nil, fmt.Errorf("failed to select backup locations: %w", err)
 	}
 
 	locations := make([]*BackupLocation, len(rows))
@@ -179,9 +179,9 @@ func FindBackupLocationByID(q *reform.Querier, id string) (*BackupLocation, erro
 	err := q.Reload(location)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, errors.Wrapf(ErrNotFound, "backup location with ID %q", id)
+			return nil, fmt.Errorf("backup location with ID %q: %w", id, ErrNotFound)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return location, nil
@@ -202,7 +202,7 @@ func FindBackupLocationsByIDs(q *reform.Querier, ids []string) (map[string]*Back
 
 	all, err := q.SelectAllFrom(BackupLocationTable, tail, args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	locations := make(map[string]*BackupLocation, len(all))
@@ -304,7 +304,7 @@ func CreateBackupLocation(q *reform.Querier, params CreateBackupLocationParams) 
 
 	err = q.Insert(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create backup location")
+		return nil, fmt.Errorf("failed to create backup location: %w", err)
 	}
 
 	return row, nil
@@ -320,10 +320,11 @@ type ChangeBackupLocationParams struct {
 
 // ChangeBackupLocation updates existing location by specified locationID and params.
 func ChangeBackupLocation(q *reform.Querier, locationID string, params ChangeBackupLocationParams) (*BackupLocation, error) {
-	if err := params.Validate(BackupLocationValidationParams{
+	err := params.Validate(BackupLocationValidationParams{
 		RequireConfig:    false,
 		WithBucketRegion: true,
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 
@@ -346,8 +347,9 @@ func ChangeBackupLocation(q *reform.Querier, locationID string, params ChangeBac
 	// Replace old configuration by config from params
 	params.FillLocationModel(row)
 
-	if err := q.Update(row); err != nil {
-		return nil, errors.Wrap(err, "failed to update backup location")
+	err = q.Update(row)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update backup location: %w", err)
 	}
 
 	return row, nil
@@ -420,7 +422,7 @@ func RemoveBackupLocation(q *reform.Querier, id string, mode RemoveMode) error {
 
 	err = q.Delete(&BackupLocation{ID: id})
 	if err != nil {
-		return errors.Wrap(err, "failed to delete BackupLocation")
+		return fmt.Errorf("failed to delete BackupLocation: %w", err)
 	}
 
 	return nil

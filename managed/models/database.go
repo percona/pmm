@@ -21,6 +21,7 @@ package models
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"net"
 	"net/url"
@@ -33,7 +34,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.yaml.in/yaml/v3"
 	"google.golang.org/grpc/codes"
@@ -1800,7 +1800,7 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create a connection pool to PostgreSQL")
+		return nil, fmt.Errorf("failed to create a connection pool to PostgreSQL: %w", err)
 	}
 
 	db.SetConnMaxLifetime(0)
@@ -2028,11 +2028,12 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "42P01" { //nolint:errorlint
+	var pErr *pq.Error
+	if errors.As(errDB, &pErr) && pErr.Code == "42P01" {
 		errDB = nil
 	}
 	if errDB != nil {
-		return errors.WithStack(errDB)
+		return errDB
 	}
 
 	latestVersion := len(databaseSchema) - 1 // skip item 0
@@ -2056,7 +2057,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 				q = strings.TrimSpace(q)
 				_, err := tx.Exec(q)
 				if err != nil {
-					return errors.Wrapf(err, "failed to execute statement:\n%s", q)
+					return fmt.Errorf("failed to execute statement:\n%s: %w", q, err)
 				}
 			}
 		}
@@ -2075,7 +2076,8 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 		if err != nil {
 			return err
 		}
-		if err = SaveSettings(tx, s); err != nil {
+		err = SaveSettings(tx, s)
+		if err != nil {
 			return err
 		}
 
@@ -2219,7 +2221,8 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	if _, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, ""); err != nil {
+	_, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, "")
+	if err != nil {
 		return err
 	}
 
@@ -2247,10 +2250,12 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
+	_, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil)
+	if err != nil {
 		return err
 	}
-	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
+	_, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, "")
+	if err != nil {
 		return err
 	}
 

@@ -29,7 +29,7 @@ const (
 	AdvisorsEnabledDefault                    = true
 	AlertingEnabledDefault                    = true
 	NativeQanEnabledDefault                   = false
-	TelemetryEnabledDefault                   = false
+	TelemetryEnabledDefault                   = true
 	UpdatesEnabledDefault                     = true
 	BackupManagementEnabledDefault            = true
 	VictoriaMetricsCacheEnabledDefault        = false

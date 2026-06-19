@@ -19,12 +19,12 @@ package scheduler
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/go-co-op/gocron"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -88,7 +88,8 @@ func (s *Service) Add(task Task, params AddParams) (*models.ScheduledTask, error
 	// This transaction is valid only with serializable isolation level. On lower isolation levels it can produce anomalies.
 	errTx := s.db.InTransactionContext(s.db.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 		var err error
-		if err = checkAddPreconditions(tx.Querier, task.Data(), !params.Disabled, ""); err != nil {
+		err = checkAddPreconditions(tx.Querier, task.Data(), !params.Disabled, "")
+		if err != nil {
 			return err
 		}
 		scheduledTask, err = models.CreateScheduledTask(tx.Querier, models.CreateScheduledTaskParams{
@@ -102,7 +103,8 @@ func (s *Service) Add(task Task, params AddParams) (*models.ScheduledTask, error
 			return err
 		}
 
-		if err = s.addDBTask(scheduledTask); err != nil {
+		err = s.addDBTask(scheduledTask)
+		if err != nil {
 			return err
 		}
 
@@ -159,7 +161,8 @@ func (s *Service) Remove(id string) error {
 // Update changes scheduled task in DB and re-add it to scheduler.
 func (s *Service) Update(id string, params models.ChangeScheduledTaskParams) error {
 	return s.db.InTransactionContext(s.db.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
-		if err := checkUpdatePreconditions(tx.Querier, params.Data, !pointer.GetBool(params.Disable), id); err != nil {
+		err := checkUpdatePreconditions(tx.Querier, params.Data, !pointer.GetBool(params.Disable), id)
+		if err != nil {
 			return err
 		}
 
@@ -347,7 +350,7 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) { //
 		}
 
 	default:
-		return nil, errors.Errorf("unknown task type: %s", dbTask.Type)
+		return nil, fmt.Errorf("unknown task type: %s", dbTask.Type)
 	}
 
 	return task, nil

@@ -16,12 +16,12 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
@@ -47,7 +47,7 @@ func FindRestoreHistoryItems(q *reform.Querier, filters RestoreHistoryItemFilter
 			return nil, err
 		}
 
-		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "service_id = "+q.Placeholder(idx))
 		args = append(args, filters.ServiceID)
 		idx++
 	}
@@ -58,23 +58,23 @@ func FindRestoreHistoryItems(q *reform.Querier, filters RestoreHistoryItemFilter
 			return nil, err
 		}
 
-		conditions = append(conditions, fmt.Sprintf("artifact_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "artifact_id = "+q.Placeholder(idx))
 		args = append(args, filters.ArtifactID)
 		idx++
 	}
 
 	if filters.Status != nil {
-		conditions = append(conditions, fmt.Sprintf("status = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "status = "+q.Placeholder(idx))
 		args = append(args, *filters.Status)
 	}
 
 	var whereClause string
 	if len(conditions) != 0 {
-		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
+		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
-	rows, err := q.SelectAllFrom(RestoreHistoryItemTable, fmt.Sprintf("%s ORDER BY started_at DESC", whereClause), args...)
+	rows, err := q.SelectAllFrom(RestoreHistoryItemTable, whereClause+" ORDER BY started_at DESC", args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select restore history")
+		return nil, fmt.Errorf("failed to select restore history: %w", err)
 	}
 
 	items := make([]*RestoreHistoryItem, 0, len(rows))
@@ -95,9 +95,9 @@ func FindRestoreHistoryItemByID(q *reform.Querier, id string) (*RestoreHistoryIt
 	err := q.Reload(item)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, errors.Wrapf(ErrNotFound, "restore history item by id '%s'", id)
+			return nil, fmt.Errorf("restore history item by id '%s': %w", id, ErrNotFound)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return item, nil
@@ -125,18 +125,19 @@ func (p *CreateRestoreHistoryItemParams) Validate() error {
 
 // CreateRestoreHistoryItem creates a restore history item entry in DB.
 func CreateRestoreHistoryItem(q *reform.Querier, params CreateRestoreHistoryItemParams) (*RestoreHistoryItem, error) {
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 
 	id := uuid.New().String()
-	_, err := FindRestoreHistoryItemByID(q, id)
+	_, err = FindRestoreHistoryItemByID(q, id)
 	switch {
 	case err == nil:
-		return nil, errors.Errorf("restore history item with id '%s' already exists", id)
+		return nil, fmt.Errorf("restore history item with id '%s' already exists", id)
 	case errors.Is(err, ErrNotFound):
 	default:
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	row := &RestoreHistoryItem{
@@ -146,8 +147,9 @@ func CreateRestoreHistoryItem(q *reform.Querier, params CreateRestoreHistoryItem
 		PITRTimestamp: params.PITRTimestamp,
 		Status:        params.Status,
 	}
-	if err := q.Insert(row); err != nil {
-		return nil, errors.Wrap(err, "failed to insert restore history item")
+	err = q.Insert(row)
+	if err != nil {
+		return nil, fmt.Errorf("failed to insert restore history item: %w", err)
 	}
 
 	return row, nil
@@ -175,8 +177,9 @@ func ChangeRestoreHistoryItem(
 		row.FinishedAt = params.FinishedAt
 	}
 
-	if err := q.Update(row); err != nil {
-		return nil, errors.Wrap(err, "failed to update restore history item")
+	err = q.Update(row)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update restore history item: %w", err)
 	}
 
 	return row, nil
@@ -191,7 +194,7 @@ func RemoveRestoreHistoryItem(q *reform.Querier, id string) error {
 
 	err = q.Delete(&RestoreHistoryItem{ID: id})
 	if err != nil {
-		return errors.Wrapf(err, "failed to remove restore history item by id '%s'", id)
+		return fmt.Errorf("failed to remove restore history item by id '%s': %w", id, err)
 	}
 	return nil
 }

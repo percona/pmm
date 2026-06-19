@@ -17,7 +17,6 @@ package management
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -223,7 +222,7 @@ func TestRDSService(t *testing.T) {
 			{"us-east-1", []instance{{"us-east-1a", "autotest-aurora-mysql-56"}, {"us-east-1d", "autotest-psql-10"}}},
 			{"us-west-2", []instance{{"us-west-2b", "autotest-aurora-psql-11"}, {"us-west-2c", "autotest-mysql-57"}}},
 		} {
-			t.Run(fmt.Sprintf("discoverRDSRegion %s", tt.region), func(t *testing.T) {
+			t.Run("discoverRDSRegion "+tt.region, func(t *testing.T) {
 				ctx := logger.Set(t.Context(), t.Name())
 				accessKey, secretKey := tests.GetAWSKeys(t)
 				creds := credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")

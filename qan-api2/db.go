@@ -101,7 +101,8 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	data := map[string]any{
 		"engine": migrations.GetEngine(isCluster),
 	}
-	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
+	err = migrations.Run(dsn, data, isCluster, clusterName)
+	if err != nil {
 		l.Fatalf("migrations: %v", err)
 	}
 	l.Info("Migrations applied successfully")
@@ -125,13 +126,13 @@ func createDB(dsn string, clusterName string) error {
 	}
 	defer defaultDB.Close() //nolint:errcheck
 
-	sql := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", databaseName)
+	sql := "CREATE DATABASE IF NOT EXISTS " + databaseName
 	if clusterName != "" {
 		l.Infof("Using ClickHouse cluster name: %s", clusterName)
-		sql = fmt.Sprintf("%s ON CLUSTER \"%s\"", sql, clusterName)
-		sql = fmt.Sprintf("%s ENGINE = Replicated('/clickhouse/databases/{uuid}', '{shard}', '{replica}')", sql)
+		sql += " ON CLUSTER \"" + clusterName + "\""
+		sql += " ENGINE = Replicated('/clickhouse/databases/{uuid}', '{shard}', '{replica}')"
 	} else {
-		sql = fmt.Sprintf("%s ENGINE = Atomic", sql)
+		sql += " ENGINE = Atomic"
 	}
 
 	result, err := defaultDB.Exec(sql)

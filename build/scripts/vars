@@ -1,7 +1,5 @@
 bin_dir=$(cd $(dirname $0); pwd -P)
-# TODO: refactor to pass ${WORKSPACE} as ROOT_DIR from either Jenkins or, if relevant, from GH actions
-# NOTE: in most cases, this evaluates to Jenkins ${WORKSPACE} directory when called from pipelines
-# Example: /home/ec2-user/workspace/ol9-build-server/, see how it's used in ol9-build-server.groovy
+# NOTE: in most cases, `root_dir` evaluates to Jenkins ${WORKSPACE} directory when called from pipelines
 root_dir_tmp=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
 root_dir=${ROOT_DIR:-$root_dir_tmp}
 tmp_dir=${root_dir}/tmp
@@ -22,11 +20,7 @@ full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git rev-parse --short HEAD)
 # Replace '/' with '-' to prevent sed from failing on dependabot-authored PRs
 full_pmm_version=${full_pmm_version//\//-}
 
-# TODO Maybe it makes sense to use variable from job here
-if [[ ${pmm_branch} =~ release-* || \
-      ${pmm_branch} =~ pmm-3.* || \
-      ${pmm_branch} == v3 || \
-      ${pmm_branch} == "main" ]]; then
+if [[ ${pmm_branch} =~ pmm-3.* || ${pmm_branch} == "main" ]]; then
     full_pmm_version=${pmm_base_version}
 fi
 
@@ -64,8 +58,8 @@ source_tarball=${root_dir}/results/source_tarball/pmm-client-${pmm_version}.tar.
 binary_tarball=${root_dir}/results/tarball/pmm-client-${pmm_version}.tar.gz
 dynamic_binary_tarball=${root_dir}/results/tarball/pmm-client-${pmm_version}-${BUILD_TYPE}-${OS_VARIANT}.tar.gz
 
-# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.143.0
-vmagent_commit_hash=2a094963cfb06c69656364d4f8231fa7685987bd
+# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.145.0
+vmagent_commit_hash=c0a13290a8d9654076f6a54dd515ce7ab31cb61d
 # https://github.com/oliver006/redis_exporter/releases/tag/v1.82.0
 redis_exporter_commit_hash=1f3d89a11af0f0fd10f4f6e56b24a1687ae85776
 # https://github.com/hashicorp/nomad/releases/tag/v2.0.2

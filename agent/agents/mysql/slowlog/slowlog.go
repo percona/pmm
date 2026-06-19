@@ -20,6 +20,7 @@ import (
 	"crypto/md5" //nolint:gosec
 	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -32,7 +33,6 @@ import (
 	"github.com/percona/go-mysql/event"
 	"github.com/percona/go-mysql/log"
 	"github.com/percona/go-mysql/query"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
@@ -181,7 +181,8 @@ func (s *SlowLog) recheck(ctx context.Context) *slowLogInfo {
 
 	var grants string
 	row := db.QueryRowContext(ctx, "SHOW GRANTS")
-	if err := row.Scan(&grants); err != nil {
+	err = row.Scan(&grants)
+	if err != nil {
 		s.l.Errorf("Cannot scan db user privileges: %s", err)
 		return nil
 	}
@@ -191,7 +192,8 @@ func (s *SlowLog) recheck(ctx context.Context) *slowLogInfo {
 		return nil
 	}
 
-	if newInfo, err = s.getSlowLogInfo(ctx); err != nil {
+	newInfo, err = s.getSlowLogInfo(ctx)
+	if err != nil {
 		s.l.Error(err)
 		return nil
 	}
@@ -224,15 +226,16 @@ func (s *SlowLog) recheck(ctx context.Context) *slowLogInfo {
 func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 	db, err := sql.Open("mysql", s.params.DSN)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot open database connection")
+		return nil, fmt.Errorf("cannot open database connection: %w", err)
 	}
 	defer db.Close() //nolint:errcheck
 
 	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)
 	var path string
 	row := db.QueryRowContext(ctx, selectQuery+"@@slow_query_log_file")
-	if err := row.Scan(&path); err != nil {
-		return nil, errors.Wrap(err, "cannot select @@slow_query_log_file")
+	err = row.Scan(&path)
+	if err != nil {
+		return nil, fmt.Errorf("cannot select @@slow_query_log_file: %w", err)
 	}
 	if path == "" {
 		return nil, errors.New("cannot parse slowlog: @@slow_query_log_file is empty")
@@ -243,9 +246,9 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 	if !filepath.IsAbs(path) {
 		var dataDir string
 		row = db.QueryRowContext(ctx, selectQuery+"@@datadir")
-		err := row.Scan(&dataDir)
+		err = row.Scan(&dataDir)
 		if err != nil {
-			return nil, errors.Wrap(err, "cannot select @@datadir")
+			return nil, fmt.Errorf("cannot select @@datadir: %w", err)
 		}
 		path = filepath.Join(dataDir, path)
 	}
@@ -256,7 +259,8 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 	// warn about disabled slowlog
 	var enabled int
 	row = db.QueryRowContext(ctx, selectQuery+"@@slow_query_log")
-	if err := row.Scan(&enabled); err != nil {
+	err = row.Scan(&enabled)
+	if err != nil {
 		s.l.Warnf("Cannot SELECT @@slow_query_log: %s.", err)
 	}
 	if enabled != 1 {
@@ -266,7 +270,8 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 	// slow_query_log_always_write_time is Percona-specific, use debug level, not warning
 	var outlierTime float64
 	row = db.QueryRowContext(ctx, selectQuery+"@@slow_query_log_always_write_time")
-	if err := row.Scan(&outlierTime); err != nil {
+	err = row.Scan(&outlierTime)
+	if err != nil {
 		s.l.Debugf("Cannot SELECT @@slow_query_log_always_write_time: %s.", err)
 	}
 
@@ -280,12 +285,13 @@ func (s *SlowLog) getSlowLogInfo(ctx context.Context) (*slowLogInfo, error) {
 func (s *SlowLog) rotateSlowLog(ctx context.Context, slowLogPath string) error {
 	db, err := sql.Open("mysql", s.params.DSN)
 	if err != nil {
-		return errors.Wrap(err, "cannot open database connection")
+		return fmt.Errorf("cannot open database connection: %w", err)
 	}
 	defer db.Close() //nolint:errcheck
 
 	old := slowLogPath + ".old"
-	if err = os.Remove(old); err != nil && !os.IsNotExist(err) {
+	err = os.Remove(old)
+	if err != nil && !os.IsNotExist(err) {
 		s.l.Warnf("Cannot remove previous old slowlog file: %s.", err)
 	}
 
@@ -294,13 +300,14 @@ func (s *SlowLog) rotateSlowLog(ctx context.Context, slowLogPath string) error {
 	// This problem is especially bad with MySQL in Docker - it locks completely even on small files.
 	//
 	// Reader will continue to read old file from open file descriptor until EOF.
-	if err = os.Rename(slowLogPath, old); err != nil {
-		return errors.Wrap(err, "cannot rename old slowlog file")
+	err = os.Rename(slowLogPath, old)
+	if err != nil {
+		return fmt.Errorf("cannot rename old slowlog file: %w", err)
 	}
 
 	_, err = db.ExecContext(ctx, "FLUSH NO_WRITE_TO_BINLOG SLOW LOGS")
 	if err != nil {
-		return errors.Wrap(err, "cannot flush logs")
+		return fmt.Errorf("cannot flush logs: %w", err)
 	}
 
 	// keep one old file around, remove it on next iteration

@@ -20,6 +20,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"sort"
@@ -28,7 +29,6 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	qanv1 "github.com/percona/pmm/api/qan/v1"
@@ -84,19 +84,22 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 		Totals:          totals,
 	}
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("queryMetricsTmpl").Funcs(funcMap).Parse(queryMetricsTmpl); err != nil {
+	tmpl, err := template.New("queryMetricsTmpl").Funcs(funcMap).Parse(queryMetricsTmpl)
+	if err != nil {
 		log.Fatalln(err)
-	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+	}
+	err = tmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		log.Fatalln(err)
 	}
 	var results []M
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return results, errors.Wrap(err, cannotPrepare)
+		return results, fmt.Errorf(cannotPrepare+": %w", err)
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return results, errors.Wrap(err, cannotPopulate)
+		return results, fmt.Errorf(cannotPopulate+": %w", err)
 	}
 	query = m.db.Rebind(query)
 
@@ -105,7 +108,7 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 
 	rows, err := m.db.QueryxContext(queryCtx, query, args...)
 	if err != nil {
-		return results, errors.Wrap(err, cannotExecute)
+		return results, fmt.Errorf(cannotExecute+": %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -546,16 +549,17 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 
 	var results []*qanv1.Point
 	var queryBuffer bytes.Buffer
-	if err := tmplMetricsSparklines.Execute(&queryBuffer, tmplArgs); err != nil {
-		return nil, errors.Wrap(err, "cannot execute tmplMetricsSparklines")
+	err := tmplMetricsSparklines.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
+		return nil, fmt.Errorf("cannot execute tmplMetricsSparklines: %w", err)
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return nil, errors.Wrap(err, "prepare named")
+		return nil, fmt.Errorf("prepare named: %w", err)
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "populate arguments in IN clause")
+		return nil, fmt.Errorf("populate arguments in IN clause: %w", err)
 	}
 	query = m.db.Rebind(query)
 
@@ -564,7 +568,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 
 	rows, err := m.db.QueryxContext(queryCtx, query, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "metrics sparklines query")
+		return nil, fmt.Errorf("metrics sparklines query: %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -574,7 +578,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 		res := getPointFieldsList(&p, sparklinePointAllFields)
 		err = rows.Scan(res...)
 		if err != nil {
-			return nil, errors.Wrap(err, "DimensionReport scan error")
+			return nil, fmt.Errorf("DimensionReport scan error: %w", err)
 		}
 
 		// Fill deprecated fields for compatibility
@@ -647,17 +651,18 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 	}
 
 	var queryBuffer bytes.Buffer
-	if err := tmplQueryExample.Execute(&queryBuffer, tmplArgs); err != nil {
-		return nil, errors.Wrap(err, "cannot execute queryExampleTmpl")
+	err := tmplQueryExample.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
+		return nil, fmt.Errorf("cannot execute queryExampleTmpl: %w", err)
 	}
 	query, queryArgs, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return nil, errors.Wrap(err, "prepare named")
+		return nil, fmt.Errorf("prepare named: %w", err)
 	}
 	query = m.db.Rebind(query)
 	rows, err := m.db.QueryContext(ctx, query, queryArgs...)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot select object details labels")
+		return nil, fmt.Errorf("cannot select object details labels: %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -678,7 +683,7 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 			&row.ExampleMetrics,
 		)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to scan query example for object details")
+			return nil, fmt.Errorf("failed to scan query example for object details: %w", err)
 		}
 
 		res.QueryExamples = append(res.QueryExamples, &row)
@@ -747,19 +752,20 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 	}
 
 	var queryBuffer bytes.Buffer
-	if err := tmplObjectDetailsLabels.Execute(&queryBuffer, arg); err != nil {
-		return nil, errors.Wrap(err, "cannot execute tmplObjectDetailsLabels")
+	err := tmplObjectDetailsLabels.Execute(&queryBuffer, arg)
+	if err != nil {
+		return nil, fmt.Errorf("cannot execute tmplObjectDetailsLabels: %w", err)
 	}
 	res := qanv1.GetLabelsResponse{}
 
 	query, queryArgs, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return nil, errors.Wrap(err, "prepare named")
+		return nil, fmt.Errorf("prepare named: %w", err)
 	}
 	query = m.db.Rebind(query)
 	rows, err := m.db.QueryContext(ctx, query, queryArgs...)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot select object details labels")
+		return nil, fmt.Errorf("cannot select object details labels: %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -822,7 +828,7 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 			&row.PlanID,
 		)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to scan labels for object details")
+			return nil, fmt.Errorf("failed to scan labels for object details: %w", err)
 		}
 		// convert rows to array of unique label keys - values.
 		labels["service_name"][row.ServiceName] = struct{}{}
@@ -857,8 +863,9 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 		}
 		labels["cmd_type"][row.CmdType] = struct{}{}
 	}
-	if err = rows.Err(); err != nil {
-		return nil, errors.Wrap(err, "failed to select labels dimensions")
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to select labels dimensions: %w", err)
 	}
 
 	res.Labels = make(map[string]*qanv1.ListLabelValues)
@@ -948,9 +955,13 @@ func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, perio
 		Labels:     escapeColonsInMap(labels),
 	}
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("histogramTmpl").Funcs(funcMap).Parse(histogramTmpl); err != nil {
+	tmpl, err := template.New("histogramTmpl").Funcs(funcMap).Parse(histogramTmpl)
+	if err != nil {
 		log.Fatalln(err)
-	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+	}
+
+	err = tmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		log.Fatalln(err)
 	}
 
@@ -959,11 +970,11 @@ func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, perio
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return results, errors.Wrap(err, cannotPrepare)
+		return results, fmt.Errorf(cannotPrepare+": %w", err)
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return results, errors.Wrap(err, cannotPopulate)
+		return results, fmt.Errorf(cannotPopulate+": %w", err)
 	}
 	query = m.db.Rebind(query)
 
@@ -972,7 +983,7 @@ func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, perio
 
 	rows, err := m.db.QueryxContext(queryCtx, query, args...)
 	if err != nil {
-		return results, errors.Wrap(err, cannotExecute)
+		return results, fmt.Errorf(cannotExecute+": %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -983,14 +994,14 @@ func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, perio
 			&histogramItems,
 		)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to scan histogram items")
+			return nil, fmt.Errorf("failed to scan histogram items: %w", err)
 		}
 
 		for _, v := range histogramItems {
 			item := &qanv1.HistogramItem{}
-			err := json.Unmarshal([]byte(v), item)
+			err = json.Unmarshal([]byte(v), item)
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to unmarshal histogram item")
+				return nil, fmt.Errorf("failed to unmarshal histogram item: %w", err)
 			}
 
 			keyExists, position := histogramHasKey(histogram, item.Range)
@@ -1035,11 +1046,11 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return false, errors.Wrap(err, cannotPrepare)
+		return false, fmt.Errorf(cannotPrepare+": %w", err)
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return false, errors.Wrap(err, cannotPopulate)
+		return false, fmt.Errorf(cannotPopulate+": %w", err)
 	}
 	query = m.db.Rebind(query)
 
@@ -1048,7 +1059,7 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 
 	rows, err := m.db.QueryxContext(queryCtx, query, args...)
 	if err != nil {
-		return false, errors.Wrap(err, cannotExecute)
+		return false, fmt.Errorf(cannotExecute+": %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -1074,11 +1085,11 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return nil, errors.Wrap(err, cannotPrepare)
+		return nil, fmt.Errorf(cannotPrepare+": %w", err)
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, cannotPopulate)
+		return nil, fmt.Errorf(cannotPopulate+": %w", err)
 	}
 	query = m.db.Rebind(query)
 
@@ -1088,7 +1099,7 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 	row := m.db.QueryRowxContext(queryCtx, query, args...)
 	rowErr := row.Err()
 	if rowErr != nil {
-		return nil, errors.Wrap(rowErr, cannotExecute)
+		return nil, fmt.Errorf(cannotExecute+": %w", rowErr)
 	}
 
 	res := &qanv1.SchemaByQueryIDResponse{}
@@ -1097,7 +1108,7 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 		if errors.Is(err, sql.ErrNoRows) {
 			return res, nil
 		}
-		return res, errors.Wrap(err, "failed to scan query")
+		return res, fmt.Errorf("failed to scan query: %w", err)
 	}
 
 	return res, nil
@@ -1120,11 +1131,11 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	res := &qanv1.ExplainFingerprintByQueryIDResponse{}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return res, errors.Wrap(err, cannotPrepare)
+		return res, fmt.Errorf(cannotPrepare+": %w", err)
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return res, errors.Wrap(err, cannotPopulate)
+		return res, fmt.Errorf(cannotPopulate+": %w", err)
 	}
 	query = m.db.Rebind(query)
 
@@ -1134,7 +1145,7 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	row := m.db.QueryRowxContext(queryCtx, query, args...)
 	rowErr := row.Err()
 	if rowErr != nil {
-		return res, errors.Wrap(rowErr, cannotExecute)
+		return res, fmt.Errorf(cannotExecute+": %w", rowErr)
 	}
 
 	var fingerprint, example string
@@ -1146,9 +1157,9 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return res, errors.New("query_id doesnt exists")
+			return res, errors.New("query_id doesn't exist")
 		}
-		return res, errors.Wrap(err, "failed to scan query")
+		return res, fmt.Errorf("failed to scan query: %w", err)
 	}
 
 	if example != "" {
@@ -1219,19 +1230,22 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 
 	res := &qanv1.GetSelectedQueryMetadataResponse{}
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("selectedQueryMetadataTmpl").Funcs(funcMap).Parse(selectedQueryMetadataTmpl); err != nil {
-		return res, errors.Wrap(err, cannotPrepare)
-	} else if err = tmpl.Execute(&queryBuffer, tmplArgs); err != nil {
-		return res, errors.Wrap(err, cannotExecute)
+	tmpl, err := template.New("selectedQueryMetadataTmpl").Funcs(funcMap).Parse(selectedQueryMetadataTmpl)
+	if err != nil {
+		return res, fmt.Errorf(cannotPrepare+": %w", err)
+	}
+	err = tmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
+		return res, fmt.Errorf(cannotExecute+": %w", err)
 	}
 
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return res, errors.Wrap(err, cannotPrepare)
+		return res, fmt.Errorf(cannotPrepare+": %w", err)
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return res, errors.Wrap(err, cannotPopulate)
+		return res, fmt.Errorf(cannotPopulate+": %w", err)
 	}
 	query = m.db.Rebind(query)
 
@@ -1240,14 +1254,14 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 
 	rows, err := m.db.QueryxContext(queryCtx, query, args...)
 	if err != nil {
-		return res, errors.Wrap(err, cannotExecute)
+		return res, fmt.Errorf(cannotExecute+": %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
 	metadata := make(map[string]map[string]struct{})
 	columnNames, err := rows.Columns()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get column names")
+		return nil, fmt.Errorf("failed to get column names: %w", err)
 	}
 	for _, name := range columnNames {
 		metadata[name] = make(map[string]struct{})
@@ -1262,9 +1276,9 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 		err = rows.Scan(row...)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
-				return nil, errors.Wrap(err, "query_id doesnt exists")
+				return nil, fmt.Errorf("query_id doesn't exist: %w", err)
 			}
-			return nil, errors.Wrap(err, "failed to scan query")
+			return nil, fmt.Errorf("failed to scan query: %w", err)
 		}
 
 		for k, v := range row {

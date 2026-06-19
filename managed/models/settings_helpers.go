@@ -17,6 +17,7 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"maps"
 	"strings"
@@ -25,7 +26,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/validators"
@@ -52,7 +52,7 @@ var adreBehaviorControlAllowed = map[string]struct{}{
 func validateAdreBehaviorControlsMap(field string, m map[string]bool) error {
 	for k := range m {
 		if _, ok := adreBehaviorControlAllowed[k]; !ok {
-			return errors.Errorf("%s: unknown behavior_controls key %q", field, k)
+			return fmt.Errorf("%s: unknown behavior_controls key %q", field, k)
 		}
 	}
 	return nil
@@ -66,14 +66,14 @@ func GetSettings(q reform.DBTX) (*Settings, error) {
 	var b []byte
 	err := q.QueryRow("SELECT settings FROM settings").Scan(&b)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select settings")
+		return nil, fmt.Errorf("failed to select settings: %w", err)
 	}
 
 	var s Settings
 
 	err = json.Unmarshal(b, &s) //nolint:musttag
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal settings")
+		return nil, fmt.Errorf("failed to unmarshal settings: %w", err)
 	}
 	s.fillDefaults()
 
@@ -457,11 +457,11 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		if err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
-				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
+				return fmt.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
-				return errors.Errorf("%s: minimal resolution is 1s", v.fieldName)
+				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return errors.Errorf("%s: unknown error for", v.fieldName)
+				return fmt.Errorf("%s: unknown error: %w", v.fieldName, err)
 			}
 		}
 	}
@@ -483,11 +483,11 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		if err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
-				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
+				return fmt.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
-				return errors.Errorf("%s: minimal resolution is 1s", v.fieldName)
+				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return errors.Errorf("%s: unknown error for", v.fieldName)
+				return fmt.Errorf("%s: unknown error: %w", v.fieldName, err)
 			}
 		}
 	}
@@ -501,7 +501,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			case validators.MinDurationError:
 				return errors.New("data_retention: minimal resolution is 24h")
 			default:
-				return errors.New("data_retention: unknown error")
+				return fmt.Errorf("data_retention: unknown error: %w", err)
 			}
 		}
 	}
@@ -512,10 +512,10 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 	}
 
 	if params.AdreChatPrompt != nil && len(*params.AdreChatPrompt) > AdrePromptMaxBytes {
-		return errors.Errorf("chat_prompt: max %d bytes", AdrePromptMaxBytes)
+		return fmt.Errorf("chat_prompt: max %d bytes", AdrePromptMaxBytes)
 	}
 	if params.AdreInvestigationPrompt != nil && len(*params.AdreInvestigationPrompt) > AdrePromptMaxBytes {
-		return errors.Errorf("investigation_prompt: max %d bytes", AdrePromptMaxBytes)
+		return fmt.Errorf("investigation_prompt: max %d bytes", AdrePromptMaxBytes)
 	}
 	if params.AdreDefaultChatMode != nil {
 		mode := strings.TrimSpace(*params.AdreDefaultChatMode)
@@ -566,7 +566,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 	}
 	if params.AdreQanInsightsPrompt != nil && len(*params.AdreQanInsightsPrompt) > AdrePromptMaxBytes {
-		return errors.Errorf("qan_insights_prompt: max %d bytes", AdrePromptMaxBytes)
+		return fmt.Errorf("qan_insights_prompt: max %d bytes", AdrePromptMaxBytes)
 	}
 	if params.AdreChatRetentionDays != nil {
 		n := *params.AdreChatRetentionDays
@@ -588,7 +588,7 @@ func validateOtelSettingsParams(params *ChangeSettingsParams) error {
 			return nil
 		}
 		if *days <= 0 || *days > 365 {
-			return errors.Errorf("%s: must be between 1 and 365 days", name)
+			return fmt.Errorf("%s: must be between 1 and 365 days", name)
 		}
 		return nil
 	}
@@ -625,11 +625,11 @@ func validateAdreSlackSettings(settings *Settings) error {
 func validateAdreModelAlias(field, value string) error {
 	v := strings.TrimSpace(value)
 	if len(v) > 256 { //nolint:mnd
-		return errors.Errorf("%s: max 256 bytes", field)
+		return fmt.Errorf("%s: max 256 bytes", field)
 	}
 	for _, r := range v {
 		if unicode.IsControl(r) {
-			return errors.Errorf("%s: contains invalid control characters", field)
+			return fmt.Errorf("%s: contains invalid control characters", field)
 		}
 	}
 	return nil
@@ -642,12 +642,12 @@ func SaveSettings(q reform.DBTX, s *Settings) error {
 
 	b, err := json.Marshal(s)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal settings")
+		return fmt.Errorf("failed to marshal settings: %w", err)
 	}
 
 	_, err = q.Exec("UPDATE settings SET settings = $1", b)
 	if err != nil {
-		return errors.Wrap(err, "failed to update settings")
+		return fmt.Errorf("failed to update settings: %w", err)
 	}
 
 	return nil
