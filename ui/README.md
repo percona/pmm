@@ -55,6 +55,38 @@ Notes:
 - `run-ui` installs an EXIT trap that restores the original `pmm-compat-app` plugin and restarts Grafana when you Ctrl-C. Don't kill the container mid-run, or the restore is skipped.
 - For a one-shot build deployed into the container's system paths, use `make build-ui` instead.
 
+### Update Grafana in the devcontainer
+
+The devcontainer ships a prebuilt Grafana baked into the `perconalab/pmm-server` dev image. To develop against a local [percona/grafana](https://github.com/percona/grafana) fork instead, mount your checkout into the container and rebuild it:
+
+1. Clone the Grafana fork **next to** the `pmm` repo on the host, so it resolves to `../grafana` from the repo root:
+
+   ```bash
+   git clone https://github.com/percona/grafana ../grafana
+   ```
+
+2. Uncomment the `grafana` volume mappings in `docker-compose.dev.yml`:
+
+   ```yaml
+   # grafana
+   - ../grafana:/root/go/src/github.com/percona/grafana
+   - ../grafana/public:/usr/share/grafana/public
+   ```
+
+   The first mount provides the Grafana source for the backend build; the second serves the fork's built frontend (`public/`).
+
+3. Recreate the container so the new mounts take effect — volume mappings are read at container create time (`make env-down` then `make env-up`, or recreate via your container tooling).
+
+4. Rebuild the Grafana backend **inside the container**:
+
+   ```bash
+   make grafana-be-build
+   ```
+
+   This runs `make build-go` in `/root/go/src/github.com/percona/grafana`, copies the resulting `bin/linux/amd64/grafana` binary to `/usr/sbin/grafana`, and restarts Grafana via supervisor.
+
+For frontend changes in the fork, rebuild its `public/` assets (`make build-js` inside the grafana checkout); they are served through the `../grafana/public` mount.
+
 ## Run locally on the host
 
 Use this when you want to drive Vite from your IDE without `make env`. You still need a reachable PMM Server — the simplest way is to leave the devcontainer running (`make env-up`) so its ports are exposed; any other PMM Server reachable at `https://localhost:8443` works too.
