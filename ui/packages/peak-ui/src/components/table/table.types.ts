@@ -12,9 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { AlertProps } from '@mui/material';
-import { type MRT_Row, type MRT_RowData, type MRT_TableOptions } from 'material-react-table';
+import {
+  type MRT_Row,
+  type MRT_RowData,
+  type MRT_TableInstance,
+  type MRT_TableOptions,
+} from 'material-react-table';
+import { type MutableRefObject } from 'react';
 
 export interface TableProps<T extends MRT_RowData> extends MRT_TableOptions<T> {
+  tableInstanceRef?: MutableRefObject<MRT_TableInstance<T> | null>;
   noDataMessage?: string;
   emptyFilterResultsMessage?: string;
   hideExpandAllIcon?: boolean;
