@@ -38,7 +38,9 @@ export default defineConfig({
     force: true,
   },
   server: {
-    https: hasNginxCerts ? { key: CERT_KEY, cert: CERT_CRT } : undefined,
+    https: hasNginxCerts
+      ? { key: fs.readFileSync(CERT_KEY), cert: fs.readFileSync(CERT_CRT) }
+      : undefined,
     watch: {
       // Watch the linked package for changes (negated pattern means "don't ignore")
       ignored: ['!**/node_modules/@percona/percona-ui/**'],

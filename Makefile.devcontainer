@@ -80,7 +80,7 @@ build-ui: ui-setup               ## Build UI and deploy to system dirs
 	cp -r ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat-app
 	supervisorctl restart grafana
 
-run-qan-ui: setup-qan-ui setup-livereload ## Runs UI with vite HMR
+run-qan-ui: setup-qan-ui setup-livereload ## Runs QAN UI with webpack livereload
 	rm -rf /srv/grafana/plugins/pmm-app/dist
 	ln -sfn $(CURDIR)/dashboards/pmm-app/dist/ /srv/grafana/plugins/pmm-app/dist;
 	cd dashboards/pmm-app && yarn dev
@@ -94,12 +94,14 @@ setup-qan-ui:                    ## Installs QAN UI dependencies
 	cd dashboards/pmm-app && yarn install
 
 setup-livereload:                ## Add livereload scripts to grafana index file
-	grep -q "livereload.js" /usr/share/grafana/public/views/index.html || \
-	sed -i 's|</body>|<script src="http://localhost:35729/livereload.js"></script><script src="http://localhost:35730/livereload.js"></script></body>|g' /usr/share/grafana/public/views/index.html
+	grep -q "35729/livereload.js" /usr/share/grafana/public/views/index.html || \
+		sed -i 's|</body>|<script src="http://localhost:35729/livereload.js"></script></body>|g' /usr/share/grafana/public/views/index.html
+	grep -q "35730/livereload.js" /usr/share/grafana/public/views/index.html || \
+		sed -i 's|</body>|<script src="http://localhost:35730/livereload.js"></script></body>|g' /usr/share/grafana/public/views/index.html
 
-link-pmm-compat-plugin:          ## Links the dist folder of pmm compat to the plugin directory
+link-pmm-compat:          ## Links the dist folder of pmm compat to the plugin directory
 	rm -rf /srv/grafana/plugins/pmm-compat
-	lns -sfn $(CURDIR)/ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat
+	ln -sfn $(CURDIR)/ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat
 
 grafana-be-build:
 	cd /root/go/src/github.com/percona/grafana && \

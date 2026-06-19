@@ -101,7 +101,7 @@ make setup       # yarn install across the workspace
 make dev         # turbo dev → Vite on https://localhost:5174 (or 5173 if nginx certs are present)
 ```
 
-Vite proxies `/v1` and `/graph` to `https://localhost:8443` (see `apps/pmm/vite.config.ts`). Without nginx certificates available at `/srv/nginx/certificate.{crt,key}`, Vite falls back to port `5174` with a self-signed cert from `@vitejs/plugin-basic-ssl`.
+Vite proxies `/v1`, `/graph`, and `/logs.zip` to the PMM Server (inside the devcontainer: `https://localhost:8443`; on the host when using the devcontainer-exposed ports: `https://localhost`) — see `apps/pmm/vite.config.ts`.
 
 ## Build for production
 
