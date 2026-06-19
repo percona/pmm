@@ -19,6 +19,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -31,6 +32,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/agents"
+	mysqlversion "github.com/percona/pmm/agent/utils/version"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
@@ -127,10 +129,15 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 	// before closing m.changes, avoiding a "send on closed channel" race on shutdown.
 	var collectors sync.WaitGroup
 
+	// terminalStatus is reported just before the changes channel is closed. It stays
+	// DONE for a normal stop and becomes INITIALIZATION_ERROR when the agent cannot
+	// start (connection failure or unmet prerequisites), so the session surfaces a
+	// clear error instead of sitting in RUNNING with no data.
+	terminalStatus := inventoryv1.AgentStatus_AGENT_STATUS_DONE
 	defer func() {
 		collectors.Wait()
 
-		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
+		m.changes <- agents.Change{Status: terminalStatus}
 
 		close(m.changes)
 	}()
@@ -138,9 +145,7 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 	db, addr, err := createConnection(ctx, m.dsn, m.files, m.tlsSkipVerify)
 	if err != nil {
 		m.l.Errorf("Can't run Real-Time Analytics agent, reason: %v", err)
-
-		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
-
+		terminalStatus = inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR
 		return
 	}
 
@@ -150,6 +155,14 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 
 	m.db = db
 	m.dbInstanceAddress = addr
+
+	// Verify the instance can actually serve RTA (not MariaDB, performance_schema on,
+	// sys.x$processlist readable) before reporting RUNNING.
+	if err := m.checkPrerequisites(ctx); err != nil {
+		m.l.Errorf("Real-Time Analytics is not supported for this instance: %v", err)
+		terminalStatus = inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR
+		return
+	}
 
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 
@@ -189,6 +202,45 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 			}(ctx)
 		}
 	}
+}
+
+// checkPrerequisites verifies that the target instance can serve Real-Time Analytics:
+//   - it must be Oracle MySQL or Percona Server. MariaDB's performance_schema/sys schema
+//     differ (no sys.x$processlist with these columns) and are not supported.
+//   - performance_schema must be enabled (sys.x$processlist is backed by it).
+//   - sys.x$processlist must be readable by the monitoring user (the view is
+//     SQL SECURITY INVOKER, so it requires SELECT on the underlying performance_schema tables).
+//
+// It returns a descriptive error otherwise, so the session reports a clear status
+// instead of silently collecting nothing every cycle.
+func (m *MySQLRTA) checkPrerequisites(ctx context.Context) error {
+	checkCtx, cancel := context.WithTimeout(ctx, mysqlQueryTimeout)
+	defer cancel()
+
+	_, vendor, err := mysqlversion.GetMySQLVersion(checkCtx, m.db)
+	if err != nil {
+		return fmt.Errorf("failed to detect MySQL version: %w", err)
+	}
+	if vendor == mysqlversion.MariaDBVendor {
+		return errors.New("MariaDB is not supported by MySQL Real-Time Analytics")
+	}
+
+	var performanceSchema sql.NullInt64
+	if err := m.db.QueryRowContext(checkCtx, "SELECT @@performance_schema").Scan(&performanceSchema); err != nil {
+		return fmt.Errorf("failed to read @@performance_schema: %w", err)
+	}
+	if performanceSchema.Int64 != 1 {
+		return errors.New("performance_schema is disabled; it is required for Real-Time Analytics")
+	}
+
+	// Probe the view that the collector uses so missing schema or privileges fail fast.
+	rows, err := m.db.QueryContext(checkCtx, "SELECT 1 FROM sys.x$processlist LIMIT 1")
+	if err != nil {
+		return fmt.Errorf("sys.x$processlist is not accessible: %w", err)
+	}
+	_ = rows.Close()
+
+	return nil
 }
 
 // collectProcessList queries sys.x$processlist and parses the result into a slice of *QueryData.
