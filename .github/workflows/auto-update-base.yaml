@@ -33,11 +33,18 @@ jobs:
               attemptCount += 1;
 
               try {
-                const { data: pulls } = await github.rest.pulls.list({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  state: "open",
-                });
+                const pulls = [];
+                for (let page = 1; ; page += 1) {
+                  const { data } = await github.rest.pulls.list({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    state: "open",
+                    per_page: 100,
+                    page,
+                  });
+                  pulls.push(...data);
+                  if (data.length < 100) break;
+                }
 
                 for (const pull of pulls) {
                   const hasAutoUpdateLabel = pull.labels.some(label => label.name === "auto-update-base");
