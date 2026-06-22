@@ -172,7 +172,7 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 			case "panic-error":
 				panic(errors.New("panic-error"))
 			case "panic-fmterror":
-				panic(errors.New("panic-fmterror"))
+				panic(fmt.Errorf("panic-fmterror"))
 			default:
 				panic(req.Dummy)
 			}
@@ -776,7 +776,7 @@ func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error)
 		return nil, fmt.Errorf("failed to find agents: %w", err)
 	}
 	if len(agents) == 0 {
-		return nil, errors.New("internal pgQAN agent not found")
+		return nil, fmt.Errorf("internal pgQAN agent not found")
 	}
 	return agents[0], nil
 }
@@ -796,7 +796,7 @@ func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier,
 		return false, fmt.Errorf("failed to get QAN agent: %w", err)
 	}
 	if internalQanAgent == nil {
-		return false, errors.New("internal QAN agent not found")
+		return false, fmt.Errorf("internal QAN agent not found")
 	}
 
 	newAgent, err := models.ChangeAgent(q, internalQanAgent.AgentID, &models.ChangeAgentParams{

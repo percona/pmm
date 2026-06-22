@@ -16,7 +16,7 @@
 package envvars
 
 import (
-	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -131,15 +131,15 @@ func TestEnvVarValidator(t *testing.T) {
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
 		expectedErrs := []error{
-			errors.New(`failed to parse environment variable "PMM_ENABLE_UPDATES"`),
-			errors.New(`failed to parse environment variable "PMM_ENABLE_TELEMETRY"`),
-			errors.New(`invalid value "5" for environment variable "PMM_ENABLE_UPDATES"`),
-			errors.New(`invalid value "x" for environment variable "PMM_ENABLE_TELEMETRY"`),
-			errors.New(`environment variable "PMM_METRICS_RESOLUTION=5f" has invalid duration 5f`),
-			errors.New(`environment variable "PMM_METRICS_RESOLUTION_MR=s5" has invalid duration s5`),
-			errors.New(`environment variable "PMM_METRICS_RESOLUTION_LR=1hour" has invalid duration 1hour`),
-			errors.New(`environment variable "PMM_DATA_RETENTION=keep one week" has invalid duration keep one week`),
-			errors.New(`environment variable "PMM_UPDATE_SNOOZE_DURATION=one week" has invalid duration one week`),
+			fmt.Errorf(`failed to parse environment variable "PMM_ENABLE_UPDATES"`),
+			fmt.Errorf(`failed to parse environment variable "PMM_ENABLE_TELEMETRY"`),
+			fmt.Errorf(`invalid value "5" for environment variable "PMM_ENABLE_UPDATES"`),
+			fmt.Errorf(`invalid value "x" for environment variable "PMM_ENABLE_TELEMETRY"`),
+			fmt.Errorf(`environment variable "PMM_METRICS_RESOLUTION=5f" has invalid duration 5f`),
+			fmt.Errorf(`environment variable "PMM_METRICS_RESOLUTION_MR=s5" has invalid duration s5`),
+			fmt.Errorf(`environment variable "PMM_METRICS_RESOLUTION_LR=1hour" has invalid duration 1hour`),
+			fmt.Errorf(`environment variable "PMM_DATA_RETENTION=keep one week" has invalid duration keep one week`),
+			fmt.Errorf(`environment variable "PMM_UPDATE_SNOOZE_DURATION=one week" has invalid duration one week`),
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)

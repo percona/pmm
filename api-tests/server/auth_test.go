@@ -227,7 +227,7 @@ func TestBasicAuthPermissions(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			for _, user := range test.userCase {
-				t.Run("Basic auth "+user.userType, func(t *testing.T) {
+				t.Run(fmt.Sprintf("Basic auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
@@ -333,19 +333,19 @@ func TestServiceAccountPermissions(t *testing.T) {
 	nodeName, err := stringsgen.GenerateRandomString(256)
 	require.NoError(t, err)
 
-	viewerNodeName := nodeName + "-viewer"
+	viewerNodeName := fmt.Sprintf("%s-viewer", nodeName)
 	viewerAccountID := createServiceAccountWithRole(t, "Viewer", viewerNodeName)
 	viewerTokenID, viewerToken := createServiceToken(t, viewerAccountID, viewerNodeName)
 	defer deleteServiceAccount(t, viewerAccountID)
 	defer deleteServiceToken(t, viewerAccountID, viewerTokenID)
 
-	editorNodeName := nodeName + "-editor"
+	editorNodeName := fmt.Sprintf("%s-editor", nodeName)
 	editorAccountID := createServiceAccountWithRole(t, "Editor", editorNodeName)
 	editorTokenID, editorToken := createServiceToken(t, editorAccountID, editorNodeName)
 	defer deleteServiceAccount(t, editorAccountID)
 	defer deleteServiceToken(t, editorAccountID, editorTokenID)
 
-	adminNodeName := nodeName + "-admin"
+	adminNodeName := fmt.Sprintf("%s-admin", nodeName)
 	adminAccountID := createServiceAccountWithRole(t, "Admin", adminNodeName)
 	adminTokenID, adminToken := createServiceToken(t, adminAccountID, adminNodeName)
 	defer deleteServiceAccount(t, adminAccountID)
@@ -374,7 +374,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			for _, user := range test.userCase {
-				t.Run("Service Token auth "+user.userType, func(t *testing.T) {
+				t.Run(fmt.Sprintf("Service Token auth %s", user.userType), func(t *testing.T) { //nolint:perfsprint
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
@@ -384,7 +384,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
 					require.NoError(t, err)
 
-					req.Header.Set("Authorization", "Bearer "+user.serviceToken)
+					req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", user.serviceToken))
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
@@ -395,7 +395,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
 
-				t.Run("Basic auth with Service Token "+user.userType, func(t *testing.T) {
+				t.Run(fmt.Sprintf("Basic auth with Service Token %s", user.userType), func(t *testing.T) { //nolint:perfsprint
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
 					u.User = url.UserPassword("service_token", user.serviceToken)

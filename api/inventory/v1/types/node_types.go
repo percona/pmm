@@ -15,6 +15,8 @@
 
 package types
 
+import "fmt"
+
 // this list should be in sync with inventory/nodes.pb.go.
 const (
 	NodeTypeGenericNode             = "NODE_TYPE_GENERIC_NODE"
@@ -37,7 +39,7 @@ var nodeTypeNames = map[string]string{
 func NodeTypeName(t string) string {
 	res := nodeTypeNames[t]
 	if res == "" {
-		panic("no nice string for Node Type " + t)
+		panic(fmt.Sprintf("no nice string for Node Type %s", t))
 	}
 
 	return res

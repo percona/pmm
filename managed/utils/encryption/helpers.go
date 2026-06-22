@@ -121,7 +121,7 @@ func (table Table) read(tx *reform.TX) (*QueryValues, error) {
 			setValues = append(setValues, v)
 			i++
 		}
-		setSQL := "SET " + strings.Join(set, ", ")
+		setSQL := fmt.Sprintf("SET %s", strings.Join(set, ", "))
 		q.SetValues = append(q.SetValues, setValues)
 
 		where := []string{}

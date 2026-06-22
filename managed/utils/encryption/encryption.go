@@ -147,7 +147,7 @@ func RotateEncryptionKey() error {
 
 // RestoreOldEncryptionKey is a wrapper around DefaultEncryption.RestoreOldEncryptionKey.
 func RestoreOldEncryptionKey() error {
-	err := os.Rename(strings.TrimSuffix(encryptionKeyPath(), ".key")+"_old.key", encryptionKeyPath())
+	err := os.Rename(fmt.Sprintf("%s_old.key", strings.TrimSuffix(encryptionKeyPath(), ".key")), encryptionKeyPath())
 	if err != nil {
 		return fmt.Errorf("could not restore old encryption key: %w", err)
 	}
@@ -156,7 +156,7 @@ func RestoreOldEncryptionKey() error {
 }
 
 func backupOldEncryptionKey() error {
-	err := os.Rename(encryptionKeyPath(), strings.TrimSuffix(encryptionKeyPath(), ".key")+"_old.key")
+	err := os.Rename(encryptionKeyPath(), fmt.Sprintf("%s_old.key", strings.TrimSuffix(encryptionKeyPath(), ".key")))
 	if err != nil {
 		return fmt.Errorf("failed to backup old encryption key: %w", err)
 	}

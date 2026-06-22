@@ -16,6 +16,8 @@
 // Package types contains various entities types.
 package types
 
+import "fmt"
+
 // this list should be in sync with inventory/agents.pb.go.
 const (
 	AgentTypePMMAgent                        = "AGENT_TYPE_PMM_AGENT"
@@ -66,7 +68,7 @@ var agentTypeNames = map[string]string{
 func AgentTypeName(t string) string {
 	res := agentTypeNames[t]
 	if res == "" {
-		panic("no nice string for Agent Type " + t)
+		panic(fmt.Sprintf("no nice string for Agent Type %s", t))
 	}
 
 	return res

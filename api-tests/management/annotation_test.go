@@ -16,6 +16,7 @@
 package management
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -117,7 +118,7 @@ func TestAddAnnotation(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		_, err = client.Default.ManagementService.AddAnnotation(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "tag length cannot exceed 100 characters, tag: "+nodeName)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, fmt.Sprintf("tag length cannot exceed 100 characters, tag: %s", nodeName))
 	})
 
 	t.Run("Existing service", func(t *testing.T) {

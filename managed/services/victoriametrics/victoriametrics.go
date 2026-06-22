@@ -18,7 +18,6 @@ package victoriametrics
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -78,7 +77,7 @@ func NewVictoriaMetrics(
 	haService haService,
 ) (*Service, error) {
 	if chParams == nil {
-		return nil, errors.New("ClickHouse params is required")
+		return nil, fmt.Errorf("ClickHouse params is required")
 	}
 	u, err := url.Parse(params.URL())
 	if err != nil {

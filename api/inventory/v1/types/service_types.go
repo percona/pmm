@@ -15,6 +15,8 @@
 
 package types
 
+import "fmt"
+
 // this list should be in sync with inventory/services.pb.go.
 const (
 	ServiceTypeMySQLService      = "SERVICE_TYPE_MYSQL_SERVICE"
@@ -41,7 +43,7 @@ var serviceTypeNames = map[string]string{
 func ServiceTypeName(t string) string {
 	res := serviceTypeNames[t]
 	if res == "" {
-		panic("no nice string for Service Type " + t)
+		panic(fmt.Sprintf("no nice string for Service Type %s", t))
 	}
 
 	return res

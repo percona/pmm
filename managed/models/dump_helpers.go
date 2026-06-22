@@ -108,15 +108,15 @@ func FindDumps(q *reform.Querier, filters DumpFilters) ([]*Dump, error) {
 
 	if filters.Status != "" {
 		idx++
-		conditions = append(conditions, "status = "+q.Placeholder(idx))
+		conditions = append(conditions, fmt.Sprintf("status = %s", q.Placeholder(idx)))
 		args = append(args, filters.Status)
 	}
 
 	var whereClause string
 	if len(conditions) != 0 {
-		whereClause = "WHERE " + strings.Join(conditions, " AND ")
+		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
 	}
-	rows, err := q.SelectAllFrom(DumpTable, whereClause+" ORDER BY created_at DESC", args...)
+	rows, err := q.SelectAllFrom(DumpTable, fmt.Sprintf("%s ORDER BY created_at DESC", whereClause), args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to select dumps: %w", err)
 	}

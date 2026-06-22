@@ -166,7 +166,7 @@ func prepareValues(values []string) []any {
 }
 
 func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	rows, err := tx.QueryContext(ctx, "EXPLAIN /* pmm-agent */ "+a.params.Query, prepareValues(a.params.Values)...)
+	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
 	if err != nil {
 		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
 			return nil, fmt.Errorf(errNoDatabaseSelectedMessage+": %w", err)
@@ -222,7 +222,7 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 
 func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	var b []byte
-	err := tx.QueryRowContext(ctx, "EXPLAIN /* pmm-agent */ FORMAT=JSON "+a.params.Query, prepareValues(a.params.Values)...).Scan(&b)
+	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.params.Query), prepareValues(a.params.Values)...).Scan(&b)
 	if err != nil {
 		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
 			return nil, fmt.Errorf(errNoDatabaseSelectedMessage+": %w", err)
@@ -267,7 +267,7 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 }
 
 func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	rows, err := tx.QueryContext(ctx, "EXPLAIN /* pmm-agent */ "+a.params.Query, prepareValues(a.params.Values)...)
+	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
 	if err != nil {
 		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
 			return nil, fmt.Errorf(errNoDatabaseSelectedMessage+": %w", err)

@@ -272,7 +272,7 @@ func (s *ManagementService) ListAgentVersions(ctx context.Context, _ *management
 
 		serverVersion, err := version.Parse(version.PMMVersion)
 		if err != nil {
-			return fmt.Errorf("could not parse the server version '%s': %w", version.PMMVersion, err)
+			return fmt.Errorf("could not parse the server version: %s: %w", version.PMMVersion, err)
 		}
 
 		for _, agent := range agents {

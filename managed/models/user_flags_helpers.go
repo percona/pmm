@@ -64,7 +64,7 @@ func GetOrCreateUser(q *reform.Querier, userID int) (*UserDetails, error) {
 }
 
 // ErrUserAlreadyExists is returned when a user already exists in db.
-var ErrUserAlreadyExists = errors.New("UserAlreadyExists")
+var ErrUserAlreadyExists = fmt.Errorf("UserAlreadyExists")
 
 // CreateUser create a new user with given parameters.
 func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, error) {

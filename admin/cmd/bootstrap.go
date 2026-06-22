@@ -143,7 +143,7 @@ func getDefaultKongOptions(appName string) []kong.Option {
 
 	return []kong.Option{
 		kong.Name(appName),
-		kong.Description("Version " + version.Version),
+		kong.Description(fmt.Sprintf("Version %s", version.Version)),
 		kong.UsageOnError(),
 		kong.ConfigureHelp(kong.HelpOptions{
 			Compact:             true,

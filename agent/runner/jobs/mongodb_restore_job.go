@@ -225,7 +225,7 @@ func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string)
 			if j.pitrTimestamp.Unix() == 0 {
 				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
 			} else {
-				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", "--time="+j.pitrTimestamp.Format("2006-01-02T15:04:05"))
+				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", fmt.Sprintf(`--time=%s`, j.pitrTimestamp.Format("2006-01-02T15:04:05")))
 			}
 
 			if err != nil {

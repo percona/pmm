@@ -541,7 +541,7 @@ func (c *Client) GetCurrentUserOrgs(ctx context.Context, authHeaders http.Header
 
 func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
 	header := http.Header{}
-	header.Add("Authorization", "Bearer "+token)
+	header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
 	var k map[string]any
 	err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k)
@@ -747,7 +747,7 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 		return err
 	}
 
-	err = c.do(ctx, "POST", "/api/ruler/grafana/api/v1/rules/"+folderUID, "", authHeaders, body, nil)
+	err = c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderUID), "", authHeaders, body, nil)
 	if err != nil {
 		cErr, ok := errors.AsType[*clientError](err)
 		if ok {

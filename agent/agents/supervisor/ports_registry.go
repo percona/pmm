@@ -15,16 +15,15 @@
 package supervisor
 
 import (
-	"errors"
 	"fmt"
 	"net"
 	"sync"
 )
 
 var (
-	errNoFreePort      = errors.New("no free port")
-	errPortBusy        = errors.New("port busy")
-	errPortNotReserved = errors.New("port not reserved")
+	errNoFreePort      = fmt.Errorf("no free port")
+	errPortBusy        = fmt.Errorf("port busy")
+	errPortNotReserved = fmt.Errorf("port not reserved")
 )
 
 // portsRegistry keeps track of reserved ports.

@@ -126,13 +126,13 @@ func createDB(dsn string, clusterName string) error {
 	}
 	defer defaultDB.Close() //nolint:errcheck
 
-	sql := "CREATE DATABASE IF NOT EXISTS " + databaseName
+	sql := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", databaseName)
 	if clusterName != "" {
 		l.Infof("Using ClickHouse cluster name: %s", clusterName)
-		sql += " ON CLUSTER \"" + clusterName + "\""
-		sql += " ENGINE = Replicated('/clickhouse/databases/{uuid}', '{shard}', '{replica}')"
+		sql = fmt.Sprintf("%s ON CLUSTER \"%s\"", sql, clusterName)
+		sql = fmt.Sprintf("%s ENGINE = Replicated('/clickhouse/databases/{uuid}', '{shard}', '{replica}')", sql)
 	} else {
-		sql += " ENGINE = Atomic"
+		sql = fmt.Sprintf("%s ENGINE = Atomic", sql)
 	}
 
 	result, err := defaultDB.Exec(sql)

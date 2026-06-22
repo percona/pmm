@@ -100,7 +100,7 @@ func FindNodes(q *reform.Querier, filters NodeFilters) ([]*Node, error) {
 		whereClause = "WHERE node_type = $1"
 		args = append(args, *filters.NodeType)
 	}
-	structs, err := q.SelectAllFrom(NodeTable, whereClause+" ORDER BY node_id", args...)
+	structs, err := q.SelectAllFrom(NodeTable, fmt.Sprintf("%s ORDER BY node_id", whereClause), args...)
 	if err != nil {
 		return nil, err
 	}

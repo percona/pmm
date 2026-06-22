@@ -50,7 +50,7 @@ type explain struct {
 	UpdateObj          bson.D `json:"updateobj,omitempty"`
 }
 
-var errCannotExplain = errors.New("cannot explain this type of query")
+var errCannotExplain = fmt.Errorf("cannot explain this type of query")
 
 // NewMongoDBExplainAction creates a MongoDB EXPLAIN query Action.
 func NewMongoDBExplainAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_MongoDBExplainParams, tempDir string) (Action, error) {

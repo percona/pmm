@@ -171,8 +171,8 @@ func mysqldExporterConfig(
 		}
 	} else {
 		env := []string{
-			"DATA_SOURCE_NAME=" + exporter.DSN(service, models.DSNParams{DialTimeout: connectionTimeout, Database: ""}, nil, pmmAgentVersion),
-			"HTTP_AUTH=pmm:" + exporter.GetAgentPassword(),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: connectionTimeout, Database: ""}, nil, pmmAgentVersion)),
+			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
 		}
 		res.Env = env
 	}

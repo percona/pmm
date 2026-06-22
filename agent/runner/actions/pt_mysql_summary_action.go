@@ -100,7 +100,7 @@ func (a *ptMySQLSummaryAction) Run(ctx context.Context) ([]byte, error) {
 	tmpFile.Close() //nolint:errcheck
 
 	cmd := exec.CommandContext(ctx, a.command, "--defaults-file="+tmpFile.Name()) //nolint:gosec
-	cmd.Env = []string{"PATH=" + os.Getenv("PATH")}
+	cmd.Env = []string{fmt.Sprintf("PATH=%s", os.Getenv("PATH"))}
 	cmd.Dir = "/"
 	pdeathsig.Set(cmd, unix.SIGKILL)
 

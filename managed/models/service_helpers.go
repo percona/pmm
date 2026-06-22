@@ -99,29 +99,29 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 	var args []any
 	idx := 1
 	if filters.NodeID != "" {
-		conditions = append(conditions, "node_id = "+q.Placeholder(idx))
+		conditions = append(conditions, fmt.Sprintf("node_id = %s", q.Placeholder(idx)))
 		args = append(args, filters.NodeID)
 		idx++
 	}
 	if filters.ExternalGroup != "" {
-		conditions = append(conditions, "external_group = "+q.Placeholder(idx))
+		conditions = append(conditions, fmt.Sprintf("external_group = %s", q.Placeholder(idx)))
 		args = append(args, filters.ExternalGroup)
 		idx++
 	}
 	if filters.ServiceType != nil {
-		conditions = append(conditions, "service_type = "+q.Placeholder(idx))
+		conditions = append(conditions, fmt.Sprintf("service_type = %s", q.Placeholder(idx)))
 		args = append(args, filters.ServiceType)
 		idx++
 	}
 	if filters.Cluster != "" {
-		conditions = append(conditions, "cluster = "+q.Placeholder(idx))
+		conditions = append(conditions, fmt.Sprintf("cluster = %s", q.Placeholder(idx)))
 		args = append(args, filters.Cluster)
 	}
 	var whereClause string
 	if len(conditions) != 0 {
-		whereClause = "WHERE " + strings.Join(conditions, " AND ")
+		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
 	}
-	structs, err := q.SelectAllFrom(ServiceTable, whereClause+" ORDER BY service_id", args...)
+	structs, err := q.SelectAllFrom(ServiceTable, fmt.Sprintf("%s ORDER BY service_id", whereClause), args...)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 
 // FindActiveServiceTypes returns all active Service Types.
 func FindActiveServiceTypes(q *reform.Querier) ([]ServiceType, error) {
-	query := "SELECT DISTINCT service_type FROM " + ServiceTable.s.SQLName
+	query := fmt.Sprintf(`SELECT DISTINCT service_type FROM %s`, ServiceTable.s.SQLName)
 	rows, err := q.Query(query)
 	if err != nil {
 		return nil, err

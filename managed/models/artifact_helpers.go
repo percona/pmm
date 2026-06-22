@@ -46,7 +46,7 @@ func FindArtifacts(q *reform.Querier, filters ArtifactFilters) ([]*Artifact, err
 	var args []any
 	idx := 1
 	if filters.ServiceID != "" {
-		conditions = append(conditions, "service_id = "+q.Placeholder(idx))
+		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(idx)))
 		args = append(args, filters.ServiceID)
 		idx++
 	}
@@ -56,34 +56,34 @@ func FindArtifacts(q *reform.Querier, filters ArtifactFilters) ([]*Artifact, err
 		if err != nil {
 			return nil, err
 		}
-		conditions = append(conditions, "location_id = "+q.Placeholder(idx))
+		conditions = append(conditions, fmt.Sprintf("location_id = %s", q.Placeholder(idx)))
 		args = append(args, filters.LocationID)
 		idx++
 	}
 
 	if filters.ScheduleID != "" {
-		conditions = append(conditions, "schedule_id = "+q.Placeholder(idx))
+		conditions = append(conditions, fmt.Sprintf("schedule_id = %s", q.Placeholder(idx)))
 		args = append(args, filters.ScheduleID)
 		idx++
 	}
 
 	if filters.Status != "" {
-		conditions = append(conditions, "status = "+q.Placeholder(idx))
+		conditions = append(conditions, fmt.Sprintf("status = %s", q.Placeholder(idx)))
 		args = append(args, filters.Status)
 		idx++
 	}
 
 	if filters.Folder != nil {
-		conditions = append(conditions, "folder = "+q.Placeholder(idx))
+		conditions = append(conditions, fmt.Sprintf("folder = %s", q.Placeholder(idx)))
 		args = append(args, *filters.Folder)
 		// idx++
 	}
 
 	var whereClause string
 	if len(conditions) != 0 {
-		whereClause = "WHERE " + strings.Join(conditions, " AND ")
+		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
 	}
-	rows, err := q.SelectAllFrom(ArtifactTable, whereClause+" ORDER BY created_at DESC", args...)
+	rows, err := q.SelectAllFrom(ArtifactTable, fmt.Sprintf("%s ORDER BY created_at DESC", whereClause), args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to select artifacts: %w", err)
 	}

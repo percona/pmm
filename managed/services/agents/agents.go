@@ -18,6 +18,7 @@ package agents
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/AlekSi/pointer"
 
@@ -136,7 +137,7 @@ func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_Ag
 	agentVersion *version.Parsed, minAuthVersion *version.Parsed, useNewTLSConfig bool,
 ) error {
 	if agentVersion.Less(minAuthVersion) {
-		params.Env = append(params.Env, "HTTP_AUTH=pmm:"+exporter.GetAgentPassword())
+		params.Env = append(params.Env, fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()))
 		return nil
 	}
 
