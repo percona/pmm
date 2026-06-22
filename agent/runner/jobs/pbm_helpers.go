@@ -28,6 +28,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
+
+	"github.com/percona/pmm/agent/utils/poll"
 )
 
 const (
@@ -232,23 +234,13 @@ func retrieveLogs(ctx context.Context, dsn string, event string) ([]pbmLogEntry,
 func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, dsn string) error {
 	l.Info("Waiting for no running pbm operations.")
 
-	ticker := time.NewTicker(statusCheckInterval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ticker.C:
-			status, err := getPBMStatus(ctx, dsn)
-			if err != nil {
-				return err
-			}
-			if status.Running.Type == "" {
-				return nil
-			}
-		case <-ctx.Done():
-			return ctx.Err()
+	return poll.PollUntilContextTimeout(ctx, statusCheckInterval, func(ctx context.Context) (bool, error) {
+		status, err := getPBMStatus(ctx, dsn)
+		if err != nil {
+			return false, err
 		}
-	}
+		return status.Running.Type == "", nil
+	})
 }
 
 func isShardedCluster(ctx context.Context, dsn string) (bool, error) {
@@ -320,29 +312,18 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dsn string, nam
 }
 
 func waitDescribe(ctx context.Context, cfg *describePoller) error {
-	ticker := time.NewTicker(cfg.interval())
-	defer ticker.Stop()
-
-	for {
+	return poll.PollUntilContextTimeout(ctx, cfg.interval(), func(ctx context.Context) (bool, error) {
 		err := ctx.Err()
 		if err != nil {
-			return err
+			return false, err
 		}
 
 		done, err := pollDescribeOnce(ctx, cfg)
 		if err != nil {
-			return err
+			return false, err
 		}
-		if done {
-			return nil
-		}
-
-		select {
-		case <-ticker.C:
-		case <-ctx.Done():
-			return ctx.Err()
-		}
-	}
+		return done, nil
+	})
 }
 
 func pollDescribeOnce(ctx context.Context, cfg *describePoller) (bool, error) {
@@ -611,36 +592,35 @@ func findPITRRestoreName(ctx context.Context, dsn string, restoreInfo *pbmRestor
 		return "", err
 	}
 
-	ticker := time.NewTicker(statusCheckInterval)
-	defer ticker.Stop()
-
+	var name string
 	checks := 0
-	for {
+	err = poll.PollUntilContextTimeout(ctx, statusCheckInterval, func(ctx context.Context) (bool, error) {
 		err = ctx.Err()
 		if err != nil {
-			return "", err
+			return false, err
 		}
 
 		checks++
 		var list []pbmListRestore
 		err = execPBMCommand(ctx, dsn, &list, "list", "--restore")
 		if err != nil {
-			return "", errors.Wrapf(err, "pbm status error")
+			return false, errors.Wrapf(err, "pbm status error")
 		}
 		entry := findPITRRestore(list, restoreInfoPITRTime.Unix(), restoreInfo.StartedAt)
 		if entry != nil {
-			return entry.Name, nil
+			name = entry.Name
+			return true, nil
 		}
 		if checks > maxRestoreChecks {
-			return "", errors.Errorf("failed to start restore")
+			return false, errors.Errorf("failed to start restore")
 		}
-
-		select {
-		case <-ticker.C:
-		case <-ctx.Done():
-			return "", ctx.Err()
-		}
+		return false, nil
+	})
+	if err != nil {
+		return "", err
 	}
+
+	return name, nil
 }
 
 func fetchRestoreDescribe(ctx context.Context, dsn, name, backupType, confFile string) (describeInfo, error) {
@@ -850,31 +830,29 @@ func pbmGetSnapshotTimestamp(ctx context.Context, l logrus.FieldLogger, dsn stri
 // getSnapshots returns all PBM snapshots found in configured location.
 func getSnapshots(ctx context.Context, l logrus.FieldLogger, dsn string) ([]pbmSnapshot, error) {
 	// Sometimes PBM returns empty list of snapshots, that's why we're trying to get them several times.
-	ticker := time.NewTicker(listCheckInterval)
-	defer ticker.Stop()
-
+	var snapshots []pbmSnapshot
 	checks := 0
-	for {
-		select {
-		case <-ticker.C:
-			checks++
-			status, err := getPBMStatus(ctx, dsn)
-			if err != nil {
-				return nil, err
-			}
-
-			if len(status.Backups.Snapshot) == 0 {
-				l.Debugf("Attempt %d to get a list of PBM artifacts has failed.", checks)
-				if checks > maxListChecks {
-					return nil, fmt.Errorf("got no one snapshot: %w", ErrNotFound)
-				}
-				continue
-			}
-
-			return status.Backups.Snapshot, nil
-
-		case <-ctx.Done():
-			return nil, ctx.Err()
+	err := poll.PollUntilContextTimeout(ctx, listCheckInterval, func(ctx context.Context) (bool, error) {
+		checks++
+		status, err := getPBMStatus(ctx, dsn)
+		if err != nil {
+			return false, err
 		}
+
+		if len(status.Backups.Snapshot) == 0 {
+			l.Debugf("Attempt %d to get a list of PBM artifacts has failed.", checks)
+			if checks > maxListChecks {
+				return false, fmt.Errorf("got no one snapshot: %w", ErrNotFound)
+			}
+			return false, nil
+		}
+
+		snapshots = status.Backups.Snapshot
+		return true, nil
+	})
+	if err != nil {
+		return nil, err
 	}
+
+	return snapshots, nil
 }
