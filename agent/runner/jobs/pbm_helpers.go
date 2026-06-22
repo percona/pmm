@@ -234,7 +234,7 @@ func retrieveLogs(ctx context.Context, dsn string, event string) ([]pbmLogEntry,
 func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, dsn string) error {
 	l.Info("Waiting for no running pbm operations.")
 
-	return poll.PollUntilContextTimeout(ctx, statusCheckInterval, func(ctx context.Context) (bool, error) {
+	return poll.UntilContextTimeout(ctx, statusCheckInterval, func(ctx context.Context) (bool, error) {
 		status, err := getPBMStatus(ctx, dsn)
 		if err != nil {
 			return false, err
@@ -312,7 +312,7 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dsn string, nam
 }
 
 func waitDescribe(ctx context.Context, cfg *describePoller) error {
-	return poll.PollUntilContextTimeout(ctx, cfg.interval(), func(ctx context.Context) (bool, error) {
+	return poll.UntilContextTimeout(ctx, cfg.interval(), func(ctx context.Context) (bool, error) {
 		err := ctx.Err()
 		if err != nil {
 			return false, err
@@ -594,7 +594,7 @@ func findPITRRestoreName(ctx context.Context, dsn string, restoreInfo *pbmRestor
 
 	var name string
 	checks := 0
-	err = poll.PollUntilContextTimeout(ctx, statusCheckInterval, func(ctx context.Context) (bool, error) {
+	err = poll.UntilContextTimeout(ctx, statusCheckInterval, func(ctx context.Context) (bool, error) {
 		err = ctx.Err()
 		if err != nil {
 			return false, err
@@ -612,7 +612,7 @@ func findPITRRestoreName(ctx context.Context, dsn string, restoreInfo *pbmRestor
 			return true, nil
 		}
 		if checks > maxRestoreChecks {
-			return false, fmt.Errorf("failed to start restore")
+			return false, errors.New("failed to start restore")
 		}
 		return false, nil
 	})
@@ -832,7 +832,7 @@ func getSnapshots(ctx context.Context, l logrus.FieldLogger, dsn string) ([]pbmS
 	// Sometimes PBM returns empty list of snapshots, that's why we're trying to get them several times.
 	var snapshots []pbmSnapshot
 	checks := 0
-	err := poll.PollUntilContextTimeout(ctx, listCheckInterval, func(ctx context.Context) (bool, error) {
+	err := poll.UntilContextTimeout(ctx, listCheckInterval, func(ctx context.Context) (bool, error) {
 		checks++
 		status, err := getPBMStatus(ctx, dsn)
 		if err != nil {

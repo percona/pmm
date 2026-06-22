@@ -23,8 +23,8 @@ import (
 // ConditionFunc returns true when the condition is successfully met.
 type ConditionFunc func(ctx context.Context) (done bool, err error)
 
-// PollUntilContextTimeout polls until condition returns done=true, err!=nil, or ctx is canceled.
-func PollUntilContextTimeout(ctx context.Context, interval time.Duration, condition ConditionFunc) error {
+// UntilContextTimeout polls until condition returns done=true, err!=nil, or ctx is canceled.
+func UntilContextTimeout(ctx context.Context, interval time.Duration, condition ConditionFunc) error {
 	done, err := condition(ctx)
 	if err != nil {
 		return err

@@ -24,14 +24,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPollUntilContextTimeout(t *testing.T) {
+func TestUntilContextTimeout(t *testing.T) {
 	t.Parallel()
 
 	t.Run("immediate success", func(t *testing.T) {
 		t.Parallel()
 
 		calls := 0
-		err := PollUntilContextTimeout(t.Context(), time.Millisecond, func(context.Context) (bool, error) {
+		err := UntilContextTimeout(t.Context(), time.Millisecond, func(context.Context) (bool, error) {
 			calls++
 			return true, nil
 		})
@@ -43,7 +43,7 @@ func TestPollUntilContextTimeout(t *testing.T) {
 		t.Parallel()
 
 		calls := 0
-		err := PollUntilContextTimeout(t.Context(), time.Millisecond, func(context.Context) (bool, error) {
+		err := UntilContextTimeout(t.Context(), time.Millisecond, func(context.Context) (bool, error) {
 			calls++
 			return calls == 3, nil
 		})
@@ -55,7 +55,7 @@ func TestPollUntilContextTimeout(t *testing.T) {
 		t.Parallel()
 
 		expected := errors.New("boom")
-		err := PollUntilContextTimeout(t.Context(), time.Millisecond, func(context.Context) (bool, error) {
+		err := UntilContextTimeout(t.Context(), time.Millisecond, func(context.Context) (bool, error) {
 			return false, expected
 		})
 		assert.ErrorIs(t, err, expected)
@@ -67,7 +67,7 @@ func TestPollUntilContextTimeout(t *testing.T) {
 		ctx, cancel := context.WithCancel(t.Context())
 		cancel()
 
-		err := PollUntilContextTimeout(ctx, time.Millisecond, func(context.Context) (bool, error) {
+		err := UntilContextTimeout(ctx, time.Millisecond, func(context.Context) (bool, error) {
 			return false, nil
 		})
 		assert.ErrorIs(t, err, context.Canceled)
@@ -79,7 +79,7 @@ func TestPollUntilContextTimeout(t *testing.T) {
 		ctx, cancel := context.WithTimeout(t.Context(), 20*time.Millisecond)
 		defer cancel()
 
-		err := PollUntilContextTimeout(ctx, 5*time.Millisecond, func(context.Context) (bool, error) {
+		err := UntilContextTimeout(ctx, 5*time.Millisecond, func(context.Context) (bool, error) {
 			return false, nil
 		})
 		assert.ErrorIs(t, err, context.DeadlineExceeded)
