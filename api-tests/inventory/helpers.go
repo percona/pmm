@@ -77,10 +77,10 @@ func assertExternalServiceExists(t *testing.T, res *services.ListServicesOK, ser
 	}, "There should be External service with id `%s`", serviceID)
 }
 
-func assertExternalServiceNotExist(t *testing.T, res *services.ListServicesOK, serviceID string) bool {
+func assertExternalServiceNotExist(t *testing.T, res *services.ListServicesOK, serviceID string) {
 	t.Helper()
 
-	return assert.Conditionf(t, func() bool {
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.External {
 			if v.ServiceID == serviceID {
 				return false
@@ -103,10 +103,10 @@ func assertHAProxyServiceExists(t *testing.T, res *services.ListServicesOK, serv
 	}, "There should be HAProxy service with id `%s`", serviceID)
 }
 
-func assertHAProxyServiceNotExist(t *testing.T, res *services.ListServicesOK, serviceID string) bool {
+func assertHAProxyServiceNotExist(t *testing.T, res *services.ListServicesOK, serviceID string) {
 	t.Helper()
 
-	return assert.Conditionf(t, func() bool {
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.Haproxy {
 			if v.ServiceID == serviceID {
 				return false
@@ -129,10 +129,10 @@ func assertMySQLExporterExists(t *testing.T, res *agents.ListAgentsOK, mySqldExp
 	}, "There should be MySQL agent with id `%s`", mySqldExporterID)
 }
 
-func assertMySQLExporterNotExists(t *testing.T, res *agents.ListAgentsOK, mySqldExporterID string) bool {
+func assertMySQLExporterNotExists(t *testing.T, res *agents.ListAgentsOK, mySqldExporterID string) {
 	t.Helper()
 
-	return assert.Conditionf(t, func() bool {
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.MysqldExporter {
 			if v.AgentID == mySqldExporterID {
 				return false
@@ -142,10 +142,10 @@ func assertMySQLExporterNotExists(t *testing.T, res *agents.ListAgentsOK, mySqld
 	}, "There should not be MySQL agent with id `%s`", mySqldExporterID)
 }
 
-func assertPMMAgentExists(t *testing.T, res *agents.ListAgentsOK, pmmAgentID string) bool {
+func assertPMMAgentExists(t *testing.T, res *agents.ListAgentsOK, pmmAgentID string) {
 	t.Helper()
 
-	return assert.Conditionf(t, func() bool {
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.PMMAgent {
 			if v.AgentID == pmmAgentID {
 				return true
