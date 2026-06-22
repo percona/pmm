@@ -50,8 +50,32 @@ var (
 		regexp.MustCompile(`(?i)\bFORMAT\s+\w+`), // e.g. FORMAT JSON — not the format() function
 		regexp.MustCompile(`(?i)\bREPLACE\s+TABLE\b`),
 	}
-	tableRefPattern = regexp.MustCompile(`(?is)\b(?:FROM|JOIN)\s+(?:ONLY\s+)?([a-zA-Z][a-zA-Z0-9_.]*)`)
-	limitPattern    = regexp.MustCompile(`(?is)\blimit\s+(\d+)\s*(?:offset\s+\d+)?\s*$`)
+	// Captures the source list after FROM/JOIN (up to the next clause boundary, a
+	// parenthesis, or end of statement) so EVERY comma-separated source — not just
+	// the first — is checked against the table allowlist. A table function such as
+	// url is captured as the bare name "url", which is not an allowlisted table and
+	// is therefore rejected. A subquery begins with a parenthesis so it does not
+	// match here; its inner FROM/JOIN tables are matched on their own.
+	fromSourcePattern = regexp.MustCompile(`(?is)\b(?:FROM|JOIN)\s+(?:ONLY\s+)?([a-zA-Z_][^()]*?)\s*` +
+		`(?:\(|\)|,?\s*$|\b(?:WHERE|PREWHERE|GROUP|ORDER|LIMIT|HAVING|SETTINGS|UNION|FORMAT|` +
+		`ON|USING|SAMPLE|FINAL|ARRAY|LEFT|RIGHT|INNER|OUTER|FULL|CROSS|GLOBAL|ANY|ALL|ASOF|SEMI|ANTI|JOIN)\b)`)
+	sourceIdentPattern = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_.]*`)
+	// Rejects ClickHouse table/remote/file functions and the scalar dictionary/join readers anywhere
+	// in the statement (projection, scalar subquery, comma cross-join, or a no-space FROM(fn(...))).
+	// They can read arbitrary files, reach arbitrary hosts (SSRF), run a script (executable), or read
+	// data outside the metrics/logs allowlist (including dictGet/joinGet, which are scalar and run even
+	// under readonly=1), and are never needed for metrics/logs analytics. This denylist must be kept in
+	// sync with new ClickHouse functions; the fromSourcePattern positive allowlist is the backstop.
+	forbiddenTableFunctionPattern = regexp.MustCompile(`(?i)\b(?:` +
+		`url|urlCluster|file|fileCluster|s3|s3Cluster|s3queue|gcs|gcsCluster|` +
+		`remote|remoteSecure|cluster|clusterAllReplicas|` +
+		`mysql|postgresql|mongodb|redis|sqlite|jdbc|odbc|` +
+		`hdfs|hdfsCluster|azureBlobStorage|azureBlobStorageCluster|` +
+		`deltaLake|deltaLakeCluster|hudi|hudiCluster|iceberg|icebergS3|icebergAzure|icebergHDFS|icebergCluster|` +
+		`merge|mergeTreeIndex|mergeTreeProjection|input|dictionary|view|viewIfPermitted|loop|executable|` +
+		`dictGet\w*|joinGet\w*` +
+		`)\s*\(`)
+	limitPattern = regexp.MustCompile(`(?is)\blimit\s+(\d+)\s*(?:offset\s+\d+)?\s*$`)
 	// LLM often emits JSON-style map keys; ClickHouse requires single-quoted keys in ['key'].
 	clickHouseMapDoubleQuoteKey = regexp.MustCompile(`(?i)(ResourceAttributes|LogAttributes|ScopeAttributes|InstrumentationScopeAttributes)\["([^"]+)"\]`)
 	// Holmes bash escaping for jq --arg / "{{ query }}" becomes '"key"' or '"'"' in SQL.
@@ -176,7 +200,7 @@ func (h *Handlers) clickHouseDB(database string) (*sql.DB, bool) {
 			return nil, false
 		}
 		return h.clickhouse.PMM, true
-	case "otel":
+	case "otel": //nolint:goconst
 		if h.clickhouse.OTel == nil {
 			return nil, false
 		}
@@ -189,6 +213,53 @@ func (h *Handlers) clickHouseDB(database string) (*sql.DB, bool) {
 func queryFingerprint(query string) string {
 	sum := sha256.Sum256([]byte(query))
 	return hex.EncodeToString(sum[:8])
+}
+
+// maskClickHouseQueryForScan returns a copy of q for guard scanning: single-quoted string literals are
+// emptied ('...' -> ”) and SQL comments (/* */ and -- to end of line) are replaced with a space, in a
+// single quote-aware pass. Doing both together (rather than two regex passes) stops a comment delimiter
+// inside a literal — or a quote inside a comment — from confusing the guards, and stops the forbidden
+// function denylist from being evaded with a comment between the name and "(" (e.g. url/**/()): the
+// comment collapses to a space so url/**/( becomes "url (", which the denylist still matches.
+func maskClickHouseQueryForScan(q string) string {
+	var b strings.Builder
+	b.Grow(len(q))
+	r := []rune(q)
+	for i := 0; i < len(r); i++ {
+		switch {
+		case r[i] == '\'': // string literal: emit '' and consume to the closing quote ('' = escaped quote)
+			b.WriteString("''")
+			i++
+			for i < len(r) {
+				if r[i] == '\'' {
+					if i+1 < len(r) && r[i+1] == '\'' {
+						i += 2
+						continue
+					}
+					break // closing quote (outer loop's i++ steps past it)
+				}
+				i++
+			}
+		case r[i] == '-' && i+1 < len(r) && r[i+1] == '-': // line comment to end of line
+			b.WriteByte(' ')
+			for i < len(r) && r[i] != '\n' {
+				i++
+			}
+			if i < len(r) {
+				b.WriteByte('\n') // preserve the line break (outer loop's i++ steps past it)
+			}
+		case r[i] == '/' && i+1 < len(r) && r[i+1] == '*': // block comment
+			b.WriteByte(' ')
+			i += 2
+			for i+1 < len(r) && !(r[i] == '*' && r[i+1] == '/') {
+				i++
+			}
+			i++ // skip the closing '*' (outer loop's i++ steps past the '/')
+		default:
+			b.WriteRune(r[i])
+		}
+	}
+	return b.String()
 }
 
 // validateClickHouseQuery applies guardrails and returns the query to execute (with LIMIT enforced).
@@ -208,16 +279,25 @@ func validateClickHouseQuery(database, query string, maxRows int) (string, error
 		return "", errors.New("multiple statements are not allowed")
 	}
 
-	upper := strings.ToUpper(q)
+	// Empty string literals and strip comments before scanning so (a) a forbidden keyword/function/table
+	// that appears only inside a literal (e.g. WHERE Body LIKE '%drop%' or '%url(%') is not mistaken for
+	// SQL, and (b) a comment between a function name and its "(" (e.g. url/**/()) cannot evade the
+	// denylist. The executed query (q) keeps its real literals; ClickHouse treats comments as whitespace.
+	masked := maskClickHouseQueryForScan(q)
+	upper := strings.ToUpper(masked)
 	for _, kw := range forbiddenSQLKeywords {
 		if regexp.MustCompile(`\b` + kw + `\b`).MatchString(upper) {
 			return "", fmt.Errorf("forbidden keyword %s", kw)
 		}
 	}
 	for _, pat := range forbiddenSQLPatterns {
-		if pat.MatchString(q) {
+		if pat.MatchString(masked) {
 			return "", errors.New("forbidden SQL pattern")
 		}
+	}
+
+	if forbiddenTableFunctionPattern.MatchString(masked) {
+		return "", errors.New("table functions are not allowed")
 	}
 
 	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
@@ -281,7 +361,8 @@ func normalizeClickHouseQuerySQL(query string) string {
 }
 
 func extractClickHouseTables(query string) ([]string, error) { //nolint:unparam
-	matches := tableRefPattern.FindAllStringSubmatch(query, -1)
+	masked := maskClickHouseQueryForScan(query)
+	matches := fromSourcePattern.FindAllStringSubmatch(masked, -1)
 	if len(matches) == 0 {
 		return nil, nil
 	}
@@ -291,15 +372,17 @@ func extractClickHouseTables(query string) ([]string, error) { //nolint:unparam
 		if len(m) < 2 { //nolint:mnd
 			continue
 		}
-		name := strings.ToLower(strings.TrimSpace(m[1]))
-		if name == "" {
-			continue
+		for part := range strings.SplitSeq(m[1], ",") {
+			name := strings.ToLower(sourceIdentPattern.FindString(strings.TrimSpace(part)))
+			if name == "" {
+				continue
+			}
+			if _, ok := seen[name]; ok {
+				continue
+			}
+			seen[name] = struct{}{}
+			out = append(out, name)
 		}
-		if _, ok := seen[name]; ok {
-			continue
-		}
-		seen[name] = struct{}{}
-		out = append(out, name)
 	}
 	return out, nil
 }

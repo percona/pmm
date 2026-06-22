@@ -191,6 +191,121 @@ func TestValidateClickHouseQuery_rejectsFormatExportAndReplaceTable(t *testing.T
 	}
 }
 
+func TestValidateClickHouseQuery_rejectsTableFunctionBypasses(t *testing.T) {
+	t.Parallel()
+
+	// Each of these passes the FROM/JOIN table allowlist (the first source is the
+	// allowlisted table) but smuggles a ClickHouse table function or a second,
+	// non-allowlisted table to read files, reach arbitrary hosts (SSRF), or read
+	// other tables. They must all be rejected.
+	cases := []struct {
+		name  string
+		db    string
+		query string
+	}{
+		{"ssrf_comma_cross_join", "pmm", `SELECT * FROM metrics, url('http://169.254.169.254/latest/meta-data/','CSV','a String') LIMIT 1`},
+		{"file_read_projection", "pmm", `SELECT file('/etc/passwd') FROM metrics LIMIT 1`},
+		{"remote_table_fn", "pmm", `SELECT * FROM remote('1.2.3.4:9000', system, tables) LIMIT 1`},
+		{"mysql_table_fn_join", "otel", `SELECT * FROM logs JOIN mysql('h:3306','db','t','u','p') AS m ON m.x = logs.x LIMIT 1`},
+		{"merge_other_tables", "pmm", `SELECT * FROM merge('system', '.*') LIMIT 1`},
+		{"s3_in_where_subquery", "pmm", `SELECT count() FROM metrics WHERE 1 IN (SELECT 1 FROM s3('http://x/y.csv','CSV','c String')) LIMIT 1`},
+		{"view_wrap", "pmm", `SELECT * FROM view(SELECT 1) LIMIT 1`},
+		{"comma_forbidden_table", "pmm", `SELECT * FROM metrics, system.tables LIMIT 1`},
+		{"comma_forbidden_table_aliased", "pmm", `SELECT * FROM metrics m, system.tables s LIMIT 1`},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			_, err := validateClickHouseQuery(tc.db, tc.query, 500)
+			require.Error(t, err, "query must be rejected: %s", tc.query)
+		})
+	}
+}
+
+func TestValidateClickHouseQuery_allowsSubqueriesJoinsAndLiterals(t *testing.T) {
+	t.Parallel()
+
+	// Legitimate analytics shapes must still pass: subqueries (inner table is the
+	// one validated), aliases/JOINs over allowlisted tables, scalar functions that
+	// merely share a name prefix, and forbidden tokens that appear only inside a
+	// string literal (masked before scanning).
+	cases := []struct {
+		name  string
+		db    string
+		query string
+	}{
+		{"subquery", "pmm", `SELECT fingerprint FROM (SELECT fingerprint FROM metrics WHERE service_id = 'abc') AS t LIMIT 10`},
+		{"alias", "pmm", `SELECT count() FROM metrics AS m WHERE m.service_id = 'abc' LIMIT 1`},
+		{"replace_scalar", "pmm", `SELECT replace(fingerprint, 'a', 'b') FROM metrics LIMIT 1`},
+		{"function_name_in_literal", "otel", `SELECT Timestamp FROM otel.logs WHERE Body LIKE '%url(%' LIMIT 5`},
+		{"table_name_in_literal", "otel", `SELECT Timestamp FROM otel.logs WHERE Body LIKE '%system.tables%' LIMIT 5`},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			_, err := validateClickHouseQuery(tc.db, tc.query, 500)
+			require.NoError(t, err, "query must be allowed: %s", tc.query)
+		})
+	}
+}
+
+func TestValidateClickHouseQuery_rejectsScalarReadersAndCommentBypasses(t *testing.T) {
+	t.Parallel()
+
+	// Hardening: scalar dictionary/join readers (which run even under readonly=1 and read data outside
+	// the allowlist), table functions that were missing from the denylist, comment-based denylist
+	// evasions (url/**/(), and the no-space FROM(fn(...)) form must all be rejected.
+	cases := []struct {
+		name  string
+		db    string
+		query string
+	}{
+		{"dictGet_scalar", "pmm", `SELECT dictGet('some_dict','attr', toUInt64(1)) FROM metrics LIMIT 1`},
+		{"dictGetString_scalar", "pmm", `SELECT dictGetString('d','a', toUInt64(service_id)) FROM metrics LIMIT 1`},
+		{"joinGet_scalar", "otel", `SELECT joinGet('some_join','val', 1) FROM otel.logs LIMIT 1`},
+		{"executable_projection", "pmm", `SELECT executable('id','CSV','x String') FROM metrics LIMIT 1`},
+		{"s3queue_projection", "pmm", `SELECT s3queue('http://x','CSV') FROM metrics LIMIT 1`},
+		{"mergeTreeIndex_from", "pmm", `SELECT * FROM mergeTreeIndex('system','tables') LIMIT 1`},
+		{"gcsCluster_variant", "pmm", `SELECT * FROM gcsCluster('c','http://x','CSV','a String') LIMIT 1`},
+		{"url_block_comment_projection", "otel", `SELECT url/**/('http://169.254.169.254/','CSV','x String') FROM otel.logs LIMIT 1`},
+		{"file_block_comment_projection", "pmm", `SELECT file/**/('/etc/passwd','LineAsString','x String') FROM metrics LIMIT 1`},
+		{"url_line_comment_subquery", "pmm", "SELECT * FROM metrics WHERE 1 = (SELECT url --c\n('http://x','CSV','x String')) LIMIT 1"},
+		{"from_no_space_executable", "pmm", `SELECT * FROM metrics UNION ALL SELECT * FROM(executable('id','CSV','x String')) LIMIT 1`},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			_, err := validateClickHouseQuery(tc.db, tc.query, 500)
+			require.Error(t, err, "query must be rejected: %s", tc.query)
+		})
+	}
+}
+
+func TestValidateClickHouseQuery_allowsComments(t *testing.T) {
+	t.Parallel()
+
+	// Comment stripping must not break legitimate queries, and a comment delimiter that appears only
+	// inside a string literal must NOT be treated as a comment (the quote-aware lexer keeps it inside
+	// the literal, which is then emptied).
+	cases := []struct {
+		name  string
+		db    string
+		query string
+	}{
+		{"block_comment", "pmm", `SELECT /* pick fingerprint */ fingerprint FROM metrics LIMIT 5`},
+		{"line_comment", "pmm", "SELECT fingerprint FROM metrics -- only this column\nWHERE service_id = 'abc' LIMIT 5"},
+		{"line_comment_token_in_literal", "otel", `SELECT Timestamp FROM otel.logs WHERE Body LIKE '%-- not a comment%' LIMIT 5`},
+		{"block_comment_token_in_literal", "otel", `SELECT Timestamp FROM otel.logs WHERE Body LIKE '%/* not a comment */%' LIMIT 5`},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			_, err := validateClickHouseQuery(tc.db, tc.query, 500)
+			require.NoError(t, err, "query must be allowed: %s", tc.query)
+		})
+	}
+}
+
 func TestExecuteClickHouseQuery_mock(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
