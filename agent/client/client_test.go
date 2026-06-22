@@ -39,8 +39,9 @@ import (
 )
 
 type testServer struct {
-	connectFunc func(server agentv1.AgentService_ConnectServer) error
 	agentv1.UnimplementedAgentServiceServer
+
+	connectFunc func(server agentv1.AgentService_ConnectServer) error
 }
 
 func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {

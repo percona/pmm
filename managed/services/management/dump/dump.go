@@ -50,13 +50,13 @@ const (
 
 // Service represents a structure for managing dump-related operations.
 type Service struct {
+	dumpv1beta1.UnimplementedDumpServiceServer
+
 	db *reform.DB
 	l  *logrus.Entry
 
 	dumpService   dumpService
 	grafanaClient *grafana.Client
-
-	dumpv1beta1.UnimplementedDumpServiceServer
 }
 
 // New creates a new instance of the Service with the provided dependencies.

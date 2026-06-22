@@ -31,11 +31,11 @@ import (
 
 // LocationsService represents backup locations API.
 type LocationsService struct {
+	backuppb.UnimplementedLocationsServiceServer
+
 	db *reform.DB
 	s3 awsS3
 	l  *logrus.Entry
-
-	backuppb.UnimplementedLocationsServiceServer
 }
 
 // NewLocationsService creates new backup locations API service.

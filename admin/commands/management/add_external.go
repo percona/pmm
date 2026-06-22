@@ -54,6 +54,8 @@ func (res *addExternalResult) String() string {
 //
 //nolint:lll
 type AddExternalCommand struct {
+	flags.MetricsModeFlags
+
 	ServiceName         string            `default:"${hostname}${externalDefaultServiceName}" help:"Service name (autodetected default: ${hostname}${externalDefaultServiceName})"`
 	RunsOnNodeID        string            `name:"agent-node-id" help:"Node ID where agent runs (default is autodetected)"`
 	Username            string            `help:"External username"`
@@ -70,8 +72,6 @@ type AddExternalCommand struct {
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
 	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
-
-	flags.MetricsModeFlags
 }
 
 // GetCredentials returns the credentials for AddExternalCommand.

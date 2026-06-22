@@ -36,10 +36,10 @@ import (
 
 // ChecksAPIService represents advisor service API.
 type ChecksAPIService struct {
+	advisorsv1.UnimplementedAdvisorServiceServer
+
 	checksService checksService
 	l             *logrus.Entry
-
-	advisorsv1.UnimplementedAdvisorServiceServer
 }
 
 // NewChecksAPIService creates new Checks API Service.
