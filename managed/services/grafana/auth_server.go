@@ -154,6 +154,10 @@ var methodRules = map[string]role{
 	http.MethodPost + " /v1/alerting/templates":    editor,
 	http.MethodPut + " /v1/alerting/templates/":    editor,
 	http.MethodDelete + " /v1/alerting/templates/": editor,
+
+	// ADRE settings writes are admin-only (they set integration URLs/secrets);
+	// the GET on the same path stays viewer (see rules).
+	http.MethodPost + " /v1/adre/settings": admin,
 }
 
 var lbacPrefixes = []string{

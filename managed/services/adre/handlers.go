@@ -222,6 +222,11 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
 	}
+	// Writing ADRE settings (integration URLs/secrets, prompts, models) is admin-only.
+	// GET stays viewer; the auth proxy also enforces this via methodRules, this is defence in depth.
+	if _, ok := h.requireAdmin(w, r); !ok {
+		return
+	}
 	var body struct {
 		Enabled                       *bool            `json:"enabled"`
 		URL                           *string          `json:"url"`
