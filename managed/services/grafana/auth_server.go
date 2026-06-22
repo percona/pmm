@@ -268,7 +268,7 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			"error":   err.message,
 			"message": err.message,
 		}
-		s.returnError(rw, httpStatusForAuthError(authErr.code), m, l)
+		s.returnError(rw, httpStatusForAuthError(err.code), m, l)
 		return
 	}
 

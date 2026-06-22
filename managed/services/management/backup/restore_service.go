@@ -269,8 +269,7 @@ func convertRestoreHistoryItem(
 	var finishedAt *timestamppb.Timestamp
 	if i.FinishedAt != nil {
 		finishedAt = timestamppb.New(*i.FinishedAt)
-		err = finishedAt.CheckValid()
-		if err != nil {
+		if err := finishedAt.CheckValid(); err != nil {
 			return nil, fmt.Errorf("failed to convert finishedAt timestamp: %w", err)
 		}
 	}
@@ -278,8 +277,7 @@ func convertRestoreHistoryItem(
 	var pitrTimestamp *timestamppb.Timestamp
 	if i.PITRTimestamp != nil {
 		pitrTimestamp = timestamppb.New(*i.PITRTimestamp)
-		err = pitrTimestamp.CheckValid()
-		if err != nil {
+		if err := pitrTimestamp.CheckValid(); err != nil {
 			return nil, fmt.Errorf("failed to convert PITR timestamp: %w", err)
 		}
 	}
