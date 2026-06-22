@@ -336,8 +336,7 @@ func (s *Service) makeMetric(ctx context.Context) (*telemetryv1.GenericReport, e
 	var settings *models.Settings
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var e error
-		settings, e = models.GetSettings(tx)
-		if e != nil {
+		if settings, e = models.GetSettings(tx); e != nil {
 			return e
 		}
 

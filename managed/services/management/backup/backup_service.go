@@ -92,13 +92,11 @@ func (s *BackupService) StartBackup(ctx context.Context, req *backupv1.StartBack
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
-	err := isFolderSafe(req.Folder)
-	if err != nil {
+	if err := isFolderSafe(req.Folder); err != nil {
 		return nil, err
 	}
 
-	err = isNameSafe(req.Name)
-	if err != nil {
+	if err := isNameSafe(req.Name); err != nil {
 		return nil, err
 	}
 
@@ -149,13 +147,11 @@ func (s *BackupService) ScheduleBackup(ctx context.Context, req *backupv1.Schedu
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
-	err := isFolderSafe(req.Folder)
-	if err != nil {
+	if err := isFolderSafe(req.Folder); err != nil {
 		return nil, err
 	}
 
-	err = isNameSafe(req.Name)
-	if err != nil {
+	if err := isNameSafe(req.Name); err != nil {
 		return nil, err
 	}
 
@@ -581,8 +577,7 @@ func (s *BackupService) DeleteArtifact(ctx context.Context, req *backupv1.Delete
 
 	storage := backup.GetStorageForLocation(location)
 
-	err = s.removalSVC.DeleteArtifact(storage, req.ArtifactId, req.RemoveFiles)
-	if err != nil {
+	if err := s.removalSVC.DeleteArtifact(storage, req.ArtifactId, req.RemoveFiles); err != nil {
 		return nil, err
 	}
 	return &backupv1.DeleteArtifactResponse{}, nil
@@ -673,13 +668,11 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	scheduledBackup.Folder = commonBackupData.Folder
 
 	var err error
-	scheduledBackup.DataModel, err = convertDataModel(commonBackupData.DataModel)
-	if err != nil {
+	if scheduledBackup.DataModel, err = convertDataModel(commonBackupData.DataModel); err != nil {
 		return nil, err
 	}
 
-	scheduledBackup.Mode, err = convertModelToBackupMode(commonBackupData.Mode)
-	if err != nil {
+	if scheduledBackup.Mode, err = convertModelToBackupMode(commonBackupData.Mode); err != nil {
 		return nil, err
 	}
 
@@ -858,9 +851,8 @@ func convertArtifact(
 	locationModels map[string]*models.BackupLocation,
 ) (*backupv1.Artifact, error) {
 	createdAt := timestamppb.New(a.CreatedAt)
-	err := createdAt.CheckValid()
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert timestamp: %w", err)
+	if err := createdAt.CheckValid(); err != nil {
+			return nil, fmt.Errorf("failed to convert timestamp: %w", err)
 	}
 
 	l, ok := locationModels[a.LocationID]

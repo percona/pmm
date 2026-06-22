@@ -243,8 +243,7 @@ func (svc *Service) loadBaseConfig() *config.Config {
 	}
 
 	var cfg config.Config
-	err = yaml.Unmarshal(buf, &cfg)
-	if err != nil {
+	if err := yaml.Unmarshal(buf, &cfg); err != nil {
 		svc.l.Errorf("Failed to parse base VictoriaMetrics config %s: %s.", svc.params.BaseConfigPath, err)
 
 		return &config.Config{}
@@ -256,8 +255,7 @@ func (svc *Service) loadBaseConfig() *config.Config {
 // marshalConfig marshals VictoriaMetrics configuration.
 func (svc *Service) marshalConfig(base *config.Config) ([]byte, error) {
 	cfg := base
-	err := svc.populateConfig(cfg)
-	if err != nil {
+	if err := svc.populateConfig(cfg); err != nil {
 		return nil, err
 	}
 
@@ -287,8 +285,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 			svc.l.Debug(err)
 		}
 	}()
-	_, err = f.Write(cfg)
-	if err != nil {
+	if _, err = f.Write(cfg); err != nil {
 		return err
 	}
 
@@ -355,18 +352,15 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 		}
 	}()
 
-	err = svc.validateConfig(ctx, b)
-	if err != nil {
+	if err = svc.validateConfig(ctx, b); err != nil {
 		return err
 	}
 
 	restore = true
-	err = os.WriteFile(svc.scrapeConfigPath, b, fi.Mode())
-	if err != nil {
+	if err = os.WriteFile(svc.scrapeConfigPath, b, fi.Mode()); err != nil {
 		return err
 	}
-	err = svc.reload(ctx)
-	if err != nil {
+	if err = svc.reload(ctx); err != nil {
 		return err
 	}
 	svc.l.Infof("Configuration reloaded.")

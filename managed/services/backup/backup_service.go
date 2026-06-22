@@ -93,8 +93,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		errTX = s.db.InTransactionContext(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 			var err error
 
-			err = services.CheckArtifactOverlapping(tx.Querier, params.ServiceID, params.LocationID, params.Folder)
-			if err != nil {
+			if err = services.CheckArtifactOverlapping(tx.Querier, params.ServiceID, params.LocationID, params.Folder); err != nil {
 				return err
 			}
 
@@ -158,7 +157,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 
 			if artifact == nil {
-				artifact, err = models.CreateArtifact(tx.Querier, models.CreateArtifactParams{
+				if artifact, err = models.CreateArtifact(tx.Querier, models.CreateArtifactParams{
 					Name:       name,
 					Vendor:     string(svc.ServiceType),
 					DBVersion:  dbVersion,
@@ -169,25 +168,23 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 					Status:     models.PendingBackupStatus,
 					ScheduleID: params.ScheduleID,
 					Folder:     params.Folder,
-				})
-				if err != nil {
+				}); err != nil {
 					return err
 				}
 			} else {
-				artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
+				if artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
 					Status: models.PendingBackupStatus.Pointer(),
-				})
-				if err != nil {
+				}); err != nil {
 					return err
 				}
 			}
 
-			job, dbConfig, err = s.prepareBackupJob(
+			//nolint:noinlineerr
+			if job, dbConfig, err = s.prepareBackupJob(
 				tx.Querier, svc, artifact.ID,
 				jobType, params.Mode, params.DataModel, params.Retries,
 				params.RetryInterval,
-			)
-			if err != nil {
+			); err != nil {
 				return err
 			}
 			return nil
@@ -268,8 +265,7 @@ type restoreJobParams struct {
 
 // RestoreBackup starts restore backup job.
 func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID string, pitrTimestamp time.Time) (string, error) {
-	err := s.checkArtifactModePreconditions(ctx, artifactID, pitrTimestamp)
-	if err != nil {
+	if err := s.checkArtifactModePreconditions(ctx, artifactID, pitrTimestamp); err != nil {
 		return "", err
 	}
 
@@ -277,8 +273,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 	if err != nil {
 		return "", err
 	}
-	err = s.compatibilityService.CheckArtifactCompatibility(artifactID, targetDBVersion)
-	if err != nil {
+	if err := s.compatibilityService.CheckArtifactCompatibility(artifactID, targetDBVersion); err != nil {
 		return "", err
 	}
 
@@ -395,8 +390,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		return "", errTx
 	}
 
-	err = s.startRestoreJob(&params)
-	if err != nil {
+	if err := s.startRestoreJob(&params); err != nil {
 		return "", err
 	}
 
@@ -568,8 +562,7 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 			"https://docs.percona.com/percona-monitoring-and-management/get-started/backup/backup_mongo.html: %w", artifactID, ErrIncompatibleService)
 	}
 
-	err = checkArtifactMode(artifact, pitrTimestamp)
-	if err != nil {
+	if err := checkArtifactMode(artifact, pitrTimestamp); err != nil {
 		return err
 	}
 

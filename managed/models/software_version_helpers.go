@@ -133,8 +133,7 @@ func UpdateServiceSoftwareVersions(
 	serviceID string,
 	params UpdateServiceSoftwareVersionsParams,
 ) (*ServiceSoftwareVersions, error) {
-	err := params.Validate()
-	if err != nil {
+	if err := params.Validate(); err != nil {
 		return nil, err
 	}
 
@@ -151,9 +150,8 @@ func UpdateServiceSoftwareVersions(
 		row.SoftwareVersions = params.SoftwareVersions
 	}
 
-	err = q.Update(row)
-	if err != nil {
-		return nil, fmt.Errorf("failed to update service software versions: %w", err)
+	if err := q.Update(row); err != nil {
+			return nil, fmt.Errorf("failed to update service software versions: %w", err)
 	}
 
 	return row, nil
@@ -195,13 +193,11 @@ func FindServicesSoftwareVersions(
 	var tail strings.Builder
 	idx := 1
 
-	var err error
 	if filter.ServiceType != nil {
-		err = ValidateServiceType(*filter.ServiceType)
-		if err != nil {
-			return nil, err
+		if err := ValidateServiceType(*filter.ServiceType); err != nil {
+				return nil, err
 		}
-		_, err = fmt.Fprintf(&tail, "WHERE service_type = %s ", q.Placeholder(idx))
+		_, err := fmt.Fprintf(&tail, "WHERE service_type = %s ", q.Placeholder(idx))
 		if err != nil {
 			return nil, err
 		}
@@ -216,7 +212,7 @@ func FindServicesSoftwareVersions(
 	}
 
 	if filter.Limit != nil {
-		_, err = fmt.Fprintf(&tail, "LIMIT %s", q.Placeholder(idx))
+		_, err := fmt.Fprintf(&tail, "LIMIT %s", q.Placeholder(idx))
 		if err != nil {
 			return nil, err
 		}

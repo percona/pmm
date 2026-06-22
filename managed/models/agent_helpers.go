@@ -678,8 +678,7 @@ func CreateNodeExporter(q *reform.Querier,
 	// TODO merge into CreateAgent
 
 	id := uuid.New().String()
-	err := checkUniqueAgentID(q, id)
-	if err != nil {
+	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
 
@@ -700,15 +699,13 @@ func CreateNodeExporter(q *reform.Querier,
 		},
 		LogLevel: pointer.ToStringOrNil(logLevel),
 	}
-	err = row.SetCustomLabels(customLabels)
-	if err != nil {
+	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
 	}
 
 	encryptedAgent := EncryptAgent(*row)
-	err = q.Insert(&encryptedAgent)
-	if err != nil {
-		return nil, err
+	if err := q.Insert(&encryptedAgent); err != nil {
+			return nil, err
 	}
 	return new(DecryptAgent(encryptedAgent)), nil
 }
@@ -912,12 +909,11 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 // CreateAgent creates Agent with given type.
 func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) { //nolint:unparam
 	id := uuid.New().String()
-	err := checkUniqueAgentID(q, id)
-	if err != nil {
+	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
 
-	_, err = FindAgentByID(q, params.PMMAgentID)
+	_, err := FindAgentByID(q, params.PMMAgentID)
 	if err != nil {
 		return nil, err
 	}
@@ -972,12 +968,10 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		Disabled:          params.Disabled,
 	}
 
-	err = row.SetCustomLabels(params.CustomLabels)
-	if err != nil {
+	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
 		return nil, err
 	}
-	err = row.SetEnvironmentVariableNames(params.EnvironmentVariableNames)
-	if err != nil {
+	if err := row.SetEnvironmentVariableNames(params.EnvironmentVariableNames); err != nil {
 		return nil, err
 	}
 
@@ -995,9 +989,8 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 
 	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
-	err = q.Insert(&encryptedAgent)
-	if err != nil {
-		return nil, err
+	if err := q.Insert(&encryptedAgent); err != nil {
+			return nil, err
 	}
 	return new(DecryptAgent(encryptedAgent)), nil
 }
@@ -1378,9 +1371,8 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 
 	// need to encrypt Agent's sensitive data before update
 	row = new(EncryptAgent(*row))
-	err = q.Update(row)
-	if err != nil {
-		return nil, err
+	if err = q.Update(row); err != nil {
+			return nil, err
 	}
 
 	return new(DecryptAgent(*row)), nil
@@ -1408,8 +1400,7 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 		case RemoveCascade:
 			for _, str := range structs {
 				agentID := str.(*Agent).AgentID //nolint:forcetypeassert
-				_, err = RemoveAgent(q, agentID, RemoveRestrict)
-				if err != nil {
+				if _, err = RemoveAgent(q, agentID, RemoveRestrict); err != nil {
 					return nil, err
 				}
 			}
@@ -1418,9 +1409,8 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 		}
 	}
 
-	err = q.Delete(a)
-	if err != nil {
-		return nil, fmt.Errorf("failed to delete Agent: %w", err)
+	if err = q.Delete(a); err != nil {
+			return nil, fmt.Errorf("failed to delete Agent: %w", err)
 	}
 
 	return a, nil

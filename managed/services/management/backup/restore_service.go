@@ -262,9 +262,8 @@ func convertRestoreHistoryItem(
 	locations map[string]*models.BackupLocation,
 ) (*backupv1.RestoreHistoryItem, error) {
 	startedAt := timestamppb.New(i.StartedAt)
-	err := startedAt.CheckValid()
-	if err != nil {
-		return nil, fmt.Errorf("failed to convert startedAt timestamp: %w", err)
+	if err := startedAt.CheckValid(); err != nil {
+			return nil, fmt.Errorf("failed to convert startedAt timestamp: %w", err)
 	}
 
 	var finishedAt *timestamppb.Timestamp

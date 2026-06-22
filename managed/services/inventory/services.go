@@ -302,7 +302,7 @@ func (ss *ServicesService) AddExternalService(ctx context.Context, params *model
 func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) error { //nolint:gocognit
 	pmmAgentIDs := make(map[string]struct{})
 
-	e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	if e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		service, err := models.FindServiceByID(tx.Querier, id)
 		if err != nil {
 			return err
@@ -346,8 +346,7 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 				}
 
 				if len(pmmAgentIDs) <= 1 {
-					err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
-					if err != nil {
+					if err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade); err != nil {
 						return err
 					}
 				}
@@ -355,8 +354,7 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 		}
 
 		return nil
-	})
-	if e != nil {
+	}); e != nil {
 		return e
 	}
 
@@ -376,8 +374,7 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 func (ss *ServicesService) ChangeService(ctx context.Context, labels *models.ChangeStandardLabelsParams, custom *commonv1.StringMap) (inventoryv1.Service, error) { //nolint:ireturn,lll,nolintlint
 	var service *models.Service
 
-	err := ss.ms.RemoveScheduledTasks(ctx, ss.db, labels)
-	if err != nil {
+	if err := ss.ms.RemoveScheduledTasks(ctx, ss.db, labels); err != nil {
 		return nil, err
 	}
 
@@ -412,8 +409,7 @@ func (ss *ServicesService) ChangeService(ctx context.Context, labels *models.Cha
 		return nil, errTx
 	}
 
-	err = ss.updateScrapeConfig(ctx, labels.ServiceID)
-	if err != nil {
+	if err := ss.updateScrapeConfig(ctx, labels.ServiceID); err != nil {
 		return nil, err
 	}
 

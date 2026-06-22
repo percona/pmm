@@ -320,11 +320,10 @@ type ChangeBackupLocationParams struct {
 
 // ChangeBackupLocation updates existing location by specified locationID and params.
 func ChangeBackupLocation(q *reform.Querier, locationID string, params ChangeBackupLocationParams) (*BackupLocation, error) {
-	err := params.Validate(BackupLocationValidationParams{
+	if err := params.Validate(BackupLocationValidationParams{
 		RequireConfig:    false,
 		WithBucketRegion: true,
-	})
-	if err != nil {
+	}); err != nil {
 		return nil, err
 	}
 
@@ -347,9 +346,8 @@ func ChangeBackupLocation(q *reform.Querier, locationID string, params ChangeBac
 	// Replace old configuration by config from params
 	params.FillLocationModel(row)
 
-	err = q.Update(row)
-	if err != nil {
-		return nil, fmt.Errorf("failed to update backup location: %w", err)
+	if err := q.Update(row); err != nil {
+			return nil, fmt.Errorf("failed to update backup location: %w", err)
 	}
 
 	return row, nil

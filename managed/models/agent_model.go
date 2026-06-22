@@ -493,8 +493,7 @@ func (a *Agent) UnifiedLabels() (map[string]string, error) {
 	}
 	maps.Copy(res, custom)
 
-	err = prepareLabels(res, true)
-	if err != nil {
+	if err = prepareLabels(res, true); err != nil {
 		return nil, err
 	}
 	return res, nil
@@ -1034,9 +1033,8 @@ func (a *Agent) BuildWebConfigFile() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to parse webconfig template: %w", err)
 	}
-	err = tmpl.Execute(&configBuffer, hashedPassword)
-	if err != nil {
-		return "", fmt.Errorf("failed to execute webconfig template: %w", err)
+	if err = tmpl.Execute(&configBuffer, hashedPassword); err != nil {
+			return "", fmt.Errorf("failed to execute webconfig template: %w", err)
 	}
 
 	config := configBuffer.String()

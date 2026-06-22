@@ -117,9 +117,8 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer, pprofConfig *PprofConfig, l
 		if err != nil {
 			return fmt.Errorf("failed to create zip file header: %w", err)
 		}
-		_, err = f.Write(file.Data)
-		if err != nil {
-			return fmt.Errorf("failed to write zip file data: %w", err)
+		if _, err = f.Write(file.Data); err != nil {
+				return fmt.Errorf("failed to write zip file data: %w", err)
 		}
 	}
 
@@ -365,8 +364,7 @@ func readFile(name string) ([]byte, time.Time, error) {
 		return nil, m, err
 	}
 
-	fi, err := os.Stat(name)
-	if err == nil {
+	if fi, err := os.Stat(name); err == nil {
 		m = fi.ModTime()
 	}
 	return b, m, nil
@@ -414,9 +412,8 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 	if err != nil {
 		return fmt.Errorf("failed to create temp file: %w", err)
 	}
-	err = sf.Close()
-	if err != nil {
-		return fmt.Errorf("failed to close temp file %s: %w", sf.Name(), err)
+	if err := sf.Close(); err != nil {
+			return fmt.Errorf("failed to close temp file %s: %w", sf.Name(), err)
 	}
 	defer os.Remove(sf.Name()) //nolint:errcheck
 
@@ -424,9 +421,8 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 	pdeathsig.Set(cmd, unix.SIGKILL)
 	cmd.Stdout = os.Stderr // stdout to stderr
 	cmd.Stderr = os.Stderr
-	err = cmd.Run()
-	if err != nil {
-		return fmt.Errorf("cannot run pmm-admin summary: %w", err)
+	if err = cmd.Run(); err != nil {
+			return fmt.Errorf("cannot run pmm-admin summary: %w", err)
 	}
 
 	zr, err := zip.OpenReader(sf.Name())
@@ -450,15 +446,13 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 			return fmt.Errorf("failed to open file %s: %w", file.Name, err)
 		}
 
-		_, err = io.Copy(fw, fr) //nolint:gosec
-		if err != nil {
+		if _, err = io.Copy(fw, fr); err != nil { //nolint:gosec
 			fr.Close() //nolint:errcheck
 			return fmt.Errorf("failed to copy data to file %s: %w", file.Name, err)
 		}
 
-		err = fr.Close()
-		if err != nil {
-			return fmt.Errorf("failed to close file %s: %w", file.Name, err)
+		if err = fr.Close(); err != nil {
+				return fmt.Errorf("failed to close file %s: %w", file.Name, err)
 		}
 	}
 

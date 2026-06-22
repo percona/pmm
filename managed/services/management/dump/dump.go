@@ -290,9 +290,8 @@ func (s *Service) uploadFile(client *sftp.Client, localFilePath, remoteDir strin
 			s.l.Errorf("Failed to close file: %+v", err)
 		}
 	}()
-	_, err = bufio.NewReader(f).WriteTo(nf)
-	if err != nil {
-		return fmt.Errorf("failed to write dump file on SFTP server: %w", err)
+	if _, err = bufio.NewReader(f).WriteTo(nf); err != nil {
+			return fmt.Errorf("failed to write dump file on SFTP server: %w", err)
 	}
 
 	return nil

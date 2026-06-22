@@ -98,11 +98,10 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backuppb.AddLoc
 		}
 	}
 
-	err := params.Validate(models.BackupLocationValidationParams{
+	if err := params.Validate(models.BackupLocationValidationParams{
 		RequireConfig:    true,
 		WithBucketRegion: false,
-	})
-	if err != nil {
+	}); err != nil {
 		return nil, err
 	}
 
@@ -116,7 +115,7 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backuppb.AddLoc
 	}
 
 	var locationModel *models.BackupLocation
-	err = s.db.InTransaction(func(tx *reform.TX) error {
+	err := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		locationModel, err = models.CreateBackupLocation(tx.Querier, params)
 		if err != nil {
@@ -154,11 +153,10 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backuppb.Cha
 			Path: req.FilesystemConfig.Path,
 		}
 	}
-	err := params.Validate(models.BackupLocationValidationParams{
+	if err := params.Validate(models.BackupLocationValidationParams{
 		RequireConfig:    false,
 		WithBucketRegion: false,
-	})
-	if err != nil {
+	}); err != nil {
 		return nil, err
 	}
 
@@ -171,7 +169,7 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backuppb.Cha
 		params.S3Config.BucketRegion = bucketLocation
 	}
 
-	err = s.db.InTransaction(func(tx *reform.TX) error {
+	err := s.db.InTransaction(func(tx *reform.TX) error {
 		_, err := models.ChangeBackupLocation(tx.Querier, req.LocationId, params)
 		if err != nil {
 			return err

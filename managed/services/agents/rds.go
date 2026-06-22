@@ -59,9 +59,8 @@ func mergeLabels(node *models.Node, agent *models.Agent) (model.LabelSet, error)
 	// added to labels anyway
 	delete(res, "region")
 
-	err = res.Validate()
-	if err != nil {
-		return nil, fmt.Errorf("failed to merge labels: %w", err)
+	if err = res.Validate(); err != nil {
+			return nil, fmt.Errorf("failed to merge labels: %w", err)
 	}
 	return res, nil
 }

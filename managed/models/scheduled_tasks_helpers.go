@@ -172,8 +172,7 @@ func (p CreateScheduledTaskParams) Validate() error {
 // CreateScheduledTask creates scheduled task.
 // Must be performed in transaction.
 func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*ScheduledTask, error) {
-	err := params.Validate()
-	if err != nil {
+	if err := params.Validate(); err != nil {
 		return nil, err
 	}
 
@@ -182,14 +181,12 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 		return nil, err
 	}
 
-	err = checkUniqueScheduledTaskName(q, newName)
-	if err != nil {
-		return nil, fmt.Errorf("couldn't create task with name %s: %w", newName, err)
+	if err := checkUniqueScheduledTaskName(q, newName); err != nil {
+			return nil, fmt.Errorf("couldn't create task with name %s: %w", newName, err)
 	}
 
 	id := uuid.New().String()
-	err = checkUniqueScheduledTaskID(q, id)
-	if err != nil {
+	if err := checkUniqueScheduledTaskID(q, id); err != nil {
 		return nil, err
 	}
 
@@ -202,9 +199,8 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 		Type:           params.Type,
 		Data:           params.Data,
 	}
-	err = q.Insert(task)
-	if err != nil {
-		return nil, err
+	if err := q.Insert(task); err != nil {
+			return nil, err
 	}
 	return task, nil
 }
@@ -234,8 +230,7 @@ func (p *ChangeScheduledTaskParams) Validate() error {
 // ChangeScheduledTask updates existing scheduled task.
 // Must be performed in transaction.
 func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTaskParams) (*ScheduledTask, error) {
-	err := params.Validate()
-	if err != nil {
+	if err := params.Validate(); err != nil {
 		return nil, err
 	}
 
@@ -271,7 +266,7 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 		}
 
 		if newName != oldName {
-			err = checkUniqueScheduledTaskName(q, newName)
+			err := checkUniqueScheduledTaskName(q, newName)
 			if err != nil {
 				return nil, fmt.Errorf("couldn't change task name to %s: %w", newName, err)
 			}
@@ -288,9 +283,8 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 		row.Error = *params.Error
 	}
 
-	err = q.Update(row)
-	if err != nil {
-		return nil, fmt.Errorf("failed to update scheduled task: %w", err)
+	if err := q.Update(row); err != nil {
+			return nil, fmt.Errorf("failed to update scheduled task: %w", err)
 	}
 
 	return row, nil

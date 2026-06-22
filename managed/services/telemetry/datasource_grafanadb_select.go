@@ -85,8 +85,7 @@ func openGrafanaDBConnection(config DSConfigGrafanaDB, l *logrus.Entry) (*sql.DB
 	db.SetMaxIdleConns(defaultMaxIdleConns)
 	db.SetMaxOpenConns(defaultMaxOpenConns)
 
-	err = db.Ping() //nolint:noctx
-	if err != nil {
+	if err := db.Ping(); err != nil {
 		l.Warnf("Grafana DB is not reachable [%s]: %s", config.DSN.Host, err)
 	}
 

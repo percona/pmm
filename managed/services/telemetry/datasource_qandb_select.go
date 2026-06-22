@@ -64,8 +64,7 @@ func openQANDBConnection(dsn string, enabled bool, l *logrus.Entry) (*sql.DB, er
 	if err != nil {
 		return nil, fmt.Errorf("failed to open connection to QAN DB: %w", err)
 	}
-	err = db.Ping() //nolint:noctx
-	if err != nil {
+	if err := db.Ping(); err != nil {
 		uri, parseErr := url.Parse(dsn)
 		if parseErr != nil {
 			l.Warnf("Failed to parse ClickHouse DSN %s", parseErr)

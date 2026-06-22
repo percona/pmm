@@ -230,8 +230,7 @@ func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]*models.Tem
 		}
 
 		for _, t := range templates {
-			err = validateUserTemplate(&t)
-			if err != nil {
+			if err = validateUserTemplate(&t); err != nil {
 				s.l.Warnf("%s %s", path, err)
 				continue
 			}
@@ -428,11 +427,10 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 
 	errTx := s.db.InTransaction(func(tx *reform.TX) error {
 		for _, t := range templates {
-			_, err = models.CreateTemplate(tx.Querier, &models.CreateTemplateParams{
+			if _, err = models.CreateTemplate(tx.Querier, &models.CreateTemplateParams{
 				Template: &t,
 				Source:   models.UserAPISource,
-			})
-			if err != nil {
+			}); err != nil {
 				return err
 			}
 		}
@@ -475,8 +473,7 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 
 	tmpl := templates[0]
 
-	err = validateUserTemplate(&tmpl)
-	if err != nil {
+	if err = validateUserTemplate(&tmpl); err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
 	}
 
@@ -546,8 +543,7 @@ func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Templ
 	}
 
 	t.CreatedAt = timestamppb.New(template.CreatedAt)
-	err = t.CreatedAt.CheckValid()
-	if err != nil {
+	if err = t.CreatedAt.CheckValid(); err != nil {
 		return nil, err
 	}
 
@@ -632,8 +628,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, err
 	}
 
-	err = validateParameters(sourceTemplate.Params, paramsValues)
-	if err != nil {
+	if err := validateParameters(sourceTemplate.Params, paramsValues); err != nil {
 		return nil, err
 	}
 
@@ -665,16 +660,14 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 
 	// Copy annotations form template
 	annotations := make(map[string]string)
-	err = transformMaps(ta, annotations, paramsValues.AsStringMap())
-	if err != nil {
-		return nil, fmt.Errorf("failed to fill template annotations placeholders: %w", err)
+	if err = transformMaps(ta, annotations, paramsValues.AsStringMap()); err != nil {
+			return nil, fmt.Errorf("failed to fill template annotations placeholders: %w", err)
 	}
 
 	labels := make(map[string]string)
 	// Copy labels form template
-	err = transformMaps(req.CustomLabels, labels, paramsValues.AsStringMap())
-	if err != nil {
-		return nil, fmt.Errorf("failed to fill rule labels placeholders: %w", err)
+	if err = transformMaps(req.CustomLabels, labels, paramsValues.AsStringMap()); err != nil {
+			return nil, fmt.Errorf("failed to fill rule labels placeholders: %w", err)
 	}
 
 	tl, err := sourceTemplate.GetLabels()
@@ -683,9 +676,8 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	}
 
 	// Add rule labels
-	err = transformMaps(tl, labels, paramsValues.AsStringMap())
-	if err != nil {
-		return nil, fmt.Errorf("failed to fill template labels placeholders: %w", err)
+	if err = transformMaps(tl, labels, paramsValues.AsStringMap()); err != nil {
+			return nil, fmt.Errorf("failed to fill template labels placeholders: %w", err)
 	}
 
 	// Do not add volatile values like `{{ $value }}` to labels as it will break alerts identity.
@@ -767,8 +759,7 @@ func transformMaps(src map[string]string, dest map[string]string, data map[strin
 		if err != nil {
 			return err
 		}
-		err = t.Execute(&buf, data)
-		if err != nil {
+		if err = t.Execute(&buf, data); err != nil {
 			return err
 		}
 		dest[k] = buf.String()
@@ -799,9 +790,8 @@ func fillExprWithParams(expr string, values map[string]string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to parse expression: %w", err)
 	}
-	err = t.Execute(&buf, values)
-	if err != nil {
-		return "", fmt.Errorf("failed to fill expression placeholders: %w", err)
+	if err = t.Execute(&buf, values); err != nil {
+			return "", fmt.Errorf("failed to fill expression placeholders: %w", err)
 	}
 	return buf.String(), nil
 }

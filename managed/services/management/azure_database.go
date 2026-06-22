@@ -230,7 +230,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 		return nil, status.Errorf(codes.InvalidArgument, "Unsupported Azure Database type %q.", req.Type)
 	}
 
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		// add Remote Azure Database Node
 		node, err := models.CreateNode(tx.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
 			NodeName:     req.NodeName,
@@ -290,12 +290,10 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 		l.Infof("Added %s with AgentID: %s", metricsExporter.AgentType, metricsExporter.AgentID)
 
 		if !req.SkipConnectionCheck {
-			err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, metricsExporter)
-			if err != nil {
+			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, metricsExporter); err != nil {
 				return err
 			}
-			err = s.sib.GetInfoFromService(ctx, tx.Querier, service, metricsExporter)
-			if err != nil {
+			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, metricsExporter); err != nil {
 				return err
 			}
 		}
@@ -319,8 +317,7 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 		}
 
 		return nil
-	})
-	if e != nil {
+	}); e != nil {
 		return nil, e
 	}
 

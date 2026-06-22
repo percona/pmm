@@ -141,8 +141,7 @@ func getLabels(b []byte) (map[string]string, error) {
 
 // getLabels serializes model's Prometheus labels.
 func setLabels(m map[string]string, res *[]byte) error {
-	err := prepareLabels(m, false)
-	if err != nil {
+	if err := prepareLabels(m, false); err != nil {
 		return err
 	}
 

@@ -490,8 +490,7 @@ func ChangeStandardLabels(q *reform.Querier, serviceID string, labels ServiceSta
 		return nil
 	}
 
-	err = q.UpdateColumns(s, columns...)
-	if err != nil {
+	if err = q.UpdateColumns(s, columns...); err != nil {
 		return err
 	}
 

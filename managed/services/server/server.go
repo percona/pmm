@@ -199,8 +199,7 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 
 		DistributionMethod: s.telemetryService.DistributionMethod(),
 	}
-	t, err := version.Time()
-	if err == nil {
+	if t, err := version.Time(); err == nil {
 		res.Managed.Timestamp = timestamppb.New(t)
 	}
 
@@ -376,8 +375,7 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 	}
 
 	authToken := uuid.New().String()
-	err = s.writeUpdateAuthToken(authToken)
-	if err != nil {
+	if err := s.writeUpdateAuthToken(authToken); err != nil {
 		return nil, err
 	}
 
@@ -654,9 +652,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	var disableInternalPgQan bool
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
-		oldSettings, err = models.GetSettings(tx)
-		if err != nil {
-			return fmt.Errorf("failed to get server settings: %w", err)
+		if oldSettings, err = models.GetSettings(tx); err != nil {
+				return fmt.Errorf("failed to get server settings: %w", err)
 		}
 
 		metricsRes := req.MetricsResolutions
@@ -817,19 +814,16 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 		return fmt.Errorf("failed to get settings: %w", err)
 	}
 
-	err = s.nomad.UpdateConfiguration(settings)
-	if err != nil {
+	if err := s.nomad.UpdateConfiguration(settings); err != nil {
 		return fmt.Errorf("failed to update nomad configuration: %w", err)
 	}
-	err = s.supervisord.UpdateConfiguration(settings)
-	if err != nil {
+	if err := s.supervisord.UpdateConfiguration(settings); err != nil {
 		return fmt.Errorf("failed to update supervisord configuration: %w", err)
 	}
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
 
-	err = s.agentsState.UpdateAgentsState(ctx)
-	if err != nil {
+	if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
 		return fmt.Errorf("failed to update agents state: %w", err)
 	}
 	return nil
@@ -859,14 +853,12 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return fmt.Errorf("failed to lookup OS user %s: %w", username, err)
 	}
 	sshDirPath := path.Join(usr.HomeDir, ".ssh")
-	err = os.MkdirAll(sshDirPath, 0o700) //nolint:mnd
-	if err != nil {
+	if err = os.MkdirAll(sshDirPath, 0o700); err != nil { //nolint:mnd
 		return fmt.Errorf("failed to create SSH dir %s: %w", sshDirPath, err)
 	}
 
 	keysPath := path.Join(sshDirPath, "authorized_keys")
-	err = os.WriteFile(keysPath, []byte(sshKey), 0o600) //nolint:mnd
-	if err != nil {
+	if err = os.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil { //nolint:mnd
 		return fmt.Errorf("failed to write SSH keys to %s: %w", keysPath, err)
 	}
 	return nil

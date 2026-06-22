@@ -129,8 +129,7 @@ func (s *Service) UnifiedLabels() (map[string]string, error) {
 	}
 	maps.Copy(res, custom)
 
-	err = prepareLabels(res, true)
-	if err != nil {
+	if err = prepareLabels(res, true); err != nil {
 		return nil, err
 	}
 	return res, nil

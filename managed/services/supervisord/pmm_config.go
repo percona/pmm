@@ -33,9 +33,8 @@ func SavePMMConfig(params map[string]any) error {
 	if err != nil {
 		return err
 	}
-	err = saveConfig(pmmConfig, cfg)
-	if err != nil {
-		return fmt.Errorf("failed to save pmm config: %w", err)
+	if err := saveConfig(pmmConfig, cfg); err != nil {
+			return fmt.Errorf("failed to save pmm config: %w", err)
 	}
 	logrus.Info("pmm.ini configuration has been updated.")
 	return nil
@@ -78,14 +77,12 @@ func saveConfig(path string, cfg []byte) (err error) {
 		}
 	}()
 
-	err = os.WriteFile(path, cfg, wwrPermissions)
-	if err != nil {
-		err = fmt.Errorf("failed to write new config: %w", err)
+	if err = os.WriteFile(path, cfg, wwrPermissions); err != nil { //nolint:gosec
+			err = fmt.Errorf("failed to write new config: %w", err)
 	}
 	return err
 }
 
-// TODO: remove [unix_http_server] and [supervisorctl] as they duplicate supervisord.conf.
 var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Parse(`[unix_http_server]
 chmod = 0700
 username = dummy

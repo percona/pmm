@@ -191,8 +191,7 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 	}
 
 	restartWatchtower := false
-	_, e := os.Stat(pmmEnvfilePath)
-	if e == nil {
+	if _, e := os.Stat(pmmEnvfilePath); e == nil {
 		watchtowerImageName := strings.Replace(newImageName, "pmm-server-fb", "pmm-watchtower-fb", 1) // for FB images
 		watchtowerImageName = strings.Replace(watchtowerImageName, "3-dev-latest", "dev-latest", 1)   // for dev images
 		watchtowerImageName = strings.Replace(watchtowerImageName, "pmm-server", "watchtower", 1)
@@ -215,8 +214,7 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 		return fmt.Errorf("failed to check environment variables file: %w", e)
 	}
 
-	err = up.sendRequestToWatchtower(ctx, newImageName, restartWatchtower)
-	if err != nil {
+	if err := up.sendRequestToWatchtower(ctx, newImageName, restartWatchtower); err != nil {
 		up.running = false
 		up.l.WithError(err).Error("Failed to trigger update")
 		return err
@@ -342,8 +340,7 @@ func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*ve
 	defer resp.Body.Close() //nolint:errcheck
 
 	var metadataResponse MetadataResponse
-	err = json.NewDecoder(resp.Body).Decode(&metadataResponse)
-	if err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&metadataResponse); err != nil {
 		up.l.WithError(err).Error("Failed to decode response")
 		return nil, nil, fmt.Errorf("failed to decode response: %w", err)
 	}
@@ -469,9 +466,8 @@ func (up *Updater) UpdateLog(offset uint32) ([]string, uint32, error) {
 	}
 	defer f.Close() //nolint:errcheck,gosec,nolintlint
 
-	_, err = f.Seek(int64(offset), io.SeekStart)
-	if err != nil {
-		return nil, 0, fmt.Errorf("failed to seek to %d in log file %s: %w", offset, pmmInitLog, err)
+	if _, err = f.Seek(int64(offset), io.SeekStart); err != nil {
+			return nil, 0, fmt.Errorf("failed to seek to %d in log file %s: %w", offset, pmmInitLog, err)
 	}
 
 	lines := make([]string, 0, 10)
@@ -608,8 +604,7 @@ func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Pars
 	}
 	defer resp.Body.Close() //nolint:errcheck
 	var rnResponse ReleaseNotesResponse
-	err = json.NewDecoder(resp.Body).Decode(&rnResponse)
-	if err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&rnResponse); err != nil {
 		up.l.WithError(err).Error("Failed to decode response")
 		return "", fmt.Errorf("failed to decode response: %w", err)
 	}

@@ -274,8 +274,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:
 		case RemoveCascade:
 			for _, str := range structs {
 				agentID := str.(*Agent).AgentID //nolint:forcetypeassert
-				_, err = RemoveAgent(q, agentID, RemoveCascade)
-				if err != nil {
+				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
 					return err
 				}
 			}
@@ -296,8 +295,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:
 		case RemoveCascade:
 			for _, str := range structs {
 				agentID := str.(*Agent).AgentID //nolint:forcetypeassert
-				_, err = RemoveAgent(q, agentID, RemoveCascade)
-				if err != nil {
+				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
 					return err
 				}
 			}

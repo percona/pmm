@@ -288,8 +288,7 @@ func (s *Service) StartChecks(checkNames []string) error {
 }
 
 func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNames []string) error {
-	err := intervalGroup.Validate()
-	if err != nil {
+	if err := intervalGroup.Validate(); err != nil {
 		return err
 	}
 
@@ -789,8 +788,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 		}
 	}
 
-	err := eg.Wait()
-	if err != nil {
+	if err := eg.Wait(); err != nil {
 		return nil, fmt.Errorf("check query failed: %w", err)
 	}
 
@@ -814,8 +812,7 @@ func (s *Service) executeMySQLShowQuery(ctx context.Context, query check.Query, 
 		}
 	}()
 
-	err = s.agentsRegistry.StartMySQLQueryShowAction(ctx, r.ID, target.AgentID, target.DSN, query.Query, target.Files, target.TDP, target.TLSSkipVerify)
-	if err != nil {
+	if err = s.agentsRegistry.StartMySQLQueryShowAction(ctx, r.ID, target.AgentID, target.DSN, query.Query, target.Files, target.TDP, target.TLSSkipVerify); err != nil {
 		return nil, fmt.Errorf("failed to start mySQL show action: %w", err)
 	}
 	res, err := s.waitForResult(ctx, r.ID)
@@ -838,11 +835,11 @@ func (s *Service) executeMySQLSelectQuery(ctx context.Context, query check.Query
 		}
 	}()
 
-	err = s.agentsRegistry.StartMySQLQuerySelectAction(
+	//nolint:noinlineerr
+	if err = s.agentsRegistry.StartMySQLQuerySelectAction(
 		ctx, r.ID, target.AgentID,
 		target.DSN, query.Query, target.Files, target.TDP, target.TLSSkipVerify,
-	)
-	if err != nil {
+	); err != nil {
 		return "", fmt.Errorf("failed to start mySQL select action: %w", err)
 	}
 	res, err := s.waitForResult(ctx, r.ID)
@@ -864,8 +861,7 @@ func (s *Service) executePostgreSQLShowQuery(ctx context.Context, target service
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
-	err = s.agentsRegistry.StartPostgreSQLQueryShowAction(ctx, r.ID, target.AgentID, target.DSN)
-	if err != nil {
+	if err = s.agentsRegistry.StartPostgreSQLQueryShowAction(ctx, r.ID, target.AgentID, target.DSN); err != nil {
 		return "", fmt.Errorf("failed to start postgreSQL show action: %w", err)
 	}
 
@@ -880,8 +876,7 @@ func (s *Service) executePostgreSQLSelectQuery(ctx context.Context, query check.
 	var allDBs bool
 	var err error
 	if value, ok := query.Parameters[check.AllDBs]; ok {
-		allDBs, err = strconv.ParseBool(value)
-		if err != nil {
+		if allDBs, err = strconv.ParseBool(value); err != nil {
 			return nil, fmt.Errorf("failed to parse 'all_dbs' query parameter: %w", err)
 		}
 	}
@@ -896,9 +891,8 @@ func (s *Service) executePostgreSQLSelectQuery(ctx context.Context, query check.
 	}
 	res := make(map[string]string, len(targets))
 	for dbName, t := range targets {
-		res[dbName], err = s.executePostgreSQLSelectQueryForSingleDB(ctx, query, t)
-		if err != nil {
-			return nil, err
+		if res[dbName], err = s.executePostgreSQLSelectQueryForSingleDB(ctx, query, t); err != nil {
+				return nil, err
 		}
 	}
 
@@ -917,8 +911,7 @@ func (s *Service) executePostgreSQLSelectQueryForSingleDB(ctx context.Context, q
 		}
 	}()
 
-	err = s.agentsRegistry.StartPostgreSQLQuerySelectAction(ctx, r.ID, target.AgentID, target.DSN, query.Query)
-	if err != nil {
+	if err = s.agentsRegistry.StartPostgreSQLQuerySelectAction(ctx, r.ID, target.AgentID, target.DSN, query.Query); err != nil {
 		return "", fmt.Errorf("failed to start postgreSQL select action: %w", err)
 	}
 
@@ -942,8 +935,7 @@ func (s *Service) executeMongoDBGetParameterQuery(ctx context.Context, target se
 		}
 	}()
 
-	err = s.agentsRegistry.StartMongoDBQueryGetParameterAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP)
-	if err != nil {
+	if err = s.agentsRegistry.StartMongoDBQueryGetParameterAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
 		return "", fmt.Errorf("failed to start mongoDB getParameter action: %w", err)
 	}
 
@@ -966,8 +958,7 @@ func (s *Service) executeMongoDBBuildInfoQuery(ctx context.Context, target servi
 			s.l.Warnf("Failed to delete action result %s: %s.", r.ID, err)
 		}
 	}()
-	err = s.agentsRegistry.StartMongoDBQueryBuildInfoAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP)
-	if err != nil {
+	if err = s.agentsRegistry.StartMongoDBQueryBuildInfoAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
 		return "", fmt.Errorf("failed to start mongoDB buildInfo action: %w", err)
 	}
 
@@ -991,8 +982,7 @@ func (s *Service) executeMongoDBGetCmdLineOptsQuery(ctx context.Context, target 
 		}
 	}()
 
-	err = s.agentsRegistry.StartMongoDBQueryGetCmdLineOptsAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP)
-	if err != nil {
+	if err = s.agentsRegistry.StartMongoDBQueryGetCmdLineOptsAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
 		return "", fmt.Errorf("failed to start mongoDB getCmdLineOpts action: %w", err)
 	}
 
@@ -1016,8 +1006,7 @@ func (s *Service) executeMongoDBReplSetGetStatusQuery(ctx context.Context, targe
 		}
 	}()
 
-	err = s.agentsRegistry.StartMongoDBQueryReplSetGetStatusAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP)
-	if err != nil {
+	if err = s.agentsRegistry.StartMongoDBQueryReplSetGetStatusAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
 		return "", fmt.Errorf("failed to start mongoDB replSetGetStatus action: %w", err)
 	}
 
@@ -1041,8 +1030,7 @@ func (s *Service) executeMongoDBGetDiagnosticQuery(ctx context.Context, target s
 		}
 	}()
 
-	err = s.agentsRegistry.StartMongoDBQueryGetDiagnosticDataAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP)
-	if err != nil {
+	if err = s.agentsRegistry.StartMongoDBQueryGetDiagnosticDataAction(ctx, r.ID, target.AgentID, target.DSN, target.Files, target.TDP); err != nil {
 		return "", fmt.Errorf("failed to start mongoDB getDiagnosticData action: %w", err)
 	}
 
@@ -1203,9 +1191,8 @@ func convertVMValue(value model.Value) ([]byte, error) {
 	}
 
 	var data []map[string]any
-	err = json.Unmarshal(b, &data)
-	if err != nil {
-		return nil, err
+	if err = json.Unmarshal(b, &data); err != nil {
+			return nil, err
 	}
 
 	res, err := agentv1.MarshalActionQueryDocsResult(data)
@@ -1281,8 +1268,7 @@ func fillQueryPlaceholders(query string, data queryPlaceholders) (string, error)
 	}
 
 	var b strings.Builder
-	err = tm.Execute(&b, data)
-	if err != nil {
+	if err = tm.Execute(&b, data); err != nil {
 		return "", fmt.Errorf("failed to fill query placeholders: %w", err)
 	}
 

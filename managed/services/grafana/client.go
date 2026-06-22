@@ -333,8 +333,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 
 	// works only with Basic auth
 	var s []any
-	err = c.do(ctx, http.MethodGet, "/api/user/orgs", "", authHeaders, nil, &s)
-	if err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/user/orgs", "", authHeaders, nil, &s); err != nil {
 		return authUser{
 			role:   none,
 			userID: userID,
@@ -591,8 +590,7 @@ func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, 
 	}
 
 	var tokens []serviceToken
-	err = c.do(ctx, http.MethodGet, fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens)
-	if err != nil {
+	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
 		return 0, err
 	}
 
@@ -619,8 +617,7 @@ func (c *Client) testCreateUser(ctx context.Context, login string, role role, au
 		return 0, fmt.Errorf("failed to marshal a new user request body: %w", err)
 	}
 	var m map[string]any
-	err = c.do(ctx, "POST", "/api/admin/users", "", authHeaders, b, &m)
-	if err != nil {
+	if err = c.do(ctx, "POST", "/api/admin/users", "", authHeaders, b, &m); err != nil {
 		return 0, err
 	}
 	userID := int(m["id"].(float64)) //nolint:forcetypeassert
@@ -637,8 +634,7 @@ func (c *Client) testCreateUser(ctx context.Context, login string, role role, au
 	if err != nil {
 		return 0, fmt.Errorf("failed to marshal a new user role: %w", err)
 	}
-	err = c.do(ctx, "PATCH", "/api/org/users/"+strconv.Itoa(userID), "", authHeaders, b, nil)
-	if err != nil {
+	if err = c.do(ctx, "PATCH", "/api/org/users/"+strconv.Itoa(userID), "", authHeaders, b, nil); err != nil {
 		return 0, err
 	}
 	return userID, nil
@@ -737,8 +733,7 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 		group.Interval = interval
 	}
 
-	err = validateDurations(group.Interval, rule.For)
-	if err != nil {
+	if err = validateDurations(group.Interval, rule.For); err != nil {
 		return err
 	}
 
@@ -884,8 +879,7 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 	}
 
 	var m map[string]any
-	err = c.do(ctx, "POST", "/api/serviceaccounts", "", authHeaders, b, &m)
-	if err != nil {
+	if err = c.do(ctx, "POST", "/api/serviceaccounts", "", authHeaders, b, &m); err != nil {
 		return 0, err
 	}
 
@@ -893,8 +887,7 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 
 	// orgId is ignored during creating service account and default is -1
 	// orgId should be set to 1
-	err = c.do(ctx, "PATCH", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, []byte("{\"orgId\": 1}"), &m)
-	if err != nil {
+	if err = c.do(ctx, "PATCH", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, []byte("{\"orgId\": 1}"), &m); err != nil {
 		return 0, err
 	}
 
@@ -920,8 +913,7 @@ func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, n
 	}
 
 	var m map[string]any
-	err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m)
-	if err != nil {
+	if err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m); err != nil {
 		return 0, "", err
 	}
 	serviceTokenID := int(m["id"].(float64)) //nolint:forcetypeassert
@@ -1025,9 +1017,8 @@ func (c *Client) CreateAnnotation(ctx context.Context, tags []string, from time.
 		Message string `json:"message"`
 	}
 
-	err = c.do(ctx, "POST", "/api/annotations", "", headers, b, &response)
-	if err != nil {
-		return "", fmt.Errorf("failed to create annotation: %w", err)
+	if err := c.do(ctx, "POST", "/api/annotations", "", headers, b, &response); err != nil {
+			return "", fmt.Errorf("failed to create annotation: %w", err)
 	}
 
 	return response.Message, nil

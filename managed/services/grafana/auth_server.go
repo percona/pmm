@@ -248,8 +248,7 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		s.l.Debugf("Request:\n%s", b)
 	}
 
-	err := extractOriginalRequest(req)
-	if err != nil {
+	if err := extractOriginalRequest(req); err != nil {
 		s.l.Warnf("Failed to parse request: %s.", err)
 		rw.WriteHeader(http.StatusBadRequest)
 		return
@@ -261,13 +260,13 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), authenticationTimeout)
 	defer cancel()
 
-	authUser, authErr := s.authenticate(ctx, req, l)
-	if authErr != nil {
+	authUser, err := s.authenticate(ctx, req, l)
+	if err != nil {
 		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
 		m := map[string]any{
-			"code":    int(authErr.code),
-			"error":   authErr.message,
-			"message": authErr.message, //nolint:goconst
+			"code":    int(err.code),
+			"error":   err.message,
+			"message": err.message,
 		}
 		s.returnError(rw, httpStatusForAuthError(authErr.code), m, l)
 		return
@@ -278,15 +277,14 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		userID = authUser.userID
 	}
 
-	errF := s.maybeAddLBACFilters(ctx, rw, req, userID, l)
-	if errF != nil {
+	if err := s.maybeAddLBACFilters(ctx, rw, req, userID, l); err != nil {
 		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
 		m := map[string]any{
 			"code":    int(codes.Internal),
 			"error":   "Internal server error.",
 			"message": "Internal server error.",
 		}
-		l.Errorf("Failed to add VMProxy filters: %s", errF)
+		l.Errorf("Failed to add VMProxy filters: %s", err)
 
 		s.returnError(rw, authenticationErrorCode, m, l)
 		return

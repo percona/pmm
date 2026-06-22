@@ -51,12 +51,11 @@ func ValidateAlertingRules(ctx context.Context, rules string) error {
 	tempFile.Close()                 //nolint:errcheck
 	defer os.Remove(tempFile.Name()) //nolint:errcheck
 
-	err = os.WriteFile(tempFile.Name(), []byte(rules), 0o644) //nolint:gosec,mnd
-	if err != nil {
-		return fmt.Errorf("alerting rule validation failed: %w", err)
+	if err = os.WriteFile(tempFile.Name(), []byte(rules), 0o644); err != nil { //nolint:gosec
+			return fmt.Errorf("alerting rule validation failed: %w", err)
 	}
 
-	timeoutCtx, cancel := context.WithTimeout(ctx, 3*time.Second) //nolint:mnd
+	timeoutCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
 	cmd := exec.CommandContext(timeoutCtx, "vmalert", "-loggerLevel", "WARN", "-dryRun", "-rule", tempFile.Name()) //nolint:gosec

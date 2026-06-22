@@ -86,13 +86,11 @@ type CreateTemplateParams struct {
 // CreateTemplate creates rule template.
 func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template, error) {
 	template := params.Template
-	err := template.Validate()
-	if err != nil {
+	if err := template.Validate(); err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template: %v.", err)
 	}
 
-	err = checkUniqueTemplateName(q, template.Name)
-	if err != nil {
+	if err := checkUniqueTemplateName(q, template.Name); err != nil {
 		return nil, err
 	}
 
@@ -101,9 +99,8 @@ func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template,
 		return nil, status.Errorf(codes.InvalidArgument, "Failed to convert template: %v.", err)
 	}
 
-	err = q.Insert(row)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create rule template: %w", err)
+	if err = q.Insert(row); err != nil {
+			return nil, fmt.Errorf("failed to create rule template: %w", err)
 	}
 
 	return row, nil
@@ -127,8 +124,7 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 	}
 
 	template := params.Template
-	err = template.Validate()
-	if err != nil {
+	if err := template.Validate(); err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template: %v.", err)
 	}
 
@@ -151,19 +147,16 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 	row.Severity = Severity(template.Severity)
 	row.Yaml = yaml
 
-	err = row.SetLabels(template.Labels)
-	if err != nil {
+	if err = row.SetLabels(template.Labels); err != nil {
 		return nil, err
 	}
 
-	err = row.SetAnnotations(template.Annotations)
-	if err != nil {
+	if err = row.SetAnnotations(template.Annotations); err != nil {
 		return nil, err
 	}
 
-	err = q.Update(row)
-	if err != nil {
-		return nil, fmt.Errorf("failed to update rule template: %w", err)
+	if err = q.Update(row); err != nil {
+			return nil, fmt.Errorf("failed to update rule template: %w", err)
 	}
 
 	return row, nil
@@ -176,9 +169,8 @@ func RemoveTemplate(q *reform.Querier, name string) error {
 		return err
 	}
 
-	err = q.Delete(&Template{Name: name})
-	if err != nil {
-		return fmt.Errorf("failed to delete rule template: %w", err)
+	if err = q.Delete(&Template{Name: name}); err != nil {
+			return fmt.Errorf("failed to delete rule template: %w", err)
 	}
 	return nil
 }
@@ -207,13 +199,11 @@ func ConvertTemplate(template *alert.Template, source Source) (*Template, error)
 		Yaml:     yaml,
 	}
 
-	err = res.SetLabels(template.Labels)
-	if err != nil {
+	if err := res.SetLabels(template.Labels); err != nil {
 		return nil, err
 	}
 
-	err = res.SetAnnotations(template.Annotations)
-	if err != nil {
+	if err := res.SetAnnotations(template.Annotations); err != nil {
 		return nil, err
 	}
 
