@@ -177,6 +177,11 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 	if qanInsightsPromptDisplay == "" {
 		qanInsightsPromptDisplay = DefaultQanInsightsPrompt
 	}
+	serviceNowTokensSet, slackConfigured, err := models.AdreSecretsConfigured(h.db)
+	if err != nil {
+		h.l.Warnf("AdreSecretsConfigured: %v", err)
+	}
+	serviceNowConfigured := settings.Adre.ServiceNowURL != "" && serviceNowTokensSet
 	resp := adreSettingsResponse{
 		Enabled:                       settings.IsAdreEnabled(),
 		URL:                           settings.GetAdreURL(),
@@ -195,12 +200,12 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		QanInsightsPromptDisplay:      qanInsightsPromptDisplay,
 		QanInsightsModel:              settings.Adre.QanInsightsModel,
 		ServiceNowURL:                 settings.Adre.ServiceNowURL,
-		ServiceNowConfigured:          settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
+		ServiceNowConfigured:          serviceNowConfigured,
 		PromptMaxBytes:                settings.Adre.PromptMaxBytes,
 		AdreChatRetentionDays:         settings.GetAdreChatRetentionDays(),
 		SlackEnabled:                  settings.Adre.SlackEnabled,
 		SlackAutoInvestigate:          settings.Adre.SlackAutoInvestigate,
-		SlackConfigured:               settings.Adre.SlackBotToken != "" && settings.Adre.SlackAppToken != "",
+		SlackConfigured:               slackConfigured,
 	}
 	applyAdreSettingsDefaults(&resp)
 	body, err := json.Marshal(resp)
@@ -381,19 +386,44 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		AdreQanInsightsPrompt:             body.QanInsightsPrompt,
 		AdreQanInsightsModel:              body.QanInsightsModel,
 		ServiceNowURL:                     body.ServiceNowURL,
-		ServiceNowAPIKey:                  body.ServiceNowAPIKey,
-		ServiceNowClientToken:             body.ServiceNowClientToken,
 		PromptMaxBytes:                    body.PromptMaxBytes,
 		AdreChatRetentionDays:             body.AdreChatRetentionDays,
 		EnableSlackBot:                    body.SlackEnabled,
 		SlackAutoInvestigate:              body.SlackAutoInvestigate,
-		SlackBotToken:                     body.SlackBotToken,
-		SlackAppToken:                     body.SlackAppToken,
 	}
 	if _, err := models.UpdateSettings(h.db, params); err != nil { //nolint:noinlineerr
 		h.l.Errorf("UpdateSettings: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, err.Error())
 		return
+	}
+	// Integration secrets (ServiceNow API key/client token, Slack bot/app tokens) are stored encrypted in
+	// adre_provisioning, not in the settings JSONB. Load once and reuse for the masked response below.
+	prov, err := models.GetAdreProvisioning(h.db)
+	if err != nil {
+		h.l.Errorf("GetAdreProvisioning: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to load provisioning")
+		return
+	}
+	// Apply only the provided (non-nil) tokens: an empty string clears, nil keeps the existing value.
+	if body.ServiceNowAPIKey != nil || body.ServiceNowClientToken != nil ||
+		body.SlackBotToken != nil || body.SlackAppToken != nil {
+		if body.ServiceNowAPIKey != nil {
+			prov.ServiceNowAPIKey = *body.ServiceNowAPIKey
+		}
+		if body.ServiceNowClientToken != nil {
+			prov.ServiceNowClientToken = *body.ServiceNowClientToken
+		}
+		if body.SlackBotToken != nil {
+			prov.SlackBotToken = *body.SlackBotToken
+		}
+		if body.SlackAppToken != nil {
+			prov.SlackAppToken = *body.SlackAppToken
+		}
+		if err := models.SaveAdreProvisioning(h.db, prov); err != nil { //nolint:noinlineerr
+			h.l.Errorf("SaveAdreProvisioning: %v", err)
+			writeJSONError(w, http.StatusInternalServerError, "Failed to save integration secrets")
+			return
+		}
 	}
 	settings, _ := models.GetSettings(h.db)
 	chatPromptDisplay := settings.Adre.ChatPrompt
@@ -408,6 +438,8 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 	if qanInsightsPromptDisplayPost == "" {
 		qanInsightsPromptDisplayPost = DefaultQanInsightsPrompt
 	}
+	serviceNowConfigured := settings.Adre.ServiceNowURL != "" && prov.ServiceNowAPIKey != "" && prov.ServiceNowClientToken != ""
+	slackConfigured := prov.SlackBotToken != "" && prov.SlackAppToken != ""
 	resp := adreSettingsResponse{
 		Enabled:                       settings.IsAdreEnabled(),
 		URL:                           settings.GetAdreURL(),
@@ -426,12 +458,12 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		QanInsightsPromptDisplay:      qanInsightsPromptDisplayPost,
 		QanInsightsModel:              settings.Adre.QanInsightsModel,
 		ServiceNowURL:                 settings.Adre.ServiceNowURL,
-		ServiceNowConfigured:          settings.Adre.ServiceNowURL != "" && settings.Adre.ServiceNowAPIKey != "" && settings.Adre.ServiceNowClientToken != "",
+		ServiceNowConfigured:          serviceNowConfigured,
 		PromptMaxBytes:                settings.Adre.PromptMaxBytes,
 		AdreChatRetentionDays:         settings.GetAdreChatRetentionDays(),
 		SlackEnabled:                  settings.Adre.SlackEnabled,
 		SlackAutoInvestigate:          settings.Adre.SlackAutoInvestigate,
-		SlackConfigured:               settings.Adre.SlackBotToken != "" && settings.Adre.SlackAppToken != "",
+		SlackConfigured:               slackConfigured,
 	}
 	applyAdreSettingsDefaults(&resp)
 	respBody, err := json.Marshal(resp)
@@ -771,7 +803,12 @@ func (h *Handlers) PostQanInsightsServiceNow(w http.ResponseWriter, r *http.Requ
 	if !ok {
 		return
 	}
-	if settings.Adre.ServiceNowURL == "" || settings.Adre.ServiceNowAPIKey == "" || settings.Adre.ServiceNowClientToken == "" {
+	prov, err := models.GetAdreProvisioning(h.db)
+	if err != nil {
+		writeJSONError(w, http.StatusInternalServerError, "Failed to load provisioning")
+		return
+	}
+	if settings.Adre.ServiceNowURL == "" || prov.ServiceNowAPIKey == "" || prov.ServiceNowClientToken == "" {
 		writeJSONError(w, http.StatusBadRequest, "ServiceNow is not configured. Set URL, API key, and client token in AI Assistant settings.")
 		return
 	}
@@ -802,7 +839,7 @@ func (h *Handlers) PostQanInsightsServiceNow(w http.ResponseWriter, r *http.Requ
 		body.ServiceID, body.QueryID, body.Fingerprint, body.TimeFrom, body.TimeTo, body.QueryText, body.Analysis,
 	)
 	payload := map[string]string{
-		"client_token":      settings.Adre.ServiceNowClientToken,
+		"client_token":      prov.ServiceNowClientToken,
 		"short_description": "QAN AI Insight: " + body.ServiceID,
 		"description":       description,
 		"ticket_type":       "incident",
@@ -818,7 +855,7 @@ func (h *Handlers) PostQanInsightsServiceNow(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Sn-Apikey", settings.Adre.ServiceNowAPIKey)
+	req.Header.Set("X-Sn-Apikey", prov.ServiceNowAPIKey)
 	client := &http.Client{Timeout: 30 * time.Second} //nolint:mnd
 	resp, err := client.Do(req)
 	if err != nil {

@@ -184,8 +184,14 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 		writeJSONError(w, http.StatusInternalServerError, "Failed to read settings")
 		return
 	}
+	prov, err := models.GetAdreProvisioning(h.db)
+	if err != nil {
+		h.l.Errorf("GetAdreProvisioning: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to read provisioning")
+		return
+	}
 
-	if settings.Adre.ServiceNowURL == "" || settings.Adre.ServiceNowAPIKey == "" || settings.Adre.ServiceNowClientToken == "" {
+	if settings.Adre.ServiceNowURL == "" || prov.ServiceNowAPIKey == "" || prov.ServiceNowClientToken == "" {
 		writeJSONError(w, http.StatusBadRequest, "ServiceNow is not configured. Set URL, API key, and client token in AI Assistant settings.")
 		return
 	}
@@ -204,7 +210,7 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 	}
 
 	payload := serviceNowCreateRequest{
-		ClientToken:      settings.Adre.ServiceNowClientToken,
+		ClientToken:      prov.ServiceNowClientToken,
 		ShortDescription: shortDescription,
 		Description:      description,
 		TicketType:       "incident",
@@ -225,7 +231,7 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Sn-Apikey", settings.Adre.ServiceNowAPIKey)
+	req.Header.Set("X-Sn-Apikey", prov.ServiceNowAPIKey)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -271,7 +277,7 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 	// Fetch ticket details to get the human-readable number (e.g. INC0289676)
 	detailsURL := deriveTicketDetailsURL(settings.Adre.ServiceNowURL)
 	if detailsURL != "" {
-		number, err := fetchTicketNumber(r.Context(), detailsURL, settings.Adre.ServiceNowAPIKey, settings.Adre.ServiceNowClientToken, snResp.Result.TicketID)
+		number, err := fetchTicketNumber(r.Context(), detailsURL, prov.ServiceNowAPIKey, prov.ServiceNowClientToken, snResp.Result.TicketID)
 		if err != nil {
 			h.l.Warnf("Failed to fetch ticket number (ticket created OK): %v", err)
 		} else if number != "" {

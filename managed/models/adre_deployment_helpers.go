@@ -20,7 +20,10 @@ import (
 	"time"
 
 	"github.com/pkg/errors" //nolint:depguard
+	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 // ADRE/HolmesGPT deployment config is the source of truth that PMM renders to the shared config
@@ -67,15 +70,21 @@ type AdreSkill struct {
 	UpdatedBy   string
 }
 
-// AdreProvisioning is the singleton holding generated/minted secrets and render status.
+// AdreProvisioning is the singleton holding generated/minted secrets, integration tokens, and render
+// status. All secret fields are encrypted at rest (see DefaultAgentEncryptionColumnsV3) and masked on
+// the API.
 type AdreProvisioning struct {
-	HolmesAPIKey    string
-	PMMSAToken      string
-	PMMSAID         int
-	PMMURL          string
-	LastRenderAt    *time.Time
-	RenderStatus    string
-	RestartRequired bool
+	HolmesAPIKey          string
+	PMMSAToken            string
+	ServiceNowAPIKey      string
+	ServiceNowClientToken string
+	SlackBotToken         string
+	SlackAppToken         string
+	PMMSAID               int
+	PMMURL                string
+	LastRenderAt          *time.Time
+	RenderStatus          string
+	RestartRequired       bool
 }
 
 // AdreConfigAudit is one audit-log row for a deployment-config mutation.
@@ -130,6 +139,7 @@ func ListAdreModels(q reform.DBTX) ([]*AdreModel, error) {
 		if err := rows.Scan(&m.ID, &m.Name, &m.LitellmModel, &m.APIBase, &m.APIKey, &m.ExtraParams, &m.CreatedAt, &m.UpdatedAt); err != nil { //nolint:noinlineerr
 			return nil, errors.Wrap(err, "failed to scan adre_models")
 		}
+		m.APIKey = decryptField("api_key", m.APIKey)
 		out = append(out, &m)
 	}
 	return out, errors.Wrap(rows.Err(), "failed to iterate adre_models")
@@ -147,12 +157,16 @@ func UpsertAdreModel(q reform.DBTX, m *AdreModel) error {
 		)
 		return errors.Wrap(err, "failed to upsert adre_models")
 	}
-	_, err := q.Exec(
+	apiKey, err := encryption.Encrypt(m.APIKey)
+	if err != nil {
+		return errors.Wrap(err, "failed to encrypt adre_models api_key")
+	}
+	_, err = q.Exec(
 		`INSERT INTO adre_models (name, litellm_model, api_base, api_key, extra_params, updated_at)
 		 VALUES ($1, $2, $3, $4, $5, NOW())
 		 ON CONFLICT (name) DO UPDATE SET litellm_model = EXCLUDED.litellm_model, api_base = EXCLUDED.api_base,
 		   api_key = EXCLUDED.api_key, extra_params = EXCLUDED.extra_params, updated_at = NOW()`,
-		m.Name, m.LitellmModel, m.APIBase, m.APIKey, m.ExtraParams,
+		m.Name, m.LitellmModel, m.APIBase, apiKey, m.ExtraParams,
 	)
 	return errors.Wrap(err, "failed to upsert adre_models")
 }
@@ -238,10 +252,12 @@ func GetAdreProvisioning(q reform.DBTX) (*AdreProvisioning, error) {
 	var p AdreProvisioning
 	var lastRender sql.NullTime
 	err := q.QueryRow(
-		`SELECT holmes_api_key, pmm_sa_token, pmm_sa_id, pmm_url, last_render_at, render_status, restart_required
+		`SELECT holmes_api_key, pmm_sa_token, servicenow_api_key, servicenow_client_token, slack_bot_token, slack_app_token,
+		        pmm_sa_id, pmm_url, last_render_at, render_status, restart_required
 		 FROM adre_provisioning WHERE id = TRUE`,
 	).
-		Scan(&p.HolmesAPIKey, &p.PMMSAToken, &p.PMMSAID, &p.PMMURL, &lastRender, &p.RenderStatus, &p.RestartRequired)
+		Scan(&p.HolmesAPIKey, &p.PMMSAToken, &p.ServiceNowAPIKey, &p.ServiceNowClientToken, &p.SlackBotToken, &p.SlackAppToken,
+			&p.PMMSAID, &p.PMMURL, &lastRender, &p.RenderStatus, &p.RestartRequired)
 	if errors.Is(err, sql.ErrNoRows) {
 		return &AdreProvisioning{}, nil
 	}
@@ -251,6 +267,12 @@ func GetAdreProvisioning(q reform.DBTX) (*AdreProvisioning, error) {
 	if lastRender.Valid {
 		p.LastRenderAt = &lastRender.Time
 	}
+	p.HolmesAPIKey = decryptField("holmes_api_key", p.HolmesAPIKey)
+	p.PMMSAToken = decryptField("pmm_sa_token", p.PMMSAToken)
+	p.ServiceNowAPIKey = decryptField("servicenow_api_key", p.ServiceNowAPIKey)
+	p.ServiceNowClientToken = decryptField("servicenow_client_token", p.ServiceNowClientToken)
+	p.SlackBotToken = decryptField("slack_bot_token", p.SlackBotToken)
+	p.SlackAppToken = decryptField("slack_app_token", p.SlackAppToken)
 	return &p, nil
 }
 
@@ -260,15 +282,66 @@ func SaveAdreProvisioning(q reform.DBTX, p *AdreProvisioning) error {
 	if p.LastRenderAt != nil {
 		lastRender = *p.LastRenderAt
 	}
-	_, err := q.Exec(
-		`INSERT INTO adre_provisioning (id, holmes_api_key, pmm_sa_token, pmm_sa_id, pmm_url, last_render_at, render_status, restart_required)
-		 VALUES (TRUE, $1, $2, $3, $4, $5, $6, $7)
+	// Order matches the placeholders $1..$6 below.
+	enc, err := encryptSecrets(
+		p.HolmesAPIKey, p.PMMSAToken, p.ServiceNowAPIKey, p.ServiceNowClientToken, p.SlackBotToken, p.SlackAppToken,
+	)
+	if err != nil {
+		return errors.Wrap(err, "failed to encrypt adre_provisioning secrets")
+	}
+	_, err = q.Exec(
+		`INSERT INTO adre_provisioning (id, holmes_api_key, pmm_sa_token, servicenow_api_key, servicenow_client_token,
+		        slack_bot_token, slack_app_token, pmm_sa_id, pmm_url, last_render_at, render_status, restart_required)
+		 VALUES (TRUE, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		 ON CONFLICT (id) DO UPDATE SET holmes_api_key = EXCLUDED.holmes_api_key, pmm_sa_token = EXCLUDED.pmm_sa_token,
+		   servicenow_api_key = EXCLUDED.servicenow_api_key, servicenow_client_token = EXCLUDED.servicenow_client_token,
+		   slack_bot_token = EXCLUDED.slack_bot_token, slack_app_token = EXCLUDED.slack_app_token,
 		   pmm_sa_id = EXCLUDED.pmm_sa_id, pmm_url = EXCLUDED.pmm_url, last_render_at = EXCLUDED.last_render_at,
 		   render_status = EXCLUDED.render_status, restart_required = EXCLUDED.restart_required`,
-		p.HolmesAPIKey, p.PMMSAToken, p.PMMSAID, p.PMMURL, lastRender, p.RenderStatus, p.RestartRequired,
+		enc[0], enc[1], enc[2], enc[3], enc[4], enc[5], p.PMMSAID, p.PMMURL, lastRender, p.RenderStatus, p.RestartRequired,
 	)
 	return errors.Wrap(err, "failed to save adre_provisioning")
+}
+
+// encryptSecrets encrypts each value for at-rest storage, aborting on the first error so a secret is
+// never persisted in plaintext. The returned slice is in the same order as the arguments.
+// encryption.Encrypt is a no-op on the empty string.
+func encryptSecrets(values ...string) ([]string, error) {
+	out := make([]string, len(values))
+	for i, v := range values {
+		enc, err := encryption.Encrypt(v)
+		if err != nil {
+			return nil, err
+		}
+		out[i] = enc
+	}
+	return out, nil
+}
+
+// decryptField decrypts an at-rest secret. On error (e.g. a legacy plaintext value) it returns the
+// original value so reads degrade gracefully, logging only the field name — never the encryption.Decrypt
+// error, which embeds the raw input. encryption.Decrypt is a no-op on the empty string.
+func decryptField(field, s string) string {
+	out, err := encryption.Decrypt(s)
+	if err != nil {
+		logrus.Warnf("adre: failed to decrypt %s", field)
+	}
+	return out
+}
+
+// AdreSecretsConfigured reports whether the ServiceNow tokens and the Slack tokens are set, checking
+// the encrypted columns for non-emptiness without decrypting them (Encrypt maps "" to "" and non-empty
+// to non-empty ciphertext, so emptiness is preserved). Used for the masked settings API.
+func AdreSecretsConfigured(q reform.DBTX) (serviceNow, slack bool, err error) {
+	err = q.QueryRow(
+		`SELECT servicenow_api_key <> '' AND servicenow_client_token <> '',
+		        slack_bot_token <> '' AND slack_app_token <> ''
+		 FROM adre_provisioning WHERE id = TRUE`,
+	).Scan(&serviceNow, &slack)
+	if errors.Is(err, sql.ErrNoRows) {
+		return false, false, nil
+	}
+	return serviceNow, slack, errors.Wrap(err, "failed to read adre_provisioning secret flags")
 }
 
 // InsertAdreConfigAudit appends one audit-log row.

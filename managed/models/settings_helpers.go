@@ -163,10 +163,9 @@ type ChangeSettingsParams struct {
 	AdreQanInsightsPrompt *string
 	// AdreQanInsightsModel is default Holmes model alias for QAN AI Insights. Empty uses Holmes default.
 	AdreQanInsightsModel *string
-	// ServiceNow integration fields.
-	ServiceNowURL         *string
-	ServiceNowAPIKey      *string
-	ServiceNowClientToken *string
+	// ServiceNow integration URL (non-secret). The API key and client token are secrets handled
+	// separately (stored encrypted in adre_provisioning), not through settings.
+	ServiceNowURL *string
 	// PromptMaxBytes defines max prompt size for ADRE prompts.
 	PromptMaxBytes *int
 	// AdreChatRetentionDays: automatic purge of ADRE chats (days, 0 = never). Nil = no change.
@@ -175,9 +174,6 @@ type ChangeSettingsParams struct {
 	EnableSlackBot *bool
 	// SlackAutoInvestigate runs ADRE on Slack bot messages whose text contains FIRING (v0 heuristic).
 	SlackAutoInvestigate *bool
-	// SlackBotToken / SlackAppToken: empty string in params means clear when pointer non-nil (same as ServiceNow keys).
-	SlackBotToken *string
-	SlackAppToken *string
 
 	// OTEL server collector and ClickHouse retention (nil sub-fields = no change).
 	OtelCollectorEnabled     *bool
@@ -379,12 +375,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	if params.ServiceNowURL != nil {
 		settings.Adre.ServiceNowURL = pointer.GetString(params.ServiceNowURL)
 	}
-	if params.ServiceNowAPIKey != nil {
-		settings.Adre.ServiceNowAPIKey = pointer.GetString(params.ServiceNowAPIKey)
-	}
-	if params.ServiceNowClientToken != nil {
-		settings.Adre.ServiceNowClientToken = pointer.GetString(params.ServiceNowClientToken)
-	}
 	if params.PromptMaxBytes != nil {
 		settings.Adre.PromptMaxBytes = *params.PromptMaxBytes
 	}
@@ -400,12 +390,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 	if params.SlackAutoInvestigate != nil {
 		settings.Adre.SlackAutoInvestigate = *params.SlackAutoInvestigate && settings.Adre.SlackEnabled
-	}
-	if params.SlackBotToken != nil {
-		settings.Adre.SlackBotToken = pointer.GetString(params.SlackBotToken)
-	}
-	if params.SlackAppToken != nil {
-		settings.Adre.SlackAppToken = pointer.GetString(params.SlackAppToken)
 	}
 
 	if params.OtelCollectorEnabled != nil {

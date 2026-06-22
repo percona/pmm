@@ -27,6 +27,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -81,6 +82,29 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 			{Name: "mongo_options", CustomHandler: EncryptMongoDBOptionsHandler},
 			{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
 			{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
+		},
+	},
+	{
+		// ADRE LLM model list; api_key is the LLM provider key. Identified by the unique VARCHAR name
+		// so the BIGINT id is never scanned by the column encryptor.
+		Name:        "adre_models",
+		Identifiers: []string{"name"},
+		Columns: []encryption.Column{
+			{Name: "api_key"},
+		},
+	},
+	{
+		// ADRE provisioning singleton: minted/integration secrets. Identified by the BOOLEAN id
+		// (supported by prepareRowPointers as an identifier-only type).
+		Name:        "adre_provisioning",
+		Identifiers: []string{"id"},
+		Columns: []encryption.Column{
+			{Name: "holmes_api_key"},
+			{Name: "pmm_sa_token"},
+			{Name: "servicenow_api_key"},
+			{Name: "servicenow_client_token"},
+			{Name: "slack_bot_token"},
+			{Name: "slack_app_token"},
 		},
 	},
 }
@@ -1710,8 +1734,10 @@ $yaml$,
 	},
 	138: {
 		// ADRE/HolmesGPT deployment config managed by PMM and rendered to the shared config dir.
-		// Secrets (api_key, holmes_api_key, pmm_sa_token) are stored here like settings.Adre ServiceNow
-		// keys (plaintext in DB, masked on the API). Singleton tables use a BOOLEAN id with a CHECK.
+		// Secret columns (adre_models.api_key, adre_provisioning.{holmes_api_key, pmm_sa_token,
+		// servicenow_api_key, servicenow_client_token, slack_bot_token, slack_app_token}) are
+		// encrypted at rest via DefaultAgentEncryptionColumnsV3 and masked on the API.
+		// Singleton tables use a BOOLEAN id with a CHECK.
 		`CREATE TABLE adre_holmes_config (
 			id BOOLEAN PRIMARY KEY DEFAULT TRUE,
 			config_yaml TEXT NOT NULL DEFAULT '',
@@ -1726,7 +1752,7 @@ $yaml$,
 			name VARCHAR NOT NULL UNIQUE,
 			litellm_model VARCHAR NOT NULL,
 			api_base VARCHAR NOT NULL DEFAULT '',
-			api_key TEXT NOT NULL DEFAULT '',
+			api_key VARCHAR NOT NULL DEFAULT '',
 			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 			updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 		)`,
@@ -1743,8 +1769,12 @@ $yaml$,
 		)`,
 		`CREATE TABLE adre_provisioning (
 			id BOOLEAN PRIMARY KEY DEFAULT TRUE,
-			holmes_api_key TEXT NOT NULL DEFAULT '',
-			pmm_sa_token TEXT NOT NULL DEFAULT '',
+			holmes_api_key VARCHAR NOT NULL DEFAULT '',
+			pmm_sa_token VARCHAR NOT NULL DEFAULT '',
+			servicenow_api_key VARCHAR NOT NULL DEFAULT '',
+			servicenow_client_token VARCHAR NOT NULL DEFAULT '',
+			slack_bot_token VARCHAR NOT NULL DEFAULT '',
+			slack_app_token VARCHAR NOT NULL DEFAULT '',
 			pmm_sa_id INTEGER NOT NULL DEFAULT 0,
 			pmm_url VARCHAR NOT NULL DEFAULT '',
 			last_render_at TIMESTAMPTZ,
@@ -1933,19 +1963,43 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 		return err
 	}
 
-	encryptedItems := []string{}
-	if expectedState {
-		encryptedItems = prepared
-	}
-
+	// Fold the just-processed columns into the tracked set, preserving already-tracked columns.
+	// Replacing the set wholesale with only this run's columns would drop already-encrypted columns
+	// (e.g. agents) when a new table is added to DefaultAgentEncryptionColumnsV3, causing them to be
+	// re-encrypted (corrupted) on the next startup.
 	_, err = UpdateSettings(tx, &ChangeSettingsParams{
-		EncryptedItems: encryptedItems,
+		EncryptedItems: mergeEncryptedItems(settings.EncryptedItems, prepared, expectedState),
 	})
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// mergeEncryptedItems folds the just-processed columns into the tracked encrypted-columns set: on
+// encrypt it adds them, on decrypt it removes them. The result is sorted. Keeping the existing entries
+// (rather than replacing the set with only this run's columns) is what makes adding a table to
+// DefaultAgentEncryptionColumnsV3 safe — otherwise already-encrypted columns would be dropped from the
+// set and re-encrypted (corrupted) on a later run.
+func mergeEncryptedItems(current, prepared []string, encrypt bool) []string {
+	set := make(map[string]bool, len(current))
+	for _, v := range current {
+		set[v] = true
+	}
+	for _, key := range prepared {
+		if encrypt {
+			set[key] = true
+		} else {
+			delete(set, key)
+		}
+	}
+	out := make([]string, 0, len(set))
+	for k := range set {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
 }
 
 // checkVersion checks minimal required PostgreSQL server version.

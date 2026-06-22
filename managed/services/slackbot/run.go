@@ -72,7 +72,12 @@ func Run(ctx context.Context, db *reform.DB, l *logrus.Entry) error {
 			l.Errorf("GetSettings: %v", err)
 			return
 		}
-		fp := slackFingerprint(settings)
+		prov, err := models.GetAdreProvisioning(db)
+		if err != nil {
+			l.Errorf("GetAdreProvisioning: %v", err)
+			return
+		}
+		fp := slackFingerprint(settings, prov.SlackBotToken, prov.SlackAppToken)
 
 		mu.Lock()
 		if fp == "" {
@@ -124,7 +129,8 @@ func Run(ctx context.Context, db *reform.DB, l *logrus.Entry) error {
 }
 
 // slackFingerprint identifies a Socket Mode session for hot-reload. Must never be logged (contains tokens).
-func slackFingerprint(settings *models.Settings) string {
+// The bot/app tokens are stored encrypted in adre_provisioning and passed in decrypted by the caller.
+func slackFingerprint(settings *models.Settings, botToken, appToken string) string {
 	if !settings.IsAdreEnabled() || !settings.Adre.SlackEnabled {
 		return ""
 	}
@@ -132,8 +138,8 @@ func slackFingerprint(settings *models.Settings) string {
 	if u == "" {
 		return ""
 	}
-	bot := strings.TrimSpace(settings.Adre.SlackBotToken)
-	app := strings.TrimSpace(settings.Adre.SlackAppToken)
+	bot := strings.TrimSpace(botToken)
+	app := strings.TrimSpace(appToken)
 	if bot == "" || app == "" {
 		return ""
 	}
@@ -142,13 +148,13 @@ func slackFingerprint(settings *models.Settings) string {
 
 func runSocketMode(ctx context.Context, db *reform.DB, l *logrus.Entry) {
 	log := l.WithField("component", "adre-slack")
-	settings, err := models.GetSettings(db)
+	prov, err := models.GetAdreProvisioning(db)
 	if err != nil {
-		log.Errorf("GetSettings: %v", err)
+		log.Errorf("GetAdreProvisioning: %v", err)
 		return
 	}
-	appTok := strings.TrimSpace(settings.Adre.SlackAppToken)
-	api := slack.New(settings.Adre.SlackBotToken, slack.OptionAppLevelToken(appTok))
+	appTok := strings.TrimSpace(prov.SlackAppToken)
+	api := slack.New(prov.SlackBotToken, slack.OptionAppLevelToken(appTok))
 	sm := socketmode.New(api)
 
 	auth, err := api.AuthTestContext(ctx)

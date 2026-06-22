@@ -142,19 +142,17 @@ type Settings struct {
 		QanInsightsPrompt string `json:"qan_insights_prompt"`
 		// QanInsightsModel is default Holmes model for QAN AI Insights. Empty uses Holmes default model.
 		QanInsightsModel string `json:"qan_insights_model"`
-		// ServiceNow integration fields.
-		ServiceNowURL         string `json:"servicenow_url"`
-		ServiceNowAPIKey      string `json:"servicenow_api_key"`
-		ServiceNowClientToken string `json:"servicenow_client_token"`
+		// ServiceNow integration. The URL is non-secret and stays here; the API key and client token
+		// are secrets stored encrypted in the adre_provisioning table (not in this JSONB blob).
+		ServiceNowURL string `json:"servicenow_url"`
 		// PromptMaxBytes defines max prompt size for ADRE prompts (bytes).
 		PromptMaxBytes int `json:"prompt_max_bytes"`
 		// AdreChatRetentionDays deletes ADRE chat threads with last_message_at older than this many days (0 = never auto-purge). Nil in JSON defaults in fillDefaults.
 		AdreChatRetentionDays *int `json:"adre_chat_retention_days"`
-		// Slack integration (Socket Mode); tokens stored in settings JSON.
-		SlackEnabled         bool   `json:"slack_enabled"`
-		SlackAutoInvestigate bool   `json:"slack_auto_investigate"`
-		SlackBotToken        string `json:"slack_bot_token"`
-		SlackAppToken        string `json:"slack_app_token"`
+		// Slack integration (Socket Mode). Enable/auto-investigate flags are non-secret and stay here;
+		// the bot and app tokens are secrets stored encrypted in the adre_provisioning table.
+		SlackEnabled         bool `json:"slack_enabled"`
+		SlackAutoInvestigate bool `json:"slack_auto_investigate"`
 	} `json:"adre"`
 
 	Alerting struct {
