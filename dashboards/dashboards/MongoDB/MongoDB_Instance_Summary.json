@@ -280,7 +280,7 @@
                             }
                         ]
                     },
-                    "unit": "\u00b5s"
+                    "unit": "µs"
                 },
                 "overrides": []
             },
@@ -877,7 +877,7 @@
                             }
                         ]
                     },
-                    "unit": "\u00b5s"
+                    "unit": "µs"
                 },
                 "overrides": []
             },
@@ -2008,7 +2008,7 @@
             "id": 291,
             "panels": [
                 {
-                    "description": "The parameter shows how long a system has been \u201cup\u201d and running without a shut down or restart.",
+                    "description": "The parameter shows how long a system has been “up” and running without a shut down or restart.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {

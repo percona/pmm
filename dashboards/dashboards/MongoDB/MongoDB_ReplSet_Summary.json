@@ -1298,7 +1298,7 @@
             "type": "stat"
         },
         {
-            "description": "The parameter shows how long a system has been \u201cup\u201d and running without a shut down or restart.",
+            "description": "The parameter shows how long a system has been “up” and running without a shut down or restart.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1731,7 +1731,7 @@
                             }
                         ]
                     },
-                    "unit": "\u00b5s"
+                    "unit": "µs"
                 },
                 "overrides": []
             },
@@ -2399,7 +2399,7 @@
                                 "value": [
                                     {
                                         "title": "",
-                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}\ufeff&\ufeff${__url_time_range}\ufeff&\ufeff${interval:queryparam}\ufeff&\ufeff${cluster:queryparam}\ufeff"
+                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}﻿&﻿${__url_time_range}﻿&﻿${interval:queryparam}﻿&﻿${cluster:queryparam}﻿"
                                     }
                                 ]
                             }
@@ -2548,7 +2548,7 @@
                                 "value": [
                                     {
                                         "title": "",
-                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}\ufeff&\ufeff${__url_time_range}\ufeff&\ufeff${interval:queryparam}\ufeff&\ufeff${cluster:queryparam}"
+                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}﻿&﻿${__url_time_range}﻿&﻿${interval:queryparam}﻿&﻿${cluster:queryparam}"
                                     }
                                 ]
                             }
@@ -2645,6 +2645,182 @@
             "datasource": {
                 "type": "prometheus"
             },
+            "description": "Ratio of free to allocated storage per collection. High fragmentation means disk space is wasted due to deletes and document moves. Run compact on heavily fragmented collections to reclaim it.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "text",
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "left",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "filterable": true,
+                        "inspect": false
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "dark-blue",
+                                    "index": 0,
+                                    "text": "0"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "noValue": "N/A",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red"
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "^((?!(DB Name)).)*$"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "dark-blue",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Node"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "title": "",
+                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}﻿&﻿${__url_time_range}﻿&﻿${interval:queryparam}﻿&﻿${cluster:queryparam}"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 70
+            },
+            "id": 1681,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "enablePagination": true,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "frameIndex": 0,
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by (environment,cluster,rs_nm,database,collection,service_name) (mongodb_collstats_storageStats_freeStorageSize{environment=~\"$environment\", cluster=~\"$cluster\",rs_nm=~\"$rs_nm\", service_name=~\"$service_name\", db !~\"admin|config\"} /\nmongodb_collstats_storageStats_storageSize{environment=~\"$environment\", cluster=~\"$cluster\",rs_nm=~\"$rs_nm\", service_name=~\"$service_name\", db !~\"admin|config\"}\n)",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "$interval",
+                    "legendFormat": "{{collection}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Fragmentation Analysis",
+            "transformations": [
+                {
+                    "id": "groupingToMatrix",
+                    "options": {
+                        "columnField": "shard",
+                        "rowField": "db",
+                        "valueField": "Value"
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "cluster": true,
+                            "environment": true,
+                            "rs_nm": true
+                        },
+                        "includeByName": {},
+                        "indexByName": {
+                            "Time": 0,
+                            "Value": 6,
+                            "cluster": 1,
+                            "collection": 3,
+                            "database": 2,
+                            "environment": 7,
+                            "rs_nm": 5,
+                            "service_name": 4
+                        },
+                        "renameByName": {
+                            "Value": "Fragmentation (estimated)",
+                            "collection": "Collection Name",
+                            "database": "DB Name",
+                            "db\\shard": "DB Name",
+                            "rs1": "",
+                            "rs_nm": "",
+                            "service_name": "Node"
+                        }
+                    }
+                },
+                {
+                    "id": "sortBy",
+                    "options": {
+                        "fields": {},
+                        "sort": [
+                            {
+                                "desc": true,
+                                "field": "Fragmentation (estimated)"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "id": "limit",
+                    "options": {
+                        "limitField": "100"
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
             "description": "MongoDB stores documents in collections. Collections are analogous to tables in relational databases.",
             "fieldConfig": {
                 "defaults": {
@@ -2710,7 +2886,7 @@
                                 "value": [
                                     {
                                         "title": "",
-                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}\ufeff&\ufeff${__url_time_range}\ufeff&\ufeff${interval:queryparam}\ufeff&\ufeff${cluster:queryparam}"
+                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}﻿&﻿${__url_time_range}﻿&﻿${interval:queryparam}﻿&﻿${cluster:queryparam}"
                                     }
                                 ]
                             }
@@ -2722,7 +2898,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 70
+                "y": 78
             },
             "id": 1672,
             "options": {
@@ -2809,7 +2985,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 78
+                "y": 86
             },
             "id": 1049,
             "panels": [
@@ -2910,7 +3086,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 0,
-                        "y": 99
+                        "y": 136
                     },
                     "id": 1038,
                     "options": {
@@ -3045,7 +3221,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 8,
-                        "y": 99
+                        "y": 136
                     },
                     "id": 1025,
                     "options": {
@@ -3137,7 +3313,7 @@
                                     }
                                 ]
                             },
-                            "unit": "\u00b5s"
+                            "unit": "µs"
                         },
                         "overrides": [
                             {
@@ -3162,7 +3338,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 16,
-                        "y": 99
+                        "y": 136
                     },
                     "id": 1020,
                     "options": {
@@ -3273,7 +3449,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 106
+                        "y": 143
                     },
                     "id": 1680,
                     "options": {
@@ -3323,7 +3499,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 79
+                "y": 87
             },
             "id": 1150,
             "panels": [
@@ -3440,7 +3616,7 @@
                         "h": 6,
                         "w": 24,
                         "x": 0,
-                        "y": 127
+                        "y": 164
                     },
                     "id": 1587,
                     "options": {
@@ -3483,7 +3659,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 80
+                "y": 88
             },
             "id": 1403,
             "panels": [
@@ -3678,7 +3854,7 @@
                         "h": 7,
                         "w": 24,
                         "x": 0,
-                        "y": 128
+                        "y": 165
                     },
                     "id": 1675,
                     "options": {
@@ -3836,7 +4012,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 81
+                "y": 89
             },
             "id": 1569,
             "panels": [
@@ -4094,7 +4270,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 129
+                        "y": 166
                     },
                     "id": 1676,
                     "options": {
@@ -4171,7 +4347,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 82
+                "y": 90
             },
             "id": 1571,
             "panels": [
@@ -4382,7 +4558,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 163
+                        "y": 200
                     },
                     "id": 1677,
                     "options": {
@@ -4453,7 +4629,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 83
+                "y": 91
             },
             "id": 1585,
             "panels": [
@@ -4603,7 +4779,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 174
+                        "y": 211
                     },
                     "id": 1678,
                     "links": [
@@ -4707,7 +4883,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 84
+                "y": 92
             },
             "id": 1583,
             "panels": [
@@ -4788,7 +4964,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 132
+                        "y": 169
                     },
                     "id": 1679,
                     "options": {
