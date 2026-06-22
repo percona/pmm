@@ -2,7 +2,7 @@
 # This workflow automatically updates PR's base branch once it is updated
 # (new commit is merged).
 # To make it work it is required to set "auto-update-base" label on PR.
-# There will be max 1- attempts to update base branch.
+# There will be max 10 attempts to update base branch.
 name: Auto-Update PR Base
 
 on:
