@@ -335,7 +335,7 @@ func pollDescribeOnce(ctx context.Context, cfg *describePoller) (bool, error) {
 
 	status, statusErr := cfg.getPBMStatus(ctx)
 	if statusErr != nil {
-		return false, errors.Wrap(statusErr, "failed to get pbm status")
+		return false, fmt.Errorf("failed to get pbm status: %w", statusErr)
 	}
 
 	running := cfg.opRunning(status)
@@ -355,7 +355,7 @@ func pollDescribeOnce(ctx context.Context, cfg *describePoller) (bool, error) {
 		return false, nil
 	}
 
-	return false, errors.Wrapf(describeErr, "failed to get %s status", cfg.operation)
+	return false, fmt.Errorf("failed to get %s status: %w", cfg.operation, describeErr)
 }
 
 func (cfg *describePoller) getPBMStatus(ctx context.Context) (*pbmStatus, error) {
@@ -540,17 +540,17 @@ func checkStatus(status, errMsg, operation string) (bool, error) {
 	case pbmStatusDone:
 		return true, nil
 	case pbmStatusCanceled:
-		return true, errors.Errorf("%s was canceled", operation)
+		return true, fmt.Errorf("%s was canceled", operation)
 	case pbmStatusError:
 		if errMsg != "" {
 			return true, errors.New(errMsg)
 		}
-		return true, errors.Errorf("%s failed", operation)
+		return true, fmt.Errorf("%s failed", operation)
 	case pbmStatusPartlyDone:
 		if errMsg != "" {
 			return true, errors.New(errMsg)
 		}
-		return true, errors.Errorf("%s partly completed", operation)
+		return true, fmt.Errorf("%s partly completed", operation)
 	default:
 		return false, nil
 	}
@@ -561,7 +561,7 @@ func describeErr(info describeInfo, operation string) error {
 	if err != nil && !errors.Is(err, errPBMOperationFailed) {
 		return err
 	}
-	return errors.Errorf("%s failed", operation)
+	return fmt.Errorf("%s failed", operation)
 }
 
 func findPITRRestore(list []pbmListRestore, restoreInfoPITRTime int64, startedAt time.Time) *pbmListRestore {
@@ -604,7 +604,7 @@ func findPITRRestoreName(ctx context.Context, dsn string, restoreInfo *pbmRestor
 		var list []pbmListRestore
 		err = execPBMCommand(ctx, dsn, &list, "list", "--restore")
 		if err != nil {
-			return false, errors.Wrapf(err, "pbm status error")
+			return false, fmt.Errorf("pbm status error: %w", err)
 		}
 		entry := findPITRRestore(list, restoreInfoPITRTime.Unix(), restoreInfo.StartedAt)
 		if entry != nil {
@@ -612,7 +612,7 @@ func findPITRRestoreName(ctx context.Context, dsn string, restoreInfo *pbmRestor
 			return true, nil
 		}
 		if checks > maxRestoreChecks {
-			return false, errors.Errorf("failed to start restore")
+			return false, fmt.Errorf("failed to start restore")
 		}
 		return false, nil
 	})
