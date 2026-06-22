@@ -101,8 +101,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	data := map[string]any{
 		"engine": migrations.GetEngine(isCluster),
 	}
-	err = migrations.Run(dsn, data, isCluster, clusterName)
-	if err != nil {
+	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
 		l.Fatalf("migrations: %v", err)
 	}
 	l.Info("Migrations applied successfully")

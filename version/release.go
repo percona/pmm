@@ -74,8 +74,7 @@ func Time() (time.Time, error) {
 // timestampFormatted returns timestamp in format "YYYY-MM-DD HH:mm:ss (UTC)".
 func timestampFormatted() string {
 	timestamp := Timestamp
-	t, err := Time()
-	if err == nil {
+	if t, err := Time(); err == nil {
 		timestamp = t.Format("2006-01-02 15:04:05 (UTC)")
 	}
 	return timestamp

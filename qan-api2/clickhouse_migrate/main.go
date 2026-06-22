@@ -52,8 +52,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create migrate instance: %v", err)
 	}
-	err = m.Migrate(lastMigration + 1)
-	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
+	if err := m.Migrate(lastMigration + 1); err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		log.Fatalf("Migration failed: %v", err)
 	}
 

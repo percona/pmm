@@ -250,8 +250,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 
 	<-ctx.Done()
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	err = server.Shutdown(ctx) //nolint:contextcheck
-	if err != nil {
+	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()

@@ -144,8 +144,7 @@ func parseFilters(filters string) ([]string, error) {
 		return nil, fmt.Errorf("could not decode filters header: %w", err)
 	}
 
-	err = json.Unmarshal(decoded, &parsed)
-	if err != nil {
+	if err := json.Unmarshal(decoded, &parsed); err != nil {
 		return nil, fmt.Errorf("could not parse filters JSON: %w", err)
 	}
 

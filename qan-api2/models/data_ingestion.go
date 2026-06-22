@@ -727,8 +727,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 
 	// begin "transaction" and commit or rollback it on exit
 	var tx *sqlx.Tx
-	tx, err = mb.db.Beginx()
-	if err != nil {
+	if tx, err = mb.db.Beginx(); err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
 	defer func() {
@@ -744,8 +743,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 
 	// prepare INSERT statement and close it on exit
 	var stmt *sqlx.NamedStmt
-	stmt, err = tx.PrepareNamed(insertSQL)
-	if err != nil {
+	if stmt, err = tx.PrepareNamed(insertSQL); err != nil {
 		return fmt.Errorf("failed to prepare statement: %w", err)
 	}
 	defer func() {
@@ -792,8 +790,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 				metricsBucket,
 			}
 
-			_, err = stmt.Exec(q)
-			if err != nil {
+			if _, err = stmt.Exec(q); err != nil {
 				return fmt.Errorf("failed to exec: %w", err)
 			}
 		}

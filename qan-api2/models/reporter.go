@@ -227,8 +227,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 
 	var queryBuffer bytes.Buffer
 
-	err = tmplQueryReport.Execute(&queryBuffer, tmplArgs)
-	if err != nil {
+	if err := tmplQueryReport.Execute(&queryBuffer, tmplArgs); err != nil {
 		return nil, fmt.Errorf("cannot execute tmplQueryReport: %w", err)
 	}
 
@@ -384,8 +383,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	var results []*qanpbv1.Point
 	var queryBuffer bytes.Buffer
 
-	err = tmplQueryReportSparklines.Execute(&queryBuffer, tmplArgs)
-	if err != nil {
+	if err := tmplQueryReportSparklines.Execute(&queryBuffer, tmplArgs); err != nil {
 		return nil, fmt.Errorf("cannot execute tmplQueryReportSparklines: %w", err)
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
@@ -617,8 +615,7 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 
 	var queryBuffer bytes.Buffer
 
-	err = tmplQueryFilter.Execute(&queryBuffer, tmplArgs)
-	if err != nil {
+	if err := tmplQueryFilter.Execute(&queryBuffer, tmplArgs); err != nil {
 		return nil, 0, fmt.Errorf("cannot execute tmplQueryFilter %s: %w", queryBuffer.String(), err)
 	}
 
@@ -637,8 +634,7 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 		label.mainMetricPerSec /= float32(durationSec)
 		labels = append(labels, &label)
 	}
-	err = rows.Err()
-	if err != nil {
+	if err = rows.Err(); err != nil {
 		return nil, 0, fmt.Errorf("failed to select for QueryFilter %s: %w", queryBuffer.String(), err)
 	}
 
@@ -696,8 +692,7 @@ func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec, periodSt
 		LbacFilter: lbacFilter,
 	}
 
-	err = queryLabelsTmpl.Execute(&queryBuffer, tmplArgs)
-	if err != nil {
+	if err := queryLabelsTmpl.Execute(&queryBuffer, tmplArgs); err != nil {
 		return nil, fmt.Errorf("cannot execute queryLabelsTmpl: %w", err)
 	}
 
@@ -716,8 +711,7 @@ func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec, periodSt
 		}
 		labels = append(labels, &label)
 	}
-	err = rows.Err()
-	if err != nil {
+	if err = rows.Err(); err != nil {
 		return nil, fmt.Errorf("failed to select for QueryFilter %s: %w", queryLabels, err)
 	}
 
@@ -777,8 +771,7 @@ func parseFilters(filters []string) ([]string, error) {
 	}
 
 	var parsed []string
-	err = json.Unmarshal(decoded, &parsed)
-	if err != nil {
+	if err := json.Unmarshal(decoded, &parsed); err != nil {
 		return nil, fmt.Errorf("failed to parse JSON: %w", err)
 	}
 
