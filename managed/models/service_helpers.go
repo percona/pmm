@@ -16,12 +16,12 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -42,7 +42,7 @@ func checkServiceUniqueID(q *reform.Querier, id string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Service with ID %q already exists.", id)
@@ -54,7 +54,7 @@ func checkServiceUniqueName(q *reform.Querier, name string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Service with name %q already exists.", name)
@@ -123,7 +123,7 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 	}
 	structs, err := q.SelectAllFrom(ServiceTable, whereClause+" ORDER BY service_id", args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	services := make([]*Service, len(structs))
@@ -139,7 +139,7 @@ func FindActiveServiceTypes(q *reform.Querier) ([]ServiceType, error) {
 	query := "SELECT DISTINCT service_type FROM " + ServiceTable.s.SQLName
 	rows, err := q.Query(query)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	defer func() {
@@ -204,7 +204,7 @@ func FindServiceByID(q *reform.Querier, id string) (*Service, error) {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Service with ID %q not found.", id)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return row, nil
@@ -225,7 +225,7 @@ func FindServicesByIDs(q *reform.Querier, ids []string) (map[string]*Service, er
 
 	all, err := q.SelectAllFrom(ServiceTable, tail, args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	services := make(map[string]*Service, len(all))
@@ -249,7 +249,7 @@ func FindServiceByName(q *reform.Querier, name string) (*Service, error) {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Service with name %q not found.", name)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &service, nil
@@ -338,7 +338,7 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 	}
 	err = q.Insert(row)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	err = initSoftwareVersions(q, id, serviceType)
@@ -359,22 +359,22 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error { //noli
 	// find agents and artifacts
 	agents, err := FindAgents(q, AgentFilters{ServiceID: id})
 	if err != nil {
-		return errors.Wrap(err, "failed to select Agent IDs")
+		return fmt.Errorf("failed to select Agent IDs: %w", err)
 	}
 
 	artifacts, err := FindArtifacts(q, ArtifactFilters{ServiceID: id})
 	if err != nil {
-		return errors.Wrap(err, "failed to select artifacts")
+		return fmt.Errorf("failed to select artifacts: %w", err)
 	}
 
 	restoreItems, err := FindRestoreHistoryItems(q, RestoreHistoryItemFilters{ServiceID: id})
 	if err != nil {
-		return errors.Wrap(err, "failed to select restore history items")
+		return fmt.Errorf("failed to select restore history items: %w", err)
 	}
 
 	tasks, err := FindScheduledTasks(q, ScheduledTasksFilter{ServiceID: id})
 	if err != nil {
-		return errors.Wrap(err, "failed to select scheduled tasks")
+		return fmt.Errorf("failed to select scheduled tasks: %w", err)
 	}
 
 	switch mode {
@@ -425,7 +425,11 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error { //noli
 		panic(fmt.Errorf("unhandled RemoveMode %v", mode))
 	}
 
-	return errors.Wrap(q.Delete(s), "failed to delete Service")
+	err = q.Delete(s)
+	if err != nil {
+		return fmt.Errorf("failed to delete Service: %w", err)
+	}
+	return nil
 }
 
 // ValidateServiceType checks argument value is in the list of supported types.
@@ -439,7 +443,7 @@ func ValidateServiceType(serviceType ServiceType) error {
 		ExternalServiceType:
 		return nil
 	default:
-		return errors.Wrapf(ErrInvalidServiceType, "unknown service type '%s'", string(serviceType))
+		return fmt.Errorf("unknown service type '%s': %w", serviceType, ErrInvalidServiceType)
 	}
 }
 
@@ -506,7 +510,7 @@ func initSoftwareVersions(q *reform.Querier, serviceID string, serviceType Servi
 			NextCheckAt:      time.Now(),
 		})
 		if err != nil {
-			return errors.Wrapf(err, "couldn't initialize software versions for service %s", serviceID)
+			return fmt.Errorf("couldn't initialize software versions for service %s: %w", serviceID, err)
 		}
 	default:
 		return nil
