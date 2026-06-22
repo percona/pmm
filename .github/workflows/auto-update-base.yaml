@@ -81,16 +81,16 @@ jobs:
                             break;
                           }
 
-                          console.log(`[UPDATE] PR #${pull.number}: "${pull.title}" - Updating base branch...`);
+                          console.log(`[UPDATE] PR #${pull.number}: "${pull.title}" - Updating PR branch from base...`);
                           try {
                             await github.rest.pulls.updateBranch({
                               owner: context.repo.owner,
                               repo: context.repo.repo,
                               pull_number: pull.number,
                             });
-                            console.log(`[SUCCESS] PR #${pull.number}: "${pull.title}" - Base branch updated.`);
+                            console.log(`[SUCCESS] PR #${pull.number}: "${pull.title}" - PR branch updated from base.`);
                           } catch (updateError) {
-                            console.error(`[ERROR] PR #${pull.number}: Failed to update base branch - ${updateError.message}`);
+                            console.error(`[ERROR] PR #${pull.number}: Failed to update PR branch from base - ${updateError.message}`);
                             errorEncountered = true;
                           }
 
