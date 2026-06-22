@@ -11,6 +11,10 @@ on:
       - main
       - pmm-*
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   auto-update-base:
     runs-on: ubuntu-latest
