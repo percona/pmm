@@ -20,6 +20,7 @@ linters:
     - gochecknoglobals    # mostly useless
     - gochecknoinits      # we use init functions
     - gocyclo             # using cyclop with the max 30 instead
+    - goconst             # too annoying
     - godox               # we sometimes leave TODOS right in the code
     - gomoddirectives     # we use replace directives
     - gomodguard          # deprecated
