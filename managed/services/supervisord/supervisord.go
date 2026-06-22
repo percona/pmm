@@ -230,14 +230,12 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 
 // StartSupervisedService starts given service.
 func (s *Service) StartSupervisedService(serviceName string) error {
-	_, err := s.supervisorctl("start", serviceName)
-	return err
+	return s.supervisorctl("start", serviceName)
 }
 
 // StopSupervisedService stops given service.
 func (s *Service) StopSupervisedService(serviceName string) error {
-	_, err := s.supervisorctl("stop", serviceName)
-	return err
+	return s.supervisorctl("stop", serviceName)
 }
 
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
@@ -405,20 +403,20 @@ redirect_stderr = true
 {{end}}
 `))
 
-func (s *Service) supervisorctl(args ...string) ([]byte, error) { //nolint:unparam
+func (s *Service) supervisorctl(args ...string) error {
 	if s.supervisorctlPath == "" {
-		return nil, errors.New("supervisorctl not found")
+		return errors.New("supervisorctl not found")
 	}
 
 	cmd := exec.Command(s.supervisorctlPath, args...) //nolint:gosec,noctx
 	cmdLine := strings.Join(cmd.Args, " ")
 	s.l.Debugf("Running %q...", cmdLine)
 	pdeathsig.Set(cmd, unix.SIGKILL)
-	b, err := cmd.Output()
+	_, err := cmd.Output()
 	if err != nil {
-		return b, fmt.Errorf("%s failed: %w", cmdLine, err)
+		return fmt.Errorf("%s failed: %w", cmdLine, err)
 	}
-	return b, nil
+	return nil
 }
 
 // parseStatus parses `supervisorctl status <name>` output, returns true if <name> is running,
@@ -441,7 +439,7 @@ func parseStatus(status string) *bool {
 
 // reload asks supervisord to reload configuration.
 func (s *Service) reload(name string) error {
-	_, err := s.supervisorctl("reread")
+	err := s.supervisorctl("reread")
 	if err != nil {
 		s.l.Warn(err)
 	}
@@ -453,8 +451,7 @@ func (s *Service) reload(name string) error {
 		return nil
 	}
 
-	_, err = s.supervisorctl("update", name)
-	return err
+	return s.supervisorctl("update", name)
 }
 
 // marshalConfig marshals supervisord program configuration.

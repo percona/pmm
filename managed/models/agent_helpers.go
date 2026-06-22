@@ -600,10 +600,7 @@ func UpdateAgent(q *reform.Querier, agent *Agent) error {
 
 // ExtractPmmAgentVersionFromAgent extract PMM agent version from Agent by pmm-agent-id.
 func ExtractPmmAgentVersionFromAgent(q *reform.Querier, agent *Agent) *version.Parsed {
-	pmmAgentID, err := ExtractPmmAgentID(agent)
-	if err != nil {
-		return nil
-	}
+	pmmAgentID := ExtractPmmAgentID(agent)
 	pmmAgent, err := FindAgentByID(q, pmmAgentID)
 	if err != nil {
 		return nil
@@ -617,12 +614,12 @@ func ExtractPmmAgentVersionFromAgent(q *reform.Querier, agent *Agent) *version.P
 }
 
 // ExtractPmmAgentID extract pmm-agent-id from Agent by type.
-func ExtractPmmAgentID(agent *Agent) (string, error) {
+func ExtractPmmAgentID(agent *Agent) string {
 	switch agent.AgentType {
 	case PMMAgentType:
-		return agent.AgentID, nil
+		return agent.AgentID
 	default:
-		return pointer.GetString(agent.PMMAgentID), nil
+		return pointer.GetString(agent.PMMAgentID)
 	}
 }
 
@@ -666,6 +663,8 @@ func CreatePMMAgent(q *reform.Querier, runsOnNodeID string, customLabels map[str
 }
 
 // CreateNodeExporter creates NodeExporter.
+//
+//nolint:unparam
 func CreateNodeExporter(q *reform.Querier,
 	pmmAgentID string,
 	customLabels map[string]string,

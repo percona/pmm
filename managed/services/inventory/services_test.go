@@ -39,6 +39,9 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+// golangci-lint complains that *mockPrometheusService is never used, but in fact there are several places.
+//
+//nolint:unparam
 func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(t *testing.T), context.Context, *mockPrometheusService) {
 	t.Helper()
 

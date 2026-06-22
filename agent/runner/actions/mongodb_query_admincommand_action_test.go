@@ -36,19 +36,19 @@ func TestMongoDBActions(t *testing.T) {
 
 	t.Run("getParameter", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, nil, "getParameter", "*", t.TempDir())
+		b := runAction(t, dsn, nil, "getParameter", "*", t.TempDir())
 		getParameterAssertions(t, b)
 	})
 
 	t.Run("buildInfo", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, nil, "buildInfo", 1, t.TempDir())
+		b := runAction(t, dsn, nil, "buildInfo", 1, t.TempDir())
 		buildInfoAssertions(t, b)
 	})
 
 	t.Run("getCmdLineOpts", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, nil, "getCmdLineOpts", 1, t.TempDir())
+		b := runAction(t, dsn, nil, "getCmdLineOpts", 1, t.TempDir())
 		getCmdLineOptsAssertionsWithAuth(t, b)
 	})
 
@@ -59,7 +59,7 @@ func TestMongoDBActions(t *testing.T) {
 
 	t.Run("getDiagnosticData", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, nil, "getDiagnosticData", 1, t.TempDir())
+		b := runAction(t, dsn, nil, "getDiagnosticData", 1, t.TempDir())
 		getDiagnosticDataAssertions(t, b)
 	})
 }
@@ -71,19 +71,19 @@ func TestMongoDBActionsWithSSL(t *testing.T) {
 
 	t.Run("getParameter", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, files, "getParameter", "*", t.TempDir())
+		b := runAction(t, dsn, files, "getParameter", "*", t.TempDir())
 		getParameterAssertions(t, b)
 	})
 
 	t.Run("buildInfo", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, files, "buildInfo", 1, t.TempDir())
+		b := runAction(t, dsn, files, "buildInfo", 1, t.TempDir())
 		buildInfoAssertions(t, b)
 	})
 
 	t.Run("getCmdLineOpts", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, files, "getCmdLineOpts", 1, t.TempDir())
+		b := runAction(t, dsn, files, "getCmdLineOpts", 1, t.TempDir())
 		getCmdLineOptsAssertionsWithSSL(t, b)
 	})
 
@@ -94,7 +94,7 @@ func TestMongoDBActionsWithSSL(t *testing.T) {
 
 	t.Run("getDiagnosticData", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, files, "getDiagnosticData", 1, t.TempDir())
+		b := runAction(t, dsn, files, "getDiagnosticData", 1, t.TempDir())
 		getDiagnosticDataAssertions(t, b)
 	})
 }
@@ -106,31 +106,31 @@ func TestMongoDBActionsReplNoAuth(t *testing.T) {
 
 	t.Run("getParameter", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, nil, "getParameter", "*", t.TempDir())
+		b := runAction(t, dsn, nil, "getParameter", "*", t.TempDir())
 		getParameterAssertions(t, b)
 	})
 
 	t.Run("buildInfo", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, nil, "buildInfo", 1, t.TempDir())
+		b := runAction(t, dsn, nil, "buildInfo", 1, t.TempDir())
 		buildInfoAssertions(t, b)
 	})
 
 	t.Run("getCmdLineOpts", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, nil, "getCmdLineOpts", 1, t.TempDir())
+		b := runAction(t, dsn, nil, "getCmdLineOpts", 1, t.TempDir())
 		getCmdLineOptsAssertionsWithoutAuth(t, b)
 	})
 
 	t.Run("replSetGetStatus", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, nil, "replSetGetStatus", 1, t.TempDir())
+		b := runAction(t, dsn, nil, "replSetGetStatus", 1, t.TempDir())
 		replSetGetStatusAssertionsReplicated(t, b)
 	})
 
 	t.Run("getDiagnosticData", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, nil, "getDiagnosticData", 1, t.TempDir())
+		b := runAction(t, dsn, nil, "getDiagnosticData", 1, t.TempDir())
 		getDiagnosticDataAssertions(t, b)
 	})
 }
@@ -142,38 +142,38 @@ func TestMongoDBActionsReplWithSSL(t *testing.T) {
 
 	t.Run("getParameter", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, files, "getParameter", "*", t.TempDir())
+		b := runAction(t, dsn, files, "getParameter", "*", t.TempDir())
 		getParameterAssertions(t, b)
 	})
 
 	t.Run("buildInfo", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, files, "buildInfo", 1, t.TempDir())
+		b := runAction(t, dsn, files, "buildInfo", 1, t.TempDir())
 		buildInfoAssertions(t, b)
 	})
 
 	t.Run("getCmdLineOpts", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, files, "getCmdLineOpts", 1, t.TempDir())
+		b := runAction(t, dsn, files, "getCmdLineOpts", 1, t.TempDir())
 		getCmdLineOptsAssertionsWithSSL(t, b)
 	})
 
 	t.Run("replSetGetStatus", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, files, "replSetGetStatus", 1, t.TempDir())
+		b := runAction(t, dsn, files, "replSetGetStatus", 1, t.TempDir())
 		replSetGetStatusAssertionsReplicated(t, b)
 	})
 
 	t.Run("getDiagnosticData", func(t *testing.T) {
 		t.Parallel()
-		b := runAction(t, "", 0, dsn, files, "getDiagnosticData", 1, t.TempDir())
+		b := runAction(t, dsn, files, "getDiagnosticData", 1, t.TempDir())
 		getDiagnosticDataAssertions(t, b)
 	})
 }
 
-func runAction(t *testing.T, id string, timeout time.Duration, dsn string, files *agentv1.TextFiles, command string, arg any, tempDir string) []byte { //nolint:unparam
+func runAction(t *testing.T, dsn string, files *agentv1.TextFiles, command string, arg any, tempDir string) []byte {
 	t.Helper()
-	a, err := NewMongoDBQueryAdmincommandAction(id, timeout, dsn, files, command, arg, tempDir)
+	a, err := NewMongoDBQueryAdmincommandAction("", 0, dsn, files, command, arg, tempDir)
 	require.NoError(t, err)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)

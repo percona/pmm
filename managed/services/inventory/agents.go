@@ -142,11 +142,7 @@ func (as *AgentsService) Logs(ctx context.Context, id string, limit uint32) ([]s
 		return nil, 0, err
 	}
 
-	pmmAgentID, err := models.ExtractPmmAgentID(agent)
-	if err != nil {
-		return nil, 0, err
-	}
-
+	pmmAgentID := models.ExtractPmmAgentID(agent)
 	return as.a.Logs(ctx, pmmAgentID, id, limit)
 }
 
