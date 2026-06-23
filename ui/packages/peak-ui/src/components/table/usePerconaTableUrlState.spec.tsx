@@ -1,0 +1,257 @@
+import { act, render, screen, waitFor } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import React, { useState } from 'react';
+import { usePerconaTableUrlState } from './usePerconaTableUrlState';
+
+function UrlStateHarness({
+  initialSearch = '',
+  paramPrefix,
+}: {
+  initialSearch?: string;
+  paramPrefix?: string;
+}) {
+  const [searchParams, setSearchParams] = useState(() => new URLSearchParams(initialSearch));
+  const { tableProps } = usePerconaTableUrlState({
+    searchParams,
+    setSearchParams,
+    paramPrefix,
+    debounceMs: 0,
+  });
+
+  return (
+    <>
+      <div data-testid="global-filter">{tableProps.state.globalFilter}</div>
+      <div data-testid="sorting">{tableProps.state.sorting.map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`).join(',')}</div>
+      <div data-testid="filters">
+        {tableProps.state.columnFilters.map((f) => `${f.id}=${f.value}`).join(',')}
+      </div>
+      <div data-testid="page">{tableProps.state.pagination.pageIndex}</div>
+      <div data-testid="page-size">{tableProps.state.pagination.pageSize}</div>
+      <div data-testid="show-column-filters">{String(tableProps.state.showColumnFilters)}</div>
+      <div data-testid="search">{searchParams.toString()}</div>
+      <button
+        type="button"
+        data-testid="set-filter"
+        onClick={() => tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])}
+      >
+        Filter
+      </button>
+      <button
+        type="button"
+        data-testid="set-sort"
+        onClick={() => tableProps.onSortingChange([{ id: 'name', desc: true }])}
+      >
+        Sort
+      </button>
+      <button
+        type="button"
+        data-testid="set-page"
+        onClick={() =>
+          tableProps.onPaginationChange((prev) => ({ ...prev, pageIndex: prev.pageIndex + 1 }))
+        }
+      >
+        Page
+      </button>
+      <button
+        type="button"
+        data-testid="set-global-filter"
+        onClick={() => tableProps.onGlobalFilterChange('mysql')}
+      >
+        Search
+      </button>
+      <button
+        type="button"
+        data-testid="set-range-filter"
+        onClick={() => tableProps.onColumnFiltersChange([{ id: 'cpu', value: ['10', ''] }])}
+      >
+        Range
+      </button>
+      <button
+        type="button"
+        data-testid="sync-from-url"
+        onClick={() => setSearchParams(new URLSearchParams('q=from-url&sort=status:asc&page=2'))}
+      >
+        Sync URL
+      </button>
+    </>
+  );
+}
+
+describe('usePerconaTableUrlState', () => {
+  it('initializes state from URL params', () => {
+    render(<UrlStateHarness initialSearch="q=mysql&sort=name:desc&f.group=edge&page=2&pageSize=25" />);
+
+    expect(screen.getByTestId('global-filter').textContent).toBe('mysql');
+    expect(screen.getByTestId('sorting').textContent).toBe('name:desc');
+    expect(screen.getByTestId('filters').textContent).toBe('group=edge');
+    expect(screen.getByTestId('page').textContent).toBe('1');
+    expect(screen.getByTestId('page-size').textContent).toBe('25');
+    expect(screen.getByTestId('show-column-filters').textContent).toBe('true');
+  });
+
+  it('keeps column filters hidden when URL has no active filters', () => {
+    render(<UrlStateHarness initialSearch="sort=name:desc" />);
+
+    expect(screen.getByTestId('show-column-filters').textContent).toBe('false');
+  });
+
+  it('writes filter, sort, pagination, and global filter changes to the URL', async () => {
+    render(<UrlStateHarness />);
+
+    await act(async () => {
+      screen.getByTestId('set-filter').click();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('filters').textContent).toBe('group=edge');
+      expect(screen.getByTestId('search').textContent).toContain('f.group=edge');
+    });
+
+    await act(async () => {
+      screen.getByTestId('set-sort').click();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('search').textContent).toContain('sort=name%3Adesc');
+    });
+
+    await act(async () => {
+      screen.getByTestId('set-page').click();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('page').textContent).toBe('1');
+      expect(screen.getByTestId('search').textContent).toContain('page=2');
+    });
+
+    await act(async () => {
+      screen.getByTestId('set-global-filter').click();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('global-filter').textContent).toBe('mysql');
+      expect(screen.getByTestId('search').textContent).toContain('q=mysql');
+    });
+  });
+
+  it('writes range filters to the URL', async () => {
+    render(<UrlStateHarness />);
+
+    await act(async () => {
+      screen.getByTestId('set-range-filter').click();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('filters').textContent).toBe('cpu=10,');
+      expect(screen.getByTestId('search').textContent).toContain('f.cpu=%5B%2210%22%2C%22%22%5D');
+    });
+  });
+
+  it('re-reads state when searchParams change externally', async () => {
+    render(<UrlStateHarness />);
+
+    await act(async () => {
+      screen.getByTestId('sync-from-url').click();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('global-filter').textContent).toBe('from-url');
+      expect(screen.getByTestId('sorting').textContent).toBe('status:asc');
+      expect(screen.getByTestId('page').textContent).toBe('1');
+    });
+  });
+
+  it('supports paramPrefix namespacing', () => {
+    render(<UrlStateHarness initialSearch="servers.q=prod&servers.page=3" paramPrefix="servers" />);
+
+    expect(screen.getByTestId('global-filter').textContent).toBe('prod');
+    expect(screen.getByTestId('page').textContent).toBe('2');
+  });
+
+  it('merges additionalState into tableProps.state', () => {
+    const rowSelection = { 'srv-001': true };
+
+    function Harness() {
+      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+      const { tableProps } = usePerconaTableUrlState({
+        searchParams,
+        setSearchParams,
+        additionalState: { rowSelection },
+      });
+
+      return (
+        <div data-testid="row-selection">
+          {JSON.stringify(tableProps.state.rowSelection)}
+        </div>
+      );
+    }
+
+    render(<Harness />);
+
+    expect(screen.getByTestId('row-selection').textContent).toBe(
+      JSON.stringify(rowSelection)
+    );
+  });
+
+  it('updates sorting locally without writing sort to the URL when sync.sort is false', async () => {
+    function Harness() {
+      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+      const { tableProps } = usePerconaTableUrlState({
+        searchParams,
+        setSearchParams,
+        debounceMs: 0,
+        sync: { sort: false },
+      });
+
+      return (
+        <>
+          <div data-testid="sorting">
+            {tableProps.state.sorting.map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`).join(',')}
+          </div>
+          <div data-testid="search">{searchParams.toString()}</div>
+          <button
+            type="button"
+            data-testid="set-sort"
+            onClick={() => tableProps.onSortingChange([{ id: 'name', desc: true }])}
+          >
+            Sort
+          </button>
+        </>
+      );
+    }
+
+    render(<Harness />);
+
+    await act(async () => {
+      screen.getByTestId('set-sort').click();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('sorting').textContent).toBe('name:desc');
+      expect(screen.getByTestId('search').textContent).not.toContain('sort=');
+    });
+  });
+
+  it('does not loop when defaults and sync are inline object literals', async () => {
+    const onRender = vi.fn();
+
+    function InlineOptionsHarness() {
+      onRender();
+      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+
+      usePerconaTableUrlState({
+        searchParams,
+        setSearchParams,
+        paramPrefix: 'overview',
+        defaults: { pagination: { pageIndex: 0, pageSize: 25 } },
+        sync: { globalFilter: false },
+      });
+
+      return <div data-testid="render-count">{onRender.mock.calls.length}</div>;
+    }
+
+    render(<InlineOptionsHarness />);
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    expect(onRender.mock.calls.length).toBeLessThan(5);
+  });
+});

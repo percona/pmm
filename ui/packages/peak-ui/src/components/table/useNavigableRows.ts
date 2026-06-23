@@ -5,6 +5,8 @@ import {
   MRT_Updater,
 } from 'material-react-table';
 import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
+import { DEFAULT_TABLE_STATE, type NavigableTableState } from './tableState.types';
+import { resolveUpdater } from './tableState.utils';
 
 export type NavigableRowsScope = 'allFiltered' | 'currentPage';
 
@@ -13,19 +15,20 @@ export interface UseNavigableRowsOptions<T extends Record<string, any>> {
   data: T[];
   scope?: NavigableRowsScope;
   onChange?: (rows: T[]) => void;
+  tableState?: NavigableTableState;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface UseNavigableRowsTableProps<T extends Record<string, any>> {
   tableInstanceRef: MutableRefObject<MRT_TableInstance<T> | null>;
-  state: {
+  state?: {
     columnFilters: MRT_ColumnFiltersState;
     globalFilter: string;
     sorting: MRT_SortingState;
   };
-  onColumnFiltersChange: (updater: MRT_Updater<MRT_ColumnFiltersState>) => void;
-  onGlobalFilterChange: (updater: MRT_Updater<string>) => void;
-  onSortingChange: (updater: MRT_Updater<MRT_SortingState>) => void;
+  onColumnFiltersChange?: (updater: MRT_Updater<MRT_ColumnFiltersState>) => void;
+  onGlobalFilterChange?: (updater: MRT_Updater<string>) => void;
+  onSortingChange?: (updater: MRT_Updater<MRT_SortingState>) => void;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,9 +38,6 @@ export interface UseNavigableRowsResult<T extends Record<string, any>> {
   refresh: () => void;
 }
 
-const resolveUpdater = <S>(updater: MRT_Updater<S>, prev: S): S =>
-  updater instanceof Function ? updater(prev) : updater;
-
 const sameRows = <T>(a: T[], b: T[]): boolean =>
   a.length === b.length && a.every((row, index) => row === b[index]);
 
@@ -46,12 +46,18 @@ export function useNavigableRows<T extends Record<string, any>>({
   data,
   scope = 'allFiltered',
   onChange,
+  tableState,
 }: UseNavigableRowsOptions<T>): UseNavigableRowsResult<T> {
   const tableInstanceRef = useRef<MRT_TableInstance<T> | null>(null);
-  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState<string>('');
-  const [sorting, setSorting] = useState<MRT_SortingState>([]);
+  const [internalColumnFilters, setInternalColumnFilters] = useState<MRT_ColumnFiltersState>([]);
+  const [internalGlobalFilter, setInternalGlobalFilter] = useState<string>('');
+  const [internalSorting, setInternalSorting] = useState<MRT_SortingState>([]);
   const [navigableRows, setNavigableRows] = useState<T[]>(data);
+
+  const columnFilters = tableState?.state.columnFilters ?? internalColumnFilters;
+  const globalFilter = tableState?.state.globalFilter ?? internalGlobalFilter;
+  const sorting = tableState?.state.sorting ?? internalSorting;
+  const pagination = tableState?.state.pagination ?? DEFAULT_TABLE_STATE.pagination;
 
   const onChangeRef = useRef(onChange);
   useEffect(() => {
@@ -76,19 +82,23 @@ export function useNavigableRows<T extends Record<string, any>>({
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
-  }, [columnFilters, globalFilter, sorting, data, refresh]);
+  }, [columnFilters, globalFilter, sorting, pagination.pageIndex, pagination.pageSize, data, refresh]);
 
   useEffect(() => {
     onChangeRef.current?.(navigableRows);
   }, [navigableRows]);
 
-  const tableProps: UseNavigableRowsTableProps<T> = {
-    tableInstanceRef,
-    state: { columnFilters, globalFilter, sorting },
-    onColumnFiltersChange: (updater) => setColumnFilters((prev) => resolveUpdater(updater, prev)),
-    onGlobalFilterChange: (updater) => setGlobalFilter((prev) => resolveUpdater(updater, prev)),
-    onSortingChange: (updater) => setSorting((prev) => resolveUpdater(updater, prev)),
-  };
+  const tableProps: UseNavigableRowsTableProps<T> = tableState
+    ? { tableInstanceRef }
+    : {
+        tableInstanceRef,
+        state: { columnFilters, globalFilter, sorting },
+        onColumnFiltersChange: (updater) =>
+          setInternalColumnFilters((prev) => resolveUpdater(updater, prev)),
+        onGlobalFilterChange: (updater) =>
+          setInternalGlobalFilter((prev) => resolveUpdater(updater, prev)),
+        onSortingChange: (updater) => setInternalSorting((prev) => resolveUpdater(updater, prev)),
+      };
 
   return { navigableRows, tableProps, refresh };
 }
