@@ -17,6 +17,7 @@ package poll
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
@@ -25,6 +26,14 @@ type ConditionFunc func(ctx context.Context) (done bool, err error)
 
 // UntilContextTimeout polls until condition returns done=true, err!=nil, or ctx is canceled.
 func UntilContextTimeout(ctx context.Context, interval time.Duration, condition ConditionFunc) error {
+	if interval <= 0 {
+		return fmt.Errorf("interval must be positive: %s", interval)
+	}
+
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	done, err := condition(ctx)
 	if err != nil {
 		return err
@@ -41,6 +50,10 @@ func UntilContextTimeout(ctx context.Context, interval time.Duration, condition 
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-ticker.C:
+			if err := ctx.Err(); err != nil {
+				return err
+			}
+
 			done, err := condition(ctx)
 			if err != nil {
 				return err
