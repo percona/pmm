@@ -66,6 +66,11 @@ jobs:
                       pull_number: pull.number,
                     });
 
+                    const baseRepoFullName = `${context.repo.owner}/${context.repo.repo}`;
+                    if (pr.head?.repo?.full_name !== baseRepoFullName) {
+                      console.log(`[INFO] PR #${pull.number}: Skipping because head branch is in a fork (${pr.head?.repo?.full_name}).`);
+                      continue;
+                    }
                     // 1. Check if GitHub is still calculating the state
                     if (pr.mergeable === null || pr.mergeable_state === "unknown") {
                       console.log(`[INFO] PR #${pull.number}: GitHub is computing mergeability. Queuing for retry.`);
