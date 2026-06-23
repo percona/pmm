@@ -82,7 +82,15 @@ export function useNavigableRows<T extends Record<string, any>>({
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
-  }, [columnFilters, globalFilter, sorting, pagination.pageIndex, pagination.pageSize, data, refresh]);
+  }, [
+    columnFilters,
+    globalFilter,
+    sorting,
+    pagination.pageIndex,
+    pagination.pageSize,
+    data,
+    refresh,
+  ]);
 
   useEffect(() => {
     onChangeRef.current?.(navigableRows);
