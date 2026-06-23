@@ -63,24 +63,28 @@ jobs:
                       pull_number: pull.number,
                     });
 
-                    if (pr.mergeable === null) {
+                    // 1. Check if GitHub is still calculating the state
+                    if (pr.mergeable === null || pr.mergeable_state === "unknown") {
                       console.log(`[INFO] PR #${pull.number}: GitHub is computing mergeability. Queuing for retry.`);
                       retryList.push(pull);
                       continue;
                     }
 
-                    if (pr.mergeable === false) {
+                    // 2. Check for conflicts
+                    if (pr.mergeable === false || pr.mergeable_state === "dirty") {
                       console.log(`[INFO] PR #${pull.number}: Skipping due to existing merge conflicts.`);
                       continue;
                     }
 
-                    // Compare against context.sha to save an API call
-                    if (pr.base.sha === context.sha) {
-                      console.log(`[INFO] PR #${pull.number}: Already up-to-date with base branch.`);
+                    // 3. Check if it actually needs an update
+                    if (pr.mergeable_state !== "behind") {
+                      console.log(`[INFO] PR #${pull.number}: Not behind base branch (state: ${pr.mergeable_state}).`);
                       continue;
                     }
 
+                    // 4. Proceed with update
                     console.log(`[UPDATE] PR #${pull.number}: Updating branch from base...`);
+
                     await github.rest.pulls.updateBranch({
                       owner: context.repo.owner,
                       repo: context.repo.repo,
