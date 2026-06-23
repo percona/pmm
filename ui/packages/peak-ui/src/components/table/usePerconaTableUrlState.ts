@@ -146,16 +146,20 @@ export function usePerconaTableUrlState({
     });
   }, [searchParams, searchParamsKey, urlOptions]);
 
+  const latestSearchParamsRef = useRef(searchParams);
+  latestSearchParamsRef.current = searchParams;
+
   const writeUrl = useCallback(
     (nextState: TableStateValues) => {
-      const nextParams = serializeTableUrlState(nextState, searchParams, urlOptions);
-      if (nextParams.toString() === searchParams.toString()) {
+      const currentParams = latestSearchParamsRef.current;
+      const nextParams = serializeTableUrlState(nextState, currentParams, urlOptions);
+      if (nextParams.toString() === currentParams.toString()) {
         return;
       }
       isInternalUrlUpdateRef.current = true;
       setSearchParams(nextParams, { replace });
     },
-    [replace, searchParams, setSearchParams, urlOptions]
+    [replace, setSearchParams, urlOptions]
   );
 
   const commitState = useCallback(
