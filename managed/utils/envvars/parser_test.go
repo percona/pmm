@@ -149,6 +149,30 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotEnvVars.AdreURL)
 	})
 
+	t.Run("PMM_ADRE_URL plaintext public rejected", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{"PMM_ADRE_URL=http://holmes.example.com"}
+		gotEnvVars, gotErrs, _ := ParseEnvVars(envs)
+		assert.Len(t, gotErrs, 1)
+		assert.Contains(t, gotErrs[0].Error(), "PMM_ADRE_URL")
+		assert.Nil(t, gotEnvVars.AdreURL)
+	})
+
+	t.Run("PMM_ADRE_URL plaintext public allowed with dev flag", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"PMM_ADRE_URL=http://holmes.example.com",
+			"PMM_DEV_ADRE_ALLOW_INSECURE_URL=true",
+		}
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+		require.NotNil(t, gotEnvVars.AdreURL)
+		assert.Equal(t, "http://holmes.example.com", *gotEnvVars.AdreURL)
+	})
+
 	t.Run("Invalid env variables values", func(t *testing.T) {
 		t.Parallel()
 

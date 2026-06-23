@@ -50,6 +50,9 @@ const (
 	// AdreTLSSkipVerify disables TLS certificate verification for PMM → HolmesGPT.
 	AdreTLSSkipVerify = "PMM_ADRE_TLS_SKIP_VERIFY"
 
+	// AdreAllowInsecureURL permits plaintext http to public ADRE/ServiceNow/callback URLs (dev/lab only).
+	AdreAllowInsecureURL = "PMM_DEV_ADRE_ALLOW_INSECURE_URL"
+
 	// OrchestratorLLMProvider selects the LLM provider for Investigations (e.g. ollama).
 	OrchestratorLLMProvider = "PMM_ORCHESTRATOR_LLM_PROVIDER"
 	// OrchestratorLLMURL is the base URL of the orchestrator LLM endpoint.

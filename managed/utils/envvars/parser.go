@@ -28,6 +28,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	pkgenv "github.com/percona/pmm/managed/utils/env"
+	"github.com/percona/pmm/managed/utils/validators"
 )
 
 const (
@@ -73,6 +74,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 	envSettings := &models.ChangeSettingsParams{}
 	var errs []error
 	var warns []string
+
+	// Resolved up front so it applies regardless of where it sits relative to PMM_ADRE_URL in the list.
+	allowInsecureAdreURL := envFlagEnabled(envs, pkgenv.AdreAllowInsecureURL)
 
 	for _, env := range envs {
 		p := strings.SplitN(env, "=", 2) //nolint:mnd
@@ -233,13 +237,8 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				envSettings.EnableAdre = new(false)
 				continue
 			}
-			parsed, err := url.Parse(trimmed)
-			if err != nil || parsed.Host == "" {
-				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", trimmed, k))
-				continue
-			}
-			if parsed.Scheme != "http" && parsed.Scheme != "https" {
-				errs = append(errs, fmt.Errorf("environment variable %q must use http or https scheme", k))
+			if _, err := validators.RequireSecureServiceURL(trimmed, allowInsecureAdreURL); err != nil { //nolint:noinlineerr
+				errs = append(errs, fmt.Errorf("environment variable %q: %w", k, err))
 				continue
 			}
 			envSettings.AdreURL = new(trimmed)
@@ -437,4 +436,17 @@ func formatEnvVariableError(err error, env, value string) error {
 	default:
 		return fmt.Errorf("unknown error: %w", err)
 	}
+}
+
+// envFlagEnabled reports whether the named PMM_* boolean env var is set to a truthy value in envs.
+func envFlagEnabled(envs []string, name string) bool {
+	for _, env := range envs {
+		k, v, ok := strings.Cut(env, "=")
+		if !ok || strings.ToUpper(strings.TrimSpace(k)) != name {
+			continue
+		}
+		b, err := strconv.ParseBool(strings.TrimSpace(v))
+		return err == nil && b
+	}
+	return false
 }

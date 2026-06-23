@@ -29,6 +29,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/adre/deployment"
+	"github.com/percona/pmm/managed/utils/validators"
 )
 
 // incomingAuthContext bridges an HTTP request's auth into the gRPC-metadata context that
@@ -283,7 +284,14 @@ func (h *Handlers) PutDeploymentProvisioning(w http.ResponseWriter, r *http.Requ
 		writeJSONError(w, http.StatusInternalServerError, "Failed to load provisioning")
 		return
 	}
-	prov.PMMURL = strings.TrimSpace(body.PMMURL)
+	pmmURL := strings.TrimSpace(body.PMMURL)
+	if pmmURL != "" {
+		if _, err := validators.RequireSecureServiceURL(pmmURL, allowInsecureADREURLs()); err != nil { //nolint:noinlineerr
+			writeJSONError(w, http.StatusBadRequest, "pmm_url: "+err.Error())
+			return
+		}
+	}
+	prov.PMMURL = pmmURL
 	prov.RestartRequired = true                                     // PMM_URL lives in .env → needs a Holmes restart
 	if err := models.SaveAdreProvisioning(h.db, prov); err != nil { //nolint:noinlineerr
 		h.l.Errorf("SaveAdreProvisioning: %v", err)

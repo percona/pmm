@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/validators"
 )
 
 type serviceNowCreateRequest struct {
@@ -193,6 +194,12 @@ func (h *Handlers) PostServiceNowTicket(w http.ResponseWriter, r *http.Request, 
 
 	if settings.Adre.ServiceNowURL == "" || prov.ServiceNowAPIKey == "" || prov.ServiceNowClientToken == "" {
 		writeJSONError(w, http.StatusBadRequest, "ServiceNow is not configured. Set URL, API key, and client token in AI Assistant settings.")
+		return
+	}
+	// Defence in depth: the stored URL was validated on write, but re-assert https before sending secrets.
+	// This also covers the derived /ticket_details URL used by fetchTicketNumber below.
+	if _, err := validators.RequireSecureExternalURL(settings.Adre.ServiceNowURL); err != nil { //nolint:noinlineerr
+		writeJSONError(w, http.StatusBadRequest, "servicenow_url: "+err.Error())
 		return
 	}
 

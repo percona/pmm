@@ -28,6 +28,7 @@ import (
 	"net/url"
 	"path"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -47,6 +48,10 @@ type Client struct {
 	httpClient *http.Client
 	l          *logrus.Entry
 }
+
+// tlsSkipVerifyWarnOnce guards the per-process "TLS verification disabled" warning, since clients are
+// rebuilt on every request.
+var tlsSkipVerifyWarnOnce sync.Once
 
 // NewClient creates a new HolmesGPT API client with default TLS verification.
 // baseURL may include credentials for Basic Auth: http://user:password@host:port
@@ -76,10 +81,16 @@ func newClient(baseURL string, tlsSkipVerify bool) *Client {
 			baseURL = u.String()
 		}
 	}
+	l := logrus.WithField("component", "adre")
 	httpClient := &http.Client{Timeout: defaultTimeout}
 	// Only override the transport when skipping verification; otherwise reuse the
 	// shared http.DefaultTransport so connections are pooled across requests.
 	if tlsSkipVerify {
+		// Clients are built per request, so warn once per process to avoid log spam.
+		tlsSkipVerifyWarnOnce.Do(func() {
+			l.Warn("ADRE/HolmesGPT TLS certificate verification is DISABLED (tls_skip_verify); the connection " +
+				"is encrypted but the server is not authenticated — only use for trusted internal endpoints")
+		})
 		transport := http.DefaultTransport.(*http.Transport).Clone()      //nolint:forcetypeassert
 		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} //nolint:gosec // intentional when admin enables tls_skip_verify
 		httpClient.Transport = transport
@@ -88,7 +99,7 @@ func newClient(baseURL string, tlsSkipVerify bool) *Client {
 		baseURL:    baseURL,
 		authHeader: authHeader,
 		httpClient: httpClient,
-		l:          logrus.WithField("component", "adre"),
+		l:          l,
 	}
 }
 

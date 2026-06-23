@@ -22,7 +22,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -31,7 +32,16 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	pkgenv "github.com/percona/pmm/managed/utils/env"
+	"github.com/percona/pmm/managed/utils/validators"
 )
+
+// allowInsecureADREURLs reports whether the dev-only escape hatch permitting plaintext http to public
+// ADRE / ServiceNow / callback URLs is enabled (PMM_DEV_ADRE_ALLOW_INSECURE_URL). Default off.
+func allowInsecureADREURLs() bool {
+	b, _ := strconv.ParseBool(os.Getenv(pkgenv.AdreAllowInsecureURL))
+	return b
+}
 
 func sanitizeQanInsightsAnalysis(raw string) string {
 	trimmed := strings.TrimSpace(raw)
@@ -279,13 +289,18 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		trimmed := strings.TrimSpace(*body.URL)
 		body.URL = &trimmed
 		if trimmed != "" {
-			if !strings.HasPrefix(trimmed, "http://") && !strings.HasPrefix(trimmed, "https://") {
-				writeJSONError(w, http.StatusBadRequest, "URL must start with http:// or https://")
+			if _, err := validators.RequireSecureServiceURL(trimmed, allowInsecureADREURLs()); err != nil { //nolint:noinlineerr
+				writeJSONError(w, http.StatusBadRequest, err.Error())
 				return
 			}
-			parsed, err := url.Parse(trimmed)
-			if err != nil || parsed.Host == "" {
-				writeJSONError(w, http.StatusBadRequest, "URL must have a valid host")
+		}
+	}
+	if body.ServiceNowURL != nil {
+		trimmed := strings.TrimSpace(*body.ServiceNowURL)
+		body.ServiceNowURL = &trimmed
+		if trimmed != "" {
+			if _, err := validators.RequireSecureExternalURL(trimmed); err != nil { //nolint:noinlineerr
+				writeJSONError(w, http.StatusBadRequest, "servicenow_url: "+err.Error())
 				return
 			}
 		}
@@ -816,6 +831,11 @@ func (h *Handlers) PostQanInsightsServiceNow(w http.ResponseWriter, r *http.Requ
 	}
 	if settings.Adre.ServiceNowURL == "" || prov.ServiceNowAPIKey == "" || prov.ServiceNowClientToken == "" {
 		writeJSONError(w, http.StatusBadRequest, "ServiceNow is not configured. Set URL, API key, and client token in AI Assistant settings.")
+		return
+	}
+	// Defence in depth: the stored URL was validated on write, but re-assert https before sending secrets.
+	if _, err := validators.RequireSecureExternalURL(settings.Adre.ServiceNowURL); err != nil { //nolint:noinlineerr
+		writeJSONError(w, http.StatusBadRequest, "servicenow_url: "+err.Error())
 		return
 	}
 
