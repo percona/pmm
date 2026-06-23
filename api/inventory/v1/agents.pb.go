@@ -12513,7 +12513,6 @@ var (
 		(*common.StringMap)(nil),                            // 112: common.StringMap
 	}
 )
-
 var file_inventory_v1_agents_proto_depIdxs = []int32{
 	68,  // 0: inventory.v1.PMMAgent.custom_labels:type_name -> inventory.v1.PMMAgent.CustomLabelsEntry
 	108, // 1: inventory.v1.VMAgent.status:type_name -> inventory.v1.AgentStatus
