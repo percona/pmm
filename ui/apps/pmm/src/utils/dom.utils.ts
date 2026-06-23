@@ -5,14 +5,23 @@
  */
 export const waitForVisible = (selector: string, timeout = 5000) =>
   new Promise<boolean>((resolve, reject) => {
-    const timeoutId = setTimeout(() => reject(), timeout);
-
     if (document.querySelector(selector)) {
-      clearTimeout(timeoutId);
       return resolve(true);
     }
 
-    const observer = new MutationObserver(() => {
+    let observer: MutationObserver;
+
+    const timeoutId = setTimeout(() => {
+      observer.disconnect();
+      reject();
+    }, timeout);
+
+    observer = new MutationObserver(() => {
+      if (typeof document === 'undefined') {
+        observer.disconnect();
+        return;
+      }
+
       if (document.querySelector(selector)) {
         clearTimeout(timeoutId);
         resolve(true);
@@ -25,3 +34,14 @@ export const waitForVisible = (selector: string, timeout = 5000) =>
       subtree: true,
     });
   });
+
+const PMM_UPGRADE_QUERY_PARAM = 'pmmUpgrade';
+
+/**
+ * Reload the page after a PMM Server upgrade, bypassing cached HTML.
+ */
+export const hardReloadPage = (upgradeVersion: string) => {
+  const url = new URL(window.location.href);
+  url.searchParams.set(PMM_UPGRADE_QUERY_PARAM, upgradeVersion);
+  window.location.replace(url.toString());
+};
