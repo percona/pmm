@@ -246,3 +246,48 @@ All long-running daemons expose on `127.0.0.1`:
 - `dev/docs/process/tech_stack.md` — technology choices and rationale
 - `dev/docs/process/best_practices.md` — coding best practices
 - `dev/docs/process/GIT_AND_GITHUB.md` — git workflow
+
+## Cursor Cloud specific instructions
+
+The dev environment is Docker-based: a single `pmm-server` dev container (image
+`perconalab/pmm-server:3-dev-container`) bundles all server-side services
+(pmm-managed, qan-api2, vmproxy, Grafana, VictoriaMetrics, ClickHouse, PostgreSQL,
+nginx) under supervisord, with the repo bind-mounted at
+`/root/go/src/github.com/percona/pmm`. Docker (with `fuse-overlayfs` storage and
+`iptables-legacy`), Go, Node 22, and Yarn 1.22.22 are preinstalled in the VM
+snapshot. The startup update script runs `yarn --cwd ui install` only.
+
+Non-obvious caveats for starting/running things here:
+
+- **Docker daemon is not auto-started.** Start it once per session and make the
+  socket usable, e.g. run `sudo dockerd` in a background/tmux session, then
+  `sudo chmod 666 /var/run/docker.sock` (the `ubuntu` user is in the `docker`
+  group). Nothing below works until `docker ps` succeeds.
+- **`.env` is required and gitignored.** Before `make env-up`, ensure it exists:
+  `cp .env.dev.example .env`. It selects the dev-container image and dev settings.
+- **Start PMM Server:** `make env-up` (wraps `docker compose -f docker-compose.dev.yml up -d --wait`).
+  UI/API is at `https://localhost/` (self-signed cert) with `admin`/`admin`.
+  Check health: `curl -sk https://localhost/v1/server/readyz`.
+- **Rebuild Go services from source must run as root.** The documented
+  `make env TARGET=run-managed` runs as the container's `pmm` user, but the fresh
+  `go-modules`/`go-cache` Docker volumes are root-owned, so builds fail with
+  `permission denied`. Build as root instead, e.g.
+  `docker exec --user root --workdir=/root/go/src/github.com/percona/pmm pmm-server make run-managed-ci`
+  (similarly `run-agent-ci`, `run-qan-ci`, `run-vmproxy-ci`). The first root build
+  also needs `docker exec --user root pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm`
+  to avoid git "dubious ownership" errors during VCS stamping. `go.mod` pins Go
+  1.26.x while the container ships 1.25.x, so the first build auto-downloads the
+  toolchain into the (root-owned) module cache — another reason to build as root.
+- **Lint/test inside the container as root** to use the populated caches, e.g.
+  `docker exec --user root --workdir=/root/go/src/github.com/percona/pmm pmm-server bash -lc 'go test ./vmproxy/...'`.
+  `golangci-lint` v2.12.2 is on the container PATH (`make check` lints only new
+  code via `--new-from-rev`).
+- **`pmm-admin` inside the container cannot add services via the management API.**
+  Access control is enabled (`PMM_ENABLE_ACCESS_CONTROL=1`) and `pmm-admin` has no
+  server credentials, so `pmm-admin add ...` returns `401 Unauthorized`. Add
+  services through the web UI (Add Instance) or the authenticated REST API
+  (`curl -u admin:admin -X POST https://localhost/v1/management/services ...`).
+  The internal PostgreSQL is reachable at `127.0.0.1:5432` as `pmm-managed`/`pmm-managed`.
+- **UI dev server runs on the host, not in the container:** `cd ui && make dev`
+  starts Vite on port 5173 (base path `/pmm-ui`); it is consumed through the PMM
+  Server nginx proxy. `make build` and `make test` (vitest) also run on the host.
