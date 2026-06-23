@@ -526,7 +526,8 @@ LOOP:
 
 func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 	timeout := p.Timeout.AsDuration()
-	if err := p.Timeout.CheckValid(); err != nil {
+	timeoutErr := p.Timeout.CheckValid()
+	if timeoutErr != nil {
 		timeout = 0
 	}
 
