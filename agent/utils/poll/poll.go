@@ -30,7 +30,8 @@ func UntilContextTimeout(ctx context.Context, interval time.Duration, condition 
 		return fmt.Errorf("interval must be positive: %s", interval)
 	}
 
-	if err := ctx.Err(); err != nil {
+	err := ctx.Err()
+	if err != nil {
 		return err
 	}
 
@@ -50,7 +51,8 @@ func UntilContextTimeout(ctx context.Context, interval time.Duration, condition 
 		case <-ctx.Done():
 			return ctx.Err()
 		case <-ticker.C:
-			if err := ctx.Err(); err != nil {
+			err = ctx.Err()
+			if err != nil {
 				return err
 			}
 

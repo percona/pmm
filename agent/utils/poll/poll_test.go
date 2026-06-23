@@ -58,7 +58,7 @@ func TestUntilContextTimeout(t *testing.T) {
 		err := UntilContextTimeout(t.Context(), time.Millisecond, func(context.Context) (bool, error) {
 			return false, expected
 		})
-		assert.ErrorIs(t, err, expected)
+		require.ErrorIs(t, err, expected)
 	})
 
 	t.Run("context canceled", func(t *testing.T) {
@@ -72,7 +72,7 @@ func TestUntilContextTimeout(t *testing.T) {
 			calls++
 			return false, nil
 		})
-		assert.ErrorIs(t, err, context.Canceled)
+		require.ErrorIs(t, err, context.Canceled)
 		assert.Equal(t, 0, calls)
 	})
 
@@ -85,7 +85,7 @@ func TestUntilContextTimeout(t *testing.T) {
 		err := UntilContextTimeout(ctx, 5*time.Millisecond, func(context.Context) (bool, error) {
 			return false, nil
 		})
-		assert.ErrorIs(t, err, context.DeadlineExceeded)
+		require.ErrorIs(t, err, context.DeadlineExceeded)
 	})
 
 	t.Run("invalid interval", func(t *testing.T) {
@@ -97,7 +97,7 @@ func TestUntilContextTimeout(t *testing.T) {
 			return true, nil
 		})
 		require.Error(t, err)
-		assert.ErrorContains(t, err, "interval must be positive")
+		require.ErrorContains(t, err, "interval must be positive")
 		assert.Equal(t, 0, calls)
 	})
 }
