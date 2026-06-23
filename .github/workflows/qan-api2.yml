@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/qan-api2.yml'
+      - '.github/actions/setup-go-release/**'
       - "api/**"
       - "qan-api2/**"
       - 'utils/**'

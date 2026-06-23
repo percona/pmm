@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/vmproxy.yml'
+      - '.github/actions/setup-go-release/**'
       - "version/**"
       - "vmproxy/**"
       - 'go.*'
