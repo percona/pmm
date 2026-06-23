@@ -180,7 +180,11 @@ export const serializeTableUrlState = (
   }
 
   if (sync.sort && state.sorting.length > 0) {
-    next.set(keys.sort, serializeSorting(state.sorting));
+    const serializedSorting = serializeSorting(state.sorting);
+    const defaultSorting = serializeSorting(defaults.sorting);
+    if (serializedSorting !== defaultSorting) {
+      next.set(keys.sort, serializedSorting);
+    }
   }
 
   if (sync.filters) {
