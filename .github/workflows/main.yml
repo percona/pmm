@@ -17,6 +17,7 @@ on:
       - "Makefile*"
       - "go.*"
       - "*.yaml"
+      - "*.yml"
       - "!**/*.md"
 
 permissions:
