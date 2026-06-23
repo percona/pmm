@@ -4,8 +4,11 @@ name: PMM Agent
 on:
   pull_request:
     paths:
+      - '.github/workflows/agent.yml'
       - "agent/**"
       - "api/**"
+      - 'utils/**'
+      - 'version/**'
       - 'go.*'
       - '!**/*.md'
 
@@ -85,6 +88,7 @@ jobs:
           restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
+        working-directory: ${{ github.workspace }}
         run: go mod download -x
 
       - name: Build and install
@@ -159,6 +163,7 @@ jobs:
           restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
+        working-directory: ${{ github.workspace }}
         run: go mod download -x
 
       - name: Build PMM Agent

@@ -3,9 +3,13 @@ name: Managed
 on:
   pull_request:
     paths:
+      - '.github/workflows/managed.yml'
       - 'api/**'
       - 'managed/**'
+      - "utils/**"
+      - "version/**"
       - 'go.*'
+      - 'Makefile*'
       - '!**/*.md'
 
 permissions: read-all

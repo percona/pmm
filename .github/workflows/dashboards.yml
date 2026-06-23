@@ -3,6 +3,7 @@ name: Dashboards
 on:
   pull_request:
     paths:
+      - '.github/workflows/dashboards.yml'
       - "dashboards/**"
       - '!**/*.md'
 

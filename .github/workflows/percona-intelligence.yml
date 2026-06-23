@@ -3,9 +3,13 @@ name: Percona Intelligence
 on:
   pull_request:
     paths:
+      - '.github/workflows/percona-intelligence.yml'
+      - 'managed/cmd/pi-validator/**'
       - 'managed/data/alerting-templates/**'
       - 'managed/data/advisors/**'
       - 'managed/data/checks/**'
+      - 'managed/pi/**'
+      - 'managed/Makefile'
       - 'go.*'
       - '!**/*.md'
 
@@ -20,6 +24,10 @@ jobs:
     name: Validate PI files
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/managed
+
     steps:
       - name: Check out code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -47,8 +55,9 @@ jobs:
             ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
+        working-directory: ${{ github.workspace }}
         run: |
           go mod download -x
 
       - name: Validate PI files
-        run: make -C managed pi-validate
+        run: make pi-validate

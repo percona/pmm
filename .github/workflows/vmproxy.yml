@@ -4,6 +4,7 @@ name: VMProxy
 on:
   pull_request:
     paths:
+      - '.github/workflows/vmproxy.yml'
       - "version/**"
       - "vmproxy/**"
       - 'go.*'
@@ -51,6 +52,7 @@ jobs:
           restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
+        working-directory: ${{ github.workspace }}
         run: go mod download -x
 
       - name: Build and install

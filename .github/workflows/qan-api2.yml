@@ -4,8 +4,11 @@ name: QAN
 on:
   pull_request:
     paths:
+      - '.github/workflows/qan-api2.yml'
       - "api/**"
       - "qan-api2/**"
+      - 'utils/**'
+      - 'version/**'
       - 'go.*'
       - '!**/*.md'
 
@@ -52,6 +55,7 @@ jobs:
             ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
+        working-directory: ${{ github.workspace }}
         run: |
           go mod download -x
 

@@ -4,6 +4,7 @@ name: Main
 on:
   pull_request:
     paths:
+      - '.github/workflows/main.yml'
       - "admin/**"
       - "agent/**"
       - "api/**"
@@ -13,7 +14,9 @@ on:
       - "utils/**"
       - "version/**"
       - "vmproxy/**"
+      - "Makefile*"
       - "go.*"
+      - "*.yaml"
       - "!**/*.md"
 
 permissions:
