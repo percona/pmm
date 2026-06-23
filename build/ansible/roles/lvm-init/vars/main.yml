@@ -1,5 +1,0 @@
----
-data_partition: "/srv"
-create_admin: "true"
-enable_lvm: "true"
-single_disk: "false"

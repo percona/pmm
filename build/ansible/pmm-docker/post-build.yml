@@ -1,5 +1,5 @@
 ---
-# This playbook runs post build tasks for all pmm distributions (AMI/OVF/Docker/Digitalocean).
+# This playbook runs post build tasks for all pmm distributions (AMI/Docker).
 
 - hosts: all
   become: yes
