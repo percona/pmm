@@ -1,40 +1,22 @@
+---
 name: QAN
 
 on:
-  push:
-    branches:
-      - main
-      - pmm-*
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-    paths-ignore:
-      - "documentation/**"
-      - "dashboards/**"
-
   pull_request:
-    paths-ignore:
-      - "admin/**"
-      - "agent/**"
-      - "api-tests/**"
-      - "dev/docs/**"
-      - "documentation/**"
-      - "dashboards/**"
-      - "managed/**"
-      - "update/**"
-      - "vmproxy/**"
-      - "ui/**"
+    paths:
+      - "api/**"
+      - "qan-api2/**"
+      - '!**/*.md'
 
 permissions:
   contents: read
 
 env:
-  GONOPROXY: 'github.com/percona,github.com/Percona-Lab'
-  GONOSUMDB: 'github.com/percona,github.com/Percona-Lab'
   GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
   test:
-    name: Tests
+    name: Run tests
     runs-on: ubuntu-latest
 
     defaults:
@@ -42,10 +24,10 @@ jobs:
         working-directory: ${{ github.workspace }}/qan-api2
 
     steps:
-      - name: Checkout code
+      - name: Check out code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Set up Go
+      - name: Set up Go release
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
           go-version-file: ${{ github.workspace }}/go.mod
@@ -65,10 +47,12 @@ jobs:
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-modules-
+          restore-keys: |
+            ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
-        run: go mod download -x
+        run: |
+          go mod download -x
 
       - name: Build and install
         run: make install

@@ -1,35 +1,17 @@
+---
 name: VMProxy
 
 on:
-  push:
-    branches:
-      - main
-      - pmm-*
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-    paths-ignore:
-      - "documentation/**"
-      - "dashboards/**"
-
   pull_request:
-    paths-ignore:
-      - "admin/**"
-      - "agent/**"
-      - "api-tests/**"
-      - "dev/docs/**"
-      - "documentation/**"
-      - "dashboards/**"
-      - "managed/**"
-      - "qan-api2/**"
-      - "update/**"
-      - "ui/**"
+    paths:
+      - "version/**"
+      - "vmproxy/**"
+      - '!**/*.md'
 
 permissions:
   contents: read
 
 env:
-  GONOPROXY: 'github.com/percona,github.com/Percona-Lab'
-  GONOSUMDB: 'github.com/percona,github.com/Percona-Lab'
   GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
@@ -45,7 +27,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Set up Go release
+      - name: Set up Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
           go-version-file: ${{ github.workspace }}/go.mod
@@ -65,8 +47,7 @@ jobs:
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-modules-
+          restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
         run: go mod download -x

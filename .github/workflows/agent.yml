@@ -1,35 +1,17 @@
-name: 'Client: pmm-agent'
+---
+name: PMM Agent
 
 on:
-  push:
-    branches:
-      - main
-      - pmm-*
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-    paths-ignore:
-      - "documentation/**"
-      - "dashboards/**"
-
   pull_request:
-    paths-ignore:
-      - "admin/**"
-      - "api-tests/**"
-      - "dashboards/**"
-      - "dev/docs/**"
-      - "documentation/**"
-      - "managed/**"
-      - "qan-api2/**"
-      - "update/**"
-      - "vmproxy/**"
-      - "ui/**"
+    paths:
+      - "agent/**"
+      - "api/**"
+      - '!**/*.md'
 
 permissions:
   contents: read
 
 env:
-  GONOPROXY: 'github.com/percona,github.com/Percona-Lab'
-  GONOSUMDB: 'github.com/percona,github.com/Percona-Lab'
   GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
