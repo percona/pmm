@@ -11,6 +11,9 @@ on:
       - main
       - pmm-*
 
+concurrency:
+  group: auto-update-base-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: write
   pull-requests: write
