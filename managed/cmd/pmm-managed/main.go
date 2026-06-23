@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"errors"
 	_ "expvar" // register /debug/vars
 	"fmt"
 	"html/template"
@@ -40,7 +41,6 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/pkg/errors"
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -453,7 +453,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	}()
 
 	<-ctx.Done()
-	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout) //nolint:contextcheck
 	err = server.Shutdown(ctx)
 	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
@@ -645,7 +645,7 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error) {
 	db, err := sql.Open("clickhouse", dsn)
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to open connection to QAN DB")
+		return nil, fmt.Errorf("failed to open connection to QAN DB: %w", err)
 	}
 
 	db.SetConnMaxLifetime(0)

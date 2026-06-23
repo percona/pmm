@@ -22,6 +22,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -34,7 +35,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/pkg/errors"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/model"
@@ -263,7 +263,7 @@ func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]servi
 func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interval) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	if !settings.IsAdvisorsEnabled() {
@@ -279,7 +279,7 @@ func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interv
 func (s *Service) StartChecks(checkNames []string) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	if !settings.IsAdvisorsEnabled() {
@@ -309,7 +309,7 @@ func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNa
 
 	res, err := s.executeChecks(ctx, intervalGroup, checkNames)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	switch {
@@ -338,7 +338,7 @@ func (s *Service) CleanupAlerts() {
 func (s *Service) GetAdvisors() ([]check.Advisor, error) {
 	cs, err := models.FindCheckSettings(s.db.Querier)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	s.am.Lock()
@@ -363,7 +363,7 @@ func (s *Service) GetAdvisors() ([]check.Advisor, error) {
 func (s *Service) GetChecks() (map[string]check.Check, error) {
 	cs, err := models.FindCheckSettings(s.db.Querier)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	s.am.Lock()
@@ -399,7 +399,7 @@ func (s *Service) DisableChecks(checkNames []string) error {
 
 	checks, err := s.GetChecks()
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	for _, c := range checkNames {
@@ -442,7 +442,7 @@ func (s *Service) EnableChecks(checkNames []string) error {
 func (s *Service) ChangeInterval(params map[string]check.Interval) error {
 	checks, err := s.GetChecks()
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	for name, interval := range params {
@@ -501,7 +501,7 @@ func (s *Service) waitForResult(ctx context.Context, resultID string) ([]byte, e
 		select {
 		case <-ticker.C:
 		case <-ctx.Done():
-			return nil, errors.WithStack(ctx.Err())
+			return nil, ctx.Err()
 		}
 
 		res, err := models.FindActionResultByID(s.db.Querier, resultID)
@@ -618,7 +618,7 @@ func (s *Service) filterChecks(checks map[string]check.Check, group check.Interv
 func (s *Service) getActiveUserServiceTypes() (map[models.ServiceType]struct{}, error) {
 	serviceTypes, err := models.FindActiveUserServiceTypes(s.db.Querier)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	result := make(map[models.ServiceType]struct{}, len(serviceTypes))
@@ -633,18 +633,18 @@ func (s *Service) getActiveUserServiceTypes() (map[models.ServiceType]struct{}, 
 func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interval, checkNames []string) ([]services.CheckResult, error) {
 	disabledChecks, err := s.GetDisabledChecks()
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	activeServiceTypes, err := s.getActiveUserServiceTypes()
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	var res []services.CheckResult
 	checks, err := s.GetChecks()
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(s.l, checks)
 
@@ -834,7 +834,7 @@ func (s *Service) executeMySQLShowQuery(ctx context.Context, query check.Query, 
 	}
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return res, nil
@@ -861,7 +861,7 @@ func (s *Service) executeMySQLSelectQuery(ctx context.Context, query check.Query
 	}
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	return b64.EncodeToString(res), nil
@@ -885,7 +885,7 @@ func (s *Service) executePostgreSQLShowQuery(ctx context.Context, target service
 
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 	return b64.EncodeToString(res), nil
 }
@@ -912,7 +912,7 @@ func (s *Service) executePostgreSQLSelectQuery(ctx context.Context, query check.
 	for dbName, t := range targets {
 		res[dbName], err = s.executePostgreSQLSelectQueryForSingleDB(ctx, query, t)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return nil, err
 		}
 	}
 
@@ -938,7 +938,7 @@ func (s *Service) executePostgreSQLSelectQueryForSingleDB(ctx context.Context, q
 
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	return b64.EncodeToString(res), nil
@@ -963,7 +963,7 @@ func (s *Service) executeMongoDBGetParameterQuery(ctx context.Context, target se
 
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	return b64.EncodeToString(res), nil
@@ -987,7 +987,7 @@ func (s *Service) executeMongoDBBuildInfoQuery(ctx context.Context, target servi
 
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	return b64.EncodeToString(res), nil
@@ -1012,7 +1012,7 @@ func (s *Service) executeMongoDBGetCmdLineOptsQuery(ctx context.Context, target 
 
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	return b64.EncodeToString(res), nil
@@ -1037,7 +1037,7 @@ func (s *Service) executeMongoDBReplSetGetStatusQuery(ctx context.Context, targe
 
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	return b64.EncodeToString(res), nil
@@ -1062,7 +1062,7 @@ func (s *Service) executeMongoDBGetDiagnosticQuery(ctx context.Context, target s
 
 	res, err := s.waitForResult(ctx, r.ID)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	return b64.EncodeToString(res), nil
@@ -1076,7 +1076,7 @@ func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Qu
 
 	q, err := fillQueryPlaceholders(query.Query, queryData)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	var lookback time.Time // if not specified use empty time which means "current time"
@@ -1100,7 +1100,7 @@ func (s *Service) executeMetricsInstantQuery(ctx context.Context, query check.Qu
 
 	res, err := convertVMValue(r)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	return b64.EncodeToString(res), nil
@@ -1114,7 +1114,7 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 
 	q, err := fillQueryPlaceholders(query.Query, queryData)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	rng := v1.Range{
@@ -1163,7 +1163,7 @@ func (s *Service) executeMetricsRangeQuery(ctx context.Context, query check.Quer
 
 	res, err := convertVMValue(r)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	return b64.EncodeToString(res), nil
@@ -1177,7 +1177,7 @@ func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery c
 
 	query, err := fillQueryPlaceholders(checkQuery.Query, queryData)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	query = "SELECT " + query
@@ -1189,12 +1189,12 @@ func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery c
 
 	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	b, err := agentv1.MarshalActionQuerySQLResult(columns, dataRows)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	return b64.EncodeToString(b), nil
@@ -1213,18 +1213,18 @@ func convertVMValue(value model.Value) ([]byte, error) {
 	// from performance standpoint it's easy and clean.
 	b, err := json.Marshal(value)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	var data []map[string]any
 	err = json.Unmarshal(b, &data)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	res, err := agentv1.MarshalActionQueryDocsResult(data)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return res, nil
@@ -1269,7 +1269,7 @@ WHERE datallowconn = true AND datistemplate = false AND has_database_privilege(c
 func (s *Service) splitPGTargetByDB(ctx context.Context, target services.Target) (map[string]services.Target, error) {
 	dbNames, err := s.discoverAvailablePGDatabases(ctx, target)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	dsn, err := url.Parse(target.DSN)

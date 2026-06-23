@@ -17,6 +17,7 @@ package jobs
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -25,7 +26,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
@@ -249,7 +249,7 @@ func getPBMStatus(ctx context.Context, dsn string) (*pbmStatus, error) {
 	var status pbmStatus
 	err := execPBMCommand(ctx, dsn, &status, "status")
 	if err != nil {
-		return nil, errors.Wrap(err, "pbm status error")
+		return nil, fmt.Errorf("pbm status error: %w", err)
 	}
 	return &status, nil
 }
@@ -274,7 +274,7 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dsn string, nam
 					continue
 				}
 
-				return errors.Wrap(err, "failed to get backup status")
+				return fmt.Errorf("failed to get backup status: %w", err)
 			}
 
 			switch info.Status {
@@ -331,12 +331,12 @@ func findPITRRestoreName(ctx context.Context, dsn string, restoreInfo *pbmRestor
 			var list []pbmListRestore
 			err := execPBMCommand(ctx, dsn, &list, "list", "--restore")
 			if err != nil {
-				return "", errors.Wrapf(err, "pbm status error")
+				return "", fmt.Errorf("pbm status error: %w", err)
 			}
 			entry := findPITRRestore(list, restoreInfoPITRTime.Unix(), restoreInfo.StartedAt)
 			if entry == nil {
 				if checks > maxRestoreChecks {
-					return "", errors.Errorf("failed to start restore")
+					return "", errors.New("failed to start restore")
 				}
 				continue
 			} else {
@@ -384,7 +384,7 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dsn string, re
 					l.Warnf("PMM failed to get backup restore status and will retry: %s", err)
 					continue
 				} else { //nolint:revive
-					return errors.Wrap(err, "failed to get restore status")
+					return fmt.Errorf("failed to get restore status: %w", err)
 				}
 			}
 			// reset maxRetryCount if we were able to successfully get the current restore status
@@ -422,7 +422,7 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, params pbmConfigPar
 
 	output, err := exec.CommandContext(nCtx, pbmBin, args...).CombinedOutput() //nolint:gosec
 	if err != nil {
-		return errors.Wrapf(err, "pbm config error: %s", string(output))
+		return fmt.Errorf("pbm config error: %s: %w", string(output), err)
 	}
 
 	if params.forceResync {
@@ -434,7 +434,7 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, params pbmConfigPar
 		}
 		output, err := exec.CommandContext(nCtx, pbmBin, args...).CombinedOutput() //nolint:gosec
 		if err != nil {
-			return errors.Wrapf(err, "pbm config resync error: %s", string(output))
+			return fmt.Errorf("pbm config resync error: %s: %w", string(output), err)
 		}
 	}
 
@@ -444,19 +444,19 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, params pbmConfigPar
 func writePBMConfigFile(conf *PBMConfig) (string, error) {
 	tmp, err := os.CreateTemp("", "pbm-config-*.yml")
 	if err != nil {
-		return "", errors.Wrap(err, "failed to create pbm configuration file")
+		return "", fmt.Errorf("failed to create pbm configuration file: %w", err)
 	}
 
 	bytes, err := yaml.Marshal(&conf)
 	if err != nil {
 		tmp.Close() //nolint:errcheck
-		return "", errors.Wrap(err, "failed to marshal pbm configuration")
+		return "", fmt.Errorf("failed to marshal pbm configuration: %w", err)
 	}
 
 	_, err = tmp.Write(bytes)
 	if err != nil {
 		tmp.Close() //nolint:errcheck
-		return "", errors.Wrap(err, "failed to write pbm configuration file")
+		return "", fmt.Errorf("failed to write pbm configuration file: %w", err)
 	}
 
 	return tmp.Name(), tmp.Close()
@@ -566,7 +566,7 @@ func pbmGetSnapshotTimestamp(ctx context.Context, l logrus.FieldLogger, dsn stri
 		}
 	}
 
-	return nil, errors.Wrap(ErrNotFound, "couldn't find required snapshot")
+	return nil, fmt.Errorf("couldn't find required snapshot: %w", ErrNotFound)
 }
 
 // getSnapshots returns all PBM snapshots found in configured location.
@@ -588,7 +588,7 @@ func getSnapshots(ctx context.Context, l logrus.FieldLogger, dsn string) ([]pbmS
 			if len(status.Backups.Snapshot) == 0 {
 				l.Debugf("Attempt %d to get a list of PBM artifacts has failed.", checks)
 				if checks > maxListChecks {
-					return nil, errors.Wrap(ErrNotFound, "got no one snapshot")
+					return nil, fmt.Errorf("got no one snapshot: %w", ErrNotFound)
 				}
 				continue
 			}
