@@ -17,12 +17,12 @@ package cache
 
 import (
 	"container/list"
+	"errors"
 	"fmt"
 	"reflect"
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 

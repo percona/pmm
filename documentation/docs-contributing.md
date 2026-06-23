@@ -20,7 +20,7 @@ Create a Jira ticket for formal tracking: [Create PMM documentation issue](https
 
 ## Edit the documentation
 
-Ready to make changes? The docs are written in [Markdown](https://www.markdownguide.org/) and live on [Github](https://github.com/percona/pmm/tree/v3/documentation/docs).
+Ready to make changes? The docs are written in [Markdown](https://www.markdownguide.org/) and live on [Github](https://github.com/percona/pmm/tree/main/documentation/docs).
 
 ### Quick edits online
 
@@ -33,7 +33,7 @@ Want more details? Check out [GitHub's guide to editing files](https://docs.gith
 
 ### Work locally
 
-1. Fork and clone the repository:
+1. Clone the repository:
 
     ```shell
     git clone https://github.com/<your_github_name>/pmm.git
@@ -44,8 +44,8 @@ Want more details? Check out [GitHub's guide to editing files](https://docs.gith
 
     ```shell
     git remote add upstream https://github.com/percona/pmm.git
-    git checkout v3
-    git pull upstream v3
+    git checkout main
+    git pull upstream main
     ```
 
 3. Create a branch and make your changes:
@@ -73,17 +73,16 @@ Before submitting your changes, you can build and preview the documentation loca
 
 ```shell
 # Build the documentation
-make docs-build
+make doc-build
 
 # Preview the documentation with live reload (recommended)
-make docs-serve
+make doc-build-preview
 
 # Build the PDF (Percona staff only — update the version in mkdocs-base.yml first)
-make docs-pdf
-pdf
+make doc-build-pdf
 ```
 
-That's it! The `make docs-serve` command will start a local server at `http://127.0.0.1:8000/` that automatically reloads when you save changes.
+That's it! The `make doc-build-preview` command will start a local server at `http://127.0.0.1:8000/` that automatically reloads when you save changes.
 
 ## What happens next
 
