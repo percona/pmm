@@ -9,7 +9,7 @@ site_url: ""
 use_directory_urls: false
 repo_name: percona/pmm
 repo_url: https://github.com/percona/pmm/
-edit_uri: edit/v3/documentation/docs/
+edit_uri: edit/main/documentation/docs/
 
 theme:
   name: material
@@ -476,6 +476,7 @@ nav:
       - troubleshoot/data_issues.md
   - Release notes:
       - Release notes index: release-notes/index.md
+      - "PMM 3.8.1 (2026-05-10)": release-notes/3.8.1.md
       - "PMM 3.8.0 (2026-05-28)": release-notes/3.8.0.md
       - "PMM 3.7.1 (2026-04-30)": release-notes/3.7.1.md
       - "PMM 3.7.0 (2026-04-01)": release-notes/3.7.0.md

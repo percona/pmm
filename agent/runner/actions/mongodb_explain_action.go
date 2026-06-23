@@ -16,11 +16,12 @@ package actions
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -56,7 +57,7 @@ func NewMongoDBExplainAction(id string, timeout time.Duration, params *agentv1.S
 	tmpDir := filepath.Join(tempDir, mongoDBExplainActionType, id)
 	dsn, err := templates.RenderDSN(params.Dsn, params.TextFiles, tmpDir)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &mongodbExplainAction{
@@ -94,12 +95,12 @@ func (a *mongodbExplainAction) Run(ctx context.Context) ([]byte, error) {
 
 	opts, err := mongo_fix.ClientOptionsForDSN(a.dsn)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	defer client.Disconnect(ctx) //nolint:errcheck
 
@@ -173,12 +174,12 @@ func (e explain) prepareCommand() (bson.D, error) {
 		// https://www.mongodb.com/docs/manual/tutorial/use-database-commands/?utm_source=chatgpt.com#database-command-form
 		res, isExplainable := reorderToCommandFirst(command)
 		if !isExplainable {
-			return nil, errors.Errorf("command %s is not supported for explain", command[0].Key)
+			return nil, fmt.Errorf("command %s is not supported for explain", command[0].Key)
 		}
 		return res, nil
 	// Not supported operations.
 	case "insert", "drop":
-		return nil, errors.Errorf("operation %s is not supported for explain", e.Op)
+		return nil, fmt.Errorf("operation %s is not supported for explain", e.Op)
 	}
 
 	return command, nil
@@ -277,17 +278,17 @@ func explainForQuery(ctx context.Context, client *mongo.Client, query string) ([
 	var e explain
 	err := bson.UnmarshalExtJSON([]byte(query), false, &e)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Query: %s", query)
+		return nil, fmt.Errorf("query: %s: %w", query, err)
 	}
 
 	preparedCommand, err := e.prepareCommand()
 	if err != nil {
-		return nil, errors.Wrap(errCannotExplain, err.Error())
+		return nil, errors.Join(errCannotExplain, err)
 	}
 	command := bson.D{{Key: "explain", Value: preparedCommand}}
 	res := client.Database(e.getDB()).RunCommand(ctx, command)
 	if res.Err() != nil {
-		return nil, errors.Wrap(errCannotExplain, res.Err().Error())
+		return nil, errors.Join(errCannotExplain, res.Err())
 	}
 
 	result, err := res.Raw()

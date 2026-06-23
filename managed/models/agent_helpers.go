@@ -16,6 +16,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"slices"
 	"strings"
@@ -23,7 +24,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -206,7 +206,7 @@ func checkUniqueAgentID(q *reform.Querier, id string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Agent with ID %s already exists.", id)
@@ -289,7 +289,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	}
 	structs, err := q.SelectAllFrom(AgentTable, whereClause+" ORDER BY agent_id", args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	agents := make([]*Agent, len(structs))
@@ -313,7 +313,7 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Agent with ID %s not found.", id)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return new(DecryptAgent(*agent)), nil
 }
@@ -332,7 +332,7 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 	}
 	structs, err := q.SelectAllFrom(AgentTable, tail, args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	res := make([]*Agent, len(structs))
@@ -385,7 +385,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 
 	structs, err := q.SelectAllFrom(AgentTable, tail, args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	res := make([]*Agent, len(structs))
@@ -474,7 +474,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 func FindPMMAgentsForServicesOnNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
 	structs, err := q.FindAllFrom(ServiceTable, "node_id", nodeID)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Service IDs")
+		return nil, fmt.Errorf("failed to select Service IDs: %w", err)
 	}
 
 	allAgents := make([]*Agent, 0, len(structs))
@@ -482,7 +482,7 @@ func FindPMMAgentsForServicesOnNode(q *reform.Querier, nodeID string) ([]*Agent,
 		serviceID := str.(*Service).ServiceID //nolint:forcetypeassert
 		agents, err := FindPMMAgentsForService(q, serviceID)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return nil, err
 		}
 
 		allAgents = append(allAgents, agents...)
@@ -540,7 +540,7 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 	whereClause := fmt.Sprintf("WHERE %s ORDER BY agent_type, agent_id ", strings.Join(conditions, " AND "))
 	allAgents, err := q.SelectAllFrom(AgentTable, whereClause, args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	res := make([]*Agent, len(allAgents))
@@ -653,7 +653,7 @@ func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabe
 
 	err = q.Insert(agent)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return agent, nil
@@ -708,7 +708,7 @@ func CreateNodeExporter(q *reform.Querier,
 	encryptedAgent := EncryptAgent(*row)
 	err = q.Insert(&encryptedAgent)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return new(DecryptAgent(encryptedAgent)), nil
 }
@@ -743,14 +743,14 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	if params.PushMetrics {
 		agentIDs, err := FindPMMAgentsRunningOnNode(q, params.RunsOnNodeID)
 		if err != nil {
-			return nil, errors.Wrapf(err, "cannot find pmm_agent for external exporter with push_metrics")
+			return nil, fmt.Errorf("cannot find pmm_agent for external exporter with push_metrics: %w", err)
 		}
 		switch len(agentIDs) {
 		case 0:
 			return nil, status.Errorf(codes.NotFound, "cannot find any pmm-agent by NodeID")
 		case 1:
 		default:
-			return nil, errors.Errorf("exactly one pmm_agent expected for external exporter, but "+
+			return nil, fmt.Errorf("exactly one pmm_agent expected for external exporter, but "+
 				"(%d) found at node: %s", len(agentIDs), params.RunsOnNodeID)
 		}
 		pmmAgentID = new(agentIDs[0].AgentID)
@@ -798,7 +798,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 	encryptedAgent := EncryptAgent(*row)
 	err = q.Insert(&encryptedAgent)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return new(DecryptAgent(encryptedAgent)), nil
 }
@@ -997,7 +997,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
 	err = q.Insert(&encryptedAgent)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return new(DecryptAgent(encryptedAgent)), nil
 }
@@ -1182,7 +1182,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 			if row.AgentType == ExternalExporterType {
 				err := updateExternalExporterParams(q, row)
 				if err != nil {
-					return nil, errors.Wrap(err, "failed to update External exporterParams for PushMetrics")
+					return nil, fmt.Errorf("failed to update External exporterParams for PushMetrics: %w", err)
 				}
 			}
 		}
@@ -1380,7 +1380,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	row = new(EncryptAgent(*row))
 	err = q.Update(row)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return new(DecryptAgent(*row)), nil
@@ -1399,7 +1399,7 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 
 	structs, err := q.SelectAllFrom(AgentTable, "WHERE pmm_agent_id = $1", id)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Agents")
+		return nil, fmt.Errorf("failed to select Agents: %w", err)
 	}
 	if len(structs) != 0 {
 		switch mode {
@@ -1420,7 +1420,7 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 
 	err = q.Delete(a)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to delete Agent")
+		return nil, fmt.Errorf("failed to delete Agent: %w", err)
 	}
 
 	return a, nil
@@ -1440,7 +1440,7 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 			return status.Errorf(codes.NotFound, "cannot find any pmm-agent by NodeID")
 		case 1:
 		default:
-			return errors.Errorf("exactly one pmm agent expected, but (%d) found", len(pmmAgent))
+			return fmt.Errorf("exactly one pmm agent expected, but (%d) found", len(pmmAgent))
 		}
 
 		row.RunsOnNodeID = nil
