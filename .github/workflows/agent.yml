@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/agent.yml'
+      - '.github/actions/setup-go-release/**'
       - "agent/**"
       - "api/**"
       - 'utils/**'
