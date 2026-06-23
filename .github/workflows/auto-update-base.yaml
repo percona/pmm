@@ -99,6 +99,7 @@ jobs:
                       owner: context.repo.owner,
                       repo: context.repo.repo,
                       pull_number: pull.number,
+                      expected_head_sha: pr.head.sha,
                     });
                     console.log(`[SUCCESS] PR #${pull.number}: Branch successfully updated.`);
 
