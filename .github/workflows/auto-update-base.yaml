@@ -35,7 +35,7 @@ jobs:
 
             try {
               // 1. Fetch all open PRs using the native pagination helper.
-             // Only care about PRs targeting the branch that was just pushed.
+              // Only care about PRs targeting the branch that was just pushed.
               const pulls = await github.paginate(github.rest.pulls.list, {
                 owner: context.repo.owner,
                 base: pushedBranch,
