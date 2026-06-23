@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/percona-intelligence.yml'
+      - '.github/actions/setup-go-release/**'
       - 'managed/cmd/pi-validator/**'
       - 'managed/data/alerting-templates/**'
       - 'managed/data/advisors/**'
