@@ -6,6 +6,7 @@ on:
     paths:
       - "version/**"
       - "vmproxy/**"
+      - 'go.*'
       - '!**/*.md'
 
 permissions:

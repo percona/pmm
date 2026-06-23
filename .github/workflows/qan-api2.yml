@@ -6,6 +6,7 @@ on:
     paths:
       - "api/**"
       - "qan-api2/**"
+      - 'go.*'
       - '!**/*.md'
 
 permissions:

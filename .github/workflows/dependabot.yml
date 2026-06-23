@@ -1,5 +1,5 @@
 ---
-name: Enable auto-merge for Dependabot's PRs
+name: Dependabot
 on: pull_request
 
 permissions:
@@ -7,7 +7,7 @@ permissions:
 
 jobs:
   dependabot:
-    name: Enable auto-merge
+    name: Enable auto-merge for Dependabot's PRs
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' }}
     permissions:

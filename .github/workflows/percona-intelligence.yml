@@ -6,6 +6,8 @@ on:
       - 'managed/data/alerting-templates/**'
       - 'managed/data/advisors/**'
       - 'managed/data/checks/**'
+      - 'go.*'
+      - '!**/*.md'
 
 permissions:
   contents: read

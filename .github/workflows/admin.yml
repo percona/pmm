@@ -6,6 +6,7 @@ on:
     paths:
       - "admin/**"
       - "api/**"
+      - 'go.*'
       - '!**/*.md'
 
 permissions:

@@ -3,14 +3,18 @@ name: Main
 
 on:
   pull_request:
-    paths-ignore:
-      - ".devcontainer/**"
-      - "build/**"
-      - "dashboards/**"
-      - "dev/**"
-      - "documentation/**"
-      - "ui/**"
-      - "**/*.md"
+    paths:
+      - "admin/**"
+      - "agent/**"
+      - "api/**"
+      - "api-tests/**"
+      - "managed/**"
+      - "qan-api2/**"
+      - "utils/**"
+      - "version/**"
+      - "vmproxy/**"
+      - "go.*"
+      - "!**/*.md"
 
 permissions:
   contents: read
