@@ -19,6 +19,7 @@ package adre
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -30,6 +31,8 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 const (
@@ -45,9 +48,21 @@ type Client struct {
 	l          *logrus.Entry
 }
 
-// NewClient creates a new HolmesGPT API client.
+// NewClient creates a new HolmesGPT API client with default TLS verification.
 // baseURL may include credentials for Basic Auth: http://user:password@host:port
 func NewClient(baseURL string) *Client {
+	return newClient(baseURL, false)
+}
+
+// NewClientFromSettings creates a HolmesGPT client using ADRE URL and TLS settings from PMM settings.
+func NewClientFromSettings(settings *models.Settings) *Client {
+	if settings == nil {
+		return newClient("", false)
+	}
+	return newClient(settings.GetAdreURL(), settings.Adre.TLSSkipVerify)
+}
+
+func newClient(baseURL string, tlsSkipVerify bool) *Client {
 	baseURL = strings.TrimSuffix(baseURL, "/")
 	authHeader := ""
 	u, err := url.Parse(baseURL)
@@ -61,13 +76,19 @@ func NewClient(baseURL string) *Client {
 			baseURL = u.String()
 		}
 	}
+	httpClient := &http.Client{Timeout: defaultTimeout}
+	// Only override the transport when skipping verification; otherwise reuse the
+	// shared http.DefaultTransport so connections are pooled across requests.
+	if tlsSkipVerify {
+		transport := http.DefaultTransport.(*http.Transport).Clone()      //nolint:forcetypeassert
+		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} //nolint:gosec // intentional when admin enables tls_skip_verify
+		httpClient.Transport = transport
+	}
 	return &Client{
 		baseURL:    baseURL,
 		authHeader: authHeader,
-		httpClient: &http.Client{
-			Timeout: defaultTimeout,
-		},
-		l: logrus.WithField("component", "adre"),
+		httpClient: httpClient,
+		l:          logrus.WithField("component", "adre"),
 	}
 }
 

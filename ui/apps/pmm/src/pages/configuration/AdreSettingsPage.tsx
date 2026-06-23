@@ -70,6 +70,9 @@ const AdreSettingsPage: FC = () => {
   const [tab, setTab] = useState(0);
   const [localEnabled, setLocalEnabled] = useState(settings?.enabled ?? false);
   const [localUrl, setLocalUrl] = useState(settings?.url ?? '');
+  const [localTlsSkipVerify, setLocalTlsSkipVerify] = useState(
+    settings?.tlsSkipVerify ?? settings?.tls_skip_verify ?? false
+  );
   const [localDefaultChatMode, setLocalDefaultChatMode] = useState<'fast' | 'investigation'>('investigation');
   const [localFastModel, setLocalFastModel] = useState('');
   const [localInvestigationModel, setLocalInvestigationModel] = useState('');
@@ -113,7 +116,8 @@ const AdreSettingsPage: FC = () => {
   useEffect(() => {
     if (settings) {
       setLocalEnabled(settings.enabled);
-      setLocalUrl(settings.url);
+      setLocalUrl(settings.url ?? '');
+      setLocalTlsSkipVerify(settings.tlsSkipVerify ?? settings.tls_skip_verify ?? false);
       const dm =
         settings.defaultChatMode ??
         (settings.default_chat_mode === 'investigation' ? 'investigation' : 'fast');
@@ -171,6 +175,7 @@ const AdreSettingsPage: FC = () => {
       {
         enabled: localEnabled,
         url: localUrl,
+        tls_skip_verify: localTlsSkipVerify,
         default_chat_mode: localDefaultChatMode,
         chat_model: localFastModel || undefined,
         investigation_model: localInvestigationModel || undefined,
@@ -311,6 +316,27 @@ const AdreSettingsPage: FC = () => {
                       size="small"
                       fullWidth
                     />
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={localTlsSkipVerify}
+                          onChange={(_e: SyntheticEvent, v: boolean) => setLocalTlsSkipVerify(v)}
+                          disabled={!localEnabled || !(localUrl ?? '').trim().startsWith('https://')}
+                        />
+                      }
+                      label="Skip TLS certificate verification"
+                    />
+                    {localTlsSkipVerify ? (
+                      <Alert severity="warning" sx={{ py: 0 }}>
+                        PMM will not verify the Holmes TLS certificate. Use only for development or
+                        trusted networks with self-signed certificates.
+                      </Alert>
+                    ) : (
+                      <Typography variant="caption" color="text.secondary" display="block">
+                        Available when the AI service URL uses https. You can also set{' '}
+                        <strong>PMM_ADRE_TLS_SKIP_VERIFY=true</strong> at container startup.
+                      </Typography>
+                    )}
                   </Stack>
                   <Divider />
                   <Stack gap={2}>

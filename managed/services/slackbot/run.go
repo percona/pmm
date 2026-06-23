@@ -335,7 +335,7 @@ func handleTurn(
 
 	slackEventsTotal.Inc()
 
-	client := adre.NewClient(settings.GetAdreURL())
+	client := adre.NewClientFromSettings(settings)
 
 	doChat := func(extra string) (*adre.ChatResponse, error) {
 		if err := acquireAdreChatSlot(ctx); err != nil { //nolint:noinlineerr

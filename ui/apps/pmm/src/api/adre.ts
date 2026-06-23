@@ -84,6 +84,9 @@ export interface AdreSettings {
   slack_bot_token?: string;
   slackAppToken?: string;
   slack_app_token?: string;
+  /** Skip TLS certificate verification for PMM → HolmesGPT. */
+  tlsSkipVerify?: boolean;
+  tls_skip_verify?: boolean;
 }
 
 export interface AdreModelsResponse {

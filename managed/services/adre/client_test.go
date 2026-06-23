@@ -23,6 +23,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 func TestClient_Models(t *testing.T) {
@@ -68,4 +70,35 @@ func TestClient_Chat(t *testing.T) {
 	resp, err := client.Chat(context.Background(), &ChatRequest{Ask: "Hi"})
 	require.NoError(t, err)
 	assert.Equal(t, "Hello!", resp.Analysis)
+}
+
+func TestClient_TLSVerifyFails(t *testing.T) {
+	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"model_name": ["test"]}`))
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL)
+	_, err := client.Models(context.Background())
+	require.Error(t, err)
+}
+
+func TestClientFromSettings_TLSSkipVerify(t *testing.T) {
+	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"model_name": ["test"]}`))
+	}))
+	defer server.Close()
+
+	enabled := true
+	settings := &models.Settings{}
+	settings.Adre.Enabled = &enabled
+	settings.Adre.URL = server.URL
+	settings.Adre.TLSSkipVerify = true
+
+	client := NewClientFromSettings(settings)
+	modelsList, err := client.Models(context.Background())
+	require.NoError(t, err)
+	assert.Equal(t, []string{"test"}, modelsList)
 }

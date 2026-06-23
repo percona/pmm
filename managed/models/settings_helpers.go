@@ -143,6 +143,8 @@ type ChangeSettingsParams struct {
 	EnableAdre *bool
 	// AdreURL is the HolmesGPT base URL (e.g. http://holmesgpt:8080).
 	AdreURL *string
+	// AdreTLSSkipVerify disables TLS certificate verification for PMM → HolmesGPT.
+	AdreTLSSkipVerify *bool
 	// AdreChatPrompt is the system prompt for chat (fast) mode. Max 4096 bytes.
 	AdreChatPrompt *string
 	// AdreInvestigationPrompt is the system prompt for investigation mode. Max 4096 bytes.
@@ -334,6 +336,9 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 	if params.AdreURL != nil {
 		settings.Adre.URL = pointer.GetString(params.AdreURL)
+	}
+	if params.AdreTLSSkipVerify != nil {
+		settings.Adre.TLSSkipVerify = *params.AdreTLSSkipVerify
 	}
 	if params.AdreChatPrompt != nil {
 		settings.Adre.ChatPrompt = pointer.GetString(params.AdreChatPrompt)

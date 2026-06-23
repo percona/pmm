@@ -153,6 +153,8 @@ type Settings struct {
 		// the bot and app tokens are secrets stored encrypted in the adre_provisioning table.
 		SlackEnabled         bool `json:"slack_enabled"`
 		SlackAutoInvestigate bool `json:"slack_auto_investigate"`
+		// TLSSkipVerify disables TLS certificate verification for PMM → HolmesGPT.
+		TLSSkipVerify bool `json:"tls_skip_verify"`
 	} `json:"adre"`
 
 	Alerting struct {

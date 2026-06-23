@@ -47,6 +47,9 @@ const (
 	// AdreURL is the HolmesGPT (ADRE) base URL, applied at startup to settings.
 	AdreURL = "PMM_ADRE_URL"
 
+	// AdreTLSSkipVerify disables TLS certificate verification for PMM → HolmesGPT.
+	AdreTLSSkipVerify = "PMM_ADRE_TLS_SKIP_VERIFY"
+
 	// OrchestratorLLMProvider selects the LLM provider for Investigations (e.g. ollama).
 	OrchestratorLLMProvider = "PMM_ORCHESTRATOR_LLM_PROVIDER"
 	// OrchestratorLLMURL is the base URL of the orchestrator LLM endpoint.

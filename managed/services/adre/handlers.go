@@ -136,6 +136,7 @@ type adreSettingsResponse struct {
 	SlackEnabled                  bool            `json:"slack_enabled"`
 	SlackAutoInvestigate          bool            `json:"slack_auto_investigate"`
 	SlackConfigured               bool            `json:"slack_configured"`
+	TLSSkipVerify                 bool            `json:"tls_skip_verify"`
 }
 
 func applyAdreSettingsDefaults(r *adreSettingsResponse) {
@@ -206,6 +207,7 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		SlackEnabled:                  settings.Adre.SlackEnabled,
 		SlackAutoInvestigate:          settings.Adre.SlackAutoInvestigate,
 		SlackConfigured:               slackConfigured,
+		TLSSkipVerify:                 settings.Adre.TLSSkipVerify,
 	}
 	applyAdreSettingsDefaults(&resp)
 	body, err := json.Marshal(resp)
@@ -255,6 +257,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		SlackAutoInvestigate          *bool            `json:"slack_auto_investigate"`
 		SlackBotToken                 *string          `json:"slack_bot_token"`
 		SlackAppToken                 *string          `json:"slack_app_token"`
+		TLSSkipVerify                 *bool            `json:"tls_skip_verify"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil { //nolint:noinlineerr
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -266,7 +269,8 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		body.AdreMaxConversationMessages != nil || body.QanInsightsPrompt != nil || body.QanInsightsModel != nil ||
 		body.ServiceNowURL != nil || body.ServiceNowAPIKey != nil || body.ServiceNowClientToken != nil ||
 		body.PromptMaxBytes != nil || body.AdreChatRetentionDays != nil ||
-		body.SlackEnabled != nil || body.SlackAutoInvestigate != nil || body.SlackBotToken != nil || body.SlackAppToken != nil
+		body.SlackEnabled != nil || body.SlackAutoInvestigate != nil || body.SlackBotToken != nil || body.SlackAppToken != nil ||
+		body.TLSSkipVerify != nil
 	if !hasChange {
 		writeJSONError(w, http.StatusBadRequest, "No changes provided")
 		return
@@ -390,6 +394,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		AdreChatRetentionDays:             body.AdreChatRetentionDays,
 		EnableSlackBot:                    body.SlackEnabled,
 		SlackAutoInvestigate:              body.SlackAutoInvestigate,
+		AdreTLSSkipVerify:                 body.TLSSkipVerify,
 	}
 	if _, err := models.UpdateSettings(h.db, params); err != nil { //nolint:noinlineerr
 		h.l.Errorf("UpdateSettings: %v", err)
@@ -464,6 +469,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		SlackEnabled:                  settings.Adre.SlackEnabled,
 		SlackAutoInvestigate:          settings.Adre.SlackAutoInvestigate,
 		SlackConfigured:               slackConfigured,
+		TLSSkipVerify:                 settings.Adre.TLSSkipVerify,
 	}
 	applyAdreSettingsDefaults(&resp)
 	respBody, err := json.Marshal(resp)
@@ -489,7 +495,7 @@ func (h *Handlers) GetModels(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	client := NewClient(settings.GetAdreURL())
+	client := NewClientFromSettings(settings)
 	ctx, cancel := context.WithTimeout(r.Context(), h.reqTimeout)
 	defer cancel()
 	modelsList, err := client.Models(ctx)
@@ -676,7 +682,7 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 		"time_from":   body.TimeFrom,
 		"time_to":     body.TimeTo,
 	}
-	client := NewClient(settings.GetAdreURL())
+	client := NewClientFromSettings(settings)
 	ctx, cancel := context.WithTimeout(r.Context(), h.reqTimeout)
 	defer cancel()
 	qanModel := strings.TrimSpace(settings.Adre.QanInsightsModel)

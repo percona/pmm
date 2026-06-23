@@ -172,7 +172,7 @@ func (h *Handlers) postChatWithPersistence(w http.ResponseWriter, r *http.Reques
 		req.AdditionalSystemPrompt = strings.TrimRight(req.AdditionalSystemPrompt, "\n") + "\n\n" + dc
 	}
 
-	client := NewClient(settings.GetAdreURL())
+	client := NewClientFromSettings(settings)
 	if req.Stream {
 		h.postChatStream(w, r, settings, client, req, conv, login, ask, userMsg.ID)
 		return

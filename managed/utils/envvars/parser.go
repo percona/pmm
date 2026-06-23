@@ -245,6 +245,14 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			envSettings.AdreURL = new(trimmed)
 			envSettings.EnableAdre = new(true)
 
+		case pkgenv.AdreTLSSkipVerify:
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
+			}
+			envSettings.AdreTLSSkipVerify = &b
+
 		case pkgenv.OrchestratorLLMProvider, pkgenv.OrchestratorLLMURL, pkgenv.OrchestratorLLMModel:
 			// Orchestrator (Ollama) settings removed; ignore these env vars.
 			continue

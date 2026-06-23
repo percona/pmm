@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
 )
@@ -125,6 +126,17 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Equal(t, "http://holmesgpt:8080", *gotEnvVars.AdreURL)
 		assert.NotNil(t, gotEnvVars.EnableAdre)
 		assert.True(t, *gotEnvVars.EnableAdre)
+	})
+
+	t.Run("PMM_ADRE_TLS_SKIP_VERIFY valid", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{"PMM_ADRE_TLS_SKIP_VERIFY=true"}
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+		require.NotNil(t, gotEnvVars.AdreTLSSkipVerify)
+		assert.True(t, *gotEnvVars.AdreTLSSkipVerify)
 	})
 
 	t.Run("PMM_ADRE_URL invalid", func(t *testing.T) {
