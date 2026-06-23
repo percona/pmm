@@ -289,12 +289,26 @@ func validateUserTemplate(t *alert.Template) error {
 		params[p.Name] = value
 	}
 
-	_, err := fillExprWithParams(t.Expr, params)
-	if err != nil {
-		return err
+	if t.UsesMultipleExpressions() {
+		for _, query := range t.Queries {
+			_, err := fillExprWithParams(query.Expr, params)
+			if err != nil {
+				return err
+			}
+		}
+
+		for _, expression := range t.Expressions {
+			_, err := fillExprWithParams(expression.Expression, params)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
 	}
 
-	return nil
+	_, err := fillExprWithParams(t.Expr, params)
+	return err
 }
 
 func convertSource(source models.Source) alerting.TemplateSource {
@@ -642,20 +656,14 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		forDuration = req.For.AsDuration()
 	}
 
-	expr, err := fillExprWithParams(sourceTemplate.Expr, paramsValues.AsStringMap())
+	alertTemplate, err := parseAlertTemplate(sourceTemplate.Yaml)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fill rule expression with parameters: %w", err)
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid template %s: %v.", req.TemplateName, err)
 	}
 
-	for _, filter := range req.Filters {
-		switch filter.Type {
-		case alerting.FilterType_FILTER_TYPE_MATCH:
-			expr = fmt.Sprintf(`label_match(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
-		case alerting.FilterType_FILTER_TYPE_MISMATCH:
-			expr = fmt.Sprintf(`label_mismatch(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
-		default:
-			return nil, fmt.Errorf("unknown filter type: %T", filter)
-		}
+	ruleData, condition, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, paramsValues.AsStringMap(), req.Filters)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build alert rule data: %w", err)
 	}
 
 	ta, err := sourceTemplate.GetAnnotations()
@@ -696,22 +704,10 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	rule := services.Rule{
 		GrafanaAlert: services.GrafanaAlert{
 			Title:        req.Name,
-			Condition:    "A",
+			Condition:    condition,
 			NoDataState:  "OK",
 			ExecErrState: "Alerting",
-			Data: []services.Data{
-				{
-					RefID:         "A",
-					DatasourceUID: metricsDatasourceUID,
-					// TODO: https://community.grafana.com/t/grafana-requires-time-range-for-alert-rule-creation-with-instant-promql-quieriy/70919
-					RelativeTimeRange: services.RelativeTimeRange{From: 600, To: 0},
-					Model: services.Model{
-						Expr:    expr,
-						RefID:   "A",
-						Instant: true,
-					},
-				},
-			},
+			Data:         ruleData,
 		},
 		For:         forDuration.String(),
 		Annotations: annotations,

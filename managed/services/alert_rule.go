@@ -15,6 +15,8 @@
 
 package services
 
+import "encoding/json"
+
 // This file contains grafana alerting API DTOs.
 
 // Rule represents grafana alerting rule.
@@ -31,20 +33,13 @@ type RelativeTimeRange struct {
 	To   int `json:"to"`
 }
 
-// Model represents grafana query model.
-type Model struct {
-	RefID   string `json:"refId"`
-	Expr    string `json:"expr"`
-	Instant bool   `json:"instant"`
-}
-
 // Data represents grafana API alert rule data.
 type Data struct {
 	RefID             string            `json:"refId"`
 	DatasourceUID     string            `json:"datasourceUid"`
-	QueryType         string            `json:"queryType"`
+	QueryType         string            `json:"queryType,omitempty"`
 	RelativeTimeRange RelativeTimeRange `json:"relativeTimeRange"`
-	Model             Model             `json:"model"`
+	Model             json.RawMessage   `json:"model"`
 }
 
 // GrafanaAlert represent grafana alerting rule.
