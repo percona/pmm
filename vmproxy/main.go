@@ -17,27 +17,27 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"net"
 	"net/http"
 	"net/url"
 	"strconv"
 
 	"github.com/alecthomas/kong"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/version"
 	"github.com/percona/pmm/vmproxy/proxy"
 )
 
+//nolint:lll
 type flags struct {
 	Debug bool `help:"Enable debug logging"`
 
 	TargetURL     *url.URL `default:"http://127.0.0.1:9090" help:"Target URL where to proxy requests"`
 	ListenPort    int      `default:"1280" help:"Listen port for proxy"`
 	ListenAddress string   `default:"127.0.0.1" help:"Listen address for proxy"`
-	HeaderName    string   `default:"X-Proxy-Filter" help:"Header name to read filter configuration from. The content of the header shall be a base64 encoded JSON array with strings. Each string is a filter. Multiple filters are joined with a logical OR."` //nolint:lll
+	HeaderName    string   `default:"X-Proxy-Filter" help:"Header name to read filter configuration from. The content of the header shall be a base64 encoded JSON array with strings. Each string is a filter. Multiple filters are joined with a logical OR."`
 }
 
 func main() {
@@ -45,7 +45,7 @@ func main() {
 	kong.Parse(
 		&opts,
 		kong.Name("vmproxy"),
-		kong.Description(fmt.Sprintf("Version %s", version.Version)),
+		kong.Description("Version "+version.Version),
 		kong.UsageOnError(),
 		kong.ConfigureHelp(kong.HelpOptions{
 			Compact:             true,
@@ -53,7 +53,8 @@ func main() {
 		}),
 	)
 
-	if err := runProxy(opts, proxy.RunProxy); err != nil {
+	err := runProxy(opts, proxy.RunProxy)
+	if err != nil {
 		logrus.Fatal(err)
 	}
 }

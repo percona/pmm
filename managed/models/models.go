@@ -28,13 +28,13 @@ package models
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"fmt"
 	"maps"
 	"regexp"
 	"sort"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -132,15 +132,17 @@ func getLabels(b []byte) (map[string]string, error) {
 		return nil, nil //nolint:nilnil
 	}
 	m := make(map[string]string)
-	if err := json.Unmarshal(b, &m); err != nil {
-		return nil, errors.Wrap(err, "failed to decode custom labels")
+	err := json.Unmarshal(b, &m)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode custom labels: %w", err)
 	}
 	return m, nil
 }
 
 // getLabels serializes model's Prometheus labels.
 func setLabels(m map[string]string, res *[]byte) error {
-	if err := prepareLabels(m, false); err != nil {
+	err := prepareLabels(m, false)
+	if err != nil {
 		return err
 	}
 
@@ -151,7 +153,7 @@ func setLabels(m map[string]string, res *[]byte) error {
 
 	b, err := json.Marshal(m)
 	if err != nil {
-		return errors.Wrap(err, "failed to encode custom labels")
+		return fmt.Errorf("failed to encode custom labels: %w", err)
 	}
 	*res = b
 	return nil
@@ -161,7 +163,7 @@ func setLabels(m map[string]string, res *[]byte) error {
 func jsonValue(v any) (driver.Value, error) {
 	b, err := json.Marshal(v)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to marshal JSON column")
+		return nil, fmt.Errorf("failed to marshal JSON column: %w", err)
 	}
 	return b, nil
 }
@@ -177,11 +179,12 @@ func jsonScan(v, src any) error {
 	case nil:
 		return nil
 	default:
-		return errors.Errorf("expected []byte or string, got %T (%q)", src, src)
+		return fmt.Errorf("expected []byte or string, got %T (%q)", src, src)
 	}
 
-	if err := json.Unmarshal(b, v); err != nil {
-		return errors.Wrap(err, "failed to unmarshal JSON column")
+	err := json.Unmarshal(b, v)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal JSON column: %w", err)
 	}
 	return nil
 }

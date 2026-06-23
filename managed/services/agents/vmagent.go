@@ -16,7 +16,6 @@
 package agents
 
 import (
-	"fmt"
 	"net/url"
 	"os"
 	"sort"
@@ -73,14 +72,13 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetS
 	interfaceToBind := envvars.GetInterfaceToBind()
 
 	// Only keep the specified exceptions as command line arguments
-	args := []string{
+	args := append([]string{
 		"-envflag.enable=true",
 		"-envflag.prefix=VMAGENT_",
 		"-remoteWrite.tmpDataPath={{.tmp_dir}}/vmagent-temp-dir",
 		"-promscrape.config={{.TextFiles.vmagentscrapecfg}}",
 		"-httpListenAddr=" + interfaceToBind + ":{{.listen_port}}",
-	}
-	args = append(args, params.VMAgentArgs()...)
+	}, params.VMAgentArgs()...)
 
 	sort.Strings(args)
 
@@ -106,7 +104,7 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetS
 	}
 
 	// Add the parameters that were previously command line arguments (only if not overridden)
-	addEnvIfNotSet("VMAGENT_remoteWrite_url", fmt.Sprintf("%sapi/v1/write", serverURL))
+	addEnvIfNotSet("VMAGENT_remoteWrite_url", serverURL+"api/v1/write")
 	addEnvIfNotSet("VMAGENT_remoteWrite_tlsInsecureSkipVerify", "{{.server_insecure}}")
 	addEnvIfNotSet("VMAGENT_promscrape_maxScrapeSize", maxScrapeSize)
 	addEnvIfNotSet("VMAGENT_remoteWrite_maxDiskUsagePerURL", "1073741824") // 1GB disk queue size

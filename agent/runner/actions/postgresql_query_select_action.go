@@ -17,12 +17,12 @@ package actions
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/utils/templates"
@@ -55,7 +55,7 @@ func NewPostgreSQLQuerySelectAction(id string, timeout time.Duration, params *ag
 	tmpDir := filepath.Join(tempDir, postgreSQLQuerySelectActionType, id)
 	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, tmpDir)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &postgresqlQuerySelectAction{
@@ -93,19 +93,19 @@ func (a *postgresqlQuerySelectAction) Run(ctx context.Context) ([]byte, error) {
 
 	connector, err := pq.NewConnector(a.dsn)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
 	rows, err := db.QueryContext(ctx, "SELECT /* pmm-agent */ "+a.params.Query) //nolint:gosec
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return agentv1.MarshalActionQuerySQLResult(columns, dataRows)
 }

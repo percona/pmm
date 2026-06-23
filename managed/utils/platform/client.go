@@ -20,11 +20,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
 	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -74,7 +74,7 @@ func (c *Client) SendTelemetry(ctx context.Context, report *telemetryv1.ReportRe
 
 	_, err = c.makeRequest(ctx, http.MethodPost, path, bytes.NewReader(body))
 	if err != nil {
-		return errors.Wrap(err, "failed to send telemetry data")
+		return fmt.Errorf("failed to send telemetry data: %w", err)
 	}
 
 	return nil
@@ -108,7 +108,8 @@ func (c *Client) makeRequest(ctx context.Context, method, path string, body io.R
 			Code    uint32 `json:"code"`
 		}
 
-		if err := json.Unmarshal(bodyBytes, &gwErr); err != nil {
+		err := json.Unmarshal(bodyBytes, &gwErr)
+		if err != nil {
 			c.l.Errorf("Failed to send telemetry and failed to decode error message: %s", err)
 			return nil, err
 		}

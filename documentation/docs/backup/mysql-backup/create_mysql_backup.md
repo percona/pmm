@@ -5,8 +5,8 @@ Before creating a backup, make sure to check the [MySQL backup prerequisites](my
 To create a backup:
 {.power-number}
 
-1. Go to  <i class="uil uil-history"></i> **Backup > All Backups**.
-2. Click <i class="uil uil-plus-square"></i> **Create Backup**.
+1. Go to  <i class="uil uil-history"></i> **Backup > All backups**.
+2. Click <i class="uil uil-plus-square"></i> **Create backup**.
 3. Specify the type of backup that you want to create: **On Demand** or **Schedule Backup**.
 4. Enter a unique name for this backup.
 5. Choose the service to back up from the Service name drop-down menu. This automatically populates the **DB Technology** field and selects the **Physical** data model, as this is the only model available for MySQL backups.

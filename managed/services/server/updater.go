@@ -18,6 +18,7 @@ package server
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -26,7 +27,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
@@ -125,7 +125,7 @@ func (up *Updater) ListUpdates(ctx context.Context) ([]*version.DockerVersionInf
 func (up *Updater) latest(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
 	settings, err := models.GetSettings(up.db)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to get PMM server settings")
+		return nil, nil, fmt.Errorf("failed to get PMM server settings: %w", err)
 	}
 
 	if !settings.IsUpdatesEnabled() {
@@ -134,7 +134,7 @@ func (up *Updater) latest(ctx context.Context) ([]*version.DockerVersionInfo, *v
 
 	info, err := up.readFromFile()
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to read from file")
+		return nil, nil, fmt.Errorf("failed to read from file: %w", err)
 	}
 	if info != nil {
 		return nil, info, nil
@@ -151,7 +151,7 @@ func (up *Updater) readFromFile() (*version.DockerVersionInfo, error) {
 	content, err := os.ReadFile(fileName)
 	if err != nil && !os.IsNotExist(err) {
 		up.l.WithError(err).Error("Failed to read file")
-		return nil, errors.Wrap(err, "failed to read file")
+		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
 	if os.IsNotExist(err) {
 		return nil, nil //nolint:nilnil
@@ -160,7 +160,7 @@ func (up *Updater) readFromFile() (*version.DockerVersionInfo, error) {
 	err = json.Unmarshal(content, &info)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to unmarshal file")
-		return nil, errors.Wrap(err, "failed to unmarshal file")
+		return nil, fmt.Errorf("failed to unmarshal file: %w", err)
 	}
 	return &info, nil
 }
@@ -194,25 +194,26 @@ func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*ve
 	versionServiceURL, err := envvars.GetPlatformAddress()
 	if err != nil {
 		up.l.WithError(err).Error("Failed to get version service address")
-		return nil, nil, errors.Wrap(err, "failed to get version service address")
+		return nil, nil, fmt.Errorf("failed to get version service address: %w", err)
 	}
 	u := versionServiceURL + "/metadata/v2/pmm-server"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to create request")
-		return nil, nil, errors.Wrap(err, "failed to create request")
+		return nil, nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to get PMM server versions")
-		return nil, nil, errors.Wrap(err, "failed to get PMM server versions")
+		return nil, nil, fmt.Errorf("failed to get PMM server versions: %w", err)
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
 	var metadataResponse MetadataResponse
-	if err := json.NewDecoder(resp.Body).Decode(&metadataResponse); err != nil {
+	err = json.NewDecoder(resp.Body).Decode(&metadataResponse)
+	if err != nil {
 		up.l.WithError(err).Error("Failed to decode response")
-		return nil, nil, errors.Wrap(err, "failed to decode response")
+		return nil, nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
 	if len(metadataResponse.Versions) != 0 {
@@ -343,7 +344,7 @@ func (up *Updater) check(ctx context.Context) error {
 			up.l.Info("PMM updates are disabled")
 			return grpcstatus.Error(codes.FailedPrecondition, "PMM updates are disabled")
 		}
-		return errors.Wrap(err, "failed to get latest version")
+		return fmt.Errorf("failed to get latest version: %w", err)
 	}
 	up.lastCheckResult = latest
 	up.lastCheckTime = time.Now()
@@ -367,18 +368,18 @@ func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Pars
 	versionServiceURL, err := envvars.GetPlatformAddress()
 	if err != nil {
 		up.l.WithError(err).Error("Failed to get version service address")
-		return "", errors.Wrap(err, "failed to get version service address")
+		return "", fmt.Errorf("failed to get version service address: %w", err)
 	}
 	u := versionServiceURL + "/release-notes/v1/pmm/" + versionString
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to create request")
-		return "", errors.Wrap(err, "failed to create request")
+		return "", fmt.Errorf("failed to create request: %w", err)
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		up.l.WithError(err).Errorf("Failed to get release note for version: %s", versionString)
-		return "", errors.Wrapf(err, "failed to get release notes for version: %s", versionString)
+		return "", fmt.Errorf("failed to get release notes for version: %s: %w", versionString, err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -387,9 +388,10 @@ func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Pars
 	}
 	defer resp.Body.Close() //nolint:errcheck
 	var rnResponse ReleaseNotesResponse
-	if err := json.NewDecoder(resp.Body).Decode(&rnResponse); err != nil {
+	err = json.NewDecoder(resp.Body).Decode(&rnResponse)
+	if err != nil {
 		up.l.WithError(err).Error("Failed to decode response")
-		return "", errors.Wrap(err, "failed to decode response")
+		return "", fmt.Errorf("failed to decode response: %w", err)
 	}
 
 	up.releaseNotes[versionString] = rnResponse.ReleaseNote
