@@ -135,7 +135,7 @@ jobs:
             if (errorEncountered) {
               core.setFailed(`[ERROR] One or more PR base updates failed. Check logs for details.`);
             } else if (warningEncountered) {
-              core.warning(`[WARN] `;)
+              core.warning('Max attempts reached for one or more PRs; some mergeability states remained unknown. See workflow logs for details.');
             } else {
               console.log(`[INFO] All eligible PRs processed successfully.`);
             }
