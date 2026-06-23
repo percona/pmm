@@ -1,17 +1,22 @@
 import { Button, Stack } from '@mui/material';
 import { Modal } from 'components/modal';
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { UpdateLogContent } from './update-log-content';
 import { useUpdateLog } from './UpdateLog.hooks';
 import { UpdateLogProps } from './UpdateLog.types';
 import { useUpdates } from 'contexts/updates';
 import { UpdateStatus } from 'types/updates.types';
+import { hardReloadPage } from 'utils/dom.utils';
 import { Messages } from './UpdateLog.messages';
 
-export const UpdateLog: FC<UpdateLogProps> = ({ authToken }) => {
+export const UpdateLog: FC<UpdateLogProps> = ({
+  authToken,
+  upgradeVersion,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const { output, isDone } = useUpdateLog(authToken);
   const { setStatus } = useUpdates();
+  const reloadedRef = useRef(false);
 
   const handleOpen = useCallback(() => {
     setIsOpen(true);
@@ -22,10 +27,14 @@ export const UpdateLog: FC<UpdateLogProps> = ({ authToken }) => {
   }, []);
 
   useEffect(() => {
-    if (isDone) {
-      setStatus(UpdateStatus.Completed);
+    if (!isDone || reloadedRef.current) {
+      return;
     }
-  }, [isDone, setStatus]);
+
+    reloadedRef.current = true;
+    setStatus(UpdateStatus.Completed);
+    hardReloadPage(upgradeVersion);
+  }, [isDone, setStatus, upgradeVersion]);
 
   return (
     <>

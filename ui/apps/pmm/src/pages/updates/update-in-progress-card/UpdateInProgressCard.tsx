@@ -53,7 +53,12 @@ export const UpdateInProgressCard: FC<UpdateInProgressCardProps> = ({
                 {Messages.next}
               </Button>
             )}
-            {!!authToken && <UpdateLog authToken={authToken} />}
+            {!!authToken && versionInfo.version && (
+              <UpdateLog
+                authToken={authToken}
+                upgradeVersion={versionInfo.version}
+              />
+            )}
           </Stack>
         </Stack>
       </CardContent>
