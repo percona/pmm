@@ -3,7 +3,7 @@
 #  its base branch (i.e. performs the equivalent of the GitHub UI "Update branch" action).
 # To make it work it is required to set "auto-update-branch" label on PR.
 # There will be max 10 attempts to update branches.
-name: Auto-Update PR Branch
+name: Auto-Update PR Branch (from base)
 
 on:
   push:
