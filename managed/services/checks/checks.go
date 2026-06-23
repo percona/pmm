@@ -94,10 +94,9 @@ type Service struct {
 	startDelay      time.Duration
 	customCheckFile string // For testing
 
-	runCtxM sync.Mutex
-	// runCtx is the service lifecycle context recorded by Run. It bounds
-	// asynchronous work started via StartChecks so it is cancelled on shutdown.
-	runCtx context.Context //nolint:containedctx
+	// startCheckCh delivers on-demand check runs from StartChecks to
+	// runChecksLoop, which owns the service lifecycle context.
+	startCheckCh chan []string
 
 	am       sync.Mutex
 	advisors []check.Advisor
@@ -139,7 +138,7 @@ func New(
 		l:               l,
 		startDelay:      defaultStartDelay,
 		customCheckFile: os.Getenv(envCheckFile),
-		runCtx:          context.Background(),
+		startCheckCh:    make(chan []string, 1),
 
 		mChecksExecuted: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -176,10 +175,6 @@ func New(
 func (s *Service) Run(ctx context.Context) {
 	s.l.Info("Starting...")
 	defer s.l.Info("Done.")
-
-	s.runCtxM.Lock()
-	s.runCtx = ctx
-	s.runCtxM.Unlock()
 
 	s.UpdateAdvisorsList(ctx)
 	settings, err := models.GetSettings(s.db)
@@ -231,6 +226,10 @@ func (s *Service) runChecksLoop(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
+		case checkNames := <-s.startCheckCh:
+			// On-demand run requested via StartChecks.
+			s.UpdateAdvisorsList(ctx)
+			err = s.run(ctx, "", checkNames)
 		case <-s.rareTicker.C:
 			// Start all checks from rare group.
 			err = s.runChecksGroup(ctx, check.Rare)
@@ -286,17 +285,14 @@ func (s *Service) StartChecks(checkNames []string) error {
 		return services.ErrAdvisorsDisabled
 	}
 
-	s.runCtxM.Lock()
-	ctx := s.runCtx
-	s.runCtxM.Unlock()
-
-	go func() {
-		s.UpdateAdvisorsList(ctx)
-		err := s.run(ctx, "", checkNames)
-		if err != nil {
-			s.l.Errorf("Failed to execute advisor checks: %+v.", err)
-		}
-	}()
+	// Hand the request off to runChecksLoop, which owns the service lifecycle
+	// context. The loop only runs on the leader node, so a non-blocking send
+	// drops the request where there is nothing to execute it.
+	select {
+	case s.startCheckCh <- checkNames:
+	default:
+		s.l.Warn("Advisor checks run is already pending, skipping the request.")
+	}
 
 	return nil
 }
