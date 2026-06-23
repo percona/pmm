@@ -21,7 +21,9 @@ function UrlStateHarness({
   return (
     <>
       <div data-testid="global-filter">{tableProps.state.globalFilter}</div>
-      <div data-testid="sorting">{tableProps.state.sorting.map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`).join(',')}</div>
+      <div data-testid="sorting">
+        {tableProps.state.sorting.map((s) => `${s.id}:${s.desc ? 'desc' : 'asc'}`).join(',')}
+      </div>
       <div data-testid="filters">
         {tableProps.state.columnFilters.map((f) => `${f.id}=${f.value}`).join(',')}
       </div>
@@ -79,7 +81,9 @@ function UrlStateHarness({
 
 describe('usePerconaTableUrlState', () => {
   it('initializes state from URL params', () => {
-    render(<UrlStateHarness initialSearch="q=mysql&sort=name:desc&f.group=edge&page=2&pageSize=25" />);
+    render(
+      <UrlStateHarness initialSearch="q=mysql&sort=name:desc&f.group=edge&page=2&pageSize=25" />
+    );
 
     expect(screen.getByTestId('global-filter').textContent).toBe('mysql');
     expect(screen.getByTestId('sorting').textContent).toBe('name:desc');
@@ -175,18 +179,12 @@ describe('usePerconaTableUrlState', () => {
         additionalState: { rowSelection },
       });
 
-      return (
-        <div data-testid="row-selection">
-          {JSON.stringify(tableProps.state.rowSelection)}
-        </div>
-      );
+      return <div data-testid="row-selection">{JSON.stringify(tableProps.state.rowSelection)}</div>;
     }
 
     render(<Harness />);
 
-    expect(screen.getByTestId('row-selection').textContent).toBe(
-      JSON.stringify(rowSelection)
-    );
+    expect(screen.getByTestId('row-selection').textContent).toBe(JSON.stringify(rowSelection));
   });
 
   it('updates sorting locally without writing sort to the URL when sync.sort is false', async () => {

@@ -838,7 +838,11 @@ export const WithUrlStateAndDetailsPaneNavigation: Story = {
       searchParams,
       setSearchParams,
     });
-    const { navigableRows, tableProps: navTableProps, refresh } = useNavigableRows<Server>({
+    const {
+      navigableRows,
+      tableProps: navTableProps,
+      refresh,
+    } = useNavigableRows<Server>({
       data: tableData,
       tableState,
     });
@@ -851,11 +855,7 @@ export const WithUrlStateAndDetailsPaneNavigation: Story = {
 
     return (
       <>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ fontFamily: 'monospace', mb: 2 }}
-        >
+        <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace', mb: 2 }}>
           ?{searchParams.toString() || '(empty)'}
         </Typography>
         <Table

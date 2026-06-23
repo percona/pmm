@@ -8,7 +8,9 @@ describe('tableUrlState.utils', () => {
   });
 
   it('round-trips filters, sort, global filter, and pagination', () => {
-    const initial = new URLSearchParams('tab=details&q=mysql&sort=name:desc&f.group=edge&page=2&pageSize=25');
+    const initial = new URLSearchParams(
+      'tab=details&q=mysql&sort=name:desc&f.group=edge&page=2&pageSize=25'
+    );
     const state = parseTableUrlState(initial);
 
     expect(state).toEqual({
