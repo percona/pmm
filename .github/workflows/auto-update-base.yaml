@@ -23,107 +23,98 @@ jobs:
         with:
           github-token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           script: |
-            let retriesNeeded = true;
-            let attemptCount = 0;
-            const maxAttempts = 10;  // Set a limit for the maximum number of attempts
-            let errorEncountered = false; // Track if any errors occur
+            // Extract the branch name that triggered this workflow (e.g., 'main' or 'pmm-3.9')
+            const pushedBranch = context.ref.replace('refs/heads/', '');
+            const maxAttempts = 10;
+            let errorEncountered = false;
 
-            while (retriesNeeded && attemptCount < maxAttempts) {
-              retriesNeeded = false;  // Assume no retries needed, unless 'unknown' state is found.
-              attemptCount += 1;
+            console.log(`[INFO] Workflow triggered by push to: ${pushedBranch} (SHA: ${context.sha})`);
 
-              try {
-                const pulls = [];
-                for (let page = 1; ; page += 1) {
-                  const { data } = await github.rest.pulls.list({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    state: "open",
-                    per_page: 100,
-                    page,
-                  });
-                  pulls.push(...data);
-                  if (data.length < 100) break;
-                }
+            try {
+              // 1. Fetch all open PRs using the native pagination helper.
+             // Only care about PRs targeting the branch that was just pushed.
+              const pulls = await github.paginate(github.rest.pulls.list, {
+                owner: context.repo.owner,
+                base: pushedBranch,
+                repo: context.repo.repo,
+                state: "open",
+              });
 
-                for (const pull of pulls) {
-                  const hasAutoUpdateLabel = pull.labels.some(label => label.name === "auto-update-base");
+              // 2. Filter in-memory: Only care about PRs having the label.
+              let pendingPRs = pulls.filter(pr => 
+                pr.labels.some(label => label.name === "auto-update-base")
+              );
 
-                  if (!hasAutoUpdateLabel) {
-                    continue;
-                  }
+              console.log(`[INFO] Found ${pendingPRs.length} PR(s) targeting ${pushedBranch} requiring updates.`);
 
+              let attemptCount = 0;
+
+              // 3. Process PRs, retrying ONLY the specific PRs that are stuck in 'mergeability computing' state
+              while (pendingPRs.length > 0 && attemptCount < maxAttempts) {
+                attemptCount++;
+                const retryList = [];
+
+                for (const pull of pendingPRs) {
                   try {
+                    // We must fetch the specific PR to get the accurate 'mergeable' status
                     const { data: pr } = await github.rest.pulls.get({
                       owner: context.repo.owner,
                       repo: context.repo.repo,
                       pull_number: pull.number,
                     });
 
-                    switch (pr.mergeable) {
-                      case null:
-                        console.log(`[INFO] PR #${pull.number}: "${pull.title}" - GitHub is still computing the mergeability. Will retry later.`);
-                        retriesNeeded = true;
-                        break;
-                      case false:
-                        console.log(`[INFO] PR #${pull.number}: "${pull.title}" - Skipping update due to merge conflict.`);
-                        break;
-                      case true:
-                        try {
-                          const { data: baseBranch } = await github.rest.repos.getBranch({
-                            owner: context.repo.owner,
-                            repo: context.repo.repo,
-                            branch: pr.base.ref,
-                          });
-
-                          if (pr.base.sha === baseBranch.commit.sha) {
-                            console.log(`[INFO] PR #${pull.number}: "${pull.title}" - Base branch is already up-to-date.`);
-                            break;
-                          }
-
-                          console.log(`[UPDATE] PR #${pull.number}: "${pull.title}" - Updating PR branch from base...`);
-                          try {
-                            await github.rest.pulls.updateBranch({
-                              owner: context.repo.owner,
-                              repo: context.repo.repo,
-                              pull_number: pull.number,
-                            });
-                            console.log(`[SUCCESS] PR #${pull.number}: "${pull.title}" - PR branch updated from base.`);
-                          } catch (updateError) {
-                            console.error(`[ERROR] PR #${pull.number}: Failed to update PR branch from base - ${updateError.message}`);
-                            errorEncountered = true;
-                          }
-
-                          break;
-                        } catch (baseError) {
-                          console.error(`[ERROR] PR #${pull.number}: Failed to get base branch - ${baseError.message}`);
-                          errorEncountered = true;
-                          break;
-                        }
+                    if (pr.mergeable === null) {
+                      console.log(`[INFO] PR #${pull.number}: GitHub is computing mergeability. Queuing for retry.`);
+                      retryList.push(pull);
+                      continue;
                     }
+
+                    if (pr.mergeable === false) {
+                      console.log(`[INFO] PR #${pull.number}: Skipping due to existing merge conflicts.`);
+                      continue;
+                    }
+
+                    // Compare against context.sha to save an API call
+                    if (pr.base.sha === context.sha) {
+                      console.log(`[INFO] PR #${pull.number}: Already up-to-date with base branch.`);
+                      continue;
+                    }
+
+                    console.log(`[UPDATE] PR #${pull.number}: Updating branch from base...`);
+                    await github.rest.pulls.updateBranch({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      pull_number: pull.number,
+                    });
+                    console.log(`[SUCCESS] PR #${pull.number}: Branch successfully updated.`);
+
                   } catch (prError) {
-                    console.error(`[ERROR] Failed to get PR #${pull.number} - ${prError.message}`);
+                    console.error(`[ERROR] Failed processing PR #${pull.number} - ${prError.message}`);
                     errorEncountered = true;
                   }
                 }
-              } catch (error) {
-                console.error(`[ERROR] Failed to list pull requests - ${error.message}`);
+
+                // Re-assign pendingPRs to only those that needed retries
+                pendingPRs = retryList;
+
+                if (pendingPRs.length > 0 && attemptCount < maxAttempts) {
+                  console.log(`[INFO] Waiting 5 seconds before retrying ${pendingPRs.length} PR(s) (Attempt ${attemptCount}/${maxAttempts})...`);
+                  await new Promise(resolve => setTimeout(resolve, 5000));
+                }
+              }
+
+              if (pendingPRs.length > 0) {
+                console.error(`[ERROR] Max attempts reached. ${pendingPRs.length} PR(s) still have 'unknown' mergeable state.`);
                 errorEncountered = true;
               }
 
-              if (retriesNeeded && attemptCount < maxAttempts) {
-                console.log(`[INFO] Retrying for PRs with 'unknown' mergeable state (Attempt ${attemptCount}/${maxAttempts})...`);
-                await new Promise(resolve => setTimeout(resolve, 5000));
-              }
-            }
-
-            if (attemptCount >= maxAttempts) {
-              console.error(`[ERROR] Maximum attempts (${maxAttempts}) reached. Some PRs may still have 'unknown' mergeable state.`);
+            } catch (globalError) {
+              console.error(`[ERROR] Workflow encountered a fatal error: ${globalError.message}`);
               errorEncountered = true;
             }
 
             if (errorEncountered) {
-              core.setFailed(`[ERROR] Some PRs failed to update base branch.`);
+              core.setFailed(`[ERROR] One or more PR base updates failed. Check logs for details.`);
             } else {
-              console.log(`[INFO] All PRs with 'auto-update-base' label have been processed.`);
+              console.log(`[INFO] All eligible PRs processed successfully.`);
             }
