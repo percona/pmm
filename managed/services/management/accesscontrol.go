@@ -17,9 +17,9 @@ package management
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -65,7 +65,8 @@ func (acs *AccessControlService) CreateRole(_ context.Context, req *rolev1beta1.
 		Filter:      req.Filter,
 	}
 
-	if err := models.CreateRole(acs.db.Querier, &role); err != nil {
+	err := models.CreateRole(acs.db.Querier, &role)
+	if err != nil {
 		return nil, err
 	}
 
@@ -79,8 +80,9 @@ func (acs *AccessControlService) CreateRole(_ context.Context, req *rolev1beta1.
 //nolint:unparam
 func (acs *AccessControlService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleRequest) (*rolev1beta1.UpdateRoleResponse, error) {
 	var role models.Role
-	if err := acs.db.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
-		if errors.As(err, &reform.ErrNoRows) {
+	err := acs.db.FindByPrimaryKeyTo(&role, req.RoleId)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Role not found")
 		}
 		return nil, err
@@ -96,7 +98,8 @@ func (acs *AccessControlService) UpdateRole(_ context.Context, req *rolev1beta1.
 		role.Filter = *req.Filter
 	}
 
-	if err := acs.db.Update(&role); err != nil {
+	err = acs.db.Update(&role)
+	if err != nil {
 		return nil, err
 	}
 
@@ -108,7 +111,8 @@ func (acs *AccessControlService) UpdateRole(_ context.Context, req *rolev1beta1.
 //nolint:unparam
 func (acs *AccessControlService) DeleteRole(ctx context.Context, req *rolev1beta1.DeleteRoleRequest) (*rolev1beta1.DeleteRoleResponse, error) {
 	errTx := acs.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		if err := models.DeleteRole(tx, int(req.RoleId), int(req.ReplacementRoleId)); err != nil {
+		err := models.DeleteRole(tx, int(req.RoleId), int(req.ReplacementRoleId))
+		if err != nil {
 			if errors.Is(err, models.ErrRoleNotFound) {
 				return status.Errorf(codes.NotFound, "Role not found")
 			}
@@ -128,8 +132,9 @@ func (acs *AccessControlService) DeleteRole(ctx context.Context, req *rolev1beta
 // GetRole retrieves a Role.
 func (acs *AccessControlService) GetRole(_ context.Context, req *rolev1beta1.GetRoleRequest) (*rolev1beta1.GetRoleResponse, error) {
 	var role models.Role
-	if err := acs.db.Querier.FindByPrimaryKeyTo(&role, req.RoleId); err != nil {
-		if errors.As(err, &reform.ErrNoRows) {
+	err := acs.db.FindByPrimaryKeyTo(&role, req.RoleId)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Role not found")
 		}
 
@@ -146,7 +151,7 @@ func (acs *AccessControlService) GetRole(_ context.Context, req *rolev1beta1.Get
 
 // ListRoles lists all Roles.
 func (acs *AccessControlService) ListRoles(_ context.Context, _ *rolev1beta1.ListRolesRequest) (*rolev1beta1.ListRolesResponse, error) {
-	rows, err := acs.db.Querier.SelectAllFrom(models.RoleTable, "")
+	rows, err := acs.db.SelectAllFrom(models.RoleTable, "")
 	if err != nil {
 		return nil, err
 	}

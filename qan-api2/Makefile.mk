@@ -64,16 +64,16 @@
 BACKUP_NAME ?= 20260120
 BACKUP_LAST_MIGRATION ?= 21
 #
-# Download the ClickHouse backup, unzip it and prepare the directory to restore.
-download-clickhouse-backup: 
+
+download-clickhouse-backup:	## Download the ClickHouse backup, unzip it and prepare the directory to restore.
 	./download_clickhouse_backup.sh $(BACKUP_NAME)
 #
 # Default ClickHouse credentials.
 CLICKHOUSE_USER ?= default
 CLICKHOUSE_PASSWORD ?= clickhouse
 #
-# Restore the ClickHouse backup into the pmm-server container and apply differential migrations if needed.
-restore-clickhouse-backup: 
+
+restore-clickhouse-backup:	## Restore the ClickHouse backup into the pmm-server container and apply differential migrations if needed.
 	docker exec pmm-server clickhouse-client --user=$(CLICKHOUSE_USER) --password=$(CLICKHOUSE_PASSWORD) --query="DROP DATABASE IF EXISTS pmm";
 	docker exec pmm-server clickhouse-client --user=$(CLICKHOUSE_USER) --password=$(CLICKHOUSE_PASSWORD) --query="RESTORE DATABASE pmm FROM Disk('backup', '$(BACKUP_NAME)')";
 	docker exec -u root pmm-server go run /root/go/src/github.com/percona/pmm/qan-api2/clickhouse_migrate/main.go --last-migration $(BACKUP_LAST_MIGRATION) --user CLICKHOUSE_USER=$(CLICKHOUSE_USER) --password CLICKHOUSE_PASSWORD=$(CLICKHOUSE_PASSWORD)
@@ -87,25 +87,25 @@ restore-clickhouse-backup:
 PMM_DEMO_BENCH_PERIOD_FROM ?= 2025-12-27T00:00:00+01:00
 PMM_DEMO_BENCH_PERIOD_TO ?= 2026-01-21T23:59:59+01:00
 #
-# Run bench for all main endpoints.
-bench: bench-filters bench-report bench-metrics bench-example
-# Run bench for getFilters.
-bench-filters:
+
+bench: bench-filters bench-report bench-metrics bench-example	## Run bench for all main endpoints.
+
+bench-filters:	## Run bench for getFilters.
 	@echo "Running Filters benchmark"
 	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
 	go test -bench ^BenchmarkGetFilters$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
-# Run bench for getReport.
-bench-report:
+
+bench-report:	## Run bench for getReport.
 	@echo "Running Report benchmark"
 	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
 	go test -bench ^BenchmarkGetReport$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
-# Run bench for getMetrics.
-bench-metrics:
+
+bench-metrics:	## Run bench for getMetrics.
 	@echo "Running Metrics benchmark"
 	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
 	go test -bench ^BenchmarkGetMetrics$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go
-# Run bench for getExample.
-bench-example:
+
+bench-example:	## Run bench for getExample.
 	@echo "Running Example benchmark"
 	PMM_DEMO_BENCH_PERIOD_FROM="$(PMM_DEMO_BENCH_PERIOD_FROM)" PMM_DEMO_BENCH_PERIOD_TO="$(PMM_DEMO_BENCH_PERIOD_TO)" \
 	go test -bench ^BenchmarkGetExample$$ -run=^$$ -v -benchtime=10x pmm_demo_benchmark_test.go

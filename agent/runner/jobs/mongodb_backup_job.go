@@ -16,12 +16,13 @@ package jobs
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -64,10 +65,10 @@ func NewMongoDBBackupJob(
 	folder string,
 ) (*MongoDBBackupJob, error) {
 	if dataModel != backuppb.DataModel_DATA_MODEL_PHYSICAL && dataModel != backuppb.DataModel_DATA_MODEL_LOGICAL {
-		return nil, errors.Errorf("'%s' is not a supported data model for MongoDB backups", dataModel)
+		return nil, fmt.Errorf("'%s' is not a supported data model for MongoDB backups", dataModel)
 	}
 	if dataModel != backuppb.DataModel_DATA_MODEL_LOGICAL && pitr {
-		return nil, errors.Errorf("PITR is only supported for logical backups")
+		return nil, errors.New("pitr is only supported for logical backups")
 	}
 
 	return &MongoDBBackupJob{
@@ -108,18 +109,19 @@ func (j *MongoDBBackupJob) DSN() string {
 func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	defer j.jobLogger.sendLog(send, "", true)
 
-	if _, err := exec.LookPath(pbmBin); err != nil {
-		return errors.Wrapf(err, "lookpath: %s", pbmBin)
+	_, err := exec.LookPath(pbmBin)
+	if err != nil {
+		return fmt.Errorf("lookpath=%s: %w", pbmBin, err)
 	}
 
 	conf, err := createPBMConfig(&j.locationConfig, j.folder, j.pitr)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	confFile, err := writePBMConfigFile(conf)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	defer os.Remove(confFile) //nolint:errcheck
 
@@ -128,21 +130,23 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		forceResync:    false,
 		dsn:            j.dsn,
 	}
-	if err := pbmConfigure(ctx, j.l, configParams); err != nil {
-		return errors.Wrap(err, "failed to configure pbm")
+	err = pbmConfigure(ctx, j.l, configParams)
+	if err != nil {
+		return fmt.Errorf("failed to configure pbm: %w", err)
 	}
 
 	rCtx, cancel := context.WithTimeout(ctx, resyncTimeout)
-	if err := waitForPBMNoRunningOperations(rCtx, j.l, j.dsn); err != nil {
+	err = waitForPBMNoRunningOperations(rCtx, j.l, j.dsn)
+	if err != nil {
 		cancel()
-		return errors.Wrap(err, "failed to wait configuration completion")
+		return fmt.Errorf("failed to wait configuration completion: %w", err)
 	}
 	cancel()
 
 	pbmBackupOut, err := j.startBackup(ctx)
 	if err != nil {
 		j.jobLogger.sendLog(send, err.Error(), false)
-		return errors.Wrap(err, "failed to start backup")
+		return fmt.Errorf("failed to start backup: %w", err)
 	}
 	streamCtx, streamCancel := context.WithCancel(ctx)
 	defer streamCancel()
@@ -153,9 +157,10 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		}
 	}()
 
-	if err := waitForPBMBackup(ctx, j.l, j.dsn, pbmBackupOut.Name); err != nil {
+	err = waitForPBMBackup(ctx, j.l, j.dsn, pbmBackupOut.Name)
+	if err != nil {
 		j.jobLogger.sendLog(send, err.Error(), false)
-		return errors.Wrap(err, "failed to wait backup completion")
+		return fmt.Errorf("failed to wait backup completion: %w", err)
 	}
 
 	sharded, err := isShardedCluster(ctx, j.dsn)
@@ -213,10 +218,11 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 		pbmArgs = append(pbmArgs, "--type=logical")
 	case backuppb.DataModel_DATA_MODEL_UNSPECIFIED:
 	default:
-		return nil, errors.Errorf("'%s' is not a supported data model for backups", j.dataModel)
+		return nil, fmt.Errorf("'%s' is not a supported data model for backups", j.dataModel)
 	}
 
-	if err := execPBMCommand(ctx, j.dsn, &result, pbmArgs...); err != nil {
+	err := execPBMCommand(ctx, j.dsn, &result, pbmArgs...)
+	if err != nil {
 		return nil, err
 	}
 
