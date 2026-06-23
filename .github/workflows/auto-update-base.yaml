@@ -101,7 +101,12 @@ jobs:
                     console.log(`[SUCCESS] PR #${pull.number}: Branch successfully updated.`);
 
                   } catch (prError) {
-                    console.error(`[ERROR] Failed processing PR #${pull.number} - ${prError.message}`);
+                    const status = prError.status ?? prError.statusCode;
+                    if (status === 409 || status === 422) {
+                      console.log(`[INFO] PR #${pull.number}: Update skipped (${status}) - ${prError.message}`);
+                      continue;
+                    }
+                    console.error(`[ERROR] Failed processing PR #${pull.number} (${status ?? "unknown"}): ${prError.message}`);
                     errorEncountered = true;
                   }
                 }
