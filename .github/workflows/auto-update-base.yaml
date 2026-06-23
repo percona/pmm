@@ -1,9 +1,9 @@
 ---
-# This workflow automatically updates a PR branch with the latest changes from its base branch
-# (i.e. performs the equivalent of the GitHub UI "Update branch" action).
-# To make it work it is required to set "auto-update-base" label on PR.
+# This workflow automatically updates a PR branch with the latest changes from
+#  its base branch (i.e. performs the equivalent of the GitHub UI "Update branch" action).
+# To make it work it is required to set "auto-update-branch" label on PR.
 # There will be max 10 attempts to update branches.
-name: Auto-Update PR Base
+name: Auto-Update PR Branch
 
 on:
   push:
@@ -30,6 +30,7 @@ jobs:
             const pushedBranch = context.ref.replace('refs/heads/', '');
             const maxAttempts = 10;
             let errorEncountered = false;
+            let warningEncountered = false;
 
             console.log(`[INFO] Workflow triggered by push to: ${pushedBranch} (SHA: ${context.sha})`);
 
@@ -41,11 +42,12 @@ jobs:
                 base: pushedBranch,
                 repo: context.repo.repo,
                 state: "open",
+                per_page: 100,
               });
 
               // 2. Filter in-memory: Only care about PRs having the label.
               let pendingPRs = pulls.filter(pr => 
-                pr.labels.some(label => label.name === "auto-update-base")
+                pr.labels.some(label => label.name === "auto-update-branch")
               );
 
               console.log(`[INFO] Found ${pendingPRs.length} PR(s) targeting ${pushedBranch} requiring updates.`);
@@ -121,8 +123,8 @@ jobs:
               }
 
               if (pendingPRs.length > 0) {
-                console.error(`[ERROR] Max attempts reached. ${pendingPRs.length} PR(s) still have 'unknown' mergeable state.`);
-                errorEncountered = true;
+                console.log(`[WARN] Max attempts reached. ${pendingPRs.length} PR(s) still have 'unknown' mergeable state.`);
+                warningEncountered = true;
               }
 
             } catch (globalError) {
@@ -132,6 +134,8 @@ jobs:
 
             if (errorEncountered) {
               core.setFailed(`[ERROR] One or more PR base updates failed. Check logs for details.`);
+            } else if (warningEncountered) {
+              core.warning(`[WARN] `;)
             } else {
               console.log(`[INFO] All eligible PRs processed successfully.`);
             }
