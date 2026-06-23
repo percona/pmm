@@ -1,8 +1,8 @@
 ---
-# This workflow automatically updates PR's base branch once it is updated
-# (new commit is merged).
+# This workflow automatically updates a PR branch with the latest changes from its base branch
+# (i.e. performs the equivalent of the GitHub UI "Update branch" action).
 # To make it work it is required to set "auto-update-base" label on PR.
-# There will be max 10 attempts to update base branch.
+# There will be max 10 attempts to update branches.
 name: Auto-Update PR Base
 
 on:
