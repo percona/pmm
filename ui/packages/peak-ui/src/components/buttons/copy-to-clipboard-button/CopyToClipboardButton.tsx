@@ -10,7 +10,7 @@ const CopyToClipboardButton = ({
   buttonProps,
   iconSx,
   showCopyButtonText,
-  copyCommand = 'Copy command',
+  copyCommand = 'Copy code',
 }: CopyToClipboardButtonProps) => {
   const [open, setOpen] = useState(false);
   const clipboardAvailable = !!navigator.clipboard;
@@ -40,15 +40,16 @@ const CopyToClipboardButton = ({
       title={clipboardAvailable ? Messages.copied : Messages.restrictedAccess}
     >
       {showCopyButtonText ? (
-        <Button
-          sx={{ ...buttonProps?.sx, display: 'flex', gap: 1 }}
-          onClick={handleClick}
-          disabled={!clipboardAvailable}
-          {...buttonProps}
-        >
-          <ContentCopyOutlinedIcon sx={iconSx} />
-          {copyCommand}
-        </Button>
+        <span>
+          <Button
+            startIcon={<ContentCopyOutlinedIcon sx={iconSx} />}
+            onClick={handleClick}
+            disabled={!clipboardAvailable}
+            {...buttonProps}
+          >
+            {copyCommand}
+          </Button>
+        </span>
       ) : (
         <span>
           <IconButton
