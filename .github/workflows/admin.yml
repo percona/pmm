@@ -56,6 +56,9 @@ jobs:
       - name: Setup Go release
         uses: ./.github/actions/setup-go-release
 
+      - name: Build component
+        run: make install-race
+
       - name: Run tests
         run: make test-cover
 
