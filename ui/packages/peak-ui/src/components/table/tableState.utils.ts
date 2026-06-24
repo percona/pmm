@@ -5,7 +5,7 @@ export const resolveUpdater = <S>(updater: MRT_Updater<S>, prev: S): S =>
   updater instanceof Function ? updater(prev) : updater;
 
 export const isSameTableState = (a: TableStateValues, b: TableStateValues): boolean =>
-  JSON.stringify(a) === JSON.stringify(b);
+  stableDependencyKey(a) === stableDependencyKey(b);
 
 export const stableDependencyKey = (value: unknown): string => {
   if (value === undefined || value === null) {
