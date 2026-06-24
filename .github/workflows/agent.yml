@@ -21,7 +21,7 @@ env:
 
 jobs:
   build:
-    name: Build PMM Agent
+    name: Build
     runs-on: ubuntu-latest
     continue-on-error: false
     defaults:
@@ -42,7 +42,7 @@ jobs:
         run: ../bin/pmm-agent --version
 
   build-gssapi:
-    name: Build PMM Agent with GSSAPI support
+    name: Build with GSSAPI support
     runs-on: ubuntu-latest
     continue-on-error: false
     defaults:
