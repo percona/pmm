@@ -57,6 +57,20 @@ type FullTableUrlState = TableStateValues & {
 
 const DEFAULT_DEBOUNCE_MS = 300;
 
+const clearDebouncedUrlWriteTimers = (
+  columnFilterTimerRef: MutableRefObject<ReturnType<typeof setTimeout> | null>,
+  globalFilterTimerRef: MutableRefObject<ReturnType<typeof setTimeout> | null>
+) => {
+  if (columnFilterTimerRef.current) {
+    clearTimeout(columnFilterTimerRef.current);
+    columnFilterTimerRef.current = null;
+  }
+  if (globalFilterTimerRef.current) {
+    clearTimeout(globalFilterTimerRef.current);
+    globalFilterTimerRef.current = null;
+  }
+};
+
 const isUrlSyncEnabled = (
   sync: Partial<Record<TableUrlSyncKey, boolean>> | undefined,
   key: TableUrlSyncKey
@@ -154,6 +168,8 @@ export function usePerconaTableUrlState({
       isInternalUrlUpdateRef.current = false;
       return;
     }
+
+    clearDebouncedUrlWriteTimers(columnFilterTimerRef, globalFilterTimerRef);
 
     setState((prev) => {
       const next = mergeStateFromUrl(prev, searchParams, urlOptions);
@@ -264,12 +280,7 @@ export function usePerconaTableUrlState({
 
   useEffect(
     () => () => {
-      if (globalFilterTimerRef.current) {
-        clearTimeout(globalFilterTimerRef.current);
-      }
-      if (columnFilterTimerRef.current) {
-        clearTimeout(columnFilterTimerRef.current);
-      }
+      clearDebouncedUrlWriteTimers(columnFilterTimerRef, globalFilterTimerRef);
     },
     []
   );
