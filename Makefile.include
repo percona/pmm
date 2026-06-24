@@ -24,7 +24,6 @@ gen: clean            ## Generate files
 	make -C api clean-swagger
 
 	make -C agent gen
-	make -C admin gen
 	make -C managed gen
 
 	make gen-mocks      ## Generate mocks
