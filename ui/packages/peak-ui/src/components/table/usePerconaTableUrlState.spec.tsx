@@ -312,6 +312,59 @@ describe('usePerconaTableUrlState', () => {
     vi.useRealTimers();
   });
 
+  it('cancels pending debounced writes when searchParams change externally', async () => {
+    vi.useFakeTimers();
+
+    function Harness() {
+      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+      const { tableProps } = usePerconaTableUrlState({
+        searchParams,
+        setSearchParams,
+        debounceMs: 300,
+      });
+
+      return (
+        <>
+          <div data-testid="search">{searchParams.toString()}</div>
+          <button
+            type="button"
+            data-testid="set-filter"
+            onClick={() => tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])}
+          >
+            Filter
+          </button>
+          <button
+            type="button"
+            data-testid="sync-from-url"
+            onClick={() => setSearchParams(new URLSearchParams('q=from-url'))}
+          >
+            Sync URL
+          </button>
+        </>
+      );
+    }
+
+    render(<Harness />);
+
+    await act(async () => {
+      screen.getByTestId('set-filter').click();
+    });
+
+    await act(async () => {
+      screen.getByTestId('sync-from-url').click();
+    });
+
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+    });
+
+    const search = screen.getByTestId('search').textContent ?? '';
+    expect(search).toBe('q=from-url');
+    expect(search).not.toContain('f.group');
+
+    vi.useRealTimers();
+  });
+
   it('does not loop when defaults and sync are inline object literals', async () => {
     const onRender = vi.fn();
 
