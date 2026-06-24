@@ -40,14 +40,16 @@ const CopyToClipboardButton = ({
       title={clipboardAvailable ? Messages.copied : Messages.restrictedAccess}
     >
       {showCopyButtonText ? (
-        <Button
-          startIcon={<ContentCopyOutlinedIcon sx={iconSx} />}
-          onClick={handleClick}
-          disabled={!clipboardAvailable}
-          {...buttonProps}
-        >
-          {copyCommand}
-        </Button>
+        <span>
+          <Button
+            startIcon={<ContentCopyOutlinedIcon sx={iconSx} />}
+            onClick={handleClick}
+            disabled={!clipboardAvailable}
+            {...buttonProps}
+          >
+            {copyCommand}
+          </Button>
+        </span>
       ) : (
         <span>
           <IconButton
