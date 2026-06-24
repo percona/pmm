@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_TABLE_STATE } from './tableState.types';
-import { mergePerconaTableState } from './tableState.utils';
+import { mergePerconaTableState, stableDependencyKey } from './tableState.utils';
 
 describe('tableState.utils', () => {
   it('lets urlState override overlapping additionalState keys', () => {
@@ -21,5 +21,13 @@ describe('tableState.utils', () => {
     expect(merged.rowSelection).toEqual({ 'srv-001': true });
     expect(merged.pagination).toEqual({ pageIndex: 2, pageSize: 10 });
     expect(merged.sorting).toEqual([]);
+  });
+
+  it('stableDependencyKey does not throw for circular additionalState values', () => {
+    const circular: Record<string, unknown> = { rowSelection: { 'srv-001': true } };
+    circular.self = circular;
+
+    expect(() => stableDependencyKey(circular)).not.toThrow();
+    expect(stableDependencyKey(circular)).toContain('rowSelection');
   });
 });

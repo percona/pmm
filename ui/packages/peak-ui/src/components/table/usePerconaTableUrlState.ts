@@ -5,7 +5,7 @@ import {
   MRT_SortingState,
   MRT_Updater,
 } from 'material-react-table';
-import { isSameTableState, mergePerconaTableState, resolveUpdater } from './tableState.utils';
+import { isSameTableState, mergePerconaTableState, resolveUpdater, stableDependencyKey } from './tableState.utils';
 import { type TableControlledState, type TableStateValues } from './tableState.types';
 import {
   parseTableUrlState,
@@ -114,9 +114,9 @@ export function usePerconaTableUrlState({
   replace = true,
   additionalState,
 }: UsePerconaTableUrlStateOptions): UsePerconaTableUrlStateResult {
-  const syncKey = JSON.stringify(sync ?? {});
-  const defaultsKey = JSON.stringify(defaults ?? {});
-  const additionalStateKey = JSON.stringify(additionalState ?? {});
+  const syncKey = stableDependencyKey(sync);
+  const defaultsKey = stableDependencyKey(defaults);
+  const additionalStateKey = stableDependencyKey(additionalState);
   const urlOptions = useMemo(
     () => ({ paramPrefix, defaults, sync }),
     // defaults/sync objects are compared by serialized keys to avoid unstable deps

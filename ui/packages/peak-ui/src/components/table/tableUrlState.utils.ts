@@ -151,7 +151,9 @@ export const parseTableUrlState = (
         : defaults.columnFilters
       : defaults.columnFilters,
     globalFilter: sync.globalFilter
-      ? (searchParams.get(keys.globalFilter) ?? defaults.globalFilter)
+      ? searchParams.has(keys.globalFilter)
+        ? (searchParams.get(keys.globalFilter) ?? '')
+        : defaults.globalFilter
       : defaults.globalFilter,
     sorting: sync.sort
       ? searchParams.has(keys.sort)
@@ -202,11 +204,11 @@ export const serializeTableUrlState = (
   const keys = buildTableUrlParamKeys(options.paramPrefix);
   const next = removeManagedParams(searchParams, keys, sync);
 
-  if (sync.globalFilter && state.globalFilter && state.globalFilter !== defaults.globalFilter) {
+  if (sync.globalFilter && state.globalFilter !== defaults.globalFilter) {
     next.set(keys.globalFilter, state.globalFilter);
   }
 
-  if (sync.sort && state.sorting.length > 0) {
+  if (sync.sort) {
     const serializedSorting = serializeSorting(state.sorting);
     const defaultSorting = serializeSorting(defaults.sorting);
     if (serializedSorting !== defaultSorting) {
