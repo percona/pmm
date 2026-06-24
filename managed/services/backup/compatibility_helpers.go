@@ -16,8 +16,10 @@
 package backup
 
 import (
+	"fmt"
+
+	"github.com/go-faster/errors"
 	"github.com/hashicorp/go-version"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -312,16 +314,16 @@ func mySQLBackupSoftwareInstalledAndCompatible(svm map[models.SoftwareName]strin
 	} {
 		if svm[name] == "" {
 			if name == models.XtrabackupSoftwareName || name == models.XbcloudSoftwareName {
-				return errors.Wrapf(ErrXtrabackupNotInstalled, "software %q is not installed", name)
+				return fmt.Errorf("software %q is not installed: %w", name, ErrXtrabackupNotInstalled)
 			}
 
-			return errors.Wrapf(ErrIncompatibleService, "software %q is not installed", name)
+			return fmt.Errorf("software %q is not installed: %w", name, ErrIncompatibleService)
 		}
 	}
 
 	if svm[models.XtrabackupSoftwareName] != svm[models.XbcloudSoftwareName] {
-		return errors.Wrapf(ErrInvalidXtrabackup, "xtrabackup version %q != xbcloud version %q",
-			svm[models.XtrabackupSoftwareName], svm[models.XbcloudSoftwareName])
+		return fmt.Errorf("xtrabackup version %q != xbcloud version %q: %w",
+			svm[models.XtrabackupSoftwareName], svm[models.XbcloudSoftwareName], ErrInvalidXtrabackup)
 	}
 
 	err := mysqlAndXtrabackupCompatibilityError(svm[models.MysqldSoftwareName], svm[models.XtrabackupSoftwareName])
@@ -338,7 +340,7 @@ func mongoDBBackupSoftwareInstalledAndCompatible(svm map[models.SoftwareName]str
 		models.PBMSoftwareName,
 	} {
 		if svm[name] == "" {
-			return errors.Wrapf(ErrIncompatibleService, "software %q is not installed", name)
+			return fmt.Errorf("software %q is not installed: %w", name, ErrIncompatibleService)
 		}
 	}
 
@@ -349,7 +351,7 @@ func mongoDBBackupSoftwareInstalledAndCompatible(svm map[models.SoftwareName]str
 	pbmVersion = pbmVersion.Core()
 
 	if pbmVersion.LessThan(pbmMinSupportedVersion) {
-		return errors.Wrapf(ErrIncompatiblePBM, "installed pbm version %q, min required pbm version %q", pbmVersion, pbmMinSupportedVersion)
+		return fmt.Errorf("installed pbm version %q, min required pbm version %q: %w", pbmVersion, pbmMinSupportedVersion, ErrIncompatiblePBM)
 	}
 
 	return nil

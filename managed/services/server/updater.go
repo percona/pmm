@@ -19,6 +19,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -31,7 +32,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	grpcstatus "google.golang.org/grpc/status"
@@ -107,12 +107,12 @@ func (up *Updater) Run(ctx context.Context) {
 func (up *Updater) sendRequestToWatchtower(ctx context.Context, newImageName string, stopWatchtower bool) error {
 	hostname, err := os.Hostname()
 	if err != nil {
-		return errors.Wrap(err, "failed to get hostname")
+		return fmt.Errorf("failed to get hostname: %w", err)
 	}
 
 	u, err := up.watchtowerHost.Parse("/v1/update")
 	if err != nil {
-		return errors.Wrap(err, "failed to parse URL")
+		return fmt.Errorf("failed to parse URL: %w", err)
 	}
 	q := u.Query()
 	q.Set("hostname", hostname)
@@ -123,7 +123,7 @@ func (up *Updater) sendRequestToWatchtower(ctx context.Context, newImageName str
 	// Create a new request
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
-		return errors.Wrap(err, "failed to create request")
+		return fmt.Errorf("failed to create request: %w", err)
 	}
 
 	// Add the token to the request header
@@ -136,7 +136,7 @@ func (up *Updater) sendRequestToWatchtower(ctx context.Context, newImageName str
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return errors.Wrap(err, "failed to send request")
+		return fmt.Errorf("failed to send request: %w", err)
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
@@ -144,13 +144,13 @@ func (up *Updater) sendRequestToWatchtower(ctx context.Context, newImageName str
 		resp.StatusCode == http.StatusPreconditionFailed {
 		bytes, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return errors.Wrap(err, "failed to read response body")
+			return fmt.Errorf("failed to read response body: %w", err)
 		}
 		return grpcstatus.Error(codes.FailedPrecondition, string(bytes))
 	}
 	// Check the response
 	if resp.StatusCode != http.StatusOK {
-		return errors.Errorf("received non-OK response: %v", resp.StatusCode)
+		return fmt.Errorf("received non-OK response: %v", resp.StatusCode)
 	}
 
 	up.l.Info("Successfully triggered update")
@@ -196,23 +196,23 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 		watchtowerImageName := strings.Replace(newImageName, "pmm-server-fb", "pmm-watchtower-fb", 1) // for FB images
 		watchtowerImageName = strings.Replace(watchtowerImageName, "3-dev-latest", "dev-latest", 1)   // for dev images
 		watchtowerImageName = strings.Replace(watchtowerImageName, "pmm-server", "watchtower", 1)
-		err := up.updatePodmanEnvironmentVariables(watchtowerEnvfilePath, "WATCHTOWER_IMAGE", watchtowerImageName)
+		err = up.updatePodmanEnvironmentVariables(watchtowerEnvfilePath, "WATCHTOWER_IMAGE", watchtowerImageName)
 		if err != nil {
 			up.running = false
 			up.l.WithError(err).Error("Failed to update environment variables file for watchtower")
-			return errors.Wrap(err, "failed to update environment variables file for watchtower")
+			return fmt.Errorf("failed to update environment variables file for watchtower: %w", err)
 		}
 		err = up.updatePodmanEnvironmentVariables(pmmEnvfilePath, "PMM_IMAGE", newImageName)
 		if err != nil {
 			up.running = false
 			up.l.WithError(err).Error("Failed to update environment variables file")
-			return errors.Wrap(err, "failed to update environment variables file")
+			return fmt.Errorf("failed to update environment variables file: %w", err)
 		}
 		restartWatchtower = true
 	} else if !os.IsNotExist(e) {
 		up.running = false
 		up.l.WithError(e).Error("Failed to check environment variables file")
-		return errors.Wrap(e, "failed to check environment variables file")
+		return fmt.Errorf("failed to check environment variables file: %w", e)
 	}
 
 	err = up.sendRequestToWatchtower(ctx, newImageName, restartWatchtower)
@@ -257,7 +257,7 @@ func (up *Updater) ListUpdates(ctx context.Context) ([]*version.DockerVersionInf
 func (up *Updater) latest(ctx context.Context) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
 	settings, err := models.GetSettings(up.db)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to get PMM server settings")
+		return nil, nil, fmt.Errorf("failed to get PMM server settings: %w", err)
 	}
 
 	if !settings.IsUpdatesEnabled() {
@@ -266,7 +266,7 @@ func (up *Updater) latest(ctx context.Context) ([]*version.DockerVersionInfo, *v
 
 	info, err := up.readFromFile()
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "failed to read from file")
+		return nil, nil, fmt.Errorf("failed to read from file: %w", err)
 	}
 	if info != nil {
 		return nil, info, nil
@@ -283,7 +283,7 @@ func (up *Updater) readFromFile() (*version.DockerVersionInfo, error) {
 	content, err := os.ReadFile(fileName)
 	if err != nil && !os.IsNotExist(err) {
 		up.l.WithError(err).Error("Failed to read file")
-		return nil, errors.Wrap(err, "failed to read file")
+		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
 	if os.IsNotExist(err) {
 		return nil, nil //nolint:nilnil
@@ -292,7 +292,7 @@ func (up *Updater) readFromFile() (*version.DockerVersionInfo, error) {
 	err = json.Unmarshal(content, &info)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to unmarshal file")
-		return nil, errors.Wrap(err, "failed to unmarshal file")
+		return nil, fmt.Errorf("failed to unmarshal file: %w", err)
 	}
 	return &info, nil
 }
@@ -326,18 +326,18 @@ func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*ve
 	versionServiceURL, err := envvars.GetPlatformAddress()
 	if err != nil {
 		up.l.WithError(err).Error("Failed to get version service address")
-		return nil, nil, errors.Wrap(err, "failed to get version service address")
+		return nil, nil, fmt.Errorf("failed to get version service address: %w", err)
 	}
 	u := versionServiceURL + "/metadata/v2/pmm-server"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to create request")
-		return nil, nil, errors.Wrap(err, "failed to create request")
+		return nil, nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to get PMM server versions")
-		return nil, nil, errors.Wrap(err, "failed to get PMM server versions")
+		return nil, nil, fmt.Errorf("failed to get PMM server versions: %w", err)
 	}
 	defer resp.Body.Close() //nolint:errcheck
 
@@ -345,7 +345,7 @@ func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*ve
 	err = json.NewDecoder(resp.Body).Decode(&metadataResponse)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to decode response")
-		return nil, nil, errors.Wrap(err, "failed to decode response")
+		return nil, nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
 	if len(metadataResponse.Versions) != 0 {
@@ -465,32 +465,33 @@ func (up *Updater) UpdateLog(offset uint32) ([]string, uint32, error) {
 
 	f, err := os.Open(pmmInitLog)
 	if err != nil {
-		return nil, 0, errors.WithStack(err)
+		return nil, 0, fmt.Errorf("failed to open log file %s: %w", pmmInitLog, err)
 	}
 	defer f.Close() //nolint:errcheck,gosec,nolintlint
 
 	_, err = f.Seek(int64(offset), io.SeekStart)
 	if err != nil {
-		return nil, 0, errors.WithStack(err)
+		return nil, 0, fmt.Errorf("failed to seek to %d in log file %s: %w", offset, pmmInitLog, err)
 	}
 
 	lines := make([]string, 0, 10)
 	reader := bufio.NewReader(f)
 	newOffset := offset
+	var line string
 	for {
-		line, err := reader.ReadString('\n')
-		if err == nil {
-			newOffset += uint32(len(line))
-			if newOffset-offset > up.gRPCMessageMaxSize {
-				return lines, newOffset - uint32(len(line)), nil
+		line, err = reader.ReadString('\n')
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				return lines, newOffset, nil
 			}
-			lines = append(lines, strings.TrimSuffix(line, "\n"))
-			continue
+			// return already read lines even with error
+			return lines, newOffset, fmt.Errorf("failed to read line from log file %s: %w", pmmInitLog, err)
 		}
-		if err == io.EOF {
-			err = nil
+		newOffset += uint32(len(line)) //nolint:gosec
+		if newOffset-offset > up.gRPCMessageMaxSize {
+			return lines, newOffset - uint32(len(line)), nil //nolint:gosec
 		}
-		return lines, newOffset, errors.WithStack(err)
+		lines = append(lines, strings.TrimSuffix(line, "\n"))
 	}
 }
 
@@ -519,7 +520,7 @@ func (up *Updater) check(ctx context.Context) error {
 			up.l.Info("PMM updates are disabled")
 			return grpcstatus.Error(codes.FailedPrecondition, "PMM updates are disabled")
 		}
-		return errors.Wrap(err, "failed to get latest version")
+		return fmt.Errorf("failed to get latest version: %w", err)
 	}
 	up.lastCheckResult = latest
 	up.lastCheckTime = time.Now()
@@ -543,7 +544,7 @@ func (up *Updater) updatePodmanEnvironmentVariables(filename string, key string,
 	}
 	file, err := os.ReadFile(filename) //nolint:gosec
 	if err != nil {
-		return errors.Wrap(err, "failed to read file")
+		return fmt.Errorf("failed to read file: %w", err)
 	}
 	lines := strings.Split(string(file), "\n")
 	for i, line := range lines {
@@ -553,7 +554,7 @@ func (up *Updater) updatePodmanEnvironmentVariables(filename string, key string,
 	}
 	err = os.WriteFile(filename, []byte(strings.Join(lines, "\n")), 0o644) //nolint:gosec
 	if err != nil {
-		return errors.Wrap(err, "failed to write file")
+		return fmt.Errorf("failed to write file: %w", err)
 	}
 	return nil
 }
@@ -587,18 +588,18 @@ func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Pars
 	versionServiceURL, err := envvars.GetPlatformAddress()
 	if err != nil {
 		up.l.WithError(err).Error("Failed to get version service address")
-		return "", errors.Wrap(err, "failed to get version service address")
+		return "", fmt.Errorf("failed to get version service address: %w", err)
 	}
 	u := versionServiceURL + "/release-notes/v1/pmm/" + versionString
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to create request")
-		return "", errors.Wrap(err, "failed to create request")
+		return "", fmt.Errorf("failed to create request: %w", err)
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		up.l.WithError(err).Errorf("Failed to get release note for version: %s", versionString)
-		return "", errors.Wrapf(err, "failed to get release notes for version: %s", versionString)
+		return "", fmt.Errorf("failed to get release notes for version: %s: %w", versionString, err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -610,7 +611,7 @@ func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Pars
 	err = json.NewDecoder(resp.Body).Decode(&rnResponse)
 	if err != nil {
 		up.l.WithError(err).Error("Failed to decode response")
-		return "", errors.Wrap(err, "failed to decode response")
+		return "", fmt.Errorf("failed to decode response: %w", err)
 	}
 
 	up.releaseNotes[versionString] = rnResponse.ReleaseNote

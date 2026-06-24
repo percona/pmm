@@ -15,13 +15,13 @@
 package management
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/units"
-	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -201,7 +201,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 	tablestatsGroupTableLimit := int32(cmd.DisableTablestatsLimit)
 	if cmd.DisableTablestats {
 		if tablestatsGroupTableLimit != 0 {
-			return nil, errors.Errorf("both --disable-tablestats and --disable-tablestats-limit are passed")
+			return nil, errors.New("both --disable-tablestats and --disable-tablestats-limit are passed")
 		}
 
 		tablestatsGroupTableLimit = -1
