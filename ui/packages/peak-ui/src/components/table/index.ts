@@ -39,7 +39,12 @@ export {
   type NavigableTableState,
 } from './tableState.types';
 
-export { resolveUpdater, mergePerconaTableState } from './tableState.utils';
+export {
+  resolveUpdater,
+  mergePerconaTableState,
+  stableDependencyKey,
+  isSameTableState,
+} from './tableState.utils';
 
 // Re-export common Material React Table types so consumers don't have to
 // reach into the transitive dependency directly. Keep this list

@@ -30,4 +30,8 @@ describe('tableState.utils', () => {
     expect(() => stableDependencyKey(circular)).not.toThrow();
     expect(stableDependencyKey(circular)).toContain('rowSelection');
   });
+
+  it('stableDependencyKey is invariant to object key order', () => {
+    expect(stableDependencyKey({ a: 1, b: 2 })).toBe(stableDependencyKey({ b: 2, a: 1 }));
+  });
 });
