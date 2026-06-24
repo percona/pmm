@@ -28,6 +28,9 @@ import (
 const (
 	grafanaExprDatasourceUID = "__expr__"
 	queryRelativeFromSeconds = 600
+	expressionTypeMath       = "math"
+	queryIntervalMs          = 1000
+	maxDataPoints            = 43200
 )
 
 type promQueryModel struct {
@@ -137,8 +140,8 @@ func newPromQueryData(metricsDatasourceUID, refID, expr string) (services.Data, 
 		RefID:         refID,
 		Instant:       true,
 		Hide:          false,
-		IntervalMs:    1000,
-		MaxDataPoints: 43200,
+		IntervalMs:    queryIntervalMs,
+		MaxDataPoints: maxDataPoints,
 	})
 	if err != nil {
 		return services.Data{}, fmt.Errorf("failed to marshal prom query model: %w", err)
@@ -157,7 +160,7 @@ func newPromQueryData(metricsDatasourceUID, refID, expr string) (services.Data, 
 
 func newMathExpressionData(refID, expression string) (services.Data, error) {
 	model, err := json.Marshal(mathExpressionModel{
-		Type:       "math",
+		Type:       expressionTypeMath,
 		Expression: expression,
 		RefID:      refID,
 		Datasource: map[string]string{
@@ -165,8 +168,8 @@ func newMathExpressionData(refID, expression string) (services.Data, error) {
 			"uid":  grafanaExprDatasourceUID,
 		},
 		Hide:          false,
-		IntervalMs:    1000,
-		MaxDataPoints: 43200,
+		IntervalMs:    queryIntervalMs,
+		MaxDataPoints: maxDataPoints,
 	})
 	if err != nil {
 		return services.Data{}, fmt.Errorf("failed to marshal math expression model: %w", err)

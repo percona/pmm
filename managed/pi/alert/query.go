@@ -54,55 +54,79 @@ func (r *Template) StoredExpr() string {
 
 func (r *Template) validateSteps() error {
 	if r.UsesMultipleExpressions() {
-		if strings.TrimSpace(r.Expr) != "" {
-			return errors.New("template expr should be empty for multi-expression templates")
-		}
-
-		if r.Condition == "" {
-			return errors.New("template condition is empty")
-		}
-
-		if len(r.Queries) == 0 {
-			return errors.New("template queries are empty")
-		}
-
-		refs := make(map[string]struct{}, len(r.Queries)+len(r.Expressions))
-		for _, query := range r.Queries {
-			if query.RefID == "" {
-				return errors.New("template query ref_id is empty")
-			}
-			if strings.TrimSpace(query.Expr) == "" {
-				return fmt.Errorf("template query %s expression is empty", query.RefID)
-			}
-			if _, ok := refs[query.RefID]; ok {
-				return fmt.Errorf("duplicate template query ref_id %q", query.RefID)
-			}
-			refs[query.RefID] = struct{}{}
-		}
-
-		for _, expression := range r.Expressions {
-			if expression.RefID == "" {
-				return errors.New("template expression ref_id is empty")
-			}
-			if expression.Type != "math" {
-				return fmt.Errorf("template expression %s has unsupported type %q", expression.RefID, expression.Type)
-			}
-			if strings.TrimSpace(expression.Expression) == "" {
-				return fmt.Errorf("template expression %s is empty", expression.RefID)
-			}
-			if _, ok := refs[expression.RefID]; ok {
-				return fmt.Errorf("duplicate template expression ref_id %q", expression.RefID)
-			}
-			refs[expression.RefID] = struct{}{}
-		}
-
-		if _, ok := refs[r.Condition]; !ok {
-			return fmt.Errorf("template condition %q does not match any query or expression ref_id", r.Condition)
-		}
-
-		return nil
+		return r.validateMultipleExpressionSteps()
 	}
 
+	return r.validateSingleExpressionSteps()
+}
+
+func (r *Template) validateMultipleExpressionSteps() error {
+	if strings.TrimSpace(r.Expr) != "" {
+		return errors.New("template expr should be empty for multi-expression templates")
+	}
+
+	if r.Condition == "" {
+		return errors.New("template condition is empty")
+	}
+
+	if len(r.Queries) == 0 {
+		return errors.New("template queries are empty")
+	}
+
+	refs := make(map[string]struct{}, len(r.Queries)+len(r.Expressions))
+	if err := validateQueries(r.Queries, refs); err != nil {
+		return err
+	}
+
+	if err := validateExpressions(r.Expressions, refs); err != nil {
+		return err
+	}
+
+	if _, ok := refs[r.Condition]; !ok {
+		return fmt.Errorf("template condition %q does not match any query or expression ref_id", r.Condition)
+	}
+
+	return nil
+}
+
+func validateQueries(queries []TemplateQuery, refs map[string]struct{}) error {
+	for _, query := range queries {
+		if query.RefID == "" {
+			return errors.New("template query ref_id is empty")
+		}
+		if strings.TrimSpace(query.Expr) == "" {
+			return fmt.Errorf("template query %s expression is empty", query.RefID)
+		}
+		if _, ok := refs[query.RefID]; ok {
+			return fmt.Errorf("duplicate template query ref_id %q", query.RefID)
+		}
+		refs[query.RefID] = struct{}{}
+	}
+
+	return nil
+}
+
+func validateExpressions(expressions []TemplateExpression, refs map[string]struct{}) error {
+	for _, expression := range expressions {
+		if expression.RefID == "" {
+			return errors.New("template expression ref_id is empty")
+		}
+		if expression.Type != "math" {
+			return fmt.Errorf("template expression %s has unsupported type %q", expression.RefID, expression.Type)
+		}
+		if strings.TrimSpace(expression.Expression) == "" {
+			return fmt.Errorf("template expression %s is empty", expression.RefID)
+		}
+		if _, ok := refs[expression.RefID]; ok {
+			return fmt.Errorf("duplicate template expression ref_id %q", expression.RefID)
+		}
+		refs[expression.RefID] = struct{}{}
+	}
+
+	return nil
+}
+
+func (r *Template) validateSingleExpressionSteps() error {
 	if len(r.Expressions) > 0 || r.Condition != "" {
 		return errors.New("template queries are required when expressions or condition are set")
 	}
