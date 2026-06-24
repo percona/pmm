@@ -20,6 +20,7 @@ linters:
     - gochecknoglobals    # mostly useless
     - gochecknoinits      # we use init functions
     - gocyclo             # using cyclop with the max 30 instead
+    - goconst             # too annoying
     - godox               # we sometimes leave TODOS right in the code
     - gomoddirectives     # we use replace directives
     - gomodguard          # deprecated
@@ -103,7 +104,6 @@ linters:
           - forcetypeassert  # for tests' brevity sake 
           - funlen           # tests may be long
           - gocognit         # triggered by subtests
-          - goconst          # not critical for tests
           - ireturn          # we have exceptions, so need to silence them in tests
           - lll              # tests often require long lines
           - maintidx         # not critical for tests
