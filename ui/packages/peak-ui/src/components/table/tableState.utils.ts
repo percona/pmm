@@ -12,22 +12,43 @@ export const stableDependencyKey = (value: unknown): string => {
     return '';
   }
 
-  try {
-    return JSON.stringify(value);
-  } catch {
-    if (typeof value === 'object') {
-      return Object.entries(value as Record<string, unknown>)
-        .map(([key, entry]) => {
-          try {
-            return `${key}:${JSON.stringify(entry)}`;
-          } catch {
-            return key;
-          }
-        })
-        .sort()
-        .join('|');
+  const seen = new WeakSet<object>();
+
+  const normalize = (input: unknown): unknown => {
+    if (typeof input === 'bigint') {
+      return input.toString();
+    }
+    if (typeof input === 'function') {
+      return '[function]';
+    }
+    if (typeof input === 'symbol') {
+      return input.toString();
+    }
+    if (!input || typeof input !== 'object') {
+      return input;
     }
 
+    const obj = input as Record<string, unknown>;
+    if (seen.has(obj)) {
+      return '[circular]';
+    }
+    seen.add(obj);
+
+    if (Array.isArray(input)) {
+      return input.map(normalize);
+    }
+
+    return Object.keys(obj)
+      .sort()
+      .reduce<Record<string, unknown>>((acc, key) => {
+        acc[key] = normalize(obj[key]);
+        return acc;
+      }, {});
+  };
+
+  try {
+    return JSON.stringify(normalize(value)) ?? '';
+  } catch {
     return String(value);
   }
 };
