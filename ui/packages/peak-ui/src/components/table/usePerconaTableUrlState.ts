@@ -130,6 +130,9 @@ export function usePerconaTableUrlState({
     createStateFromUrl(searchParams, urlOptions)
   );
 
+  const latestTableStateRef = useRef(state);
+  latestTableStateRef.current = state;
+
   const globalFilterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const columnFilterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isInternalUrlUpdateRef = useRef(false);
@@ -196,7 +199,7 @@ export function usePerconaTableUrlState({
             clearTimeout(columnFilterTimerRef.current);
           }
           columnFilterTimerRef.current = setTimeout(() => {
-            writeUrl(nextTableState);
+            writeUrl(toTableStateValues(latestTableStateRef.current));
           }, debounceMs);
         }
 
@@ -233,7 +236,6 @@ export function usePerconaTableUrlState({
         if (nextGlobalFilter === prev.globalFilter) {
           return prev;
         }
-        const nextTableState = { ...toTableStateValues(prev), globalFilter: nextGlobalFilter };
         const next = { ...prev, globalFilter: nextGlobalFilter };
 
         if (isUrlSyncEnabled(sync, 'globalFilter')) {
@@ -242,7 +244,7 @@ export function usePerconaTableUrlState({
           }
 
           globalFilterTimerRef.current = setTimeout(() => {
-            writeUrl(nextTableState);
+            writeUrl(toTableStateValues(latestTableStateRef.current));
           }, debounceMs);
         }
 

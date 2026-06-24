@@ -139,7 +139,11 @@ export const parseTableUrlState = (
     globalFilter: sync.globalFilter
       ? (searchParams.get(keys.globalFilter) ?? defaults.globalFilter)
       : defaults.globalFilter,
-    sorting: sync.sort ? parseSorting(searchParams.get(keys.sort)) : defaults.sorting,
+    sorting: sync.sort
+      ? searchParams.has(keys.sort)
+        ? parseSorting(searchParams.get(keys.sort))
+        : defaults.sorting
+      : defaults.sorting,
     pagination: sync.pagination
       ? { pageIndex: Math.max(0, pageFromUrl - 1), pageSize }
       : defaults.pagination,
