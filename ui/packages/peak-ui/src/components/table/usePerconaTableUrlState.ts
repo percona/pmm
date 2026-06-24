@@ -130,12 +130,14 @@ export function usePerconaTableUrlState({
     createStateFromUrl(searchParams, urlOptions)
   );
 
-  const latestTableStateRef = useRef(state);
-  latestTableStateRef.current = state;
-
   const globalFilterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const columnFilterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isInternalUrlUpdateRef = useRef(false);
+  const latestSearchParamsRef = useRef(searchParams);
+
+  useEffect(() => {
+    latestSearchParamsRef.current = searchParams;
+  }, [searchParams, searchParamsKey]);
 
   useEffect(() => {
     if (isInternalUrlUpdateRef.current) {
@@ -148,9 +150,6 @@ export function usePerconaTableUrlState({
       return isSameFullTableUrlState(prev, next) ? prev : next;
     });
   }, [searchParams, searchParamsKey, urlOptions]);
-
-  const latestSearchParamsRef = useRef(searchParams);
-  latestSearchParamsRef.current = searchParams;
 
   const writeUrl = useCallback(
     (nextState: TableStateValues) => {
@@ -199,7 +198,10 @@ export function usePerconaTableUrlState({
             clearTimeout(columnFilterTimerRef.current);
           }
           columnFilterTimerRef.current = setTimeout(() => {
-            writeUrl(toTableStateValues(latestTableStateRef.current));
+            setState((current) => {
+              writeUrl(toTableStateValues(current));
+              return current;
+            });
           }, debounceMs);
         }
 
@@ -244,7 +246,10 @@ export function usePerconaTableUrlState({
           }
 
           globalFilterTimerRef.current = setTimeout(() => {
-            writeUrl(toTableStateValues(latestTableStateRef.current));
+            setState((current) => {
+              writeUrl(toTableStateValues(current));
+              return current;
+            });
           }, debounceMs);
         }
 
