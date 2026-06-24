@@ -32,7 +32,7 @@ env:
 
 jobs:
   check:
-    name: Code static checks
+    name: Static checks
     runs-on: ubuntu-latest
 
     permissions:
@@ -107,33 +107,8 @@ jobs:
           go env | sort
           git status
 
-
-  build:
-    name: Build components
-    runs-on: ubuntu-latest
-
-    env:
-      PMM_ENCRYPTION_KEY_PATH: pmm-encryption.key
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
-      - name: Setup Go release
-        uses: ./.github/actions/setup-go-release
-
-      - name: Check build
-        run: make release
-
-      - name: Run debug commands on failure
-        if: ${{ failure() }}
-        run: |
-          env | sort
-          go env | sort
-          git status
-
   test:
-    name: Run tests
+    name: Tests
     runs-on: ubuntu-latest
 
     steps:

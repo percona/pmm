@@ -18,6 +18,7 @@ release:              ## Build release versions of all components
 	make -C admin release
 	make -C managed release
 	make -C qan-api2 release
+	make -C qan-api2 vmproxy
 
 gen: clean            ## Generate files
 	make -C api gen
@@ -38,7 +39,7 @@ gen-mocks:
 	go tool mockery --config .mockery.yaml
 
 test-common:          ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed)
-	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests -e qan-api2)
+	go test $(shell go list ./... | grep -v -e admin -e agent -e api -e managed -e api-tests -e qan-api2 -e vmproxy)
 
 api-test:             ## Run API tests on dev env.
 	go test -count=1 -race -p 1 -v ./api-tests/... -pmm.server-insecure-tls
