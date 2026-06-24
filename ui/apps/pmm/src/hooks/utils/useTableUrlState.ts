@@ -57,7 +57,6 @@ export const useTableUrlState = (
   } = tableProps;
 
   const columnFiltersKey = stableDependencyKey(columnFilters);
-  const additionalTableStateKey = stableDependencyKey(additionalTableState);
 
   // Keep a stable clone reference while filter values are unchanged. MRT
   // re-syncs range inputs from column.getFilterValue() whenever that array
@@ -109,7 +108,7 @@ export const useTableUrlState = (
       pagination,
       showColumnFilters,
       showGlobalFilter,
-      additionalTableStateKey,
+      additionalTableState,
       onColumnFiltersChange,
       onGlobalFilterChange,
       onSortingChange,
