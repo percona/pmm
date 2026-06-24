@@ -74,11 +74,13 @@ func (r *Template) validateMultipleExpressionSteps() error {
 	}
 
 	refs := make(map[string]struct{}, len(r.Queries)+len(r.Expressions))
-	if err := validateQueries(r.Queries, refs); err != nil {
+	err := validateQueries(r.Queries, refs)
+	if err != nil {
 		return err
 	}
 
-	if err := validateExpressions(r.Expressions, refs); err != nil {
+	err = validateExpressions(r.Expressions, refs)
+	if err != nil {
 		return err
 	}
 
