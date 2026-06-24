@@ -172,6 +172,10 @@ const InvestigationsListPage: FC = () => {
         </Stack>
       }
     >
+      {/* flexShrink:0 keeps the Page's flex column from squishing the card.
+          MUI Card defaults to overflow:hidden, so a shrunk card clips its
+          content instead of letting the page scroll. */}
+      <Box sx={{ flexShrink: 0 }}>
       <Card variant="outlined">
           <CardContent>
             {investigations.length === 0 ? (
@@ -283,6 +287,7 @@ const InvestigationsListPage: FC = () => {
         isPending={createMutation.isPending}
         initial={initialFromParams}
       />
+      </Box>
     </Page>
   );
 };

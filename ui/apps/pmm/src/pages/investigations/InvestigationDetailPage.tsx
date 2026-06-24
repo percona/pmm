@@ -475,6 +475,10 @@ const InvestigationDetailPage: FC = () => {
         </Stack>
       }
     >
+      {/* flexShrink:0 keeps the Page's flex column from squishing these cards.
+          MUI Card defaults to overflow:hidden, so a shrunk card clips its
+          content instead of letting the page scroll. */}
+      <Box sx={{ flexShrink: 0 }}>
       {/* Running banner */}
       {isRunning && (
         <Alert severity="info" icon={<CircularProgress size={20} />} sx={{ mb: 2 }}>
@@ -888,6 +892,7 @@ const InvestigationDetailPage: FC = () => {
           sx: { bgcolor: snackSeverity === 'error' ? 'error.main' : 'success.main', color: 'white' },
         }}
       />
+      </Box>
     </Page>
   );
 };
