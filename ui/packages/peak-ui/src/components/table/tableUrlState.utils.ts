@@ -27,6 +27,17 @@ const paramKey = (base: string, prefix?: string) => (prefix ? `${prefix}.${base}
 
 const filterParamPrefix = (prefix?: string) => paramKey('f', prefix);
 
+const resolveTableUrlDefaults = (
+  defaults?: Partial<TableStateValues>
+): TableStateValues => ({
+  ...DEFAULT_TABLE_STATE,
+  ...defaults,
+  pagination: {
+    ...DEFAULT_TABLE_STATE.pagination,
+    ...defaults?.pagination,
+  },
+});
+
 export const buildTableUrlParamKeys = (prefix?: string) => ({
   globalFilter: paramKey('q', prefix),
   sort: paramKey('sort', prefix),
@@ -122,7 +133,7 @@ export const parseTableUrlState = (
   options: TableUrlStateOptions = {}
 ): TableStateValues => {
   const sync = resolveTableUrlSync(options.sync);
-  const defaults = { ...DEFAULT_TABLE_STATE, ...options.defaults };
+  const defaults = resolveTableUrlDefaults(options.defaults);
   const keys = buildTableUrlParamKeys(options.paramPrefix);
 
   const pageFromUrl = sync.pagination
@@ -175,7 +186,7 @@ export const serializeTableUrlState = (
   options: TableUrlStateOptions = {}
 ): URLSearchParams => {
   const sync = resolveTableUrlSync(options.sync);
-  const defaults = { ...DEFAULT_TABLE_STATE, ...options.defaults };
+  const defaults = resolveTableUrlDefaults(options.defaults);
   const keys = buildTableUrlParamKeys(options.paramPrefix);
   const next = removeManagedParams(searchParams, keys);
 

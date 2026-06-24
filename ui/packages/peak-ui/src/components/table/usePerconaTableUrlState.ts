@@ -285,7 +285,7 @@ export function usePerconaTableUrlState({
     }));
   }, []);
 
-  const tableValues = toTableStateValues(state);
+  const tableValues = useMemo(() => toTableStateValues(state), [state]);
 
   const tableState = useMemo<TableControlledState>(
     () => ({
