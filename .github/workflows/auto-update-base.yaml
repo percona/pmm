@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          github-token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             // Extract the branch name that triggered this workflow (e.g., 'main' or 'pmm-3.9')
             const pushedBranch = context.ref.replace('refs/heads/', '');
