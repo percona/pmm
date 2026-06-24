@@ -109,7 +109,7 @@ const toTableStateValues = ({
 });
 
 const isSameFullTableUrlState = (a: FullTableUrlState, b: FullTableUrlState): boolean =>
-  JSON.stringify(a) === JSON.stringify(b);
+  stableDependencyKey(a) === stableDependencyKey(b);
 
 const createStateFromUrl = (
   searchParams: URLSearchParams,
