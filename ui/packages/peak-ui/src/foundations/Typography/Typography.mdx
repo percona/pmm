@@ -30,3 +30,13 @@ These styles are used for the main body text of the product. They are designed t
 Text styles used within interactive components like buttons, menus, and form elements. They are stored in the library to lock the style and extend the consistency across components. More styles may be added in the future as needed in GUI development.
 
 <Canvas of={TypographyStories.ComponentStylesShowcase} sourceState="none" />
+
+## Code
+
+The `code` style is the centralized monospace identity (font-family, weight, letter-spacing) shared by all code surfaces. Size and line-height are left to each consumer, since they are context-dependent and mostly used inline. For code snippets, use the `CodeBlock` component.
+
+<Canvas of={TypographyStories.CodeShowcase} sourceState="none" />
+
+Inline code can used to highlight code snippets within text.
+
+<Canvas of={TypographyStories.InlineCode} sourceState="none" />
