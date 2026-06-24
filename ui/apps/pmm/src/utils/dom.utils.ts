@@ -9,6 +9,8 @@ export const waitForVisible = (selector: string, timeout = 5000) =>
       return resolve(true);
     }
 
+    const timeoutRef: { id?: ReturnType<typeof setTimeout> } = {};
+
     const observer = new MutationObserver(() => {
       if (typeof document === 'undefined') {
         observer.disconnect();
@@ -16,13 +18,13 @@ export const waitForVisible = (selector: string, timeout = 5000) =>
       }
 
       if (document.querySelector(selector)) {
-        clearTimeout(timeoutId);
+        clearTimeout(timeoutRef.id);
         resolve(true);
         observer.disconnect();
       }
     });
 
-    const timeoutId = setTimeout(() => {
+    timeoutRef.id = setTimeout(() => {
       observer.disconnect();
       reject();
     }, timeout);
