@@ -64,6 +64,19 @@ export const TEST_USER_VIEWER: User = {
   },
 };
 
+export const TEST_USER_ANONYMOUS: User = {
+  ...TEST_USER_VIEWER,
+  id: 0,
+  login: 'anonymous',
+  name: 'Anonymous',
+  isAnonymous: true,
+  isPMMAdmin: false,
+  info: {
+    ...TEST_USER_ADMIN.info,
+    userId: 0,
+  },
+};
+
 export const TEST_SERVICE: BaseService = {
   serviceId: 'service-1',
   serviceName: 'Service 1',

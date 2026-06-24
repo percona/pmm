@@ -82,7 +82,12 @@ const RealtimeOverviewPage: FC = () => {
       });
     }
 
-    setSearchParams({ serviceIds: newServiceIds });
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete('serviceIds');
+      newServiceIds.forEach((id) => next.append('serviceIds', id));
+      return next;
+    });
   };
 
   if (isLoading) {
