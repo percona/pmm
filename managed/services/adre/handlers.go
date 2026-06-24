@@ -485,6 +485,14 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		}
 	}
 	settings, _ := models.GetSettings(h.db)
+	// When auto-investigate is enabled, self-heal the Grafana alert-webhook contact point here so admins
+	// don't have to separately re-run deployment provisioning after toggling it on. Idempotent and
+	// best-effort: the auto-investigate reconciliation poll works even if this fails.
+	if settings != nil && settings.Adre.SlackAutoInvestigate {
+		if err := h.provisioner().EnsureAlertWebhook(incomingAuthContext(r), h.resolvePMMURL()); err != nil {
+			h.l.Warnf("ensure auto-investigate webhook contact point after settings save: %v", err)
+		}
+	}
 	chatPromptDisplay := settings.Adre.ChatPrompt
 	if chatPromptDisplay == "" {
 		chatPromptDisplay = DefaultChatPrompt
