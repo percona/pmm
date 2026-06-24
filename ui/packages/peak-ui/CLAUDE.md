@@ -12,9 +12,21 @@ Percona UI (`@percona/percona-ui`) — a React component library built on MUI v7
 - **Build watch:** `pnpm build:watch`
 - **Storybook dev:** `pnpm storybook:dev` (port 6006)
 - **Storybook build:** `pnpm storybook:build`
+- **Type check:** `pnpm typecheck` (app + `.storybook` tsconfigs)
+- **Lint:** `pnpm lint` (ESLint over `src`)
+- **Format:** `pnpm format` (Prettier write) · **check only:** `pnpm format:check`
+- **Test:** `pnpm test` (Vitest, run once) · **watch:** `pnpm test:watch`
 - **Design token sync:** `node scripts/tokensync/sync.mjs` (or `--dry-run` to preview)
 
-There is no linter or test runner configured in package.json scripts.
+## Verification (MANDATORY after any code change)
+
+After making any code change in this repo, before considering the work done, run the safety gate and make it pass:
+
+```
+pnpm typecheck && pnpm lint && pnpm format:check && pnpm test
+```
+
+If `format:check` fails, fix it with `pnpm format` (don't hand-edit whitespace). If `typecheck`, `lint`, or `test` fail, fix the underlying issue and re-run the full chain until it's green. Do not report a change as complete until this passes.
 
 ## Architecture
 

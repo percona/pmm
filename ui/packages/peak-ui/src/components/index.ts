@@ -89,3 +89,5 @@ export { default as Chip } from './chip';
 
 export * from './tooltip';
 export { default as Tooltip } from './tooltip';
+
+export * from './code';
