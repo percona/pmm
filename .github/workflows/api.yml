@@ -28,7 +28,7 @@ jobs:
           # For reference:
           # PMM 2: VERSION=v2
           # PMM 3: VERSION=v3
-          export VERSION=$(cat api/swagger/swagger.json | jq -r '.info.version')
+          export VERSION=$(jq -r '.info.version' api/swagger/swagger.json)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: API

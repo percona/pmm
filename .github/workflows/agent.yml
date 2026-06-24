@@ -20,6 +20,53 @@ env:
   GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
+  build:
+    name: Build PMM Agent
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/agent
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
+
+      - name: Build PMM Agent
+        run: make release
+
+      - name: Build PMM Agent
+        run: ../bin/pmm-agent --version
+
+  build-gssapi:
+    name: Build PMM Agent with GSSAPI support
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/agent
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Kerberos client libraries
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libkrb5-dev
+
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
+
+      - name: Build PMM Agent
+        run: make release-gssapi
+
+      - name: Build PMM Agent
+        run: ../bin/pmm-agent --version
+
   test:
     name: Tests
     runs-on: ubuntu-latest
@@ -69,9 +116,6 @@ jobs:
       - name: Setup Go release
         uses: ./.github/actions/setup-go-release
 
-      - name: Build and install
-        run: make install
-
       - name: Launch containers
         env:
           ENV_UP_FLAGS: "--detach"
@@ -100,26 +144,3 @@ jobs:
           docker compose logs
           docker compose ps -a
 
-
-  build-gssapi:
-    name: Build PMM Agent with GSSAPI support
-    runs-on: ubuntu-latest
-    continue-on-error: false
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}/agent
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
-      - name: Setup Kerberos client libraries
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y libkrb5-dev
-
-      - name: Setup Go release
-        uses: ./.github/actions/setup-go-release
-
-      - name: Build PMM Agent
-        run: make release-gssapi
