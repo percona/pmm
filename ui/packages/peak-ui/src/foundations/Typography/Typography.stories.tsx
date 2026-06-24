@@ -180,7 +180,7 @@ export const InlineCode: Story = {
         <span style={labelStyle}>body2 + code</span>
         <Typography variant="body2">
           Connect to the database with{' '}
-          <code>mongodb://admin:password@localhost:27017/?authSource=admin</code> to be abble to
+          <code>mongodb://admin:password@localhost:27017/?authSource=admin</code> to be able to
           manage it.
         </Typography>
       </div>
