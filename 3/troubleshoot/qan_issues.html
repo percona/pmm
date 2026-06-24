@@ -11830,17 +11830,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#persistent-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Persistent configuration
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -16198,7 +16187,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
                       <div data-banner="data-banner" class="edit-contrib-banner">
   <div class="banner-content">
     <!-- Edit link centered -->
-    <a href="https://github.com/percona/pmm/edit/v3/documentation/docs/troubleshoot/qan_issues.md" title="Edit this page on GitHub" class="edit-page-link">
+    <a href="https://github.com/percona/pmm/edit/main/documentation/docs/troubleshoot/qan_issues.md" title="Edit this page on GitHub" class="edit-page-link">
       <span class="edit-page-icon">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
@@ -16210,7 +16199,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <div class="banner-divider"></div>
 
     <!-- Contributing Guide below, smaller -->
-    <a href="https://github.com/percona/pmm/blob/v3/documentation/docs-contributing.md"
+    <a href="https://github.com/percona/pmm/blob/main/documentation/docs-contributing.md"
        title="Contributing guide"
        class="contrib-link"
        target="_blank"
@@ -16349,17 +16338,6 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#persistent-configuration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Persistent configuration
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -16386,7 +16364,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     
       
     
-    <a href="https://github.com/percona/pmm/raw/v3/documentation/docs/troubleshoot/qan_issues.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/main/documentation/docs/troubleshoot/qan_issues.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
@@ -16470,17 +16448,9 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <li><strong>low-memory</strong>: optimized for constrained environments, based on <a href="https://clickhouse.com/docs/operations/tips#using-less-than-16gb-of-ram">ClickHouse recommendations</a></li>
 </ul>
 <h3 id="switch-to-low-memory-configuration">Switch to low-memory configuration<a class="headerlink" href="#switch-to-low-memory-configuration" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>-u<span class="w"> </span>pmm<span class="w"> </span>pmm-server<span class="w"> </span>./switch-config.sh<span class="w"> </span>low
+<p>Select the profile with the <code>PMM_CLICKHOUSE_CONFIG</code> environment variable when you create the container:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_CONFIG</span><span class="o">=</span>low-memory<span class="w"> </span>...<span class="w"> </span>percona/pmm-server:3
 </code></pre></div>
-<p>To switch back:
-<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>-u<span class="w"> </span>pmm<span class="w"> </span>pmm-server<span class="w"> </span>./switch-config.sh<span class="w"> </span>default
-</code></pre></div></p>
-<p>The script stops ClickHouse, updates the configuration, and restarts the service.</p>
-<h3 id="persistent-configuration">Persistent configuration<a class="headerlink" href="#persistent-configuration" title="Permanent link">&para;</a></h3>
-<p>If you run PMM Server with the <code>--rm</code> flag, run the switch script each time the container starts. For systemd, add to your unit file:
-<div class="highlight"><pre><span></span><code><span class="na">ExecStartPost</span><span class="o">=</span><span class="s">/usr/bin/docker exec -u pmm pmm-server ./switch-config.sh low</span>
-</code></pre></div></p>
-<p>See <a href="../install-pmm/install-pmm-server/deployment-options/podman/index.html">Install PMM Server with Podman</a> for systemd configuration examples.</p>
 <div class="admonition note">
 <p class="admonition-title">Configuration details</p>
 <p>Both configuration files are located in <code>/etc/clickhouse-server/</code> inside the PMM Server container:</p>
@@ -16488,9 +16458,8 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <li><code>default-config.xml</code>: default profile</li>
 <li><code>low-memory-config.xml</code>: low-memory profile</li>
 </ul>
-<p>The script is available at <code>/etc/clickhouse-server/switch-config.sh</code> or <code>/opt/switch-config.sh</code>.</p>
-<p>When switching profiles, both <code>config.xml</code> and <code>users.xml</code> are updated to point to the selected profile.</p>
 </div>
+<p>The <code>switch-config.sh</code> script is deprecated and will be removed in a future PMM release; use <code>PMM_CLICKHOUSE_CONFIG</code> instead.</p>
 
 
 
@@ -16513,7 +16482,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 1, 2026 14:08:36 UTC">April 1, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="June 24, 2026 08:01:33 UTC">June 24, 2026</span>
   </span>
 
     
