@@ -92,6 +92,7 @@
     "@fontsource/roboto": "^5.2.9",
     "@fontsource/roboto-mono": "^5.2.8",
     "material-react-table": "^3.2.1",
+    "prism-react-renderer": "^2.4.1",
     "react-is": "18.3.1"
   },
   "description": "Percona UI lib",
