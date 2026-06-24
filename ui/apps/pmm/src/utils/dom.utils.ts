@@ -9,14 +9,7 @@ export const waitForVisible = (selector: string, timeout = 5000) =>
       return resolve(true);
     }
 
-    let observer: MutationObserver;
-
-    const timeoutId = setTimeout(() => {
-      observer.disconnect();
-      reject();
-    }, timeout);
-
-    observer = new MutationObserver(() => {
+    const observer = new MutationObserver(() => {
       if (typeof document === 'undefined') {
         observer.disconnect();
         return;
@@ -28,6 +21,11 @@ export const waitForVisible = (selector: string, timeout = 5000) =>
         observer.disconnect();
       }
     });
+
+    const timeoutId = setTimeout(() => {
+      observer.disconnect();
+      reject();
+    }, timeout);
 
     observer.observe(document.body, {
       childList: true,
