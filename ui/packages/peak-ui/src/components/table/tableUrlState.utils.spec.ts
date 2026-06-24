@@ -112,6 +112,28 @@ describe('tableUrlState.utils', () => {
     ]);
   });
 
+  it('preserves multi-value array filter length when serializing', () => {
+    const multiSelectFilters = [{ id: 'tags', value: ['edge', 'prod'] }];
+    const serialized = serializeTableUrlState(
+      { ...DEFAULT_TABLE_STATE, columnFilters: multiSelectFilters },
+      new URLSearchParams()
+    );
+
+    expect(serialized.get('f.tags')).toBe('["edge","prod"]');
+    expect(parseTableUrlState(serialized).columnFilters).toEqual(multiSelectFilters);
+  });
+
+  it('preserves single-value array filter length when serializing', () => {
+    const singleValueArray = [{ id: 'group', value: ['edge'] }];
+    const serialized = serializeTableUrlState(
+      { ...DEFAULT_TABLE_STATE, columnFilters: singleValueArray },
+      new URLSearchParams()
+    );
+
+    expect(serialized.get('f.group')).toBe('["edge"]');
+    expect(parseTableUrlState(serialized).columnFilters).toEqual(singleValueArray);
+  });
+
   it('omits default sorting from the URL and restores it when the param is absent', () => {
     const defaults = {
       ...DEFAULT_TABLE_STATE,
