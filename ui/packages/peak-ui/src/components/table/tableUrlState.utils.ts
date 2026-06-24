@@ -27,9 +27,7 @@ const paramKey = (base: string, prefix?: string) => (prefix ? `${prefix}.${base}
 
 const filterParamPrefix = (prefix?: string) => paramKey('f', prefix);
 
-const resolveTableUrlDefaults = (
-  defaults?: Partial<TableStateValues>
-): TableStateValues => ({
+const resolveTableUrlDefaults = (defaults?: Partial<TableStateValues>): TableStateValues => ({
   ...DEFAULT_TABLE_STATE,
   ...defaults,
   pagination: {
