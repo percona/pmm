@@ -14696,10 +14696,32 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#chunks" class="md-nav__link">
+  <a href="#total-data-size" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Chunks
+        Total data size
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-size-over-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data size over time
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chunks-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chunks distribution
       
     </span>
   </a>
@@ -16818,10 +16840,32 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#chunks" class="md-nav__link">
+  <a href="#total-data-size" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Chunks
+        Total data size
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-size-over-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data size over time
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chunks-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chunks distribution
       
     </span>
   </a>
@@ -17291,7 +17335,18 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <p>Shows the number of user-created databases in the cluster. Watch this over time to track database growth.</p>
 <h3 id="balancer-enabled">Balancer Enabled<a class="headerlink" href="#balancer-enabled" title="Permanent link">&para;</a></h3>
 <p>Shows whether the cluster balancer is currently enabled. YES means the balancer is active and will redistribute chunks when shards become unbalanced. NO means balancing is paused, which may cause chunk distribution to drift over time. Investigate if the balancer is unexpectedly disabled.</p>
-<h3 id="chunks">Chunks<a class="headerlink" href="#chunks" title="Permanent link">&para;</a></h3>
+<h3 id="total-data-size">Total data size<a class="headerlink" href="#total-data-size" title="Permanent link">&para;</a></h3>
+<p>Shows how much storage your sharded cluster is currently using for data and indexes 
+across all shard primaries. System databases (<code>admin</code>, <code>local</code>, <code>config</code>) and config server metadata are excluded.</p>
+<p>Check this panel regularly to understand your cluster&rsquo;s total storage footprint. Compare it with the <strong>Data distribution</strong> panel to see whether data is growing evenly across shards or concentrating on specific ones. Use the trend in <strong>Data size over time</strong> to decide when to add shards or storage capacity.</p>
+<p>This panel requires the <code>dbstats</code> collector on the MongoDB exporter on each shard <code>mongod</code> node. To enable it, see <a href="https://per.co.na/pmm/pmm-admin-add">Add database services</a>.</p>
+<h3 id="data-size-over-time">Data size over time<a class="headerlink" href="#data-size-over-time" title="Permanent link">&para;</a></h3>
+<p>Shows how your cluster&rsquo;s total data and index size changes over the selected time range. 
+Use this to spot growth trends, identify unexpected spikes, and plan when you will need to scale storage or add shards. A sudden increase may indicate a bulk data load, a missing TTL index, or uneven shard growth that needs investigation.</p>
+<p>Shows the total logical data size (uncompressed data plus indexes) summed across all shard primaries in the cluster. System databases (<code>admin</code>, <code>local</code>, and <code>config</code>) are excluded. Config server metadata is not included in this total.</p>
+<p>Use this metric to monitor overall data growth for the sharded cluster, similar to the cluster data size view in Ops Manager. The <strong>Data Size Over Time</strong> graph shows the same total over the selected time range.</p>
+<p>This panel requires the MongoDB exporter <strong>dbstats</strong> collector on shard <code>mongod</code> nodes. Enable it by turning on <strong>Enable all collectors</strong> for the MongoDB service in PMM (or ensure <code>dbstats</code> is not listed under disabled collectors).</p>
+<h3 id="chunks-distribution">Chunks distribution<a class="headerlink" href="#chunks-distribution" title="Permanent link">&para;</a></h3>
 <p>Shows the total number of chunks across all shards. A sudden increase may indicate rapid data growth or a change in sharding key selectivity.</p>
 <h3 id="last-election">Last Election<a class="headerlink" href="#last-election" title="Permanent link">&para;</a></h3>
 <p>Shows how long ago the most recent primary election occurred in the cluster. A very recent election may indicate an unexpected failover or replica set instability. Click to open the <strong>MongoDB ReplSet Summary</strong> for more context.</p>
@@ -17378,7 +17433,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="June 24, 2026 16:03:07 UTC">June 24, 2026</span>
   </span>
 
     

@@ -14736,6 +14736,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#total-data-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Total data size
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-size-over-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data size over time
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#state" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -16617,6 +16639,28 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
+  <a href="#total-data-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Total data size
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-size-over-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data size over time
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#state" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -17012,6 +17056,20 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <h3 id="last-election">Last Election<a class="headerlink" href="#last-election" title="Permanent link">&para;</a></h3>
 <p>Shows the time elapsed since the most recent primary election.</p>
 <p>A recent election is worth investigating to find out whether it was a planned failover or an unexpected event. Frequent elections indicate connectivity issues or node instability.</p>
+<h3 id="total-data-size">Total data size<a class="headerlink" href="#total-data-size" title="Permanent link">&para;</a></h3>
+<p>Shows how much storage your replica set is currently using for data and indexes on the primary node. System databases (<code>admin</code>, <code>local</code>, <code>config</code>) are excluded.</p>
+<p>Check this panel regularly to understand your current storage footprint. If the value is growing faster than expected, check <strong>Size of Collections</strong> and <strong>Number of Collections</strong> panels in the <strong>Collection Details</strong> section to identify what is driving the growth. </p>
+<p>Use the trend in the <strong>Data size over time</strong> panel  to decide when to add storage capacity.</p>
+<p>This panel requires the <code>dbstats</code> collector on the MongoDB exporter. To enable it, see <a href="https://per.co.na/pmm/pmm-admin-add">Add database services</a>.</p>
+<h3 id="data-size-over-time">Data size over time<a class="headerlink" href="#data-size-over-time" title="Permanent link">&para;</a></h3>
+<p>Shows how your replica set&rsquo;s total data and index size changes over the selected time 
+range. </p>
+<p>Use this to spot growth trends, identify unexpected spikes, and plan when you 
+will need to add storage capacity. </p>
+<p>A sudden increase may indicate a bulk data load, a missing TTL index, or runaway data growth that needs investigation.
+Shows the total logical data size (uncompressed data plus indexes) across all user databases on the replica set primary. System databases (<code>admin</code>, <code>local</code>, and <code>config</code>) are excluded.</p>
+<p>Use this metric to monitor data growth for the replica set, similar to the cluster data size view in Ops Manager. The <strong>Data Size Over Time</strong> graph shows the same total over the selected time range.</p>
+<p>This panel requires the MongoDB exporter <strong>dbstats</strong> collector. Enable it by turning on <strong>Enable all collectors</strong> for the MongoDB service in PMM (or ensure <code>dbstats</code> is not listed under disabled collectors).</p>
 <h3 id="state">State<a class="headerlink" href="#state" title="Permanent link">&para;</a></h3>
 <p>Shows the current replica set state for each selected service: PRIMARY, SECONDARY, ARBITER, or a problem state such as RECOVERING, ROLLBACK, or DOWN. &ldquo;Exporter is not connected&rdquo; means PMM cannot reach the MongoDB exporter for that service.</p>
 <p>To recover, verify that <code>pmm-agent</code> is running on that node, confirm PMM can reach the MongoDB exporter endpoint, and then restart <code>pmm-agent</code>. </p>
@@ -17130,7 +17188,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="June 24, 2026 16:03:07 UTC">June 24, 2026</span>
   </span>
 
     
