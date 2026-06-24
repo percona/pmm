@@ -43,6 +43,9 @@ const (
 
 	// ClickHouseNodes is used to store the ClickHouse nodes.
 	ClickHouseNodes = "PMM_CLICKHOUSE_NODES"
+
+	// ClickHouseConfig specifies the configuration for ClickHouse.
+	ClickHouseConfig = "PMM_CLICKHOUSE_CONFIG"
 )
 
 // GetBool returns the boolean value of the environment variable.

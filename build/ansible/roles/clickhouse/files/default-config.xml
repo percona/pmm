@@ -590,7 +590,7 @@
     <user_directories>
         <users_xml>
             <!-- Path to configuration file with predefined users. -->
-            <path>users.xml</path>
+            <path>default-users.xml</path>
         </users_xml>
         <local_directory>
             <!-- Path to folder where users created by SQL commands are stored. -->
