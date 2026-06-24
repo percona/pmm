@@ -190,6 +190,36 @@ describe('tableUrlState.utils', () => {
     expect(serialized.get('keep')).toBe('1');
   });
 
+  it('writes an empty sort param when clearing a non-empty default sort', () => {
+    const defaults = {
+      ...DEFAULT_TABLE_STATE,
+      sorting: [{ id: 'name', desc: true }],
+    };
+    const serialized = serializeTableUrlState(
+      { ...DEFAULT_TABLE_STATE, sorting: [] },
+      new URLSearchParams('keep=1'),
+      { defaults }
+    );
+
+    expect(serialized.get('sort')).toBe('');
+    expect(parseTableUrlState(serialized, { defaults }).sorting).toEqual([]);
+  });
+
+  it('writes an empty globalFilter param when clearing a non-empty default', () => {
+    const defaults = {
+      ...DEFAULT_TABLE_STATE,
+      globalFilter: 'mysql',
+    };
+    const serialized = serializeTableUrlState(
+      { ...DEFAULT_TABLE_STATE, globalFilter: '' },
+      new URLSearchParams('keep=1'),
+      { defaults }
+    );
+
+    expect(serialized.get('q')).toBe('');
+    expect(parseTableUrlState(serialized, { defaults }).globalFilter).toBe('');
+  });
+
   it('omits empty range filter values when serializing', () => {
     const serialized = serializeTableUrlState(
       { ...DEFAULT_TABLE_STATE, columnFilters: [{ id: 'cpu', value: ['', ''] }] },
