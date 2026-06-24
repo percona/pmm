@@ -34,13 +34,18 @@ func TestSavePMMConfig(t *testing.T) {
 	}{
 		{
 			description: "disable internal postgresql db",
-			params:      map[string]any{"DisableInternalDB": true, "DisableSupervisor": false, "DisableInternalClickhouse": false, "AgentConfigFilePath": "/usr/local/percona/pmm/config/pmm-agent.yaml"},
+			params:      map[string]any{"DisableInternalDB": true, "DisableSupervisor": false, "DisableInternalClickhouse": false, "AgentConfigFilePath": "/usr/local/percona/pmm/config/pmm-agent.yaml", "ClickHouseConfig": "default"},
 			file:        "pmm-db_disabled",
 		},
 		{
 			description: "enable internal postgresql db",
-			params:      map[string]any{"DisableInternalDB": false, "DisableSupervisor": false, "DisableInternalClickhouse": false, "AgentConfigFilePath": "/usr/local/percona/pmm/config/pmm-agent.yaml"},
+			params:      map[string]any{"DisableInternalDB": false, "DisableSupervisor": false, "DisableInternalClickhouse": false, "AgentConfigFilePath": "/usr/local/percona/pmm/config/pmm-agent.yaml", "ClickHouseConfig": "default"},
 			file:        "pmm-db_enabled",
+		},
+		{
+			description: "low-memory clickhouse profile",
+			params:      map[string]any{"DisableInternalDB": false, "DisableSupervisor": false, "DisableInternalClickhouse": false, "AgentConfigFilePath": "/usr/local/percona/pmm/config/pmm-agent.yaml", "ClickHouseConfig": "low-memory"},
+			file:        "pmm-ch_low_memory",
 		},
 	}
 	for _, test := range tests {
