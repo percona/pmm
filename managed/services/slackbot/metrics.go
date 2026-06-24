@@ -41,8 +41,17 @@ var (
 		Name: "pmm_slack_adre_socket_connected",
 		Help: "1 if Slack Socket Mode is connected on this leader.",
 	})
+	slackAuthzDeniedTotal = prom.NewCounterVec(prom.CounterOpts{
+		Name: "pmm_slack_adre_authz_denied_total",
+		Help: "Slack interactions denied by the human-chat allowlist, by path.",
+	}, []string{"path"})
+	slackRateLimitedTotal = prom.NewCounter(prom.CounterOpts{
+		Name: "pmm_slack_adre_rate_limited_total",
+		Help: "Slack human-chat turns rejected by the per-user rate limit.",
+	})
 )
 
 func init() {
-	prom.MustRegister(slackEventsTotal, adreChatSeconds, slackUploadsTotal, adreChatErrorsTotal, slackConnected)
+	prom.MustRegister(slackEventsTotal, adreChatSeconds, slackUploadsTotal, adreChatErrorsTotal, slackConnected,
+		slackAuthzDeniedTotal, slackRateLimitedTotal)
 }

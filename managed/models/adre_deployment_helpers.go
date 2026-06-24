@@ -16,7 +16,9 @@
 package models
 
 import (
+	"crypto/rand"
 	"database/sql"
+	"encoding/hex"
 	"time"
 
 	"github.com/pkg/errors" //nolint:depguard
@@ -80,6 +82,7 @@ type AdreProvisioning struct {
 	ServiceNowClientToken string
 	SlackBotToken         string
 	SlackAppToken         string
+	AlertWebhookSecret    string
 	PMMSAID               int
 	PMMURL                string
 	LastRenderAt          *time.Time
@@ -253,11 +256,11 @@ func GetAdreProvisioning(q reform.DBTX) (*AdreProvisioning, error) {
 	var lastRender sql.NullTime
 	err := q.QueryRow(
 		`SELECT holmes_api_key, pmm_sa_token, servicenow_api_key, servicenow_client_token, slack_bot_token, slack_app_token,
-		        pmm_sa_id, pmm_url, last_render_at, render_status, restart_required
+		        alert_webhook_secret, pmm_sa_id, pmm_url, last_render_at, render_status, restart_required
 		 FROM adre_provisioning WHERE id = TRUE`,
 	).
 		Scan(&p.HolmesAPIKey, &p.PMMSAToken, &p.ServiceNowAPIKey, &p.ServiceNowClientToken, &p.SlackBotToken, &p.SlackAppToken,
-			&p.PMMSAID, &p.PMMURL, &lastRender, &p.RenderStatus, &p.RestartRequired)
+			&p.AlertWebhookSecret, &p.PMMSAID, &p.PMMURL, &lastRender, &p.RenderStatus, &p.RestartRequired)
 	if errors.Is(err, sql.ErrNoRows) {
 		return &AdreProvisioning{}, nil
 	}
@@ -273,7 +276,38 @@ func GetAdreProvisioning(q reform.DBTX) (*AdreProvisioning, error) {
 	p.ServiceNowClientToken = decryptField("servicenow_client_token", p.ServiceNowClientToken)
 	p.SlackBotToken = decryptField("slack_bot_token", p.SlackBotToken)
 	p.SlackAppToken = decryptField("slack_app_token", p.SlackAppToken)
+	p.AlertWebhookSecret = decryptField("alert_webhook_secret", p.AlertWebhookSecret)
 	return &p, nil
+}
+
+// EnsureAlertWebhookSecret returns the alert-webhook shared secret, generating and persisting one
+// (encrypted) on first use. The secret authenticates Grafana's alert webhook to PMM.
+func EnsureAlertWebhookSecret(q reform.DBTX) (string, error) {
+	p, err := GetAdreProvisioning(q)
+	if err != nil {
+		return "", err
+	}
+	if p.AlertWebhookSecret != "" {
+		return p.AlertWebhookSecret, nil
+	}
+	secret, err := generateSecretHex(32)
+	if err != nil {
+		return "", err
+	}
+	p.AlertWebhookSecret = secret
+	if err := SaveAdreProvisioning(q, p); err != nil { //nolint:noinlineerr
+		return "", err
+	}
+	return secret, nil
+}
+
+// generateSecretHex returns a cryptographically random hex string of n bytes (2n hex chars).
+func generateSecretHex(n int) (string, error) {
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil { //nolint:noinlineerr
+		return "", errors.Wrap(err, "failed to generate random secret")
+	}
+	return hex.EncodeToString(b), nil
 }
 
 // SaveAdreProvisioning upserts the singleton provisioning row.
@@ -282,23 +316,25 @@ func SaveAdreProvisioning(q reform.DBTX, p *AdreProvisioning) error {
 	if p.LastRenderAt != nil {
 		lastRender = *p.LastRenderAt
 	}
-	// Order matches the placeholders $1..$6 below.
+	// Order matches the placeholders $1..$7 below.
 	enc, err := encryptSecrets(
 		p.HolmesAPIKey, p.PMMSAToken, p.ServiceNowAPIKey, p.ServiceNowClientToken, p.SlackBotToken, p.SlackAppToken,
+		p.AlertWebhookSecret,
 	)
 	if err != nil {
 		return errors.Wrap(err, "failed to encrypt adre_provisioning secrets")
 	}
 	_, err = q.Exec(
 		`INSERT INTO adre_provisioning (id, holmes_api_key, pmm_sa_token, servicenow_api_key, servicenow_client_token,
-		        slack_bot_token, slack_app_token, pmm_sa_id, pmm_url, last_render_at, render_status, restart_required)
-		 VALUES (TRUE, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+		        slack_bot_token, slack_app_token, alert_webhook_secret, pmm_sa_id, pmm_url, last_render_at, render_status, restart_required)
+		 VALUES (TRUE, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 		 ON CONFLICT (id) DO UPDATE SET holmes_api_key = EXCLUDED.holmes_api_key, pmm_sa_token = EXCLUDED.pmm_sa_token,
 		   servicenow_api_key = EXCLUDED.servicenow_api_key, servicenow_client_token = EXCLUDED.servicenow_client_token,
 		   slack_bot_token = EXCLUDED.slack_bot_token, slack_app_token = EXCLUDED.slack_app_token,
+		   alert_webhook_secret = EXCLUDED.alert_webhook_secret,
 		   pmm_sa_id = EXCLUDED.pmm_sa_id, pmm_url = EXCLUDED.pmm_url, last_render_at = EXCLUDED.last_render_at,
 		   render_status = EXCLUDED.render_status, restart_required = EXCLUDED.restart_required`,
-		enc[0], enc[1], enc[2], enc[3], enc[4], enc[5], p.PMMSAID, p.PMMURL, lastRender, p.RenderStatus, p.RestartRequired,
+		enc[0], enc[1], enc[2], enc[3], enc[4], enc[5], enc[6], p.PMMSAID, p.PMMURL, lastRender, p.RenderStatus, p.RestartRequired,
 	)
 	return errors.Wrap(err, "failed to save adre_provisioning")
 }

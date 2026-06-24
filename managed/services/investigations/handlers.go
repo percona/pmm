@@ -293,16 +293,36 @@ func (h *Handlers) CreateInvestigation(w http.ResponseWriter, r *http.Request) {
 			config = b
 		}
 	}
+	// Soft fingerprint dedup: if this create is for a firing alert that already has an active
+	// investigation, return that record (HTTP 200 + reused) instead of creating a duplicate. The UI
+	// offers an explicit "Run again" for a deliberate fresh report.
+	fingerprint := firstAlertFingerprint(body.AlertSnapshot)
+	if fingerprint != "" {
+		existing, lookupErr := models.FindActiveInvestigationByFingerprint(h.db, fingerprint)
+		if lookupErr != nil {
+			h.l.Errorf("FindActiveInvestigationByFingerprint: %v", lookupErr)
+		} else if existing != nil {
+			blocks, _ := models.GetInvestigationBlocks(h.db, existing.ID)
+			resp := investigationToResponse(existing)
+			resp.Blocks = blocksToResponse(blocks)
+			resp.Reused = true
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			_ = json.NewEncoder(w).Encode(resp) //nolint:errchkjson // response already committed
+			return
+		}
+	}
 	inv := &models.Investigation{
-		ID:         models.NewInvestigationID(),
-		Title:      body.Title,
-		Status:     "open",
-		TimeFrom:   timeFrom,
-		TimeTo:     timeTo,
-		Summary:    body.Summary,
-		SourceType: body.SourceType,
-		SourceRef:  body.SourceRef,
-		Config:     config,
+		ID:               models.NewInvestigationID(),
+		Title:            body.Title,
+		Status:           "open",
+		TimeFrom:         timeFrom,
+		TimeTo:           timeTo,
+		Summary:          body.Summary,
+		SourceType:       body.SourceType,
+		SourceRef:        body.SourceRef,
+		AlertFingerprint: fingerprint,
+		Config:           config,
 	}
 	if inv.SourceType == "" {
 		inv.SourceType = "manual"

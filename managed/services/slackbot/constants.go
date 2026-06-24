@@ -18,4 +18,7 @@ package slackbot
 const (
 	maxThreadMessagesRAM       = 50
 	maxConcurrentAdreChatSlots = 3
+	// maxSlackUserTextBytes caps the human chat text sent to Holmes (bounds token cost + injection
+	// surface). Over-long input is truncated with a marker, never dropped.
+	maxSlackUserTextBytes = 8 << 10
 )

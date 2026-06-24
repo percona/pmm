@@ -19,6 +19,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"strings"
 
 	"github.com/pkg/errors" //nolint:depguard
 	"github.com/sirupsen/logrus"
@@ -30,9 +31,11 @@ import (
 // holmesServiceAccountName is the Grafana service account PMM mints for HolmesGPT's PMM_API_TOKEN.
 const holmesServiceAccountName = "holmesgpt"
 
-// ServiceAccountCreator mints a Grafana service-account token. *grafana.Client satisfies it.
+// ServiceAccountCreator mints a Grafana service-account token and provisions the auto-investigate
+// alert webhook contact point. *grafana.Client satisfies it.
 type ServiceAccountCreator interface {
 	CreateServiceAccount(ctx context.Context, nodeName string, reregister bool) (int, string, error)
+	EnsureAlertWebhookContactPoint(ctx context.Context, webhookURL, secret string) error
 }
 
 // Provisioner ensures the PMM↔Holmes bootstrap secrets exist: a minted Grafana service-account
@@ -93,6 +96,20 @@ func (p *Provisioner) EnsureProvisioned(ctx context.Context, pmmURL string) (*mo
 			return nil, err
 		}
 	}
+
+	// Best-effort: ensure the auto-investigate webhook secret exists and provision a Grafana contact
+	// point + route that delivers firing alerts to PMM's authenticated webhook. Failures are
+	// non-fatal — auto-investigate still runs via the reconciliation poll.
+	secret, err := models.EnsureAlertWebhookSecret(p.db)
+	if err != nil {
+		p.l.Warnf("ensure alert webhook secret: %v", err)
+	} else if secret != "" && prov.PMMURL != "" {
+		webhookURL := strings.TrimSuffix(prov.PMMURL, "/") + "/v1/adre/alert-webhook"
+		if err := p.sa.EnsureAlertWebhookContactPoint(ctx, webhookURL, secret); err != nil { //nolint:noinlineerr
+			p.l.Warnf("auto-provision alert webhook contact point: %v (auto-investigate still runs via the reconciliation poll)", err)
+		}
+	}
+
 	return prov, nil
 }
 

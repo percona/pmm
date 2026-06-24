@@ -18,6 +18,7 @@ package investigations
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"slices"
@@ -179,50 +180,44 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 	_ = json.NewEncoder(w).Encode(map[string]string{"content": lastContent}) //nolint:errchkjson // response already committed
 }
 
-// PostInvestigationRun handles POST /v1/investigations/:id/run.
-// Sets status to "running", returns 202 immediately, and runs the investigation in a background goroutine.
-func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, _ *http.Request, id string) {
+// startInvestigationRun validates that the investigation can run, marks it "running", records the
+// run-kickoff message, and returns the loaded settings so the caller can launch the background run.
+// A non-nil *httpError explains why a run cannot start. It is shared by the HTTP run endpoint and the
+// programmatic auto-investigate path so both go through identical validation and state transitions.
+func (h *Handlers) startInvestigationRun(id string) (*models.Settings, *httpError) {
 	inv, err := models.GetInvestigationByID(h.db, id)
 	if err != nil || inv == nil {
 		if inv == nil {
-			writeJSONError(w, http.StatusNotFound, "Investigation not found")
-			return
+			return nil, &httpError{http.StatusNotFound, "Investigation not found"}
 		}
-		writeJSONError(w, http.StatusInternalServerError, "Failed to get investigation")
-		return
+		return nil, &httpError{http.StatusInternalServerError, "Failed to get investigation"}
 	}
 
 	switch inv.Status {
 	case "running":
-		writeJSONError(w, http.StatusConflict, "Investigation is already running")
-		return
+		return nil, &httpError{http.StatusConflict, "Investigation is already running"}
 	case "completed":
-		writeJSONError(w, http.StatusConflict, "Investigation has already completed — create a new investigation to re-analyze")
-		return
+		return nil, &httpError{http.StatusConflict, "Investigation has already completed — create a new investigation to re-analyze"}
 	case "failed":
-		writeJSONError(w, http.StatusConflict, "Investigation previously failed — create a new investigation to retry")
-		return
+		return nil, &httpError{http.StatusConflict, "Investigation previously failed — create a new investigation to retry"}
 	case "resolved", "archived":
-		writeJSONError(w, http.StatusConflict, "Investigation is "+inv.Status+" and cannot be re-run")
-		return
+		return nil, &httpError{http.StatusConflict, "Investigation is " + inv.Status + " and cannot be re-run"}
 	}
 
 	settings, err := models.GetSettings(h.db)
 	if err != nil {
 		h.l.Errorf("GetSettings: %v", err)
-		writeJSONError(w, http.StatusInternalServerError, "Failed to get settings")
-		return
+		return nil, &httpError{http.StatusInternalServerError, "Failed to get settings"}
 	}
-	if !h.requireHolmesURL(w, settings) {
-		return
+	if settings.GetAdreURL() == "" {
+		return nil, &httpError{http.StatusBadRequest, "HolmesGPT is not configured. Set HolmesGPT URL in AI Assistant Settings."}
 	}
 
 	inv.Status = "running"
 	err = models.UpdateInvestigation(h.db, inv)
 	if err != nil {
 		h.l.Errorf("UpdateInvestigation (running): %v", err)
-		writeJSONError(w, http.StatusInternalServerError, "Failed to update investigation status")
-		return
+		return nil, &httpError{http.StatusInternalServerError, "Failed to update investigation status"}
 	}
 
 	userMsg := &models.InvestigationMessage{
@@ -231,16 +226,38 @@ func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, _ *http.Request, 
 		Role:            "user",
 		Content:         "Generate the full investigation report.",
 	}
-	err = models.CreateInvestigationMessage(h.db, userMsg)
-	if err != nil {
-		h.l.Warnf("CreateInvestigationMessage run user: %v", err)
+	if mErr := models.CreateInvestigationMessage(h.db, userMsg); mErr != nil {
+		h.l.Warnf("CreateInvestigationMessage run user: %v", mErr)
+	}
+	return settings, nil
+}
+
+// PostInvestigationRun handles POST /v1/investigations/:id/run.
+// Sets status to "running", returns 202 immediately, and runs the investigation in a background goroutine.
+func (h *Handlers) PostInvestigationRun(w http.ResponseWriter, _ *http.Request, id string) {
+	settings, hErr := h.startInvestigationRun(id)
+	if hErr != nil {
+		writeJSONError(w, hErr.status, hErr.msg)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusAccepted)
 	_ = json.NewEncoder(w).Encode(map[string]string{"status": "running"}) //nolint:errchkjson // response already committed
 
-	go h.runInvestigationBackground(id, inv, settings)
+	go h.runInvestigationBackground(id, nil, settings) //nolint:contextcheck // background run uses a fresh detached context
+}
+
+// StartRun launches a background investigation run programmatically (e.g. from auto-investigate),
+// mirroring the HTTP run endpoint without an http.ResponseWriter. It returns an error if the run
+// cannot be started (already running/completed, Holmes not configured, etc.).
+func (h *Handlers) StartRun(_ context.Context, id string) error {
+	settings, hErr := h.startInvestigationRun(id)
+	if hErr != nil {
+		return errors.New(hErr.msg)
+	}
+	go h.runInvestigationBackground(id, nil, settings)
+	return nil
 }
 
 // runInvestigationBackground executes the investigation in a background goroutine.

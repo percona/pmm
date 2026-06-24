@@ -81,6 +81,7 @@ import (
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
 	"github.com/percona/pmm/managed/services/alerting"
+	"github.com/percona/pmm/managed/services/autoinvestigate"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config" //nolint:staticcheck
@@ -203,7 +204,7 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	})
 }
 
-func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.GrafanaAuth, vm v1.API, ch adre.ClickHousePools) {
+func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.GrafanaAuth, vm v1.API, ch adre.ClickHousePools, alertSink adre.AlertWebhookSink) {
 	// Seed the shipped HolmesGPT config.yaml and skills on first run (idempotent: no-op once populated).
 	err := deployment.SeedDefaultConfig(db)
 	if err != nil {
@@ -214,6 +215,7 @@ func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.Grafa
 		logrus.Warnf("Failed to seed built-in ADRE skills: %v", err)
 	}
 	h := adre.NewHandlers(db, grafanaClient, vm, ch)
+	h.SetAlertSink(alertSink)
 	mux.HandleFunc("/v1/adre/settings", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -263,6 +265,7 @@ func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.Grafa
 	mux.HandleFunc("/v1/adre/usage/", h.ServeUsageSubroutes)
 	mux.HandleFunc("/v1/adre/metrics/snapshot", h.PostMetricsSnapshot)
 	mux.HandleFunc("/v1/adre/clickhouse/query", h.PostClickHouseQuery)
+	mux.HandleFunc("/v1/adre/alert-webhook", h.PostAlertWebhook)
 }
 
 func addInvestigationsHandlers(mux *http.ServeMux, db *reform.DB) {
@@ -423,13 +426,14 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 }
 
 type http1ServerDeps struct {
-	logs               *server.Logs
-	authServer         *grafana.AuthServer
-	db                 *reform.DB
-	grafanaClient      *grafana.Client
-	vmClient           *metrics.Client
-	clickhouse         adre.ClickHousePools
-	currentUserHandler http.Handler
+	logs                *server.Logs
+	authServer          *grafana.AuthServer
+	db                  *reform.DB
+	grafanaClient       *grafana.Client
+	vmClient            *metrics.Client
+	clickhouse          adre.ClickHousePools
+	currentUserHandler  http.Handler
+	autoInvestigateSink adre.AlertWebhookSink
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -510,7 +514,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
-	addAdreHandlers(mux, deps.db, deps.grafanaClient, v1.NewAPI(*deps.vmClient), deps.clickhouse)
+	addAdreHandlers(mux, deps.db, deps.grafanaClient, v1.NewAPI(*deps.vmClient), deps.clickhouse, deps.autoInvestigateSink)
 	go adre.RunAdreChatRetentionLoop(ctx, deps.db, logrus.WithField("component", "adre-retention"), 24*time.Hour) //nolint:mnd
 	mux.Handle("/v1/grafana/render", grafana.NewLegacyGETRenderGoneHandler())
 	mux.Handle("/v1/grafana/render/resolve", grafana.NewResolveHandler(deps.grafanaClient))
@@ -1295,15 +1299,22 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			})
 	})
 
+	// Auto-investigate: authoritative, idempotent investigations driven by Grafana Alertmanager
+	// (reconciliation poll + optional instant webhook). One shared Service so the webhook and poll
+	// share episode-dedup state; the poll is leader-only, the webhook is gated by a shared secret.
+	adreAutoL := logrus.WithField("component", "adre-auto-investigate")
+	autoInvestigateSvc := autoinvestigate.New(db, investigations.NewHandlers(db), slackbot.NewSlackNotifier(db, adreAutoL), adreAutoL)
+
 	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
-			logs:               logs,
-			authServer:         authServer,
-			db:                 db,
-			grafanaClient:      grafanaClient,
-			vmClient:           &vmClient,
-			clickhouse:         adreClickHouse,
-			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
+			logs:                logs,
+			authServer:          authServer,
+			db:                  db,
+			grafanaClient:       grafanaClient,
+			vmClient:            &vmClient,
+			clickhouse:          adreClickHouse,
+			currentUserHandler:  user.NewCurrentHTTPHandler(grafanaClient),
+			autoInvestigateSink: autoInvestigateSvc,
 		})
 	})
 
@@ -1319,6 +1330,28 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	adreSlackL := logrus.WithField("component", "adre-slack")
 	haService.AddLeaderService(ha.NewContextService("adre-slack", func(ctx context.Context) error {
 		return slackbot.Run(ctx, db, adreSlackL)
+	}))
+
+	// The reconciliation poll (leader-only) reuses the existing Alertmanager API with the admin SA
+	// token; it is the safety-net behind the instant webhook and works without any provisioning.
+	autoInvestigateFetcher := autoinvestigate.AlertFetcherFunc(func(ctx context.Context) ([]autoinvestigate.Alert, error) {
+		prov, err := models.GetAdreProvisioning(db)
+		if err != nil {
+			return nil, err
+		}
+		headers := http.Header{}
+		if prov.PMMSAToken != "" {
+			headers.Set("Authorization", "Bearer "+prov.PMMSAToken)
+		}
+		raw, err := grafanaClient.GetAlertmanagerAlerts(ctx, headers)
+		if err != nil {
+			return nil, err
+		}
+		return autoinvestigate.ParseAlertmanagerAlerts(raw), nil
+	})
+	haService.AddLeaderService(ha.NewContextService("adre-auto-investigate", func(ctx context.Context) error {
+		autoInvestigateSvc.RunPoll(ctx, autoInvestigateFetcher, 0, nil)
+		return nil
 	}))
 
 	wg.Go(func() {

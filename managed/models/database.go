@@ -105,6 +105,7 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 			{Name: "servicenow_client_token"},
 			{Name: "slack_bot_token"},
 			{Name: "slack_app_token"},
+			{Name: "alert_webhook_secret"},
 		},
 	},
 }
@@ -1795,6 +1796,24 @@ $yaml$,
 	139: {
 		// Per-model extra LiteLLM params (YAML) for local/self-hosted models (temperature, num_ctx, etc.).
 		`ALTER TABLE adre_models ADD COLUMN IF NOT EXISTS extra_params TEXT NOT NULL DEFAULT ''`,
+	},
+	140: {
+		// F5 auto-investigate redesign: authoritative alert fingerprint on investigations, enabling
+		// episode-scoped idempotency (one active investigation per firing alert). The partial unique
+		// index coalesces concurrent claims for the same firing alert.
+		`ALTER TABLE investigations ADD COLUMN IF NOT EXISTS alert_fingerprint VARCHAR NOT NULL DEFAULT ''`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS investigations_active_alert ` +
+			`ON investigations (alert_fingerprint) ` +
+			`WHERE alert_fingerprint <> '' AND status IN ('open','in_progress','investigating','running')`,
+		// Supports the hourly auto-investigate cap count (created_by + created_at window) without a
+		// sequential scan as the investigations table grows.
+		`CREATE INDEX IF NOT EXISTS investigations_auto_created_at ` +
+			`ON investigations (created_at) WHERE created_by = 'auto-investigate'`,
+	},
+	141: {
+		// F5 auto-investigate webhook: shared secret PMM verifies on the Grafana alert webhook
+		// (stored encrypted at rest, like the other adre_provisioning secrets).
+		`ALTER TABLE adre_provisioning ADD COLUMN IF NOT EXISTS alert_webhook_secret VARCHAR NOT NULL DEFAULT ''`,
 	},
 }
 

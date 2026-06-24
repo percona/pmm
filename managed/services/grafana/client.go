@@ -737,6 +737,92 @@ func (c *Client) CreateServiceAccount(ctx context.Context, nodeName string, rere
 	return serviceAccountID, serviceToken, nil
 }
 
+// alertWebhookContactPointName is the Grafana contact point PMM provisions for auto-investigate.
+const alertWebhookContactPointName = "pmm-adre-auto-investigate"
+
+// EnsureAlertWebhookContactPoint idempotently provisions, via Grafana's provisioning API, a webhook
+// contact point that posts firing alerts (with a Bearer secret) to PMM's authenticated alert webhook,
+// plus a catch-all notification-policy route (continue:true) that delivers to it. It uses the admin
+// auth headers from ctx. It is best-effort: the auto-investigate reconciliation poll works without it.
+func (c *Client) EnsureAlertWebhookContactPoint(ctx context.Context, webhookURL, secret string) error {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	var existing []struct {
+		Name string `json:"name"`
+	}
+	err = c.do(ctx, http.MethodGet, "/api/v1/provisioning/contact-points", "", authHeaders, nil, &existing)
+	if err != nil {
+		return fmt.Errorf("list contact points: %w", err)
+	}
+	found := false
+	for _, cp := range existing {
+		if cp.Name == alertWebhookContactPointName {
+			found = true
+			break
+		}
+	}
+	if !found {
+		body, mErr := json.Marshal(map[string]any{
+			"name": alertWebhookContactPointName,
+			"type": "webhook",
+			"settings": map[string]any{
+				"url":                       webhookURL,
+				"httpMethod":                "POST",
+				"authorization_scheme":      "Bearer",
+				"authorization_credentials": secret,
+			},
+		})
+		if mErr != nil {
+			return mErr
+		}
+		hdr := authHeaders.Clone()
+		hdr.Set("X-Disable-Provenance", "true")
+		if err := c.do(ctx, http.MethodPost, "/api/v1/provisioning/contact-points", "", hdr, body, nil); err != nil { //nolint:noinlineerr
+			return fmt.Errorf("create contact point: %w", err)
+		}
+	}
+
+	return c.ensureAlertWebhookRoute(ctx, authHeaders)
+}
+
+// ensureAlertWebhookRoute adds a catch-all route to the notification policy tree that delivers to the
+// auto-investigate contact point with continue:true (so existing routing is unaffected), if absent.
+func (c *Client) ensureAlertWebhookRoute(ctx context.Context, authHeaders http.Header) error {
+	var tree map[string]any
+	err := c.do(ctx, http.MethodGet, "/api/v1/provisioning/policies", "", authHeaders, nil, &tree)
+	if err != nil {
+		return fmt.Errorf("get notification policy tree: %w", err)
+	}
+	if tree == nil {
+		// An empty body or JSON null decodes to a nil map; writing to it would panic.
+		tree = map[string]any{}
+	}
+	routes, _ := tree["routes"].([]any)
+	for _, r := range routes {
+		if m, ok := r.(map[string]any); ok && m["receiver"] == alertWebhookContactPointName {
+			return nil
+		}
+	}
+	routes = append(routes, map[string]any{
+		"receiver": alertWebhookContactPointName,
+		"continue": true,
+	})
+	tree["routes"] = routes
+	body, err := json.Marshal(tree)
+	if err != nil {
+		return err
+	}
+	hdr := authHeaders.Clone()
+	hdr.Set("X-Disable-Provenance", "true")
+	if err := c.do(ctx, http.MethodPut, "/api/v1/provisioning/policies", "", hdr, body, nil); err != nil { //nolint:noinlineerr
+		return fmt.Errorf("update notification policy tree: %w", err)
+	}
+	return nil
+}
+
 // DeleteServiceAccount deletes service account by current service token.
 func (c *Client) DeleteServiceAccount(ctx context.Context, nodeName string, force bool) (string, error) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)

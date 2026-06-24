@@ -42,6 +42,7 @@ type Investigation struct {
 	ResolutionSummary      string    `reform:"resolution_summary"`
 	SourceType             string    `reform:"source_type"`
 	SourceRef              string    `reform:"source_ref"`
+	AlertFingerprint       string    `reform:"alert_fingerprint"`
 	Tags                   []byte    `reform:"tags"`
 	Config                 []byte    `reform:"config"`
 	ServiceNowTicketID     string    `reform:"servicenow_ticket_id"`

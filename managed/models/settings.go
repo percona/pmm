@@ -155,6 +155,20 @@ type Settings struct {
 		SlackAutoInvestigate bool `json:"slack_auto_investigate"`
 		// TLSSkipVerify disables TLS certificate verification for PMM → HolmesGPT.
 		TLSSkipVerify bool `json:"tls_skip_verify"`
+		// Slack human-chat authorization allowlists (fail-closed: empty ⇒ nobody allowed). Values are
+		// Slack object IDs (channels Cxxxx/Gxxxx/Dxxxx, users Uxxxx/Wxxxx), not names.
+		SlackAllowedChannels []string `json:"slack_allowed_channels,omitempty"`
+		SlackAllowedUsers    []string `json:"slack_allowed_users,omitempty"`
+		// SlackAutoInvestigateChannels receive auto-investigation summaries (output only — not a trust
+		// gate; auto-investigate is driven by Grafana Alertmanager, not inbound Slack messages).
+		SlackAutoInvestigateChannels []string `json:"slack_auto_investigate_channels,omitempty"`
+		// Auto-investigate selection + cost guards. AutoInvestigateMinSeverity is a floor (e.g.
+		// "critical"; empty ⇒ no floor). AutoInvestigateLabelMatchers are "key=value" pairs an alert
+		// must match (all of them). AutoInvestigateHourlyCap bounds auto-investigations per hour
+		// (0 ⇒ unbounded, not recommended).
+		AutoInvestigateMinSeverity   string   `json:"auto_investigate_min_severity,omitempty"`
+		AutoInvestigateLabelMatchers []string `json:"auto_investigate_label_matchers,omitempty"`
+		AutoInvestigateHourlyCap     int      `json:"auto_investigate_hourly_cap,omitempty"`
 	} `json:"adre"`
 
 	Alerting struct {
@@ -329,6 +343,31 @@ func (s *Settings) GetEffectiveSlackLinkBaseURL() string {
 		return ""
 	}
 	return NormalizePMMPublicAddressOrigin(s.PMMPublicAddress)
+}
+
+// slackListContains reports whether id (trimmed, exact, case-sensitive — Slack IDs are uppercase
+// tokens) is present in list. Fail-closed: an empty list contains nothing.
+func slackListContains(list []string, id string) bool {
+	id = strings.TrimSpace(id)
+	if id == "" {
+		return false
+	}
+	for _, v := range list {
+		if strings.TrimSpace(v) == id {
+			return true
+		}
+	}
+	return false
+}
+
+// IsSlackChannelAllowed reports whether a channel is allow-listed for human Slack chat (fail-closed).
+func (s *Settings) IsSlackChannelAllowed(channelID string) bool {
+	return slackListContains(s.Adre.SlackAllowedChannels, channelID)
+}
+
+// IsSlackUserAllowed reports whether a user is allow-listed for human Slack chat (fail-closed).
+func (s *Settings) IsSlackUserAllowed(userID string) bool {
+	return slackListContains(s.Adre.SlackAllowedUsers, userID)
 }
 
 // GetAdreChatRetentionDays returns automatic ADRE chat retention in days (0 = no automatic purge).

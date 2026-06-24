@@ -59,6 +59,10 @@ func (m *mockGrafanaAlertsFetcher) CreateServiceAccount(_ context.Context, _ str
 	return 1, "test-token", nil
 }
 
+func (m *mockGrafanaAlertsFetcher) EnsureAlertWebhookContactPoint(_ context.Context, _, _ string) error {
+	return nil
+}
+
 func TestHandlers_GetSettings(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	defer func() { require.NoError(t, sqlDB.Close()) }()

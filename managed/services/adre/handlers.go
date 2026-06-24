@@ -72,6 +72,12 @@ const (
 	adreURLNotSetMsg = "HolmesGPT URL is not configured. Set it in Settings."
 )
 
+// AlertWebhookSink processes a Grafana alert-webhook payload (raw JSON body). Implemented by
+// autoinvestigate.Service; kept as a raw-bytes interface so adre needn't import that package.
+type AlertWebhookSink interface {
+	ProcessWebhook(ctx context.Context, raw []byte)
+}
+
 // Handlers provides HTTP handlers for the ADRE proxy API.
 type Handlers struct {
 	db            *reform.DB
@@ -83,6 +89,13 @@ type Handlers struct {
 	reqTimeout    time.Duration
 	streamTimeout time.Duration
 	l             *logrus.Entry
+	alertSink     AlertWebhookSink
+}
+
+// SetAlertSink injects the auto-investigate sink used by the alert webhook. Safe to leave unset (the
+// webhook then returns 503).
+func (h *Handlers) SetAlertSink(sink AlertWebhookSink) {
+	h.alertSink = sink
 }
 
 // NewHandlers creates new ADRE HTTP handlers.
@@ -147,6 +160,12 @@ type adreSettingsResponse struct {
 	SlackAutoInvestigate          bool            `json:"slack_auto_investigate"`
 	SlackConfigured               bool            `json:"slack_configured"`
 	TLSSkipVerify                 bool            `json:"tls_skip_verify"`
+	SlackAllowedChannels          []string        `json:"slack_allowed_channels"`
+	SlackAllowedUsers             []string        `json:"slack_allowed_users"`
+	SlackAutoInvestigateChannels  []string        `json:"slack_auto_investigate_channels"`
+	AutoInvestigateMinSeverity    string          `json:"auto_investigate_min_severity"`
+	AutoInvestigateLabelMatchers  []string        `json:"auto_investigate_label_matchers"`
+	AutoInvestigateHourlyCap      int             `json:"auto_investigate_hourly_cap"`
 }
 
 func applyAdreSettingsDefaults(r *adreSettingsResponse) {
@@ -218,6 +237,12 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		SlackAutoInvestigate:          settings.Adre.SlackAutoInvestigate,
 		SlackConfigured:               slackConfigured,
 		TLSSkipVerify:                 settings.Adre.TLSSkipVerify,
+		SlackAllowedChannels:          settings.Adre.SlackAllowedChannels,
+		SlackAllowedUsers:             settings.Adre.SlackAllowedUsers,
+		SlackAutoInvestigateChannels:  settings.Adre.SlackAutoInvestigateChannels,
+		AutoInvestigateMinSeverity:    settings.Adre.AutoInvestigateMinSeverity,
+		AutoInvestigateLabelMatchers:  settings.Adre.AutoInvestigateLabelMatchers,
+		AutoInvestigateHourlyCap:      settings.Adre.AutoInvestigateHourlyCap,
 	}
 	applyAdreSettingsDefaults(&resp)
 	body, err := json.Marshal(resp)
@@ -268,6 +293,12 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		SlackBotToken                 *string          `json:"slack_bot_token"`
 		SlackAppToken                 *string          `json:"slack_app_token"`
 		TLSSkipVerify                 *bool            `json:"tls_skip_verify"`
+		SlackAllowedChannels          *[]string        `json:"slack_allowed_channels"`
+		SlackAllowedUsers             *[]string        `json:"slack_allowed_users"`
+		SlackAutoInvestigateChannels  *[]string        `json:"slack_auto_investigate_channels"`
+		AutoInvestigateMinSeverity    *string          `json:"auto_investigate_min_severity"`
+		AutoInvestigateLabelMatchers  *[]string        `json:"auto_investigate_label_matchers"`
+		AutoInvestigateHourlyCap      *int             `json:"auto_investigate_hourly_cap"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil { //nolint:noinlineerr
 		writeJSONError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
@@ -280,7 +311,9 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		body.ServiceNowURL != nil || body.ServiceNowAPIKey != nil || body.ServiceNowClientToken != nil ||
 		body.PromptMaxBytes != nil || body.AdreChatRetentionDays != nil ||
 		body.SlackEnabled != nil || body.SlackAutoInvestigate != nil || body.SlackBotToken != nil || body.SlackAppToken != nil ||
-		body.TLSSkipVerify != nil
+		body.TLSSkipVerify != nil ||
+		body.SlackAllowedChannels != nil || body.SlackAllowedUsers != nil || body.SlackAutoInvestigateChannels != nil ||
+		body.AutoInvestigateMinSeverity != nil || body.AutoInvestigateLabelMatchers != nil || body.AutoInvestigateHourlyCap != nil
 	if !hasChange {
 		writeJSONError(w, http.StatusBadRequest, "No changes provided")
 		return
@@ -410,6 +443,12 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		EnableSlackBot:                    body.SlackEnabled,
 		SlackAutoInvestigate:              body.SlackAutoInvestigate,
 		AdreTLSSkipVerify:                 body.TLSSkipVerify,
+		SlackAllowedChannels:              body.SlackAllowedChannels,
+		SlackAllowedUsers:                 body.SlackAllowedUsers,
+		SlackAutoInvestigateChannels:      body.SlackAutoInvestigateChannels,
+		AutoInvestigateMinSeverity:        body.AutoInvestigateMinSeverity,
+		AutoInvestigateLabelMatchers:      body.AutoInvestigateLabelMatchers,
+		AutoInvestigateHourlyCap:          body.AutoInvestigateHourlyCap,
 	}
 	if _, err := models.UpdateSettings(h.db, params); err != nil { //nolint:noinlineerr
 		h.l.Errorf("UpdateSettings: %v", err)
@@ -485,6 +524,12 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		SlackAutoInvestigate:          settings.Adre.SlackAutoInvestigate,
 		SlackConfigured:               slackConfigured,
 		TLSSkipVerify:                 settings.Adre.TLSSkipVerify,
+		SlackAllowedChannels:          settings.Adre.SlackAllowedChannels,
+		SlackAllowedUsers:             settings.Adre.SlackAllowedUsers,
+		SlackAutoInvestigateChannels:  settings.Adre.SlackAutoInvestigateChannels,
+		AutoInvestigateMinSeverity:    settings.Adre.AutoInvestigateMinSeverity,
+		AutoInvestigateLabelMatchers:  settings.Adre.AutoInvestigateLabelMatchers,
+		AutoInvestigateHourlyCap:      settings.Adre.AutoInvestigateHourlyCap,
 	}
 	applyAdreSettingsDefaults(&resp)
 	respBody, err := json.Marshal(resp)

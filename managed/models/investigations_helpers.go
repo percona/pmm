@@ -20,8 +20,17 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/lib/pq"
 	"gopkg.in/reform.v1"
 )
+
+// activeInvestigationStatusSQL is the status set considered "active" for an alert episode: an
+// investigation in one of these statuses blocks a duplicate claim for the same alert fingerprint.
+// It MUST stay in sync with the investigations_active_alert partial unique index (database.go).
+const activeInvestigationStatusSQL = "('open','in_progress','investigating','running')"
+
+// uniqueViolationCode is the PostgreSQL SQLSTATE for a unique-constraint violation.
+const uniqueViolationCode = "23505"
 
 // CreateInvestigation inserts a new investigation. ID must be set (e.g. NewInvestigationID()).
 func CreateInvestigation(q *reform.DB, inv *Investigation) error {
@@ -45,6 +54,91 @@ func GetInvestigationByID(q *reform.DB, id string) (*Investigation, error) {
 		return nil, err
 	}
 	return &inv, nil
+}
+
+// FindActiveInvestigationByFingerprint returns the most recent active (non-terminal) investigation
+// for an alert fingerprint, or nil if none. An empty fingerprint returns nil.
+func FindActiveInvestigationByFingerprint(q *reform.DB, fingerprint string) (*Investigation, error) {
+	if fingerprint == "" {
+		return nil, nil //nolint:nilnil // "not found" sentinel matching managed/models convention
+	}
+	tail := "WHERE alert_fingerprint = $1 AND status IN " + activeInvestigationStatusSQL + " ORDER BY created_at DESC LIMIT 1"
+	records, err := q.SelectAllFrom(InvestigationTable, tail, fingerprint)
+	if err != nil {
+		return nil, err
+	}
+	if len(records) == 0 {
+		return nil, nil //nolint:nilnil // "not found" sentinel matching managed/models convention
+	}
+	return records[0].(*Investigation), nil //nolint:forcetypeassert // SelectAllFrom on InvestigationTable guarantees this type
+}
+
+// FindLatestInvestigationByFingerprint returns the most recent investigation (any status) for an
+// alert fingerprint, or nil if none. The auto-investigate trigger uses it to reason about firing
+// episodes (e.g. whether a re-notification belongs to an already-investigated episode).
+func FindLatestInvestigationByFingerprint(q *reform.DB, fingerprint string) (*Investigation, error) {
+	if fingerprint == "" {
+		return nil, nil //nolint:nilnil // "not found" sentinel matching managed/models convention
+	}
+	records, err := q.SelectAllFrom(InvestigationTable, "WHERE alert_fingerprint = $1 ORDER BY created_at DESC LIMIT 1", fingerprint)
+	if err != nil {
+		return nil, err
+	}
+	if len(records) == 0 {
+		return nil, nil //nolint:nilnil // "not found" sentinel matching managed/models convention
+	}
+	return records[0].(*Investigation), nil //nolint:forcetypeassert // SelectAllFrom on InvestigationTable guarantees this type
+}
+
+// CountAutoInvestigationsSince returns the number of auto-investigations (created_by =
+// 'auto-investigate') created at or after since. It backs a global, HA-safe, restart-safe hourly cap.
+func CountAutoInvestigationsSince(q *reform.DB, since time.Time) (int, error) {
+	var n int
+	err := q.QueryRow(
+		"SELECT COUNT(*) FROM investigations WHERE created_by = $1 AND created_at >= $2",
+		AutoInvestigateCreatedBy, since,
+	).Scan(&n)
+	if err != nil {
+		return 0, err
+	}
+	return n, nil
+}
+
+// AutoInvestigateCreatedBy marks investigations created by the auto-investigate pipeline (also used
+// as the created_by filter for the hourly cap).
+const AutoInvestigateCreatedBy = "auto-investigate"
+
+// ClaimInvestigationForAlert atomically ensures at most one active investigation per alert
+// fingerprint. If an active investigation already exists it is returned with claimed=false; otherwise
+// inv is inserted and returned with claimed=true. Concurrent claims are serialized by the
+// investigations_active_alert partial unique index: the loser observes a unique violation and is
+// handed the winning investigation.
+func ClaimInvestigationForAlert(db *reform.DB, inv *Investigation) (*Investigation, bool, error) {
+	if inv.AlertFingerprint == "" {
+		return nil, false, errors.New("alert_fingerprint is required to claim an investigation")
+	}
+	existing, err := FindActiveInvestigationByFingerprint(db, inv.AlertFingerprint)
+	if err != nil {
+		return nil, false, err
+	}
+	if existing != nil {
+		return existing, false, nil
+	}
+	err = CreateInvestigation(db, inv)
+	if err == nil {
+		return inv, true, nil
+	}
+	var pqErr *pq.Error
+	if errors.As(err, &pqErr) && string(pqErr.Code) == uniqueViolationCode {
+		existing, lookupErr := FindActiveInvestigationByFingerprint(db, inv.AlertFingerprint)
+		if lookupErr != nil {
+			return nil, false, lookupErr
+		}
+		if existing != nil {
+			return existing, false, nil
+		}
+	}
+	return nil, false, err
 }
 
 // allowedOrderBy columns that can be used in ORDER BY (safe, no user-controlled SQL).

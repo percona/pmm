@@ -87,6 +87,21 @@ export interface AdreSettings {
   /** Skip TLS certificate verification for PMM → HolmesGPT. */
   tlsSkipVerify?: boolean;
   tls_skip_verify?: boolean;
+  /** Slack human-chat allowlists (fail-closed) — Slack object IDs. */
+  slackAllowedChannels?: string[];
+  slack_allowed_channels?: string[];
+  slackAllowedUsers?: string[];
+  slack_allowed_users?: string[];
+  /** Channels that receive auto-investigation summaries (output only). */
+  slackAutoInvestigateChannels?: string[];
+  slack_auto_investigate_channels?: string[];
+  /** Auto-investigate selection + cost guards. */
+  autoInvestigateMinSeverity?: string;
+  auto_investigate_min_severity?: string;
+  autoInvestigateLabelMatchers?: string[];
+  auto_investigate_label_matchers?: string[];
+  autoInvestigateHourlyCap?: number;
+  auto_investigate_hourly_cap?: number;
 }
 
 export interface AdreModelsResponse {

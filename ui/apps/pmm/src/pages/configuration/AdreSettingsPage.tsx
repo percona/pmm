@@ -112,6 +112,24 @@ const AdreSettingsPage: FC = () => {
   );
   const [localSlackBotToken, setLocalSlackBotToken] = useState('');
   const [localSlackAppToken, setLocalSlackAppToken] = useState('');
+  const [localSlackAllowedChannels, setLocalSlackAllowedChannels] = useState(
+    (settings?.slackAllowedChannels ?? settings?.slack_allowed_channels ?? []).join('\n')
+  );
+  const [localSlackAllowedUsers, setLocalSlackAllowedUsers] = useState(
+    (settings?.slackAllowedUsers ?? settings?.slack_allowed_users ?? []).join('\n')
+  );
+  const [localSlackAutoInvestigateChannels, setLocalSlackAutoInvestigateChannels] = useState(
+    (settings?.slackAutoInvestigateChannels ?? settings?.slack_auto_investigate_channels ?? []).join('\n')
+  );
+  const [localAutoInvestigateMinSeverity, setLocalAutoInvestigateMinSeverity] = useState(
+    settings?.autoInvestigateMinSeverity ?? settings?.auto_investigate_min_severity ?? ''
+  );
+  const [localAutoInvestigateLabelMatchers, setLocalAutoInvestigateLabelMatchers] = useState(
+    (settings?.autoInvestigateLabelMatchers ?? settings?.auto_investigate_label_matchers ?? []).join('\n')
+  );
+  const [localAutoInvestigateHourlyCap, setLocalAutoInvestigateHourlyCap] = useState(
+    settings?.autoInvestigateHourlyCap ?? settings?.auto_investigate_hourly_cap ?? 0
+  );
 
   useEffect(() => {
     if (settings) {
@@ -164,11 +182,42 @@ const AdreSettingsPage: FC = () => {
       );
       setLocalSlackBotToken('');
       setLocalSlackAppToken('');
+      setLocalSlackAllowedChannels(
+        (settings.slackAllowedChannels ?? settings.slack_allowed_channels ?? []).join('\n')
+      );
+      setLocalSlackAllowedUsers(
+        (settings.slackAllowedUsers ?? settings.slack_allowed_users ?? []).join('\n')
+      );
+      setLocalSlackAutoInvestigateChannels(
+        (settings.slackAutoInvestigateChannels ?? settings.slack_auto_investigate_channels ?? []).join('\n')
+      );
+      setLocalAutoInvestigateMinSeverity(
+        settings.autoInvestigateMinSeverity ?? settings.auto_investigate_min_severity ?? ''
+      );
+      setLocalAutoInvestigateLabelMatchers(
+        (settings.autoInvestigateLabelMatchers ?? settings.auto_investigate_label_matchers ?? []).join('\n')
+      );
+      setLocalAutoInvestigateHourlyCap(
+        settings.autoInvestigateHourlyCap ?? settings.auto_investigate_hourly_cap ?? 0
+      );
     }
   }, [settings]);
 
   const isAdmin = user?.isPMMAdmin ?? false;
   const isForbidden = isError && isForbiddenError(error);
+
+  const splitList = (s: string): string[] =>
+    s
+      .split(/[\n,]/)
+      .map((x) => x.trim())
+      .filter(Boolean);
+
+  // Label matchers can contain commas in the value (e.g. team=db,ops), so split on newlines only.
+  const splitLines = (s: string): string[] =>
+    s
+      .split('\n')
+      .map((x) => x.trim())
+      .filter(Boolean);
 
   const onSave = () =>
     updateSettings.mutate(
@@ -195,6 +244,12 @@ const AdreSettingsPage: FC = () => {
         slack_auto_investigate: localSlackAutoInvestigate,
         ...(localSlackBotToken ? { slack_bot_token: localSlackBotToken } : {}),
         ...(localSlackAppToken ? { slack_app_token: localSlackAppToken } : {}),
+        slack_allowed_channels: splitList(localSlackAllowedChannels),
+        slack_allowed_users: splitList(localSlackAllowedUsers),
+        slack_auto_investigate_channels: splitList(localSlackAutoInvestigateChannels),
+        auto_investigate_min_severity: localAutoInvestigateMinSeverity,
+        auto_investigate_label_matchers: splitLines(localAutoInvestigateLabelMatchers),
+        auto_investigate_hourly_cap: Math.max(0, Number(localAutoInvestigateHourlyCap) || 0),
       } as Partial<AdreSettings> & Record<string, unknown>,
       {
         onError: (err: unknown) => {
@@ -545,12 +600,13 @@ const AdreSettingsPage: FC = () => {
                         disabled={!localSlackEnabled}
                       />
                     }
-                    label="Auto-investigate firing alerts (bot messages)"
+                    label="Auto-investigate firing alerts (Grafana Alertmanager)"
                   />
                   <Typography variant="caption" color="text.secondary" display="block">
-                    When enabled, channel messages from integrations whose text contains FIRING (and not
-                    RESOLVED) are sent to the AI backend like a thread reply. Alert text usually lives in
-                    attachments—ensure your Grafana template includes FIRING.
+                    When enabled, firing alerts from Grafana Alertmanager (via a reconciliation poll, plus
+                    an optional auto-provisioned webhook) create one investigation per alert episode and post
+                    a summary to the output channels below. Bound the cost with the severity floor / label
+                    matchers / hourly cap.
                   </Typography>
                   {!localEnabled || !localUrl.trim() ? (
                     <Typography variant="caption" color="text.secondary">
@@ -582,6 +638,98 @@ const AdreSettingsPage: FC = () => {
                     fullWidth
                     disabled={!localSlackEnabled}
                     helperText="xapp-… with connections:write; leave empty to keep current"
+                  />
+                  <Divider sx={{ my: 1 }} />
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    Human chat allowlists (fail-closed)
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    The bot replies only in listed channels to listed users. Leave a list empty and it
+                    answers no one. Use Slack object IDs (channels Cxxxx, users Uxxxx), one per line.
+                  </Typography>
+                  <TextField
+                    label="Allowed channels"
+                    value={localSlackAllowedChannels}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalSlackAllowedChannels(e.target.value)}
+                    size="small"
+                    fullWidth
+                    multiline
+                    minRows={2}
+                    disabled={!localSlackEnabled}
+                    placeholder={'C0123ABCD\nC0456EFGH'}
+                  />
+                  <TextField
+                    label="Allowed users"
+                    value={localSlackAllowedUsers}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalSlackAllowedUsers(e.target.value)}
+                    size="small"
+                    fullWidth
+                    multiline
+                    minRows={2}
+                    disabled={!localSlackEnabled}
+                    placeholder={'U0123ABCD\nU0456EFGH'}
+                  />
+                  <Divider sx={{ my: 1 }} />
+                  <Typography variant="subtitle2" fontWeight={600}>
+                    Auto-investigate output &amp; cost guards
+                  </Typography>
+                  <TextField
+                    label="Output channels (auto-investigation summaries)"
+                    value={localSlackAutoInvestigateChannels}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalSlackAutoInvestigateChannels(e.target.value)
+                    }
+                    size="small"
+                    fullWidth
+                    multiline
+                    minRows={2}
+                    disabled={!localSlackEnabled}
+                    placeholder="C0123ABCD"
+                    helperText="Channels that receive auto-investigation summaries (output only)."
+                  />
+                  <TextField
+                    select
+                    label="Minimum severity"
+                    value={localAutoInvestigateMinSeverity}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalAutoInvestigateMinSeverity(e.target.value)
+                    }
+                    size="small"
+                    fullWidth
+                    disabled={!localSlackEnabled}
+                    helperText="Only auto-investigate alerts at or above this severity."
+                  >
+                    <MenuItem value="">No floor (all severities)</MenuItem>
+                    <MenuItem value="info">info</MenuItem>
+                    <MenuItem value="warning">warning</MenuItem>
+                    <MenuItem value="critical">critical</MenuItem>
+                  </TextField>
+                  <TextField
+                    label="Label matchers"
+                    value={localAutoInvestigateLabelMatchers}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalAutoInvestigateLabelMatchers(e.target.value)
+                    }
+                    size="small"
+                    fullWidth
+                    multiline
+                    minRows={2}
+                    disabled={!localSlackEnabled}
+                    placeholder={'service_type=mysql\nteam=db'}
+                    helperText="Optional key=value matchers (all must match), one per line."
+                  />
+                  <TextField
+                    label="Hourly cap"
+                    type="number"
+                    value={localAutoInvestigateHourlyCap}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalAutoInvestigateHourlyCap(Math.max(0, Math.floor(Number(e.target.value) || 0)))
+                    }
+                    size="small"
+                    fullWidth
+                    disabled={!localSlackEnabled}
+                    slotProps={{ htmlInput: { min: 0, step: 1 } }}
+                    helperText="Max auto-investigations per hour (0 = unbounded)."
                   />
                 </Stack>
               </CardContent>

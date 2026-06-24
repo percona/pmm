@@ -23,6 +23,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+	"unicode/utf8"
 
 	"github.com/sirupsen/logrus"
 	"github.com/slack-go/slack"
@@ -200,7 +201,7 @@ func runSocketMode(ctx context.Context, db *reform.DB, l *logrus.Entry) {
 	}
 }
 
-func handleEventsAPI( //nolint:gocognit
+func handleEventsAPI(
 	ctx context.Context,
 	db *reform.DB,
 	api *slack.Client,
@@ -219,31 +220,11 @@ func handleEventsAPI( //nolint:gocognit
 			threadTS = ev.TimeStamp
 		}
 		text := stripMentions(ev.Text)
-		handleTurn(ctx, db, api, ts, log, eventsAPI.TeamID, ev.Channel, threadTS, ev.TimeStamp, text)
+		gateAndHandle(ctx, db, api, ts, log, eventsAPI.TeamID, ev.Channel, threadTS, ev.TimeStamp, ev.User, triggerMention, text)
 
 	case *slackevents.MessageEvent:
-		if ev.BotID != "" && slackBotMessageSubtypeOK(ev.SubType) { //nolint:nestif
-			settings, err := models.GetSettings(db)
-			if err != nil {
-				log.Errorf("GetSettings: %v", err)
-				return
-			}
-			if settings.Adre.SlackAutoInvestigate &&
-				settings.IsAdreEnabled() &&
-				strings.TrimSpace(settings.GetAdreURL()) != "" {
-				blob := slackMessagePlainBlob(ev)
-				upper := strings.ToUpper(blob)
-				if strings.Contains(upper, "FIRING") && !strings.Contains(upper, "RESOLVED") {
-					threadTS := ev.ThreadTimeStamp
-					if threadTS == "" {
-						threadTS = ev.TimeStamp
-					}
-					handleTurn(ctx, db, api, ts, log, eventsAPI.TeamID, ev.Channel, threadTS, ev.TimeStamp, slackAutoInvestigatePrefix+blob)
-					return
-				}
-			}
-		}
-
+		// Auto-investigate is no longer driven by scraping Slack messages — it is driven by Grafana
+		// Alertmanager (see services/autoinvestigate). Only human thread replies reach the bot here.
 		if ev.ThreadTimeStamp == "" {
 			return
 		}
@@ -257,12 +238,65 @@ func handleEventsAPI( //nolint:gocognit
 			return
 		}
 		text := strings.TrimSpace(ev.Text)
-		handleTurn(ctx, db, api, ts, log, eventsAPI.TeamID, ev.Channel, ev.ThreadTimeStamp, ev.TimeStamp, text)
+		gateAndHandle(ctx, db, api, ts, log, eventsAPI.TeamID, ev.Channel, ev.ThreadTimeStamp, ev.TimeStamp, ev.User, triggerThread, text)
 
 	default:
 		return
 	}
 }
+
+// gateAndHandle authorizes and rate-limits a human Slack interaction before running a turn. Denied
+// interactions get one cooled-down "ask an admin" reply; throttled ones get one cooled-down "too
+// fast" reply. Both keep the bot from being weaponized into a reply-spam amplifier.
+func gateAndHandle( //nolint:gocognit
+	ctx context.Context,
+	db *reform.DB,
+	api *slack.Client,
+	ts *ThreadStore,
+	log *logrus.Entry,
+	teamID, channelID, threadTS, messageTS, userID string,
+	trigger slackTrigger,
+	text string,
+) {
+	settings, err := models.GetSettings(db)
+	if err != nil {
+		log.Errorf("GetSettings: %v", err)
+		return
+	}
+	if !settings.IsAdreEnabled() || strings.TrimSpace(settings.GetAdreURL()) == "" {
+		return
+	}
+
+	// Drop Slack event redeliveries first, so duplicates never consume a user's rate-limit budget or
+	// trigger a duplicate denial reply. handleTurn forgets the key if it fails before answering.
+	if !slackEventDedupe.firstSeen(teamID, channelID, messageTS) {
+		return
+	}
+
+	if d := authorizeHuman(settings, channelID, userID); !d.allow {
+		slackAuthzDeniedTotal.WithLabelValues(string(trigger)).Inc()
+		if d.notify && denyCooldown.allow(channelID+"\x00"+userID) {
+			postThreadLine(ctx, log, api, channelID, threadTS, slackDenyMsg)
+		}
+		return
+	}
+
+	if !slackUserLimiter.allow(userID) {
+		slackRateLimitedTotal.Inc()
+		if denyCooldown.allow("rl\x00" + channelID + "\x00" + userID) {
+			postThreadLine(ctx, log, api, channelID, threadTS, slackRateLimitMsg)
+		}
+		return
+	}
+
+	handleTurn(ctx, db, api, ts, log, teamID, channelID, threadTS, messageTS, userID, trigger, text)
+}
+
+const (
+	slackDenyMsg = "I'm not enabled for this channel/user yet. Ask a PMM admin to add it under " +
+		"Settings → AI Assistant → Slack."
+	slackRateLimitMsg = "You're sending requests too fast — please wait a moment and try again."
+)
 
 func stripMentions(s string) string {
 	return strings.TrimSpace(mentionStripRE.ReplaceAllString(s, ""))
@@ -287,11 +321,21 @@ func handleTurn(
 	api *slack.Client,
 	store *ThreadStore,
 	log *logrus.Entry,
-	teamID, channelID, threadTS, messageTS, userText string,
+	teamID, channelID, threadTS, messageTS, invoker string,
+	trigger slackTrigger,
+	userText string,
 ) {
 	userText = strings.TrimSpace(userText)
 	if userText == "" {
 		return
+	}
+	if len(userText) > maxSlackUserTextBytes {
+		// Back off to a rune boundary so truncation never produces invalid UTF-8 mid-rune.
+		cut := maxSlackUserTextBytes
+		for cut > 0 && !utf8.RuneStart(userText[cut]) {
+			cut--
+		}
+		userText = userText[:cut] + "\n…[truncated]"
 	}
 
 	// Detach from the socket/supervisor context so a websocket reconnect or settings reload mid-turn
@@ -310,9 +354,15 @@ func handleTurn(
 		return
 	}
 
-	if !slackEventDedupe.firstSeen(teamID, channelID, messageTS) {
-		return
-	}
+	// Event de-duplication already happened in gateAndHandle (before authz/rate-limit); handleTurn
+	// only forgets the key on an early post failure so Slack's retry can re-process.
+
+	// Audit who/where the turn came from — never the message body (may carry sensitive content).
+	log.WithFields(logrus.Fields{
+		"team": teamID, "channel": channelID, "thread": threadTS,
+		"msg_ts": messageTS, "invoker": invoker, "trigger": string(trigger),
+		"text_len": len(userText),
+	}).Info("adre slack turn")
 
 	key := ThreadKey{TeamID: teamID, ChannelID: channelID, ThreadTS: threadTS}
 	unlock := acquireThreadLock(key)
@@ -355,7 +405,7 @@ func handleTurn(
 				FeatureRef:  featureRef,
 				Model:       req.Model,
 				Metadata:    resp.Metadata,
-				TriggeredBy: "slack",
+				TriggeredBy: "slack-" + string(trigger),
 				LatencyMs:   latencyMs,
 			})
 		}

@@ -13,45 +13,63 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-// Package slackbot implements PMM's Slack integration: a Socket Mode
-// bot that proxies user messages and alerts into the ADRE chat backend
-// and posts answers back into Slack threads.
+// Package slackbot implements PMM's Slack integration: a Socket Mode bot that proxies authorized
+// human messages into the ADRE chat backend and posts answers back into Slack threads, plus a
+// notifier that posts auto-investigation output (driven by Grafana Alertmanager via
+// services/autoinvestigate, not by scraping Slack messages) to configured channels.
 package slackbot
 
 import (
-	"strings"
+	"context"
+	"fmt"
 
-	"github.com/slack-go/slack/slackevents"
+	"github.com/sirupsen/logrus"
+	"github.com/slack-go/slack"
+	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/models"
 )
 
-const slackAutoInvestigatePrefix = "Investigate this firing alert and summarize likely cause and next checks:\n\n"
+// SlackNotifier posts auto-investigate output to Slack. It is invoked by the autoinvestigate service
+// (reconciliation poll / webhook) independently of the Socket Mode session, so it builds its own
+// Slack client from the stored bot token. It satisfies autoinvestigate.Notifier.
+type SlackNotifier struct {
+	db *reform.DB
+	l  *logrus.Entry
+}
 
-// slackMessagePlainBlob joins top-level text and attachment fields for FIRING/RESOLVED gates
-// and the Holmes prompt (v0 naive join).
-func slackMessagePlainBlob(ev *slackevents.MessageEvent) string {
-	var parts []string
-	if t := strings.TrimSpace(ev.Text); t != "" {
-		parts = append(parts, t)
+// NewSlackNotifier creates a SlackNotifier.
+func NewSlackNotifier(db *reform.DB, l *logrus.Entry) *SlackNotifier {
+	return &SlackNotifier{db: db, l: l.WithField("component", "adre-slack-notify")}
+}
+
+// PostAutoInvestigateStarted posts a short notice (with a link to the investigation) to each output
+// channel. It is a no-op when channels is empty or the Slack bot token is unavailable.
+func (n *SlackNotifier) PostAutoInvestigateStarted(ctx context.Context, channels []string, inv *models.Investigation) {
+	if len(channels) == 0 || inv == nil {
+		return
 	}
-	if ev.Message != nil {
-		for _, a := range ev.Message.Attachments {
-			if s := strings.TrimSpace(a.Fallback); s != "" {
-				parts = append(parts, s)
-			}
-			if s := strings.TrimSpace(a.Title); s != "" {
-				parts = append(parts, s)
-			}
-			if s := strings.TrimSpace(a.Text); s != "" {
-				parts = append(parts, s)
-			}
+	prov, err := models.GetAdreProvisioning(n.db)
+	if err != nil {
+		n.l.Debugf("GetAdreProvisioning: %v", err)
+		return
+	}
+	if prov.SlackBotToken == "" {
+		return
+	}
+	api := slack.New(prov.SlackBotToken)
+
+	link := ""
+	if settings, sErr := models.GetSettings(n.db); sErr == nil {
+		if base := settings.GetEffectiveSlackLinkBaseURL(); base != "" {
+			link = " — " + base + "/pmm-ui/investigations/" + inv.ID
 		}
 	}
-	return strings.Join(parts, "\n")
-}
+	msg := fmt.Sprintf("🔎 Auto-investigation started for *%s*.%s", inv.Title, link)
 
-func slackBotMessageSubtypeOK(subType string) bool {
-	return subType == "" || subType == slackSubtypeBotMessage
+	for _, ch := range channels {
+		if _, _, err := api.PostMessageContext(ctx, ch, slack.MsgOptionText(msg, false)); err != nil {
+			n.l.Debugf("PostMessage to %s: %v", ch, err)
+		}
+	}
 }
-
-// slackSubtypeBotMessage matches Slack's message/bot_message subtype.
-const slackSubtypeBotMessage = "bot_message"

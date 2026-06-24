@@ -28,4 +28,6 @@ type GrafanaAuth interface {
 	IsCurrentUserAdmin(ctx context.Context, authHeaders http.Header) (bool, error)
 	// CreateServiceAccount mints the Grafana service-account token PMM injects as Holmes's PMM_API_TOKEN.
 	CreateServiceAccount(ctx context.Context, nodeName string, reregister bool) (int, string, error)
+	// EnsureAlertWebhookContactPoint provisions the auto-investigate webhook contact point + route.
+	EnsureAlertWebhookContactPoint(ctx context.Context, webhookURL, secret string) error
 }

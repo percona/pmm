@@ -43,6 +43,7 @@ func (v *investigationTableType) Columns() []string {
 		"resolution_summary",
 		"source_type",
 		"source_ref",
+		"alert_fingerprint",
 		"tags",
 		"config",
 		"servicenow_ticket_id",
@@ -89,6 +90,7 @@ var InvestigationTable = &investigationTableType{
 			{Name: "ResolutionSummary", Type: "string", Column: "resolution_summary"},
 			{Name: "SourceType", Type: "string", Column: "source_type"},
 			{Name: "SourceRef", Type: "string", Column: "source_ref"},
+			{Name: "AlertFingerprint", Type: "string", Column: "alert_fingerprint"},
 			{Name: "Tags", Type: "[]uint8", Column: "tags"},
 			{Name: "Config", Type: "[]uint8", Column: "config"},
 			{Name: "ServiceNowTicketID", Type: "string", Column: "servicenow_ticket_id"},
@@ -104,7 +106,7 @@ var InvestigationTable = &investigationTableType{
 
 // String returns a string representation of this struct or record.
 func (s Investigation) String() string {
-	res := make([]string, 22)
+	res := make([]string, 23)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Title: " + reform.Inspect(s.Title, true)
 	res[2] = "Status: " + reform.Inspect(s.Status, true)
@@ -120,13 +122,14 @@ func (s Investigation) String() string {
 	res[12] = "ResolutionSummary: " + reform.Inspect(s.ResolutionSummary, true)
 	res[13] = "SourceType: " + reform.Inspect(s.SourceType, true)
 	res[14] = "SourceRef: " + reform.Inspect(s.SourceRef, true)
-	res[15] = "Tags: " + reform.Inspect(s.Tags, true)
-	res[16] = "Config: " + reform.Inspect(s.Config, true)
-	res[17] = "ServiceNowTicketID: " + reform.Inspect(s.ServiceNowTicketID, true)
-	res[18] = "ServiceNowTicketNumber: " + reform.Inspect(s.ServiceNowTicketNumber, true)
-	res[19] = "HolmesTotalTokens: " + reform.Inspect(s.HolmesTotalTokens, true)
-	res[20] = "HolmesTotalCost: " + reform.Inspect(s.HolmesTotalCost, true)
-	res[21] = "HolmesCallCount: " + reform.Inspect(s.HolmesCallCount, true)
+	res[15] = "AlertFingerprint: " + reform.Inspect(s.AlertFingerprint, true)
+	res[16] = "Tags: " + reform.Inspect(s.Tags, true)
+	res[17] = "Config: " + reform.Inspect(s.Config, true)
+	res[18] = "ServiceNowTicketID: " + reform.Inspect(s.ServiceNowTicketID, true)
+	res[19] = "ServiceNowTicketNumber: " + reform.Inspect(s.ServiceNowTicketNumber, true)
+	res[20] = "HolmesTotalTokens: " + reform.Inspect(s.HolmesTotalTokens, true)
+	res[21] = "HolmesTotalCost: " + reform.Inspect(s.HolmesTotalCost, true)
+	res[22] = "HolmesCallCount: " + reform.Inspect(s.HolmesCallCount, true)
 	return strings.Join(res, ", ")
 }
 
@@ -149,6 +152,7 @@ func (s *Investigation) Values() []interface{} {
 		s.ResolutionSummary,
 		s.SourceType,
 		s.SourceRef,
+		s.AlertFingerprint,
 		s.Tags,
 		s.Config,
 		s.ServiceNowTicketID,
@@ -178,6 +182,7 @@ func (s *Investigation) Pointers() []interface{} {
 		&s.ResolutionSummary,
 		&s.SourceType,
 		&s.SourceRef,
+		&s.AlertFingerprint,
 		&s.Tags,
 		&s.Config,
 		&s.ServiceNowTicketID,

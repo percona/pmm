@@ -174,8 +174,16 @@ type ChangeSettingsParams struct {
 	AdreChatRetentionDays *int
 	// EnableSlackBot enables PMM-managed Slack (Socket Mode) integration.
 	EnableSlackBot *bool
-	// SlackAutoInvestigate runs ADRE on Slack bot messages whose text contains FIRING (v0 heuristic).
+	// SlackAutoInvestigate enables event-driven auto-investigate (Grafana Alertmanager → investigation).
 	SlackAutoInvestigate *bool
+	// Slack human-chat allowlists and auto-investigate output/cost settings. Pointer-to-slice:
+	// nil = no change; non-nil = replace the whole list.
+	SlackAllowedChannels         *[]string
+	SlackAllowedUsers            *[]string
+	SlackAutoInvestigateChannels *[]string
+	AutoInvestigateMinSeverity   *string
+	AutoInvestigateLabelMatchers *[]string
+	AutoInvestigateHourlyCap     *int
 
 	// OTEL server collector and ClickHouse retention (nil sub-fields = no change).
 	OtelCollectorEnabled     *bool
@@ -396,6 +404,24 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	if params.SlackAutoInvestigate != nil {
 		settings.Adre.SlackAutoInvestigate = *params.SlackAutoInvestigate && settings.Adre.SlackEnabled
 	}
+	if params.SlackAllowedChannels != nil {
+		settings.Adre.SlackAllowedChannels = normalizeSlackIDs(*params.SlackAllowedChannels)
+	}
+	if params.SlackAllowedUsers != nil {
+		settings.Adre.SlackAllowedUsers = normalizeSlackIDs(*params.SlackAllowedUsers)
+	}
+	if params.SlackAutoInvestigateChannels != nil {
+		settings.Adre.SlackAutoInvestigateChannels = normalizeSlackIDs(*params.SlackAutoInvestigateChannels)
+	}
+	if params.AutoInvestigateMinSeverity != nil {
+		settings.Adre.AutoInvestigateMinSeverity = strings.TrimSpace(*params.AutoInvestigateMinSeverity)
+	}
+	if params.AutoInvestigateLabelMatchers != nil {
+		settings.Adre.AutoInvestigateLabelMatchers = normalizeTrimmedList(*params.AutoInvestigateLabelMatchers)
+	}
+	if params.AutoInvestigateHourlyCap != nil {
+		settings.Adre.AutoInvestigateHourlyCap = *params.AutoInvestigateHourlyCap
+	}
 
 	if params.OtelCollectorEnabled != nil {
 		settings.Otel.CollectorEnabled = params.OtelCollectorEnabled
@@ -567,7 +593,114 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 	if err := validateOtelSettingsParams(params); err != nil { //nolint:noinlineerr
 		return err
 	}
+	if err := validateAdreSlackListParams(params); err != nil { //nolint:noinlineerr
+		return err
+	}
 
+	return nil
+}
+
+// normalizeSlackIDs trims, drops empties, and de-duplicates a Slack ID list while preserving the
+// admin's ordering (write-time normalization).
+func normalizeSlackIDs(in []string) []string {
+	seen := make(map[string]struct{}, len(in))
+	out := make([]string, 0, len(in))
+	for _, v := range in {
+		t := strings.TrimSpace(v)
+		if t == "" {
+			continue
+		}
+		if _, dup := seen[t]; dup {
+			continue
+		}
+		seen[t] = struct{}{}
+		out = append(out, t)
+	}
+	return out
+}
+
+// normalizeTrimmedList trims and drops empty entries, preserving order.
+func normalizeTrimmedList(in []string) []string {
+	out := make([]string, 0, len(in))
+	for _, v := range in {
+		if t := strings.TrimSpace(v); t != "" {
+			out = append(out, t)
+		}
+	}
+	return out
+}
+
+// isASCIIAlnum reports whether s is non-empty and entirely ASCII letters/digits.
+func isASCIIAlnum(s string) bool {
+	if s == "" {
+		return false
+	}
+	for _, r := range s {
+		if (r < '0' || r > '9') && (r < 'A' || r > 'Z') && (r < 'a' || r > 'z') {
+			return false
+		}
+	}
+	return true
+}
+
+// validateSlackIDList caps list size and checks each entry is a plausible Slack object ID (ASCII
+// alphanumeric, length 6–24). Lenient on prefix so enterprise-grid user IDs (W…) are accepted.
+func validateSlackIDList(field string, ids []string) error {
+	if len(ids) > 200 {
+		return fmt.Errorf("%s: max 200 entries", field)
+	}
+	for _, id := range ids {
+		t := strings.TrimSpace(id)
+		if t == "" {
+			continue
+		}
+		if len(t) < 6 || len(t) > 24 || !isASCIIAlnum(t) {
+			return fmt.Errorf("%s: %q is not a valid Slack ID", field, t)
+		}
+	}
+	return nil
+}
+
+// validateAdreSlackListParams validates the Slack allowlists / output channels and the
+// auto-investigate selection + cost-guard parameters from a settings change.
+func validateAdreSlackListParams(params *ChangeSettingsParams) error {
+	lists := []struct {
+		field string
+		ptr   *[]string
+	}{
+		{"slack_allowed_channels", params.SlackAllowedChannels},
+		{"slack_allowed_users", params.SlackAllowedUsers},
+		{"slack_auto_investigate_channels", params.SlackAutoInvestigateChannels},
+	}
+	for _, l := range lists {
+		if l.ptr == nil {
+			continue
+		}
+		if err := validateSlackIDList(l.field, *l.ptr); err != nil {
+			return err
+		}
+	}
+	if params.AutoInvestigateMinSeverity != nil {
+		switch strings.ToLower(strings.TrimSpace(*params.AutoInvestigateMinSeverity)) {
+		case "", "info", "warning", "critical":
+		default:
+			return errors.New("auto_investigate_min_severity: must be one of info, warning, critical (or empty)")
+		}
+	}
+	if params.AutoInvestigateLabelMatchers != nil {
+		if len(*params.AutoInvestigateLabelMatchers) > 50 {
+			return errors.New("auto_investigate_label_matchers: max 50 entries")
+		}
+		for _, m := range *params.AutoInvestigateLabelMatchers {
+			t := strings.TrimSpace(m)
+			if t != "" && !strings.Contains(t, "=") {
+				return fmt.Errorf("auto_investigate_label_matchers: %q must be key=value", t)
+			}
+		}
+	}
+	if params.AutoInvestigateHourlyCap != nil && (*params.AutoInvestigateHourlyCap < 0 || *params.AutoInvestigateHourlyCap > 10000) {
+		return errors.New("auto_investigate_hourly_cap: must be between 0 and 10000")
+	}
 	return nil
 }
 

@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"gopkg.in/reform.v1"
@@ -95,6 +96,29 @@ type investigationResponse struct {
 	ConfidenceRationale    string          `json:"confidence_rationale"`
 	Evidence               []EvidenceEntry `json:"evidence"`
 	Blocks                 []blockResponse `json:"blocks,omitempty"`
+	// Reused is set when a create request matched an already-active investigation for the same alert
+	// fingerprint and the existing record was returned instead of creating a duplicate.
+	Reused bool `json:"reused,omitempty"`
+}
+
+// firstAlertFingerprint extracts the first non-empty alert fingerprint from an alert snapshot payload
+// (an array of Alertmanager alerts). Returns "" when absent or unparseable.
+func firstAlertFingerprint(raw json.RawMessage) string {
+	if len(raw) == 0 {
+		return ""
+	}
+	var alerts []struct {
+		Fingerprint string `json:"fingerprint"`
+	}
+	if err := json.Unmarshal(raw, &alerts); err != nil {
+		return ""
+	}
+	for _, a := range alerts {
+		if fp := strings.TrimSpace(a.Fingerprint); fp != "" {
+			return fp
+		}
+	}
+	return ""
 }
 
 func investigationToResponse(inv *models.Investigation) investigationResponse { //nolint:gocognit
