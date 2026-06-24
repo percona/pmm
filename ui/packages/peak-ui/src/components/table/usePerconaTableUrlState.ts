@@ -5,7 +5,12 @@ import {
   MRT_SortingState,
   MRT_Updater,
 } from 'material-react-table';
-import { isSameTableState, mergePerconaTableState, resolveUpdater, stableDependencyKey } from './tableState.utils';
+import {
+  isSameTableState,
+  mergePerconaTableState,
+  resolveUpdater,
+  stableDependencyKey,
+} from './tableState.utils';
 import { type TableControlledState, type TableStateValues } from './tableState.types';
 import {
   parseTableUrlState,
