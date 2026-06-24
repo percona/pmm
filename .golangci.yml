@@ -20,6 +20,7 @@ linters:
     - gochecknoglobals    # mostly useless
     - gochecknoinits      # we use init functions
     - gocyclo             # using cyclop with the max 30 instead
+    - goconst             # too annoying
     - godox               # we sometimes leave TODOS right in the code
     - gomoddirectives     # we use replace directives
     - gomodguard          # deprecated
@@ -52,11 +53,6 @@ linters:
               desc: use "gopkg.in/yaml.v3" instead
     exhaustive:
       default-signifies-exhaustive: true
-    goconst:
-      # Default min-occurrences (3) flags too many JSON map keys, slot names,
-      # and other low-information repeats. 5 is the sweet spot: it still
-      # surfaces high-payoff extractions while ignoring incidental repeats.
-      min-occurrences: 5
     godot:
       scope: toplevel
       exclude:
@@ -109,7 +105,6 @@ linters:
           - forcetypeassert  # for tests' brevity sake 
           - funlen           # tests may be long
           - gocognit         # triggered by subtests
-          - goconst          # not critical for tests
           - gosec            # tests legitimately use insecure setups (0644, ignored errors, etc.)
           - ireturn          # we have exceptions, so need to silence them in tests
           - lll              # tests often require long lines

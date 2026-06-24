@@ -44,6 +44,9 @@ const (
 	// ClickHouseNodes is used to store the ClickHouse nodes.
 	ClickHouseNodes = "PMM_CLICKHOUSE_NODES"
 
+	// ClickHouseConfig specifies the configuration for ClickHouse.
+	ClickHouseConfig = "PMM_CLICKHOUSE_CONFIG"
+
 	// AdreURL is the HolmesGPT (ADRE) base URL, applied at startup to settings.
 	AdreURL = "PMM_ADRE_URL"
 
