@@ -147,13 +147,15 @@ describe('tableUrlState.utils', () => {
     expect(parseTableUrlState(new URLSearchParams('q=mysql'), { defaults }).columnFilters).toEqual(
       defaults.columnFilters
     );
-    expect(parseTableUrlState(new URLSearchParams('f.group=prod'), { defaults }).columnFilters).toEqual(
-      [{ id: 'group', value: 'prod' }]
-    );
+    expect(
+      parseTableUrlState(new URLSearchParams('f.group=prod'), { defaults }).columnFilters
+    ).toEqual([{ id: 'group', value: 'prod' }]);
   });
 
   it('preserves unsynced query params when serializing synced slices', () => {
-    const initial = new URLSearchParams('q=mysql&sort=name:desc&page=2&pageSize=25&f.group=edge&keep=1');
+    const initial = new URLSearchParams(
+      'q=mysql&sort=name:desc&page=2&pageSize=25&f.group=edge&keep=1'
+    );
     const state = {
       ...DEFAULT_TABLE_STATE,
       columnFilters: [{ id: 'group', value: 'prod' }],
