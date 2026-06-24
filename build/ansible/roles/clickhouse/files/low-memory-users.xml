@@ -5,6 +5,8 @@
     <profiles>
         <!-- Default settings. -->
         <default>
+            <async_insert>1</async_insert>
+            <wait_for_async_insert>1</wait_for_async_insert>
             <!-- PMM: Low-memory tuning: block size, download threads, parallel parsing/formatting -->
             <max_block_size>8192</max_block_size> <!-- PMM: Before 65409, now 8192 rows -->
             <max_download_threads>1</max_download_threads> <!-- PMM: Default no limit (0), now 1-->
