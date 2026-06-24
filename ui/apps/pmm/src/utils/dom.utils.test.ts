@@ -1,4 +1,33 @@
-import { waitForVisible } from './dom.utils';
+import { hardReloadPage, waitForVisible } from './dom.utils';
+
+describe('hardReloadPage', () => {
+  const originalLocation = window.location;
+
+  afterEach(() => {
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: originalLocation,
+    });
+  });
+
+  it('replaces location with the upgraded PMM version', () => {
+    const replace = vi.fn();
+
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: {
+        href: 'https://localhost/pmm-ui/updates',
+        replace,
+      },
+    });
+
+    hardReloadPage('3.8.0');
+
+    expect(replace).toHaveBeenCalledWith(
+      'https://localhost/pmm-ui/updates?pmmUpgrade=3.8.0'
+    );
+  });
+});
 
 describe('waitForVisible', () => {
   beforeEach(() => {
