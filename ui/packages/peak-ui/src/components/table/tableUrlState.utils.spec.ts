@@ -138,6 +138,23 @@ describe('tableUrlState.utils', () => {
     expect(parseTableUrlState(params, { defaults }).sorting).toEqual([]);
   });
 
+  it('deep-merges partial pagination defaults', () => {
+    const defaults = { pagination: { pageIndex: 0, pageSize: 25 } };
+    const parsed = parseTableUrlState(new URLSearchParams(), { defaults });
+
+    expect(parsed.pagination).toEqual({ pageIndex: 0, pageSize: 25 });
+
+    const serialized = serializeTableUrlState(
+      { ...DEFAULT_TABLE_STATE, pagination: { pageIndex: 0, pageSize: 25 } },
+      new URLSearchParams('keep=1'),
+      { defaults }
+    );
+
+    expect(serialized.get('page')).toBeNull();
+    expect(serialized.get('pageSize')).toBeNull();
+    expect(serialized.get('keep')).toBe('1');
+  });
+
   it('omits empty range filter values when serializing', () => {
     const serialized = serializeTableUrlState(
       { ...DEFAULT_TABLE_STATE, columnFilters: [{ id: 'cpu', value: ['', ''] }] },

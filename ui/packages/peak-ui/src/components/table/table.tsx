@@ -125,7 +125,7 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
         element.removeEventListener('click', stopPropagation);
       });
     };
-  }, [data]);
+  }, [data.length]);
 
   // disable hiding for first 2 columns
   const customColumns = useMemo(
