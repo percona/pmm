@@ -92,25 +92,11 @@ PMM includes two ClickHouse profiles:
 
 ### Switch to low-memory configuration
 
+Select the profile with the `PMM_CLICKHOUSE_CONFIG` environment variable when you create the container:
+
 ```bash
-docker exec -it -u pmm pmm-server ./switch-config.sh low
+docker run -e PMM_CLICKHOUSE_CONFIG=low-memory ... percona/pmm-server:3
 ```
-
-To switch back:
-```bash
-docker exec -it -u pmm pmm-server ./switch-config.sh default
-```
-
-The script stops ClickHouse, updates the configuration, and restarts the service.
-
-### Persistent configuration
-
-If you run PMM Server with the `--rm` flag, run the switch script each time the container starts. For systemd, add to your unit file:
-```ini
-ExecStartPost=/usr/bin/docker exec -u pmm pmm-server ./switch-config.sh low
-```
-
-See [Install PMM Server with Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) for systemd configuration examples.
 
 !!! note "Configuration details"
     Both configuration files are located in `/etc/clickhouse-server/` inside the PMM Server container:
@@ -118,6 +104,5 @@ See [Install PMM Server with Podman](../install-pmm/install-pmm-server/deploymen
     - `default-config.xml`: default profile
     - `low-memory-config.xml`: low-memory profile
     
-    The script is available at `/etc/clickhouse-server/switch-config.sh` or `/opt/switch-config.sh`.
-    
-    When switching profiles, both `config.xml` and `users.xml` are updated to point to the selected profile.
+
+The `switch-config.sh` script is deprecated and will be removed in a future PMM release; use `PMM_CLICKHOUSE_CONFIG` instead.
