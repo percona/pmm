@@ -71,17 +71,15 @@ const parseSorting = (value: string | null): MRT_SortingState => {
     .filter((entry): entry is { id: string; desc: boolean } => entry !== null);
 };
 
-const normalizeRangeTuple = (value: unknown[]): [unknown, unknown] => [
-  value[0] ?? '',
-  value[1] ?? '',
-];
+const normalizeFilterArray = (value: unknown[]): unknown[] =>
+  value.map((entry) => (entry === null || entry === undefined ? '' : entry));
 
 const parseFilterValue = (raw: string): unknown => {
   if (raw.startsWith('[')) {
     try {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        return normalizeRangeTuple(parsed).map((entry) => (entry === null ? '' : entry));
+        return normalizeFilterArray(parsed);
       }
     } catch {
       // fall through to scalar
@@ -91,7 +89,7 @@ const parseFilterValue = (raw: string): unknown => {
 };
 
 const serializeFilterValue = (value: unknown): string =>
-  Array.isArray(value) ? JSON.stringify(normalizeRangeTuple(value)) : String(value);
+  Array.isArray(value) ? JSON.stringify(normalizeFilterArray(value)) : String(value);
 
 const isEmptyFilterValue = (value: unknown): boolean => {
   if (value === undefined || value === null || value === '') {
