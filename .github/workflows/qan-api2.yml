@@ -20,8 +20,29 @@ env:
   GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/qan-api2
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
+
+      - name: Build QAN
+        run: make release
+
+      - name: Print version
+        run: ../bin/qan-api2 --version
+
   test:
-    name: Run tests
+    name: Tests
     runs-on: ubuntu-latest
 
     defaults:
@@ -35,17 +56,10 @@ jobs:
       - name: Setup Go release
         uses: ./.github/actions/setup-go-release
 
-      - name: Build and install
-        run: make install
-
       - name: Initialize CI environment
         run: make test-env-up
 
       - name: Run Tests
-        run: |
-          make test
-
-      - name: Run Tests Coverage
         run: |
           make test-cover
 
