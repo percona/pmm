@@ -126,6 +126,9 @@ const parseColumnFilters = (
   return filters;
 };
 
+const hasFilterParams = (searchParams: URLSearchParams, filterPrefix: string): boolean =>
+  Array.from(searchParams.keys()).some((key) => key.startsWith(filterPrefix));
+
 export const parseTableUrlState = (
   searchParams: URLSearchParams,
   options: TableUrlStateOptions = {}
@@ -143,7 +146,9 @@ export const parseTableUrlState = (
 
   return {
     columnFilters: sync.filters
-      ? parseColumnFilters(searchParams, keys.filterPrefix)
+      ? hasFilterParams(searchParams, keys.filterPrefix)
+        ? parseColumnFilters(searchParams, keys.filterPrefix)
+        : defaults.columnFilters
       : defaults.columnFilters,
     globalFilter: sync.globalFilter
       ? (searchParams.get(keys.globalFilter) ?? defaults.globalFilter)
@@ -164,13 +169,22 @@ const serializeSorting = (sorting: MRT_SortingState) =>
 
 const removeManagedParams = (
   searchParams: URLSearchParams,
-  keys: ReturnType<typeof buildTableUrlParamKeys>
+  keys: ReturnType<typeof buildTableUrlParamKeys>,
+  sync: Record<TableUrlSyncKey, boolean>
 ) => {
   const next = new URLSearchParams(searchParams);
-  const managed = new Set([keys.globalFilter, keys.sort, keys.page, keys.pageSize]);
 
   Array.from(next.keys()).forEach((key) => {
-    if (managed.has(key) || key.startsWith(keys.filterPrefix)) {
+    if (sync.globalFilter && key === keys.globalFilter) {
+      next.delete(key);
+    }
+    if (sync.sort && key === keys.sort) {
+      next.delete(key);
+    }
+    if (sync.pagination && (key === keys.page || key === keys.pageSize)) {
+      next.delete(key);
+    }
+    if (sync.filters && key.startsWith(keys.filterPrefix)) {
       next.delete(key);
     }
   });
@@ -186,7 +200,7 @@ export const serializeTableUrlState = (
   const sync = resolveTableUrlSync(options.sync);
   const defaults = resolveTableUrlDefaults(options.defaults);
   const keys = buildTableUrlParamKeys(options.paramPrefix);
-  const next = removeManagedParams(searchParams, keys);
+  const next = removeManagedParams(searchParams, keys, sync);
 
   if (sync.globalFilter && state.globalFilter && state.globalFilter !== defaults.globalFilter) {
     next.set(keys.globalFilter, state.globalFilter);

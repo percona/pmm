@@ -138,6 +138,39 @@ describe('tableUrlState.utils', () => {
     expect(parseTableUrlState(params, { defaults }).sorting).toEqual([]);
   });
 
+  it('falls back to defaults.columnFilters when the URL has no filter params', () => {
+    const defaults = {
+      ...DEFAULT_TABLE_STATE,
+      columnFilters: [{ id: 'group', value: 'edge' }],
+    };
+
+    expect(parseTableUrlState(new URLSearchParams('q=mysql'), { defaults }).columnFilters).toEqual(
+      defaults.columnFilters
+    );
+    expect(parseTableUrlState(new URLSearchParams('f.group=prod'), { defaults }).columnFilters).toEqual(
+      [{ id: 'group', value: 'prod' }]
+    );
+  });
+
+  it('preserves unsynced query params when serializing synced slices', () => {
+    const initial = new URLSearchParams('q=mysql&sort=name:desc&page=2&pageSize=25&f.group=edge&keep=1');
+    const state = {
+      ...DEFAULT_TABLE_STATE,
+      columnFilters: [{ id: 'group', value: 'prod' }],
+    };
+
+    const serialized = serializeTableUrlState(state, initial, {
+      sync: { globalFilter: false, sort: false, pagination: false, filters: true },
+    });
+
+    expect(serialized.get('q')).toBe('mysql');
+    expect(serialized.get('sort')).toBe('name:desc');
+    expect(serialized.get('page')).toBe('2');
+    expect(serialized.get('pageSize')).toBe('25');
+    expect(serialized.get('f.group')).toBe('prod');
+    expect(serialized.get('keep')).toBe('1');
+  });
+
   it('deep-merges partial pagination defaults', () => {
     const defaults = { pagination: { pageIndex: 0, pageSize: 25 } };
     const parsed = parseTableUrlState(new URLSearchParams(), { defaults });
