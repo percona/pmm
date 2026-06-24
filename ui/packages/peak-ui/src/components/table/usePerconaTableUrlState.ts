@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import {
   MRT_ColumnFiltersState,
   MRT_PaginationState,
@@ -134,6 +134,11 @@ export function usePerconaTableUrlState({
   const columnFilterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isInternalUrlUpdateRef = useRef(false);
   const latestSearchParamsRef = useRef(searchParams);
+  const latestTableStateRef = useRef(state);
+
+  useEffect(() => {
+    latestTableStateRef.current = state;
+  }, [state]);
 
   useEffect(() => {
     latestSearchParamsRef.current = searchParams;
@@ -164,51 +169,54 @@ export function usePerconaTableUrlState({
     [replace, setSearchParams, urlOptions]
   );
 
+  const scheduleDebouncedUrlWrite = useCallback(
+    (timerRef: MutableRefObject<ReturnType<typeof setTimeout> | null>) => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      timerRef.current = setTimeout(() => {
+        writeUrl(toTableStateValues(latestTableStateRef.current));
+      }, debounceMs);
+    },
+    [debounceMs, writeUrl]
+  );
+
   const commitState = useCallback(
     (updater: (prev: TableStateValues) => TableStateValues, writeToUrl = true) => {
-      setState((prev) => {
-        const nextTableState = updater(toTableStateValues(prev));
-        if (isSameTableState(toTableStateValues(prev), nextTableState)) {
-          return prev;
-        }
-        const next = { ...prev, ...nextTableState };
-        if (writeToUrl) {
-          writeUrl(nextTableState);
-        }
-        return next;
-      });
+      const prev = latestTableStateRef.current;
+      const nextTableState = updater(toTableStateValues(prev));
+      if (isSameTableState(toTableStateValues(prev), nextTableState)) {
+        return;
+      }
+      const next = { ...prev, ...nextTableState };
+      latestTableStateRef.current = next;
+      setState(next);
+      if (writeToUrl) {
+        writeUrl(nextTableState);
+      }
     },
     [writeUrl]
   );
 
   const onColumnFiltersChange = useCallback(
     (updater: MRT_Updater<MRT_ColumnFiltersState>) => {
-      setState((prev) => {
-        const nextTableState = {
-          ...toTableStateValues(prev),
-          columnFilters: resolveUpdater(updater, prev.columnFilters),
-        };
-        if (isSameTableState(toTableStateValues(prev), nextTableState)) {
-          return prev;
-        }
-        const next = { ...prev, ...nextTableState };
+      const prev = latestTableStateRef.current;
+      const nextTableState = {
+        ...toTableStateValues(prev),
+        columnFilters: resolveUpdater(updater, prev.columnFilters),
+      };
+      if (isSameTableState(toTableStateValues(prev), nextTableState)) {
+        return;
+      }
+      const next = { ...prev, ...nextTableState };
+      latestTableStateRef.current = next;
+      setState(next);
 
-        if (isUrlSyncEnabled(sync, 'filters')) {
-          if (columnFilterTimerRef.current) {
-            clearTimeout(columnFilterTimerRef.current);
-          }
-          columnFilterTimerRef.current = setTimeout(() => {
-            setState((current) => {
-              writeUrl(toTableStateValues(current));
-              return current;
-            });
-          }, debounceMs);
-        }
-
-        return next;
-      });
+      if (isUrlSyncEnabled(sync, 'filters')) {
+        scheduleDebouncedUrlWrite(columnFilterTimerRef);
+      }
     },
-    [debounceMs, sync, writeUrl]
+    [scheduleDebouncedUrlWrite, sync]
   );
 
   const onSortingChange = useCallback(
@@ -233,30 +241,20 @@ export function usePerconaTableUrlState({
 
   const onGlobalFilterChange = useCallback(
     (updater: MRT_Updater<string>) => {
-      setState((prev) => {
-        const nextGlobalFilter = resolveUpdater(updater, prev.globalFilter);
-        if (nextGlobalFilter === prev.globalFilter) {
-          return prev;
-        }
-        const next = { ...prev, globalFilter: nextGlobalFilter };
+      const prev = latestTableStateRef.current;
+      const nextGlobalFilter = resolveUpdater(updater, prev.globalFilter);
+      if (nextGlobalFilter === prev.globalFilter) {
+        return;
+      }
+      const next = { ...prev, globalFilter: nextGlobalFilter };
+      latestTableStateRef.current = next;
+      setState(next);
 
-        if (isUrlSyncEnabled(sync, 'globalFilter')) {
-          if (globalFilterTimerRef.current) {
-            clearTimeout(globalFilterTimerRef.current);
-          }
-
-          globalFilterTimerRef.current = setTimeout(() => {
-            setState((current) => {
-              writeUrl(toTableStateValues(current));
-              return current;
-            });
-          }, debounceMs);
-        }
-
-        return next;
-      });
+      if (isUrlSyncEnabled(sync, 'globalFilter')) {
+        scheduleDebouncedUrlWrite(globalFilterTimerRef);
+      }
     },
-    [debounceMs, sync, writeUrl]
+    [scheduleDebouncedUrlWrite, sync]
   );
 
   useEffect(

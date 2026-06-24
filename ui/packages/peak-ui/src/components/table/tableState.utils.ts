@@ -16,6 +16,6 @@ export const mergePerconaTableState = <
   urlState: TUrlState,
   additionalState?: Record<string, unknown>
 ): TUrlState & Record<string, unknown> => ({
-  ...urlState,
   ...(additionalState ?? {}),
+  ...urlState,
 });
