@@ -112,6 +112,34 @@ describe('tableUrlState.utils', () => {
     ]);
   });
 
+  it('omits default sorting from the URL and restores it when the param is absent', () => {
+    const defaults = {
+      ...DEFAULT_TABLE_STATE,
+      sorting: [{ id: 'name', desc: true }],
+    };
+    const serialized = serializeTableUrlState(
+      { ...defaults },
+      new URLSearchParams('keep=1'),
+      { defaults }
+    );
+
+    expect(serialized.get('sort')).toBeNull();
+    expect(serialized.get('keep')).toBe('1');
+
+    const parsed = parseTableUrlState(serialized, { defaults });
+    expect(parsed.sorting).toEqual(defaults.sorting);
+  });
+
+  it('parses an explicit empty sort param as no sorting', () => {
+    const defaults = {
+      ...DEFAULT_TABLE_STATE,
+      sorting: [{ id: 'name', desc: true }],
+    };
+    const params = new URLSearchParams('sort=');
+
+    expect(parseTableUrlState(params, { defaults }).sorting).toEqual([]);
+  });
+
   it('omits empty range filter values when serializing', () => {
     const serialized = serializeTableUrlState(
       { ...DEFAULT_TABLE_STATE, columnFilters: [{ id: 'cpu', value: ['', ''] }] },

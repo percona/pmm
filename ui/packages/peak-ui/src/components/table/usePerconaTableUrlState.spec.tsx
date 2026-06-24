@@ -187,6 +187,45 @@ describe('usePerconaTableUrlState', () => {
     expect(screen.getByTestId('row-selection').textContent).toBe(JSON.stringify(rowSelection));
   });
 
+  it('keeps additionalState in tableProps.state when rowSelection updates', async () => {
+    function Harness() {
+      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+      const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+      const { tableProps } = usePerconaTableUrlState({
+        searchParams,
+        setSearchParams,
+        additionalState: { rowSelection },
+      });
+
+      return (
+        <>
+          <div data-testid="row-selection">{JSON.stringify(tableProps.state.rowSelection)}</div>
+          <button
+            type="button"
+            data-testid="select-row"
+            onClick={() => setRowSelection({ 'srv-001': true })}
+          >
+            Select
+          </button>
+        </>
+      );
+    }
+
+    render(<Harness />);
+
+    expect(screen.getByTestId('row-selection').textContent).toBe('{}');
+
+    await act(async () => {
+      screen.getByTestId('select-row').click();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('row-selection').textContent).toBe(
+        JSON.stringify({ 'srv-001': true })
+      );
+    });
+  });
+
   it('updates sorting locally without writing sort to the URL when sync.sort is false', async () => {
     function Harness() {
       const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
@@ -224,6 +263,53 @@ describe('usePerconaTableUrlState', () => {
       expect(screen.getByTestId('sorting').textContent).toBe('name:desc');
       expect(screen.getByTestId('search').textContent).not.toContain('sort=');
     });
+  });
+
+  it('debounced filter URL write includes sort changes made before the timeout', async () => {
+    vi.useFakeTimers();
+
+    function Harness() {
+      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+      const { tableProps } = usePerconaTableUrlState({
+        searchParams,
+        setSearchParams,
+        debounceMs: 300,
+      });
+
+      return (
+        <>
+          <div data-testid="search">{searchParams.toString()}</div>
+          <button
+            type="button"
+            data-testid="set-filter"
+            onClick={() => tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])}
+          >
+            Filter
+          </button>
+          <button
+            type="button"
+            data-testid="set-sort"
+            onClick={() => tableProps.onSortingChange([{ id: 'name', desc: true }])}
+          >
+            Sort
+          </button>
+        </>
+      );
+    }
+
+    render(<Harness />);
+
+    await act(async () => {
+      screen.getByTestId('set-filter').click();
+      screen.getByTestId('set-sort').click();
+      vi.advanceTimersByTime(300);
+    });
+
+    const search = screen.getByTestId('search').textContent ?? '';
+    expect(search).toContain('f.group=edge');
+    expect(search).toContain('sort=name%3Adesc');
+
+    vi.useRealTimers();
   });
 
   it('does not loop when defaults and sync are inline object literals', async () => {
