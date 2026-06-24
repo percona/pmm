@@ -41,7 +41,7 @@ func GetClickHouseConfig(config string) (string, error) {
 	return config, validateClickHouseConfigAt(config, clickHouseConfigDir)
 }
 
-// validateClickHouseConfigAt returns an error if configuration files are missing for given config
+// validateClickHouseConfigAt returns an error if configuration files are missing for given config.
 func validateClickHouseConfigAt(config, dir string) error {
 	availableConfigs, err := availableClickHouseConfigs(dir)
 	if err != nil {
@@ -49,7 +49,8 @@ func validateClickHouseConfigAt(config, dir string) error {
 	}
 
 	path := filepath.Join(dir, config+"-config.xml")
-	if _, err := os.Stat(path); err != nil {
+	_, err = os.Stat(path)
+	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return fmt.Errorf(
 				"invalid PMM_CLICKHOUSE_CONFIG=%s: %s not found; available configs: %v",
@@ -62,7 +63,7 @@ func validateClickHouseConfigAt(config, dir string) error {
 	return nil
 }
 
-// availableClickHouseConfigs lists config names that are present in the dir
+// availableClickHouseConfigs lists config names that are present in the dir.
 func availableClickHouseConfigs(dir string) ([]string, error) {
 	var configs []string
 
