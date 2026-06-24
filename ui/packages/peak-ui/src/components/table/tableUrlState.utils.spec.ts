@@ -117,11 +117,9 @@ describe('tableUrlState.utils', () => {
       ...DEFAULT_TABLE_STATE,
       sorting: [{ id: 'name', desc: true }],
     };
-    const serialized = serializeTableUrlState(
-      { ...defaults },
-      new URLSearchParams('keep=1'),
-      { defaults }
-    );
+    const serialized = serializeTableUrlState({ ...defaults }, new URLSearchParams('keep=1'), {
+      defaults,
+    });
 
     expect(serialized.get('sort')).toBeNull();
     expect(serialized.get('keep')).toBe('1');
