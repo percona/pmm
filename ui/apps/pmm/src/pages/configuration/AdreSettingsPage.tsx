@@ -65,7 +65,10 @@ const AdreSettingsPage: FC = () => {
   const { user } = useUser();
   const { enqueueSnackbar } = useSnackbar();
   const { data: settings, isLoading, isError, error } = useAdreSettings();
-  const { data: models = [] } = useAdreModels({ enabled: true });
+  // Models come from the Holmes backend, which is only reachable when ADRE is enabled; fetching while
+  // disabled returns 400 "ADRE is disabled" and would surface a spurious error toast on this page.
+  const adreEnabled = settings?.enabled ?? false;
+  const { data: models = [] } = useAdreModels({ enabled: adreEnabled });
   const updateSettings = useUpdateAdreSettings();
   const [tab, setTab] = useState(0);
   const [localEnabled, setLocalEnabled] = useState(settings?.enabled ?? false);
