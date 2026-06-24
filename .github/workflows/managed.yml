@@ -19,8 +19,29 @@ env:
   GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/managed
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
+
+      - name: Build PMM Managed
+        run: make release
+
+      - name: Print version
+        run: ../bin/pmm-managed --version
+
   test:
-    name: Run tests
+    name: Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -34,6 +55,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      # Required to mount Go cache to container.
       - name: Setup Go release
         uses: ./.github/actions/setup-go-release
 

@@ -38,7 +38,7 @@ jobs:
       - name: Build PMM Agent
         run: make release
 
-      - name: Build PMM Agent
+      - name: Print version
         run: ../bin/pmm-agent --version
 
   build-gssapi:
@@ -64,7 +64,7 @@ jobs:
       - name: Build PMM Agent
         run: make release-gssapi
 
-      - name: Build PMM Agent
+      - name: Print version
         run: ../bin/pmm-agent --version
 
   test:
