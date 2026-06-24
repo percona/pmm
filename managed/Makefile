@@ -41,6 +41,9 @@ pi-validate:              ## Validate Percona Intelligence advisors and checks
 release:                        ## Build pmm-managed release binaries
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 
+release-pi-validator: 		## Build PMM Percona Intelligence validator tool
+	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pi-validator/...
+
 release-encryption-rotation:                        ## Build PMM encryption rotation tool
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-encryption-rotation/...
 
