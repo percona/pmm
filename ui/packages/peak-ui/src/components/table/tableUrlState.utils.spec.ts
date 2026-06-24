@@ -220,6 +220,21 @@ describe('tableUrlState.utils', () => {
     expect(parseTableUrlState(serialized, { defaults }).globalFilter).toBe('');
   });
 
+  it('writes an explicit empty filter marker when clearing non-empty default filters', () => {
+    const defaults = {
+      ...DEFAULT_TABLE_STATE,
+      columnFilters: [{ id: 'group', value: 'edge' }],
+    };
+    const serialized = serializeTableUrlState(
+      { ...DEFAULT_TABLE_STATE, columnFilters: [] },
+      new URLSearchParams('keep=1'),
+      { defaults }
+    );
+
+    expect(serialized.get('f._')).toBe('1');
+    expect(parseTableUrlState(serialized, { defaults }).columnFilters).toEqual([]);
+  });
+
   it('omits empty range filter values when serializing', () => {
     const serialized = serializeTableUrlState(
       { ...DEFAULT_TABLE_STATE, columnFilters: [{ id: 'cpu', value: ['', ''] }] },

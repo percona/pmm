@@ -129,6 +129,20 @@ const parseColumnFilters = (
 const hasFilterParams = (searchParams: URLSearchParams, filterPrefix: string): boolean =>
   Array.from(searchParams.keys()).some((key) => key.startsWith(filterPrefix));
 
+const explicitEmptyFiltersKey = (filterPrefix: string) => `${filterPrefix}_`;
+
+const parseColumnFiltersFromUrl = (
+  searchParams: URLSearchParams,
+  filterPrefix: string
+): MRT_ColumnFiltersState => {
+  if (searchParams.has(explicitEmptyFiltersKey(filterPrefix))) {
+    const filters = parseColumnFilters(searchParams, filterPrefix).filter(({ id }) => id !== '_');
+    return hasActiveColumnFilters(filters) ? filters : [];
+  }
+
+  return parseColumnFilters(searchParams, filterPrefix);
+};
+
 export const parseTableUrlState = (
   searchParams: URLSearchParams,
   options: TableUrlStateOptions = {}
@@ -147,7 +161,7 @@ export const parseTableUrlState = (
   return {
     columnFilters: sync.filters
       ? hasFilterParams(searchParams, keys.filterPrefix)
-        ? parseColumnFilters(searchParams, keys.filterPrefix)
+        ? parseColumnFiltersFromUrl(searchParams, keys.filterPrefix)
         : defaults.columnFilters
       : defaults.columnFilters,
     globalFilter: sync.globalFilter
@@ -217,12 +231,16 @@ export const serializeTableUrlState = (
   }
 
   if (sync.filters) {
-    state.columnFilters.forEach(({ id, value }) => {
-      if (isEmptyFilterValue(value)) {
-        return;
-      }
-      next.set(`${keys.filterPrefix}${id}`, serializeFilterValue(value));
-    });
+    if (hasActiveColumnFilters(state.columnFilters)) {
+      state.columnFilters.forEach(({ id, value }) => {
+        if (isEmptyFilterValue(value)) {
+          return;
+        }
+        next.set(`${keys.filterPrefix}${id}`, serializeFilterValue(value));
+      });
+    } else if (hasActiveColumnFilters(defaults.columnFilters)) {
+      next.set(explicitEmptyFiltersKey(keys.filterPrefix), '1');
+    }
   }
 
   if (sync.pagination) {

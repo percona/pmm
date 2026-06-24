@@ -275,17 +275,23 @@ export function usePerconaTableUrlState({
   );
 
   const onShowColumnFiltersChange = useCallback((updater: MRT_Updater<boolean>) => {
-    setState((prev) => ({
+    const prev = latestTableStateRef.current;
+    const next = {
       ...prev,
       showColumnFilters: resolveUpdater(updater, prev.showColumnFilters),
-    }));
+    };
+    latestTableStateRef.current = next;
+    setState(next);
   }, []);
 
   const onShowGlobalFilterChange = useCallback((updater: MRT_Updater<boolean>) => {
-    setState((prev) => ({
+    const prev = latestTableStateRef.current;
+    const next = {
       ...prev,
       showGlobalFilter: resolveUpdater(updater, prev.showGlobalFilter),
-    }));
+    };
+    latestTableStateRef.current = next;
+    setState(next);
   }, []);
 
   const tableValues = useMemo(() => toTableStateValues(state), [state]);
