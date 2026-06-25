@@ -241,3 +241,29 @@ templates:
 			"placeholders: template: :4:5: executing \"\" at <.threshold>: map has no entry for key \"threshold\".")
 	})
 }
+
+func TestEnsureRuleLabel(t *testing.T) {
+	t.Parallel()
+
+	t.Run("adds missing label", func(t *testing.T) {
+		t.Parallel()
+
+		labels := map[string]string{
+			"template_name": "pmm_mysql_down",
+		}
+
+		ensureRuleLabel(labels, "node_name", "{{ $labels.node_name }}")
+		assert.Equal(t, "{{ $labels.node_name }}", labels["node_name"])
+	})
+
+	t.Run("does not override existing label", func(t *testing.T) {
+		t.Parallel()
+
+		labels := map[string]string{
+			"service_name": "custom-service",
+		}
+
+		ensureRuleLabel(labels, "service_name", "{{ $labels.service_name }}")
+		assert.Equal(t, "custom-service", labels["service_name"])
+	})
+}
