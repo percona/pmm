@@ -813,14 +813,13 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 }
 
 // Save store metrics bucket received from agent into db.
-func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error { //nolint:unparam
+func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) {
 	if len(agentMsg.MetricsBucket) == 0 {
 		mb.l.Warnf("Nothing to save - no metrics buckets.")
-		return nil
+		return
 	}
 
 	mb.requestsCh <- agentMsg
-	return nil
 }
 
 // mapToArrsStrStr converts map into two lists.
