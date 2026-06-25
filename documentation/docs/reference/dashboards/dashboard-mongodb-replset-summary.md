@@ -40,6 +40,31 @@ Shows the time elapsed since the most recent primary election.
 
 A recent election is worth investigating to find out whether it was a planned failover or an unexpected event. Frequent elections indicate connectivity issues or node instability.
 
+### Total data size
+
+Shows how much storage your replica set is currently using for data and indexes on the primary node. System databases (`admin`, `local`, `config`) are excluded.
+
+Check this panel regularly to understand your current storage footprint. If the value is growing faster than expected, check **Size of Collections** and **Number of Collections** panels in the **Collection Details** section to identify what is driving the growth. 
+
+Use the trend in the **Data size over time** panel  to decide when to add storage capacity.
+
+This panel requires the `dbstats` collector on the MongoDB exporter. To enable it, see [Add database services](https://per.co.na/pmm/pmm-admin-add).
+
+### Data size over time
+
+Shows how your replica set's total data and index size changes over the selected time 
+range. 
+
+Use this to spot growth trends, identify unexpected spikes, and plan when you 
+will need to add storage capacity. 
+
+A sudden increase may indicate a bulk data load, a missing TTL index, or runaway data growth that needs investigation.
+Shows the total logical data size (uncompressed data plus indexes) across all user databases on the replica set primary. System databases (`admin`, `local`, and `config`) are excluded.
+
+Use this metric to monitor data growth for the replica set, similar to the cluster data size view in Ops Manager. The **Data Size Over Time** graph shows the same total over the selected time range.
+
+This panel requires the MongoDB exporter **dbstats** collector. Enable it by turning on **Enable all collectors** for the MongoDB service in PMM (or ensure `dbstats` is not listed under disabled collectors).
+
 ### State
 
 Shows the current replica set state for each selected service: PRIMARY, SECONDARY, ARBITER, or a problem state such as RECOVERING, ROLLBACK, or DOWN. "Exporter is not connected" means PMM cannot reach the MongoDB exporter for that service.
