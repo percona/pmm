@@ -20,19 +20,14 @@ release:              ## Build release versions of all components
 	make -C qan-api2 release
 	make -C qan-api2 vmproxy
 
-gen: clean            ## Generate files
+gen:             ## Generate files
 	make -C api gen
-	make -C api clean-swagger
-
 	make -C agent gen
 	make -C managed gen
 
 	make gen-mocks      ## Generate mocks
 
 	make format
-
-clean:                ## Remove generated files
-	make -C api clean
 
 gen-mocks:
 	find . -name mock_*.go -delete
@@ -46,7 +41,7 @@ api-test:             ## Run API tests on dev env.
 
 GOLANG_CI_LINT_RUN_OPTS ?=
 check:                ## Run required checks and linters
-	go tool buf lint -v api
+	$(MAKE) -C api check
 	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(shell git merge-base v3 HEAD) --new $(GOLANG_CI_LINT_RUN_OPTS)
 	go tool go-sumtype ./...
 
@@ -58,10 +53,8 @@ check-all: check-license check    ## Run linter and license checks
 check-new:
 	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/v3 --new
 
-FILES = $(shell find . -type f -name '*.go')
-
+format: FILES = $(shell find . -type f -name '*.go')
 format:               ## Format source code
-	make -C api format
 	go tool gofumpt -l -w $(FILES)
 	go tool goimports -local github.com/percona/pmm -l -w $(FILES)
 	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
