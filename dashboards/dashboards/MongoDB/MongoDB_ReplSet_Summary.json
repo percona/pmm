@@ -581,12 +581,178 @@
             "type": "stat"
         },
         {
+            "description": "Shows how much space your data and indexes currently occupy on the replica set primary, excluding system databases (admin, local, config). Requires the dbstats collector on the MongoDB exporter. To enable it, see [Add database services](https://per.co.na/pmm/pmm-admin-add).",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "rgb(31, 120, 193)",
+                        "mode": "fixed"
+                    },
+                    "decimals": 2,
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 6,
+                "x": 0,
+                "y": 5
+            },
+            "hideTimeOverride": true,
+            "id": 1701,
+            "maxDataPoints": 100,
+            "options": {
+                "colorMode": "none",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                    "valueSize": 28
+                },
+                "textMode": "auto",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "sum(mongodb_dbstats_dataSize{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", rs_state=\"1\", database!~\"^(admin|local|config)$\"}) + sum(mongodb_dbstats_indexSize{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", rs_state=\"1\", database!~\"^(admin|local|config)$\"})",
+                    "interval": "5m",
+                    "intervalFactor": 1,
+                    "legendFormat": "Total",
+                    "range": false,
+                    "refId": "A",
+                    "step": 300
+                }
+            ],
+            "title": "Total Data Size",
+            "type": "stat"
+        },
+        {
+            "description": "Plots the total size of data and indexes on the replica set primary over the selected time range. Use this to spot growth trends and plan capacity.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 18,
+                "x": 6,
+                "y": 5
+            },
+            "id": 1702,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "sum(mongodb_dbstats_dataSize{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", rs_state=\"1\", database!~\"^(admin|local|config)$\"}) + sum(mongodb_dbstats_indexSize{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$rs_nm\", rs_state=\"1\", database!~\"^(admin|local|config)$\"})",
+                    "interval": "$interval",
+                    "legendFormat": "Total Data Size",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Data Size Over Time",
+            "type": "timeseries"
+        },
+        {
             "collapsed": false,
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 5
+                "y": 11
             },
             "id": 1030,
             "panels": [],
@@ -672,7 +838,7 @@
                 "h": 4,
                 "w": 2,
                 "x": 0,
-                "y": 6
+                "y": 12
             },
             "id": 1586,
             "options": {
@@ -880,7 +1046,7 @@
                 "h": 4,
                 "w": 3,
                 "x": 2,
-                "y": 6
+                "y": 12
             },
             "id": 1071,
             "options": {
@@ -950,7 +1116,7 @@
                 "h": 4,
                 "w": 3,
                 "x": 5,
-                "y": 6
+                "y": 12
             },
             "id": 1060,
             "options": {
@@ -1012,7 +1178,7 @@
                 "h": 4,
                 "w": 3,
                 "x": 8,
-                "y": 6
+                "y": 12
             },
             "id": 1073,
             "options": {
@@ -1080,7 +1246,7 @@
                 "h": 4,
                 "w": 3,
                 "x": 11,
-                "y": 6
+                "y": 12
             },
             "id": 1062,
             "options": {
@@ -1147,7 +1313,7 @@
                 "h": 4,
                 "w": 3,
                 "x": 14,
-                "y": 6
+                "y": 12
             },
             "id": 1076,
             "options": {
@@ -1239,7 +1405,7 @@
                 "h": 4,
                 "w": 3,
                 "x": 17,
-                "y": 6
+                "y": 12
             },
             "id": 1052,
             "options": {
@@ -1298,7 +1464,7 @@
             "type": "stat"
         },
         {
-            "description": "The parameter shows how long a system has been “up” and running without a shut down or restart.",
+            "description": "The parameter shows how long a system has been \u201cup\u201d and running without a shut down or restart.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1330,7 +1496,7 @@
                 "h": 4,
                 "w": 2,
                 "x": 20,
-                "y": 6
+                "y": 12
             },
             "id": 321,
             "interval": "$interval",
@@ -1400,7 +1566,7 @@
                 "h": 4,
                 "w": 2,
                 "x": 22,
-                "y": 6
+                "y": 12
             },
             "id": 1039,
             "interval": "$interval",
@@ -1455,7 +1621,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 20
+                "y": 26
             },
             "id": 1170,
             "panels": [],
@@ -1539,7 +1705,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 21
+                "y": 27
             },
             "id": 15,
             "options": {
@@ -1630,7 +1796,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 21
+                "y": 27
             },
             "id": 1024,
             "options": {
@@ -1731,7 +1897,7 @@
                             }
                         ]
                     },
-                    "unit": "µs"
+                    "unit": "\u00b5s"
                 },
                 "overrides": []
             },
@@ -1739,7 +1905,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 29
+                "y": 35
             },
             "id": 1064,
             "options": {
@@ -1801,7 +1967,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 29
+                "y": 35
             },
             "id": 1028,
             "options": {
@@ -1908,7 +2074,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 37
+                "y": 43
             },
             "id": 1066,
             "options": {
@@ -2024,7 +2190,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 37
+                "y": 43
             },
             "id": 1036,
             "options": {
@@ -2127,7 +2293,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 45
+                "y": 51
             },
             "id": 1067,
             "options": {
@@ -2258,7 +2424,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 45
+                "y": 51
             },
             "id": 1074,
             "options": {
@@ -2328,7 +2494,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 53
+                "y": 59
             },
             "id": 1056,
             "panels": [],
@@ -2399,7 +2565,7 @@
                                 "value": [
                                     {
                                         "title": "",
-                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}﻿&﻿${__url_time_range}﻿&﻿${interval:queryparam}﻿&﻿${cluster:queryparam}﻿"
+                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}&${__url_time_range}&${interval:queryparam}&${cluster:queryparam}"
                                     }
                                 ]
                             }
@@ -2411,7 +2577,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 54
+                "y": 60
             },
             "id": 1045,
             "options": {
@@ -2548,7 +2714,7 @@
                                 "value": [
                                     {
                                         "title": "",
-                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}﻿&﻿${__url_time_range}﻿&﻿${interval:queryparam}﻿&﻿${cluster:queryparam}"
+                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}&${__url_time_range}&${interval:queryparam}&${cluster:queryparam}"
                                     }
                                 ]
                             }
@@ -2560,7 +2726,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 62
+                "y": 68
             },
             "id": 1043,
             "options": {
@@ -2710,7 +2876,7 @@
                                 "value": [
                                     {
                                         "title": "",
-                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}﻿&﻿${__url_time_range}﻿&﻿${interval:queryparam}﻿&﻿${cluster:queryparam}"
+                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}&${__url_time_range}&${interval:queryparam}&${cluster:queryparam}"
                                     }
                                 ]
                             }
@@ -2722,7 +2888,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 70
+                "y": 76
             },
             "id": 1681,
             "options": {
@@ -2886,7 +3052,7 @@
                                 "value": [
                                     {
                                         "title": "",
-                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}﻿&﻿${__url_time_range}﻿&﻿${interval:queryparam}﻿&﻿${cluster:queryparam}"
+                                        "url": "/graph/d/mongodb-instance-summary/mongodb-instance-summary?${__data.fields.Node}&${__url_time_range}&${interval:queryparam}&${cluster:queryparam}"
                                     }
                                 ]
                             }
@@ -2898,7 +3064,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 78
+                "y": 84
             },
             "id": 1672,
             "options": {
@@ -2985,7 +3151,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 86
+                "y": 92
             },
             "id": 1049,
             "panels": [
@@ -3086,7 +3252,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 0,
-                        "y": 136
+                        "y": 142
                     },
                     "id": 1038,
                     "options": {
@@ -3112,7 +3278,7 @@
                     "targets": [
                         {
                             "editorMode": "code",
-                            "expr": "max_over_time(mongodb_mongod_replset_member_replication_lag{environment=~\"$environment\",cluster=~\"$cluster\",set=\"$rs_nm\",self=~\"|1\",service_name=~\"$secondary\"}[$interval]) > 0 ",
+                            "expr": "max_over_time(mongodb_mongod_replset_member_replication_lag{environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$rs_nm\",self=~\"|1\",service_name=~\"$secondary\"}[$interval]) > 0 ",
                             "interval": "$interval",
                             "intervalFactor": 1,
                             "legendFormat": "{{service_name}}",
@@ -3221,7 +3387,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 8,
-                        "y": 136
+                        "y": 142
                     },
                     "id": 1025,
                     "options": {
@@ -3313,7 +3479,7 @@
                                     }
                                 ]
                             },
-                            "unit": "µs"
+                            "unit": "\u00b5s"
                         },
                         "overrides": [
                             {
@@ -3338,7 +3504,7 @@
                         "h": 7,
                         "w": 8,
                         "x": 16,
-                        "y": 136
+                        "y": 142
                     },
                     "id": 1020,
                     "options": {
@@ -3449,7 +3615,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 143
+                        "y": 149
                     },
                     "id": 1680,
                     "options": {
@@ -3499,7 +3665,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 87
+                "y": 93
             },
             "id": 1150,
             "panels": [
@@ -3616,7 +3782,7 @@
                         "h": 6,
                         "w": 24,
                         "x": 0,
-                        "y": 164
+                        "y": 170
                     },
                     "id": 1587,
                     "options": {
@@ -3659,7 +3825,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 88
+                "y": 94
             },
             "id": 1403,
             "panels": [
@@ -3854,7 +4020,7 @@
                         "h": 7,
                         "w": 24,
                         "x": 0,
-                        "y": 165
+                        "y": 171
                     },
                     "id": 1675,
                     "options": {
@@ -4012,7 +4178,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 89
+                "y": 95
             },
             "id": 1569,
             "panels": [
@@ -4270,7 +4436,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 166
+                        "y": 172
                     },
                     "id": 1676,
                     "options": {
@@ -4347,7 +4513,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 90
+                "y": 96
             },
             "id": 1571,
             "panels": [
@@ -4558,7 +4724,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 200
+                        "y": 206
                     },
                     "id": 1677,
                     "options": {
@@ -4629,7 +4795,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 91
+                "y": 97
             },
             "id": 1585,
             "panels": [
@@ -4779,7 +4945,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 211
+                        "y": 217
                     },
                     "id": 1678,
                     "links": [
@@ -4883,7 +5049,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 92
+                "y": 98
             },
             "id": 1583,
             "panels": [
@@ -4964,7 +5130,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 169
+                        "y": 175
                     },
                     "id": 1679,
                     "options": {
@@ -5131,11 +5297,12 @@
             },
             {
                 "current": {
-                    "text": "",
-                    "value": ""
+                    "text": "All",
+                    "value": "$__all"
                 },
+                "allValue": ".*",
                 "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\"}, set)",
-                "includeAll": false,
+                "includeAll": true,
                 "label": "Replica Set",
                 "name": "rs_nm",
                 "options": [],
