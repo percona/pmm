@@ -11,7 +11,7 @@ ifeq ($(GOBIN),)
 	GOBIN := $(shell go env GOPATH)/bin
 endif
 
-LD_FLAGS = "-ldflags " \"
+LD_FLAGS = -ldflags " \
 	-X 'github.com/percona/pmm/version.ProjectName=pmm-admin' \
 	-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
 	-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
