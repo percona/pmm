@@ -7,17 +7,15 @@
 package managementv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "github.com/percona/pmm/api/extensions/v1"
+	v1 "github.com/percona/pmm/api/inventory/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
-
-	_ "github.com/percona/pmm/api/extensions/v1"
-	v1 "github.com/percona/pmm/api/inventory/v1"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -105,8 +103,10 @@ type AddPostgreSQLServiceParams struct {
 	MaxExporterConnections int32 `protobuf:"varint,33,opt,name=max_exporter_connections,json=maxExporterConnections,proto3" json:"max_exporter_connections,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,34,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// If true, adds rta-postgresql-agent for provided service.
+	RtaPostgresqlAgent bool `protobuf:"varint,35,opt,name=rta_postgresql_agent,json=rtaPostgresqlAgent,proto3" json:"rta_postgresql_agent,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *AddPostgreSQLServiceParams) Reset() {
@@ -377,6 +377,13 @@ func (x *AddPostgreSQLServiceParams) GetConnectionTimeout() *durationpb.Duration
 	return nil
 }
 
+func (x *AddPostgreSQLServiceParams) GetRtaPostgresqlAgent() bool {
+	if x != nil {
+		return x.RtaPostgresqlAgent
+	}
+	return false
+}
+
 type PostgreSQLServiceResult struct {
 	state                           protoimpl.MessageState              `protogen:"open.v1"`
 	Service                         *v1.PostgreSQLService               `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -384,9 +391,10 @@ type PostgreSQLServiceResult struct {
 	QanPostgresqlPgstatementsAgent  *v1.QANPostgreSQLPgStatementsAgent  `protobuf:"bytes,3,opt,name=qan_postgresql_pgstatements_agent,json=qanPostgresqlPgstatementsAgent,proto3" json:"qan_postgresql_pgstatements_agent,omitempty"`
 	QanPostgresqlPgstatmonitorAgent *v1.QANPostgreSQLPgStatMonitorAgent `protobuf:"bytes,4,opt,name=qan_postgresql_pgstatmonitor_agent,json=qanPostgresqlPgstatmonitorAgent,proto3" json:"qan_postgresql_pgstatmonitor_agent,omitempty"`
 	// Warning message.
-	Warning       string `protobuf:"bytes,5,opt,name=warning,proto3" json:"warning,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Warning            string                 `protobuf:"bytes,5,opt,name=warning,proto3" json:"warning,omitempty"`
+	RtaPostgresqlAgent *v1.RTAPostgreSQLAgent `protobuf:"bytes,6,opt,name=rta_postgresql_agent,json=rtaPostgresqlAgent,proto3" json:"rta_postgresql_agent,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *PostgreSQLServiceResult) Reset() {
@@ -454,11 +462,18 @@ func (x *PostgreSQLServiceResult) GetWarning() string {
 	return ""
 }
 
+func (x *PostgreSQLServiceResult) GetRtaPostgresqlAgent() *v1.RTAPostgreSQLAgent {
+	if x != nil {
+		return x.RtaPostgresqlAgent
+	}
+	return nil
+}
+
 var File_management_v1_postgresql_proto protoreflect.FileDescriptor
 
 const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\n" +
-	"\x1emanagement/v1/postgresql.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xc7\f\n" +
+	"\x1emanagement/v1/postgresql.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xf9\f\n" +
 	"\x1aAddPostgreSQLServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -495,16 +510,18 @@ const file_management_v1_postgresql_proto_rawDesc = "" +
 	"\x14auto_discovery_limit\x18\x1f \x01(\x05R\x12autoDiscoveryLimit\x12'\n" +
 	"\x0fexpose_exporter\x18  \x01(\bR\x0eexposeExporter\x128\n" +
 	"\x18max_exporter_connections\x18! \x01(\x05R\x16maxExporterConnections\x12R\n" +
-	"\x12connection_timeout\x18\" \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\" \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x120\n" +
+	"\x14rta_postgresql_agent\x18# \x01(\bR\x12rtaPostgresqlAgent\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb0\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x84\x04\n" +
 	"\x17PostgreSQLServiceResult\x129\n" +
 	"\aservice\x18\x01 \x01(\v2\x1f.inventory.v1.PostgreSQLServiceR\aservice\x12K\n" +
 	"\x11postgres_exporter\x18\x02 \x01(\v2\x1e.inventory.v1.PostgresExporterR\x10postgresExporter\x12w\n" +
 	"!qan_postgresql_pgstatements_agent\x18\x03 \x01(\v2,.inventory.v1.QANPostgreSQLPgStatementsAgentR\x1eqanPostgresqlPgstatementsAgent\x12z\n" +
 	"\"qan_postgresql_pgstatmonitor_agent\x18\x04 \x01(\v2-.inventory.v1.QANPostgreSQLPgStatMonitorAgentR\x1fqanPostgresqlPgstatmonitorAgent\x12\x18\n" +
-	"\awarning\x18\x05 \x01(\tR\awarningB\xb0\x01\n" +
+	"\awarning\x18\x05 \x01(\tR\awarning\x12R\n" +
+	"\x14rta_postgresql_agent\x18\x06 \x01(\v2 .inventory.v1.RTAPostgreSQLAgentR\x12rtaPostgresqlAgentB\xb0\x01\n" +
 	"\x11com.management.v1B\x0fPostgresqlProtoP\x01Z5github.com/percona/pmm/api/management/v1;managementv1\xa2\x02\x03MXX\xaa\x02\rManagement.V1\xca\x02\rManagement\\V1\xe2\x02\x19Management\\V1\\GPBMetadata\xea\x02\x0eManagement::V1b\x06proto3"
 
 var (
@@ -519,23 +536,21 @@ func file_management_v1_postgresql_proto_rawDescGZIP() []byte {
 	return file_management_v1_postgresql_proto_rawDescData
 }
 
-var (
-	file_management_v1_postgresql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-	file_management_v1_postgresql_proto_goTypes  = []any{
-		(*AddPostgreSQLServiceParams)(nil),         // 0: management.v1.AddPostgreSQLServiceParams
-		(*PostgreSQLServiceResult)(nil),            // 1: management.v1.PostgreSQLServiceResult
-		nil,                                        // 2: management.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
-		(*AddNodeParams)(nil),                      // 3: management.v1.AddNodeParams
-		MetricsMode(0),                             // 4: management.v1.MetricsMode
-		v1.LogLevel(0),                             // 5: inventory.v1.LogLevel
-		(*durationpb.Duration)(nil),                // 6: google.protobuf.Duration
-		(*v1.PostgreSQLService)(nil),               // 7: inventory.v1.PostgreSQLService
-		(*v1.PostgresExporter)(nil),                // 8: inventory.v1.PostgresExporter
-		(*v1.QANPostgreSQLPgStatementsAgent)(nil),  // 9: inventory.v1.QANPostgreSQLPgStatementsAgent
-		(*v1.QANPostgreSQLPgStatMonitorAgent)(nil), // 10: inventory.v1.QANPostgreSQLPgStatMonitorAgent
-	}
-)
-
+var file_management_v1_postgresql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_management_v1_postgresql_proto_goTypes = []any{
+	(*AddPostgreSQLServiceParams)(nil),         // 0: management.v1.AddPostgreSQLServiceParams
+	(*PostgreSQLServiceResult)(nil),            // 1: management.v1.PostgreSQLServiceResult
+	nil,                                        // 2: management.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
+	(*AddNodeParams)(nil),                      // 3: management.v1.AddNodeParams
+	(MetricsMode)(0),                           // 4: management.v1.MetricsMode
+	(v1.LogLevel)(0),                           // 5: inventory.v1.LogLevel
+	(*durationpb.Duration)(nil),                // 6: google.protobuf.Duration
+	(*v1.PostgreSQLService)(nil),               // 7: inventory.v1.PostgreSQLService
+	(*v1.PostgresExporter)(nil),                // 8: inventory.v1.PostgresExporter
+	(*v1.QANPostgreSQLPgStatementsAgent)(nil),  // 9: inventory.v1.QANPostgreSQLPgStatementsAgent
+	(*v1.QANPostgreSQLPgStatMonitorAgent)(nil), // 10: inventory.v1.QANPostgreSQLPgStatMonitorAgent
+	(*v1.RTAPostgreSQLAgent)(nil),              // 11: inventory.v1.RTAPostgreSQLAgent
+}
 var file_management_v1_postgresql_proto_depIdxs = []int32{
 	3,  // 0: management.v1.AddPostgreSQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2,  // 1: management.v1.AddPostgreSQLServiceParams.custom_labels:type_name -> management.v1.AddPostgreSQLServiceParams.CustomLabelsEntry
@@ -546,11 +561,12 @@ var file_management_v1_postgresql_proto_depIdxs = []int32{
 	8,  // 6: management.v1.PostgreSQLServiceResult.postgres_exporter:type_name -> inventory.v1.PostgresExporter
 	9,  // 7: management.v1.PostgreSQLServiceResult.qan_postgresql_pgstatements_agent:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
 	10, // 8: management.v1.PostgreSQLServiceResult.qan_postgresql_pgstatmonitor_agent:type_name -> inventory.v1.QANPostgreSQLPgStatMonitorAgent
-	9,  // [9:9] is the sub-list for method output_type
-	9,  // [9:9] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	11, // 9: management.v1.PostgreSQLServiceResult.rta_postgresql_agent:type_name -> inventory.v1.RTAPostgreSQLAgent
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_postgresql_proto_init() }

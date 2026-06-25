@@ -33,6 +33,7 @@ var (
 	MysqlExporterPluginCollector  FeatureVersion = V2_36_0
 	NomadAgentSupportVersion      FeatureVersion = V3_2_0
 	MongoDBRtaAgentSupportVersion FeatureVersion = V3_7_0
+	PostgreSQLRtaAgentSupportVersion FeatureVersion = V3_7_0
 )
 
 // IsFeatureSupported checks if the feature is supported by the version.

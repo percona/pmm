@@ -7,14 +7,13 @@
 package hav1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -339,19 +338,16 @@ func file_ha_v1beta1_ha_proto_rawDescGZIP() []byte {
 	return file_ha_v1beta1_ha_proto_rawDescData
 }
 
-var (
-	file_ha_v1beta1_ha_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_ha_v1beta1_ha_proto_msgTypes  = make([]protoimpl.MessageInfo, 5)
-	file_ha_v1beta1_ha_proto_goTypes   = []any{
-		NodeRole(0),               // 0: ha.v1beta1.NodeRole
-		(*ListNodesRequest)(nil),  // 1: ha.v1beta1.ListNodesRequest
-		(*HANode)(nil),            // 2: ha.v1beta1.HANode
-		(*ListNodesResponse)(nil), // 3: ha.v1beta1.ListNodesResponse
-		(*StatusRequest)(nil),     // 4: ha.v1beta1.StatusRequest
-		(*StatusResponse)(nil),    // 5: ha.v1beta1.StatusResponse
-	}
-)
-
+var file_ha_v1beta1_ha_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_ha_v1beta1_ha_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_ha_v1beta1_ha_proto_goTypes = []any{
+	(NodeRole)(0),             // 0: ha.v1beta1.NodeRole
+	(*ListNodesRequest)(nil),  // 1: ha.v1beta1.ListNodesRequest
+	(*HANode)(nil),            // 2: ha.v1beta1.HANode
+	(*ListNodesResponse)(nil), // 3: ha.v1beta1.ListNodesResponse
+	(*StatusRequest)(nil),     // 4: ha.v1beta1.StatusRequest
+	(*StatusResponse)(nil),    // 5: ha.v1beta1.StatusResponse
+}
 var file_ha_v1beta1_ha_proto_depIdxs = []int32{
 	0, // 0: ha.v1beta1.HANode.role:type_name -> ha.v1beta1.NodeRole
 	2, // 1: ha.v1beta1.ListNodesResponse.nodes:type_name -> ha.v1beta1.HANode

@@ -95,6 +95,8 @@ message AddPostgreSQLServiceParams {
   google.protobuf.Duration connection_timeout = 34 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // If true, adds rta-postgresql-agent for provided service.
+  bool rta_postgresql_agent = 35;
 }
 
 message PostgreSQLServiceResult {
@@ -104,4 +106,5 @@ message PostgreSQLServiceResult {
   inventory.v1.QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 4;
   // Warning message.
   string warning = 5;
+  inventory.v1.RTAPostgreSQLAgent rta_postgresql_agent = 6;
 }

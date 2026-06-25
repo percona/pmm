@@ -35,6 +35,361 @@ var (
 	_ = sort.Sort
 )
 
+// Validate checks the field values on LockChainLink with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *LockChainLink) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LockChainLink with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in LockChainLinkMultiError, or
+// nil if none found.
+func (m *LockChainLink) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LockChainLink) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for BlockerPid
+
+	// no validation rules for BlockedPid
+
+	// no validation rules for LockMode
+
+	// no validation rules for RelationName
+
+	// no validation rules for BlockerQueryText
+
+	if all {
+		switch v := interface{}(m.GetBlockerDuration()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, LockChainLinkValidationError{
+					field:  "BlockerDuration",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, LockChainLinkValidationError{
+					field:  "BlockerDuration",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetBlockerDuration()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return LockChainLinkValidationError{
+				field:  "BlockerDuration",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return LockChainLinkMultiError(errors)
+	}
+
+	return nil
+}
+
+// LockChainLinkMultiError is an error wrapping multiple validation errors
+// returned by LockChainLink.ValidateAll() if the designated constraints
+// aren't met.
+type LockChainLinkMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LockChainLinkMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LockChainLinkMultiError) AllErrors() []error { return m }
+
+// LockChainLinkValidationError is the validation error returned by
+// LockChainLink.Validate if the designated constraints aren't met.
+type LockChainLinkValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LockChainLinkValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LockChainLinkValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LockChainLinkValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LockChainLinkValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LockChainLinkValidationError) ErrorName() string { return "LockChainLinkValidationError" }
+
+// Error satisfies the builtin error interface
+func (e LockChainLinkValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLockChainLink.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LockChainLinkValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LockChainLinkValidationError{}
+
+// Validate checks the field values on QueryPostgreSQLData with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *QueryPostgreSQLData) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on QueryPostgreSQLData with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// QueryPostgreSQLDataMultiError, or nil if none found.
+func (m *QueryPostgreSQLData) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *QueryPostgreSQLData) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for DbInstanceAddress
+
+	// no validation rules for DatabaseName
+
+	// no validation rules for Username
+
+	// no validation rules for ApplicationName
+
+	// no validation rules for SessionState
+
+	if all {
+		switch v := interface{}(m.GetTransactionStartTime()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, QueryPostgreSQLDataValidationError{
+					field:  "TransactionStartTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, QueryPostgreSQLDataValidationError{
+					field:  "TransactionStartTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTransactionStartTime()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return QueryPostgreSQLDataValidationError{
+				field:  "TransactionStartTime",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetQueryStartTime()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, QueryPostgreSQLDataValidationError{
+					field:  "QueryStartTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, QueryPostgreSQLDataValidationError{
+					field:  "QueryStartTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetQueryStartTime()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return QueryPostgreSQLDataValidationError{
+				field:  "QueryStartTime",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for WaitEventType
+
+	// no validation rules for WaitEvent
+
+	// no validation rules for BackendPid
+
+	// no validation rules for LeaderPid
+
+	// no validation rules for QueryTextTruncated
+
+	// no validation rules for TrackActivityQuerySize
+
+	for idx, item := range m.GetLockChain() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, QueryPostgreSQLDataValidationError{
+						field:  fmt.Sprintf("LockChain[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, QueryPostgreSQLDataValidationError{
+						field:  fmt.Sprintf("LockChain[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return QueryPostgreSQLDataValidationError{
+					field:  fmt.Sprintf("LockChain[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return QueryPostgreSQLDataMultiError(errors)
+	}
+
+	return nil
+}
+
+// QueryPostgreSQLDataMultiError is an error wrapping multiple validation
+// errors returned by QueryPostgreSQLData.ValidateAll() if the designated
+// constraints aren't met.
+type QueryPostgreSQLDataMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m QueryPostgreSQLDataMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m QueryPostgreSQLDataMultiError) AllErrors() []error { return m }
+
+// QueryPostgreSQLDataValidationError is the validation error returned by
+// QueryPostgreSQLData.Validate if the designated constraints aren't met.
+type QueryPostgreSQLDataValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e QueryPostgreSQLDataValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e QueryPostgreSQLDataValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e QueryPostgreSQLDataValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e QueryPostgreSQLDataValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e QueryPostgreSQLDataValidationError) ErrorName() string {
+	return "QueryPostgreSQLDataValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e QueryPostgreSQLDataValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sQueryPostgreSQLData.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = QueryPostgreSQLDataValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = QueryPostgreSQLDataValidationError{}
+
 // Validate checks the field values on QueryMongoDBData with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -165,8 +520,7 @@ func (e QueryMongoDBDataValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryMongoDBDataValidationError{}
@@ -313,6 +667,47 @@ func (m *QueryData) validate(all bool) error {
 			}
 		}
 
+	case *QueryData_PostgresPayload:
+		if v == nil {
+			err := QueryDataValidationError{
+				field:  "Payload",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPostgresPayload()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, QueryDataValidationError{
+						field:  "PostgresPayload",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, QueryDataValidationError{
+						field:  "PostgresPayload",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPostgresPayload()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return QueryDataValidationError{
+					field:  "PostgresPayload",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -381,8 +776,7 @@ func (e QueryDataValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QueryDataValidationError{}

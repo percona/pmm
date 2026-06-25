@@ -7,19 +7,17 @@
 package serverv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
+	common "github.com/percona/pmm/api/common"
+	_ "github.com/percona/pmm/api/extensions/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
-	common "github.com/percona/pmm/api/common"
-	_ "github.com/percona/pmm/api/extensions/v1"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -1916,43 +1914,40 @@ func file_server_v1_server_proto_rawDescGZIP() []byte {
 	return file_server_v1_server_proto_rawDescData
 }
 
-var (
-	file_server_v1_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_server_v1_server_proto_msgTypes  = make([]protoimpl.MessageInfo, 26)
-	file_server_v1_server_proto_goTypes   = []any{
-		DistributionMethod(0),               // 0: server.v1.DistributionMethod
-		(*VersionInfo)(nil),                 // 1: server.v1.VersionInfo
-		(*VersionRequest)(nil),              // 2: server.v1.VersionRequest
-		(*VersionResponse)(nil),             // 3: server.v1.VersionResponse
-		(*ReadinessRequest)(nil),            // 4: server.v1.ReadinessRequest
-		(*ReadinessResponse)(nil),           // 5: server.v1.ReadinessResponse
-		(*LeaderHealthCheckRequest)(nil),    // 6: server.v1.LeaderHealthCheckRequest
-		(*LeaderHealthCheckResponse)(nil),   // 7: server.v1.LeaderHealthCheckResponse
-		(*CheckUpdatesRequest)(nil),         // 8: server.v1.CheckUpdatesRequest
-		(*DockerVersionInfo)(nil),           // 9: server.v1.DockerVersionInfo
-		(*CheckUpdatesResponse)(nil),        // 10: server.v1.CheckUpdatesResponse
-		(*ListChangeLogsRequest)(nil),       // 11: server.v1.ListChangeLogsRequest
-		(*ListChangeLogsResponse)(nil),      // 12: server.v1.ListChangeLogsResponse
-		(*StartUpdateRequest)(nil),          // 13: server.v1.StartUpdateRequest
-		(*StartUpdateResponse)(nil),         // 14: server.v1.StartUpdateResponse
-		(*UpdateStatusRequest)(nil),         // 15: server.v1.UpdateStatusRequest
-		(*UpdateStatusResponse)(nil),        // 16: server.v1.UpdateStatusResponse
-		(*MetricsResolutions)(nil),          // 17: server.v1.MetricsResolutions
-		(*AdvisorRunIntervals)(nil),         // 18: server.v1.AdvisorRunIntervals
-		(*Settings)(nil),                    // 19: server.v1.Settings
-		(*ReadOnlySettings)(nil),            // 20: server.v1.ReadOnlySettings
-		(*GetSettingsRequest)(nil),          // 21: server.v1.GetSettingsRequest
-		(*GetReadOnlySettingsRequest)(nil),  // 22: server.v1.GetReadOnlySettingsRequest
-		(*GetSettingsResponse)(nil),         // 23: server.v1.GetSettingsResponse
-		(*GetReadOnlySettingsResponse)(nil), // 24: server.v1.GetReadOnlySettingsResponse
-		(*ChangeSettingsRequest)(nil),       // 25: server.v1.ChangeSettingsRequest
-		(*ChangeSettingsResponse)(nil),      // 26: server.v1.ChangeSettingsResponse
-		(*timestamppb.Timestamp)(nil),       // 27: google.protobuf.Timestamp
-		(*durationpb.Duration)(nil),         // 28: google.protobuf.Duration
-		(*common.StringArray)(nil),          // 29: common.StringArray
-	}
-)
-
+var file_server_v1_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_server_v1_server_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
+var file_server_v1_server_proto_goTypes = []any{
+	(DistributionMethod)(0),             // 0: server.v1.DistributionMethod
+	(*VersionInfo)(nil),                 // 1: server.v1.VersionInfo
+	(*VersionRequest)(nil),              // 2: server.v1.VersionRequest
+	(*VersionResponse)(nil),             // 3: server.v1.VersionResponse
+	(*ReadinessRequest)(nil),            // 4: server.v1.ReadinessRequest
+	(*ReadinessResponse)(nil),           // 5: server.v1.ReadinessResponse
+	(*LeaderHealthCheckRequest)(nil),    // 6: server.v1.LeaderHealthCheckRequest
+	(*LeaderHealthCheckResponse)(nil),   // 7: server.v1.LeaderHealthCheckResponse
+	(*CheckUpdatesRequest)(nil),         // 8: server.v1.CheckUpdatesRequest
+	(*DockerVersionInfo)(nil),           // 9: server.v1.DockerVersionInfo
+	(*CheckUpdatesResponse)(nil),        // 10: server.v1.CheckUpdatesResponse
+	(*ListChangeLogsRequest)(nil),       // 11: server.v1.ListChangeLogsRequest
+	(*ListChangeLogsResponse)(nil),      // 12: server.v1.ListChangeLogsResponse
+	(*StartUpdateRequest)(nil),          // 13: server.v1.StartUpdateRequest
+	(*StartUpdateResponse)(nil),         // 14: server.v1.StartUpdateResponse
+	(*UpdateStatusRequest)(nil),         // 15: server.v1.UpdateStatusRequest
+	(*UpdateStatusResponse)(nil),        // 16: server.v1.UpdateStatusResponse
+	(*MetricsResolutions)(nil),          // 17: server.v1.MetricsResolutions
+	(*AdvisorRunIntervals)(nil),         // 18: server.v1.AdvisorRunIntervals
+	(*Settings)(nil),                    // 19: server.v1.Settings
+	(*ReadOnlySettings)(nil),            // 20: server.v1.ReadOnlySettings
+	(*GetSettingsRequest)(nil),          // 21: server.v1.GetSettingsRequest
+	(*GetReadOnlySettingsRequest)(nil),  // 22: server.v1.GetReadOnlySettingsRequest
+	(*GetSettingsResponse)(nil),         // 23: server.v1.GetSettingsResponse
+	(*GetReadOnlySettingsResponse)(nil), // 24: server.v1.GetReadOnlySettingsResponse
+	(*ChangeSettingsRequest)(nil),       // 25: server.v1.ChangeSettingsRequest
+	(*ChangeSettingsResponse)(nil),      // 26: server.v1.ChangeSettingsResponse
+	(*timestamppb.Timestamp)(nil),       // 27: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),         // 28: google.protobuf.Duration
+	(*common.StringArray)(nil),          // 29: common.StringArray
+}
 var file_server_v1_server_proto_depIdxs = []int32{
 	27, // 0: server.v1.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
 	1,  // 1: server.v1.VersionResponse.server:type_name -> server.v1.VersionInfo

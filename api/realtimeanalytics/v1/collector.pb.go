@@ -7,13 +7,12 @@
 package realtimeanalyticsv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "google.golang.org/genproto/googleapis/api/visibility"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -132,15 +131,12 @@ func file_realtimeanalytics_v1_collector_proto_rawDescGZIP() []byte {
 	return file_realtimeanalytics_v1_collector_proto_rawDescData
 }
 
-var (
-	file_realtimeanalytics_v1_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-	file_realtimeanalytics_v1_collector_proto_goTypes  = []any{
-		(*CollectRequest)(nil),  // 0: realtimeanalytics.v1.CollectRequest
-		(*CollectResponse)(nil), // 1: realtimeanalytics.v1.CollectResponse
-		(*QueryData)(nil),       // 2: realtimeanalytics.v1.QueryData
-	}
-)
-
+var file_realtimeanalytics_v1_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_realtimeanalytics_v1_collector_proto_goTypes = []any{
+	(*CollectRequest)(nil),  // 0: realtimeanalytics.v1.CollectRequest
+	(*CollectResponse)(nil), // 1: realtimeanalytics.v1.CollectResponse
+	(*QueryData)(nil),       // 2: realtimeanalytics.v1.QueryData
+}
 var file_realtimeanalytics_v1_collector_proto_depIdxs = []int32{
 	2, // 0: realtimeanalytics.v1.CollectRequest.queries:type_name -> realtimeanalytics.v1.QueryData
 	0, // 1: realtimeanalytics.v1.CollectorService.Collect:input_type -> realtimeanalytics.v1.CollectRequest

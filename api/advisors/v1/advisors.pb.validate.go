@@ -140,8 +140,7 @@ func (e AdvisorCheckResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AdvisorCheckResultValidationError{}
@@ -263,8 +262,7 @@ func (e CheckResultSummaryValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CheckResultSummaryValidationError{}
@@ -381,8 +379,7 @@ func (e CheckResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CheckResultValidationError{}
@@ -493,8 +490,7 @@ func (e AdvisorCheckValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AdvisorCheckValidationError{}
@@ -636,8 +632,7 @@ func (e AdvisorValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AdvisorValidationError{}
@@ -747,8 +742,7 @@ func (e ChangeAdvisorCheckParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeAdvisorCheckParamsValidationError{}
@@ -850,8 +844,7 @@ func (e StartAdvisorChecksRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartAdvisorChecksRequestValidationError{}
@@ -953,8 +946,7 @@ func (e StartAdvisorChecksResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartAdvisorChecksResponseValidationError{}
@@ -1056,8 +1048,7 @@ func (e ListAdvisorChecksRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListAdvisorChecksRequestValidationError{}
@@ -1193,8 +1184,7 @@ func (e ListAdvisorChecksResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListAdvisorChecksResponseValidationError{}
@@ -1296,8 +1286,7 @@ func (e ListAdvisorsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListAdvisorsRequestValidationError{}
@@ -1433,8 +1422,7 @@ func (e ListAdvisorsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListAdvisorsResponseValidationError{}
@@ -1570,8 +1558,7 @@ func (e ChangeAdvisorChecksRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeAdvisorChecksRequestValidationError{}
@@ -1674,8 +1661,7 @@ func (e ChangeAdvisorChecksResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeAdvisorChecksResponseValidationError{}
@@ -1777,8 +1763,7 @@ func (e ListFailedServicesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListFailedServicesRequestValidationError{}
@@ -1914,8 +1899,7 @@ func (e ListFailedServicesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListFailedServicesResponseValidationError{}
@@ -1953,6 +1937,7 @@ func (m *GetFailedChecksRequest) validate(all bool) error {
 	// no validation rules for ServiceId
 
 	if m.PageSize != nil {
+
 		if m.GetPageSize() < 1 {
 			err := GetFailedChecksRequestValidationError{
 				field:  "PageSize",
@@ -1963,9 +1948,11 @@ func (m *GetFailedChecksRequest) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
+
 	}
 
 	if m.PageIndex != nil {
+
 		if m.GetPageIndex() < 0 {
 			err := GetFailedChecksRequestValidationError{
 				field:  "PageIndex",
@@ -1976,6 +1963,7 @@ func (m *GetFailedChecksRequest) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
+
 	}
 
 	if len(errors) > 0 {
@@ -2045,8 +2033,7 @@ func (e GetFailedChecksRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetFailedChecksRequestValidationError{}
@@ -2186,8 +2173,7 @@ func (e GetFailedChecksResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetFailedChecksResponseValidationError{}

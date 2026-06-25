@@ -23,7 +23,10 @@ export const RealtimeSelection: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
   // TODO: Add other service types when available
-  const { isLoading } = useAvailableServices([ServiceType.mongodb]);
+  const { isLoading } = useAvailableServices([
+    ServiceType.mongodb,
+    ServiceType.postgresql,
+  ]);
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
 

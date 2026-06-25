@@ -1,0 +1,1003 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "backup/v1/backup.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "BackupService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/backups/artifacts": {
+      "get": {
+        "summary": "List artifacts",
+        "description": "Return a list of backup artifacts.",
+        "operationId": "ListArtifacts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListArtifactsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "BackupService"
+        ]
+      }
+    },
+    "/v1/backups/artifacts/{artifact_id}": {
+      "delete": {
+        "summary": "Delete Artifact",
+        "description": "Deletes an artifact.",
+        "operationId": "DeleteArtifact",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteArtifactResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "artifact_id",
+            "description": "Machine-readable artifact ID.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "remove_files",
+            "description": "Removes all the backup files associated with artifact if flag is set.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "BackupService"
+        ]
+      }
+    },
+    "/v1/backups/artifacts/{artifact_id}/pitr-timeranges": {
+      "get": {
+        "summary": "List PITR Timeranges",
+        "description": "Return a list of available MongoDB point-in-time-recovery timeranges.",
+        "operationId": "ListPitrTimeranges",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListPitrTimerangesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "artifact_id",
+            "description": "Artifact ID represents artifact whose location has PITR timeranges to be retrieved.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BackupService"
+        ]
+      }
+    },
+    "/v1/backups/scheduled": {
+      "get": {
+        "summary": "List Scheduled Backups",
+        "description": "List all scheduled backups.",
+        "operationId": "ListScheduledBackups",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListScheduledBackupsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "BackupService"
+        ]
+      }
+    },
+    "/v1/backups/{artifact_id}/compatible-services": {
+      "get": {
+        "summary": "List Compatible Services",
+        "description": "List services that are compatible with the backup artifact.",
+        "operationId": "ListArtifactCompatibleServices",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListArtifactCompatibleServicesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "artifact_id",
+            "description": "Artifact id used to determine restore compatibility.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BackupService"
+        ]
+      }
+    },
+    "/v1/backups/{artifact_id}/logs": {
+      "get": {
+        "summary": "Get Logs",
+        "description": "Get logs from the underlying tools for a backup/restore job.",
+        "operationId": "GetLogs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetLogsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "artifact_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "BackupService"
+        ]
+      }
+    },
+    "/v1/backups/{scheduled_backup_id}": {
+      "delete": {
+        "summary": "Remove a Scheduled Backup",
+        "description": "Remove a scheduled backup.",
+        "operationId": "RemoveScheduledBackup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RemoveScheduledBackupResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "scheduled_backup_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BackupService"
+        ]
+      }
+    },
+    "/v1/backups:changeScheduled": {
+      "put": {
+        "summary": "Change a Scheduled Backup",
+        "description": "Change a scheduled backup.",
+        "operationId": "ChangeScheduledBackup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ChangeScheduledBackupResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ChangeScheduledBackupRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BackupService"
+        ]
+      }
+    },
+    "/v1/backups:schedule": {
+      "post": {
+        "summary": "Schedule a Backup",
+        "description": "Schedule a backup to run at a specified time.",
+        "operationId": "ScheduleBackup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ScheduleBackupResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ScheduleBackupRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BackupService"
+        ]
+      }
+    },
+    "/v1/backups:start": {
+      "post": {
+        "summary": "Start a Backup",
+        "description": "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup",
+        "operationId": "StartBackup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1StartBackupResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1StartBackupRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BackupService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1Artifact": {
+      "type": "object",
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "description": "Machine-readable artifact ID."
+        },
+        "name": {
+          "type": "string",
+          "title": "Artifact name"
+        },
+        "vendor": {
+          "type": "string",
+          "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL."
+        },
+        "location_id": {
+          "type": "string",
+          "description": "Machine-readable location ID."
+        },
+        "location_name": {
+          "type": "string",
+          "description": "Location name."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Machine-readable service ID."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Service name."
+        },
+        "data_model": {
+          "$ref": "#/definitions/v1DataModel",
+          "description": "Backup data model."
+        },
+        "status": {
+          "$ref": "#/definitions/v1BackupStatus",
+          "description": "Backup status."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Artifact creation time."
+        },
+        "mode": {
+          "$ref": "#/definitions/v1BackupMode",
+          "description": "Backup mode."
+        },
+        "is_sharded_cluster": {
+          "type": "boolean",
+          "description": "Source database setup type."
+        },
+        "folder": {
+          "type": "string",
+          "description": "Folder to store artifact on a storage."
+        },
+        "metadata_list": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Metadata"
+          },
+          "description": "List of artifact metadata."
+        }
+      },
+      "description": "Artifact represents single backup artifact."
+    },
+    "v1BackupMode": {
+      "type": "string",
+      "enum": [
+        "BACKUP_MODE_UNSPECIFIED",
+        "BACKUP_MODE_SNAPSHOT",
+        "BACKUP_MODE_INCREMENTAL",
+        "BACKUP_MODE_PITR"
+      ],
+      "default": "BACKUP_MODE_UNSPECIFIED",
+      "description": "BackupMode specifies backup mode."
+    },
+    "v1BackupStatus": {
+      "type": "string",
+      "enum": [
+        "BACKUP_STATUS_UNSPECIFIED",
+        "BACKUP_STATUS_PENDING",
+        "BACKUP_STATUS_IN_PROGRESS",
+        "BACKUP_STATUS_PAUSED",
+        "BACKUP_STATUS_SUCCESS",
+        "BACKUP_STATUS_ERROR",
+        "BACKUP_STATUS_DELETING",
+        "BACKUP_STATUS_FAILED_TO_DELETE",
+        "BACKUP_STATUS_CLEANUP_IN_PROGRESS"
+      ],
+      "default": "BACKUP_STATUS_UNSPECIFIED",
+      "description": "BackupStatus shows the current status of execution of backup."
+    },
+    "v1ChangeScheduledBackupRequest": {
+      "type": "object",
+      "properties": {
+        "scheduled_backup_id": {
+          "type": "string"
+        },
+        "enabled": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "cron_expression": {
+          "type": "string",
+          "x-nullable": true,
+          "description": "How often backup should be run in cron format."
+        },
+        "start_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "First backup wouldn't happen before this time."
+        },
+        "name": {
+          "type": "string",
+          "x-nullable": true,
+          "description": "Name of backup."
+        },
+        "description": {
+          "type": "string",
+          "x-nullable": true,
+          "description": "Human-readable description."
+        },
+        "retries": {
+          "type": "integer",
+          "format": "int64",
+          "x-nullable": true,
+          "description": "How many times to retry a failed backup before giving up."
+        },
+        "retry_interval": {
+          "type": "string",
+          "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h."
+        },
+        "retention": {
+          "type": "integer",
+          "format": "int64",
+          "x-nullable": true,
+          "description": "How many artifacts keep. 0 - unlimited."
+        }
+      }
+    },
+    "v1ChangeScheduledBackupResponse": {
+      "type": "object"
+    },
+    "v1DataModel": {
+      "type": "string",
+      "enum": [
+        "DATA_MODEL_UNSPECIFIED",
+        "DATA_MODEL_PHYSICAL",
+        "DATA_MODEL_LOGICAL"
+      ],
+      "default": "DATA_MODEL_UNSPECIFIED",
+      "description": "DataModel is a model used for performing a backup."
+    },
+    "v1DeleteArtifactResponse": {
+      "type": "object"
+    },
+    "v1File": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "is_directory": {
+          "type": "boolean"
+        }
+      },
+      "description": "File represents file or folder on a storage."
+    },
+    "v1GetLogsResponse": {
+      "type": "object",
+      "properties": {
+        "logs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1LogChunk"
+          }
+        },
+        "end": {
+          "type": "boolean"
+        }
+      }
+    },
+    "v1ListArtifactCompatibleServicesResponse": {
+      "type": "object",
+      "properties": {
+        "mysql": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MySQLService"
+          }
+        },
+        "mongodb": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MongoDBService"
+          }
+        }
+      }
+    },
+    "v1ListArtifactsResponse": {
+      "type": "object",
+      "properties": {
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Artifact"
+          }
+        }
+      }
+    },
+    "v1ListPitrTimerangesResponse": {
+      "type": "object",
+      "properties": {
+        "timeranges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1PitrTimerange"
+          }
+        }
+      }
+    },
+    "v1ListScheduledBackupsResponse": {
+      "type": "object",
+      "properties": {
+        "scheduled_backups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ScheduledBackup"
+          }
+        }
+      }
+    },
+    "v1LogChunk": {
+      "type": "object",
+      "properties": {
+        "chunk_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "data": {
+          "type": "string"
+        }
+      },
+      "description": "LogChunk represent one chunk of logs."
+    },
+    "v1Metadata": {
+      "type": "object",
+      "properties": {
+        "file_list": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1File"
+          },
+          "description": "List of files backup consists of."
+        },
+        "restore_to": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Exact time DB can be restored to."
+        },
+        "pbm_metadata": {
+          "$ref": "#/definitions/v1PbmMetadata"
+        }
+      },
+      "description": "Metadata contains extra artifact data like files it consists of, tool specific data, etc."
+    },
+    "v1MongoDBService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "address": {
+          "type": "string",
+          "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Access unix socket.\nAddress (and port) or socket is required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "version": {
+          "type": "string",
+          "description": "MongoDB version."
+        }
+      },
+      "description": "MongoDBService represents a generic MongoDB instance."
+    },
+    "v1MySQLService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "address": {
+          "type": "string",
+          "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Access unix socket.\nAddress (and port) or socket is required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "version": {
+          "type": "string",
+          "description": "MySQL version."
+        },
+        "extra_dsn_params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Extra parameters to be added to the DSN."
+        }
+      },
+      "description": "MySQLService represents a generic MySQL instance."
+    },
+    "v1PbmMetadata": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of backup in backup tool representation."
+        }
+      },
+      "description": "PbmMetadata contains additional data for pbm cli tools."
+    },
+    "v1PitrTimerange": {
+      "type": "object",
+      "properties": {
+        "start_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "start_timestamp is the time of the first event in the PITR chunk."
+        },
+        "end_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "end_timestamp is the time of the last event in the PITR chunk."
+        }
+      }
+    },
+    "v1RemoveScheduledBackupResponse": {
+      "type": "object"
+    },
+    "v1ScheduleBackupRequest": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier where backup should be performed."
+        },
+        "location_id": {
+          "type": "string",
+          "description": "Machine-readable location ID."
+        },
+        "folder": {
+          "type": "string",
+          "description": "How often backup should be run in cron format.\nFolder on storage for artifact."
+        },
+        "cron_expression": {
+          "type": "string"
+        },
+        "start_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "First backup wouldn't happen before this time."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of backup."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description."
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "If scheduling is enabled."
+        },
+        "retries": {
+          "type": "integer",
+          "format": "int64",
+          "description": "How many times to retry a failed backup before giving up."
+        },
+        "retry_interval": {
+          "type": "string",
+          "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h."
+        },
+        "mode": {
+          "$ref": "#/definitions/v1BackupMode",
+          "description": "Backup mode."
+        },
+        "data_model": {
+          "$ref": "#/definitions/v1DataModel",
+          "description": "Backup data model (physical or logical)."
+        },
+        "retention": {
+          "type": "integer",
+          "format": "int64",
+          "description": "How many artifacts keep. 0 - unlimited."
+        }
+      }
+    },
+    "v1ScheduleBackupResponse": {
+      "type": "object",
+      "properties": {
+        "scheduled_backup_id": {
+          "type": "string"
+        }
+      }
+    },
+    "v1ScheduledBackup": {
+      "type": "object",
+      "properties": {
+        "scheduled_backup_id": {
+          "type": "string",
+          "description": "Machine-readable ID."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Machine-readable service ID."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Service name."
+        },
+        "location_id": {
+          "type": "string",
+          "description": "Machine-readable location ID."
+        },
+        "location_name": {
+          "type": "string",
+          "description": "Location name."
+        },
+        "folder": {
+          "type": "string",
+          "description": "Folder on storage for artifact."
+        },
+        "cron_expression": {
+          "type": "string",
+          "description": "How often backup will be run in cron format."
+        },
+        "start_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "First backup wouldn't happen before this time."
+        },
+        "name": {
+          "type": "string",
+          "description": "Artifact name."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description."
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "If scheduling is enabled."
+        },
+        "retries": {
+          "type": "integer",
+          "format": "int64",
+          "description": "How many times to retry a failed backup before giving up."
+        },
+        "retry_interval": {
+          "type": "string",
+          "description": "Delay between each retry. Should have a suffix in JSON: 2s, 1m, 1h."
+        },
+        "data_model": {
+          "$ref": "#/definitions/v1DataModel",
+          "description": "Backup data model (physical or logical)."
+        },
+        "mode": {
+          "$ref": "#/definitions/v1BackupMode",
+          "description": "Backup mode."
+        },
+        "vendor": {
+          "type": "string",
+          "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL."
+        },
+        "last_run": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last run."
+        },
+        "next_run": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Next run."
+        },
+        "retention": {
+          "type": "integer",
+          "format": "int64",
+          "description": "How many artifacts keep. 0 - unlimited."
+        }
+      },
+      "description": "ScheduledBackup represents scheduled task for backup."
+    },
+    "v1StartBackupRequest": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "location_id": {
+          "type": "string",
+          "description": "Machine-readable location ID."
+        },
+        "name": {
+          "type": "string",
+          "description": "If empty then name is auto-generated."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description."
+        },
+        "retry_interval": {
+          "type": "string",
+          "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h."
+        },
+        "retries": {
+          "type": "integer",
+          "format": "int64",
+          "description": "How many times to retry a failed backup before giving up."
+        },
+        "data_model": {
+          "$ref": "#/definitions/v1DataModel",
+          "description": "DataModel represents the data model used for the backup."
+        },
+        "folder": {
+          "type": "string",
+          "description": "Folder on storage for artifact."
+        }
+      }
+    },
+    "v1StartBackupResponse": {
+      "type": "object",
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "description": "Unique identifier."
+        }
+      }
+    }
+  }
+}

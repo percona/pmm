@@ -150,13 +150,17 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 		switch apiSvc := apiSvc.(type) {
 		case *inventoryv1.MongoDBService:
 			res.Mongodb = append(res.Mongodb, apiSvc)
-		// Add other service types once RTA is supported for them
+		case *inventoryv1.PostgreSQLService:
+			res.Postgresql = append(res.Postgresql, apiSvc)
 		default:
 			return nil, fmt.Errorf("unhandled inventory Service type %T", apiSvc)
 		}
 	}
 
 	slices.SortStableFunc(res.Mongodb, func(a, b *inventoryv1.MongoDBService) int {
+		return strings.Compare(a.ServiceName, b.ServiceName)
+	})
+	slices.SortStableFunc(res.Postgresql, func(a, b *inventoryv1.PostgreSQLService) int {
 		return strings.Compare(a.ServiceName, b.ServiceName)
 	})
 
@@ -615,6 +619,8 @@ func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.Agent
 	switch serviceType {
 	case models.MongoDBServiceType:
 		return models.RTAMongoDBAgentType, nil
+	case models.PostgreSQLServiceType:
+		return models.RTAPostgreSQLAgentType, nil
 	default:
 		return "", fmt.Errorf("service of type %s does not support Real-Time Analytics", serviceType)
 	}

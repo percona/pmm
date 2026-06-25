@@ -137,8 +137,7 @@ func (e AddAnnotationRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddAnnotationRequestValidationError{}
@@ -240,8 +239,7 @@ func (e AddAnnotationResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddAnnotationResponseValidationError{}

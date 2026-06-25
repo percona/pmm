@@ -6,6 +6,54 @@ import "extensions/v1/redact.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
+// LockChainLink represents one link in a PostgreSQL lock chain (blocker -> blocked).
+message LockChainLink {
+  // PID of the blocking backend.
+  int32 blocker_pid = 1;
+  // PID of the blocked backend.
+  int32 blocked_pid = 2;
+  // Lock mode held or requested.
+  string lock_mode = 3;
+  // Relation name when available.
+  string relation_name = 4;
+  // Query text of the blocking backend.
+  string blocker_query_text = 5;
+  // Duration of the blocking query.
+  google.protobuf.Duration blocker_duration = 6;
+}
+
+// QueryPostgreSQLData holds PostgreSQL-specific Real-Time Analytics session information.
+message QueryPostgreSQLData {
+  // PostgreSQL instance address (host:port).
+  string db_instance_address = 1;
+  // Database name.
+  string database_name = 2;
+  // PostgreSQL username.
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Client application name.
+  string application_name = 4;
+  // Backend state (active, idle in transaction, etc.).
+  string session_state = 5;
+  // Transaction start time (used for idle in transaction duration).
+  google.protobuf.Timestamp transaction_start_time = 6;
+  // Current query start time.
+  google.protobuf.Timestamp query_start_time = 7;
+  // Wait event type when waiting.
+  string wait_event_type = 8;
+  // Wait event name when waiting.
+  string wait_event = 9;
+  // Backend PID.
+  int32 backend_pid = 10;
+  // Leader PID for parallel workers (0 if not a worker).
+  int32 leader_pid = 11;
+  // True when query text was truncated by track_activity_query_size.
+  bool query_text_truncated = 12;
+  // Configured track_activity_query_size value.
+  int32 track_activity_query_size = 13;
+  // Lock chain links when this backend is blocked.
+  repeated LockChainLink lock_chain = 14;
+}
+
 // QueryMongoDBData holds MongoDB-specific Real-Time Analytics query information.
 message QueryMongoDBData {
   // MongoDB instance address(host:port) that processing the query.
@@ -49,5 +97,7 @@ message QueryData {
   oneof payload {
     // MongoDB-specific query data.
     QueryMongoDBData mongo_db_payload = 9;
+    // PostgreSQL-specific query data.
+    QueryPostgreSQLData postgres_payload = 10;
   }
 }

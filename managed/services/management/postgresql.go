@@ -165,6 +165,28 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 			postgres.QanPostgresqlPgstatmonitorAgent = agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
 		}
 
+		if req.RtaPostgresqlAgent {
+			row, err = models.CreateAgent(tx.Querier, models.RTAPostgreSQLAgentType, &models.CreateAgentParams{
+				PMMAgentID:        req.PmmAgentId,
+				ServiceID:         service.ServiceID,
+				Username:          req.Username,
+				Password:          req.Password,
+				TLS:               req.Tls,
+				TLSSkipVerify:     req.TlsSkipVerify,
+				PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
+				LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			})
+			if err != nil {
+				return err
+			}
+
+			agent, err = services.ToAPIAgent(tx.Querier, row)
+			if err != nil {
+				return err
+			}
+			postgres.RtaPostgresqlAgent = agent.(*inventoryv1.RTAPostgreSQLAgent) //nolint:forcetypeassert
+		}
+
 		return nil
 	})
 

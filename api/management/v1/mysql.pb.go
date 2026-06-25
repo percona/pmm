@@ -7,17 +7,15 @@
 package managementv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
+	_ "github.com/percona/pmm/api/extensions/v1"
+	v1 "github.com/percona/pmm/api/inventory/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
-
-	_ "github.com/percona/pmm/api/extensions/v1"
-	v1 "github.com/percona/pmm/api/inventory/v1"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -528,24 +526,21 @@ func file_management_v1_mysql_proto_rawDescGZIP() []byte {
 	return file_management_v1_mysql_proto_rawDescData
 }
 
-var (
-	file_management_v1_mysql_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-	file_management_v1_mysql_proto_goTypes  = []any{
-		(*AddMySQLServiceParams)(nil),      // 0: management.v1.AddMySQLServiceParams
-		(*MySQLServiceResult)(nil),         // 1: management.v1.MySQLServiceResult
-		nil,                                // 2: management.v1.AddMySQLServiceParams.CustomLabelsEntry
-		nil,                                // 3: management.v1.AddMySQLServiceParams.ExtraDsnParamsEntry
-		(*AddNodeParams)(nil),              // 4: management.v1.AddNodeParams
-		MetricsMode(0),                     // 5: management.v1.MetricsMode
-		v1.LogLevel(0),                     // 6: inventory.v1.LogLevel
-		(*durationpb.Duration)(nil),        // 7: google.protobuf.Duration
-		(*v1.MySQLService)(nil),            // 8: inventory.v1.MySQLService
-		(*v1.MySQLdExporter)(nil),          // 9: inventory.v1.MySQLdExporter
-		(*v1.QANMySQLPerfSchemaAgent)(nil), // 10: inventory.v1.QANMySQLPerfSchemaAgent
-		(*v1.QANMySQLSlowlogAgent)(nil),    // 11: inventory.v1.QANMySQLSlowlogAgent
-	}
-)
-
+var file_management_v1_mysql_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_management_v1_mysql_proto_goTypes = []any{
+	(*AddMySQLServiceParams)(nil),      // 0: management.v1.AddMySQLServiceParams
+	(*MySQLServiceResult)(nil),         // 1: management.v1.MySQLServiceResult
+	nil,                                // 2: management.v1.AddMySQLServiceParams.CustomLabelsEntry
+	nil,                                // 3: management.v1.AddMySQLServiceParams.ExtraDsnParamsEntry
+	(*AddNodeParams)(nil),              // 4: management.v1.AddNodeParams
+	(MetricsMode)(0),                   // 5: management.v1.MetricsMode
+	(v1.LogLevel)(0),                   // 6: inventory.v1.LogLevel
+	(*durationpb.Duration)(nil),        // 7: google.protobuf.Duration
+	(*v1.MySQLService)(nil),            // 8: inventory.v1.MySQLService
+	(*v1.MySQLdExporter)(nil),          // 9: inventory.v1.MySQLdExporter
+	(*v1.QANMySQLPerfSchemaAgent)(nil), // 10: inventory.v1.QANMySQLPerfSchemaAgent
+	(*v1.QANMySQLSlowlogAgent)(nil),    // 11: inventory.v1.QANMySQLSlowlogAgent
+}
 var file_management_v1_mysql_proto_depIdxs = []int32{
 	4,  // 0: management.v1.AddMySQLServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2,  // 1: management.v1.AddMySQLServiceParams.custom_labels:type_name -> management.v1.AddMySQLServiceParams.CustomLabelsEntry

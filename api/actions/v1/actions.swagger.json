@@ -1,0 +1,737 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "actions/v1/actions.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ActionsService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/actions/{action_id}": {
+      "get": {
+        "summary": "Get Action",
+        "description": "Gets the result of a given Action.",
+        "operationId": "GetAction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetActionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "action_id",
+            "description": "Unique Action ID.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ActionsService"
+        ]
+      }
+    },
+    "/v1/actions:cancelAction": {
+      "post": {
+        "summary": "Cancel an Action",
+        "description": "Stops an Action.",
+        "operationId": "CancelAction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CancelActionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CancelActionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ActionsService"
+        ]
+      }
+    },
+    "/v1/actions:startNodeAction": {
+      "post": {
+        "summary": "Start 'PT Summary' Action",
+        "description": "Starts 'Percona Toolkit Summary' Action.",
+        "operationId": "StartPTSummaryAction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1StartPTSummaryActionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1StartPTSummaryActionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ActionsService"
+        ]
+      }
+    },
+    "/v1/actions:startServiceAction": {
+      "post": {
+        "summary": "Start a Service Action",
+        "description": "Starts a Service Action.",
+        "operationId": "StartServiceAction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1StartServiceActionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1StartServiceActionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ActionsService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1CancelActionRequest": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID. Required."
+        }
+      }
+    },
+    "v1CancelActionResponse": {
+      "type": "object"
+    },
+    "v1GetActionResponse": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where this Action is running / was run."
+        },
+        "output": {
+          "type": "string",
+          "description": "Current Action output; may be partial if Action is still running."
+        },
+        "done": {
+          "type": "boolean",
+          "description": "True if Action is finished."
+        },
+        "error": {
+          "type": "string",
+          "description": "Error message if Action failed."
+        }
+      }
+    },
+    "v1StartMongoDBExplainActionParams": {
+      "type": "object",
+      "properties": {
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to run this Action."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service ID for this Action. Required."
+        },
+        "query": {
+          "type": "string",
+          "description": "Query. Required."
+        }
+      }
+    },
+    "v1StartMongoDBExplainActionResult": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to this Action was started."
+        }
+      }
+    },
+    "v1StartMySQLExplainActionParams": {
+      "type": "object",
+      "properties": {
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to run this Action."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service ID for this Action. Required."
+        },
+        "query_id": {
+          "type": "string",
+          "description": "Query ID of query."
+        },
+        "placeholders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Array of placeholder values"
+        },
+        "database": {
+          "type": "string",
+          "description": "Database name. Required if it can't be deduced from the query ID."
+        }
+      }
+    },
+    "v1StartMySQLExplainActionResult": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to this Action was started."
+        }
+      }
+    },
+    "v1StartMySQLExplainJSONActionParams": {
+      "type": "object",
+      "properties": {
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to run this Action."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service ID for this Action. Required."
+        },
+        "query_id": {
+          "type": "string",
+          "description": "Query ID of query."
+        },
+        "placeholders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Array of placeholder values"
+        },
+        "database": {
+          "type": "string",
+          "description": "Database name. Required if it can't be deduced from the query ID."
+        }
+      }
+    },
+    "v1StartMySQLExplainJSONActionResult": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to this Action was started."
+        }
+      }
+    },
+    "v1StartMySQLExplainTraditionalJSONActionParams": {
+      "type": "object",
+      "properties": {
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to run this Action."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service ID for this Action. Required."
+        },
+        "query_id": {
+          "type": "string",
+          "description": "Query ID of query."
+        },
+        "placeholders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Array of placeholder values"
+        },
+        "database": {
+          "type": "string",
+          "description": "Database name. Required if it can't be deduced from the query ID."
+        }
+      }
+    },
+    "v1StartMySQLExplainTraditionalJSONActionResult": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to this Action was started."
+        }
+      }
+    },
+    "v1StartMySQLShowCreateTableActionParams": {
+      "type": "object",
+      "properties": {
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to run this Action."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service ID for this Action. Required."
+        },
+        "table_name": {
+          "type": "string",
+          "description": "Table name. Required. May additionally contain a database name."
+        },
+        "database": {
+          "type": "string",
+          "description": "Database name. Required if not given in the table_name field."
+        }
+      }
+    },
+    "v1StartMySQLShowCreateTableActionResult": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to this Action was started."
+        }
+      }
+    },
+    "v1StartMySQLShowIndexActionParams": {
+      "type": "object",
+      "properties": {
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to run this Action."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service ID for this Action. Required."
+        },
+        "table_name": {
+          "type": "string",
+          "description": "Table name. Required. May additionally contain a database name."
+        },
+        "database": {
+          "type": "string",
+          "description": "Database name. Required if not given in the table_name field."
+        }
+      }
+    },
+    "v1StartMySQLShowIndexActionResult": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to this Action was started."
+        }
+      }
+    },
+    "v1StartMySQLShowTableStatusActionParams": {
+      "type": "object",
+      "properties": {
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to run this Action."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service ID for this Action. Required."
+        },
+        "table_name": {
+          "type": "string",
+          "description": "Table name. Required. May additionally contain a database name."
+        },
+        "database": {
+          "type": "string",
+          "description": "Database name. Required if not given in the table_name field."
+        }
+      }
+    },
+    "v1StartMySQLShowTableStatusActionResult": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to this Action was started."
+        }
+      }
+    },
+    "v1StartPTMongoDBSummaryActionParams": {
+      "type": "object",
+      "properties": {
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to run this Action."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service ID for this Action."
+        }
+      },
+      "title": "Message to prepare pt-mongodb-summary data"
+    },
+    "v1StartPTMongoDBSummaryActionResult": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to this Action was started."
+        }
+      },
+      "title": "Message to retrieve the prepared pt-mongodb-summary data"
+    },
+    "v1StartPTMySQLSummaryActionParams": {
+      "type": "object",
+      "properties": {
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to run this Action."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service ID for this Action."
+        }
+      },
+      "title": "Message to prepare pt-mysql-summary data"
+    },
+    "v1StartPTMySQLSummaryActionResult": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to this Action was started."
+        }
+      },
+      "title": "Message to retrieve the prepared pt-mysql-summary data"
+    },
+    "v1StartPTPgSummaryActionParams": {
+      "type": "object",
+      "properties": {
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to run this Action."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service ID for this Action."
+        }
+      },
+      "title": "Message to prepare pt-pg-summary data"
+    },
+    "v1StartPTPgSummaryActionResult": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to this Action was started."
+        }
+      },
+      "title": "Message to retrieve the prepared pt-pg-summary data"
+    },
+    "v1StartPTSummaryActionRequest": {
+      "type": "object",
+      "properties": {
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to run this Action."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node ID for this Action."
+        }
+      }
+    },
+    "v1StartPTSummaryActionResponse": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to this Action was started."
+        }
+      }
+    },
+    "v1StartPostgreSQLShowCreateTableActionParams": {
+      "type": "object",
+      "properties": {
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to run this Action."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service ID for this Action. Required."
+        },
+        "table_name": {
+          "type": "string",
+          "description": "Table name. Required. May additionally contain a database name."
+        },
+        "database": {
+          "type": "string",
+          "description": "Database name. Required if not given in the table_name field."
+        }
+      }
+    },
+    "v1StartPostgreSQLShowCreateTableActionResult": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to this Action was started."
+        }
+      }
+    },
+    "v1StartPostgreSQLShowIndexActionParams": {
+      "type": "object",
+      "properties": {
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to run this Action."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service ID for this Action. Required."
+        },
+        "table_name": {
+          "type": "string",
+          "description": "Table name. Required. May additionally contain a database name."
+        },
+        "database": {
+          "type": "string",
+          "description": "Database name. Required if not given in the table_name field."
+        }
+      }
+    },
+    "v1StartPostgreSQLShowIndexActionResult": {
+      "type": "object",
+      "properties": {
+        "action_id": {
+          "type": "string",
+          "description": "Unique Action ID."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "pmm-agent ID where to this Action was started."
+        }
+      }
+    },
+    "v1StartServiceActionRequest": {
+      "type": "object",
+      "properties": {
+        "mysql_explain": {
+          "$ref": "#/definitions/v1StartMySQLExplainActionParams"
+        },
+        "mysql_explain_json": {
+          "$ref": "#/definitions/v1StartMySQLExplainJSONActionParams"
+        },
+        "mysql_explain_traditional_json": {
+          "$ref": "#/definitions/v1StartMySQLExplainTraditionalJSONActionParams"
+        },
+        "mysql_show_index": {
+          "$ref": "#/definitions/v1StartMySQLShowIndexActionParams"
+        },
+        "mysql_show_create_table": {
+          "$ref": "#/definitions/v1StartMySQLShowCreateTableActionParams"
+        },
+        "mysql_show_table_status": {
+          "$ref": "#/definitions/v1StartMySQLShowTableStatusActionParams"
+        },
+        "postgres_show_create_table": {
+          "$ref": "#/definitions/v1StartPostgreSQLShowCreateTableActionParams"
+        },
+        "postgres_show_index": {
+          "$ref": "#/definitions/v1StartPostgreSQLShowIndexActionParams"
+        },
+        "mongodb_explain": {
+          "$ref": "#/definitions/v1StartMongoDBExplainActionParams"
+        },
+        "pt_mongodb_summary": {
+          "$ref": "#/definitions/v1StartPTMongoDBSummaryActionParams"
+        },
+        "pt_mysql_summary": {
+          "$ref": "#/definitions/v1StartPTMySQLSummaryActionParams"
+        },
+        "pt_postgres_summary": {
+          "$ref": "#/definitions/v1StartPTPgSummaryActionParams"
+        }
+      }
+    },
+    "v1StartServiceActionResponse": {
+      "type": "object",
+      "properties": {
+        "mysql_explain": {
+          "$ref": "#/definitions/v1StartMySQLExplainActionResult"
+        },
+        "mysql_explain_json": {
+          "$ref": "#/definitions/v1StartMySQLExplainJSONActionResult"
+        },
+        "mysql_explain_traditional_json": {
+          "$ref": "#/definitions/v1StartMySQLExplainTraditionalJSONActionResult"
+        },
+        "mysql_show_index": {
+          "$ref": "#/definitions/v1StartMySQLShowIndexActionResult"
+        },
+        "mysql_show_create_table": {
+          "$ref": "#/definitions/v1StartMySQLShowCreateTableActionResult"
+        },
+        "mysql_show_table_status": {
+          "$ref": "#/definitions/v1StartMySQLShowTableStatusActionResult"
+        },
+        "postgresql_show_create_table": {
+          "$ref": "#/definitions/v1StartPostgreSQLShowCreateTableActionResult"
+        },
+        "postgresql_show_index": {
+          "$ref": "#/definitions/v1StartPostgreSQLShowIndexActionResult"
+        },
+        "mongodb_explain": {
+          "$ref": "#/definitions/v1StartMongoDBExplainActionResult"
+        },
+        "pt_mongodb_summary": {
+          "$ref": "#/definitions/v1StartPTMongoDBSummaryActionResult"
+        },
+        "pt_mysql_summary": {
+          "$ref": "#/definitions/v1StartPTMySQLSummaryActionResult"
+        },
+        "pt_postgres_summary": {
+          "$ref": "#/definitions/v1StartPTPgSummaryActionResult"
+        }
+      }
+    }
+  }
+}

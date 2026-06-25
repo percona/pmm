@@ -82,13 +82,14 @@ const (
 	NomadAgentType                      AgentType = "nomad-agent"
 	ValkeyExporterType                  AgentType = "valkey_exporter"
 	RTAMongoDBAgentType                 AgentType = "rta-mongodb-agent"
+	RTAPostgreSQLAgentType              AgentType = "rta-postgresql-agent"
 )
 
 // GetRTAAgentTypes returns all Real-Time Analytics Agent types.
 func GetRTAAgentTypes() []AgentType {
 	return []AgentType{
 		RTAMongoDBAgentType,
-		// Add more types here once they are implemented.
+		RTAPostgreSQLAgentType,
 	}
 }
 
@@ -721,7 +722,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 		dsn = strings.ReplaceAll(dsn, url.QueryEscape(tdp.Right), tdp.Right)
 		return dsn
 
-	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
+	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType, RTAPostgreSQLAgentType:
 		q := make(url.Values)
 
 		sslmode := DisableSSLMode
@@ -931,7 +932,7 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 		}
 
 		return nil
-	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
+	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType, RTAPostgreSQLAgentType:
 		files := make(map[string]string)
 
 		if a.PostgreSQLOptions.SSLCa != "" {

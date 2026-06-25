@@ -209,6 +209,8 @@ func (m *AddPostgreSQLServiceParams) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for RtaPostgresqlAgent
+
 	if len(errors) > 0 {
 		return AddPostgreSQLServiceParamsMultiError(errors)
 	}
@@ -276,8 +278,7 @@ func (e AddPostgreSQLServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddPostgreSQLServiceParamsValidationError{}
@@ -430,6 +431,35 @@ func (m *PostgreSQLServiceResult) validate(all bool) error {
 
 	// no validation rules for Warning
 
+	if all {
+		switch v := interface{}(m.GetRtaPostgresqlAgent()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, PostgreSQLServiceResultValidationError{
+					field:  "RtaPostgresqlAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, PostgreSQLServiceResultValidationError{
+					field:  "RtaPostgresqlAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaPostgresqlAgent()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return PostgreSQLServiceResultValidationError{
+				field:  "RtaPostgresqlAgent",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return PostgreSQLServiceResultMultiError(errors)
 	}
@@ -497,8 +527,7 @@ func (e PostgreSQLServiceResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = PostgreSQLServiceResultValidationError{}
