@@ -48,7 +48,7 @@ api-test:             ## Run API tests on dev env.
 GOLANG_CI_LINT_RUN_OPTS ?=
 check:                ## Run required checks and linters
 	go tool buf lint -v api
-	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(shell git merge-base v3 HEAD) --new $(GOLANG_CI_LINT_RUN_OPTS)
+	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(shell git merge-base main HEAD) --new $(GOLANG_CI_LINT_RUN_OPTS)
 	go tool go-sumtype ./...
 
 check-license:        ## Run license header checks against source files
@@ -57,7 +57,7 @@ check-license:        ## Run license header checks against source files
 check-all: check-license check    ## Run linter and license checks
 
 check-new:
-	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/v3 --new
+	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/main --new
 
 FILES = $(shell find . -type f -name '*.go')
 
