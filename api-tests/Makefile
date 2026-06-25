@@ -47,7 +47,7 @@ format: 	## Format source code
 guard-%:
 	@[ -n "${$*}" ] || (echo "ERROR: $* is not set"; exit 1)
 
-$(TEST_BINARY_TARGETS): ## Build test binaries
+$(TEST_BINARY_TARGETS): $(BIN_DIR) 	## Build test binaries
 	@dir="$(subst -,/,$@)"; \
 	echo "-> Building test binary for dir: $$dir"; \
 	go test -c -v -race -o $(BIN_DIR)/$@ $(CURDIR)/$$dir
