@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Before creating MySQL backups, make sure to:">
+        <meta name="description" content="Before creating MySQL backups:">
       
       
         <meta name="author" content="Percona LLC">
@@ -9613,6 +9613,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MySQL backup prerequisites
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="mysql_prerequisites.html" class="md-nav__link md-nav__link--active">
         
   
@@ -9629,6 +9647,36 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#xtrabackup-and-mysql-version-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        XtraBackup and MySQL version compatibility
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -16092,6 +16140,25 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#xtrabackup-and-mysql-version-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        XtraBackup and MySQL version compatibility
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                     </div>
                   </div>
@@ -16119,69 +16186,58 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
 
 <h1 id="mysql-backup-prerequisites">MySQL backup prerequisites<a class="headerlink" href="#mysql-backup-prerequisites" title="Permanent link">&para;</a></h1>
-<p class="power-number">Before creating MySQL backups, make sure to:</p>
+<p class="power-number">Before creating MySQL backups:</p>
 <ol>
 <li>
-<p>Check that <strong>Backup Management</strong> is enabled and the <i class="uil uil-history"></i> Backup option is available on the side menu. If Backup Management has been disabled on your instance, go to <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97s-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1s.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64z"/></svg></span> <strong>Configuration &gt; Settings &gt; Advanced settings</strong>, re-enable <strong>Backup Management</strong> then click <strong>Apply changes</strong>.
-   !!! caution alert alert-warning &ldquo;Important&rdquo;
-    If PMM Server runs as a Docker container, enable backup features at container creation time by adding <code>-e ENABLE_BACKUP_MANAGEMENT=1</code> to your <code>docker run</code> command.</p>
+<p>Enable <strong>Backup Management</strong> and confirm the <i class="uil uil-history"></i> <strong>Backup</strong> option is available on the side menu. If <strong>Backup Management</strong> is disabled, go to <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5m7.43-2.53c.04-.32.07-.64.07-.97s-.03-.66-.07-1l2.11-1.63c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.31-.61-.22l-2.49 1c-.52-.39-1.06-.73-1.69-.98l-.37-2.65A.506.506 0 0 0 14 2h-4c-.25 0-.46.18-.5.42l-.37 2.65c-.63.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64L4.57 11c-.04.34-.07.67-.07 1s.03.65.07.97l-2.11 1.66c-.19.15-.25.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1.01c.52.4 1.06.74 1.69.99l.37 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.37-2.65c.63-.26 1.17-.59 1.69-.99l2.49 1.01c.22.08.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64z"/></svg></span> <strong>Configuration &gt; Settings &gt; Advanced settings</strong>, enable <strong>Backup Management</strong>, and click <strong>Apply changes</strong>.</p>
+<div class="admonition caution alert alert-warning">
+<p class="admonition-title">Important</p>
+<p>If PMM Server runs as a Docker container, enable backup features at container creation time by adding <code>-e ENABLE_BACKUP_MANAGEMENT=1</code> to your <code>docker run</code> command.</p>
+</div>
 </li>
 <li>
-<p>Check that the <a href="../../install-pmm/install-pmm-client/index.html">PMM Client</a> is installed and running on the node.</p>
+<p>Install and run the <a href="../../install-pmm/install-pmm-client/index.html">PMM Client</a> on the node.</p>
 </li>
 <li>
-<p>To enable Xtrabackup for MySQL 8.0+, check that pmm-agent connects to MySQL with a user that has BACKUP_ADMIN privilege.</p>
+<p>To enable XtraBackup for MySQL 8.0+, connect <code>pmm-agent</code> to MySQL using a user with the <code>BACKUP_ADMIN</code> privilege.</p>
 </li>
 <li>
-<p>Check that there is only one MySQL instance running on the node.</p>
+<p>Run only one MySQL instance on the node.</p>
 </li>
 <li>
 <p>Verify that MySQL is running:</p>
 <ul>
-<li>
-<p>as a service via <code>systemd</code>;</p>
-</li>
-<li>
-<p>with the name <code>mysql</code> or <code>mysqld</code> (to confirm, use <code>systemctl status mysql</code> or <code>systemctl status mysqld</code> respectively);</p>
-</li>
-<li>
-<p>from a <code>mysql</code> system user account.</p>
-</li>
+<li>as a service via <code>systemd</code></li>
+<li>with the name <code>mysql</code> or <code>mysqld</code> (run <code>systemctl status mysql</code> or <code>systemctl status mysqld</code> to confirm)</li>
+<li>from a <code>mysql</code> system user account</li>
 </ul>
 </li>
 <li>
-<p>Make sure that there is a <code>mysql</code> system group.</p>
+<p>Verify that a <code>mysql</code> system group exists.</p>
 </li>
 <li>
-<p>Check that MySQL is using the <code>/var/lib/mysql</code> directory for database storage.</p>
+<p>Verify that MySQL uses <code>/var/lib/mysql</code> for database storage.</p>
 </li>
 <li>
-<p>Make sure that <code>pmm-agent</code> has read/write permissions to the <code>/var/lib/mysql</code> directory.</p>
+<p>Grant <code>pmm-agent</code> read/write permissions to <code>/var/lib/mysql</code>.</p>
 </li>
 <li>
-<p>Check that the latest versions of the following packages are installed and included in the <code>$PATH</code> environment variable:</p>
+<p>Install the latest versions of the following packages and add them to <code>$PATH</code>. For XtraBackup version requirements, see <a href="#xtrabackup-and-mysql-version-compatibility">XtraBackup and MySQL version compatibility</a>:</p>
 <ul>
-<li>
-<p><a href="https://docs.percona.com/percona-xtrabackup/"><code>xtrabackup</code></a>, which includes:</p>
-<ul>
-<li>
-<p><a href="https://www.percona.com/doc/percona-xtrabackup/2.3/xbcloud/xbcloud.html"><code>xbcloud</code></a></p>
-</li>
-<li>
-<p><a href="https://www.percona.com/doc/percona-xtrabackup/2.3/xbstream/xbstream.html"><code>xbstream</code></a></p>
-</li>
-</ul>
-</li>
-<li>
-<p>[<code>qpress</code>][PERCONA_QPRESS].</p>
-</li>
+<li><a href="https://docs.percona.com/percona-xtrabackup/"><code>xtrabackup</code></a> (includes <a href="https://www.percona.com/doc/percona-xtrabackup/2.3/xbcloud/xbcloud.html"><code>xbcloud</code></a> and <a href="https://www.percona.com/doc/percona-xtrabackup/2.3/xbstream/xbstream.html"><code>xbstream</code></a>)</li>
+<li>[<code>qpress</code>][PERCONA_QPRESS]</li>
 </ul>
 </li>
 </ol>
-<div class="admonition caution alert alert-warning">
-<p class="admonition-title">Important</p>
-<p>The versions of each must be compatible with the installed version of MySQL.</p>
-</div>
+<h2 id="xtrabackup-and-mysql-version-compatibility">XtraBackup and MySQL version compatibility<a class="headerlink" href="#xtrabackup-and-mysql-version-compatibility" title="Permanent link">&para;</a></h2>
+<p>When installing <code>xtrabackup</code>, use a version of <a href="https://docs.percona.com/percona-xtrabackup/">Percona XtraBackup (PXB)</a> that matches your MySQL version:</p>
+<ul>
+<li>MySQL 5.5, 5.6, 5.7 — PXB 2.4.x</li>
+<li>MySQL 8.0.0–8.0.33 — PXB 8.0.x (same version or newer)</li>
+<li>MySQL 8.0.34+ — PXB 8.0.34+</li>
+<li>MySQL 8.1.x, 8.2.x, 8.3.x — matching PXB version (supports only the matching MySQL Innovation release)</li>
+<li>MySQL 8.4.x — any PXB 8.4.x release (supports MySQL 8.4 LTS, including future patch releases; does not support MySQL 8.0 or 9.x)</li>
+</ul>
 
 
 
@@ -16204,7 +16260,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="June 25, 2026 06:56:41 UTC">June 25, 2026</span>
   </span>
 
     
