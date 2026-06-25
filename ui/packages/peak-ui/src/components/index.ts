@@ -91,3 +91,5 @@ export * from './tooltip';
 export { default as Tooltip } from './tooltip';
 
 export * from './code';
+
+export * from './status-icon';
