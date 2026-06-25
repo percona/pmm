@@ -38,6 +38,10 @@ var (
 	// processing will be stopped and Percona XtraBackup will not be allowed to continue.
 	// https://www.percona.com/blog/2020/08/18/aligning-percona-xtrabackup-versions-with-percona-server-for-mysql/
 	alignedXtrabackupVersion = version.Must(version.NewVersion("8.0.22"))
+	// Starting from Percona XtraBackup 8.0.34, you can take backups of MySQL 8.0.34 and higher
+	// versions within the 8.0 series, without requiring version-to-version alignment.
+	// https://docs.percona.com/percona-xtrabackup/8.0/release-notes/8.0/8.0.34-29.0.html
+	universalXtrabackupVersion = version.Must(version.NewVersion("8.0.34"))
 	// Since there is no version 9 or greater let's limit aligning rule by this number.
 	maxAlignedXtrabackupVersion = version.Must(version.NewVersion("9.0"))
 
@@ -124,6 +128,14 @@ func mysqlAndXtrabackupCompatible(mysqlVersionString, xtrabackupVersionString st
 	// See comment to alignedVersion.
 	// Using compatibility rule.
 	if mysqlVersion.GreaterThanOrEqual(alignedXtrabackupVersion) {
+		// Starting from PXB 8.0.34, any PXB 8.0.34+ is compatible with any MySQL 8.0.34+ in the 8.0 series.
+		if xtrabackupVersion.GreaterThanOrEqual(universalXtrabackupVersion) &&
+			mysqlVersion.GreaterThanOrEqual(universalXtrabackupVersion) &&
+			mysqlVersion.LessThan(maxAlignedXtrabackupVersion) &&
+			xtrabackupVersion.LessThan(maxAlignedXtrabackupVersion) {
+			return true, nil
+		}
+		// For PXB < 8.0.34, require exact version alignment (PXB >= MySQL version).
 		if xtrabackupVersion.GreaterThanOrEqual(mysqlVersion) && xtrabackupVersion.LessThan(maxAlignedXtrabackupVersion) {
 			return true, nil
 		}
