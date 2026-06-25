@@ -158,5 +158,8 @@ clean: clean-swagger  ## Remove generated files
 descriptors:          ## Update API compatibility descriptors
 	go tool buf build -o descriptor.bin --as-file-descriptor-set $(CURDIR)
 
-check:
+check: ## Run required checks and linters
 	go tool buf lint -v $(CURDIR)
+
+test: ## Run tests
+	go test -count=1 -race -p 1 -v $(CURDIR)
