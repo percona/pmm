@@ -13,12 +13,12 @@ ifeq ($(GOBIN),)
 endif
 GOPATH=$(shell go env GOPATH)
 
-VERSION_FLAGS = -X 'github.com/percona/pmm/version.ProjectName=pmm-agent' \
-				-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
-				-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
-				-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
-				-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
-				-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)'
+LD_FLAGS = -X 'github.com/percona/pmm/version.ProjectName=pmm-agent' \
+	-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
+	-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
+	-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
+	-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
+	-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)'
 # ------------------------------------------------------------------------------------------
 
 .PHONY: help release release-gssapi release-dev release-dev-gssapi
@@ -27,23 +27,26 @@ VERSION_FLAGS = -X 'github.com/percona/pmm/version.ProjectName=pmm-agent' \
 .PHONY: run-race-cover _run env-up env-down setup-dev env-mysql env-mongo
 .PHONY: env-psql env-sysbench-prepare env-sysbench-run
 
+$(PMM_RELEASE_PATH):
+	mkdir -p $(PMM_RELEASE_PATH)
+
 help: 	## Display this help message
 	@echo "Please use \`make <target>\`, where <target> is one of the following:"
 	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9-]+:.*## / {printf "  %-23s%s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-release:                        ## Build static pmm-agent release binary (Linux only)
-	CGO_ENABLED=1 go build -v -ldflags "-extldflags '-static' $(VERSION_FLAGS)" -tags 'osusergo netgo static_build' -o $(PMM_RELEASE_PATH)/pmm-agent
-	go build -v -ldflags "-extldflags '-static' $(VERSION_FLAGS)" -tags 'osusergo netgo static_build' -o $(PMM_RELEASE_PATH)/pmm-agent-entrypoint ./cmd/pmm-agent-entrypoint
+release: $(PMM_RELEASE_PATH) 	## Build static pmm-agent release binary (Linux only)
+	CGO_ENABLED=1 go build -v -ldflags "-extldflags '-static' $(LD_FLAGS)" -tags 'osusergo netgo static_build' -o $(PMM_RELEASE_PATH)/pmm-agent
+	go build -v -ldflags "-extldflags '-static' $(LD_FLAGS)" -tags 'osusergo netgo static_build' -o $(PMM_RELEASE_PATH)/pmm-agent-entrypoint ./cmd/pmm-agent-entrypoint
 	ldd $(PMM_RELEASE_PATH)/pmm-agent 2>&1 | grep -Fq 'not a dynamic executable'
 
-release-gssapi:                 ## Build dynamic pmm-agent release binary (for GSSAPI support)
-	CGO_ENABLED=1 go build -v -ldflags "$(VERSION_FLAGS)" -tags 'osusergo netgo gssapi' -o $(PMM_RELEASE_PATH)/pmm-agent
+release-gssapi: $(PMM_RELEASE_PATH) 	## Build dynamic pmm-agent release binary (for GSSAPI support)
+	CGO_ENABLED=1 go build -v -ldflags "$(LD_FLAGS)" -tags 'osusergo netgo gssapi' -o $(PMM_RELEASE_PATH)/pmm-agent
 
-release-dev:
-	CGO_ENABLED=1 go build -race -v -ldflags "$(VERSION_FLAGS)" -o $(PMM_RELEASE_PATH)/pmm-agent
+release-dev: $(PMM_RELEASE_PATH) 	## Build dynamic pmm-agent release binary (Linux only)
+	CGO_ENABLED=1 go build -race -v -ldflags "$(LD_FLAGS)" -o $(PMM_RELEASE_PATH)/pmm-agent
 
-release-dev-gssapi:
-	CGO_ENABLED=1 go build -race -v -ldflags "$(VERSION_FLAGS)" -tags 'gssapi' -o $(PMM_RELEASE_PATH)/pmm-agent-gssapi
+release-dev-gssapi: $(PMM_RELEASE_PATH) 	## Build dynamic pmm-agent dev binary (for GSSAPI support)
+	CGO_ENABLED=1 go build -race -v -ldflags "$(LD_FLAGS)" -tags 'gssapi' -o $(PMM_RELEASE_PATH)/pmm-agent-gssapi
 
 gen: _gen _gen-mocks format 	## Generate files (includes formatting)
 
@@ -66,11 +69,11 @@ gen-init:
 	mkdir tmp-mysql
 	go tool reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
 
-install:                        ## Install pmm-admin binary
-	go build -v -ldflags "$(VERSION_FLAGS)" -o $(GOBIN)/pmm-agent
+install:                        ## Install pmm-agent binary
+	go build -v -ldflags "$(LD_FLAGS)" -o $(GOBIN)/pmm-agent
 
-install-race:                   ## Install pmm-admin binary with race detector
-	go build -v -ldflags "$(VERSION_FLAGS)" -race -o $(GOBIN)/pmm-agent
+install-race:                   ## Install pmm-agent binary with race detector
+	go build -v -ldflags "$(LD_FLAGS)" -race -o $(GOBIN)/pmm-agent
 
 # TODO https://jira.percona.com/browse/PMM-4681
 # TEST_PARALLEL_PACKAGES ?= foo bar
@@ -116,7 +119,7 @@ run-race: install-race _run     ## Run pmm-agent with race detector
 run-race-cover: install-race    ## Run pmm-agent with race detector and collect coverage information
 	go test -coverpkg="github.com/percona/pmm/agent/..." \
 			-tags maincover \
-			-ldflags "$(VERSION_FLAGS)" \
+			-ldflags "$(LD_FLAGS)" \
 			-race -c -o bin/pmm-agent.test
 	bin/pmm-agent.test -test.coverprofile=cover.out -test.run=TestMainCover -- $(RUN_FLAGS)
 

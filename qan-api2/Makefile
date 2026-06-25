@@ -6,12 +6,12 @@ include Makefile.mk
 
 # --- Go-related variables ----------------------------------------------------------------
 # `cut` is used to remove the leading `v` from the version
-PMM_RELEASE_PATH ?= $(BIN_DIR)
+PMM_RELEASE_PATH ?= $(CURDIR)/../bin
 PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
-QAN_LD_FLAGS = -ldflags " \
+LD_FLAGS = -ldflags " \
 	-X 'github.com/percona/pmm/version.ProjectName=qan-api2' \
 	-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
 	-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
@@ -27,6 +27,9 @@ PMM_CONTAINER ?= pmm-server
 .PHONY: _start-clickhouse _stop-clickhouse test run-race-cover _run
 .PHONY: env-up env-down pmm-env-up deploy _import-test-data
 
+$(PMM_RELEASE_PATH):
+	mkdir -p $(PMM_RELEASE_PATH)
+
 help: 	## Display this help message
 	@echo "Please use \`make <target>\`, where <target> is one of the following:"
 	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9-]+:.*## / {printf "  %-23s%s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -37,8 +40,8 @@ format: 	## Format source code
 	go tool goimports -local github.com/percona/pmm -w $(FILES)
 	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 
-release:                        ## Build qan-api2 release binary
-	env CGO_ENABLED=0 go build -v $(QAN_LD_FLAGS) -o $(PMM_RELEASE_PATH)/qan-api2
+release: $(PMM_RELEASE_PATH) 	## Build static qan-api2 release binary
+	CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/qan-api2
 
 install:                        ## Install qan-api2 binary
 	go install -v ./...

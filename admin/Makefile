@@ -11,7 +11,7 @@ ifeq ($(GOBIN),)
 	GOBIN := $(shell go env GOPATH)/bin
 endif
 
-LD_FLAGS = -ldflags " \
+LD_FLAGS = "-ldflags " \"
 	-X 'github.com/percona/pmm/version.ProjectName=pmm-admin' \
 	-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
 	-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
@@ -25,6 +25,9 @@ TEST_FLAGS ?= -timeout=20s
 
 .PHONY: help format release install install-race test test-cover env-up env-down
 
+$(PMM_RELEASE_PATH):
+	mkdir -p $(PMM_RELEASE_PATH)
+
 help: 	## Display this help message
 	@echo "Please use \`make <target>\`, where <target> is one of the following:"
 	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9-]+:.*## / {printf "  %-23s%s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -35,7 +38,7 @@ format: 	## Format source code
 	go tool goimports -local github.com/percona/pmm -w $(FILES)
 	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 
-release:                        ## Build pmm-admin release binary
+release: $(PMM_RELEASE_PATH) 	## Build pmm-admin release binary
 	CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin ./cmd/pmm-admin/
 
 install:                        ## Install pmm & pmm-admin binary

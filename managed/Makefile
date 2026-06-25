@@ -7,7 +7,7 @@ PMM_RELEASE_VERSION ?= $(shell git describe --always | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
-PMM_LD_FLAGS = -ldflags " \
+LD_FLAGS = -ldflags " \
 	-X 'github.com/percona/pmm/version.ProjectName=pmm-managed' \
 	-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
 	-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
@@ -27,6 +27,9 @@ PMM_TEST_FILES ?= ./...
 .PHONY: help gen _gen _gen-mocks format pi-validate release release-pi-validator
 .PHONY: release-encryption-rotation release-starlark release-dev test test-cover
 .PHONY: fuzz-grafana
+
+$(PMM_RELEASE_PATH):
+	mkdir -p $(PMM_RELEASE_PATH)
 
 help: 	## Display this help message
 	@echo "Please use \`make <target>\`, where <target> is one of the following:"
@@ -51,21 +54,21 @@ format: 	## Format source code
 pi-validate:              ## Validate Percona Intelligence advisors and checks
 	go run ./cmd/pi-validator/main.go advisors --advisors.dir ./data/advisors/ --checks.dir ./data/checks/
 
-release:                        ## Build pmm-managed release binaries
-	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
+release: $(PMM_RELEASE_PATH) 	## Build pmm-managed release binaries
+	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 
-release-pi-validator: 		## Build PMM Percona Intelligence validator tool
-	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pi-validator/...
+release-pi-validator: $(PMM_RELEASE_PATH) 	## Build PMM Percona Intelligence validator tool
+	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pi-validator/...
 
-release-encryption-rotation:                        ## Build PMM encryption rotation tool
-	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-encryption-rotation/...
+release-encryption-rotation: $(PMM_RELEASE_PATH) 	## Build PMM encryption rotation tool
+	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-encryption-rotation/...
 
-release-starlark:
-	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-managed-starlark/...
+release-starlark: $(PMM_RELEASE_PATH) ## Build PMM Starlark tool
+	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-managed-starlark/...
 	$(PMM_RELEASE_PATH)/pmm-managed-starlark --version
 
-release-dev:										## Build pmm-managed binaries for development
-	go build $(PMM_RACE_FLAG) -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
+release-dev: $(PMM_RELEASE_PATH) 	## Build pmm-managed binaries for development
+	go build $(PMM_RACE_FLAG) -gcflags="all=-N -l" -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 
 test:                           ## Run tests
 	go test $(PMM_TEST_FLAGS) -p 1 -race $(PMM_TEST_FILES)

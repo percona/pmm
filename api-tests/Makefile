@@ -31,6 +31,9 @@ PMM_RUN_ADVISOR_TESTS ?= 0
 .PHONY: help format guard-% init $(TEST_BINARY_TARGETS) $(RUN_TEST_TARGETS)
 .PHONY: test-server-settings test test-report clean docker-build-image docker-run-tests
 
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
+
 help: 	## Display this help message
 	@echo "Please use \`make <target>\`, where <target> is one of the following:"
 	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9-]+:.*## / {printf "  %-23s%s\n", $$1, $$2}' $(MAKEFILE_LIST)

@@ -34,16 +34,13 @@ api-test:             ## Run API tests on dev env.
 GOLANG_CI_LINT_RUN_OPTS ?=
 check:                ## Run required checks and linters
 	$(MAKE) -C api check
-	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(shell git merge-base v3 HEAD) --new $(GOLANG_CI_LINT_RUN_OPTS)
+	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(shell git merge-base main HEAD) --new $(GOLANG_CI_LINT_RUN_OPTS)
 	go tool go-sumtype ./...
 
 check-license:        ## Run license header checks against source files
 	go tool license-eye -c .licenserc.yaml header check
 
 check-all: check-license check    ## Run linter and license checks
-
-check-new:
-	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/main --new
 
 format: format-shared 	## Format all Go source code
 	$(MAKE) -C admin format
@@ -63,6 +60,6 @@ format-shared: 	## Format shared Go source code
 serve:                ## Serve API documentation with nginx
 	nginx -p . -c api/nginx/nginx.conf
 
-GOLANG_CI_LINT_RUN_OPTS=--fix
-prepare-pr: gen check-all format
+prepare-pr: GOLANG_CI_LINT_RUN_OPTS=--fix
+prepare-pr: gen check-all format 	## Run actions for PR preparation
 	go mod tidy

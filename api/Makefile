@@ -63,6 +63,7 @@ FORMAT_SPECS     := $(sort $(ALL_SPECS) $(ADDITIONAL_FORMAT_SPECS))
 # ------------------------------------------------------------------------------------------
 
 .PHONY: help gen _gen format clean-swagger update-swagger clean  descriptors
+.PHONY: check test
 
 help: 	## Display this help message
 	@echo "Please use \`make <target>\`, where <target> is one of the following:"

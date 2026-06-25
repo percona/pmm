@@ -25,6 +25,9 @@ TEST_FLAGS ?= -timeout=20s
 
 .PHONY: help format release install install-race build test test-cover
 
+$(PMM_RELEASE_PATH):
+	mkdir -p $(PMM_RELEASE_PATH)
+
 help: 	## Display this help message
 	@echo "Please use \`make <target>\`, where <target> is one of the following:"
 	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9-]+:.*## / {printf "  %-23s%s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -35,8 +38,8 @@ format: 	## Format source code
 	go tool goimports -local github.com/percona/pmm -w $(FILES)
 	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 
-release:                        ## Build vmproxy release binary
-	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/vmproxy .
+release: $(PMM_RELEASE_PATH) 	## Build static vmproxy release binary
+	CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/vmproxy .
 
 install:                        ## Install vmproxy binary
 	go build -v $(LD_FLAGS) -o $(GOBIN)/vmproxy .
