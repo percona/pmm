@@ -45,7 +45,7 @@ jobs:
 
       - name: Check files are formatted and no source code changes
         run: |
-          make format
+          make format-shared
           go mod tidy -v
           git status
           git diff --exit-code

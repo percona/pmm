@@ -19,6 +19,8 @@ LD_FLAGS = -ldflags " \
 	-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
 	-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 	"
+# --- Tests-related variables ------------------------------------------------------------
+TEST_FLAGS ?= -timeout=20s
 # ------------------------------------------------------------------------------------------
 
 .PHONY: help format release install install-race test test-cover env-up env-down
@@ -41,8 +43,6 @@ install:                        ## Install pmm & pmm-admin binary
 
 install-race:                   ## Install pmm & pmm-admin binary with race detector
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/
-
-TEST_FLAGS ?= -timeout=20s
 
 test:                           ## Run tests
 	go test $(TEST_FLAGS) -race ./...

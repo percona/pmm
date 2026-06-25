@@ -19,7 +19,7 @@ LD_FLAGS = -ldflags " \
 	-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
 	-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 	"
-# --- Tests-related variables -------------------------------------------------------------
+# --- Tests-related variables ------------------------------------------------------------
 TEST_FLAGS ?= -timeout=20s
 # ------------------------------------------------------------------------------------------
 

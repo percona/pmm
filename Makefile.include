@@ -45,8 +45,7 @@ check-all: check-license check    ## Run linter and license checks
 check-new:
 	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/v3 --new
 
-format: FILES = $(shell find . -type f -name '*.go' | grep -v -e admin -e agent -e api -e managed -e qan-api2 -e ui -e vmproxy)
-format:               ## Format source code
+format: format-shared 	## Format all Go source code
 	$(MAKE) -C admin format
 	$(MAKE) -C agent format
 	$(MAKE) -C api format
@@ -54,6 +53,8 @@ format:               ## Format source code
 	$(MAKE) -C qan-api2 format
 	$(MAKE) -C vmproxy format
 
+format-shared: FILES = $(shell find . -type f -name '*.go' | grep -v -e admin -e agent -e api -e managed -e qan-api2 -e ui -e vmproxy)
+format-shared: 	## Format shared Go source code
 	go tool gofumpt -w $(FILES)
 	go tool goimports -local github.com/percona/pmm -w $(FILES)
 	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
