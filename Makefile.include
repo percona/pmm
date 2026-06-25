@@ -18,7 +18,7 @@ release:              ## Build release versions of all components
 	make -C admin release
 	make -C managed release
 	make -C qan-api2 release
-	make -C qan-api2 vmproxy
+	make -C vmproxy release
 
 gen:             ## Generate files (includes formatting)
 	make -C agent gen
@@ -45,16 +45,17 @@ check-all: check-license check    ## Run linter and license checks
 check-new:
 	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/v3 --new
 
-format: FILES = $(shell find . -type f -name '*.go' | grep -v -e admin -e agent -e api -e managed -e qan-api2)
+format: FILES = $(shell find . -type f -name '*.go' | grep -v -e admin -e agent -e api -e managed -e qan-api2 -e ui -e vmproxy)
 format:               ## Format source code
 	$(MAKE) -C admin format
 	$(MAKE) -C agent format
 	$(MAKE) -C api format
 	$(MAKE) -C managed format
 	$(MAKE) -C qan-api2 format
+	$(MAKE) -C vmproxy format
 
-	go tool gofumpt -l -w $(FILES)
-	go tool goimports -local github.com/percona/pmm -l -w $(FILES)
+	go tool gofumpt -w $(FILES)
+	go tool goimports -local github.com/percona/pmm -w $(FILES)
 	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 
 serve:                ## Serve API documentation with nginx

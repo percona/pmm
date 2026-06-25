@@ -1,5 +1,5 @@
 ---
-name: VMProxy
+name: VM Proxy
 
 on:
   pull_request:
@@ -18,6 +18,33 @@ env:
   GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
+  check:
+    name: Static checks
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/vmproxy
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
+
+      - name: Check files formatting
+        run: |
+          make format
+          git status
+          git diff --exit-code
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env | sort
+          git status
+
   build:
     name: Build
     runs-on: ubuntu-latest
