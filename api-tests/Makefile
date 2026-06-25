@@ -26,13 +26,20 @@ DOCKER_IMAGE := local/pmm-api-tests
 PMM_SERVER_INSECURE_TLS ?= 1
 PMM_RUN_UPDATE_TEST ?= 0
 PMM_RUN_ADVISOR_TESTS ?= 0
+# ------------------------------------------------------------------------------------------
 
-.PHONY: help guard-% init $(TEST_BINARY_TARGETS) $(RUN_TEST_TARGETS)
+.PHONY: help format guard-% init $(TEST_BINARY_TARGETS) $(RUN_TEST_TARGETS)
 .PHONY: test-server-settings test test-report clean docker-build-image docker-run-tests
 
-help: ## Display this help message
+help: 	## Display this help message
 	@echo "Please use \`make <target>\`, where <target> is one of the following:"
-	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | awk -F ':.*## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
+	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9-]+:.*## / {printf "  %-23s%s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+format: FILES = $(shell find . -type f -name '*.go')
+format: 	## Format source code
+	go tool gofumpt -w $(FILES)
+	go tool goimports -local github.com/percona/pmm -w $(FILES)
+	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 
 guard-%:
 	@[ -n "${$*}" ] || (echo "ERROR: $* is not set"; exit 1)

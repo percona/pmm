@@ -49,6 +49,7 @@ format: format-shared 	## Format all Go source code
 	$(MAKE) -C admin format
 	$(MAKE) -C agent format
 	$(MAKE) -C api format
+	$(MAKE) -C api-tests format
 	$(MAKE) -C managed format
 	$(MAKE) -C qan-api2 format
 	$(MAKE) -C vmproxy format
