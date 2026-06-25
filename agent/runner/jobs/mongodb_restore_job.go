@@ -216,7 +216,7 @@ func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string)
 	retryCount := 500
 	started := false
 
-	err := poll.UntilContextTimeout(ctx, statusCheckInterval, func(ctx context.Context) (bool, error) {
+	pollErr := poll.UntilContextTimeout(ctx, statusCheckInterval, func(ctx context.Context) (bool, error) {
 		// Preserve previous behavior: first restore command runs after the first tick.
 		if !started {
 			started = true
