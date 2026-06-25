@@ -374,6 +374,7 @@ const PausedIconDark = ({ iconWidth, props }: IconsProps) => (
   </SvgIcon>
 );
 
+/** @deprecated Use the `StatusIcon` component (`severity="error"`) instead. */
 export const ErrorIcon = (props: StatusIconProps) => (
   <StatusIconProvider
     LightIconGeneral={ErrorIconLight}
@@ -382,6 +383,7 @@ export const ErrorIcon = (props: StatusIconProps) => (
   />
 );
 
+/** @deprecated Use the `StatusIcon` component (`severity="warning"`) instead. */
 export const WarningIcon = (props: StatusIconProps) => (
   <StatusIconProvider
     LightIconGeneral={WarningIconLight}
@@ -390,6 +392,7 @@ export const WarningIcon = (props: StatusIconProps) => (
   />
 );
 
+/** @deprecated Not part of the Status Icon component. */
 export const PendingIcon = (props: StatusIconProps) => (
   <StatusIconProvider
     LightIconGeneral={PendingIconLight}
@@ -398,6 +401,7 @@ export const PendingIcon = (props: StatusIconProps) => (
   />
 );
 
+/** @deprecated Use the `StatusIcon` component (`severity="success"`) instead. */
 export const SuccessIcon = (props: StatusIconProps) => (
   <StatusIconProvider
     LightIconGeneral={SuccessIconLight}
@@ -406,6 +410,7 @@ export const SuccessIcon = (props: StatusIconProps) => (
   />
 );
 
+/** @deprecated Use the `StatusIcon` component (`severity="indeterminate"`) instead. */
 export const UnknownIcon = (props: StatusIconProps) => (
   <StatusIconProvider
     LightIconGeneral={UnknownIconLight}
@@ -414,6 +419,7 @@ export const UnknownIcon = (props: StatusIconProps) => (
   />
 );
 
+/** @deprecated Not part of the Status Icon component. */
 export const PausedIcon = (props: StatusIconProps) => (
   <StatusIconProvider
     LightIconGeneral={PausedIconLight}
