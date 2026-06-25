@@ -100,6 +100,16 @@
         - absent
         - directory
 
+    - name: Remove Ansible build artifacts from production image
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /opt/ansible/roles/grafana/files/grafana.ini
+        - /opt/ansible/roles/grafana/files/datasources.yml
+        - /opt/ansible/roles/cloud-node/tasks/main.yml
+        - /opt/ansible/pmm-docker/post-build.yml
+
     - name: Remove auto-generated config files
       file:
         path: "/etc/supervisord.d/{{ item }}"

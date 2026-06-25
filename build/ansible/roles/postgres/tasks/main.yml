@@ -63,6 +63,40 @@
   become_user: pmm
   become_method: su
 
+- name: Configure PostgreSQL for SSL with internal certificates
+  blockinfile:
+    path: /srv/postgres14/postgresql.conf
+    marker: "# {mark} PMM INTERNAL SSL CONFIGURATION"
+    block: |
+      ssl = on
+      ssl_cert_file = '/srv/certs/pg-server.crt'
+      ssl_key_file = '/srv/certs/pg-server.key'
+      ssl_ca_file = '/srv/certs/ca.crt'
+
+- name: Configure pg_hba.conf for certificate-based authentication
+  copy:
+    content: |
+      # PMM Internal Certificate-Based Authentication
+      # TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+      # Local socket connections for init/admin tasks (no password needed)
+      local   all             all                                     trust
+
+      # SSL certificate authentication for internal services
+      hostssl pmm-managed     pmm-managed     127.0.0.1/32            cert clientcert=verify-full
+      hostssl grafana         grafana         127.0.0.1/32            cert clientcert=verify-full
+
+      # Superuser via password for backward compatibility (localhost only)
+      host    all             postgres        127.0.0.1/32            scram-sha-256
+      host    all             postgres        ::1/128                 scram-sha-256
+
+      # Replication (local only)
+      local   replication     all                                     trust
+    dest: /srv/postgres14/pg_hba.conf
+    owner: pmm
+    group: root
+    mode: 0600
+
 - name: Start Postgres database without supervisor
   command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
   become: true
@@ -82,7 +116,6 @@
   postgresql_user:
     db: pmm-managed
     name: pmm-managed
-    password: pmm-managed
     priv: "ALL"
     expires: infinity
     state: present
@@ -108,7 +141,6 @@
   postgresql_user:
     db: grafana
     name: grafana
-    password: grafana
     priv: 'ALL'
     expires: infinity
     state: present

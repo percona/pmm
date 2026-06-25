@@ -46,9 +46,8 @@ import (
 
 const (
 	defaultClickhouseDatabase           = "pmm"
-	defaultClickhouseAddr               = "127.0.0.1:9000"
+	defaultClickhouseAddr               = "127.0.0.1:9440"
 	defaultClickhouseUser               = "default"
-	defaultClickhousePassword           = "clickhouse"
 	defaultVMSearchMaxQueryLen          = "1MB"
 	defaultVMSearchLatencyOffset        = "5s"
 	defaultVMSearchMaxUniqueTimeseries  = "100000000"
@@ -225,7 +224,9 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2) //nolint:mnd
 	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
-	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
+	clickhouseSSLCAPath := envvars.GetEnv("PMM_CLICKHOUSE_SSL_CA_PATH", "")
+	clickhouseSSLCertPath := envvars.GetEnv("PMM_CLICKHOUSE_SSL_CERT_PATH", "")
+	clickhouseSSLKeyPath := envvars.GetEnv("PMM_CLICKHOUSE_SSL_KEY_PATH", "")
 	vmSearchDisableCache := envvars.GetEnv("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
 	vmSearchMaxQueryLen := envvars.GetEnv("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
 	vmSearchLatencyOffset := envvars.GetEnv("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
@@ -258,7 +259,9 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseHost":               clickhouseAddrPair[0],
 		"ClickhousePort":               clickhouseAddrPair[1],
 		"ClickhouseUser":               clickhouseUser,
-		"ClickhousePassword":           clickhousePassword,
+		"ClickhouseSSLCAPath":          clickhouseSSLCAPath,
+		"ClickhouseSSLCertPath":        clickhouseSSLCertPath,
+		"ClickhouseSSLKeyPath":         clickhouseSSLKeyPath,
 		"PMMServerHost":                "",
 	}
 
@@ -517,7 +520,9 @@ environment =
 	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
 	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
 	PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
-	PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
+	PMM_CLICKHOUSE_SSL_CA_PATH="{{ .ClickhouseSSLCAPath }}",
+	PMM_CLICKHOUSE_SSL_CERT_PATH="{{ .ClickhouseSSLCertPath }}",
+	PMM_CLICKHOUSE_SSL_KEY_PATH="{{ .ClickhouseSSLKeyPath }}",
 
 
 autorestart = true
@@ -546,7 +551,6 @@ environment =
     PMM_POSTGRES_ADDR="{{ .PostgresAddr }}",
     PMM_POSTGRES_DBNAME="{{ .PostgresDBName }}",
     PMM_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
-    PMM_POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
     PMM_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
     PMM_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
     PMM_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
@@ -554,7 +558,9 @@ environment =
     PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
-    PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
+    PMM_CLICKHOUSE_SSL_CA_PATH="{{ .ClickhouseSSLCAPath }}",
+    PMM_CLICKHOUSE_SSL_CERT_PATH="{{ .ClickhouseSSLCertPath }}",
+    PMM_CLICKHOUSE_SSL_KEY_PATH="{{ .ClickhouseSSLKeyPath }}",
     {{- if .HAEnabled}}
     GF_UNIFIED_ALERTING_HA_LISTEN_ADDRESS="0.0.0.0:{{ .GrafanaGossipPort }}",
     GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",

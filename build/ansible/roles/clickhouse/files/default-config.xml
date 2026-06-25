@@ -155,7 +155,7 @@
          You have to configure certificate to enable this interface.
          See the openSSL section below.
     -->
-    <!-- <tcp_port_secure>9440</tcp_port_secure> -->
+    <tcp_port_secure>9440</tcp_port_secure>
 
     <!-- Native interface wrapped with PROXYv1 protocol
          PROXYv1 header sent for every connection.
@@ -271,37 +271,26 @@
     <!-- Used with https_port and tcp_port_secure. Full ssl options list: https://github.com/ClickHouse-Extras/poco/blob/master/NetSSL_OpenSSL/include/Poco/Net/SSLManager.h#L71 -->
     <openSSL>
         <server> <!-- Used for https server AND secure tcp port -->
-            <!-- openssl req -subj "/CN=localhost" -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout /etc/clickhouse-server/server.key -out /etc/clickhouse-server/server.crt -->
-            <certificateFile>/etc/clickhouse-server/server.crt</certificateFile>
-            <privateKeyFile>/etc/clickhouse-server/server.key</privateKeyFile>
-            <!-- dhparams are optional. You can delete the <dhParamsFile> element.
-                 To generate dhparams, use the following command:
-                  openssl dhparam -out /etc/clickhouse-server/dhparam.pem 4096
-                 Only file format with BEGIN DH PARAMETERS is supported.
-              -->
-            <dhParamsFile>/etc/clickhouse-server/dhparam.pem</dhParamsFile>
-            <verificationMode>none</verificationMode>
-            <loadDefaultCAFile>true</loadDefaultCAFile>
+            <certificateFile>/srv/certs/ch-server.crt</certificateFile>
+            <privateKeyFile>/srv/certs/ch-server.key</privateKeyFile>
+            <caConfig>/srv/certs/ca.crt</caConfig>
+            <verificationMode>strict</verificationMode>
+            <loadDefaultCAFile>false</loadDefaultCAFile>
             <cacheSessions>true</cacheSessions>
             <disableProtocols>sslv2,sslv3</disableProtocols>
             <preferServerCiphers>true</preferServerCiphers>
-
             <invalidCertificateHandler>
-                <!-- The server, in contrast to the client, cannot ask about the certificate interactively.
-                     The only reasonable option is to reject.
-                -->
                 <name>RejectCertificateHandler</name>
             </invalidCertificateHandler>
         </server>
 
-        <client> <!-- Used for connecting to https dictionary source and secured Zookeeper communication -->
-            <loadDefaultCAFile>true</loadDefaultCAFile>
+        <client>
+            <caConfig>/srv/certs/ca.crt</caConfig>
+            <loadDefaultCAFile>false</loadDefaultCAFile>
             <cacheSessions>true</cacheSessions>
             <disableProtocols>sslv2,sslv3</disableProtocols>
             <preferServerCiphers>true</preferServerCiphers>
-            <!-- Use for self-signed: <verificationMode>none</verificationMode> -->
             <invalidCertificateHandler>
-                <!-- Use for self-signed: <name>AcceptCertificateHandler</name> -->
                 <name>RejectCertificateHandler</name>
             </invalidCertificateHandler>
         </client>

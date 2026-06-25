@@ -52,7 +52,10 @@
                  Execute: PASSWORD=$(base64 < /dev/urandom | head -c8); echo "$PASSWORD"; echo -n "$PASSWORD" | sha1sum | tr -d '-' | xxd -r -p | sha1sum | tr -d '-'
                  In first line will be password and in second - corresponding double SHA1.
             -->
-            <password_sha256_hex>7e099f39b84ea79559b3e85ea046804e63725fd1f46b37f281276aae20f86dc3</password_sha256_hex>
+            <!-- Certificate-based authentication: client must present a cert with matching CN -->
+            <ssl_certificates>
+                <common_name>clickhouse-client</common_name>
+            </ssl_certificates>
 
             <!-- List of networks with open access.
 

@@ -41,6 +41,11 @@
   debug:
     msg: "Need upgrade: {{ need_upgrade }}"
 
+- name: Generate internal TLS certificates
+  include_role:
+    name: internal-certs
+  when: need_initialization or need_upgrade
+
 - name: Execute PMM upgrade & initialization tasks
   block: # when need_initialization or need_upgrade
   - name: Enable maintenance mode before upgrade
@@ -73,7 +78,6 @@
         postgresql_user:
           db: grafana
           name: grafana
-          password: grafana
           priv: 'ALL'
           expires: infinity
           login_user: postgres

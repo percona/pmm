@@ -16,15 +16,17 @@
 package main
 
 import (
+	"crypto/tls"
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/url"
 	"strings"
 	"time"
 
-	clickhouse "github.com/ClickHouse/clickhouse-go/v2"          // register database/sql driver
+	clickhouse "github.com/ClickHouse/clickhouse-go/v2"
 	_ "github.com/golang-migrate/migrate/v4/database/clickhouse" // register golang-migrate driver
-	"github.com/jmoiron/sqlx"                                    // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
+	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/reflectx"
 	"github.com/sirupsen/logrus"
 
@@ -36,13 +38,13 @@ const (
 	databaseNotExistErrorCode = 81
 )
 
-// NewDB return updated db.
-func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterName string) *sqlx.DB {
+// NewDB creates a new ClickHouse database connection using TLS certificate authentication.
+func NewDB(addr, database, username string, tlsConfig *tls.Config, maxIdleConns, maxOpenConns int, isCluster bool, clusterName string, migrationDSN string) *sqlx.DB {
 	l := logrus.WithField("component", "db")
 	// If ClickHouse is a cluster, wait until the cluster is ready.
 	if isCluster {
 		l.Info("PMM_CLICKHOUSE_IS_CLUSTER is set to 1")
-		dsnURL, err := url.Parse(dsn)
+		dsnURL, err := url.Parse(migrationDSN)
 		if err != nil {
 			l.Fatalf("Error parsing DSN: %v", err)
 		}
@@ -65,20 +67,33 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 		}
 	}
 
-	l.Infof("New connection with DSN: %s", dsnutils.RedactDSN(dsn))
-	db, err := sqlx.Connect("clickhouse", dsn)
-	if err != nil {
+	// Connect using TLS cert-based auth via clickhouse.Connector
+	opts := &clickhouse.Options{
+		Addr: []string{addr},
+		Auth: clickhouse.Auth{
+			Database: database,
+			Username: username,
+		},
+		TLS: tlsConfig,
+	}
+
+	sqlDB := sql.OpenDB(clickhouse.Connector(opts))
+	db := sqlx.NewDb(sqlDB, "clickhouse")
+
+	// Verify connection
+	if err := db.Ping(); err != nil {
 		l.Errorf("Error connecting to ClickHouse: %v", err)
 		var exception *clickhouse.Exception
 		if errors.As(err, &exception) && exception.Code == databaseNotExistErrorCode {
-			err = createDB(dsn, clusterName)
+			err = createDB(migrationDSN, clusterName)
 			if err != nil {
 				l.Fatalf("Database wasn't created: %v", err)
 			}
-			l.Infof("Connecting again to %s", dsnutils.RedactDSN(dsn))
-			db, err = sqlx.Connect("clickhouse", dsn)
-			if err != nil {
-				l.Fatalf("Connection: %v", err)
+			// Reconnect after creating database
+			sqlDB = sql.OpenDB(clickhouse.Connector(opts))
+			db = sqlx.NewDb(sqlDB, "clickhouse")
+			if err := db.Ping(); err != nil {
+				l.Fatalf("Connection after DB creation: %v", err)
 			}
 		} else {
 			l.Fatalf("Connection: %v", err)
@@ -100,7 +115,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	data := map[string]any{
 		"engine": migrations.GetEngine(isCluster),
 	}
-	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
+	if err := migrations.Run(migrationDSN, data, isCluster, clusterName); err != nil {
 		l.Fatalf("migrations: %v", err)
 	}
 	l.Info("Migrations applied successfully")

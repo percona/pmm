@@ -1,0 +1,187 @@
+---
+# Generate internal CA and per-service certificates for PMM
+# This role is idempotent — it only generates certs if the CA doesn't already exist.
+# Certs are stored on the persistent /srv volume and survive container restarts.
+
+- name: Create certificates directory
+  file:
+    path: "{{ pmm_certs_dir }}"
+    state: directory
+    owner: "{{ pmm_certs_owner }}"
+    group: "{{ pmm_certs_group }}"
+    mode: "0755"
+
+- name: Check if CA certificate already exists
+  stat:
+    path: "{{ pmm_certs_dir }}/ca.crt"
+  register: ca_cert_stat
+
+- name: Generate internal CA and service certificates
+  when: not ca_cert_stat.stat.exists
+  block:
+    # --- CA ---
+    - name: Generate CA private key
+      command: >
+        openssl genrsa -out {{ pmm_certs_dir }}/ca.key 4096
+      args:
+        creates: "{{ pmm_certs_dir }}/ca.key"
+
+    - name: Generate CA certificate
+      command: >
+        openssl req -new -x509
+        -key {{ pmm_certs_dir }}/ca.key
+        -out {{ pmm_certs_dir }}/ca.crt
+        -days {{ pmm_certs_ca_validity_days }}
+        -subj "/CN=PMM Internal CA/O=Percona/OU=PMM"
+        -addext "basicConstraints=critical,CA:TRUE"
+        -addext "keyUsage=critical,keyCertSign,cRLSign"
+      args:
+        creates: "{{ pmm_certs_dir }}/ca.crt"
+
+    - name: Set CA key permissions
+      file:
+        path: "{{ pmm_certs_dir }}/ca.key"
+        owner: "{{ pmm_certs_owner }}"
+        group: "{{ pmm_certs_group }}"
+        mode: "{{ pmm_certs_key_mode }}"
+
+    - name: Set CA cert permissions
+      file:
+        path: "{{ pmm_certs_dir }}/ca.crt"
+        owner: "{{ pmm_certs_owner }}"
+        group: "{{ pmm_certs_group }}"
+        mode: "{{ pmm_certs_cert_mode }}"
+
+    # --- Server certificates (PostgreSQL, ClickHouse) ---
+    - name: Generate server private keys
+      command: >
+        openssl genrsa -out {{ pmm_certs_dir }}/{{ item.name }}.key 2048
+      loop: "{{ pmm_cert_servers }}"
+      args:
+        creates: "{{ pmm_certs_dir }}/{{ item.name }}.key"
+
+    - name: Generate server CSRs
+      command: >
+        openssl req -new
+        -key {{ pmm_certs_dir }}/{{ item.name }}.key
+        -out {{ pmm_certs_dir }}/{{ item.name }}.csr
+        -subj "/CN={{ item.cn }}/O=Percona/OU=PMM"
+        -addext "subjectAltName={{ item.san }}"
+      loop: "{{ pmm_cert_servers }}"
+      args:
+        creates: "{{ pmm_certs_dir }}/{{ item.name }}.csr"
+
+    - name: Create server cert extension file
+      copy:
+        content: |
+          basicConstraints=CA:FALSE
+          keyUsage=critical,digitalSignature,keyEncipherment
+          extendedKeyUsage=serverAuth
+          subjectAltName={{ item.san }}
+        dest: "{{ pmm_certs_dir }}/{{ item.name }}.ext"
+      loop: "{{ pmm_cert_servers }}"
+
+    - name: Sign server certificates with CA
+      command: >
+        openssl x509 -req
+        -in {{ pmm_certs_dir }}/{{ item.name }}.csr
+        -CA {{ pmm_certs_dir }}/ca.crt
+        -CAkey {{ pmm_certs_dir }}/ca.key
+        -CAcreateserial
+        -out {{ pmm_certs_dir }}/{{ item.name }}.crt
+        -days {{ pmm_certs_service_validity_days }}
+        -extfile {{ pmm_certs_dir }}/{{ item.name }}.ext
+      loop: "{{ pmm_cert_servers }}"
+      args:
+        creates: "{{ pmm_certs_dir }}/{{ item.name }}.crt"
+
+    - name: Set server key permissions
+      file:
+        path: "{{ pmm_certs_dir }}/{{ item.name }}.key"
+        owner: "{{ pmm_certs_owner }}"
+        group: "{{ pmm_certs_group }}"
+        mode: "{{ pmm_certs_key_mode }}"
+      loop: "{{ pmm_cert_servers }}"
+
+    - name: Set server cert permissions
+      file:
+        path: "{{ pmm_certs_dir }}/{{ item.name }}.crt"
+        owner: "{{ pmm_certs_owner }}"
+        group: "{{ pmm_certs_group }}"
+        mode: "{{ pmm_certs_cert_mode }}"
+      loop: "{{ pmm_cert_servers }}"
+
+    # --- Client certificates (per-service) ---
+    - name: Generate client private keys
+      command: >
+        openssl genrsa -out {{ pmm_certs_dir }}/{{ item.name }}.key 2048
+      loop: "{{ pmm_cert_services }}"
+      args:
+        creates: "{{ pmm_certs_dir }}/{{ item.name }}.key"
+
+    - name: Generate client CSRs
+      command: >
+        openssl req -new
+        -key {{ pmm_certs_dir }}/{{ item.name }}.key
+        -out {{ pmm_certs_dir }}/{{ item.name }}.csr
+        -subj "/CN={{ item.cn }}/O=Percona/OU=PMM"
+      loop: "{{ pmm_cert_services }}"
+      args:
+        creates: "{{ pmm_certs_dir }}/{{ item.name }}.csr"
+
+    - name: Create client cert extension file
+      copy:
+        content: |
+          basicConstraints=CA:FALSE
+          keyUsage=critical,digitalSignature
+          extendedKeyUsage=clientAuth
+        dest: "{{ pmm_certs_dir }}/{{ item.name }}.ext"
+      loop: "{{ pmm_cert_services }}"
+
+    - name: Sign client certificates with CA
+      command: >
+        openssl x509 -req
+        -in {{ pmm_certs_dir }}/{{ item.name }}.csr
+        -CA {{ pmm_certs_dir }}/ca.crt
+        -CAkey {{ pmm_certs_dir }}/ca.key
+        -CAcreateserial
+        -out {{ pmm_certs_dir }}/{{ item.name }}.crt
+        -days {{ pmm_certs_service_validity_days }}
+        -extfile {{ pmm_certs_dir }}/{{ item.name }}.ext
+      loop: "{{ pmm_cert_services }}"
+      args:
+        creates: "{{ pmm_certs_dir }}/{{ item.name }}.crt"
+
+    - name: Set client key permissions
+      file:
+        path: "{{ pmm_certs_dir }}/{{ item.name }}.key"
+        owner: "{{ pmm_certs_owner }}"
+        group: "{{ pmm_certs_group }}"
+        mode: "{{ pmm_certs_key_mode }}"
+      loop: "{{ pmm_cert_services }}"
+
+    - name: Set client cert permissions
+      file:
+        path: "{{ pmm_certs_dir }}/{{ item.name }}.crt"
+        owner: "{{ pmm_certs_owner }}"
+        group: "{{ pmm_certs_group }}"
+        mode: "{{ pmm_certs_cert_mode }}"
+      loop: "{{ pmm_cert_services }}"
+
+    # --- Cleanup temporary files ---
+    - name: Remove CSR and extension files
+      file:
+        path: "{{ pmm_certs_dir }}/{{ item }}"
+        state: absent
+      loop: "{{ (pmm_cert_servers + pmm_cert_services) | map(attribute='name') | product(['.csr', '.ext']) | map('join') | list }}"
+
+    - name: Remove CA serial file
+      file:
+        path: "{{ pmm_certs_dir }}/ca.srl"
+        state: absent
+
+- name: Verify CA certificate exists
+  stat:
+    path: "{{ pmm_certs_dir }}/ca.crt"
+  register: ca_cert_final
+  failed_when: not ca_cert_final.stat.exists

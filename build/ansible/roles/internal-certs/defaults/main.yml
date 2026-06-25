@@ -1,0 +1,29 @@
+---
+# Internal certificate configuration for PMM service-to-service auth
+pmm_certs_dir: /srv/certs
+pmm_certs_ca_validity_days: 3650  # 10 years
+pmm_certs_service_validity_days: 3650  # 10 years
+pmm_certs_owner: pmm
+pmm_certs_group: root
+pmm_certs_key_mode: "0600"
+pmm_certs_cert_mode: "0644"
+
+# Services that need client certificates (CN must match PostgreSQL/ClickHouse username)
+pmm_cert_services:
+  - name: pmm-managed
+    cn: pmm-managed
+  - name: grafana
+    cn: grafana
+  - name: qan-api2
+    cn: qan-api2
+  - name: clickhouse-client
+    cn: clickhouse-client
+
+# Server certificates
+pmm_cert_servers:
+  - name: pg-server
+    cn: localhost
+    san: "DNS:localhost,IP:127.0.0.1"
+  - name: ch-server
+    cn: localhost
+    san: "DNS:localhost,IP:127.0.0.1"

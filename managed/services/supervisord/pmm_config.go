@@ -82,12 +82,8 @@ func saveConfig(path string, cfg []byte) (err error) {
 
 var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Parse(`[unix_http_server]
 chmod = 0700
-username = dummy
-password = dummy
-
-[supervisorctl]
-username = dummy
-password = dummy
+; supervisord socket auth — access restricted by file permissions (0700)
+; no credentials needed since only root/pmm can access the socket
 
 [program:pmm-init]
 command = /usr/bin/ansible-playbook /opt/ansible/pmm-docker/init.yml
