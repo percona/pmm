@@ -133,7 +133,8 @@ jobs:
           fi
 
   workflow_success:
-    needs: [tests, build]
+    needs: [tests, build, check]
+    if: github.event.pull_request.head.repo.full_name == github.repository
     name: Slack Notification success
     runs-on: ubuntu-latest
     env:
@@ -150,8 +151,8 @@ jobs:
         uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
 
   workflow_failure:
-    if: ${{ failure() }}
-    needs: [tests, build]
+    if: ${{ failure() && github.event.pull_request.head.repo.full_name == github.repository }}
+    needs: [tests, build, check]
     name: Slack Notification failure
     runs-on: ubuntu-latest
     env:
