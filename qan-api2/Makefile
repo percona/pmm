@@ -40,7 +40,7 @@ install-race:                   ## Install qan-api2 binary with race detector
 TEST_CONTAINER_NAME := pmm-clickhouse-test
 TEST_IMAGE_NAME := clickhouse/clickhouse-server:25.3.6.56
 
-_start-clickhouse:
+start-clickhouse:
 	@if [ "$$(uname)" = "Darwin" ]; then \
 		if ! command -v timeout > /dev/null 2>&1; then \
 			echo "Error: missing timeout (run 'brew install coreutils')"; exit 1; \
@@ -48,8 +48,7 @@ _start-clickhouse:
 	fi
 	@echo "-> Starting Clickhouse container $(TEST_CONTAINER_NAME)"
 	@docker run -d \
-		--platform=linux/amd64 \
-		--name  $(TEST_CONTAINER_NAME) \
+		--name $(TEST_CONTAINER_NAME) \
 		-p 19000:9000 \
 		-p 18123:8123 \
 		-e CLICKHOUSE_USER=default \
@@ -60,22 +59,22 @@ _start-clickhouse:
 	   (echo "Timed out waiting for ClickHouse to become ready" && exit 1)
 	@echo "✅ Clickhouse container is ready for use"
 
-_stop-clickhouse:
+stop-clickhouse:
 	@echo "-> Terminating Clickhouse container $(TEST_CONTAINER_NAME)"
 	docker stop $(TEST_CONTAINER_NAME)
 	docker rm $(TEST_CONTAINER_NAME)
 
-_import-test-data:				## Create pmm_test DB and load test data
+import-test-data:				## Create pmm_test DB and load test data
 	@echo "-> Importing test data..."
 	docker exec $(TEST_CONTAINER_NAME) clickhouse client --password=clickhouse --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
 	go run $(CURDIR)/cmd/render-migrations | docker exec -i $(TEST_CONTAINER_NAME) clickhouse client --password=clickhouse -d pmm_test --multiline --multiquery
 	cat $(CURDIR)/fixture/metrics.part_*.json | docker exec -i $(TEST_CONTAINER_NAME) clickhouse client --password=clickhouse -d pmm_test --query="INSERT INTO metrics FORMAT JSONEachRow"
 	@echo "✅ Test data is ready for use"
 
-test-env-up: _start-clickhouse  _import-test-data	## Start docker containers used for testing and import test data
+test-env-up: start-clickhouse import-test-data	## Start docker containers used for testing and import test data
 	@echo "✅ Clickhouse is ready for use on address 127.0.0.1 ports 18123,19000"
 
-test-env-down:  _stop-clickhouse	## Stop and remove docker containers used for testing
+test-env-down: stop-clickhouse	## Stop and remove docker containers used for testing
 	@echo "✅ Clickhouse container has been cleaned up"
 
 test:                           ## Run tests (run `make test-env-up` beforehand)

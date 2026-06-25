@@ -104,7 +104,7 @@ jobs:
           git status
 
   workflow_success:
-    needs: [ check, build, test ]
+    needs: [check, test]
     name: Slack Notification success
     runs-on: ubuntu-latest
     env:
@@ -122,7 +122,7 @@ jobs:
 
   workflow_failure:
     if: ${{ failure() }}
-    needs: [ check, build, test ]
+    needs: [check, test]
     name: Slack Notification failure
     runs-on: ubuntu-latest
     env:
