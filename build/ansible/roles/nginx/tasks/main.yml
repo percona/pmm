@@ -99,4 +99,6 @@
     dest: /usr/share/pmm-server/static/install-pmm-client.sh
     group: root
     owner: pmm
-    mode: 0755
+    # 0644: nginx serves it as a static blob and the UI runs it via `curl -o … ; bash …`,
+    # so the served file never needs the executable bit (matches the other static files).
+    mode: 0644

@@ -21,7 +21,7 @@ Global options:
   --tech TECH                   One of: mysql, postgresql, mongodb, valkey
   --node-name NAME              Node name for pmm-admin config
   --node-address ADDRESS        Node address for pmm-admin config
-  --force                       Pass --force to pmm-admin config (removes existing node name and its services on the server, then registers again). When omitted, pmm-admin config is skipped automatically if pmm-agent is already set up on this node.
+  --force                       Pass --force to pmm-admin config (removes existing node name and its services on the server, then registers again). When omitted, pmm-admin config is skipped automatically if pmm-agent is already set up on this node; if PMM Server then rejects the agent's stored token (e.g. an expired install token), it is refreshed from --pmm-server-url non-destructively (existing services kept) and the add is retried. Use --force only for a full re-registration.
 
 Generic DB options (mapped per technology):
   --db-user USER
@@ -59,6 +59,12 @@ NODE_NAME="${NODE_NAME:-}"
 NODE_ADDRESS="${NODE_ADDRESS:-}"
 PMM_CONFIG_FORCE="${PMM_CONFIG_FORCE:-0}"
 PMM_CONFIG_SKIPPED=0
+# Combined stdout+stderr of the last `pmm-admin add` so we can tell a PMM Server
+# authentication failure (expired/invalid agent token) apart from a database error.
+ADD_OUTPUT=""
+# Set to 1 once a non-destructive token refresh has actually been attempted, so error
+# messages don't claim the auto-refresh "did not help" on paths where it never ran.
+PMM_TOKEN_REFRESH_ATTEMPTED=0
 
 DB_USER="${DB_USER:-}"
 DB_PASSWORD="${DB_PASSWORD:-}"
@@ -543,8 +549,15 @@ configure_pmm_agent() {
   prompt_if_empty TECH "Technology to add (mysql/postgresql/mongodb/valkey)"
 
   if pmm_agent_already_configured; then
-    log "pmm-agent is already configured with PMM Server; skipping pmm-admin config."
-    log "Use --force to re-register the node (removes the existing node and its services on the server)."
+    log "pmm-agent is already configured with PMM Server; skipping re-registration to preserve existing services."
+    # We intentionally keep the agent's existing (durable) token instead of overwriting
+    # it on every run. If that stored token turns out to be rejected by PMM Server (e.g.
+    # an old, short-lived install token that has since expired), add_service triggers a
+    # non-destructive refresh from --pmm-server-url and retries — see should_attempt_token_refresh.
+    if [ -n "${PMM_SERVER_URL}" ]; then
+      log "If PMM Server rejects the stored token, it will be refreshed from --pmm-server-url automatically (no services removed)."
+    fi
+    log "(Use --force only to fully re-register this node; that removes the node and ALL its services on the server.)"
     PMM_CONFIG_SKIPPED=1
     return 0
   fi
@@ -622,6 +635,85 @@ validate_mysql_query_source() {
   esac
 }
 
+# Run `pmm-admin add ...` while keeping a copy of its combined output in ADD_OUTPUT
+# (still streamed live to the user). The captured text lets us classify failures —
+# a PMM Server auth error reads very differently from a DB credentials error — and
+# never contains the DB password (that's only on the command line, not echoed back).
+run_pmm_admin_add() {
+  local out_file rc
+  if out_file="$(mktemp 2>/dev/null)"; then
+    # mktemp gives a fresh 0600 file, so there is no predictable-path/symlink race.
+    "$@" 2>&1 | tee "${out_file}"
+    rc=${PIPESTATUS[0]}
+    ADD_OUTPUT="$(cat "${out_file}" 2>/dev/null || true)"
+    rm -f "${out_file}"
+  else
+    # mktemp unavailable (extremely rare on a real distro): run directly with normal
+    # stdout/stderr rather than redirecting everything to one stream. ADD_OUTPUT stays
+    # empty, so the auth-failure auto-refresh degrades to the generic error path for this
+    # edge case — acceptable, and the output the user sees is unchanged.
+    ADD_OUTPUT=""
+    "$@"
+    rc=$?
+  fi
+  return "${rc}"
+}
+
+# True when the last `pmm-admin add` failed because PMM Server rejected the agent's
+# token, not because of bad DB credentials or a duplicate service name. We match only
+# PMM-Server-specific markers: the Grafana phrase "Auth method is not service account
+# token", and ". Please check username and password." which pmm-admin appends to any
+# HTTP 401 from PMM Server (non-JSON mode). We deliberately do NOT match a bare
+# "Unauthorized" / "401": database drivers (e.g. MongoDB) emit those for DB-credential
+# failures, which would misclassify a DB error as a server-token error.
+add_failure_is_auth() {
+  case "${ADD_OUTPUT}" in
+    *"service account token"*|*"Please check username and password"*)
+      return 0
+      ;;
+  esac
+  return 1
+}
+
+# Decide whether to auto-recover from an add failure by refreshing the token.
+# Only when: the failure is a server-side auth error, the user did not ask for a
+# (destructive) --force, and we actually have a --pmm-server-url to read a fresh
+# token from. When config was just run (not skipped) and still auth-failed, the
+# supplied token itself is bad, so refreshing with it again would not help.
+should_attempt_token_refresh() {
+  add_failure_is_auth || return 1
+  if [ "${PMM_CONFIG_FORCE}" = "1" ] || [ "${PMM_CONFIG_FORCE}" = "true" ]; then
+    return 1
+  fi
+  [ "${PMM_CONFIG_SKIPPED}" = "1" ] || return 1
+  [ -n "${PMM_SERVER_URL}" ] || return 1
+  return 0
+}
+
+# Update the agent's stored PMM Server token from --pmm-server-url WITHOUT
+# re-registering the node. PMM_AGENT_SETUP_SKIP_REGISTRATION makes the `pmm-agent
+# setup` that `pmm-admin config` execs only rewrite credentials and reload — it does
+# not delete and recreate the node, so existing services on this node are preserved
+# (unlike --force). The freshly supplied token then authenticates the retried add.
+#
+# Limitation: because registration is skipped, the agent does NOT receive a durable
+# node service-account token from PMM Server here — it adopts whatever token is in
+# --pmm-server-url. With the one-step UI that token is short-lived (~15 min). On a PMM
+# Server that mints a durable node token at registration (current behaviour), this only
+# runs as a recovery and the durable token is what normally authenticates the agent. On
+# an older server the agent is left with the short-lived token again, so a much later
+# re-add may need a freshly generated command. This is still strictly better than the
+# previous behaviour, where the only recovery was a destructive --force.
+refresh_pmm_agent_token() {
+  log "PMM Server rejected the agent's stored token (it may have expired)."
+  log "Refreshing the token from --pmm-server-url without removing existing services..."
+  local refresh_cmd=(pmm-admin config "--server-url=${PMM_SERVER_URL}")
+  if [ "${PMM_SERVER_INSECURE_TLS}" = "1" ] || [ "${PMM_SERVER_INSECURE_TLS}" = "true" ]; then
+    refresh_cmd+=(--server-insecure-tls)
+  fi
+  PMM_AGENT_SETUP_SKIP_REGISTRATION=1 "${refresh_cmd[@]}"
+}
+
 add_mysql() {
   local db_cred_hint='Use --db-user and --db-password, or set DB_USER and DB_PASSWORD (MYSQL_* overrides if set). If you use sudo env, list DB_USER and DB_PASSWORD there; exports in your shell are not passed to the script.'
   prompt_if_empty MYSQL_USERNAME "MySQL username" 0 "${db_cred_hint}"
@@ -647,7 +739,7 @@ add_mysql() {
     cmd+=("--query-source=${MYSQL_QUERY_SOURCE}")
   fi
   log "Running pmm-admin add mysql..."
-  "${cmd[@]}"
+  run_pmm_admin_add "${cmd[@]}"
 }
 
 add_postgresql() {
@@ -674,7 +766,7 @@ add_postgresql() {
     cmd+=("--socket=${POSTGRESQL_SOCKET}")
   fi
   log "Running pmm-admin add postgresql..."
-  "${cmd[@]}"
+  run_pmm_admin_add "${cmd[@]}"
 }
 
 add_mongodb() {
@@ -701,7 +793,7 @@ add_mongodb() {
     cmd+=("--socket=${MONGODB_SOCKET}")
   fi
   log "Running pmm-admin add mongodb..."
-  "${cmd[@]}"
+  run_pmm_admin_add "${cmd[@]}"
 }
 
 add_valkey() {
@@ -727,7 +819,7 @@ add_valkey() {
     cmd+=("--socket=${VALKEY_SOCKET}")
   fi
   log "Running pmm-admin add valkey..."
-  "${cmd[@]}"
+  run_pmm_admin_add "${cmd[@]}"
 }
 
 add_service() {
@@ -760,6 +852,25 @@ report_add_service_failure() {
   local exit_code="$1"
   echo >&2
   log "ERROR: 'pmm-admin add ${TECH}' failed (exit ${exit_code})."
+
+  # Server-side authentication failure: this is NOT a database problem, and --force
+  # would only make things worse by deleting this node and all of its services.
+  if add_failure_is_auth; then
+    log "       PMM Server rejected the agent's token (authentication error) — this is NOT a"
+    log "       database credentials problem."
+    if [ "${PMM_TOKEN_REFRESH_ATTEMPTED}" = "1" ]; then
+      log "       The automatic non-destructive token refresh did not resolve it, so the token"
+      log "       supplied via --pmm-server-url is most likely expired too (install tokens are short-lived)."
+    else
+      log "       The token is most likely expired (install tokens are short-lived, ~15 min)."
+    fi
+    log "       To recover WITHOUT losing other services already on this node:"
+    log "         * Generate a fresh install command/token in the PMM UI and re-run this script"
+    log "           with the new --pmm-server-url."
+    log "       Do NOT use --force unless you intend to remove this node and ALL its services from PMM Server."
+    exit "${exit_code}"
+  fi
+
   log "       Most common causes:"
   log "         * Wrong DB credentials → fix DB_USER / DB_PASSWORD (or --db-user / --db-password) and re-run."
   if [ "${PMM_CONFIG_SKIPPED}" = "1" ]; then
@@ -787,9 +898,26 @@ main() {
   set +e
   add_service
   local rc=$?
+  # If the add failed only because PMM Server rejected the agent's stored token,
+  # refresh that token from --pmm-server-url (non-destructively, keeping existing
+  # services) and retry once — instead of pushing the user toward a destructive --force.
+  if [ "${rc}" -ne 0 ] && should_attempt_token_refresh; then
+    PMM_TOKEN_REFRESH_ATTEMPTED=1
+    refresh_pmm_agent_token
+    local refresh_rc=$?
+    if [ "${refresh_rc}" -eq 0 ]; then
+      log "Retrying 'pmm-admin add ${TECH}' with the refreshed token..."
+      add_service
+      rc=$?
+    fi
+  fi
   set -e
   if [ "${rc}" -ne 0 ]; then
     report_add_service_failure "${rc}"
+  fi
+  if [ "${PMM_TOKEN_REFRESH_ATTEMPTED}" = "1" ]; then
+    log "Note: the agent's token was refreshed from --pmm-server-url. If a later re-add fails"
+    log "      with an authentication error, generate a fresh install command in the PMM UI and re-run."
   fi
   log "PMM client setup completed successfully."
 }

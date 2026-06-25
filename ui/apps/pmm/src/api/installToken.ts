@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { grafanaApi } from './api';
 
 export interface CreateNodeInstallTokenResponse {
@@ -5,7 +6,13 @@ export interface CreateNodeInstallTokenResponse {
   expiresAt: string;
 }
 
-const DEFAULT_TTL_SECONDS = 15 * 60;
+// Single source of truth for the install token's lifetime. The token only needs to
+// stay valid long enough to run `pmm-admin config` once; the agent then receives a
+// durable node service-account token from PMM Server (see RegisterNode), so a short
+// TTL keeps an Admin-grade token from lingering in terminal scrollback. Exported so
+// the UI can show the exact validity window without hardcoding it.
+export const DEFAULT_TTL_SECONDS = 15 * 60;
+export const DEFAULT_TTL_MINUTES = DEFAULT_TTL_SECONDS / 60;
 
 const SUPPORTED_TECHNOLOGIES = new Set([
   'mysql',
@@ -98,9 +105,11 @@ export async function createNodeInstallToken(
 }
 
 async function findServiceAccountIdByName(name: string): Promise<number | null> {
+  // perpage keeps the exact-name match from falling off the first page when many
+  // similarly-prefixed service accounts exist (Grafana's search is a substring match).
   const res = await grafanaApi.get<GrafanaServiceAccountSearch>(
     '/serviceaccounts/search',
-    { params: { query: name } }
+    { params: { query: name, perpage: 100 } }
   );
   const match = res.data.serviceAccounts?.find((sa) => sa.name === name);
   return match ? match.id : null;
@@ -131,23 +140,45 @@ async function deleteExpiredTokens(serviceAccountId: number): Promise<void> {
   }
 
   const expired = tokens.filter(isExpiredInstallToken);
-  await Promise.allSettled(
+  const results = await Promise.allSettled(
     expired.map((token) =>
       grafanaApi.delete(
         `/serviceaccounts/${serviceAccountId}/tokens/${token.id}`
       )
     )
   );
+  // Best-effort cleanup, but surface persistent failures so a broken delete path
+  // (permissions, rate limiting) is at least visible instead of silently piling up.
+  const failed = results.filter((r) => r.status === 'rejected').length;
+  if (failed > 0) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `installToken: failed to delete ${failed}/${expired.length} expired install token(s)`
+    );
+  }
 }
 
 async function createServiceAccount(name: string): Promise<number> {
   // Admin role is required for `pmm-admin config`/inventory writes in real PMM setups.
-  const res = await grafanaApi.post<GrafanaServiceAccount>('/serviceaccounts', {
-    name,
-    role: 'Admin',
-    isDisabled: false,
-  });
-  return res.data.id;
+  try {
+    const res = await grafanaApi.post<GrafanaServiceAccount>('/serviceaccounts', {
+      name,
+      role: 'Admin',
+      isDisabled: false,
+    });
+    return res.data.id;
+  } catch (error) {
+    // A concurrent "Generate token" (or double-click) may have created the SA first;
+    // Grafana enforces unique SA names and returns 409. Reuse the existing one instead
+    // of failing the whole flow.
+    if (isAxiosError(error) && error.response?.status === 409) {
+      const existing = await findServiceAccountIdByName(name);
+      if (existing !== null) {
+        return existing;
+      }
+    }
+    throw error;
+  }
 }
 
 async function mintToken(

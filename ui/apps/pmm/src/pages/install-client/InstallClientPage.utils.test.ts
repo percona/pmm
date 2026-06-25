@@ -70,6 +70,15 @@ describe('buildPmmServerURL', () => {
       'https://service_token:tok@pmm.example.com:443'
     );
   });
+
+  test('strips embedded userinfo so the authority has a single @', () => {
+    expect(buildPmmServerURL('user:pw@pmm.example.com:443', 'tok')).toBe(
+      'https://service_token:tok@pmm.example.com:443'
+    );
+    expect(buildPmmServerURL('https://user:pw@pmm.example.com', 'tok')).toBe(
+      'https://service_token:tok@pmm.example.com'
+    );
+  });
 });
 
 describe('buildInstallCommand', () => {
@@ -365,5 +374,10 @@ describe('formatExpiresIn', () => {
   test('clamps negatives to 0:00 (already expired)', () => {
     expect(formatExpiresIn(-1)).toBe('0:00');
     expect(formatExpiresIn(-9999)).toBe('0:00');
+  });
+
+  test('treats non-finite input as 0:00 (never renders NaN:NaN)', () => {
+    expect(formatExpiresIn(NaN)).toBe('0:00');
+    expect(formatExpiresIn(Infinity)).toBe('0:00');
   });
 });

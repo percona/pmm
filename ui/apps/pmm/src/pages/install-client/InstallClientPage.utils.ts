@@ -49,7 +49,9 @@ export function suggestDbServiceName(
  * branch on isExpired separately without seeing odd negative timers.
  */
 export const formatExpiresIn = (secondsLeft: number): string => {
-  const safe = Math.max(0, Math.floor(secondsLeft));
+  // Guard against NaN/Infinity (e.g. an Invalid Date upstream) so the chip never
+  // renders "NaN:NaN" and stays stuck; treat anything non-finite as expired.
+  const safe = Number.isFinite(secondsLeft) ? Math.max(0, Math.floor(secondsLeft)) : 0;
   const minutes = Math.floor(safe / 60);
   const seconds = safe % 60;
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -65,18 +67,15 @@ const sanitizePmmHost = (input: string): string => {
     return '';
   }
 
-  try {
-    if (/^https?:\/\//i.test(trimmed)) {
-      return new URL(trimmed).host;
-    }
-  } catch {
-    // Fall through for malformed URLs.
-  }
-
+  // Strip with plain string ops rather than `new URL()` so an explicitly typed default
+  // port (":443") is preserved instead of being normalized away. Order: scheme, a
+  // leading protocol-relative "//", any path/query/fragment, then any userinfo
+  // ("user:pass@") — leaving just hostname[:port] with a single authority.
   return trimmed
     .replace(/^https?:\/\//i, '')
     .replace(/^\/\//, '')
     .split(/[/?#]/)[0]
+    .replace(/^.*@/, '')
     .trim();
 };
 

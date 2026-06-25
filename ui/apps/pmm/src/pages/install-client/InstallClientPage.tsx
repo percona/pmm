@@ -1,4 +1,12 @@
-import { type ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  type ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { isAxiosError } from 'axios';
 import {
   Accordion,
   AccordionDetails,
@@ -26,7 +34,12 @@ import {
 import AccessTimeOutlinedIcon from '@mui/icons-material/AccessTimeOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Page } from 'components/page';
-import { createNodeInstallToken } from 'api/installToken';
+import { useUser } from 'contexts/user';
+import {
+  createNodeInstallToken,
+  DEFAULT_TTL_MINUTES,
+  DEFAULT_TTL_SECONDS,
+} from 'api/installToken';
 import type { SelectChangeEvent } from '@mui/material/Select';
 import {
   buildInstallCommand,
@@ -41,6 +54,21 @@ import {
 
 const INSTALL_DOCS_URL =
   'https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/one-step-ui-install.html';
+
+// Turn a token-generation failure into an actionable message. The Grafana
+// service-account endpoints require org Admin, so a 403 is the common case; prefer
+// Grafana's body message over the generic axios "Request failed with status code N".
+const describeTokenError = (error: unknown): string => {
+  if (isAxiosError(error)) {
+    if (error.response?.status === 403) {
+      return 'Generating an install command requires PMM Admin privileges.';
+    }
+    const apiMessage = (error.response?.data as { message?: string } | undefined)
+      ?.message;
+    return apiMessage || error.message;
+  }
+  return error instanceof Error ? error.message : 'Failed to create token';
+};
 
 export const InstallClientPage = () => {
   const [technology, setTechnology] = useState<Technology>('mysql');
@@ -62,16 +90,52 @@ export const InstallClientPage = () => {
   const [dbServiceName, setDbServiceName] = useState('');
   const [mysqlQuerySource, setMysqlQuerySource] = useState<MySQLQuerySource>('');
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const [genLoading, setGenLoading] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
   const [tokenExpiresAt, setTokenExpiresAt] = useState<Date | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const refreshNow = useCallback(() => setNow(Date.now()), []);
 
+  const { user, isLoading: isUserLoading } = useUser();
+  // Allow while the user is still loading (so admins never see a flash of the
+  // "admin required" notice), but once resolved without an admin user — including an
+  // errored/unauthenticated session — deny. The friendly 403 in handleGenerateToken is
+  // the backstop.
+  const isPmmAdmin = user ? user.isPMMAdmin : isUserLoading;
+
+  // Mount flag + monotonic request id so an in-flight token generation that resolves
+  // after unmount or after a newer generation superseded it does not write stale state.
+  const isMountedRef = useRef(true);
+  const generationRef = useRef(0);
+  const copyTimeoutRef = useRef<number>();
+  useEffect(() => {
+    // Re-arm on mount: StrictMode (and any remount) runs the cleanup, which would
+    // otherwise leave isMountedRef stuck false and make every generation a no-op.
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      if (copyTimeoutRef.current) {
+        window.clearTimeout(copyTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // ceil (not floor) so a freshly minted token shows the full "15:00" rather than
+  // "14:59", and isExpired flips exactly at expiry instead of one second early.
   const secondsLeft = tokenExpiresAt
-    ? Math.max(0, Math.floor((tokenExpiresAt.getTime() - now) / 1000))
+    ? Math.max(0, Math.ceil((tokenExpiresAt.getTime() - now) / 1000))
     : 0;
   const isExpired = !!tokenExpiresAt && secondsLeft <= 0;
+
+  // In env/flags mode the generated command is non-interactive, so missing DB
+  // credentials would make the install fail on the node with no chance to prompt.
+  const automationCredsMissing =
+    automationMode &&
+    credentialsMode !== 'prompt' &&
+    (technology === 'valkey'
+      ? !dbPassword.trim()
+      : !dbUser.trim() || !dbPassword.trim());
 
   useEffect(() => {
     if (!tokenExpiresAt || isExpired) return undefined;
@@ -79,11 +143,27 @@ export const InstallClientPage = () => {
     return () => window.clearInterval(id);
   }, [tokenExpiresAt, isExpired, refreshNow]);
 
+  // On expiry, drop both the token and its expiry together so the form stays coherent
+  // (empty field + "Generate", not an empty field still flagged "Expired") and the
+  // rendered command reverts to the <TOKEN> placeholder, forcing a regenerate.
   useEffect(() => {
-    if (isExpired && token) {
+    if (isExpired) {
       setToken('');
+      setTokenExpiresAt(null);
     }
-  }, [isExpired, token]);
+  }, [isExpired]);
+
+  // setInterval is throttled/paused in background tabs, so the countdown and isExpired
+  // can lag the real expiry. Re-sync `now` whenever the tab regains focus/visibility.
+  useEffect(() => {
+    const resync = () => refreshNow();
+    window.addEventListener('focus', resync);
+    document.addEventListener('visibilitychange', resync);
+    return () => {
+      window.removeEventListener('focus', resync);
+      document.removeEventListener('visibilitychange', resync);
+    };
+  }, [refreshNow]);
 
   const suggestedServiceName = useMemo(
     () => suggestDbServiceName(technology, dbPort, nodeName),
@@ -150,26 +230,49 @@ export const InstallClientPage = () => {
 
   const handleCopy = useCallback(async () => {
     if (!clipboardAvailable) return;
-    await navigator.clipboard.writeText(command);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(command);
+      setCopyFailed(false);
+      setCopied(true);
+      if (copyTimeoutRef.current) {
+        window.clearTimeout(copyTimeoutRef.current);
+      }
+      copyTimeoutRef.current = window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // writeText can reject even when the API exists (document not focused, transient
+      // permission denial); surface it instead of leaving an unhandled rejection.
+      setCopied(false);
+      setCopyFailed(true);
+    }
   }, [clipboardAvailable, command]);
 
   const handleGenerateToken = useCallback(async () => {
     setGenError(null);
     setGenLoading(true);
+    const requestId = (generationRef.current += 1);
+    // Stale = the component unmounted, or a newer generation superseded this one. We
+    // deliberately do NOT key on the selected technology: the minted token is an Admin
+    // token that works for any technology, and keying on it could leave genLoading stuck
+    // true (and the button disabled) when the user changes the dropdown mid-flight. The
+    // latest request always owns the loading flag.
+    const isStale = () =>
+      !isMountedRef.current || requestId !== generationRef.current;
     try {
       const res = await createNodeInstallToken(technology);
+      if (isStale()) return;
       setToken(res.token);
       const expires = res.expiresAt
         ? new Date(res.expiresAt)
-        : new Date(Date.now() + 15 * 60 * 1000);
+        : new Date(Date.now() + DEFAULT_TTL_SECONDS * 1000);
       setTokenExpiresAt(expires);
       refreshNow();
     } catch (error) {
-      setGenError(error instanceof Error ? error.message : 'Failed to create token');
+      if (isStale()) return;
+      setGenError(describeTokenError(error));
     } finally {
-      setGenLoading(false);
+      if (!isStale()) {
+        setGenLoading(false);
+      }
     }
   }, [refreshNow, technology]);
 
@@ -192,6 +295,11 @@ export const InstallClientPage = () => {
         setCredentialsMode((mode) => (mode === 'prompt' ? 'env' : mode));
       } else {
         setCredentialsMode('prompt');
+        // Prompt mode collects credentials on the node, so drop any creds typed in
+        // env/flags mode — otherwise they'd silently re-enter the command if the user
+        // re-enables automation later.
+        setDbUser('');
+        setDbPassword('');
       }
     },
     []
@@ -294,12 +402,20 @@ export const InstallClientPage = () => {
               <Collapse in={learnMoreOpen}>
                 <Stack spacing={1} sx={{ mt: 1.5 }}>
                   <Typography variant="body2">
-                    Generated tokens expire in <strong>15 minutes</strong> and grant Admin-level
-                    access — treat the command like a password.
+                    Generated tokens expire in <strong>{DEFAULT_TTL_MINUTES} minutes</strong> and grant
+                    Admin-level access — treat the command like a password. Run the command before it
+                    expires; otherwise click <strong>Regenerate</strong> for a fresh one.
                   </Typography>
                   <Typography variant="body2">
                     <strong>Multiple instances on one node:</strong> run the command again with a
-                    different port. The script skips node registration after the first run.
+                    different port. The script skips node registration after the first run, so your
+                    other monitored services stay intact.
+                  </Typography>
+                  <Typography variant="body2">
+                    <strong>Re-adding a service later?</strong> If the command now fails with an
+                    authentication error, the earlier token has expired — regenerate the command here
+                    and re-run it. The script refreshes the token without removing existing services
+                    (do not use <code>--force</code>, which removes the node and all its services).
                   </Typography>
                   <Typography variant="body2">
                     Enable <strong>Running in CI/automation?</strong> below to embed credentials in
@@ -350,12 +466,23 @@ export const InstallClientPage = () => {
               />
             </Stack>
 
+            {user && !isPmmAdmin && (
+              <Alert severity="warning">
+                Generating an install command requires PMM Admin privileges. Ask an
+                administrator to generate the command for this node.
+              </Alert>
+            )}
+
             <Stack
               direction={{ xs: 'column', md: 'row' }}
               spacing={2}
               alignItems={{ xs: 'stretch', md: 'center' }}
             >
-              <Button variant="outlined" onClick={handleGenerateToken} disabled={genLoading}>
+              <Button
+                variant="outlined"
+                onClick={handleGenerateToken}
+                disabled={genLoading || !isPmmAdmin}
+              >
                 {genLoading
                   ? 'Generating…'
                   : tokenExpiresAt
@@ -410,13 +537,10 @@ export const InstallClientPage = () => {
                       Include env variables (recommended for curl | bash)
                     </MenuItem>
                     <MenuItem value="flags">Pass as script flags</MenuItem>
-                    <MenuItem value="prompt">
-                      Prompt on node (downloads script first, asks on TTY)
-                    </MenuItem>
                   </Select>
                   <FormHelperText>
-                    Env and flags modes embed credentials in the command — use only in trusted
-                    automation.
+                    Both modes embed credentials in the command — use only in trusted
+                    automation. (To be prompted on the node instead, turn off automation.)
                   </FormHelperText>
                 </FormControl>
                 {credentialsMode !== 'prompt' && (
@@ -435,6 +559,14 @@ export const InstallClientPage = () => {
                       onChange={handleDbPasswordChange}
                     />
                   </Stack>
+                )}
+                {automationCredsMissing && (
+                  <Alert severity="warning">
+                    Enter the DB{' '}
+                    {technology === 'valkey' ? 'password' : 'user and password'} above —
+                    this command is non-interactive, so without credentials the install
+                    will fail on the node.
+                  </Alert>
                 )}
               </Stack>
             )}
@@ -610,6 +742,12 @@ export const InstallClientPage = () => {
               </Tooltip>
             </Box>
             {copied && <Alert severity="success">Command copied.</Alert>}
+            {copyFailed && (
+              <Alert severity="error">
+                Couldn&apos;t copy to the clipboard. Select the command above and copy it
+                manually.
+              </Alert>
+            )}
           </Stack>
         </CardContent>
       </Card>
