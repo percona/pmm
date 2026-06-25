@@ -163,4 +163,4 @@ check: ## Run required checks and linters
 	go tool buf lint -v $(CURDIR)
 
 test: ## Run tests
-	go test -count=1 -race -p 1 -v $(CURDIR)
+	go test -count=1 -race -p 1 -v ./...
