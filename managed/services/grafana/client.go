@@ -751,37 +751,55 @@ func (c *Client) EnsureAlertWebhookContactPoint(ctx context.Context, webhookURL,
 	}
 
 	var existing []struct {
-		Name string `json:"name"`
+		UID      string `json:"uid"`
+		Name     string `json:"name"`
+		Settings struct {
+			URL string `json:"url"`
+		} `json:"settings"`
 	}
 	err = c.do(ctx, http.MethodGet, "/api/v1/provisioning/contact-points", "", authHeaders, nil, &existing)
 	if err != nil {
 		return fmt.Errorf("list contact points: %w", err)
 	}
-	found := false
+	uid, currentURL := "", ""
 	for _, cp := range existing {
 		if cp.Name == alertWebhookContactPointName {
-			found = true
+			uid, currentURL = cp.UID, cp.Settings.URL
 			break
 		}
 	}
-	if !found {
-		body, mErr := json.Marshal(map[string]any{
-			"name": alertWebhookContactPointName,
-			"type": "webhook",
-			"settings": map[string]any{
-				"url":                       webhookURL,
-				"httpMethod":                "POST",
-				"authorization_scheme":      "Bearer",
-				"authorization_credentials": secret,
-			},
-		})
+
+	contactPoint := map[string]any{
+		"name": alertWebhookContactPointName,
+		"type": "webhook",
+		"settings": map[string]any{
+			"url":                       webhookURL,
+			"httpMethod":                "POST",
+			"authorization_scheme":      "Bearer",
+			"authorization_credentials": secret,
+		},
+	}
+	hdr := authHeaders.Clone()
+	hdr.Set("X-Disable-Provenance", "true")
+
+	if uid == "" {
+		body, mErr := json.Marshal(contactPoint)
 		if mErr != nil {
 			return mErr
 		}
-		hdr := authHeaders.Clone()
-		hdr.Set("X-Disable-Provenance", "true")
 		if err := c.do(ctx, http.MethodPost, "/api/v1/provisioning/contact-points", "", hdr, body, nil); err != nil { //nolint:noinlineerr
 			return fmt.Errorf("create contact point: %w", err)
+		}
+	} else if currentURL != webhookURL {
+		// Reconcile only a stale URL (e.g. one pointing at a public PMM URL the local TLS cert does not
+		// cover) — leave a correct contact point untouched so we don't clobber edits or write needlessly.
+		contactPoint["uid"] = uid
+		body, mErr := json.Marshal(contactPoint)
+		if mErr != nil {
+			return mErr
+		}
+		if err := c.do(ctx, http.MethodPut, "/api/v1/provisioning/contact-points/"+uid, "", hdr, body, nil); err != nil { //nolint:noinlineerr
+			return fmt.Errorf("update contact point: %w", err)
 		}
 	}
 

@@ -489,7 +489,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 	// don't have to separately re-run deployment provisioning after toggling it on. Idempotent and
 	// best-effort: the auto-investigate reconciliation poll works even if this fails.
 	if settings != nil && settings.Adre.SlackAutoInvestigate {
-		if err := h.provisioner().EnsureAlertWebhook(incomingAuthContext(r), h.resolvePMMURL()); err != nil {
+		if err := h.provisioner().EnsureAlertWebhook(incomingAuthContext(r)); err != nil {
 			h.l.Warnf("ensure auto-investigate webhook contact point after settings save: %v", err)
 		}
 	}

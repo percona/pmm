@@ -19,7 +19,6 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
-	"strings"
 
 	"github.com/pkg/errors" //nolint:depguard
 	"github.com/sirupsen/logrus"
@@ -99,27 +98,32 @@ func (p *Provisioner) EnsureProvisioned(ctx context.Context, pmmURL string) (*mo
 
 	// Best-effort: provision the auto-investigate webhook contact point. Failures are non-fatal —
 	// auto-investigate still runs via the reconciliation poll.
-	if err := p.EnsureAlertWebhook(ctx, prov.PMMURL); err != nil { //nolint:noinlineerr
+	if err := p.EnsureAlertWebhook(ctx); err != nil { //nolint:noinlineerr
 		p.l.Warnf("%v (auto-investigate still runs via the reconciliation poll)", err)
 	}
 
 	return prov, nil
 }
 
+// internalWebhookBaseURL is how Grafana (co-located with pmm-managed) reaches PMM's alert webhook. It
+// is loopback — the address PMM's default TLS cert is valid for — so Grafana's webhook sender passes
+// certificate verification. It is deliberately independent of the public/Holmes PMM URL, which may be
+// an external address the local cert does not cover (the cause of x509 "valid for 127.0.0.1, not <ip>").
+const internalWebhookBaseURL = "https://127.0.0.1"
+
 // EnsureAlertWebhook idempotently provisions the auto-investigate webhook secret plus the Grafana
 // contact point + catch-all route that deliver firing alerts to PMM's authenticated alert webhook.
 // Best-effort: callers log failures and continue (auto-investigate still runs via the reconciliation
 // poll). ctx must carry the admin auth headers — the Grafana provisioning API requires them.
-func (p *Provisioner) EnsureAlertWebhook(ctx context.Context, pmmURL string) error {
-	pmmURL = strings.TrimSpace(pmmURL)
+func (p *Provisioner) EnsureAlertWebhook(ctx context.Context) error {
 	secret, err := models.EnsureAlertWebhookSecret(p.db)
 	if err != nil {
 		return errors.Wrap(err, "ensure alert webhook secret")
 	}
-	if secret == "" || pmmURL == "" {
+	if secret == "" {
 		return nil
 	}
-	webhookURL := strings.TrimSuffix(pmmURL, "/") + "/v1/adre/alert-webhook"
+	webhookURL := internalWebhookBaseURL + "/v1/adre/alert-webhook"
 	return errors.Wrap(p.sa.EnsureAlertWebhookContactPoint(ctx, webhookURL, secret), "auto-provision alert webhook contact point")
 }
 
