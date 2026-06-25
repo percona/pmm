@@ -53,6 +53,12 @@ describe('MainWithNav', () => {
     expect(screen.getByTestId('pmm-sidebar')).toBeInTheDocument();
   });
 
+  it('does not show sidebar when not logged in', () => {
+    setup({ isLoading: false, isLoggedIn: false, kioskModeActive: false });
+
+    expect(screen.queryByTestId('pmm-sidebar')).toBeNull();
+  });
+
   it('does not show sidebar when kiosk mode is active', () => {
     setup({ isLoading: false, isLoggedIn: true, kioskModeActive: true });
 

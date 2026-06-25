@@ -27,7 +27,7 @@ To upgrade PMM Server on AWS:
 After upgrading PMM Server:
 {.power-number}
 
-1. Go to **All Dashboards > Experimental > PMM Health** and check that all services are running. 
+1. Go to **All dashboards > PMM Health > PMM Health** and check that all services are running. 
 
 2. Go to **Inventory > Services** and verify that all monitored nodes and services are listed, their status is **Up**.
 

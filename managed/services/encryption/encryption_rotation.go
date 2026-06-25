@@ -18,12 +18,12 @@ package encryption
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -143,8 +143,9 @@ func rotateEncryptionKey(db *reform.DB, dbName string) error {
 		logrus.Infof("DB %s is being encrypted", dbName)
 		err = models.EncryptDB(tx, dbName, models.DefaultAgentEncryptionColumnsV3)
 		if err != nil {
-			if e := encryption.RestoreOldEncryptionKey(); e != nil {
-				return errors.Wrap(err, e.Error())
+			e := encryption.RestoreOldEncryptionKey()
+			if e != nil {
+				return fmt.Errorf("%w: %w", e, err)
 			}
 			return err
 		}

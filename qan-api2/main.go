@@ -163,7 +163,8 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	for _, r := range []registrar{
 		qanv1.RegisterQANServiceHandlerFromEndpoint,
 	} {
-		if err := r(ctx, proxyMux, grpcBindF, opts); err != nil {
+		err := r(ctx, proxyMux, grpcBindF, opts)
+		if err != nil {
 			l.Panic(err)
 		}
 	}
@@ -177,7 +178,8 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 		Handler:  mux,
 	}
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.Panic(err)
 		}
 		l.Println("Server stopped.")
@@ -185,7 +187,8 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 
 	<-ctx.Done()
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
+	err := server.Shutdown(ctx) //nolint:contextcheck
+	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s \n", err)
 		server.Close() //nolint:errcheck
 	}
@@ -238,7 +241,8 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 		ErrorLog: log.New(logrus.StandardLogger().WriterLevel(logrus.ErrorLevel), "runDebugServer: ", 0),
 	}
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.Panic(err)
 		}
 		l.Info("Server stopped.")
@@ -246,7 +250,8 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 
 	<-ctx.Done()
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
+	err = server.Shutdown(ctx) //nolint:contextcheck
+	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()

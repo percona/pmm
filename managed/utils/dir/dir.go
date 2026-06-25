@@ -17,11 +17,10 @@
 package dir
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
-
-	"github.com/pkg/errors"
 )
 
 // CreateDataDir creates/updates directories with the given permissions in the persistent volume.
@@ -29,12 +28,14 @@ func CreateDataDir(path string, perm os.FileMode) error {
 	// store the first encountered error, but continue as far as possible
 	var storedErr error
 
-	if err := os.MkdirAll(path, perm); err != nil {
-		storedErr = errors.Wrapf(err, "cannot create path %q", path)
+	err := os.MkdirAll(path, perm)
+	if err != nil {
+		storedErr = fmt.Errorf("cannot create path %q: %w", path, err)
 	}
 
-	if err := os.Chmod(path, perm); err != nil && storedErr == nil {
-		storedErr = errors.Wrapf(err, "cannot chmod path %q", path)
+	err = os.Chmod(path, perm)
+	if err != nil && storedErr == nil {
+		storedErr = fmt.Errorf("cannot chmod path %q: %w", path, err)
 	}
 
 	return storedErr

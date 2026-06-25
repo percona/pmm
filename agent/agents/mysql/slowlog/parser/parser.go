@@ -249,7 +249,7 @@ func (p *SlowLogParser) parseMetrics(line string) {
 	}
 
 	// we need to skip redundant space to correct the split process
-	line = strings.Replace(line, ": ", ":", -1) //nolint:gocritic
+	line = strings.ReplaceAll(line, ": ", ":")
 	for kv := range strings.SplitSeq(line, " ") {
 		if len(kv) == 0 {
 			continue

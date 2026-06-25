@@ -20,6 +20,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io/fs"
 	"net/url"
@@ -34,7 +35,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
@@ -119,7 +119,8 @@ func (s *Service) Run(ctx context.Context) { //nolint:gocognit
 			continue
 		}
 
-		if err := cmd.Start(); err != nil {
+		err = cmd.Start()
+		if err != nil {
 			s.l.Errorf("%s: Start failed: %s", cmdLine, err)
 			time.Sleep(time.Second)
 			continue
@@ -161,11 +162,13 @@ func (s *Service) Run(ctx context.Context) { //nolint:gocognit
 			s.eventsM.Unlock()
 		}
 
-		if err := scanner.Err(); err != nil {
+		err = scanner.Err()
+		if err != nil {
 			s.l.Errorf("Scanner: %s", err)
 		}
 
-		if err := cmd.Wait(); err != nil {
+		err = cmd.Wait()
+		if err != nil {
 			s.l.Errorf("%s: wait failed: %s", cmdLine, err)
 		}
 	}
@@ -215,7 +218,8 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 			err = e
 			continue
 		}
-		if _, e = s.saveConfigAndReload(tmpl.Name(), b); e != nil {
+		_, e = s.saveConfigAndReload(tmpl.Name(), b)
+		if e != nil {
 			s.l.Errorf("Failed to save/reload: %s.", e)
 			err = e
 			continue
@@ -411,7 +415,10 @@ func (s *Service) supervisorctl(args ...string) ([]byte, error) { //nolint:unpar
 	s.l.Debugf("Running %q...", cmdLine)
 	pdeathsig.Set(cmd, unix.SIGKILL)
 	b, err := cmd.Output()
-	return b, errors.Wrapf(err, "%s failed", cmdLine)
+	if err != nil {
+		return b, fmt.Errorf("%s failed: %w", cmdLine, err)
+	}
+	return b, nil
 }
 
 // parseStatus parses `supervisorctl status <name>` output, returns true if <name> is running,
@@ -503,7 +510,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		}
 		publicURL, err := url.Parse(pmmPublicAddress)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse PMM public address.") //nolint:revive
+			return nil, fmt.Errorf("failed to parse PMM public address: %w", err)
 		}
 		templateParams["PMMServerHost"] = publicURL.Host
 	}
@@ -511,7 +518,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	var buf bytes.Buffer
 	err := tmpl.Execute(&buf, templateParams)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to render template %q", tmpl.Name())
+		return nil, fmt.Errorf("failed to render template %q: %w", tmpl.Name(), err)
 	}
 	b := append([]byte("; Managed by pmm-managed. DO NOT EDIT.\n"), buf.Bytes()...)
 	return b, nil
@@ -558,7 +565,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 		err = nil
 	}
 	if err != nil {
-		return false, errors.WithStack(err)
+		return false, err
 	}
 
 	// compare with new config
@@ -573,7 +580,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 		if restore {
 			err = os.WriteFile(path, oldCfg, 0o664) //nolint:gosec,mnd
 			if err != nil {
-				s.l.Errorf("Failed to restore: %s.", err)
+				s.l.Errorf("Failed to restore: %v.", err)
 			}
 			err = s.reload(name)
 			if err != nil {
@@ -585,7 +592,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	// write and reload
 	err = os.WriteFile(path, cfg, 0o664) //nolint:gosec,mnd
 	if err != nil {
-		return false, errors.WithStack(err)
+		return false, err
 	}
 
 	err = s.reload(name)

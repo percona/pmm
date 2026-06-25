@@ -19,6 +19,7 @@ package alerting
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"maps"
 	"os"
@@ -31,7 +32,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -150,14 +150,14 @@ func (s *Service) loadBuiltinTemplates() ([]*models.Template, error) {
 	s.l.Infof("Loading alerting templates from dir=%s", builtinTemplatesDir)
 	templateFiles, err := filepath.Glob(filepath.Join(builtinTemplatesDir, "*.yml"))
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to list rule template assets")
+		return nil, fmt.Errorf("failed to list rule template assets: %w", err)
 	}
 
 	res := make([]*models.Template, 0, len(templateFiles))
 	for _, file := range templateFiles {
 		b, err := os.ReadFile(file) //nolint:gosec
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to read rule template asset: %s", file)
+			return nil, fmt.Errorf("failed to read rule template asset: %s: %w", file, err)
 		}
 		// be strict about built-in templates
 		params := &alert.ParseParams{
@@ -166,32 +166,32 @@ func (s *Service) loadBuiltinTemplates() ([]*models.Template, error) {
 		}
 		templates, err := alert.Parse(bytes.NewReader(b), params)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to parse rule template asset: %s", file)
+			return nil, fmt.Errorf("failed to parse rule template asset: %s: %w", file, err)
 		}
 
 		if l := len(templates); l != 1 {
-			return nil, errors.Errorf("%q should contain exactly one template, got %d", file, l)
+			return nil, fmt.Errorf("%q should contain exactly one template, got %d", file, l)
 		}
 
 		t := templates[0]
 
 		filename := filepath.Base(file)
 		if strings.HasPrefix(filename, "pmm_") {
-			return nil, errors.Errorf("%q file name should not start with 'pmm_' prefix", file)
+			return nil, fmt.Errorf("%q file name should not start with 'pmm_' prefix", file)
 		}
 		if !strings.HasPrefix(t.Name, "pmm_") {
-			return nil, errors.Errorf("%s %q: template name should start with 'pmm_' prefix", file, t.Name)
+			return nil, fmt.Errorf("%s %q: template name should start with 'pmm_' prefix", file, t.Name)
 		}
 		if expected := strings.TrimPrefix(t.Name, "pmm_") + ".yml"; filename != expected {
-			return nil, errors.Errorf("template file name %q should be %q", filename, expected)
+			return nil, fmt.Errorf("template file name %q should be %q", filename, expected)
 		}
 		if len(t.Annotations) != 2 || t.Annotations["summary"] == "" || t.Annotations["description"] == "" {
-			return nil, errors.Errorf("%s %q: template should contain exactly two annotations: summary and description", file, t.Name)
+			return nil, fmt.Errorf("%s %q: template should contain exactly two annotations: summary and description", file, t.Name)
 		}
 
 		tm, err := models.ConvertTemplate(&t, models.BuiltInSource)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to convert alert rule template")
+			return nil, fmt.Errorf("failed to convert alert rule template: %w", err)
 		}
 		res = append(res, tm)
 	}
@@ -203,7 +203,7 @@ func (s *Service) loadBuiltinTemplates() ([]*models.Template, error) {
 func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]*models.Template, error) {
 	paths, err := dir.FindFilesWithExtensions(s.userTemplatesPath, "yml", "yaml")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get paths")
+		return nil, fmt.Errorf("failed to get paths: %w", err)
 	}
 
 	res := make([]*models.Template, 0, len(paths))
@@ -230,14 +230,15 @@ func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]*models.Tem
 		}
 
 		for _, t := range templates {
-			if err = validateUserTemplate(&t); err != nil {
+			err = validateUserTemplate(&t)
+			if err != nil {
 				s.l.Warnf("%s %s", path, err)
 				continue
 			}
 
 			tm, err := models.ConvertTemplate(&t, models.UserFileSource)
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to convert alert rule template")
+				return nil, fmt.Errorf("failed to convert alert rule template: %w", err)
 			}
 
 			res = append(res, tm)
@@ -254,7 +255,7 @@ func (s *Service) loadTemplatesFromDB() ([]*models.Template, error) {
 		return err
 	})
 	if errTx != nil {
-		return nil, errors.Wrap(errTx, "failed to load rule templates from DB")
+		return nil, fmt.Errorf("failed to load rule templates from DB: %w", errTx)
 	}
 
 	return templates, nil
@@ -265,7 +266,7 @@ func validateUserTemplate(t *alert.Template) error {
 	// TODO move to some better place
 
 	if strings.HasPrefix(t.Name, "pmm_") || strings.HasPrefix(t.Name, "saas_") {
-		return errors.Errorf("%s: template name should not start with 'pmm_' or 'saas_' prefix", t.Name)
+		return fmt.Errorf("%s: template name should not start with 'pmm_' or 'saas_' prefix", t.Name)
 	}
 
 	// TODO more validations
@@ -282,17 +283,32 @@ func validateUserTemplate(t *alert.Template) error {
 		case alert.String:
 			value = "param_text"
 		default:
-			return errors.Errorf("invalid parameter type %s", p.Type)
+			return fmt.Errorf("invalid parameter type %s", p.Type)
 		}
 
 		params[p.Name] = value
 	}
 
-	if _, err := fillExprWithParams(t.Expr, params); err != nil {
-		return err
+	if t.UsesMultipleExpressions() {
+		for _, query := range t.Queries {
+			_, err := fillExprWithParams(query.Expr, params)
+			if err != nil {
+				return err
+			}
+		}
+
+		for _, expression := range t.Expressions {
+			_, err := fillExprWithParams(expression.Expression, params)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
 	}
 
-	return nil
+	_, err := fillExprWithParams(t.Expr, params)
+	return err
 }
 
 func convertSource(source models.Source) alerting.TemplateSource {
@@ -415,20 +431,22 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 	uniqueNames := make(map[string]struct{}, len(templates))
 	for _, t := range templates {
 		if _, ok := uniqueNames[t.Name]; ok {
-			return nil, status.Errorf(codes.InvalidArgument, "Template with name '%s' declared more that once.", t.Name)
+			return nil, status.Errorf(codes.InvalidArgument, "Template with name '%s' declared more than once.", t.Name)
 		}
 		uniqueNames[t.Name] = struct{}{}
-		if err = validateUserTemplate(&t); err != nil {
+		err = validateUserTemplate(&t)
+		if err != nil {
 			return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
 		}
 	}
 
 	errTx := s.db.InTransaction(func(tx *reform.TX) error {
 		for _, t := range templates {
-			if _, err = models.CreateTemplate(tx.Querier, &models.CreateTemplateParams{
+			_, err = models.CreateTemplate(tx.Querier, &models.CreateTemplateParams{
 				Template: &t,
 				Source:   models.UserAPISource,
-			}); err != nil {
+			})
+			if err != nil {
 				return err
 			}
 		}
@@ -471,7 +489,8 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 
 	tmpl := templates[0]
 
-	if err = validateUserTemplate(&tmpl); err != nil {
+	err = validateUserTemplate(&tmpl)
+	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
 	}
 
@@ -520,11 +539,11 @@ func (s *Service) DeleteTemplate(ctx context.Context, req *alerting.DeleteTempla
 func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Template, error) {
 	labels, err := template.GetLabels()
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	annotations, err := template.GetAnnotations()
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	t := &alerting.Template{
@@ -541,7 +560,8 @@ func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Templ
 	}
 
 	t.CreatedAt = timestamppb.New(template.CreatedAt)
-	if err = t.CreatedAt.CheckValid(); err != nil {
+	err = t.CreatedAt.CheckValid()
+	if err != nil {
 		return nil, err
 	}
 
@@ -626,7 +646,8 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, err
 	}
 
-	if err := validateParameters(sourceTemplate.Params, paramsValues); err != nil {
+	err = validateParameters(sourceTemplate.Params, paramsValues)
+	if err != nil {
 		return nil, err
 	}
 
@@ -635,47 +656,44 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		forDuration = req.For.AsDuration()
 	}
 
-	expr, err := fillExprWithParams(sourceTemplate.Expr, paramsValues.AsStringMap())
+	alertTemplate, err := parseAlertTemplate(sourceTemplate.Yaml)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to fill rule expression with parameters")
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid template %s: %v.", req.TemplateName, err)
 	}
 
-	for _, filter := range req.Filters {
-		switch filter.Type {
-		case alerting.FilterType_FILTER_TYPE_MATCH:
-			expr = fmt.Sprintf(`label_match(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
-		case alerting.FilterType_FILTER_TYPE_MISMATCH:
-			expr = fmt.Sprintf(`label_mismatch(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
-		default:
-			return nil, errors.Errorf("unknown filter type: %T", filter)
-		}
+	ruleData, condition, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, paramsValues.AsStringMap(), req.Filters)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build alert rule data: %w", err)
 	}
 
 	ta, err := sourceTemplate.GetAnnotations()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get template annotations")
+		return nil, fmt.Errorf("failed to get template annotations: %w", err)
 	}
 
 	// Copy annotations form template
 	annotations := make(map[string]string)
-	if err = transformMaps(ta, annotations, paramsValues.AsStringMap()); err != nil {
-		return nil, errors.Wrap(err, "failed to fill template annotations placeholders")
+	err = transformMaps(ta, annotations, paramsValues.AsStringMap())
+	if err != nil {
+		return nil, fmt.Errorf("failed to fill template annotations placeholders: %w", err)
 	}
 
 	labels := make(map[string]string)
 	// Copy labels form template
-	if err = transformMaps(req.CustomLabels, labels, paramsValues.AsStringMap()); err != nil {
-		return nil, errors.Wrap(err, "failed to fill rule labels placeholders")
+	err = transformMaps(req.CustomLabels, labels, paramsValues.AsStringMap())
+	if err != nil {
+		return nil, fmt.Errorf("failed to fill rule labels placeholders: %w", err)
 	}
 
 	tl, err := sourceTemplate.GetLabels()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get template labels")
+		return nil, fmt.Errorf("failed to get template labels: %w", err)
 	}
 
 	// Add rule labels
-	if err = transformMaps(tl, labels, paramsValues.AsStringMap()); err != nil {
-		return nil, errors.Wrap(err, "failed to fill template labels placeholders")
+	err = transformMaps(tl, labels, paramsValues.AsStringMap())
+	if err != nil {
+		return nil, fmt.Errorf("failed to fill template labels placeholders: %w", err)
 	}
 
 	// Do not add volatile values like `{{ $value }}` to labels as it will break alerts identity.
@@ -686,22 +704,10 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	rule := services.Rule{
 		GrafanaAlert: services.GrafanaAlert{
 			Title:        req.Name,
-			Condition:    "A",
+			Condition:    condition,
 			NoDataState:  "OK",
 			ExecErrState: "Alerting",
-			Data: []services.Data{
-				{
-					RefID:         "A",
-					DatasourceUID: metricsDatasourceUID,
-					// TODO: https://community.grafana.com/t/grafana-requires-time-range-for-alert-rule-creation-with-instant-promql-quieriy/70919
-					RelativeTimeRange: services.RelativeTimeRange{From: 600, To: 0},
-					Model: services.Model{
-						Expr:    expr,
-						RefID:   "A",
-						Instant: true,
-					},
-				},
-			},
+			Data:         ruleData,
 		},
 		For:         forDuration.String(),
 		Annotations: annotations,
@@ -757,7 +763,8 @@ func transformMaps(src map[string]string, dest map[string]string, data map[strin
 		if err != nil {
 			return err
 		}
-		if err = t.Execute(&buf, data); err != nil {
+		err = t.Execute(&buf, data)
+		if err != nil {
 			return err
 		}
 		dest[k] = buf.String()
@@ -786,10 +793,11 @@ func fillExprWithParams(expr string, values map[string]string) (string, error) {
 	var buf bytes.Buffer
 	t, err := newParamTemplate().Parse(expr)
 	if err != nil {
-		return "", errors.Wrap(err, "failed to parse expression")
+		return "", fmt.Errorf("failed to parse expression: %w", err)
 	}
-	if err = t.Execute(&buf, values); err != nil {
-		return "", errors.Wrap(err, "failed to fill expression placeholders")
+	err = t.Execute(&buf, values)
+	if err != nil {
+		return "", fmt.Errorf("failed to fill expression placeholders: %w", err)
 	}
 	return buf.String(), nil
 }

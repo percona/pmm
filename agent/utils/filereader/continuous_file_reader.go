@@ -48,7 +48,8 @@ func NewContinuousFileReader(filename string, l Logger) (*ContinuousFileReader, 
 		return nil, err
 	}
 
-	if _, err = f.Seek(0, io.SeekEnd); err != nil {
+	_, err = f.Seek(0, io.SeekEnd)
+	if err != nil {
 		l.Warnf("Failed to seek file to the end: %s.", err)
 	}
 
@@ -134,7 +135,8 @@ func (r *ContinuousFileReader) needsReopen() bool {
 
 // reopen reopens log file.
 func (r *ContinuousFileReader) reopen() {
-	if err := r.f.Close(); err != nil {
+	err := r.f.Close()
+	if err != nil {
 		r.l.Warnf("Failed to close file %s: %s.", r.f.Name(), err)
 	}
 

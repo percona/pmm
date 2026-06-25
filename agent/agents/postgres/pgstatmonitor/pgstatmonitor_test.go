@@ -98,7 +98,9 @@ func TestVersion(t *testing.T) {
 func TestPGStatMonitorSchema(t *testing.T) {
 	t.Skip("Skip it until the sandbox supports pg_stat_monitor by default. The current PostgreSQL image is the official, not the one from PerconaLab")
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	majorVersion, _ := tests.PostgreSQLVersion(t, sqlDB)
@@ -489,7 +491,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		)`, tableName))
 		require.NoError(t, err)
 		t.Cleanup(func() {
-			_, err := db.Exec(fmt.Sprintf(`DROP TABLE %s`, tableName))
+			_, err := db.Exec("DROP TABLE " + tableName)
 			require.NoError(t, err)
 		})
 		m := setup(t, db, false, false)
@@ -546,7 +548,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MQueryTimeCnt:       float32(n),
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 				// FIXME: Why tables is empty here? this will error.
-				Tables: []string{fmt.Sprintf("public.%s", tableName)},
+				Tables: []string{"public." + tableName},
 			},
 			Postgresql: &agentv1.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt:       float32(n),

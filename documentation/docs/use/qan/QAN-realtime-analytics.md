@@ -153,7 +153,7 @@ RTA displays exactly what MongoDB returns and does not expose any additional inf
 
 ### No data appears
 
-In **PMM Inventory > Services**, verify the RTA agent is running and the session shows **Running** status. Make sure your database has active queries since RTA won't display operations that finish between collection intervals.
+In **Inventory > Services**, verify the RTA agent is running and the session shows **Running** status. Make sure your database has active queries since RTA won't display operations that finish between collection intervals.
 
 ### Some fields show "Unavailable"
 
@@ -178,3 +178,4 @@ Check the following requirements:
 - [Query Analytics overview](index.md)
 - [Connect MongoDB to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md)
 - [MongoDB dashboards](../../reference/dashboards/dashboard-mongodb-instance-summary.md)
+- [Configuration issues](../../troubleshoot/config_issues.md)

@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -28,7 +29,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/utils/templates"
@@ -84,7 +84,7 @@ func NewPostgreSQLShowCreateTableAction(
 	tmpDir := filepath.Join(tempDir, postgreSQLShowCreateTableActionType, id)
 	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, tmpDir)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &postgresqlShowCreateTableAction{
@@ -122,7 +122,7 @@ func (a *postgresqlShowCreateTableAction) Run(ctx context.Context) ([]byte, erro
 
 	connector, err := pq.NewConnector(a.dsn)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
@@ -184,11 +184,12 @@ func (a *postgresqlShowCreateTableAction) printTableInit(ctx context.Context, w 
 	WHERE c.relname = $1
 	  AND pg_catalog.pg_table_is_visible(c.oid) %s
 	ORDER BY nspname, relname;`, namespaceQuery), args...)
-	if err := row.Scan(&tableID, &schema, &relname); err != nil {
+	err := row.Scan(&tableID, &schema, &relname)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return "", errors.Wrap(err, "Table not found")
+			return "", fmt.Errorf("table not found: %w", err)
 		}
-		return "", errors.WithStack(err)
+		return "", err
 	}
 	fmt.Fprintf(w, "Table \"%s.%s\"\n", schema, relname)
 	return tableID, nil
@@ -221,7 +222,7 @@ WHERE a.attrelid = $1
   AND NOT a.attisdropped
 ORDER BY a.attnum;`, tableID)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -243,7 +244,7 @@ ORDER BY a.attnum;`, tableID)
 			&ci.ColDescription,
 		)
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 
 		fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
@@ -258,7 +259,7 @@ ORDER BY a.attnum;`, tableID)
 	}
 	err = rows.Err()
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	return tw.Flush()
 }
@@ -287,7 +288,7 @@ WHERE c.oid = $1
   AND i.indexrelid = c2.oid
 ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -315,7 +316,7 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 			&info.Reltablespace,
 		)
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 		fmt.Fprintf(bw, "\t%q", info.Relname)
 
@@ -352,13 +353,14 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 		}
 
 		fmt.Fprintf(bw, "\n")
-		if err = bw.Flush(); err != nil {
-			return errors.WithStack(err)
+		err = bw.Flush()
+		if err != nil {
+			return err
 		}
 	}
 	err = rows.Err()
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	w.Write(buf.Bytes()) //nolint:errcheck
 	return nil
@@ -372,7 +374,7 @@ WHERE r.conrelid = $1
   AND r.contype = 'f'
 ORDER BY conname`, tableID)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -389,17 +391,18 @@ ORDER BY conname`, tableID)
 			&condef,
 		)
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 		fmt.Fprintf(bw, "\t%q %s\n", conname, condef)
 
-		if err = bw.Flush(); err != nil {
-			return errors.WithStack(err)
+		err = bw.Flush()
+		if err != nil {
+			return err
 		}
 	}
 	err = rows.Err()
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	w.Write(buf.Bytes()) //nolint:errcheck
 	return nil
@@ -414,7 +417,7 @@ WHERE c.confrelid = $1
   AND c.contype = 'f'
 ORDER BY conname`, tableID)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -432,17 +435,18 @@ ORDER BY conname`, tableID)
 			&condef,
 		)
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 		fmt.Fprintf(bw, "\tTABLE %q CONSTRAINT %q %s\n", conrelid, conname, condef)
 
-		if err = bw.Flush(); err != nil {
-			return errors.WithStack(err)
+		err = bw.Flush()
+		if err != nil {
+			return err
 		}
 	}
 	err = rows.Err()
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	w.Write(buf.Bytes()) //nolint:errcheck
 	return nil
@@ -456,7 +460,7 @@ WHERE r.conrelid = $1
   AND r.contype = 'c'
 ORDER BY conname`, tableID)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -473,17 +477,18 @@ ORDER BY conname`, tableID)
 			&condef,
 		)
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 		fmt.Fprintf(bw, "\t%q %s\n", conname, condef)
 
-		if err = bw.Flush(); err != nil {
-			return errors.WithStack(err)
+		err = bw.Flush()
+		if err != nil {
+			return err
 		}
 	}
 	err = rows.Err()
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 	w.Write(buf.Bytes()) //nolint:errcheck
 	return nil

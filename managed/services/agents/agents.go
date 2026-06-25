@@ -17,10 +17,9 @@ package agents
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
@@ -137,7 +136,7 @@ func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_Ag
 	agentVersion *version.Parsed, minAuthVersion *version.Parsed, useNewTLSConfig bool,
 ) error {
 	if agentVersion.Less(minAuthVersion) {
-		params.Env = append(params.Env, fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()))
+		params.Env = append(params.Env, "HTTP_AUTH=pmm:"+exporter.GetAgentPassword())
 		return nil
 	}
 

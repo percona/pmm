@@ -358,7 +358,9 @@ func TestDatabaseChecks(t *testing.T) {
 func TestDatabaseMigrations(t *testing.T) {
 	t.Run("push metrics field migration: from root to exporter_options", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, new(58))
-		defer sqlDB.Close() //nolint:errcheck
+		t.Cleanup(func() {
+			assert.NoError(t, sqlDB.Close())
+		})
 
 		// Insert dummy node in DB
 		_, err := sqlDB.ExecContext(

@@ -32,7 +32,9 @@ func TestShowTableStatus(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	db := tests.OpenTestMySQL(t)
-	t.Cleanup(func() { db.Close() }) //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, db.Close())
+	})
 
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()

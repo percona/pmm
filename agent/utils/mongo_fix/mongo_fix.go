@@ -25,7 +25,8 @@ import (
 // ClientOptionsForDSN applies URI to Client.
 func ClientOptionsForDSN(dsn string) (*options.ClientOptions, error) {
 	clientOptions := options.Client().ApplyURI(dsn)
-	if e := clientOptions.Validate(); e != nil {
+	e := clientOptions.Validate()
+	if e != nil {
 		return nil, e
 	}
 

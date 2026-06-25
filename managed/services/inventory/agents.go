@@ -47,7 +47,15 @@ type AgentsService struct {
 }
 
 // NewAgentsService creates new AgentsService.
-func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker, sib serviceInfoBroker, a agentService) *AgentsService { //nolint:lll
+func NewAgentsService(
+	db *reform.DB,
+	r agentsRegistry,
+	state agentsStateUpdater,
+	vmdb prometheusService,
+	cc connectionChecker,
+	sib serviceInfoBroker,
+	a agentService,
+) *AgentsService {
 	return &AgentsService{
 		r:     r,
 		a:     a,
@@ -275,11 +283,13 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -388,11 +398,13 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -508,7 +520,8 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inve
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -535,7 +548,11 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inve
 }
 
 // ChangeQANMySQLPerfSchemaAgent updates MySQL PerfSchema QAN Agent with given parameters.
-func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANMySQLPerfSchemaAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(
+	ctx context.Context,
+	agentID string,
+	p *inventoryv1.ChangeQANMySQLPerfSchemaAgentParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
 		Enabled:       p.Enable,
@@ -621,7 +638,8 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -648,7 +666,10 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 }
 
 // ChangeQANMySQLSlowlogAgent updates MySQL Slowlog QAN Agent with given parameters.
-func (as *AgentsService) ChangeQANMySQLSlowlogAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANMySQLSlowlogAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+func (as *AgentsService) ChangeQANMySQLSlowlogAgent(
+	ctx context.Context, agentID string,
+	p *inventoryv1.ChangeQANMySQLSlowlogAgentParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
 		Enabled:       p.Enable,
@@ -731,11 +752,13 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -762,7 +785,10 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 }
 
 // ChangePostgresExporter updates postgres_exporter Agent with given parameters.
-func (as *AgentsService) ChangePostgresExporter(ctx context.Context, agentID string, p *inventoryv1.ChangePostgresExporterParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+func (as *AgentsService) ChangePostgresExporter(
+	ctx context.Context, agentID string,
+	p *inventoryv1.ChangePostgresExporterParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
 		Enabled:       p.Enable,
@@ -839,11 +865,13 @@ func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.A
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -945,7 +973,8 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inve
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -973,8 +1002,11 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inve
 
 // ChangeQANMongoDBProfilerAgent updates MongoDB Profiler QAN Agent with given parameters.
 //
-//nolint:lll,dupl
-func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANMongoDBProfilerAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
+//nolint:dupl
+func (as *AgentsService) ChangeQANMongoDBProfilerAgent(
+	ctx context.Context, agentID string,
+	p *inventoryv1.ChangeQANMongoDBProfilerAgentParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
 		Enabled:       p.Enable,
@@ -1052,7 +1084,8 @@ func (as *AgentsService) AddQANMongoDBMongologAgent(ctx context.Context, p *inve
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -1080,8 +1113,11 @@ func (as *AgentsService) AddQANMongoDBMongologAgent(ctx context.Context, p *inve
 
 // ChangeQANMongoDBMongologAgent updates MongoDB Mongolog QAN Agent with given parameters.
 //
-//nolint:lll,dupl
-func (as *AgentsService) ChangeQANMongoDBMongologAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANMongoDBMongologAgentParams) (*inventoryv1.ChangeAgentResponse, error) {
+//nolint:dupl
+func (as *AgentsService) ChangeQANMongoDBMongologAgent(
+	ctx context.Context, agentID string,
+	p *inventoryv1.ChangeQANMongoDBMongologAgentParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
 		Enabled:       p.Enable,
@@ -1162,11 +1198,13 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -1193,7 +1231,10 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 }
 
 // ChangeProxySQLExporter updates proxysql_exporter Agent with given parameters.
-func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeProxySQLExporterParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+func (as *AgentsService) ChangeProxySQLExporter(
+	ctx context.Context, agentID string,
+	p *inventoryv1.ChangeProxySQLExporterParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
 		Enabled:       p.Enable,
@@ -1232,7 +1273,10 @@ func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, agentID str
 }
 
 // AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg stat statements QAN Agent.
-func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, p *inventoryv1.AddQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.AddAgentResponse, error) { //nolint:lll
+func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(
+	ctx context.Context,
+	p *inventoryv1.AddQANPostgreSQLPgStatementsAgentParams,
+) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.QANPostgreSQLPgStatementsAgent
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
@@ -1260,7 +1304,8 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -1287,7 +1332,10 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 }
 
 // ChangeQANPostgreSQLPgStatementsAgent updates PostgreSQL Pg stat statements QAN Agent with given parameters.
-func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(
+	ctx context.Context, agentID string,
+	p *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
 		Enabled:       p.Enable,
@@ -1351,7 +1399,10 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Contex
 }
 
 // AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg stat monitor QAN Agent.
-func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, p *inventoryv1.AddQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.AddAgentResponse, error) { //nolint:lll
+func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(
+	ctx context.Context,
+	p *inventoryv1.AddQANPostgreSQLPgStatMonitorAgentParams,
+) (*inventoryv1.AddAgentResponse, error) {
 	var agent *inventoryv1.QANPostgreSQLPgStatMonitorAgent
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
@@ -1380,7 +1431,8 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context,
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -1407,7 +1459,10 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context,
 }
 
 // ChangeQANPostgreSQLPgStatMonitorAgent updates PostgreSQL Pg stat monitor QAN Agent with given parameters.
-func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(
+	ctx context.Context, agentID string,
+	p *inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
 		Enabled:       p.Enable,
@@ -1597,7 +1652,10 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 }
 
 // ChangeExternalExporter updates external-exporter Agent with given parameters.
-func (as *AgentsService) ChangeExternalExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeExternalExporterParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+func (as *AgentsService) ChangeExternalExporter(
+	ctx context.Context, agentID string,
+	p *inventoryv1.ChangeExternalExporterParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
 		Enabled:      p.Enable,
@@ -1818,7 +1876,10 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 }
 
 // ChangeRTAMongoDBAgent updates MongoDB Real-Time Analytics Agent with given parameters.
-func (as *AgentsService) ChangeRTAMongoDBAgent(ctx context.Context, agentID string, p *inventoryv1.ChangeRTAMongoDBAgentParams) (*inventoryv1.ChangeAgentResponse, error) { //nolint:lll
+func (as *AgentsService) ChangeRTAMongoDBAgent(
+	ctx context.Context, agentID string,
+	p *inventoryv1.ChangeRTAMongoDBAgentParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
 	changeParams := &models.ChangeAgentParams{
 		Enabled:       p.Enable,
 		Username:      p.Username,
