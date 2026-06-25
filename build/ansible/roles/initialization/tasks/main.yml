@@ -73,7 +73,7 @@
         postgresql_user:
           db: grafana
           name: grafana
-          password: grafana
+          password: ""
           priv: 'ALL'
           expires: infinity
           login_user: postgres

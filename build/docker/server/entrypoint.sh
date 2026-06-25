@@ -111,6 +111,50 @@ if [ ! -f "$DIST_FILE" ]; then
     fi
 fi
 
+# Generate internal TLS certificates if not present
+if [ ! -f /srv/tls/ca.crt ]; then
+    echo "Generating internal TLS certificates..."
+    mkdir -p /srv/tls
+    openssl genrsa -out /srv/tls/ca.key 4096 2>/dev/null
+    openssl req -new -x509 -key /srv/tls/ca.key -out /srv/tls/ca.crt -days 3650 -subj "/CN=PMM Internal CA/O=Percona" 2>/dev/null
+    for NAME in pg-server pmm-managed grafana ch-server ch-client; do
+        CN="$NAME"; [ "$NAME" = "pg-server" ] || [ "$NAME" = "ch-server" ] && CN="localhost"
+        [ "$NAME" = "ch-client" ] && CN="default"
+        openssl genrsa -out /srv/tls/${NAME}.key 4096 2>/dev/null
+        openssl req -new -key /srv/tls/${NAME}.key -subj "/CN=${CN}/O=Percona" 2>/dev/null | \
+            openssl x509 -req -CA /srv/tls/ca.crt -CAkey /srv/tls/ca.key -CAcreateserial -out /srv/tls/${NAME}.crt -days 3650 2>/dev/null
+    done
+    chmod 600 /srv/tls/*.key
+    chmod 644 /srv/tls/*.crt
+    rm -f /srv/tls/*.srl
+    echo "Internal TLS certificates generated."
+fi
+
+# Configure PostgreSQL SSL and cert-based auth if certs exist
+if [ -f /srv/tls/ca.crt ] && [ -d "$POSTGRES_DATA_DIR" ] && [ -f "$POSTGRES_DATA_DIR/postgresql.conf" ]; then
+    if ! grep -q "PMM SSL CONFIG" "$POSTGRES_DATA_DIR/postgresql.conf"; then
+        echo "Configuring PostgreSQL SSL..."
+        cat >> "$POSTGRES_DATA_DIR/postgresql.conf" <<PGSSL
+# BEGIN PMM SSL CONFIG
+ssl = on
+ssl_cert_file = '/srv/tls/pg-server.crt'
+ssl_key_file = '/srv/tls/pg-server.key'
+ssl_ca_file = '/srv/tls/ca.crt'
+# END PMM SSL CONFIG
+PGSSL
+        cat > "$POSTGRES_DATA_DIR/pg_hba.conf" <<PGHBA
+hostssl all         pmm-managed 127.0.0.1/32  cert
+hostssl all         pmm-managed ::1/128       cert
+hostssl all         grafana     127.0.0.1/32  cert
+hostssl all         grafana     ::1/128       cert
+host    all         postgres    127.0.0.1/32  scram-sha-256
+host    all         postgres    ::1/128       scram-sha-256
+local   all         all                       trust
+PGHBA
+        echo "PostgreSQL SSL and cert auth configured."
+    fi
+fi
+
 echo "Creating nginx temp directories..."
 mkdir -p /srv/nginx/tmp/{client,proxy,fastcgi,uwsgi,scgi}
 

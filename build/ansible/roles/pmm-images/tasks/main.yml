@@ -121,6 +121,10 @@
   include_role:
     name: clickhouse
 
+- name: Generate internal TLS certificates
+  include_role:
+    name: pmm-certs
+
 - name: Install postgres
   include_role:
     name: postgres
