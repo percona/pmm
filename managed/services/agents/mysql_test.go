@@ -17,6 +17,7 @@ package agents
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -92,7 +93,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s",
+			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=2s",
 			"HTTP_AUTH=pmm:agent-password",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
@@ -107,14 +108,14 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		exporter.Password = nil
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=2s", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=2s", actual.Env[0])
 	})
 
 	t.Run("SSLEnabled", func(t *testing.T) {
@@ -125,7 +126,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 			TLSKey:  "content-of-tls-key",
 		}
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
-		expected := "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom"
+		expected := "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=2s&tls=custom"
 		assert.Equal(t, expected, actual.Env[0])
 		expectedFiles := map[string]string{
 			"tlsCa":   exporter.MySQLOptions.TLSCa,
@@ -274,7 +275,7 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s&tls=custom",
+			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=2s&tls=custom",
 			"HTTP_AUTH=pmm:agent-id",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4.", "content-of-tls-key"},
@@ -294,14 +295,14 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 		exporter.Password = nil
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=2s&tls=custom", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=2s&tls=custom", actual.Env[0])
 	})
 
 	t.Run("V236_EnablesPluginCollector", func(t *testing.T) {
@@ -381,7 +382,7 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s",
+			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=2s",
 			"HTTP_AUTH=pmm:agent-id",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4."},
@@ -467,7 +468,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 			},
 			RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password", "content-of-tls-key"},
 			TextFiles: map[string]string{
-				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\npassword=s3cur3 p@$$w0r4.\n\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n",
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\npassword=s3cur3 p@$$w0r4.\n\nconnect_timeout=2\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n",
 				"tlsCa":     "content-of-tls-ca",
 				"tlsCert":   "content-of-tls-certificate-key",
 				"tlsKey":    "content-of-tls-key",
@@ -532,7 +533,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 			},
 			RedactWords: []string{"agent-password", "content-of-tls-key"},
 			TextFiles: map[string]string{
-				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\n\n\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n",
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\nuser=username\n\n\nconnect_timeout=2\nssl-ca={{ .TextFiles.tlsCa }}\nssl-cert={{ .TextFiles.tlsCert }}\nssl-key={{ .TextFiles.tlsKey }}\n\n",
 				"tlsCa":     "content-of-tls-ca",
 				"tlsCert":   "content-of-tls-certificate-key",
 				"tlsKey":    "content-of-tls-key",
@@ -595,12 +596,66 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 				"--web.config.file={{ .TextFiles.webConfig }}",
 			},
 			TextFiles: map[string]string{
-				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\n\npassword=s3cur3 p@$$w0r4.\n\n\n\n\n\n",
+				"myCnf":     "[client]\nhost=1.2.3.4\nport=3306\n\npassword=s3cur3 p@$$w0r4.\n\nconnect_timeout=2\n\n\n\n\n",
 				"webConfig": "basic_auth_users:\n    pmm: agent-password\n",
 			},
 		}
 
 		require.NoError(t, err)
 		assert.Equal(t, expected, actual)
+	})
+}
+
+func TestMySQLdExporterConfigRoundsUpConnectionTimeout(t *testing.T) {
+	t.Parallel()
+
+	node := &models.Node{
+		Address: "1.2.3.4",
+	}
+	service := &models.Service{
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(3306)),
+	}
+
+	t.Run("myCnf", func(t *testing.T) {
+		t.Parallel()
+
+		exporter := &models.Agent{
+			AgentID:       "agent-id",
+			AgentType:     models.MySQLdExporterType,
+			Username:      new("username"),
+			AgentPassword: new("agent-password"),
+			ExporterOptions: models.ExporterOptions{
+				ConnectionTimeout: new(1500 * time.Millisecond),
+			},
+		}
+
+		actual, err := mysqldExporterConfig(node, service, exporter, exposeSecrets, version.MustParse("3.2.0"))
+		require.NoError(t, err)
+		require.NotNil(t, exporter.ExporterOptions.ConnectionTimeout)
+		assert.Equal(t, 1500*time.Millisecond, *exporter.ExporterOptions.ConnectionTimeout)
+		require.Contains(t, actual.TextFiles, "myCnf")
+		assert.Contains(t, actual.TextFiles["myCnf"], "connect_timeout=2\n")
+	})
+
+	t.Run("legacy dsn", func(t *testing.T) {
+		t.Parallel()
+
+		exporter := &models.Agent{
+			AgentID:       "agent-id",
+			AgentType:     models.MySQLdExporterType,
+			Username:      new("username"),
+			AgentPassword: new("agent-password"),
+			ExporterOptions: models.ExporterOptions{
+				ConnectionTimeout: new(1500 * time.Millisecond),
+			},
+		}
+
+		actual, err := mysqldExporterConfig(node, service, exporter, exposeSecrets, version.MustParse("2.21.0"))
+		require.NoError(t, err)
+		require.NotNil(t, exporter.ExporterOptions.ConnectionTimeout)
+		assert.Equal(t, 1500*time.Millisecond, *exporter.ExporterOptions.ConnectionTimeout)
+		require.Len(t, actual.Env, 2)
+		assert.Contains(t, actual.Env[0], "timeout=2s")
 	})
 }

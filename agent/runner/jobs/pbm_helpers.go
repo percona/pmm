@@ -17,14 +17,15 @@ package jobs
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"path"
+	"slices"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 )
@@ -175,7 +176,7 @@ type pbmConfigParams struct {
 	dsn            string
 }
 
-func execPBMCommand(ctx context.Context, dsn string, to interface{}, args ...string) error {
+func execPBMCommand(ctx context.Context, dsn string, to any, args ...string) error {
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
 
@@ -187,7 +188,8 @@ func execPBMCommand(ctx context.Context, dsn string, to interface{}, args ...str
 		// try to parse pbm error message
 		if len(b) != 0 {
 			var pbmErr pbmError
-			if e := json.Unmarshal(b, &pbmErr); e == nil {
+			e := json.Unmarshal(b, &pbmErr)
+			if e == nil {
 				return errors.New(pbmErr.Error)
 			}
 		}
@@ -200,7 +202,8 @@ func execPBMCommand(ctx context.Context, dsn string, to interface{}, args ...str
 func retrieveLogs(ctx context.Context, dsn string, event string) ([]pbmLogEntry, error) {
 	var logs []pbmLogEntry
 
-	if err := execPBMCommand(ctx, dsn, &logs, "logs", "--event="+event, "--tail=0"); err != nil {
+	err := execPBMCommand(ctx, dsn, &logs, "logs", "--event="+event, "--tail=0")
+	if err != nil {
 		return nil, err
 	}
 
@@ -244,8 +247,9 @@ func isShardedCluster(ctx context.Context, dsn string) (bool, error) {
 
 func getPBMStatus(ctx context.Context, dsn string) (*pbmStatus, error) {
 	var status pbmStatus
-	if err := execPBMCommand(ctx, dsn, &status, "status"); err != nil {
-		return nil, errors.Wrap(err, "pbm status error")
+	err := execPBMCommand(ctx, dsn, &status, "status")
+	if err != nil {
+		return nil, fmt.Errorf("pbm status error: %w", err)
 	}
 	return &status, nil
 }
@@ -270,7 +274,7 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dsn string, nam
 					continue
 				}
 
-				return errors.Wrap(err, "failed to get backup status")
+				return fmt.Errorf("failed to get backup status: %w", err)
 			}
 
 			switch info.Status {
@@ -289,13 +293,13 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dsn string, nam
 }
 
 func findPITRRestore(list []pbmListRestore, restoreInfoPITRTime int64, startedAt time.Time) *pbmListRestore {
-	for i := len(list) - 1; i >= 0; i-- {
+	for _, v := range slices.Backward(list) {
 		// TODO when PITR restore invoked with wrong timestamp pbm marks this restore operation as "snapshot" type.
-		if list[i].Type == "snapshot" && list[i].Snapshot != "" {
+		if v.Type == "snapshot" && v.Snapshot != "" {
 			continue
 		}
 		// list[i].Name is a string which represents time the restore was started.
-		restoreStartedAt, err := time.Parse(time.RFC3339Nano, list[i].Name)
+		restoreStartedAt, err := time.Parse(time.RFC3339Nano, v.Name)
 		if err != nil {
 			continue
 		}
@@ -303,8 +307,8 @@ func findPITRRestore(list []pbmListRestore, restoreInfoPITRTime int64, startedAt
 		// 1. We received PITR field as a response on starting process
 		// 2. There is a record with the same PITR field in the list of restoring records
 		// 3. Start time of this record is not before the time we asked for restoring.
-		if list[i].PITR == restoreInfoPITRTime && !restoreStartedAt.Before(startedAt) {
-			return &list[i]
+		if v.PITR == restoreInfoPITRTime && !restoreStartedAt.Before(startedAt) {
+			return &v
 		}
 	}
 	return nil
@@ -325,13 +329,14 @@ func findPITRRestoreName(ctx context.Context, dsn string, restoreInfo *pbmRestor
 		case <-ticker.C:
 			checks++
 			var list []pbmListRestore
-			if err := execPBMCommand(ctx, dsn, &list, "list", "--restore"); err != nil {
-				return "", errors.Wrapf(err, "pbm status error")
+			err := execPBMCommand(ctx, dsn, &list, "list", "--restore")
+			if err != nil {
+				return "", fmt.Errorf("pbm status error: %w", err)
 			}
 			entry := findPITRRestore(list, restoreInfoPITRTime.Unix(), restoreInfo.StartedAt)
 			if entry == nil {
 				if checks > maxRestoreChecks {
-					return "", errors.Errorf("failed to start restore")
+					return "", errors.New("failed to start restore")
 				}
 				continue
 			} else {
@@ -379,7 +384,7 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dsn string, re
 					l.Warnf("PMM failed to get backup restore status and will retry: %s", err)
 					continue
 				} else { //nolint:revive
-					return errors.Wrap(err, "failed to get restore status")
+					return fmt.Errorf("failed to get restore status: %w", err)
 				}
 			}
 			// reset maxRetryCount if we were able to successfully get the current restore status
@@ -417,7 +422,7 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, params pbmConfigPar
 
 	output, err := exec.CommandContext(nCtx, pbmBin, args...).CombinedOutput() //nolint:gosec
 	if err != nil {
-		return errors.Wrapf(err, "pbm config error: %s", string(output))
+		return fmt.Errorf("pbm config error: %s: %w", string(output), err)
 	}
 
 	if params.forceResync {
@@ -429,7 +434,7 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, params pbmConfigPar
 		}
 		output, err := exec.CommandContext(nCtx, pbmBin, args...).CombinedOutput() //nolint:gosec
 		if err != nil {
-			return errors.Wrapf(err, "pbm config resync error: %s", string(output))
+			return fmt.Errorf("pbm config resync error: %s: %w", string(output), err)
 		}
 	}
 
@@ -439,18 +444,19 @@ func pbmConfigure(ctx context.Context, l logrus.FieldLogger, params pbmConfigPar
 func writePBMConfigFile(conf *PBMConfig) (string, error) {
 	tmp, err := os.CreateTemp("", "pbm-config-*.yml")
 	if err != nil {
-		return "", errors.Wrap(err, "failed to create pbm configuration file")
+		return "", fmt.Errorf("failed to create pbm configuration file: %w", err)
 	}
 
 	bytes, err := yaml.Marshal(&conf)
 	if err != nil {
 		tmp.Close() //nolint:errcheck
-		return "", errors.Wrap(err, "failed to marshall pbm configuration")
+		return "", fmt.Errorf("failed to marshal pbm configuration: %w", err)
 	}
 
-	if _, err := tmp.Write(bytes); err != nil {
+	_, err = tmp.Write(bytes)
+	if err != nil {
 		tmp.Close() //nolint:errcheck
-		return "", errors.Wrap(err, "failed to write pbm configuration file")
+		return "", fmt.Errorf("failed to write pbm configuration file: %w", err)
 	}
 
 	return tmp.Name(), tmp.Close()
@@ -560,7 +566,7 @@ func pbmGetSnapshotTimestamp(ctx context.Context, l logrus.FieldLogger, dsn stri
 		}
 	}
 
-	return nil, errors.Wrap(ErrNotFound, "couldn't find required snapshot")
+	return nil, fmt.Errorf("couldn't find required snapshot: %w", ErrNotFound)
 }
 
 // getSnapshots returns all PBM snapshots found in configured location.
@@ -582,7 +588,7 @@ func getSnapshots(ctx context.Context, l logrus.FieldLogger, dsn string) ([]pbmS
 			if len(status.Backups.Snapshot) == 0 {
 				l.Debugf("Attempt %d to get a list of PBM artifacts has failed.", checks)
 				if checks > maxListChecks {
-					return nil, errors.Wrap(ErrNotFound, "got no one snapshot")
+					return nil, fmt.Errorf("got no one snapshot: %w", ErrNotFound)
 				}
 				continue
 			}

@@ -15,7 +15,7 @@ import "inventory/v1/services.proto";
 // TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
 message TextFiles {
   // files contains files which can be used to connect to DB (certificates, keys and etc).
-  map<string, string> files = 1;
+  map<string, string> files = 1 [(extensions.v1.sensitive) = REDACT_TYPE_MASK];
   // template_left_delim is used to replace placeholders in templates (DSN and etc.) with paths to files.
   string template_left_delim = 2;
   // template_right_delim is used to replace placeholders in templates (DSN and etc.) with paths to files.
@@ -59,8 +59,8 @@ message SetStateRequest {
     string template_right_delim = 3;
     repeated string args = 4;
     repeated string env = 5 [(extensions.v1.sensitive) = REDACT_TYPE_DSN];
-    map<string, string> text_files = 6;
-    repeated string redact_words = 7;
+    map<string, string> text_files = 6 [(extensions.v1.sensitive) = REDACT_TYPE_MASK];
+    repeated string redact_words = 7 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
     // Environment variable names to be resolved from pmm-agent's environment.
     repeated string env_variable_names = 8;
   }
@@ -239,14 +239,14 @@ message StartActionRequest {
   message PTPgSummaryParams {
     string host = 1;
     uint32 port = 2;
-    string username = 3;
+    string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
     string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   }
   // PTMongoDBSummaryParams describes parameters for PT MongoDB summary.
   message PTMongoDBSummaryParams {
     string host = 1;
     uint32 port = 2;
-    string username = 3;
+    string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
     string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   }
   // PTMySQLSummaryParams describes parameters for PT MySQL summary.
@@ -254,7 +254,7 @@ message StartActionRequest {
     string host = 1;
     uint32 port = 2;
     string socket = 3;
-    string username = 4;
+    string username = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
     string password = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   }
   // MySQLQueryShowParams describes MySQL SHOW query action parameters.

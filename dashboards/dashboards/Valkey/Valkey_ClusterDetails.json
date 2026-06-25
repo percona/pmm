@@ -252,7 +252,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Shows how many cluster communication messages are being sent and received over time. High message rates can indicate cluster instability or frequent topology changes.",
+            "description": "Cluster control-bus traffic as a rate (messages per second). High sustained rates can indicate instability or frequent topology changes. Raw counters are not shown.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -262,7 +262,7 @@
                         "axisBorderShow": false,
                         "axisCenteredZero": false,
                         "axisColorMode": "text",
-                        "axisLabel": "",
+                        "axisLabel": "messages / s",
                         "axisPlacement": "auto",
                         "barAlignment": 0,
                         "barWidthFactor": 0.6,
@@ -303,7 +303,8 @@
                                 "value": 80
                             }
                         ]
-                    }
+                    },
+                    "unit": "ops"
                 },
                 "overrides": []
             },
@@ -338,7 +339,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "redis_cluster_messages_sent_total{service_name=~\"$service_name\"}",
+                    "expr": "rate(redis_cluster_messages_sent_total{service_name=~\"$service_name\"}[$__rate_interval])",
                     "legendFormat": "Sent - {{service_name}}",
                     "range": true,
                     "refId": "A"
@@ -346,7 +347,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "redis_cluster_messages_received_total{service_name=~\"$service_name\"}",
+                    "expr": "rate(redis_cluster_messages_received_total{service_name=~\"$service_name\"}[$__rate_interval])",
                     "hide": false,
                     "legendFormat": "Received - {{service_name}}",
                     "range": true,

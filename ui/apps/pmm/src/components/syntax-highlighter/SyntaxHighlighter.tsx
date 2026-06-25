@@ -38,7 +38,9 @@ const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
         await navigator.clipboard.writeText(content);
         enqueueSnackbar('Query copied to clipboard', { variant: 'success' });
       } catch (error) {
-        enqueueSnackbar('Failed to copy query to clipboard', { variant: 'error' });
+        enqueueSnackbar('Failed to copy query to clipboard', {
+          variant: 'error',
+        });
       }
     } else {
       enqueueSnackbar('Clipboard is not available', { variant: 'error' });

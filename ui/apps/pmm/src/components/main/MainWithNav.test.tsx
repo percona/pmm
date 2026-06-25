@@ -32,7 +32,7 @@ const setup = ({
       )}
     </TestWrapper>
   );
-}
+};
 
 describe('MainWithNav', () => {
   it('shows loading', () => {
@@ -53,6 +53,12 @@ describe('MainWithNav', () => {
     expect(screen.getByTestId('pmm-sidebar')).toBeInTheDocument();
   });
 
+  it('does not show sidebar when not logged in', () => {
+    setup({ isLoading: false, isLoggedIn: false, kioskModeActive: false });
+
+    expect(screen.queryByTestId('pmm-sidebar')).toBeNull();
+  });
+
   it('does not show sidebar when kiosk mode is active', () => {
     setup({ isLoading: false, isLoggedIn: true, kioskModeActive: true });
 
@@ -60,11 +66,15 @@ describe('MainWithNav', () => {
   });
 
   it('hides sidebar so the renderer gets a minimal layout', () => {
-    setup({ isLoading: false, isLoggedIn: true, kioskModeActive: false, search: 'render=1' });
+    setup({
+      isLoading: false,
+      isLoggedIn: true,
+      kioskModeActive: false,
+      search: 'render=1',
+    });
 
     expect(screen.queryByTestId('pmm-sidebar')).toBeNull();
   });
-
 
   it('shows sidebar when not in renderer mode', () => {
     setup({ isLoading: false, isLoggedIn: true, kioskModeActive: false });

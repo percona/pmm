@@ -35,7 +35,7 @@ export const RealtimeSelection: FC = () => {
 
   if (isLoading || isLoadingSessions) {
     return (
-      <Page footer={null}>
+      <Page footer={null} surface="paper">
         <Stack
           sx={{
             maxWidth: 392,
@@ -63,7 +63,7 @@ export const RealtimeSelection: FC = () => {
   }
 
   return (
-    <Page footer={null}>
+    <Page footer={null} surface="paper">
       <Stack
         gap={4}
         sx={{

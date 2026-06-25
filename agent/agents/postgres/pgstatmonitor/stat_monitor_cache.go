@@ -16,13 +16,14 @@ package pgstatmonitor
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"maps"
 	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	pgquery "github.com/pganalyze/pg_query_go/v6"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -80,9 +81,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(
 	ssc.rw.RLock()
 	current := make(map[time.Time]map[string]*pgStatMonitorExtended)
 	cache := make(map[time.Time]map[string]*pgStatMonitorExtended)
-	for k, v := range ssc.items {
-		cache[k] = v
-	}
+	maps.Copy(cache, ssc.items)
 	ssc.rw.RUnlock()
 
 	// load all databases and usernames first as we can't use querier while iterating over rows below
@@ -91,14 +90,14 @@ func (ssc *statMonitorCache) getStatMonitorExtended(
 
 	vPG, err := getPGVersion(q)
 	if err != nil {
-		err = errors.Wrap(err, "failed to get PG version")
+		err = fmt.Errorf("failed to get PG version: %w", err)
 		return current, cache, err
 	}
 	ssc.l.Infof("pg version = %f", vPG)
 
 	vPGSM, _, err := getPGMonitorVersion(q)
 	if err != nil {
-		err = errors.Wrap(err, "failed to get row and view for pg_stat_monitor version")
+		err = fmt.Errorf("failed to get row and view for pg_stat_monitor version: %w", err)
 		return current, cache, err
 	}
 	ssc.l.Infof("pg monitor version = %d", vPGSM)
@@ -119,13 +118,14 @@ func (ssc *statMonitorCache) getStatMonitorExtended(
 	}
 	rows, e := q.SelectRows(view, conditions)
 	if e != nil {
-		err = errors.Wrap(e, "failed to query pg_stat_monitor")
+		err = fmt.Errorf("failed to query pg_stat_monitor: %w", e)
 		return current, cache, err
 	}
 	defer rows.Close() //nolint:errcheck
 
 	for ctx.Err() == nil {
-		if err = q.NextRow(row, rows); err != nil {
+		err = q.NextRow(row, rows)
+		if err != nil {
 			if errors.Is(err, reform.ErrNoRows) {
 				err = nil
 			}
@@ -174,7 +174,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(
 			}
 			if err != nil {
 				// Either real syntax error in the query or pg_stat_monitor truncated the query and it causes the syntax error.
-				if c.pgStatMonitor.Elevel != 0 {
+				if c.Elevel != 0 {
 					c.IsQueryTruncated = false
 					ssc.l.Warnf("generating fingerprint failed for query with id %v: %v", c.QueryID, err)
 				} else {
@@ -208,7 +208,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(
 	}
 
 	if err != nil {
-		err = errors.Wrap(err, "failed to fetch pg_stat_monitor")
+		err = fmt.Errorf("failed to fetch pg_stat_monitor: %w", err)
 	}
 
 	return current, cache, err
@@ -217,7 +217,7 @@ func (ssc *statMonitorCache) getStatMonitorExtended(
 func (ssc *statMonitorCache) generateFingerprint(example string) (string, error) {
 	fingerprint, e := pgquery.Normalize(example)
 	if e != nil {
-		return "", errors.Wrap(e, "failed to normalize the query")
+		return "", fmt.Errorf("failed to normalize the query: %w", e)
 	}
 	return fingerprint, nil
 }

@@ -6,7 +6,7 @@ export const LOCATORS = {
   toolbar: 'header > div:first-child > div:nth-child(2)',
   menuToggle: 'header #mega-menu-toggle',
   helpButton: 'header button[aria-label="Help"]',
-  searchButton: 'header button[aria-label="Search or jump to..."]',
+  searchButton: 'header button[aria-label="Search..."]',
   profileButton: 'header button[aria-label="Profile"]',
   commandPaletteTrigger: 'header div[data-testid="data-testid Command palette trigger"]',
   toolbarSignIn: 'header > div:first-child > div:nth-child(2) > a[target="_self"]',
@@ -18,6 +18,7 @@ export const LOCATORS = {
 export const GRAFANA_SUB_PATH = '/graph';
 export const GRAFANA_LOGIN_PATH = '/graph/login';
 export const GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY = 'grafana.navigation.open';
+export const GRAFANA_DOCKED_LOCAL_STORAGE_KEY = 'grafana.navigation.docked';
 export const PMM_UI_PATH = '/pmm-ui';
 export const PMM_UI_GRAFANA_PATH = `${PMM_UI_PATH}${GRAFANA_SUB_PATH}`;
 export const PMM_UI_HELP_PATH = `${PMM_UI_PATH}/help`;

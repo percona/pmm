@@ -17,6 +17,8 @@ package management
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net/http"
 	"sort"
 	"time"
@@ -27,7 +29,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"github.com/aws/aws-sdk-go-v2/service/rds/types"
 	"github.com/aws/smithy-go"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
@@ -38,6 +39,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -163,7 +165,7 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 
 	cfg, err := config.LoadDefaultConfig(ctx, opts...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf("failed to load RDS default config: %w", err)
 	}
 
 	// do not break our API if some AWS region is slow or down
@@ -365,7 +367,8 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
-					PushMetrics: isPushMode(metricsMode),
+					PushMetrics:       isPushMode(metricsMode),
+					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
@@ -381,10 +384,12 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			rds.MysqldExporter = invMySQLdExporter.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
 
 			if !req.SkipConnectionCheck {
-				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, mysqldExporter); err != nil {
+				err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, mysqldExporter)
+				if err != nil {
 					return err
 				}
-				if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, mysqldExporter); err != nil {
+				err = s.sib.GetInfoFromService(ctx, tx.Querier, service, mysqldExporter)
+				if err != nil {
 					return err
 				}
 			}
@@ -446,7 +451,8 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
-					PushMetrics: isPushMode(metricsMode),
+					PushMetrics:       isPushMode(metricsMode),
+					ConnectionTimeout: duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
@@ -466,10 +472,12 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			rds.PostgresqlExporter = invPostgresExporter.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
 
 			if !req.SkipConnectionCheck {
-				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, postgresExporter); err != nil {
+				err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, postgresExporter)
+				if err != nil {
 					return err
 				}
-				if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, postgresExporter); err != nil {
+				err = s.sib.GetInfoFromService(ctx, tx.Querier, service, postgresExporter)
+				if err != nil {
 					return err
 				}
 			}

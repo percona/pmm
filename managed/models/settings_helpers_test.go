@@ -16,10 +16,10 @@
 package models_test
 
 import (
+	"errors"
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -89,16 +89,17 @@ func TestSettings(t *testing.T) {
 				AWSPartitions: []string{"foo"},
 			}
 			_, err := models.UpdateSettings(sqlDB, s)
-			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: aws_partitions: partition "foo" is invalid`)
+			_, ok := errors.AsType[*models.InvalidArgumentError](err)
+			assert.True(t, ok)
+			require.EqualError(t, err, `invalid argument: aws_partitions: partition "foo" is invalid`)
 
 			s = &models.ChangeSettingsParams{
 				AWSPartitions: []string{"foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo"},
 			}
 			_, err = models.UpdateSettings(sqlDB, s)
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: aws_partitions: list is too long`)
+			_, ok = errors.AsType[*models.InvalidArgumentError](err)
+			assert.True(t, ok)
+			require.EqualError(t, err, `invalid argument: aws_partitions: list is too long`)
 
 			s = &models.ChangeSettingsParams{
 				AWSPartitions: []string{"aws", "aws-cn", "aws-cn"},
@@ -127,26 +128,26 @@ func TestSettings(t *testing.T) {
 			})
 			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: mr: minimal resolution is 1s`)
+			require.EqualError(t, err, `invalid argument: mr: minimal resolution is 1s`)
 
 			mr = models.MetricsResolutions{MR: 2*time.Second + (500 * time.Millisecond)} // 2.5s
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				MetricsResolutions: mr,
 			})
 			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: mr: should be a natural number of seconds`)
+			require.EqualError(t, err, `invalid argument: mr: should be a natural number of seconds`)
 
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				DataRetention: 90000 * time.Second, // 25h
 			})
 			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: data_retention: should be a natural number of days`)
+			require.EqualError(t, err, `invalid argument: data_retention: should be a natural number of days`)
 
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				DataRetention: 43200 * time.Second, // 12h
 			})
 			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: data_retention: minimal resolution is 24h`)
+			require.EqualError(t, err, `invalid argument: data_retention: minimal resolution is 24h`)
 		})
 
 		t.Run("Updates validation", func(t *testing.T) {

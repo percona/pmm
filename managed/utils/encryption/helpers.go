@@ -86,7 +86,7 @@ func decryptColumnStringHandler(e *Encryption, val any) (any, error) {
 }
 
 func (table Table) columnsList() []string {
-	res := []string{}
+	res := make([]string, 0, len(table.Columns))
 	for _, c := range table.Columns {
 		res = append(res, c.Name)
 	}
@@ -121,7 +121,7 @@ func (table Table) read(tx *reform.TX) (*QueryValues, error) {
 			setValues = append(setValues, v)
 			i++
 		}
-		setSQL := fmt.Sprintf("SET %s", strings.Join(set, ", "))
+		setSQL := "SET " + strings.Join(set, ", ")
 		q.SetValues = append(q.SetValues, setValues)
 
 		where := []string{}

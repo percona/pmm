@@ -127,7 +127,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		require.NoError(t, err)
 
 		task, err = models.FindScheduledTaskByID(tx.Querier, task.ID)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotEmpty(t, task.ID)
 		assert.Equal(t, createParams1.CronExpression, task.CronExpression)
 		assert.Equal(t, createParams1.Type, task.Type)
@@ -169,7 +169,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 			Error:   new("something"),
 		}
 		task1, err = models.ChangeScheduledTask(tx.Querier, task1.ID, changeParams1)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, *changeParams1.NextRun, task1.NextRun)
 		assert.Equal(t, *changeParams1.LastRun, task1.LastRun)
 		assert.Equal(t, *changeParams1.Disable, task1.Disabled)
@@ -189,7 +189,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 			},
 		}
 		_, err = models.ChangeScheduledTask(tx.Querier, task2.ID, changeParams2)
-		assert.ErrorIs(t, err, models.ErrAlreadyExists)
+		require.ErrorIs(t, err, models.ErrAlreadyExists)
 	})
 
 	t.Run("Remove", func(t *testing.T) {
@@ -203,10 +203,10 @@ func TestScheduledTaskHelpers(t *testing.T) {
 		require.NoError(t, err)
 
 		err = models.RemoveScheduledTask(tx.Querier, task.ID)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		_, err = models.FindScheduledTaskByID(tx.Querier, task.ID)
-		assert.ErrorIs(t, err, models.ErrNotFound, "task is not removed")
+		require.ErrorIs(t, err, models.ErrNotFound, "task is not removed")
 	})
 
 	t.Run("Find", func(t *testing.T) {
@@ -280,7 +280,7 @@ func TestScheduledTaskHelpers(t *testing.T) {
 
 		for _, tc := range tests {
 			tasks, err := models.FindScheduledTasks(tx.Querier, tc.filter)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			ids := make([]string, 0, len(tasks))
 			for _, task := range tasks {
 				ids = append(ids, task.ID)

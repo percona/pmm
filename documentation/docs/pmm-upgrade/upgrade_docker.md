@@ -5,9 +5,11 @@
 Before starting the upgrade, complete these preparation steps to ensure you can recover your system if needed and confirm compatibility with the new version:
 {.power-number}
 
-1. [Create a backup](../install-pmm/install-pmm-server/deployment-options/docker/backup_container.md) before upgrading, as downgrades are not possible. Therefore, reverting to a previous version requires an backup made prior to the upgrade.
+1. If you are switching from [UI-based upgrades](ui_upgrade.md), stop and remove the Watchtower container before moving to manual Docker upgrades. UI-based upgrades used Watchtower to apply PMM images automatically. If Watchtower is still running, it may update PMM during your manual upgrade and cause conflicts.
 
-2. Verify your current PMM version: Check your current PMM version by navigating to **Configuration > Updates** or by running the following command: 
+2. [Create a backup](../install-pmm/install-pmm-server/deployment-options/docker/backup_container.md) before upgrading, as downgrades are not possible. Therefore, reverting to a previous version requires an backup made prior to the upgrade.
+
+3. Verify your current PMM version: Check your current PMM version by navigating to **Configuration > Updates** or by running the following command: 
 
     ```sh
     docker exec -it pmm-server curl -ku admin:admin https://localhost:8443/v1/version

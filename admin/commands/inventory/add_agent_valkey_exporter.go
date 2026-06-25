@@ -15,6 +15,8 @@
 package inventory
 
 import (
+	"time"
+
 	"github.com/AlekSi/pointer"
 
 	"github.com/percona/pmm/admin/commands"
@@ -68,6 +70,7 @@ type AddAgentValkeyExporterCommand struct {
 	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	ExposeExporter      bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	ConnectionTimeout   *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	flags.LogLevelNoFatalFlags
 }
@@ -116,6 +119,7 @@ func (cmd *AddAgentValkeyExporterCommand) RunCmd() (commands.Result, error) {
 				ExposeExporter:      cmd.ExposeExporter,
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 				LogLevel:            convertLogLevelPtr(&cmd.LogLevel),
+				ConnectionTimeout:   commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

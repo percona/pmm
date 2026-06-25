@@ -95,7 +95,7 @@ func TestServices_Add(t *testing.T) {
 		const numServices = 10
 		var wg sync.WaitGroup
 
-		for i := 0; i < numServices; i++ {
+		for i := range numServices {
 			wg.Add(1)
 			go func(id int) {
 				defer wg.Done()

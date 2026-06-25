@@ -39,6 +39,10 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+// setup returns vmdb for the custom-label tests (currently skipped via t.Skip).
+// Keep it for future work; suppress unparam which otherwise reports the return value is unused.
+//
+//nolint:unparam
 func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(t *testing.T), context.Context, *mockPrometheusService) {
 	t.Helper()
 
@@ -147,13 +151,13 @@ func TestServices(t *testing.T) {
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
 		as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate")
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)
@@ -209,13 +213,13 @@ func TestServices(t *testing.T) {
 		as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate")
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server").Times(0)
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		node, err := ns.AddRemoteAzureDatabaseNode(ctx, &inventoryv1.AddRemoteAzureNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)
@@ -346,7 +350,7 @@ func TestServices(t *testing.T) {
 			Address:     new("127.0.0.1"),
 			Port:        new(uint16(27017)),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		expectedMongoDBService := &inventoryv1.MongoDBService{
 			ServiceId:   "00000000-0000-4000-8000-000000000005",
@@ -960,17 +964,17 @@ func TestServices(t *testing.T) {
 				},
 			)
 			assert.NotNil(t, response)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.NotNil(t, service)
 
 			labels, err := service.GetCustomLabels()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Len(t, labels, 2)
-			assert.Equal(t, labels["newKey"], "newValue")
-			assert.Equal(t, labels["newKey2"], "newValue2")
+			assert.Equal(t, "newValue", labels["newKey"])
+			assert.Equal(t, "newValue2", labels["newKey2"])
 		})
 
 		t.Run("Replace a label", func(t *testing.T) {
@@ -1004,17 +1008,17 @@ func TestServices(t *testing.T) {
 				},
 			)
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.NotNil(t, service)
 
 			labels, err := service.GetCustomLabels()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Len(t, labels, 2)
-			assert.Equal(t, labels["newKey"], "newValue")
-			assert.Equal(t, labels["newKey2"], "newValue-replaced")
+			assert.Equal(t, "newValue", labels["newKey"])
+			assert.Equal(t, "newValue-replaced", labels["newKey2"])
 		})
 	})
 
@@ -1055,16 +1059,16 @@ func TestServices(t *testing.T) {
 				},
 				nil,
 			)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.NotNil(t, service)
 
 			labels, err := service.GetCustomLabels()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Len(t, labels, 1)
-			assert.Equal(t, labels["newKey3"], "newValue3")
+			assert.Equal(t, "newValue3", labels["newKey3"])
 		})
 	})
 }

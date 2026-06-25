@@ -27,6 +27,7 @@ Control connection settings, TLS, query collection, metric collectors, and servi
 | `--socket`<br>(Unix socket path) | ✓ | | | | | |
 | `--database`<br>(database name) | | ✓ | | | | |
 | `--extra-dsn`<br>(additional DSN parameters) | ✓ | | | | | |
+| `--connection-timeout`<br>(connection timeout, e.g. `2s`, `5s`) | ✓ | ✓ | ✓ | ✓ | ✓ | |
 | `--listen-port`<br>(metrics listen port) | | | | | | ✓ |
 | `--scheme`<br>(http/https) | | | | | | ✓ |
 | `--metrics-path`<br>(metrics endpoint path) | | | | | | ✓ |
@@ -67,6 +68,8 @@ Control connection settings, TLS, query collection, metric collectors, and servi
 
 ### Service organization flags
 
+For a complete list of standard and custom labels, see [Labels reference](../../../reference/labels-reference.md).
+
 | Flag | MySQL | PostgreSQL | MongoDB | Valkey | ProxySQL | HAProxy |
 |------|:-----:|:----------:|:-------:|:------:|:--------:|:-------:|
 | `--environment`<br>Environment name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -106,6 +109,7 @@ Connect to MySQL using TCP or socket:
 | `--username` | MySQL username | |
 | `--password` | MySQL password | |
 | `--extra-dsn` | Additional DSN parameters | |
+| `--connection-timeout` | How long PMM waits before giving up on a connection attempt (e.g. `2s`, `5s`). Useful for remote or high-latency databases. | `2s` |
 
 Find the socket path:
 
@@ -240,6 +244,8 @@ pmm-admin add postgresql [NAME] [ADDRESS] [FLAGS]
 
 Connect using `--host`, `--port`, `--username`, and `--password`. The `--database` flag specifies which database to connect to (defaults to `postgres`).
 
+Use `--connection-timeout` to set how long PMM waits before giving up on a connection attempt (e.g. `2s`, `5s`). The default is `2s`. Increase this for remote or high-latency databases.
+
 ### TLS options
 
 Secure the connection between PMM and your PostgreSQL instance with TLS:
@@ -321,6 +327,8 @@ pmm-admin add mongodb [NAME] [ADDRESS] [FLAGS]
 ### Connection options
 
 Connect using `--host`, `--port`, `--username`, and `--password`.
+
+Use `--connection-timeout` to set how long PMM waits before giving up on a connection attempt (e.g. `2s`, `5s`). The default is `2s`. Increase this for remote or high-latency databases.
 
 ### TLS options
 
@@ -473,6 +481,8 @@ pmm-admin add valkey [NAME] [ADDRESS] [FLAGS]
 
 Connect using `--host`, `--port`, `--username`, and `--password`. Use `--tls` and `--tls-skip-verify` to secure the connection with TLS.
 
+Use `--connection-timeout` to set how long PMM waits before giving up on a connection attempt (e.g. `2s`, `5s`). The default is `3s`. Increase this for remote or high-latency instances.
+
 ### Examples
 
 - Add Valkey:
@@ -517,6 +527,8 @@ pmm-admin add proxysql [NAME] [ADDRESS] [FLAGS]
 ### Connection options
 
 Connect using `--host`, `--port`, `--username`, and `--password` for the ProxySQL admin interface. Use `--tls` and `--tls-skip-verify` to secure the connection.
+
+Use `--connection-timeout` to set how long PMM waits before giving up on a connection attempt (e.g. `2s`, `5s`). The default is `2s`. Increase this for remote or high-latency instances.
 
 Use `--disable-collectors` with a comma-separated list to exclude specific collectors from monitoring.
 

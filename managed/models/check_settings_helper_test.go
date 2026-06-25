@@ -105,7 +105,7 @@ func TestChecksSettings(t *testing.T) { //nolint:tparallel
 		actual, err := models.FindCheckSettings(q)
 		require.NoError(t, err)
 		assert.Len(t, actual, 2)
-		assert.Equal(t, actual["check1"], models.Standard)
-		assert.Equal(t, actual["check2"], models.Standard)
+		assert.Equal(t, models.Standard, actual["check1"])
+		assert.Equal(t, models.Standard, actual["check2"])
 	})
 }

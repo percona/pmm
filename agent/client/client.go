@@ -17,6 +17,8 @@ package client
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net"
 	"path/filepath"
 	"strconv"
@@ -24,7 +26,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -94,7 +95,16 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg configGetter, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, sib serviceInfoBroker, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
+func New(
+	cfg configGetter,
+	supervisor supervisor,
+	r *runner.Runner,
+	connectionChecker connectionChecker,
+	sv softwareVersioner,
+	sib serviceInfoBroker,
+	cus *connectionuptime.Service,
+	logStore *tailog.Store,
+) *Client {
 	return &Client{
 		cfg:               cfg,
 		supervisor:        supervisor,
@@ -138,7 +148,7 @@ func (c *Client) Run(ctx context.Context) error {
 		c.l.Errorf("%s is not provided, halting.", missing)
 		<-ctx.Done()
 		close(c.done)
-		return errors.Wrap(ctx.Err(), "missing "+missing)
+		return fmt.Errorf("missing "+missing+": %w", ctx.Err())
 	}
 
 	// try to connect until success, or until ctx is canceled
@@ -359,10 +369,7 @@ func (c *Client) processJobsResults(ctx context.Context) {
 func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocognit
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		for {
 			select {
 			case state := <-c.supervisor.Changes():
@@ -382,12 +389,9 @@ func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocog
 				return
 			}
 		}
-	}()
+	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
+	wg.Go(func() {
 		for {
 			select {
 			case collect := <-c.supervisor.QANRequests():
@@ -407,7 +411,7 @@ func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocog
 				return
 			}
 		}
-	}()
+	})
 
 	wg.Go(func() {
 		for {
@@ -448,7 +452,8 @@ LOOP:
 
 			case *agentv1.StartActionRequest:
 				responsePayload = &agentv1.StartActionResponse{}
-				if err := c.handleStartActionRequest(p); err != nil {
+				err := c.handleStartActionRequest(p)
+				if err != nil {
 					status = convertAgentErrorToGrpcStatus(err)
 					break
 				}
@@ -465,7 +470,8 @@ LOOP:
 
 			case *agentv1.StartJobRequest:
 				var resp agentv1.StartJobResponse
-				if err := c.handleStartJobRequest(p); err != nil {
+				err := c.handleStartJobRequest(p)
+				if err != nil {
 					resp.Error = err.Error()
 				}
 				responsePayload = &resp
@@ -482,7 +488,8 @@ LOOP:
 				responsePayload = &agentv1.GetVersionsResponse{Versions: c.handleVersionsRequest(p)}
 			case *agentv1.PBMSwitchPITRRequest:
 				var resp agentv1.PBMSwitchPITRResponse
-				if err := c.handlePBMSwitchRequest(ctx, p, req.ID); err != nil {
+				err := c.handlePBMSwitchRequest(ctx, p, req.ID)
+				if err != nil {
 					resp.Error = err.Error()
 				}
 				responsePayload = &resp
@@ -509,7 +516,8 @@ LOOP:
 			break LOOP
 		}
 	}
-	if err := c.channel.Wait(); err != nil {
+	err := c.channel.Wait()
+	if err != nil {
 		c.l.Debugf("Channel closed: %s.", err)
 		return
 	}
@@ -518,7 +526,8 @@ LOOP:
 
 func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 	timeout := p.Timeout.AsDuration()
-	if err := p.Timeout.CheckValid(); err != nil {
+	timeoutErr := p.Timeout.CheckValid()
+	if timeoutErr != nil {
 		timeout = 0
 	}
 
@@ -633,23 +642,25 @@ func (c *Client) handleStartActionRequest(p *agentv1.StartActionRequest) error {
 		case agentv1.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_PBM_AGENT:
 			service = "pbm-agent"
 		default:
-			return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid service '%s' specified in mongod restart request", params.RestartSysServiceParams.SystemService)
+			return fmt.Errorf("invalid service '%s' specified in mongod restart request: %w",
+				params.RestartSysServiceParams.SystemService, agenterrors.ErrInvalidArgument)
 		}
 		action = actions.NewProcessAction(p.ActionId, timeout, "systemctl", []string{"restart", service})
 
 	default:
-		return errors.Wrapf(agenterrors.ErrActionUnimplemented, "invalid action type request: %T", params)
+		return fmt.Errorf("invalid action type request: %T: %w", params, agenterrors.ErrActionUnimplemented)
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "failed to create action")
+		return fmt.Errorf("failed to create action: %w", err)
 	}
 
 	return c.runner.StartAction(action)
 }
 
 func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
-	if err := p.Timeout.CheckValid(); err != nil {
+	err := p.Timeout.CheckValid()
+	if err != nil {
 		return err
 	}
 	timeout := p.Timeout.AsDuration()
@@ -669,7 +680,7 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 				BucketRegion: cfg.S3Config.BucketRegion,
 			}
 		default:
-			return errors.Errorf("unknown location config: %T", j.MysqlBackup.LocationConfig)
+			return fmt.Errorf("unknown location config: %T", j.MysqlBackup.LocationConfig)
 		}
 
 		dbConnCfg := jobs.DBConnConfig{
@@ -694,7 +705,7 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 				BucketRegion: cfg.S3Config.BucketRegion,
 			}
 		default:
-			return errors.Errorf("unknown location config: %T", j.MysqlRestoreBackup.LocationConfig)
+			return fmt.Errorf("unknown location config: %T", j.MysqlRestoreBackup.LocationConfig)
 		}
 
 		job = jobs.NewMySQLRestoreJob(p.JobId, timeout, j.MysqlRestoreBackup.Name, locationConfig, j.MysqlRestoreBackup.Folder)
@@ -717,12 +728,12 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 				Path: cfg.FilesystemConfig.Path,
 			}
 		default:
-			return errors.Errorf("unknown location config: %T", j.MongodbBackup.LocationConfig)
+			return fmt.Errorf("unknown location config: %T", j.MongodbBackup.LocationConfig)
 		}
 
 		dsn, err := c.getMongoDSN(j.MongodbBackup.Dsn, j.MongodbBackup.TextFiles, p.JobId)
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 
 		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dsn, locationConfig,
@@ -749,19 +760,19 @@ func (c *Client) handleStartJobRequest(p *agentv1.StartJobRequest) error {
 				Path: cfg.FilesystemConfig.Path,
 			}
 		default:
-			return errors.Errorf("unknown location config: %T", j.MongodbRestoreBackup.LocationConfig)
+			return fmt.Errorf("unknown location config: %T", j.MongodbRestoreBackup.LocationConfig)
 		}
 
 		dsn, err := c.getMongoDSN(j.MongodbRestoreBackup.Dsn, j.MongodbRestoreBackup.TextFiles, p.JobId)
 		if err != nil {
-			return errors.WithStack(err)
+			return err
 		}
 
 		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name,
 			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dsn, locationConfig,
 			c.supervisor, j.MongodbRestoreBackup.Folder, j.MongodbRestoreBackup.PbmMetadata.Name)
 	default:
-		return errors.Errorf("unknown job type: %T", j)
+		return fmt.Errorf("unknown job type: %T", j)
 	}
 
 	return c.runner.StartJob(job)
@@ -772,7 +783,7 @@ func (c *Client) getMongoDSN(dsn string, files *agentv1.TextFiles, jobID string)
 	res, err := templates.RenderDSN(dsn, files, tempDir)
 	defer templates.CleanupTempDir(tempDir, c.l)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
 
 	// TODO following line is a quick patch. Come up with something better.
@@ -848,7 +859,7 @@ func createConnectionToServer(cfg *config.Config, l *logrus.Entry) (*grpc.Client
 		msg := err.Error()
 		l.Errorf("Failed to create gRPC client to %s: %s.", cfg.Server.Address, msg)
 
-		return nil, errors.Wrap(err, "failed to create client")
+		return nil, fmt.Errorf("failed to create client: %w", err)
 	}
 
 	return conn, nil
@@ -862,7 +873,8 @@ func createChannelToAgentService(dialCtx context.Context, conn *grpc.ClientConn,
 	streamCtx, streamCancel := context.WithCancel(context.Background())
 	teardown := func() {
 		streamCancel()
-		if err := conn.Close(); err != nil {
+		err := conn.Close()
+		if err != nil {
 			l.Debugf("Connection closed: %s.", err)
 			return
 		}
@@ -885,7 +897,7 @@ func createChannelToAgentService(dialCtx context.Context, conn *grpc.ClientConn,
 	if err != nil {
 		l.Errorf("Failed to establish two-way communication channel to Agents Service: %s.", err)
 		teardown()
-		return nil, errors.Wrap(err, "failed to connect")
+		return nil, fmt.Errorf("failed to connect: %w", err)
 	}
 
 	// So far, nginx can handle all that itself without pmm-managed.
@@ -899,7 +911,7 @@ func createChannelToAgentService(dialCtx context.Context, conn *grpc.ClientConn,
 		msg := err.Error()
 
 		// improve error message
-		if s, ok := grpcstatus.FromError(errors.Cause(err)); ok {
+		if s, ok := grpcstatus.FromError(err); ok {
 			msg = strings.TrimSuffix(s.Message(), ".")
 		}
 
@@ -914,7 +926,7 @@ func createChannelToAgentService(dialCtx context.Context, conn *grpc.ClientConn,
 	if err != nil {
 		l.Errorf("Failed to receive server metadata: %s.", err)
 		teardown()
-		return nil, errors.Wrap(err, "failed to receive server metadata")
+		return nil, fmt.Errorf("failed to receive server metadata: %w", err)
 	}
 	if md.ServerVersion == "" {
 		l.Errorf("Server metadata does not contain server version.")
@@ -975,7 +987,7 @@ func createChannelToRealTimeAnalyticsService(dialCtx context.Context, conn *grpc
 		l.Errorf("Failed to establish client streaming communication channel to Real-Time Analytics Service: %s.", err)
 		teardown()
 
-		return nil, errors.Wrap(err, "failed to connect")
+		return nil, fmt.Errorf("failed to connect: %w", err)
 	}
 
 	l.Logf(logrus.InfoLevel, "Client streaming communication channel to Real-Time Analytics Service established in %s.",
@@ -1000,7 +1012,7 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 	serverTime := currentTime.AsTime()
 	err = currentTime.CheckValid()
 	if err != nil {
-		err = errors.Wrap(err, "Failed to decode Ping")
+		err = fmt.Errorf("failed to decode Ping: %w", err)
 		return latency, clockDrift, err
 	}
 	latency = roundtrip / 2

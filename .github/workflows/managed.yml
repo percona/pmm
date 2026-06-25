@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - v3
       - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
@@ -16,7 +15,7 @@ on:
       - 'admin/**'
       - 'agent/**'
       - 'api-tests/**'
-      - 'docs/**'
+      - 'dev/docs/**'
       - "documentation/**"
       - "dashboards/**"
       - 'qan-api2/**'
@@ -40,10 +39,10 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Enable Go build and module cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: |
             ~/go-build-cache
@@ -97,7 +96,7 @@ jobs:
         run: docker exec -i -u root pmm-server make -C managed test-cover
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           files: managed/cover.out
           flags: managed

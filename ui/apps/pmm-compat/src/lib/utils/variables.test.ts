@@ -1,4 +1,18 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
+// Mock Grafana modules to avoid loading ESM-only deps in Jest
+jest.mock('@grafana/data', () => ({
+  DataLinkBuiltInVars: { keepTime: 'keepTime', includeVars: 'includeVars' },
+  locationUtil: { assureBaseUrl: (url: string) => url },
+  textUtil: { sanitizeUrl: (url: string) => url },
+  urlUtil: {
+    appendQueryToUrl: (url: string, _params: string) => url,
+    toUrlParams: () => '',
+  },
+}));
+jest.mock('@grafana/runtime', () => ({
+  config: { disableSanitizeHtml: false },
+  getTemplateSrv: () => ({ replace: (url: string) => url }),
+}));
+
 import { cleanupVariables, getLinkWithVariables, shouldIncludeVars } from './variables';
 
 const prefixes = {

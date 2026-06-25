@@ -53,6 +53,15 @@ func TestToAPIAgent(t *testing.T) {
 	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
 	require.NoError(t, err)
 
+	mysqlService, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "test-mysql",
+		NodeID:      node.NodeID,
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(3306)),
+		Cluster:     "test-cluster",
+	})
+	require.NoError(t, err)
+
 	type args struct {
 		q     *reform.Querier
 		agent *models.Agent
@@ -95,6 +104,38 @@ func TestToAPIAgent(t *testing.T) {
 			},
 			wantErr: nil,
 		},
+		{
+			name: "mysqld exporter with ExporterOptions timeout",
+			args: args{
+				q: db.Querier,
+				agent: &models.Agent{
+					AgentID:    "mysqld-agent-1",
+					PMMAgentID: &pmmAgent.AgentID,
+					ServiceID:  &mysqlService.ServiceID,
+					AgentType:  models.MySQLdExporterType,
+					Disabled:   false,
+					Username:   new("exporter-user"),
+					Status:     inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN)],
+					MySQLOptions: models.MySQLOptions{
+						TableCountTablestatsGroupLimit: 1000,
+					},
+					ExporterOptions: models.ExporterOptions{
+						ConnectionTimeout: new(9 * time.Second),
+					},
+				},
+			},
+			want: &inventoryv1.MySQLdExporter{
+				AgentId:                   "mysqld-agent-1",
+				PmmAgentId:                pmmAgent.AgentID,
+				ServiceId:                 mysqlService.ServiceID,
+				Username:                  "exporter-user",
+				Disabled:                  false,
+				Status:                    inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				TablestatsGroupTableLimit: 1000,
+				ConnectionTimeout:         durationpb.New(9 * time.Second),
+			},
+			wantErr: nil,
+		},
 	}
 
 	for _, tt := range tests {
@@ -103,7 +144,7 @@ func TestToAPIAgent(t *testing.T) {
 
 			got, err := ToAPIAgent(tt.args.q, tt.args.agent)
 			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+				require.ErrorIs(t, err, tt.wantErr)
 			} else {
 				assert.Equalf(t, tt.want, got, "ToAPIAgent(%v, %v)", tt.args.q, tt.args.agent)
 			}

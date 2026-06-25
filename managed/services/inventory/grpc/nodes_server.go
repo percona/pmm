@@ -111,7 +111,8 @@ func (s *nodesServer) AddNode(ctx context.Context, req *inventoryv1.AddNodeReque
 
 // RemoveNode removes Node.
 func (s *nodesServer) RemoveNode(ctx context.Context, req *inventoryv1.RemoveNodeRequest) (*inventoryv1.RemoveNodeResponse, error) {
-	if err := s.svc.Remove(ctx, req.NodeId, req.Force); err != nil {
+	err := s.svc.Remove(ctx, req.NodeId, req.Force)
+	if err != nil {
 		return nil, err
 	}
 

@@ -1,4 +1,16 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+jest.mock('@grafana/runtime', () => ({
+  locationService: { getLocation: () => ({ pathname: '/', search: '', hash: '' }), push: jest.fn(), replace: jest.fn() },
+  getAppEvents: () => ({ subscribe: jest.fn() }),
+  config: { bootData: { user: {} }, theme2: { isDark: true } },
+  ThemeChangedEvent: class {},
+}));
+jest.mock('@grafana/data', () => ({
+  BusEventBase: class {},
+  textUtil: { sanitizeUrl: (url: string) => url },
+  urlUtil: { appendQueryToUrl: (url: string) => url, toUrlParams: () => '' },
+}));
+jest.mock('@grafana/ui', () => ({}));
+
 import { initialize } from './compat';
 
 describe('compat', () => {

@@ -686,7 +686,7 @@ func TestScrapeConfig(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -808,7 +808,7 @@ func TestScrapeConfig(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -909,7 +909,7 @@ func TestScrapeConfig(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -1061,7 +1061,7 @@ func TestScrapeConfig(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -1145,7 +1145,7 @@ func TestScrapeConfig(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -1267,7 +1267,7 @@ func TestScrapeConfig(t *testing.T) {
 
 			actual := scrapeConfigsForRDSExporter(params)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -1327,7 +1327,7 @@ func TestScrapeConfig(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})
@@ -1389,7 +1389,7 @@ func TestScrapeConfig(t *testing.T) {
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
-			for i := 0; i < len(expected); i++ {
+			for i := range expected {
 				assertScrapeConfigsEqual(t, expected[i], actual[i])
 			}
 		})

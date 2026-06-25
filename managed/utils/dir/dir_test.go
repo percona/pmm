@@ -46,15 +46,19 @@ func TestCreateDataDir(t *testing.T) {
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			defer os.Remove(tc.path) //nolint:errcheck
+			if tc.path != "" {
+				t.Cleanup(func() {
+					assert.NoError(t, os.Remove(tc.path))
+				})
+			}
 
 			err := CreateDataDir(tc.path, tc.perm)
 			if tc.err != "" {
-				assert.EqualError(t, err, tc.err)
+				require.EqualError(t, err, tc.err)
 				return
 			}
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			stat, err := os.Stat(tc.path)
 			require.NoError(t, err)
 			assert.True(t, stat.IsDir())
@@ -66,23 +70,16 @@ func TestCreateDataDir(t *testing.T) {
 func TestFindFilesWithExtensions(t *testing.T) {
 	t.Parallel()
 
-	var files []*os.File
+	tmpDir := t.TempDir()
 	createTemp := func(pattern string) {
-		f, err := os.CreateTemp("", t.Name()+pattern)
+		_, err := os.CreateTemp(tmpDir, t.Name()+pattern)
 		require.NoError(t, err)
-		files = append(files, f)
 	}
 
 	createTemp("*.yaml")
 	createTemp("*.yaml")
 	createTemp("*.yml")
 	createTemp("*")
-
-	t.Cleanup(func() {
-		for _, f := range files {
-			_ = os.Remove(f.Name())
-		}
-	})
 
 	testcases := []struct {
 		name       string
@@ -120,8 +117,8 @@ func TestFindFilesWithExtensions(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			files, err := FindFilesWithExtensions(os.TempDir(), tc.extensions...)
-			assert.NoError(t, err)
+			files, err := FindFilesWithExtensions(tmpDir, tc.extensions...)
+			require.NoError(t, err)
 			assert.Len(t, files, tc.expected)
 		})
 	}

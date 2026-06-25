@@ -39,11 +39,10 @@
         For example to suppress logging of the ConfigReloader you can use:
         NOTE: levels.logger is reserved, see below.
         -->
-        <!--
+
         <levels>
-          <ConfigReloader>none</ConfigReloader>
+          <CertificateReloader>none</CertificateReloader>
         </levels>
-        -->
 
         <!-- Per level overrides:
 
@@ -143,7 +142,7 @@
     <!-- Compatibility with PostgreSQL protocol.
          ClickHouse will pretend to be PostgreSQL for applications connecting to this port.
     -->
-    <postgresql_port>9005</postgresql_port>
+    <!-- <postgresql_port>9005</postgresql_port> -->
 
     <!-- HTTP API with TLS (HTTPS).
          You have to configure certificate to enable this interface.
@@ -170,7 +169,7 @@
          Data transferred over connections to this port should not go through untrusted networks.
          See also 'interserver_https_port'.
       -->
-    <interserver_http_port>9009</interserver_http_port>
+    <!-- <interserver_http_port>9009</interserver_http_port> -->
 
     <!-- Port for communication between replicas with TLS.
          You have to configure certificate to enable this interface.
@@ -269,43 +268,6 @@
     </grpc>
 
     <!-- Used with https_port and tcp_port_secure. Full ssl options list: https://github.com/ClickHouse-Extras/poco/blob/master/NetSSL_OpenSSL/include/Poco/Net/SSLManager.h#L71 -->
-    <openSSL>
-        <server> <!-- Used for https server AND secure tcp port -->
-            <!-- openssl req -subj "/CN=localhost" -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout /etc/clickhouse-server/server.key -out /etc/clickhouse-server/server.crt -->
-            <certificateFile>/etc/clickhouse-server/server.crt</certificateFile>
-            <privateKeyFile>/etc/clickhouse-server/server.key</privateKeyFile>
-            <!-- dhparams are optional. You can delete the <dhParamsFile> element.
-                 To generate dhparams, use the following command:
-                  openssl dhparam -out /etc/clickhouse-server/dhparam.pem 4096
-                 Only file format with BEGIN DH PARAMETERS is supported.
-              -->
-            <dhParamsFile>/etc/clickhouse-server/dhparam.pem</dhParamsFile>
-            <verificationMode>none</verificationMode>
-            <loadDefaultCAFile>true</loadDefaultCAFile>
-            <cacheSessions>true</cacheSessions>
-            <disableProtocols>sslv2,sslv3</disableProtocols>
-            <preferServerCiphers>true</preferServerCiphers>
-
-            <invalidCertificateHandler>
-                <!-- The server, in contrast to the client, cannot ask about the certificate interactively.
-                     The only reasonable option is to reject.
-                -->
-                <name>RejectCertificateHandler</name>
-            </invalidCertificateHandler>
-        </server>
-
-        <client> <!-- Used for connecting to https dictionary source and secured Zookeeper communication -->
-            <loadDefaultCAFile>true</loadDefaultCAFile>
-            <cacheSessions>true</cacheSessions>
-            <disableProtocols>sslv2,sslv3</disableProtocols>
-            <preferServerCiphers>true</preferServerCiphers>
-            <!-- Use for self-signed: <verificationMode>none</verificationMode> -->
-            <invalidCertificateHandler>
-                <!-- Use for self-signed: <name>AcceptCertificateHandler</name> -->
-                <name>RejectCertificateHandler</name>
-            </invalidCertificateHandler>
-        </client>
-    </openSSL>
 
     <!-- Default root page on http[s] server. For example load UI from https://tabix.io/ when opening http://localhost:8123 -->
     <!--
@@ -628,7 +590,7 @@
     <user_directories>
         <users_xml>
             <!-- Path to configuration file with predefined users. -->
-            <path>users.xml</path>
+            <path>default-users.xml</path>
         </users_xml>
         <local_directory>
             <!-- Path to folder where users created by SQL commands are stored. -->
@@ -777,33 +739,6 @@
 
     <!-- Reallocate memory for machine code ("text") using huge pages. Highly experimental. -->
     <remap_executable>false</remap_executable>
-
-    <![CDATA[
-         Uncomment below in order to use JDBC table engine and function.
-
-         To install and run JDBC bridge in background:
-         * [Debian/Ubuntu]
-           export MVN_URL=https://repo1.maven.org/maven2/com/clickhouse/clickhouse-jdbc-bridge/
-           export PKG_VER=$(curl -sL $MVN_URL/maven-metadata.xml | grep '<release>' | sed -e 's|.*>\(.*\)<.*|\1|')
-           wget https://github.com/ClickHouse/clickhouse-jdbc-bridge/releases/download/v$PKG_VER/clickhouse-jdbc-bridge_$PKG_VER-1_all.deb
-           apt install --no-install-recommends -f ./clickhouse-jdbc-bridge_$PKG_VER-1_all.deb
-           clickhouse-jdbc-bridge &
-
-         * [CentOS/RHEL]
-           export MVN_URL=https://repo1.maven.org/maven2/com/clickhouse/clickhouse-jdbc-bridge/
-           export PKG_VER=$(curl -sL $MVN_URL/maven-metadata.xml | grep '<release>' | sed -e 's|.*>\(.*\)<.*|\1|')
-           wget https://github.com/ClickHouse/clickhouse-jdbc-bridge/releases/download/v$PKG_VER/clickhouse-jdbc-bridge-$PKG_VER-1.noarch.rpm
-           dnf install -y ./clickhouse-jdbc-bridge-$PKG_VER-1.noarch.rpm
-           clickhouse-jdbc-bridge &
-
-         Please refer to https://github.com/ClickHouse/clickhouse-jdbc-bridge#usage for more information.
-    ]]>
-    <!--
-    <jdbc_bridge>
-        <host>127.0.0.1</host>
-        <port>9019</port>
-    </jdbc_bridge>
-    -->
 
     <!-- Configuration of clusters that could be used in Distributed tables.
          https://clickhouse.com/docs/en/operations/table_engines/distributed/
@@ -1042,11 +977,13 @@
 
         <!-- example of using a different storage policy for a system table -->
         <!-- storage_policy>local_ssd</storage_policy -->
-        <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
+        <ttl>event_date + INTERVAL 7 DAY DELETE</ttl>
     </query_log>
 
     <!-- Trace log. Stores stack traces collected by query profilers.
          See query_profiler_real_time_period_ns and query_profiler_cpu_time_period_ns settings. -->
+    <!-- PMM: trace_log disabled — used only for ClickHouse-internal CPU profiling, not read by PMM (PMM-15054). -->
+    <!--
     <trace_log>
         <database>system</database>
         <table>trace_log</table>
@@ -1056,10 +993,10 @@
         <max_size_rows>1048576</max_size_rows>
         <reserved_size_rows>8192</reserved_size_rows>
         <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
-        <!-- Indication whether logs should be dumped to the disk in case of a crash -->
         <flush_on_crash>false</flush_on_crash>
         <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
     </trace_log>
+    -->
 
     <!-- Query thread log. Has information about all threads participated in query execution.
          Used only for queries with setting log_query_threads = 1. -->
@@ -1115,6 +1052,8 @@
     -->
 
     <!-- Metric log contains rows with current values of ProfileEvents, CurrentMetrics collected with "collect_interval_milliseconds" interval. -->
+    <!-- PMM: metric_log disabled — CH self-monitoring is redundant; PMM monitors CH via VictoriaMetrics (PMM-15054). -->
+    <!--
     <metric_log>
         <database>system</database>
         <table>metric_log</table>
@@ -1126,11 +1065,14 @@
         <flush_on_crash>false</flush_on_crash>
         <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
     </metric_log>
+    -->
 
     <!--
         Asynchronous metric log contains values of metrics from
         system.asynchronous_metrics.
     -->
+    <!-- PMM: asynchronous_metric_log disabled — current values remain available in system.asynchronous_metrics (PMM-15054). -->
+    <!--
     <asynchronous_metric_log>
         <database>system</database>
         <table>asynchronous_metric_log</table>
@@ -1141,21 +1083,14 @@
         <flush_on_crash>false</flush_on_crash>
         <ttl>event_date + INTERVAL 30 DAY DELETE</ttl>
     </asynchronous_metric_log>
+    -->
 
     <!--
         OpenTelemetry log contains OpenTelemetry trace spans.
     -->
+    <!-- PMM: opentelemetry_span_log disabled — PMM does not emit OTel spans (PMM-15054). -->
+    <!--
     <opentelemetry_span_log>
-        <!--
-            The default table creation code is insufficient, this <engine> spec
-            is a workaround. There is no 'event_time' for this log, but two times,
-            start and finish. It is sorted by finish time, to avoid inserting
-            data too far away in the past (probably we can sometimes insert a span
-            that is seconds earlier than the last span in the table, due to a race
-            between several spans inserted in parallel). This gives the spans a
-            global order that we can use to e.g. retry insertion into some external
-            system.
-        -->
         <engine>
             engine MergeTree
             partition by toYYYYMM(finish_date)
@@ -1169,6 +1104,7 @@
         <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
         <flush_on_crash>false</flush_on_crash>
     </opentelemetry_span_log>
+    -->
 
 
     <!-- Crash log. Stores stack traces for fatal errors.
@@ -1190,7 +1126,8 @@
 
         Note: session log has known security issues and should not be used in production.
     -->
-    <!-- <session_log>
+    <!--
+    <session_log>
         <database>system</database>
         <table>session_log</table>
 
@@ -1200,9 +1137,12 @@
         <reserved_size_rows>8192</reserved_size_rows>
         <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
         <flush_on_crash>false</flush_on_crash>
-    </session_log> -->
+    </session_log>
+    -->
 
     <!-- Profiling on Processors level. -->
+    <!-- PMM: processors_profile_log disabled — pipeline-level CH dev profiling, not used by PMM (PMM-15054). -->
+    <!--
     <processors_profile_log>
         <database>system</database>
         <table>processors_profile_log</table>
@@ -1214,10 +1154,13 @@
         <buffer_size_rows_flush_threshold>524288</buffer_size_rows_flush_threshold>
         <flush_on_crash>false</flush_on_crash>
     </processors_profile_log>
+    -->
 
     <!-- Log of asynchronous inserts. It allows to check status
          of insert query in fire-and-forget mode.
     -->
+    <!-- PMM: asynchronous_insert_log disabled — PMM does not use async inserts (PMM-15054). -->
+    <!--
     <asynchronous_insert_log>
         <database>system</database>
         <table>asynchronous_insert_log</table>
@@ -1230,6 +1173,7 @@
         <partition_by>event_date</partition_by>
         <ttl>event_date + INTERVAL 3 DAY</ttl>
     </asynchronous_insert_log>
+    -->
 
     <!-- <top_level_domains_path>/var/lib/clickhouse/top_level_domains/</top_level_domains_path> -->
     <!-- Custom TLD lists.
@@ -1258,7 +1202,7 @@
 
     <!-- Uncomment if you want data to be compressed 30-100% better.
          Don't do that if you just started using ClickHouse.
-      -->
+    -->
     <!--
     <compression>
         <!- - Set of variants. Checked in order. Last matching case wins. If nothing matches, lz4 will be used. - ->
@@ -1346,6 +1290,7 @@
     <!-- <max_partition_size_to_drop>0</max_partition_size_to_drop> -->
 
     <!-- Example of parameters for GraphiteMergeTree table engine -->
+    <!--
     <graphite_rollup_example>
         <pattern>
             <regexp>click_cost</regexp>
@@ -1375,6 +1320,7 @@
             </retention>
         </default>
     </graphite_rollup_example>
+    -->
 
     <!-- Directory in <clickhouse-path> containing schema files for various input formats.
          The directory will be created if it doesn't exist.
@@ -1500,4 +1446,31 @@
     <!-- On Linux systems this can control the behavior of OOM killer.
     <oom_score>-1000</oom_score>
     -->
+
+    <!--
+        PMM-15054: drop ClickHouse system log tables PMM does not consume,
+        plus orphan "*_log_0" tables left over from past CH schema upgrades.
+        Runs on every server start; DROP IF EXISTS makes each call idempotent.
+        Per-script errors are non-fatal: ClickHouse catches exceptions inside
+        loadStartupScripts and only logs them.
+    -->
+    <startup_scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.trace_log SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.trace_log_0 SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.metric_log SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.metric_log_0 SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.asynchronous_metric_log SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.asynchronous_metric_log_0 SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.opentelemetry_span_log SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.opentelemetry_span_log_0 SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.processors_profile_log SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.processors_profile_log_0 SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.asynchronous_insert_log SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.asynchronous_insert_log_0 SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.text_log SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.text_log_0 SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.query_log_0 SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.query_thread_log_0 SYNC</query></scripts>
+        <scripts><query>DROP TABLE IF EXISTS system.part_log_0 SYNC</query></scripts>
+    </startup_scripts>
 </clickhouse>

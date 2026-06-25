@@ -632,14 +632,14 @@
                     "value": "access_evaluation_duration_bucket"
                 },
                 "datasource": "Metrics",
-                "definition": "metrics(\\S.*)",
+                "definition": "metrics(.+)",
                 "hide": 0,
                 "includeAll": false,
                 "multi": false,
                 "name": "metric",
                 "options": [],
                 "query": {
-                    "query": "metrics(\\S.*)",
+                    "query": "metrics(.+)",
                     "refId": "Metrics-metric-Variable-Query"
                 },
                 "refresh": 2,

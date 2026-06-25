@@ -40,9 +40,11 @@ import (
 )
 
 const (
-	envPGHostPort = "TEST_PG_HOST_PORT"
-	envQanDSN     = "TEST_QAN_DSN"
-	envVMDSN      = "TEST_VM_DSN"
+	envPGHostPort  = "TEST_PG_HOST_PORT"
+	envQanDSN      = "TEST_QAN_DSN"
+	envVMDSN       = "TEST_VM_DSN"
+	testSourceName = "VM"
+	pmmVersion     = "2.29.0"
 )
 
 func TestRunTelemetryService(t *testing.T) {
@@ -73,10 +75,6 @@ func TestRunTelemetryService(t *testing.T) {
 		tDistributionMethod pmmv1.DistributionMethod
 		dus                 distributionUtilService
 	}
-	const (
-		testSourceName = "VM"
-		pmmVersion     = "2.29.0"
-	)
 
 	now := time.Now()
 	logger := logrus.StandardLogger()
@@ -119,7 +117,7 @@ func TestRunTelemetryService(t *testing.T) {
 			testTimeout: 2 * time.Second,
 			fields: fields{
 				start:      now,
-				config:     getTestConfig(true, testSourceName, 10*time.Second),
+				config:     getTestConfig(true, 10*time.Second),
 				pmmVersion: pmmVersion,
 				dus:        getDistributionUtilService(t, logEntry),
 			},
@@ -130,7 +128,7 @@ func TestRunTelemetryService(t *testing.T) {
 			testTimeout: 3 * time.Second,
 			fields: fields{
 				start:      now,
-				config:     getTestConfig(false, testSourceName, 500*time.Millisecond+2*time.Second),
+				config:     getTestConfig(false, 500*time.Millisecond+2*time.Second),
 				pmmVersion: pmmVersion,
 				dus:        getDistributionUtilService(t, logEntry),
 			},
@@ -141,7 +139,7 @@ func TestRunTelemetryService(t *testing.T) {
 			testTimeout: 3 * time.Second,
 			fields: fields{
 				start:      now,
-				config:     getTestConfig(true, testSourceName, 500*time.Millisecond+2*time.Second),
+				config:     getTestConfig(true, 500*time.Millisecond+2*time.Second),
 				pmmVersion: pmmVersion,
 				dus:        getDistributionUtilService(t, logEntry),
 			},
@@ -165,7 +163,7 @@ func TestRunTelemetryService(t *testing.T) {
 			serviceConfig := getServiceConfig(pgHostPort, qanDSN, vmDSN)
 
 			registry, err := NewDataSourceRegistry(serviceConfig, logEntry)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			s := Service{
 				db:                  db,
@@ -235,7 +233,7 @@ func TestRunSkipsNonReleaseVersion(t *testing.T) {
 			s := Service{
 				db:           db,
 				l:            logEntry,
-				config:       getTestConfig(true, "VM", 10*time.Second), // long interval: only SendOnStart fires
+				config:       getTestConfig(true, 10*time.Second), // long interval: only SendOnStart fires
 				pmmVersion:   tt.version,
 				dus:          getDistributionUtilService(t, logEntry),
 				portalClient: &mockSender,
@@ -375,7 +373,7 @@ func matchExpectedReport(report *telemetryv1.ReportRequest, expectedReport *tele
 	return len(report.Reports) == 1 && valueIsInArray(expectedReport.Reports[0].Metrics, "AMI")
 }
 
-func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval time.Duration) ServiceConfig {
+func getTestConfig(sendOnStart bool, reportingInterval time.Duration) ServiceConfig {
 	return ServiceConfig{
 		l:       nil,
 		Enabled: true,

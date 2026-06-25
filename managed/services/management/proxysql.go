@@ -25,6 +25,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 )
 
 // AddProxySQL adds "ProxySQL Service", "ProxySQL Exporter Agent" and "QAN ProxySQL PerfSchema Agent".
@@ -74,6 +75,7 @@ func (s *ManagementService) addProxySQL(ctx context.Context, req *managementv1.A
 				ExposeExporter:     req.ExposeExporter,
 				PushMetrics:        isPushMode(req.MetricsMode),
 				DisabledCollectors: req.DisableCollectors,
+				ConnectionTimeout:  duration.OptionalFromProto(req.ConnectionTimeout),
 			},
 			LogLevel: services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		})
@@ -82,11 +84,13 @@ func (s *ManagementService) addProxySQL(ctx context.Context, req *managementv1.A
 		}
 
 		if !req.SkipConnectionCheck {
-			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}

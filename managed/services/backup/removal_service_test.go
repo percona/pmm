@@ -17,10 +17,10 @@ package backup
 
 import (
 	"database/sql"
+	"errors"
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -115,10 +115,10 @@ func TestDeleteArtifact(t *testing.T) {
 		require.NoError(t, err)
 		go func() {
 			tx, err := db.BeginTx(t.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable})
-			require.NoError(t, err)
+			assert.NoError(t, err)
 
 			err = models.RemoveRestoreHistoryItem(tx.Querier, ri.ID)
-			require.NoError(t, err)
+			assert.NoError(t, err)
 
 			time.Sleep(time.Second * 3)
 			err = tx.Commit()
@@ -167,14 +167,14 @@ func TestDeleteArtifact(t *testing.T) {
 			Return(nil).Once()
 
 		err := removalService.DeleteArtifact(mockedStorage, artifact.ID, true)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// Removing files running in goroutine, need to wait some time.
 		time.Sleep(time.Second * 3)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
 		assert.Nil(t, artifact)
-		assert.ErrorIs(t, err, models.ErrNotFound)
+		require.ErrorIs(t, err, models.ErrNotFound)
 	})
 
 	t.Run("successful delete pitr", func(t *testing.T) {
@@ -224,14 +224,14 @@ func TestDeleteArtifact(t *testing.T) {
 			Return(nil).Once()
 
 		err = removalService.DeleteArtifact(mockedStorage, artifact.ID, true)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// Removing files running in goroutine, need to wait some time.
 		time.Sleep(time.Second * 3)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
 		assert.Nil(t, artifact)
-		assert.ErrorIs(t, err, models.ErrNotFound)
+		require.ErrorIs(t, err, models.ErrNotFound)
 	})
 
 	mockedPbmPITRService.AssertExpectations(t)
@@ -411,7 +411,7 @@ func TestLockArtifact(t *testing.T) {
 		res, oldStatus, err := removalService.lockArtifact(artifact.ID, models.FailedToDeleteBackupStatus)
 		assert.Nil(t, res)
 		assert.Empty(t, oldStatus)
-		assert.ErrorIs(t, err, ErrIncorrectArtifactStatus)
+		require.ErrorIs(t, err, ErrIncorrectArtifactStatus)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
 		require.NoError(t, err)
@@ -423,7 +423,7 @@ func TestLockArtifact(t *testing.T) {
 		res, oldStatus, err := removalService.lockArtifact(artifact.ID, models.DeletingBackupStatus)
 		assert.Nil(t, res)
 		assert.Empty(t, oldStatus)
-		assert.ErrorIs(t, err, ErrIncorrectArtifactStatus)
+		require.ErrorIs(t, err, ErrIncorrectArtifactStatus)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
 		require.NoError(t, err)
@@ -505,7 +505,7 @@ func TestReleaseArtifact(t *testing.T) {
 
 	t.Run("wrong releasing status", func(t *testing.T) {
 		err := removalService.releaseArtifact(artifact.ID, models.PendingBackupStatus)
-		assert.ErrorIs(t, err, ErrIncorrectArtifactStatus)
+		require.ErrorIs(t, err, ErrIncorrectArtifactStatus)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
 		require.NoError(t, err)
@@ -515,7 +515,7 @@ func TestReleaseArtifact(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		err := removalService.releaseArtifact(artifact.ID, models.SuccessBackupStatus)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
 		require.NoError(t, err)

@@ -78,7 +78,7 @@ func assertNodeExporterCreated(t *testing.T, pmmAgentID string) (string, bool) {
 		PMMAgentID: new(pmmAgentID),
 		Context:    pmmapitests.Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	require.Len(t, listAgentsOK.Payload.NodeExporter, 1)
 	nodeExporterAgentID := listAgentsOK.Payload.NodeExporter[0].AgentID
 	asserted := assert.Equal(t, agents.ListAgentsOKBodyNodeExporterItems0{
@@ -100,7 +100,7 @@ func assertPMMAgentCreated(t *testing.T, nodeID string, pmmAgentID string) {
 		AgentID: pmmAgentID,
 		Context: pmmapitests.Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, agents.GetAgentOKBody{
 		PMMAgent: &agents.GetAgentOKBodyPMMAgent{
 			AgentID:      pmmAgentID,
@@ -117,7 +117,7 @@ func assertNodeCreated(t *testing.T, nodeID string, expectedResult nodes.GetNode
 		NodeID:  nodeID,
 		Context: pmmapitests.Context,
 	})
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, expectedResult, *nodeOK.Payload)
 }
 
@@ -141,7 +141,21 @@ func removeAllAgentsInList(t *testing.T, listAgentsOK *agents.ListAgentsOK) {
 	require.NotNil(t, listAgentsOK)
 	require.NotNil(t, listAgentsOK.Payload)
 
-	var agentIDs []string //nolint:prealloc
+	agentIDs := make([]string, 0,
+		len(listAgentsOK.Payload.NodeExporter)+
+			len(listAgentsOK.Payload.PMMAgent)+
+			len(listAgentsOK.Payload.PostgresExporter)+
+			len(listAgentsOK.Payload.MysqldExporter)+
+			len(listAgentsOK.Payload.ProxysqlExporter)+
+			len(listAgentsOK.Payload.QANMysqlPerfschemaAgent)+
+			len(listAgentsOK.Payload.MongodbExporter)+
+			len(listAgentsOK.Payload.QANMongodbProfilerAgent)+
+			len(listAgentsOK.Payload.QANMongodbMongologAgent)+
+			len(listAgentsOK.Payload.QANMysqlSlowlogAgent)+
+			len(listAgentsOK.Payload.QANPostgresqlPgstatementsAgent)+
+			len(listAgentsOK.Payload.ExternalExporter)+
+			len(listAgentsOK.Payload.VMAgent)+
+			len(listAgentsOK.Payload.RtaMongodbAgent))
 	for _, agent := range listAgentsOK.Payload.NodeExporter {
 		agentIDs = append(agentIDs, agent.AgentID)
 	}
@@ -179,6 +193,9 @@ func removeAllAgentsInList(t *testing.T, listAgentsOK *agents.ListAgentsOK) {
 		agentIDs = append(agentIDs, agent.AgentID)
 	}
 	for _, agent := range listAgentsOK.Payload.VMAgent {
+		agentIDs = append(agentIDs, agent.AgentID)
+	}
+	for _, agent := range listAgentsOK.Payload.RtaMongodbAgent {
 		agentIDs = append(agentIDs, agent.AgentID)
 	}
 

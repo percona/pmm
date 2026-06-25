@@ -10,12 +10,21 @@ type Props = {
   props?: {
     mainText?: TypographyProps;
     subText?: TypographyProps;
-  }
+  };
   dataTestId?: string;
 };
 
-const BigNumberMetric: FC<Props> = ({ mainText, subText, size = 'medium', props, dataTestId }) => (
-  <Box style={{ display: 'flex', alignItems: 'baseline' }} data-testid={dataTestId}>
+const BigNumberMetric: FC<Props> = ({
+  mainText,
+  subText,
+  size = 'medium',
+  props,
+  dataTestId,
+}) => (
+  <Box
+    style={{ display: 'flex', alignItems: 'baseline' }}
+    data-testid={dataTestId}
+  >
     {mainText ? (
       <Typography
         variant={size === 'small' ? 'body1' : 'h5'}

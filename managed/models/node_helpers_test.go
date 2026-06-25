@@ -130,7 +130,7 @@ func TestNodeHelpers(t *testing.T) {
 				NodeName:  t.Name(),
 				MachineID: new(machineID + "\n"),
 			})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			structs, err := q.SelectAllFrom(models.NodeTable, "WHERE machine_id = $1 ORDER BY node_id", machineID)
 			require.NoError(t, err)
@@ -242,21 +242,17 @@ func TestNodeHelpers(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `Node with ID "MySQLNode" has services.`), err)
 
 		err = models.RemoveNode(q, "EmptyNode", models.RemoveRestrict)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		err = models.RemoveNode(q, "GenericNode", models.RemoveCascade)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		err = models.RemoveNode(q, "NodeWithPMMAgent", models.RemoveCascade)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		err = models.RemoveNode(q, "MySQLNode", models.RemoveCascade)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		nodes, err := models.FindNodes(q, models.NodeFilters{})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.Len(t, nodes, 1) // PMM Server
 	})
-}
-
-func pointerToNodeType(nodeType models.NodeType) *models.NodeType {
-	return &nodeType
 }

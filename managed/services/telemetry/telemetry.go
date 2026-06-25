@@ -18,6 +18,7 @@ package telemetry
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"sync"
 	"time"
@@ -25,7 +26,6 @@ import (
 	"github.com/google/uuid"
 	pmmv1 "github.com/percona/platform/gen/telemetry/events/pmm"
 	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -58,8 +58,6 @@ type Service struct {
 	sendCh              chan *telemetryv1.GenericReport
 	dataSourcesMap      map[DataSourceName]DataSource
 
-	extensions map[ExtensionType]Extension
-
 	dus distributionUtilService
 }
 
@@ -90,7 +88,7 @@ func getLogger() *logrus.Entry {
 
 // NewService creates a new service.
 func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
-	dus distributionUtilService, config ServiceConfig, extensions map[ExtensionType]Extension,
+	dus distributionUtilService, config ServiceConfig,
 ) (*Service, error) {
 	if config.SaasHostname == "" {
 		return nil, errors.New("empty host")
@@ -112,7 +110,6 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 		dsRegistry:   registry,
 		dus:          dus,
 		sendCh:       make(chan *telemetryv1.GenericReport, sendChSize),
-		extensions:   extensions,
 	}
 
 	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.GetDistributionMethodAndOS()
@@ -256,23 +253,6 @@ func (s *Service) prepareReport(ctx context.Context) *telemetryv1.GenericReport 
 	}
 
 	for _, telemetry := range s.config.telemetry {
-		if telemetry.Extension != "" {
-			extension, ok := s.extensions[telemetry.Extension]
-			if !ok {
-				s.l.Errorf("telemetry extension [%s] is not supported", telemetry.Extension)
-				continue
-			}
-
-			metrics, err := extension.FetchMetrics(ctx, telemetry)
-			if err != nil {
-				s.l.Debugf("failed while calling extension [%s]:%s", telemetry.Extension, err)
-				continue
-			}
-			telemetryMetric.Metrics = append(telemetryMetric.Metrics, metrics...)
-
-			continue
-		}
-
 		// locate DS in initialized state
 		ds := initializedDataSources[DataSourceName(telemetry.Source)]
 		if ds == nil {
@@ -356,7 +336,8 @@ func (s *Service) makeMetric(ctx context.Context) (*telemetryv1.GenericReport, e
 	var settings *models.Settings
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var e error
-		if settings, e = models.GetSettings(tx); e != nil {
+		settings, e = models.GetSettings(tx)
+		if e != nil {
 			return e
 		}
 
@@ -408,7 +389,8 @@ func (s *Service) send(ctx context.Context, report *telemetryv1.ReportRequest) e
 		<-retryCtx.Done()
 		retryCancel()
 
-		if err = ctx.Err(); err != nil {
+		err = ctx.Err()
+		if err != nil {
 			s.l.Debugf("Will not retry sending v2 event: %s.", err)
 			return err
 		}

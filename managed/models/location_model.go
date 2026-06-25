@@ -82,7 +82,7 @@ type S3LocationConfig struct {
 func (c S3LocationConfig) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *S3LocationConfig) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *S3LocationConfig) Scan(src any) error { return jsonScan(c, src) }
 
 // FilesystemLocationConfig contains require properties for accessing file system on pmm-client-node.
 type FilesystemLocationConfig struct {
@@ -93,7 +93,7 @@ type FilesystemLocationConfig struct {
 func (c FilesystemLocationConfig) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *FilesystemLocationConfig) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *FilesystemLocationConfig) Scan(src any) error { return jsonScan(c, src) }
 
 // check interfaces.
 var (

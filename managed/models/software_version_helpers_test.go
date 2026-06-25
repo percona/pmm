@@ -386,7 +386,7 @@ func TestSoftwareVersionsParamsValidation(t *testing.T) {
 
 			c, err := models.CreateServiceSoftwareVersions(q, test.params)
 			if test.errorMsg != "" {
-				assert.EqualError(t, err, test.errorMsg)
+				require.EqualError(t, err, test.errorMsg)
 				assert.Nil(t, c)
 				return
 			}
@@ -439,9 +439,9 @@ func TestUpdateServiceSoftwareVersionsParamsValidation(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			err := test.params.Validate()
 			if test.errorMsg != "" {
-				assert.EqualError(t, err, test.errorMsg)
+				require.EqualError(t, err, test.errorMsg)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}

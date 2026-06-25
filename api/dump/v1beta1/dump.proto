@@ -22,6 +22,8 @@ message Dump {
   google.protobuf.Timestamp start_time = 4;
   google.protobuf.Timestamp end_time = 5;
   google.protobuf.Timestamp created_at = 7;
+  // This field is set to true if the dump was created with encryption enabled, and false otherwise.
+  bool encrypted = 8;
 }
 
 message StartDumpRequest {
@@ -30,6 +32,10 @@ message StartDumpRequest {
   google.protobuf.Timestamp end_time = 3;
   bool export_qan = 4;
   bool ignore_load = 5;
+  // If true, the dump will be encrypted. Note that enabling encryption may increase the time required to create the dump.
+  bool enable_encryption = 6;
+  // The password used for encryption. It must be at least 8 characters long. This field is required if enable_encryption is true.
+  string encryption_password = 7;
 }
 
 message StartDumpResponse {

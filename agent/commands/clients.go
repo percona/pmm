@@ -18,6 +18,7 @@ package commands
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -29,7 +30,6 @@ import (
 
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/config"
@@ -50,7 +50,6 @@ func setLocalTransport(host string, port uint16, l *logrus.Entry) {
 	transport := httptransport.New(address, "/", []string{"http"})
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
-	transport.Context = context.Background()
 
 	// disable HTTP/2
 	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
@@ -113,7 +112,6 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	}
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
-	transport.Context = context.Background()
 
 	// set error handlers for nginx responses if pmm-managed is down
 	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ any) error {
@@ -171,7 +169,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 	}
 
 	var disableCollectors []string
-	for _, v := range strings.Split(cfgSetup.DisableCollectors, ",") {
+	for v := range strings.SplitSeq(cfgSetup.DisableCollectors, ",") {
 		disableCollector := strings.TrimSpace(v)
 		if disableCollector != "" {
 			disableCollectors = append(disableCollectors, disableCollector)

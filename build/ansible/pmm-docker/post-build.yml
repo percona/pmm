@@ -3,42 +3,9 @@
 
 - hosts: all
   become: yes
-  gather_facts: yes
-  vars:
-    pmm_server_distribution: "docker"
+  gather_facts: no
 
   tasks:
-    # pmm-managed checks that if /srv/pmm-distribution exists, it contains "docker", "ovf", "ami" or "digitalocean" - all lowercase.
-    # TODO: refactor the build pipelines to call post-build.yml with the distribution name provided in the variable (above).
-    # https://jira.percona.com/browse/PMM-4991
-    - name: Create a distribution file for Docker
-      copy:
-        content: "{{ pmm_server_distribution}}"
-        dest: /srv/pmm-distribution
-        owner: pmm
-        group: root
-
-    - name: Remove pmm-managed database from PostgreSQL
-      postgresql_db:
-        login_user: postgres
-        name: pmm-managed
-        force: true
-        state: absent
-      environment:
-        PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
-
-    - name: Remove pmm-managed role from PostgreSQL database
-      postgresql_user:
-        name: pmm-managed
-        state: absent
-      environment:
-        PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
-
-    - name: Remove postgres password file so each container generates a unique one
-      file:
-        path: /srv/.postgres_password
-        state: absent
-
     - name: Stop supervisord service
       command: supervisorctl shutdown
       become: true
@@ -48,12 +15,11 @@
     - name: Cleanup dnf cache
       command: dnf clean all
 
-    - name: Cleanup build logs, data, config files and package cache
+    - name: Cleanup build logs and package cache
       file:
         path: "{{ item }}"
         state: absent
       loop:
-        - /srv/logs
         - /var/log/dnf.log
         - /var/log/secure
         - /var/log/wtmp
@@ -63,9 +29,6 @@
         - /var/lib/pgsql
         - /var/cache/dnf
         - /var/cache/yum
-        - /srv/pmm-encryption.key
-        - /srv/pmm-agent/tmp
-        - /srv/pmm-agent/config
         - /usr/local/percona/pmm/config/pmm-agent.yaml
 
     - name: Remove users created by installers
@@ -76,29 +39,6 @@
         - postgres
         - clickhouse
         - nginx
-
-    - name: Clean Clickhouse dir
-      shell: find /srv/clickhouse -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
-
-    - name: Clean pmm-server dir
-      shell: find /usr/share/pmm-server -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
-
-    # This step is required because of a change between VictoriaMetrics 1.77.1 and 1.82.1.
-    # VictoriaMetrics tries to atomically rename directories in this folder on startup.
-    # With RedHat-based docker images the rename fails with an error "Invalid cross-device link".
-    # This is due to the way OverlayFS and kernel works. More info https://github.com/moby/moby/issues/25409
-    # This step ensures the directory is empty on startup and the contents are recreated.
-    # This is not an issue if the folder is in a volume or mounted from the host OS.
-    - name: Recreate '/srv/victoriametrics' directory
-      file:
-        state: "{{ item }}"
-        path: /srv/victoriametrics
-        owner: pmm
-        group: root
-        mode: 0775
-      loop:
-        - absent
-        - directory
 
     - name: Remove auto-generated config files
       file:
@@ -112,34 +52,33 @@
         - grafana.ini
         - nomad-server.ini
 
-    - name: Create '/srv/logs' directory
+    - name: Clean pmm-server dir
+      shell: find /usr/share/pmm-server -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
+
+    - name: Clean /srv directory for fresh initialization on first start
       file:
-        path: /srv/logs
-        state: directory
+        path: /srv
+        state: "{{ item }}"
         owner: pmm
         group: root
         mode: 0775
+      loop:
+        - absent
+        - directory
+      no_log: true
 
-    - name: Set ownership for Grafana plugins directory
+    - name: Create empty log directory for nginx
       file:
-        path: /srv/grafana/plugins
-        owner: pmm
-        group: root
-        recurse: yes
+        path: /var/log/nginx
         state: directory
-        mode: 0775
-
-    - name: Set ownership for backup directory
-      file:
-        path: /srv/backup
         owner: pmm
         group: root
-        state: directory
-        mode: 0775
+        mode: 0755
 
-    - name: Set ownership for Grafana dashboards version file
-      file:
-        path: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+    - name: Empty VictoriaMetrics scrape config
+      copy:
+        content: ""
+        dest: /etc/victoriametrics-promscrape.yml
         owner: pmm
         group: root
-        state: file
+        mode: 0664

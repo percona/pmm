@@ -550,6 +550,9 @@ type ListDumpsOKBodyDumpsItems0 struct {
 	// created at
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
+
+	// This field is set to true if the dump was created with encryption enabled, and false otherwise.
+	Encrypted bool `json:"encrypted,omitempty"`
 }
 
 // Validate validates this list dumps OK body dumps items0

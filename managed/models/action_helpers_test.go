@@ -169,7 +169,7 @@ func TestCleanupResults(t *testing.T) {
 		defer teardown(t)
 
 		err := models.CleanupOldActionResults(q, models.Now().Add(-1*time.Second))
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		_, err = models.FindActionResultByID(q, "A1")
 		require.Error(t, err)

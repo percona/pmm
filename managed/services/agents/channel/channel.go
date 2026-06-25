@@ -18,10 +18,11 @@ package channel
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"sync"
 	"sync/atomic"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	protostatus "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
@@ -81,7 +82,7 @@ type Channel struct {
 
 	mSent, mRecv uint32
 
-	lastSentRequestID uint32
+	lastSentRequestID atomic.Uint32
 
 	sendM sync.Mutex
 
@@ -162,7 +163,7 @@ func (c *Channel) Send(resp *ServerResponse) {
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
 func (c *Channel) SendAndWaitResponse(payload agentv1.ServerRequestPayload) (agentv1.AgentResponsePayload, error) { //nolint:ireturn
-	id := atomic.AddUint32(&c.lastSentRequestID, 1)
+	id := c.lastSentRequestID.Add(1)
 	ch := c.subscribe(id)
 
 	c.send(&agentv1.ServerMessage{
@@ -200,7 +201,7 @@ func (c *Channel) send(msg *agentv1.ServerMessage) {
 	err := c.s.Send(msg)
 	c.sendM.Unlock()
 	if err != nil {
-		c.close(errors.Wrap(err, "failed to send message"))
+		c.close(fmt.Errorf("failed to send message: %w", err))
 		return
 	}
 	atomic.AddUint32(&c.mSent, 1)
@@ -216,7 +217,7 @@ func (c *Channel) runReceiver() {
 	for {
 		msg, err := c.s.Recv()
 		if err != nil {
-			c.close(errors.Wrap(err, "failed to receive message"))
+			c.close(fmt.Errorf("failed to receive message: %w", err))
 			return
 		}
 		atomic.AddUint32(&c.mRecv, 1)
@@ -294,7 +295,7 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, msg.Status, p.ServiceInfo)
 
 		case nil:
-			c.cancel(msg.Id, errors.Errorf("unimplemented: failed to handle received message %s", msg))
+			c.cancel(msg.Id, fmt.Errorf("unimplemented: failed to handle received message %s", msg))
 			if msg.Status != nil && grpcstatus.FromProto(msg.Status).Code() == codes.Unimplemented {
 				// This means pmm-agent does not know the message payload type we just sent.
 				// We continue here to stop endless cycle of Unimplemented messages between pmm-managed and pmm-agent.

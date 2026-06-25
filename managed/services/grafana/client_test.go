@@ -16,13 +16,15 @@
 package grafana
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -30,8 +32,452 @@ import (
 	stringsgen "github.com/percona/pmm/utils/strings"
 )
 
+func TestResolveAnonymousOrgRole(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		anonOrg string
+		want    string
+	}{
+		{"Viewer", grafanaOrgRoleViewer},
+		{"Editor", grafanaOrgRoleViewer},
+		{"Admin", grafanaOrgRoleViewer},
+		{"GrafanaAdmin", grafanaOrgRoleViewer},
+		{"", grafanaOrgRoleNone},
+		{"  ", grafanaOrgRoleNone},
+		{"None", grafanaOrgRoleNone},
+	} {
+		assert.Equal(t, tc.want, resolveAnonymousOrgRole(tc.anonOrg), "%q", tc.anonOrg)
+	}
+}
+
+func TestGetAuthUserAnonymousFallback(t *testing.T) {
+	t.Parallel()
+
+	l := logrus.WithField("test", t.Name())
+	ctx := context.Background()
+
+	t.Run("returns viewer role when anonymous role is non-viewer", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Editor"}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+
+		u, err := c.getAuthUser(ctx, http.Header{}, l)
+		require.NoError(t, err)
+		assert.Equal(t, viewer, u.role)
+		assert.Equal(t, 0, u.userID)
+	})
+
+	t.Run("no anonymous fallback when credentials are present", func(t *testing.T) {
+		t.Parallel()
+
+		settingsCalled := false
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				settingsCalled = true
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Admin"}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Invalid username or password"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		headers := http.Header{}
+		headers.Set("Authorization", "Basic YmFkOnBhc3M=")
+
+		u, err := c.getAuthUser(ctx, headers, l)
+		require.Error(t, err)
+		assert.Equal(t, none, u.role)
+		assert.False(t, settingsCalled)
+	})
+
+	t.Run("cookie-only request still falls back to anonymous role", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer"}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		headers := http.Header{}
+		headers.Set("Cookie", "some-non-auth-cookie=value")
+
+		u, err := c.getAuthUser(ctx, headers, l)
+		require.NoError(t, err)
+		assert.Equal(t, viewer, u.role)
+	})
+
+	t.Run("no frontend settings when cookie session succeeds on api user", func(t *testing.T) {
+		t.Parallel()
+
+		var settingsCalls int
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				settingsCalls++
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer"}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"id":42,"isGrafanaAdmin":false}`)
+			case "/api/user/orgs":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `[{"orgId":1,"role":"Viewer"}]`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		headers := http.Header{}
+		headers.Set("Cookie", "grafana_session=ok")
+
+		u, err := c.getAuthUser(ctx, headers, l)
+		require.NoError(t, err)
+		assert.Equal(t, viewer, u.role)
+		assert.Equal(t, 42, u.userID)
+		assert.Zero(t, settingsCalls, "/api/frontend/settings must not be called when /api/user succeeds")
+	})
+
+	t.Run("no fallback when anonymous is disabled", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":false}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+
+		u, err := c.getAuthUser(ctx, http.Header{}, l)
+		require.Error(t, err)
+		assert.Equal(t, none, u.role)
+	})
+
+	t.Run("non-viewer anonymous role is clamped to viewer", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Admin"}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		u, err := c.getAuthUser(ctx, http.Header{}, l)
+		require.NoError(t, err)
+		assert.Equal(t, viewer, u.role)
+	})
+
+	t.Run("anonymous fallback uses anonymousOrgRole viewer when user orgRole omitted", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer","user":{"orgId":1}}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		u, err := c.getAuthUser(ctx, http.Header{}, l)
+		require.NoError(t, err)
+		assert.Equal(t, viewer, u.role)
+	})
+}
+
+func TestCurrentUserAnonymousFallback(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	t.Run("GetCurrentUser uses anonymous fallback", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer","user":{"orgId":1,"orgName":"Main Org."}}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		user, err := c.GetCurrentUser(ctx, http.Header{})
+		require.NoError(t, err)
+		assert.Equal(t, "anonymous", user.Login)
+		assert.Equal(t, 1, user.OrgID)
+		assert.True(t, user.IsAnonymous)
+	})
+
+	t.Run("GetCurrentUserOrgs returns viewer role from frontend settings", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Editor","user":{"orgId":1,"orgName":"Main Org."}}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			case "/api/user/orgs":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		orgs, err := c.GetCurrentUserOrgs(ctx, http.Header{})
+		require.NoError(t, err)
+		user, err := c.GetCurrentUser(ctx, http.Header{})
+		require.NoError(t, err)
+		require.Len(t, orgs, 1)
+		assert.Equal(t, "Viewer", orgs[0].Role)
+		assert.Equal(t, 1, orgs[0].OrgID)
+		assert.True(t, user.IsAnonymous)
+	})
+
+	t.Run("GetCurrentUser returns unauthorized when anonymous role missing", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		_, err := c.GetCurrentUser(ctx, http.Header{})
+		require.Error(t, err)
+	})
+
+	t.Run("GetCurrentUser allows anonymousOrgRole viewer without user orgRole", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer","user":{"orgId":1}}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		user, err := c.GetCurrentUser(ctx, http.Header{})
+		require.NoError(t, err)
+		assert.True(t, user.IsAnonymous)
+		assert.Equal(t, "anonymous", user.Login)
+		assert.Equal(t, 1, user.OrgID)
+	})
+
+	t.Run("GetCurrentUserOrgs returns unauthorized when anonymous role missing", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true}`)
+			case "/api/user/orgs":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		orgs, err := c.GetCurrentUserOrgs(ctx, http.Header{})
+		require.Error(t, err)
+		assert.Nil(t, orgs)
+	})
+
+	t.Run("GetCurrentUser does not fallback when credentials are present", func(t *testing.T) {
+		t.Parallel()
+
+		settingsCalled := false
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				settingsCalled = true
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer"}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Invalid username or password"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		headers := http.Header{}
+		headers.Set("Authorization", "Basic YmFkOnBhc3M=")
+		_, err := c.GetCurrentUser(ctx, headers)
+		require.Error(t, err)
+		assert.False(t, settingsCalled)
+	})
+
+	t.Run("GetCurrentUser falls back with cookie-only request", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Viewer","user":{"orgId":1,"orgName":"Main Org."}}`)
+			case "/api/user":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		headers := http.Header{}
+		headers.Set("Cookie", "some-non-auth-cookie=value")
+
+		user, err := c.GetCurrentUser(ctx, headers)
+		require.NoError(t, err)
+		assert.True(t, user.IsAnonymous)
+		assert.Equal(t, "anonymous", user.Login)
+	})
+
+	t.Run("GetCurrentUserOrgs clamps non-viewer role to viewer", func(t *testing.T) {
+		t.Parallel()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/frontend/settings":
+				w.WriteHeader(http.StatusOK)
+				_, _ = fmt.Fprint(w, `{"anonymousEnabled":true,"anonymousOrgRole":"Admin","user":{"orgId":1,"orgName":"Main Org."}}`)
+			case "/api/user/orgs":
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		defer ts.Close()
+
+		c := NewClient(strings.TrimPrefix(ts.URL, "http://"))
+		orgs, err := c.GetCurrentUserOrgs(ctx, http.Header{})
+		require.NoError(t, err)
+		require.Len(t, orgs, 1)
+		assert.Equal(t, viewer.String(), orgs[0].Role)
+	})
+}
+
+func TestCurrentUserHTTPResponse(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name     string
+		err      error
+		wantCode int
+		wantMsg  string
+	}{
+		{"generic", errors.New("boom"), http.StatusBadGateway, "Bad Gateway"},
+		{"401 with message", &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Invalid"}, http.StatusUnauthorized, "Invalid"},
+		{"401 empty message", &clientError{Code: http.StatusUnauthorized}, http.StatusUnauthorized, "Unauthorized"},
+		{"403", &clientError{Code: http.StatusForbidden}, http.StatusForbidden, "Forbidden"},
+		{"404", &clientError{Code: http.StatusNotFound, ErrorMessage: "nf"}, http.StatusBadGateway, "Bad Gateway"},
+		{"500 upstream", &clientError{Code: http.StatusInternalServerError}, http.StatusBadGateway, "Bad Gateway"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			code, body := CurrentUserHTTPResponse(tc.err)
+			assert.Equal(t, tc.wantCode, code)
+			assert.Equal(t, tc.wantMsg, body["message"])
+		})
+	}
+}
+
 func TestClient(t *testing.T) {
-	logrus.SetLevel(logrus.TraceLevel)
 	l := logrus.WithField("test", t.Name())
 
 	ctx := t.Context()
@@ -46,7 +492,7 @@ func TestClient(t *testing.T) {
 		t.Run("GrafanaAdmin", func(t *testing.T) {
 			u, err := c.getAuthUser(ctx, authHeaders, l)
 			role := u.role
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, grafanaAdmin, role)
 			assert.Equal(t, "GrafanaAdmin", role.String())
 		})
@@ -57,7 +503,7 @@ func TestClient(t *testing.T) {
 
 			u, err := c.getAuthUser(ctx, nil, l)
 			role := u.role
-			clientError, _ := errors.Cause(err).(*clientError) //nolint:errorlint
+			clientError, _ := errors.AsType[*clientError](err)
 			require.NotNil(t, clientError, "got role %s", role)
 			assert.Equal(t, 401, clientError.Code)
 
@@ -91,13 +537,13 @@ func TestClient(t *testing.T) {
 
 			u, err := c.getAuthUser(ctx, userAuthHeaders, l)
 			actualRole := u.role
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, viewer, actualRole)
 			assert.Equal(t, viewer.String(), actualRole.String())
 		})
 
 		for _, role := range []role{viewer, editor, admin} {
-			t.Run(fmt.Sprintf("Basic auth %s", role.String()), func(t *testing.T) {
+			t.Run("Basic auth "+role.String(), func(t *testing.T) {
 				login := fmt.Sprintf("basic-%s-%d", role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
 				require.NoError(t, err)
@@ -121,7 +567,7 @@ func TestClient(t *testing.T) {
 				assert.Equal(t, role.String(), actualRole.String())
 			})
 
-			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
+			t.Run("Service token auth "+role.String(), func(t *testing.T) {
 				name, err := stringsgen.GenerateRandomString(256)
 				require.NoError(t, err)
 				nodeName := fmt.Sprintf("%s-%s", name, role)
@@ -142,9 +588,9 @@ func TestClient(t *testing.T) {
 				}()
 
 				serviceTokenAuthHeaders := http.Header{}
-				serviceTokenAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
+				serviceTokenAuthHeaders.Set("Authorization", "Bearer "+serviceToken)
 				u, err := c.getAuthUser(ctx, serviceTokenAuthHeaders, l)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				actualRole := u.role
 				assert.Equal(t, role, actualRole)
 				assert.Equal(t, role.String(), actualRole.String())

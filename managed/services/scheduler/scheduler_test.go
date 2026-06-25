@@ -143,6 +143,6 @@ func TestService(t *testing.T) {
 		assert.Empty(t, scheduler.scheduler.Jobs())
 
 		_, err = models.FindScheduledTaskByID(scheduler.db.Querier, dbTask.ID)
-		assert.ErrorIs(t, err, models.ErrNotFound)
+		require.ErrorIs(t, err, models.ErrNotFound)
 	})
 }
