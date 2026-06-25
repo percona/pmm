@@ -14,12 +14,7 @@
 import { useTheme } from '@mui/material/styles';
 import Box, { type BoxProps } from '@mui/material/Box';
 
-export type StatusIconSeverity =
-  | 'success'
-  | 'info'
-  | 'indeterminate'
-  | 'warning'
-  | 'error';
+export type StatusIconSeverity = 'success' | 'info' | 'indeterminate' | 'warning' | 'error';
 
 export type StatusIconSize = 'medium' | 'small';
 
@@ -98,13 +93,7 @@ const SYMBOLS: Record<StatusIconSeverity, SymbolSpec> = {
   },
 };
 
-const StatusIcon = ({
-  severity,
-  size = 'medium',
-  surfaceColor,
-  sx,
-  ...props
-}: StatusIconProps) => {
+const StatusIcon = ({ severity, size = 'medium', surfaceColor, sx, ...props }: StatusIconProps) => {
   const theme = useTheme();
   const spec = SYMBOLS[severity];
   const palette = theme.palette[spec.paletteKey] as {
