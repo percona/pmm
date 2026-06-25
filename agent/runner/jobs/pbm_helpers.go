@@ -318,11 +318,7 @@ func waitDescribe(ctx context.Context, cfg *describePoller) error {
 			return false, err
 		}
 
-		done, err := pollDescribeOnce(ctx, cfg)
-		if err != nil {
-			return false, err
-		}
-		return done, nil
+		return pollDescribeOnce(ctx, cfg)
 	})
 }
 
