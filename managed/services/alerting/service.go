@@ -700,6 +700,8 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	labels["percona_alerting"] = "1" // TODO: do we actually need it?
 	labels["severity"] = common.Severity(req.Severity).String()
 	labels["template_name"] = req.TemplateName
+	ensureRuleLabel(labels, "node_name", "{{ $labels.node_name }}")
+	ensureRuleLabel(labels, "service_name", "{{ $labels.service_name }}")
 
 	rule := services.Rule{
 		GrafanaAlert: services.GrafanaAlert{
@@ -770,6 +772,14 @@ func transformMaps(src map[string]string, dest map[string]string, data map[strin
 		dest[k] = buf.String()
 	}
 	return nil
+}
+
+func ensureRuleLabel(labels map[string]string, key, value string) {
+	if _, ok := labels[key]; ok {
+		return
+	}
+
+	labels[key] = value
 }
 
 func convertParamUnit(u models.ParamUnit) alerting.ParamUnit {
