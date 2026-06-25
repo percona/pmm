@@ -4,7 +4,7 @@ name: API Tests Static
 on:
   pull_request:
     paths:
-      - '.github/workflows/main.yml'
+      - '.github/workflows/api-tests-static.yml'
       - '.github/actions/setup-go-release/**'
       - "api/**"
       - "api-tests/**"
@@ -62,5 +62,5 @@ jobs:
       - name: Setup Go release
         uses: ./.github/actions/setup-go-release
 
-      - name: Build PMM Agent
+      - name: Build API tests binaries
         run: make init

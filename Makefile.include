@@ -54,7 +54,7 @@ format: format-shared 	## Format all Go source code
 	$(MAKE) -C qan-api2 format
 	$(MAKE) -C vmproxy format
 
-format-shared: FILES = $(shell find . -type f -name '*.go' | grep -v -e admin -e agent -e api -e managed -e qan-api2 -e ui -e vmproxy)
+format-shared: FILES = $(shell find . -type f -name '*.go' | grep -v -e admin -e agent -e api-tests -e api -e managed -e qan-api2 -e ui -e vmproxy)
 format-shared: 	## Format shared Go source code
 	go tool gofumpt -w $(FILES)
 	go tool goimports -local github.com/percona/pmm -w $(FILES)
