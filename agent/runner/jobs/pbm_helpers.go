@@ -313,11 +313,6 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dsn string, nam
 
 func waitDescribe(ctx context.Context, cfg *describePoller) error {
 	return poll.UntilContextTimeout(ctx, cfg.interval(), func(ctx context.Context) (bool, error) {
-		err := ctx.Err()
-		if err != nil {
-			return false, err
-		}
-
 		return pollDescribeOnce(ctx, cfg)
 	})
 }
