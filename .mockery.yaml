@@ -94,19 +94,3 @@ packages:
       DataSourceLocator:
       distributionUtilService:
       sender:
-  # admin
-  # agent
-  github.com/percona/pmm/agent/agentlocal:
-    interfaces:
-      client:
-      supervisor:
-  github.com/percona/pmm/agent/client:
-    interfaces:
-      connectionChecker:
-      serviceInfoBroker:
-      supervisor:
-  github.com/percona/pmm/agent/versioner:
-    interfaces:
-      ExecFunctions:
-        config:
-          mockname: "Mock{{ .InterfaceName | camelcase | firstUpper }}"

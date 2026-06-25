@@ -60,6 +60,7 @@ DEV_JSON_LIST    := $(foreach API,$(DEV_SPECS),$(API)/json/$(notdir $(API)).json
 
 # List of API specs dirs for generated Go files formatting.
 FORMAT_SPECS     := $(sort $(ALL_SPECS) $(ADDITIONAL_FORMAT_SPECS))
+# ------------------------------------------------------------------------------------------
 
 .PHONY: help gen _gen format clean-swagger update-swagger clean  descriptors
 

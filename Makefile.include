@@ -55,6 +55,9 @@ check-new:
 
 format: FILES = $(shell find . -type f -name '*.go')
 format:               ## Format source code
+	$(MAKE) -C agent format
+	$(MAKE) -C api format
+
 	go tool gofumpt -l -w $(FILES)
 	go tool goimports -local github.com/percona/pmm -l -w $(FILES)
 	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)

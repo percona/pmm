@@ -1,10 +1,6 @@
-default: help
+.DEFAULT_GOAL := help
 
-help:                           ## Display this help message
-	@echo "Please use \`make <target>\` where <target> is one of:"
-	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
-		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
-
+# --- Go-related variables ----------------------------------------------------------------
 # `cut` is used to remove first `v` from `git describe` output
 PMM_RELEASE_PATH ?= ../bin
 PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
@@ -23,6 +19,17 @@ VERSION_FLAGS = -X 'github.com/percona/pmm/version.ProjectName=pmm-agent' \
 				-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
 				-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
 				-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)'
+# ------------------------------------------------------------------------------------------
+
+.PHONY: help release release-gssapi release-dev release-dev-gssapi
+.PHONY: format gen _gen _gen-mocks gen-init install install-race test test-cover
+.PHONY: fuzz-slowlog-parser fuzz-postgres-parser bench run run-race
+.PHONY: run-race-cover _run env-up env-down setup-dev env-mysql env-mongo
+.PHONY: env-psql env-sysbench-prepare env-sysbench-run
+
+help: 	## Display this help message
+	@echo "Please use \`make <target>\`, where <target> is one of the following:"
+	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9-]+:.*## / {printf "  %-23s%s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 release:                        ## Build static pmm-agent release binary (Linux only)
 	CGO_ENABLED=1 go build -v -ldflags "-extldflags '-static' $(VERSION_FLAGS)" -tags 'osusergo netgo static_build' -o $(PMM_RELEASE_PATH)/pmm-agent
@@ -38,11 +45,21 @@ release-dev:
 release-dev-gssapi:
 	CGO_ENABLED=1 go build -race -v -ldflags "$(VERSION_FLAGS)" -tags 'gssapi' -o $(PMM_RELEASE_PATH)/pmm-agent-gssapi
 
-gen: clean                      ## Generate files
+gen: _gen _gen-mocks format 	## Generate files
+
+_gen:
+	find . -name *_reform.go -delete
 	go generate ./...
 
-clean:                          ## Remove generated files
-	find . -name *_reform.go -delete
+_gen-mocks:
+	find . -name mock_*.go -delete
+	go tool mockery --config .mockery.yaml
+
+format: FILES = $(shell find . -type f -name '*.go')
+format: 	## Format source code
+	go tool gofumpt -w $(FILES)
+	go tool goimports -local github.com/percona/pmm -w $(FILES)
+	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 
 # generate stub models for perfschema QAN agent; hidden from help as it is not generally useful
 gen-init:
