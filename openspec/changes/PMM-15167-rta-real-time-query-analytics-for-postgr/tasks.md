@@ -4,39 +4,39 @@ Check off items as implemented. Phases align with Jira epic delivery order.
 
 ## Phase 1 — PostgreSQL RTA Agent
 
-- [ ] 1.1 Add `RTAPostgreSQLAgentType` to inventory protobuf and `managed/models`
-- [ ] 1.2 Implement `agent/agents/postgres/realtimeanalytics` collector (pg_stat_activity + pg_locks)
-- [ ] 1.3 Build lock chain graph from pg_locks (blocker → blocked with query text and duration)
-- [ ] 1.4 Map session fields: state, wait events, xact_start vs query_start, leader_pid
-- [ ] 1.5 Populate query_id on PG 14+; fingerprint fallback on PG 12–13
-- [ ] 1.6 Detect query text truncation vs track_activity_query_size
-- [ ] 1.7 Return actionable error when monitoring user lacks pg_read_all_stats
-- [ ] 1.8 Wire agent into pmm-agent SetState / QANCollect-equivalent RTA stream
-- [ ] 1.9 Unit tests: lock chain builder, state mapping, truncation detection, permission error
+- [x] 1.1 Add `RTAPostgreSQLAgentType` to inventory protobuf and `managed/models`
+- [x] 1.2 Implement `agent/agents/postgres/realtimeanalytics` collector (pg_stat_activity + pg_locks)
+- [x] 1.3 Build lock chain graph from pg_locks (blocker → blocked with query text and duration)
+- [x] 1.4 Map session fields: state, wait events, xact_start vs query_start, leader_pid
+- [x] 1.5 Populate query_id on PG 14+; fingerprint fallback on PG 12–13
+- [x] 1.6 Detect query text truncation vs track_activity_query_size
+- [x] 1.7 Return actionable error when monitoring user lacks pg_read_all_stats
+- [x] 1.8 Wire agent into pmm-agent SetState / QANCollect-equivalent RTA stream
+- [x] 1.9 Unit tests: lock chain builder, state mapping, truncation detection, permission error
 
 ## Phase 2 — Server-Side & API Extension
 
-- [ ] 2.1 Add QueryPostgreSQLData and LockChainLink to query.proto; regenerate stubs
-- [ ] 2.2 Extend ListServicesResponse with postgresql services
-- [ ] 2.3 Implement AddRTAPostgreSQLAgent / ChangeRTAPostgreSQLAgent in inventory service
-- [ ] 2.4 Extend realtimeanalytics service dispatch for PostgreSQLServiceType
-- [ ] 2.5 Store and serve PostgreSQL QueryData via existing in-memory TTL store
-- [ ] 2.6 Add PostgreSQL RTA telemetry metrics (registered, enabled, disabled counts)
-- [ ] 2.7 Optional: auto-register RTA agent when adding PostgreSQL service (mirror MongoDB flag)
+- [x] 2.1 Add QueryPostgreSQLData and LockChainLink to query.proto; regenerate stubs
+- [x] 2.2 Extend ListServicesResponse with postgresql services
+- [x] 2.3 Implement AddRTAPostgreSQLAgent / ChangeRTAPostgreSQLAgent in inventory service
+- [x] 2.4 Extend realtimeanalytics service dispatch for PostgreSQLServiceType
+- [x] 2.5 Store and serve PostgreSQL QueryData via existing in-memory TTL store
+- [x] 2.6 Add PostgreSQL RTA telemetry metrics (registered, enabled, disabled counts)
+- [x] 2.7 Optional: auto-register RTA agent when adding PostgreSQL service (mirror MongoDB flag)
 - [ ] 2.8 Integration tests: start session, collect queries, stop session for PostgreSQL
 - [ ] 2.9 Verify MongoDB RTA regression tests still pass
 
 ## Phase 3 — UI Integration
 
-- [ ] 3.1 Extend rta.types.ts and API client for PostgreSQL payload and services list
-- [ ] 3.2 Include PostgreSQL services in Real-time service selector and session modal
-- [ ] 3.3 Overview table: PostgreSQL columns (state, wait event, DB, duration, query)
-- [ ] 3.4 Details pane: lock chain panel (blocker → blocked with query + duration)
-- [ ] 3.5 Visual distinction for idle in transaction (transaction duration, badge)
-- [ ] 3.6 Collapse parallel workers under leader by default (PG 13+)
-- [ ] 3.7 Truncated query tooltip (track_activity_query_size + restart note)
-- [ ] 3.8 Permission error banner when pg_read_all_stats missing
-- [ ] 3.9 Raw data tab shows full pg_stat_activity / lock JSON snapshot
+- [x] 3.1 Extend rta.types.ts and API client for PostgreSQL payload and services list
+- [x] 3.2 Include PostgreSQL services in Real-time service selector and session modal
+- [x] 3.3 Overview table: PostgreSQL columns (state, wait event, DB, duration, query)
+- [x] 3.4 Details pane: lock chain panel (blocker → blocked with query + duration)
+- [x] 3.5 Visual distinction for idle in transaction (transaction duration, badge)
+- [x] 3.6 Collapse parallel workers under leader by default (PG 13+)
+- [x] 3.7 Truncated query tooltip (track_activity_query_size + restart note)
+- [x] 3.8 Permission error banner when pg_read_all_stats missing
+- [x] 3.9 Raw data tab shows full pg_stat_activity / lock JSON snapshot
 - [ ] 3.10 Component tests for PostgreSQL-specific rendering
 
 ## Phase 4 — Testing, Hardening & GA

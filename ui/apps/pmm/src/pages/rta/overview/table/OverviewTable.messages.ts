@@ -4,6 +4,9 @@ export const Messages = {
     host: 'Host',
     operationId: 'Operation ID',
     elapsedTime: 'Elapsed time',
+    sessionState: 'State',
+    database: 'Database',
+    waitEvent: 'Wait event',
   },
   actions: {
     openDetails: 'Open query details',

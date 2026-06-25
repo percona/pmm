@@ -8,11 +8,11 @@ import {
 import { Table } from '@percona/percona-ui';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { QueryData } from 'types/rta.types';
-import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
+import { getOverviewTableColumns } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
-import { filterElapsedTime } from './OverviewTable.utils';
+import { filterElapsedTime, prepareOverviewQueries } from './OverviewTable.utils';
 
 interface Props {
   queries: QueryData[];
@@ -29,6 +29,8 @@ const OverviewTable: FC<Props> = ({
   actions,
   onRowHover,
 }) => {
+  const tableQueries = prepareOverviewQueries(queries);
+  const columns = getOverviewTableColumns(tableQueries);
   const tableRef = useRef<MRT_TableInstance<QueryData> | null>(null);
   // Controlled table state is required to read the filtered/sorted row model via tableInstanceRef.
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([]);
@@ -38,8 +40,8 @@ const OverviewTable: FC<Props> = ({
   const getNavigableQueries = useCallback(
     () =>
       tableRef.current?.getPrePaginationRowModel().rows.map((row) => row.original) ??
-      queries,
-    [queries]
+      tableQueries,
+    [tableQueries]
   );
 
   const syncNavigableQueries = useCallback(() => {
@@ -60,8 +62,8 @@ const OverviewTable: FC<Props> = ({
             pageIndex: 0,
           },
         }}
-        columns={OVERVIEW_TABLE_COLUMNS}
-        data={queries}
+        columns={columns}
+        data={tableQueries}
         noDataMessage={Messages.noData}
         muiTopToolbarProps={{
           sx: {

@@ -40,21 +40,14 @@ export interface SearchQueriesResponse {
   queries: RawQueryData[];
 }
 
-export interface RawQueryData {
-  serviceId: string;
-  serviceName: string;
-  queryId: string;
-  queryText: string;
-  queryExecutionDuration?: string | null;
-  queryCollectTime: string;
-  clientAddress: string;
-  queryRawJson: string;
-  mongoDbPayload: QueryMongoDBData;
+export interface LockChainLink {
+  blockerPid: number;
+  blockedPid: number;
+  lockMode: string;
+  relationName: string;
+  blockerQueryText: string;
+  blockerDuration?: string | null;
 }
-
-export type QueryData = Exclude<RawQueryData, 'queryExecutionDuration'> & {
-  queryExecutionDurationMs?: number | null;
-};
 
 export interface QueryMongoDBData {
   dbInstanceAddress: string;
@@ -67,7 +60,49 @@ export interface QueryMongoDBData {
   collection?: string;
 }
 
-// TODO: Add other service types when available
+export interface QueryPostgreSQLData {
+  dbInstanceAddress: string;
+  databaseName: string;
+  username: string;
+  applicationName: string;
+  sessionState: string;
+  transactionStartTime?: string;
+  queryStartTime?: string;
+  waitEventType: string;
+  waitEvent: string;
+  backendPid: number;
+  leaderPid: number;
+  queryTextTruncated: boolean;
+  trackActivityQuerySize: number;
+  lockChain?: LockChainLink[];
+  /** UI-only: number of parallel workers collapsed under this leader row. */
+  parallelWorkerCount?: number;
+}
+
+export interface RawQueryData {
+  serviceId: string;
+  serviceName: string;
+  queryId: string;
+  queryText: string;
+  queryExecutionDuration?: string | null;
+  queryCollectTime: string;
+  clientAddress: string;
+  queryRawJson: string;
+  mongoDbPayload?: QueryMongoDBData;
+  postgresPayload?: QueryPostgreSQLData;
+}
+
+export type QueryData = Exclude<RawQueryData, 'queryExecutionDuration'> & {
+  queryExecutionDurationMs?: number | null;
+};
+
 export interface AvailableServicesResponse {
   mongodb: VersionedService[];
+  postgresql: VersionedService[];
 }
+
+export const isPostgresQuery = (query: QueryData): boolean =>
+  !!query.postgresPayload && Object.keys(query.postgresPayload).length > 0;
+
+export const isMongoQuery = (query: QueryData): boolean =>
+  !!query.mongoDbPayload && Object.keys(query.mongoDbPayload).length > 0;

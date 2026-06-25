@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"google.golang.org/protobuf/types/known/durationpb"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -214,6 +215,34 @@ func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *model
 		DisableQueryExamples:   agent.QANOptions.QueryExamplesDisabled,
 		MaxQueryLength:         agent.QANOptions.MaxQueryLength,
 		DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
+		TextFiles: &agentv1.TextFiles{
+			Files:              agent.Files(),
+			TemplateLeftDelim:  tdp.Left,
+			TemplateRightDelim: tdp.Right,
+		},
+	}
+}
+
+// rtaPostgreSQLAgentConfig returns desired configuration of rta-postgresql-agent RTA agent.
+func rtaPostgreSQLAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
+	tdp := agent.TemplateDelimiters(service)
+	dsnParams := models.DSNParams{
+		DialTimeout:              5 * time.Second,
+		Database:                 service.DatabaseName,
+		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
+	}
+
+	apiRTAOptions := &inventoryv1.RTAOptions{}
+	if agent.RTAOptions.CollectInterval != nil {
+		apiRTAOptions.CollectInterval = durationpb.New(*agent.RTAOptions.CollectInterval)
+	}
+
+	return &agentv1.SetStateRequest_BuiltinAgent{
+		Type:        inventoryv1.AgentType_AGENT_TYPE_RTA_POSTGRESQL_AGENT,
+		Dsn:         agent.DSN(service, dsnParams, nil, pmmAgentVersion),
+		RtaOptions:  apiRTAOptions,
+		ServiceId:   service.ServiceID,
+		ServiceName: service.ServiceName,
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

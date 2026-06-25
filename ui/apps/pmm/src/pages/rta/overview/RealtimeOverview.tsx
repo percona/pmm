@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from 'react';
+import { FC, useMemo, useRef, useState } from 'react';
 import {
   Navigate,
   Link as RouterLink,
@@ -8,11 +8,13 @@ import { RealtimePage } from '../components/rta-page';
 import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
 import OverviewTable from './table/OverviewTable';
 import { DetailsPane } from './details-pane';
-import { QueryData } from 'types/rta.types';
+import { QueryData, RealtimeSessionStatus } from 'types/rta.types';
 import { Icon } from 'components/icon';
 import { Messages } from './RealtimeOverview.messages';
+import { PG_READ_ALL_STATS_ERROR } from './table/OverviewTable.utils';
 import { createRealtimeSessionsUrl } from 'utils/link.utils';
 import Stack from '@mui/material/Stack';
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
 import { AutoRefreshSelect } from './auto-refresh-select';
@@ -38,6 +40,16 @@ const RealtimeOverviewPage: FC = () => {
   // We need to store the previous fetching state to restore it when the details pane is closed
   const previousFetchingState = useRef<boolean>(fetching);
   const { data: sessions = [], isLoading } = useRealtimeSessions();
+
+  const errorSessions = useMemo(
+    () =>
+      sessions.filter(
+        (session) =>
+          serviceIds.includes(session.serviceId) &&
+          session.status === RealtimeSessionStatus.error
+      ),
+    [serviceIds, sessions]
+  );
 
   const selectedQueryIndex = selectedQuery
     ? navigableQueries.findIndex(
@@ -95,6 +107,11 @@ const RealtimeOverviewPage: FC = () => {
 
   return (
     <RealtimePage>
+      {errorSessions.length > 0 && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {PG_READ_ALL_STATS_ERROR}
+        </Alert>
+      )}
       <OverviewTable
         queries={tableQueries}
         onQuerySelected={handleQuerySelected}

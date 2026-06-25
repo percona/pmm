@@ -219,7 +219,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 		if len(agent.MySQLOptions.ExtraDSNParams) != 0 {
 			ua.MysqlOptions.ExtraDsnParams = agent.MySQLOptions.ExtraDSNParams
 		}
-	case models.PostgresExporterType, models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
+	case models.PostgresExporterType, models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType, models.RTAPostgreSQLAgentType:
 		ua.PostgresqlOptions = &managementv1.UniversalAgent_PostgreSQLOptions{
 			IsSslKeySet:            agent.PostgreSQLOptions.SSLKey != "",
 			AutoDiscoveryLimit:     pointer.GetInt32(agent.PostgreSQLOptions.AutoDiscoveryLimit),

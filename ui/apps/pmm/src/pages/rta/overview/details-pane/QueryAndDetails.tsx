@@ -1,9 +1,13 @@
 import Grid from '@mui/material/Grid';
+import Stack from '@mui/material/Stack';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
+import Tooltip from '@mui/material/Tooltip';
 import { FC } from 'react';
 import { format, formatDuration } from 'date-fns';
 import { tz } from '@date-fns/tz';
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
-import { QueryData } from 'types/rta.types';
+import { isPostgresQuery, QueryData } from 'types/rta.types';
 import DetailsMetric from './DetailsMetric';
 import BigNumberMetric from './BigNumberMetric';
 import { Messages } from './QueryAndDetails.messages';
@@ -20,43 +24,160 @@ const GridItem = ({ children }: { children: React.ReactNode }) => (
   </Grid>
 );
 
-const QueryAndDetails: FC<Props> = ({
-  queryData: {
+const formatElapsed = (queryExecutionDurationMs?: number | null) => {
+  if (!queryExecutionDurationMs) {
+    return { mainText: undefined, subText: undefined };
+  }
+
+  const formatted = formatDuration(
+    { seconds: queryExecutionDurationMs },
+    { format: ['seconds'] }
+  );
+  const parts = formatted.split(' ');
+
+  return {
+    mainText: parts.length > 1 ? parts[0] : undefined,
+    subText: parts.length > 1 ? parts[1] : undefined,
+  };
+};
+
+const PostgresDetails: FC<Props> = ({ queryData }) => {
+  const { user } = useUser();
+  const timezone = user?.preferences?.timezone || 'UTC';
+  const payload = queryData.postgresPayload!;
+  const elapsed = formatElapsed(queryData.queryExecutionDurationMs);
+  const isIdleInTransaction = payload.sessionState === 'idle in transaction';
+
+  return (
+    <Grid container spacing={3}>
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Grid container spacing={3}>
+          <GridItem>
+            <DetailsMetric title="Session state" tooltip="PostgreSQL backend state">
+              <Stack direction="row" spacing={1} alignItems="center">
+                <BigNumberMetric mainText={payload.sessionState} dataTestId="session-state-value" />
+                {isIdleInTransaction && (
+                  <Chip label="idle in transaction" color="warning" size="small" />
+                )}
+              </Stack>
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.operationId} tooltip={Messages.tooltips.operationId}>
+              <BigNumberMetric mainText={queryData.queryId} dataTestId="operation-id-value" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.elapsedExecTime} tooltip={Messages.tooltips.elapsedExecTime}>
+              <BigNumberMetric {...elapsed} dataTestId="elapsed-time-value" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title="Wait event" tooltip="PostgreSQL wait event type and name">
+              <BigNumberMetric
+                mainText={[payload.waitEventType, payload.waitEvent].filter(Boolean).join(' / ') || undefined}
+                dataTestId="wait-event-value"
+              />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.databaseName} tooltip={Messages.tooltips.databaseName}>
+              <BigNumberMetric mainText={payload.databaseName} size="small" dataTestId="database-name-value" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.username} tooltip={Messages.tooltips.username}>
+              <BigNumberMetric mainText={payload.username} size="small" dataTestId="username-value" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.clientAppName} tooltip={Messages.tooltips.clientAppName}>
+              <BigNumberMetric mainText={payload.applicationName} size="small" dataTestId="client-app-name-value" />
+            </DetailsMetric>
+          </GridItem>
+          <GridItem>
+            <DetailsMetric title={Messages.titles.clientAddress} tooltip={Messages.tooltips.clientAddress}>
+              <BigNumberMetric mainText={queryData.clientAddress} size="small" dataTestId="client-address-value" />
+            </DetailsMetric>
+          </GridItem>
+          {payload.lockChain && payload.lockChain.length > 0 && (
+            <Grid size={{ xs: 12 }}>
+              <DetailsMetric title="Lock chain" tooltip="Blocker to blocked lock relationships">
+                <Stack spacing={1}>
+                  {payload.lockChain.map((link, index) => (
+                    <Typography key={`${link.blockerPid}-${index}`} variant="body2">
+                      PID {link.blockerPid} blocks {link.blockedPid} ({link.lockMode}
+                      {link.relationName ? ` on ${link.relationName}` : ''})
+                      {link.blockerQueryText ? `: ${link.blockerQueryText}` : ''}
+                    </Typography>
+                  ))}
+                </Stack>
+              </DetailsMetric>
+            </Grid>
+          )}
+          <GridItem>
+            <DetailsMetric title={Messages.titles.dataCaptureTime} tooltip={Messages.tooltips.dataCaptureTime}>
+              <BigNumberMetric
+                mainText={format(new Date(queryData.queryCollectTime), TIME_FORMAT, { in: tz(timezone) })}
+                size="small"
+                dataTestId="data-capture-time-value"
+              />
+            </DetailsMetric>
+          </GridItem>
+        </Grid>
+      </Grid>
+      <Grid size={{ xs: 12, md: 6 }} sx={{ maxHeight: '70vh', overflow: 'auto' }}>
+        {payload.queryTextTruncated && (
+          <Tooltip
+            title={`Query text truncated at ${payload.trackActivityQuerySize} bytes. Increase track_activity_query_size and restart PostgreSQL to capture longer queries.`}
+          >
+            <Chip label="Truncated query" color="warning" size="small" sx={{ mb: 1 }} />
+          </Tooltip>
+        )}
+        <SyntaxHighlighter language="sql" showLineNumbers showCopyButton content={queryData.queryText} />
+      </Grid>
+    </Grid>
+  );
+};
+
+const QueryAndDetails: FC<Props> = ({ queryData }) => {
+  if (isPostgresQuery(queryData)) {
+    return <PostgresDetails queryData={queryData} />;
+  }
+
+  const {
     queryText,
     queryId,
     queryExecutionDurationMs,
     queryCollectTime,
     serviceName,
     clientAddress,
-    mongoDbPayload: {
-      planSummary,
-      databaseName,
-      collection,
-      operation,
-      username,
-      dbInstanceAddress,
-      clientAppName,
-      operationStartTime,
+    mongoDbPayload = {
+      planSummary: '',
+      databaseName: '',
+      collection: '',
+      operation: '',
+      username: '',
+      dbInstanceAddress: '',
+      clientAppName: '',
+      operationStartTime: '',
     },
-  },
-}) => {
+  } = queryData;
+
+  const {
+    planSummary,
+    databaseName,
+    collection,
+    operation,
+    username,
+    dbInstanceAddress,
+    clientAppName,
+    operationStartTime,
+  } = mongoDbPayload;
+
   const { user } = useUser();
   const timezone = user?.preferences?.timezone || 'UTC';
-
-  const formattedQueryExecutionDuration = queryExecutionDurationMs
-    ? formatDuration(
-        {
-          seconds: queryExecutionDurationMs,
-        },
-        {
-          format: ['seconds'],
-        }
-      )
-    : '';
-
-  const formattedQueryExecutionDurationParts = formattedQueryExecutionDuration
-    ? formattedQueryExecutionDuration.split(' ')
-    : [];
+  const elapsed = formatElapsed(queryExecutionDurationMs);
 
   return (
     <Grid container spacing={3}>
@@ -67,10 +188,7 @@ const QueryAndDetails: FC<Props> = ({
               title={Messages.titles.operationId}
               tooltip={Messages.tooltips.operationId}
             >
-              <BigNumberMetric
-                mainText={queryId}
-                dataTestId="operation-id-value"
-              />
+              <BigNumberMetric mainText={queryId} dataTestId="operation-id-value" />
             </DetailsMetric>
           </GridItem>
           <GridItem>
@@ -78,19 +196,7 @@ const QueryAndDetails: FC<Props> = ({
               title={Messages.titles.elapsedExecTime}
               tooltip={Messages.tooltips.elapsedExecTime}
             >
-              <BigNumberMetric
-                mainText={
-                  formattedQueryExecutionDurationParts.length > 1
-                    ? formattedQueryExecutionDurationParts[0]
-                    : undefined
-                }
-                subText={
-                  formattedQueryExecutionDurationParts.length > 1
-                    ? formattedQueryExecutionDurationParts[1]
-                    : undefined
-                }
-                dataTestId="elapsed-time-value"
-              />
+              <BigNumberMetric {...elapsed} dataTestId="elapsed-time-value" />
             </DetailsMetric>
           </GridItem>
           <GridItem>

@@ -19,6 +19,7 @@ message ListServicesRequest {
 
 message ListServicesResponse {
   repeated inventory.v1.MongoDBService mongodb = 1;
+  repeated inventory.v1.PostgreSQLService postgresql = 2;
 }
 
 // Session related messages
