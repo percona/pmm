@@ -7,14 +7,16 @@
 package realtimeanalyticsv1
 
 import (
-	_ "github.com/percona/pmm/api/extensions/v1"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
+
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
+
+	_ "github.com/percona/pmm/api/extensions/v1"
 )
 
 const (
@@ -610,15 +612,18 @@ func file_realtimeanalytics_v1_query_proto_rawDescGZIP() []byte {
 	return file_realtimeanalytics_v1_query_proto_rawDescData
 }
 
-var file_realtimeanalytics_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_realtimeanalytics_v1_query_proto_goTypes = []any{
-	(*LockChainEntry)(nil),        // 0: realtimeanalytics.v1.LockChainEntry
-	(*QueryPostgreSQLData)(nil),   // 1: realtimeanalytics.v1.QueryPostgreSQLData
-	(*QueryMongoDBData)(nil),      // 2: realtimeanalytics.v1.QueryMongoDBData
-	(*QueryData)(nil),             // 3: realtimeanalytics.v1.QueryData
-	(*durationpb.Duration)(nil),   // 4: google.protobuf.Duration
-	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
-}
+var (
+	file_realtimeanalytics_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+	file_realtimeanalytics_v1_query_proto_goTypes  = []any{
+		(*LockChainEntry)(nil),        // 0: realtimeanalytics.v1.LockChainEntry
+		(*QueryPostgreSQLData)(nil),   // 1: realtimeanalytics.v1.QueryPostgreSQLData
+		(*QueryMongoDBData)(nil),      // 2: realtimeanalytics.v1.QueryMongoDBData
+		(*QueryData)(nil),             // 3: realtimeanalytics.v1.QueryData
+		(*durationpb.Duration)(nil),   // 4: google.protobuf.Duration
+		(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
+	}
+)
+
 var file_realtimeanalytics_v1_query_proto_depIdxs = []int32{
 	4, // 0: realtimeanalytics.v1.LockChainEntry.duration:type_name -> google.protobuf.Duration
 	5, // 1: realtimeanalytics.v1.QueryPostgreSQLData.transaction_start_time:type_name -> google.protobuf.Timestamp

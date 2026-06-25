@@ -57,7 +57,6 @@ ListServicesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListServicesParams struct {
-
 	/* ServiceType.
 
 	   Return only services filtered by service type.
@@ -83,9 +82,7 @@ func (o *ListServicesParams) WithDefaults() *ListServicesParams {
 //
 // All values with no default are reset to their zero value.
 func (o *ListServicesParams) SetDefaults() {
-	var (
-		serviceTypeDefault = string("SERVICE_TYPE_UNSPECIFIED")
-	)
+	serviceTypeDefault := string("SERVICE_TYPE_UNSPECIFIED")
 
 	val := ListServicesParams{
 		ServiceType: &serviceTypeDefault,
@@ -143,7 +140,6 @@ func (o *ListServicesParams) SetServiceType(serviceType *string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListServicesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -159,7 +155,6 @@ func (o *ListServicesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		}
 		qServiceType := qrServiceType
 		if qServiceType != "" {
-
 			if err := r.SetQueryParam("service_type", qServiceType); err != nil {
 				return err
 			}

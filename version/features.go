@@ -29,11 +29,11 @@ type FeatureVersion *Parsed
 
 // Features list.
 var (
-	NodeExporterNewTLSConfig      FeatureVersion = V3_0_0
-	MysqlExporterV0_17_2          FeatureVersion = V3_2_0
-	MysqlExporterPluginCollector  FeatureVersion = V2_36_0
-	NomadAgentSupportVersion      FeatureVersion = V3_2_0
-	MongoDBRtaAgentSupportVersion     FeatureVersion = V3_7_0
+	NodeExporterNewTLSConfig         FeatureVersion = V3_0_0
+	MysqlExporterV0_17_2             FeatureVersion = V3_2_0
+	MysqlExporterPluginCollector     FeatureVersion = V2_36_0
+	NomadAgentSupportVersion         FeatureVersion = V3_2_0
+	MongoDBRtaAgentSupportVersion    FeatureVersion = V3_7_0
 	PostgreSQLRtaAgentSupportVersion FeatureVersion = V3_8_0
 )
 

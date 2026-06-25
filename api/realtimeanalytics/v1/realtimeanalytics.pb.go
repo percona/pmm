@@ -7,17 +7,19 @@
 package realtimeanalyticsv1
 
 import (
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
+
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	v1 "github.com/percona/pmm/api/inventory/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
+
+	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -704,28 +706,31 @@ func file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescGZIP() []byte {
 	return file_realtimeanalytics_v1_realtimeanalytics_proto_rawDescData
 }
 
-var file_realtimeanalytics_v1_realtimeanalytics_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
-var file_realtimeanalytics_v1_realtimeanalytics_proto_goTypes = []any{
-	(SessionStatus)(0),            // 0: realtimeanalytics.v1.SessionStatus
-	(*ListServicesRequest)(nil),   // 1: realtimeanalytics.v1.ListServicesRequest
-	(*ListServicesResponse)(nil),  // 2: realtimeanalytics.v1.ListServicesResponse
-	(*Session)(nil),               // 3: realtimeanalytics.v1.Session
-	(*ListSessionsRequest)(nil),   // 4: realtimeanalytics.v1.ListSessionsRequest
-	(*ListSessionsResponse)(nil),  // 5: realtimeanalytics.v1.ListSessionsResponse
-	(*StartSessionRequest)(nil),   // 6: realtimeanalytics.v1.StartSessionRequest
-	(*StartSessionResponse)(nil),  // 7: realtimeanalytics.v1.StartSessionResponse
-	(*StopSessionRequest)(nil),    // 8: realtimeanalytics.v1.StopSessionRequest
-	(*StopSessionResponse)(nil),   // 9: realtimeanalytics.v1.StopSessionResponse
-	(*SearchQueriesRequest)(nil),  // 10: realtimeanalytics.v1.SearchQueriesRequest
-	(*SearchQueriesResponse)(nil), // 11: realtimeanalytics.v1.SearchQueriesResponse
-	(v1.ServiceType)(0),           // 12: inventory.v1.ServiceType
-	(*v1.MongoDBService)(nil),     // 13: inventory.v1.MongoDBService
-	(*v1.PostgreSQLService)(nil),  // 14: inventory.v1.PostgreSQLService
-	(*timestamppb.Timestamp)(nil), // 15: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),   // 16: google.protobuf.Duration
-	(*QueryData)(nil),             // 17: realtimeanalytics.v1.QueryData
-}
+var (
+	file_realtimeanalytics_v1_realtimeanalytics_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_realtimeanalytics_v1_realtimeanalytics_proto_msgTypes  = make([]protoimpl.MessageInfo, 11)
+	file_realtimeanalytics_v1_realtimeanalytics_proto_goTypes   = []any{
+		SessionStatus(0),              // 0: realtimeanalytics.v1.SessionStatus
+		(*ListServicesRequest)(nil),   // 1: realtimeanalytics.v1.ListServicesRequest
+		(*ListServicesResponse)(nil),  // 2: realtimeanalytics.v1.ListServicesResponse
+		(*Session)(nil),               // 3: realtimeanalytics.v1.Session
+		(*ListSessionsRequest)(nil),   // 4: realtimeanalytics.v1.ListSessionsRequest
+		(*ListSessionsResponse)(nil),  // 5: realtimeanalytics.v1.ListSessionsResponse
+		(*StartSessionRequest)(nil),   // 6: realtimeanalytics.v1.StartSessionRequest
+		(*StartSessionResponse)(nil),  // 7: realtimeanalytics.v1.StartSessionResponse
+		(*StopSessionRequest)(nil),    // 8: realtimeanalytics.v1.StopSessionRequest
+		(*StopSessionResponse)(nil),   // 9: realtimeanalytics.v1.StopSessionResponse
+		(*SearchQueriesRequest)(nil),  // 10: realtimeanalytics.v1.SearchQueriesRequest
+		(*SearchQueriesResponse)(nil), // 11: realtimeanalytics.v1.SearchQueriesResponse
+		v1.ServiceType(0),             // 12: inventory.v1.ServiceType
+		(*v1.MongoDBService)(nil),     // 13: inventory.v1.MongoDBService
+		(*v1.PostgreSQLService)(nil),  // 14: inventory.v1.PostgreSQLService
+		(*timestamppb.Timestamp)(nil), // 15: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),   // 16: google.protobuf.Duration
+		(*QueryData)(nil),             // 17: realtimeanalytics.v1.QueryData
+	}
+)
+
 var file_realtimeanalytics_v1_realtimeanalytics_proto_depIdxs = []int32{
 	12, // 0: realtimeanalytics.v1.ListServicesRequest.service_type:type_name -> inventory.v1.ServiceType
 	13, // 1: realtimeanalytics.v1.ListServicesResponse.mongodb:type_name -> inventory.v1.MongoDBService

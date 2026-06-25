@@ -102,7 +102,6 @@ func (o *SearchQueriesOK) GetPayload() *SearchQueriesOKBody {
 }
 
 func (o *SearchQueriesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(SearchQueriesOKBody)
 
 	// response payload
@@ -176,7 +175,6 @@ func (o *SearchQueriesDefault) GetPayload() *SearchQueriesDefaultBody {
 }
 
 func (o *SearchQueriesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(SearchQueriesDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ SearchQueriesBody SearchQueriesRequest contains optional filters for listing act
 swagger:model SearchQueriesBody
 */
 type SearchQueriesBody struct {
-
 	// Optional filter by Service identifiers.
 	ServiceIds []string `json:"service_ids"`
 
@@ -233,7 +230,6 @@ SearchQueriesDefaultBody search queries default body
 swagger:model SearchQueriesDefaultBody
 */
 type SearchQueriesDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -303,9 +299,7 @@ func (o *SearchQueriesDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *SearchQueriesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -325,7 +319,6 @@ func (o *SearchQueriesDefaultBody) contextValidateDetails(ctx context.Context, f
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -354,7 +347,6 @@ SearchQueriesDefaultBodyDetailsItems0 search queries default body details items0
 swagger:model SearchQueriesDefaultBodyDetailsItems0
 */
 type SearchQueriesDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -366,7 +358,6 @@ type SearchQueriesDefaultBodyDetailsItems0 struct {
 func (o *SearchQueriesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -404,7 +395,6 @@ func (o *SearchQueriesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o SearchQueriesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -468,7 +458,6 @@ SearchQueriesOKBody SearchQueriesResponse returns the list of currently active R
 swagger:model SearchQueriesOKBody
 */
 type SearchQueriesOKBody struct {
-
 	// List of active Real-Time Analytics session Queries.
 	Queries []*SearchQueriesOKBodyQueriesItems0 `json:"queries"`
 }
@@ -532,9 +521,7 @@ func (o *SearchQueriesOKBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *SearchQueriesOKBody) contextValidateQueries(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Queries); i++ {
-
 		if o.Queries[i] != nil {
 
 			if swag.IsZero(o.Queries[i]) { // not required
@@ -554,7 +541,6 @@ func (o *SearchQueriesOKBody) contextValidateQueries(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -584,7 +570,6 @@ SearchQueriesOKBodyQueriesItems0 QueryData represents a single Real-Time Analyti
 swagger:model SearchQueriesOKBodyQueriesItems0
 */
 type SearchQueriesOKBodyQueriesItems0 struct {
-
 	// PMM Service identifier that reported the query.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -716,7 +701,6 @@ func (o *SearchQueriesOKBodyQueriesItems0) ContextValidate(ctx context.Context, 
 }
 
 func (o *SearchQueriesOKBodyQueriesItems0) contextValidateMongoDBPayload(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MongoDBPayload != nil {
 
 		if swag.IsZero(o.MongoDBPayload) { // not required
@@ -741,7 +725,6 @@ func (o *SearchQueriesOKBodyQueriesItems0) contextValidateMongoDBPayload(ctx con
 }
 
 func (o *SearchQueriesOKBodyQueriesItems0) contextValidatePostgresqlPayload(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PostgresqlPayload != nil {
 
 		if swag.IsZero(o.PostgresqlPayload) { // not required
@@ -788,7 +771,6 @@ SearchQueriesOKBodyQueriesItems0MongoDBPayload QueryMongoDBData holds MongoDB-sp
 swagger:model SearchQueriesOKBodyQueriesItems0MongoDBPayload
 */
 type SearchQueriesOKBodyQueriesItems0MongoDBPayload struct {
-
 	// MongoDB instance address(host:port) that processing the query.
 	DBInstanceAddress string `json:"db_instance_address,omitempty"`
 
@@ -869,7 +851,6 @@ SearchQueriesOKBodyQueriesItems0PostgresqlPayload QueryPostgreSQLData holds Post
 swagger:model SearchQueriesOKBodyQueriesItems0PostgresqlPayload
 */
 type SearchQueriesOKBodyQueriesItems0PostgresqlPayload struct {
-
 	// Backend process ID.
 	Pid int32 `json:"pid,omitempty"`
 
@@ -1003,9 +984,7 @@ func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) ContextValidate(ctx 
 }
 
 func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) contextValidateLockChain(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.LockChain); i++ {
-
 		if o.LockChain[i] != nil {
 
 			if swag.IsZero(o.LockChain[i]) { // not required
@@ -1025,7 +1004,6 @@ func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) contextValidateLockC
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -1054,7 +1032,6 @@ SearchQueriesOKBodyQueriesItems0PostgresqlPayloadLockChainItems0 LockChainEntry 
 swagger:model SearchQueriesOKBodyQueriesItems0PostgresqlPayloadLockChainItems0
 */
 type SearchQueriesOKBodyQueriesItems0PostgresqlPayloadLockChainItems0 struct {
-
 	// Process ID of the session in this lock chain link.
 	Pid int32 `json:"pid,omitempty"`
 

@@ -18,7 +18,7 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
       <QueryCell
         query={row.original.queryText}
         truncated={row.original.postgresqlPayload?.queryTruncated}
-        language={row.original.postgresqlPayload ? 'sql' : 'mongodb'}
+        language={row.original.postgresqlPayload ? 'text' : 'mongodb'}
       />
     ),
     // @ts-expect-error - muiTableBodyCellProps is not typed correctly

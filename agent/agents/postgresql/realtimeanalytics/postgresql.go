@@ -21,9 +21,9 @@ import (
 	"errors"
 	"time"
 
+	_ "github.com/lib/pq" // register SQL driver
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
-	_ "github.com/lib/pq" // register SQL driver
 
 	"github.com/percona/pmm/agent/agents"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -100,7 +100,7 @@ func (p *PostgreSQLRTA) Run(ctx context.Context) {
 		_ = db.Close()
 	}()
 
-	collector, err := newCollector(db, p.agentID, p.l)
+	collector, err := newCollector(ctx, db, p.agentID, p.l)
 	if err != nil {
 		p.l.Errorf("Can't initialize PostgreSQL RTA collector: %v", err)
 		p.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}

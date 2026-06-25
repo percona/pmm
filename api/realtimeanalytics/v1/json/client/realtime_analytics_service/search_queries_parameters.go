@@ -57,7 +57,6 @@ SearchQueriesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type SearchQueriesParams struct {
-
 	/* Body.
 
 	   SearchQueriesRequest contains optional filters for listing active Real-Time Analytics session Queries.
@@ -130,7 +129,6 @@ func (o *SearchQueriesParams) SetBody(body SearchQueriesBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *SearchQueriesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

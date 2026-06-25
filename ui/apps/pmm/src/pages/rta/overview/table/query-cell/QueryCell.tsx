@@ -6,7 +6,7 @@ import { Messages } from './QueryCell.messages';
 export interface Props {
   query: string;
   truncated?: boolean;
-  language?: 'mongodb' | 'sql';
+  language?: 'mongodb' | 'text';
 }
 
 const QueryCell: FC<Props> = ({ query, truncated, language = 'mongodb' }) => {

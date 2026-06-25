@@ -273,7 +273,7 @@ const PostgreSQLDetails: FC<{ queryData: QueryData; timezone: string }> = ({
         )}
       </Grid>
       <Grid size={{ xs: 12, md: 6 }} sx={{ maxHeight: '70vh', overflow: 'auto' }}>
-        <SyntaxHighlighter language="sql" showLineNumbers showCopyButton content={queryData.queryText} />
+        <SyntaxHighlighter language="text" showLineNumbers showCopyButton content={queryData.queryText} />
       </Grid>
     </Grid>
   );

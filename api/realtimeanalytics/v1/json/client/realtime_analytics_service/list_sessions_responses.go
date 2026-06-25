@@ -102,7 +102,6 @@ func (o *ListSessionsOK) GetPayload() *ListSessionsOKBody {
 }
 
 func (o *ListSessionsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListSessionsOKBody)
 
 	// response payload
@@ -176,7 +175,6 @@ func (o *ListSessionsDefault) GetPayload() *ListSessionsDefaultBody {
 }
 
 func (o *ListSessionsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListSessionsDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ ListSessionsDefaultBody list sessions default body
 swagger:model ListSessionsDefaultBody
 */
 type ListSessionsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,9 +259,7 @@ func (o *ListSessionsDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListSessionsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -284,7 +279,6 @@ func (o *ListSessionsDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -313,7 +307,6 @@ ListSessionsDefaultBodyDetailsItems0 list sessions default body details items0
 swagger:model ListSessionsDefaultBodyDetailsItems0
 */
 type ListSessionsDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -325,7 +318,6 @@ type ListSessionsDefaultBodyDetailsItems0 struct {
 func (o *ListSessionsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -363,7 +355,6 @@ func (o *ListSessionsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListSessionsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -427,7 +418,6 @@ ListSessionsOKBody ListSessionsResponse returns the list of currently active Rea
 swagger:model ListSessionsOKBody
 */
 type ListSessionsOKBody struct {
-
 	// List of active Real-Time Analytics Sessions.
 	Sessions []*ListSessionsOKBodySessionsItems0 `json:"sessions"`
 }
@@ -491,9 +481,7 @@ func (o *ListSessionsOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ListSessionsOKBody) contextValidateSessions(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Sessions); i++ {
-
 		if o.Sessions[i] != nil {
 
 			if swag.IsZero(o.Sessions[i]) { // not required
@@ -513,7 +501,6 @@ func (o *ListSessionsOKBody) contextValidateSessions(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -542,7 +529,6 @@ ListSessionsOKBodySessionsItems0 Session represents an active Real-Time Analytic
 swagger:model ListSessionsOKBodySessionsItems0
 */
 type ListSessionsOKBodySessionsItems0 struct {
-
 	// Service identifier that has enabled Real-Time Analytics session.
 	ServiceID string `json:"service_id,omitempty"`
 

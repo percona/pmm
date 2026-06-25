@@ -57,7 +57,6 @@ StartSessionParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type StartSessionParams struct {
-
 	/* Body.
 
 	   StartSessionRequest contains parameters for starting Real-Time Analytics session.
@@ -130,7 +129,6 @@ func (o *StartSessionParams) SetBody(body StartSessionBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *StartSessionParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

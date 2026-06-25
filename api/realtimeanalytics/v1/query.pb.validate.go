@@ -161,7 +161,8 @@ func (e LockChainEntryValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = LockChainEntryValidationError{}
@@ -375,7 +376,8 @@ func (e QueryPostgreSQLDataValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = QueryPostgreSQLDataValidationError{}
@@ -518,7 +520,8 @@ func (e QueryMongoDBDataValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = QueryMongoDBDataValidationError{}
@@ -774,7 +777,8 @@ func (e QueryDataValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = QueryDataValidationError{}

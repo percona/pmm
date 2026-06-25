@@ -33,6 +33,12 @@ import (
 
 const queryTag = "agent='rta-postgresql'"
 
+const (
+	versionCheckTimeout         = 5 * time.Second
+	minPostgreSQLQueryIDMajor   = 14
+	minPostgreSQLLeaderPIDMajor = 13
+)
+
 type collector struct {
 	db            *sql.DB
 	agentID       string
@@ -45,36 +51,37 @@ type collector struct {
 }
 
 type sessionRow struct {
-	pid              int32
-	username         sql.NullString
-	applicationName  sql.NullString
-	clientAddr       sql.NullString
-	clientPort       sql.NullInt64
-	databaseName     sql.NullString
-	state            sql.NullString
-	waitEventType    sql.NullString
-	waitEvent        sql.NullString
-	backendType      sql.NullString
-	xactStart        sql.NullTime
-	queryStart       sql.NullTime
-	stateChange      sql.NullTime
-	query            sql.NullString
-	queryID          sql.NullInt64
-	leaderPID        sql.NullInt32
+	pid             int32
+	username        sql.NullString
+	applicationName sql.NullString
+	clientAddr      sql.NullString
+	clientPort      sql.NullInt64
+	databaseName    sql.NullString
+	state           sql.NullString
+	waitEventType   sql.NullString
+	waitEvent       sql.NullString
+	backendType     sql.NullString
+	xactStart       sql.NullTime
+	queryStart      sql.NullTime
+	stateChange     sql.NullTime
+	query           sql.NullString
+	queryID         sql.NullInt64
+	leaderPID       sql.NullInt32
 }
 
-func newCollector(db *sql.DB, agentID string, l *logrus.Entry) (*collector, error) {
+func newCollector(ctx context.Context, db *sql.DB, agentID string, l *logrus.Entry) (*collector, error) {
 	c := &collector{
 		db:      db,
 		agentID: agentID,
 		l:       l,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, versionCheckTimeout)
 	defer cancel()
 
 	var versionStr string
-	if err := db.QueryRowContext(ctx, "SELECT /* "+queryTag+" */ version()").Scan(&versionStr); err != nil {
+	err := db.QueryRowContext(ctx, "SELECT /* "+queryTag+" */ version()").Scan(&versionStr)
+	if err != nil {
 		return nil, fmt.Errorf("failed to query PostgreSQL version: %w", err)
 	}
 
@@ -89,14 +96,15 @@ func newCollector(db *sql.DB, agentID string, l *logrus.Entry) (*collector, erro
 	}
 
 	c.majorVersion = major
-	c.hasQueryID = major >= 14
-	c.hasLeaderPID = major >= 13
+	c.hasQueryID = major >= minPostgreSQLQueryIDMajor
+	c.hasLeaderPID = major >= minPostgreSQLLeaderPIDMajor
 
 	return c, nil
 }
 
 func (c *collector) collectSessions(ctx context.Context) ([]*rtav1.QueryData, error) {
-	if err := c.ensurePrivileges(ctx); err != nil {
+	err := c.ensurePrivileges(ctx)
+	if err != nil {
 		return nil, err
 	}
 
@@ -196,7 +204,8 @@ func (c *collector) fetchSessions(ctx context.Context) ([]sessionRow, error) {
 			dest = append(dest, &row.leaderPID)
 		}
 
-		if scanErr := rows.Scan(dest...); scanErr != nil {
+		scanErr := rows.Scan(dest...)
+		if scanErr != nil {
 			return nil, fmt.Errorf("failed to scan pg_stat_activity row: %w", scanErr)
 		}
 
@@ -207,7 +216,8 @@ func (c *collector) fetchSessions(ctx context.Context) ([]sessionRow, error) {
 		results = append(results, row)
 	}
 
-	if err = rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		return nil, err
 	}
 
@@ -298,7 +308,8 @@ WHERE NOT blocked_locks.granted`
 		var link lockChainLink
 		var durationSec float64
 
-		if scanErr := rows.Scan(&link.blockedPID, &link.blockerPID, &link.lockMode, &link.lockType, &link.blockerQuery, &durationSec); scanErr != nil {
+		scanErr := rows.Scan(&link.blockedPID, &link.blockerPID, &link.lockMode, &link.lockType, &link.blockerQuery, &durationSec)
+		if scanErr != nil {
 			return nil, scanErr
 		}
 
@@ -341,9 +352,9 @@ func (c *collector) rowToQueryData(row sessionRow, chain []lockChainLink, now ti
 	}
 
 	payload := &rtav1.QueryPostgreSQLData{
-		Pid:             row.pid,
-		QueryTruncated:  queryTruncated,
-		LockChain:       make([]*rtav1.LockChainEntry, 0, len(chain)),
+		Pid:            row.pid,
+		QueryTruncated: queryTruncated,
+		LockChain:      make([]*rtav1.LockChainEntry, 0, len(chain)),
 	}
 
 	if row.state.Valid {
@@ -389,11 +400,11 @@ func (c *collector) rowToQueryData(row sessionRow, chain []lockChainLink, now ti
 	}
 
 	return &rtav1.QueryData{
-		QueryId:                  queryID,
-		QueryText:                queryText,
-		QueryExecutionDuration:   durationpb.New(execDuration),
-		QueryCollectTime:         timestamppb.New(now),
-		ClientAddress:            clientAddress,
-		Payload:                  &rtav1.QueryData_PostgresqlPayload{PostgresqlPayload: payload},
+		QueryId:                queryID,
+		QueryText:              queryText,
+		QueryExecutionDuration: durationpb.New(execDuration),
+		QueryCollectTime:       timestamppb.New(now),
+		ClientAddress:          clientAddress,
+		Payload:                &rtav1.QueryData_PostgresqlPayload{PostgresqlPayload: payload},
 	}
 }
