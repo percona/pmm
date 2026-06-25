@@ -45,8 +45,9 @@ check-all: check-license check    ## Run linter and license checks
 check-new:
 	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/v3 --new
 
-format: FILES = $(shell find . -type f -name '*.go' | grep -v -e admin -e agent -e api -e managed -e qan-api2 -e vmproxy)
+format: FILES = $(shell find . -type f -name '*.go' | grep -v -e admin -e agent -e api -e managed -e qan-api2)
 format:               ## Format source code
+	$(MAKE) -C admin format
 	$(MAKE) -C agent format
 	$(MAKE) -C api format
 	$(MAKE) -C managed format
