@@ -18,21 +18,17 @@ package server
 
 import (
 	"context"
-	"crypto/subtle"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 	"os/user"
 	"path"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc/codes"
@@ -43,7 +39,6 @@ import (
 
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
@@ -68,19 +63,12 @@ type Server struct {
 
 	l *logrus.Entry
 
-	pmmUpdateAuthFileM sync.Mutex
-	pmmUpdateAuthFile  string
-
 	envRW       sync.RWMutex
 	envSettings *models.ChangeSettingsParams
 
 	sshKeyM sync.Mutex
 
 	serverv1.UnimplementedServerServiceServer
-}
-
-type pmmUpdateAuth struct {
-	AuthToken string `json:"auth_token"`
 }
 
 // Params holds the parameters needed to create a new service.
@@ -109,7 +97,6 @@ func NewServer(params *Params) (*Server, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to create a new server: %w", err)
 	}
-	path = filepath.Join(path, "pmm-update.json")
 
 	s := &Server{
 		db:                   params.DB,
@@ -127,7 +114,6 @@ func NewServer(params *Params) (*Server, error) {
 		haService:            params.HAService,
 		nomad:                params.Nomad,
 		l:                    logrus.WithField("component", "server"),
-		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
 	}
 	return s, nil
@@ -345,148 +331,6 @@ func (s *Server) ListChangeLogs(ctx context.Context, _ *serverv1.ListChangeLogsR
 	return res, nil
 }
 
-// StartUpdate starts PMM Server update.
-func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateRequest) (*serverv1.StartUpdateResponse, error) {
-	s.envRW.RLock()
-	updatesEnabled := s.envSettings.EnableUpdates
-	s.envRW.RUnlock()
-
-	if updatesEnabled != nil && !*updatesEnabled {
-		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via PMM_ENABLE_UPDATES environment variable.")
-	}
-
-	newImage := req.GetNewImage()
-	if newImage == "" {
-		_, latest, err := s.updater.latest(ctx)
-		if err != nil {
-			if errors.Is(err, services.ErrPMMUpdatesDisabled) {
-				return nil, status.Error(codes.FailedPrecondition, "PMM updates are disabled")
-			}
-			s.l.WithError(err).Error("Failed to get latest version")
-			return nil, status.Error(codes.Unavailable, "Failed to get latest version")
-		} else if latest == nil {
-			s.l.Info("No new version to update to.")
-			return nil, status.Error(codes.FailedPrecondition, "No new version to update to.")
-		}
-		newImage = latest.DockerImage
-	}
-	err := s.updater.StartUpdate(ctx, newImage)
-	if err != nil {
-		return nil, err
-	}
-
-	authToken := uuid.New().String()
-	err = s.writeUpdateAuthToken(authToken)
-	if err != nil {
-		return nil, err
-	}
-
-	return &serverv1.StartUpdateResponse{
-		AuthToken: authToken,
-		LogOffset: 0,
-	}, nil
-}
-
-// UpdateStatus returns PMM Server update status.
-func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusRequest) (*serverv1.UpdateStatusResponse, error) {
-	_, err := os.Stat(s.pmmUpdateAuthFile)
-	if err != nil && os.IsNotExist(err) {
-		return &serverv1.UpdateStatusResponse{
-			Done: true,
-		}, nil
-	}
-
-	token, err := s.readUpdateAuthToken()
-	if err != nil {
-		return nil, err
-	}
-	if subtle.ConstantTimeCompare([]byte(req.AuthToken), []byte(token)) == 0 {
-		return nil, status.Error(codes.PermissionDenied, "Invalid authentication token.")
-	}
-
-	// wait up to 30 seconds for new log lines
-	var lines []string
-	var newOffset uint32
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Second) //nolint:mnd
-	defer cancel()
-	for ctx.Err() == nil {
-		if !s.updater.IsRunning() {
-			// give supervisord a second to flush logs to file
-			time.Sleep(time.Second)
-		}
-
-		lines, newOffset, err = s.updater.UpdateLog(req.GetLogOffset())
-		if err != nil {
-			s.l.Warn(err)
-		}
-
-		if len(lines) != 0 {
-			break
-		}
-
-		time.Sleep(200 * time.Millisecond) //nolint:mnd
-	}
-
-	return &serverv1.UpdateStatusResponse{
-		LogLines:  lines,
-		LogOffset: newOffset,
-		Done:      false,
-	}, nil
-}
-
-// writeUpdateAuthToken writes authentication token for getting update status and logs to the file.
-//
-// We can't rely on Grafana for authentication or on PostgreSQL for storage as their configuration
-// is being changed during update.
-func (s *Server) writeUpdateAuthToken(token string) error {
-	s.pmmUpdateAuthFileM.Lock()
-	defer s.pmmUpdateAuthFileM.Unlock()
-
-	a := &pmmUpdateAuth{
-		AuthToken: token,
-	}
-	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600|os.ModeExclusive) //nolint:mnd
-	if err != nil {
-		return fmt.Errorf("failed to write auth token to file %s: %w", s.pmmUpdateAuthFile, err)
-	}
-	defer func() {
-		err = f.Close()
-		if err != nil {
-			s.l.Error(err)
-		}
-	}()
-
-	err = json.NewEncoder(f).Encode(a) //nolint:gosec
-	if err != nil {
-		return fmt.Errorf("failed to encode auth token to JSON: %w", err)
-	}
-	return nil
-}
-
-// readUpdateAuthToken reads authentication token for getting update status and logs from the file.
-func (s *Server) readUpdateAuthToken() (string, error) {
-	s.pmmUpdateAuthFileM.Lock()
-	defer s.pmmUpdateAuthFileM.Unlock()
-
-	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_RDONLY, os.ModeExclusive)
-	if err != nil {
-		return "", fmt.Errorf("failed to read auth token from file %s: %w", s.pmmUpdateAuthFile, err)
-	}
-	defer func() {
-		err = f.Close()
-		if err != nil {
-			s.l.Error(err)
-		}
-	}()
-
-	var a pmmUpdateAuth
-	err = json.NewDecoder(f).Decode(&a)
-	if err != nil {
-		return "", fmt.Errorf("failed to decode auth token from JSON: %w", err)
-	}
-	return a.AuthToken, nil
-}
-
 // convertSettings merges database settings and settings from environment variables into API response.
 func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan bool) *serverv1.Settings {
 	res := &serverv1.Settings{
@@ -515,9 +359,8 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
 
-		EnableAccessControl:  settings.IsAccessControlEnabled(),
-		DefaultRoleId:        uint32(settings.DefaultRoleID),
-		UpdateSnoozeDuration: durationpb.New(settings.Updates.SnoozeDuration),
+		EnableAccessControl: settings.IsAccessControlEnabled(),
+		DefaultRoleId:       uint32(settings.DefaultRoleID),
 	}
 
 	return res
@@ -632,10 +475,6 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 
 	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
-	}
-
-	if !canUpdateDurationSetting(req.UpdateSnoozeDuration.AsDuration(), s.envSettings.UpdateSnoozeDuration) {
-		return status.Error(codes.FailedPrecondition, "Update snooze duration is set via PMM_UPDATE_SNOOZE_DURATION environment variable.")
 	}
 
 	return nil

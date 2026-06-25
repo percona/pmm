@@ -120,9 +120,6 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			"PMM_DISABLE_BUILTIN_POSTGRES":
 			// skip env variables for external postgres
 			continue
-		case "PMM_WATCHTOWER_TOKEN", "PMM_WATCHTOWER_HOST":
-			// skip watchtower environement variables
-			continue
 		case "PERCONA_TELEMETRY_DISABLE":
 			// skip the Pillars telemetry environment variable
 			continue
@@ -133,12 +130,6 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 			envSettings.EnableUpdates = &b
-		case "PMM_UPDATE_SNOOZE_DURATION":
-			envSettings.UpdateSnoozeDuration, err = parseStringDuration(v)
-			if err != nil {
-				errs = append(errs, formatEnvVariableError(err, env, v))
-				continue
-			}
 		case "PMM_ENABLE_TELEMETRY":
 			b, err := strconv.ParseBool(v)
 			if err != nil {

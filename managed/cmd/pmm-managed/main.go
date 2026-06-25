@@ -742,7 +742,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
 	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
-	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
 
 	// Nomad garbage collection flags
 	nomadGCIntervalF := kingpin.Flag("nomad-gc-interval", "Interval at which Nomad attempts to garbage collect terminal allocation directories.").
@@ -934,7 +933,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
-	updater := server.NewUpdater(*watchtowerHostF, gRPCMessageMaxSize, db)
+	updater := server.NewUpdater(db)
 
 	logs := server.NewLogs(version.FullInfo(), updater, vmParams)
 

@@ -16,18 +16,13 @@
 package server
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net"
 	"net/http"
-	"net/url"
 	"os"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -44,25 +39,16 @@ import (
 )
 
 const (
-	pmmInitLog             = "/srv/logs/pmm-init.log"
 	updateCheckInterval    = 12 * time.Hour
 	updateCheckResultFresh = updateCheckInterval + 10*time.Minute
-	updateDefaultTimeout   = 30 * time.Second
-	pmmEnvfilePath         = "/home/pmm/update/pmm-server.env"
-	watchtowerEnvfilePath  = "/home/pmm/update/watchtower.env"
 )
 
 var fileName = "/etc/pmm-server-update-version.json"
 
-// Updater is a service to check for updates and trigger the update process.
+// Updater is a service to check for available PMM Server updates.
 type Updater struct {
-	l                  *logrus.Entry
-	db                 *reform.DB
-	watchtowerHost     *url.URL
-	gRPCMessageMaxSize uint32
-
-	performM sync.Mutex
-	running  bool
+	l  *logrus.Entry
+	db *reform.DB
 
 	checkRW         sync.RWMutex
 	lastCheckResult *version.DockerVersionInfo
@@ -74,13 +60,11 @@ type Updater struct {
 }
 
 // NewUpdater creates a new Updater service.
-func NewUpdater(watchtowerHost *url.URL, gRPCMessageMaxSize uint32, db *reform.DB) *Updater {
+func NewUpdater(db *reform.DB) *Updater {
 	u := &Updater{
-		l:                  logrus.WithField("service", "updater"),
-		db:                 db,
-		watchtowerHost:     watchtowerHost,
-		gRPCMessageMaxSize: gRPCMessageMaxSize,
-		releaseNotes:       make(map[string]string),
+		l:            logrus.WithField("service", "updater"),
+		db:           db,
+		releaseNotes: make(map[string]string),
 	}
 	return u
 }
@@ -104,124 +88,8 @@ func (up *Updater) Run(ctx context.Context) {
 	}
 }
 
-func (up *Updater) sendRequestToWatchtower(ctx context.Context, newImageName string, stopWatchtower bool) error {
-	hostname, err := os.Hostname()
-	if err != nil {
-		return fmt.Errorf("failed to get hostname: %w", err)
-	}
-
-	u, err := up.watchtowerHost.Parse("/v1/update")
-	if err != nil {
-		return fmt.Errorf("failed to parse URL: %w", err)
-	}
-	q := u.Query()
-	q.Set("hostname", hostname)
-	q.Set("newImageName", newImageName)
-	q.Set("stopWatchtower", strconv.FormatBool(stopWatchtower)) // We stop watchtower on AMI and OVF, because systemd will restart it with new image.
-	u.RawQuery = q.Encode()
-
-	// Create a new request
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
-	if err != nil {
-		return fmt.Errorf("failed to create request: %w", err)
-	}
-
-	// Add the token to the request header
-	token := os.Getenv("PMM_WATCHTOWER_TOKEN")
-	if token != "" {
-		req.Header.Set("Authorization", "Bearer "+token)
-	}
-
-	// Send the request
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close() //nolint:errcheck
-
-	if resp.StatusCode == http.StatusBadRequest ||
-		resp.StatusCode == http.StatusPreconditionFailed {
-		bytes, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return fmt.Errorf("failed to read response body: %w", err)
-		}
-		return grpcstatus.Error(codes.FailedPrecondition, string(bytes))
-	}
-	// Check the response
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("received non-OK response: %v", resp.StatusCode)
-	}
-
-	up.l.Info("Successfully triggered update")
-	return nil
-}
-
 func (up *Updater) currentVersion() *version.Parsed {
 	return version.MustParse(version.Version)
-}
-
-// StartUpdate triggers the update process.
-func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
-	up.performM.Lock()
-	defer up.performM.Unlock()
-	settings, err := models.GetSettings(up.db)
-	if err != nil {
-		return grpcstatus.Error(codes.Internal, "failed to get PMM server settings")
-	}
-
-	if !settings.IsUpdatesEnabled() {
-		up.l.Debug("Updates are disabled")
-		return grpcstatus.Error(codes.FailedPrecondition, "updates are disabled")
-	}
-	if up.running {
-		return grpcstatus.Error(codes.FailedPrecondition, "update already in progress")
-	}
-	up.running = true
-	if newImageName == "" {
-		up.running = false
-		return errors.New("newImageName is empty")
-	}
-
-	err = up.checkWatchtowerHost()
-	if err != nil {
-		up.running = false
-		up.l.WithError(err).Error("Failed to check watchtower host")
-		return grpcstatus.Errorf(codes.FailedPrecondition, "failed to check watchtower host")
-	}
-
-	restartWatchtower := false
-	_, e := os.Stat(pmmEnvfilePath)
-	if e == nil {
-		watchtowerImageName := strings.Replace(newImageName, "pmm-server-fb", "pmm-watchtower-fb", 1) // for FB images
-		watchtowerImageName = strings.Replace(watchtowerImageName, "3-dev-latest", "dev-latest", 1)   // for dev images
-		watchtowerImageName = strings.Replace(watchtowerImageName, "pmm-server", "watchtower", 1)
-		err = up.updatePodmanEnvironmentVariables(watchtowerEnvfilePath, "WATCHTOWER_IMAGE", watchtowerImageName)
-		if err != nil {
-			up.running = false
-			up.l.WithError(err).Error("Failed to update environment variables file for watchtower")
-			return fmt.Errorf("failed to update environment variables file for watchtower: %w", err)
-		}
-		err = up.updatePodmanEnvironmentVariables(pmmEnvfilePath, "PMM_IMAGE", newImageName)
-		if err != nil {
-			up.running = false
-			up.l.WithError(err).Error("Failed to update environment variables file")
-			return fmt.Errorf("failed to update environment variables file: %w", err)
-		}
-		restartWatchtower = true
-	} else if !os.IsNotExist(e) {
-		up.running = false
-		up.l.WithError(e).Error("Failed to check environment variables file")
-		return fmt.Errorf("failed to check environment variables file: %w", e)
-	}
-
-	err = up.sendRequestToWatchtower(ctx, newImageName, restartWatchtower)
-	if err != nil {
-		up.running = false
-		up.l.WithError(err).Error("Failed to trigger update")
-		return err
-	}
-	return nil
 }
 
 // ForceCheckUpdates forces an update check.
@@ -451,50 +319,6 @@ func (up *Updater) InstalledPMMVersion() version.PackageInfo {
 	}
 }
 
-// IsRunning returns true if the update process is running.
-func (up *Updater) IsRunning() bool {
-	up.performM.Lock()
-	defer up.performM.Unlock()
-	return up.running
-}
-
-// UpdateLog returns the log of the update process.
-func (up *Updater) UpdateLog(offset uint32) ([]string, uint32, error) {
-	up.performM.Lock()
-	defer up.performM.Unlock()
-
-	f, err := os.Open(pmmInitLog)
-	if err != nil {
-		return nil, 0, fmt.Errorf("failed to open log file %s: %w", pmmInitLog, err)
-	}
-	defer f.Close() //nolint:errcheck,gosec,nolintlint
-
-	_, err = f.Seek(int64(offset), io.SeekStart)
-	if err != nil {
-		return nil, 0, fmt.Errorf("failed to seek to %d in log file %s: %w", offset, pmmInitLog, err)
-	}
-
-	lines := make([]string, 0, 10)
-	reader := bufio.NewReader(f)
-	newOffset := offset
-	var line string
-	for {
-		line, err = reader.ReadString('\n')
-		if err != nil {
-			if errors.Is(err, io.EOF) {
-				return lines, newOffset, nil
-			}
-			// return already read lines even with error
-			return lines, newOffset, fmt.Errorf("failed to read line from log file %s: %w", pmmInitLog, err)
-		}
-		newOffset += uint32(len(line)) //nolint:gosec
-		if newOffset-offset > up.gRPCMessageMaxSize {
-			return lines, newOffset - uint32(len(line)), nil //nolint:gosec
-		}
-		lines = append(lines, strings.TrimSuffix(line, "\n"))
-	}
-}
-
 // checkResult returns the result of the last update check.
 // It may force re-check if last result is empty or too old.
 func (up *Updater) checkResult(ctx context.Context) (*version.DockerVersionInfo, time.Time) {
@@ -525,50 +349,6 @@ func (up *Updater) check(ctx context.Context) error {
 	up.lastCheckResult = latest
 	up.lastCheckTime = time.Now()
 	return nil
-}
-
-func (up *Updater) checkWatchtowerHost() error {
-	// Check if watchtower host is available
-	if up.watchtowerHost == nil {
-		return errors.New("watchtower host is not set")
-	}
-	if !isHostAvailable(up.watchtowerHost.Hostname(), up.watchtowerHost.Port(), updateDefaultTimeout) {
-		return errors.New("watchtower host is not available")
-	}
-	return nil
-}
-
-func (up *Updater) updatePodmanEnvironmentVariables(filename string, key string, imageName string) error {
-	if len(strings.Split(imageName, "/")) < 3 {
-		imageName = "docker.io/" + imageName
-	}
-	file, err := os.ReadFile(filename) //nolint:gosec
-	if err != nil {
-		return fmt.Errorf("failed to read file: %w", err)
-	}
-	lines := strings.Split(string(file), "\n")
-	for i, line := range lines {
-		if strings.Contains(line, key) {
-			lines[i] = fmt.Sprintf(key+"=%s", imageName)
-		}
-	}
-	err = os.WriteFile(filename, []byte(strings.Join(lines, "\n")), 0o644) //nolint:gosec
-	if err != nil {
-		return fmt.Errorf("failed to write file: %w", err)
-	}
-	return nil
-}
-
-func isHostAvailable(host string, port string, timeout time.Duration) bool {
-	conn, err := net.DialTimeout("tcp", net.JoinHostPort(host, port), timeout)
-	if err != nil {
-		return false
-	}
-	if conn != nil {
-		defer conn.Close() //nolint:errcheck
-		return true
-	}
-	return false
 }
 
 // getReleaseNotesText is a placeholder for getting release notes in MarkDown format

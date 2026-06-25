@@ -19,11 +19,6 @@
   set_fact:
     pmm_distribution_method: ami
 
-- name: Set SELinux in permissive mode for watchtower
-  selinux:
-    policy: targeted
-    state: permissive
-
 - name: Update podman.conf
   lineinfile:
     path: /usr/lib/tmpfiles.d/podman.conf
@@ -79,22 +74,6 @@
     group: admin
     mode: '0644'
 
-- name: Copy watchtower environment file for service to user-specific directory
-  template:
-    src: watchtower.env
-    dest: /home/admin/.config/systemd/user/
-    owner: admin
-    group: admin
-    mode: '0644'
-
-- name: Copy watchtower systemd service file to user-specific directory
-  template:
-    src: watchtower.service
-    dest: /home/admin/.config/systemd/user/
-    owner: admin
-    group: admin
-    mode: '0644'
-
 - name: Get user ID of admin user
   command: id -u admin
   register: admin_user_id
@@ -116,13 +95,6 @@
 
 - name: Enable socket
   command: systemctl --user enable --now podman.socket
-  become: true
-  become_user: admin
-  environment:
-    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{ admin_user_id.stdout }}/bus"
-
-- name: Enable and start watchtower container as a user service
-  command: systemctl --user enable --now watchtower
   become: true
   become_user: admin
   environment:
