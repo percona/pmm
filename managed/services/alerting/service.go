@@ -70,12 +70,13 @@ type Service struct {
 }
 
 // NewService creates a new Service.
-func NewService(db *reform.DB, grafanaClient grafanaClient) (*Service, error) { //nolint:unparam
+func NewService(db *reform.DB, grafanaClient grafanaClient) (*Service, error) {
 	l := logrus.WithField("component", "management/alerting")
 
 	err := dir.CreateDataDir(userTemplatesDir, dirPerm)
 	if err != nil {
 		l.Error(err)
+		return nil, err
 	}
 
 	s := &Service{

@@ -43,7 +43,7 @@ check-license:        ## Run license header checks against source files
 check-all: check-license check    ## Run linter and license checks
 
 check-new:
-	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/v3 --new
+	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/main --new
 
 format: format-shared 	## Format all Go source code
 	$(MAKE) -C admin format
