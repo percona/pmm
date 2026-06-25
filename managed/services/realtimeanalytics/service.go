@@ -137,7 +137,7 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 
 		// PMM Agent that is linked to the requested service may be outdated and doesn't support RTA.
 		// In this case we cannot start RTA session for this service and should return an error.
-		if !isRtaFeatureSupported(*pmmAgents[0].Version) {
+		if !isRtaFeatureSupported(*pmmAgents[0].Version, svc.ServiceType) {
 			continue // skip services with unsupported pmm-agent version
 		}
 
@@ -150,13 +150,17 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 		switch apiSvc := apiSvc.(type) {
 		case *inventoryv1.MongoDBService:
 			res.Mongodb = append(res.Mongodb, apiSvc)
-		// Add other service types once RTA is supported for them
+		case *inventoryv1.PostgreSQLService:
+			res.Postgresql = append(res.Postgresql, apiSvc)
 		default:
-			return nil, fmt.Errorf("unhandled inventory Service type %T", apiSvc)
+			continue
 		}
 	}
 
 	slices.SortStableFunc(res.Mongodb, func(a, b *inventoryv1.MongoDBService) int {
+		return strings.Compare(a.ServiceName, b.ServiceName)
+	})
+	slices.SortStableFunc(res.Postgresql, func(a, b *inventoryv1.PostgreSQLService) int {
 		return strings.Compare(a.ServiceName, b.ServiceName)
 	})
 
@@ -310,7 +314,12 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 			models.QANMongoDBProfilerAgentType,
 			models.QANMongoDBMongologAgentType,
 		}
-		// Add other service types once RTA is supported for them
+	case models.PostgreSQLServiceType:
+		agentTypes = []models.AgentType{
+			models.PostgresExporterType,
+			models.QANPostgreSQLPgStatementsAgentType,
+			models.QANPostgreSQLPgStatMonitorAgentType,
+		}
 	default:
 		return nil, status.Errorf(codes.InvalidArgument,
 			"Service %s of type %s does not support Real-Time Analytics",
@@ -352,7 +361,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 
 	// PMM Agent that is linked to the requested service may be outdated and doesn't support RTA.
 	// In this case we cannot start RTA session for this service and should return an error.
-	if !isRtaFeatureSupported(*pmmAgent.Version) {
+	if !isRtaFeatureSupported(*pmmAgent.Version, service.ServiceType) {
 		return nil, status.Errorf(codes.FailedPrecondition,
 			"Service %s has pmm-agent with version not supporting Real-Time Analytics.", service.ServiceID)
 	}
@@ -615,19 +624,28 @@ func getRTAAgentTypeForServiceType(serviceType models.ServiceType) (models.Agent
 	switch serviceType {
 	case models.MongoDBServiceType:
 		return models.RTAMongoDBAgentType, nil
+	case models.PostgreSQLServiceType:
+		return models.RTAPostgreSQLAgentType, nil
 	default:
 		return "", fmt.Errorf("service of type %s does not support Real-Time Analytics", serviceType)
 	}
 }
 
-// isRtaFeatureSupported checks if the passed pmm-agent's version supporting RTA.
-func isRtaFeatureSupported(pmmAgentVersion string) bool {
+// isRtaFeatureSupported checks if the passed pmm-agent's version supports RTA for the given service type.
+func isRtaFeatureSupported(pmmAgentVersion string, serviceType models.ServiceType) bool {
 	versionParsed, versionParseErr := version.Parse(pmmAgentVersion)
 	if versionParseErr != nil {
 		return false
 	}
 
-	return versionParsed.IsFeatureSupported(version.MongoDBRtaAgentSupportVersion)
+	switch serviceType {
+	case models.MongoDBServiceType:
+		return versionParsed.IsFeatureSupported(version.MongoDBRtaAgentSupportVersion)
+	case models.PostgreSQLServiceType:
+		return versionParsed.IsFeatureSupported(version.PostgreSQLRtaAgentSupportVersion)
+	default:
+		return false
+	}
 }
 
 // check interfaces.

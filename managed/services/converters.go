@@ -606,6 +606,21 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			RtaOptions:    ToAPIRTAOptions(&agent.RTAOptions),
 		}, nil
 
+	case models.RTAPostgreSQLAgentType:
+		return &inventoryv1.RTAPostgreSQLAgent{
+			AgentId:       agent.AgentID,
+			PmmAgentId:    pointer.GetString(agent.PMMAgentID),
+			ServiceId:     serviceID,
+			Username:      pointer.GetString(agent.Username),
+			Disabled:      agent.Disabled,
+			Status:        inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			CustomLabels:  labels,
+			Tls:           agent.TLS,
+			TlsSkipVerify: agent.TLSSkipVerify,
+			LogLevel:      inventoryv1.LogLevelAPIValue(agent.LogLevel),
+			RtaOptions:    ToAPIRTAOptions(&agent.RTAOptions),
+		}, nil
+
 	default:
 		panic(fmt.Errorf("cannot convert unknown agent type %s", agent.AgentType))
 	}

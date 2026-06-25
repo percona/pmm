@@ -21,6 +21,7 @@ var (
 	V3_0_0  = MustParse("3.0.0-0")  //nolint:revive,stylecheck
 	V3_2_0  = MustParse("3.2.0-0")  //nolint:revive,stylecheck
 	V3_7_0  = MustParse("3.7.0-0")  //nolint:revive,stylecheck
+	V3_8_0  = MustParse("3.8.0-0")  //nolint:revive,stylecheck
 )
 
 // FeatureVersion represents a minimum version feature being supported.
@@ -32,7 +33,8 @@ var (
 	MysqlExporterV0_17_2          FeatureVersion = V3_2_0
 	MysqlExporterPluginCollector  FeatureVersion = V2_36_0
 	NomadAgentSupportVersion      FeatureVersion = V3_2_0
-	MongoDBRtaAgentSupportVersion FeatureVersion = V3_7_0
+	MongoDBRtaAgentSupportVersion     FeatureVersion = V3_7_0
+	PostgreSQLRtaAgentSupportVersion FeatureVersion = V3_8_0
 )
 
 // IsFeatureSupported checks if the feature is supported by the version.

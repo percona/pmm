@@ -13,6 +13,11 @@ export const Messages = {
     dataCaptureTime: 'Data capture time',
     clientAddress: 'Client address',
     service: 'Service',
+    pid: 'PID',
+    state: 'State',
+    waitEvent: 'Wait event',
+    lockChain: 'Lock chain',
+    transactionDuration: 'Transaction duration',
   },
   tooltips: {
     operationId: "The database's internal identifier for this operation.",
@@ -35,5 +40,10 @@ export const Messages = {
       'When PMM took this snapshot. Compare with Operation start time to calculate how long the operation has been running so far.',
     dbInstanceAddress:
       'The server hostname and port where this operation is running.',
+    pid: 'PostgreSQL backend process ID.',
+    state: 'Current session state in pg_stat_activity.',
+    waitEvent: 'Wait event type and name when the session is waiting.',
   },
+  lockChainEntry: (pid: number, lockMode: string, lockType: string) =>
+    `PID ${pid} · ${lockMode} (${lockType})`,
 };

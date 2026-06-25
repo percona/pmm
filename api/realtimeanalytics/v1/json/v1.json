@@ -153,6 +153,119 @@
                           }
                         },
                         "x-order": 8
+                      },
+                      "postgresql_payload": {
+                        "description": "QueryPostgreSQLData holds PostgreSQL-specific Real-Time Analytics query information.",
+                        "type": "object",
+                        "properties": {
+                          "pid": {
+                            "description": "Backend process ID.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 0
+                          },
+                          "state": {
+                            "description": "Session state (active, idle in transaction, etc.).",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "wait_event_type": {
+                            "description": "Wait event type (Lock, IO, etc.).",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "wait_event": {
+                            "description": "Wait event name.",
+                            "type": "string",
+                            "x-order": 3
+                          },
+                          "backend_type": {
+                            "description": "Backend type (client backend, parallel worker, etc.).",
+                            "type": "string",
+                            "x-order": 4
+                          },
+                          "transaction_start_time": {
+                            "description": "Transaction start time (for idle-in-transaction duration).",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 5
+                          },
+                          "state_change_time": {
+                            "description": "Last state change time.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 6
+                          },
+                          "leader_pid": {
+                            "description": "Leader PID for parallel workers (PostgreSQL 13+).",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 7
+                          },
+                          "lock_chain": {
+                            "description": "Lock chain from blocker to blocked session.",
+                            "type": "array",
+                            "items": {
+                              "description": "LockChainEntry represents a single link in a PostgreSQL lock chain.",
+                              "type": "object",
+                              "properties": {
+                                "pid": {
+                                  "description": "Process ID of the session in this lock chain link.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 0
+                                },
+                                "lock_mode": {
+                                  "description": "Lock mode (e.g. AccessExclusiveLock).",
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "lock_type": {
+                                  "description": "Lock type (e.g. relation, transactionid).",
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "granted": {
+                                  "description": "Whether the lock is granted.",
+                                  "type": "boolean",
+                                  "x-order": 3
+                                },
+                                "query_text": {
+                                  "description": "Query text of the session holding or waiting for the lock.",
+                                  "type": "string",
+                                  "x-order": 4
+                                },
+                                "duration": {
+                                  "description": "Duration the session has been in the current state.",
+                                  "type": "string",
+                                  "x-order": 5
+                                }
+                              }
+                            },
+                            "x-order": 8
+                          },
+                          "database_name": {
+                            "description": "Database name.",
+                            "type": "string",
+                            "x-order": 9
+                          },
+                          "username": {
+                            "description": "PostgreSQL username.",
+                            "type": "string",
+                            "x-order": 10
+                          },
+                          "application_name": {
+                            "description": "Application name from pg_stat_activity.",
+                            "type": "string",
+                            "x-order": 11
+                          },
+                          "query_truncated": {
+                            "description": "True when query text was truncated by track_activity_query_size.",
+                            "type": "boolean",
+                            "x-order": 12
+                          }
+                        },
+                        "x-order": 9
                       }
                     }
                   },
@@ -296,6 +409,86 @@
                     }
                   },
                   "x-order": 0
+                },
+                "postgresql": {
+                  "type": "array",
+                  "items": {
+                    "description": "PostgreSQLService represents a generic PostgreSQL instance.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "database_name": {
+                        "description": "Database name.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "address": {
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "port": {
+                        "description": "Access port.\nPort is required when the address present.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 5
+                      },
+                      "socket": {
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 9
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 10
+                      },
+                      "version": {
+                        "description": "PostgreSQL version.",
+                        "type": "string",
+                        "x-order": 11
+                      },
+                      "auto_discovery_limit": {
+                        "description": "Limit of databases for auto-discovery.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 12
+                      }
+                    }
+                  },
+                  "x-order": 1
                 }
               }
             }

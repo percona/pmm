@@ -102,6 +102,7 @@ func (o *SearchQueriesOK) GetPayload() *SearchQueriesOKBody {
 }
 
 func (o *SearchQueriesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(SearchQueriesOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *SearchQueriesDefault) GetPayload() *SearchQueriesDefaultBody {
 }
 
 func (o *SearchQueriesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(SearchQueriesDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ SearchQueriesBody SearchQueriesRequest contains optional filters for listing act
 swagger:model SearchQueriesBody
 */
 type SearchQueriesBody struct {
+
 	// Optional filter by Service identifiers.
 	ServiceIds []string `json:"service_ids"`
 
@@ -230,6 +233,7 @@ SearchQueriesDefaultBody search queries default body
 swagger:model SearchQueriesDefaultBody
 */
 type SearchQueriesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -299,7 +303,9 @@ func (o *SearchQueriesDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *SearchQueriesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -319,6 +325,7 @@ func (o *SearchQueriesDefaultBody) contextValidateDetails(ctx context.Context, f
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -347,6 +354,7 @@ SearchQueriesDefaultBodyDetailsItems0 search queries default body details items0
 swagger:model SearchQueriesDefaultBodyDetailsItems0
 */
 type SearchQueriesDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -358,6 +366,7 @@ type SearchQueriesDefaultBodyDetailsItems0 struct {
 func (o *SearchQueriesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -395,6 +404,7 @@ func (o *SearchQueriesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o SearchQueriesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -458,6 +468,7 @@ SearchQueriesOKBody SearchQueriesResponse returns the list of currently active R
 swagger:model SearchQueriesOKBody
 */
 type SearchQueriesOKBody struct {
+
 	// List of active Real-Time Analytics session Queries.
 	Queries []*SearchQueriesOKBodyQueriesItems0 `json:"queries"`
 }
@@ -521,7 +532,9 @@ func (o *SearchQueriesOKBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *SearchQueriesOKBody) contextValidateQueries(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Queries); i++ {
+
 		if o.Queries[i] != nil {
 
 			if swag.IsZero(o.Queries[i]) { // not required
@@ -541,6 +554,7 @@ func (o *SearchQueriesOKBody) contextValidateQueries(ctx context.Context, format
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -570,6 +584,7 @@ SearchQueriesOKBodyQueriesItems0 QueryData represents a single Real-Time Analyti
 swagger:model SearchQueriesOKBodyQueriesItems0
 */
 type SearchQueriesOKBodyQueriesItems0 struct {
+
 	// PMM Service identifier that reported the query.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -597,6 +612,9 @@ type SearchQueriesOKBodyQueriesItems0 struct {
 
 	// mongo db payload
 	MongoDBPayload *SearchQueriesOKBodyQueriesItems0MongoDBPayload `json:"mongo_db_payload,omitempty"`
+
+	// postgresql payload
+	PostgresqlPayload *SearchQueriesOKBodyQueriesItems0PostgresqlPayload `json:"postgresql_payload,omitempty"`
 }
 
 // Validate validates this search queries OK body queries items0
@@ -608,6 +626,10 @@ func (o *SearchQueriesOKBodyQueriesItems0) Validate(formats strfmt.Registry) err
 	}
 
 	if err := o.validateMongoDBPayload(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePostgresqlPayload(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -652,11 +674,38 @@ func (o *SearchQueriesOKBodyQueriesItems0) validateMongoDBPayload(formats strfmt
 	return nil
 }
 
+func (o *SearchQueriesOKBodyQueriesItems0) validatePostgresqlPayload(formats strfmt.Registry) error {
+	if swag.IsZero(o.PostgresqlPayload) { // not required
+		return nil
+	}
+
+	if o.PostgresqlPayload != nil {
+		if err := o.PostgresqlPayload.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("postgresql_payload")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("postgresql_payload")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this search queries OK body queries items0 based on the context it is used
 func (o *SearchQueriesOKBodyQueriesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateMongoDBPayload(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidatePostgresqlPayload(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -667,6 +716,7 @@ func (o *SearchQueriesOKBodyQueriesItems0) ContextValidate(ctx context.Context, 
 }
 
 func (o *SearchQueriesOKBodyQueriesItems0) contextValidateMongoDBPayload(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MongoDBPayload != nil {
 
 		if swag.IsZero(o.MongoDBPayload) { // not required
@@ -681,6 +731,31 @@ func (o *SearchQueriesOKBodyQueriesItems0) contextValidateMongoDBPayload(ctx con
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("mongo_db_payload")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0) contextValidatePostgresqlPayload(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.PostgresqlPayload != nil {
+
+		if swag.IsZero(o.PostgresqlPayload) { // not required
+			return nil
+		}
+
+		if err := o.PostgresqlPayload.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("postgresql_payload")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("postgresql_payload")
 			}
 
 			return err
@@ -713,6 +788,7 @@ SearchQueriesOKBodyQueriesItems0MongoDBPayload QueryMongoDBData holds MongoDB-sp
 swagger:model SearchQueriesOKBodyQueriesItems0MongoDBPayload
 */
 type SearchQueriesOKBodyQueriesItems0MongoDBPayload struct {
+
 	// MongoDB instance address(host:port) that processing the query.
 	DBInstanceAddress string `json:"db_instance_address,omitempty"`
 
@@ -781,6 +857,244 @@ func (o *SearchQueriesOKBodyQueriesItems0MongoDBPayload) MarshalBinary() ([]byte
 // UnmarshalBinary interface implementation
 func (o *SearchQueriesOKBodyQueriesItems0MongoDBPayload) UnmarshalBinary(b []byte) error {
 	var res SearchQueriesOKBodyQueriesItems0MongoDBPayload
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+SearchQueriesOKBodyQueriesItems0PostgresqlPayload QueryPostgreSQLData holds PostgreSQL-specific Real-Time Analytics query information.
+swagger:model SearchQueriesOKBodyQueriesItems0PostgresqlPayload
+*/
+type SearchQueriesOKBodyQueriesItems0PostgresqlPayload struct {
+
+	// Backend process ID.
+	Pid int32 `json:"pid,omitempty"`
+
+	// Session state (active, idle in transaction, etc.).
+	State string `json:"state,omitempty"`
+
+	// Wait event type (Lock, IO, etc.).
+	WaitEventType string `json:"wait_event_type,omitempty"`
+
+	// Wait event name.
+	WaitEvent string `json:"wait_event,omitempty"`
+
+	// Backend type (client backend, parallel worker, etc.).
+	BackendType string `json:"backend_type,omitempty"`
+
+	// Transaction start time (for idle-in-transaction duration).
+	// Format: date-time
+	TransactionStartTime strfmt.DateTime `json:"transaction_start_time,omitempty"`
+
+	// Last state change time.
+	// Format: date-time
+	StateChangeTime strfmt.DateTime `json:"state_change_time,omitempty"`
+
+	// Leader PID for parallel workers (PostgreSQL 13+).
+	LeaderPid int32 `json:"leader_pid,omitempty"`
+
+	// Lock chain from blocker to blocked session.
+	LockChain []*SearchQueriesOKBodyQueriesItems0PostgresqlPayloadLockChainItems0 `json:"lock_chain"`
+
+	// Database name.
+	DatabaseName string `json:"database_name,omitempty"`
+
+	// PostgreSQL username.
+	Username string `json:"username,omitempty"`
+
+	// Application name from pg_stat_activity.
+	ApplicationName string `json:"application_name,omitempty"`
+
+	// True when query text was truncated by track_activity_query_size.
+	QueryTruncated bool `json:"query_truncated,omitempty"`
+}
+
+// Validate validates this search queries OK body queries items0 postgresql payload
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateTransactionStartTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateStateChangeTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLockChain(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) validateTransactionStartTime(formats strfmt.Registry) error {
+	if swag.IsZero(o.TransactionStartTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("postgresql_payload"+"."+"transaction_start_time", "body", "date-time", o.TransactionStartTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) validateStateChangeTime(formats strfmt.Registry) error {
+	if swag.IsZero(o.StateChangeTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("postgresql_payload"+"."+"state_change_time", "body", "date-time", o.StateChangeTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) validateLockChain(formats strfmt.Registry) error {
+	if swag.IsZero(o.LockChain) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.LockChain); i++ {
+		if swag.IsZero(o.LockChain[i]) { // not required
+			continue
+		}
+
+		if o.LockChain[i] != nil {
+			if err := o.LockChain[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("postgresql_payload" + "." + "lock_chain" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("postgresql_payload" + "." + "lock_chain" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this search queries OK body queries items0 postgresql payload based on the context it is used
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateLockChain(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) contextValidateLockChain(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.LockChain); i++ {
+
+		if o.LockChain[i] != nil {
+
+			if swag.IsZero(o.LockChain[i]) { // not required
+				return nil
+			}
+
+			if err := o.LockChain[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("postgresql_payload" + "." + "lock_chain" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("postgresql_payload" + "." + "lock_chain" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayload) UnmarshalBinary(b []byte) error {
+	var res SearchQueriesOKBodyQueriesItems0PostgresqlPayload
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+SearchQueriesOKBodyQueriesItems0PostgresqlPayloadLockChainItems0 LockChainEntry represents a single link in a PostgreSQL lock chain.
+swagger:model SearchQueriesOKBodyQueriesItems0PostgresqlPayloadLockChainItems0
+*/
+type SearchQueriesOKBodyQueriesItems0PostgresqlPayloadLockChainItems0 struct {
+
+	// Process ID of the session in this lock chain link.
+	Pid int32 `json:"pid,omitempty"`
+
+	// Lock mode (e.g. AccessExclusiveLock).
+	LockMode string `json:"lock_mode,omitempty"`
+
+	// Lock type (e.g. relation, transactionid).
+	LockType string `json:"lock_type,omitempty"`
+
+	// Whether the lock is granted.
+	Granted bool `json:"granted,omitempty"`
+
+	// Query text of the session holding or waiting for the lock.
+	QueryText string `json:"query_text,omitempty"`
+
+	// Duration the session has been in the current state.
+	Duration string `json:"duration,omitempty"`
+}
+
+// Validate validates this search queries OK body queries items0 postgresql payload lock chain items0
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayloadLockChainItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this search queries OK body queries items0 postgresql payload lock chain items0 based on context it is used
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayloadLockChainItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayloadLockChainItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *SearchQueriesOKBodyQueriesItems0PostgresqlPayloadLockChainItems0) UnmarshalBinary(b []byte) error {
+	var res SearchQueriesOKBodyQueriesItems0PostgresqlPayloadLockChainItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

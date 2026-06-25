@@ -40,6 +40,31 @@ export interface SearchQueriesResponse {
   queries: RawQueryData[];
 }
 
+export interface LockChainEntry {
+  pid: number;
+  lockMode: string;
+  lockType: string;
+  granted: boolean;
+  queryText: string;
+  duration?: string | null;
+}
+
+export interface QueryPostgreSQLData {
+  pid: number;
+  state: string;
+  waitEventType: string;
+  waitEvent: string;
+  backendType: string;
+  transactionStartTime?: string;
+  stateChangeTime?: string;
+  leaderPid?: number;
+  lockChain?: LockChainEntry[];
+  databaseName: string;
+  username: string;
+  applicationName: string;
+  queryTruncated?: boolean;
+}
+
 export interface RawQueryData {
   serviceId: string;
   serviceName: string;
@@ -49,11 +74,18 @@ export interface RawQueryData {
   queryCollectTime: string;
   clientAddress: string;
   queryRawJson: string;
-  mongoDbPayload: QueryMongoDBData;
+  mongoDbPayload?: QueryMongoDBData;
+  postgresqlPayload?: QueryPostgreSQLData;
 }
 
 export type QueryData = Exclude<RawQueryData, 'queryExecutionDuration'> & {
   queryExecutionDurationMs?: number | null;
+  /** Transaction duration in seconds for idle-in-transaction sessions. */
+  transactionDurationMs?: number | null;
+  /** True when this row is a parallel worker collapsed under a leader. */
+  isParallelWorker?: boolean;
+  /** Leader query ID when isParallelWorker is true. */
+  leaderQueryId?: string;
 };
 
 export interface QueryMongoDBData {
@@ -67,7 +99,16 @@ export interface QueryMongoDBData {
   collection?: string;
 }
 
-// TODO: Add other service types when available
 export interface AvailableServicesResponse {
-  mongodb: VersionedService[];
+  mongodb?: VersionedService[];
+  postgresql?: VersionedService[];
 }
+
+export const isPostgreSQLQuery = (query: QueryData): boolean =>
+  !!query.postgresqlPayload;
+
+export const isIdleInTransaction = (query: QueryData): boolean =>
+  query.postgresqlPayload?.state?.includes('idle in transaction') ?? false;
+
+export const hasLockChain = (query: QueryData): boolean =>
+  (query.postgresqlPayload?.lockChain?.length ?? 0) > 0;

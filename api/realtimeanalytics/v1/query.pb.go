@@ -7,16 +7,14 @@
 package realtimeanalyticsv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
+	_ "github.com/percona/pmm/api/extensions/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
-	_ "github.com/percona/pmm/api/extensions/v1"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -25,6 +23,251 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
+
+// LockChainEntry represents a single link in a PostgreSQL lock chain.
+type LockChainEntry struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Process ID of the session in this lock chain link.
+	Pid int32 `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+	// Lock mode (e.g. AccessExclusiveLock).
+	LockMode string `protobuf:"bytes,2,opt,name=lock_mode,json=lockMode,proto3" json:"lock_mode,omitempty"`
+	// Lock type (e.g. relation, transactionid).
+	LockType string `protobuf:"bytes,3,opt,name=lock_type,json=lockType,proto3" json:"lock_type,omitempty"`
+	// Whether the lock is granted.
+	Granted bool `protobuf:"varint,4,opt,name=granted,proto3" json:"granted,omitempty"`
+	// Query text of the session holding or waiting for the lock.
+	QueryText string `protobuf:"bytes,5,opt,name=query_text,json=queryText,proto3" json:"query_text,omitempty"`
+	// Duration the session has been in the current state.
+	Duration      *durationpb.Duration `protobuf:"bytes,6,opt,name=duration,proto3" json:"duration,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LockChainEntry) Reset() {
+	*x = LockChainEntry{}
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LockChainEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LockChainEntry) ProtoMessage() {}
+
+func (x *LockChainEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LockChainEntry.ProtoReflect.Descriptor instead.
+func (*LockChainEntry) Descriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *LockChainEntry) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+func (x *LockChainEntry) GetLockMode() string {
+	if x != nil {
+		return x.LockMode
+	}
+	return ""
+}
+
+func (x *LockChainEntry) GetLockType() string {
+	if x != nil {
+		return x.LockType
+	}
+	return ""
+}
+
+func (x *LockChainEntry) GetGranted() bool {
+	if x != nil {
+		return x.Granted
+	}
+	return false
+}
+
+func (x *LockChainEntry) GetQueryText() string {
+	if x != nil {
+		return x.QueryText
+	}
+	return ""
+}
+
+func (x *LockChainEntry) GetDuration() *durationpb.Duration {
+	if x != nil {
+		return x.Duration
+	}
+	return nil
+}
+
+// QueryPostgreSQLData holds PostgreSQL-specific Real-Time Analytics query information.
+type QueryPostgreSQLData struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Backend process ID.
+	Pid int32 `protobuf:"varint,1,opt,name=pid,proto3" json:"pid,omitempty"`
+	// Session state (active, idle in transaction, etc.).
+	State string `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
+	// Wait event type (Lock, IO, etc.).
+	WaitEventType string `protobuf:"bytes,3,opt,name=wait_event_type,json=waitEventType,proto3" json:"wait_event_type,omitempty"`
+	// Wait event name.
+	WaitEvent string `protobuf:"bytes,4,opt,name=wait_event,json=waitEvent,proto3" json:"wait_event,omitempty"`
+	// Backend type (client backend, parallel worker, etc.).
+	BackendType string `protobuf:"bytes,5,opt,name=backend_type,json=backendType,proto3" json:"backend_type,omitempty"`
+	// Transaction start time (for idle-in-transaction duration).
+	TransactionStartTime *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=transaction_start_time,json=transactionStartTime,proto3" json:"transaction_start_time,omitempty"`
+	// Last state change time.
+	StateChangeTime *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=state_change_time,json=stateChangeTime,proto3" json:"state_change_time,omitempty"`
+	// Leader PID for parallel workers (PostgreSQL 13+).
+	LeaderPid int32 `protobuf:"varint,8,opt,name=leader_pid,json=leaderPid,proto3" json:"leader_pid,omitempty"`
+	// Lock chain from blocker to blocked session.
+	LockChain []*LockChainEntry `protobuf:"bytes,9,rep,name=lock_chain,json=lockChain,proto3" json:"lock_chain,omitempty"`
+	// Database name.
+	DatabaseName string `protobuf:"bytes,10,opt,name=database_name,json=databaseName,proto3" json:"database_name,omitempty"`
+	// PostgreSQL username.
+	Username string `protobuf:"bytes,11,opt,name=username,proto3" json:"username,omitempty"`
+	// Application name from pg_stat_activity.
+	ApplicationName string `protobuf:"bytes,12,opt,name=application_name,json=applicationName,proto3" json:"application_name,omitempty"`
+	// True when query text was truncated by track_activity_query_size.
+	QueryTruncated bool `protobuf:"varint,13,opt,name=query_truncated,json=queryTruncated,proto3" json:"query_truncated,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *QueryPostgreSQLData) Reset() {
+	*x = QueryPostgreSQLData{}
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *QueryPostgreSQLData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryPostgreSQLData) ProtoMessage() {}
+
+func (x *QueryPostgreSQLData) ProtoReflect() protoreflect.Message {
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QueryPostgreSQLData.ProtoReflect.Descriptor instead.
+func (*QueryPostgreSQLData) Descriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *QueryPostgreSQLData) GetPid() int32 {
+	if x != nil {
+		return x.Pid
+	}
+	return 0
+}
+
+func (x *QueryPostgreSQLData) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *QueryPostgreSQLData) GetWaitEventType() string {
+	if x != nil {
+		return x.WaitEventType
+	}
+	return ""
+}
+
+func (x *QueryPostgreSQLData) GetWaitEvent() string {
+	if x != nil {
+		return x.WaitEvent
+	}
+	return ""
+}
+
+func (x *QueryPostgreSQLData) GetBackendType() string {
+	if x != nil {
+		return x.BackendType
+	}
+	return ""
+}
+
+func (x *QueryPostgreSQLData) GetTransactionStartTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.TransactionStartTime
+	}
+	return nil
+}
+
+func (x *QueryPostgreSQLData) GetStateChangeTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StateChangeTime
+	}
+	return nil
+}
+
+func (x *QueryPostgreSQLData) GetLeaderPid() int32 {
+	if x != nil {
+		return x.LeaderPid
+	}
+	return 0
+}
+
+func (x *QueryPostgreSQLData) GetLockChain() []*LockChainEntry {
+	if x != nil {
+		return x.LockChain
+	}
+	return nil
+}
+
+func (x *QueryPostgreSQLData) GetDatabaseName() string {
+	if x != nil {
+		return x.DatabaseName
+	}
+	return ""
+}
+
+func (x *QueryPostgreSQLData) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *QueryPostgreSQLData) GetApplicationName() string {
+	if x != nil {
+		return x.ApplicationName
+	}
+	return ""
+}
+
+func (x *QueryPostgreSQLData) GetQueryTruncated() bool {
+	if x != nil {
+		return x.QueryTruncated
+	}
+	return false
+}
 
 // QueryMongoDBData holds MongoDB-specific Real-Time Analytics query information.
 type QueryMongoDBData struct {
@@ -51,7 +294,7 @@ type QueryMongoDBData struct {
 
 func (x *QueryMongoDBData) Reset() {
 	*x = QueryMongoDBData{}
-	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[0]
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -63,7 +306,7 @@ func (x *QueryMongoDBData) String() string {
 func (*QueryMongoDBData) ProtoMessage() {}
 
 func (x *QueryMongoDBData) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[0]
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -76,7 +319,7 @@ func (x *QueryMongoDBData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryMongoDBData.ProtoReflect.Descriptor instead.
 func (*QueryMongoDBData) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{0}
+	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *QueryMongoDBData) GetDbInstanceAddress() string {
@@ -160,6 +403,7 @@ type QueryData struct {
 	// Types that are valid to be assigned to Payload:
 	//
 	//	*QueryData_MongoDbPayload
+	//	*QueryData_PostgresqlPayload
 	Payload       isQueryData_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -167,7 +411,7 @@ type QueryData struct {
 
 func (x *QueryData) Reset() {
 	*x = QueryData{}
-	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[1]
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -179,7 +423,7 @@ func (x *QueryData) String() string {
 func (*QueryData) ProtoMessage() {}
 
 func (x *QueryData) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[1]
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -192,7 +436,7 @@ func (x *QueryData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryData.ProtoReflect.Descriptor instead.
 func (*QueryData) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{1}
+	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *QueryData) GetServiceId() string {
@@ -267,6 +511,15 @@ func (x *QueryData) GetMongoDbPayload() *QueryMongoDBData {
 	return nil
 }
 
+func (x *QueryData) GetPostgresqlPayload() *QueryPostgreSQLData {
+	if x != nil {
+		if x, ok := x.Payload.(*QueryData_PostgresqlPayload); ok {
+			return x.PostgresqlPayload
+		}
+	}
+	return nil
+}
+
 type isQueryData_Payload interface {
 	isQueryData_Payload()
 }
@@ -276,13 +529,46 @@ type QueryData_MongoDbPayload struct {
 	MongoDbPayload *QueryMongoDBData `protobuf:"bytes,9,opt,name=mongo_db_payload,json=mongoDbPayload,proto3,oneof"`
 }
 
+type QueryData_PostgresqlPayload struct {
+	// PostgreSQL-specific query data.
+	PostgresqlPayload *QueryPostgreSQLData `protobuf:"bytes,10,opt,name=postgresql_payload,json=postgresqlPayload,proto3,oneof"`
+}
+
 func (*QueryData_MongoDbPayload) isQueryData_Payload() {}
+
+func (*QueryData_PostgresqlPayload) isQueryData_Payload() {}
 
 var File_realtimeanalytics_v1_query_proto protoreflect.FileDescriptor
 
 const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\n" +
-	" realtimeanalytics/v1/query.proto\x12\x14realtimeanalytics.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe0\x02\n" +
+	" realtimeanalytics/v1/query.proto\x12\x14realtimeanalytics.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xcc\x01\n" +
+	"\x0eLockChainEntry\x12\x10\n" +
+	"\x03pid\x18\x01 \x01(\x05R\x03pid\x12\x1b\n" +
+	"\tlock_mode\x18\x02 \x01(\tR\blockMode\x12\x1b\n" +
+	"\tlock_type\x18\x03 \x01(\tR\blockType\x12\x18\n" +
+	"\agranted\x18\x04 \x01(\bR\agranted\x12\x1d\n" +
+	"\n" +
+	"query_text\x18\x05 \x01(\tR\tqueryText\x125\n" +
+	"\bduration\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\bduration\"\xc0\x04\n" +
+	"\x13QueryPostgreSQLData\x12\x10\n" +
+	"\x03pid\x18\x01 \x01(\x05R\x03pid\x12\x14\n" +
+	"\x05state\x18\x02 \x01(\tR\x05state\x12&\n" +
+	"\x0fwait_event_type\x18\x03 \x01(\tR\rwaitEventType\x12\x1d\n" +
+	"\n" +
+	"wait_event\x18\x04 \x01(\tR\twaitEvent\x12!\n" +
+	"\fbackend_type\x18\x05 \x01(\tR\vbackendType\x12P\n" +
+	"\x16transaction_start_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x14transactionStartTime\x12F\n" +
+	"\x11state_change_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x0fstateChangeTime\x12\x1d\n" +
+	"\n" +
+	"leader_pid\x18\b \x01(\x05R\tleaderPid\x12C\n" +
+	"\n" +
+	"lock_chain\x18\t \x03(\v2$.realtimeanalytics.v1.LockChainEntryR\tlockChain\x12#\n" +
+	"\rdatabase_name\x18\n" +
+	" \x01(\tR\fdatabaseName\x12 \n" +
+	"\busername\x18\v \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12)\n" +
+	"\x10application_name\x18\f \x01(\tR\x0fapplicationName\x12'\n" +
+	"\x0fquery_truncated\x18\r \x01(\bR\x0equeryTruncated\"\xe0\x02\n" +
 	"\x10QueryMongoDBData\x12.\n" +
 	"\x13db_instance_address\x18\x01 \x01(\tR\x11dbInstanceAddress\x12&\n" +
 	"\x0fclient_app_name\x18\x02 \x01(\tR\rclientAppName\x12#\n" +
@@ -293,7 +579,7 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\toperation\x18\x05 \x01(\tR\toperation\x12L\n" +
 	"\x14operation_start_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x12operationStartTime\x12 \n" +
 	"\busername\x18\a \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12!\n" +
-	"\fplan_summary\x18\b \x01(\tR\vplanSummary\"\xd2\x03\n" +
+	"\fplan_summary\x18\b \x01(\tR\vplanSummary\"\xae\x04\n" +
 	"\tQueryData\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -305,7 +591,9 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\x18query_execution_duration\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\x16queryExecutionDuration\x12H\n" +
 	"\x12query_collect_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x10queryCollectTime\x12%\n" +
 	"\x0eclient_address\x18\b \x01(\tR\rclientAddress\x12R\n" +
-	"\x10mongo_db_payload\x18\t \x01(\v2&.realtimeanalytics.v1.QueryMongoDBDataH\x00R\x0emongoDbPayloadB\t\n" +
+	"\x10mongo_db_payload\x18\t \x01(\v2&.realtimeanalytics.v1.QueryMongoDBDataH\x00R\x0emongoDbPayload\x12Z\n" +
+	"\x12postgresql_payload\x18\n" +
+	" \x01(\v2).realtimeanalytics.v1.QueryPostgreSQLDataH\x00R\x11postgresqlPayloadB\t\n" +
 	"\apayloadB\xdc\x01\n" +
 	"\x18com.realtimeanalytics.v1B\n" +
 	"QueryProtoP\x01ZCgithub.com/percona/pmm/api/realtimeanalytics/v1;realtimeanalyticsv1\xa2\x02\x03RXX\xaa\x02\x14Realtimeanalytics.V1\xca\x02\x14Realtimeanalytics\\V1\xe2\x02 Realtimeanalytics\\V1\\GPBMetadata\xea\x02\x15Realtimeanalytics::V1b\x06proto3"
@@ -322,26 +610,30 @@ func file_realtimeanalytics_v1_query_proto_rawDescGZIP() []byte {
 	return file_realtimeanalytics_v1_query_proto_rawDescData
 }
 
-var (
-	file_realtimeanalytics_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-	file_realtimeanalytics_v1_query_proto_goTypes  = []any{
-		(*QueryMongoDBData)(nil),      // 0: realtimeanalytics.v1.QueryMongoDBData
-		(*QueryData)(nil),             // 1: realtimeanalytics.v1.QueryData
-		(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
-		(*durationpb.Duration)(nil),   // 3: google.protobuf.Duration
-	}
-)
-
+var file_realtimeanalytics_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_realtimeanalytics_v1_query_proto_goTypes = []any{
+	(*LockChainEntry)(nil),        // 0: realtimeanalytics.v1.LockChainEntry
+	(*QueryPostgreSQLData)(nil),   // 1: realtimeanalytics.v1.QueryPostgreSQLData
+	(*QueryMongoDBData)(nil),      // 2: realtimeanalytics.v1.QueryMongoDBData
+	(*QueryData)(nil),             // 3: realtimeanalytics.v1.QueryData
+	(*durationpb.Duration)(nil),   // 4: google.protobuf.Duration
+	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
+}
 var file_realtimeanalytics_v1_query_proto_depIdxs = []int32{
-	2, // 0: realtimeanalytics.v1.QueryMongoDBData.operation_start_time:type_name -> google.protobuf.Timestamp
-	3, // 1: realtimeanalytics.v1.QueryData.query_execution_duration:type_name -> google.protobuf.Duration
-	2, // 2: realtimeanalytics.v1.QueryData.query_collect_time:type_name -> google.protobuf.Timestamp
-	0, // 3: realtimeanalytics.v1.QueryData.mongo_db_payload:type_name -> realtimeanalytics.v1.QueryMongoDBData
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	4, // 0: realtimeanalytics.v1.LockChainEntry.duration:type_name -> google.protobuf.Duration
+	5, // 1: realtimeanalytics.v1.QueryPostgreSQLData.transaction_start_time:type_name -> google.protobuf.Timestamp
+	5, // 2: realtimeanalytics.v1.QueryPostgreSQLData.state_change_time:type_name -> google.protobuf.Timestamp
+	0, // 3: realtimeanalytics.v1.QueryPostgreSQLData.lock_chain:type_name -> realtimeanalytics.v1.LockChainEntry
+	5, // 4: realtimeanalytics.v1.QueryMongoDBData.operation_start_time:type_name -> google.protobuf.Timestamp
+	4, // 5: realtimeanalytics.v1.QueryData.query_execution_duration:type_name -> google.protobuf.Duration
+	5, // 6: realtimeanalytics.v1.QueryData.query_collect_time:type_name -> google.protobuf.Timestamp
+	2, // 7: realtimeanalytics.v1.QueryData.mongo_db_payload:type_name -> realtimeanalytics.v1.QueryMongoDBData
+	1, // 8: realtimeanalytics.v1.QueryData.postgresql_payload:type_name -> realtimeanalytics.v1.QueryPostgreSQLData
+	9, // [9:9] is the sub-list for method output_type
+	9, // [9:9] is the sub-list for method input_type
+	9, // [9:9] is the sub-list for extension type_name
+	9, // [9:9] is the sub-list for extension extendee
+	0, // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_realtimeanalytics_v1_query_proto_init() }
@@ -349,8 +641,9 @@ func file_realtimeanalytics_v1_query_proto_init() {
 	if File_realtimeanalytics_v1_query_proto != nil {
 		return
 	}
-	file_realtimeanalytics_v1_query_proto_msgTypes[1].OneofWrappers = []any{
+	file_realtimeanalytics_v1_query_proto_msgTypes[3].OneofWrappers = []any{
 		(*QueryData_MongoDbPayload)(nil),
+		(*QueryData_PostgresqlPayload)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -358,7 +651,7 @@ func file_realtimeanalytics_v1_query_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_realtimeanalytics_v1_query_proto_rawDesc), len(file_realtimeanalytics_v1_query_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

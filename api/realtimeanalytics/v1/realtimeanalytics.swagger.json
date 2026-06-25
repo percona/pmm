@@ -1,0 +1,687 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "realtimeanalytics/v1/realtimeanalytics.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "RealtimeAnalyticsService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/realtimeanalytics/queries:search": {
+      "post": {
+        "summary": "List Running Database Queries in a particular services",
+        "description": "Returns list of currently running Database queries in a particular services",
+        "operationId": "SearchQueries",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SearchQueriesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "SearchQueriesRequest contains optional filters for listing active Real-Time Analytics session Queries.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SearchQueriesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "RealtimeAnalyticsService"
+        ]
+      }
+    },
+    "/v1/realtimeanalytics/services": {
+      "get": {
+        "summary": "List Services that support Real-Time Analytics",
+        "description": "Returns a list of Services that support Real-Time Analytics filtered by type.",
+        "operationId": "ListServices",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListServicesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "service_type",
+            "description": "Return only services filtered by service type.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "SERVICE_TYPE_UNSPECIFIED",
+              "SERVICE_TYPE_MYSQL_SERVICE",
+              "SERVICE_TYPE_MONGODB_SERVICE",
+              "SERVICE_TYPE_POSTGRESQL_SERVICE",
+              "SERVICE_TYPE_VALKEY_SERVICE",
+              "SERVICE_TYPE_PROXYSQL_SERVICE",
+              "SERVICE_TYPE_HAPROXY_SERVICE",
+              "SERVICE_TYPE_EXTERNAL_SERVICE"
+            ],
+            "default": "SERVICE_TYPE_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "RealtimeAnalyticsService"
+        ]
+      }
+    },
+    "/v1/realtimeanalytics/sessions": {
+      "get": {
+        "summary": "List Running Real-Time Analytics Sessions",
+        "description": "Returns the list of all currently running Real-Time Analytics sessions with their details including service, cluster and status information.",
+        "operationId": "ListSessions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListSessionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "cluster_name",
+            "description": "Optional filter by cluster name.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "RealtimeAnalyticsService"
+        ]
+      }
+    },
+    "/v1/realtimeanalytics/sessions:start": {
+      "post": {
+        "summary": "Start Real-Time Analytics session",
+        "description": "Start Real-Time Analytics session for a specified service.",
+        "operationId": "StartSession",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1StartSessionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "StartSessionRequest contains parameters for starting Real-Time Analytics session.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1StartSessionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "RealtimeAnalyticsService"
+        ]
+      }
+    },
+    "/v1/realtimeanalytics/sessions:stop": {
+      "post": {
+        "summary": "Stop Real-Time Analytics session",
+        "description": "Stop Real-Time Analytics session for a specified service.",
+        "operationId": "StopSession",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1StopSessionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "StopSessionRequest contains parameters for stopping Real-Time Analytics session.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1StopSessionRequest"
+            }
+          }
+        ],
+        "tags": [
+          "RealtimeAnalyticsService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1ListServicesResponse": {
+      "type": "object",
+      "properties": {
+        "mongodb": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MongoDBService"
+          }
+        },
+        "postgresql": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1PostgreSQLService"
+          }
+        }
+      }
+    },
+    "v1ListSessionsResponse": {
+      "type": "object",
+      "properties": {
+        "sessions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Session"
+          },
+          "description": "List of active Real-Time Analytics Sessions."
+        }
+      },
+      "description": "ListSessionsResponse returns the list of currently active Real-Time Analytics Sessions."
+    },
+    "v1LockChainEntry": {
+      "type": "object",
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Process ID of the session in this lock chain link."
+        },
+        "lock_mode": {
+          "type": "string",
+          "description": "Lock mode (e.g. AccessExclusiveLock)."
+        },
+        "lock_type": {
+          "type": "string",
+          "description": "Lock type (e.g. relation, transactionid)."
+        },
+        "granted": {
+          "type": "boolean",
+          "description": "Whether the lock is granted."
+        },
+        "query_text": {
+          "type": "string",
+          "description": "Query text of the session holding or waiting for the lock."
+        },
+        "duration": {
+          "type": "string",
+          "description": "Duration the session has been in the current state."
+        }
+      },
+      "description": "LockChainEntry represents a single link in a PostgreSQL lock chain."
+    },
+    "v1MongoDBService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "address": {
+          "type": "string",
+          "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Access unix socket.\nAddress (and port) or socket is required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "version": {
+          "type": "string",
+          "description": "MongoDB version."
+        }
+      },
+      "description": "MongoDBService represents a generic MongoDB instance."
+    },
+    "v1PostgreSQLService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name."
+        },
+        "database_name": {
+          "type": "string",
+          "description": "Database name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "address": {
+          "type": "string",
+          "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Access unix socket.\nAddress (and port) or socket is required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "version": {
+          "type": "string",
+          "description": "PostgreSQL version."
+        },
+        "auto_discovery_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit of databases for auto-discovery."
+        }
+      },
+      "description": "PostgreSQLService represents a generic PostgreSQL instance."
+    },
+    "v1QueryData": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "PMM Service identifier that reported the query."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "PMM Service name that reported the query."
+        },
+        "query_id": {
+          "type": "string",
+          "description": "Unique identifier for the query."
+        },
+        "query_text": {
+          "type": "string",
+          "description": "The text of the query."
+        },
+        "query_raw_json": {
+          "type": "string",
+          "description": "Raw JSON representation of the query."
+        },
+        "query_execution_duration": {
+          "type": "string",
+          "description": "Current query current execution time."
+        },
+        "query_collect_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the query data was collected by Real-Time Analytics agent."
+        },
+        "client_address": {
+          "type": "string",
+          "description": "Client address (host:port)."
+        },
+        "mongo_db_payload": {
+          "$ref": "#/definitions/v1QueryMongoDBData",
+          "description": "MongoDB-specific query data."
+        },
+        "postgresql_payload": {
+          "$ref": "#/definitions/v1QueryPostgreSQLData",
+          "description": "PostgreSQL-specific query data."
+        }
+      },
+      "description": "QueryData represents a single Real-Time Analytics query data point.\nIt includes general query information and a payload for database-specific details."
+    },
+    "v1QueryMongoDBData": {
+      "type": "object",
+      "properties": {
+        "db_instance_address": {
+          "type": "string",
+          "description": "MongoDB instance address(host:port) that processing the query."
+        },
+        "client_app_name": {
+          "type": "string",
+          "description": "Client application name from the MongoDB query."
+        },
+        "database_name": {
+          "type": "string",
+          "description": "Database name."
+        },
+        "collection": {
+          "type": "string",
+          "description": "Collection name."
+        },
+        "operation": {
+          "type": "string",
+          "description": "Query operation (\"find\", \"aggregate\", \"update\", etc)."
+        },
+        "operation_start_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The start time of the operation."
+        },
+        "username": {
+          "type": "string",
+          "description": "MongoDB user name associated with the query."
+        },
+        "plan_summary": {
+          "type": "string",
+          "description": "Indicates if an index (COLLSCAN vs IXSCAN) was utilized in the query."
+        }
+      },
+      "description": "QueryMongoDBData holds MongoDB-specific Real-Time Analytics query information."
+    },
+    "v1QueryPostgreSQLData": {
+      "type": "object",
+      "properties": {
+        "pid": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Backend process ID."
+        },
+        "state": {
+          "type": "string",
+          "description": "Session state (active, idle in transaction, etc.)."
+        },
+        "wait_event_type": {
+          "type": "string",
+          "description": "Wait event type (Lock, IO, etc.)."
+        },
+        "wait_event": {
+          "type": "string",
+          "description": "Wait event name."
+        },
+        "backend_type": {
+          "type": "string",
+          "description": "Backend type (client backend, parallel worker, etc.)."
+        },
+        "transaction_start_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Transaction start time (for idle-in-transaction duration)."
+        },
+        "state_change_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last state change time."
+        },
+        "leader_pid": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Leader PID for parallel workers (PostgreSQL 13+)."
+        },
+        "lock_chain": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1LockChainEntry"
+          },
+          "description": "Lock chain from blocker to blocked session."
+        },
+        "database_name": {
+          "type": "string",
+          "description": "Database name."
+        },
+        "username": {
+          "type": "string",
+          "description": "PostgreSQL username."
+        },
+        "application_name": {
+          "type": "string",
+          "description": "Application name from pg_stat_activity."
+        },
+        "query_truncated": {
+          "type": "boolean",
+          "description": "True when query text was truncated by track_activity_query_size."
+        }
+      },
+      "description": "QueryPostgreSQLData holds PostgreSQL-specific Real-Time Analytics query information."
+    },
+    "v1SearchQueriesRequest": {
+      "type": "object",
+      "properties": {
+        "service_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Optional filter by Service identifiers."
+        },
+        "limit": {
+          "type": "string",
+          "format": "int64",
+          "description": "Optional limit the number of queries in response."
+        }
+      },
+      "description": "SearchQueriesRequest contains optional filters for listing active Real-Time Analytics session Queries."
+    },
+    "v1SearchQueriesResponse": {
+      "type": "object",
+      "properties": {
+        "queries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1QueryData"
+          },
+          "description": "List of active Real-Time Analytics session Queries."
+        }
+      },
+      "description": "SearchQueriesResponse returns the list of currently active Real-Time Analytics session Queries."
+    },
+    "v1ServiceType": {
+      "type": "string",
+      "enum": [
+        "SERVICE_TYPE_UNSPECIFIED",
+        "SERVICE_TYPE_MYSQL_SERVICE",
+        "SERVICE_TYPE_MONGODB_SERVICE",
+        "SERVICE_TYPE_POSTGRESQL_SERVICE",
+        "SERVICE_TYPE_VALKEY_SERVICE",
+        "SERVICE_TYPE_PROXYSQL_SERVICE",
+        "SERVICE_TYPE_HAPROXY_SERVICE",
+        "SERVICE_TYPE_EXTERNAL_SERVICE"
+      ],
+      "default": "SERVICE_TYPE_UNSPECIFIED",
+      "description": "ServiceType describes supported Service types."
+    },
+    "v1Session": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier that has enabled Real-Time Analytics session."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Service name."
+        },
+        "cluster_name": {
+          "type": "string",
+          "description": "Cluster name the service belongs to."
+        },
+        "start_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the Real-Time Analytics session started."
+        },
+        "collect_interval": {
+          "type": "string",
+          "description": "Query collect interval."
+        },
+        "status": {
+          "$ref": "#/definitions/v1SessionStatus",
+          "description": "Current status of the Real-Time Analytics session."
+        }
+      },
+      "description": "Session represents an active Real-Time Analytics session."
+    },
+    "v1SessionStatus": {
+      "type": "string",
+      "enum": [
+        "SESSION_STATUS_UNSPECIFIED",
+        "SESSION_STATUS_ERROR",
+        "SESSION_STATUS_RUNNING",
+        "SESSION_STATUS_DOWN"
+      ],
+      "default": "SESSION_STATUS_UNSPECIFIED",
+      "description": "Status represents actual Real-Time Analytics session status.\n\n - SESSION_STATUS_ERROR: Session encountered an error.\n - SESSION_STATUS_RUNNING: Session is running.\n - SESSION_STATUS_DOWN: Session has been stopped or disabled."
+    },
+    "v1StartSessionRequest": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Required service identifier the Real-Time Analytics session shall be started for."
+        }
+      },
+      "description": "StartSessionRequest contains parameters for starting Real-Time Analytics session."
+    },
+    "v1StartSessionResponse": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "$ref": "#/definitions/v1Session"
+        }
+      },
+      "description": "StartSessionResponse is the response for starting Real-Time Analytics session."
+    },
+    "v1StopSessionRequest": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Required service identifier the Real-Time Analytics session shall be stopped for."
+        }
+      },
+      "description": "StopSessionRequest contains parameters for stopping Real-Time Analytics session."
+    },
+    "v1StopSessionResponse": {
+      "type": "object",
+      "description": "StopSessionResponse is the response for stopping Real-Time Analytics session.\n\nEmpty response for now."
+    }
+  }
+}

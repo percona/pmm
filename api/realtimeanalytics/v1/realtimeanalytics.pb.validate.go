@@ -130,8 +130,7 @@ func (e ListServicesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListServicesRequestValidationError{}
@@ -192,6 +191,40 @@ func (m *ListServicesResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return ListServicesResponseValidationError{
 					field:  fmt.Sprintf("Mongodb[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for idx, item := range m.GetPostgresql() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListServicesResponseValidationError{
+						field:  fmt.Sprintf("Postgresql[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListServicesResponseValidationError{
+						field:  fmt.Sprintf("Postgresql[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListServicesResponseValidationError{
+					field:  fmt.Sprintf("Postgresql[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -267,8 +300,7 @@ func (e ListServicesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListServicesResponseValidationError{}
@@ -432,8 +464,7 @@ func (e SessionValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SessionValidationError{}
@@ -537,8 +568,7 @@ func (e ListSessionsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListSessionsRequestValidationError{}
@@ -674,8 +704,7 @@ func (e ListSessionsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListSessionsResponseValidationError{}
@@ -788,8 +817,7 @@ func (e StartSessionRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartSessionRequestValidationError{}
@@ -920,8 +948,7 @@ func (e StartSessionResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StartSessionResponseValidationError{}
@@ -1034,8 +1061,7 @@ func (e StopSessionRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StopSessionRequestValidationError{}
@@ -1137,8 +1163,7 @@ func (e StopSessionResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = StopSessionResponseValidationError{}
@@ -1274,8 +1299,7 @@ func (e SearchQueriesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SearchQueriesRequestValidationError{}
@@ -1411,8 +1435,7 @@ func (e SearchQueriesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SearchQueriesResponseValidationError{}

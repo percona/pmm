@@ -36,6 +36,7 @@ import (
 	"github.com/percona/pmm/agent/agents/mongodb/mongolog"
 	mongoprofiler "github.com/percona/pmm/agent/agents/mongodb/profiler"
 	mongorta "github.com/percona/pmm/agent/agents/mongodb/realtimeanalytics"
+	pgrta "github.com/percona/pmm/agent/agents/postgresql/realtimeanalytics"
 	"github.com/percona/pmm/agent/agents/mysql/perfschema"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog"
 	"github.com/percona/pmm/agent/agents/noop"
@@ -672,6 +673,16 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 			CollectInterval: builtinAgent.RtaOptions.GetCollectInterval().AsDuration(),
 		}
 		agent, err = mongorta.New(params, l)
+
+	case inventoryv1.AgentType_AGENT_TYPE_RTA_POSTGRESQL_AGENT:
+		params := &pgrta.Params{
+			DSN:             dsn,
+			AgentID:         agentID,
+			ServiceID:       builtinAgent.ServiceId,
+			ServiceName:     builtinAgent.ServiceName,
+			CollectInterval: builtinAgent.RtaOptions.GetCollectInterval().AsDuration(),
+		}
+		agent, err = pgrta.New(params, l)
 
 	case type_TEST_NOOP:
 		agent = noop.New()

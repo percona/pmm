@@ -1025,6 +1025,41 @@ telemetry:
       - metric_name: "rta_mongo_agents_disabled"
         column: "agent_count"
 
+  - id: RTAPostgreAgentsRegisteredTotalCount
+    source: PMMDB_SELECT
+    query: >
+      count(*) AS agent_count
+      FROM agents
+      WHERE agent_type = 'rta-postgresql-agent';
+    summary: "Total count of RTA PostgreSQL agents ever registered (including stopped/disabled ones)"
+    data:
+      - metric_name: "rta_postgres_agents_total_count"
+        column: "agent_count"
+
+  - id: RTAPostgreAgentsEnabled
+    source: PMMDB_SELECT
+    query: >
+      count(*) AS agent_count
+      FROM agents
+      WHERE agent_type = 'rta-postgresql-agent'
+        AND disabled = false;
+    summary: "Count of Real-Time Analytics PostgreSQL agents currently enabled (disabled=false)"
+    data:
+      - metric_name: "rta_postgres_agents_enabled"
+        column: "agent_count"
+
+  - id: RTAPostgreAgentsDisabled
+    source: PMMDB_SELECT
+    query: >
+      count(*) AS agent_count
+      FROM agents
+      WHERE agent_type = 'rta-postgresql-agent'
+        AND disabled = true;
+    summary: "Count of Real-Time Analytics PostgreSQL agents currently disabled (disabled=true)"
+    data:
+      - metric_name: "rta_postgres_agents_disabled"
+        column: "agent_count"
+
   # Real-Time Analytics (RTA) agents details
   # Per-agent rows; agent_type is the row marker (consumer assumes 4 lines per agent).
   # COALESCE keeps row alignment when version/collect_interval are NULL (empty values would be dropped by removeEmpty).

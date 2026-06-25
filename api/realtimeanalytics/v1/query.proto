@@ -6,6 +6,52 @@ import "extensions/v1/redact.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
+// LockChainEntry represents a single link in a PostgreSQL lock chain.
+message LockChainEntry {
+  // Process ID of the session in this lock chain link.
+  int32 pid = 1;
+  // Lock mode (e.g. AccessExclusiveLock).
+  string lock_mode = 2;
+  // Lock type (e.g. relation, transactionid).
+  string lock_type = 3;
+  // Whether the lock is granted.
+  bool granted = 4;
+  // Query text of the session holding or waiting for the lock.
+  string query_text = 5;
+  // Duration the session has been in the current state.
+  google.protobuf.Duration duration = 6;
+}
+
+// QueryPostgreSQLData holds PostgreSQL-specific Real-Time Analytics query information.
+message QueryPostgreSQLData {
+  // Backend process ID.
+  int32 pid = 1;
+  // Session state (active, idle in transaction, etc.).
+  string state = 2;
+  // Wait event type (Lock, IO, etc.).
+  string wait_event_type = 3;
+  // Wait event name.
+  string wait_event = 4;
+  // Backend type (client backend, parallel worker, etc.).
+  string backend_type = 5;
+  // Transaction start time (for idle-in-transaction duration).
+  google.protobuf.Timestamp transaction_start_time = 6;
+  // Last state change time.
+  google.protobuf.Timestamp state_change_time = 7;
+  // Leader PID for parallel workers (PostgreSQL 13+).
+  int32 leader_pid = 8;
+  // Lock chain from blocker to blocked session.
+  repeated LockChainEntry lock_chain = 9;
+  // Database name.
+  string database_name = 10;
+  // PostgreSQL username.
+  string username = 11 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Application name from pg_stat_activity.
+  string application_name = 12;
+  // True when query text was truncated by track_activity_query_size.
+  bool query_truncated = 13;
+}
+
 // QueryMongoDBData holds MongoDB-specific Real-Time Analytics query information.
 message QueryMongoDBData {
   // MongoDB instance address(host:port) that processing the query.
@@ -49,5 +95,7 @@ message QueryData {
   oneof payload {
     // MongoDB-specific query data.
     QueryMongoDBData mongo_db_payload = 9;
+    // PostgreSQL-specific query data.
+    QueryPostgreSQLData postgresql_payload = 10;
   }
 }

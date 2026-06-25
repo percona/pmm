@@ -102,6 +102,7 @@ func (o *AddAgentOK) GetPayload() *AddAgentOKBody {
 }
 
 func (o *AddAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddAgentOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *AddAgentDefault) GetPayload() *AddAgentDefaultBody {
 }
 
 func (o *AddAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddAgentDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ AddAgentBody add agent body
 swagger:model AddAgentBody
 */
 type AddAgentBody struct {
+
 	// azure database exporter
 	AzureDatabaseExporter *AddAgentParamsBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
 
@@ -237,6 +240,9 @@ type AddAgentBody struct {
 
 	// rta mongodb agent
 	RtaMongodbAgent *AddAgentParamsBodyRtaMongodbAgent `json:"rta_mongodb_agent,omitempty"`
+
+	// rta postgresql agent
+	RtaPostgresqlAgent *AddAgentParamsBodyRtaPostgresqlAgent `json:"rta_postgresql_agent,omitempty"`
 
 	// valkey exporter
 	ValkeyExporter *AddAgentParamsBodyValkeyExporter `json:"valkey_exporter,omitempty"`
@@ -307,6 +313,10 @@ func (o *AddAgentBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRtaMongodbAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaPostgresqlAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -688,6 +698,29 @@ func (o *AddAgentBody) validateRtaMongodbAgent(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *AddAgentBody) validateRtaPostgresqlAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaPostgresqlAgent) { // not required
+		return nil
+	}
+
+	if o.RtaPostgresqlAgent != nil {
+		if err := o.RtaPostgresqlAgent.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_postgresql_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_postgresql_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *AddAgentBody) validateValkeyExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.ValkeyExporter) { // not required
 		return nil
@@ -779,6 +812,10 @@ func (o *AddAgentBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateRtaPostgresqlAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateValkeyExporter(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -790,6 +827,7 @@ func (o *AddAgentBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 }
 
 func (o *AddAgentBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AzureDatabaseExporter != nil {
 
 		if swag.IsZero(o.AzureDatabaseExporter) { // not required
@@ -814,6 +852,7 @@ func (o *AddAgentBody) contextValidateAzureDatabaseExporter(ctx context.Context,
 }
 
 func (o *AddAgentBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ExternalExporter != nil {
 
 		if swag.IsZero(o.ExternalExporter) { // not required
@@ -838,6 +877,7 @@ func (o *AddAgentBody) contextValidateExternalExporter(ctx context.Context, form
 }
 
 func (o *AddAgentBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MongodbExporter != nil {
 
 		if swag.IsZero(o.MongodbExporter) { // not required
@@ -862,6 +902,7 @@ func (o *AddAgentBody) contextValidateMongodbExporter(ctx context.Context, forma
 }
 
 func (o *AddAgentBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MysqldExporter != nil {
 
 		if swag.IsZero(o.MysqldExporter) { // not required
@@ -886,6 +927,7 @@ func (o *AddAgentBody) contextValidateMysqldExporter(ctx context.Context, format
 }
 
 func (o *AddAgentBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.NodeExporter != nil {
 
 		if swag.IsZero(o.NodeExporter) { // not required
@@ -910,6 +952,7 @@ func (o *AddAgentBody) contextValidateNodeExporter(ctx context.Context, formats 
 }
 
 func (o *AddAgentBody) contextValidatePMMAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PMMAgent != nil {
 
 		if swag.IsZero(o.PMMAgent) { // not required
@@ -934,6 +977,7 @@ func (o *AddAgentBody) contextValidatePMMAgent(ctx context.Context, formats strf
 }
 
 func (o *AddAgentBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PostgresExporter != nil {
 
 		if swag.IsZero(o.PostgresExporter) { // not required
@@ -958,6 +1002,7 @@ func (o *AddAgentBody) contextValidatePostgresExporter(ctx context.Context, form
 }
 
 func (o *AddAgentBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ProxysqlExporter != nil {
 
 		if swag.IsZero(o.ProxysqlExporter) { // not required
@@ -982,6 +1027,7 @@ func (o *AddAgentBody) contextValidateProxysqlExporter(ctx context.Context, form
 }
 
 func (o *AddAgentBody) contextValidateQANMongodbMongologAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMongodbMongologAgent != nil {
 
 		if swag.IsZero(o.QANMongodbMongologAgent) { // not required
@@ -1006,6 +1052,7 @@ func (o *AddAgentBody) contextValidateQANMongodbMongologAgent(ctx context.Contex
 }
 
 func (o *AddAgentBody) contextValidateQANMongodbProfilerAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMongodbProfilerAgent != nil {
 
 		if swag.IsZero(o.QANMongodbProfilerAgent) { // not required
@@ -1030,6 +1077,7 @@ func (o *AddAgentBody) contextValidateQANMongodbProfilerAgent(ctx context.Contex
 }
 
 func (o *AddAgentBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMysqlPerfschemaAgent != nil {
 
 		if swag.IsZero(o.QANMysqlPerfschemaAgent) { // not required
@@ -1054,6 +1102,7 @@ func (o *AddAgentBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Contex
 }
 
 func (o *AddAgentBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMysqlSlowlogAgent != nil {
 
 		if swag.IsZero(o.QANMysqlSlowlogAgent) { // not required
@@ -1078,6 +1127,7 @@ func (o *AddAgentBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context, 
 }
 
 func (o *AddAgentBody) contextValidateQANPostgresqlPgstatementsAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANPostgresqlPgstatementsAgent != nil {
 
 		if swag.IsZero(o.QANPostgresqlPgstatementsAgent) { // not required
@@ -1102,6 +1152,7 @@ func (o *AddAgentBody) contextValidateQANPostgresqlPgstatementsAgent(ctx context
 }
 
 func (o *AddAgentBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 
 		if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent) { // not required
@@ -1126,6 +1177,7 @@ func (o *AddAgentBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx contex
 }
 
 func (o *AddAgentBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.RDSExporter != nil {
 
 		if swag.IsZero(o.RDSExporter) { // not required
@@ -1150,6 +1202,7 @@ func (o *AddAgentBody) contextValidateRDSExporter(ctx context.Context, formats s
 }
 
 func (o *AddAgentBody) contextValidateRtaMongodbAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.RtaMongodbAgent != nil {
 
 		if swag.IsZero(o.RtaMongodbAgent) { // not required
@@ -1173,7 +1226,33 @@ func (o *AddAgentBody) contextValidateRtaMongodbAgent(ctx context.Context, forma
 	return nil
 }
 
+func (o *AddAgentBody) contextValidateRtaPostgresqlAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.RtaPostgresqlAgent != nil {
+
+		if swag.IsZero(o.RtaPostgresqlAgent) { // not required
+			return nil
+		}
+
+		if err := o.RtaPostgresqlAgent.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_postgresql_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_postgresql_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *AddAgentBody) contextValidateValkeyExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ValkeyExporter != nil {
 
 		if swag.IsZero(o.ValkeyExporter) { // not required
@@ -1220,6 +1299,7 @@ AddAgentDefaultBody add agent default body
 swagger:model AddAgentDefaultBody
 */
 type AddAgentDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -1289,7 +1369,9 @@ func (o *AddAgentDefaultBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *AddAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -1309,6 +1391,7 @@ func (o *AddAgentDefaultBody) contextValidateDetails(ctx context.Context, format
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -1337,6 +1420,7 @@ AddAgentDefaultBodyDetailsItems0 add agent default body details items0
 swagger:model AddAgentDefaultBodyDetailsItems0
 */
 type AddAgentDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -1348,6 +1432,7 @@ type AddAgentDefaultBodyDetailsItems0 struct {
 func (o *AddAgentDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -1385,6 +1470,7 @@ func (o *AddAgentDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o AddAgentDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -1448,6 +1534,7 @@ AddAgentOKBody add agent OK body
 swagger:model AddAgentOKBody
 */
 type AddAgentOKBody struct {
+
 	// azure database exporter
 	AzureDatabaseExporter *AddAgentOKBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
 
@@ -1495,6 +1582,9 @@ type AddAgentOKBody struct {
 
 	// rta mongodb agent
 	RtaMongodbAgent *AddAgentOKBodyRtaMongodbAgent `json:"rta_mongodb_agent,omitempty"`
+
+	// rta postgresql agent
+	RtaPostgresqlAgent *AddAgentOKBodyRtaPostgresqlAgent `json:"rta_postgresql_agent,omitempty"`
 
 	// valkey exporter
 	ValkeyExporter *AddAgentOKBodyValkeyExporter `json:"valkey_exporter,omitempty"`
@@ -1565,6 +1655,10 @@ func (o *AddAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRtaMongodbAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaPostgresqlAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1946,6 +2040,29 @@ func (o *AddAgentOKBody) validateRtaMongodbAgent(formats strfmt.Registry) error 
 	return nil
 }
 
+func (o *AddAgentOKBody) validateRtaPostgresqlAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaPostgresqlAgent) { // not required
+		return nil
+	}
+
+	if o.RtaPostgresqlAgent != nil {
+		if err := o.RtaPostgresqlAgent.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addAgentOk" + "." + "rta_postgresql_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addAgentOk" + "." + "rta_postgresql_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *AddAgentOKBody) validateValkeyExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.ValkeyExporter) { // not required
 		return nil
@@ -2037,6 +2154,10 @@ func (o *AddAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateRtaPostgresqlAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateValkeyExporter(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -2048,6 +2169,7 @@ func (o *AddAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *AddAgentOKBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AzureDatabaseExporter != nil {
 
 		if swag.IsZero(o.AzureDatabaseExporter) { // not required
@@ -2072,6 +2194,7 @@ func (o *AddAgentOKBody) contextValidateAzureDatabaseExporter(ctx context.Contex
 }
 
 func (o *AddAgentOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ExternalExporter != nil {
 
 		if swag.IsZero(o.ExternalExporter) { // not required
@@ -2096,6 +2219,7 @@ func (o *AddAgentOKBody) contextValidateExternalExporter(ctx context.Context, fo
 }
 
 func (o *AddAgentOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MongodbExporter != nil {
 
 		if swag.IsZero(o.MongodbExporter) { // not required
@@ -2120,6 +2244,7 @@ func (o *AddAgentOKBody) contextValidateMongodbExporter(ctx context.Context, for
 }
 
 func (o *AddAgentOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MysqldExporter != nil {
 
 		if swag.IsZero(o.MysqldExporter) { // not required
@@ -2144,6 +2269,7 @@ func (o *AddAgentOKBody) contextValidateMysqldExporter(ctx context.Context, form
 }
 
 func (o *AddAgentOKBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.NodeExporter != nil {
 
 		if swag.IsZero(o.NodeExporter) { // not required
@@ -2168,6 +2294,7 @@ func (o *AddAgentOKBody) contextValidateNodeExporter(ctx context.Context, format
 }
 
 func (o *AddAgentOKBody) contextValidatePMMAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PMMAgent != nil {
 
 		if swag.IsZero(o.PMMAgent) { // not required
@@ -2192,6 +2319,7 @@ func (o *AddAgentOKBody) contextValidatePMMAgent(ctx context.Context, formats st
 }
 
 func (o *AddAgentOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PostgresExporter != nil {
 
 		if swag.IsZero(o.PostgresExporter) { // not required
@@ -2216,6 +2344,7 @@ func (o *AddAgentOKBody) contextValidatePostgresExporter(ctx context.Context, fo
 }
 
 func (o *AddAgentOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ProxysqlExporter != nil {
 
 		if swag.IsZero(o.ProxysqlExporter) { // not required
@@ -2240,6 +2369,7 @@ func (o *AddAgentOKBody) contextValidateProxysqlExporter(ctx context.Context, fo
 }
 
 func (o *AddAgentOKBody) contextValidateQANMongodbMongologAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMongodbMongologAgent != nil {
 
 		if swag.IsZero(o.QANMongodbMongologAgent) { // not required
@@ -2264,6 +2394,7 @@ func (o *AddAgentOKBody) contextValidateQANMongodbMongologAgent(ctx context.Cont
 }
 
 func (o *AddAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMongodbProfilerAgent != nil {
 
 		if swag.IsZero(o.QANMongodbProfilerAgent) { // not required
@@ -2288,6 +2419,7 @@ func (o *AddAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Cont
 }
 
 func (o *AddAgentOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMysqlPerfschemaAgent != nil {
 
 		if swag.IsZero(o.QANMysqlPerfschemaAgent) { // not required
@@ -2312,6 +2444,7 @@ func (o *AddAgentOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Cont
 }
 
 func (o *AddAgentOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMysqlSlowlogAgent != nil {
 
 		if swag.IsZero(o.QANMysqlSlowlogAgent) { // not required
@@ -2336,6 +2469,7 @@ func (o *AddAgentOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context
 }
 
 func (o *AddAgentOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANPostgresqlPgstatementsAgent != nil {
 
 		if swag.IsZero(o.QANPostgresqlPgstatementsAgent) { // not required
@@ -2360,6 +2494,7 @@ func (o *AddAgentOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx conte
 }
 
 func (o *AddAgentOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 
 		if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent) { // not required
@@ -2384,6 +2519,7 @@ func (o *AddAgentOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx cont
 }
 
 func (o *AddAgentOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.RDSExporter != nil {
 
 		if swag.IsZero(o.RDSExporter) { // not required
@@ -2408,6 +2544,7 @@ func (o *AddAgentOKBody) contextValidateRDSExporter(ctx context.Context, formats
 }
 
 func (o *AddAgentOKBody) contextValidateRtaMongodbAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.RtaMongodbAgent != nil {
 
 		if swag.IsZero(o.RtaMongodbAgent) { // not required
@@ -2431,7 +2568,33 @@ func (o *AddAgentOKBody) contextValidateRtaMongodbAgent(ctx context.Context, for
 	return nil
 }
 
+func (o *AddAgentOKBody) contextValidateRtaPostgresqlAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.RtaPostgresqlAgent != nil {
+
+		if swag.IsZero(o.RtaPostgresqlAgent) { // not required
+			return nil
+		}
+
+		if err := o.RtaPostgresqlAgent.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addAgentOk" + "." + "rta_postgresql_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addAgentOk" + "." + "rta_postgresql_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *AddAgentOKBody) contextValidateValkeyExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ValkeyExporter != nil {
 
 		if swag.IsZero(o.ValkeyExporter) { // not required
@@ -2478,6 +2641,7 @@ AddAgentOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Con
 swagger:model AddAgentOKBodyAzureDatabaseExporter
 */
 type AddAgentOKBodyAzureDatabaseExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2704,6 +2868,7 @@ func (o *AddAgentOKBodyAzureDatabaseExporter) ContextValidate(ctx context.Contex
 }
 
 func (o *AddAgentOKBodyAzureDatabaseExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -2750,6 +2915,7 @@ AddAgentOKBodyAzureDatabaseExporterMetricsResolutions MetricsResolutions represe
 swagger:model AddAgentOKBodyAzureDatabaseExporterMetricsResolutions
 */
 type AddAgentOKBodyAzureDatabaseExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -2793,6 +2959,7 @@ AddAgentOKBodyExternalExporter ExternalExporter runs on any Node type, including
 swagger:model AddAgentOKBodyExternalExporter
 */
 type AddAgentOKBodyExternalExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2961,6 +3128,7 @@ func (o *AddAgentOKBodyExternalExporter) ContextValidate(ctx context.Context, fo
 }
 
 func (o *AddAgentOKBodyExternalExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -3007,6 +3175,7 @@ AddAgentOKBodyExternalExporterMetricsResolutions MetricsResolutions represents P
 swagger:model AddAgentOKBodyExternalExporterMetricsResolutions
 */
 type AddAgentOKBodyExternalExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -3050,6 +3219,7 @@ AddAgentOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node 
 swagger:model AddAgentOKBodyMongodbExporter
 */
 type AddAgentOKBodyMongodbExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3301,6 +3471,7 @@ func (o *AddAgentOKBodyMongodbExporter) ContextValidate(ctx context.Context, for
 }
 
 func (o *AddAgentOKBodyMongodbExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -3347,6 +3518,7 @@ AddAgentOKBodyMongodbExporterMetricsResolutions MetricsResolutions represents Pr
 swagger:model AddAgentOKBodyMongodbExporterMetricsResolutions
 */
 type AddAgentOKBodyMongodbExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -3390,6 +3562,7 @@ AddAgentOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node an
 swagger:model AddAgentOKBodyMysqldExporter
 */
 type AddAgentOKBodyMysqldExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3651,6 +3824,7 @@ func (o *AddAgentOKBodyMysqldExporter) ContextValidate(ctx context.Context, form
 }
 
 func (o *AddAgentOKBodyMysqldExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -3697,6 +3871,7 @@ AddAgentOKBodyMysqldExporterMetricsResolutions MetricsResolutions represents Pro
 swagger:model AddAgentOKBodyMysqldExporterMetricsResolutions
 */
 type AddAgentOKBodyMysqldExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -3740,6 +3915,7 @@ AddAgentOKBodyNodeExporter NodeExporter runs on Generic or Container Node and ex
 swagger:model AddAgentOKBodyNodeExporter
 */
 type AddAgentOKBodyNodeExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3963,6 +4139,7 @@ func (o *AddAgentOKBodyNodeExporter) ContextValidate(ctx context.Context, format
 }
 
 func (o *AddAgentOKBodyNodeExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -4009,6 +4186,7 @@ AddAgentOKBodyNodeExporterMetricsResolutions MetricsResolutions represents Prome
 swagger:model AddAgentOKBodyNodeExporterMetricsResolutions
 */
 type AddAgentOKBodyNodeExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -4052,6 +4230,7 @@ AddAgentOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
 swagger:model AddAgentOKBodyPMMAgent
 */
 type AddAgentOKBodyPMMAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -4101,6 +4280,7 @@ AddAgentOKBodyPostgresExporter PostgresExporter runs on Generic or Container Nod
 swagger:model AddAgentOKBodyPostgresExporter
 */
 type AddAgentOKBodyPostgresExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -4345,6 +4525,7 @@ func (o *AddAgentOKBodyPostgresExporter) ContextValidate(ctx context.Context, fo
 }
 
 func (o *AddAgentOKBodyPostgresExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -4391,6 +4572,7 @@ AddAgentOKBodyPostgresExporterMetricsResolutions MetricsResolutions represents P
 swagger:model AddAgentOKBodyPostgresExporterMetricsResolutions
 */
 type AddAgentOKBodyPostgresExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -4434,6 +4616,7 @@ AddAgentOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Nod
 swagger:model AddAgentOKBodyProxysqlExporter
 */
 type AddAgentOKBodyProxysqlExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -4672,6 +4855,7 @@ func (o *AddAgentOKBodyProxysqlExporter) ContextValidate(ctx context.Context, fo
 }
 
 func (o *AddAgentOKBodyProxysqlExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -4718,6 +4902,7 @@ AddAgentOKBodyProxysqlExporterMetricsResolutions MetricsResolutions represents P
 swagger:model AddAgentOKBodyProxysqlExporterMetricsResolutions
 */
 type AddAgentOKBodyProxysqlExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -4761,6 +4946,7 @@ AddAgentOKBodyQANMongodbMongologAgent QANMongoDBMongologAgent runs within pmm-ag
 swagger:model AddAgentOKBodyQANMongodbMongologAgent
 */
 type AddAgentOKBodyQANMongodbMongologAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -4970,6 +5156,7 @@ AddAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAgent runs within pmm-ag
 swagger:model AddAgentOKBodyQANMongodbProfilerAgent
 */
 type AddAgentOKBodyQANMongodbProfilerAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -5179,6 +5366,7 @@ AddAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-ag
 swagger:model AddAgentOKBodyQANMysqlPerfschemaAgent
 */
 type AddAgentOKBodyQANMysqlPerfschemaAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -5406,6 +5594,7 @@ AddAgentOKBodyQANMysqlSlowlogAgent QANMySQLSlowlogAgent runs within pmm-agent an
 swagger:model AddAgentOKBodyQANMysqlSlowlogAgent
 */
 type AddAgentOKBodyQANMysqlSlowlogAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -5636,6 +5825,7 @@ AddAgentOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs
 swagger:model AddAgentOKBodyQANPostgresqlPgstatementsAgent
 */
 type AddAgentOKBodyQANPostgresqlPgstatementsAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -5848,6 +6038,7 @@ AddAgentOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent ru
 swagger:model AddAgentOKBodyQANPostgresqlPgstatmonitorAgent
 */
 type AddAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -6063,6 +6254,7 @@ AddAgentOKBodyRDSExporter RDSExporter runs on Generic or Container Node and expo
 swagger:model AddAgentOKBodyRDSExporter
 */
 type AddAgentOKBodyRDSExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -6295,6 +6487,7 @@ func (o *AddAgentOKBodyRDSExporter) ContextValidate(ctx context.Context, formats
 }
 
 func (o *AddAgentOKBodyRDSExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -6341,6 +6534,7 @@ AddAgentOKBodyRDSExporterMetricsResolutions MetricsResolutions represents Promet
 swagger:model AddAgentOKBodyRDSExporterMetricsResolutions
 */
 type AddAgentOKBodyRDSExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -6384,6 +6578,7 @@ AddAgentOKBodyRtaMongodbAgent RTAMongoDBAgent runs within pmm-agent and sends Mo
 swagger:model AddAgentOKBodyRtaMongodbAgent
 */
 type AddAgentOKBodyRtaMongodbAgent struct {
+
 	// Unique agent identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -6604,6 +6799,7 @@ func (o *AddAgentOKBodyRtaMongodbAgent) ContextValidate(ctx context.Context, for
 }
 
 func (o *AddAgentOKBodyRtaMongodbAgent) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.RtaOptions != nil {
 
 		if swag.IsZero(o.RtaOptions) { // not required
@@ -6650,6 +6846,7 @@ AddAgentOKBodyRtaMongodbAgentRtaOptions RTAOptions holds Real-Time Query Analyti
 swagger:model AddAgentOKBodyRtaMongodbAgentRtaOptions
 */
 type AddAgentOKBodyRtaMongodbAgentRtaOptions struct {
+
 	// Query collect interval (default 2s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }
@@ -6683,10 +6880,317 @@ func (o *AddAgentOKBodyRtaMongodbAgentRtaOptions) UnmarshalBinary(b []byte) erro
 }
 
 /*
+AddAgentOKBodyRtaPostgresqlAgent RTAPostgreSQLAgent runs within pmm-agent and sends PostgreSQL Real-Time Query Analytics data to the PMM Server.
+swagger:model AddAgentOKBodyRtaPostgresqlAgent
+*/
+type AddAgentOKBodyRtaPostgresqlAgent struct {
+
+	// Unique agent identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// PostgreSQL username for getting session data.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// rta options
+	RtaOptions *AddAgentOKBodyRtaPostgresqlAgentRtaOptions `json:"rta_options,omitempty"`
+}
+
+// Validate validates this add agent OK body rta postgresql agent
+func (o *AddAgentOKBodyRtaPostgresqlAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addAgentOkBodyRtaPostgresqlAgentTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentOkBodyRtaPostgresqlAgentTypeStatusPropEnum = append(addAgentOkBodyRtaPostgresqlAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddAgentOKBodyRtaPostgresqlAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddAgentOKBodyRtaPostgresqlAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyRtaPostgresqlAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentOKBodyRtaPostgresqlAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addAgentOk"+"."+"rta_postgresql_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var addAgentOkBodyRtaPostgresqlAgentTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentOkBodyRtaPostgresqlAgentTypeLogLevelPropEnum = append(addAgentOkBodyRtaPostgresqlAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentOKBodyRtaPostgresqlAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentOKBodyRtaPostgresqlAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddAgentOKBodyRtaPostgresqlAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentOKBodyRtaPostgresqlAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddAgentOKBodyRtaPostgresqlAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentOKBodyRtaPostgresqlAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddAgentOKBodyRtaPostgresqlAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentOKBodyRtaPostgresqlAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddAgentOKBodyRtaPostgresqlAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentOKBodyRtaPostgresqlAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddAgentOKBodyRtaPostgresqlAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentOKBodyRtaPostgresqlAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddAgentOKBodyRtaPostgresqlAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyRtaPostgresqlAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentOKBodyRtaPostgresqlAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("addAgentOk"+"."+"rta_postgresql_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AddAgentOKBodyRtaPostgresqlAgent) validateRtaOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaOptions) { // not required
+		return nil
+	}
+
+	if o.RtaOptions != nil {
+		if err := o.RtaOptions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addAgentOk" + "." + "rta_postgresql_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addAgentOk" + "." + "rta_postgresql_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add agent OK body rta postgresql agent based on the context it is used
+func (o *AddAgentOKBodyRtaPostgresqlAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateRtaOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddAgentOKBodyRtaPostgresqlAgent) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.RtaOptions != nil {
+
+		if swag.IsZero(o.RtaOptions) { // not required
+			return nil
+		}
+
+		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addAgentOk" + "." + "rta_postgresql_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addAgentOk" + "." + "rta_postgresql_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentOKBodyRtaPostgresqlAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentOKBodyRtaPostgresqlAgent) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyRtaPostgresqlAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAgentOKBodyRtaPostgresqlAgentRtaOptions RTAOptions holds Real-Time Query Analytics agent options.
+swagger:model AddAgentOKBodyRtaPostgresqlAgentRtaOptions
+*/
+type AddAgentOKBodyRtaPostgresqlAgentRtaOptions struct {
+
+	// Query collect interval (default 2s is set by server).
+	CollectInterval string `json:"collect_interval,omitempty"`
+}
+
+// Validate validates this add agent OK body rta postgresql agent rta options
+func (o *AddAgentOKBodyRtaPostgresqlAgentRtaOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add agent OK body rta postgresql agent rta options based on context it is used
+func (o *AddAgentOKBodyRtaPostgresqlAgentRtaOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentOKBodyRtaPostgresqlAgentRtaOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentOKBodyRtaPostgresqlAgentRtaOptions) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyRtaPostgresqlAgentRtaOptions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 AddAgentOKBodyValkeyExporter ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
 swagger:model AddAgentOKBodyValkeyExporter
 */
 type AddAgentOKBodyValkeyExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -6861,6 +7365,7 @@ func (o *AddAgentOKBodyValkeyExporter) ContextValidate(ctx context.Context, form
 }
 
 func (o *AddAgentOKBodyValkeyExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -6907,6 +7412,7 @@ AddAgentOKBodyValkeyExporterMetricsResolutions MetricsResolutions represents Pro
 swagger:model AddAgentOKBodyValkeyExporterMetricsResolutions
 */
 type AddAgentOKBodyValkeyExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -6950,6 +7456,7 @@ AddAgentParamsBodyAzureDatabaseExporter add agent params body azure database exp
 swagger:model AddAgentParamsBodyAzureDatabaseExporter
 */
 type AddAgentParamsBodyAzureDatabaseExporter struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -7086,6 +7593,7 @@ AddAgentParamsBodyExternalExporter add agent params body external exporter
 swagger:model AddAgentParamsBodyExternalExporter
 */
 type AddAgentParamsBodyExternalExporter struct {
+
 	// The node identifier where this instance is run.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
@@ -7150,6 +7658,7 @@ AddAgentParamsBodyMongodbExporter add agent params body mongodb exporter
 swagger:model AddAgentParamsBodyMongodbExporter
 */
 type AddAgentParamsBodyMongodbExporter struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -7323,6 +7832,7 @@ AddAgentParamsBodyMysqldExporter add agent params body mysqld exporter
 swagger:model AddAgentParamsBodyMysqldExporter
 */
 type AddAgentParamsBodyMysqldExporter struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -7482,6 +7992,7 @@ AddAgentParamsBodyNodeExporter add agent params body node exporter
 swagger:model AddAgentParamsBodyNodeExporter
 */
 type AddAgentParamsBodyNodeExporter struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -7600,6 +8111,7 @@ AddAgentParamsBodyPMMAgent add agent params body PMM agent
 swagger:model AddAgentParamsBodyPMMAgent
 */
 type AddAgentParamsBodyPMMAgent struct {
+
 	// Node identifier where this instance runs.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
@@ -7640,6 +8152,7 @@ AddAgentParamsBodyPostgresExporter add agent params body postgres exporter
 swagger:model AddAgentParamsBodyPostgresExporter
 */
 type AddAgentParamsBodyPostgresExporter struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -7797,6 +8310,7 @@ AddAgentParamsBodyProxysqlExporter add agent params body proxysql exporter
 swagger:model AddAgentParamsBodyProxysqlExporter
 */
 type AddAgentParamsBodyProxysqlExporter struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -7939,6 +8453,7 @@ AddAgentParamsBodyQANMongodbMongologAgent add agent params body QAN mongodb mong
 swagger:model AddAgentParamsBodyQANMongodbMongologAgent
 */
 type AddAgentParamsBodyQANMongodbMongologAgent struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -8086,6 +8601,7 @@ AddAgentParamsBodyQANMongodbProfilerAgent add agent params body QAN mongodb prof
 swagger:model AddAgentParamsBodyQANMongodbProfilerAgent
 */
 type AddAgentParamsBodyQANMongodbProfilerAgent struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -8233,6 +8749,7 @@ AddAgentParamsBodyQANMysqlPerfschemaAgent add agent params body QAN mysql perfsc
 swagger:model AddAgentParamsBodyQANMysqlPerfschemaAgent
 */
 type AddAgentParamsBodyQANMysqlPerfschemaAgent struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -8381,6 +8898,7 @@ AddAgentParamsBodyQANMysqlSlowlogAgent add agent params body QAN mysql slowlog a
 swagger:model AddAgentParamsBodyQANMysqlSlowlogAgent
 */
 type AddAgentParamsBodyQANMysqlSlowlogAgent struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -8533,6 +9051,7 @@ AddAgentParamsBodyQANPostgresqlPgstatementsAgent add agent params body QAN postg
 swagger:model AddAgentParamsBodyQANPostgresqlPgstatementsAgent
 */
 type AddAgentParamsBodyQANPostgresqlPgstatementsAgent struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -8675,6 +9194,7 @@ AddAgentParamsBodyQANPostgresqlPgstatmonitorAgent add agent params body QAN post
 swagger:model AddAgentParamsBodyQANPostgresqlPgstatmonitorAgent
 */
 type AddAgentParamsBodyQANPostgresqlPgstatmonitorAgent struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -8820,6 +9340,7 @@ AddAgentParamsBodyRDSExporter add agent params body RDS exporter
 swagger:model AddAgentParamsBodyRDSExporter
 */
 type AddAgentParamsBodyRDSExporter struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -8950,6 +9471,7 @@ AddAgentParamsBodyRtaMongodbAgent add agent params body rta mongodb agent
 swagger:model AddAgentParamsBodyRtaMongodbAgent
 */
 type AddAgentParamsBodyRtaMongodbAgent struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -9109,6 +9631,7 @@ func (o *AddAgentParamsBodyRtaMongodbAgent) ContextValidate(ctx context.Context,
 }
 
 func (o *AddAgentParamsBodyRtaMongodbAgent) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.RtaOptions != nil {
 
 		if swag.IsZero(o.RtaOptions) { // not required
@@ -9155,6 +9678,7 @@ AddAgentParamsBodyRtaMongodbAgentRtaOptions RTAOptions holds Real-Time Query Ana
 swagger:model AddAgentParamsBodyRtaMongodbAgentRtaOptions
 */
 type AddAgentParamsBodyRtaMongodbAgentRtaOptions struct {
+
 	// Query collect interval (default 2s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }
@@ -9188,10 +9712,250 @@ func (o *AddAgentParamsBodyRtaMongodbAgentRtaOptions) UnmarshalBinary(b []byte) 
 }
 
 /*
+AddAgentParamsBodyRtaPostgresqlAgent add agent params body rta postgresql agent
+swagger:model AddAgentParamsBodyRtaPostgresqlAgent
+*/
+type AddAgentParamsBodyRtaPostgresqlAgent struct {
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// PostgreSQL username for getting session data.
+	Username string `json:"username,omitempty"`
+
+	// PostgreSQL password for getting session data.
+	Password string `json:"password,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Client certificate and key.
+	TLSCertificateKey string `json:"tls_certificate_key,omitempty"`
+
+	// Password for decrypting tls_certificate_key.
+	TLSCertificateKeyFilePassword string `json:"tls_certificate_key_file_password,omitempty"`
+
+	// Certificate Authority certificate chain.
+	TLSCa string `json:"tls_ca,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// rta options
+	RtaOptions *AddAgentParamsBodyRtaPostgresqlAgentRtaOptions `json:"rta_options,omitempty"`
+}
+
+// Validate validates this add agent params body rta postgresql agent
+func (o *AddAgentParamsBodyRtaPostgresqlAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addAgentParamsBodyRtaPostgresqlAgentTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentParamsBodyRtaPostgresqlAgentTypeLogLevelPropEnum = append(addAgentParamsBodyRtaPostgresqlAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentParamsBodyRtaPostgresqlAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentParamsBodyRtaPostgresqlAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// AddAgentParamsBodyRtaPostgresqlAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentParamsBodyRtaPostgresqlAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// AddAgentParamsBodyRtaPostgresqlAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentParamsBodyRtaPostgresqlAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// AddAgentParamsBodyRtaPostgresqlAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentParamsBodyRtaPostgresqlAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// AddAgentParamsBodyRtaPostgresqlAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentParamsBodyRtaPostgresqlAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// AddAgentParamsBodyRtaPostgresqlAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentParamsBodyRtaPostgresqlAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *AddAgentParamsBodyRtaPostgresqlAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentParamsBodyRtaPostgresqlAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentParamsBodyRtaPostgresqlAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"rta_postgresql_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AddAgentParamsBodyRtaPostgresqlAgent) validateRtaOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaOptions) { // not required
+		return nil
+	}
+
+	if o.RtaOptions != nil {
+		if err := o.RtaOptions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_postgresql_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_postgresql_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add agent params body rta postgresql agent based on the context it is used
+func (o *AddAgentParamsBodyRtaPostgresqlAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateRtaOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddAgentParamsBodyRtaPostgresqlAgent) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.RtaOptions != nil {
+
+		if swag.IsZero(o.RtaOptions) { // not required
+			return nil
+		}
+
+		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_postgresql_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_postgresql_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentParamsBodyRtaPostgresqlAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentParamsBodyRtaPostgresqlAgent) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyRtaPostgresqlAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAgentParamsBodyRtaPostgresqlAgentRtaOptions RTAOptions holds Real-Time Query Analytics agent options.
+swagger:model AddAgentParamsBodyRtaPostgresqlAgentRtaOptions
+*/
+type AddAgentParamsBodyRtaPostgresqlAgentRtaOptions struct {
+
+	// Query collect interval (default 2s is set by server).
+	CollectInterval string `json:"collect_interval,omitempty"`
+}
+
+// Validate validates this add agent params body rta postgresql agent rta options
+func (o *AddAgentParamsBodyRtaPostgresqlAgentRtaOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add agent params body rta postgresql agent rta options based on context it is used
+func (o *AddAgentParamsBodyRtaPostgresqlAgentRtaOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentParamsBodyRtaPostgresqlAgentRtaOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentParamsBodyRtaPostgresqlAgentRtaOptions) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyRtaPostgresqlAgentRtaOptions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 AddAgentParamsBodyValkeyExporter add agent params body valkey exporter
 swagger:model AddAgentParamsBodyValkeyExporter
 */
 type AddAgentParamsBodyValkeyExporter struct {
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 

@@ -27,6 +27,51 @@ import { EmptyResponse } from 'types/util.types';
 import { parseDuration } from 'utils/duration.utils';
 import { useUser } from 'contexts/user';
 
+const mapQueryData = (query: RawQueryData): QueryData => {
+  const transactionDurationMs = query.postgresqlPayload?.transactionStartTime
+    ? (Date.now() - new Date(query.postgresqlPayload.transactionStartTime).getTime()) / 1000
+    : null;
+
+  return {
+    ...query,
+    queryExecutionDurationMs: query.queryExecutionDuration
+      ? parseDuration(query.queryExecutionDuration) / 1000
+      : null,
+    transactionDurationMs,
+  };
+};
+
+const collapseParallelWorkers = (queries: QueryData[]): QueryData[] => {
+  const leaders = new Map<number, string>();
+
+  queries.forEach((query) => {
+    const pid = query.postgresqlPayload?.pid;
+    if (pid && query.postgresqlPayload?.backendType !== 'parallel worker') {
+      leaders.set(pid, query.queryId);
+    }
+  });
+
+  return queries.filter((query) => {
+    const payload = query.postgresqlPayload;
+    if (!payload || payload.backendType !== 'parallel worker' || !payload.leaderPid) {
+      return true;
+    }
+
+    return false;
+  }).map((query) => {
+    const payload = query.postgresqlPayload;
+    if (payload?.backendType === 'parallel worker' && payload.leaderPid) {
+      return {
+        ...query,
+        isParallelWorker: true,
+        leaderQueryId: leaders.get(payload.leaderPid),
+      };
+    }
+
+    return query;
+  });
+};
+
 const KEYS = {
   LIST_SESSIONS: 'rta:list-sessions',
   START_SESSION: 'rta:start-session',
@@ -156,12 +201,6 @@ export const useRealtimeQueries = (
   useQuery<RawQueryData[], Error, QueryData[]>({
     queryKey: [KEYS.SEARCH_QUERIES, payload],
     queryFn: async () => (await searchQueries(payload)).queries,
-    select: (data) =>
-      data.map((query) => ({
-        ...query,
-        queryExecutionDurationMs: query.queryExecutionDuration
-          ? parseDuration(query.queryExecutionDuration) / 1000
-          : null,
-      })),
+    select: (data) => collapseParallelWorkers(data.map(mapQueryData)),
     ...options,
   });
