@@ -42,8 +42,8 @@ DEV_SPECS := \
 PRIVATE_SPECS := \
 	agentlocal/v1
 
-# Add new API dir here if swagger spec generation is not require but formatting 
-# for generated Go files is still needs to be (like extensions or common includes).
+# Add new API dir here if swagger spec generation is not required, but formatting
+# for generated Go files still needs to be run (like extensions or common includes).
 ADDITIONAL_FORMAT_SPECS := \
 	agent/v1 \
 	agent/pb \
