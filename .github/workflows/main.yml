@@ -87,7 +87,7 @@ jobs:
       - name: Setup Go release
         uses: ./.github/actions/setup-go-release
 
-      - name: Test common API
+      - name: Test shared packages
         run: make test-common
 
       - name: Run debug commands on failure
