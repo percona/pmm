@@ -129,7 +129,8 @@ func mysqldExporterConfig(
 		}
 	}
 
-	if exporter.TLSSkipVerify {
+	// Only pass the skip-verify flag when TLS is actually enabled.
+	if exporter.TLS && exporter.TLSSkipVerify {
 		if pmmAgentVersion.IsFeatureSupported(version.MysqlExporterV0_17_2) {
 			args = append(args, "--tls.insecure-skip-verify")
 		} else {
