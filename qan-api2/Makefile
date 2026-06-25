@@ -1,17 +1,10 @@
 .DEFAULT_GOAL := help
-CURDIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 BIN_DIR := $(CURDIR)/../bin
 
 # PMM Demo benchmark
 include Makefile.mk
 
-.PHONY: help release install install-race test-env-up test-env-down _start-clickhouse _stop-clickhouse
-.PHONY: test run-race-cover _run env-up env-down pmm-env-up deploy _import-test-data
-
-help: ## Display this help message
-	@echo "Please use \`make <target>\`, where <target> is one of the following:"
-	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9-]+:.*## / {printf "  %-28s%s\n", $$1, $$2}' $(MAKEFILE_LIST)
-
+# --- Go-related variables ----------------------------------------------------------------
 # `cut` is used to remove the leading `v` from the version
 PMM_RELEASE_PATH ?= $(BIN_DIR)
 PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
@@ -19,14 +12,30 @@ PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 QAN_LD_FLAGS = -ldflags " \
-			-X 'github.com/percona/pmm/version.ProjectName=qan-api2' \
-			-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
-			-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
-			-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
-			-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
-			-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
-			"
+	-X 'github.com/percona/pmm/version.ProjectName=qan-api2' \
+	-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
+	-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
+	-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
+	-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
+	-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
+	"
+# --- Docker-related variables -----------------------------------------------------------
 PMM_CONTAINER ?= pmm-server
+# ------------------------------------------------------------------------------------------
+
+.PHONY: help format release install install-race test-env-up test-env-down
+.PHONY: _start-clickhouse _stop-clickhouse test run-race-cover _run
+.PHONY: env-up env-down pmm-env-up deploy _import-test-data
+
+help: 	## Display this help message
+	@echo "Please use \`make <target>\`, where <target> is one of the following:"
+	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9-]+:.*## / {printf "  %-23s%s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+format: FILES = $(shell find . -type f -name '*.go')
+format: 	## Format source code
+	go tool gofumpt -w $(FILES)
+	go tool goimports -local github.com/percona/pmm -w $(FILES)
+	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 
 release:                        ## Build qan-api2 release binary
 	env CGO_ENABLED=0 go build -v $(QAN_LD_FLAGS) -o $(PMM_RELEASE_PATH)/qan-api2

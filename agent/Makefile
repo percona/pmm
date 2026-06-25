@@ -2,7 +2,7 @@
 
 # --- Go-related variables ----------------------------------------------------------------
 # `cut` is used to remove first `v` from `git describe` output
-PMM_RELEASE_PATH ?= $(CURDIR)/bin
+PMM_RELEASE_PATH ?= $(CURDIR)/../bin
 PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
