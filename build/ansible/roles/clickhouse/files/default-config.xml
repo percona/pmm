@@ -150,11 +150,8 @@
     -->
     <!-- <https_port>8443</https_port> -->
 
-    <!-- Native interface with TLS.
-         You have to configure certificate to enable this interface.
-         See the openSSL section below.
-    -->
-    <!-- <tcp_port_secure>9440</tcp_port_secure> -->
+    <!-- Native interface with TLS. -->
+    <tcp_port_secure>9440</tcp_port_secure>
 
     <!-- Native interface wrapped with PROXYv1 protocol
          PROXYv1 header sent for every connection.
@@ -267,7 +264,26 @@
         <verbose_logs>false</verbose_logs>
     </grpc>
 
-    <!-- Used with https_port and tcp_port_secure. Full ssl options list: https://github.com/ClickHouse-Extras/poco/blob/master/NetSSL_OpenSSL/include/Poco/Net/SSLManager.h#L71 -->
+    <!-- OpenSSL configuration for tcp_port_secure and https_port -->
+    <openSSL>
+        <server>
+            <certificateFile>/srv/tls/ch-server.crt</certificateFile>
+            <privateKeyFile>/srv/tls/ch-server.key</privateKeyFile>
+            <caConfig>/srv/tls/ca.crt</caConfig>
+            <verificationMode>relaxed</verificationMode>
+            <loadDefaultCAFile>false</loadDefaultCAFile>
+            <cacheSessions>true</cacheSessions>
+            <disableProtocols>sslv2,sslv3</disableProtocols>
+            <preferServerCiphers>true</preferServerCiphers>
+        </server>
+        <client>
+            <loadDefaultCAFile>false</loadDefaultCAFile>
+            <caConfig>/srv/tls/ca.crt</caConfig>
+            <cacheSessions>true</cacheSessions>
+            <disableProtocols>sslv2,sslv3</disableProtocols>
+            <preferServerCiphers>true</preferServerCiphers>
+        </client>
+    </openSSL>
 
     <!-- Default root page on http[s] server. For example load UI from https://tabix.io/ when opening http://localhost:8123 -->
     <!--

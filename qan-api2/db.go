@@ -17,6 +17,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"net/url"
@@ -37,8 +38,46 @@ const (
 	databaseNotExistErrorCode = 81
 )
 
+// connectClickhouse creates a sqlx.DB connection, using TLS via clickhouse.Connector if tlsCfg is non-nil.
+func connectClickhouse(dsn string, tlsCfg *tls.Config) (*sqlx.DB, error) {
+	if tlsCfg != nil {
+		u, err := url.Parse(dsn)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse ClickHouse DSN: %w", err)
+		}
+
+		host := u.Hostname()
+		port := u.Port()
+		if port == "" {
+			port = "9440"
+		}
+
+		user := u.User.Username()
+		password, _ := u.User.Password()
+		database := strings.TrimPrefix(u.Path, "/")
+
+		conn := clickhouse.OpenDB(&clickhouse.Options{
+			Addr: []string{host + ":" + port},
+			Auth: clickhouse.Auth{
+				Database: database,
+				Username: user,
+				Password: password,
+			},
+			TLS: tlsCfg,
+		})
+		db := sqlx.NewDb(conn, "clickhouse")
+		if err := db.Ping(); err != nil {
+			db.Close() //nolint:errcheck
+			return nil, err
+		}
+		return db, nil
+	}
+
+	return sqlx.Connect("clickhouse", dsn)
+}
+
 // NewDB return updated db.
-func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterName string) *sqlx.DB {
+func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterName string, tlsCfg *tls.Config) *sqlx.DB {
 	l := logrus.WithField("component", "db")
 	// If ClickHouse is a cluster, wait until the cluster is ready.
 	if isCluster {
@@ -67,7 +106,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	}
 
 	l.Infof("New connection with DSN: %s", dsnutils.RedactDSN(dsn))
-	db, err := sqlx.Connect("clickhouse", dsn)
+	db, err := connectClickhouse(dsn, tlsCfg)
 	if err != nil {
 		l.Errorf("Error connecting to ClickHouse: %v", err)
 		exception, ok := errors.AsType[*clickhouse.Exception](err)
@@ -77,7 +116,7 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 				l.Fatalf("Database wasn't created: %v", err)
 			}
 			l.Infof("Connecting again to %s", dsnutils.RedactDSN(dsn))
-			db, err = sqlx.Connect("clickhouse", dsn)
+			db, err = connectClickhouse(dsn, tlsCfg)
 			if err != nil {
 				l.Fatalf("Connection: %v", err)
 			}

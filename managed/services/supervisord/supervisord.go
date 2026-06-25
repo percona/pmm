@@ -45,9 +45,9 @@ import (
 
 const (
 	defaultClickhouseDatabase           = "pmm"
-	defaultClickhouseAddr               = "127.0.0.1:9000"
+	defaultClickhouseAddr               = "127.0.0.1:9440"
 	defaultClickhouseUser               = "default"
-	defaultClickhousePassword           = "clickhouse"
+	defaultClickhousePassword           = ""
 	defaultVMSearchMaxQueryLen          = "1MB"
 	defaultVMSearchLatencyOffset        = "5s"
 	defaultVMSearchMaxUniqueTimeseries  = "100000000"
@@ -330,8 +330,9 @@ environment =
 	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
 	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
 	PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
-	PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
-
+	PMM_CLICKHOUSE_SSL_CA_PATH="{{ .ClickhouseSSLCAPath }}",
+	PMM_CLICKHOUSE_SSL_CERT_PATH="{{ .ClickhouseSSLCertPath }}",
+	PMM_CLICKHOUSE_SSL_KEY_PATH="{{ .ClickhouseSSLKeyPath }}"
 
 autorestart = true
 autostart = true
@@ -367,7 +368,9 @@ environment =
     PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
-    PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
+    PMM_CLICKHOUSE_SSL_CA_PATH="{{ .ClickhouseSSLCAPath }}",
+    PMM_CLICKHOUSE_SSL_CERT_PATH="{{ .ClickhouseSSLCertPath }}",
+    PMM_CLICKHOUSE_SSL_KEY_PATH="{{ .ClickhouseSSLKeyPath }}",
     {{- if .HAEnabled}}
     GF_UNIFIED_ALERTING_HA_LISTEN_ADDRESS="0.0.0.0:{{ .GrafanaGossipPort }}",
     GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
@@ -460,7 +463,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2) //nolint:mnd
 	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
-	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
 	vmSearchDisableCache := envvars.GetEnv("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
 	vmSearchMaxQueryLen := envvars.GetEnv("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
 	vmSearchLatencyOffset := envvars.GetEnv("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
@@ -493,7 +495,9 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseHost":               clickhouseAddrPair[0],
 		"ClickhousePort":               clickhouseAddrPair[1],
 		"ClickhouseUser":               clickhouseUser,
-		"ClickhousePassword":           clickhousePassword,
+		"ClickhouseSSLCAPath":          envvars.GetEnv("PMM_CLICKHOUSE_SSL_CA_PATH", "/srv/tls/ca.crt"),
+		"ClickhouseSSLCertPath":        envvars.GetEnv("PMM_CLICKHOUSE_SSL_CERT_PATH", "/srv/tls/ch-client.crt"),
+		"ClickhouseSSLKeyPath":         envvars.GetEnv("PMM_CLICKHOUSE_SSL_KEY_PATH", "/srv/tls/ch-client.key"),
 		"PMMServerHost":                "",
 	}
 

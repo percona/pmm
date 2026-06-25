@@ -18,6 +18,8 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	_ "expvar" // register /debug/vars
 	"fmt"
@@ -270,7 +272,10 @@ func main() {
 	clickhouseDatabaseF := kingpin.Flag("clickhouse-name", "ClickHouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "ClickHouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUserF := kingpin.Flag("clickhouse-user", "ClickHouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
-	clickhousePasswordF := kingpin.Flag("clickhouse-password", "ClickHouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
+	clickhousePasswordF := kingpin.Flag("clickhouse-password", "ClickHouse database user password").Default("").Envar("PMM_CLICKHOUSE_PASSWORD").String()
+	clickhouseSSLCAPathF := kingpin.Flag("clickhouse-ssl-ca-path", "ClickHouse SSL CA certificate path").Default("").Envar("PMM_CLICKHOUSE_SSL_CA_PATH").String()
+	clickhouseSSLCertPathF := kingpin.Flag("clickhouse-ssl-cert-path", "ClickHouse SSL client certificate path").Default("").Envar("PMM_CLICKHOUSE_SSL_CERT_PATH").String()
+	clickhouseSSLKeyPathF := kingpin.Flag("clickhouse-ssl-key-path", "ClickHouse SSL client key path").Default("").Envar("PMM_CLICKHOUSE_SSL_KEY_PATH").String()
 
 	clickhouseIsClusterF := kingpin.Flag("clickhouse-cluster", "Is ClickHouse a cluster").Default("false").Envar("PMM_CLICKHOUSE_IS_CLUSTER").Bool()
 	clickhouseClusterNameF := kingpin.Flag("clickhouse-cluster-name", "ClickHouse cluster name").Default("").Envar("PMM_CLICKHOUSE_CLUSTER_NAME").String()
@@ -308,7 +313,30 @@ func main() {
 	}
 	l.Info("DSN: ", dsnutils.RedactDSN(dsn))
 
-	db := NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF)
+	var chTLSCfg *tls.Config
+	if *clickhouseSSLCAPathF != "" {
+		caCert, err := os.ReadFile(*clickhouseSSLCAPathF) //nolint:gosec
+		if err != nil {
+			l.Fatalf("Failed to read ClickHouse CA cert: %s", err)
+		}
+		caPool := x509.NewCertPool()
+		if !caPool.AppendCertsFromPEM(caCert) {
+			l.Fatal("Failed to parse ClickHouse CA cert")
+		}
+		chTLSCfg = &tls.Config{
+			RootCAs:    caPool,
+			MinVersion: tls.VersionTLS12,
+		}
+		if *clickhouseSSLCertPathF != "" && *clickhouseSSLKeyPathF != "" {
+			cert, err := tls.LoadX509KeyPair(*clickhouseSSLCertPathF, *clickhouseSSLKeyPathF)
+			if err != nil {
+				l.Fatalf("Failed to load ClickHouse client cert: %s", err)
+			}
+			chTLSCfg.Certificates = []tls.Certificate{cert}
+		}
+	}
+
+	db := NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF, chTLSCfg)
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
 
 	// handle termination signals

@@ -88,12 +88,8 @@ func saveConfig(path string, cfg []byte) (err error) {
 // TODO: remove [unix_http_server] and [supervisorctl] as they duplicate supervisord.conf.
 var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Parse(`[unix_http_server]
 chmod = 0700
-username = dummy
-password = dummy
 
 [supervisorctl]
-username = dummy
-password = dummy
 
 [program:pmm-init]
 command = /usr/bin/ansible-playbook /opt/ansible/pmm-docker/init.yml
@@ -175,6 +171,14 @@ command =
     /usr/sbin/pmm-managed
         --victoriametrics-config=/etc/victoriametrics-promscrape.yml
         --supervisord-config-dir=/etc/supervisord.d
+        --postgres-password=
+        --postgres-ssl-mode=verify-ca
+        --postgres-ssl-ca-path=/srv/tls/ca.crt
+        --postgres-ssl-cert-path=/srv/tls/pmm-managed.crt
+        --postgres-ssl-key-path=/srv/tls/pmm-managed.key
+        --clickhouse-ssl-ca-path=/srv/tls/ca.crt
+        --clickhouse-ssl-cert-path=/srv/tls/ch-client.crt
+        --clickhouse-ssl-key-path=/srv/tls/ch-client.key
 autorestart = true
 autostart = true
 startretries = 1000

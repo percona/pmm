@@ -1,0 +1,209 @@
+---
+# PMM Internal TLS Certificate Generation
+# Generates a self-signed CA and per-service client/server certificates
+# used for password-less internal authentication between PMM components.
+
+- name: Create TLS directory
+  file:
+    path: "{{ pmm_tls_dir }}"
+    state: directory
+    owner: "{{ pmm_tls_owner }}"
+    group: "{{ pmm_tls_group }}"
+    mode: "0750"
+
+# --- Certificate Authority ---
+- name: Generate CA private key
+  command: >
+    openssl genrsa -out {{ pmm_tls_dir }}/ca.key 4096
+  args:
+    creates: "{{ pmm_tls_dir }}/ca.key"
+
+- name: Generate CA certificate
+  command: >
+    openssl req -new -x509
+      -key {{ pmm_tls_dir }}/ca.key
+      -out {{ pmm_tls_dir }}/ca.crt
+      -days {{ pmm_tls_ca_days }}
+      -subj "/CN=PMM Internal CA/O=Percona"
+  args:
+    creates: "{{ pmm_tls_dir }}/ca.crt"
+
+# --- PostgreSQL server certificate ---
+- name: Generate PostgreSQL server key
+  command: >
+    openssl genrsa -out {{ pmm_tls_dir }}/pg-server.key 4096
+  args:
+    creates: "{{ pmm_tls_dir }}/pg-server.key"
+
+- name: Generate PostgreSQL server CSR
+  command: >
+    openssl req -new
+      -key {{ pmm_tls_dir }}/pg-server.key
+      -out {{ pmm_tls_dir }}/pg-server.csr
+      -subj "/CN=localhost/O=Percona"
+  args:
+    creates: "{{ pmm_tls_dir }}/pg-server.csr"
+
+- name: Sign PostgreSQL server certificate
+  command: >
+    openssl x509 -req
+      -in {{ pmm_tls_dir }}/pg-server.csr
+      -CA {{ pmm_tls_dir }}/ca.crt
+      -CAkey {{ pmm_tls_dir }}/ca.key
+      -CAcreateserial
+      -out {{ pmm_tls_dir }}/pg-server.crt
+      -days {{ pmm_tls_cert_days }}
+  args:
+    creates: "{{ pmm_tls_dir }}/pg-server.crt"
+
+# --- pmm-managed client certificate (CN must match PostgreSQL username) ---
+- name: Generate pmm-managed client key
+  command: >
+    openssl genrsa -out {{ pmm_tls_dir }}/pmm-managed.key 4096
+  args:
+    creates: "{{ pmm_tls_dir }}/pmm-managed.key"
+
+- name: Generate pmm-managed client CSR
+  command: >
+    openssl req -new
+      -key {{ pmm_tls_dir }}/pmm-managed.key
+      -out {{ pmm_tls_dir }}/pmm-managed.csr
+      -subj "/CN=pmm-managed/O=Percona"
+  args:
+    creates: "{{ pmm_tls_dir }}/pmm-managed.csr"
+
+- name: Sign pmm-managed client certificate
+  command: >
+    openssl x509 -req
+      -in {{ pmm_tls_dir }}/pmm-managed.csr
+      -CA {{ pmm_tls_dir }}/ca.crt
+      -CAkey {{ pmm_tls_dir }}/ca.key
+      -CAcreateserial
+      -out {{ pmm_tls_dir }}/pmm-managed.crt
+      -days {{ pmm_tls_cert_days }}
+  args:
+    creates: "{{ pmm_tls_dir }}/pmm-managed.crt"
+
+# --- Grafana client certificate (CN must match PostgreSQL username) ---
+- name: Generate grafana client key
+  command: >
+    openssl genrsa -out {{ pmm_tls_dir }}/grafana.key 4096
+  args:
+    creates: "{{ pmm_tls_dir }}/grafana.key"
+
+- name: Generate grafana client CSR
+  command: >
+    openssl req -new
+      -key {{ pmm_tls_dir }}/grafana.key
+      -out {{ pmm_tls_dir }}/grafana.csr
+      -subj "/CN=grafana/O=Percona"
+  args:
+    creates: "{{ pmm_tls_dir }}/grafana.csr"
+
+- name: Sign grafana client certificate
+  command: >
+    openssl x509 -req
+      -in {{ pmm_tls_dir }}/grafana.csr
+      -CA {{ pmm_tls_dir }}/ca.crt
+      -CAkey {{ pmm_tls_dir }}/ca.key
+      -CAcreateserial
+      -out {{ pmm_tls_dir }}/grafana.crt
+      -days {{ pmm_tls_cert_days }}
+  args:
+    creates: "{{ pmm_tls_dir }}/grafana.crt"
+
+# --- ClickHouse server certificate ---
+- name: Generate ClickHouse server key
+  command: >
+    openssl genrsa -out {{ pmm_tls_dir }}/ch-server.key 4096
+  args:
+    creates: "{{ pmm_tls_dir }}/ch-server.key"
+
+- name: Generate ClickHouse server CSR
+  command: >
+    openssl req -new
+      -key {{ pmm_tls_dir }}/ch-server.key
+      -out {{ pmm_tls_dir }}/ch-server.csr
+      -subj "/CN=localhost/O=Percona"
+  args:
+    creates: "{{ pmm_tls_dir }}/ch-server.csr"
+
+- name: Sign ClickHouse server certificate
+  command: >
+    openssl x509 -req
+      -in {{ pmm_tls_dir }}/ch-server.csr
+      -CA {{ pmm_tls_dir }}/ca.crt
+      -CAkey {{ pmm_tls_dir }}/ca.key
+      -CAcreateserial
+      -out {{ pmm_tls_dir }}/ch-server.crt
+      -days {{ pmm_tls_cert_days }}
+  args:
+    creates: "{{ pmm_tls_dir }}/ch-server.crt"
+
+# --- ClickHouse client certificate (shared by pmm-managed and qan-api2) ---
+- name: Generate ClickHouse client key
+  command: >
+    openssl genrsa -out {{ pmm_tls_dir }}/ch-client.key 4096
+  args:
+    creates: "{{ pmm_tls_dir }}/ch-client.key"
+
+- name: Generate ClickHouse client CSR
+  command: >
+    openssl req -new
+      -key {{ pmm_tls_dir }}/ch-client.key
+      -out {{ pmm_tls_dir }}/ch-client.csr
+      -subj "/CN=default/O=Percona"
+  args:
+    creates: "{{ pmm_tls_dir }}/ch-client.csr"
+
+- name: Sign ClickHouse client certificate
+  command: >
+    openssl x509 -req
+      -in {{ pmm_tls_dir }}/ch-client.csr
+      -CA {{ pmm_tls_dir }}/ca.crt
+      -CAkey {{ pmm_tls_dir }}/ca.key
+      -CAcreateserial
+      -out {{ pmm_tls_dir }}/ch-client.crt
+      -days {{ pmm_tls_cert_days }}
+  args:
+    creates: "{{ pmm_tls_dir }}/ch-client.crt"
+
+# --- Fix permissions ---
+- name: Set key file permissions
+  file:
+    path: "{{ item }}"
+    owner: "{{ pmm_tls_owner }}"
+    group: "{{ pmm_tls_group }}"
+    mode: "0600"
+  loop:
+    - "{{ pmm_tls_dir }}/ca.key"
+    - "{{ pmm_tls_dir }}/pg-server.key"
+    - "{{ pmm_tls_dir }}/pmm-managed.key"
+    - "{{ pmm_tls_dir }}/grafana.key"
+    - "{{ pmm_tls_dir }}/ch-server.key"
+    - "{{ pmm_tls_dir }}/ch-client.key"
+
+- name: Set cert file permissions
+  file:
+    path: "{{ item }}"
+    owner: "{{ pmm_tls_owner }}"
+    group: "{{ pmm_tls_group }}"
+    mode: "0644"
+  loop:
+    - "{{ pmm_tls_dir }}/ca.crt"
+    - "{{ pmm_tls_dir }}/pg-server.crt"
+    - "{{ pmm_tls_dir }}/pmm-managed.crt"
+    - "{{ pmm_tls_dir }}/grafana.crt"
+    - "{{ pmm_tls_dir }}/ch-server.crt"
+    - "{{ pmm_tls_dir }}/ch-client.crt"
+
+- name: Clean up CSR files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ pmm_tls_dir }}/pg-server.csr"
+    - "{{ pmm_tls_dir }}/pmm-managed.csr"
+    - "{{ pmm_tls_dir }}/grafana.csr"
+    - "{{ pmm_tls_dir }}/ch-server.csr"
+    - "{{ pmm_tls_dir }}/ch-client.csr"

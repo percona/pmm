@@ -18,6 +18,8 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"database/sql"
 	"errors"
 	_ "expvar" // register /debug/vars
@@ -36,7 +38,7 @@ import (
 	"sync"
 	"time"
 
-	_ "github.com/ClickHouse/clickhouse-go/v2"
+	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/alecthomas/kingpin/v2"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
@@ -641,11 +643,75 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 	}
 }
 
-// newClickhouseDB return a new Clickhouse db.
-func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error) {
-	db, err := sql.Open("clickhouse", dsn)
+// buildClickhouseTLSConfig builds a TLS config for ClickHouse client connections.
+func buildClickhouseTLSConfig(caPath, certPath, keyPath string) (*tls.Config, error) {
+	if caPath == "" {
+		return nil, nil //nolint:nilnil
+	}
+
+	caCert, err := os.ReadFile(caPath) //nolint:gosec
 	if err != nil {
-		return nil, fmt.Errorf("failed to open connection to QAN DB: %w", err)
+		return nil, fmt.Errorf("failed to read ClickHouse CA cert: %w", err)
+	}
+
+	caPool := x509.NewCertPool()
+	if !caPool.AppendCertsFromPEM(caCert) {
+		return nil, fmt.Errorf("failed to parse ClickHouse CA cert")
+	}
+
+	tlsCfg := &tls.Config{
+		RootCAs:    caPool,
+		MinVersion: tls.VersionTLS12,
+	}
+
+	if certPath != "" && keyPath != "" {
+		cert, err := tls.LoadX509KeyPair(certPath, keyPath)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load ClickHouse client cert: %w", err)
+		}
+		tlsCfg.Certificates = []tls.Certificate{cert}
+	}
+
+	return tlsCfg, nil
+}
+
+// newClickhouseDB return a new Clickhouse db.
+func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int, tlsCfg *tls.Config) (*sql.DB, error) {
+	var db *sql.DB
+	var err error
+
+	if tlsCfg != nil {
+		// Use clickhouse.Connector for TLS — DSN parser doesn't support cert paths.
+		u, parseErr := url.Parse(dsn)
+		if parseErr != nil {
+			return nil, fmt.Errorf("failed to parse ClickHouse DSN: %w", parseErr)
+		}
+
+		host := u.Hostname()
+		port := u.Port()
+		if port == "" {
+			port = "9440"
+		}
+
+		user := u.User.Username()
+		password, _ := u.User.Password()
+		database := strings.TrimPrefix(u.Path, "/")
+
+		conn := clickhouse.OpenDB(&clickhouse.Options{
+			Addr: []string{host + ":" + port},
+			Auth: clickhouse.Auth{
+				Database: database,
+				Username: user,
+				Password: password,
+			},
+			TLS: tlsCfg,
+		})
+		db = conn
+	} else {
+		db, err = sql.Open("clickhouse", dsn)
+		if err != nil {
+			return nil, fmt.Errorf("failed to open connection to QAN DB: %w", err)
+		}
 	}
 
 	db.SetConnMaxLifetime(0)
@@ -697,7 +763,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		Envar("PMM_POSTGRES_SSL_CA_PATH").
 		String()
 	postgresDBPasswordF := kingpin.Flag("postgres-password", "PostgreSQL database password").
-		Default("pmm-managed").
+		Default("").
 		Envar("PMM_POSTGRES_DBPASSWORD").
 		String()
 	postgresSSLKeyPathF := kingpin.Flag("postgres-ssl-key-path", "PostgreSQL SSL key path").
@@ -741,7 +807,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
-	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
+	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("").Envar("PMM_CLICKHOUSE_PASSWORD").String()
+	clickhouseSSLCAPathF := kingpin.Flag("clickhouse-ssl-ca-path", "ClickHouse SSL CA certificate path").Default("").Envar("PMM_CLICKHOUSE_SSL_CA_PATH").String()
+	clickhouseSSLCertPathF := kingpin.Flag("clickhouse-ssl-cert-path", "ClickHouse SSL client certificate path").Default("").Envar("PMM_CLICKHOUSE_SSL_CERT_PATH").String()
+	clickhouseSSLKeyPathF := kingpin.Flag("clickhouse-ssl-key-path", "ClickHouse SSL client key path").Default("").Envar("PMM_CLICKHOUSE_SSL_KEY_PATH").String()
 	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
 
 	// Nomad garbage collection flags
@@ -1001,7 +1070,12 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		l.Fatalf("Could not create Victoria Metrics client: %s", err)
 	}
 
-	clickhouseClient, err := newClickhouseDB(qanDB.DSN, clickhouseMaxIdleConns, clickhouseMaxOpenConns)
+	chTLSCfg, err := buildClickhouseTLSConfig(*clickhouseSSLCAPathF, *clickhouseSSLCertPathF, *clickhouseSSLKeyPathF)
+	if err != nil {
+		l.Fatalf("Failed to build ClickHouse TLS config: %s", err)
+	}
+
+	clickhouseClient, err := newClickhouseDB(qanDB.DSN, clickhouseMaxIdleConns, clickhouseMaxOpenConns, chTLSCfg)
 	if err != nil {
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}

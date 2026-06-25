@@ -54,13 +54,13 @@
     dest: /etc/systemd/system/getty@.service.d/nodisallocate.conf
     mode: 0644
 
-- name: root password              | Set root password
+- name: root password              | Set root password (force change on first login)
   when: ansible_virtualization_type == "virtualbox"
   user:
     name: root
-    password: "$6$J7pGg2a7vuRTbTV5$vORqkiAKdkyomU3iYwr/SPn.yLIkGsl5ludEx5DUvGVASSTquTjOldHt/nUWrFRnJeZyzt6CIOjAcugbcfGtN1"
+    password: "!"
 
-- name: root password              | Set root password
+- name: root password              | Force password change on first login
   when: ansible_virtualization_type == "virtualbox"
   command: chage -d 0 root
   changed_when: False

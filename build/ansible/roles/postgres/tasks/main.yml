@@ -113,6 +113,35 @@
   environment:
     PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
+# --- Enable SSL for PostgreSQL ---
+- name: Configure PostgreSQL SSL
+  blockinfile:
+    path: /srv/postgres14/postgresql.conf
+    marker: "# {mark} PMM SSL CONFIG"
+    block: |
+      ssl = on
+      ssl_cert_file = '/srv/tls/pg-server.crt'
+      ssl_key_file = '/srv/tls/pg-server.key'
+      ssl_ca_file = '/srv/tls/ca.crt'
+
+- name: Configure pg_hba.conf for cert-based auth
+  copy:
+    dest: /srv/postgres14/pg_hba.conf
+    owner: pmm
+    group: root
+    mode: "0600"
+    content: |
+      # PMM internal services: cert-based authentication over SSL
+      hostssl all         pmm-managed 127.0.0.1/32  cert
+      hostssl all         pmm-managed ::1/128       cert
+      hostssl all         grafana     127.0.0.1/32  cert
+      hostssl all         grafana     ::1/128       cert
+      # postgres superuser: password auth for admin tasks
+      host    all         postgres    127.0.0.1/32  scram-sha-256
+      host    all         postgres    ::1/128       scram-sha-256
+      # Local unix socket: trust (used by postgres_exporter and pg_ctl)
+      local   all         all                       trust
+
 - name: Stop Postgres 14 database
   command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
   become: true

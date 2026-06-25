@@ -81,4 +81,4 @@
         dest: /etc/victoriametrics-promscrape.yml
         owner: pmm
         group: root
-        mode: 0664
+        mode: 0600

@@ -56,3 +56,5 @@ encryption.key
 .cursor/
 .cursorrules/
 CLAUDE.md
+pmm-managed
+pmm-encryption-rotation
