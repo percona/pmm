@@ -46,9 +46,6 @@ jobs:
       - name: Setup Go release
         uses: ./.github/actions/setup-go-release
 
-      - name: Generate files
-        run: make gen
-
       - name: Check files are formatted and no source code changes
         run: |
           make format

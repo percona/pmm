@@ -68,7 +68,7 @@ help: 	## Display this help message
 	@echo "Please use \`make <target>\`, where <target> is one of the following:"
 	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9-]+:.*## / {printf "  %-23s%s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-gen: clean	_gen format 	## Generate PMM API
+gen: clean	_gen format 	## Generate PMM API (includes formatting)
 	$(MAKE) clean-swagger
 
 _gen:

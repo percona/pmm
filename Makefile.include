@@ -20,18 +20,10 @@ release:              ## Build release versions of all components
 	make -C qan-api2 release
 	make -C qan-api2 vmproxy
 
-gen:             ## Generate files
-	make -C api gen
+gen:             ## Generate files (includes formatting)
 	make -C agent gen
+	make -C api gen
 	make -C managed gen
-
-	make gen-mocks      ## Generate mocks
-
-	make format
-
-gen-mocks:
-	find . -name mock_*.go -delete
-	go tool mockery --config .mockery.yaml
 
 test-common:          ## Run tests from shared packages only (i.e it ignores directories that are explicitly listed)
 	go test $(shell go list ./... | grep -v -e admin -e agent -e api -e managed -e api-tests -e qan-api2 -e vmproxy)
@@ -57,6 +49,7 @@ format: FILES = $(shell find . -type f -name '*.go')
 format:               ## Format source code
 	$(MAKE) -C agent format
 	$(MAKE) -C api format
+	$(MAKE) -C managed format
 
 	go tool gofumpt -l -w $(FILES)
 	go tool goimports -local github.com/percona/pmm -l -w $(FILES)

@@ -2,7 +2,7 @@
 
 # --- Go-related variables ----------------------------------------------------------------
 # `cut` is used to remove first `v` from `git describe` output
-PMM_RELEASE_PATH ?= ../bin
+PMM_RELEASE_PATH ?= $(CURDIR)/bin
 PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
@@ -45,7 +45,7 @@ release-dev:
 release-dev-gssapi:
 	CGO_ENABLED=1 go build -race -v -ldflags "$(VERSION_FLAGS)" -tags 'gssapi' -o $(PMM_RELEASE_PATH)/pmm-agent-gssapi
 
-gen: _gen _gen-mocks format 	## Generate files
+gen: _gen _gen-mocks format 	## Generate files (includes formatting)
 
 _gen:
 	find . -name *_reform.go -delete

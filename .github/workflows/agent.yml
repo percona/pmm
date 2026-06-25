@@ -26,7 +26,7 @@ jobs:
     continue-on-error: false
     defaults:
       run:
-        working-directory: ${{ github.workspace }}/api
+        working-directory: ${{ github.workspace }}/agent
 
     steps:
       - name: Check out code
