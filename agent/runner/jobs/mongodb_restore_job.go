@@ -241,8 +241,8 @@ func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string)
 		restoreOutput.StartedAt = startTime
 		return true, nil
 	})
-	if err != nil {
-		return nil, err
+	if pollErr != nil {
+		return nil, pollErr
 	}
 
 	return &restoreOutput, nil
