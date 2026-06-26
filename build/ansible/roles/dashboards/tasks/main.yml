@@ -1,4 +1,9 @@
 ---
+# Grafana stays down during this sync: while an upgrade is pending, pmm-managed
+# renders the Grafana program with autostart=false (see grafanaAutostart in the
+# supervisord service), so the bundled plugins under /srv/grafana/plugins are
+# replaced while Grafana is not running. Grafana discovers plugins only at
+# startup, so restart it once the sync is done to register them.
 - name: Retrieve Percona plugins
   find:
     paths: /usr/share/percona-dashboards/panels/
@@ -31,3 +36,12 @@
     dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
     mode: 0664
     remote_src: yes
+
+- name: Restart Grafana after plugin sync
+  supervisorctl:
+    name: grafana
+    state: restarted
+  failed_when: false
+  become: true
+  become_user: pmm
+  become_method: su
