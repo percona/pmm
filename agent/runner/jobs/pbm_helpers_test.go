@@ -373,7 +373,7 @@ func TestPollDescribeOnce(t *testing.T) {
 		assert.True(t, done)
 	})
 
-	t.Run("status fetch error", func(t *testing.T) {
+	t.Run("status fetch error retries polling", func(t *testing.T) {
 		t.Parallel()
 		cfg := newTestPoller(t, func(c *describePoller) {
 			c.fetchDescribe = func(context.Context) (describeInfo, error) {
@@ -384,7 +384,23 @@ func TestPollDescribeOnce(t *testing.T) {
 			}
 		})
 		done, err := pollDescribeOnce(context.Background(), cfg)
-		require.ErrorContains(t, err, "failed to get pbm status")
+		require.NoError(t, err)
+		assert.False(t, done)
+		assert.Equal(t, maxDescribeRetries-1, cfg.retries)
+	})
+
+	t.Run("status fetch context canceled", func(t *testing.T) {
+		t.Parallel()
+		cfg := newTestPoller(t, func(c *describePoller) {
+			c.fetchDescribe = func(context.Context) (describeInfo, error) {
+				return describeInfo{}, errors.New("describe failed")
+			}
+			c.fetchStatus = func(context.Context, string) (*pbmStatus, error) {
+				return nil, context.Canceled
+			}
+		})
+		done, err := pollDescribeOnce(context.Background(), cfg)
+		require.ErrorIs(t, err, context.Canceled)
 		assert.False(t, done)
 	})
 

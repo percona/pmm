@@ -333,7 +333,16 @@ func pollDescribeOnce(ctx context.Context, cfg *describePoller) (bool, error) {
 
 	status, statusErr := cfg.getPBMStatus(ctx)
 	if statusErr != nil {
-		return false, fmt.Errorf("failed to get pbm status: %w", statusErr)
+		if errors.Is(statusErr, context.Canceled) || errors.Is(statusErr, context.DeadlineExceeded) {
+			return false, statusErr
+		}
+
+		cfg.l.Debugf("failed to get pbm status while waiting for %s %q: %v", cfg.operation, cfg.name, statusErr)
+		if cfg.retryDescribeErr(describeErr) {
+			return false, nil
+		}
+
+		return false, fmt.Errorf("failed to get %s status: %w", cfg.operation, describeErr)
 	}
 
 	running := cfg.opRunning(status)
