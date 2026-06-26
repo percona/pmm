@@ -48,7 +48,8 @@ func connectClickhouse(dsn string, tlsCfg *tls.Config) (*sqlx.DB, error) {
 
 		host := u.Hostname()
 		port := u.Port()
-		if port == "" {
+		// TLS connections use the secure native port.
+		if port == "" || port == "9000" {
 			port = "9440"
 		}
 

@@ -689,7 +689,8 @@ func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int, tlsCfg *tls.Con
 
 		host := u.Hostname()
 		port := u.Port()
-		if port == "" {
+		// TLS connections use the secure native port.
+		if port == "" || port == "9000" {
 			port = "9440"
 		}
 
@@ -807,7 +808,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	clickHouseDatabaseF := kingpin.Flag("clickhouse-name", "Clickhouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
-	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("").Envar("PMM_CLICKHOUSE_PASSWORD").String()
+	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
 	clickhouseSSLCAPathF := kingpin.Flag("clickhouse-ssl-ca-path", "ClickHouse SSL CA certificate path").Default("").Envar("PMM_CLICKHOUSE_SSL_CA_PATH").String()
 	clickhouseSSLCertPathF := kingpin.Flag("clickhouse-ssl-cert-path", "ClickHouse SSL client certificate path").Default("").Envar("PMM_CLICKHOUSE_SSL_CERT_PATH").String()
 	clickhouseSSLKeyPathF := kingpin.Flag("clickhouse-ssl-key-path", "ClickHouse SSL client key path").Default("").Envar("PMM_CLICKHOUSE_SSL_KEY_PATH").String()

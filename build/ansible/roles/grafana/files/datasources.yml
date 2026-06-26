@@ -46,9 +46,6 @@ datasources:
     username: ${PMM_CLICKHOUSE_USER}
     port: ${PMM_CLICKHOUSE_PORT}
     host: ${PMM_CLICKHOUSE_HOST}
-    protocol: native
-    secure: true
     tlsSkipVerify: false
-    tlsCACertFile: ${PMM_CLICKHOUSE_SSL_CA_PATH}
-    tlsClientCertFile: ${PMM_CLICKHOUSE_SSL_CERT_PATH}
-    tlsClientKeyFile: ${PMM_CLICKHOUSE_SSL_KEY_PATH}
+  secureJsonData:
+    password: clickhouse

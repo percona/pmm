@@ -45,7 +45,7 @@ import (
 
 const (
 	defaultClickhouseDatabase           = "pmm"
-	defaultClickhouseAddr               = "127.0.0.1:9440"
+	defaultClickhouseAddr               = "127.0.0.1:9000"
 	defaultClickhouseUser               = "default"
 	defaultClickhousePassword           = ""
 	defaultVMSearchMaxQueryLen          = "1MB"
@@ -368,9 +368,6 @@ environment =
     PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
-    PMM_CLICKHOUSE_SSL_CA_PATH="{{ .ClickhouseSSLCAPath }}",
-    PMM_CLICKHOUSE_SSL_CERT_PATH="{{ .ClickhouseSSLCertPath }}",
-    PMM_CLICKHOUSE_SSL_KEY_PATH="{{ .ClickhouseSSLKeyPath }}",
     {{- if .HAEnabled}}
     GF_UNIFIED_ALERTING_HA_LISTEN_ADDRESS="0.0.0.0:{{ .GrafanaGossipPort }}",
     GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
