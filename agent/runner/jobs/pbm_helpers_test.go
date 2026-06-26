@@ -216,6 +216,8 @@ func TestOpRunning(t *testing.T) {
 	status.Running.Type = pbmCmdBackup
 	status.Running.Name = "backup-1"
 	assert.True(t, backupCfg.opRunning(status))
+	status.Running.Name = "backup-2"
+	assert.False(t, backupCfg.opRunning(status))
 
 	restoreCfg := &describePoller{
 		operation: pbmCmdRestore,
@@ -225,7 +227,7 @@ func TestOpRunning(t *testing.T) {
 	status.Running.Name = "restore-1"
 	assert.True(t, restoreCfg.opRunning(status))
 	status.Running.Name = "restore-2"
-	assert.False(t, restoreCfg.opRunning(status))
+	assert.True(t, restoreCfg.opRunning(status))
 
 	customCfg := &describePoller{
 		isRunning: func(*pbmStatus) bool { return true },

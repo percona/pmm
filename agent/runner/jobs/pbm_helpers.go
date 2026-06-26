@@ -236,7 +236,6 @@ func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, ds
 	started := false
 
 	return poll.UntilContextTimeout(ctx, statusCheckInterval, func(ctx context.Context) (bool, error) {
-		// Preserve previous behavior: first status check runs after the first tick.
 		if !started {
 			started = true
 			return false, nil
@@ -498,6 +497,12 @@ func (cfg *describePoller) opRunning(status *pbmStatus) bool {
 	if cfg.operation != pbmCmdBackup && cfg.operation != pbmCmdRestore {
 		return false
 	}
+
+	// Restore name in status may differ from the name used for polling
+	if cfg.operation == pbmCmdRestore {
+		return status.Running.Type == cfg.operation
+	}
+
 	return status.Running.Type == cfg.operation && status.Running.Name == cfg.name
 }
 
