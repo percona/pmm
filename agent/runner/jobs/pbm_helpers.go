@@ -233,8 +233,15 @@ func retrieveLogs(ctx context.Context, dsn string, event string) ([]pbmLogEntry,
 
 func waitForPBMNoRunningOperations(ctx context.Context, l logrus.FieldLogger, dsn string) error {
 	l.Info("Waiting for no running pbm operations.")
+	started := false
 
 	return poll.UntilContextTimeout(ctx, statusCheckInterval, func(ctx context.Context) (bool, error) {
+		// Preserve previous behavior: first status check runs after the first tick.
+		if !started {
+			started = true
+			return false, nil
+		}
+
 		status, err := getPBMStatus(ctx, dsn)
 		if err != nil {
 			return false, err
