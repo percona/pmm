@@ -1,0 +1,51 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Foundations/Illustrations/Overview" />
+
+# Illustrations
+
+Illustrations are larger, expressive pieces of artwork **unique to Peak Design**. Unlike icons — which label actions and objects at small sizes — illustrations carry a moment in the UX: an empty result, an error, a feature that is switched off, a background process at work.
+
+They live in `@percona/percona-ui` so every consumer (PMM, SEP, …) tells the same visual story.
+
+## How they behave
+
+Each illustration is a React component that wraps MUI's `SvgIcon`, drawn on a `64×64` canvas.
+
+- **Sizing** — like an icon, the size follows `fontSize` (defaulting to `64px`). Resize with the `fontSize` prop or `sx`.
+- **Default color** — every artwork layer inherits `currentColor`, so by default the whole illustration is drawn in the **text color** and adapts to light/dark themes automatically. Never hardcode a color when the default will do.
+
+```tsx
+import { NothingFoundIllustration } from '@percona/percona-ui';
+
+// Drawn in the surrounding text color, at 96px.
+<NothingFoundIllustration sx={{ fontSize: 96 }} />;
+```
+
+## Customizing colors per layer
+
+Every illustration is composed of named **layers** (groups of paths). Consumers can recolor any individual layer through the `layerColors` prop — any layer you don't set stays on `currentColor`.
+
+```tsx
+import { RealTimeDatabaseOffIllustration } from '@percona/percona-ui';
+
+<RealTimeDatabaseOffIllustration
+  sx={{ fontSize: 96 }}
+  layerColors={{
+    base: 'text.primary', // pass a resolved color value
+    accent: '#ef4444',
+    // liveBadge omitted → stays currentColor
+  }}
+/>;
+```
+
+The available layer keys are listed under each illustration in the **Illustrations** gallery and are fully typed per component, so your editor will autocomplete them.
+
+> `layerColors` takes concrete color values (hex, `rgb()`, CSS variables). When you want a theme token, resolve it first (e.g. `theme.palette.error.main`) and pass the value.
+
+## Adding a new illustration
+
+1. **Design in Figma** — keep the artwork on a `64×64` frame and split it into clearly named layers.
+2. **Add to Peak Design** — translate each layer into a `<g>` whose fill defaults to `currentColor`, inside a `SvgIcon`-based component in `src/components/illustrations/`.
+3. **Export from `@percona/percona-ui`** — so any consumer can import it by name.
+4. **List it on the Illustrations page** — so it's discoverable and searchable alongside the rest.

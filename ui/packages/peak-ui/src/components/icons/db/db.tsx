@@ -1,5 +1,8 @@
 import { SvgIcon, SvgIconProps } from '@mui/material';
 
+/**
+ * @deprecated Brand illustration pending migration to a dedicated Illustrations section. Do not adopt in new code.
+ */
 export const MySqlIcon = (props: SvgIconProps) => (
   <SvgIcon viewBox="0 0 214 197" {...props}>
     <g opacity="0.5">
@@ -40,6 +43,9 @@ export const MySqlIcon = (props: SvgIconProps) => (
   </SvgIcon>
 );
 
+/**
+ * @deprecated Brand illustration pending migration to a dedicated Illustrations section. Do not adopt in new code.
+ */
 export const MongoIcon = (props: SvgIconProps) => (
   <SvgIcon viewBox="0 0 214 188" {...props}>
     <path
@@ -81,6 +87,9 @@ export const MongoIcon = (props: SvgIconProps) => (
   </SvgIcon>
 );
 
+/**
+ * @deprecated Brand illustration pending migration to a dedicated Illustrations section. Do not adopt in new code.
+ */
 export const PostgreSqlIcon = (props: SvgIconProps) => (
   <SvgIcon viewBox="0 0 214 203" {...props}>
     <path
