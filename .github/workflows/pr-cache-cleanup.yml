@@ -1,0 +1,30 @@
+---
+# This runs when a PR is closed or merged to free up cache space.
+name: Cleanup PR Cache
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  cleanup:
+    name: Delete PR caches
+    runs-on: ubuntu-latest
+
+    permissions:
+      # 'actions: write' is strictly required to delete caches
+      actions: write
+      contents: read
+
+    steps:
+      - name: Delete caches for the PR branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "[INFO] Deleting caches for PR #${{ github.event.pull_request.number }}"
+
+          # Delete caches associated with the PR merge ref
+          gh cache delete --all --succeed-on-no-caches --ref "refs/pull/${{ github.event.pull_request.number }}/merge"
+
+          echo "[INFO] Cache cleanup complete"
