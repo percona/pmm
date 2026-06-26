@@ -70,12 +70,13 @@ type Service struct {
 }
 
 // NewService creates a new Service.
-func NewService(db *reform.DB, grafanaClient grafanaClient) (*Service, error) { //nolint:unparam
+func NewService(db *reform.DB, grafanaClient grafanaClient) (*Service, error) {
 	l := logrus.WithField("component", "management/alerting")
 
 	err := dir.CreateDataDir(userTemplatesDir, dirPerm)
 	if err != nil {
 		l.Error(err)
+		return nil, err
 	}
 
 	s := &Service{
@@ -700,8 +701,9 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	labels["percona_alerting"] = "1" // TODO: do we actually need it?
 	labels["severity"] = common.Severity(req.Severity).String()
 	labels["template_name"] = req.TemplateName
-	ensureRuleLabel(labels, "node_name", "{{ $labels.node_name }}")
-	ensureRuleLabel(labels, "service_name", "{{ $labels.service_name }}")
+	labelSourceRefID := queryRefForRuleLabels(alertTemplate)
+	ensureRuleLabel(labels, "node_name", buildRuleLabelTemplate("node_name", labelSourceRefID))
+	ensureRuleLabel(labels, "service_name", buildRuleLabelTemplate("service_name", labelSourceRefID))
 
 	rule := services.Rule{
 		GrafanaAlert: services.GrafanaAlert{
@@ -780,6 +782,24 @@ func ensureRuleLabel(labels map[string]string, key, value string) {
 	}
 
 	labels[key] = value
+}
+
+func queryRefForRuleLabels(t *alert.Template) string {
+	if len(t.Queries) > 0 && t.Queries[0].RefID != "" {
+		return t.Queries[0].RefID
+	}
+
+	return "A"
+}
+
+func buildRuleLabelTemplate(labelName, refID string) string {
+	return fmt.Sprintf(
+		"{{ if $labels.%s }}{{ $labels.%s }}{{ else }}{{ $values.%s.Labels.%s }}{{ end }}",
+		labelName,
+		labelName,
+		refID,
+		labelName,
+	)
 }
 
 func convertParamUnit(u models.ParamUnit) alerting.ParamUnit {
