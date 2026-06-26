@@ -191,7 +191,10 @@ func parseRemediationSteps(content string) []string {
 	var steps []string
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if line == "" {
+		// Skip blanks and Markdown code-fence markers (```/```bash). When Holmes wraps commands in a
+		// fenced block, splitting line-by-line would otherwise turn the fence markers into empty
+		// "steps" that render as empty code boxes in the UI.
+		if line == "" || strings.HasPrefix(line, "```") {
 			continue
 		}
 		// Strip leading "1. ", "2)", "- ", "* ", "• ", etc.

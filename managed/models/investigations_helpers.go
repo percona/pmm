@@ -18,6 +18,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/lib/pq"
@@ -147,20 +148,36 @@ var allowedOrderBy = map[string]bool{"title": true, "status": true, "created_at"
 // allowedOrder directions for ORDER BY.
 var allowedOrder = map[string]bool{"asc": true, "desc": true}
 
-// ListInvestigations returns investigations with optional status filter and configurable sort. StatusFilter empty means all.
-func ListInvestigations(q *reform.DB, statusFilter string, limit, offset int, orderBy, order string) ([]*Investigation, error) {
+// ListInvestigations returns investigations with optional status and trigger filters and configurable
+// sort. StatusFilter empty means all statuses. triggerFilter is "auto" (created by the auto-investigate
+// pipeline), "manual" (anything else), or "" (all) — keyed on created_by, since source_type cannot
+// distinguish a manual "Investigate this alert" from an auto one.
+func ListInvestigations(q *reform.DB, statusFilter, triggerFilter string, limit, offset int, orderBy, order string) ([]*Investigation, error) {
 	if !allowedOrderBy[orderBy] {
 		orderBy = "updated_at"
 	}
 	if !allowedOrder[order] {
 		order = "desc"
 	}
-	where := fmt.Sprintf("ORDER BY %s %s", orderBy, order)
+	var conds []string
 	var args []any
 	if statusFilter != "" {
-		where = fmt.Sprintf("WHERE status = $1 ORDER BY %s %s", orderBy, order)
 		args = append(args, statusFilter)
+		conds = append(conds, fmt.Sprintf("status = $%d", len(args)))
 	}
+	switch triggerFilter {
+	case "auto":
+		args = append(args, AutoInvestigateCreatedBy)
+		conds = append(conds, fmt.Sprintf("created_by = $%d", len(args)))
+	case "manual":
+		args = append(args, AutoInvestigateCreatedBy)
+		conds = append(conds, fmt.Sprintf("created_by <> $%d", len(args)))
+	}
+	where := ""
+	if len(conds) > 0 {
+		where = "WHERE " + strings.Join(conds, " AND ") + " "
+	}
+	where += fmt.Sprintf("ORDER BY %s %s", orderBy, order)
 	if limit > 0 {
 		where += fmt.Sprintf(" LIMIT %d", limit)
 	}

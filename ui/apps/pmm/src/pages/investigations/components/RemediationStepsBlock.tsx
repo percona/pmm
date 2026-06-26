@@ -14,7 +14,12 @@ export const RemediationStepsBlock: FC<{ block: InvestigationBlock }> = ({ block
     }
     if (Array.isArray(data.steps) && data.steps.length > 0) {
       return data.steps
-        .filter((step) => typeof step === 'string' && step.trim() !== '')
+        .filter((step): step is string => typeof step === 'string')
+        .map((step) => step.trim())
+        // Drop empties and stray Markdown code-fence markers (```/```bash). Older investigations stored
+        // these as standalone steps; left in, they open empty fenced code blocks (the misaligned grey
+        // boxes). New investigations no longer produce them (see parseRemediationSteps).
+        .filter((step) => step !== '' && !step.startsWith('```'))
         .map((step, i) => `${i + 1}. ${step}`)
         .join('\n');
     }

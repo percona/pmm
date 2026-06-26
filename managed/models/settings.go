@@ -159,9 +159,15 @@ type Settings struct {
 		// Slack object IDs (channels Cxxxx/Gxxxx/Dxxxx, users Uxxxx/Wxxxx), not names.
 		SlackAllowedChannels []string `json:"slack_allowed_channels,omitempty"`
 		SlackAllowedUsers    []string `json:"slack_allowed_users,omitempty"`
-		// SlackAutoInvestigateChannels receive auto-investigation summaries (output only — not a trust
-		// gate; auto-investigate is driven by Grafana Alertmanager, not inbound Slack messages).
+		// SlackAutoInvestigateChannels are the alert channels: the bot scrapes Grafana alert messages
+		// posted here to trigger an auto-investigation, and posts the investigation thread back into them.
+		// They also receive summaries from the webhook/poll fallback path. Fail-closed for the scrape:
+		// only messages in these channels are considered.
 		SlackAutoInvestigateChannels []string `json:"slack_auto_investigate_channels,omitempty"`
+		// SlackAlertBotIDs optionally restricts which Slack bot/app IDs (Bxxxx) the scrape accepts alert
+		// messages from (e.g. the Grafana Slack app). Empty ⇒ accept any bot message in the alert
+		// channels (looser; set this to harden against spoofed alerts).
+		SlackAlertBotIDs []string `json:"slack_alert_bot_ids,omitempty"`
 		// Auto-investigate selection + cost guards. AutoInvestigateMinSeverity is a floor (e.g.
 		// "critical"; empty ⇒ no floor). AutoInvestigateLabelMatchers are "key=value" pairs an alert
 		// must match (all of them). AutoInvestigateHourlyCap bounds auto-investigations per hour
@@ -368,6 +374,21 @@ func (s *Settings) IsSlackChannelAllowed(channelID string) bool {
 // IsSlackUserAllowed reports whether a user is allow-listed for human Slack chat (fail-closed).
 func (s *Settings) IsSlackUserAllowed(userID string) bool {
 	return slackListContains(s.Adre.SlackAllowedUsers, userID)
+}
+
+// IsSlackAlertChannel reports whether a channel is a configured alert channel — i.e. one the bot
+// scrapes for Grafana alert messages and posts investigation threads into (fail-closed).
+func (s *Settings) IsSlackAlertChannel(channelID string) bool {
+	return slackListContains(s.Adre.SlackAutoInvestigateChannels, channelID)
+}
+
+// IsSlackAlertBot reports whether a bot ID is an accepted alert sender. The SlackAlertBotIDs list is an
+// optional filter: empty ⇒ accept any bot in the alert channels; non-empty ⇒ the bot must match.
+func (s *Settings) IsSlackAlertBot(botID string) bool {
+	if len(s.Adre.SlackAlertBotIDs) == 0 {
+		return true
+	}
+	return slackListContains(s.Adre.SlackAlertBotIDs, botID)
 }
 
 // GetAdreChatRetentionDays returns automatic ADRE chat retention in days (0 = no automatic purge).

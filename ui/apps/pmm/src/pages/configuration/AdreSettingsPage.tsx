@@ -124,6 +124,9 @@ const AdreSettingsPage: FC = () => {
   const [localSlackAutoInvestigateChannels, setLocalSlackAutoInvestigateChannels] = useState(
     (settings?.slackAutoInvestigateChannels ?? settings?.slack_auto_investigate_channels ?? []).join('\n')
   );
+  const [localSlackAlertBotIds, setLocalSlackAlertBotIds] = useState(
+    (settings?.slackAlertBotIds ?? settings?.slack_alert_bot_ids ?? []).join('\n')
+  );
   const [localAutoInvestigateMinSeverity, setLocalAutoInvestigateMinSeverity] = useState(
     settings?.autoInvestigateMinSeverity ?? settings?.auto_investigate_min_severity ?? ''
   );
@@ -194,6 +197,9 @@ const AdreSettingsPage: FC = () => {
       setLocalSlackAutoInvestigateChannels(
         (settings.slackAutoInvestigateChannels ?? settings.slack_auto_investigate_channels ?? []).join('\n')
       );
+      setLocalSlackAlertBotIds(
+        (settings.slackAlertBotIds ?? settings.slack_alert_bot_ids ?? []).join('\n')
+      );
       setLocalAutoInvestigateMinSeverity(
         settings.autoInvestigateMinSeverity ?? settings.auto_investigate_min_severity ?? ''
       );
@@ -250,6 +256,7 @@ const AdreSettingsPage: FC = () => {
         slack_allowed_channels: splitList(localSlackAllowedChannels),
         slack_allowed_users: splitList(localSlackAllowedUsers),
         slack_auto_investigate_channels: splitList(localSlackAutoInvestigateChannels),
+        slack_alert_bot_ids: splitList(localSlackAlertBotIds),
         auto_investigate_min_severity: localAutoInvestigateMinSeverity,
         auto_investigate_label_matchers: splitLines(localAutoInvestigateLabelMatchers),
         auto_investigate_hourly_cap: Math.max(0, Number(localAutoInvestigateHourlyCap) || 0),
@@ -677,7 +684,7 @@ const AdreSettingsPage: FC = () => {
                     Auto-investigate output &amp; cost guards
                   </Typography>
                   <TextField
-                    label="Output channels (auto-investigation summaries)"
+                    label="Alert channels"
                     value={localSlackAutoInvestigateChannels}
                     onChange={(e: ChangeEvent<HTMLInputElement>) =>
                       setLocalSlackAutoInvestigateChannels(e.target.value)
@@ -688,7 +695,21 @@ const AdreSettingsPage: FC = () => {
                     minRows={2}
                     disabled={!localSlackEnabled}
                     placeholder="C0123ABCD"
-                    helperText="Channels that receive auto-investigation summaries (output only)."
+                    helperText="Channels the bot scrapes for Grafana alert messages and posts the investigation thread into."
+                  />
+                  <TextField
+                    label="Alert bot IDs (optional)"
+                    value={localSlackAlertBotIds}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      setLocalSlackAlertBotIds(e.target.value)
+                    }
+                    size="small"
+                    fullWidth
+                    multiline
+                    minRows={2}
+                    disabled={!localSlackEnabled}
+                    placeholder="B0123GRAFANA"
+                    helperText="Restrict which Slack bot/app IDs the scrape accepts alerts from (e.g. the Grafana app). Empty ⇒ accept any bot in the alert channels."
                   />
                   <TextField
                     select

@@ -16,6 +16,7 @@
 package investigations
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -32,13 +33,27 @@ const prefix = "/v1/investigations"
 
 // Handlers provides HTTP handlers for the Investigations API.
 type Handlers struct {
-	db *reform.DB
-	l  *logrus.Entry
+	db             *reform.DB
+	l              *logrus.Entry
+	reportNotifier ReportNotifier
+}
+
+// ReportNotifier posts a finished investigation's outcome to Slack — in the alert's thread for alerts
+// scraped from Slack, a no-op otherwise. Implemented by slackbot.SlackNotifier and injected via
+// SetReportNotifier (kept as an interface so investigations does not import slackbot).
+type ReportNotifier interface {
+	PostInvestigationReport(ctx context.Context, inv *models.Investigation)
 }
 
 // NewHandlers creates new Investigations HTTP handlers.
 func NewHandlers(db *reform.DB) *Handlers {
 	return &Handlers{db: db, l: logrus.WithField("component", "investigations-handlers")}
+}
+
+// SetReportNotifier injects the Slack report notifier used to post finished auto-investigations into
+// their alert's thread. Optional; nil ⇒ no Slack report posting.
+func (h *Handlers) SetReportNotifier(rn ReportNotifier) {
+	h.reportNotifier = rn
 }
 
 // ServeHTTP dispatches all /v1/investigations/* routes.
@@ -190,7 +205,11 @@ func (h *Handlers) ListInvestigations(w http.ResponseWriter, r *http.Request) {
 	if order == "" {
 		order = "desc"
 	}
-	list, err := models.ListInvestigations(h.db, status, limit, offset, orderBy, order)
+	trigger := r.URL.Query().Get("trigger")
+	if trigger != "auto" && trigger != "manual" {
+		trigger = ""
+	}
+	list, err := models.ListInvestigations(h.db, status, trigger, limit, offset, orderBy, order)
 	if err != nil {
 		h.l.Errorf("ListInvestigations: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to list investigations")

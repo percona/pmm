@@ -310,6 +310,9 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 			Content:         "Investigation failed: " + runErr.Error(),
 		}
 		_ = models.CreateInvestigationMessage(h.db, errMsg)
+		if h.reportNotifier != nil {
+			h.reportNotifier.PostInvestigationReport(ctx, inv)
+		}
 		return
 	}
 
@@ -441,6 +444,12 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 		LatencyMs:              int(time.Since(runStart).Milliseconds()),
 		InvestigationMessageID: &runMsgID,
 	})
+
+	// Post the completed report into the alert's Slack thread (no-op unless this investigation was
+	// scraped from a Slack alert). inv.Config still carries the slack thread ref merged above.
+	if h.reportNotifier != nil {
+		h.reportNotifier.PostInvestigationReport(ctx, inv)
+	}
 }
 
 // alertSnapshotEntry is a single alert from Grafana Alertmanager (labels, annotations, fingerprint, etc.).

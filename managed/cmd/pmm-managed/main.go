@@ -1303,7 +1303,11 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	// (reconciliation poll + optional instant webhook). One shared Service so the webhook and poll
 	// share episode-dedup state; the poll is leader-only, the webhook is gated by a shared secret.
 	adreAutoL := logrus.WithField("component", "adre-auto-investigate")
-	autoInvestigateSvc := autoinvestigate.New(db, investigations.NewHandlers(db), slackbot.NewSlackNotifier(db, adreAutoL), adreAutoL)
+	adreSlackNotifier := slackbot.NewSlackNotifier(db, adreAutoL)
+	adreInvRunner := investigations.NewHandlers(db)
+	// Post finished auto-investigations back into the alert's Slack thread (scrape path); no-op otherwise.
+	adreInvRunner.SetReportNotifier(adreSlackNotifier)
+	autoInvestigateSvc := autoinvestigate.New(db, adreInvRunner, adreSlackNotifier, adreAutoL)
 
 	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
@@ -1329,7 +1333,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	adreSlackL := logrus.WithField("component", "adre-slack")
 	haService.AddLeaderService(ha.NewContextService("adre-slack", func(ctx context.Context) error {
-		return slackbot.Run(ctx, db, adreSlackL)
+		return slackbot.Run(ctx, db, autoInvestigateSvc, adreSlackL)
 	}))
 
 	// The reconciliation poll (leader-only) reuses the existing Alertmanager API with the admin SA

@@ -32,12 +32,23 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// Alert is an authoritative alert from a Grafana webhook or the Alertmanager poll.
+// SlackRef ties an alert to the Slack message it was scraped from, so the investigation's notices can
+// be posted back as replies in that alert's thread. Nil for webhook/poll alerts (no Slack origin).
+type SlackRef struct {
+	TeamID   string
+	Channel  string
+	ThreadTS string
+}
+
+// Alert is an authoritative alert from a Grafana webhook, the Alertmanager poll, or a scraped Slack
+// alert message.
 type Alert struct {
 	Fingerprint string
 	Status      string // "firing" or "resolved"
 	Labels      map[string]string
 	Annotations map[string]string
+	// Slack is set only for alerts scraped from a Slack message; it carries the thread to post into.
+	Slack *SlackRef
 }
 
 func (a Alert) firing() bool   { return strings.EqualFold(strings.TrimSpace(a.Status), "firing") }
@@ -275,6 +286,13 @@ func buildAlertInvestigation(a Alert) *models.Investigation {
 		Status:      a.Status,
 	}})
 	cfg["alert_snapshot"] = string(snapshot)
+
+	// Carry the Slack thread origin (scrape path) so started/report notices post as in-thread replies.
+	if a.Slack != nil && a.Slack.Channel != "" && a.Slack.ThreadTS != "" {
+		cfg["slack_team_id"] = a.Slack.TeamID
+		cfg["slack_channel"] = a.Slack.Channel
+		cfg["slack_thread_ts"] = a.Slack.ThreadTS
+	}
 
 	config := []byte("{}")
 	if b, err := json.Marshal(cfg); err == nil {

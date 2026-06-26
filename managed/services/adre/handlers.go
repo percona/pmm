@@ -163,6 +163,7 @@ type adreSettingsResponse struct {
 	SlackAllowedChannels          []string        `json:"slack_allowed_channels"`
 	SlackAllowedUsers             []string        `json:"slack_allowed_users"`
 	SlackAutoInvestigateChannels  []string        `json:"slack_auto_investigate_channels"`
+	SlackAlertBotIDs              []string        `json:"slack_alert_bot_ids"`
 	AutoInvestigateMinSeverity    string          `json:"auto_investigate_min_severity"`
 	AutoInvestigateLabelMatchers  []string        `json:"auto_investigate_label_matchers"`
 	AutoInvestigateHourlyCap      int             `json:"auto_investigate_hourly_cap"`
@@ -240,6 +241,7 @@ func (h *Handlers) GetSettings(w http.ResponseWriter, r *http.Request) {
 		SlackAllowedChannels:          settings.Adre.SlackAllowedChannels,
 		SlackAllowedUsers:             settings.Adre.SlackAllowedUsers,
 		SlackAutoInvestigateChannels:  settings.Adre.SlackAutoInvestigateChannels,
+		SlackAlertBotIDs:              settings.Adre.SlackAlertBotIDs,
 		AutoInvestigateMinSeverity:    settings.Adre.AutoInvestigateMinSeverity,
 		AutoInvestigateLabelMatchers:  settings.Adre.AutoInvestigateLabelMatchers,
 		AutoInvestigateHourlyCap:      settings.Adre.AutoInvestigateHourlyCap,
@@ -296,6 +298,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		SlackAllowedChannels          *[]string        `json:"slack_allowed_channels"`
 		SlackAllowedUsers             *[]string        `json:"slack_allowed_users"`
 		SlackAutoInvestigateChannels  *[]string        `json:"slack_auto_investigate_channels"`
+		SlackAlertBotIDs              *[]string        `json:"slack_alert_bot_ids"`
 		AutoInvestigateMinSeverity    *string          `json:"auto_investigate_min_severity"`
 		AutoInvestigateLabelMatchers  *[]string        `json:"auto_investigate_label_matchers"`
 		AutoInvestigateHourlyCap      *int             `json:"auto_investigate_hourly_cap"`
@@ -313,6 +316,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		body.SlackEnabled != nil || body.SlackAutoInvestigate != nil || body.SlackBotToken != nil || body.SlackAppToken != nil ||
 		body.TLSSkipVerify != nil ||
 		body.SlackAllowedChannels != nil || body.SlackAllowedUsers != nil || body.SlackAutoInvestigateChannels != nil ||
+		body.SlackAlertBotIDs != nil ||
 		body.AutoInvestigateMinSeverity != nil || body.AutoInvestigateLabelMatchers != nil || body.AutoInvestigateHourlyCap != nil
 	if !hasChange {
 		writeJSONError(w, http.StatusBadRequest, "No changes provided")
@@ -446,6 +450,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		SlackAllowedChannels:              body.SlackAllowedChannels,
 		SlackAllowedUsers:                 body.SlackAllowedUsers,
 		SlackAutoInvestigateChannels:      body.SlackAutoInvestigateChannels,
+		SlackAlertBotIDs:                  body.SlackAlertBotIDs,
 		AutoInvestigateMinSeverity:        body.AutoInvestigateMinSeverity,
 		AutoInvestigateLabelMatchers:      body.AutoInvestigateLabelMatchers,
 		AutoInvestigateHourlyCap:          body.AutoInvestigateHourlyCap,
@@ -535,6 +540,7 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		SlackAllowedChannels:          settings.Adre.SlackAllowedChannels,
 		SlackAllowedUsers:             settings.Adre.SlackAllowedUsers,
 		SlackAutoInvestigateChannels:  settings.Adre.SlackAutoInvestigateChannels,
+		SlackAlertBotIDs:              settings.Adre.SlackAlertBotIDs,
 		AutoInvestigateMinSeverity:    settings.Adre.AutoInvestigateMinSeverity,
 		AutoInvestigateLabelMatchers:  settings.Adre.AutoInvestigateLabelMatchers,
 		AutoInvestigateHourlyCap:      settings.Adre.AutoInvestigateHourlyCap,

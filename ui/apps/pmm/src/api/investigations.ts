@@ -181,6 +181,7 @@ export interface CreateCommentBody {
 
 export const listInvestigations = async (params?: {
   status?: string;
+  trigger?: 'auto' | 'manual';
   limit?: number;
   offset?: number;
   orderBy?: string;
@@ -190,6 +191,7 @@ export const listInvestigations = async (params?: {
     params: params
       ? {
           status: params.status,
+          ...(params.trigger != null && { trigger: params.trigger }),
           limit: params.limit,
           offset: params.offset,
           ...(params.orderBy != null && { order_by: params.orderBy }),

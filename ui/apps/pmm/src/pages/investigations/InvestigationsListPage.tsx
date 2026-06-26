@@ -13,6 +13,8 @@ import {
   TableCell,
   TableHead,
   TableRow,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -29,6 +31,7 @@ import { useSnackbar } from 'notistack';
 
 type SortColumn = 'title' | 'status' | 'created_at' | 'updated_at';
 type SortOrder = 'asc' | 'desc';
+type TriggerFilter = 'all' | 'auto' | 'manual';
 
 const InvestigationsListPage: FC = () => {
   const navigate = useNavigate();
@@ -37,10 +40,12 @@ const InvestigationsListPage: FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [orderBy, setOrderBy] = useState<SortColumn>('created_at');
   const [order, setOrder] = useState<SortOrder>('desc');
+  const [trigger, setTrigger] = useState<TriggerFilter>('all');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const { data: list, isLoading, isError, error } = useInvestigationsList({
     orderBy,
     order,
+    trigger: trigger === 'all' ? undefined : trigger,
   });
 
   const handleSort = (column: SortColumn) => {
@@ -150,25 +155,38 @@ const InvestigationsListPage: FC = () => {
     <Page
       title="Investigations"
       topBar={
-        <Stack direction="row" justifyContent="flex-end" alignItems="center" gap={1} sx={{ mb: 1 }}>
-          {selectedIds.size > 0 && (
-            <Button
-              variant="outlined"
-              color="error"
-              onClick={handleDeleteSelected}
-              disabled={deleteMutation.isPending}
-            >
-              Delete selected ({selectedIds.size})
-            </Button>
-          )}
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleCreateClick}
-            disabled={createMutation.isPending}
+        <Stack direction="row" justifyContent="space-between" alignItems="center" gap={1} sx={{ mb: 1 }}>
+          <ToggleButtonGroup
+            size="small"
+            exclusive
+            value={trigger}
+            onChange={(_, value: TriggerFilter | null) => value && setTrigger(value)}
+            aria-label="Filter investigations by trigger"
           >
-            New investigation
-          </Button>
+            <ToggleButton value="all">All</ToggleButton>
+            <ToggleButton value="auto">Auto</ToggleButton>
+            <ToggleButton value="manual">Manual</ToggleButton>
+          </ToggleButtonGroup>
+          <Stack direction="row" alignItems="center" gap={1}>
+            {selectedIds.size > 0 && (
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={handleDeleteSelected}
+                disabled={deleteMutation.isPending}
+              >
+                Delete selected ({selectedIds.size})
+              </Button>
+            )}
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleCreateClick}
+              disabled={createMutation.isPending}
+            >
+              New investigation
+            </Button>
+          </Stack>
         </Stack>
       }
     >

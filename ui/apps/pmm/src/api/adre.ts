@@ -92,9 +92,12 @@ export interface AdreSettings {
   slack_allowed_channels?: string[];
   slackAllowedUsers?: string[];
   slack_allowed_users?: string[];
-  /** Channels that receive auto-investigation summaries (output only). */
+  /** Alert channels: scraped for Grafana alert messages and where the investigation thread is posted. */
   slackAutoInvestigateChannels?: string[];
   slack_auto_investigate_channels?: string[];
+  /** Optional allow-list of Slack bot/app IDs the scrape accepts alerts from (empty ⇒ any bot). */
+  slackAlertBotIds?: string[];
+  slack_alert_bot_ids?: string[];
   /** Auto-investigate selection + cost guards. */
   autoInvestigateMinSeverity?: string;
   auto_investigate_min_severity?: string;

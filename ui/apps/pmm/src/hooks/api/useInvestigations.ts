@@ -22,7 +22,7 @@ import {
 
 export const INVESTIGATIONS_KEYS = {
   all: ['investigations'] as const,
-  list: (params?: { status?: string; limit?: number; offset?: number; orderBy?: string; order?: 'asc' | 'desc' }) =>
+  list: (params?: { status?: string; trigger?: 'auto' | 'manual'; limit?: number; offset?: number; orderBy?: string; order?: 'asc' | 'desc' }) =>
     ['investigations', 'list', params] as const,
   detail: (id: string) => ['investigations', id] as const,
   comments: (id: string, blockId?: string) =>
@@ -37,6 +37,7 @@ export const INVESTIGATIONS_KEYS = {
 
 export const useInvestigationsList = (params?: {
   status?: string;
+  trigger?: 'auto' | 'manual';
   limit?: number;
   offset?: number;
   orderBy?: string;
@@ -48,6 +49,7 @@ export const useInvestigationsList = (params?: {
     queryFn: () =>
       listInvestigations({
         status: params?.status,
+        trigger: params?.trigger,
         limit: params?.limit,
         offset: params?.offset,
         orderBy: params?.orderBy,

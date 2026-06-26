@@ -33,7 +33,15 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/adre"
+	"github.com/percona/pmm/managed/services/autoinvestigate"
 )
+
+// AlertProcessor triggers auto-investigations from scraped Slack alert messages. *autoinvestigate.Service
+// implements it; it is the same entry point the webhook/poll fallback uses, so the scrape inherits the
+// selection guards, episode dedup, hourly cap and idempotent claim.
+type AlertProcessor interface {
+	ProcessAlerts(ctx context.Context, alerts []autoinvestigate.Alert)
+}
 
 var mentionStripRE = regexp.MustCompile(`<@[^>]+>`)
 
@@ -42,7 +50,7 @@ var mentionStripRE = regexp.MustCompile(`<@[^>]+>`)
 const slackTurnTimeout = 10 * time.Minute
 
 // Run polls settings every 30s (and once at startup) and runs Slack Socket Mode while ADRE Slack is enabled.
-func Run(ctx context.Context, db *reform.DB, l *logrus.Entry) error {
+func Run(ctx context.Context, db *reform.DB, processor AlertProcessor, l *logrus.Entry) error {
 	ticker := time.NewTicker(30 * time.Second) //nolint:mnd
 	defer ticker.Stop()
 
@@ -106,7 +114,7 @@ func Run(ctx context.Context, db *reform.DB, l *logrus.Entry) error {
 
 		slackConnected.Set(1)
 		go func(runGen uint64) {
-			runSocketMode(sctx, db, l)
+			runSocketMode(sctx, db, processor, l)
 			mu.Lock()
 			defer mu.Unlock()
 			if runGen != spawnSeq.Load() {
@@ -147,7 +155,7 @@ func slackFingerprint(settings *models.Settings, botToken, appToken string) stri
 	return u + "\x00" + bot + "\x00" + app
 }
 
-func runSocketMode(ctx context.Context, db *reform.DB, l *logrus.Entry) {
+func runSocketMode(ctx context.Context, db *reform.DB, processor AlertProcessor, l *logrus.Entry) {
 	log := l.WithField("component", "adre-slack")
 	prov, err := models.GetAdreProvisioning(db)
 	if err != nil {
@@ -164,6 +172,7 @@ func runSocketMode(ctx context.Context, db *reform.DB, l *logrus.Entry) {
 		return
 	}
 	botUserID := auth.UserID
+	selfBotID := auth.BotID // this bot's own bot_id, used to skip scraping the bot's own posts
 
 	ts := NewThreadStore()
 
@@ -196,7 +205,7 @@ func runSocketMode(ctx context.Context, db *reform.DB, l *logrus.Entry) {
 			// Handle in a goroutine so a long investigation does not block the event loop (which
 			// would freeze the bot for every channel). Per-thread serialization and the chat-slot
 			// semaphore in handleTurn keep concurrency safe.
-			go handleEventsAPI(ctx, db, api, ts, log, eventsAPI, botUserID)
+			go handleEventsAPI(ctx, db, api, ts, log, eventsAPI, botUserID, selfBotID, processor)
 		}
 	}
 }
@@ -209,6 +218,8 @@ func handleEventsAPI(
 	log *logrus.Entry,
 	eventsAPI slackevents.EventsAPIEvent,
 	botUserID string,
+	selfBotID string,
+	processor AlertProcessor,
 ) {
 	switch ev := eventsAPI.InnerEvent.Data.(type) {
 	case *slackevents.AppMentionEvent:
@@ -223,18 +234,24 @@ func handleEventsAPI(
 		gateAndHandle(ctx, db, api, ts, log, eventsAPI.TeamID, ev.Channel, threadTS, ev.TimeStamp, ev.User, triggerMention, text)
 
 	case *slackevents.MessageEvent:
-		// Auto-investigate is no longer driven by scraping Slack messages — it is driven by Grafana
-		// Alertmanager (see services/autoinvestigate). Only human thread replies reach the bot here.
+		// Alert scrape: a Grafana alert message (a bot message in a configured alert channel) triggers a
+		// persisted, fingerprint-keyed auto-investigation posted back in this message's thread. Bot
+		// messages never fall through to human-chat handling. Skip our own posts (started/report notices
+		// land in the same alert channel) so the bot can never scrape itself into a loop.
+		if ev.BotID != "" {
+			if ev.BotID != selfBotID && slackBotMessageSubtypeOK(ev.SubType) {
+				handleAlertScrape(ctx, db, log, eventsAPI.TeamID, ev, processor)
+			}
+			return
+		}
+		// Human thread reply. (Auto-investigate is driven by the scrape above / Grafana Alertmanager.)
 		if ev.ThreadTimeStamp == "" {
 			return
 		}
 		if ev.SubType != "" {
 			return
 		}
-		if ev.BotID != "" || ev.User == "" {
-			return
-		}
-		if ev.User == botUserID {
+		if ev.User == "" || ev.User == botUserID {
 			return
 		}
 		text := strings.TrimSpace(ev.Text)
@@ -243,6 +260,33 @@ func handleEventsAPI(
 	default:
 		return
 	}
+}
+
+// handleAlertScrape parses a Grafana alert message and, when it comes from a configured alert channel
+// (and bot, if SlackAlertBotIDs is set), runs it through the persistent auto-investigate pipeline with a
+// Slack thread ref so the started notice and report post back as replies under this alert.
+func handleAlertScrape(ctx context.Context, db *reform.DB, log *logrus.Entry, teamID string, ev *slackevents.MessageEvent, processor AlertProcessor) {
+	if processor == nil {
+		return
+	}
+	settings, err := models.GetSettings(db)
+	if err != nil {
+		log.Errorf("GetSettings: %v", err)
+		return
+	}
+	if !isAlertSource(settings, ev.Channel, ev.BotID) {
+		return
+	}
+	alert, ok := parseSlackAlert(ev)
+	if !ok {
+		return
+	}
+	threadTS := ev.ThreadTimeStamp
+	if threadTS == "" {
+		threadTS = ev.TimeStamp
+	}
+	alert.Slack = &autoinvestigate.SlackRef{TeamID: teamID, Channel: ev.Channel, ThreadTS: threadTS}
+	processor.ProcessAlerts(ctx, []autoinvestigate.Alert{alert})
 }
 
 // gateAndHandle authorizes and rate-limits a human Slack interaction before running a turn. Denied

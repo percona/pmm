@@ -181,6 +181,7 @@ type ChangeSettingsParams struct {
 	SlackAllowedChannels         *[]string
 	SlackAllowedUsers            *[]string
 	SlackAutoInvestigateChannels *[]string
+	SlackAlertBotIDs             *[]string
 	AutoInvestigateMinSeverity   *string
 	AutoInvestigateLabelMatchers *[]string
 	AutoInvestigateHourlyCap     *int
@@ -412,6 +413,9 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 	if params.SlackAutoInvestigateChannels != nil {
 		settings.Adre.SlackAutoInvestigateChannels = normalizeSlackIDs(*params.SlackAutoInvestigateChannels)
+	}
+	if params.SlackAlertBotIDs != nil {
+		settings.Adre.SlackAlertBotIDs = normalizeSlackIDs(*params.SlackAlertBotIDs)
 	}
 	if params.AutoInvestigateMinSeverity != nil {
 		settings.Adre.AutoInvestigateMinSeverity = strings.TrimSpace(*params.AutoInvestigateMinSeverity)
@@ -671,6 +675,7 @@ func validateAdreSlackListParams(params *ChangeSettingsParams) error {
 		{"slack_allowed_channels", params.SlackAllowedChannels},
 		{"slack_allowed_users", params.SlackAllowedUsers},
 		{"slack_auto_investigate_channels", params.SlackAutoInvestigateChannels},
+		{"slack_alert_bot_ids", params.SlackAlertBotIDs},
 	}
 	for _, l := range lists {
 		if l.ptr == nil {
