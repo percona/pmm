@@ -83,7 +83,7 @@ checks:
           ORDER BY cur_size_byte DESC
           ) x
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       # pg_advisor
       # threshold
