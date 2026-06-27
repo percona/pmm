@@ -607,16 +607,11 @@ func findPITRRestoreName(ctx context.Context, dsn string, restoreInfo *pbmRestor
 	var name string
 	checks := 0
 	err = poll.UntilContextTimeout(ctx, statusCheckInterval, func(ctx context.Context) (bool, error) {
-		err = ctx.Err()
-		if err != nil {
-			return false, err
-		}
-
 		checks++
 		var list []pbmListRestore
-		err = execPBMCommand(ctx, dsn, &list, "list", "--restore")
-		if err != nil {
-			return false, fmt.Errorf("pbm status error: %w", err)
+		cmdErr := execPBMCommand(ctx, dsn, &list, "list", "--restore")
+		if cmdErr != nil {
+			return false, fmt.Errorf("pbm status error: %w", cmdErr)
 		}
 		entry := findPITRRestore(list, restoreInfoPITRTime.Unix(), restoreInfo.StartedAt)
 		if entry != nil {
