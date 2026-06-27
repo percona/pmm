@@ -19,11 +19,11 @@ package telemetry
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -72,7 +72,7 @@ func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLoc
 func (r *dataSourceRegistry) LocateTelemetryDataSource(name string) (DataSource, error) { //nolint:ireturn,nolintlint
 	ds, ok := r.dataSources[DataSourceName(name)]
 	if !ok {
-		return nil, errors.Errorf("data source [%s] is not supported", name)
+		return nil, fmt.Errorf("data source [%s] is not supported", name)
 	}
 	return ds, nil
 }

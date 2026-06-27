@@ -18,6 +18,7 @@ package pgstatstatements
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -27,7 +28,6 @@ import (
 
 	"github.com/blang/semver"
 	_ "github.com/lib/pq" // register SQL driver
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -119,7 +119,7 @@ func newPgStatStatementsQAN(
 	cacheSize := getPgStatStatementsCacheSize(q, l)
 	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, cacheSize, l)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create cache")
+		return nil, fmt.Errorf("cannot create cache: %w", err)
 	}
 
 	return &PGStatStatementsQAN{
@@ -166,7 +166,8 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	var err error
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
-	if current, _, err = m.getStatStatementsExtended(ctx); err == nil {
+	current, _, err = m.getStatStatementsExtended(ctx)
+	if err == nil {
 		err = m.statementsCache.Set(current)
 		if err == nil {
 			m.l.Debugf("Got %d initial stat statements.", len(current))
@@ -239,7 +240,8 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 
 	current := make(statementsMap, m.statementsCache.cache.Len())
 	prev := make(statementsMap, m.statementsCache.cache.Len())
-	if err := m.statementsCache.Get(prev); err != nil {
+	err = m.statementsCache.Get(prev)
+	if err != nil {
 		return nil, nil, err
 	}
 
@@ -259,7 +261,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 
 	rows, err := q.Query(fmt.Sprintf("SELECT /* %s */ %s FROM %s %s", queryTag, columns, q.QualifiedView(view), "WHERE queryid IS NOT NULL AND query IS NOT NULL"))
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "couldn't get rows from pg_stat_statements")
+		return nil, nil, fmt.Errorf("couldn't get rows from pg_stat_statements: %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -297,7 +299,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 		err = ctx.Err()
 	}
 	if err != nil {
-		err = errors.Wrap(err, "failed to fetch pg_stat_statements")
+		err = fmt.Errorf("failed to fetch pg_stat_statements: %w", err)
 	}
 
 	return current, prev, err
@@ -315,7 +317,8 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
 
 	// merge prev and current in cache
-	if err = m.statementsCache.Set(current); err != nil {
+	err = m.statementsCache.Set(current)
+	if err != nil {
 		return nil, err
 	}
 	m.l.Debugf("statStatementsCache: %s", m.statementsCache.cache.Stats())

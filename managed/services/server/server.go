@@ -20,6 +20,7 @@ import (
 	"context"
 	"crypto/subtle"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/user"
@@ -32,7 +33,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc/codes"
@@ -107,7 +107,7 @@ func NewServer(params *Params) (*Server, error) {
 	path := "/srv"
 	_, err := os.Stat(path)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf("failed to create a new server: %w", err)
 	}
 	path = filepath.Join(path, "pmm-update.json")
 
@@ -172,7 +172,7 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 			case "panic-error":
 				panic(errors.New("panic-error"))
 			case "panic-fmterror":
-				panic(fmt.Errorf("panic-fmterror"))
+				panic(errors.New("panic-fmterror"))
 			default:
 				panic(req.Dummy)
 			}
@@ -199,7 +199,8 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 
 		DistributionMethod: s.telemetryService.DistributionMethod(),
 	}
-	if t, err := version.Time(); err == nil {
+	t, err := version.Time()
+	if err == nil {
 		res.Managed.Timestamp = timestamppb.New(t)
 	}
 
@@ -375,7 +376,8 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateReque
 	}
 
 	authToken := uuid.New().String()
-	if err := s.writeUpdateAuthToken(authToken); err != nil {
+	err = s.writeUpdateAuthToken(authToken)
+	if err != nil {
 		return nil, err
 	}
 
@@ -445,7 +447,7 @@ func (s *Server) writeUpdateAuthToken(token string) error {
 	}
 	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600|os.ModeExclusive) //nolint:mnd
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to write auth token to file %s: %w", s.pmmUpdateAuthFile, err)
 	}
 	defer func() {
 		err = f.Close()
@@ -454,7 +456,11 @@ func (s *Server) writeUpdateAuthToken(token string) error {
 		}
 	}()
 
-	return errors.WithStack(json.NewEncoder(f).Encode(a))
+	err = json.NewEncoder(f).Encode(a) //nolint:gosec
+	if err != nil {
+		return fmt.Errorf("failed to encode auth token to JSON: %w", err)
+	}
+	return nil
 }
 
 // readUpdateAuthToken reads authentication token for getting update status and logs from the file.
@@ -464,7 +470,7 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 
 	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_RDONLY, os.ModeExclusive)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", fmt.Errorf("failed to read auth token from file %s: %w", s.pmmUpdateAuthFile, err)
 	}
 	defer func() {
 		err = f.Close()
@@ -475,7 +481,10 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 
 	var a pmmUpdateAuth
 	err = json.NewDecoder(f).Decode(&a)
-	return a.AuthToken, errors.WithStack(err)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode auth token from JSON: %w", err)
+	}
+	return a.AuthToken, nil
 }
 
 // convertSettings merges database settings and settings from environment variables into API response.
@@ -645,8 +654,9 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	var disableInternalPgQan bool
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
-		if oldSettings, err = models.GetSettings(tx); err != nil {
-			return errors.WithStack(err)
+		oldSettings, err = models.GetSettings(tx)
+		if err != nil {
+			return fmt.Errorf("failed to get server settings: %w", err)
 		}
 
 		metricsRes := req.MetricsResolutions
@@ -687,15 +697,16 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		case errors.As(err, &errInvalidArgument):
 			return status.Errorf(codes.InvalidArgument, "Invalid argument: %s.", errInvalidArgument.Details)
 		default:
-			return errors.WithStack(err)
+			return fmt.Errorf("failed to update server settings: %w", err)
 		}
 
 		// absent value means "do not change"
 		if req.SshKey != nil {
 			err = s.writeSSHKey(pointer.GetString(req.SshKey))
 			if err != nil {
-				s.l.Error(errors.WithStack(err))
-				return status.Errorf(codes.Internal, "failed to write SSH key: %s", err.Error())
+				err = fmt.Errorf("failed to write SSH key: %w", err)
+				s.l.Error(err)
+				return status.Errorf(codes.Internal, "%s", err.Error())
 			}
 		}
 
@@ -765,7 +776,7 @@ func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error)
 		return nil, fmt.Errorf("failed to find agents: %w", err)
 	}
 	if len(agents) == 0 {
-		return nil, fmt.Errorf("internal pgQAN agent not found")
+		return nil, errors.New("internal pgQAN agent not found")
 	}
 	return agents[0], nil
 }
@@ -785,7 +796,7 @@ func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier,
 		return false, fmt.Errorf("failed to get QAN agent: %w", err)
 	}
 	if internalQanAgent == nil {
-		return false, fmt.Errorf("internal QAN agent not found")
+		return false, errors.New("internal QAN agent not found")
 	}
 
 	newAgent, err := models.ChangeAgent(q, internalQanAgent.AgentID, &models.ChangeAgentParams{
@@ -806,16 +817,19 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 		return fmt.Errorf("failed to get settings: %w", err)
 	}
 
-	if err := s.nomad.UpdateConfiguration(settings); err != nil {
+	err = s.nomad.UpdateConfiguration(settings)
+	if err != nil {
 		return fmt.Errorf("failed to update nomad configuration: %w", err)
 	}
-	if err := s.supervisord.UpdateConfiguration(settings); err != nil {
+	err = s.supervisord.UpdateConfiguration(settings)
+	if err != nil {
 		return fmt.Errorf("failed to update supervisord configuration: %w", err)
 	}
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
 
-	if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
+	err = s.agentsState.UpdateAgentsState(ctx)
+	if err != nil {
 		return fmt.Errorf("failed to update agents state: %w", err)
 	}
 	return nil
@@ -842,16 +856,18 @@ func (s *Server) writeSSHKey(sshKey string) error {
 	username := "pmm"
 	usr, err := user.Lookup(username)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to lookup OS user %s: %w", username, err)
 	}
 	sshDirPath := path.Join(usr.HomeDir, ".ssh")
-	if err = os.MkdirAll(sshDirPath, 0o700); err != nil { //nolint:mnd
-		return errors.WithStack(err)
+	err = os.MkdirAll(sshDirPath, 0o700) //nolint:mnd
+	if err != nil {
+		return fmt.Errorf("failed to create SSH dir %s: %w", sshDirPath, err)
 	}
 
 	keysPath := path.Join(sshDirPath, "authorized_keys")
-	if err = os.WriteFile(keysPath, []byte(sshKey), 0o600); err != nil { //nolint:mnd
-		return errors.WithStack(err)
+	err = os.WriteFile(keysPath, []byte(sshKey), 0o600) //nolint:mnd
+	if err != nil {
+		return fmt.Errorf("failed to write SSH keys to %s: %w", keysPath, err)
 	}
 	return nil
 }

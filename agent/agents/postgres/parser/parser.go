@@ -22,7 +22,6 @@ import (
 	"strings"
 
 	pgquery "github.com/pganalyze/pg_query_go/v6"
-	"github.com/pkg/errors"
 )
 
 var extractTablesRecover = true
@@ -35,14 +34,15 @@ func ExtractTables(query string) ([]string, error) {
 		defer func() {
 			if r := recover(); r != nil {
 				// preserve stack
-				err = errors.WithStack(fmt.Errorf("panic: %v", r))
+				err = fmt.Errorf("panic: %v", r)
 			}
 		}()
 	}
 
 	var jsonTree string
-	if jsonTree, err = pgquery.ParseToJSON(query); err != nil {
-		err = errors.Wrap(err, "error on parsing sql query")
+	jsonTree, err = pgquery.ParseToJSON(query)
+	if err != nil {
+		err = fmt.Errorf("error on parsing sql query: %w", err)
 		return nil, err
 	}
 

@@ -419,18 +419,18 @@ func TestSupervisorProcessParams(t *testing.T) {
 		actual, err := s.processParams("ID", p, 12345)
 		require.NoError(t, err)
 
-		configFilePath := filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_mysqld_exporter", "ID", "Config")
+		configFilePath := filepath.Join(s.cfg.Get().Paths.TempDir, "mysqld_exporter", "ID", "Config")
 		expected := process.Params{
 			Path: "/path/to/mysql_exporter",
 			Args: []string{
 				"-web.listen-address=:12345",
-				"-web.ssl-cert-file=" + filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_mysqld_exporter", "ID", "Cert"),
+				"-web.ssl-cert-file=" + filepath.Join(s.cfg.Get().Paths.TempDir, "mysqld_exporter", "ID", "Cert"),
 				"-web.config=" + configFilePath,
 			},
 			Env: []string{
 				"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&ssl=true&" +
-					"sslCaFile=" + filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_mysqld_exporter", "ID", "caFilePlaceholder") +
-					"&sslCertificateKeyFile=" + filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_mysqld_exporter", "ID", "certificateKeyFilePlaceholder"),
+					"sslCaFile=" + filepath.Join(s.cfg.Get().Paths.TempDir, "mysqld_exporter", "ID", "caFilePlaceholder") +
+					"&sslCertificateKeyFile=" + filepath.Join(s.cfg.Get().Paths.TempDir, "mysqld_exporter", "ID", "certificateKeyFilePlaceholder"),
 				"HTTP_AUTH=pmm:secret",
 				"TEST=:12345",
 			},
@@ -568,9 +568,9 @@ server {
 tls {
   http = true
   rpc  = true
-  ca_file   = "` + filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_nomad_agent", "ID", "caCert") + `" # filled by PMM Agent
-  cert_file = "` + filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_nomad_agent", "ID", "certFile") + `" # filled by PMM Agent
-  key_file  = "` + filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_nomad_agent", "ID", "keyFile") + `" # filled by PMM Agent
+  ca_file   = "` + filepath.Join(s.cfg.Get().Paths.TempDir, "nomad_agent", "ID", "caCert") + `" # filled by PMM Agent
+  cert_file = "` + filepath.Join(s.cfg.Get().Paths.TempDir, "nomad_agent", "ID", "certFile") + `" # filled by PMM Agent
+  key_file  = "` + filepath.Join(s.cfg.Get().Paths.TempDir, "nomad_agent", "ID", "keyFile") + `" # filled by PMM Agent
 
   verify_server_hostname = true
 }
@@ -603,7 +603,7 @@ plugin "raw_exec" {
 		actual, err := s.processParams("ID", p, 12345)
 		require.NoError(t, err)
 
-		configFilePath := filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_nomad_agent", "ID", "nomadConfig")
+		configFilePath := filepath.Join(s.cfg.Get().Paths.TempDir, "nomad_agent", "ID", "nomadConfig")
 		expected := process.Params{
 			Path: "/path/to/nomad",
 			Args: []string{
@@ -659,7 +659,7 @@ plugin "raw_exec" {
 		actual, err := s.processParams("vmagent-id", p, 12345)
 		require.NoError(t, err)
 
-		configFilePath := filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_vm_agent", "vmagent-id", "vmagentscrapecfg")
+		configFilePath := filepath.Join(s.cfg.Get().Paths.TempDir, "vm_agent", "vmagent-id", "vmagentscrapecfg")
 		tempDir := s.cfg.Get().Paths.TempDir
 		expected := process.Params{
 			Path: "/path/to/vmagent",

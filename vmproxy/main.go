@@ -17,14 +17,13 @@
 package main
 
 import (
-	"fmt"
+	"errors"
 	"net"
 	"net/http"
 	"net/url"
 	"strconv"
 
 	"github.com/alecthomas/kong"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/version"
@@ -46,7 +45,7 @@ func main() {
 	kong.Parse(
 		&opts,
 		kong.Name("vmproxy"),
-		kong.Description(fmt.Sprintf("Version %s", version.Version)),
+		kong.Description("Version "+version.Version),
 		kong.UsageOnError(),
 		kong.ConfigureHelp(kong.HelpOptions{
 			Compact:             true,

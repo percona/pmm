@@ -17,9 +17,9 @@ package management
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -82,7 +82,7 @@ func (acs *AccessControlService) UpdateRole(_ context.Context, req *rolev1beta1.
 	var role models.Role
 	err := acs.db.FindByPrimaryKeyTo(&role, req.RoleId)
 	if err != nil {
-		if errors.As(err, &reform.ErrNoRows) {
+		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Role not found")
 		}
 		return nil, err
@@ -134,7 +134,7 @@ func (acs *AccessControlService) GetRole(_ context.Context, req *rolev1beta1.Get
 	var role models.Role
 	err := acs.db.FindByPrimaryKeyTo(&role, req.RoleId)
 	if err != nil {
-		if errors.As(err, &reform.ErrNoRows) {
+		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Role not found")
 		}
 

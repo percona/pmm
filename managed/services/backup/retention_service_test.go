@@ -237,7 +237,7 @@ func TestEnsureRetention(t *testing.T) {
 
 			err = retentionService.EnforceRetention(task.ID)
 			require.Error(t, err)
-			assert.Equal(t, "Can be only one artifact entity for PITR in the database but found 2", err.Error())
+			assert.Equal(t, "can be only one artifact entity for PITR in the database but found 2", err.Error())
 		})
 	})
 

@@ -77,7 +77,8 @@ func (h *currentHTTPHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request
 			}
 			return
 		}
-		if err := json.NewEncoder(rw).Encode(user); err != nil {
+		err = json.NewEncoder(rw).Encode(user)
+		if err != nil {
 			h.l.Errorf("encode current user: %v", err)
 		}
 	case "/v1/users/current/orgs":
@@ -92,7 +93,8 @@ func (h *currentHTTPHandler) ServeHTTP(rw http.ResponseWriter, req *http.Request
 			}
 			return
 		}
-		if err := json.NewEncoder(rw).Encode(orgs); err != nil {
+		err = json.NewEncoder(rw).Encode(orgs)
+		if err != nil {
 			h.l.Errorf("encode current user orgs: %v", err)
 		}
 	default:

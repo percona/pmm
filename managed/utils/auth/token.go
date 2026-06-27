@@ -19,7 +19,7 @@ package auth
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
+	"errors"
 	"net/http"
 	"strings"
 
@@ -55,7 +55,7 @@ func GetTokenFromHeaders(authHeaders http.Header) string {
 func GetHeadersFromContext(ctx context.Context) (http.Header, error) {
 	headers, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, fmt.Errorf("cannot get headers from metadata")
+		return nil, errors.New("cannot get headers from metadata")
 	}
 
 	authorizationHeaders := headers.Get("Authorization")

@@ -27,7 +27,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
@@ -311,14 +310,15 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 		agent.cancel()
 		<-agent.done
 
-		if err := s.portsRegistry.Release(agent.listenPort); err != nil {
+		err := s.portsRegistry.Release(agent.listenPort)
+		if err != nil {
 			s.l.Errorf("Failed to release port: %s.", err)
 		}
 
 		delete(s.agentProcesses, agentID)
 
-		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
-		err := os.RemoveAll(agentTmp)
+		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, trimPrefix(agent.requestedState.Type.String()), agentID)
+		err = os.RemoveAll(agentTmp)
 		if err != nil {
 			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
 		}
@@ -375,7 +375,7 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetState
 
 		delete(s.builtinAgents, agentID)
 
-		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
+		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, trimPrefix(agent.requestedState.Type.String()), agentID)
 		err := os.RemoveAll(agentTmp)
 		if err != nil {
 			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
@@ -587,7 +587,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 
 	var dsn string
 	if builtinAgent.TextFiles != nil {
-		tempDir := filepath.Join(cfg.Paths.TempDir, strings.ToLower(builtinAgent.Type.String()), agentID)
+		tempDir := filepath.Join(cfg.Paths.TempDir, trimPrefix(builtinAgent.Type.String()), agentID)
 		dsn, err = templates.RenderDSN(builtinAgent.Dsn, builtinAgent.TextFiles, tempDir)
 		if err != nil {
 			cancel()
@@ -677,7 +677,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		agent = noop.New()
 
 	default:
-		err = errors.Errorf("unhandled agent type %[1]s (%[1]d)", builtinAgent.Type)
+		err = fmt.Errorf("unhandled agent type %[1]s (%[1]d)", builtinAgent.Type)
 	}
 
 	if err != nil {
@@ -850,9 +850,9 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		processParams.Path = "sleep"
 	case inventoryv1.AgentType_AGENT_TYPE_VM_AGENT:
 		templateParams["server_insecure"] = cfg.Server.InsecureTLS
-		templateParams["server_url"] = fmt.Sprintf("https://%s", cfg.Server.Address)
+		templateParams["server_url"] = "https://" + cfg.Server.Address
 		if cfg.Server.WithoutTLS {
-			templateParams["server_url"] = fmt.Sprintf("http://%s", cfg.Server.Address)
+			templateParams["server_url"] = "http://" + cfg.Server.Address
 		}
 		templateParams["server_password"] = cfg.Server.Password
 		templateParams["server_username"] = cfg.Server.Username
@@ -864,18 +864,18 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		processParams.Path = cfg.Paths.Nomad
 		processParams.Env = append(processParams.Env, os.Environ()...)
 	default:
-		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
+		return nil, fmt.Errorf("unhandled agent type %[1]s (%[1]d)", agentProcess.Type)
 	}
 
 	if processParams.Path == "" {
-		return nil, errors.Errorf("no path for agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
+		return nil, fmt.Errorf("no path for agent type %[1]s (%[1]d)", agentProcess.Type)
 	}
 
 	tr := &templates.TemplateRenderer{
 		TextFiles:          agentProcess.TextFiles,
 		TemplateLeftDelim:  agentProcess.TemplateLeftDelim,
 		TemplateRightDelim: agentProcess.TemplateRightDelim,
-		TempDir:            filepath.Join(cfg.Paths.TempDir, strings.ToLower(agentProcess.Type.String()), agentID),
+		TempDir:            filepath.Join(cfg.Paths.TempDir, trimPrefix(agentProcess.Type.String()), agentID),
 	}
 
 	processParams.TemplateRenderer = tr

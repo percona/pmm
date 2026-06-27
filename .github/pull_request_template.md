@@ -3,7 +3,7 @@ Ticket number: PMM-0
 Feature build: SUBMODULES-0
 
 
-If this PR adds, removes or alters one or more API endpoints, please review and update the relevant [API documentation](https://github.com/percona/pmm/tree/v3/docs/api) as well:
+If this PR adds, removes or alters one or more API endpoints, please review and update the relevant [API documentation](https://github.com/percona/pmm/tree/main/documentation/api) as well:
 
 - [ ] API Docs updated
 

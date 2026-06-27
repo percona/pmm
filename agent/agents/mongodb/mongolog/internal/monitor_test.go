@@ -118,7 +118,7 @@ func TestCollector(t *testing.T) {
 			monitor.Stop()
 			wg.Wait()
 
-			expectedFile := fmt.Sprintf("./testdata/expected/%s", test)
+			expectedFile := "./testdata/expected/" + test
 			if os.Getenv("REFRESH_TEST_DATA") != "" {
 				err = writeData(t, data, expectedFile)
 				require.NoError(t, err)
@@ -215,7 +215,7 @@ func dataToJSON(t *testing.T, data []proto.SystemProfile) ([]byte, error) {
 func writeData(t *testing.T, data []proto.SystemProfile, name string) error {
 	t.Helper()
 
-	file, err := os.Create(fmt.Sprintf("%s.json", name))
+	file, err := os.Create(name + ".json") //nolint:gosec
 	if err != nil {
 		return err
 	}
@@ -238,7 +238,7 @@ func writeData(t *testing.T, data []proto.SystemProfile, name string) error {
 func readData(t *testing.T, name string) ([]proto.SystemProfile, error) {
 	t.Helper()
 
-	file, err := os.Open(fmt.Sprintf("%s.json", name))
+	file, err := os.Open(name + ".json") //nolint:gosec
 	if err != nil {
 		return nil, err
 	}
@@ -278,7 +278,8 @@ func readSourceWriteDestination(ctx context.Context, t *testing.T, errChan chan 
 		}
 		lines = append(lines, scanner.Text())
 	}
-	if err := scanner.Err(); err != nil {
+	err = scanner.Err()
+	if err != nil {
 		errChan <- err
 		return
 	}
@@ -300,7 +301,7 @@ func readSourceWriteDestination(ctx context.Context, t *testing.T, errChan chan 
 			return
 		default:
 		}
-		_, err := writer.WriteString(line + "\n")
+		_, err = writer.WriteString(line + "\n")
 		if err != nil {
 			errChan <- err
 			return
@@ -313,7 +314,8 @@ func readSourceWriteDestination(ctx context.Context, t *testing.T, errChan chan 
 		time.Sleep(delay)
 	}
 
-	if err := scanner.Err(); err != nil {
+	err = scanner.Err()
+	if err != nil {
 		errChan <- err
 		return
 	}

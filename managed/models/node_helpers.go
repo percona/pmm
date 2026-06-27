@@ -16,12 +16,12 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -38,7 +38,7 @@ func checkUniqueNodeID(q *reform.Querier, id string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Node with ID %q already exists.", id)
@@ -54,7 +54,7 @@ func checkUniqueNodeName(q *reform.Querier, name string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Node with name %s already exists.", name)
@@ -80,7 +80,7 @@ func CheckUniqueNodeAddressRegion(q *reform.Querier, address string, region *str
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, nil //nolint:nilnil
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &node, status.Errorf(codes.AlreadyExists, "Node with address %q and region %q already exists.", address, *region)
@@ -100,9 +100,9 @@ func FindNodes(q *reform.Querier, filters NodeFilters) ([]*Node, error) {
 		whereClause = "WHERE node_type = $1"
 		args = append(args, *filters.NodeType)
 	}
-	structs, err := q.SelectAllFrom(NodeTable, fmt.Sprintf("%s ORDER BY node_id", whereClause), args...)
+	structs, err := q.SelectAllFrom(NodeTable, whereClause+" ORDER BY node_id", args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	nodes := make([]*Node, len(structs))
@@ -125,7 +125,7 @@ func FindNodeByID(q *reform.Querier, id string) (*Node, error) {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Node with ID %q not found.", id)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return node, nil
 }
@@ -144,7 +144,7 @@ func FindNodesByIDs(q *reform.Querier, ids []string) ([]*Node, error) {
 	}
 	structs, err := q.SelectAllFrom(NodeTable, tail, args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	res := make([]*Node, len(structs))
@@ -166,7 +166,7 @@ func FindNodeByName(q *reform.Querier, name string) (*Node, error) {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Node with name %q not found.", name)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &node, nil
@@ -239,7 +239,7 @@ func createNodeWithID(q *reform.Querier, id string, nodeType NodeType, params *C
 	}
 	err = q.Insert(node)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return node, nil
@@ -265,7 +265,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:
 	// check/remove Agents
 	structs, err := q.FindAllFrom(AgentTable, "node_id", id)
 	if err != nil {
-		return errors.Wrap(err, "failed to select Agent IDs")
+		return fmt.Errorf("failed to select Agent IDs: %w", err)
 	}
 	if len(structs) != 0 {
 		switch mode {
@@ -274,7 +274,8 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:
 		case RemoveCascade:
 			for _, str := range structs {
 				agentID := str.(*Agent).AgentID //nolint:forcetypeassert
-				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
+				_, err = RemoveAgent(q, agentID, RemoveCascade)
+				if err != nil {
 					return err
 				}
 			}
@@ -286,7 +287,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:
 	// check/remove pmm-agents
 	structs, err = q.FindAllFrom(AgentTable, "runs_on_node_id", id)
 	if err != nil {
-		return errors.Wrap(err, "failed to select Agents")
+		return fmt.Errorf("failed to select Agents: %w", err)
 	}
 	if len(structs) != 0 {
 		switch mode {
@@ -295,7 +296,8 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:
 		case RemoveCascade:
 			for _, str := range structs {
 				agentID := str.(*Agent).AgentID //nolint:forcetypeassert
-				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
+				_, err = RemoveAgent(q, agentID, RemoveCascade)
+				if err != nil {
 					return err
 				}
 			}
@@ -307,7 +309,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:
 	// check/remove Services
 	structs, err = q.FindAllFrom(ServiceTable, "node_id", id)
 	if err != nil {
-		return errors.Wrap(err, "failed to select Service IDs")
+		return fmt.Errorf("failed to select Service IDs: %w", err)
 	}
 	if len(structs) != 0 {
 		switch mode {
@@ -326,5 +328,9 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:
 		}
 	}
 
-	return errors.Wrap(q.Delete(n), "failed to delete Node")
+	err = q.Delete(n)
+	if err != nil {
+		return fmt.Errorf("failed to delete Node: %w", err)
+	}
+	return nil
 }
