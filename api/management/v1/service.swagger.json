@@ -1,0 +1,4547 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "management/v1/service.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "ManagementService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/management/agents": {
+      "get": {
+        "summary": "List Agents",
+        "description": "Lists Agents with filter.",
+        "operationId": "ListAgents",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListAgentsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "service_id",
+            "description": "Return only Agents that relate to a specific ServiceID.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "node_id",
+            "description": "Return only Agents that relate to a specific NodeID.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ManagementService"
+        ]
+      }
+    },
+    "/v1/management/agents/versions": {
+      "get": {
+        "summary": "List Agent Versions",
+        "description": "Lists Agent versions and their update severity.",
+        "operationId": "ListAgentVersions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListAgentVersionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "ManagementService"
+        ]
+      }
+    },
+    "/v1/management/annotations": {
+      "post": {
+        "summary": "Add an Annotation",
+        "description": "Adds an annotation.",
+        "operationId": "AddAnnotation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AddAnnotationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "AddAnnotationRequest is a params to add new annotation.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1AddAnnotationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ManagementService"
+        ]
+      }
+    },
+    "/v1/management/nodes": {
+      "get": {
+        "summary": "List Nodes",
+        "description": "Lists Nodes with filter.",
+        "operationId": "ListNodes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListNodesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "node_type",
+            "description": "Node type to be filtered out.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "NODE_TYPE_UNSPECIFIED",
+              "NODE_TYPE_GENERIC_NODE",
+              "NODE_TYPE_CONTAINER_NODE",
+              "NODE_TYPE_REMOTE_NODE",
+              "NODE_TYPE_REMOTE_RDS_NODE",
+              "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+            ],
+            "default": "NODE_TYPE_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "ManagementService"
+        ]
+      },
+      "post": {
+        "summary": "Register a Node",
+        "description": "Registers a new Node and a pmm-agent.",
+        "operationId": "RegisterNode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RegisterNodeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RegisterNodeRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ManagementService"
+        ]
+      }
+    },
+    "/v1/management/nodes/{node_id}": {
+      "get": {
+        "summary": "Get Node",
+        "description": "Gets a single Node by ID.",
+        "operationId": "GetNode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetNodeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "node_id",
+            "description": "Unique Node identifier.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ManagementService"
+        ]
+      },
+      "delete": {
+        "summary": "Unregister a Node",
+        "description": "Unregisters a Node and pmm-agent",
+        "operationId": "UnregisterNode",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UnregisterNodeResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "node_id",
+            "description": "Node_id to be unregistered.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "force",
+            "description": "Force delete node, related service account, even if it has more service tokens attached.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "ManagementService"
+        ]
+      }
+    },
+    "/v1/management/services": {
+      "get": {
+        "summary": "List Services",
+        "description": "Returns a filtered list of Services.",
+        "operationId": "ListServices",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListServicesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "node_id",
+            "description": "Return only Services running on that Node.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "service_type",
+            "description": "Return only services filtered by service type.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "SERVICE_TYPE_UNSPECIFIED",
+              "SERVICE_TYPE_MYSQL_SERVICE",
+              "SERVICE_TYPE_MONGODB_SERVICE",
+              "SERVICE_TYPE_POSTGRESQL_SERVICE",
+              "SERVICE_TYPE_VALKEY_SERVICE",
+              "SERVICE_TYPE_PROXYSQL_SERVICE",
+              "SERVICE_TYPE_HAPROXY_SERVICE",
+              "SERVICE_TYPE_EXTERNAL_SERVICE"
+            ],
+            "default": "SERVICE_TYPE_UNSPECIFIED"
+          },
+          {
+            "name": "external_group",
+            "description": "Return only services in this external group.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ManagementService"
+        ]
+      },
+      "post": {
+        "summary": "Add a Service",
+        "description": "Adds a service and starts several agents.",
+        "operationId": "AddService",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AddServiceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1AddServiceRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ManagementService"
+        ]
+      }
+    },
+    "/v1/management/services/azure": {
+      "post": {
+        "summary": "Add Azure Database",
+        "description": "Adds an Azure Database instance.",
+        "operationId": "AddAzureDatabase",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1AddAzureDatabaseResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1AddAzureDatabaseRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ManagementService"
+        ]
+      }
+    },
+    "/v1/management/services/{service_id}": {
+      "delete": {
+        "summary": "Remove a Service",
+        "description": "Removes a Service along with its Agents.",
+        "operationId": "RemoveService",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RemoveServiceResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "service_id",
+            "description": "Either a Service ID or a Service Name.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "service_type",
+            "description": "Service type.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "SERVICE_TYPE_UNSPECIFIED",
+              "SERVICE_TYPE_MYSQL_SERVICE",
+              "SERVICE_TYPE_MONGODB_SERVICE",
+              "SERVICE_TYPE_POSTGRESQL_SERVICE",
+              "SERVICE_TYPE_VALKEY_SERVICE",
+              "SERVICE_TYPE_PROXYSQL_SERVICE",
+              "SERVICE_TYPE_HAPROXY_SERVICE",
+              "SERVICE_TYPE_EXTERNAL_SERVICE"
+            ],
+            "default": "SERVICE_TYPE_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "ManagementService"
+        ]
+      }
+    },
+    "/v1/management/services:discoverAzure": {
+      "post": {
+        "summary": "Discover Azure Database",
+        "description": "Discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.",
+        "operationId": "DiscoverAzureDatabase",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DiscoverAzureDatabaseResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "DiscoverAzureDatabaseRequest discover azure databases request.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DiscoverAzureDatabaseRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ManagementService"
+        ]
+      }
+    },
+    "/v1/management/services:discoverRDS": {
+      "post": {
+        "summary": "Discover RDS",
+        "description": "Discovers RDS instances.",
+        "operationId": "DiscoverRDS",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DiscoverRDSResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DiscoverRDSRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ManagementService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "UniversalAgentAzureOptions": {
+      "type": "object",
+      "properties": {
+        "client_id": {
+          "type": "string",
+          "description": "Azure client ID."
+        },
+        "is_client_secret_set": {
+          "type": "boolean",
+          "description": "True if Azure client secret is set."
+        },
+        "resource_group": {
+          "type": "string",
+          "description": "Azure resource group."
+        },
+        "subscription_id": {
+          "type": "string",
+          "description": "Azure subscription ID."
+        },
+        "tenant_id": {
+          "type": "string",
+          "description": "Azure tenant ID."
+        }
+      }
+    },
+    "UniversalAgentMongoDBOptions": {
+      "type": "object",
+      "properties": {
+        "is_tls_certificate_key_set": {
+          "type": "boolean",
+          "description": "True if TLS certificate is set."
+        },
+        "is_tls_certificate_key_file_password_set": {
+          "type": "boolean",
+          "description": "True if TLS certificate file password is set."
+        },
+        "authentication_mechanism": {
+          "type": "string",
+          "description": "MongoDB auth mechanism."
+        },
+        "authentication_database": {
+          "type": "string",
+          "description": "MongoDB auth database."
+        },
+        "stats_collections": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "MongoDB stats collections."
+        },
+        "collections_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "MongoDB collections limit."
+        },
+        "enable_all_collectors": {
+          "type": "boolean",
+          "description": "True if all collectors are enabled."
+        }
+      }
+    },
+    "UniversalAgentMySQLOptions": {
+      "type": "object",
+      "properties": {
+        "is_tls_key_set": {
+          "type": "boolean",
+          "description": "True if TLS key is set."
+        },
+        "extra_dsn_params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Extra DSN parameters for MySQL connection."
+        }
+      }
+    },
+    "UniversalAgentPostgreSQLOptions": {
+      "type": "object",
+      "properties": {
+        "is_ssl_key_set": {
+          "type": "boolean",
+          "description": "True if TLS key is set."
+        },
+        "auto_discovery_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit of databases for auto-discovery."
+        },
+        "max_exporter_connections": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Maximum number of connections from exporter to PostgreSQL instance."
+        }
+      }
+    },
+    "UniversalAgentValkeyOptions": {
+      "type": "object"
+    },
+    "UniversalNodeAgent": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique Agent identifier."
+        },
+        "agent_type": {
+          "type": "string",
+          "description": "Agent type."
+        },
+        "status": {
+          "type": "string",
+          "description": "Actual Agent status."
+        },
+        "is_connected": {
+          "type": "boolean",
+          "description": "True if Agent is running and connected to pmm-managed."
+        }
+      }
+    },
+    "UniversalNodeService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique Service identifier."
+        },
+        "service_type": {
+          "type": "string",
+          "description": "Service type."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Service name."
+        }
+      },
+      "description": "Service represents a service running on a node."
+    },
+    "commonMetricsResolutions": {
+      "type": "object",
+      "properties": {
+        "hr": {
+          "type": "string",
+          "description": "High resolution. In JSON should be represented as a string with number of seconds with `s` suffix."
+        },
+        "mr": {
+          "type": "string",
+          "description": "Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix."
+        },
+        "lr": {
+          "type": "string",
+          "description": "Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix."
+        }
+      },
+      "description": "MetricsResolutions represents Prometheus exporters metrics resolutions."
+    },
+    "googleRpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "v1AddAnnotationRequest": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "An annotation description. Required."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Tags are used to filter annotations."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Used for annotating a node."
+        },
+        "service_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Used for annotating services."
+        }
+      },
+      "description": "AddAnnotationRequest is a params to add new annotation."
+    },
+    "v1AddAnnotationResponse": {
+      "type": "object"
+    },
+    "v1AddAzureDatabaseRequest": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string",
+          "description": "Azure database location."
+        },
+        "az": {
+          "type": "string",
+          "description": "Azure database availability zone."
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "Azure database instance ID."
+        },
+        "node_model": {
+          "type": "string",
+          "description": "Represents a purchasable Stock Keeping Unit (SKU) under a product.\nhttps://docs.microsoft.com/en-us/partner-center/develop/product-resources#sku."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address used to connect to it."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Unique across all Nodes user-defined name. Defaults to Azure Database instance ID."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name. Defaults to Azure Database instance ID."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "username": {
+          "type": "string",
+          "description": "Username for scraping metrics."
+        },
+        "password": {
+          "type": "string",
+          "description": "Password for scraping metrics."
+        },
+        "azure_client_id": {
+          "type": "string",
+          "description": "Azure client ID."
+        },
+        "azure_client_secret": {
+          "type": "string",
+          "description": "Azure client secret."
+        },
+        "azure_tenant_id": {
+          "type": "string",
+          "description": "Azure tanant ID."
+        },
+        "azure_subscription_id": {
+          "type": "string",
+          "description": "Azure subscription ID."
+        },
+        "azure_resource_group": {
+          "type": "string",
+          "description": "Azure resource group."
+        },
+        "azure_database_exporter": {
+          "type": "boolean",
+          "description": "If true, adds azure_database_exporter."
+        },
+        "qan": {
+          "type": "boolean",
+          "description": "If true, adds qan-mysql-perfschema-agent or qan-postgresql-pgstatements-agent."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Node and Service."
+        },
+        "skip_connection_check": {
+          "type": "boolean",
+          "description": "Skip connection check."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "disable_query_examples": {
+          "type": "boolean",
+          "description": "Disable query examples."
+        },
+        "tablestats_group_table_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them."
+        },
+        "type": {
+          "$ref": "#/definitions/v1DiscoverAzureDatabaseType",
+          "title": "Azure database resource type (mysql, maria, postgres)"
+        },
+        "connection_timeout": {
+          "type": "string",
+          "description": "Connection timeout for exporter (if set)."
+        }
+      }
+    },
+    "v1AddAzureDatabaseResponse": {
+      "type": "object"
+    },
+    "v1AddExternalServiceParams": {
+      "type": "object",
+      "properties": {
+        "runs_on_node_id": {
+          "type": "string",
+          "description": "Node identifier on which an external exporter is been running.\nruns_on_node_id should always be passed with node_id.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Node name on which a service and node is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "add_node": {
+          "$ref": "#/definitions/v1AddNodeParams",
+          "description": "Create a new Node with those parameters.\nadd_node should always be passed with address.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "address": {
+          "type": "string",
+          "description": "Node and Exporter access address (DNS name or IP).\naddress should always be passed with add_node."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name. Required."
+        },
+        "username": {
+          "type": "string",
+          "description": "HTTP basic auth username for collecting metrics."
+        },
+        "password": {
+          "type": "string",
+          "description": "HTTP basic auth password for collecting metrics."
+        },
+        "scheme": {
+          "type": "string",
+          "description": "Scheme to generate URI to exporter metrics endpoints."
+        },
+        "metrics_path": {
+          "type": "string",
+          "description": "Path under which metrics are exposed, used to generate URI."
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Listen port for scraping metrics."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier on which an external service is been running.\nnode_id should always be passed with runs_on_node_id."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Service."
+        },
+        "group": {
+          "type": "string",
+          "description": "Group name of external service."
+        },
+        "metrics_mode": {
+          "$ref": "#/definitions/v1MetricsMode",
+          "description": "Defines metrics flow model for this exporter.\nMetrics could be pushed to the server with vmagent,\npulled by the server, or the server could choose behavior automatically.\nNode with registered pmm_agent_id must present at pmm-server\nin case of push metrics_mode."
+        },
+        "skip_connection_check": {
+          "type": "boolean",
+          "description": "Skip connection check."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        }
+      }
+    },
+    "v1AddHAProxyServiceParams": {
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier on which an external exporter is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Node name on which a service and node is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "add_node": {
+          "$ref": "#/definitions/v1AddNodeParams",
+          "description": "Create a new Node with those parameters.\nadd_node always should be passed with address.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "address": {
+          "type": "string",
+          "description": "Node and Exporter access address (DNS name or IP).\naddress always should be passed with add_node."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name. Required."
+        },
+        "username": {
+          "type": "string",
+          "description": "HTTP basic auth username for collecting metrics."
+        },
+        "password": {
+          "type": "string",
+          "description": "HTTP basic auth password for collecting metrics."
+        },
+        "scheme": {
+          "type": "string",
+          "description": "Scheme to generate URI to exporter metrics endpoints."
+        },
+        "metrics_path": {
+          "type": "string",
+          "description": "Path under which metrics are exposed, used to generate URI."
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Listen port for scraping metrics."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Service."
+        },
+        "metrics_mode": {
+          "$ref": "#/definitions/v1MetricsMode",
+          "description": "Defines metrics flow model for this exporter.\nMetrics could be pushed to the server with vmagent,\npulled by the server, or the server could choose behavior automatically.\nNode with registered pmm_agent_id must present at pmm-server\nin case of push metrics_mode."
+        },
+        "skip_connection_check": {
+          "type": "boolean",
+          "description": "Skip connection check."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        }
+      }
+    },
+    "v1AddMongoDBServiceParams": {
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "add_node": {
+          "$ref": "#/definitions/v1AddNodeParams",
+          "description": "Create a new Node with those parameters.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name. Required."
+        },
+        "address": {
+          "type": "string",
+          "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Service Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Service Access socket.\nAddress (and port) or socket is required."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The \"pmm-agent\" identifier which should run agents. Required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "username": {
+          "type": "string",
+          "description": "MongoDB username for exporter and QAN agent access."
+        },
+        "password": {
+          "type": "string",
+          "description": "MongoDB password for exporter and QAN agent access."
+        },
+        "qan_mongodb_profiler": {
+          "type": "boolean",
+          "description": "If true, adds qan-mongodb-profiler-agent for provided service."
+        },
+        "qan_mongodb_mongolog": {
+          "type": "boolean",
+          "description": "If true, adds qan-mongodb-mongolog-agent for provided service."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Service."
+        },
+        "skip_connection_check": {
+          "type": "boolean",
+          "description": "Skip connection check."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "tls_certificate_key": {
+          "type": "string",
+          "description": "Client certificate and key."
+        },
+        "tls_certificate_key_file_password": {
+          "type": "string",
+          "description": "Password for decrypting tls_certificate_key."
+        },
+        "tls_ca": {
+          "type": "string",
+          "description": "Certificate Authority certificate chain."
+        },
+        "max_query_length": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit query length in QAN (default: server-defined; -1: no limit)."
+        },
+        "metrics_mode": {
+          "$ref": "#/definitions/v1MetricsMode",
+          "description": "Defines metrics flow model for this exporter.\nMetrics could be pushed to the server with vmagent,\npulled by the server, or the server could choose behavior automatically."
+        },
+        "disable_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of collector names to disable in this exporter."
+        },
+        "authentication_mechanism": {
+          "type": "string",
+          "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details."
+        },
+        "authentication_database": {
+          "type": "string",
+          "description": "Authentication database."
+        },
+        "agent_password": {
+          "type": "string",
+          "description": "Custom password for exporter endpoint /metrics."
+        },
+        "stats_collections": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of collections to get stats from. Can use * ."
+        },
+        "collections_limit": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit"
+        },
+        "enable_all_collectors": {
+          "type": "boolean",
+          "title": "Enable all collectors"
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "title": "Exporter log level"
+        },
+        "expose_exporter": {
+          "type": "boolean",
+          "title": "Optionally expose the exporter process on all public interfaces"
+        },
+        "environment_variable_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Environment variable names to pass to the exporter.\nValues will be resolved from pmm-agent's environment when starting the exporter."
+        },
+        "rta_mongodb_agent": {
+          "type": "boolean",
+          "description": "If true, adds Real-Time Analytics agent for the provided service."
+        },
+        "connection_timeout": {
+          "type": "string",
+          "description": "Connection timeout for exporter (if set)."
+        }
+      }
+    },
+    "v1AddMySQLServiceParams": {
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "add_node": {
+          "$ref": "#/definitions/v1AddNodeParams",
+          "description": "Create a new Node with those parameters.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name. Required."
+        },
+        "address": {
+          "type": "string",
+          "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Service Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Service Access socket.\nAddress (and port) or socket is required."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The \"pmm-agent\" identifier which should run agents. Required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "username": {
+          "type": "string",
+          "description": "MySQL username for scraping metrics."
+        },
+        "password": {
+          "type": "string",
+          "description": "MySQL password for scraping metrics."
+        },
+        "qan_mysql_perfschema": {
+          "type": "boolean",
+          "description": "If true, adds qan-mysql-perfschema-agent for provided service."
+        },
+        "qan_mysql_slowlog": {
+          "type": "boolean",
+          "description": "If true, adds qan-mysql-slowlog-agent for provided service."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Service."
+        },
+        "skip_connection_check": {
+          "type": "boolean",
+          "description": "Skip connection check."
+        },
+        "disable_comments_parsing": {
+          "type": "boolean",
+          "description": "Disable parsing comments from queries and showing them in QAN."
+        },
+        "max_query_length": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit query length in QAN (default: server-defined; -1: no limit)."
+        },
+        "disable_query_examples": {
+          "type": "boolean",
+          "description": "Disable query examples."
+        },
+        "max_slowlog_file_size": {
+          "type": "string",
+          "format": "int64",
+          "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, server's default value is used.\nUse negative value to disable rotation."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "tls_ca": {
+          "type": "string",
+          "description": "Certificate Authority certificate chain."
+        },
+        "tls_cert": {
+          "type": "string",
+          "description": "Client certificate."
+        },
+        "tls_key": {
+          "type": "string",
+          "description": "Password for decrypting tls_cert."
+        },
+        "tablestats_group_table_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them."
+        },
+        "metrics_mode": {
+          "$ref": "#/definitions/v1MetricsMode",
+          "description": "Defines metrics flow model for this exporter.\nMetrics could be pushed to the server with vmagent,\npulled by the server, or the server could choose behavior automatically."
+        },
+        "disable_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of collector names to disable in this exporter."
+        },
+        "agent_password": {
+          "type": "string",
+          "description": "Custom password for exporter endpoint /metrics."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "title": "Exporter log level"
+        },
+        "expose_exporter": {
+          "type": "boolean",
+          "title": "Optionally expose the exporter process on all public interfaces"
+        },
+        "extra_dsn_params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "extra DSN parameters to be used for connecting to MySQL."
+        },
+        "connection_timeout": {
+          "type": "string",
+          "description": "Connection timeout for exporter (if set)."
+        }
+      }
+    },
+    "v1AddNodeParams": {
+      "type": "object",
+      "properties": {
+        "node_type": {
+          "$ref": "#/definitions/v1NodeType",
+          "description": "Node type to be registered."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Unique across all Nodes user-defined name."
+        },
+        "machine_id": {
+          "type": "string",
+          "description": "Linux machine-id."
+        },
+        "distro": {
+          "type": "string",
+          "description": "Linux distribution name and version."
+        },
+        "container_id": {
+          "type": "string",
+          "description": "Container identifier. If specified, must be a unique Docker container identifier."
+        },
+        "container_name": {
+          "type": "string",
+          "description": "Container name."
+        },
+        "node_model": {
+          "type": "string",
+          "description": "Node model."
+        },
+        "region": {
+          "type": "string",
+          "description": "Node region."
+        },
+        "az": {
+          "type": "string",
+          "description": "Node availability zone."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Node."
+        }
+      },
+      "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service."
+    },
+    "v1AddPostgreSQLServiceParams": {
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "add_node": {
+          "$ref": "#/definitions/v1AddNodeParams",
+          "description": "Create a new Node with those parameters.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name. Required."
+        },
+        "address": {
+          "type": "string",
+          "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Service Access port.\nPort is required when the address present."
+        },
+        "database": {
+          "type": "string",
+          "description": "Database name."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Service Access socket.\nAddress (and port) or socket is required."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The \"pmm-agent\" identifier which should run agents. Required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "username": {
+          "type": "string",
+          "description": "PostgreSQL username for scraping metrics."
+        },
+        "password": {
+          "type": "string",
+          "description": "PostgreSQL password for scraping metrics."
+        },
+        "qan_postgresql_pgstatements_agent": {
+          "type": "boolean",
+          "description": "If true, adds qan-postgresql-pgstatements-agent for provided service."
+        },
+        "qan_postgresql_pgstatmonitor_agent": {
+          "type": "boolean",
+          "description": "If true, adds qan-postgresql-pgstatmonitor-agent for provided service."
+        },
+        "max_query_length": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit query length in QAN (default: server-defined; -1: no limit)."
+        },
+        "disable_query_examples": {
+          "type": "boolean",
+          "description": "Disable query examples."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Service."
+        },
+        "skip_connection_check": {
+          "type": "boolean",
+          "description": "Skip connection check."
+        },
+        "disable_comments_parsing": {
+          "type": "boolean",
+          "description": "Disable parsing comments from queries and showing them in QAN."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full."
+        },
+        "metrics_mode": {
+          "$ref": "#/definitions/v1MetricsMode",
+          "description": "Defines metrics flow model for this exporter.\nMetrics could be pushed to the server with vmagent,\npulled by the server, or the server could choose behavior automatically."
+        },
+        "disable_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of collector names to disable in this exporter."
+        },
+        "tls_ca": {
+          "type": "string",
+          "description": "TLS CA certificate."
+        },
+        "tls_cert": {
+          "type": "string",
+          "description": "TLS Certifcate."
+        },
+        "tls_key": {
+          "type": "string",
+          "description": "TLS Certificate Key."
+        },
+        "agent_password": {
+          "type": "string",
+          "description": "Custom password for exporter endpoint /metrics."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "title": "Exporter log level"
+        },
+        "auto_discovery_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit for auto discovery."
+        },
+        "expose_exporter": {
+          "type": "boolean",
+          "title": "Optionally expose the exporter process on all public interfaces"
+        },
+        "max_exporter_connections": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Maximum number of connections that exporter can open to the database instance."
+        },
+        "connection_timeout": {
+          "type": "string",
+          "description": "Connection timeout for exporter (if set)."
+        }
+      }
+    },
+    "v1AddProxySQLServiceParams": {
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Node name on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "add_node": {
+          "$ref": "#/definitions/v1AddNodeParams",
+          "description": "Create a new Node with those parameters.\nExactly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name. Required."
+        },
+        "address": {
+          "type": "string",
+          "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Service Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Service Access socket.\nAddress (and port) or socket is required."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The \"pmm-agent\" identifier which should run agents. Required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "username": {
+          "type": "string",
+          "description": "ProxySQL username for scraping metrics."
+        },
+        "password": {
+          "type": "string",
+          "description": "ProxySQL password for scraping metrics."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Service."
+        },
+        "skip_connection_check": {
+          "type": "boolean",
+          "description": "Skip connection check."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "metrics_mode": {
+          "$ref": "#/definitions/v1MetricsMode",
+          "description": "Defines metrics flow model for this exporter.\nMetrics could be pushed to the server with vmagent,\npulled by the server, or the server could choose behavior automatically."
+        },
+        "disable_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of collector names to disable in this exporter."
+        },
+        "agent_password": {
+          "type": "string",
+          "description": "Custom password for exporter endpoint /metrics."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "title": "Exporter log level"
+        },
+        "expose_exporter": {
+          "type": "boolean",
+          "title": "Optionally expose the exporter process on all public interfaces"
+        },
+        "connection_timeout": {
+          "type": "string",
+          "description": "Connection timeout for exporter (if set)."
+        }
+      }
+    },
+    "v1AddRDSServiceParams": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string",
+          "description": "AWS region."
+        },
+        "az": {
+          "type": "string",
+          "description": "AWS availability zone."
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "AWS instance ID."
+        },
+        "node_model": {
+          "type": "string",
+          "description": "AWS instance class."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address used to connect to it."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port."
+        },
+        "engine": {
+          "$ref": "#/definitions/v1DiscoverRDSEngine",
+          "description": "Instance engine."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "PMM Agent ID."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Unique across all Nodes user-defined name. Defaults to AWS instance ID."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name. Defaults to AWS instance ID."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "username": {
+          "type": "string",
+          "description": "Username for scraping metrics."
+        },
+        "password": {
+          "type": "string",
+          "description": "Password for scraping metrics."
+        },
+        "aws_access_key": {
+          "type": "string",
+          "description": "AWS Access key."
+        },
+        "aws_secret_key": {
+          "type": "string",
+          "description": "AWS Secret key."
+        },
+        "rds_exporter": {
+          "type": "boolean",
+          "description": "If true, adds rds_exporter."
+        },
+        "qan_mysql_perfschema": {
+          "type": "boolean",
+          "description": "If true, adds qan-mysql-perfschema-agent."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Node and Service."
+        },
+        "skip_connection_check": {
+          "type": "boolean",
+          "description": "Skip connection check."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "disable_query_examples": {
+          "type": "boolean",
+          "description": "Disable query examples."
+        },
+        "tablestats_group_table_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them."
+        },
+        "disable_basic_metrics": {
+          "type": "boolean",
+          "description": "Disable basic metrics."
+        },
+        "disable_enhanced_metrics": {
+          "type": "boolean",
+          "description": "Disable enhanced metrics."
+        },
+        "metrics_mode": {
+          "$ref": "#/definitions/v1MetricsMode",
+          "description": "Defines metrics flow model for this exporter.\nPush metrics mode is not allowed."
+        },
+        "qan_postgresql_pgstatements": {
+          "type": "boolean",
+          "title": "If true, add qan-pgstatements"
+        },
+        "agent_password": {
+          "type": "string",
+          "description": "Custom password for exporter endpoint /metrics."
+        },
+        "database": {
+          "type": "string",
+          "description": "Database name."
+        },
+        "auto_discovery_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit of databases for auto-discovery."
+        },
+        "disable_comments_parsing": {
+          "type": "boolean",
+          "description": "Disable parsing comments from queries and showing them in QAN."
+        },
+        "max_postgresql_exporter_connections": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Maximum number of exporter connections to PostgreSQL instance."
+        },
+        "connection_timeout": {
+          "type": "string",
+          "description": "Connection timeout for exporter (if set)."
+        }
+      }
+    },
+    "v1AddServiceRequest": {
+      "type": "object",
+      "properties": {
+        "mysql": {
+          "$ref": "#/definitions/v1AddMySQLServiceParams"
+        },
+        "mongodb": {
+          "$ref": "#/definitions/v1AddMongoDBServiceParams"
+        },
+        "postgresql": {
+          "$ref": "#/definitions/v1AddPostgreSQLServiceParams"
+        },
+        "proxysql": {
+          "$ref": "#/definitions/v1AddProxySQLServiceParams"
+        },
+        "haproxy": {
+          "$ref": "#/definitions/v1AddHAProxyServiceParams"
+        },
+        "external": {
+          "$ref": "#/definitions/v1AddExternalServiceParams"
+        },
+        "rds": {
+          "$ref": "#/definitions/v1AddRDSServiceParams"
+        },
+        "valkey": {
+          "$ref": "#/definitions/v1AddValkeyServiceParams"
+        }
+      }
+    },
+    "v1AddServiceResponse": {
+      "type": "object",
+      "properties": {
+        "mysql": {
+          "$ref": "#/definitions/v1MySQLServiceResult"
+        },
+        "mongodb": {
+          "$ref": "#/definitions/v1MongoDBServiceResult"
+        },
+        "postgresql": {
+          "$ref": "#/definitions/v1PostgreSQLServiceResult"
+        },
+        "proxysql": {
+          "$ref": "#/definitions/v1ProxySQLServiceResult"
+        },
+        "haproxy": {
+          "$ref": "#/definitions/v1HAProxyServiceResult"
+        },
+        "external": {
+          "$ref": "#/definitions/v1ExternalServiceResult"
+        },
+        "rds": {
+          "$ref": "#/definitions/v1RDSServiceResult"
+        },
+        "valkey": {
+          "$ref": "#/definitions/v1ValkeyServiceResult"
+        }
+      }
+    },
+    "v1AddValkeyServiceParams": {
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier on which the service is running.\nOnly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Node name on which a service is running.\nOnly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "add_node": {
+          "$ref": "#/definitions/v1AddNodeParams",
+          "description": "Create a new Node with those parameters.\nOnly one of these parameters should be present: node_id, node_name, add_node."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "User-defined name, it is required and should be unique across all services."
+        },
+        "address": {
+          "type": "string",
+          "description": "Node and Service access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Service access port.\nPort is required when the address is present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Service access socket.\nAddress (and port) or socket is required."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The \"pmm-agent\" identifier which should run agents. Required."
+        },
+        "username": {
+          "type": "string",
+          "description": "Valkey username for scraping metrics."
+        },
+        "password": {
+          "type": "string",
+          "description": "Valkey password for scraping metrics."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Service."
+        },
+        "skip_connection_check": {
+          "type": "boolean",
+          "description": "Skip connection check."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for connection."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS verification."
+        },
+        "metrics_mode": {
+          "$ref": "#/definitions/v1MetricsMode",
+          "description": "Defines metrics flow model for the Valkey exporter.\nMetrics could be pushed to the server with vmagent,\npulled by the server, or the server could choose behavior automatically."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "title": "Exporter log level"
+        },
+        "expose_exporter": {
+          "type": "boolean",
+          "title": "Optionally expose the exporter process on all public interfaces"
+        },
+        "tls_ca": {
+          "type": "string",
+          "description": "TLS CA certificate."
+        },
+        "tls_cert": {
+          "type": "string",
+          "description": "TLS Certifcate."
+        },
+        "tls_key": {
+          "type": "string",
+          "description": "TLS Certificate Key."
+        },
+        "agent_password": {
+          "type": "string",
+          "description": "Custom password for exporter endpoint /metrics."
+        },
+        "connection_timeout": {
+          "type": "string",
+          "description": "Connection timeout for exporter (if set)."
+        }
+      }
+    },
+    "v1AgentStatus": {
+      "type": "string",
+      "enum": [
+        "AGENT_STATUS_UNSPECIFIED",
+        "AGENT_STATUS_STARTING",
+        "AGENT_STATUS_INITIALIZATION_ERROR",
+        "AGENT_STATUS_RUNNING",
+        "AGENT_STATUS_WAITING",
+        "AGENT_STATUS_STOPPING",
+        "AGENT_STATUS_DONE",
+        "AGENT_STATUS_UNKNOWN"
+      ],
+      "default": "AGENT_STATUS_UNSPECIFIED",
+      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state."
+    },
+    "v1AgentVersions": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Agent ID."
+        },
+        "version": {
+          "type": "string",
+          "description": "Agent version."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Node name where the agent runs."
+        },
+        "severity": {
+          "$ref": "#/definitions/v1UpdateSeverity",
+          "description": "Update severity."
+        }
+      }
+    },
+    "v1ContainerNode": {
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Unique across all Nodes user-defined name."
+        },
+        "address": {
+          "type": "string",
+          "description": "Node address (DNS name or IP)."
+        },
+        "machine_id": {
+          "type": "string",
+          "description": "Linux machine-id of the Generic Node where this Container Node runs."
+        },
+        "container_id": {
+          "type": "string",
+          "description": "Container identifier. If specified, must be a unique Docker container identifier."
+        },
+        "container_name": {
+          "type": "string",
+          "description": "Container name."
+        },
+        "node_model": {
+          "type": "string",
+          "description": "Node model."
+        },
+        "region": {
+          "type": "string",
+          "description": "Node region."
+        },
+        "az": {
+          "type": "string",
+          "description": "Node availability zone."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "is_pmm_server_node": {
+          "type": "boolean",
+          "description": "True if this node is a PMM Server node (HA mode)."
+        }
+      },
+      "description": "ContainerNode represents a Docker container."
+    },
+    "v1DiscoverAzureDatabaseInstance": {
+      "type": "object",
+      "properties": {
+        "instance_id": {
+          "type": "string",
+          "description": "Azure database instance ID."
+        },
+        "region": {
+          "type": "string",
+          "description": "Azure database location."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Azure database server name."
+        },
+        "username": {
+          "type": "string",
+          "description": "Database username."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address used to connect to it."
+        },
+        "azure_resource_group": {
+          "type": "string",
+          "description": "Azure Resource group."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment tag."
+        },
+        "type": {
+          "$ref": "#/definitions/v1DiscoverAzureDatabaseType",
+          "description": "Database type."
+        },
+        "az": {
+          "type": "string",
+          "description": "Azure database availability zone."
+        },
+        "node_model": {
+          "type": "string",
+          "description": "Represents a purchasable Stock Keeping Unit (SKU) under a product.\nhttps://docs.microsoft.com/en-us/partner-center/develop/product-resources#sku."
+        }
+      },
+      "description": "DiscoverAzureDatabaseInstance models an unique Azure Database instance for the list of instances returned by Discovery."
+    },
+    "v1DiscoverAzureDatabaseRequest": {
+      "type": "object",
+      "properties": {
+        "azure_client_id": {
+          "type": "string",
+          "description": "Azure client ID."
+        },
+        "azure_client_secret": {
+          "type": "string",
+          "description": "Azure client secret."
+        },
+        "azure_tenant_id": {
+          "type": "string",
+          "description": "Azure tanant ID."
+        },
+        "azure_subscription_id": {
+          "type": "string",
+          "description": "Azure subscription ID."
+        }
+      },
+      "description": "DiscoverAzureDatabaseRequest discover azure databases request."
+    },
+    "v1DiscoverAzureDatabaseResponse": {
+      "type": "object",
+      "properties": {
+        "azure_database_instance": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1DiscoverAzureDatabaseInstance"
+          }
+        }
+      },
+      "description": "DiscoverAzureDatabaseResponse discover azure databases response."
+    },
+    "v1DiscoverAzureDatabaseType": {
+      "type": "string",
+      "enum": [
+        "DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED",
+        "DISCOVER_AZURE_DATABASE_TYPE_MYSQL",
+        "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
+      ],
+      "default": "DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED",
+      "description": "DiscoverAzureDatabaseType describes supported Azure Database instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql"
+    },
+    "v1DiscoverRDSEngine": {
+      "type": "string",
+      "enum": [
+        "DISCOVER_RDS_ENGINE_UNSPECIFIED",
+        "DISCOVER_RDS_ENGINE_MYSQL",
+        "DISCOVER_RDS_ENGINE_POSTGRESQL"
+      ],
+      "default": "DISCOVER_RDS_ENGINE_UNSPECIFIED",
+      "description": "DiscoverRDSEngine describes supported RDS instance engines."
+    },
+    "v1DiscoverRDSInstance": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string",
+          "description": "AWS region."
+        },
+        "az": {
+          "type": "string",
+          "description": "AWS availability zone."
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "AWS instance ID."
+        },
+        "node_model": {
+          "type": "string",
+          "description": "AWS instance class."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address used to connect to it."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port."
+        },
+        "engine": {
+          "$ref": "#/definitions/v1DiscoverRDSEngine",
+          "description": "Instance engine."
+        },
+        "engine_version": {
+          "type": "string",
+          "description": "Engine version."
+        }
+      },
+      "description": "DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery."
+    },
+    "v1DiscoverRDSRequest": {
+      "type": "object",
+      "properties": {
+        "aws_access_key": {
+          "type": "string",
+          "description": "AWS Access key. Optional."
+        },
+        "aws_secret_key": {
+          "type": "string",
+          "description": "AWS Secret key. Optional."
+        }
+      }
+    },
+    "v1DiscoverRDSResponse": {
+      "type": "object",
+      "properties": {
+        "rds_instances": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1DiscoverRDSInstance"
+          }
+        }
+      }
+    },
+    "v1ExternalExporter": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "runs_on_node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "If disabled, metrics from this exporter will not be collected."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "HTTP basic auth username for collecting metrics."
+        },
+        "scheme": {
+          "type": "string",
+          "description": "Scheme to generate URI to exporter metrics endpoints."
+        },
+        "metrics_path": {
+          "type": "string",
+          "description": "Path under which metrics are exposed, used to generate URI."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Listen port for scraping metrics."
+        },
+        "push_metrics_enabled": {
+          "type": "boolean",
+          "description": "True if exporter uses push metrics mode."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "description": "Path to exec process."
+        },
+        "metrics_resolutions": {
+          "$ref": "#/definitions/commonMetricsResolutions",
+          "description": "Metrics resolution for this agent."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname verification."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus",
+          "description": "Actual Agent status."
+        }
+      },
+      "description": "ExternalExporter runs on any Node type, including Remote Node."
+    },
+    "v1ExternalService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this service instance runs."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "group": {
+          "type": "string",
+          "description": "Group name of external service."
+        },
+        "address": {
+          "type": "string",
+          "description": "Access address (DNS name or IP)."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port."
+        }
+      },
+      "description": "ExternalService represents a generic External service instance."
+    },
+    "v1ExternalServiceResult": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "$ref": "#/definitions/v1ExternalService"
+        },
+        "external_exporter": {
+          "$ref": "#/definitions/v1ExternalExporter"
+        }
+      }
+    },
+    "v1GenericNode": {
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Unique across all Nodes user-defined name."
+        },
+        "address": {
+          "type": "string",
+          "description": "Node address (DNS name or IP)."
+        },
+        "machine_id": {
+          "type": "string",
+          "description": "Linux machine-id."
+        },
+        "distro": {
+          "type": "string",
+          "description": "Linux distribution name and version."
+        },
+        "node_model": {
+          "type": "string",
+          "description": "Node model."
+        },
+        "region": {
+          "type": "string",
+          "description": "Node region."
+        },
+        "az": {
+          "type": "string",
+          "description": "Node availability zone."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "is_pmm_server_node": {
+          "type": "boolean",
+          "description": "True if this node is a PMM Server node (HA mode)."
+        }
+      },
+      "description": "GenericNode represents a bare metal server or virtual machine."
+    },
+    "v1GetNodeResponse": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "$ref": "#/definitions/v1UniversalNode"
+        }
+      }
+    },
+    "v1HAProxyService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this service instance runs."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        }
+      },
+      "description": "HAProxyService represents a generic HAProxy service instance."
+    },
+    "v1HAProxyServiceResult": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "$ref": "#/definitions/v1HAProxyService"
+        },
+        "external_exporter": {
+          "$ref": "#/definitions/v1ExternalExporter"
+        }
+      }
+    },
+    "v1ListAgentVersionsResponse": {
+      "type": "object",
+      "properties": {
+        "agent_versions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AgentVersions"
+          },
+          "description": "List of Agent versions."
+        }
+      }
+    },
+    "v1ListAgentsResponse": {
+      "type": "object",
+      "properties": {
+        "agents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1UniversalAgent"
+          },
+          "description": "List of Agents."
+        }
+      }
+    },
+    "v1ListNodesResponse": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1UniversalNode"
+          }
+        }
+      }
+    },
+    "v1ListServicesResponse": {
+      "type": "object",
+      "properties": {
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1UniversalService"
+          },
+          "description": "List of Services."
+        }
+      }
+    },
+    "v1LogLevel": {
+      "type": "string",
+      "enum": [
+        "LOG_LEVEL_UNSPECIFIED",
+        "LOG_LEVEL_FATAL",
+        "LOG_LEVEL_ERROR",
+        "LOG_LEVEL_WARN",
+        "LOG_LEVEL_INFO",
+        "LOG_LEVEL_DEBUG"
+      ],
+      "default": "LOG_LEVEL_UNSPECIFIED",
+      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+      "title": "Log level for exporters"
+    },
+    "v1MetricsMode": {
+      "type": "string",
+      "enum": [
+        "METRICS_MODE_UNSPECIFIED",
+        "METRICS_MODE_PULL",
+        "METRICS_MODE_PUSH"
+      ],
+      "default": "METRICS_MODE_UNSPECIFIED",
+      "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.\n\n - METRICS_MODE_UNSPECIFIED: Auto"
+    },
+    "v1MongoDBExporter": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "MongoDB username for scraping metrics."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "push_metrics_enabled": {
+          "type": "boolean",
+          "description": "True if exporter uses push metrics mode."
+        },
+        "disabled_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of disabled collector names."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus",
+          "description": "Actual Agent status."
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Listen port for scraping metrics."
+        },
+        "stats_collections": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "List of colletions to get stats from. Can use *"
+        },
+        "collections_limit": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit"
+        },
+        "enable_all_collectors": {
+          "type": "boolean",
+          "description": "Enable all collectors."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "description": "Path to exec process."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "description": "Log level for exporter."
+        },
+        "expose_exporter": {
+          "type": "boolean",
+          "title": "Optionally expose the exporter process on all public interfaces"
+        },
+        "metrics_resolutions": {
+          "$ref": "#/definitions/commonMetricsResolutions",
+          "description": "Metrics resolution for this agent."
+        },
+        "environment_variable_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Environment variable names passed to the exporter."
+        },
+        "connection_timeout": {
+          "type": "string",
+          "description": "Connection timeout for exporter (if set)."
+        }
+      },
+      "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics."
+    },
+    "v1MongoDBService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "address": {
+          "type": "string",
+          "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Access unix socket.\nAddress (and port) or socket is required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "version": {
+          "type": "string",
+          "description": "MongoDB version."
+        }
+      },
+      "description": "MongoDBService represents a generic MongoDB instance."
+    },
+    "v1MongoDBServiceResult": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "$ref": "#/definitions/v1MongoDBService"
+        },
+        "mongodb_exporter": {
+          "$ref": "#/definitions/v1MongoDBExporter"
+        },
+        "qan_mongodb_profiler": {
+          "$ref": "#/definitions/v1QANMongoDBProfilerAgent"
+        },
+        "qan_mongodb_mongolog": {
+          "$ref": "#/definitions/v1QANMongoDBMongologAgent"
+        },
+        "rta_mongodb_agent": {
+          "$ref": "#/definitions/v1RTAMongoDBAgent"
+        }
+      }
+    },
+    "v1MySQLService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "address": {
+          "type": "string",
+          "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Access unix socket.\nAddress (and port) or socket is required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "version": {
+          "type": "string",
+          "description": "MySQL version."
+        },
+        "extra_dsn_params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Extra parameters to be added to the DSN."
+        }
+      },
+      "description": "MySQLService represents a generic MySQL instance."
+    },
+    "v1MySQLServiceResult": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "$ref": "#/definitions/v1MySQLService"
+        },
+        "mysqld_exporter": {
+          "$ref": "#/definitions/v1MySQLdExporter"
+        },
+        "qan_mysql_perfschema": {
+          "$ref": "#/definitions/v1QANMySQLPerfSchemaAgent"
+        },
+        "qan_mysql_slowlog": {
+          "$ref": "#/definitions/v1QANMySQLSlowlogAgent"
+        },
+        "table_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Actual table count at the moment of adding."
+        }
+      }
+    },
+    "v1MySQLdExporter": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "MySQL username for scraping metrics."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "tls_ca": {
+          "type": "string",
+          "description": "Certificate Authority certificate chain."
+        },
+        "tls_cert": {
+          "type": "string",
+          "description": "Client certificate."
+        },
+        "tls_key": {
+          "type": "string",
+          "description": "Password for decrypting tls_cert."
+        },
+        "tablestats_group_table_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "push_metrics_enabled": {
+          "type": "boolean",
+          "description": "True if exporter uses push metrics mode."
+        },
+        "disabled_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of disabled collector names."
+        },
+        "table_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Actual table count at the moment of adding."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus",
+          "description": "Actual Agent status."
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Listen port for scraping metrics."
+        },
+        "tablestats_group_disabled": {
+          "type": "boolean",
+          "description": "True if tablestats group collectors are currently disabled."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "description": "Path to exec process."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "description": "Log level for exporter."
+        },
+        "expose_exporter": {
+          "type": "boolean",
+          "title": "Optionally expose the exporter process on all public interfaces"
+        },
+        "metrics_resolutions": {
+          "$ref": "#/definitions/commonMetricsResolutions",
+          "description": "Metrics resolution for this agent."
+        },
+        "extra_dsn_params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Extra DSN parameters for MySQL connection."
+        },
+        "connection_timeout": {
+          "type": "string",
+          "description": "Connection timeout for exporter (if set)."
+        }
+      },
+      "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics."
+    },
+    "v1NodeType": {
+      "type": "string",
+      "enum": [
+        "NODE_TYPE_UNSPECIFIED",
+        "NODE_TYPE_GENERIC_NODE",
+        "NODE_TYPE_CONTAINER_NODE",
+        "NODE_TYPE_REMOTE_NODE",
+        "NODE_TYPE_REMOTE_RDS_NODE",
+        "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+      ],
+      "default": "NODE_TYPE_UNSPECIFIED",
+      "description": "NodeType describes supported Node types."
+    },
+    "v1PMMAgent": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "runs_on_node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "connected": {
+          "type": "boolean",
+          "description": "True if Agent is running and connected to pmm-managed."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "description": "Path to exec process."
+        }
+      },
+      "description": "PMMAgent runs on Generic or Container Node."
+    },
+    "v1PostgreSQLService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name."
+        },
+        "database_name": {
+          "type": "string",
+          "description": "Database name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "address": {
+          "type": "string",
+          "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Access unix socket.\nAddress (and port) or socket is required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "version": {
+          "type": "string",
+          "description": "PostgreSQL version."
+        },
+        "auto_discovery_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit of databases for auto-discovery."
+        }
+      },
+      "description": "PostgreSQLService represents a generic PostgreSQL instance."
+    },
+    "v1PostgreSQLServiceResult": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "$ref": "#/definitions/v1PostgreSQLService"
+        },
+        "postgres_exporter": {
+          "$ref": "#/definitions/v1PostgresExporter"
+        },
+        "qan_postgresql_pgstatements_agent": {
+          "$ref": "#/definitions/v1QANPostgreSQLPgStatementsAgent"
+        },
+        "qan_postgresql_pgstatmonitor_agent": {
+          "$ref": "#/definitions/v1QANPostgreSQLPgStatMonitorAgent"
+        },
+        "warning": {
+          "type": "string",
+          "description": "Warning message."
+        }
+      }
+    },
+    "v1PostgresExporter": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "PostgreSQL username for scraping metrics."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "push_metrics_enabled": {
+          "type": "boolean",
+          "description": "True if exporter uses push metrics mode."
+        },
+        "disabled_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of disabled collector names."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus",
+          "description": "Actual Agent status."
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Listen port for scraping metrics."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "description": "Path to exec process."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "description": "Log level for exporter."
+        },
+        "auto_discovery_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit of databases for auto-discovery."
+        },
+        "expose_exporter": {
+          "type": "boolean",
+          "title": "Optionally expose the exporter process on all public interfaces"
+        },
+        "max_exporter_connections": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Maximum number of connections that exporter can open to the database instance."
+        },
+        "metrics_resolutions": {
+          "$ref": "#/definitions/commonMetricsResolutions",
+          "description": "Metrics resolution for this agent."
+        },
+        "connection_timeout": {
+          "type": "string",
+          "description": "Connection timeout for exporter (if set)."
+        }
+      },
+      "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics."
+    },
+    "v1ProxySQLExporter": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "ProxySQL username for scraping metrics."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "push_metrics_enabled": {
+          "type": "boolean",
+          "description": "True if exporter uses push metrics mode."
+        },
+        "disabled_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of disabled collector names."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus",
+          "description": "Actual Agent status."
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Listen port for scraping metrics."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "description": "Path to exec process."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "description": "Log level for exporter."
+        },
+        "expose_exporter": {
+          "type": "boolean",
+          "title": "Optionally expose the exporter process on all public interfaces"
+        },
+        "metrics_resolutions": {
+          "$ref": "#/definitions/commonMetricsResolutions",
+          "description": "Metrics resolution for this agent."
+        },
+        "connection_timeout": {
+          "type": "string",
+          "description": "Connection timeout for exporter (if set)."
+        }
+      },
+      "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics."
+    },
+    "v1ProxySQLService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "address": {
+          "type": "string",
+          "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Access unix socket.\nAddress (and port) or socket is required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "version": {
+          "type": "string",
+          "description": "ProxySQL version."
+        }
+      },
+      "description": "ProxySQLService represents a generic ProxySQL instance."
+    },
+    "v1ProxySQLServiceResult": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "$ref": "#/definitions/v1ProxySQLService"
+        },
+        "proxysql_exporter": {
+          "$ref": "#/definitions/v1ProxySQLExporter"
+        }
+      }
+    },
+    "v1QANMongoDBMongologAgent": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "MongoDB username for getting profiler data."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "max_query_length": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit query length in QAN (default: server-defined; -1: no limit)."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus",
+          "description": "Actual Agent status."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "description": "Path to exec process."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "description": "Log level for exporter."
+        }
+      },
+      "description": "QANMongoDBMongologAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server."
+    },
+    "v1QANMongoDBProfilerAgent": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "MongoDB username for getting profiler data."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "max_query_length": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit query length in QAN (default: server-defined; -1: no limit)."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus",
+          "description": "Actual Agent status."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "description": "Path to exec process."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "description": "Log level for exporter."
+        }
+      },
+      "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server."
+    },
+    "v1QANMySQLPerfSchemaAgent": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "MySQL username for getting performance data."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "tls_ca": {
+          "type": "string",
+          "description": "Certificate Authority certificate chain."
+        },
+        "tls_cert": {
+          "type": "string",
+          "description": "Client certificate."
+        },
+        "tls_key": {
+          "type": "string",
+          "description": "Password for decrypting tls_cert."
+        },
+        "disable_comments_parsing": {
+          "type": "boolean",
+          "description": "Disable parsing comments from queries and showing them in QAN."
+        },
+        "max_query_length": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit query length in QAN (default: server-defined; -1: no limit)."
+        },
+        "query_examples_disabled": {
+          "type": "boolean",
+          "description": "True if query examples are disabled."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus",
+          "description": "Actual Agent status."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "description": "Path to exec process."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "description": "Log level for exporter."
+        },
+        "extra_dsn_params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Extra DSN parameters for MySQL connection."
+        }
+      },
+      "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server."
+    },
+    "v1QANMySQLSlowlogAgent": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "MySQL username for getting performance data."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "tls_ca": {
+          "type": "string",
+          "description": "Certificate Authority certificate chain."
+        },
+        "tls_cert": {
+          "type": "string",
+          "description": "Client certificate."
+        },
+        "tls_key": {
+          "type": "string",
+          "description": "Password for decrypting tls_cert."
+        },
+        "disable_comments_parsing": {
+          "type": "boolean",
+          "description": "Disable parsing comments from queries and showing them in QAN."
+        },
+        "max_query_length": {
+          "type": "integer",
+          "format": "int32",
+          "title": "Limit query length in QAN (default: server-defined; -1: no limit)"
+        },
+        "query_examples_disabled": {
+          "type": "boolean",
+          "description": "True if query examples are disabled."
+        },
+        "max_slowlog_file_size": {
+          "type": "string",
+          "format": "int64",
+          "description": "Slowlog file is rotated at this size if \u003e 0."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus",
+          "description": "Actual Agent status."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "title": "mod tidy"
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "description": "Log level for exporter."
+        },
+        "extra_dsn_params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Extra DSN parameters for MySQL connection."
+        }
+      },
+      "description": "QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server."
+    },
+    "v1QANPostgreSQLPgStatMonitorAgent": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "PostgreSQL username for getting pg stat monitor data."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "disable_comments_parsing": {
+          "type": "boolean",
+          "description": "Disable parsing comments from queries and showing them in QAN."
+        },
+        "max_query_length": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit query length in QAN (default: server-defined; -1: no limit)."
+        },
+        "query_examples_disabled": {
+          "type": "boolean",
+          "description": "True if query examples are disabled."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus",
+          "description": "Actual Agent status."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "description": "Path to exec process."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "description": "Log level for exporter."
+        }
+      },
+      "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server."
+    },
+    "v1QANPostgreSQLPgStatementsAgent": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "PostgreSQL username for getting pg stat statements data."
+        },
+        "disable_comments_parsing": {
+          "type": "boolean",
+          "description": "Disable parsing comments from queries and showing them in QAN."
+        },
+        "max_query_length": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit query length in QAN (default: server-defined; -1: no limit)."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus",
+          "description": "Actual Agent status."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "description": "Path to exec process."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "description": "Log level for exporter."
+        }
+      },
+      "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server."
+    },
+    "v1RDSExporter": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier."
+        },
+        "aws_access_key": {
+          "type": "string",
+          "description": "AWS Access Key."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus",
+          "description": "Actual Agent status (the same for several configurations)."
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Listen port for scraping metrics (the same for several configurations)."
+        },
+        "basic_metrics_disabled": {
+          "type": "boolean",
+          "description": "Basic metrics are disabled."
+        },
+        "enhanced_metrics_disabled": {
+          "type": "boolean",
+          "description": "Enhanced metrics are disabled."
+        },
+        "push_metrics_enabled": {
+          "type": "boolean",
+          "description": "True if exporter uses push metrics mode."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "description": "Path to exec process."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "description": "Log level for exporter."
+        },
+        "auto_discovery_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit of databases for auto-discovery."
+        },
+        "metrics_resolutions": {
+          "$ref": "#/definitions/commonMetricsResolutions",
+          "description": "Metrics resolution for this agent."
+        }
+      },
+      "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics."
+    },
+    "v1RDSServiceResult": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "$ref": "#/definitions/v1RemoteRDSNode"
+        },
+        "rds_exporter": {
+          "$ref": "#/definitions/v1RDSExporter"
+        },
+        "mysql": {
+          "$ref": "#/definitions/v1MySQLService"
+        },
+        "mysqld_exporter": {
+          "$ref": "#/definitions/v1MySQLdExporter"
+        },
+        "qan_mysql_perfschema": {
+          "$ref": "#/definitions/v1QANMySQLPerfSchemaAgent"
+        },
+        "postgresql": {
+          "$ref": "#/definitions/v1PostgreSQLService"
+        },
+        "postgresql_exporter": {
+          "$ref": "#/definitions/v1PostgresExporter"
+        },
+        "qan_postgresql_pgstatements": {
+          "$ref": "#/definitions/v1QANPostgreSQLPgStatementsAgent"
+        }
+      }
+    },
+    "v1RTAMongoDBAgent": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique agent identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "MongoDB username for getting profiler data."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "rta_options": {
+          "$ref": "#/definitions/v1RTAOptions",
+          "description": "Real-Time Analytics options."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus",
+          "description": "Actual Agent status."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "description": "Log level for exporter."
+        }
+      },
+      "description": "RTAMongoDBAgent runs within pmm-agent and sends MongoDB Real-Time Query Analytics data to the PMM Server."
+    },
+    "v1RTAOptions": {
+      "type": "object",
+      "properties": {
+        "collect_interval": {
+          "type": "string",
+          "description": "Query collect interval (default 2s is set by server)."
+        }
+      },
+      "description": "RTAOptions holds Real-Time Query Analytics agent options."
+    },
+    "v1RegisterNodeRequest": {
+      "type": "object",
+      "properties": {
+        "node_type": {
+          "$ref": "#/definitions/v1NodeType",
+          "description": "Node type to be registered."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "A user-defined name unique across all Nodes."
+        },
+        "address": {
+          "type": "string",
+          "description": "Node address (DNS name or IP)."
+        },
+        "machine_id": {
+          "type": "string",
+          "description": "Linux machine-id."
+        },
+        "distro": {
+          "type": "string",
+          "description": "Linux distribution name and version."
+        },
+        "container_id": {
+          "type": "string",
+          "description": "Container identifier. If specified, must be a unique Docker container identifier."
+        },
+        "container_name": {
+          "type": "string",
+          "description": "Container name."
+        },
+        "node_model": {
+          "type": "string",
+          "description": "Node model."
+        },
+        "region": {
+          "type": "string",
+          "description": "Node region."
+        },
+        "az": {
+          "type": "string",
+          "description": "Node availability zone."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Node."
+        },
+        "reregister": {
+          "type": "boolean",
+          "description": "If true, and Node with that name already exist, it will be removed with all dependent Services and Agents."
+        },
+        "metrics_mode": {
+          "$ref": "#/definitions/v1MetricsMode",
+          "description": "Defines metrics flow model for node_exporter being added by this request.\nMetrics could be pushed to the server with vmagent,\npulled by the server, or the server could choose behavior automatically."
+        },
+        "disable_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of collector names to disable in this exporter."
+        },
+        "agent_password": {
+          "type": "string",
+          "description": "Custom password for exporter endpoint /metrics."
+        },
+        "expose_exporter": {
+          "type": "boolean",
+          "title": "Optionally expose the exporter process on all public interfaces"
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "AWS instance ID."
+        }
+      }
+    },
+    "v1RegisterNodeResponse": {
+      "type": "object",
+      "properties": {
+        "generic_node": {
+          "$ref": "#/definitions/v1GenericNode"
+        },
+        "container_node": {
+          "$ref": "#/definitions/v1ContainerNode"
+        },
+        "pmm_agent": {
+          "$ref": "#/definitions/v1PMMAgent"
+        },
+        "token": {
+          "type": "string",
+          "description": "Token represents token for vmagent auth config."
+        },
+        "warning": {
+          "type": "string",
+          "description": "Warning message."
+        }
+      }
+    },
+    "v1RemoteRDSNode": {
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Unique across all Nodes user-defined name."
+        },
+        "address": {
+          "type": "string",
+          "description": "DB instance identifier."
+        },
+        "node_model": {
+          "type": "string",
+          "description": "Node model."
+        },
+        "region": {
+          "type": "string",
+          "description": "Node region."
+        },
+        "az": {
+          "type": "string",
+          "description": "Node availability zone."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "AWS instance ID."
+        }
+      },
+      "description": "RemoteRDSNode represents remote RDS Node. Agents can't run on Remote RDS Nodes."
+    },
+    "v1RemoveServiceResponse": {
+      "type": "object"
+    },
+    "v1ServiceType": {
+      "type": "string",
+      "enum": [
+        "SERVICE_TYPE_UNSPECIFIED",
+        "SERVICE_TYPE_MYSQL_SERVICE",
+        "SERVICE_TYPE_MONGODB_SERVICE",
+        "SERVICE_TYPE_POSTGRESQL_SERVICE",
+        "SERVICE_TYPE_VALKEY_SERVICE",
+        "SERVICE_TYPE_PROXYSQL_SERVICE",
+        "SERVICE_TYPE_HAPROXY_SERVICE",
+        "SERVICE_TYPE_EXTERNAL_SERVICE"
+      ],
+      "default": "SERVICE_TYPE_UNSPECIFIED",
+      "description": "ServiceType describes supported Service types."
+    },
+    "v1UniversalAgent": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique agent identifier."
+        },
+        "is_agent_password_set": {
+          "type": "boolean",
+          "description": "True if the agent password is set."
+        },
+        "agent_type": {
+          "type": "string",
+          "description": "Agent type."
+        },
+        "aws_access_key": {
+          "type": "string",
+          "description": "AWS Access Key."
+        },
+        "is_aws_secret_key_set": {
+          "type": "boolean",
+          "description": "True if AWS Secret Key is set."
+        },
+        "azure_options": {
+          "$ref": "#/definitions/UniversalAgentAzureOptions",
+          "description": "Options used for connecting to Azure."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "disabled_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of disabled collector names."
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Listen port for scraping metrics."
+        },
+        "log_level": {
+          "$ref": "#/definitions/v1LogLevel",
+          "description": "Log level for exporter."
+        },
+        "max_query_length": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Limit query length in QAN."
+        },
+        "max_query_log_size": {
+          "type": "string",
+          "format": "int64",
+          "description": "Limit query log size in QAN."
+        },
+        "metrics_path": {
+          "type": "string",
+          "description": "Path under which metrics are exposed, used to generate URI."
+        },
+        "metrics_scheme": {
+          "type": "string",
+          "description": "Scheme to generate URI to exporter metrics endpoints."
+        },
+        "mongo_db_options": {
+          "$ref": "#/definitions/UniversalAgentMongoDBOptions",
+          "description": "TLS and other options for connecting to MongoDB."
+        },
+        "mysql_options": {
+          "$ref": "#/definitions/UniversalAgentMySQLOptions",
+          "description": "TLS and other options for connecting to MySQL."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "A unique node identifier."
+        },
+        "is_password_set": {
+          "type": "boolean",
+          "description": "True if password for connecting the agent to the database is set."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier."
+        },
+        "postgresql_options": {
+          "$ref": "#/definitions/UniversalAgentPostgreSQLOptions",
+          "description": "TLS options for connecting to PostgreSQL."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "description": "Path to exec process."
+        },
+        "push_metrics": {
+          "type": "boolean",
+          "description": "True if exporter uses push metrics mode."
+        },
+        "query_examples_disabled": {
+          "type": "boolean",
+          "description": "True if query examples are disabled."
+        },
+        "comments_parsing_disabled": {
+          "type": "boolean",
+          "description": "True if query comments parsing is disabled."
+        },
+        "rds_basic_metrics_disabled": {
+          "type": "boolean",
+          "description": "True if RDS basic metrics are disdabled."
+        },
+        "rds_enhanced_metrics_disabled": {
+          "type": "boolean",
+          "description": "True if RDS enhanced metrics are disdabled."
+        },
+        "runs_on_node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "status": {
+          "type": "string",
+          "description": "Actual Agent status."
+        },
+        "table_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Last known table count."
+        },
+        "table_count_tablestats_group_limit": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Tablestats group collectors are disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname validation."
+        },
+        "username": {
+          "type": "string",
+          "description": "HTTP basic auth username for collecting metrics."
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp."
+        },
+        "version": {
+          "type": "string",
+          "description": "Agent version."
+        },
+        "is_connected": {
+          "type": "boolean",
+          "description": "True if Agent is running and connected to pmm-managed."
+        },
+        "expose_exporter": {
+          "type": "boolean",
+          "description": "True if an exporter agent is exposed on all host addresses."
+        },
+        "valkey_options": {
+          "$ref": "#/definitions/UniversalAgentValkeyOptions",
+          "description": "Options for connecting to Valkey."
+        },
+        "rta_options": {
+          "$ref": "#/definitions/v1RTAOptions",
+          "description": "Real-Time Analytics options."
+        },
+        "connection_timeout": {
+          "type": "string",
+          "description": "Connection timeout for exporter (if set)."
+        }
+      }
+    },
+    "v1UniversalNode": {
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "description": "Unique Node identifier."
+        },
+        "node_type": {
+          "type": "string",
+          "description": "Node type."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "User-defined node name."
+        },
+        "machine_id": {
+          "type": "string",
+          "description": "Linux machine-id."
+        },
+        "distro": {
+          "type": "string",
+          "description": "Linux distribution name and version."
+        },
+        "node_model": {
+          "type": "string",
+          "description": "Node model."
+        },
+        "container_id": {
+          "type": "string",
+          "description": "A node's unique docker container identifier."
+        },
+        "container_name": {
+          "type": "string",
+          "description": "Container name."
+        },
+        "address": {
+          "type": "string",
+          "description": "Node address (DNS name or IP)."
+        },
+        "region": {
+          "type": "string",
+          "description": "Node region."
+        },
+        "az": {
+          "type": "string",
+          "description": "Node availability zone."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Node."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp."
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp."
+        },
+        "status": {
+          "$ref": "#/definitions/v1UniversalNodeStatus",
+          "description": "The health status of the node."
+        },
+        "agents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/UniversalNodeAgent"
+          },
+          "description": "List of agents related to this node."
+        },
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/UniversalNodeService"
+          },
+          "description": "List of services running on this node."
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "Instance ID for cloud providers (e.g. AWS RDS)."
+        },
+        "is_pmm_server_node": {
+          "type": "boolean",
+          "description": "True if this node is a PMM Server node (HA mode)."
+        }
+      }
+    },
+    "v1UniversalNodeStatus": {
+      "type": "string",
+      "enum": [
+        "STATUS_UNSPECIFIED",
+        "STATUS_UP",
+        "STATUS_DOWN",
+        "STATUS_UNKNOWN"
+      ],
+      "default": "STATUS_UNSPECIFIED",
+      "description": "Node status.\n\n - STATUS_UNSPECIFIED: Invalid status.\n - STATUS_UP: The node is up.\n - STATUS_DOWN: The node is down.\n - STATUS_UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet)."
+    },
+    "v1UniversalService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique service identifier."
+        },
+        "service_type": {
+          "type": "string",
+          "description": "Service type."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "User-defined name unique across all Services."
+        },
+        "database_name": {
+          "type": "string",
+          "description": "Database name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Node name where this instance runs."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels for Service."
+        },
+        "external_group": {
+          "type": "string",
+          "description": "External group name."
+        },
+        "address": {
+          "type": "string",
+          "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Access unix socket.\nAddress (and port) or socket is required."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp."
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp."
+        },
+        "agents": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1UniversalAgent"
+          },
+          "description": "List of agents related to this service."
+        },
+        "status": {
+          "$ref": "#/definitions/v1UniversalServiceStatus",
+          "description": "The health status of the service."
+        },
+        "version": {
+          "type": "string",
+          "description": "The service/database version."
+        }
+      }
+    },
+    "v1UniversalServiceStatus": {
+      "type": "string",
+      "enum": [
+        "STATUS_UNSPECIFIED",
+        "STATUS_UP",
+        "STATUS_DOWN",
+        "STATUS_UNKNOWN"
+      ],
+      "default": "STATUS_UNSPECIFIED",
+      "description": "Service status.\n\n - STATUS_UNSPECIFIED: In case we don't support the db vendor yet.\n - STATUS_UP: The service is up.\n - STATUS_DOWN: The service is down.\n - STATUS_UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet)."
+    },
+    "v1UnregisterNodeResponse": {
+      "type": "object",
+      "properties": {
+        "warning": {
+          "type": "string",
+          "description": "Warning message if there are more service tokens attached to service account."
+        }
+      }
+    },
+    "v1UpdateSeverity": {
+      "type": "string",
+      "enum": [
+        "UPDATE_SEVERITY_UNSPECIFIED",
+        "UPDATE_SEVERITY_UNSUPPORTED",
+        "UPDATE_SEVERITY_UP_TO_DATE",
+        "UPDATE_SEVERITY_REQUIRED",
+        "UPDATE_SEVERITY_CRITICAL"
+      ],
+      "default": "UPDATE_SEVERITY_UNSPECIFIED",
+      "description": " - UPDATE_SEVERITY_UNSUPPORTED: The client version is newer than the server version.\n - UPDATE_SEVERITY_UP_TO_DATE: The client version matches the server version.\n - UPDATE_SEVERITY_REQUIRED: The client's minor or patch version is older.\n - UPDATE_SEVERITY_CRITICAL: The client's major version is older."
+    },
+    "v1ValkeyExporter": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "pmm_agent_id": {
+          "type": "string",
+          "description": "The pmm-agent identifier which runs this instance."
+        },
+        "disabled": {
+          "type": "boolean",
+          "description": "Desired Agent status: enabled (false) or disabled (true)."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "Service identifier."
+        },
+        "username": {
+          "type": "string",
+          "description": "Valkey username for scraping metrics."
+        },
+        "tls": {
+          "type": "boolean",
+          "description": "Use TLS for database connections."
+        },
+        "tls_skip_verify": {
+          "type": "boolean",
+          "description": "Skip TLS certificate and hostname verification."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "push_metrics_enabled": {
+          "type": "boolean",
+          "description": "True if exporter uses push metrics mode."
+        },
+        "disabled_collectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of disabled collector names."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus",
+          "description": "Actual Agent status."
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Listen port for scraping metrics."
+        },
+        "process_exec_path": {
+          "type": "string",
+          "description": "Path to exec process."
+        },
+        "expose_exporter": {
+          "type": "boolean",
+          "title": "Optionally expose the exporter process on all public interfaces"
+        },
+        "metrics_resolutions": {
+          "$ref": "#/definitions/commonMetricsResolutions",
+          "description": "Metrics resolution for this agent."
+        },
+        "connection_timeout": {
+          "type": "string",
+          "description": "Connection timeout for exporter (if set)."
+        }
+      },
+      "description": "ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics."
+    },
+    "v1ValkeyService": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "Unique randomly generated instance identifier."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Unique across all Services user-defined name."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "Node identifier where this instance runs."
+        },
+        "address": {
+          "type": "string",
+          "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required."
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Access port.\nPort is required when the address present."
+        },
+        "socket": {
+          "type": "string",
+          "description": "Access unix socket.\nAddress (and port) or socket is required."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment name."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster name."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set name."
+        },
+        "custom_labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Custom user-assigned labels."
+        },
+        "version": {
+          "type": "string",
+          "description": "Valkey version."
+        }
+      },
+      "description": "ValkeyService represents a generic Valkey instance."
+    },
+    "v1ValkeyServiceResult": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "$ref": "#/definitions/v1ValkeyService"
+        },
+        "valkey_exporter": {
+          "$ref": "#/definitions/v1ValkeyExporter"
+        }
+      }
+    }
+  }
+}

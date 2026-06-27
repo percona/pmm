@@ -3,6 +3,7 @@ syntax = "proto3";
 package advisors.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 import "management/v1/severity.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
@@ -20,6 +21,17 @@ enum AdvisorCheckFamily {
   ADVISOR_CHECK_FAMILY_MYSQL = 1;
   ADVISOR_CHECK_FAMILY_POSTGRESQL = 2;
   ADVISOR_CHECK_FAMILY_MONGODB = 3;
+}
+
+// AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.
+enum AdvisorCheckResultStatus {
+  ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED = 0;
+  // The check ran and found no issue.
+  ADVISOR_CHECK_RESULT_STATUS_OK = 1;
+  // The check ran and detected an issue.
+  ADVISOR_CHECK_RESULT_STATUS_FAILED = 2;
+  // The check could not be executed.
+  ADVISOR_CHECK_RESULT_STATUS_ERROR = 3;
 }
 
 // AdvisorCheckResult represents the check result returned from pmm-managed after running the check.
@@ -163,6 +175,82 @@ message GetFailedChecksResponse {
   repeated CheckResult results = 3;
 }
 
+// CheckResultHistoryItem represents a single persisted Advisor check run against a service.
+message CheckResultHistoryItem {
+  // Unique identifier of the history record.
+  string id = 1;
+  // Name of the check that ran.
+  string check_name = 2;
+  // Name of the advisor the check belongs to.
+  string advisor_name = 3;
+  // Category of the advisor the check belongs to.
+  string category = 4;
+  // Check execution interval.
+  AdvisorCheckInterval interval = 5;
+  // ID of the monitored service on which the check ran.
+  string service_id = 6;
+  // Name of the monitored service on which the check ran.
+  string service_name = 7;
+  // Type of the monitored service on which the check ran.
+  string service_type = 8;
+  // ID of the node the service runs on.
+  string node_id = 9;
+  // Name of the node the service runs on.
+  string node_name = 10;
+  // Outcome of the check run.
+  AdvisorCheckResultStatus status = 11;
+  // Short human-readable summary of the result.
+  string summary = 12;
+  // Long human-readable description of the result.
+  string description = 13;
+  // URL containing information on how to resolve a detected issue.
+  string read_more_url = 14;
+  // Severity of the result.
+  management.v1.Severity severity = 15;
+  // Result labels.
+  map<string, string> labels = 16;
+  // Time when the check ran.
+  google.protobuf.Timestamp checked_at = 17;
+  // Whether the result has been marked as read.
+  bool is_read = 18;
+}
+
+message ListCheckResultsHistoryRequest {
+  // Maximum number of results per page.
+  optional int32 page_size = 1 [(validate.rules).int32.gte = 1];
+  // Index of the requested page, starts from 0.
+  optional int32 page_index = 2 [(validate.rules).int32.gte = 0];
+  // Filter by service ID.
+  string service_id = 3;
+  // Filter by outcome.
+  optional AdvisorCheckResultStatus status = 4;
+  // Filter by read state.
+  optional bool is_read = 5;
+  // Return only results recorded at or after this time.
+  google.protobuf.Timestamp from = 6;
+  // Return only results recorded at or before this time.
+  google.protobuf.Timestamp to = 7;
+  // Filter by service name (partial, case-insensitive match).
+  string service_name = 8;
+  // Filter by node name (partial, case-insensitive match).
+  string node_name = 9;
+  // Filter by advisor category.
+  string category = 10;
+  // Filter by check name.
+  string check_name = 11;
+  // Filter by severity.
+  optional management.v1.Severity severity = 12;
+}
+
+message ListCheckResultsHistoryResponse {
+  // Total number of results.
+  int32 total_items = 1;
+  // Total number of pages.
+  int32 total_pages = 2;
+  // History records.
+  repeated CheckResultHistoryItem results = 3;
+}
+
 // AdvisorService service provides public Management API methods for Advisor Service.
 service AdvisorService {
   // ListFailedServices returns a list of services with failed checks.
@@ -179,6 +267,14 @@ service AdvisorService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Failed Advisor Checks"
       description: "Returns the latest check results for a given service."
+    };
+  }
+  // ListCheckResultsHistory returns the history of Advisor check runs.
+  rpc ListCheckResultsHistory(ListCheckResultsHistoryRequest) returns (ListCheckResultsHistoryResponse) {
+    option (google.api.http) = {get: "/v1/advisors/checks/history"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Advisor Check Results History"
+      description: "Returns the history of Advisor check runs, including their outcomes."
     };
   }
   // StartAdvisorChecks executes Advisor checks and returns when all checks are executed.

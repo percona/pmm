@@ -140,7 +140,6 @@ var (
 		(*QueryData)(nil),       // 2: realtimeanalytics.v1.QueryData
 	}
 )
-
 var file_realtimeanalytics_v1_collector_proto_depIdxs = []int32{
 	2, // 0: realtimeanalytics.v1.CollectRequest.queries:type_name -> realtimeanalytics.v1.QueryData
 	0, // 1: realtimeanalytics.v1.CollectorService.Collect:input_type -> realtimeanalytics.v1.CollectRequest

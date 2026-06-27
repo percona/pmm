@@ -287,7 +287,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			case validators.MinDurationError:
 				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return fmt.Errorf("%s: unknown error: %w", v.fieldName, err)
+				return fmt.Errorf("%s: %w", v.fieldName, err)
 			}
 		}
 	}
@@ -313,7 +313,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			case validators.MinDurationError:
 				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return fmt.Errorf("%s: unknown error: %w", v.fieldName, err)
+				return fmt.Errorf("%s: %w", v.fieldName, err)
 			}
 		}
 	}
@@ -327,7 +327,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			case validators.MinDurationError:
 				return errors.New("data_retention: minimal resolution is 24h")
 			default:
-				return fmt.Errorf("data_retention: unknown error: %w", err)
+				return fmt.Errorf("data_retention: %w", err)
 			}
 		}
 	}

@@ -26,9 +26,11 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
@@ -172,6 +174,94 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.
 		Results:    failedChecks[from:to],
 		TotalItems: totalItems,
 		TotalPages: totalPages,
+	}, nil
+}
+
+// ListCheckResultsHistory returns the paginated history of Advisor check runs matching the filters.
+func (s *ChecksAPIService) ListCheckResultsHistory(
+	ctx context.Context,
+	req *advisorsv1.ListCheckResultsHistoryRequest,
+) (*advisorsv1.ListCheckResultsHistoryResponse, error) {
+	var pageIndex, pageSize int
+	if req.PageIndex != nil {
+		pageIndex = int(pointer.GetInt32(req.PageIndex))
+	}
+	if req.PageSize != nil {
+		pageSize = int(pointer.GetInt32(req.PageSize))
+	}
+
+	filters := models.CheckResultFilters{
+		ServiceID:   req.ServiceId,
+		ServiceName: req.ServiceName,
+		NodeName:    req.NodeName,
+		Category:    req.Category,
+		CheckName:   req.CheckName,
+		IsRead:      req.IsRead,
+	}
+	if req.Status != nil {
+		if st := convertAPIResultStatus(*req.Status); st != "" {
+			filters.Status = &st
+		}
+	}
+	if req.Severity != nil {
+		severity := int(*req.Severity)
+		filters.Severity = &severity
+	}
+	if req.From != nil {
+		from := req.From.AsTime()
+		filters.From = &from
+	}
+	if req.To != nil {
+		to := req.To.AsTime()
+		filters.To = &to
+	}
+
+	results, totalItems, err := s.checksService.GetCheckResultsHistory(ctx, filters, pageIndex, pageSize)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get check results history: %w", err)
+	}
+
+	items := make([]*advisorsv1.CheckResultHistoryItem, 0, len(results))
+	for _, r := range results {
+		labels, err := r.GetLabels()
+		if err != nil {
+			return nil, fmt.Errorf("failed to decode labels for check result '%s': %w", r.ID, err)
+		}
+
+		items = append(items, &advisorsv1.CheckResultHistoryItem{
+			Id:          r.ID,
+			CheckName:   r.CheckName,
+			AdvisorName: r.AdvisorName,
+			Category:    r.Category,
+			Interval:    convertModelInterval(r.Interval),
+			ServiceId:   r.ServiceID,
+			ServiceName: r.ServiceName,
+			ServiceType: string(r.ServiceType),
+			NodeId:      r.NodeID,
+			NodeName:    r.NodeName,
+			Status:      convertModelResultStatus(r.Status),
+			Summary:     r.Summary,
+			Description: r.Description,
+			ReadMoreUrl: r.ReadMoreURL,
+			Severity:    managementv1.Severity(r.Severity), //nolint:gosec
+			Labels:      labels,
+			CheckedAt:   timestamppb.New(r.CheckedAt),
+			IsRead:      r.IsRead,
+		})
+	}
+
+	totalPages := 1
+	if pageSize > 0 {
+		totalPages = totalItems / pageSize
+		if totalItems%pageSize > 0 {
+			totalPages++
+		}
+	}
+
+	return &advisorsv1.ListCheckResultsHistoryResponse{
+		Results:    items,
+		TotalItems: int32(totalItems), //nolint:gosec // result count comfortably fits int32
+		TotalPages: int32(totalPages),
 	}, nil
 }
 
@@ -352,6 +442,49 @@ func convertInterval(interval check.Interval) advisorsv1.AdvisorCheckInterval {
 		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE
 	default:
 		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED
+	}
+}
+
+// convertModelInterval converts models.Interval type to advisorsv1.AdvisorCheckInterval.
+func convertModelInterval(interval models.Interval) advisorsv1.AdvisorCheckInterval {
+	switch interval {
+	case models.Standard, "": // empty interval means standard
+		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD
+	case models.Frequent:
+		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT
+	case models.Rare:
+		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE
+	default:
+		return advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED
+	}
+}
+
+// convertModelResultStatus converts models.CheckResultStatus to advisorsv1.AdvisorCheckResultStatus.
+func convertModelResultStatus(status models.CheckResultStatus) advisorsv1.AdvisorCheckResultStatus {
+	switch status {
+	case models.CheckResultOK:
+		return advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_OK
+	case models.CheckResultFailed:
+		return advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_FAILED
+	case models.CheckResultError:
+		return advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_ERROR
+	default:
+		return advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED
+	}
+}
+
+// convertAPIResultStatus converts advisorsv1.AdvisorCheckResultStatus to models.CheckResultStatus.
+// An empty value is returned for an unspecified status, meaning "no filter".
+func convertAPIResultStatus(status advisorsv1.AdvisorCheckResultStatus) models.CheckResultStatus {
+	switch status {
+	case advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_OK:
+		return models.CheckResultOK
+	case advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_FAILED:
+		return models.CheckResultFailed
+	case advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_ERROR:
+		return models.CheckResultError
+	default:
+		return ""
 	}
 }
 

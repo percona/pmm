@@ -54,7 +54,7 @@ type CheckResult struct {
 	Summary     string            `reform:"summary"`
 	Description string            `reform:"description"`
 	ReadMoreURL string            `reform:"read_more_url"`
-	Severity    int32             `reform:"severity"`
+	Severity    int               `reform:"severity"`
 	Labels      []byte            `reform:"labels"`
 	CheckedAt   time.Time         `reform:"checked_at"`
 	IsRead      bool              `reform:"is_read"`

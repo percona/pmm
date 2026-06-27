@@ -2199,3 +2199,521 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetFailedChecksResponseValidationError{}
+
+// Validate checks the field values on CheckResultHistoryItem with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CheckResultHistoryItem) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CheckResultHistoryItem with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CheckResultHistoryItemMultiError, or nil if none found.
+func (m *CheckResultHistoryItem) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CheckResultHistoryItem) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for CheckName
+
+	// no validation rules for AdvisorName
+
+	// no validation rules for Category
+
+	// no validation rules for Interval
+
+	// no validation rules for ServiceId
+
+	// no validation rules for ServiceName
+
+	// no validation rules for ServiceType
+
+	// no validation rules for NodeId
+
+	// no validation rules for NodeName
+
+	// no validation rules for Status
+
+	// no validation rules for Summary
+
+	// no validation rules for Description
+
+	// no validation rules for ReadMoreUrl
+
+	// no validation rules for Severity
+
+	// no validation rules for Labels
+
+	if all {
+		switch v := interface{}(m.GetCheckedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, CheckResultHistoryItemValidationError{
+					field:  "CheckedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, CheckResultHistoryItemValidationError{
+					field:  "CheckedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCheckedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return CheckResultHistoryItemValidationError{
+				field:  "CheckedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for IsRead
+
+	if len(errors) > 0 {
+		return CheckResultHistoryItemMultiError(errors)
+	}
+
+	return nil
+}
+
+// CheckResultHistoryItemMultiError is an error wrapping multiple validation
+// errors returned by CheckResultHistoryItem.ValidateAll() if the designated
+// constraints aren't met.
+type CheckResultHistoryItemMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CheckResultHistoryItemMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CheckResultHistoryItemMultiError) AllErrors() []error { return m }
+
+// CheckResultHistoryItemValidationError is the validation error returned by
+// CheckResultHistoryItem.Validate if the designated constraints aren't met.
+type CheckResultHistoryItemValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CheckResultHistoryItemValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CheckResultHistoryItemValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CheckResultHistoryItemValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CheckResultHistoryItemValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CheckResultHistoryItemValidationError) ErrorName() string {
+	return "CheckResultHistoryItemValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CheckResultHistoryItemValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCheckResultHistoryItem.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = CheckResultHistoryItemValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CheckResultHistoryItemValidationError{}
+
+// Validate checks the field values on ListCheckResultsHistoryRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListCheckResultsHistoryRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListCheckResultsHistoryRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ListCheckResultsHistoryRequestMultiError, or nil if none found.
+func (m *ListCheckResultsHistoryRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListCheckResultsHistoryRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ServiceId
+
+	if all {
+		switch v := interface{}(m.GetFrom()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ListCheckResultsHistoryRequestValidationError{
+					field:  "From",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ListCheckResultsHistoryRequestValidationError{
+					field:  "From",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListCheckResultsHistoryRequestValidationError{
+				field:  "From",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetTo()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ListCheckResultsHistoryRequestValidationError{
+					field:  "To",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ListCheckResultsHistoryRequestValidationError{
+					field:  "To",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ListCheckResultsHistoryRequestValidationError{
+				field:  "To",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for ServiceName
+
+	// no validation rules for NodeName
+
+	// no validation rules for Category
+
+	// no validation rules for CheckName
+
+	if m.PageSize != nil {
+		if m.GetPageSize() < 1 {
+			err := ListCheckResultsHistoryRequestValidationError{
+				field:  "PageSize",
+				reason: "value must be greater than or equal to 1",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
+	if m.PageIndex != nil {
+		if m.GetPageIndex() < 0 {
+			err := ListCheckResultsHistoryRequestValidationError{
+				field:  "PageIndex",
+				reason: "value must be greater than or equal to 0",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
+	if m.Status != nil {
+		// no validation rules for Status
+	}
+
+	if m.IsRead != nil {
+		// no validation rules for IsRead
+	}
+
+	if m.Severity != nil {
+		// no validation rules for Severity
+	}
+
+	if len(errors) > 0 {
+		return ListCheckResultsHistoryRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListCheckResultsHistoryRequestMultiError is an error wrapping multiple
+// validation errors returned by ListCheckResultsHistoryRequest.ValidateAll()
+// if the designated constraints aren't met.
+type ListCheckResultsHistoryRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListCheckResultsHistoryRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListCheckResultsHistoryRequestMultiError) AllErrors() []error { return m }
+
+// ListCheckResultsHistoryRequestValidationError is the validation error
+// returned by ListCheckResultsHistoryRequest.Validate if the designated
+// constraints aren't met.
+type ListCheckResultsHistoryRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListCheckResultsHistoryRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListCheckResultsHistoryRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListCheckResultsHistoryRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListCheckResultsHistoryRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListCheckResultsHistoryRequestValidationError) ErrorName() string {
+	return "ListCheckResultsHistoryRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListCheckResultsHistoryRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListCheckResultsHistoryRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ListCheckResultsHistoryRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListCheckResultsHistoryRequestValidationError{}
+
+// Validate checks the field values on ListCheckResultsHistoryResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListCheckResultsHistoryResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListCheckResultsHistoryResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ListCheckResultsHistoryResponseMultiError, or nil if none found.
+func (m *ListCheckResultsHistoryResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListCheckResultsHistoryResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for TotalItems
+
+	// no validation rules for TotalPages
+
+	for idx, item := range m.GetResults() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListCheckResultsHistoryResponseValidationError{
+						field:  fmt.Sprintf("Results[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListCheckResultsHistoryResponseValidationError{
+						field:  fmt.Sprintf("Results[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListCheckResultsHistoryResponseValidationError{
+					field:  fmt.Sprintf("Results[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ListCheckResultsHistoryResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListCheckResultsHistoryResponseMultiError is an error wrapping multiple
+// validation errors returned by ListCheckResultsHistoryResponse.ValidateAll()
+// if the designated constraints aren't met.
+type ListCheckResultsHistoryResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListCheckResultsHistoryResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListCheckResultsHistoryResponseMultiError) AllErrors() []error { return m }
+
+// ListCheckResultsHistoryResponseValidationError is the validation error
+// returned by ListCheckResultsHistoryResponse.Validate if the designated
+// constraints aren't met.
+type ListCheckResultsHistoryResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListCheckResultsHistoryResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListCheckResultsHistoryResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListCheckResultsHistoryResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListCheckResultsHistoryResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListCheckResultsHistoryResponseValidationError) ErrorName() string {
+	return "ListCheckResultsHistoryResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListCheckResultsHistoryResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListCheckResultsHistoryResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ListCheckResultsHistoryResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListCheckResultsHistoryResponseValidationError{}

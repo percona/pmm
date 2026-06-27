@@ -59,6 +59,8 @@ type ClientService interface {
 
 	ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) (*ListAdvisorsOK, error)
 
+	ListCheckResultsHistory(params *ListCheckResultsHistoryParams, opts ...ClientOption) (*ListCheckResultsHistoryOK, error)
+
 	ListFailedServices(params *ListFailedServicesParams, opts ...ClientOption) (*ListFailedServicesOK, error)
 
 	StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...ClientOption) (*StartAdvisorChecksOK, error)
@@ -238,6 +240,50 @@ func (a *Client) ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) 
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListAdvisorsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListCheckResultsHistory lists advisor check results history
+
+Returns the history of Advisor check runs, including their outcomes.
+*/
+func (a *Client) ListCheckResultsHistory(params *ListCheckResultsHistoryParams, opts ...ClientOption) (*ListCheckResultsHistoryOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListCheckResultsHistoryParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListCheckResultsHistory",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors/checks/history",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListCheckResultsHistoryReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListCheckResultsHistoryOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListCheckResultsHistoryDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

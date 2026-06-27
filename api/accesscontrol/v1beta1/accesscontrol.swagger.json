@@ -1,0 +1,410 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "accesscontrol/v1beta1/accesscontrol.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "AccessControlService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/accesscontrol/roles": {
+      "get": {
+        "summary": "List Roles",
+        "description": "Lists all roles.",
+        "operationId": "ListRoles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1ListRolesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AccessControlService"
+        ]
+      },
+      "post": {
+        "summary": "Create a Role",
+        "description": "Creates a new role.",
+        "operationId": "CreateRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1CreateRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1CreateRoleRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AccessControlService"
+        ]
+      }
+    },
+    "/v1/accesscontrol/roles/{role_id}": {
+      "get": {
+        "summary": "Get a Role",
+        "description": "Retrieves a role by ID.",
+        "operationId": "GetRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1GetRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "AccessControlService"
+        ]
+      },
+      "delete": {
+        "summary": "Delete a Role",
+        "description": "Deletes a role.",
+        "operationId": "DeleteRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1DeleteRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "replacement_role_id",
+            "description": "Role ID to be used as a replacement for the role. Additional logic applies.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "AccessControlService"
+        ]
+      },
+      "put": {
+        "summary": "Update a Role",
+        "description": "Updates an existing role.",
+        "operationId": "UpdateRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1UpdateRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "role_id",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AccessControlServiceUpdateRoleBody"
+            }
+          }
+        ],
+        "tags": [
+          "AccessControlService"
+        ]
+      }
+    },
+    "/v1/accesscontrol/roles:assign": {
+      "post": {
+        "summary": "Assign Roles to a User",
+        "description": "Replaces all existing roles for a user.",
+        "operationId": "AssignRoles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1AssignRolesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1AssignRolesRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AccessControlService"
+        ]
+      }
+    },
+    "/v1/accesscontrol/roles:setDefault": {
+      "post": {
+        "summary": "Set a Default Role",
+        "description": "Configures a default role assigned to users.",
+        "operationId": "SetDefaultRole",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1beta1SetDefaultRoleResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1beta1SetDefaultRoleRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AccessControlService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "AccessControlServiceUpdateRoleBody": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "filter": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "description": {
+          "type": "string",
+          "x-nullable": true
+        }
+      }
+    },
+    "ListRolesResponseRoleData": {
+      "type": "object",
+      "properties": {
+        "role_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "title": {
+          "type": "string"
+        },
+        "filter": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1beta1AssignRolesRequest": {
+      "type": "object",
+      "properties": {
+        "role_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "user_id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v1beta1AssignRolesResponse": {
+      "type": "object"
+    },
+    "v1beta1CreateRoleRequest": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "filter": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "v1beta1CreateRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role_id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v1beta1DeleteRoleResponse": {
+      "type": "object"
+    },
+    "v1beta1GetRoleResponse": {
+      "type": "object",
+      "properties": {
+        "role_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "title": {
+          "type": "string"
+        },
+        "filter": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "v1beta1ListRolesResponse": {
+      "type": "object",
+      "properties": {
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/ListRolesResponseRoleData"
+          }
+        }
+      }
+    },
+    "v1beta1SetDefaultRoleRequest": {
+      "type": "object",
+      "properties": {
+        "role_id": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v1beta1SetDefaultRoleResponse": {
+      "type": "object"
+    },
+    "v1beta1UpdateRoleResponse": {
+      "type": "object"
+    }
+  }
+}

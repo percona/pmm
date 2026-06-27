@@ -247,6 +247,22 @@ func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]servi
 	return s.alertsRegistry.getCheckResults(serviceID), nil
 }
 
+// GetCheckResultsHistory returns Advisor check results history matching the filters,
+// together with the total number of matching rows (ignoring pagination).
+func (s *Service) GetCheckResultsHistory(_ context.Context, filters models.CheckResultFilters, pageIndex, pageSize int) ([]*models.CheckResult, int, error) {
+	results, err := models.FindCheckResults(s.db.Querier, filters, pageIndex, pageSize)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	total, err := models.CountCheckResults(s.db.Querier, filters)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return results, total, nil
+}
+
 // runChecksGroup downloads and executes Advisors checks that should run in the interval specified by intervalGroup.
 // All checks are executed if intervalGroup is empty.
 func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interval) error {
@@ -666,6 +682,10 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 
 func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType models.ServiceType, checks map[string]check.Check) []services.CheckResult {
 	var res []services.CheckResult
+	var history []*models.CheckResult
+	categories := s.advisorCategories()
+	checkedAt := models.Now()
+
 	for _, c := range checks {
 		s.l.Infof("Executing check: %s with interval: %s", c.Name, c.Interval)
 		pmmAgentVersion := s.minPMMAgentVersion(c)
@@ -676,21 +696,99 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 			continue
 		}
 
+		category := categories[c.Advisor]
+
 		for _, target := range targets {
 			results, err := s.executeCheck(ctx, target, c)
 			if err != nil {
 				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
 				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "error").Inc()
+				history = append(history, newCheckResultRecord(c, target, category, models.CheckResultError, check.Result{Description: err.Error()}, checkedAt))
 				continue
 			}
 
 			res = append(res, results...)
 
 			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "ok").Inc()
+
+			if len(results) == 0 {
+				history = append(history, newCheckResultRecord(c, target, category, models.CheckResultOK, check.Result{}, checkedAt))
+				continue
+			}
+
+			for _, finding := range results {
+				history = append(history, newCheckResultRecord(c, target, category, models.CheckResultFailed, finding.Result, checkedAt))
+			}
 		}
 	}
 
+	err := s.saveCheckResultsHistory(ctx, history)
+	if err != nil {
+		s.l.Warnf("Failed to save Advisor check results history: %+v", err)
+	}
+
 	return res
+}
+
+// advisorCategories returns a map of advisor name to its category.
+func (s *Service) advisorCategories() map[string]string {
+	s.am.Lock()
+	defer s.am.Unlock()
+
+	categories := make(map[string]string, len(s.advisors))
+	for _, a := range s.advisors {
+		categories[a.Name] = a.Category
+	}
+	return categories
+}
+
+// newCheckResultRecord builds a history record for a single executed (check, target) outcome.
+func newCheckResultRecord(
+	c check.Check,
+	target services.Target,
+	category string,
+	status models.CheckResultStatus,
+	result check.Result,
+	checkedAt time.Time,
+) *models.CheckResult {
+	r := &models.CheckResult{
+		CheckName:   c.Name,
+		AdvisorName: c.Advisor,
+		Category:    category,
+		Interval:    models.Interval(c.Interval),
+		ServiceID:   target.ServiceID,
+		ServiceName: target.ServiceName,
+		ServiceType: target.ServiceType,
+		NodeID:      target.NodeID,
+		NodeName:    target.NodeName,
+		Status:      status,
+		Summary:     result.Summary,
+		Description: result.Description,
+		ReadMoreURL: result.ReadMoreURL,
+		Severity:    int(result.Severity),
+		CheckedAt:   checkedAt,
+	}
+	if len(result.Labels) != 0 {
+		_ = r.SetLabels(result.Labels)
+	}
+	return r
+}
+
+// saveCheckResultsHistory persists Advisor check results history in a single transaction.
+func (s *Service) saveCheckResultsHistory(ctx context.Context, history []*models.CheckResult) error {
+	if len(history) == 0 {
+		return nil
+	}
+
+	return s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		for _, r := range history {
+			err := models.CreateCheckResult(tx.Querier, r)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }
 
 func (s *Service) executeCheck(ctx context.Context, target services.Target, c check.Check) ([]services.CheckResult, error) {

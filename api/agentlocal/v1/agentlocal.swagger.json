@@ -1,0 +1,295 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "agentlocal/v1/agentlocal.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "AgentLocalService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/local/Reload": {
+      "post": {
+        "summary": "Reload reloads pmm-agent configuration.",
+        "operationId": "Reload",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ReloadResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ReloadRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AgentLocalService"
+        ]
+      }
+    },
+    "/local/Status": {
+      "get": {
+        "summary": "Status returns current pmm-agent status.",
+        "operationId": "Status2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1StatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "get_network_info",
+            "description": "Returns network info (latency and clock_drift) if true.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "AgentLocalService"
+        ]
+      },
+      "post": {
+        "summary": "Status returns current pmm-agent status.",
+        "operationId": "Status",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1StatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/googleRpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1StatusRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AgentLocalService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "googleRpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "v1AgentInfo": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string"
+        },
+        "agent_type": {
+          "$ref": "#/definitions/v1AgentType"
+        },
+        "status": {
+          "$ref": "#/definitions/v1AgentStatus"
+        },
+        "listen_port": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The current listen port of this Agent (exporter or vmagent).\nZero for other Agent types, or if unknown or not yet supported."
+        },
+        "process_exec_path": {
+          "type": "string"
+        }
+      },
+      "description": "AgentInfo contains information about Agent managed by pmm-agent."
+    },
+    "v1AgentStatus": {
+      "type": "string",
+      "enum": [
+        "AGENT_STATUS_UNSPECIFIED",
+        "AGENT_STATUS_STARTING",
+        "AGENT_STATUS_INITIALIZATION_ERROR",
+        "AGENT_STATUS_RUNNING",
+        "AGENT_STATUS_WAITING",
+        "AGENT_STATUS_STOPPING",
+        "AGENT_STATUS_DONE",
+        "AGENT_STATUS_UNKNOWN"
+      ],
+      "default": "AGENT_STATUS_UNSPECIFIED",
+      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state."
+    },
+    "v1AgentType": {
+      "type": "string",
+      "enum": [
+        "AGENT_TYPE_UNSPECIFIED",
+        "AGENT_TYPE_PMM_AGENT",
+        "AGENT_TYPE_VM_AGENT",
+        "AGENT_TYPE_NODE_EXPORTER",
+        "AGENT_TYPE_MYSQLD_EXPORTER",
+        "AGENT_TYPE_MONGODB_EXPORTER",
+        "AGENT_TYPE_POSTGRES_EXPORTER",
+        "AGENT_TYPE_PROXYSQL_EXPORTER",
+        "AGENT_TYPE_VALKEY_EXPORTER",
+        "AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT",
+        "AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT",
+        "AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT",
+        "AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT",
+        "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
+        "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
+        "AGENT_TYPE_EXTERNAL_EXPORTER",
+        "AGENT_TYPE_RDS_EXPORTER",
+        "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
+        "AGENT_TYPE_NOMAD_AGENT",
+        "AGENT_TYPE_RTA_MONGODB_AGENT"
+      ],
+      "default": "AGENT_TYPE_UNSPECIFIED",
+      "description": "AgentType describes supported Agent types."
+    },
+    "v1ReloadRequest": {
+      "type": "object"
+    },
+    "v1ReloadResponse": {
+      "type": "object",
+      "description": "ReloadRequest may not be received by the client due to pmm-agent restart."
+    },
+    "v1ServerInfo": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "PMM Server URL in a form https://HOST:PORT/."
+        },
+        "insecure_tls": {
+          "type": "boolean",
+          "description": "PMM Server's TLS certificate validation should be skipped if true."
+        },
+        "connected": {
+          "type": "boolean",
+          "description": "True if pmm-agent is currently connected to the server."
+        },
+        "version": {
+          "type": "string",
+          "description": "PMM Server version (if agent is connected)."
+        },
+        "latency": {
+          "type": "string",
+          "description": "Ping time from pmm-agent to pmm-managed (if agent is connected)."
+        },
+        "clock_drift": {
+          "type": "string",
+          "description": "Clock drift from PMM Server (if agent is connected)."
+        }
+      },
+      "description": "ServerInfo contains information about the PMM Server."
+    },
+    "v1StatusRequest": {
+      "type": "object",
+      "properties": {
+        "get_network_info": {
+          "type": "boolean",
+          "description": "Returns network info (latency and clock_drift) if true."
+        }
+      }
+    },
+    "v1StatusResponse": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string"
+        },
+        "runs_on_node_id": {
+          "type": "string",
+          "title": "TODO: rename to node_id"
+        },
+        "node_name": {
+          "type": "string"
+        },
+        "server_info": {
+          "$ref": "#/definitions/v1ServerInfo"
+        },
+        "agents_info": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AgentInfo"
+          }
+        },
+        "config_filepath": {
+          "type": "string",
+          "description": "Config file path if pmm-agent was started with one."
+        },
+        "agent_version": {
+          "type": "string",
+          "description": "PMM Agent version."
+        },
+        "connection_uptime": {
+          "type": "number",
+          "format": "float",
+          "title": "Shows connection uptime in percentage between agent and server"
+        }
+      }
+    }
+  }
+}
