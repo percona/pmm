@@ -1363,9 +1363,9 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 	}
 
 	for _, service := range monitoredServices {
-		// skip pmm own services
-		if service.NodeID == models.PMMServerNodeID {
-			s.l.Debugf("Skip PMM service, name: %s, type: %s.", service.ServiceName, service.ServiceType)
+		// skip PMM Server's internal PostgreSQL database, but allow other services on the PMM Server node
+		if service.ServiceName == models.PMMServerPostgreSQLServiceName {
+			s.l.Debugf("Skip PMM Server's internal PostgreSQL service, name: %s, type: %s.", service.ServiceName, service.ServiceType)
 			continue
 		}
 
@@ -1404,6 +1404,7 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 				ServiceID:     service.ServiceID,
 				ServiceName:   service.ServiceName,
 				ServiceType:   service.ServiceType,
+				NodeID:        node.NodeID,
 				NodeName:      node.NodeName,
 				Labels:        labels,
 				DSN:           DSN,
