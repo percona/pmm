@@ -38,13 +38,15 @@ func TestEnvVarValidator(t *testing.T) {
 			"PMM_METRICS_RESOLUTION_MR=5s",
 			"PMM_METRICS_RESOLUTION_LR=1h",
 			"PMM_DATA_RETENTION=72h",
+			"PMM_ADVISOR_HISTORY_RETENTION=48h",
 			"PMM_UPDATE_SNOOZE_DURATION=1h",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{
-			DataRetention:   72 * time.Hour,
-			EnableTelemetry: new(true),
-			EnableUpdates:   new(false),
-			EnableAdvisors:  nil,
+			DataRetention:           72 * time.Hour,
+			AdvisorHistoryRetention: 48 * time.Hour,
+			EnableTelemetry:         new(true),
+			EnableUpdates:           new(false),
+			EnableAdvisors:          nil,
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Minute,
 				MR: 5 * time.Second,

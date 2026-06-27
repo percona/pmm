@@ -17,6 +17,7 @@ Fine-tune data retention and collection intervals to balance monitoring detail w
 | Variable | Default | Description | Example |
 |----------|---------|-------------|----------|
 | `PMM_DATA_RETENTION` | `30d` | Duration to retain metrics data (must be in multiples of 24h) | `720h` (30 days) |
+| `PMM_ADVISOR_HISTORY_RETENTION` | `30d` | Duration to retain Advisor check results history (must be in multiples of 24h) | `720h` (30 days) |
 | `PMM_METRICS_RESOLUTION` | `1s` | Base metrics collection interval | `5s` |
 | `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval | `10s` |
 | `PMM_METRICS_RESOLUTION_MR` | `10s` | Medium-resolution metrics interval | `30s` |

@@ -77,6 +77,8 @@ type Settings struct {
 
 	DataRetention time.Duration `json:"data_retention"`
 
+	AdvisorHistoryRetention time.Duration `json:"advisor_history_retention"`
+
 	AWSPartitions []string `json:"aws_partitions"`
 
 	AWSInstanceChecked bool `json:"aws_instance_checked"`
@@ -215,6 +217,10 @@ func (s *Settings) fillDefaults() {
 
 	if s.DataRetention == 0 {
 		s.DataRetention = 30 * 24 * time.Hour //nolint:mnd
+	}
+
+	if s.AdvisorHistoryRetention == 0 {
+		s.AdvisorHistoryRetention = 30 * 24 * time.Hour //nolint:mnd
 	}
 
 	if len(s.AWSPartitions) == 0 {

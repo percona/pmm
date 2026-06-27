@@ -60,6 +60,8 @@ type ChangeSettingsParams struct {
 
 	DataRetention time.Duration
 
+	AdvisorHistoryRetention time.Duration
+
 	// List of AWS partitions to use. If empty - default partitions will be used. If nil - no changes will be made.
 	AWSPartitions []string
 
@@ -171,6 +173,10 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 	if params.DataRetention != 0 {
 		settings.DataRetention = params.DataRetention
+	}
+
+	if params.AdvisorHistoryRetention != 0 {
+		settings.AdvisorHistoryRetention = params.AdvisorHistoryRetention
 	}
 
 	if params.AWSPartitions != nil {
@@ -322,6 +328,20 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 				return errors.New("data_retention: minimal resolution is 24h")
 			default:
 				return fmt.Errorf("data_retention: unknown error: %w", err)
+			}
+		}
+	}
+
+	if params.AdvisorHistoryRetention != 0 {
+		_, err := validators.ValidateDataRetention(params.AdvisorHistoryRetention)
+		if err != nil {
+			switch err.(type) { //nolint:errorlint
+			case validators.DurationNotAllowedError:
+				return errors.New("advisor_history_retention: should be a natural number of days")
+			case validators.MinDurationError:
+				return errors.New("advisor_history_retention: minimal resolution is 24h")
+			default:
+				return fmt.Errorf("advisor_history_retention: %w", err)
 			}
 		}
 	}
