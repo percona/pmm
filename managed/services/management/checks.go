@@ -260,8 +260,8 @@ func (s *ChecksAPIService) ListCheckResultsHistory(
 
 	return &advisorsv1.ListCheckResultsHistoryResponse{
 		Results:    items,
-		TotalItems: int32(totalItems), //nolint:gosec // result count comfortably fits int32
-		TotalPages: int32(totalPages),
+		TotalItems: int32(totalItems), //nolint:gosec
+		TotalPages: int32(totalPages), //nolint:gosec
 	}, nil
 }
 
