@@ -82,12 +82,14 @@ const (
 	NomadAgentType                      AgentType = "nomad-agent"
 	ValkeyExporterType                  AgentType = "valkey_exporter"
 	RTAMongoDBAgentType                 AgentType = "rta-mongodb-agent"
+	RTAMySQLAgentType                   AgentType = "rta-mysql-agent"
 )
 
 // GetRTAAgentTypes returns all Real-Time Analytics Agent types.
 func GetRTAAgentTypes() []AgentType {
 	return []AgentType{
 		RTAMongoDBAgentType,
+		RTAMySQLAgentType,
 		// Add more types here once they are implemented.
 	}
 }
@@ -586,7 +588,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 		return cfg.FormatDSN()
 
-	case QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
+	case QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType, RTAMySQLAgentType:
 		cfg := mysql.NewConfig()
 		cfg.User = username
 		cfg.Passwd = password
@@ -898,7 +900,7 @@ func (a *Agent) IsMySQLTablestatsGroupEnabled() bool {
 // Files returns files map required to connect to DB.
 func (a Agent) Files() map[string]string { //nolint:gocognit
 	switch a.AgentType {
-	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
+	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType, RTAMySQLAgentType:
 		files := make(map[string]string)
 		if a.MySQLOptions.TLSCa != "" {
 			files["tlsCa"] = a.MySQLOptions.TLSCa

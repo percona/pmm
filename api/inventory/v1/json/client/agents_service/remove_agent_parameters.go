@@ -58,6 +58,7 @@ RemoveAgentParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type RemoveAgentParams struct {
+
 	// AgentID.
 	AgentID string
 
@@ -144,6 +145,7 @@ func (o *RemoveAgentParams) SetForce(force *bool) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *RemoveAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -164,6 +166,7 @@ func (o *RemoveAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 		}
 		qForce := swag.FormatBool(qrForce)
 		if qForce != "" {
+
 			if err := r.SetQueryParam("force", qForce); err != nil {
 				return err
 			}

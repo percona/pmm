@@ -101,6 +101,7 @@ func (o *AddServiceOK) GetPayload() *AddServiceOKBody {
 }
 
 func (o *AddServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddServiceOKBody)
 
 	// response payload
@@ -174,6 +175,7 @@ func (o *AddServiceDefault) GetPayload() *AddServiceDefaultBody {
 }
 
 func (o *AddServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(AddServiceDefaultBody)
 
 	// response payload
@@ -189,6 +191,7 @@ AddServiceBody add service body
 swagger:model AddServiceBody
 */
 type AddServiceBody struct {
+
 	// external
 	External *AddServiceParamsBodyExternal `json:"external,omitempty"`
 
@@ -449,6 +452,7 @@ func (o *AddServiceBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *AddServiceBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.External != nil {
 
 		if swag.IsZero(o.External) { // not required
@@ -473,6 +477,7 @@ func (o *AddServiceBody) contextValidateExternal(ctx context.Context, formats st
 }
 
 func (o *AddServiceBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Haproxy != nil {
 
 		if swag.IsZero(o.Haproxy) { // not required
@@ -497,6 +502,7 @@ func (o *AddServiceBody) contextValidateHaproxy(ctx context.Context, formats str
 }
 
 func (o *AddServiceBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Mongodb != nil {
 
 		if swag.IsZero(o.Mongodb) { // not required
@@ -521,6 +527,7 @@ func (o *AddServiceBody) contextValidateMongodb(ctx context.Context, formats str
 }
 
 func (o *AddServiceBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Mysql != nil {
 
 		if swag.IsZero(o.Mysql) { // not required
@@ -545,6 +552,7 @@ func (o *AddServiceBody) contextValidateMysql(ctx context.Context, formats strfm
 }
 
 func (o *AddServiceBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Postgresql != nil {
 
 		if swag.IsZero(o.Postgresql) { // not required
@@ -569,6 +577,7 @@ func (o *AddServiceBody) contextValidatePostgresql(ctx context.Context, formats 
 }
 
 func (o *AddServiceBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Proxysql != nil {
 
 		if swag.IsZero(o.Proxysql) { // not required
@@ -593,6 +602,7 @@ func (o *AddServiceBody) contextValidateProxysql(ctx context.Context, formats st
 }
 
 func (o *AddServiceBody) contextValidateValkey(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Valkey != nil {
 
 		if swag.IsZero(o.Valkey) { // not required
@@ -639,6 +649,7 @@ AddServiceDefaultBody add service default body
 swagger:model AddServiceDefaultBody
 */
 type AddServiceDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -708,7 +719,9 @@ func (o *AddServiceDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *AddServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -728,6 +741,7 @@ func (o *AddServiceDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -756,6 +770,7 @@ AddServiceDefaultBodyDetailsItems0 add service default body details items0
 swagger:model AddServiceDefaultBodyDetailsItems0
 */
 type AddServiceDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -767,6 +782,7 @@ type AddServiceDefaultBodyDetailsItems0 struct {
 func (o *AddServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -804,6 +820,7 @@ func (o *AddServiceDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o AddServiceDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -867,6 +884,7 @@ AddServiceOKBody add service OK body
 swagger:model AddServiceOKBody
 */
 type AddServiceOKBody struct {
+
 	// external
 	External *AddServiceOKBodyExternal `json:"external,omitempty"`
 
@@ -1127,6 +1145,7 @@ func (o *AddServiceOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (o *AddServiceOKBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.External != nil {
 
 		if swag.IsZero(o.External) { // not required
@@ -1151,6 +1170,7 @@ func (o *AddServiceOKBody) contextValidateExternal(ctx context.Context, formats 
 }
 
 func (o *AddServiceOKBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Haproxy != nil {
 
 		if swag.IsZero(o.Haproxy) { // not required
@@ -1175,6 +1195,7 @@ func (o *AddServiceOKBody) contextValidateHaproxy(ctx context.Context, formats s
 }
 
 func (o *AddServiceOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Mongodb != nil {
 
 		if swag.IsZero(o.Mongodb) { // not required
@@ -1199,6 +1220,7 @@ func (o *AddServiceOKBody) contextValidateMongodb(ctx context.Context, formats s
 }
 
 func (o *AddServiceOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Mysql != nil {
 
 		if swag.IsZero(o.Mysql) { // not required
@@ -1223,6 +1245,7 @@ func (o *AddServiceOKBody) contextValidateMysql(ctx context.Context, formats str
 }
 
 func (o *AddServiceOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Postgresql != nil {
 
 		if swag.IsZero(o.Postgresql) { // not required
@@ -1247,6 +1270,7 @@ func (o *AddServiceOKBody) contextValidatePostgresql(ctx context.Context, format
 }
 
 func (o *AddServiceOKBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Proxysql != nil {
 
 		if swag.IsZero(o.Proxysql) { // not required
@@ -1271,6 +1295,7 @@ func (o *AddServiceOKBody) contextValidateProxysql(ctx context.Context, formats 
 }
 
 func (o *AddServiceOKBody) contextValidateValkey(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Valkey != nil {
 
 		if swag.IsZero(o.Valkey) { // not required
@@ -1317,6 +1342,7 @@ AddServiceOKBodyExternal ExternalService represents a generic External service i
 swagger:model AddServiceOKBodyExternal
 */
 type AddServiceOKBodyExternal struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1381,6 +1407,7 @@ AddServiceOKBodyHaproxy HAProxyService represents a generic HAProxy service inst
 swagger:model AddServiceOKBodyHaproxy
 */
 type AddServiceOKBodyHaproxy struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1436,6 +1463,7 @@ AddServiceOKBodyMongodb MongoDBService represents a generic MongoDB instance.
 swagger:model AddServiceOKBodyMongodb
 */
 type AddServiceOKBodyMongodb struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1506,6 +1534,7 @@ AddServiceOKBodyMysql MySQLService represents a generic MySQL instance.
 swagger:model AddServiceOKBodyMysql
 */
 type AddServiceOKBodyMysql struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1579,6 +1608,7 @@ AddServiceOKBodyPostgresql PostgreSQLService represents a generic PostgreSQL ins
 swagger:model AddServiceOKBodyPostgresql
 */
 type AddServiceOKBodyPostgresql struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1655,6 +1685,7 @@ AddServiceOKBodyProxysql ProxySQLService represents a generic ProxySQL instance.
 swagger:model AddServiceOKBodyProxysql
 */
 type AddServiceOKBodyProxysql struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1725,6 +1756,7 @@ AddServiceOKBodyValkey ValkeyService represents a generic Valkey instance.
 swagger:model AddServiceOKBodyValkey
 */
 type AddServiceOKBodyValkey struct {
+
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1795,6 +1827,7 @@ AddServiceParamsBodyExternal add service params body external
 swagger:model AddServiceParamsBodyExternal
 */
 type AddServiceParamsBodyExternal struct {
+
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
@@ -1850,6 +1883,7 @@ AddServiceParamsBodyHaproxy add service params body haproxy
 swagger:model AddServiceParamsBodyHaproxy
 */
 type AddServiceParamsBodyHaproxy struct {
+
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
@@ -1902,6 +1936,7 @@ AddServiceParamsBodyMongodb add service params body mongodb
 swagger:model AddServiceParamsBodyMongodb
 */
 type AddServiceParamsBodyMongodb struct {
+
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
@@ -1966,6 +2001,7 @@ AddServiceParamsBodyMysql add service params body mysql
 swagger:model AddServiceParamsBodyMysql
 */
 type AddServiceParamsBodyMysql struct {
+
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
@@ -2033,6 +2069,7 @@ AddServiceParamsBodyPostgresql add service params body postgresql
 swagger:model AddServiceParamsBodyPostgresql
 */
 type AddServiceParamsBodyPostgresql struct {
+
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
@@ -2100,6 +2137,7 @@ AddServiceParamsBodyProxysql add service params body proxysql
 swagger:model AddServiceParamsBodyProxysql
 */
 type AddServiceParamsBodyProxysql struct {
+
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
@@ -2164,6 +2202,7 @@ AddServiceParamsBodyValkey add service params body valkey
 swagger:model AddServiceParamsBodyValkey
 */
 type AddServiceParamsBodyValkey struct {
+
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 

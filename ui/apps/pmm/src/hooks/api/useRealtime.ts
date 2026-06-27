@@ -117,13 +117,16 @@ export const useStopSessions = (
 };
 
 /**
- * Hook to get MongoDB services that don't have running RTA agents
+ * Hook to get services (MongoDB, MySQL, ...) that don't have running RTA agents
  */
 export const useAvailableServices = (serviceTypes?: ServiceType[]) => {
   const { user } = useUser();
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
-  const { data: services = { mongodb: [] }, isLoading: isLoadingServices } =
+  const {
+    data: services = { mongodb: [], mysql: [] },
+    isLoading: isLoadingServices,
+  } =
     useQuery({
       queryKey: [KEYS.AVAILABLE_SERVICES],
       queryFn: () => getAvailableServices(serviceTypes),

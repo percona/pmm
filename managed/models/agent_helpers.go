@@ -356,6 +356,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 			MySQLdExporterType,
 			QANMySQLSlowlogAgentType,
 			QANMySQLPerfSchemaAgentType,
+			RTAMySQLAgentType,
 		}
 	case PostgreSQLServiceType:
 		agentTypes = []AgentType{
@@ -875,6 +876,9 @@ func compatibleServiceAndAgent(serviceType ServiceType, agentType AgentType) boo
 		RTAMongoDBAgentType: {
 			MongoDBServiceType,
 		},
+		RTAMySQLAgentType: {
+			MySQLServiceType,
+		},
 		PostgresExporterType: {
 			PostgreSQLServiceType,
 		},
@@ -981,8 +985,8 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 
 	switch agentType {
-	// For the time being only RTA MangoDB Agent has RTA options.
-	case RTAMongoDBAgentType:
+	// RTA agents collect currently running queries on a fixed interval.
+	case RTAMongoDBAgentType, RTAMySQLAgentType:
 		row.RTAOptions = RTAOptions{
 			// default value
 			CollectInterval: new(2 * time.Second), //nolint:mnd

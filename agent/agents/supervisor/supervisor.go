@@ -37,6 +37,7 @@ import (
 	mongoprofiler "github.com/percona/pmm/agent/agents/mongodb/profiler"
 	mongorta "github.com/percona/pmm/agent/agents/mongodb/realtimeanalytics"
 	"github.com/percona/pmm/agent/agents/mysql/perfschema"
+	mysqlrta "github.com/percona/pmm/agent/agents/mysql/realtimeanalytics"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog"
 	"github.com/percona/pmm/agent/agents/noop"
 	"github.com/percona/pmm/agent/agents/postgres/pgstatmonitor"
@@ -672,6 +673,18 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 			CollectInterval: builtinAgent.RtaOptions.GetCollectInterval().AsDuration(),
 		}
 		agent, err = mongorta.New(params, l)
+
+	case inventoryv1.AgentType_AGENT_TYPE_RTA_MYSQL_AGENT:
+		params := &mysqlrta.Params{
+			DSN:             dsn,
+			AgentID:         agentID,
+			ServiceID:       builtinAgent.ServiceId,
+			ServiceName:     builtinAgent.ServiceName,
+			CollectInterval: builtinAgent.RtaOptions.GetCollectInterval().AsDuration(),
+			TextFiles:       builtinAgent.GetTextFiles(),
+			TLSSkipVerify:   builtinAgent.TlsSkipVerify,
+		}
+		agent, err = mysqlrta.New(params, l)
 
 	case type_TEST_NOOP:
 		agent = noop.New()

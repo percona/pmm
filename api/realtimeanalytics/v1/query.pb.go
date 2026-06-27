@@ -7,16 +7,14 @@
 package realtimeanalyticsv1
 
 import (
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
-
+	_ "github.com/percona/pmm/api/extensions/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
-	_ "github.com/percona/pmm/api/extensions/v1"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
 )
 
 const (
@@ -135,6 +133,125 @@ func (x *QueryMongoDBData) GetPlanSummary() string {
 	return ""
 }
 
+// QueryMySQLData holds MySQL-specific Real-Time Analytics query information.
+// The data is sourced from the sys.x$processlist view.
+type QueryMySQLData struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// MySQL instance address(host:port) that processing the query.
+	DbInstanceAddress string `protobuf:"bytes,1,opt,name=db_instance_address,json=dbInstanceAddress,proto3" json:"db_instance_address,omitempty"`
+	// Client program name connected to MySQL (program_name from sys.x$processlist).
+	ProgramName string `protobuf:"bytes,2,opt,name=program_name,json=programName,proto3" json:"program_name,omitempty"`
+	// Database name (db from sys.x$processlist).
+	DatabaseName string `protobuf:"bytes,3,opt,name=database_name,json=databaseName,proto3" json:"database_name,omitempty"`
+	// Command type the connection is executing ("Query", "Execute", etc).
+	Command string `protobuf:"bytes,4,opt,name=command,proto3" json:"command,omitempty"`
+	// State of the connection/thread (for example "Sending data").
+	State string `protobuf:"bytes,5,opt,name=state,proto3" json:"state,omitempty"`
+	// MySQL user name associated with the query.
+	Username string `protobuf:"bytes,6,opt,name=username,proto3" json:"username,omitempty"`
+	// Number of rows examined by the statement so far.
+	RowsExamined int64 `protobuf:"varint,7,opt,name=rows_examined,json=rowsExamined,proto3" json:"rows_examined,omitempty"`
+	// Number of rows sent by the statement so far.
+	RowsSent int64 `protobuf:"varint,8,opt,name=rows_sent,json=rowsSent,proto3" json:"rows_sent,omitempty"`
+	// Indicates whether the statement performed a full table scan.
+	FullScan      bool `protobuf:"varint,9,opt,name=full_scan,json=fullScan,proto3" json:"full_scan,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *QueryMySQLData) Reset() {
+	*x = QueryMySQLData{}
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *QueryMySQLData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryMySQLData) ProtoMessage() {}
+
+func (x *QueryMySQLData) ProtoReflect() protoreflect.Message {
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QueryMySQLData.ProtoReflect.Descriptor instead.
+func (*QueryMySQLData) Descriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *QueryMySQLData) GetDbInstanceAddress() string {
+	if x != nil {
+		return x.DbInstanceAddress
+	}
+	return ""
+}
+
+func (x *QueryMySQLData) GetProgramName() string {
+	if x != nil {
+		return x.ProgramName
+	}
+	return ""
+}
+
+func (x *QueryMySQLData) GetDatabaseName() string {
+	if x != nil {
+		return x.DatabaseName
+	}
+	return ""
+}
+
+func (x *QueryMySQLData) GetCommand() string {
+	if x != nil {
+		return x.Command
+	}
+	return ""
+}
+
+func (x *QueryMySQLData) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *QueryMySQLData) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *QueryMySQLData) GetRowsExamined() int64 {
+	if x != nil {
+		return x.RowsExamined
+	}
+	return 0
+}
+
+func (x *QueryMySQLData) GetRowsSent() int64 {
+	if x != nil {
+		return x.RowsSent
+	}
+	return 0
+}
+
+func (x *QueryMySQLData) GetFullScan() bool {
+	if x != nil {
+		return x.FullScan
+	}
+	return false
+}
+
 // QueryData represents a single Real-Time Analytics query data point.
 // It includes general query information and a payload for database-specific details.
 type QueryData struct {
@@ -160,6 +277,7 @@ type QueryData struct {
 	// Types that are valid to be assigned to Payload:
 	//
 	//	*QueryData_MongoDbPayload
+	//	*QueryData_MySqlPayload
 	Payload       isQueryData_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -167,7 +285,7 @@ type QueryData struct {
 
 func (x *QueryData) Reset() {
 	*x = QueryData{}
-	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[1]
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -179,7 +297,7 @@ func (x *QueryData) String() string {
 func (*QueryData) ProtoMessage() {}
 
 func (x *QueryData) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[1]
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -192,7 +310,7 @@ func (x *QueryData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryData.ProtoReflect.Descriptor instead.
 func (*QueryData) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{1}
+	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *QueryData) GetServiceId() string {
@@ -267,6 +385,15 @@ func (x *QueryData) GetMongoDbPayload() *QueryMongoDBData {
 	return nil
 }
 
+func (x *QueryData) GetMySqlPayload() *QueryMySQLData {
+	if x != nil {
+		if x, ok := x.Payload.(*QueryData_MySqlPayload); ok {
+			return x.MySqlPayload
+		}
+	}
+	return nil
+}
+
 type isQueryData_Payload interface {
 	isQueryData_Payload()
 }
@@ -276,7 +403,14 @@ type QueryData_MongoDbPayload struct {
 	MongoDbPayload *QueryMongoDBData `protobuf:"bytes,9,opt,name=mongo_db_payload,json=mongoDbPayload,proto3,oneof"`
 }
 
+type QueryData_MySqlPayload struct {
+	// MySQL-specific query data.
+	MySqlPayload *QueryMySQLData `protobuf:"bytes,10,opt,name=my_sql_payload,json=mySqlPayload,proto3,oneof"`
+}
+
 func (*QueryData_MongoDbPayload) isQueryData_Payload() {}
+
+func (*QueryData_MySqlPayload) isQueryData_Payload() {}
 
 var File_realtimeanalytics_v1_query_proto protoreflect.FileDescriptor
 
@@ -293,7 +427,17 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\toperation\x18\x05 \x01(\tR\toperation\x12L\n" +
 	"\x14operation_start_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x12operationStartTime\x12 \n" +
 	"\busername\x18\a \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12!\n" +
-	"\fplan_summary\x18\b \x01(\tR\vplanSummary\"\xd2\x03\n" +
+	"\fplan_summary\x18\b \x01(\tR\vplanSummary\"\xb9\x02\n" +
+	"\x0eQueryMySQLData\x12.\n" +
+	"\x13db_instance_address\x18\x01 \x01(\tR\x11dbInstanceAddress\x12!\n" +
+	"\fprogram_name\x18\x02 \x01(\tR\vprogramName\x12#\n" +
+	"\rdatabase_name\x18\x03 \x01(\tR\fdatabaseName\x12\x18\n" +
+	"\acommand\x18\x04 \x01(\tR\acommand\x12\x14\n" +
+	"\x05state\x18\x05 \x01(\tR\x05state\x12 \n" +
+	"\busername\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12#\n" +
+	"\rrows_examined\x18\a \x01(\x03R\frowsExamined\x12\x1b\n" +
+	"\trows_sent\x18\b \x01(\x03R\browsSent\x12\x1b\n" +
+	"\tfull_scan\x18\t \x01(\bR\bfullScan\"\xa0\x04\n" +
 	"\tQueryData\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -305,7 +449,9 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\x18query_execution_duration\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\x16queryExecutionDuration\x12H\n" +
 	"\x12query_collect_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x10queryCollectTime\x12%\n" +
 	"\x0eclient_address\x18\b \x01(\tR\rclientAddress\x12R\n" +
-	"\x10mongo_db_payload\x18\t \x01(\v2&.realtimeanalytics.v1.QueryMongoDBDataH\x00R\x0emongoDbPayloadB\t\n" +
+	"\x10mongo_db_payload\x18\t \x01(\v2&.realtimeanalytics.v1.QueryMongoDBDataH\x00R\x0emongoDbPayload\x12L\n" +
+	"\x0emy_sql_payload\x18\n" +
+	" \x01(\v2$.realtimeanalytics.v1.QueryMySQLDataH\x00R\fmySqlPayloadB\t\n" +
 	"\apayloadB\xdc\x01\n" +
 	"\x18com.realtimeanalytics.v1B\n" +
 	"QueryProtoP\x01ZCgithub.com/percona/pmm/api/realtimeanalytics/v1;realtimeanalyticsv1\xa2\x02\x03RXX\xaa\x02\x14Realtimeanalytics.V1\xca\x02\x14Realtimeanalytics\\V1\xe2\x02 Realtimeanalytics\\V1\\GPBMetadata\xea\x02\x15Realtimeanalytics::V1b\x06proto3"
@@ -322,26 +468,25 @@ func file_realtimeanalytics_v1_query_proto_rawDescGZIP() []byte {
 	return file_realtimeanalytics_v1_query_proto_rawDescData
 }
 
-var (
-	file_realtimeanalytics_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-	file_realtimeanalytics_v1_query_proto_goTypes  = []any{
-		(*QueryMongoDBData)(nil),      // 0: realtimeanalytics.v1.QueryMongoDBData
-		(*QueryData)(nil),             // 1: realtimeanalytics.v1.QueryData
-		(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
-		(*durationpb.Duration)(nil),   // 3: google.protobuf.Duration
-	}
-)
-
+var file_realtimeanalytics_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_realtimeanalytics_v1_query_proto_goTypes = []any{
+	(*QueryMongoDBData)(nil),      // 0: realtimeanalytics.v1.QueryMongoDBData
+	(*QueryMySQLData)(nil),        // 1: realtimeanalytics.v1.QueryMySQLData
+	(*QueryData)(nil),             // 2: realtimeanalytics.v1.QueryData
+	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),   // 4: google.protobuf.Duration
+}
 var file_realtimeanalytics_v1_query_proto_depIdxs = []int32{
-	2, // 0: realtimeanalytics.v1.QueryMongoDBData.operation_start_time:type_name -> google.protobuf.Timestamp
-	3, // 1: realtimeanalytics.v1.QueryData.query_execution_duration:type_name -> google.protobuf.Duration
-	2, // 2: realtimeanalytics.v1.QueryData.query_collect_time:type_name -> google.protobuf.Timestamp
+	3, // 0: realtimeanalytics.v1.QueryMongoDBData.operation_start_time:type_name -> google.protobuf.Timestamp
+	4, // 1: realtimeanalytics.v1.QueryData.query_execution_duration:type_name -> google.protobuf.Duration
+	3, // 2: realtimeanalytics.v1.QueryData.query_collect_time:type_name -> google.protobuf.Timestamp
 	0, // 3: realtimeanalytics.v1.QueryData.mongo_db_payload:type_name -> realtimeanalytics.v1.QueryMongoDBData
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	1, // 4: realtimeanalytics.v1.QueryData.my_sql_payload:type_name -> realtimeanalytics.v1.QueryMySQLData
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_realtimeanalytics_v1_query_proto_init() }
@@ -349,8 +494,9 @@ func file_realtimeanalytics_v1_query_proto_init() {
 	if File_realtimeanalytics_v1_query_proto != nil {
 		return
 	}
-	file_realtimeanalytics_v1_query_proto_msgTypes[1].OneofWrappers = []any{
+	file_realtimeanalytics_v1_query_proto_msgTypes[2].OneofWrappers = []any{
 		(*QueryData_MongoDbPayload)(nil),
+		(*QueryData_MySqlPayload)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -358,7 +504,7 @@ func file_realtimeanalytics_v1_query_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_realtimeanalytics_v1_query_proto_rawDesc), len(file_realtimeanalytics_v1_query_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

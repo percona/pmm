@@ -134,8 +134,7 @@ func (e PMMAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = PMMAgentValidationError{}
@@ -243,8 +242,7 @@ func (e VMAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VMAgentValidationError{}
@@ -355,8 +353,7 @@ func (e NomadAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = NomadAgentValidationError{}
@@ -504,8 +501,7 @@ func (e NodeExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = NodeExporterValidationError{}
@@ -705,8 +701,7 @@ func (e MySQLdExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = MySQLdExporterValidationError{}
@@ -896,8 +891,7 @@ func (e MongoDBExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = MongoDBExporterValidationError{}
@@ -1087,8 +1081,7 @@ func (e PostgresExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = PostgresExporterValidationError{}
@@ -1274,8 +1267,7 @@ func (e ProxySQLExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ProxySQLExporterValidationError{}
@@ -1459,8 +1451,7 @@ func (e ValkeyExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ValkeyExporterValidationError{}
@@ -1598,8 +1589,7 @@ func (e QANMySQLPerfSchemaAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANMySQLPerfSchemaAgentValidationError{}
@@ -1739,8 +1729,7 @@ func (e QANMySQLSlowlogAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANMySQLSlowlogAgentValidationError{}
@@ -1866,8 +1855,7 @@ func (e QANMongoDBProfilerAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANMongoDBProfilerAgentValidationError{}
@@ -1993,8 +1981,7 @@ func (e QANMongoDBMongologAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANMongoDBMongologAgentValidationError{}
@@ -2123,8 +2110,7 @@ func (e RTAOptionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RTAOptionsValidationError{}
@@ -2273,8 +2259,7 @@ func (e RTAMongoDBAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RTAMongoDBAgentValidationError{}
@@ -2286,6 +2271,155 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RTAMongoDBAgentValidationError{}
+
+// Validate checks the field values on RTAMySQLAgent with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *RTAMySQLAgent) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RTAMySQLAgent with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in RTAMySQLAgentMultiError, or
+// nil if none found.
+func (m *RTAMySQLAgent) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RTAMySQLAgent) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for AgentId
+
+	// no validation rules for PmmAgentId
+
+	// no validation rules for Disabled
+
+	// no validation rules for ServiceId
+
+	// no validation rules for Username
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for CustomLabels
+
+	if all {
+		switch v := interface{}(m.GetRtaOptions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RTAMySQLAgentValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RTAMySQLAgentValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RTAMySQLAgentValidationError{
+				field:  "RtaOptions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Status
+
+	// no validation rules for LogLevel
+
+	if len(errors) > 0 {
+		return RTAMySQLAgentMultiError(errors)
+	}
+
+	return nil
+}
+
+// RTAMySQLAgentMultiError is an error wrapping multiple validation errors
+// returned by RTAMySQLAgent.ValidateAll() if the designated constraints
+// aren't met.
+type RTAMySQLAgentMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RTAMySQLAgentMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RTAMySQLAgentMultiError) AllErrors() []error { return m }
+
+// RTAMySQLAgentValidationError is the validation error returned by
+// RTAMySQLAgent.Validate if the designated constraints aren't met.
+type RTAMySQLAgentValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RTAMySQLAgentValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RTAMySQLAgentValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RTAMySQLAgentValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RTAMySQLAgentValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RTAMySQLAgentValidationError) ErrorName() string { return "RTAMySQLAgentValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RTAMySQLAgentValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRTAMySQLAgent.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RTAMySQLAgentValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RTAMySQLAgentValidationError{}
 
 // Validate checks the field values on QANPostgreSQLPgStatementsAgent with the
 // rules defined in the proto definition for this message. If any rules are
@@ -2403,8 +2537,7 @@ func (e QANPostgreSQLPgStatementsAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANPostgreSQLPgStatementsAgentValidationError{}
@@ -2535,8 +2668,7 @@ func (e QANPostgreSQLPgStatMonitorAgentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = QANPostgreSQLPgStatMonitorAgentValidationError{}
@@ -2692,8 +2824,7 @@ func (e RDSExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RDSExporterValidationError{}
@@ -2848,8 +2979,7 @@ func (e ExternalExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ExternalExporterValidationError{}
@@ -3004,8 +3134,7 @@ func (e AzureDatabaseExporterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AzureDatabaseExporterValidationError{}
@@ -3074,6 +3203,7 @@ func (m *ChangeCommonAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -3102,6 +3232,7 @@ func (m *ChangeCommonAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -3175,8 +3306,7 @@ func (e ChangeCommonAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeCommonAgentParamsValidationError{}
@@ -3286,8 +3416,7 @@ func (e ListAgentsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListAgentsRequestValidationError{}
@@ -3968,6 +4097,40 @@ func (m *ListAgentsResponse) validate(all bool) error {
 
 	}
 
+	for idx, item := range m.GetRtaMysqlAgent() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("RtaMysqlAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListAgentsResponseValidationError{
+						field:  fmt.Sprintf("RtaMysqlAgent[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListAgentsResponseValidationError{
+					field:  fmt.Sprintf("RtaMysqlAgent[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return ListAgentsResponseMultiError(errors)
 	}
@@ -4035,8 +4198,7 @@ func (e ListAgentsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListAgentsResponseValidationError{}
@@ -4147,8 +4309,7 @@ func (e GetAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetAgentRequestValidationError{}
@@ -4963,6 +5124,47 @@ func (m *GetAgentResponse) validate(all bool) error {
 			}
 		}
 
+	case *GetAgentResponse_RtaMysqlAgent:
+		if v == nil {
+			err := GetAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMysqlAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMysqlAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAgentResponseValidationError{
+					field:  "RtaMysqlAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -5032,8 +5234,7 @@ func (e GetAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetAgentResponseValidationError{}
@@ -5148,8 +5349,7 @@ func (e GetAgentLogsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetAgentLogsRequestValidationError{}
@@ -5253,8 +5453,7 @@ func (e GetAgentLogsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetAgentLogsResponseValidationError{}
@@ -5987,6 +6186,47 @@ func (m *AddAgentRequest) validate(all bool) error {
 			}
 		}
 
+	case *AddAgentRequest_RtaMysqlAgent:
+		if v == nil {
+			err := AddAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMysqlAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentRequestValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMysqlAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentRequestValidationError{
+					field:  "RtaMysqlAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -6056,8 +6296,7 @@ func (e AddAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddAgentRequestValidationError{}
@@ -6790,6 +7029,47 @@ func (m *AddAgentResponse) validate(all bool) error {
 			}
 		}
 
+	case *AddAgentResponse_RtaMysqlAgent:
+		if v == nil {
+			err := AddAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMysqlAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddAgentResponseValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMysqlAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddAgentResponseValidationError{
+					field:  "RtaMysqlAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -6859,8 +7139,7 @@ func (e AddAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddAgentResponseValidationError{}
@@ -7604,6 +7883,47 @@ func (m *ChangeAgentRequest) validate(all bool) error {
 			}
 		}
 
+	case *ChangeAgentRequest_RtaMysqlAgent:
+		if v == nil {
+			err := ChangeAgentRequestValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMysqlAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentRequestValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMysqlAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentRequestValidationError{
+					field:  "RtaMysqlAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -7675,8 +7995,7 @@ func (e ChangeAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeAgentRequestValidationError{}
@@ -8409,6 +8728,47 @@ func (m *ChangeAgentResponse) validate(all bool) error {
 			}
 		}
 
+	case *ChangeAgentResponse_RtaMysqlAgent:
+		if v == nil {
+			err := ChangeAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRtaMysqlAgent()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeAgentResponseValidationError{
+						field:  "RtaMysqlAgent",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaMysqlAgent()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeAgentResponseValidationError{
+					field:  "RtaMysqlAgent",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	default:
 		_ = v // ensures v is used
 	}
@@ -8480,8 +8840,7 @@ func (e ChangeAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeAgentResponseValidationError{}
@@ -8596,8 +8955,7 @@ func (e AddPMMAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddPMMAgentParamsValidationError{}
@@ -8718,8 +9076,7 @@ func (e AddNodeExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddNodeExporterParamsValidationError{}
@@ -8788,6 +9145,7 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -8816,6 +9174,7 @@ func (m *ChangeNodeExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -8897,8 +9256,7 @@ func (e ChangeNodeExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeNodeExporterParamsValidationError{}
@@ -9091,8 +9449,7 @@ func (e AddMySQLdExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddMySQLdExporterParamsValidationError{}
@@ -9191,6 +9548,7 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -9219,6 +9577,7 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -9340,8 +9699,7 @@ func (e ChangeMySQLdExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeMySQLdExporterParamsValidationError{}
@@ -9529,8 +9887,7 @@ func (e AddMongoDBExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddMongoDBExporterParamsValidationError{}
@@ -9629,6 +9986,7 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -9657,6 +10015,7 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -9791,8 +10150,7 @@ func (e ChangeMongoDBExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeMongoDBExporterParamsValidationError{}
@@ -9985,8 +10343,7 @@ func (e AddPostgresExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddPostgresExporterParamsValidationError{}
@@ -10085,6 +10442,7 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -10113,6 +10471,7 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -10239,8 +10598,7 @@ func (e ChangePostgresExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangePostgresExporterParamsValidationError{}
@@ -10423,8 +10781,7 @@ func (e AddProxySQLExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddProxySQLExporterParamsValidationError{}
@@ -10523,6 +10880,7 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -10551,6 +10909,7 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -10653,8 +11012,7 @@ func (e ChangeProxySQLExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeProxySQLExporterParamsValidationError{}
@@ -10818,8 +11176,7 @@ func (e AddQANMySQLPerfSchemaAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANMySQLPerfSchemaAgentParamsValidationError{}
@@ -10889,6 +11246,7 @@ func (m *ChangeQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -10917,6 +11275,7 @@ func (m *ChangeQANMySQLPerfSchemaAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -11040,8 +11399,7 @@ func (e ChangeQANMySQLPerfSchemaAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANMySQLPerfSchemaAgentParamsValidationError{}
@@ -11205,8 +11563,7 @@ func (e AddQANMySQLSlowlogAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANMySQLSlowlogAgentParamsValidationError{}
@@ -11276,6 +11633,7 @@ func (m *ChangeQANMySQLSlowlogAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -11304,6 +11662,7 @@ func (m *ChangeQANMySQLSlowlogAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -11431,8 +11790,7 @@ func (e ChangeQANMySQLSlowlogAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANMySQLSlowlogAgentParamsValidationError{}
@@ -11585,8 +11943,7 @@ func (e AddQANMongoDBProfilerAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANMongoDBProfilerAgentParamsValidationError{}
@@ -11656,6 +12013,7 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -11684,6 +12042,7 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -11803,8 +12162,7 @@ func (e ChangeQANMongoDBProfilerAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANMongoDBProfilerAgentParamsValidationError{}
@@ -11957,8 +12315,7 @@ func (e AddQANMongoDBMongologAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANMongoDBMongologAgentParamsValidationError{}
@@ -12028,6 +12385,7 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -12056,6 +12414,7 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -12175,8 +12534,7 @@ func (e ChangeQANMongoDBMongologAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANMongoDBMongologAgentParamsValidationError{}
@@ -12337,8 +12695,7 @@ func (e AddQANPostgreSQLPgStatementsAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANPostgreSQLPgStatementsAgentParamsValidationError{}
@@ -12409,6 +12766,7 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -12437,6 +12795,7 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -12552,8 +12911,7 @@ func (e ChangeQANPostgreSQLPgStatementsAgentParamsValidationError) Error() strin
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANPostgreSQLPgStatementsAgentParamsValidationError{}
@@ -12716,8 +13074,7 @@ func (e AddQANPostgreSQLPgStatMonitorAgentParamsValidationError) Error() string 
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddQANPostgreSQLPgStatMonitorAgentParamsValidationError{}
@@ -12788,6 +13145,7 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -12816,6 +13174,7 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -12935,8 +13294,7 @@ func (e ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError) Error() stri
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeQANPostgreSQLPgStatMonitorAgentParamsValidationError{}
@@ -13076,8 +13434,7 @@ func (e AddRDSExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddRDSExporterParamsValidationError{}
@@ -13146,6 +13503,7 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -13174,6 +13532,7 @@ func (m *ChangeRDSExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -13267,8 +13626,7 @@ func (e ChangeRDSExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeRDSExporterParamsValidationError{}
@@ -13408,8 +13766,7 @@ func (e AddExternalExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddExternalExporterParamsValidationError{}
@@ -13478,6 +13835,7 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -13506,6 +13864,7 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -13596,8 +13955,7 @@ func (e ChangeExternalExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeExternalExporterParamsValidationError{}
@@ -13751,8 +14109,7 @@ func (e AddAzureDatabaseExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddAzureDatabaseExporterParamsValidationError{}
@@ -13822,6 +14179,7 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -13850,6 +14208,7 @@ func (m *ChangeAzureDatabaseExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -13949,8 +14308,7 @@ func (e ChangeAzureDatabaseExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeAzureDatabaseExporterParamsValidationError{}
@@ -14056,8 +14414,7 @@ func (e ChangeNomadAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeNomadAgentParamsValidationError{}
@@ -14255,8 +14612,7 @@ func (e AddValkeyExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddValkeyExporterParamsValidationError{}
@@ -14355,6 +14711,7 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -14383,6 +14740,7 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnablePushMetrics != nil {
@@ -14390,6 +14748,7 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 	}
 
 	if m.Username != nil {
+
 		if utf8.RuneCountInString(m.GetUsername()) < 1 {
 			err := ChangeValkeyExporterParamsValidationError{
 				field:  "Username",
@@ -14400,6 +14759,7 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 			}
 			errors = append(errors, err)
 		}
+
 	}
 
 	if m.Password != nil {
@@ -14505,8 +14865,7 @@ func (e ChangeValkeyExporterParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeValkeyExporterParamsValidationError{}
@@ -14681,8 +15040,7 @@ func (e AddRTAMongoDBAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddRTAMongoDBAgentParamsValidationError{}
@@ -14722,6 +15080,7 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 	}
 
 	if m.CustomLabels != nil {
+
 		if all {
 			switch v := interface{}(m.GetCustomLabels()).(type) {
 			case interface{ ValidateAll() error }:
@@ -14750,6 +15109,7 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.LogLevel != nil {
@@ -14789,6 +15149,7 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 	}
 
 	if m.RtaOptions != nil {
+
 		if all {
 			switch v := interface{}(m.GetRtaOptions()).(type) {
 			case interface{ ValidateAll() error }:
@@ -14817,6 +15178,7 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if len(errors) > 0 {
@@ -14887,8 +15249,7 @@ func (e ChangeRTAMongoDBAgentParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeRTAMongoDBAgentParamsValidationError{}
@@ -14900,6 +15261,383 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ChangeRTAMongoDBAgentParamsValidationError{}
+
+// Validate checks the field values on AddRTAMySQLAgentParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddRTAMySQLAgentParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddRTAMySQLAgentParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddRTAMySQLAgentParamsMultiError, or nil if none found.
+func (m *AddRTAMySQLAgentParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddRTAMySQLAgentParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
+		err := AddRTAMySQLAgentParamsValidationError{
+			field:  "PmmAgentId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := AddRTAMySQLAgentParamsValidationError{
+			field:  "ServiceId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Username
+
+	// no validation rules for Password
+
+	// no validation rules for CustomLabels
+
+	// no validation rules for LogLevel
+
+	// no validation rules for Tls
+
+	// no validation rules for TlsSkipVerify
+
+	// no validation rules for TlsCa
+
+	// no validation rules for TlsCert
+
+	// no validation rules for TlsKey
+
+	// no validation rules for SkipConnectionCheck
+
+	if all {
+		switch v := interface{}(m.GetRtaOptions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AddRTAMySQLAgentParamsValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AddRTAMySQLAgentParamsValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AddRTAMySQLAgentParamsValidationError{
+				field:  "RtaOptions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return AddRTAMySQLAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddRTAMySQLAgentParamsMultiError is an error wrapping multiple validation
+// errors returned by AddRTAMySQLAgentParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddRTAMySQLAgentParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddRTAMySQLAgentParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddRTAMySQLAgentParamsMultiError) AllErrors() []error { return m }
+
+// AddRTAMySQLAgentParamsValidationError is the validation error returned by
+// AddRTAMySQLAgentParams.Validate if the designated constraints aren't met.
+type AddRTAMySQLAgentParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddRTAMySQLAgentParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddRTAMySQLAgentParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddRTAMySQLAgentParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddRTAMySQLAgentParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddRTAMySQLAgentParamsValidationError) ErrorName() string {
+	return "AddRTAMySQLAgentParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddRTAMySQLAgentParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddRTAMySQLAgentParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddRTAMySQLAgentParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddRTAMySQLAgentParamsValidationError{}
+
+// Validate checks the field values on ChangeRTAMySQLAgentParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeRTAMySQLAgentParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeRTAMySQLAgentParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeRTAMySQLAgentParamsMultiError, or nil if none found.
+func (m *ChangeRTAMySQLAgentParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeRTAMySQLAgentParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if m.Enable != nil {
+		// no validation rules for Enable
+	}
+
+	if m.CustomLabels != nil {
+
+		if all {
+			switch v := interface{}(m.GetCustomLabels()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeRTAMySQLAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeRTAMySQLAgentParamsValidationError{
+						field:  "CustomLabels",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetCustomLabels()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeRTAMySQLAgentParamsValidationError{
+					field:  "CustomLabels",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if m.LogLevel != nil {
+		// no validation rules for LogLevel
+	}
+
+	if m.Username != nil {
+		// no validation rules for Username
+	}
+
+	if m.Password != nil {
+		// no validation rules for Password
+	}
+
+	if m.Tls != nil {
+		// no validation rules for Tls
+	}
+
+	if m.TlsSkipVerify != nil {
+		// no validation rules for TlsSkipVerify
+	}
+
+	if m.TlsCa != nil {
+		// no validation rules for TlsCa
+	}
+
+	if m.TlsCert != nil {
+		// no validation rules for TlsCert
+	}
+
+	if m.TlsKey != nil {
+		// no validation rules for TlsKey
+	}
+
+	if m.RtaOptions != nil {
+
+		if all {
+			switch v := interface{}(m.GetRtaOptions()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeRTAMySQLAgentParamsValidationError{
+						field:  "RtaOptions",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeRTAMySQLAgentParamsValidationError{
+						field:  "RtaOptions",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRtaOptions()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeRTAMySQLAgentParamsValidationError{
+					field:  "RtaOptions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ChangeRTAMySQLAgentParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeRTAMySQLAgentParamsMultiError is an error wrapping multiple validation
+// errors returned by ChangeRTAMySQLAgentParams.ValidateAll() if the
+// designated constraints aren't met.
+type ChangeRTAMySQLAgentParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeRTAMySQLAgentParamsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeRTAMySQLAgentParamsMultiError) AllErrors() []error { return m }
+
+// ChangeRTAMySQLAgentParamsValidationError is the validation error returned by
+// ChangeRTAMySQLAgentParams.Validate if the designated constraints aren't met.
+type ChangeRTAMySQLAgentParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeRTAMySQLAgentParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeRTAMySQLAgentParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeRTAMySQLAgentParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeRTAMySQLAgentParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeRTAMySQLAgentParamsValidationError) ErrorName() string {
+	return "ChangeRTAMySQLAgentParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeRTAMySQLAgentParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeRTAMySQLAgentParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeRTAMySQLAgentParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeRTAMySQLAgentParamsValidationError{}
 
 // Validate checks the field values on RemoveAgentRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -15003,8 +15741,7 @@ func (e RemoveAgentRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RemoveAgentRequestValidationError{}
@@ -15106,8 +15843,7 @@ func (e RemoveAgentResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RemoveAgentResponseValidationError{}

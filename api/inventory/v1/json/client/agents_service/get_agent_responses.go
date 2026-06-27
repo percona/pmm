@@ -102,6 +102,7 @@ func (o *GetAgentOK) GetPayload() *GetAgentOKBody {
 }
 
 func (o *GetAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetAgentOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *GetAgentDefault) GetPayload() *GetAgentDefaultBody {
 }
 
 func (o *GetAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetAgentDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ GetAgentDefaultBody get agent default body
 swagger:model GetAgentDefaultBody
 */
 type GetAgentDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,7 +262,9 @@ func (o *GetAgentDefaultBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *GetAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -279,6 +284,7 @@ func (o *GetAgentDefaultBody) contextValidateDetails(ctx context.Context, format
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -307,6 +313,7 @@ GetAgentDefaultBodyDetailsItems0 get agent default body details items0
 swagger:model GetAgentDefaultBodyDetailsItems0
 */
 type GetAgentDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,6 +325,7 @@ type GetAgentDefaultBodyDetailsItems0 struct {
 func (o *GetAgentDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -355,6 +363,7 @@ func (o *GetAgentDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetAgentDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -418,6 +427,7 @@ GetAgentOKBody get agent OK body
 swagger:model GetAgentOKBody
 */
 type GetAgentOKBody struct {
+
 	// azure database exporter
 	AzureDatabaseExporter *GetAgentOKBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
 
@@ -468,6 +478,9 @@ type GetAgentOKBody struct {
 
 	// rta mongodb agent
 	RtaMongodbAgent *GetAgentOKBodyRtaMongodbAgent `json:"rta_mongodb_agent,omitempty"`
+
+	// rta mysql agent
+	RtaMysqlAgent *GetAgentOKBodyRtaMysqlAgent `json:"rta_mysql_agent,omitempty"`
 
 	// valkey exporter
 	ValkeyExporter *GetAgentOKBodyValkeyExporter `json:"valkey_exporter,omitempty"`
@@ -545,6 +558,10 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRtaMongodbAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaMysqlAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -953,6 +970,29 @@ func (o *GetAgentOKBody) validateRtaMongodbAgent(formats strfmt.Registry) error 
 	return nil
 }
 
+func (o *GetAgentOKBody) validateRtaMysqlAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaMysqlAgent) { // not required
+		return nil
+	}
+
+	if o.RtaMysqlAgent != nil {
+		if err := o.RtaMysqlAgent.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("getAgentOk" + "." + "rta_mysql_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("getAgentOk" + "." + "rta_mysql_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *GetAgentOKBody) validateValkeyExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.ValkeyExporter) { // not required
 		return nil
@@ -1071,6 +1111,10 @@ func (o *GetAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateRtaMysqlAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateValkeyExporter(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1086,6 +1130,7 @@ func (o *GetAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 }
 
 func (o *GetAgentOKBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.AzureDatabaseExporter != nil {
 
 		if swag.IsZero(o.AzureDatabaseExporter) { // not required
@@ -1110,6 +1155,7 @@ func (o *GetAgentOKBody) contextValidateAzureDatabaseExporter(ctx context.Contex
 }
 
 func (o *GetAgentOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ExternalExporter != nil {
 
 		if swag.IsZero(o.ExternalExporter) { // not required
@@ -1134,6 +1180,7 @@ func (o *GetAgentOKBody) contextValidateExternalExporter(ctx context.Context, fo
 }
 
 func (o *GetAgentOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MongodbExporter != nil {
 
 		if swag.IsZero(o.MongodbExporter) { // not required
@@ -1158,6 +1205,7 @@ func (o *GetAgentOKBody) contextValidateMongodbExporter(ctx context.Context, for
 }
 
 func (o *GetAgentOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MysqldExporter != nil {
 
 		if swag.IsZero(o.MysqldExporter) { // not required
@@ -1182,6 +1230,7 @@ func (o *GetAgentOKBody) contextValidateMysqldExporter(ctx context.Context, form
 }
 
 func (o *GetAgentOKBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.NodeExporter != nil {
 
 		if swag.IsZero(o.NodeExporter) { // not required
@@ -1206,6 +1255,7 @@ func (o *GetAgentOKBody) contextValidateNodeExporter(ctx context.Context, format
 }
 
 func (o *GetAgentOKBody) contextValidateNomadAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.NomadAgent != nil {
 
 		if swag.IsZero(o.NomadAgent) { // not required
@@ -1230,6 +1280,7 @@ func (o *GetAgentOKBody) contextValidateNomadAgent(ctx context.Context, formats 
 }
 
 func (o *GetAgentOKBody) contextValidatePMMAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PMMAgent != nil {
 
 		if swag.IsZero(o.PMMAgent) { // not required
@@ -1254,6 +1305,7 @@ func (o *GetAgentOKBody) contextValidatePMMAgent(ctx context.Context, formats st
 }
 
 func (o *GetAgentOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.PostgresExporter != nil {
 
 		if swag.IsZero(o.PostgresExporter) { // not required
@@ -1278,6 +1330,7 @@ func (o *GetAgentOKBody) contextValidatePostgresExporter(ctx context.Context, fo
 }
 
 func (o *GetAgentOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ProxysqlExporter != nil {
 
 		if swag.IsZero(o.ProxysqlExporter) { // not required
@@ -1302,6 +1355,7 @@ func (o *GetAgentOKBody) contextValidateProxysqlExporter(ctx context.Context, fo
 }
 
 func (o *GetAgentOKBody) contextValidateQANMongodbMongologAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMongodbMongologAgent != nil {
 
 		if swag.IsZero(o.QANMongodbMongologAgent) { // not required
@@ -1326,6 +1380,7 @@ func (o *GetAgentOKBody) contextValidateQANMongodbMongologAgent(ctx context.Cont
 }
 
 func (o *GetAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMongodbProfilerAgent != nil {
 
 		if swag.IsZero(o.QANMongodbProfilerAgent) { // not required
@@ -1350,6 +1405,7 @@ func (o *GetAgentOKBody) contextValidateQANMongodbProfilerAgent(ctx context.Cont
 }
 
 func (o *GetAgentOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMysqlPerfschemaAgent != nil {
 
 		if swag.IsZero(o.QANMysqlPerfschemaAgent) { // not required
@@ -1374,6 +1430,7 @@ func (o *GetAgentOKBody) contextValidateQANMysqlPerfschemaAgent(ctx context.Cont
 }
 
 func (o *GetAgentOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANMysqlSlowlogAgent != nil {
 
 		if swag.IsZero(o.QANMysqlSlowlogAgent) { // not required
@@ -1398,6 +1455,7 @@ func (o *GetAgentOKBody) contextValidateQANMysqlSlowlogAgent(ctx context.Context
 }
 
 func (o *GetAgentOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANPostgresqlPgstatementsAgent != nil {
 
 		if swag.IsZero(o.QANPostgresqlPgstatementsAgent) { // not required
@@ -1422,6 +1480,7 @@ func (o *GetAgentOKBody) contextValidateQANPostgresqlPgstatementsAgent(ctx conte
 }
 
 func (o *GetAgentOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.QANPostgresqlPgstatmonitorAgent != nil {
 
 		if swag.IsZero(o.QANPostgresqlPgstatmonitorAgent) { // not required
@@ -1446,6 +1505,7 @@ func (o *GetAgentOKBody) contextValidateQANPostgresqlPgstatmonitorAgent(ctx cont
 }
 
 func (o *GetAgentOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.RDSExporter != nil {
 
 		if swag.IsZero(o.RDSExporter) { // not required
@@ -1470,6 +1530,7 @@ func (o *GetAgentOKBody) contextValidateRDSExporter(ctx context.Context, formats
 }
 
 func (o *GetAgentOKBody) contextValidateRtaMongodbAgent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.RtaMongodbAgent != nil {
 
 		if swag.IsZero(o.RtaMongodbAgent) { // not required
@@ -1493,7 +1554,33 @@ func (o *GetAgentOKBody) contextValidateRtaMongodbAgent(ctx context.Context, for
 	return nil
 }
 
+func (o *GetAgentOKBody) contextValidateRtaMysqlAgent(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.RtaMysqlAgent != nil {
+
+		if swag.IsZero(o.RtaMysqlAgent) { // not required
+			return nil
+		}
+
+		if err := o.RtaMysqlAgent.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("getAgentOk" + "." + "rta_mysql_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("getAgentOk" + "." + "rta_mysql_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *GetAgentOKBody) contextValidateValkeyExporter(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.ValkeyExporter != nil {
 
 		if swag.IsZero(o.ValkeyExporter) { // not required
@@ -1518,6 +1605,7 @@ func (o *GetAgentOKBody) contextValidateValkeyExporter(ctx context.Context, form
 }
 
 func (o *GetAgentOKBody) contextValidateVmagent(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Vmagent != nil {
 
 		if swag.IsZero(o.Vmagent) { // not required
@@ -1564,6 +1652,7 @@ GetAgentOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Con
 swagger:model GetAgentOKBodyAzureDatabaseExporter
 */
 type GetAgentOKBodyAzureDatabaseExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1790,6 +1879,7 @@ func (o *GetAgentOKBodyAzureDatabaseExporter) ContextValidate(ctx context.Contex
 }
 
 func (o *GetAgentOKBodyAzureDatabaseExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -1836,6 +1926,7 @@ GetAgentOKBodyAzureDatabaseExporterMetricsResolutions MetricsResolutions represe
 swagger:model GetAgentOKBodyAzureDatabaseExporterMetricsResolutions
 */
 type GetAgentOKBodyAzureDatabaseExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -1879,6 +1970,7 @@ GetAgentOKBodyExternalExporter ExternalExporter runs on any Node type, including
 swagger:model GetAgentOKBodyExternalExporter
 */
 type GetAgentOKBodyExternalExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2047,6 +2139,7 @@ func (o *GetAgentOKBodyExternalExporter) ContextValidate(ctx context.Context, fo
 }
 
 func (o *GetAgentOKBodyExternalExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -2093,6 +2186,7 @@ GetAgentOKBodyExternalExporterMetricsResolutions MetricsResolutions represents P
 swagger:model GetAgentOKBodyExternalExporterMetricsResolutions
 */
 type GetAgentOKBodyExternalExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -2136,6 +2230,7 @@ GetAgentOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node 
 swagger:model GetAgentOKBodyMongodbExporter
 */
 type GetAgentOKBodyMongodbExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2387,6 +2482,7 @@ func (o *GetAgentOKBodyMongodbExporter) ContextValidate(ctx context.Context, for
 }
 
 func (o *GetAgentOKBodyMongodbExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -2433,6 +2529,7 @@ GetAgentOKBodyMongodbExporterMetricsResolutions MetricsResolutions represents Pr
 swagger:model GetAgentOKBodyMongodbExporterMetricsResolutions
 */
 type GetAgentOKBodyMongodbExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -2476,6 +2573,7 @@ GetAgentOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node an
 swagger:model GetAgentOKBodyMysqldExporter
 */
 type GetAgentOKBodyMysqldExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2737,6 +2835,7 @@ func (o *GetAgentOKBodyMysqldExporter) ContextValidate(ctx context.Context, form
 }
 
 func (o *GetAgentOKBodyMysqldExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -2783,6 +2882,7 @@ GetAgentOKBodyMysqldExporterMetricsResolutions MetricsResolutions represents Pro
 swagger:model GetAgentOKBodyMysqldExporterMetricsResolutions
 */
 type GetAgentOKBodyMysqldExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -2826,6 +2926,7 @@ GetAgentOKBodyNodeExporter NodeExporter runs on Generic or Container Node and ex
 swagger:model GetAgentOKBodyNodeExporter
 */
 type GetAgentOKBodyNodeExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3049,6 +3150,7 @@ func (o *GetAgentOKBodyNodeExporter) ContextValidate(ctx context.Context, format
 }
 
 func (o *GetAgentOKBodyNodeExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -3095,6 +3197,7 @@ GetAgentOKBodyNodeExporterMetricsResolutions MetricsResolutions represents Prome
 swagger:model GetAgentOKBodyNodeExporterMetricsResolutions
 */
 type GetAgentOKBodyNodeExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -3138,6 +3241,7 @@ GetAgentOKBodyNomadAgent get agent OK body nomad agent
 swagger:model GetAgentOKBodyNomadAgent
 */
 type GetAgentOKBodyNomadAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3268,6 +3372,7 @@ GetAgentOKBodyPMMAgent PMMAgent runs on Generic or Container Node.
 swagger:model GetAgentOKBodyPMMAgent
 */
 type GetAgentOKBodyPMMAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3317,6 +3422,7 @@ GetAgentOKBodyPostgresExporter PostgresExporter runs on Generic or Container Nod
 swagger:model GetAgentOKBodyPostgresExporter
 */
 type GetAgentOKBodyPostgresExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3561,6 +3667,7 @@ func (o *GetAgentOKBodyPostgresExporter) ContextValidate(ctx context.Context, fo
 }
 
 func (o *GetAgentOKBodyPostgresExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -3607,6 +3714,7 @@ GetAgentOKBodyPostgresExporterMetricsResolutions MetricsResolutions represents P
 swagger:model GetAgentOKBodyPostgresExporterMetricsResolutions
 */
 type GetAgentOKBodyPostgresExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -3650,6 +3758,7 @@ GetAgentOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Nod
 swagger:model GetAgentOKBodyProxysqlExporter
 */
 type GetAgentOKBodyProxysqlExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -3888,6 +3997,7 @@ func (o *GetAgentOKBodyProxysqlExporter) ContextValidate(ctx context.Context, fo
 }
 
 func (o *GetAgentOKBodyProxysqlExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -3934,6 +4044,7 @@ GetAgentOKBodyProxysqlExporterMetricsResolutions MetricsResolutions represents P
 swagger:model GetAgentOKBodyProxysqlExporterMetricsResolutions
 */
 type GetAgentOKBodyProxysqlExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -3977,6 +4088,7 @@ GetAgentOKBodyQANMongodbMongologAgent QANMongoDBMongologAgent runs within pmm-ag
 swagger:model GetAgentOKBodyQANMongodbMongologAgent
 */
 type GetAgentOKBodyQANMongodbMongologAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -4186,6 +4298,7 @@ GetAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAgent runs within pmm-ag
 swagger:model GetAgentOKBodyQANMongodbProfilerAgent
 */
 type GetAgentOKBodyQANMongodbProfilerAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -4395,6 +4508,7 @@ GetAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-ag
 swagger:model GetAgentOKBodyQANMysqlPerfschemaAgent
 */
 type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -4622,6 +4736,7 @@ GetAgentOKBodyQANMysqlSlowlogAgent QANMySQLSlowlogAgent runs within pmm-agent an
 swagger:model GetAgentOKBodyQANMysqlSlowlogAgent
 */
 type GetAgentOKBodyQANMysqlSlowlogAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -4852,6 +4967,7 @@ GetAgentOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs
 swagger:model GetAgentOKBodyQANPostgresqlPgstatementsAgent
 */
 type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -5064,6 +5180,7 @@ GetAgentOKBodyQANPostgresqlPgstatmonitorAgent QANPostgreSQLPgStatMonitorAgent ru
 swagger:model GetAgentOKBodyQANPostgresqlPgstatmonitorAgent
 */
 type GetAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -5279,6 +5396,7 @@ GetAgentOKBodyRDSExporter RDSExporter runs on Generic or Container Node and expo
 swagger:model GetAgentOKBodyRDSExporter
 */
 type GetAgentOKBodyRDSExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -5511,6 +5629,7 @@ func (o *GetAgentOKBodyRDSExporter) ContextValidate(ctx context.Context, formats
 }
 
 func (o *GetAgentOKBodyRDSExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -5557,6 +5676,7 @@ GetAgentOKBodyRDSExporterMetricsResolutions MetricsResolutions represents Promet
 swagger:model GetAgentOKBodyRDSExporterMetricsResolutions
 */
 type GetAgentOKBodyRDSExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -5600,6 +5720,7 @@ GetAgentOKBodyRtaMongodbAgent RTAMongoDBAgent runs within pmm-agent and sends Mo
 swagger:model GetAgentOKBodyRtaMongodbAgent
 */
 type GetAgentOKBodyRtaMongodbAgent struct {
+
 	// Unique agent identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -5820,6 +5941,7 @@ func (o *GetAgentOKBodyRtaMongodbAgent) ContextValidate(ctx context.Context, for
 }
 
 func (o *GetAgentOKBodyRtaMongodbAgent) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.RtaOptions != nil {
 
 		if swag.IsZero(o.RtaOptions) { // not required
@@ -5866,6 +5988,7 @@ GetAgentOKBodyRtaMongodbAgentRtaOptions RTAOptions holds Real-Time Query Analyti
 swagger:model GetAgentOKBodyRtaMongodbAgentRtaOptions
 */
 type GetAgentOKBodyRtaMongodbAgentRtaOptions struct {
+
 	// Query collect interval (default 2s is set by server).
 	CollectInterval string `json:"collect_interval,omitempty"`
 }
@@ -5899,10 +6022,317 @@ func (o *GetAgentOKBodyRtaMongodbAgentRtaOptions) UnmarshalBinary(b []byte) erro
 }
 
 /*
+GetAgentOKBodyRtaMysqlAgent RTAMySQLAgent runs within pmm-agent and sends MySQL Real-Time Query Analytics data to the PMM Server.
+swagger:model GetAgentOKBodyRtaMysqlAgent
+*/
+type GetAgentOKBodyRtaMysqlAgent struct {
+
+	// Unique agent identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MySQL username for getting the currently running queries.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// rta options
+	RtaOptions *GetAgentOKBodyRtaMysqlAgentRtaOptions `json:"rta_options,omitempty"`
+}
+
+// Validate validates this get agent OK body rta mysql agent
+func (o *GetAgentOKBodyRtaMysqlAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAgentOkBodyRtaMysqlAgentTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyRtaMysqlAgentTypeStatusPropEnum = append(getAgentOkBodyRtaMysqlAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyRtaMysqlAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyRtaMysqlAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyRtaMysqlAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOk"+"."+"rta_mysql_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getAgentOkBodyRtaMysqlAgentTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyRtaMysqlAgentTypeLogLevelPropEnum = append(getAgentOkBodyRtaMysqlAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// GetAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// GetAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// GetAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// GetAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// GetAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyRtaMysqlAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getAgentOkBodyRtaMysqlAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyRtaMysqlAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("getAgentOk"+"."+"rta_mysql_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBodyRtaMysqlAgent) validateRtaOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaOptions) { // not required
+		return nil
+	}
+
+	if o.RtaOptions != nil {
+		if err := o.RtaOptions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("getAgentOk" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("getAgentOk" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get agent OK body rta mysql agent based on the context it is used
+func (o *GetAgentOKBodyRtaMysqlAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateRtaOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyRtaMysqlAgent) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+
+	if o.RtaOptions != nil {
+
+		if swag.IsZero(o.RtaOptions) { // not required
+			return nil
+		}
+
+		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("getAgentOk" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("getAgentOk" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyRtaMysqlAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyRtaMysqlAgent) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyRtaMysqlAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetAgentOKBodyRtaMysqlAgentRtaOptions RTAOptions holds Real-Time Query Analytics agent options.
+swagger:model GetAgentOKBodyRtaMysqlAgentRtaOptions
+*/
+type GetAgentOKBodyRtaMysqlAgentRtaOptions struct {
+
+	// Query collect interval (default 2s is set by server).
+	CollectInterval string `json:"collect_interval,omitempty"`
+}
+
+// Validate validates this get agent OK body rta mysql agent rta options
+func (o *GetAgentOKBodyRtaMysqlAgentRtaOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get agent OK body rta mysql agent rta options based on context it is used
+func (o *GetAgentOKBodyRtaMysqlAgentRtaOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyRtaMysqlAgentRtaOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyRtaMysqlAgentRtaOptions) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyRtaMysqlAgentRtaOptions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
 GetAgentOKBodyValkeyExporter ValkeyExporter runs on Generic or Container Node and exposes Valkey Service metrics.
 swagger:model GetAgentOKBodyValkeyExporter
 */
 type GetAgentOKBodyValkeyExporter struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -6077,6 +6507,7 @@ func (o *GetAgentOKBodyValkeyExporter) ContextValidate(ctx context.Context, form
 }
 
 func (o *GetAgentOKBodyValkeyExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.MetricsResolutions != nil {
 
 		if swag.IsZero(o.MetricsResolutions) { // not required
@@ -6123,6 +6554,7 @@ GetAgentOKBodyValkeyExporterMetricsResolutions MetricsResolutions represents Pro
 swagger:model GetAgentOKBodyValkeyExporterMetricsResolutions
 */
 type GetAgentOKBodyValkeyExporterMetricsResolutions struct {
+
 	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
 	Hr string `json:"hr,omitempty"`
 
@@ -6168,6 +6600,7 @@ GetAgentOKBodyVmagent VMAgent runs on Generic or Container Node alongside pmm-ag
 swagger:model GetAgentOKBodyVmagent
 */
 type GetAgentOKBodyVmagent struct {
+
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

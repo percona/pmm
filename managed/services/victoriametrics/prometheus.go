@@ -196,7 +196,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 			continue
 		case models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType:
 			continue
-		case models.RTAMongoDBAgentType:
+		case models.RTAMongoDBAgentType, models.RTAMySQLAgentType:
 			continue
 		case models.RDSExporterType:
 			if skipExternalAgents && pointer.GetString(agent.RunsOnNodeID) == models.PMMServerNodeID {

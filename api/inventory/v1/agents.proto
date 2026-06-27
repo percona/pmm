@@ -34,6 +34,7 @@ enum AgentType {
   AGENT_TYPE_AZURE_DATABASE_EXPORTER = 15;
   AGENT_TYPE_NOMAD_AGENT = 16;
   AGENT_TYPE_RTA_MONGODB_AGENT = 19;
+  AGENT_TYPE_RTA_MYSQL_AGENT = 20;
 }
 
 // PMMAgent runs on Generic or Container Node.
@@ -574,6 +575,32 @@ message RTAMongoDBAgent {
   LogLevel log_level = 11;
 }
 
+// RTAMySQLAgent runs within pmm-agent and sends MySQL Real-Time Query Analytics data to the PMM Server.
+message RTAMySQLAgent {
+  // Unique agent identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
+  // Service identifier.
+  string service_id = 4;
+  // MySQL username for getting the currently running queries.
+  string username = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Use TLS for database connections.
+  bool tls = 6;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 8;
+  // Real-Time Analytics options.
+  RTAOptions rta_options = 9;
+  // Actual Agent status.
+  AgentStatus status = 10;
+  // Log level for exporter.
+  LogLevel log_level = 11;
+}
+
 // QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
 message QANPostgreSQLPgStatementsAgent {
   // Unique randomly generated instance identifier.
@@ -805,6 +832,7 @@ message ListAgentsResponse {
   repeated NomadAgent nomad_agent = 16;
   repeated ValkeyExporter valkey_exporter = 17;
   repeated RTAMongoDBAgent rta_mongodb_agent = 19;
+  repeated RTAMySQLAgent rta_mysql_agent = 20;
 }
 
 // Get
@@ -835,6 +863,7 @@ message GetAgentResponse {
     NomadAgent nomad_agent = 16;
     ValkeyExporter valkey_exporter = 17;
     RTAMongoDBAgent rta_mongodb_agent = 19;
+    RTAMySQLAgent rta_mysql_agent = 20;
   }
 }
 
@@ -875,6 +904,7 @@ message AddAgentRequest {
     AddQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
     AddValkeyExporterParams valkey_exporter = 15;
     AddRTAMongoDBAgentParams rta_mongodb_agent = 17;
+    AddRTAMySQLAgentParams rta_mysql_agent = 18;
   }
 }
 
@@ -897,6 +927,7 @@ message AddAgentResponse {
     QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
     ValkeyExporter valkey_exporter = 15;
     RTAMongoDBAgent rta_mongodb_agent = 17;
+    RTAMySQLAgent rta_mysql_agent = 18;
   }
 }
 
@@ -923,6 +954,7 @@ message ChangeAgentRequest {
     ChangeNomadAgentParams nomad_agent = 15;
     ChangeValkeyExporterParams valkey_exporter = 16;
     ChangeRTAMongoDBAgentParams rta_mongodb_agent = 18;
+    ChangeRTAMySQLAgentParams rta_mysql_agent = 19;
   }
 }
 
@@ -947,6 +979,7 @@ message ChangeAgentResponse {
     NomadAgent nomad_agent = 15;
     ValkeyExporter valkey_exporter = 16;
     RTAMongoDBAgent rta_mongodb_agent = 18;
+    RTAMySQLAgent rta_mysql_agent = 19;
   }
 }
 
@@ -2079,6 +2112,64 @@ message ChangeRTAMongoDBAgentParams {
   optional string authentication_mechanism = 11;
   // Real-Time Analytics options.
   optional RTAOptions rta_options = 12;
+}
+
+// Add/Change RTAMySQLAgent
+
+message AddRTAMySQLAgentParams {
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
+  // Service identifier.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+  // MySQL username for getting queries data.
+  string username = 3 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // MySQL password for getting queries data.
+  string password = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 5;
+  // Log level for agent.
+  LogLevel log_level = 6;
+
+  // MySQL specific options.
+  // Use TLS for database connections.
+  bool tls = 7;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 8;
+  // Certificate Authority certificate chain.
+  string tls_ca = 9;
+  // Client certificate.
+  string tls_cert = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Password for decrypting tls_cert.
+  string tls_key = 11 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Skip connection check.
+  bool skip_connection_check = 12;
+  // Real-Time Analytics options.
+  RTAOptions rta_options = 13;
+}
+
+message ChangeRTAMySQLAgentParams {
+  // Enable this Agent. Agents are enabled by default when they get added.
+  optional bool enable = 1;
+  // Replace all custom user-assigned labels.
+  optional common.StringMap custom_labels = 2;
+  // Log level for exporter.
+  optional LogLevel log_level = 3;
+  // MySQL username for getting queries data.
+  optional string username = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // MySQL password for getting queries data.
+  optional string password = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Use TLS for database connections.
+  optional bool tls = 6;
+  // Skip TLS certificate and hostname validation.
+  optional bool tls_skip_verify = 7;
+  // Certificate Authority certificate chain.
+  optional string tls_ca = 8;
+  // Client certificate.
+  optional string tls_cert = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Password for decrypting tls_cert.
+  optional string tls_key = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Real-Time Analytics options.
+  optional RTAOptions rta_options = 11;
 }
 
 // Remove

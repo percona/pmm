@@ -5,6 +5,7 @@ import { Messages } from './OverviewTable.messages';
 import { QueryCell } from './query-cell';
 import { formatDuration } from 'date-fns';
 import UnavailableText from 'components/unavailable-text';
+import { queryLanguage } from './OverviewTable.utils';
 
 export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   {
@@ -12,7 +13,12 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     header: Messages.columns.queryText,
     accessorKey: 'queryText',
     filterFn: 'contains',
-    Cell: ({ row }) => <QueryCell query={row.original.queryText} />,
+    Cell: ({ row }) => (
+      <QueryCell
+        query={row.original.queryText}
+        language={queryLanguage(row.original)}
+      />
+    ),
     // @ts-expect-error - muiTableBodyCellProps is not typed correctly
     muiTableBodyCellProps: ({ row }) => ({
       'data-testid': `query-${row.original.queryId}-query-text-cell`,

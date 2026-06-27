@@ -26,6 +26,29 @@ message QueryMongoDBData {
   string plan_summary = 8;
 }
 
+// QueryMySQLData holds MySQL-specific Real-Time Analytics query information.
+// The data is sourced from the sys.x$processlist view.
+message QueryMySQLData {
+  // MySQL instance address(host:port) that processing the query.
+  string db_instance_address = 1;
+  // Client program name connected to MySQL (program_name from sys.x$processlist).
+  string program_name = 2;
+  // Database name (db from sys.x$processlist).
+  string database_name = 3;
+  // Command type the connection is executing ("Query", "Execute", etc).
+  string command = 4;
+  // State of the connection/thread (for example "Sending data").
+  string state = 5;
+  // MySQL user name associated with the query.
+  string username = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Number of rows examined by the statement so far.
+  int64 rows_examined = 7;
+  // Number of rows sent by the statement so far.
+  int64 rows_sent = 8;
+  // Indicates whether the statement performed a full table scan.
+  bool full_scan = 9;
+}
+
 // QueryData represents a single Real-Time Analytics query data point.
 // It includes general query information and a payload for database-specific details.
 message QueryData {
@@ -49,5 +72,7 @@ message QueryData {
   oneof payload {
     // MongoDB-specific query data.
     QueryMongoDBData mongo_db_payload = 9;
+    // MySQL-specific query data.
+    QueryMySQLData my_sql_payload = 10;
   }
 }
