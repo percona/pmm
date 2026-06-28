@@ -251,6 +251,15 @@ message ListCheckResultsHistoryResponse {
   repeated CheckResultHistoryItem results = 3;
 }
 
+message MarkCheckResultsReadRequest {
+  // IDs of the history records to update.
+  repeated string ids = 1 [(validate.rules).repeated.min_items = 1];
+  // Read state to set on the records.
+  bool is_read = 2;
+}
+
+message MarkCheckResultsReadResponse {}
+
 // AdvisorService service provides public Management API methods for Advisor Service.
 service AdvisorService {
   // ListFailedServices returns a list of services with failed checks.
@@ -275,6 +284,17 @@ service AdvisorService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Advisor Check Results History"
       description: "Returns the history of Advisor check runs, including their outcomes."
+    };
+  }
+  // MarkCheckResultsRead sets the read state on Advisor check history records.
+  rpc MarkCheckResultsRead(MarkCheckResultsReadRequest) returns (MarkCheckResultsReadResponse) {
+    option (google.api.http) = {
+      post: "/v1/advisors/checks/history:markRead"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Mark Advisor Check Results Read"
+      description: "Sets the read state on the specified Advisor check history records. Set is_read to false to mark them unread."
     };
   }
   // StartAdvisorChecks executes Advisor checks and returns when all checks are executed.

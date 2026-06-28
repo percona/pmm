@@ -1000,6 +1000,7 @@ var (
 		(*MapFieldEntry)(nil), // 2: qan.v1.MapFieldEntry
 	}
 )
+
 var file_qan_v1_qan_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

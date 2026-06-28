@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // GetSettingsReader is a Reader for the GetSettings structure.
@@ -693,6 +694,16 @@ type GetSettingsOKBodySettings struct {
 	// data retention
 	DataRetention string `json:"data_retention,omitempty"`
 
+	// Advisor check results history retention.
+	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
+
+	// True if Advisor email notifications are enabled.
+	AdvisorNotificationsEnabled bool `json:"advisor_notifications_enabled,omitempty"`
+
+	// Severity represents severity level of the check result or alert.
+	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
+	AdvisorNotificationSeverityThreshold *string `json:"advisor_notification_severity_threshold,omitempty"`
+
 	// ssh key
 	SSHKey string `json:"ssh_key,omitempty"`
 
@@ -746,6 +757,10 @@ type GetSettingsOKBodySettings struct {
 func (o *GetSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateAdvisorNotificationSeverityThreshold(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateAdvisorRunIntervals(formats); err != nil {
 		res = append(res, err)
 	}
@@ -757,6 +772,69 @@ func (o *GetSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var getSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum = append(getSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum, v)
+	}
+}
+
+const (
+
+	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYUNSPECIFIED captures enum value "SEVERITY_UNSPECIFIED"
+	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYUNSPECIFIED string = "SEVERITY_UNSPECIFIED"
+
+	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+
+	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYALERT captures enum value "SEVERITY_ALERT"
+	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYALERT string = "SEVERITY_ALERT"
+
+	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+
+	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYERROR captures enum value "SEVERITY_ERROR"
+	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYERROR string = "SEVERITY_ERROR"
+
+	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYWARNING string = "SEVERITY_WARNING"
+
+	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYNOTICE string = "SEVERITY_NOTICE"
+
+	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYINFO captures enum value "SEVERITY_INFO"
+	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYINFO string = "SEVERITY_INFO"
+
+	// GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	GetSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYDEBUG string = "SEVERITY_DEBUG"
+)
+
+// prop value enum
+func (o *GetSettingsOKBodySettings) validateAdvisorNotificationSeverityThresholdEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetSettingsOKBodySettings) validateAdvisorNotificationSeverityThreshold(formats strfmt.Registry) error {
+	if swag.IsZero(o.AdvisorNotificationSeverityThreshold) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateAdvisorNotificationSeverityThresholdEnum("getSettingsOk"+"."+"settings"+"."+"advisor_notification_severity_threshold", "body", *o.AdvisorNotificationSeverityThreshold); err != nil {
+		return err
+	}
+
 	return nil
 }
 

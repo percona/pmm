@@ -45,6 +45,7 @@ Enable or disable specific PMM features:
 | `PMM_ENABLE_UPDATES` | `true` | Allows version checks and UI updates |
 | `PMM_ENABLE_TELEMETRY` | `true` | Enables usage data collection |
 | `PMM_ENABLE_ALERTING` | `true` | Enables Percona Alerting system |
+| `PMM_ENABLE_ADVISOR_NOTIFICATIONS` | `false` | Enables email notifications for Advisor check results (requires a configured Grafana email contact point) |
 | `PMM_ENABLE_BACKUP_MANAGEMENT` | `true` | Enables backup features |
 | `PMM_ENABLE_AZURE_DISCOVER` | `false` | Enables Azure database discovery |
 | `PMM_ENABLE_INTERNAL_PG_QAN` | `0` (disabled) | Enables Query Analytics for PMM Server's internal PostgreSQL. Useful for troubleshooting or HA scenarios. Set to `1` to enable. Can also be controlled via **Configuration > Settings > Advanced settings**. See [QAN for PMM Server's internal PostgreSQL](../../../../use/qan/QAN-stored-metrics.md#monitor-pmm-servers-internal-postgresql)

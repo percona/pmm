@@ -246,6 +246,40 @@
         ]
       }
     },
+    "/v1/advisors/checks/history:markRead": {
+      "post": {
+        "summary": "Mark Advisor Check Results Read",
+        "description": "Sets the read state on the specified Advisor check history records. Set is_read to false to mark them unread.",
+        "operationId": "MarkCheckResultsRead",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1MarkCheckResultsReadResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1MarkCheckResultsReadRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdvisorService"
+        ]
+      }
+    },
     "/v1/advisors/checks:batchChange": {
       "post": {
         "summary": "Change Advisor Checks",
@@ -752,6 +786,25 @@
           }
         }
       }
+    },
+    "v1MarkCheckResultsReadRequest": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "IDs of the history records to update."
+        },
+        "is_read": {
+          "type": "boolean",
+          "description": "Read state to set on the records."
+        }
+      }
+    },
+    "v1MarkCheckResultsReadResponse": {
+      "type": "object"
     },
     "v1Severity": {
       "type": "string",

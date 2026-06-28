@@ -265,6 +265,19 @@ func (s *ChecksAPIService) ListCheckResultsHistory(
 	}, nil
 }
 
+// MarkCheckResultsRead sets the read state on the specified Advisor check history records.
+func (s *ChecksAPIService) MarkCheckResultsRead(
+	ctx context.Context,
+	req *advisorsv1.MarkCheckResultsReadRequest,
+) (*advisorsv1.MarkCheckResultsReadResponse, error) {
+	err := s.checksService.MarkCheckResultsRead(ctx, req.Ids, req.IsRead)
+	if err != nil {
+		return nil, fmt.Errorf("failed to mark check results read: %w", err)
+	}
+
+	return &advisorsv1.MarkCheckResultsReadResponse{}, nil
+}
+
 // StartAdvisorChecks executes advisor checks and returns when all checks are executed.
 func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1.StartAdvisorChecksRequest) (*advisorsv1.StartAdvisorChecksResponse, error) {
 	// Start only specified checks from any group.

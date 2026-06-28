@@ -63,6 +63,8 @@ type ClientService interface {
 
 	ListFailedServices(params *ListFailedServicesParams, opts ...ClientOption) (*ListFailedServicesOK, error)
 
+	MarkCheckResultsRead(params *MarkCheckResultsReadParams, opts ...ClientOption) (*MarkCheckResultsReadOK, error)
+
 	StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...ClientOption) (*StartAdvisorChecksOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -328,6 +330,50 @@ func (a *Client) ListFailedServices(params *ListFailedServicesParams, opts ...Cl
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListFailedServicesDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+MarkCheckResultsRead marks advisor check results read
+
+Sets the read state on the specified Advisor check history records. Set is_read to false to mark them unread.
+*/
+func (a *Client) MarkCheckResultsRead(params *MarkCheckResultsReadParams, opts ...ClientOption) (*MarkCheckResultsReadOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewMarkCheckResultsReadParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "MarkCheckResultsRead",
+		Method:             "POST",
+		PathPattern:        "/v1/advisors/checks/history:markRead",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &MarkCheckResultsReadReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*MarkCheckResultsReadOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*MarkCheckResultsReadDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

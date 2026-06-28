@@ -263,6 +263,11 @@ func (s *Service) GetCheckResultsHistory(_ context.Context, filters models.Check
 	return results, total, nil
 }
 
+// MarkCheckResultsRead sets the read state on the check results history with the given IDs.
+func (s *Service) MarkCheckResultsRead(_ context.Context, ids []string, isRead bool) error {
+	return models.MarkCheckResultsRead(s.db.Querier, ids, isRead)
+}
+
 // runChecksGroup downloads and executes Advisors checks that should run in the interval specified by intervalGroup.
 // All checks are executed if intervalGroup is empty.
 func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interval) error {

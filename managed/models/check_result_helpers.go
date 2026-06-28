@@ -136,6 +136,28 @@ func CountCheckResults(q *reform.Querier, filters CheckResultFilters) (int, erro
 	return count, nil
 }
 
+// MarkCheckResultsRead sets the read state on the check results with the given IDs.
+func MarkCheckResultsRead(q *reform.Querier, ids []string, isRead bool) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	args := []any{isRead}
+	placeholders := make([]string, 0, len(ids))
+	for _, id := range ids {
+		placeholders = append(placeholders, q.Placeholder(len(args)+1))
+		args = append(args, id)
+	}
+
+	query := "UPDATE " + CheckResultTable.Name() + " SET is_read = " + q.Placeholder(1) +
+		" WHERE id IN (" + strings.Join(placeholders, ", ") + ")"
+	_, err := q.Exec(query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to mark check results as read: %w", err)
+	}
+	return nil
+}
+
 // CleanupOldCheckResults deletes Advisor check results older than a specified date.
 func CleanupOldCheckResults(q *reform.Querier, olderThan time.Time) error {
 	_, err := q.DeleteFrom(CheckResultTable, " WHERE checked_at <= $1", olderThan)

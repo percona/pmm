@@ -228,6 +228,24 @@ func (_m *mockChecksService) GetDisabledChecks() ([]string, error) {
 	return r0, r1
 }
 
+// MarkCheckResultsRead provides a mock function with given fields: ctx, ids, isRead
+func (_m *mockChecksService) MarkCheckResultsRead(ctx context.Context, ids []string, isRead bool) error {
+	ret := _m.Called(ctx, ids, isRead)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MarkCheckResultsRead")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []string, bool) error); ok {
+		r0 = rf(ctx, ids, isRead)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // StartChecks provides a mock function with given fields: checkNames
 func (_m *mockChecksService) StartChecks(checkNames []string) error {
 	ret := _m.Called(checkNames)

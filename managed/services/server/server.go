@@ -41,8 +41,10 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/envvars"
@@ -502,13 +504,17 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 			StandardInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.StandardInterval),
 			FrequentInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.FrequentInterval),
 		},
-		DataRetention:        durationpb.New(settings.DataRetention),
-		SshKey:               settings.SSHKey,
-		AwsPartitions:        settings.AWSPartitions,
-		AdvisorEnabled:       settings.IsAdvisorsEnabled(),
-		AzurediscoverEnabled: settings.IsAzureDiscoverEnabled(),
-		PmmPublicAddress:     settings.PMMPublicAddress,
-		EnableInternalPgQan:  !disableInternalPgQan,
+		DataRetention:           durationpb.New(settings.DataRetention),
+		AdvisorHistoryRetention: durationpb.New(settings.AdvisorHistoryRetention),
+		//nolint:gosec // severity is a small bounded enum value
+		AdvisorNotificationSeverityThreshold: managementv1.Severity(settings.AdvisorNotifications.SeverityThreshold),
+		AdvisorNotificationsEnabled:          settings.IsAdvisorNotificationsEnabled(),
+		SshKey:                               settings.SSHKey,
+		AwsPartitions:                        settings.AWSPartitions,
+		AdvisorEnabled:                       settings.IsAdvisorsEnabled(),
+		AzurediscoverEnabled:                 settings.IsAzureDiscoverEnabled(),
+		PmmPublicAddress:                     settings.PMMPublicAddress,
+		EnableInternalPgQan:                  !disableInternalPgQan,
 
 		AlertingEnabled:         settings.IsAlertingEnabled(),
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
@@ -615,6 +621,11 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Azure Discover is configured via PMM_ENABLE_AZURE_DISCOVER environment variable.")
 	}
 
+	if req.EnableAdvisorNotifications != nil && s.envSettings.EnableAdvisorNotifications != nil &&
+		*req.EnableAdvisorNotifications != *s.envSettings.EnableAdvisorNotifications {
+		return status.Error(codes.FailedPrecondition, "Advisor notifications are configured via PMM_ENABLE_ADVISOR_NOTIFICATIONS environment variable.")
+	}
+
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
 		return status.Error(
 			codes.FailedPrecondition,
@@ -632,6 +643,10 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 
 	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
+	}
+
+	if !canUpdateDurationSetting(req.AdvisorHistoryRetention.AsDuration(), s.envSettings.AdvisorHistoryRetention) {
+		return status.Error(codes.FailedPrecondition, "Advisor check results history retention is set via PMM_ADVISOR_HISTORY_RETENTION environment variable.")
 	}
 
 	if !canUpdateDurationSetting(req.UpdateSnoozeDuration.AsDuration(), s.envSettings.UpdateSnoozeDuration) {
@@ -681,8 +696,11 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 				MR: metricsRes.GetMr().AsDuration(),
 				LR: metricsRes.GetLr().AsDuration(),
 			},
-			DataRetention: req.DataRetention.AsDuration(),
-			SSHKey:        req.SshKey,
+			DataRetention:                        req.DataRetention.AsDuration(),
+			AdvisorHistoryRetention:              req.AdvisorHistoryRetention.AsDuration(),
+			EnableAdvisorNotifications:           req.EnableAdvisorNotifications,
+			AdvisorNotificationSeverityThreshold: common.Severity(req.AdvisorNotificationSeverityThreshold),
+			SSHKey:                               req.SshKey,
 		}
 
 		if req.AwsPartitions != nil {

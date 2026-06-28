@@ -64,6 +64,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_METRICS_RESOLUTION, PMM_METRICS_RESOLUTION_MR, PMM_METRICS_RESOLUTION_HR, PMM_METRICS_RESOLUTION_LR are durations of metrics resolution;
 //   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - PMM_ADVISOR_HISTORY_RETENTION is the duration of how long to keep Advisor check results history;
+//   - PMM_ENABLE_ADVISOR_NOTIFICATIONS enables Advisor email notifications;
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
@@ -198,6 +199,14 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 			envSettings.EnableAlerting = &b
+
+		case "PMM_ENABLE_ADVISOR_NOTIFICATIONS":
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
+			}
+			envSettings.EnableAdvisorNotifications = &b
 
 		case "PMM_ENABLE_AZURE_DISCOVER":
 			b, err := strconv.ParseBool(v)

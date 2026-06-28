@@ -559,6 +559,7 @@ var (
 		(*v1.RTAMongoDBAgent)(nil),         // 11: inventory.v1.RTAMongoDBAgent
 	}
 )
+
 var file_management_v1_mongodb_proto_depIdxs = []int32{
 	3,  // 0: management.v1.AddMongoDBServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2,  // 1: management.v1.AddMongoDBServiceParams.custom_labels:type_name -> management.v1.AddMongoDBServiceParams.CustomLabelsEntry

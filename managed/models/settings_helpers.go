@@ -25,6 +25,7 @@ import (
 	"github.com/google/uuid"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/utils/validators"
 )
 
@@ -61,6 +62,11 @@ type ChangeSettingsParams struct {
 	DataRetention time.Duration
 
 	AdvisorHistoryRetention time.Duration
+
+	// Enable Advisor email notifications.
+	EnableAdvisorNotifications *bool
+	// Least-severe level that triggers an Advisor notification. Unknown means "do not change".
+	AdvisorNotificationSeverityThreshold common.Severity
 
 	// List of AWS partitions to use. If empty - default partitions will be used. If nil - no changes will be made.
 	AWSPartitions []string
@@ -177,6 +183,14 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.AdvisorHistoryRetention != 0 {
 		settings.AdvisorHistoryRetention = params.AdvisorHistoryRetention
+	}
+
+	if params.EnableAdvisorNotifications != nil {
+		settings.AdvisorNotifications.Enabled = params.EnableAdvisorNotifications
+	}
+
+	if params.AdvisorNotificationSeverityThreshold != common.Unknown {
+		settings.AdvisorNotifications.SeverityThreshold = params.AdvisorNotificationSeverityThreshold
 	}
 
 	if params.AWSPartitions != nil {
@@ -343,6 +357,13 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			default:
 				return fmt.Errorf("advisor_history_retention: %w", err)
 			}
+		}
+	}
+
+	if params.AdvisorNotificationSeverityThreshold != common.Unknown {
+		err := params.AdvisorNotificationSeverityThreshold.Validate()
+		if err != nil {
+			return fmt.Errorf("advisor_notification_severity_threshold: %w", err)
 		}
 	}
 

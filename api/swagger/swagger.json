@@ -1498,6 +1498,80 @@
         }
       }
     },
+    "/v1/advisors/checks/history:markRead": {
+      "post": {
+        "description": "Sets the read state on the specified Advisor check history records. Set is_read to false to mark them unread.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Mark Advisor Check Results Read",
+        "operationId": "MarkCheckResultsRead",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ids": {
+                  "description": "IDs of the history records to update.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                },
+                "is_read": {
+                  "description": "Read state to set on the records.",
+                  "type": "boolean",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/advisors/checks:batchChange": {
       "post": {
         "description": "Enables/disables advisor checks or changes their exec interval.",
@@ -31482,35 +31556,62 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "ssh_key": {
+                    "advisor_history_retention": {
+                      "description": "Advisor check results history retention.",
                       "type": "string",
                       "x-order": 4
+                    },
+                    "advisor_notifications_enabled": {
+                      "description": "True if Advisor email notifications are enabled.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "advisor_notification_severity_threshold": {
+                      "description": "Severity represents severity level of the check result or alert.",
+                      "type": "string",
+                      "default": "SEVERITY_UNSPECIFIED",
+                      "enum": [
+                        "SEVERITY_UNSPECIFIED",
+                        "SEVERITY_EMERGENCY",
+                        "SEVERITY_ALERT",
+                        "SEVERITY_CRITICAL",
+                        "SEVERITY_ERROR",
+                        "SEVERITY_WARNING",
+                        "SEVERITY_NOTICE",
+                        "SEVERITY_INFO",
+                        "SEVERITY_DEBUG"
+                      ],
+                      "x-order": 6
+                    },
+                    "ssh_key": {
+                      "type": "string",
+                      "x-order": 7
                     },
                     "aws_partitions": {
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 5
+                      "x-order": 8
                     },
                     "advisor_enabled": {
                       "description": "True if Advisor is enabled.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 9
                     },
                     "platform_email": {
                       "type": "string",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 12
                     },
                     "advisor_run_intervals": {
                       "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
@@ -31532,22 +31633,22 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 10
+                      "x-order": 13
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 14
                     },
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 15
                     },
                     "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 13
+                      "x-order": 16
                     },
                     "telemetry_summaries": {
                       "type": "array",
@@ -31555,28 +31656,28 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 17
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 15
+                      "x-order": 18
                     },
                     "default_role_id": {
                       "description": "Default Access Control role ID for new users.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 16
+                      "x-order": 19
                     },
                     "enable_internal_pg_qan": {
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 20
                     },
                     "update_snooze_duration": {
                       "type": "string",
                       "title": "Duration for which an update is snoozed",
-                      "x-order": 18
+                      "x-order": 21
                     }
                   },
                   "x-order": 0
@@ -31671,10 +31772,38 @@
                   "type": "string",
                   "x-order": 3
                 },
+                "advisor_history_retention": {
+                  "description": "A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h.",
+                  "type": "string",
+                  "x-order": 4
+                },
+                "enable_advisor_notifications": {
+                  "description": "Enable Advisor email notifications.",
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 5
+                },
+                "advisor_notification_severity_threshold": {
+                  "description": "Severity represents severity level of the check result or alert.",
+                  "type": "string",
+                  "default": "SEVERITY_UNSPECIFIED",
+                  "enum": [
+                    "SEVERITY_UNSPECIFIED",
+                    "SEVERITY_EMERGENCY",
+                    "SEVERITY_ALERT",
+                    "SEVERITY_CRITICAL",
+                    "SEVERITY_ERROR",
+                    "SEVERITY_WARNING",
+                    "SEVERITY_NOTICE",
+                    "SEVERITY_INFO",
+                    "SEVERITY_DEBUG"
+                  ],
+                  "x-order": 6
+                },
                 "ssh_key": {
                   "type": "string",
                   "x-nullable": true,
-                  "x-order": 4
+                  "x-order": 7
                 },
                 "aws_partitions": {
                   "description": "A wrapper for a string array. This type allows to distinguish between an empty array and a null value.",
@@ -31689,25 +31818,25 @@
                     }
                   },
                   "x-nullable": true,
-                  "x-order": 5
+                  "x-order": 8
                 },
                 "enable_advisor": {
                   "description": "Enable Advisor.",
                   "type": "boolean",
                   "x-nullable": true,
-                  "x-order": 6
+                  "x-order": 9
                 },
                 "enable_alerting": {
                   "description": "Enable Alerting.",
                   "type": "boolean",
                   "x-nullable": true,
-                  "x-order": 7
+                  "x-order": 10
                 },
                 "pmm_public_address": {
                   "description": "PMM Server public address.",
                   "type": "string",
                   "x-nullable": true,
-                  "x-order": 8
+                  "x-order": 11
                 },
                 "advisor_run_intervals": {
                   "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
@@ -31729,36 +31858,36 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 9
+                  "x-order": 12
                 },
                 "enable_azurediscover": {
                   "description": "Enable Azure Discover.",
                   "type": "boolean",
                   "x-nullable": true,
-                  "x-order": 10
+                  "x-order": 13
                 },
                 "enable_backup_management": {
                   "description": "Enable Backup Management.",
                   "type": "boolean",
                   "x-nullable": true,
-                  "x-order": 11
+                  "x-order": 14
                 },
                 "enable_access_control": {
                   "type": "boolean",
                   "title": "Enable Access Control",
                   "x-nullable": true,
-                  "x-order": 12
+                  "x-order": 15
                 },
                 "enable_internal_pg_qan": {
                   "description": "Enable Query Analytics for PMM's internal PG database.",
                   "type": "boolean",
                   "x-nullable": true,
-                  "x-order": 13
+                  "x-order": 16
                 },
                 "update_snooze_duration": {
                   "description": "A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.",
                   "type": "string",
-                  "x-order": 14
+                  "x-order": 17
                 }
               }
             }
@@ -31810,35 +31939,62 @@
                       "type": "string",
                       "x-order": 3
                     },
-                    "ssh_key": {
+                    "advisor_history_retention": {
+                      "description": "Advisor check results history retention.",
                       "type": "string",
                       "x-order": 4
+                    },
+                    "advisor_notifications_enabled": {
+                      "description": "True if Advisor email notifications are enabled.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "advisor_notification_severity_threshold": {
+                      "description": "Severity represents severity level of the check result or alert.",
+                      "type": "string",
+                      "default": "SEVERITY_UNSPECIFIED",
+                      "enum": [
+                        "SEVERITY_UNSPECIFIED",
+                        "SEVERITY_EMERGENCY",
+                        "SEVERITY_ALERT",
+                        "SEVERITY_CRITICAL",
+                        "SEVERITY_ERROR",
+                        "SEVERITY_WARNING",
+                        "SEVERITY_NOTICE",
+                        "SEVERITY_INFO",
+                        "SEVERITY_DEBUG"
+                      ],
+                      "x-order": 6
+                    },
+                    "ssh_key": {
+                      "type": "string",
+                      "x-order": 7
                     },
                     "aws_partitions": {
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 5
+                      "x-order": 8
                     },
                     "advisor_enabled": {
                       "description": "True if Advisor is enabled.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 9
                     },
                     "platform_email": {
                       "type": "string",
-                      "x-order": 7
+                      "x-order": 10
                     },
                     "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 11
                     },
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 12
                     },
                     "advisor_run_intervals": {
                       "description": "AdvisorRunIntervals represents intervals between each run of Advisor checks.",
@@ -31860,22 +32016,22 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 10
+                      "x-order": 13
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 14
                     },
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 12
+                      "x-order": 15
                     },
                     "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 13
+                      "x-order": 16
                     },
                     "telemetry_summaries": {
                       "type": "array",
@@ -31883,28 +32039,28 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 14
+                      "x-order": 17
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 15
+                      "x-order": 18
                     },
                     "default_role_id": {
                       "description": "Default Access Control role ID for new users.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 16
+                      "x-order": 19
                     },
                     "enable_internal_pg_qan": {
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 20
                     },
                     "update_snooze_duration": {
                       "type": "string",
                       "title": "Duration for which an update is snoozed",
-                      "x-order": 18
+                      "x-order": 21
                     }
                   },
                   "x-order": 0

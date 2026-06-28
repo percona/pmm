@@ -389,6 +389,19 @@
           "type": "string",
           "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h."
         },
+        "advisor_history_retention": {
+          "type": "string",
+          "description": "A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h."
+        },
+        "enable_advisor_notifications": {
+          "type": "boolean",
+          "x-nullable": true,
+          "description": "Enable Advisor email notifications."
+        },
+        "advisor_notification_severity_threshold": {
+          "$ref": "#/definitions/v1Severity",
+          "description": "Least-severe level that triggers an Advisor notification."
+        },
         "ssh_key": {
           "type": "string",
           "x-nullable": true
@@ -630,6 +643,18 @@
         "data_retention": {
           "type": "string"
         },
+        "advisor_history_retention": {
+          "type": "string",
+          "description": "Advisor check results history retention."
+        },
+        "advisor_notifications_enabled": {
+          "type": "boolean",
+          "description": "True if Advisor email notifications are enabled."
+        },
+        "advisor_notification_severity_threshold": {
+          "$ref": "#/definitions/v1Severity",
+          "description": "Least-severe level that triggers an Advisor notification."
+        },
         "ssh_key": {
           "type": "string"
         },
@@ -696,6 +721,22 @@
         }
       },
       "description": "Settings represents PMM Server settings."
+    },
+    "v1Severity": {
+      "type": "string",
+      "enum": [
+        "SEVERITY_UNSPECIFIED",
+        "SEVERITY_EMERGENCY",
+        "SEVERITY_ALERT",
+        "SEVERITY_CRITICAL",
+        "SEVERITY_ERROR",
+        "SEVERITY_WARNING",
+        "SEVERITY_NOTICE",
+        "SEVERITY_INFO",
+        "SEVERITY_DEBUG"
+      ],
+      "default": "SEVERITY_UNSPECIFIED",
+      "description": "Severity represents severity level of the check result or alert."
     },
     "v1StartUpdateRequest": {
       "type": "object",

@@ -2717,3 +2717,224 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListCheckResultsHistoryResponseValidationError{}
+
+// Validate checks the field values on MarkCheckResultsReadRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *MarkCheckResultsReadRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on MarkCheckResultsReadRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// MarkCheckResultsReadRequestMultiError, or nil if none found.
+func (m *MarkCheckResultsReadRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *MarkCheckResultsReadRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(m.GetIds()) < 1 {
+		err := MarkCheckResultsReadRequestValidationError{
+			field:  "Ids",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for IsRead
+
+	if len(errors) > 0 {
+		return MarkCheckResultsReadRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// MarkCheckResultsReadRequestMultiError is an error wrapping multiple
+// validation errors returned by MarkCheckResultsReadRequest.ValidateAll() if
+// the designated constraints aren't met.
+type MarkCheckResultsReadRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MarkCheckResultsReadRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MarkCheckResultsReadRequestMultiError) AllErrors() []error { return m }
+
+// MarkCheckResultsReadRequestValidationError is the validation error returned
+// by MarkCheckResultsReadRequest.Validate if the designated constraints
+// aren't met.
+type MarkCheckResultsReadRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MarkCheckResultsReadRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MarkCheckResultsReadRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MarkCheckResultsReadRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MarkCheckResultsReadRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MarkCheckResultsReadRequestValidationError) ErrorName() string {
+	return "MarkCheckResultsReadRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MarkCheckResultsReadRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMarkCheckResultsReadRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = MarkCheckResultsReadRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MarkCheckResultsReadRequestValidationError{}
+
+// Validate checks the field values on MarkCheckResultsReadResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *MarkCheckResultsReadResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on MarkCheckResultsReadResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// MarkCheckResultsReadResponseMultiError, or nil if none found.
+func (m *MarkCheckResultsReadResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *MarkCheckResultsReadResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return MarkCheckResultsReadResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// MarkCheckResultsReadResponseMultiError is an error wrapping multiple
+// validation errors returned by MarkCheckResultsReadResponse.ValidateAll() if
+// the designated constraints aren't met.
+type MarkCheckResultsReadResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MarkCheckResultsReadResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MarkCheckResultsReadResponseMultiError) AllErrors() []error { return m }
+
+// MarkCheckResultsReadResponseValidationError is the validation error returned
+// by MarkCheckResultsReadResponse.Validate if the designated constraints
+// aren't met.
+type MarkCheckResultsReadResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MarkCheckResultsReadResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MarkCheckResultsReadResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MarkCheckResultsReadResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MarkCheckResultsReadResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MarkCheckResultsReadResponseValidationError) ErrorName() string {
+	return "MarkCheckResultsReadResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MarkCheckResultsReadResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMarkCheckResultsReadResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = MarkCheckResultsReadResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MarkCheckResultsReadResponseValidationError{}

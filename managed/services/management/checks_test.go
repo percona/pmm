@@ -291,6 +291,44 @@ func TestListCheckResultsHistory(t *testing.T) {
 	})
 }
 
+func TestMarkCheckResultsRead(t *testing.T) {
+	t.Parallel()
+
+	t.Run("internal error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("MarkCheckResultsRead", mock.Anything, mock.Anything, mock.Anything).
+			Return(errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.MarkCheckResultsRead(t.Context(), &advisorsv1.MarkCheckResultsReadRequest{
+			Ids:    []string{"id1"},
+			IsRead: true,
+		})
+		require.EqualError(t, err, "failed to mark check results read: random error")
+		assert.Nil(t, resp)
+	})
+
+	t.Run("passes ids and read state through", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("MarkCheckResultsRead", mock.Anything, []string{"id1", "id2"}, true).Return(nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.MarkCheckResultsRead(t.Context(), &advisorsv1.MarkCheckResultsReadRequest{
+			Ids:    []string{"id1", "id2"},
+			IsRead: true,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, &advisorsv1.MarkCheckResultsReadResponse{}, resp)
+		checksService.AssertExpectations(t)
+	})
+}
+
 func TestListFailedServices(t *testing.T) {
 	t.Parallel()
 

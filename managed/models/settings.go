@@ -20,6 +20,8 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+
+	"github.com/percona/pmm/managed/pi/common"
 )
 
 // Default values for settings. These values are used when settings are not set.
@@ -33,6 +35,8 @@ const (
 	AzureDiscoverEnabledDefault        = false
 	AccessControlEnabledDefault        = false
 	InternalPgQANEnabledDefault        = false
+	AdvisorNotificationsEnabledDefault = false
+	AdvisorNotificationSeverityDefault = common.Error
 	awsPartitionID                     = "aws"
 )
 
@@ -99,6 +103,13 @@ type Settings struct {
 		Enabled *bool `json:"enabled"`
 	} `json:"alerting"`
 
+	// AdvisorNotifications controls email notifications for Advisor check results.
+	AdvisorNotifications struct {
+		Enabled *bool `json:"enabled"`
+		// SeverityThreshold is the least-severe level that triggers a notification.
+		SeverityThreshold common.Severity `json:"severity_threshold"`
+	} `json:"advisor_notifications"`
+
 	Azurediscover struct {
 		Enabled *bool `json:"enabled"`
 	} `json:"azure"`
@@ -129,6 +140,14 @@ func (s *Settings) IsAlertingEnabled() bool {
 		return *s.Alerting.Enabled
 	}
 	return AlertingEnabledDefault
+}
+
+// IsAdvisorNotificationsEnabled returns true if Advisor email notifications are enabled.
+func (s *Settings) IsAdvisorNotificationsEnabled() bool {
+	if s.AdvisorNotifications.Enabled != nil {
+		return *s.AdvisorNotifications.Enabled
+	}
+	return AdvisorNotificationsEnabledDefault
 }
 
 // IsTelemetryEnabled returns true if telemetry is enabled.
@@ -221,6 +240,10 @@ func (s *Settings) fillDefaults() {
 
 	if s.AdvisorHistoryRetention == 0 {
 		s.AdvisorHistoryRetention = 30 * 24 * time.Hour //nolint:mnd
+	}
+
+	if s.AdvisorNotifications.SeverityThreshold == common.Unknown {
+		s.AdvisorNotifications.SeverityThreshold = AdvisorNotificationSeverityDefault
 	}
 
 	if len(s.AWSPartitions) == 0 {

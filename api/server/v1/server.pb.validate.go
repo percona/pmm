@@ -17,6 +17,8 @@ import (
 	"unicode/utf8"
 
 	"google.golang.org/protobuf/types/known/anypb"
+
+	managementv1 "github.com/percona/pmm/api/management/v1"
 )
 
 // ensure the imports are used
@@ -33,6 +35,8 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
 	_ = sort.Sort
+
+	_ = managementv1.Severity(0)
 )
 
 // Validate checks the field values on VersionInfo with the rules defined in
@@ -2444,6 +2448,39 @@ func (m *Settings) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetAdvisorHistoryRetention()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "AdvisorHistoryRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "AdvisorHistoryRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAdvisorHistoryRetention()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SettingsValidationError{
+				field:  "AdvisorHistoryRetention",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for AdvisorNotificationsEnabled
+
+	// no validation rules for AdvisorNotificationSeverityThreshold
+
 	// no validation rules for SshKey
 
 	// no validation rules for AdvisorEnabled
@@ -3271,6 +3308,37 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	}
 
 	if all {
+		switch v := interface{}(m.GetAdvisorHistoryRetention()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangeSettingsRequestValidationError{
+					field:  "AdvisorHistoryRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangeSettingsRequestValidationError{
+					field:  "AdvisorHistoryRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAdvisorHistoryRetention()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangeSettingsRequestValidationError{
+				field:  "AdvisorHistoryRetention",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for AdvisorNotificationSeverityThreshold
+
+	if all {
 		switch v := interface{}(m.GetAdvisorRunIntervals()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
@@ -3334,6 +3402,10 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 
 	if m.EnableTelemetry != nil {
 		// no validation rules for EnableTelemetry
+	}
+
+	if m.EnableAdvisorNotifications != nil {
+		// no validation rules for EnableAdvisorNotifications
 	}
 
 	if m.SshKey != nil {
