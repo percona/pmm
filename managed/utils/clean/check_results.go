@@ -47,7 +47,8 @@ func (c *CheckResults) Run(ctx context.Context, interval time.Duration) {
 			l.Error(err)
 		} else {
 			olderThanTS := models.Now().Add(-1 * settings.AdvisorHistoryRetention)
-			if err := models.CleanupOldCheckResults(c.db.Querier, olderThanTS); err != nil {
+			err := models.CleanupOldCheckResults(c.db.Querier, olderThanTS)
+			if err != nil {
 				l.Error(err)
 			}
 		}
