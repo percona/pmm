@@ -355,7 +355,6 @@ var (
 		(*v1.ExternalExporter)(nil),      // 6: inventory.v1.ExternalExporter
 	}
 )
-
 var file_management_v1_external_proto_depIdxs = []int32{
 	3, // 0: management.v1.AddExternalServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	2, // 1: management.v1.AddExternalServiceParams.custom_labels:type_name -> management.v1.AddExternalServiceParams.CustomLabelsEntry
