@@ -2014,6 +2014,7 @@ var (
 		(*timestamppb.Timestamp)(nil),           // 30: google.protobuf.Timestamp
 	}
 )
+
 var file_advisors_v1_advisors_proto_depIdxs = []int32{
 	29, // 0: advisors.v1.AdvisorCheckResult.severity:type_name -> management.v1.Severity
 	26, // 1: advisors.v1.AdvisorCheckResult.labels:type_name -> advisors.v1.AdvisorCheckResult.LabelsEntry

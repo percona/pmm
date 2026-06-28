@@ -854,6 +854,7 @@ var (
 		(*v1.QANPostgreSQLPgStatementsAgent)(nil), // 16: inventory.v1.QANPostgreSQLPgStatementsAgent
 	}
 )
+
 var file_management_v1_rds_proto_depIdxs = []int32{
 	0,  // 0: management.v1.DiscoverRDSInstance.engine:type_name -> management.v1.DiscoverRDSEngine
 	1,  // 1: management.v1.DiscoverRDSResponse.rds_instances:type_name -> management.v1.DiscoverRDSInstance

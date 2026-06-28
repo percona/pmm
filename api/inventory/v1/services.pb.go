@@ -3334,6 +3334,7 @@ var (
 		(*common.StringMap)(nil),               // 43: common.StringMap
 	}
 )
+
 var file_inventory_v1_services_proto_depIdxs = []int32{
 	27, // 0: inventory.v1.MySQLService.custom_labels:type_name -> inventory.v1.MySQLService.CustomLabelsEntry
 	28, // 1: inventory.v1.MySQLService.extra_dsn_params:type_name -> inventory.v1.MySQLService.ExtraDsnParamsEntry
