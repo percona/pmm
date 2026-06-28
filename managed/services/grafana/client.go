@@ -759,6 +759,16 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 	return nil
 }
 
+// DeleteAlertRuleGroup deletes a Grafana-managed alert rule group from the given folder.
+func (c *Client) DeleteAlertRuleGroup(ctx context.Context, folderUID, groupName string) error {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	return c.do(ctx, http.MethodDelete, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderUID, groupName), "", authHeaders, nil, nil)
+}
+
 func validateDurations(intervalD, forD string) error {
 	i, err := time.ParseDuration(intervalD)
 	if err != nil {
@@ -804,6 +814,24 @@ func (c *Client) CreateFolder(ctx context.Context, title string) (*gapi.Folder, 
 	}
 
 	return &folder, nil
+}
+
+// CreateFolderWithUID creates a grafana folder with a specific UID.
+func (c *Client) CreateFolderWithUID(ctx context.Context, title, uid string) error {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	body, err := json.Marshal(struct {
+		UID   string `json:"uid"`
+		Title string `json:"title"`
+	}{UID: uid, Title: title})
+	if err != nil {
+		return err
+	}
+
+	return c.do(ctx, http.MethodPost, "/api/folders", "", authHeaders, body, nil)
 }
 
 // DeleteFolder deletes grafana folder.
