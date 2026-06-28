@@ -43,8 +43,9 @@ func TestSettings(t *testing.T) {
 				MR: 10 * time.Second,
 				LR: time.Minute,
 			},
-			DataRetention: 30 * 24 * time.Hour,
-			AWSPartitions: []string{"aws"},
+			DataRetention:           30 * 24 * time.Hour,
+			AdvisorHistoryRetention: 30 * 24 * time.Hour,
+			AWSPartitions:           []string{"aws"},
 			SaaS: models.Advisors{
 				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,
@@ -56,6 +57,7 @@ func TestSettings(t *testing.T) {
 			EncryptedItems: actual.EncryptedItems,
 		}
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
+		expected.AdvisorNotifications.SeverityThreshold = models.AdvisorNotificationSeverityDefault
 		assert.Equal(t, expected, actual)
 	})
 
@@ -69,8 +71,9 @@ func TestSettings(t *testing.T) {
 				MR: 10 * time.Second,
 				LR: time.Minute,
 			},
-			DataRetention: 30 * 24 * time.Hour,
-			AWSPartitions: []string{"aws"},
+			DataRetention:           30 * 24 * time.Hour,
+			AdvisorHistoryRetention: 30 * 24 * time.Hour,
+			AWSPartitions:           []string{"aws"},
 			SaaS: models.Advisors{
 				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,
@@ -80,6 +83,7 @@ func TestSettings(t *testing.T) {
 			},
 		}
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
+		expected.AdvisorNotifications.SeverityThreshold = models.AdvisorNotificationSeverityDefault
 		assert.Equal(t, expected, s)
 	})
 
