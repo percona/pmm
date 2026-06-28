@@ -779,23 +779,18 @@ func validateDurations(intervalD, forD string) error {
 	return nil
 }
 
-// GetDatasourceUIDByID returns grafana datasource UID.
-func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, error) {
+// GetDatasourceUIDByName returns grafana datasource UID.
+func (c *Client) GetDatasourceUIDByName(ctx context.Context, name string) (string, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)
 	if err != nil {
 		return "", fmt.Errorf("failed to create grafana client: %w", err)
 	}
 
-	resp, err := grafanaClient.Datasources.GetDataSources()
+	resp, err := grafanaClient.Datasources.GetDataSourceByName(name)
 	if err != nil {
 		return "", err
 	}
-	for _, ds := range resp.Payload {
-		if ds.ID == id {
-			return ds.UID, nil
-		}
-	}
-	return "", fmt.Errorf("datasource with ID %d not found", id)
+	return resp.Payload.UID, nil
 }
 
 // CreateFolder creates grafana folder.

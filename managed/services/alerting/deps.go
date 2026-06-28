@@ -25,6 +25,6 @@ import (
 
 type grafanaClient interface {
 	CreateAlertRule(ctx context.Context, folderUID, groupName, interval string, rule *services.Rule) error
-	GetDatasourceUIDByID(ctx context.Context, id int64) (string, error)
+	GetDatasourceUIDByName(ctx context.Context, name string) (string, error)
 	GetFolderByUID(ctx context.Context, uid string) (*models.Folder, error)
 }

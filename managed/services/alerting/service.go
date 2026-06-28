@@ -618,7 +618,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, status.Error(codes.InvalidArgument, "Rule group name should be specified.")
 	}
 
-	metricsDatasourceUID, err := s.grafanaClient.GetDatasourceUIDByID(ctx, 1) // 1 - it's id of Metrics datasource in PMM
+	metricsDatasourceUID, err := s.grafanaClient.GetDatasourceUIDByName(ctx, "Metrics")
 	if err != nil {
 		return nil, err
 	}
