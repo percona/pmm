@@ -181,7 +181,16 @@ export function usePerconaTableUrlState({
     (nextState: TableStateValues) => {
       const currentParams = latestSearchParamsRef.current;
       const nextParams = serializeTableUrlState(nextState, currentParams, urlOptions);
-      if (nextParams.toString() === currentParams.toString()) {
+
+      const normalizeParams = (params: URLSearchParams) =>
+        Array.from(params.entries())
+          .sort(([aKey, aVal], [bKey, bVal]) =>
+            aKey === bKey ? aVal.localeCompare(bVal) : aKey.localeCompare(bKey)
+          )
+          .map(([key, value]) => `${key}=${value}`)
+          .join('&');
+
+      if (normalizeParams(nextParams) === normalizeParams(currentParams)) {
         return;
       }
       isInternalUrlUpdateRef.current = true;
