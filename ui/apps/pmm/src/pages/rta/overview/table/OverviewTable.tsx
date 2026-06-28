@@ -1,18 +1,20 @@
-import {
-  type MRT_ColumnFiltersState,
-  type MRT_Row,
-  type MRT_SortingState,
-  type MRT_TableInstance,
-  MaterialReactTableProps,
-} from 'material-react-table';
+import { FC, useCallback, useEffect, useRef } from 'react';
+import { type MRT_Row, type MRT_TableInstance, MaterialReactTableProps } from 'material-react-table';
 import { Table } from '@percona/percona-ui';
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
 import { QueryData } from 'types/rta.types';
 import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
 import { filterElapsedTime } from './OverviewTable.utils';
+import { useTableUrlState } from 'hooks/utils/useTableUrlState';
+
+const OVERVIEW_TABLE_URL_STATE_OPTIONS = {
+  paramPrefix: 'overview',
+  defaults: {
+    pagination: { pageIndex: 0, pageSize: 25 },
+  }
+};
 
 interface Props {
   queries: QueryData[];
@@ -30,9 +32,8 @@ const OverviewTable: FC<Props> = ({
   onRowHover,
 }) => {
   const tableRef = useRef<MRT_TableInstance<QueryData> | null>(null);
-  // Controlled table state is required to read the filtered/sorted row model via tableInstanceRef.
-  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([]);
-  const [sorting, setSorting] = useState<MRT_SortingState>([]);
+  const { tableProps } = useTableUrlState(OVERVIEW_TABLE_URL_STATE_OPTIONS);
+  const { columnFilters, sorting } = tableProps.state;
 
   // Pre-pagination so navigation covers all filtered rows, not only the current page.
   const getNavigableQueries = useCallback(
@@ -54,12 +55,7 @@ const OverviewTable: FC<Props> = ({
     <RealtimeTableWrapper>
       <Table
         tableName="realtime-overview-table"
-        initialState={{
-          pagination: {
-            pageSize: 25,
-            pageIndex: 0,
-          },
-        }}
+        {...tableProps}
         columns={OVERVIEW_TABLE_COLUMNS}
         data={queries}
         noDataMessage={Messages.noData}
@@ -72,9 +68,6 @@ const OverviewTable: FC<Props> = ({
             },
           },
         }}
-        state={{ columnFilters, sorting }}
-        onColumnFiltersChange={setColumnFilters}
-        onSortingChange={setSorting}
         enableStickyHeader
         enableGlobalFilter={false}
         enableHiding={false}
@@ -82,7 +75,7 @@ const OverviewTable: FC<Props> = ({
         tableInstanceRef={tableRef}
         rowHoverAction={(row) => {
           syncNavigableQueries();
-          onQuerySelected(row.original);
+          onQuerySelected(row.original as QueryData);
         }}
         renderTopToolbarCustomActions={actions}
         filterFns={{

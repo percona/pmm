@@ -21,6 +21,11 @@ import { enqueueSnackbar } from 'notistack';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { useUser } from 'contexts/user';
 import { Navigate } from 'react-router-dom';
+import { useTableUrlState } from 'hooks/utils/useTableUrlState';
+
+const SESSIONS_TABLE_URL_STATE_OPTIONS = {
+  paramPrefix: 'sessions',
+};
 
 const SessionsTable: FC = () => {
   const { user } = useUser();
@@ -38,6 +43,10 @@ const SessionsTable: FC = () => {
     [rowSelection, rows]
   );
   const { mutateAsync: stopSessions } = useStopSessions();
+  const { tableProps } = useTableUrlState({
+    ...SESSIONS_TABLE_URL_STATE_OPTIONS,
+    additionalState: { rowSelection },
+  });
 
   const closeModal = () => {
     setModal(null);
@@ -129,9 +138,6 @@ const SessionsTable: FC = () => {
             ...(user?.isPMMAdmin ? ['mrt-row-actions'] : []),
           ],
         }}
-        state={{
-          rowSelection,
-        }}
         positionToolbarAlertBanner="none"
         getRowId={(row) => row.sessionId}
         noDataMessage={Messages.empty}
@@ -163,7 +169,7 @@ const SessionsTable: FC = () => {
               color="inherit"
               size="small"
               data-testid="open-stop-modal"
-              onClick={() => openStopModal(row.original)}
+              onClick={() => openStopModal(row.original as SessionRow)}
             >
               {Messages.stop}
             </Button>
@@ -223,6 +229,7 @@ const SessionsTable: FC = () => {
             </Stack>
           )
         }
+        {...tableProps}
       />
       <StopSessionModal
         open={modal === 'stop'}
