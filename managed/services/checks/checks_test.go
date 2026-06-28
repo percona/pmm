@@ -541,7 +541,8 @@ func TestFindTargets(t *testing.T) {
 }
 
 func TestFindTargetsSkipsOnlyInternalPostgreSQL(t *testing.T) {
-	t.Parallel()
+	// NOTE: no t.Parallel() - testdb.Open recreates a single shared database, so concurrent
+	// testdb tests collide.
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())

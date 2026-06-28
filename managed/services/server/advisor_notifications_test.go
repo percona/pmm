@@ -16,12 +16,17 @@
 package server
 
 import (
+	"errors"
 	"testing"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/common"
+	"github.com/percona/pmm/managed/services"
 )
 
 func TestAdvisorNotificationSeverityRegex(t *testing.T) {
@@ -45,4 +50,69 @@ func TestBuildAdvisorNotificationRule(t *testing.T) {
 	assert.Equal(t, `pmm_managed_advisor_check_insights{severity=~"emergency|alert|critical|error"} > 0`, rule.GrafanaAlert.Data[0].Model.Expr)
 	assert.True(t, rule.GrafanaAlert.Data[0].Model.Instant)
 	assert.Equal(t, "1", rule.Labels[advisorNotificationLabel])
+}
+
+func TestReconcileAdvisorNotifications(t *testing.T) {
+	t.Parallel()
+
+	newServer := func(t *testing.T) (*Server, *mockGrafanaClient) {
+		t.Helper()
+		gc := newMockGrafanaClient(t)
+		s := &Server{
+			grafanaClient: gc,
+			l:             logrus.WithField("test", t.Name()),
+		}
+		return s, gc
+	}
+
+	enabledSettings := func() *models.Settings {
+		s := &models.Settings{}
+		s.AdvisorNotifications.Enabled = new(true)
+		s.AdvisorNotifications.SeverityThreshold = common.Error
+		return s
+	}
+
+	t.Run("enabled creates folder and rule", func(t *testing.T) {
+		t.Parallel()
+
+		s, gc := newServer(t)
+		gc.On("CreateFolderWithUID", mock.Anything, advisorNotificationsFolderTitle, advisorNotificationsFolderUID).Return(nil)
+		gc.On("DeleteAlertRuleGroup", mock.Anything, advisorNotificationsFolderUID, advisorNotificationsRuleGroup).Return(nil)
+		gc.On("GetDatasourceUIDByID", mock.Anything, int64(1)).Return("ds-uid", nil)
+		gc.On(
+			"CreateAlertRule", mock.Anything, advisorNotificationsFolderUID, advisorNotificationsRuleGroup, advisorNotificationsRuleInterval,
+			mock.MatchedBy(func(rule *services.Rule) bool {
+				return rule.GrafanaAlert.Data[0].Model.Expr == `pmm_managed_advisor_check_insights{severity=~"emergency|alert|critical|error"} > 0` &&
+					rule.Labels[advisorNotificationLabel] == "1"
+			}),
+		).Return(nil)
+
+		err := s.reconcileAdvisorNotifications(t.Context(), enabledSettings())
+		require.NoError(t, err)
+	})
+
+	t.Run("disabled deletes rule group only", func(t *testing.T) {
+		t.Parallel()
+
+		s, gc := newServer(t)
+		gc.On("DeleteAlertRuleGroup", mock.Anything, advisorNotificationsFolderUID, advisorNotificationsRuleGroup).Return(nil)
+
+		err := s.reconcileAdvisorNotifications(t.Context(), &models.Settings{})
+		require.NoError(t, err)
+		gc.AssertNotCalled(t, "CreateFolderWithUID")
+		gc.AssertNotCalled(t, "CreateAlertRule")
+	})
+
+	t.Run("enabled returns error when datasource lookup fails", func(t *testing.T) {
+		t.Parallel()
+
+		s, gc := newServer(t)
+		gc.On("CreateFolderWithUID", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+		gc.On("DeleteAlertRuleGroup", mock.Anything, mock.Anything, mock.Anything).Return(nil)
+		gc.On("GetDatasourceUIDByID", mock.Anything, int64(1)).Return("", errors.New("boom"))
+
+		err := s.reconcileAdvisorNotifications(t.Context(), enabledSettings())
+		require.Error(t, err)
+		gc.AssertNotCalled(t, "CreateAlertRule")
+	})
 }
