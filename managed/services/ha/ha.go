@@ -62,7 +62,7 @@ func (s *HAServer) ListNodes(_ context.Context, _ *hav1beta1.ListNodesRequest) (
 	if memberlist == nil {
 		return &hav1beta1.ListNodesResponse{
 			Nodes:         []*hav1beta1.HANode{},
-			ExpectedNodes: int32(expectedNodes),
+			ExpectedNodes: int32(expectedNodes), //nolint:gosec
 		}, nil
 	}
 
@@ -87,7 +87,7 @@ func (s *HAServer) ListNodes(_ context.Context, _ *hav1beta1.ListNodesRequest) (
 
 	return &hav1beta1.ListNodesResponse{
 		Nodes:         nodes,
-		ExpectedNodes: int32(expectedNodes),
+		ExpectedNodes: int32(expectedNodes), //nolint:gosec
 	}, nil
 }
 
