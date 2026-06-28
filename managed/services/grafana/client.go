@@ -788,7 +788,7 @@ func (c *Client) GetDatasourceUIDByName(ctx context.Context, name string) (strin
 
 	resp, err := grafanaClient.Datasources.GetDataSourceByName(name)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get datasource %s: %w", name, err)
 	}
 	return resp.Payload.UID, nil
 }
