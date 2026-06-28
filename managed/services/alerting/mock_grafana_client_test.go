@@ -5,7 +5,7 @@ package alerting
 import (
 	context "context"
 
-	gapi "github.com/grafana/grafana-api-golang-client"
+	models "github.com/grafana/grafana-openapi-client-go/models"
 	mock "github.com/stretchr/testify/mock"
 
 	services "github.com/percona/pmm/managed/services"
@@ -63,23 +63,23 @@ func (_m *mockGrafanaClient) GetDatasourceUIDByID(ctx context.Context, id int64)
 }
 
 // GetFolderByUID provides a mock function with given fields: ctx, uid
-func (_m *mockGrafanaClient) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, error) {
+func (_m *mockGrafanaClient) GetFolderByUID(ctx context.Context, uid string) (*models.Folder, error) {
 	ret := _m.Called(ctx, uid)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetFolderByUID")
 	}
 
-	var r0 *gapi.Folder
+	var r0 *models.Folder
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*gapi.Folder, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (*models.Folder, error)); ok {
 		return rf(ctx, uid)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *gapi.Folder); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) *models.Folder); ok {
 		r0 = rf(ctx, uid)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*gapi.Folder)
+			r0 = ret.Get(0).(*models.Folder)
 		}
 	}
 
