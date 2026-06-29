@@ -16,7 +16,7 @@ import {
   NAV_ALERTS_NOTIFICATION_POLICIES,
   NAV_ALERTS_SETTINGS,
   NAV_ALERTS_TEMPLATES,
-  NAV_ALERTS_NODES,
+  NAV_ALERTS_STATUS,
   NAV_CHANGE_PASSWORD,
   NAV_CONFIGURATION,
   NAV_DASHBOARDS,
@@ -138,7 +138,7 @@ export const addAlerting = (enabled = false, user?: User): NavItem => {
   const children: NavItem[] = [];
 
   if (enabled) {
-    children.push(NAV_ALERTS_NODES);
+    children.push(NAV_ALERTS_STATUS);
     children.push(NAV_ALERTS_FIRED);
   }
 

@@ -12,26 +12,23 @@ import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutl
 import { Icon } from 'components/icon';
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { useEscapeKey } from 'utils/keys.utils';
-import { AlertRow } from '../AlertsPage.types';
+import { AlertsTableRow } from '../AlertsPage.types';
 import AlertDetails from './AlertDetails';
 import { Messages } from './AlertDetailsPane.messages';
+import { UseDetailsPaneNavigationResult } from '@percona/percona-ui';
 
-interface Props {
-  alert?: AlertRow;
-  isFirstAlert: boolean;
-  isLastAlert: boolean;
+interface Props extends UseDetailsPaneNavigationResult {
+  alert?: AlertsTableRow;
   onClose: () => void;
-  onNext: () => void;
-  onPrevious: () => void;
 }
 
 const AlertDetailsPane: FC<Props> = ({
   alert,
-  isFirstAlert,
-  isLastAlert,
   onClose,
-  onNext,
-  onPrevious,
+  isFirst,
+  isLast,
+  next,
+  previous,
 }) => {
   const [tab, setTab] = useState<'details' | 'raw-data'>('details');
 
@@ -41,6 +38,10 @@ const AlertDetailsPane: FC<Props> = ({
   };
 
   useEscapeKey(handleClose);
+
+  if (alert?.type === 'node') {
+    return null;
+  }
 
   return (
     <Slide in={!!alert} direction="up">
@@ -90,8 +91,8 @@ const AlertDetailsPane: FC<Props> = ({
               <IconButton
                 data-testid="alert-details-pane-prev-button"
                 aria-label={Messages.actions.previous}
-                onClick={onPrevious}
-                disabled={isFirstAlert}
+                onClick={previous}
+                disabled={isFirst}
               >
                 <KeyboardArrowUpOutlinedIcon />
               </IconButton>
@@ -100,8 +101,8 @@ const AlertDetailsPane: FC<Props> = ({
               <IconButton
                 data-testid="alert-details-pane-next-button"
                 aria-label={Messages.actions.next}
-                onClick={onNext}
-                disabled={isLastAlert}
+                onClick={next}
+                disabled={isLast}
               >
                 <KeyboardArrowDownOutlinedIcon />
               </IconButton>
