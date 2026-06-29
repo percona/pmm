@@ -1054,10 +1054,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		l.Fatal(err)
 	}
 
-	platformClient, err := platformClient.NewClient(platformAddress)
-	if err != nil {
-		l.Fatalf("Could not create telemetry client: %s", err)
-	}
+	platformClient := platformClient.NewClient(platformAddress)
 
 	dus := distribution.NewService(distributionInfoFilePath, osInfoFilePath, l)
 	telemetry, err := telemetry.NewService(db, platformClient, version.Version, dus, cfg.Config.Services.Telemetry)

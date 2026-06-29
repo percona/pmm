@@ -1,3 +1,4 @@
+---
 name: Update Docker Hub Readme
 on:
   push:
