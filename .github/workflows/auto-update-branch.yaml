@@ -1,0 +1,142 @@
+---
+# This workflow automatically updates a PR branch with the latest changes from
+# its base branch (i.e. performs the equivalent of the GitHub UI "Update branch" button).
+# To make it work it is required to set "auto-update-branch" label on PR.
+# There will be max 10 attempts to update branches.
+name: Auto-Update PR Branch (from base)
+
+on:
+  push:
+    branches:
+      - main
+      - pmm-*
+
+concurrency:
+  group: auto-update-branch-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-update-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Extract the branch name that triggered this workflow (e.g., 'main' or 'pmm-3.9')
+            const pushedBranch = context.ref.replace('refs/heads/', '');
+            const maxAttempts = 10;
+            let errorEncountered = false;
+            let warningEncountered = false;
+
+            console.log(`[INFO] Workflow triggered by push to: ${pushedBranch} (SHA: ${context.sha})`);
+
+            try {
+              // 1. Fetch all open PRs using the native pagination helper.
+              // Only care about PRs targeting the branch that was just pushed.
+              const pulls = await github.paginate(github.rest.pulls.list, {
+                owner: context.repo.owner,
+                base: pushedBranch,
+                repo: context.repo.repo,
+                state: "open",
+                per_page: 100,
+              });
+
+              // 2. Filter in-memory: Only care about non-draft PRs having the label.
+              let pendingPRs = pulls.filter(pr => 
+                !pr.draft && pr.labels.some(label => label.name === "auto-update-branch")
+              );
+
+              console.log(`[INFO] Found ${pendingPRs.length} non-draft PR(s) targeting ${pushedBranch} requiring updates.`);
+
+              let attemptCount = 0;
+
+              // 3. Process PRs, retrying ONLY the specific PRs that are stuck in 'mergeability computing' state
+              while (pendingPRs.length > 0 && attemptCount < maxAttempts) {
+                attemptCount++;
+                const retryList = [];
+
+                for (const pull of pendingPRs) {
+                  try {
+                    // We must fetch the specific PR to get the accurate 'mergeable' status
+                    const { data: pr } = await github.rest.pulls.get({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      pull_number: pull.number,
+                    });
+
+                    const baseRepoFullName = `${context.repo.owner}/${context.repo.repo}`;
+                    if (pr.head?.repo?.full_name !== baseRepoFullName) {
+                      console.log(`[INFO] PR #${pull.number}: Skipping because head branch is in a fork (${pr.head?.repo?.full_name}).`);
+                      continue;
+                    }
+                    // 1. Check if GitHub is still calculating the state
+                    if (pr.mergeable === null || pr.mergeable_state === "unknown") {
+                      console.log(`[INFO] PR #${pull.number}: GitHub is computing mergeability. Queuing for retry.`);
+                      retryList.push(pull);
+                      continue;
+                    }
+
+                    // 2. Check for conflicts
+                    if (pr.mergeable === false || pr.mergeable_state === "dirty") {
+                      console.log(`[INFO] PR #${pull.number}: Skipping due to existing merge conflicts.`);
+                      continue;
+                    }
+
+                    // 3. Check if it actually needs an update
+                    if (pr.mergeable_state !== "behind") {
+                      console.log(`[INFO] PR #${pull.number}: Not behind base branch (state: ${pr.mergeable_state}).`);
+                      continue;
+                    }
+
+                    // 4. Proceed with update
+                    console.log(`[UPDATE] PR #${pull.number}: Updating branch from base...`);
+
+                    await github.rest.pulls.updateBranch({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      pull_number: pull.number,
+                      expected_head_sha: pr.head.sha,
+                    });
+                    console.log(`[SUCCESS] PR #${pull.number}: Branch successfully updated.`);
+
+                  } catch (prError) {
+                    const status = prError.status ?? prError.statusCode;
+                    if (status === 409 || status === 422) {
+                      console.log(`[INFO] PR #${pull.number}: Update skipped (${status}) - ${prError.message}`);
+                      continue;
+                    }
+                    console.error(`[ERROR] Failed processing PR #${pull.number} (${status ?? "unknown"}): ${prError.message}`);
+                    errorEncountered = true;
+                  }
+                }
+
+                // Re-assign pendingPRs to only those that needed retries
+                pendingPRs = retryList;
+
+                if (pendingPRs.length > 0 && attemptCount < maxAttempts) {
+                  console.log(`[INFO] Waiting 5 seconds before retrying ${pendingPRs.length} PR(s) (Attempt ${attemptCount}/${maxAttempts})...`);
+                  await new Promise(resolve => setTimeout(resolve, 5000));
+                }
+              }
+
+              if (pendingPRs.length > 0) {
+                console.log(`[WARN] Max attempts reached. ${pendingPRs.length} PR(s) still have 'unknown' mergeable state.`);
+                warningEncountered = true;
+              }
+
+            } catch (globalError) {
+              console.error(`[ERROR] Workflow encountered a fatal error: ${globalError.message}`);
+              errorEncountered = true;
+            }
+
+            if (errorEncountered) {
+              core.setFailed('One or more PR branch updates failed. Check logs for details.');
+            } else if (warningEncountered) {
+              core.warning('Max attempts reached for one or more PRs; some mergeability states remained unknown. See workflow logs for details.');
+            } else {
+              console.log(`[INFO] All eligible PRs processed successfully.`);
+            }
