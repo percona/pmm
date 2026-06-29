@@ -25,7 +25,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer" // register SQL driver
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -168,12 +167,12 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 	historyCache, err := newHistoryCache(historyMap{}, retainHistory, getPerfschemaHistorySize(*params.Querier, params.LogEntry), params.LogEntry)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create cache")
+		return nil, fmt.Errorf("cannot create cache: %w", err)
 	}
 
 	summaryCache, err := newSummaryCache(summaryMap{}, retainSummaries, getPerfschemaSummarySize(*params.Querier, params.LogEntry), params.LogEntry)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create cache")
+		return nil, fmt.Errorf("cannot create cache: %w", err)
 	}
 
 	return &PerfSchema{
@@ -204,7 +203,8 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	var s summaryMap
 	var err error
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
-	if s, err = getSummaries(m.q); err == nil {
+	s, err = getSummaries(m.q)
+	if err == nil {
 		err = m.summaryCache.Set(s)
 		if err == nil {
 			m.l.Debugf("Got %d initial summaries.", len(s))
@@ -316,7 +316,7 @@ func (m *PerfSchema) refreshHistoryCache(ctx context.Context) error {
 	if m.useLong == nil {
 		sqlVersion, vendor, err := version.GetMySQLVersion(ctx, m.q)
 		if err != nil {
-			return errors.Wrap(err, "cannot get MySQL version")
+			return fmt.Errorf("cannot get MySQL version: %w", err)
 		}
 		m.useLong = new(vendor == version.MariaDBVendor && sqlVersion.Float() >= 11)
 	}
@@ -325,7 +325,8 @@ func (m *PerfSchema) refreshHistoryCache(ctx context.Context) error {
 		return err
 	}
 
-	if err = m.historyCache.Set(current); err != nil {
+	err = m.historyCache.Set(current)
+	if err != nil {
 		return err
 	}
 	m.l.Debugf("historyCache: %s", m.historyCache.cache.Stats())
@@ -338,7 +339,8 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 		return nil, err
 	}
 	prev := make(summaryMap)
-	if err = m.summaryCache.Get(prev); err != nil {
+	err = m.summaryCache.Get(prev)
+	if err != nil {
 		return nil, err
 	}
 
@@ -348,14 +350,16 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
 
 	// merge prev and current in cache
-	if err = m.summaryCache.Set(current); err != nil {
+	err = m.summaryCache.Set(current)
+	if err != nil {
 		return nil, err
 	}
 	m.l.Debugf("summaryCache: %s", m.summaryCache.cache.Stats())
 
 	// add agent_id, timestamps, and examples from history cache
 	history := make(historyMap)
-	if err = m.historyCache.Get(history); err != nil {
+	err = m.historyCache.Get(history)
+	if err != nil {
 		return nil, err
 	}
 	for i, b := range buckets {

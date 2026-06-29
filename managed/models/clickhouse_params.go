@@ -16,6 +16,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"net/url"
@@ -42,7 +43,7 @@ func (p *ClickHouseParams) URL() *url.URL {
 // or an error if any required field is missing or malformed.
 func NewClickHouseParams(addr, dbName, dbUsername, dbPassword string) (*ClickHouseParams, error) {
 	if addr == "" {
-		return nil, fmt.Errorf("addr is required")
+		return nil, errors.New("addr is required")
 	}
 	host, port, err := net.SplitHostPort(addr)
 	if err != nil {
@@ -51,14 +52,15 @@ func NewClickHouseParams(addr, dbName, dbUsername, dbPassword string) (*ClickHou
 	if host == "" {
 		return nil, fmt.Errorf("invalid addr %q: empty host", addr)
 	}
-	if _, err := strconv.ParseUint(port, 10, 16); err != nil {
+	_, err = strconv.ParseUint(port, 10, 16)
+	if err != nil {
 		return nil, fmt.Errorf("invalid port in addr %q: %w", addr, err)
 	}
 	if dbName == "" {
-		return nil, fmt.Errorf("database name is required")
+		return nil, errors.New("database name is required")
 	}
 	if dbUsername == "" {
-		return nil, fmt.Errorf("username is required")
+		return nil, errors.New("username is required")
 	}
 
 	return &ClickHouseParams{

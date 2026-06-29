@@ -26,7 +26,7 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@mui/x-date-pickers": "^7.5.0",
-    "@percona/percona-ui": "1.0.18",
+    "@percona/percona-ui": "1.0.22",
     "@pmm/shared": "*",
     "@reactour/tour": "^3.8.0",
     "@tanstack/react-query": "^5.45.1",

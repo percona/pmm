@@ -142,11 +142,7 @@ func (as *AgentsService) Logs(ctx context.Context, id string, limit uint32) ([]s
 		return nil, 0, err
 	}
 
-	pmmAgentID, err := models.ExtractPmmAgentID(agent)
-	if err != nil {
-		return nil, 0, err
-	}
-
+	pmmAgentID := models.ExtractPmmAgentID(agent)
 	return as.a.Logs(ctx, pmmAgentID, id, limit)
 }
 
@@ -283,11 +279,13 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -396,11 +394,13 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -516,7 +516,8 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inve
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -633,7 +634,8 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -746,11 +748,13 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -857,11 +861,13 @@ func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.A
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -963,7 +969,8 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inve
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -1073,7 +1080,8 @@ func (as *AgentsService) AddQANMongoDBMongologAgent(ctx context.Context, p *inve
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -1186,11 +1194,13 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -1290,7 +1300,8 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -1416,7 +1427,8 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}

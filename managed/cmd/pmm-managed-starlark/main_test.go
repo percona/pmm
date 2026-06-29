@@ -33,7 +33,7 @@ import (
 )
 
 const (
-	invalidStarlarkScriptStderr = "Error running starlark script: thread invalid starlark script: failed to execute function check_context: function check_context accepts no arguments (2 given)"
+	invalidStarlarkScriptStderr = "Error running starlark script: error running starlark env: thread invalid starlark script: failed to execute function check_context: function check_context accepts no arguments (2 given)"
 
 	// Possible errors:
 	// fatal error: runtime: out of memory

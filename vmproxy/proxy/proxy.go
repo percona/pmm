@@ -27,7 +27,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -142,11 +141,12 @@ func parseFilters(filters string) ([]string, error) {
 
 	decoded, err := base64.StdEncoding.DecodeString(filters)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not decode filters header")
+		return nil, fmt.Errorf("could not decode filters header: %w", err)
 	}
 
-	if err := json.Unmarshal(decoded, &parsed); err != nil {
-		return nil, errors.Wrapf(err, "could not parse filters JSON")
+	err = json.Unmarshal(decoded, &parsed)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse filters JSON: %w", err)
 	}
 
 	return parsed, nil

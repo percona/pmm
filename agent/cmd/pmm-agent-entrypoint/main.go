@@ -16,6 +16,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -24,7 +25,6 @@ import (
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/pkg/errors"
 	"github.com/ramr/go-reaper"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -154,13 +154,14 @@ func main() { //nolint:gocognit
 		if pmmAgentProcessID != 0 {
 			l.Info("Graceful shutdown for pmm-agent...")
 			// graceful shutdown for pmm-agent
-			if err := syscall.Kill(pmmAgentProcessID, syscall.SIGTERM); err != nil {
+			err := syscall.Kill(pmmAgentProcessID, syscall.SIGTERM)
+			if err != nil {
 				l.Warn("Failed to send SIGTERM, command must have exited:", err)
 			}
 			pmmAgentProcess, _ := os.FindProcess(pmmAgentProcessID) // always succeeds even process is not exist
 			preSIGKILLtimeout := 10
 			timer := sendSIGKILLwithTimeout(pmmAgentProcess, preSIGKILLtimeout, l)
-			_, err := pmmAgentProcess.Wait()
+			_, err = pmmAgentProcess.Wait()
 			if err != nil {
 				l.Warn("Failed to finish pmm-agent")
 			}
@@ -221,7 +222,7 @@ func main() { //nolint:gocognit
 			cmd := exec.CommandContext(ctx, *pmmAgentPrerunFile) //nolint:gosec
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
-			err := cmd.Run()
+			err = cmd.Run()
 			if err != nil {
 				var exitErr *exec.ExitError
 				if errors.As(err, &exitErr) {
@@ -236,7 +237,7 @@ func main() { //nolint:gocognit
 			cmd := exec.CommandContext(ctx, "/bin/sh", "-c", *pmmAgentPrerunScript) //nolint:gosec
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
-			err := cmd.Run()
+			err = cmd.Run()
 			if err != nil {
 				var exitErr *exec.ExitError
 				if errors.As(err, &exitErr) {
@@ -247,7 +248,8 @@ func main() { //nolint:gocognit
 		}
 
 		l.Info("Stopping pmm-agent...")
-		if err := agent.Process.Signal(syscall.SIGTERM); err != nil {
+		err = agent.Process.Signal(syscall.SIGTERM)
+		if err != nil {
 			l.Infof("Failed to term pmm-agent: %s", err)
 		}
 

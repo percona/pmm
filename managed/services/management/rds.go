@@ -17,6 +17,8 @@ package management
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net/http"
 	"sort"
 	"time"
@@ -27,7 +29,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"github.com/aws/aws-sdk-go-v2/service/rds/types"
 	"github.com/aws/smithy-go"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
@@ -164,7 +165,7 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 
 	cfg, err := config.LoadDefaultConfig(ctx, opts...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf("failed to load RDS default config: %w", err)
 	}
 
 	// do not break our API if some AWS region is slow or down

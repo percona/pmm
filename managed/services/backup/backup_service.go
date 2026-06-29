@@ -19,11 +19,12 @@ package backup
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"fmt"
 	"math/rand"
 	"time"
 
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -92,7 +93,8 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		errTX = s.db.InTransactionContext(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 			var err error
 
-			if err = services.CheckArtifactOverlapping(tx.Querier, params.ServiceID, params.LocationID, params.Folder); err != nil {
+			err = services.CheckArtifactOverlapping(tx.Querier, params.ServiceID, params.LocationID, params.Folder)
+			if err != nil {
 				return err
 			}
 
@@ -112,11 +114,11 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 				jobType = models.MySQLBackupJob
 
 				if params.DataModel != models.PhysicalDataModel {
-					return errors.WithMessage(ErrIncompatibleDataModel, "the only supported data model for mySQL is physical")
+					return fmt.Errorf("the only supported data model for mySQL is physical: %w", ErrIncompatibleDataModel)
 				}
 
 				if locationModel.Type != models.S3BackupLocationType {
-					return errors.WithMessage(ErrIncompatibleLocationType, "the only supported location type for mySQL is S3")
+					return fmt.Errorf("the only supported location type for mySQL is S3: %w", ErrIncompatibleLocationType)
 				}
 
 				if params.Mode != models.Snapshot {
@@ -126,7 +128,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 				jobType = models.MongoDBBackupJob
 
 				if params.Mode == models.PITR && params.DataModel != models.LogicalDataModel {
-					return errors.WithMessage(ErrIncompatibleDataModel, "PITR is only supported for logical backups")
+					return fmt.Errorf("pitr is only supported for logical backups: %w", ErrIncompatibleDataModel)
 				}
 
 				if params.Mode != models.Snapshot && params.Mode != models.PITR {
@@ -156,7 +158,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 			}
 
 			if artifact == nil {
-				if artifact, err = models.CreateArtifact(tx.Querier, models.CreateArtifactParams{
+				artifact, err = models.CreateArtifact(tx.Querier, models.CreateArtifactParams{
 					Name:       name,
 					Vendor:     string(svc.ServiceType),
 					DBVersion:  dbVersion,
@@ -167,23 +169,25 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 					Status:     models.PendingBackupStatus,
 					ScheduleID: params.ScheduleID,
 					Folder:     params.Folder,
-				}); err != nil {
+				})
+				if err != nil {
 					return err
 				}
 			} else {
-				if artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
+				artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
 					Status: models.PendingBackupStatus.Pointer(),
-				}); err != nil {
+				})
+				if err != nil {
 					return err
 				}
 			}
 
-			//nolint:noinlineerr
-			if job, dbConfig, err = s.prepareBackupJob(
+			job, dbConfig, err = s.prepareBackupJob(
 				tx.Querier, svc, artifact.ID,
 				jobType, params.Mode, params.DataModel, params.Retries,
 				params.RetryInterval,
-			); err != nil {
+			)
+			if err != nil {
 				return err
 			}
 			return nil
@@ -264,7 +268,8 @@ type restoreJobParams struct {
 
 // RestoreBackup starts restore backup job.
 func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID string, pitrTimestamp time.Time) (string, error) {
-	if err := s.checkArtifactModePreconditions(ctx, artifactID, pitrTimestamp); err != nil {
+	err := s.checkArtifactModePreconditions(ctx, artifactID, pitrTimestamp)
+	if err != nil {
 		return "", err
 	}
 
@@ -272,7 +277,8 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 	if err != nil {
 		return "", err
 	}
-	if err := s.compatibilityService.CheckArtifactCompatibility(artifactID, targetDBVersion); err != nil {
+	err = s.compatibilityService.CheckArtifactCompatibility(artifactID, targetDBVersion)
+	if err != nil {
 		return "", err
 	}
 
@@ -295,7 +301,7 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			return err
 		}
 		if len(pmmAgents) == 0 {
-			return errors.Errorf("cannot find pmm agent for service %s", serviceID)
+			return fmt.Errorf("cannot find pmm agent for service %s", serviceID)
 		}
 		agentID := pmmAgents[0].AgentID
 
@@ -344,9 +350,9 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			models.ProxySQLServiceType,
 			models.HAProxyServiceType,
 			models.ExternalServiceType:
-			return errors.Errorf("backup restore unimplemented for service type: %s", service.ServiceType)
+			return fmt.Errorf("backup restore unimplemented for service type: %s", service.ServiceType)
 		default:
-			return errors.Errorf("unsupported service type: %s", service.ServiceType)
+			return fmt.Errorf("unsupported service type: %s", service.ServiceType)
 		}
 
 		job, err := models.CreateJob(tx.Querier, models.CreateJobParams{
@@ -389,7 +395,8 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 		return "", errTx
 	}
 
-	if err := s.startRestoreJob(&params); err != nil {
+	err = s.startRestoreJob(&params)
+	if err != nil {
 		return "", err
 	}
 
@@ -410,7 +417,7 @@ func (s *Service) SwitchMongoPITR(ctx context.Context, serviceID string, enabled
 		}
 
 		if service.ServiceType != models.MongoDBServiceType {
-			return errors.Errorf("Point-in-Time recovery feature is only available for mongoDB services,"+
+			return fmt.Errorf("Point-in-Time recovery feature is only available for mongoDB services,"+
 				"current service id: %s, service type: %s", serviceID, service.ServiceType)
 		}
 
@@ -419,7 +426,7 @@ func (s *Service) SwitchMongoPITR(ctx context.Context, serviceID string, enabled
 			return err
 		}
 		if len(pmmAgents) == 0 {
-			return errors.Errorf("cannot find pmm agent for service %s", serviceID)
+			return fmt.Errorf("cannot find pmm agent for service %s", serviceID)
 		}
 		pmmAgentID = pmmAgents[0].AgentID
 
@@ -503,7 +510,7 @@ func (s *Service) prepareBackupJob(
 	}
 
 	if len(pmmAgents) == 0 {
-		return nil, nil, errors.Errorf("pmmAgent not found for service")
+		return nil, nil, errors.New("pmmAgent not found for service")
 	}
 
 	var jobData *models.JobData
@@ -526,9 +533,9 @@ func (s *Service) prepareBackupJob(
 		}
 	case models.MySQLRestoreBackupJob,
 		models.MongoDBRestoreBackupJob:
-		return nil, nil, errors.Errorf("%s is not a backup job type", jobType)
+		return nil, nil, fmt.Errorf("%s is not a backup job type", jobType)
 	default:
-		return nil, nil, errors.Errorf("unsupported backup job type: %s", jobType)
+		return nil, nil, fmt.Errorf("unsupported backup job type: %s", jobType)
 	}
 
 	res, err := models.CreateJob(q, models.CreateJobParams{
@@ -553,16 +560,16 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 	}
 
 	if artifact.Status != models.SuccessBackupStatus {
-		return errors.Wrapf(ErrArtifactNotReady, "artifact %q in status: %q", artifactID, artifact.Status)
+		return fmt.Errorf("artifact %q in status: %q: %w", artifactID, artifact.Status, ErrArtifactNotReady)
 	}
 
 	if artifact.IsShardedCluster {
-		return errors.Wrapf(ErrIncompatibleService,
-			"artifact %q was made for a sharded cluster and cannot be restored from UI; for more information refer to "+
-				"https://docs.percona.com/percona-monitoring-and-management/get-started/backup/backup_mongo.html", artifactID)
+		return fmt.Errorf("artifact %q was made for a sharded cluster and cannot be restored from UI; for more information refer to "+
+			"https://docs.percona.com/percona-monitoring-and-management/get-started/backup/backup_mongo.html: %w", artifactID, ErrIncompatibleService)
 	}
 
-	if err := checkArtifactMode(artifact, pitrTimestamp); err != nil {
+	err = checkArtifactMode(artifact, pitrTimestamp)
+	if err != nil {
 		return err
 	}
 
@@ -577,7 +584,7 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 	}
 
 	if location.Type != models.S3BackupLocationType {
-		return errors.Wrapf(ErrIncompatibleLocationType, "point in time recovery available only for S3 locations")
+		return fmt.Errorf("point in time recovery available only for S3 locations: %w", ErrIncompatibleLocationType)
 	}
 
 	storage := GetStorageForLocation(location)
@@ -592,24 +599,24 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 		}
 	}
 
-	return errors.Wrapf(ErrTimestampOutOfRange, "point in time recovery value %s", pitrTimestamp.String())
+	return fmt.Errorf("point in time recovery value %s: %w", pitrTimestamp.String(), ErrTimestampOutOfRange)
 }
 
 // checkArtifactMode crosschecks artifact params and requested restore mode.
 func checkArtifactMode(artifact *models.Artifact, pitrTimestamp time.Time) error {
 	if artifact.Vendor != string(models.MongoDBServiceType) && artifact.Mode == models.PITR {
-		return errors.Wrapf(ErrIncompatibleService, "restore to point in time is only available for MongoDB")
+		return fmt.Errorf("restore to point in time is only available for MongoDB: %w", ErrIncompatibleService)
 	}
 
 	if artifact.Mode == models.PITR {
 		if pitrTimestamp.Unix() == 0 {
-			return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' requires 'time' parameter to be restored to", artifact.Mode)
+			return fmt.Errorf("artifact of type '%s' requires 'time' parameter to be restored to: %w", artifact.Mode, ErrIncompatibleArtifactMode)
 		}
 		if artifact.DataModel == models.PhysicalDataModel {
-			return errors.Wrap(ErrIncompatibleArtifactMode, "point in time recovery is only available for Logical data model")
+			return fmt.Errorf("point in time recovery is only available for Logical data model: %w", ErrIncompatibleArtifactMode)
 		}
 	} else if pitrTimestamp.Unix() != 0 {
-		return errors.Wrapf(ErrIncompatibleArtifactMode, "artifact of type '%s' cannot be use to restore to point in time", artifact.Mode)
+		return fmt.Errorf("artifact of type '%s' cannot be used to restore to point in time: %w", artifact.Mode, ErrIncompatibleArtifactMode)
 	}
 
 	return nil

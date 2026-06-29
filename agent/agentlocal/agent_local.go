@@ -19,6 +19,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
+	"errors"
 	_ "expvar" // register /debug/vars
 	"fmt"
 	"html/template"
@@ -34,7 +35,6 @@ import (
 	"time"
 
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -318,7 +318,8 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 			grpc.WaitForReady(true),
 		),
 	}
-	if err := agentlocal.RegisterAgentLocalServiceHandlerFromEndpoint(ctx, proxyMux, grpcAddress, opts); err != nil {
+	err = agentlocal.RegisterAgentLocalServiceHandlerFromEndpoint(ctx, proxyMux, grpcAddress, opts)
+	if err != nil {
 		l.Panic(err)
 	}
 
@@ -347,7 +348,8 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 
 	// try to stop server gracefully, then not
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
+	err = server.Shutdown(ctx) //nolint:contextcheck
+	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
@@ -387,7 +389,7 @@ func (s *Server) ZipLogs(w http.ResponseWriter, r *http.Request) { //nolint:revi
 				return
 			}
 		}
-		err := addData(zipWriter, fmt.Sprintf("%s.log", id), agentFileBuffer.Bytes())
+		err := addData(zipWriter, id+".log", agentFileBuffer.Bytes())
 		if err != nil {
 			logrus.Error(err)
 			http.Error(w, fmt.Sprintf("Cannot write to zip file err: %s", err), http.StatusInternalServerError)

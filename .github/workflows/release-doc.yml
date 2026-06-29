@@ -16,9 +16,9 @@ on:
         default: ''
         type: string
       target_docs_branch:
-        description: 'Target docs branch (default: v3)'
+        description: 'Target docs branch (default: main)'
         required: false
-        default: 'v3'
+        default: 'main'
         type: string
 
 permissions:
@@ -46,7 +46,7 @@ jobs:
             version="${version/refs\/tags\/v/}"
             echo "version=$version" >> $GITHUB_OUTPUT
             echo "source_branch=" >> $GITHUB_OUTPUT
-            echo "target_docs_branch=v3" >> $GITHUB_OUTPUT
+            echo "target_docs_branch=main" >> $GITHUB_OUTPUT
             echo "Release with version: $version"
           fi
 
@@ -94,7 +94,7 @@ jobs:
           grep -rl '!!! note alert alert-primary' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! note alert alert-primary/\> \:memo\: **Note**/g'
 
       - name: Create Release
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           body_path: ${{ github.workspace }}-CHANGELOG.txt
           draft: true

@@ -307,7 +307,8 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		}
 
 		if cfg.Server.Address != "" {
-			if _, _, e := net.SplitHostPort(cfg.Server.Address); e != nil {
+			_, _, e := net.SplitHostPort(cfg.Server.Address)
+			if e != nil {
 				host := cfg.Server.Address
 				cfg.Server.Address = net.JoinHostPort(host, "443")
 				l.Infof("Updating PMM Server address from %q to %q.", host, cfg.Server.Address)
@@ -325,14 +326,16 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 
 	// parse command-line flags and environment variables
 	app, cfgFileF := Application(cfg)
-	if _, err = app.Parse(args); err != nil {
+	_, err = app.Parse(args)
+	if err != nil {
 		return configFileF, err
 	}
 	if *cfgFileF == "" {
 		return configFileF, err
 	}
 
-	if configFileF, err = filepath.Abs(*cfgFileF); err != nil {
+	configFileF, err = filepath.Abs(*cfgFileF)
+	if err != nil {
 		return configFileF, err
 	}
 	l.Infof("Loading configuration file %s.", configFileF)
@@ -343,7 +346,8 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 
 	// re-parse flags into configuration from file
 	app, _ = Application(fileCfg)
-	if _, err = app.Parse(args); err != nil {
+	_, err = app.Parse(args)
+	if err != nil {
 		return configFileF, err
 	}
 
@@ -552,7 +556,8 @@ func loadFromFile(path string, enc *Encryption) (*Config, error) {
 	}
 
 	cfg := &Config{}
-	if err = yaml.Unmarshal(b, cfg); err != nil { //nolint:musttag // false positive
+	err = yaml.Unmarshal(b, cfg) //nolint:musttag // false positive
+	if err != nil {
 		return nil, err
 	}
 

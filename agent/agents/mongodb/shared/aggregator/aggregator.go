@@ -16,7 +16,7 @@ package aggregator
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"runtime/pprof"
 	"strings"
 	"sync"
@@ -92,7 +92,7 @@ func (a *Aggregator) Add(ctx context.Context, doc proto.SystemProfile) error {
 	a.m.Lock()
 	defer a.m.Unlock()
 	if !a.running {
-		return fmt.Errorf("aggregator is not running")
+		return errors.New("aggregator is not running")
 	}
 
 	ts := doc.Ts.UTC()

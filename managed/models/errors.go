@@ -15,7 +15,7 @@
 
 package models
 
-import "github.com/pkg/errors"
+import "errors"
 
 var (
 	// ErrNotFound returned when entity is not found.
