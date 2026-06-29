@@ -54,7 +54,7 @@ func TestExtractTables(t *testing.T) {
 					t.Parallel()
 
 					actual, err := f(query)
-					assert.Equal(t, expected.Tables, actual)
+					assert.ElementsMatch(t, expected.Tables, actual)
 					if expected.Err != "" {
 						require.EqualError(t, err, expected.Err, "err = %+v", err)
 					} else {

@@ -19,6 +19,10 @@ export const ReleaseNotes: FC<ReleaseNotesProps> = ({ content }) => {
           height: 'auto',
           maxWidth: '100%',
         },
+        table: {
+          display: 'block',
+          overflowX: 'auto',
+        },
         'table, tr, th, td': {
           p: 1,
           textAlign: 'left',

@@ -125,7 +125,8 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
+		err := cmd.GetCredentials()
+		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
 	}
@@ -151,7 +152,7 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 				TLS:                 cmd.TLS,
 				TLSSkipVerify:       cmd.TLSSkipVerify,
-				MetricsMode:         cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				MetricsMode:         cmd.MetricsMode.EnumValue(),
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 				LogLevel:            cmd.LogLevel.EnumValue(),
 				ConnectionTimeout:   commands.DurationString(cmd.ConnectionTimeout),

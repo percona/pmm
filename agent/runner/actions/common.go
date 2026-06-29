@@ -23,7 +23,6 @@ import (
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/tlshelpers"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -68,12 +67,12 @@ func mysqlOpen(dsn string, tlsFiles *agentv1.TextFiles, tlsSkipVerify bool) (*sq
 
 	cfg, err := mysql.ParseDSN(dsn)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	connector, err := mysql.NewConnector(cfg)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return sql.OpenDB(connector), nil

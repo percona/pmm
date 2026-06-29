@@ -1,8 +1,7 @@
 # keep that format for easier search
 ARG GO_VERSION
-ARG GO_BASE_IMAGE="golang:$GO_VERSION"
 
-FROM $GO_BASE_IMAGE AS golang
+FROM golang:$GO_VERSION AS golang
 
 FROM rockylinux:9-minimal
 

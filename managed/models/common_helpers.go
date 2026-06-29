@@ -32,3 +32,12 @@ func NewInvalidArgumentError(format string, a ...any) *InvalidArgumentError {
 func (e *InvalidArgumentError) Error() string {
 	return "invalid argument: " + e.Details
 }
+
+// LocalhostAddr is the IPv4 loopback address used by PMM Server's co-located services.
+const LocalhostAddr = "127.0.0.1"
+
+// internalAddr reports whether host refers to PMM's built-in,
+// co-located services.
+func internalAddr(host string) bool {
+	return host == LocalhostAddr || host == "localhost"
+}

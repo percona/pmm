@@ -17,9 +17,9 @@ package scheduler
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/backup"
@@ -71,7 +71,8 @@ func (p *BackupTaskParams) Validate() error {
 		return errors.New("location id can't be empty")
 	}
 
-	if err := p.DataModel.Validate(); err != nil {
+	err := p.DataModel.Validate()
+	if err != nil {
 		return err
 	}
 
@@ -85,16 +86,17 @@ type mySQLBackupTask struct {
 
 // NewMySQLBackupTask create new task for mysql backup.
 func NewMySQLBackupTask(params *BackupTaskParams) (Task, error) { //nolint:ireturn,nolintlint
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 
 	if params.Mode != models.Snapshot {
-		return nil, errors.Errorf("unsupported backup mode for mySQL: %s", params.Mode)
+		return nil, fmt.Errorf("unsupported backup mode for MySQL: %s", params.Mode)
 	}
 
 	if params.DataModel != models.PhysicalDataModel {
-		return nil, errors.Errorf("unsupported backup data model for mySQL: %s", params.DataModel)
+		return nil, fmt.Errorf("unsupported backup data model for MySQL: %s", params.DataModel)
 	}
 
 	return &mySQLBackupTask{
@@ -148,16 +150,17 @@ type mongoDBBackupTask struct {
 
 // NewMongoDBBackupTask create new task for mongo backup.
 func NewMongoDBBackupTask(params *BackupTaskParams) (Task, error) { //nolint:ireturn,nolintlint
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 
 	if params.Mode != models.Snapshot && params.Mode != models.PITR {
-		return nil, errors.Errorf("unsupported backup mode for mongoDB: %s", params.Mode)
+		return nil, fmt.Errorf("unsupported backup mode for MongoDB: %s", params.Mode)
 	}
 
 	if params.Mode == models.PITR && params.DataModel != models.LogicalDataModel {
-		return nil, errors.WithMessage(backup.ErrIncompatibleDataModel, "PITR is only supported for logical backups")
+		return nil, fmt.Errorf("PITR is only supported for logical backups: %w", backup.ErrIncompatibleDataModel)
 	}
 
 	return &mongoDBBackupTask{

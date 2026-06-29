@@ -72,7 +72,9 @@ func TestJobs(t *testing.T) {
 	t.Run("find", func(t *testing.T) {
 		findTX, err := db.Begin()
 		require.NoError(t, err)
-		defer findTX.Rollback() //nolint:errcheck
+		t.Cleanup(func() {
+			assert.NoError(t, findTX.Rollback())
+		})
 
 		const jobsCount = 3
 		jobs := make([]*models.Job, 0, jobsCount)

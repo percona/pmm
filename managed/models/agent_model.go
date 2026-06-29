@@ -31,7 +31,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
@@ -449,8 +448,9 @@ func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
 	}
 
 	var names []string
-	if err := json.Unmarshal(a.EnvironmentVariables, &names); err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal shared environment variable names")
+	err := json.Unmarshal(a.EnvironmentVariables, &names)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal shared environment variable names: %w", err)
 	}
 	return names, nil
 }
@@ -464,7 +464,7 @@ func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 
 	b, err := json.Marshal(names)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal shared environment variable names")
+		return fmt.Errorf("failed to marshal shared environment variable names: %w", err)
 	}
 	a.EnvironmentVariables = b
 	return nil
@@ -493,7 +493,8 @@ func (a *Agent) UnifiedLabels() (map[string]string, error) {
 	}
 	maps.Copy(res, custom)
 
-	if err = prepareLabels(res, true); err != nil {
+	err = prepareLabels(res, true)
+	if err != nil {
 		return nil, err
 	}
 	return res, nil
@@ -843,7 +844,7 @@ func (a *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	username := pointer.GetString(a.Username)
 	password := pointer.GetString(a.Password)
 
-	host := "127.0.0.1"
+	host := LocalhostAddr
 	if !a.ExporterOptions.PushMetrics {
 		node, err := FindNodeByID(q, *a.RunsOnNodeID)
 		if err != nil {
@@ -1025,16 +1026,17 @@ func (a *Agent) BuildWebConfigFile() (string, error) {
 
 	hashedPassword, err := HashPassword(password, salt)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to hash password")
+		return "", fmt.Errorf("failed to hash password: %w", err)
 	}
 
 	var configBuffer bytes.Buffer
 	tmpl, err := template.New("webConfig").Parse(webConfigTemplate)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to parse webconfig template")
+		return "", fmt.Errorf("failed to parse webconfig template: %w", err)
 	}
-	if err = tmpl.Execute(&configBuffer, hashedPassword); err != nil {
-		return "", errors.Wrap(err, "Failed to execute webconfig template")
+	err = tmpl.Execute(&configBuffer, hashedPassword)
+	if err != nil {
+		return "", fmt.Errorf("failed to execute webconfig template: %w", err)
 	}
 
 	config := configBuffer.String()

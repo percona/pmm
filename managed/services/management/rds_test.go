@@ -17,7 +17,6 @@ package management
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"testing"
 	"time"
@@ -50,7 +49,9 @@ func TestRDSService(t *testing.T) {
 	defer uuid.SetRand(nil)
 
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	cc := &mockConnectionChecker{}
@@ -221,15 +222,15 @@ func TestRDSService(t *testing.T) {
 			{"us-east-1", []instance{{"us-east-1a", "autotest-aurora-mysql-56"}, {"us-east-1d", "autotest-psql-10"}}},
 			{"us-west-2", []instance{{"us-west-2b", "autotest-aurora-psql-11"}, {"us-west-2c", "autotest-mysql-57"}}},
 		} {
-			t.Run(fmt.Sprintf("discoverRDSRegion %s", tt.region), func(t *testing.T) {
+			t.Run("discoverRDSRegion "+tt.region, func(t *testing.T) {
 				ctx := logger.Set(t.Context(), t.Name())
 				accessKey, secretKey := tests.GetAWSKeys(t)
 				creds := credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")
 				opts := []func(*config.LoadOptions) error{
 					config.WithCredentialsProvider(creds),
 					config.WithHTTPClient(&http.Client{}),
+					config.WithClientLogMode(aws.LogRetries | aws.LogRequestWithBody | aws.LogResponseWithBody),
 				}
-				opts = append(opts, config.WithClientLogMode(aws.LogRetries|aws.LogRequestWithBody|aws.LogResponseWithBody))
 				cfg, err := config.LoadDefaultConfig(ctx, opts...)
 				require.NoError(t, err)
 

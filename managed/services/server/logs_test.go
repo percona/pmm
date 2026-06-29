@@ -72,10 +72,13 @@ func TestReadLog(t *testing.T) {
 	require.NoError(t, err)
 
 	for i := range 10 {
-		fmt.Fprintf(f, "line #%03d\n", i)                //nolint:errcheck // 10 bytes
-		fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) //nolint:errcheck // 10 bytes
+		_, err = fmt.Fprintf(f, "line #%03d\n", i) // 10 bytes
+		require.NoError(t, err)
+		_, err = fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) // 10 bytes
+		require.NoError(t, err)
 	}
-	fmt.Fprintf(fNoNewLineEnding, "some string without new line") //nolint:errcheck
+	_, err = fmt.Fprintf(fNoNewLineEnding, "some string without new line")
+	require.NoError(t, err)
 	require.NoError(t, f.Close())
 	require.NoError(t, fNoNewLineEnding.Close())
 
@@ -107,10 +110,13 @@ func TestReadLogUnlimited(t *testing.T) {
 	require.NoError(t, err)
 
 	for i := range 10 {
-		fmt.Fprintf(f, "line #%03d\n", i)                // 10 bytes
-		fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) // 10 bytes
+		_, err = fmt.Fprintf(f, "line #%03d\n", i) // 10 bytes
+		require.NoError(t, err)
+		_, err = fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) // 10 bytes
+		require.NoError(t, err)
 	}
-	fmt.Fprintf(fNoNewLineEnding, "some string without new line")
+	_, err = fmt.Fprintf(fNoNewLineEnding, "some string without new line")
+	require.NoError(t, err)
 	require.NoError(t, f.Close())
 	require.NoError(t, fNoNewLineEnding.Close())
 

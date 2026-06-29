@@ -22,7 +22,7 @@ pmm-admin config --server-url=https://admin:admin@pmm-server-ip:443
 To view collected Linux metrics:
 {.power-number}
 
-1. Go to the **Operating System (OS) > Overview** dashboard.
+1. Go to the **Operating system > Overview** dashboard.
 2. Select your node from the **Node Names** dropdown menu.
 3. Explore additional OS-specific dashboards for more detailed metrics:
     - **OS > Node Summary**

@@ -59,7 +59,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 		labels[label.Key] = label.Value
 	}
 
-	var columns []string //nolint:prealloc
+	columns := make([]string, 0, len(in.Columns))
 	for _, col := range in.Columns {
 		// TODO: remove when UI starts using num_queries instead.
 		if col == "count" {

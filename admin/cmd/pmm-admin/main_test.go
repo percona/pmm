@@ -48,7 +48,8 @@ func TestVersionJson(t *testing.T) {
 	require.NoError(t, err, "%s", b)
 
 	var jsonStruct any
-	if err := json.Unmarshal(b, &jsonStruct); err != nil {
+	err = json.Unmarshal(b, &jsonStruct)
+	if err != nil {
 		t.Errorf("pmm-admin --version --json produces incorrect output format")
 	}
 }

@@ -96,7 +96,7 @@ func (cmd *AddAgentQANMongoDBMongologAgentCommand) RunCmd() (commands.Result, er
 				TLSCa:                         tlsCa,
 				AuthenticationMechanism:       cmd.AuthenticationMechanism,
 				AuthenticationDatabase:        cmd.AuthenticationDatabase,
-				LogLevel:                      cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				LogLevel:                      cmd.LogLevel.EnumValue(),
 			},
 		},
 		Context: commands.Ctx,

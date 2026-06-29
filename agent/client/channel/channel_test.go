@@ -16,6 +16,7 @@ package channel
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net"
 	"strings"
@@ -24,7 +25,6 @@ import (
 	"time"
 
 	"github.com/percona/exporter_shared/helpers"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -75,10 +75,13 @@ func setup(t *testing.T, connect func(agentv1.AgentService_ConnectServer) error,
 
 	// make client and channel
 	opts := []grpc.DialOption{
-		grpc.WithBlock(),
+		grpc.WithDefaultCallOptions(
+			// Wait for connection to be ready before sending RPC calls
+			grpc.WaitForReady(true),
+		),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
-	cc, err = grpc.DialContext(ctx, lis.Addr().String(), opts...)
+	cc, err = grpc.NewClient(lis.Addr().String(), opts...)
 	require.NoError(t, err, "failed to dial server")
 	stream, err := agentv1.NewAgentServiceClient(cc).Connect(ctx)
 	require.NoError(t, err, "failed to create stream")
@@ -129,7 +132,8 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 		return nil
 	}
 	channel, _, teardown := setup(t, connect, status.Error(codes.Internal, `grpc: error while marshaling: string field contains invalid UTF-8`))
-	defer teardown()
+	t.Cleanup(teardown)
+
 	var request agentv1.QANCollectRequest
 	request.MetricsBucket = []*agentv1.MetricsBucket{{
 		Common: &agentv1.MetricsBucket_Common{
@@ -177,7 +181,7 @@ func TestAgentRequest(t *testing.T) {
 	}
 
 	channel, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
-	defer teardown()
+	t.Cleanup(teardown)
 
 	for i := uint32(1); i <= count; i++ {
 		resp, err := channel.SendAndWaitResponse(&agentv1.QANCollectRequest{})
@@ -245,7 +249,7 @@ func TestServerRequest(t *testing.T) {
 	}
 
 	channel, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
-	defer teardown()
+	t.Cleanup(teardown)
 
 	for req := range channel.Requests() {
 		assert.IsType(t, &agentv1.Ping{}, req.Payload)
@@ -271,7 +275,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 	}
 
 	channel, _, teardown := setup(t, connect, errUnimplemented)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	resp, err := channel.SendAndWaitResponse(&agentv1.QANCollectRequest{})
 	require.NoError(t, err)
@@ -289,7 +293,7 @@ func TestServerExitsWithUnknownError(t *testing.T) {
 	}
 
 	channel, _, teardown := setup(t, connect, status.Error(codes.Unknown, "EOF"))
-	defer teardown()
+	t.Cleanup(teardown)
 
 	resp, err := channel.SendAndWaitResponse(&agentv1.QANCollectRequest{})
 	require.NoError(t, err)
@@ -312,7 +316,7 @@ func TestAgentClosesStream(t *testing.T) {
 	}
 
 	channel, _, teardown := setup(t, connect, io.EOF)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	req := <-channel.Requests()
 	require.NotNil(t, req)
@@ -348,7 +352,7 @@ func TestAgentClosesConnection(t *testing.T) {
 	// https://github.com/golang/go/blob/master/src/internal/poll/fd.go#L20
 	errConnClosed := errors.New("use of closed network connection")
 	channel, cc, teardown := setup(t, connect, errClientConnClosing, errConnClosing, errConnClosed) //nolint:varnamelen
-	defer teardown()
+	t.Cleanup(teardown)
 
 	req := <-channel.Requests()
 	require.NotNil(t, req)
@@ -382,7 +386,7 @@ func TestUnexpectedResponseIDFromServer(t *testing.T) {
 		return nil
 	}
 	channel, _, teardown := setup(t, connect, io.EOF)
-	defer teardown()
+	t.Cleanup(teardown)
 
 	<-unexpectedIDSent
 	// Get the ping message and send pong response, channel stays open after message with unexpected id.
@@ -416,7 +420,7 @@ func TestUnexpectedResponsePayloadFromServer(t *testing.T) {
 		return nil
 	}
 	channel, _, teardown := setup(t, connect, io.EOF)
-	defer teardown()
+	t.Cleanup(teardown)
 	req := <-channel.Requests()
 	channel.Send(&AgentResponse{
 		ID: req.ID,

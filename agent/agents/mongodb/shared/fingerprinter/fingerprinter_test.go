@@ -17,7 +17,6 @@ package fingerprinter
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"testing"
 	"time"
@@ -75,7 +74,7 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 		SetDirect(true).
 		SetReadPreference(readpref.Nearest()).
 		SetSocketTimeout(mgoTimeoutSessionSocket).
-		SetAppName(fmt.Sprintf("QAN-mongodb-profiler-%s", agentID))
+		SetAppName("QAN-mongodb-profiler-" + agentID)
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
@@ -91,26 +90,31 @@ func TestProfilerFingerprinter(t *testing.T) {
 		dbName := "test_fingerprint"
 
 		client, err := createSession(url, "pmm-agent")
-		if err != nil {
-			return
-		}
+		require.NoError(t, err)
 
 		ctx, cancel := context.WithTimeout(t.Context(), mgoTimeoutSessionSync)
 		defer cancel()
-		_ = client.Database(dbName).Drop(ctx)
-		defer client.Database(dbName).Drop(context.TODO()) //nolint:errcheck
+		err = client.Database(dbName).Drop(ctx)
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			dropCtx, cancelCtx := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancelCtx()
+			err = client.Database(dbName).Drop(dropCtx)
+			require.NoError(t, err)
+		})
 
 		ps := ProfilerStatus{}
 		err = client.Database("admin").RunCommand(ctx, primitive.M{"profile": -1}).Decode(&ps)
-		defer func() { // restore profiler status
-			client.Database("admin").RunCommand(ctx, primitive.D{{"profile", ps.Was}, {"slowms", ps.SlowMs}})
-		}()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			cmdCtx, cancelCtx := context.WithTimeout(context.Background(), 1*time.Second)
+			defer cancelCtx()
+			client.Database("admin").RunCommand(cmdCtx, primitive.D{{Key: "profile", Value: ps.Was}, {Key: "slowms", Value: ps.SlowMs}})
+		})
 
 		// Enable profilling all queries (2, slowms = 0)
-		res := client.Database("admin").RunCommand(ctx, primitive.D{{"profile", 2}, {"slowms", 0}})
-		if res.Err() != nil {
-			return
-		}
+		res := client.Database("admin").RunCommand(ctx, primitive.D{{Key: "profile", Value: 2}, {Key: "slowms", Value: 0}})
+		require.NoError(t, res.Err())
 
 		database := client.Database(dbName)
 		_, err = database.Collection("test").InsertOne(ctx, bson.M{"id": 0, "name": "test", "value": 1, "time": time.Now()})
@@ -121,8 +125,9 @@ func TestProfilerFingerprinter(t *testing.T) {
 		database.Collection("test").FindOne(ctx, bson.M{"id": 1, "name": "test", "time": time.Now()})
 		database.Collection("test").FindOneAndUpdate(ctx, bson.M{"id": 0}, bson.M{"$set": bson.M{"name": "new"}})
 		database.Collection("test").FindOneAndDelete(ctx, bson.M{"id": 1})
-		database.Collection("secondcollection").Find(ctx, bson.M{"name": "sec"}, options.Find().SetLimit(1).SetSort(bson.M{"id": -1})) //nolint:errcheck
-		database.Collection("test").Aggregate(
+		_, err = database.Collection("secondcollection").Find(ctx, bson.M{"name": "sec"}, options.Find().SetLimit(1).SetSort(bson.M{"id": -1}))
+		require.NoError(t, err)
+		_, err = database.Collection("test").Aggregate(
 			ctx,
 			[]bson.M{
 				{
@@ -136,7 +141,8 @@ func TestProfilerFingerprinter(t *testing.T) {
 				},
 			},
 		)
-		database.Collection("secondcollection").Aggregate(ctx, mongo.Pipeline{ //nolint:errcheck
+		require.NoError(t, err)
+		_, err = database.Collection("secondcollection").Aggregate(ctx, mongo.Pipeline{
 			bson.D{
 				{
 					Key: "$collStats",
@@ -156,15 +162,21 @@ func TestProfilerFingerprinter(t *testing.T) {
 				},
 			},
 		})
-		database.Collection("secondcollection").DeleteOne(ctx, bson.M{"id": 0}) //nolint:errcheck
-		database.Collection("test").DeleteMany(ctx, bson.M{"name": "test"})     //nolint:errcheck
+		require.NoError(t, err)
+		_, err = database.Collection("secondcollection").DeleteOne(ctx, bson.M{"id": 0})
+		require.NoError(t, err)
+		_, err = database.Collection("test").DeleteMany(ctx, bson.M{"name": "test"})
+		require.NoError(t, err)
 		profilerCollection := database.Collection("system.profile")
 		query := createQuery(dbName, time.Now().Add(-10*time.Minute))
 
 		cursor, err := createIterator(ctx, profilerCollection, query)
 		require.NoError(t, err)
-		// do not cancel cursor closing when ctx is canceled
-		defer cursor.Close(context.Background()) //nolint:errcheck
+		t.Cleanup(func() {
+			cursorCtx, cancelCtx := context.WithTimeout(context.Background(), 1*time.Second)
+			defer cancelCtx()
+			require.NoError(t, cursor.Close(cursorCtx))
+		})
 
 		pf := &ProfilerFingerprinter{}
 

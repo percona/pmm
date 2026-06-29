@@ -172,7 +172,8 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
+		err := cmd.GetCredentials()
+		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
 	}
@@ -191,7 +192,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 				Database:               cmd.Database,
 				AgentPassword:          cmd.AgentPassword,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
-				DisableCommentsParsing: !cmd.CommentsParsingFlags.CommentsParsingEnabled(),
+				DisableCommentsParsing: !cmd.CommentsParsingEnabled(),
 
 				PMMAgentID:     cmd.PMMAgentID,
 				Environment:    cmd.Environment,
@@ -210,7 +211,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 
 				MaxQueryLength:         cmd.MaxQueryLength,
 				DisableQueryExamples:   cmd.DisableQueryExamples,
-				MetricsMode:            cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				MetricsMode:            cmd.MetricsMode.EnumValue(),
 				DisableCollectors:      commands.ParseDisableCollectors(cmd.DisableCollectors),
 				AutoDiscoveryLimit:     cmd.AutoDiscoveryLimit,
 				MaxExporterConnections: cmd.MaxExporterConnections,

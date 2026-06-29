@@ -39,18 +39,21 @@ func CreateDummyCredentialsSource(data string, p string, exec bool) (string, err
 	}
 
 	defer func() {
-		if tmpErr := tmpFile.Close(); tmpErr != nil {
+		tmpErr := tmpFile.Close()
+		if tmpErr != nil {
 			err = tmpErr
 		}
 	}()
 
 	content := []byte(data)
-	if _, err := tmpFile.Write(content); err != nil {
+	_, err = tmpFile.Write(content)
+	if err != nil {
 		return "", fmt.Errorf("%w", err)
 	}
 
 	if exec {
-		if err := tmpFile.Chmod(0o111); err != nil {
+		err = tmpFile.Chmod(0o111)
+		if err != nil {
 			return "", fmt.Errorf("%w", err)
 		}
 	}

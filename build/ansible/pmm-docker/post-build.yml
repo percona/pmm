@@ -1,5 +1,5 @@
 ---
-# This playbook runs post build tasks for all pmm distributions (AMI/OVF/Docker/Digitalocean).
+# This playbook runs post build tasks for all pmm distributions (AMI/Docker).
 
 - hosts: all
   become: yes
@@ -74,3 +74,11 @@
         owner: pmm
         group: root
         mode: 0755
+
+    - name: Empty VictoriaMetrics scrape config
+      copy:
+        content: ""
+        dest: /etc/victoriametrics-promscrape.yml
+        owner: pmm
+        group: root
+        mode: 0664

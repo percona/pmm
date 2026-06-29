@@ -19,12 +19,12 @@ package scheduler
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/go-co-op/gocron"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -65,7 +65,8 @@ func New(db *reform.DB, backupService backupService) *Service {
 
 // Run loads tasks from DB and starts scheduler.
 func (s *Service) Run(ctx context.Context) {
-	if err := s.loadFromDB(); err != nil { //nolint:contextcheck
+	err := s.loadFromDB() //nolint:contextcheck
+	if err != nil {
 		s.l.Warn(err)
 	}
 	s.scheduler.StartAsync()
@@ -85,9 +86,10 @@ func (s *Service) Add(task Task, params AddParams) (*models.ScheduledTask, error
 	var scheduledTask *models.ScheduledTask
 
 	// This transaction is valid only with serializable isolation level. On lower isolation levels it can produce anomalies.
-	errTx := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+	errTx := s.db.InTransactionContext(s.db.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 		var err error
-		if err = checkAddPreconditions(tx.Querier, task.Data(), !params.Disabled, ""); err != nil {
+		err = checkAddPreconditions(tx.Querier, task.Data(), !params.Disabled, "")
+		if err != nil {
 			return err
 		}
 		scheduledTask, err = models.CreateScheduledTask(tx.Querier, models.CreateScheduledTaskParams{
@@ -101,7 +103,8 @@ func (s *Service) Add(task Task, params AddParams) (*models.ScheduledTask, error
 			return err
 		}
 
-		if err = s.addDBTask(scheduledTask); err != nil {
+		err = s.addDBTask(scheduledTask)
+		if err != nil {
 			return err
 		}
 
@@ -157,8 +160,9 @@ func (s *Service) Remove(id string) error {
 
 // Update changes scheduled task in DB and re-add it to scheduler.
 func (s *Service) Update(id string, params models.ChangeScheduledTaskParams) error {
-	return s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
-		if err := checkUpdatePreconditions(tx.Querier, params.Data, !pointer.GetBool(params.Disable), id); err != nil {
+	return s.db.InTransactionContext(s.db.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
+		err := checkUpdatePreconditions(tx.Querier, params.Data, !pointer.GetBool(params.Disable), id)
+		if err != nil {
 			return err
 		}
 
@@ -189,7 +193,8 @@ func (s *Service) loadFromDB() error {
 	s.mx.Unlock()
 
 	for _, dbTask := range dbTasks {
-		if err := s.addDBTask(dbTask); err != nil {
+		err := s.addDBTask(dbTask)
+		if err != nil {
 			return err
 		}
 	}
@@ -345,7 +350,7 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) { //
 		}
 
 	default:
-		return nil, errors.Errorf("unknown task type: %s", dbTask.Type)
+		return nil, fmt.Errorf("unknown task type: %s", dbTask.Type)
 	}
 
 	return task, nil
@@ -354,11 +359,13 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) { //
 func checkAddPreconditions(q *reform.Querier, data *models.ScheduledTaskData, enabled bool, scheduledTaskID string) error {
 	switch {
 	case data.MySQLBackupTask != nil:
-		if err := services.CheckArtifactOverlapping(q, data.MySQLBackupTask.ServiceID, data.MySQLBackupTask.LocationID, data.MySQLBackupTask.Folder); err != nil {
+		err := services.CheckArtifactOverlapping(q, data.MySQLBackupTask.ServiceID, data.MySQLBackupTask.LocationID, data.MySQLBackupTask.Folder)
+		if err != nil {
 			return err
 		}
 	case data.MongoDBBackupTask != nil:
-		if err := services.CheckArtifactOverlapping(q, data.MongoDBBackupTask.ServiceID, data.MongoDBBackupTask.LocationID, data.MongoDBBackupTask.Folder); err != nil {
+		err := services.CheckArtifactOverlapping(q, data.MongoDBBackupTask.ServiceID, data.MongoDBBackupTask.LocationID, data.MongoDBBackupTask.Folder)
+		if err != nil {
 			return err
 		}
 		if enabled {
