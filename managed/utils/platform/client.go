@@ -42,7 +42,7 @@ type Client struct {
 }
 
 // NewClient creates new telemetry client.
-func NewClient(address string) (*Client, error) { //nolint:unparam
+func NewClient(address string) *Client {
 	l := logrus.WithField("component", "telemetry client")
 
 	tlsConfig := tlsconfig.Get()
@@ -60,7 +60,7 @@ func NewClient(address string) (*Client, error) { //nolint:unparam
 				Proxy: http.ProxyFromEnvironment,
 			},
 		},
-	}, nil
+	}
 }
 
 // SendTelemetry sends anonymous telemetry data to Percona Platform.
