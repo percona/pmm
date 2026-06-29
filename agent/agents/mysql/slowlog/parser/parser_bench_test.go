@@ -56,7 +56,7 @@ func benchmarkFile(b *testing.B, name string) {
 			b.StartTimer()
 
 			go p.Run()
-			for p.Parse() != nil { //nolint:revive
+			for p.Parse() != nil {
 			}
 
 			b.StopTimer()

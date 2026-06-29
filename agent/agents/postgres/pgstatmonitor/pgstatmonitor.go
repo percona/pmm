@@ -42,8 +42,8 @@ import (
 
 const defaultWaitTime = 60 * time.Second
 
-// PGStatMonitorQAN QAN services connects to PostgreSQL and extracts stats.
-type PGStatMonitorQAN struct { //nolint:revive
+// QAN services connects to PostgreSQL and extracts stats.
+type QAN struct {
 	q                      *reform.Querier
 	dbCloser               io.Closer
 	agentID                string
@@ -122,8 +122,8 @@ var commandTypeToText = []string{
 	commandTextNotAvailable,
 }
 
-// New creates new PGStatMonitorQAN QAN service.
-func New(params *Params, l *logrus.Entry) (*PGStatMonitorQAN, error) {
+// New creates new QAN QAN service.
+func New(params *Params, l *logrus.Entry) (*QAN, error) {
 	sqlDB, err := sql.Open("postgres", params.DSN)
 	if err != nil {
 		return nil, err
@@ -160,8 +160,8 @@ func newPgStatMonitorQAN(
 	disableQueryExamples bool,
 	maxQueryLength int32,
 	l *logrus.Entry,
-) (*PGStatMonitorQAN, error) {
-	return &PGStatMonitorQAN{
+) (*QAN, error) {
+	return &QAN{
 		q:                      q,
 		dbCloser:               dbCloser,
 		agentID:                agentID,
@@ -285,7 +285,7 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 }
 
 // Run extracts stats data and sends it to the channel until ctx is canceled.
-func (m *PGStatMonitorQAN) Run(ctx context.Context) {
+func (m *QAN) Run(ctx context.Context) {
 	defer func() {
 		m.dbCloser.Close() //nolint:errcheck
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
@@ -391,27 +391,27 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 }
 
 // Changes returns channel that should be read until it is closed.
-func (m *PGStatMonitorQAN) Changes() <-chan agents.Change {
+func (m *QAN) Changes() <-chan agents.Change {
 	return m.changes
 }
 
 // Describe implements prometheus.Collector.
-func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+func (m *QAN) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:revive
+func (m *QAN) Collect(_ chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 
-func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime time.Duration) {
+func (m *QAN) resetWaitTime(t *time.Timer, waitTime time.Duration) {
 	start := time.Now()
 	m.l.Debugf("Scheduling next collection in %s at %s.", waitTime, start.Add(waitTime).Format("15:04:05"))
 	t.Reset(waitTime)
 }
 
-func (m *PGStatMonitorQAN) checkDefaultWaitTime(waitTime time.Duration) bool {
+func (m *QAN) checkDefaultWaitTime(waitTime time.Duration) bool {
 	if waitTime != defaultWaitTime {
 		m.l.Error("non default bucket time value is not supported, status changed to WAITING")
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
@@ -461,7 +461,7 @@ func getPGSM20Settings(q *reform.Querier) (settings, error) {
 	return result, nil
 }
 
-func (m *PGStatMonitorQAN) getSettings() (settings, error) {
+func (m *QAN) getSettings() (settings, error) {
 	settingsValuesAreText, err := areSettingsTextValues(m.q)
 	if err != nil {
 		return nil, err
@@ -534,7 +534,7 @@ func (s settings) getWaitTime() (time.Duration, error) {
 	return time.Duration(valueInt) * time.Second, nil
 }
 
-func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs uint32, normalizedQuery bool) ([]*agentv1.MetricsBucket, error) {
+func (m *QAN) getNewBuckets(ctx context.Context, periodLengthSecs uint32, normalizedQuery bool) ([]*agentv1.MetricsBucket, error) {
 	current, prev, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength)
 	if err != nil {
 		return nil, err
@@ -561,7 +561,7 @@ func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs u
 
 // makeBuckets uses current state of pg_stat_monitor table and accumulated previous state
 // to make metrics buckets.
-func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*pgStatMonitorExtended) []*agentv1.MetricsBucket { //nolint:gocognit
+func (m *QAN) makeBuckets(current, cache map[time.Time]map[string]*pgStatMonitorExtended) []*agentv1.MetricsBucket { //nolint:gocognit
 	res := make([]*agentv1.MetricsBucket, 0, len(current))
 
 	for bucketStartTime, bucket := range current {
@@ -791,4 +791,4 @@ func getHistogramRangesArray(vPGSM pgStatMonitorVersion) []*agentv1.HistogramIte
 }
 
 // check interfaces.
-var _ prometheus.Collector = (*PGStatMonitorQAN)(nil)
+var _ prometheus.Collector = (*QAN)(nil)

@@ -72,8 +72,8 @@ func TestVersion(t *testing.T) {
 			// check that timestamp is not XX:00:00
 			require.NotEmpty(t, res.Managed.Timestamp)
 			ts := time.Time(res.Managed.Timestamp)
-			_, min, sec := ts.Clock()
-			assert.True(t, min != 0 || sec != 0, "managed timestamp should not contain only date: %s", ts)
+			_, mins, sec := ts.Clock()
+			assert.True(t, mins != 0 || sec != 0, "managed timestamp should not contain only date: %s", ts)
 
 			if res.Server == nil || res.Server.Version == "" {
 				t.Skip("skipping the rest of the test in developer's environment")
@@ -87,8 +87,8 @@ func TestVersion(t *testing.T) {
 			// check that timestamp is not XX:00:00
 			require.NotEmpty(t, res.Server.Timestamp)
 			ts = time.Time(res.Server.Timestamp)
-			_, min, sec = ts.Clock()
-			assert.True(t, min != 0 || sec != 0, "server timestamp should not contain only date: %s", ts)
+			_, mins, sec = ts.Clock()
+			assert.True(t, mins != 0 || sec != 0, "server timestamp should not contain only date: %s", ts)
 		})
 	}
 }

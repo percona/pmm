@@ -31,31 +31,40 @@ const (
 	mgoTimeoutSessionSocket = 5 * time.Second
 )
 
-type newMonitor func(client *mongo.Client, logger *logrus.Entry, dbName string) *monitor
+type newMonitor func(client *mongo.Client, logger *logrus.Entry, dbName string) *Monitor
 
-func NewMonitors(client *mongo.Client, newMonitor newMonitor, logger *logrus.Entry) *monitors {
-	return &monitors{
+// NewMonitors creates a new Monitors instance that manages the lifecycle of individual
+// database profilers for a MongoDB instance.
+func NewMonitors(client *mongo.Client, newMonitor newMonitor, logger *logrus.Entry) *Monitors {
+	return &Monitors{
 		client:     client,
 		newMonitor: newMonitor,
-		monitors:   make(map[string]*monitor),
+		monitors:   make(map[string]*Monitor),
 		logger:     logger,
 	}
 }
 
-type monitors struct {
+// Monitors manages the lifecycle of individual database monitors for a MongoDB instance.
+// It tracks which databases should be monitored by periodically reconciling the list
+// of existing databases with active monitor instances. It ensures thread-safe access
+// to the collection of monitors.
+type Monitors struct {
 	// dependencies
 	client     *mongo.Client
 	newMonitor newMonitor
 	logger     *logrus.Entry
 
 	// monitors
-	monitors map[string]*monitor
+	monitors map[string]*Monitor
 
 	// state
 	rw sync.RWMutex // Lock() to protect internal consistency of the service
 }
 
-func (ms *monitors) MonitorAll(ctx context.Context) error {
+// MonitorAll reconciles the list of currently active database monitors with the databases
+// existing on the MongoDB server. It starts new monitors for newly discovered databases
+// and stops monitors for databases that have been dropped.
+func (ms *Monitors) MonitorAll(ctx context.Context) error {
 	databases := make(map[string]struct{})
 	databasesSlice, err := ms.listDatabases(ctx)
 	if err != nil {
@@ -105,7 +114,8 @@ func (ms *monitors) MonitorAll(ctx context.Context) error {
 	return nil
 }
 
-func (ms *monitors) StopAll() {
+// StopAll gracefully stops all currently active database monitors and clears the registry.
+func (ms *Monitors) StopAll() {
 	monitors := ms.GetAll()
 
 	for dbName := range monitors {
@@ -113,7 +123,8 @@ func (ms *monitors) StopAll() {
 	}
 }
 
-func (ms *monitors) Stop(dbName string) {
+// Stop stops the monitor for a specific database and removes it from the internal registry.
+func (ms *Monitors) Stop(dbName string) {
 	m := ms.Get(dbName)
 	m.Stop()
 
@@ -122,23 +133,27 @@ func (ms *monitors) Stop(dbName string) {
 	delete(ms.monitors, dbName)
 }
 
-func (ms *monitors) Get(dbName string) *monitor {
+// Get returns the monitor instance for the specified database name.
+// Returns nil if the database is not being monitored.
+func (ms *Monitors) Get(dbName string) *Monitor {
 	ms.rw.RLock()
 	defer ms.rw.RUnlock()
 
 	return ms.monitors[dbName]
 }
 
-func (ms *monitors) GetAll() map[string]*monitor {
+// GetAll returns a thread-safe copy of the map containing all active database monitors,
+// where keys are database names.
+func (ms *Monitors) GetAll() map[string]*Monitor {
 	ms.rw.RLock()
 	defer ms.rw.RUnlock()
 
-	list := make(map[string]*monitor)
+	list := make(map[string]*Monitor)
 	maps.Copy(list, ms.monitors)
 
 	return list
 }
 
-func (ms *monitors) listDatabases(ctx context.Context) ([]string, error) {
+func (ms *Monitors) listDatabases(ctx context.Context) ([]string, error) {
 	return ms.client.ListDatabaseNames(ctx, bson.M{})
 }

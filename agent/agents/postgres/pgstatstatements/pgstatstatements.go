@@ -55,8 +55,8 @@ var (
 
 type statementsMap map[int64]*pgStatStatementsExtended
 
-// PGStatStatementsQAN QAN services connects to PostgreSQL and extracts stats.
-type PGStatStatementsQAN struct { //nolint:revive
+// QAN services connects to PostgreSQL and extracts stats.
+type QAN struct {
 	q                      *reform.Querier
 	dbCloser               io.Closer
 	agentID                string
@@ -82,7 +82,7 @@ const (
 )
 
 // New creates new PGStatStatementsQAN QAN service.
-func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
+func New(params *Params, l *logrus.Entry) (*QAN, error) {
 	sqlDB, err := sql.Open("postgres", params.DSN)
 	if err != nil {
 		return nil, err
@@ -115,14 +115,14 @@ func newPgStatStatementsQAN(
 	maxQueryLength int32,
 	disableCommentsParsing bool,
 	l *logrus.Entry,
-) (*PGStatStatementsQAN, error) {
+) (*QAN, error) {
 	cacheSize := getPgStatStatementsCacheSize(q, l)
 	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, cacheSize, l)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create cache: %w", err)
 	}
 
-	return &PGStatStatementsQAN{
+	return &QAN{
 		q:                      q,
 		dbCloser:               dbCloser,
 		agentID:                agentID,
@@ -153,7 +153,7 @@ func getPgStatVersion(q *reform.Querier) (semver.Version, error) {
 }
 
 // Run extracts stats data and sends it to the channel until ctx is canceled.
-func (m *PGStatStatementsQAN) Run(ctx context.Context) {
+func (m *QAN) Run(ctx context.Context) {
 	defer func() {
 		m.dbCloser.Close() //nolint:errcheck
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
@@ -227,7 +227,7 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 
 // getStatStatementsExtended returns the current state of pg_stat_statements table with extended information (database, username, tables)
 // and the previous cashed state.
-func (m *PGStatStatementsQAN) getStatStatementsExtended(
+func (m *QAN) getStatStatementsExtended(
 	ctx context.Context,
 ) (statementsMap, statementsMap, error) {
 	var totalN, newN, newSharedN, oldN int
@@ -305,7 +305,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	return current, prev, err
 }
 
-func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart time.Time, periodLengthSecs uint32) ([]*agentv1.MetricsBucket, error) {
+func (m *QAN) getNewBuckets(ctx context.Context, periodStart time.Time, periodLengthSecs uint32) ([]*agentv1.MetricsBucket, error) {
 	current, prev, err := m.getStatStatementsExtended(ctx)
 	if err != nil {
 		return nil, err
@@ -337,7 +337,7 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 
 // makeBuckets uses current state of pg_stat_statements table and accumulated previous state
 // to make metrics buckets. It's a pure function for easier testing.
-func (m *PGStatStatementsQAN) makeBuckets(current, prev statementsMap) []*agentv1.MetricsBucket {
+func (m *QAN) makeBuckets(current, prev statementsMap) []*agentv1.MetricsBucket {
 	res := make([]*agentv1.MetricsBucket, 0, len(current))
 	l := m.l
 
@@ -432,17 +432,17 @@ func (m *PGStatStatementsQAN) makeBuckets(current, prev statementsMap) []*agentv
 }
 
 // Changes returns channel that should be read until it is closed.
-func (m *PGStatStatementsQAN) Changes() <-chan agents.Change {
+func (m *QAN) Changes() <-chan agents.Change {
 	return m.changes
 }
 
 // Describe implements prometheus.Collector.
-func (m *PGStatStatementsQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+func (m *QAN) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (m *PGStatStatementsQAN) Collect(ch chan<- prometheus.Metric) {
+func (m *QAN) Collect(ch chan<- prometheus.Metric) {
 	stats := m.statementsCache.cache.Stats()
 	metrics := cache.MetricsFromStats(stats, m.agentID, "")
 	for _, metric := range metrics {
@@ -452,5 +452,5 @@ func (m *PGStatStatementsQAN) Collect(ch chan<- prometheus.Metric) {
 
 // check interfaces.
 var (
-	_ prometheus.Collector = (*PGStatStatementsQAN)(nil)
+	_ prometheus.Collector = (*QAN)(nil)
 )

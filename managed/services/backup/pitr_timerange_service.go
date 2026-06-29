@@ -50,8 +50,8 @@ func NewPBMPITRService() *PBMPITRService {
 	}
 }
 
-// oplogChunk is index metadata for the oplog chunks.
-type oplogChunk struct {
+// OplogChunk is index metadata for the oplog chunks.
+type OplogChunk struct {
 	RS          string              `bson:"rs"`
 	FName       string              `bson:"fname"`
 	Compression compressionType     `bson:"compression"`
@@ -110,8 +110,8 @@ func file(ext string) compressionType {
 	}
 }
 
-func (s *PBMPITRService) getPITROplogs(ctx context.Context, storage Storage, location *models.BackupLocation, artifact *models.Artifact) ([]*oplogChunk, error) {
-	var oplogChunks []*oplogChunk
+func (s *PBMPITRService) getPITROplogs(ctx context.Context, storage Storage, location *models.BackupLocation, artifact *models.Artifact) ([]*OplogChunk, error) {
+	var oplogChunks []*OplogChunk
 
 	if storage == nil {
 		return oplogChunks, nil
@@ -189,12 +189,12 @@ func trimTimelines(timelines []Timeline) {
 // (https://github.com/percona/percona-backup-mongodb/wiki/PITR:-storage-layout)
 //
 // !!! Should be agreed with pbm/pitr.chunkPath().
-func pitrMetaFromFileName(prefix, f string) *oplogChunk {
+func pitrMetaFromFileName(prefix, f string) *OplogChunk {
 	ppath := strings.Split(f, "/")
 	if len(ppath) < 2 {
 		return nil
 	}
-	chnk := &oplogChunk{}
+	chnk := &OplogChunk{}
 	chnk.RS = ppath[0]
 	chnk.FName = path.Join(prefix, f)
 
@@ -244,7 +244,7 @@ func pitrParseTS(tstr string) *primitive.Timestamp {
 	return &ts
 }
 
-func getTimelines(slices []*oplogChunk) []Timeline {
+func getTimelines(slices []*OplogChunk) []Timeline {
 	var tl Timeline
 	var timelines []Timeline
 	var prevEnd primitive.Timestamp
@@ -381,14 +381,14 @@ func (s *PBMPITRService) GetPITRFiles(
 	location *models.BackupLocation,
 	artifact *models.Artifact,
 	until *time.Time,
-) ([]*oplogChunk, error) {
+) ([]*OplogChunk, error) {
 	opLogs, err := s.getPITROplogs(ctx, storage, location, artifact)
 	if err != nil {
 		return nil, err
 	}
 
 	if until != nil {
-		var res []*oplogChunk
+		var res []*OplogChunk
 		for _, chunk := range opLogs {
 			chunkStartTime := time.Unix(int64(chunk.StartTS.T), 0)
 			// We're checking only start time because when pbm takes snapshot, chunk is being finalizing automatically.

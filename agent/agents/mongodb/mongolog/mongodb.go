@@ -107,18 +107,18 @@ func (m *MongoDB) Write(r *report.Report) error {
 	return nil
 }
 
-type Mongolog interface { //nolint:revive
+type Mongolog interface {
 	Start(ctx context.Context) error
 	Stop() error
 }
 
 // Describe implements prometheus.Collector.
-func (m *MongoDB) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+func (m *MongoDB) Describe(ch chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (m *MongoDB) Collect(ch chan<- prometheus.Metric) { //nolint:revive
+func (m *MongoDB) Collect(ch chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 
