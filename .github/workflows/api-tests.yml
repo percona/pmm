@@ -1,3 +1,4 @@
+---
 name: 'API Tests'
 
 on:
@@ -36,7 +37,7 @@ permissions:
 jobs:
   test:
     name: Tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     env:
       PMM_URL: https://admin:admin@127.0.0.1
       BRANCH: ${{ github.event.inputs.BRANCH || 'main' }}
@@ -64,7 +65,6 @@ jobs:
               container_name: pmm-server
               environment:
                 - PMM_DEBUG=1
-                - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check-dev.percona.com
               ports:
                 - 443:8443
               volumes:

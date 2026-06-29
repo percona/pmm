@@ -1,3 +1,4 @@
+---
 name: Scorecard
 on:
   # To guarantee Maintained check is occasionally updated. See

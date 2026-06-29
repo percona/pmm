@@ -10,8 +10,6 @@ services:
       - PMM_DEBUG=1
       # for local development
       - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/custom-checks.yml
-      # for check-dev
-      # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=check-dev.percona.com:443
     volumes:
       - ./testdata/checks:/srv/checks
 

@@ -37,41 +37,6 @@
         "iit-billing-tag": "pmm-ami"
       },
       "ssh_clear_authorized_keys": "true"
-    },
-    {
-      "type": "virtualbox-ovf",
-      "vm_name": "PMM3-Server-{{isotime \"2006-01-02-1504\"}}",
-      "export_opts": [
-        "--ovf20",
-        "--manifest",
-        "--vsys", "0",
-        "--product", "Percona Monitoring and Management",
-        "--producturl", "https://www.percona.com/software/database-tools/percona-monitoring-and-management",
-        "--vendor", "Percona",
-        "--vendorurl", "https://www.percona.com",
-        "--version", "{{isotime \"2006-01-02\"}}",
-        "--description", "Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL, PostgreSQL and MongoDB"
-      ],
-      "format": "ova",
-      "guest_additions_mode": "disable",
-      "headless": true,
-      "output_directory": "pmm-virtualbox",
-      "shutdown_command": "sudo shutdown -P now",
-      "source_path": ".cache/box/box.ovf",
-      "ssh_private_key_file": ".cache/id_rsa_vagrant",
-      "ssh_wait_timeout": "8m",
-      "ssh_pty": true,
-      "ssh_username": "vagrant",
-      "ssh_clear_authorized_keys": true,
-      "vboxmanage": [
-        ["modifyvm", "{{.Name}}", "--memory", "4096"],
-        ["modifyvm", "{{.Name}}", "--audio", "none"],
-        ["modifyvm", "{{.Name}}", "--cpus", "4", "--vrdeport", "5050", "--vram", "10", "--graphicscontroller", "vmsvga", "--ioapic", "on"],
-        ["storagectl", "{{.Name}}", "--name", "IDE Controller", "--controller", "PIIX4", "--remove"],
-        ["storagectl", "{{.Name}}", "--name", "SATA Controller", "--controller", "IntelAhci", "--portcount", "2", "--hostiocache", "on", "--bootable", "on"],
-        ["createhd", "--variant", "STREAM", "--format", "VMDK", "--size", "409600", "--filename", "/tmp/box-disk002.vmdk"],
-        ["storageattach", "{{.Name}}", "--storagectl", "SATA Controller", "--port", "1", "--type", "hdd", "--medium", "/tmp/box-disk002.vmdk"]
-      ]
     }
   ],
   "provisioners": [
@@ -99,7 +64,7 @@
         "packer/ansible/roles/lvm-init",
         "packer/ansible/roles/cloud-node",
         "packer/ansible/roles/podman-setup",
-        "packer/ansible/roles/ami-ovf"
+        "packer/ansible/roles/ami"
       ]
     }
   ],
