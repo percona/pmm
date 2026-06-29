@@ -50,6 +50,9 @@ db.getSiblingDB("admin").createRole({
 "roles": [ ]
 })
 ```
+
+!!! note ""
+    Some dashboard panels, such as **Total data size** on the MongoDB ReplSet Summary and MongoDB Sharded Cluster Summary dashboards, require the `dbstats` collector. Pass `--enable-all-collectors` when adding the service to enable it.
         
 #### Full backup management privileges
 
