@@ -1,40 +1,96 @@
-name: Sync API Docs
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - "api/**"
-      - "documentation/api/**"
+---
+name: API
 
-  workflow_dispatch:
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/api.yml'
+      - '.github/actions/setup-go-release/**'
+      - "api/**"
+      - "go.*"
+      - "!**/*.md"
 
 permissions:
   contents: read
 
 jobs:
-  sync:
-    name: Sync API Docs
+  check:
+    name: Static checks
     runs-on: ubuntu-latest
+    continue-on-error: false
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/api
+
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - name: Check out code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Detect PMM version and API ID
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
+
+      - name: Check files formatting
         run: |
-          # For reference:
-          # PMM 2: VERSION=v2
-          # PMM 3: VERSION=v3
-          export VERSION=$(cat api/swagger/swagger.json | jq -r '.info.version')
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          make gen
+          git status
+          git diff --exit-code
 
-      - name: API
-        uses: readmeio/rdme@7b543cfd89e3b8f7a99759b04f38df8887a38b7c # v10.9.1
-        with:
-          rdme: openapi upload ./api/swagger/swagger.json --useSpecVersion --slug=pmm-api.json --key=${{ secrets.README_TOKEN }}
+      - name: Check API compatibility descriptors
+        run: |
+          # log if descriptors changed, useful for "update descriptors" PRs
+          make descriptors
+          git diff --exit-code
 
-      - name: Markdown docs
-        uses: readmeio/rdme@7b543cfd89e3b8f7a99759b04f38df8887a38b7c # v10.9.1
-        with:
-          rdme: reference upload documentation/api/ --branch=${{ env.VERSION }}  --key=${{ secrets.README_TOKEN }}
+      - name: Run API linter
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if out=$(go tool buf lint -v .); code="$?"; test "$code" -eq 0; then
+            echo "$out"
+            exit 0
+          fi
+
+          echo "API linter exited with code: $code"
+          echo "$out"
+          ## buf uses exit code 100 for linter warnings
+          if [ "$code" -ne 100 ] || ${{ github.event.pull_request == null }}; then
+            exit $code
+          fi
+
+          # One may need to suppress passing to reviewdog because of https://github.com/reviewdog/reviewdog/issues/1696
+          echo "$out" | go tool reviewdog -f=buf -reporter=github-pr-review -fail-level=error
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env | sort
+          git status
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/api
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
+
+      - name: Test
+        run: make test
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env | sort
+          go env | sort
+          git status

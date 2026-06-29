@@ -1,28 +1,14 @@
+---
 name: UI
 
 on:
-  push:
-    branches:
-      - main
-      - pmm-*
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-    paths-ignore:
-      - "documentation/**"
-      - "dashboards/**"
-
   pull_request:
-    paths-ignore:
-      - "admin/**"
-      - "agent/**"
-      - "api-tests/**"
-      - "dev/docs/**"
-      - "documentation/**"
+    paths:
+      - '.github/workflows/ui.yml'
+      - "api/**"
       - "dashboards/**"
-      - "managed/**"
-      - "qan-api2/**"
-      - "vmproxy/**"
-      - "update/**"
+      - "ui/**"
+      - "!**/*.md"
 
 permissions:
   contents: read
@@ -30,7 +16,7 @@ permissions:
 jobs:
   ci:
     name: CI
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     defaults:
       run:

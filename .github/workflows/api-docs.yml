@@ -1,0 +1,42 @@
+---
+name: Sync API Docs
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "api/**"
+      - "documentation/api/**"
+      - 'go.*'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    name: Sync API Docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Detect PMM version and API ID
+        run: |
+          # For reference:
+          # PMM 2: VERSION=v2
+          # PMM 3: VERSION=v3
+          export VERSION=$(jq -r '.info.version' api/swagger/swagger.json)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: API
+        uses: readmeio/rdme@7b543cfd89e3b8f7a99759b04f38df8887a38b7c # v10.9.1
+        with:
+          rdme: openapi upload ./api/swagger/swagger.json --useSpecVersion --slug=pmm-api.json --key=${{ secrets.README_TOKEN }}
+
+      - name: Markdown docs
+        uses: readmeio/rdme@7b543cfd89e3b8f7a99759b04f38df8887a38b7c # v10.9.1
+        with:
+          rdme: reference upload documentation/api/ --branch=${{ env.VERSION }}  --key=${{ secrets.README_TOKEN }}

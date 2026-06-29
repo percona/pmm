@@ -1,92 +1,54 @@
+---
 name: Main
 
 on:
-  push:
-    branches:
-      - main
-      - pmm-*
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-    paths-ignore:
-      - "documentation/**"
-      - "dashboards/**"
-
   pull_request:
-    paths-ignore:
-      - "documentation/**"
-      - "dashboards/**"
+    paths:
+      - '.github/workflows/main.yml'
+      - '.github/actions/setup-go-release/**'
+      - "admin/**"
+      - "agent/**"
+      - "api/**"
+      - "api-tests/**"
+      - "managed/**"
+      - "qan-api2/**"
+      - "utils/**"
+      - "version/**"
+      - "vmproxy/**"
+      - "Makefile*"
+      - "go.*"
+      - "*.yaml"
+      - "*.yml"
+      - "!**/*.md"
 
 permissions:
   contents: read
 
 env:
-  GONOPROXY: 'github.com/percona,github.com/Percona-Lab'
-  GONOSUMDB: 'github.com/percona,github.com/Percona-Lab'
   GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
   check:
-    name: Checks
-    runs-on: ubuntu-22.04
+    name: Static checks
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
       pull-requests: write
-    env:
-      PMM_ENCRYPTION_KEY_PATH: pmm-encryption.key
 
     steps:
       - name: Check out code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Set up Go release
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
-        with:
-          go-version-file: ${{ github.workspace }}/go.mod
-          cache: false
-
-      - name: Enable Go build cache
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
-          restore-keys: |
-            ${{ runner.os }}-go-build-${{ github.ref }}-
-            ${{ runner.os }}-go-build-
-
-      - name: Enable Go modules cache
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-modules-
-
-      - name: Download Go modules
-        run: |
-          go mod download -x
-
-      - name: Install development tools
-        run: make init
-
-      - name: Generate files
-        run: make gen
-
-      - name: Check build
-        run: make release
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
 
       - name: Check files are formatted and no source code changes
         run: |
-          make format
+          make format-shared
           go mod tidy -v
           git status
           git diff --exit-code
-
-      - name: Update API compatibility descriptors
-        run: |
-          # log if descriptors changed, useful for "update descriptors" PRs
-          make -C api descriptors
-          git diff --text
 
       - name: Run check-license
         run: |
@@ -96,28 +58,8 @@ jobs:
       - name: Run go-sumtype
         run: go tool go-sumtype ./...
 
-      - name: Run API linter
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
-        run: |
-          if out=$(go tool buf lint -v api); code="$?"; test "$code" -eq 0; then
-            echo "$out"
-            exit 0
-          fi
-
-          echo "API linter exited with code: $code"
-          echo "$out"
-          ## buf uses exit code 100 for linter warnings
-          if [ "$code" -ne 100 ] || ${{ github.event.pull_request == null }}; then
-            exit $code
-          fi
-
-          # One may need to suppress passing to reviewdog because of https://github.com/reviewdog/reviewdog/issues/1696
-          echo "$out" | go tool reviewdog -f=buf -reporter=github-pr-review -fail-level=error
-
       - name: Run code linters
         uses: reviewdog/action-golangci-lint@c76cceaaab89abe74e649d2e34c6c9adc26662d2 # v2.10.0
-        if: ${{ github.event_name == 'pull_request' }}
         with:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version_file: ${{ github.workspace }}/go.mod
@@ -127,7 +69,25 @@ jobs:
           golangci_lint_flags: "-c=.golangci.yml"
           golangci_lint_version: v2.12.2 # Version should match specified in Makefile
 
-      - name: Test common API
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env | sort
+          go env | sort
+          git status
+
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
+
+      - name: Test shared packages
         run: make test-common
 
       - name: Run debug commands on failure
@@ -138,9 +98,10 @@ jobs:
           git status
 
   workflow_success:
-    needs: [ check ]
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    needs: [check, test]
     name: Slack Notification success
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     env:
       SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
       SLACK_CHANNEL: "pmm-ci"
@@ -155,10 +116,10 @@ jobs:
         uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
 
   workflow_failure:
-    if: ${{ failure() }}
-    needs: [ check ]
+    if: ${{ failure() && github.event.pull_request.head.repo.full_name == github.repository }}
+    needs: [check, test]
     name: Slack Notification failure
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     env:
       SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
       SLACK_CHANNEL: "pmm-ci"

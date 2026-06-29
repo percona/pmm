@@ -1,4 +1,5 @@
-name: 'API Tests'
+---
+name: API Tests Dispatch
 
 on:
   # NOTE: no action on `push` and `pull_request` since the API tests need to be run
@@ -36,7 +37,7 @@ permissions:
 jobs:
   test:
     name: Tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     env:
       PMM_URL: https://admin:admin@127.0.0.1
       BRANCH: ${{ github.event.inputs.BRANCH || 'main' }}

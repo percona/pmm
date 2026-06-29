@@ -34,4 +34,4 @@ jobs:
               --self "Merge Gatekeeper" \
               --interval 45 \
               --timeout 1200 \
-              --ignored "linkspector"
+              --ignored "linkspector,Slack Notification success,Slack Notification failure"

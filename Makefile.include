@@ -18,36 +18,22 @@ release:              ## Build release versions of all components
 	make -C admin release
 	make -C managed release
 	make -C qan-api2 release
+	make -C vmproxy release
 
-gen: clean            ## Generate files
-	make -C api gen
-	make -C api clean-swagger
-
+gen:             ## Generate files (includes formatting)
 	make -C agent gen
-	make -C admin gen
+	make -C api gen
 	make -C managed gen
 
-	make gen-mocks      ## Generate mocks
-
-	make format
-	go install -v ./...
-
-clean:                ## Remove generated files
-	make -C api clean
-
-gen-mocks:
-	find . -name mock_*.go -delete
-	go tool mockery --config .mockery.yaml
-
-test-common:          ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed)
-	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests -e qan-api2 -e update)
+test-common:          ## Run tests from shared packages only (i.e it ignores directories that are explicitly listed)
+	go test $(shell go list ./... | grep -v -e admin -e agent -e api -e managed -e api-tests -e qan-api2 -e vmproxy)
 
 api-test:             ## Run API tests on dev env.
 	go test -count=1 -race -p 1 -v ./api-tests/... -pmm.server-insecure-tls
 
 GOLANG_CI_LINT_RUN_OPTS ?=
 check:                ## Run required checks and linters
-	go tool buf lint -v api
+	$(MAKE) -C api check
 	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(shell git merge-base main HEAD) --new $(GOLANG_CI_LINT_RUN_OPTS)
 	go tool go-sumtype ./...
 
@@ -56,20 +42,24 @@ check-license:        ## Run license header checks against source files
 
 check-all: check-license check    ## Run linter and license checks
 
-check-new:
-	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/main --new
+format: format-shared 	## Format all Go source code
+	$(MAKE) -C admin format
+	$(MAKE) -C agent format
+	$(MAKE) -C api format
+	$(MAKE) -C api-tests format
+	$(MAKE) -C managed format
+	$(MAKE) -C qan-api2 format
+	$(MAKE) -C vmproxy format
 
-FILES = $(shell find . -type f -name '*.go')
-
-format:               ## Format source code
-	make -C api format
-	go tool gofumpt -l -w $(FILES)
-	go tool goimports -local github.com/percona/pmm -l -w $(FILES)
+format-shared: FILES = $(shell find . -type f -name '*.go' | grep -v -e admin -e agent -e api-tests -e api -e managed -e qan-api2 -e ui -e vmproxy)
+format-shared: 	## Format shared Go source code
+	go tool gofumpt -w $(FILES)
+	go tool goimports -local github.com/percona/pmm -w $(FILES)
 	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 
 serve:                ## Serve API documentation with nginx
 	nginx -p . -c api/nginx/nginx.conf
 
-GOLANG_CI_LINT_RUN_OPTS=--fix
-prepare-pr: gen check-all format
+prepare-pr: GOLANG_CI_LINT_RUN_OPTS=--fix
+prepare-pr: gen check-all format 	## Run actions for PR preparation
 	go mod tidy

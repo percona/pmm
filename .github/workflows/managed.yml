@@ -1,34 +1,75 @@
+---
 name: Managed
 on:
-  push:
-    branches:
-      - main
-      - pmm-*
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-    paths-ignore:
-      - "documentation/**"
-      - "dashboards/**"
-
   pull_request:
-    paths-ignore:
-      - 'admin/**'
-      - 'agent/**'
-      - 'api-tests/**'
-      - 'dev/docs/**'
-      - "documentation/**"
-      - "dashboards/**"
-      - 'qan-api2/**'
-      - 'update/**'
-      - 'vmproxy/**'
-      - "ui/**"
+    paths:
+      - '.github/workflows/managed.yml'
+      - '.github/actions/setup-go-release/**'
+      - 'api/**'
+      - 'managed/**'
+      - "utils/**"
+      - "version/**"
+      - 'go.*'
+      - 'Makefile*'
+      - '!**/*.md'
 
 permissions: read-all
 
+env:
+  GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
+
 jobs:
+  check:
+    name: Static checks
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/managed
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
+
+      - name: Check files formatting
+        run: |
+          make gen
+          git status
+          git diff --exit-code
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env | sort
+          git status
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/managed
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
+
+      - name: Build PMM Managed
+        run: make release
+
+      - name: Print version
+        run: ../bin/pmm-managed --version
+
   test:
-    name: Unit tests
-    runs-on: ubuntu-22.04
+    name: Tests
+    runs-on: ubuntu-latest
     timeout-minutes: 30
 
     env:
@@ -41,14 +82,9 @@ jobs:
       - name: Check out code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Enable Go build and module cache
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
-        with:
-          path: |
-            ~/go-build-cache
-            ~/go-mod-cache
-          key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
-          restore-keys: ${{ runner.os }}-go-
+      # Required to mount Go cache to container.
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
 
       - name: Launch PMM Server
         run: |
@@ -63,16 +99,14 @@ jobs:
             -e PMM_RELEASE_PATH=/root/go/bin \
             -e PMM_ENABLE_ACCESS_CONTROL=1 \
             -e PMM_ENABLE_TELEMETRY=0 \
-            -e PMM_RELEASE_VERSION=3.7.0 \
+            -e PMM_RELEASE_VERSION=3.9.0 \
             -e GOMODCACHE=/home/pmm/.cache/go/mod \
             -e GOCACHE=/home/pmm/.cache/go-build \
-            -e GONOPROXY=github.com/percona,github.com/Percona-Lab \
-            -e GONOSUMDB=github.com/percona,github.com/Percona-Lab \
-            -e GOPRIVATE=github.com/percona,github.com/Percona-Lab \
+            -e GOPRIVATE=${{ env.GOPRIVATE }} \
             -w /root/go/src/github.com/percona/pmm \
             -v ./:/root/go/src/github.com/percona/pmm \
-            -v ~/go-mod-cache:/home/pmm/.cache/go/mod \
-            -v ~/go-build-cache:/home/pmm/.cache/go-build \
+            -v ~/go/pkg/mod:/home/pmm/.cache/go/mod \
+            -v ~/.cache/go-build:/home/pmm/.cache/go-build \
             -v ./managed/data/advisors/:/usr/local/percona/advisors/ \
             -v ./managed/data/checks/:/usr/local/percona/checks/ \
             -v ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/ \

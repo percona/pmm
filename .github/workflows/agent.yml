@@ -1,41 +1,102 @@
-name: 'Client: pmm-agent'
+---
+name: PMM Agent
 
 on:
-  push:
-    branches:
-      - main
-      - pmm-*
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-    paths-ignore:
-      - "documentation/**"
-      - "dashboards/**"
-
   pull_request:
-    paths-ignore:
-      - "admin/**"
-      - "api-tests/**"
-      - "dashboards/**"
-      - "dev/docs/**"
-      - "documentation/**"
-      - "managed/**"
-      - "qan-api2/**"
-      - "update/**"
-      - "vmproxy/**"
-      - "ui/**"
+    paths:
+      - '.github/workflows/agent.yml'
+      - '.github/actions/setup-go-release/**'
+      - "agent/**"
+      - "api/**"
+      - 'utils/**'
+      - 'version/**'
+      - 'go.*'
+      - '!**/*.md'
 
 permissions:
   contents: read
 
 env:
-  GONOPROXY: 'github.com/percona,github.com/Percona-Lab'
-  GONOSUMDB: 'github.com/percona,github.com/Percona-Lab'
   GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
+  check:
+    name: Static checks
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/agent
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
+
+      - name: Check files formatting
+        run: |
+          make gen
+          git status
+          git diff --exit-code
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env | sort
+          git status
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/agent
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
+
+      - name: Build PMM Agent
+        run: make release
+
+      - name: Print version
+        run: ../bin/pmm-agent --version
+
+  build-gssapi:
+    name: Build with GSSAPI support
+    runs-on: ubuntu-latest
+    continue-on-error: false
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}/agent
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup Kerberos client libraries
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libkrb5-dev
+
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
+
+      - name: Build PMM Agent
+        run: make release-gssapi
+
+      - name: Print version
+        run: ../bin/pmm-agent --version
+
   test:
     name: Tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         images:
@@ -79,33 +140,8 @@ jobs:
       - name: Check out code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Set up Go
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
-        with:
-          go-version-file: ${{ github.workspace }}/go.mod
-          cache: false
-
-      - name: Enable Go build cache
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
-          restore-keys: |
-            ${{ runner.os }}-go-build-${{ github.ref }}-
-            ${{ runner.os }}-go-build-
-
-      - name: Enable Go modules cache
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-modules-
-
-      - name: Download Go modules
-        run: go mod download -x
-
-      - name: Build and install
-        run: make install
+      - name: Setup Go release
+        uses: ./.github/actions/setup-go-release
 
       - name: Launch containers
         env:
@@ -134,49 +170,3 @@ jobs:
           git status
           docker compose logs
           docker compose ps -a
-
-
-  build-gssapi:
-    name: Build PMM Agent with GSSAPI support
-    runs-on: ubuntu-22.04
-    continue-on-error: false
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}/agent
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
-      - name: Setup Kerberos client libraries
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y libkrb5-dev
-
-      - name: Set up Go
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
-        with:
-          go-version-file: ${{ github.workspace }}/go.mod
-          cache: false
-
-      - name: Enable Go build cache
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
-          restore-keys: |
-            ${{ runner.os }}-go-build-${{ github.ref }}-
-            ${{ runner.os }}-go-build-
-
-      - name: Enable Go modules cache
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-modules-
-
-      - name: Download Go modules
-        run: go mod download -x
-
-      - name: Build PMM Agent
-        run: make release-gssapi

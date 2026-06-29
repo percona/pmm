@@ -260,7 +260,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 func main() {
 	log.SetFlags(0)
 
-	kingpin.Version(version.ShortInfo())
+	kingpin.Version(version.FullInfo())
 	kingpin.HelpFlag.Short('h')
 	grpcBindF := kingpin.Flag("grpc-bind", "GRPC bind address and port").Default("127.0.0.1:9911").String()
 	jsonBindF := kingpin.Flag("json-bind", "JSON bind address and port").Default("127.0.0.1:9922").String()

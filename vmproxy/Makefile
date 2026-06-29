@@ -1,12 +1,8 @@
-default: help
+.DEFAULT_GOAL := help
 
-help:                           ## Display this help message
-	@echo "Please use \`make <target>\` where <target> is one of:"
-	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
-		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
-
+# --- Go-related variables ----------------------------------------------------------------
 # `cut` is used to remove first `v` from `git describe` output
-PMM_RELEASE_PATH ?= ../bin
+PMM_RELEASE_PATH ?= $(CURDIR)/../bin
 PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
@@ -16,16 +12,34 @@ ifeq ($(GOBIN),)
 endif
 
 LD_FLAGS = -ldflags " \
-			-X 'github.com/percona/pmm/version.ProjectName=vmproxy' \
-			-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
-			-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
-			-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
-			-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
-			-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
-			"
+	-X 'github.com/percona/pmm/version.ProjectName=vmproxy' \
+	-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
+	-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
+	-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
+	-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
+	-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
+	"
+# --- Tests-related variables ------------------------------------------------------------
+TEST_FLAGS ?= -timeout=20s
+# ------------------------------------------------------------------------------------------
 
-release:                        ## Build vmproxy release binary
-	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/vmproxy .
+.PHONY: help format release install install-race build test test-cover
+
+$(PMM_RELEASE_PATH):
+	mkdir -p $(PMM_RELEASE_PATH)
+
+help: 	## Display this help message
+	@echo "Please use \`make <target>\`, where <target> is one of the following:"
+	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9-]+:.*## / {printf "  %-23s%s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+format: FILES = $(shell find . -type f -name '*.go')
+format: 	## Format source code
+	go tool gofumpt -w $(FILES)
+	go tool goimports -local github.com/percona/pmm -w $(FILES)
+	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
+
+release: $(PMM_RELEASE_PATH) 	## Build static vmproxy release binary
+	CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/vmproxy .
 
 install:                        ## Install vmproxy binary
 	go build -v $(LD_FLAGS) -o $(GOBIN)/vmproxy .
@@ -35,8 +49,6 @@ install-race:                   ## Install vmproxy binary with race detector
 
 build:                          ## Build vmproxy binary to current directory
 	go build -v $(LD_FLAGS) -o vmproxy .
-
-TEST_FLAGS ?= -timeout=20s
 
 test:                           ## Run tests
 	go test $(TEST_FLAGS) -race ./...
