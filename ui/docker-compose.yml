@@ -40,7 +40,6 @@ services:
     environment:
       - PMM_DEBUG=1
       - GF_DEFAULT_APP_MODE=development
-      - PMM_DEV_PERCONA_PLATFORM_ADDRESS=https://check-dev.percona.com:443
       - PMM_WATCHTOWER_HOST=http://watchtower:8080
       - PMM_WATCHTOWER_TOKEN=123
       # Uncomment to specify to which docker image to update
