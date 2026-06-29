@@ -50,9 +50,6 @@ db.getSiblingDB("admin").createRole({
 "roles": [ ]
 })
 ```
-
-!!! note ""
-    Some dashboard panels, such as **Total data size** on the MongoDB ReplSet Summary and MongoDB Sharded Cluster Summary dashboards, require the `dbstats` collector. Pass `--enable-all-collectors` when adding the service to enable it.
         
 #### Full backup management privileges
 
@@ -401,6 +398,7 @@ After configuring your database server, add a MongoDB service using either the u
 
     !!! hint alert alert-success "Tips"
         - When adding members of a replica set or sharded cluster, ensure to add each node using the same `--cluster my_cluster_or_rs_name`. This allows the [MongoDB Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) and [MongoDB ReplSetSummary](../../../reference/dashboards/dashboard-mongodb-replset-summary.md) dashboards to populate correctly. 
+        - Some dashboard panels, such as **Total data size** on the [MongoDB ReplSet Summary](../../../reference/dashboards/dashboard-mongodb-replset-summary.md) and [MongoDB Sharded Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboards, require the `dbstats` collector. Pass [`--enable-all-collectors`](../../../use/commands/pmm-admin/add.md#collector-options) when adding the service to enable it.
         - PMM does not gather collection and index metrics if it detects you have more than 200 collections, in order to limit the resource consumption. Check the [advanced options](../../../use/commands/pmm-admin/add.md#collector-options) section if you want to modify this behaviour. 
         - When running mongos routers in containers, specify the `diagnosticDataCollectionDirectoryPath` to ensure that pmm-agent can properly capture mongos metrics. For example: `mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/`
         
