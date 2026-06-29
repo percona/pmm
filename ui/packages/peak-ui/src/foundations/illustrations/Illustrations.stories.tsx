@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { type ComponentType, useMemo, useState } from 'react';
+import { type ComponentType, type ReactNode, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
@@ -15,6 +15,7 @@ import {
   RealTimeDatabaseOffIllustration,
   UnknownErrorIllustration,
 } from '../../components/illustrations';
+import { primitives } from '../../design';
 
 interface IllustrationEntry {
   component: ComponentType<SvgIconProps>;
@@ -179,4 +180,88 @@ export const Gallery: Story = {
   tags: ['!dev'],
   parameters: { canvasSurface: 'paper' },
   render: () => <IllustrationsGallery />,
+};
+
+const DemoColumn = ({ label, children }: { label: ReactNode; children: ReactNode }) => (
+  <Stack alignItems="center" spacing={2} sx={{ minWidth: 180 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 120 }}>
+      {children}
+    </Box>
+    <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
+      {label}
+    </Typography>
+  </Stack>
+);
+
+const swatch = (token: string, value: string) => (
+  <Stack direction="row" spacing={1} alignItems="center" justifyContent="center">
+    <Box
+      sx={{ width: 12, height: 12, borderRadius: '2px', backgroundColor: value, flexShrink: 0 }}
+    />
+    <Typography variant="caption" sx={{ fontFamily: '"Roboto Mono", monospace' }}>
+      {token}
+    </Typography>
+  </Stack>
+);
+
+export const LayerColoringNothingFound: Story = {
+  tags: ['!dev'],
+  parameters: { canvasSurface: 'paper' },
+  render: () => (
+    <Stack direction="row" spacing={8} alignItems="flex-start" flexWrap="wrap" useFlexGap>
+      <DemoColumn label="Default — every layer uses currentColor">
+        <NothingFoundIllustration sx={{ fontSize: 120, color: 'text.primary' }} />
+      </DemoColumn>
+      <DemoColumn
+        label={
+          <Stack spacing={0.5}>
+            {swatch('glass · tech.postgresql.700', primitives.tech.postgresql[700])}
+            {swatch('questionMark · tech.mysql.600', primitives.tech.mysql[600])}
+            {swatch('swooshArrays · primary.black.300', primitives.primary.black[300])}
+          </Stack>
+        }
+      >
+        <NothingFoundIllustration
+          sx={{ fontSize: 120, color: 'text.primary' }}
+          layerColors={{
+            glass: primitives.tech.postgresql[700],
+            questionMark: primitives.tech.mysql[600],
+            swooshArrays: primitives.primary.black[300],
+          }}
+        />
+      </DemoColumn>
+    </Stack>
+  ),
+};
+
+export const LayerColoringUnknownError: Story = {
+  tags: ['!dev'],
+  parameters: { canvasSurface: 'paper' },
+  render: () => (
+    <Stack direction="row" spacing={8} alignItems="flex-start" flexWrap="wrap" useFlexGap>
+      <DemoColumn label="Default — every layer uses currentColor">
+        <UnknownErrorIllustration sx={{ fontSize: 120, color: 'text.primary' }} />
+      </DemoColumn>
+      <DemoColumn
+        label={
+          <Stack spacing={0.5}>
+            {swatch('windowFrame · primary.black.400', primitives.primary.black[400])}
+            {swatch('eyes · mouth · nose · tech.redis.600', primitives.tech.redis[600])}
+            {swatch('controls · tech.postgresql.600', primitives.tech.postgresql[600])}
+          </Stack>
+        }
+      >
+        <UnknownErrorIllustration
+          sx={{ fontSize: 120, color: 'text.primary' }}
+          layerColors={{
+            windowFrame: primitives.primary.black[400],
+            eyes: primitives.tech.redis[600],
+            mouth: primitives.tech.redis[600],
+            nose: primitives.tech.redis[600],
+            controls: primitives.tech.postgresql[600],
+          }}
+        />
+      </DemoColumn>
+    </Stack>
+  ),
 };
