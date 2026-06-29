@@ -114,6 +114,30 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotWarns)
 	})
 
+	t.Run("Skipped clickhouse env vars", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"PMM_CLICKHOUSE_DATABASE=pmm",
+			"PMM_CLICKHOUSE_ADDR=127.0.0.1:9000",
+			"PMM_CLICKHOUSE_USER=default",
+			"PMM_CLICKHOUSE_PASSWORD=secret",
+			"PMM_CLICKHOUSE_HOST=127.0.0.1",
+			"PMM_CLICKHOUSE_PORT=9000",
+			"PMM_CLICKHOUSE_IS_CLUSTER=true",
+			"PMM_CLICKHOUSE_CLUSTER_NAME=cluster1",
+			"PMM_CLICKHOUSE_NODES=n1,n2",
+			"PMM_CLICKHOUSE_CONFIG=low-memory",
+			"PMM_DISABLE_BUILTIN_CLICKHOUSE=1",
+		}
+		expectedEnvVars := &models.ChangeSettingsParams{}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, expectedEnvVars, gotEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
 	t.Run("Invalid env variables values", func(t *testing.T) {
 		t.Parallel()
 
