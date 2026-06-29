@@ -56,9 +56,10 @@ const (
 	defaultVMSearchMaxQueryDuration     = "90s"
 	defaultVMSearchLogSlowQueryDuration = "30s"
 	defaultVMPromscrapeStreamParse      = "true"
-	// Set defaultVMMaxIngestionRate to cap the samples/sec VictoriaMetrics will accept.
-	// It helps absorb a reconnect storm from a fleet of agents without overwhelming VM.
-	defaultVMMaxIngestionRate = "3000000"
+	// 0 keeps VictoriaMetrics' native default of no ingestion rate limit. A hard cap risks
+	// pausing ingestion on large legitimate fleets, so the limit is left opt-in via the
+	// VM_maxIngestionRate environment variable for deployments that need to throttle bursts.
+	defaultVMMaxIngestionRate = "0"
 )
 
 // Service is responsible for interactions with Supervisord via supervisorctl.
