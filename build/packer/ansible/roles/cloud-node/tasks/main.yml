@@ -61,24 +61,11 @@
     dest: /etc/systemd/system/getty@.service.d/nodisallocate.conf
     mode: 0644
 
-- name: root password              | Set root password
-  when: ansible_virtualization_type == "virtualbox"
-  user:
-    name: root
-    password: "$6$J7pGg2a7vuRTbTV5$vORqkiAKdkyomU3iYwr/SPn.yLIkGsl5ludEx5DUvGVASSTquTjOldHt/nUWrFRnJeZyzt6CIOjAcugbcfGtN1"
-
-- name: root password              | Set root password
-  when: ansible_virtualization_type == "virtualbox"
-  command: chage -d 0 root
-  changed_when: False
-
 - name: root password              | Disable root password
-  when: ansible_virtualization_type != "virtualbox"
   command: passwd --delete root
   changed_when: False
 
 - name: root password              | Disable root password
-  when: ansible_virtualization_type != "virtualbox"
   command: passwd --lock root
   changed_when: False
 
@@ -112,21 +99,9 @@
     dest: /etc/sudoers.d/90-admin-user
     mode: 0440
 
-- name: change cloud user for OVF EL9      | Change cloud user
-  when:
-    - create_admin == "true"
-    - ansible_virtualization_type == "virtualbox"
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-    - ansible_distribution_major_version == '9'
-  replace:
-    dest: /etc/cloud/cloud.cfg
-    regexp: "name: cloud-user"
-    replace: "name: admin"
-
 - name: change cloud user for AMI EL9      | Change cloud user
   when:
     - create_admin == "true"
-    - ansible_virtualization_type != "virtualbox"
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
   replace:
@@ -177,5 +152,4 @@
     create: yes
 
 - import_tasks: security.yml
-- import_tasks: ovf.yml
 - import_tasks: ami.yml
