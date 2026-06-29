@@ -17,10 +17,10 @@ package models
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
@@ -729,13 +729,13 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 	var tx *sqlx.Tx
 	tx, err = mb.db.Beginx()
 	if err != nil {
-		return errors.Wrap(err, "failed to begin transaction")
+		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
 	defer func() {
 		if err == nil {
 			err = tx.Commit()
 			if err != nil {
-				err = errors.Wrap(err, "failed to commit transaction")
+				err = fmt.Errorf("failed to commit transaction: %w", err)
 			}
 		} else {
 			_ = tx.Rollback()
@@ -746,12 +746,12 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 	var stmt *sqlx.NamedStmt
 	stmt, err = tx.PrepareNamed(insertSQL)
 	if err != nil {
-		return errors.Wrap(err, "failed to prepare statement")
+		return fmt.Errorf("failed to prepare statement: %w", err)
 	}
 	defer func() {
 		e := stmt.Close()
 		if e != nil && err == nil {
-			err = errors.Wrap(e, "failed to close statement")
+			err = fmt.Errorf("failed to close statement: %w", e)
 		}
 	}()
 
@@ -794,7 +794,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 
 			_, err = stmt.Exec(q)
 			if err != nil {
-				return errors.Wrap(err, "failed to exec")
+				return fmt.Errorf("failed to exec: %w", err)
 			}
 		}
 
@@ -812,14 +812,13 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 }
 
 // Save store metrics bucket received from agent into db.
-func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error { //nolint:unparam
+func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) {
 	if len(agentMsg.MetricsBucket) == 0 {
 		mb.l.Warnf("Nothing to save - no metrics buckets.")
-		return nil
+		return
 	}
 
 	mb.requestsCh <- agentMsg
-	return nil
 }
 
 // mapToArrsStrStr converts map into two lists.

@@ -20,6 +20,7 @@ import (
 	"context"
 	"crypto/subtle"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"os/user"
@@ -32,7 +33,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc/codes"
@@ -107,7 +107,7 @@ func NewServer(params *Params) (*Server, error) {
 	path := "/srv"
 	_, err := os.Stat(path)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf("failed to create a new server: %w", err)
 	}
 	path = filepath.Join(path, "pmm-update.json")
 
@@ -447,7 +447,7 @@ func (s *Server) writeUpdateAuthToken(token string) error {
 	}
 	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600|os.ModeExclusive) //nolint:mnd
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to write auth token to file %s: %w", s.pmmUpdateAuthFile, err)
 	}
 	defer func() {
 		err = f.Close()
@@ -456,7 +456,11 @@ func (s *Server) writeUpdateAuthToken(token string) error {
 		}
 	}()
 
-	return errors.WithStack(json.NewEncoder(f).Encode(a))
+	err = json.NewEncoder(f).Encode(a) //nolint:gosec
+	if err != nil {
+		return fmt.Errorf("failed to encode auth token to JSON: %w", err)
+	}
+	return nil
 }
 
 // readUpdateAuthToken reads authentication token for getting update status and logs from the file.
@@ -466,7 +470,7 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 
 	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_RDONLY, os.ModeExclusive)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", fmt.Errorf("failed to read auth token from file %s: %w", s.pmmUpdateAuthFile, err)
 	}
 	defer func() {
 		err = f.Close()
@@ -477,7 +481,10 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 
 	var a pmmUpdateAuth
 	err = json.NewDecoder(f).Decode(&a)
-	return a.AuthToken, errors.WithStack(err)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode auth token from JSON: %w", err)
+	}
+	return a.AuthToken, nil
 }
 
 // convertSettings merges database settings and settings from environment variables into API response.
@@ -649,7 +656,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		var err error
 		oldSettings, err = models.GetSettings(tx)
 		if err != nil {
-			return errors.WithStack(err)
+			return fmt.Errorf("failed to get server settings: %w", err)
 		}
 
 		metricsRes := req.MetricsResolutions
@@ -690,15 +697,16 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		case errors.As(err, &errInvalidArgument):
 			return status.Errorf(codes.InvalidArgument, "Invalid argument: %s.", errInvalidArgument.Details)
 		default:
-			return errors.WithStack(err)
+			return fmt.Errorf("failed to update server settings: %w", err)
 		}
 
 		// absent value means "do not change"
 		if req.SshKey != nil {
 			err = s.writeSSHKey(pointer.GetString(req.SshKey))
 			if err != nil {
-				s.l.Error(errors.WithStack(err))
-				return status.Errorf(codes.Internal, "failed to write SSH key: %s", err.Error())
+				err = fmt.Errorf("failed to write SSH key: %w", err)
+				s.l.Error(err)
+				return status.Errorf(codes.Internal, "%s", err.Error())
 			}
 		}
 
@@ -848,18 +856,18 @@ func (s *Server) writeSSHKey(sshKey string) error {
 	username := "pmm"
 	usr, err := user.Lookup(username)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to lookup OS user %s: %w", username, err)
 	}
 	sshDirPath := path.Join(usr.HomeDir, ".ssh")
 	err = os.MkdirAll(sshDirPath, 0o700) //nolint:mnd
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to create SSH dir %s: %w", sshDirPath, err)
 	}
 
 	keysPath := path.Join(sshDirPath, "authorized_keys")
 	err = os.WriteFile(keysPath, []byte(sshKey), 0o600) //nolint:mnd
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to write SSH keys to %s: %w", keysPath, err)
 	}
 	return nil
 }

@@ -57,7 +57,7 @@ func TestDevContainer(t *testing.T) {
 				require.NoError(t, err)
 			}
 			// force update supervisor config
-			_, err := s.supervisorctl("update")
+			err = s.supervisorctl("update")
 			require.NoError(t, err)
 		}()
 

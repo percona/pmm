@@ -17,9 +17,8 @@ package agents
 
 import (
 	"bytes"
+	"fmt"
 	"text/template"
-
-	"github.com/pkg/errors"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -77,7 +76,7 @@ func azureDatabaseExporterConfig(
       - "Microsoft.DBforPostgreSQL/flexibleServers"
       - "Microsoft.DBforPostgreSQL/serversv2"`
 	default:
-		return nil, errors.Errorf("unexpected service type %s", service.ServiceType)
+		return nil, fmt.Errorf("unexpected service type %s", service.ServiceType)
 	}
 
 	var config bytes.Buffer

@@ -7,4 +7,4 @@
     - cloud-node
     - lvm-init
     - podman-setup
-    - ami-ovf
+    - ami

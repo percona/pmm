@@ -17,10 +17,10 @@ package management
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -136,7 +136,7 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 	`
 	result, _, err := s.vmClient.Query(ctx, query, time.Now())
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to execute an instant VM query")
+		return nil, fmt.Errorf("failed to execute an instant VM query: %w", err)
 	}
 
 	metrics := make(map[string]statusMetrics, len(result.(model.Vector))) //nolint:forcetypeassert

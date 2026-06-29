@@ -17,9 +17,9 @@ package backup
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/minio/minio-go/v7"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -267,7 +267,7 @@ func convertLocation(locationModel *models.BackupLocation) (*backuppb.Location, 
 			},
 		}
 	default:
-		return nil, errors.Errorf("unknown backup location type %s", locationModel.Type)
+		return nil, fmt.Errorf("unknown backup location type %s", locationModel.Type)
 	}
 	return loc, nil
 }

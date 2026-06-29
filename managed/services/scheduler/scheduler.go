@@ -19,12 +19,12 @@ package scheduler
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/go-co-op/gocron"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -350,7 +350,7 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) { //
 		}
 
 	default:
-		return nil, errors.Errorf("unknown task type: %s", dbTask.Type)
+		return nil, fmt.Errorf("unknown task type: %s", dbTask.Type)
 	}
 
 	return task, nil
