@@ -1,15 +1,6 @@
 ---
 name: 'Percona Intelligence'
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-    paths:
-      - 'managed/data/alerting-templates/**'
-      - 'managed/data/advisors/**'
-      - 'managed/data/checks/**'
   pull_request:
     paths:
       - 'managed/data/alerting-templates/**'
