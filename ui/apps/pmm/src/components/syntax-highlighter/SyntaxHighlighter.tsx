@@ -12,10 +12,13 @@ import { getSyntaxHighlighterStyle } from './SyntaxHighlighter.utils';
 // @ts-ignore
 import mongodb from 'react-syntax-highlighter/dist/esm/languages/prism/mongodb';
 import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
+// @ts-ignore
+import promql from 'react-syntax-highlighter/dist/esm/languages/prism/promql';
 import { SyntaxHighlighterProps } from './SyntaxHighlighter.types';
 
 ReactSyntaxHighlighter.registerLanguage('mongodb', mongodb);
 ReactSyntaxHighlighter.registerLanguage('json', json);
+ReactSyntaxHighlighter.registerLanguage('promql', promql);
 
 const SyntaxHighlighter: FC<SyntaxHighlighterProps> = ({
   language,

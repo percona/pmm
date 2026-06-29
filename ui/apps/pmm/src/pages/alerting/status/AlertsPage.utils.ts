@@ -148,6 +148,7 @@ export const flattenAlertRules = (
           alertName: getAlertName(alert, rule),
           ruleName: rule.name || 'Unnamed rule',
           ruleGroupUid: rule.uid,
+          ruleGroup: group,
           state: resolveState(alert, rule),
           nodeId: getAlertNodeId(alert),
           serviceName: getAlertServiceName(alert),

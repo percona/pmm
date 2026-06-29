@@ -507,10 +507,10 @@ export const NAV_ALERTS_GROUPS: NavItem = {
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/groups`,
 };
 
-export const NAV_ALERTS_NODES: NavItem = {
-  id: 'alerts-nodes',
-  text: 'Alerts',
-  url: `${PMM_NEW_NAV_PATH}/alerting/node-alerts`,
+export const NAV_ALERTS_STATUS: NavItem = {
+  id: 'alerts-status',
+  text: 'Status',
+  url: `${PMM_NEW_NAV_PATH}/alerting/status`,
 };
 
 export const NAV_ALERTS_CONTACT_POINTS: NavItem = {

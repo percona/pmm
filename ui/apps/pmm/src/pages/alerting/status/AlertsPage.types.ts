@@ -1,4 +1,4 @@
-import { AlertStatus } from 'types/alerting.types';
+import { AlertStatus, PrometheusAlertRuleGroup } from 'types/alerting.types';
 
 export interface AlertRow {
   type: 'alert';
@@ -6,6 +6,7 @@ export interface AlertRow {
   alertName: string;
   ruleName: string;
   ruleGroupUid?: string;
+  ruleGroup: PrometheusAlertRuleGroup;
   state: AlertStatus;
   nodeId: string;
   serviceName: string;
@@ -29,4 +30,6 @@ export interface NodeGroupRow {
   alerts: AlertRow[];
 }
 
-export type AlertsTableRow = AlertRow | NodeGroupRow;
+export type AlertsTableRow = (AlertRow | NodeGroupRow) & {
+  timezone?: string;
+};

@@ -35,6 +35,8 @@ export interface PrometheusAlertRuleGroup {
   file?: string;
   interval?: number;
   rules: PrometheusAlertRuleItem[];
+  evaluationTime?: number;
+  lastEvaluation?: string;
 }
 
 export interface PrometheusAlertRulesData {
