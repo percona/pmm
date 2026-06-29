@@ -11,12 +11,11 @@ import UnavailableText from 'components/unavailable-text';
 
 interface Props extends PropsWithChildren {
   title: string;
-  subtitle?: string;
   tooltip?: string;
   size?: GridProps['size'];
 }
 
-const DataPoint: FC<Props> = ({ title, subtitle, tooltip, children, size }) => (
+const DataPoint: FC<Props> = ({ title, tooltip, children, size }) => (
   <Grid
     size={size}
     sx={{
@@ -25,7 +24,7 @@ const DataPoint: FC<Props> = ({ title, subtitle, tooltip, children, size }) => (
       justifyContent: 'space-between',
     }}
   >
-    <Stack direction="row" alignItems="center" spacing={1}>
+    <Stack direction="row" alignItems="center">
       <Typography variant="body1" fontFamily="Poppins" fontWeight="600">
         {title}
       </Typography>
@@ -45,10 +44,5 @@ const DataPoint: FC<Props> = ({ title, subtitle, tooltip, children, size }) => (
     <Divider />
   </Grid>
 );
-
-const randomColor = () => {
-  const colors = ['lightblue', 'lightcoral', 'lightgreen', 'lightyellow'];
-  return colors[Math.floor(Math.random() * colors.length)];
-};
 
 export default DataPoint;

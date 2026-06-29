@@ -20,7 +20,11 @@ const AlertDetails: FC<Props> = ({ alert }) => {
     <Stack spacing={3}>
       <Typography variant="h6">{Messages.details.summary}</Typography>
       <Grid container spacing={3} columns={{ xs: 4 }}>
-        <DataPoint size={2} title={Messages.details.alertName}>
+        <DataPoint
+          size={2}
+          title={Messages.details.alertName}
+          tooltip="The name of the alert that was triggered. This is usually a human-readable string that describes the alert condition."
+        >
           {alert.alertName}
         </DataPoint>
         <DataPoint size={1} title={Messages.details.state}>
@@ -63,25 +67,34 @@ const AlertDetails: FC<Props> = ({ alert }) => {
         <Grid container spacing={3} columns={{ xs: 4 }}>
           <DataPoint size={1} title={Messages.details.evaluate}></DataPoint>
           <DataPoint size={1} title={Messages.details.lastEvaluated}>
-            {formatTriggeredAt(alert.ruleGroup.lastEvaluation, timezone)}
+            {formatTriggeredAt(alert.ruleGroup?.lastEvaluation, timezone)}
           </DataPoint>
           <DataPoint size={1} title={Messages.details.lastEvaluationDuration}>
-            {alert.ruleGroup.evaluationTime}
+            {alert.ruleGroup?.evaluationTime}
           </DataPoint>
-          <DataPoint size={1} title={Messages.details.pendingPeriod}></DataPoint>
-          <DataPoint size={1} title={Messages.details.keepFiringFor}></DataPoint>
+          <DataPoint
+            size={1}
+            title={Messages.details.pendingPeriod}
+          ></DataPoint>
+          <DataPoint
+            size={1}
+            title={Messages.details.keepFiringFor}
+          ></DataPoint>
           <DataPoint size={1} title={Messages.details.ruleType}></DataPoint>
           <DataPoint
             size={1}
             title={Messages.details.ruleIdentifier}
           ></DataPoint>
-          <DataPoint size={1} title={Messages.details.lastUpdatedBy}></DataPoint>
+          <DataPoint
+            size={1}
+            title={Messages.details.lastUpdatedBy}
+          ></DataPoint>
           <DataPoint size={1} title={Messages.details.lastUpdated}></DataPoint>
           <DataPoint size={1} title={Messages.details.templateName}>
             {alert.labels.template_name}
           </DataPoint>
           <DataPoint size={1} title={Messages.details.folder}>
-            {alert.ruleGroup.file}
+            {alert.ruleGroup?.file}
           </DataPoint>
           <DataPoint size={1} title={Messages.details.ruleHealth}></DataPoint>
         </Grid>

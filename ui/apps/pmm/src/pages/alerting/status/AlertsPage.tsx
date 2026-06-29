@@ -1,22 +1,11 @@
 import { useMemo, useState } from 'react';
-import { format } from 'date-fns';
-import { tz } from '@date-fns/tz';
-import {
-  Card,
-  CardContent,
-  Stack,
-  tableClasses,
-  tableContainerClasses,
-  Typography,
-} from '@mui/material';
+import { Stack, tableContainerClasses, Typography } from '@mui/material';
 import { usePrometheusAlertRules } from 'hooks/api/usePrometheusAlertRules';
-import { TIME_FORMAT } from 'lib/constants';
 import { flattenAlertRules } from './AlertsPage.utils';
 import { AlertStatusTable } from './table';
 import { useDetailsPaneNavigation } from '@percona/percona-ui';
 import { AlertsTableRow } from './AlertsPage.types';
 import { AlertDetailsPane } from './details-pane';
-import { Page } from 'components/page';
 
 const AlertsPage = () => {
   const { data } = usePrometheusAlertRules({
