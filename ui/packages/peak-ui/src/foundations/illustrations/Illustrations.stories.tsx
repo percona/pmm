@@ -103,7 +103,7 @@ const IllustrationsGallery = () => {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
             gap: 2,
           }}
         >
@@ -123,7 +123,7 @@ const IllustrationsGallery = () => {
                 '&:hover .copy-button': { opacity: 1 },
               }}
             >
-              <Illustration sx={{ fontSize: 64, color: 'text.primary' }} />
+              <Illustration sx={{ fontSize: 128, color: 'text.primary' }} />
               <Box>
                 <Typography
                   variant="body2"
