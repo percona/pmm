@@ -11,7 +11,17 @@ const cjsInteropDeps = [
 const config: StorybookConfig = {
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
   staticDirs: ["./static"],
-  addons: ["@storybook/addon-docs", "storybook-addon-pseudo-states"],
+  addons: [
+    "@storybook/addon-docs",
+    "storybook-addon-pseudo-states",
+    "storybook-addon-tag-badges",
+  ],
+  tags: {
+    stable: {},
+    experimental: {},
+    "needs-review": {},
+    deprecated: {},
+  },
   framework: {
     name: "@storybook/react-vite",
     options: {},

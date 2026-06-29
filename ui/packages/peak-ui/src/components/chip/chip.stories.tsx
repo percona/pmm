@@ -32,7 +32,7 @@ type ChipStoryProps = ChipProps & { withAvatar?: boolean; withDelete?: boolean }
 const meta: Meta<ChipStoryProps> = {
   title: 'Data display/Chip',
   component: Chip as React.ComponentType<ChipStoryProps>,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'stable'],
   parameters: {
     layout: 'centered',
     docs: {

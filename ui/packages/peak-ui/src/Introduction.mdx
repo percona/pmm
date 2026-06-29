@@ -2,11 +2,52 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 <Meta title="Introduction" />
 
+export const statusTag = (bg) => ({
+  display: 'inline-block',
+  minWidth: '104px',
+  textAlign: 'center',
+  padding: '2px 10px',
+  borderRadius: '10px',
+  fontSize: '12px',
+  fontWeight: 600,
+  letterSpacing: '0.02em',
+  color: '#fff',
+  background: bg,
+});
+
 # Welcome to Peak Design
 
 Peak Design is Percona's design system and UI library containing the guidelines and assets that allow Perconians and the community to create functional, professional, and attractive GUIs for our software products.
 
 While our Figma kit represents our design intent, **this Storybook is our definitive coded source of truth**. What you see here is exactly what renders in the UI codebase and Percona products.
+
+## Maturity tags
+
+Every documented component carries a **maturity tag** so humans and agents can tell at a glance what's safe to build on and what needs care. The tag renders as a colored badge next to the component in the sidebar and on its docs page. You can also filter the sidebar by status using the filter menu (the funnel icon at the bottom of the sidebar), and each tag is present in the generated `index.json` for tooling.
+
+Exactly one status applies per component, from this closed set:
+
+<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '1.25rem 0' }}>
+  <div>
+    <span style={statusTag('#2e7d32')}>Stable</span> &nbsp; Production-ready and reviewed. Safe to
+    use in any product — copy the snippets with confidence.
+  </div>
+  <div>
+    <span style={statusTag('#6d28d9')}>Experimental</span> &nbsp; Intentionally early. The API may
+    change without notice; pin to a version and expect churn.
+  </div>
+  <div>
+    <span style={statusTag('#ed6c02')}>Needs review</span> &nbsp; Functional but not yet vetted
+    against the design system. Usable, but may change after review — check with us before relying on
+    it.
+  </div>
+  <div>
+    <span style={statusTag('#d32f2f')}>Deprecated</span> &nbsp; On the way out. Avoid in new code
+    and migrate existing usage to the recommended replacement.
+  </div>
+</div>
+
+Components grouped under **To be reviewed** in the sidebar are all tagged `needs review`. The absence of a tag means we haven't classified it yet — treat it as unreviewed.
 
 ## Resources
 
