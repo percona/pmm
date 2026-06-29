@@ -208,25 +208,25 @@ export const LayerColoringNothingFound: Story = {
   tags: ['!dev'],
   parameters: { canvasSurface: 'paper' },
   render: () => (
-    <Stack direction="row" spacing={8} alignItems="flex-start" flexWrap="wrap" useFlexGap>
+    <Stack direction="row" spacing={8} alignItems="flex-start" flexWrap="wrap" useFlexGap justifyContent="center">
       <DemoColumn label="Default — every layer uses currentColor">
         <NothingFoundIllustration sx={{ fontSize: 120, color: 'text.primary' }} />
       </DemoColumn>
       <DemoColumn
         label={
           <Stack spacing={0.5}>
-            {swatch('glass · tech.postgresql.700', primitives.tech.postgresql[700])}
-            {swatch('questionMark · tech.mysql.600', primitives.tech.mysql[600])}
-            {swatch('swooshArrays · primary.black.300', primitives.primary.black[300])}
+            {swatch('glass · primary.purple.400', primitives.primary.purple[400])}
+            {swatch('questionMark · primitives.primary.black.700', primitives.primary.black[700])}
+            {swatch('swooshArrays · primitives.primary.yellow.400', primitives.primary.yellow[400])}
           </Stack>
         }
       >
         <NothingFoundIllustration
           sx={{ fontSize: 120, color: 'text.primary' }}
           layerColors={{
-            glass: primitives.tech.postgresql[700],
-            questionMark: primitives.tech.mysql[600],
-            swooshArrays: primitives.primary.black[300],
+            glass: primitives.primary.purple[400],
+            questionMark: primitives.primary.black[700],
+            swooshArrays: primitives.primary.yellow[400],
           }}
         />
       </DemoColumn>
@@ -238,27 +238,27 @@ export const LayerColoringUnknownError: Story = {
   tags: ['!dev'],
   parameters: { canvasSurface: 'paper' },
   render: () => (
-    <Stack direction="row" spacing={8} alignItems="flex-start" flexWrap="wrap" useFlexGap>
+    <Stack direction="row" spacing={8} alignItems="flex-start" flexWrap="wrap" useFlexGap justifyContent="center">
       <DemoColumn label="Default — every layer uses currentColor">
         <UnknownErrorIllustration sx={{ fontSize: 120, color: 'text.primary' }} />
       </DemoColumn>
       <DemoColumn
         label={
           <Stack spacing={0.5}>
-            {swatch('windowFrame · primary.black.400', primitives.primary.black[400])}
-            {swatch('eyes · mouth · nose · tech.redis.600', primitives.tech.redis[600])}
-            {swatch('controls · tech.postgresql.600', primitives.tech.postgresql[600])}
+            {swatch('windowFrame · primitives.tech.mysql.400', primitives.tech.mysql[400])}
+            {swatch('eyes · mouth · nose · primitives.tech.mysql.700', primitives.tech.mysql[700])}
+            {swatch('controls · primitives.tech.mysql.300', primitives.tech.mysql[300])}
           </Stack>
         }
       >
         <UnknownErrorIllustration
           sx={{ fontSize: 120, color: 'text.primary' }}
           layerColors={{
-            windowFrame: primitives.primary.black[400],
-            eyes: primitives.tech.redis[600],
-            mouth: primitives.tech.redis[600],
-            nose: primitives.tech.redis[600],
-            controls: primitives.tech.postgresql[600],
+            windowFrame: primitives.tech.mysql[400],
+            eyes: primitives.tech.mysql[700],
+            mouth: primitives.tech.mysql[700],
+            nose: primitives.tech.mysql[700],
+            controls: primitives.tech.mysql[300],
           }}
         />
       </DemoColumn>
