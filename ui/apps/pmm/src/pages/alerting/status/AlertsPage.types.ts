@@ -6,7 +6,7 @@ export interface AlertRow {
   alertName: string;
   ruleName: string;
   ruleGroupUid?: string;
-  ruleGroup: PrometheusAlertRuleGroup;
+  ruleGroup?: PrometheusAlertRuleGroup;
   state: AlertStatus;
   nodeId: string;
   serviceName: string;

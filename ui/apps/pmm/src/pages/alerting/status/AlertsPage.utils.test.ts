@@ -228,7 +228,10 @@ describe('flattenAlertRules', () => {
       'svc-b',
     ]);
 
-    const allServicesRows = filterAlertRulesByService(rows, ALL_SERVICES_FILTER);
+    const allServicesRows = filterAlertRulesByService(
+      rows,
+      ALL_SERVICES_FILTER
+    );
     expect(allServicesRows).toHaveLength(3);
 
     const serviceBRows = filterAlertRulesByService(rows, 'svc-b');
