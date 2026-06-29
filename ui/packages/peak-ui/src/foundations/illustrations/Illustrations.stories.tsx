@@ -208,7 +208,14 @@ export const LayerColoringNothingFound: Story = {
   tags: ['!dev'],
   parameters: { canvasSurface: 'paper' },
   render: () => (
-    <Stack direction="row" spacing={8} alignItems="flex-start" flexWrap="wrap" useFlexGap justifyContent="center">
+    <Stack
+      direction="row"
+      spacing={8}
+      alignItems="flex-start"
+      flexWrap="wrap"
+      useFlexGap
+      justifyContent="center"
+    >
       <DemoColumn label="Default — every layer uses currentColor">
         <NothingFoundIllustration sx={{ fontSize: 120, color: 'text.primary' }} />
       </DemoColumn>
@@ -238,7 +245,14 @@ export const LayerColoringUnknownError: Story = {
   tags: ['!dev'],
   parameters: { canvasSurface: 'paper' },
   render: () => (
-    <Stack direction="row" spacing={8} alignItems="flex-start" flexWrap="wrap" useFlexGap justifyContent="center">
+    <Stack
+      direction="row"
+      spacing={8}
+      alignItems="flex-start"
+      flexWrap="wrap"
+      useFlexGap
+      justifyContent="center"
+    >
       <DemoColumn label="Default — every layer uses currentColor">
         <UnknownErrorIllustration sx={{ fontSize: 120, color: 'text.primary' }} />
       </DemoColumn>
