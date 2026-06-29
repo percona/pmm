@@ -51,8 +51,7 @@ func TestRulesAPI(t *testing.T) {
 	require.NoError(t, err)
 	folder := createdFolder.Payload
 	t.Cleanup(func() {
-		force := true
-		_, _ = gClient.Folders.DeleteFolder(folders.NewDeleteFolderParams().WithFolderUID(folder.UID).WithForceDeleteRules(&force))
+		_, _ = gClient.Folders.DeleteFolder(folders.NewDeleteFolderParams().WithFolderUID(folder.UID).WithForceDeleteRules(new(true)))
 	})
 
 	dummyFilter := &alerting.CreateRuleParamsBodyFiltersItems0{
