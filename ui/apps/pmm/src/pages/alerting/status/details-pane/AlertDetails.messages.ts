@@ -11,6 +11,8 @@ export const Messages = {
     triggeredAt: 'Triggered at',
     severity: 'Severity',
     valueThreshold: 'Value / Threshold',
+    percentOver: '% over',
+    percentUnder: '% under',
     summaryLabel: 'Summary',
     description: 'Description',
     evaluate: 'Evaluate',

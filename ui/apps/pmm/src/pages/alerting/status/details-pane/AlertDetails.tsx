@@ -4,6 +4,7 @@ import { AlertRow } from '../AlertsPage.types';
 import { Messages } from './AlertDetails.messages';
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import DataPoint from 'components/details-pane/DataPoint';
+import ValueThreshold from './ValueThreshold';
 import { Chip } from '@percona/percona-ui';
 import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../AlertsPage.constants';
 import { formatTriggeredAt } from '../table/AlertStatusTable.utils';
@@ -50,7 +51,7 @@ const AlertDetails: FC<Props> = ({ alert }) => {
           {alert.labels.severity}
         </DataPoint>
         <DataPoint size={1} title={Messages.details.valueThreshold}>
-          {alert.value}
+          <ValueThreshold alert={alert} />
         </DataPoint>
         <DataPoint size={1} title={Messages.details.summaryLabel}>
           {alert.annotations.summary}
