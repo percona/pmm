@@ -8,6 +8,7 @@ import { Chip } from '@percona/percona-ui';
 import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../AlertsPage.constants';
 import { formatTriggeredAt } from '../table/AlertStatusTable.utils';
 import { useTimezone } from 'hooks/utils/useTimezone';
+import { formatDurationSeconds } from 'utils/duration.utils';
 
 interface Props {
   alert: AlertRow;
@@ -48,7 +49,9 @@ const AlertDetails: FC<Props> = ({ alert }) => {
         <DataPoint size={1} title={Messages.details.severity}>
           {alert.labels.severity}
         </DataPoint>
-        <DataPoint size={1} title={Messages.details.valueThreshold}></DataPoint>
+        <DataPoint size={1} title={Messages.details.valueThreshold}>
+          {alert.value}
+        </DataPoint>
         <DataPoint size={1} title={Messages.details.summaryLabel}>
           {alert.annotations.summary}
         </DataPoint>
@@ -65,26 +68,27 @@ const AlertDetails: FC<Props> = ({ alert }) => {
           {Messages.details.ruleConfiguration}
         </Typography>
         <Grid container spacing={3} columns={{ xs: 4 }}>
-          <DataPoint size={1} title={Messages.details.evaluate}></DataPoint>
+          <DataPoint size={1} title={Messages.details.evaluate}>
+            {formatDurationSeconds(alert.ruleGroup?.interval)}
+          </DataPoint>
           <DataPoint size={1} title={Messages.details.lastEvaluated}>
             {formatTriggeredAt(alert.ruleGroup?.lastEvaluation, timezone)}
           </DataPoint>
           <DataPoint size={1} title={Messages.details.lastEvaluationDuration}>
-            {alert.ruleGroup?.evaluationTime}
+            {formatDurationSeconds(alert.ruleGroup?.evaluationTime)}
           </DataPoint>
-          <DataPoint
-            size={1}
-            title={Messages.details.pendingPeriod}
-          ></DataPoint>
-          <DataPoint
-            size={1}
-            title={Messages.details.keepFiringFor}
-          ></DataPoint>
-          <DataPoint size={1} title={Messages.details.ruleType}></DataPoint>
-          <DataPoint
-            size={1}
-            title={Messages.details.ruleIdentifier}
-          ></DataPoint>
+          <DataPoint size={1} title={Messages.details.pendingPeriod}>
+            {formatDurationSeconds(alert.rule?.duration)}
+          </DataPoint>
+          <DataPoint size={1} title={Messages.details.keepFiringFor}>
+            {formatDurationSeconds(alert.rule?.keepFiringFor)}
+          </DataPoint>
+          <DataPoint size={1} title={Messages.details.ruleType}>
+            {alert.rule?.type}
+          </DataPoint>
+          <DataPoint size={1} title={Messages.details.ruleIdentifier}>
+            {alert.rule?.uid}
+          </DataPoint>
           <DataPoint
             size={1}
             title={Messages.details.lastUpdatedBy}
@@ -96,7 +100,9 @@ const AlertDetails: FC<Props> = ({ alert }) => {
           <DataPoint size={1} title={Messages.details.folder}>
             {alert.ruleGroup?.file}
           </DataPoint>
-          <DataPoint size={1} title={Messages.details.ruleHealth}></DataPoint>
+          <DataPoint size={1} title={Messages.details.ruleHealth}>
+            {alert.rule?.health}
+          </DataPoint>
         </Grid>
       </Stack>
     </Stack>

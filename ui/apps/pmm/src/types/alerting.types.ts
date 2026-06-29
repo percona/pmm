@@ -20,6 +20,7 @@ export interface PrometheusAlertRuleItem {
   name: string;
   query?: string;
   duration?: number;
+  keepFiringFor?: number;
   labels?: Record<string, string>;
   annotations?: Record<string, string>;
   alerts: PrometheusAlertItem[];

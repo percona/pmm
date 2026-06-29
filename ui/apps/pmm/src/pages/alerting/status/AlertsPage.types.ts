@@ -1,4 +1,8 @@
-import { AlertStatus, PrometheusAlertRuleGroup } from 'types/alerting.types';
+import {
+  AlertStatus,
+  PrometheusAlertRuleGroup,
+  PrometheusAlertRuleItem,
+} from 'types/alerting.types';
 
 export interface AlertRow {
   type: 'alert';
@@ -7,6 +11,7 @@ export interface AlertRow {
   ruleName: string;
   ruleGroupUid?: string;
   ruleGroup?: PrometheusAlertRuleGroup;
+  rule?: PrometheusAlertRuleItem;
   state: AlertStatus;
   nodeId: string;
   serviceName: string;
