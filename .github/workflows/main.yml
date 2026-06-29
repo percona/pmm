@@ -1,3 +1,4 @@
+---
 name: Main
 
 on:
@@ -27,7 +28,7 @@ env:
 jobs:
   check:
     name: Checks
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -140,7 +141,7 @@ jobs:
   workflow_success:
     needs: [ check ]
     name: Slack Notification success
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     env:
       SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
       SLACK_CHANNEL: "pmm-ci"
@@ -158,7 +159,7 @@ jobs:
     if: ${{ failure() }}
     needs: [ check ]
     name: Slack Notification failure
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     env:
       SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
       SLACK_CHANNEL: "pmm-ci"
