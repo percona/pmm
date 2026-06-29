@@ -66,7 +66,7 @@
             },
             "id": 60,
             "panels": [],
-            "title": "Master AOF Persistence ",
+            "title": "Primary AOF Persistence ",
             "type": "row"
         },
         {
@@ -813,7 +813,7 @@
                         "properties": [
                             {
                                 "id": "displayName",
-                                "value": "Master offset"
+                                "value": "Primary offset"
                             }
                         ]
                     },
@@ -899,7 +899,7 @@
             },
             "id": 75,
             "panels": [],
-            "title": "Master RDB persistence",
+            "title": "Primary RDB persistence",
             "type": "row"
         },
         {

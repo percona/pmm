@@ -1,3 +1,4 @@
+---
 name: 'Client: pmm-admin'
 
 on:
@@ -34,7 +35,7 @@ env:
 jobs:
   test:
     name: Tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     defaults:
       run:

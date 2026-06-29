@@ -1,3 +1,4 @@
+---
 name: Managed
 on:
   push:
@@ -28,7 +29,7 @@ permissions: read-all
 jobs:
   test:
     name: Unit tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     timeout-minutes: 30
 
     env:
