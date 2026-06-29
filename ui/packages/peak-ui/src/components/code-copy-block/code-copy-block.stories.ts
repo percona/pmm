@@ -5,6 +5,7 @@ import { CodeCopyBlockProps } from './code-copy-block.types';
 const meta = {
   title: 'To be reviewed/Buttons/CodeCopyBlock',
   component: CodeCopyBlock,
+  tags: ['needs-review'],
   parameters: {
     layout: 'centered',
   },
