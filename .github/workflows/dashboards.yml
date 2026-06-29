@@ -1,3 +1,4 @@
+---
 name: Dashboards
 on: 
   pull_request:
