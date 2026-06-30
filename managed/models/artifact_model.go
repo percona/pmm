@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // DataModel represents a data model used for performing a backup.
 type DataModel string
@@ -149,7 +149,7 @@ type MetadataList []Metadata
 func (p MetadataList) Value() (driver.Value, error) { return jsonValue(p) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (p *MetadataList) Scan(src interface{}) error { return jsonScan(p, src) }
+func (p *MetadataList) Scan(src any) error { return jsonScan(p, src) }
 
 // Artifact represents result of a backup.
 //

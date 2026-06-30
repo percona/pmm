@@ -41,7 +41,7 @@ func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) { //nolint:u
 	caller := ""
 
 	if entry.HasCaller() {
-		funcVal := fmt.Sprintf("%s()", entry.Caller.Function)
+		funcVal := entry.Caller.Function + "()"
 		fileVal := fmt.Sprintf("%s:%d", entry.Caller.File, entry.Caller.Line)
 		caller = fileVal + " " + funcVal + " "
 	}

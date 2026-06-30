@@ -32,7 +32,9 @@ func TestShowTableStatus(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	db := tests.OpenTestMySQL(t)
-	t.Cleanup(func() { db.Close() }) //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, db.Close())
+	})
 
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
@@ -48,7 +50,7 @@ func TestShowTableStatus(t *testing.T) {
 		require.NoError(t, err)
 		t.Logf("Full JSON:\n%s", b)
 
-		var actual [][]interface{}
+		var actual [][]any
 		err = json.Unmarshal(b, &actual)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
@@ -74,9 +76,9 @@ func TestShowTableStatus(t *testing.T) {
 		assert.Contains(t, actual[0], "Comment")
 
 		// Checks some stable values
-		assert.Equal(t, "city", actual[1][0])           // Name
-		assert.Equal(t, "InnoDB", actual[1][1])         // Engine
-		assert.InEpsilon(t, 10.0, actual[1][2], 0.0001) // Version
+		assert.Equal(t, "city", actual[1][0])         // Name
+		assert.Equal(t, "InnoDB", actual[1][1])       // Engine
+		assert.InDelta(t, 10.0, actual[1][2], 0.0001) // Version
 	})
 
 	t.Run("Error", func(t *testing.T) {
@@ -90,7 +92,7 @@ func TestShowTableStatus(t *testing.T) {
 		defer cancel()
 
 		_, err := a.Run(ctx)
-		assert.EqualError(t, err, `table "no_such_table" not found`)
+		require.EqualError(t, err, `table "no_such_table" not found`)
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
@@ -104,7 +106,7 @@ func TestShowTableStatus(t *testing.T) {
 		defer cancel()
 
 		_, err := a.Run(ctx)
-		assert.EqualError(t, err, `table "city; DROP TABLE city; --" not found`)
+		require.EqualError(t, err, `table "city; DROP TABLE city; --" not found`)
 
 		var count int
 		err = db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)

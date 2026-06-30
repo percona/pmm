@@ -19,10 +19,10 @@ package telemetry
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net/url"
 
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
-	"github.com/pkg/errors"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 )
 
@@ -62,9 +62,10 @@ func openQANDBConnection(dsn string, enabled bool, l *logrus.Entry) (*sql.DB, er
 
 	db, err := sql.Open("clickhouse", dsn)
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to open connection to QAN DB")
+		return nil, fmt.Errorf("failed to open connection to QAN DB: %w", err)
 	}
-	if err := db.Ping(); err != nil {
+	err = db.Ping() //nolint:noctx
+	if err != nil {
 		uri, parseErr := url.Parse(dsn)
 		if parseErr != nil {
 			l.Warnf("Failed to parse ClickHouse DSN %s", parseErr)

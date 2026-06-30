@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/google/uuid"
 	"github.com/percona/promconfig"
@@ -63,9 +62,9 @@ func TestRuleTemplates(t *testing.T) {
 				Unit:    models.ParamUnit(params.Template.Params[0].Unit),
 				Type:    models.Float,
 				FloatParam: &models.FloatParam{
-					Default: pointer.ToFloat64(params.Template.Params[0].Value.(float64)),
-					Min:     pointer.ToFloat64(params.Template.Params[0].Range[0].(float64)),
-					Max:     pointer.ToFloat64(params.Template.Params[0].Range[1].(float64)),
+					Default: new(params.Template.Params[0].Value.(float64)),
+					Min:     new(params.Template.Params[0].Range[0].(float64)),
+					Max:     new(params.Template.Params[0].Range[1].(float64)),
 				},
 			}},
 			created.Params)
@@ -113,9 +112,9 @@ func TestRuleTemplates(t *testing.T) {
 				Unit:    models.ParamUnit(updateParams.Template.Params[0].Unit),
 				Type:    models.Float,
 				FloatParam: &models.FloatParam{
-					Default: pointer.ToFloat64(updateParams.Template.Params[0].Value.(float64)),
-					Min:     pointer.ToFloat64(updateParams.Template.Params[0].Range[0].(float64)),
-					Max:     pointer.ToFloat64(updateParams.Template.Params[0].Range[1].(float64)),
+					Default: new(updateParams.Template.Params[0].Value.(float64)),
+					Min:     new(updateParams.Template.Params[0].Range[0].(float64)),
+					Max:     new(updateParams.Template.Params[0].Range[1].(float64)),
 				},
 			}},
 			updated.Params)
@@ -200,7 +199,7 @@ func TestRuleTemplates(t *testing.T) {
 		assert.Equal(t, created.Summary, actual.Summary)
 		assert.Equal(t, created.Expr, actual.Expr)
 		assert.Equal(t, created.Params, actual.Params)
-		assert.EqualValues(t, created.For, actual.For)
+		assert.Equal(t, created.For, actual.For)
 		assert.Equal(t, created.Severity, actual.Severity)
 		assert.Equal(t, created.Labels, actual.Labels)
 		assert.Empty(t, actual.Annotations)
@@ -220,7 +219,7 @@ func createTemplateParams(name string) *models.CreateTemplateParams {
 				Summary: gofakeit.Quote(),
 				Unit:    alert.Percentage,
 				Type:    alert.Float,
-				Range:   []interface{}{float64(10), float64(100)},
+				Range:   []any{float64(10), float64(100)},
 				Value:   float64(50),
 			}},
 			For:         promconfig.Duration(7 * time.Second),
@@ -245,7 +244,7 @@ func changeTemplateParams(name string) *models.ChangeTemplateParams {
 				Summary: gofakeit.Quote(),
 				Unit:    alert.Seconds,
 				Type:    alert.Float,
-				Range:   []interface{}{float64(10), float64(100)},
+				Range:   []any{float64(10), float64(100)},
 				Value:   float64(50),
 			}},
 			For:         promconfig.Duration(gofakeit.Number(1, 100)),

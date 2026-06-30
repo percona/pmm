@@ -1,6 +1,6 @@
 import vscDarkPlus from 'react-syntax-highlighter/dist/esm/styles/prism/vsc-dark-plus';
 import { Theme } from '@mui/material/styles';
-import { primitives } from '@percona/percona-ui';
+import { semanticTokensLight, semanticTokensDark } from '@percona/percona-ui';
 import { CodeLanguage } from 'types/util.types';
 
 export const getSyntaxHighlighterStyle = (
@@ -8,29 +8,22 @@ export const getSyntaxHighlighterStyle = (
   language: CodeLanguage,
   showCopyButton = false
 ) => {
-  const isLight = theme.palette.mode === 'light';
+  const accents =
+    theme.palette.mode === 'light'
+      ? semanticTokensLight.text
+      : semanticTokensDark.text;
 
   const tokens = {
     fontFamily: 'Roboto Mono, monospace',
     background: 'transparent',
     base:
-      language === 'text'
-        ? theme.palette.text.primary
-        : isLight
-          ? primitives.brand.sky[600]
-          : primitives.brand.sky[200],
-    attrValue: isLight
-      ? primitives.brand.aqua[700]
-      : primitives.brand.aqua[300],
-    string: isLight ? primitives.brand.aqua[700] : primitives.brand.aqua[300],
+      language === 'text' ? theme.palette.text.primary : accents.accent1,
+    attrValue: accents.accent3,
+    string: accents.accent3,
     number: theme.palette.text.primary,
-    property: isLight
-      ? primitives.brand.lavender[600]
-      : primitives.brand.sky[200],
-    function: isLight
-      ? primitives.brand.lavender[600]
-      : primitives.brand.lavender[200],
-    operator: isLight ? primitives.brand.aqua[700] : primitives.brand.aqua[300],
+    property: accents.accent2,
+    function: accents.accent2,
+    operator: accents.accent3,
     punctuation: theme.palette.text.secondary,
   };
 

@@ -2,6 +2,7 @@
 services:
   pmm-server:
     image: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
+    platform: linux/amd64
     container_name: pmm-server
     ports:
       - "127.0.0.1:443:8443"
@@ -9,13 +10,12 @@ services:
       - PMM_DEBUG=1
       # for local development
       - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/custom-checks.yml
-      # for check-dev
-      # - PMM_DEV_PERCONA_PLATFORM_ADDRESS=check-dev.percona.com:443
     volumes:
       - ./testdata/checks:/srv/checks
 
   test_db:
     image: aleksi/test_db:1.1.0
+    platform: linux/amd64
     container_name: pmm-agent_test_db
     volumes:
       - test_db_mysql:/test_db/mysql/world:ro
@@ -45,6 +45,7 @@ services:
 
   mongo:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
+    platform: linux/amd64
     container_name: pmm-agent_mongo
     command:
       - --profile=2
@@ -60,6 +61,7 @@ services:
 
   mongo_with_tls:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
+    platform: linux/amd64
     container_name: pmm-agent_mongo_with_tls
     command:
       - --profile=2
@@ -78,6 +80,7 @@ services:
 
   mongonoauth:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
+    platform: linux/amd64
     container_name: pmm-agent_mongonoauth
     command: --profile=2 -bind_ip=0.0.0.0 --noauth
     ports:
@@ -85,6 +88,7 @@ services:
 
   mongo_repl:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
+    platform: linux/amd64
     container_name: pmm-agent_mongorepl
     environment:
       - MONGO_IMAGE=${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
@@ -97,6 +101,7 @@ services:
 
   mongo_repl_with_tls:
     image: ${MONGO_IMAGE:-percona/percona-server-mongodb:6.0}
+    platform: linux/amd64
     container_name: pmm-agent_mongorepl_with_tls
     command: /scripts/mongo_repl_with_tls.sh
     environment:
@@ -110,6 +115,7 @@ services:
 
   postgres:
     image: ${POSTGRES_IMAGE:-postgres:14}
+    platform: linux/amd64
     container_name: pmm-agent_postgres
     command: >
       -c shared_preload_libraries='${PG_PRELOADED_LIBS:-pg_stat_statements}'
@@ -129,6 +135,7 @@ services:
 
   valkey:
     image: valkey/valkey:8.1
+    platform: linux/amd64
     container_name: pmm-agent_valkey
     command: ["valkey-server", "/etc/valkey/valkey.conf"]
     ports:
@@ -139,6 +146,7 @@ services:
 
   sysbench:
     image: perconalab/sysbench
+    platform: linux/amd64
     container_name: pmm-agent_sysbench
 
 volumes:

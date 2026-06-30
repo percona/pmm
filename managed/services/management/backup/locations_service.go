@@ -17,9 +17,9 @@ package backup
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/minio/minio-go/v7"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -98,10 +98,11 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backuppb.AddLoc
 		}
 	}
 
-	if err := params.Validate(models.BackupLocationValidationParams{
+	err := params.Validate(models.BackupLocationValidationParams{
 		RequireConfig:    true,
 		WithBucketRegion: false,
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 
@@ -115,7 +116,7 @@ func (s *LocationsService) AddLocation(ctx context.Context, req *backuppb.AddLoc
 	}
 
 	var locationModel *models.BackupLocation
-	err := s.db.InTransaction(func(tx *reform.TX) error {
+	err = s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		locationModel, err = models.CreateBackupLocation(tx.Querier, params)
 		if err != nil {
@@ -153,10 +154,11 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backuppb.Cha
 			Path: req.FilesystemConfig.Path,
 		}
 	}
-	if err := params.Validate(models.BackupLocationValidationParams{
+	err := params.Validate(models.BackupLocationValidationParams{
 		RequireConfig:    false,
 		WithBucketRegion: false,
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 
@@ -169,7 +171,7 @@ func (s *LocationsService) ChangeLocation(ctx context.Context, req *backuppb.Cha
 		params.S3Config.BucketRegion = bucketLocation
 	}
 
-	err := s.db.InTransaction(func(tx *reform.TX) error {
+	err = s.db.InTransaction(func(tx *reform.TX) error {
 		_, err := models.ChangeBackupLocation(tx.Querier, req.LocationId, params)
 		if err != nil {
 			return err
@@ -205,15 +207,17 @@ func (s *LocationsService) TestLocationConfig(
 		}
 	}
 
-	if err := locationConfig.Validate(models.BackupLocationValidationParams{
+	err := locationConfig.Validate(models.BackupLocationValidationParams{
 		RequireConfig:    true,
 		WithBucketRegion: false,
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 
 	if req.S3Config != nil {
-		if err := s.checkBucket(ctx, locationConfig.S3Config); err != nil {
+		err := s.checkBucket(ctx, locationConfig.S3Config)
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -263,7 +267,7 @@ func convertLocation(locationModel *models.BackupLocation) (*backuppb.Location, 
 			},
 		}
 	default:
-		return nil, errors.Errorf("unknown backup location type %s", locationModel.Type)
+		return nil, fmt.Errorf("unknown backup location type %s", locationModel.Type)
 	}
 	return loc, nil
 }

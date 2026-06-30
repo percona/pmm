@@ -20,7 +20,7 @@ import (
 	"context"
 	"os"
 
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 )
 

@@ -24,8 +24,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
@@ -33,7 +31,7 @@ import (
 )
 
 const (
-	defaultPlatformAddress    = "https://check.percona.com"
+	defaultPlatformAddress    = "https://check-dev.percona.com"
 	defaultPlatformAPITimeout = 30 * time.Second
 	// EnvVMAgentPrefix is the prefix for environment variables related to the VMAgent.
 	EnvVMAgentPrefix = "VMAGENT_"
@@ -70,7 +68,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
 //   - the environment variables relating to proxies
 //   - the environment variable set by podman
-func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []string) { //nolint:cyclop,maintidx
+func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []string) { //nolint:gocognit,cyclop,maintidx
 	envSettings := &models.ChangeSettingsParams{}
 	var errs []error
 	var warns []string
@@ -108,8 +106,8 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			"PMM_CLICKHOUSE_USER", "PMM_CLICKHOUSE_PASSWORD",
 			"PMM_CLICKHOUSE_HOST", "PMM_CLICKHOUSE_PORT",
 			"PMM_CLICKHOUSE_IS_CLUSTER", "PMM_CLICKHOUSE_CLUSTER_NAME",
-			"PMM_CLICKHOUSE_NODES", "PMM_DISABLE_BUILTIN_CLICKHOUSE":
-			// skip env variables for external clickhouse
+			"PMM_CLICKHOUSE_NODES", "PMM_DISABLE_BUILTIN_CLICKHOUSE",
+			pkgenv.ClickHouseConfig:
 			continue
 		case "PMM_POSTGRES_ADDR",
 			"PMM_POSTGRES_DBNAME",
@@ -136,7 +134,8 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 			envSettings.EnableUpdates = &b
 		case "PMM_UPDATE_SNOOZE_DURATION":
-			if envSettings.UpdateSnoozeDuration, err = parseStringDuration(v); err != nil {
+			envSettings.UpdateSnoozeDuration, err = parseStringDuration(v)
+			if err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}
@@ -155,22 +154,26 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 			envSettings.EnableInternalPgQAN = &b
 		case "PMM_METRICS_RESOLUTION", "PMM_METRICS_RESOLUTION_HR":
-			if envSettings.MetricsResolutions.HR, err = parseStringDuration(v); err != nil {
+			envSettings.MetricsResolutions.HR, err = parseStringDuration(v)
+			if err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}
 		case "PMM_METRICS_RESOLUTION_MR":
-			if envSettings.MetricsResolutions.MR, err = parseStringDuration(v); err != nil {
+			envSettings.MetricsResolutions.MR, err = parseStringDuration(v)
+			if err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}
 		case "PMM_METRICS_RESOLUTION_LR":
-			if envSettings.MetricsResolutions.LR, err = parseStringDuration(v); err != nil {
+			envSettings.MetricsResolutions.LR, err = parseStringDuration(v)
+			if err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}
 		case "PMM_DATA_RETENTION":
-			if envSettings.DataRetention, err = parseStringDuration(v); err != nil {
+			envSettings.DataRetention, err = parseStringDuration(v)
+			if err != nil {
 				errs = append(errs, formatEnvVariableError(err, env, v))
 				continue
 			}
@@ -214,7 +217,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			envSettings.EnableNomad = &b
 
 		case "PMM_PUBLIC_ADDRESS":
-			envSettings.PMMPublicAddress = pointer.ToString(v)
+			envSettings.PMMPublicAddress = new(v)
 
 		case "PMM_VM_URL":
 			_, err = url.Parse(v)
@@ -240,6 +243,10 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			envSettings.EnableAccessControl = &b
 
 		case pkgenv.PlatformAPITimeout:
+			// This variable is not part of the settings and is parsed separately.
+			continue
+
+		case pkgenv.PlatformAddress:
 			// This variable is not part of the settings and is parsed separately.
 			continue
 
@@ -317,7 +324,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 
-			warns = append(warns, fmt.Sprintf("unknown environment variable %s", env))
+			warns = append(warns, "unknown environment variable "+env)
 		}
 	}
 
@@ -365,8 +372,9 @@ func GetPlatformAddress() (string, error) {
 		return defaultPlatformAddress, nil
 	}
 
-	if _, err := url.Parse(address); err != nil {
-		return "", errors.Errorf("invalid Percona Platform address: %s", err)
+	_, err := url.Parse(address)
+	if err != nil {
+		return "", fmt.Errorf("invalid Percona Platform address: %w", err)
 	}
 
 	logrus.Infof("Using Percona Platform address: %s.", address)
@@ -380,15 +388,6 @@ func GetPlatformInsecure() bool {
 	return insecure
 }
 
-// GetPlatformPublicKeys returns public keys used to verify signatures of files downloaded form Percona Portal.
-func GetPlatformPublicKeys() []string {
-	if v := os.Getenv(pkgenv.PlatformPublicKey); v != "" {
-		return strings.Split(v, ",")
-	}
-
-	return nil
-}
-
 // GetInterfaceToBind retrieves the network interface to bind based on environment variables.
 func GetInterfaceToBind() string {
 	return GetEnv(pkgenv.InterfaceToBind, "127.0.0.1")
@@ -396,17 +395,18 @@ func GetInterfaceToBind() string {
 
 // GetEnv returns env with fallback option.
 func GetEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok && value != "" {
+	value, ok := os.LookupEnv(key)
+	if ok && value != "" {
 		return value
 	}
 	return fallback
 }
 
 func formatEnvVariableError(err error, env, value string) error {
-	switch e := err.(type) { //nolint:errorlint
+	switch err.(type) { //nolint:errorlint
 	case InvalidDurationError:
 		return fmt.Errorf("environment variable %q has invalid duration %s", env, value)
 	default:
-		return errors.Wrap(e, "unknown error")
+		return fmt.Errorf("unknown error: %w", err)
 	}
 }

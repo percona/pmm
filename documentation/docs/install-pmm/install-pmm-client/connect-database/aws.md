@@ -168,14 +168,14 @@ To configure TLS for your RDS instance:
     It may take longer for PMM to discover Amazon RDS instances in the `creating` state. You must wait a bit longer until PMM discovers these instances.
 
 
-The preferred method of adding an Amazon RDS database instance to PMM is via the :material-cog: **PMM Configuration > PMM Inventory > Add Instance** menu option.
+The preferred method of adding an Amazon RDS database instance to PMM is via the :material-cog: **Inventory > Add service** menu option.
 
 This method supports Amazon RDS database instances that use Amazon Aurora, MySQL, or MariaDB engines, as well as any remote PostgreSQL, ProxySQL, MySQL and MongoDB instances.
 
 The following steps are needed to add an Amazon RDS database instance to PMM:
 {.power-number}
 
-1. In the PMM web interface, go to **PMM Configuration > PMM Inventory > Add Instance > Amazon RDS**.
+1. In the PMM web interface, go to **Inventory > Add service > Amazon RDS**.
 
     ![!image](../../../images/PMM_Add_Instance_AWS_RDS.png)
 
@@ -200,7 +200,13 @@ instances.
 
     ![!](../../../images/PMM_Add_Instance_AWS_RDS_Additional_Options.png)
 
-    The **Additional options** section contains specific flags which allow you to tune the RDS monitoring. They can allow you to skip connection check, to use TLS for the database connection, not to validate the TLS certificate and the hostname, as well as to disable basic and/or enhanced metrics collection for the RDS instance to reduce costs.
+    The **Additional options** section contains flags that let you tune RDS monitoring:
+
+    - Skip connection check.
+    - Use TLS for the database connection.
+    - Skip TLS certificate and hostname validation.
+    - Disable basic and/or enhanced metrics collection for the RDS instance to reduce costs.
+    - Set **Connection timeout** to control how long PMM waits when connecting to the instance. Leave empty to use the default of 5s.
 
     Also this section contains a database-specific flag, which would allow Query Analytics for the selected remote database:
 
@@ -276,7 +282,7 @@ When using TLS certificates with Amazon RDS MySQL, make sure to:
 For PostgreSQL, use the same method described above.
 {.power-number}
 
-1. In the PMM web interface, go to **PMM Configuration > PMM Inventory > Add Instance > Amazon RDS**.
+1. In the PMM web interface, go to **Inventory > Add service > Amazon RDS**.
 
     ![!image](../../../images/PMM_rds_postgre_02_discover.png)
 

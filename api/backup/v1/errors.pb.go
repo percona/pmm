@@ -165,8 +165,8 @@ var (
 	file_backup_v1_errors_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_backup_v1_errors_proto_msgTypes  = make([]protoimpl.MessageInfo, 1)
 	file_backup_v1_errors_proto_goTypes   = []any{
-		(ErrorCode)(0), // 0: backup.v1.ErrorCode
-		(*Error)(nil),  // 1: backup.v1.Error
+		ErrorCode(0),  // 0: backup.v1.ErrorCode
+		(*Error)(nil), // 1: backup.v1.Error
 	}
 )
 

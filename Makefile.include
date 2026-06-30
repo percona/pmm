@@ -8,12 +8,10 @@ help:                 ## Display this help message
 	@echo
 	@echo Check docker-compose.yml to see which environment variables are available.
 
-init:                 ## Install tools
+init:                ## Install tools
 	rm -rf bin/*
-	cd tools && go generate -x -tags=tools
-
 	# Install golangci-lint
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v2.6.2 # Version should match specified in CI
+	curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(CURDIR)/bin v2.12.2 # Version should match specified in CI
 
 release:              ## Build release versions of all components
 	make -C agent release
@@ -32,7 +30,6 @@ gen: clean            ## Generate files
 	make gen-mocks      ## Generate mocks
 
 	make format
-	make format ## TODO: One formatting run is not enough, figure out why.
 	go install -v ./...
 
 clean:                ## Remove generated files
@@ -40,7 +37,7 @@ clean:                ## Remove generated files
 
 gen-mocks:
 	find . -name mock_*.go -delete
-	./bin/mockery --config .mockery.yaml
+	go tool mockery --config .mockery.yaml
 
 test-common:          ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed)
 	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests -e qan-api2 -e update)
@@ -50,29 +47,29 @@ api-test:             ## Run API tests on dev env.
 
 GOLANG_CI_LINT_RUN_OPTS ?=
 check:                ## Run required checks and linters
-	bin/buf lint -v api
-	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(shell git merge-base v3 HEAD) --new $(GOLANG_CI_LINT_RUN_OPTS)
-	bin/go-sumtype ./...
+	go tool buf lint -v api
+	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(shell git merge-base main HEAD) --new $(GOLANG_CI_LINT_RUN_OPTS)
+	go tool go-sumtype ./...
 
 check-license:        ## Run license header checks against source files
-	bin/license-eye -c .licenserc.yaml header check
+	go tool license-eye -c .licenserc.yaml header check
 
 check-all: check-license check    ## Run linter and license checks
 
 check-new:
-	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/v3 --new
+	bin/golangci-lint run -c=.golangci.yml --new-from-rev=origin/main --new
 
 FILES = $(shell find . -type f -name '*.go')
 
 format:               ## Format source code
 	make -C api format
-	bin/gofumpt -l -w $(FILES)
-	bin/goimports -local github.com/percona/pmm -l -w $(FILES)
-	bin/gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
+	go tool gofumpt -l -w $(FILES)
+	go tool goimports -local github.com/percona/pmm -l -w $(FILES)
+	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 
 serve:                ## Serve API documentation with nginx
 	nginx -p . -c api/nginx/nginx.conf
 
 GOLANG_CI_LINT_RUN_OPTS=--fix
-prepare-pr: gen check-all
+prepare-pr: gen check-all format
 	go mod tidy

@@ -1,15 +1,17 @@
 import { Theme } from '@mui/material';
 
-export const getStyles = ({ palette: { background, warning, error, info } }: Theme) => ({
+export const getStyles = ({
+  palette: { background, warning, error, info },
+}: Theme) => ({
   icon: {
     width: 20,
     height: 20,
 
     '.background': {
-      fill: background.default,
+      fill: background.paper,
     },
     '.status-at-risk': {
-      fill: warning.light,
+      fill: warning.main,
     },
     '.status-down': {
       fill: error.light,

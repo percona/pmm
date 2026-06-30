@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package backup.v1;
 
+import "extensions/v1/redact.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
@@ -14,8 +15,14 @@ message FilesystemLocationConfig {
 // S3LocationConfig represents S3 bucket configuration.
 message S3LocationConfig {
   string endpoint = 1 [(validate.rules).string.min_len = 1];
-  string access_key = 2 [(validate.rules).string.min_len = 1];
-  string secret_key = 3 [(validate.rules).string.min_len = 1];
+  string access_key = 2 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
+  string secret_key = 3 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   string bucket_name = 4 [(validate.rules).string.min_len = 1];
 }
 

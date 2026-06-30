@@ -18,19 +18,15 @@ package telemetry
 
 import (
 	"context"
-	"os"
 	"testing"
 
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestEnvVarsDatasource(t *testing.T) {
-	// NOTE: t.Parallel() is not possible when using a different set of envvars for each test.
-	t.Parallel()
-
 	type testEnvVars map[string]string
 
 	ctx, cancel := context.WithCancel(t.Context())
@@ -41,7 +37,7 @@ func TestEnvVarsDatasource(t *testing.T) {
 	setup := func(t *testing.T, envVars testEnvVars) (DataSource, func()) {
 		t.Helper()
 		for key, val := range envVars {
-			os.Setenv(key, val) //nolint:errcheck
+			t.Setenv(key, val)
 		}
 
 		evConf := &DSConfigEnvVars{
@@ -50,9 +46,6 @@ func TestEnvVarsDatasource(t *testing.T) {
 		dsEnvVars := NewDataSourceEnvVars(*evConf, logEntry)
 
 		return dsEnvVars, func() {
-			for key := range envVars {
-				os.Unsetenv(key) //nolint:errcheck
-			}
 			err := dsEnvVars.Dispose(ctx)
 			require.NoError(t, err)
 		}
@@ -63,8 +56,6 @@ func TestEnvVarsDatasource(t *testing.T) {
 	})
 
 	t.Run("Basic", func(t *testing.T) {
-		t.Parallel()
-
 		envVars := testEnvVars{
 			"TEST_ENV_VAR1": "1",
 			"TEST_ENV_VAR2": "test",
@@ -104,8 +95,6 @@ func TestEnvVarsDatasource(t *testing.T) {
 	})
 
 	t.Run("StripValues", func(t *testing.T) {
-		t.Parallel()
-
 		envVars := testEnvVars{
 			"TEST_ENV_VAR6":  "1",
 			"TEST_ENV_VAR7":  "test",

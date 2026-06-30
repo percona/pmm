@@ -17,6 +17,7 @@ export const TEST_USER_ADMIN: User = {
   id: 1,
   login: 'admin',
   name: 'admin',
+  isAnonymous: false,
   isAuthorized: true,
   isViewer: true,
   isEditor: true,
@@ -163,5 +164,18 @@ export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
     planSummary: 'plan-summary',
     operation: 'operation',
     username: 'username',
+  },
+};
+
+export const TEST_USER_ANONYMOUS: User = {
+  ...TEST_USER_VIEWER,
+  id: 0,
+  login: 'anonymous',
+  name: 'Anonymous',
+  isAnonymous: true,
+  isPMMAdmin: false,
+  info: {
+    ...TEST_USER_ADMIN.info,
+    userId: 0,
   },
 };

@@ -47,7 +47,7 @@ type MetricsResolutions struct {
 func (r MetricsResolutions) Value() (driver.Value, error) { return jsonValue(r) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (r *MetricsResolutions) Scan(src interface{}) error { return jsonScan(r, src) }
+func (r *MetricsResolutions) Scan(src any) error { return jsonScan(r, src) }
 
 // Advisors contains settings related to the Portal Advisors.
 type Advisors struct {

@@ -1,249 +1,224 @@
-# MongoDB Sharded Cluster Summary
+# MongoDB Cluster Summary
 
-![!image](../../images/PMM_MongoDB_Cluster_Summary.jpg)
+This dashboard gives you a unified view of your MongoDB sharded cluster, covering topology, query load, chunk distribution, replication health, and resource usage across config servers, mongos routers, and all shards. Use it as your starting point when investigating cluster-wide performance or confirming the cluster is balanced and healthy.
 
-This dashboard provides a comprehensive view of your MongoDB sharded cluster's performance, health, and resource utilization. It displays essential data for individual nodes organized by component type (shards, config servers, and mongos routers), offering insights into:
+For mongos-specific monitoring, see the [MongoDB Router Summary](dashboard-mongodb-router-summary.md) dashboard.
 
-- shard distribution and balance
-- query operations and performance
-- resource utilization (CPU, memory, disk, network)
-- replication status across the cluster
-- component-specific health indicators
-
-For MongoS (Router) specific monitoring, see the [MongoDB Router Summary](dashboard-mongodb-router-summary.md) dashboard.
-
-## Overview 
-
-### Feature Compatibility Version
-
-Displays the Feature Compatibility Version (FCV) currently active in your MongoDB deployment. The FCV controls which database features are available and affects data file format compatibility between MongoDB versions.
-
-This panel helps you confirm that your cluster is running the expected FCV—especially useful after upgrades, when the FCV may lag behind the MongoDB binary version.
-
-Monitoring FCV is important when planning upgrades or downgrades, as setting a newer FCV can enable advanced features but may prevent rolling back to older MongoDB versions.
-
-### QPS of Services in Shard
-
-Displays the Queries Per Second (QPS) for each shard and the config server replica set in your MongoDB cluster. It shows the rate of operations (excluding commands) for each component, helping you quickly assess the query load distribution across your sharded environment.
-
-The chart uses the most recent non-null value and updates based on your selected time interval. This visualization allows you to easily identify which shards are handling the most queries and spot any potential load imbalances. 
-
-### Shards
-
-Reports the number of shards in your MongoDB cluster. The number of shards indicates how your data is distributed across the cluster, which is crucial for understanding your database's scalability and performance.
-
-A shard contains a subset of sharded data for a sharded cluster. Together, the cluster's shards hold the entire data set for the cluster.
-
-### Mongos
-
-Number of mongos routers registered as part of the cluster.
-
-### Draining Shards
-
-Displays a single number representing the current count of shards that are in the process of being drained from your MongoDB cluster.
-
-When you run `removeShard`, MongoDB drains the shard by using the balancer to move the shard's chunks to other shards in the cluster. Once the shard is drained, MongoDB removes the shard from the cluster. The number shown here indicates how many shards are currently undergoing this draining process.
-
-### DBs
-
-Shows the number of user-created databases in your MongoDB sharded cluster. It provides a quick view of how many databases your cluster is managing, updating every 5 minutes.
-
-This simple count helps you track database growth and understand the scale of your MongoDB deployment at a glance.
-
-### Sharded Collections
-
-Provides a quick view of how many collections in your MongoDB cluster are sharded. This is an important metric for understanding the scale and distribution of your data across the sharded cluster. 
-
-A higher number indicates more collections are distributed across multiple shards, which can improve performance for large datasets.
-However, it also implies more complex data management.
-
-### Balancer Enabled
-
-Background process that monitors the number of chunks on each shard and whether the MongoDB Balancer is currently enabled in your sharded cluster.
-
-The balancer is crucial for maintaining an even distribution of chunks across shards, so knowing its status is important for cluster health and performance.
-
-A **YES** indicates that the balancer is active and working to keep your data evenly distributed, while a **NO** might indicate a manual override or a potential issue that needs investigation.
-
-### Total amount of Chunks
-
-Provides a quick view of the total number of chunks in your sharded MongoDB cluster to give you an idea of how your data is distributed across the cluster.
-
-A high number of chunks could indicate a well-distributed dataset, while a sudden increase might suggest increased data volume or changes in your sharding strategy.
-
-### Last Election
-
-Provides a quick view of how long it has been since the last election in your MongoDB replica set.
-
-Elections occur when a new primary node needs to be chosen, which can happen during normal operations (like planned maintenance) or due to issues (like a primary node failure).
-
-A very recent election might indicate a recent change or issue in your cluster that warrants investigation, while a long time since the last election suggests stability in the primary node assignment.
-
-### Chunks distribution
-
-Displays the distribution of chunks across different shards in a MongoDB cluster as a series of horizontal bars. It updates every minute, showing the percentage of total chunks each shard holds.
-
-Use this to quickly identify any imbalances in data distribution among shards, which is crucial for maintaining optimal performance in a sharded MongoDB setup.
-
-### Command Operations
-
-Provides a comprehensive overview of MongoDB operation rates across your deployment. It displays the frequency of primary operations (query, insert, update, delete, and getmore), replicated operations on secondary nodes, and document deletions by Time-To-Live (TTL) indexes. 
-
-By aggregating data from selected environments, clusters, and replica sets over customizable time intervals, the graph enables you to quickly identify workload patterns, potential replication lags, and the impact of automated data cleanup processes.
-
-### Top Hottest Collections by Read
-
-Displays the five MongoDB collections with the highest read rates. It shows the number of read operations per second for each collection, aggregated across your selected environment and cluster using a stable rate window. 
-
-The bar gauge visualization keeps collection names visible and helps quickly identify which collections are experiencing the most read activity, useful for performance monitoring and resource planning. Data is updated regularly to reflect recent changes in read patterns.
-
-### Operations Latency
-
-Shows the average time taken for MongoDB to execute read, write, and other operations. It displays latency in microseconds over time, helping you spot performance trends or issues across different operation types. 
-
-Use this to quickly identify any unusual delays in database operations.
-
-### Top Hottest Collections by Write
-
-Displays the five MongoDB collections with the highest write activity. It shows the number of write operations (inserts, updates, and deletes) per second for each collection, aggregated across your selected environment and cluster using a stable rate window. 
-
-The bar gauge visualization keeps collection names visible and helps quickly identify which collections are experiencing the most write activity, useful for performance monitoring and resource planning. Data is updated regularly to reflect recent changes in write patterns.
-
-### Operations Per Shard
-
-Shows the total number of operations per second for each shard in your MongoDB cluster. 
-
-It combines all types of operations (queries, inserts, updates, deletes, and getmore) into a single metric for each shard. The stacked area chart allows you to see both individual shard activity and total cluster activity over time. 
-
-This visualization helps you monitor the distribution of workload across shards and identify any imbalances or unusual patterns in operation rates.
-
-### MongoDB Versions
-
-Displays the current MongoDB version for each service in your cluster.
-
-This information helps you quickly identify which version of MongoDB is running on each service, ensuring all parts of your cluster are using consistent and up-to-date software.
-
-Use this to track version differences across your MongoDB deployment and plan upgrades as needed.
+![MongoDB Cluster Summary](../../images/PMM_MongoDB_Cluster_Summary.jpg)
 
 ## Current Topology
 
-Displays a visual representation of your MongoDB sharded cluster's architecture, organizing nodes into their respective functional groups. Each node is represented by a hexagonal icon with color-coding to indicate its role:
-
-- Green: Primary nodes or "UP" status for mongos routers
-- Yellow: Secondary nodes
-- Orange: Arbiter nodes (when present)
-- Red: Nodes in "DOWN" state
-
-This visualization provides a clear overview of your cluster's structure, making it easy to verify configuration, monitor health status, and ensure replication sets maintain the expected primary-secondary relationships.
-
 ### Config Servers
-Displays config server nodes that store metadata and configuration settings for the entire cluster. These servers maintain the mapping of chunks to shards.
+
+A hexagon grid showing the current status of each config server. Green means UP, red means DOWN.
+
+Config servers run as a replica set (typically 3 nodes) and store the cluster's metadata and chunk mappings. One red hexagon means reduced redundancy but the cluster is still operational. Two or more red hexagons in a 3-node config server set means quorum is lost and the cluster can no longer route queries or perform metadata operations. This panel shows UP/DOWN status only, not which node is the primary.
 
 ### Mongos Routers
-Shows router instances that direct queries to appropriate shards. These routers process queries from the application layer and determine the location of data within the sharded cluster.
+
+A hexagon grid showing the current status of each mongos router. Green means UP, red means DOWN.
 
 ### Shards
-Groups data-bearing nodes by shard name (e.g., `Shard - rs1`, `Shard - rs2`). Each shard contains a subset of the sharded data.
 
-### Configuration for visualizing MongoDB cluster topology correctly
+A hexagon grid per shard, showing the status of each replica set member. Green means PRIMARY or SECONDARY and reachable. Red means the node is unreachable or in an error state.
 
-To ensure your MongoDB sharded cluster components appear in the correct sections of the dashboard, follow these configuration guidelines when adding MongoDB instances using the `pmm-admin add mongodb` command or via the PMM UI:
+Use these grids to confirm all cluster components are healthy before investigating performance metrics.
 
- - use the same `--cluster` name for all components of your sharded cluster
- - add each component (config servers, shard nodes, and mongos routers) as a separate service. 
- 
- For detailed instructions on adding MongoDB nodes, see [Add MongoDB services via CLI](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-3-add-mongodb-service-to-pmm).
+??? info "Configuration for correct topology display"
 
+    To ensure each component appears in the correct section when adding MongoDB services with `pmm-admin add mongodb` or via the PMM UI:
 
-??? info "Example command for adding a MongoDB shard node" 
+    - use the same `--cluster` name for all components of your sharded cluster.
+    - add config servers, shard nodes, and mongos routers as separate services.
+
+    For details, see [Add MongoDB services via CLI](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-3-add-mongodb-service-to-pmm).
+
+    Example:
 
     ```sh
-     pmm-admin add mongodb --username=pmm --password=password \
-     --service-name=rs-0-1 --replication-set=shard0 \
-     --host=127.0.0.1 --port=27018 --cluster=myMongoCluster
+    pmm-admin add mongodb --username=pmm --password=password \
+      --service-name=rs-0-1 --replication-set=shard0 \
+      --host=127.0.0.1 --port=27018 --cluster=myMongoCluster
     ```
+
+## Overview
+
+### QPS of Services
+
+Shows the current query rate per second for each replica set in the cluster, excluding commands. Use this to quickly see which shards are carrying the most query load and spot any that stand out.
+
+### Feature Compatibility Version
+
+Shows the Feature Compatibility Version (FCV) currently active in the cluster. The FCV controls which MongoDB features are available and determines the data file format. Check this after upgrades to confirm the FCV has been updated as expected. An FCV that lags the binary version means some new features are not yet enabled.
+
+
+
+### Shards
+
+Shows the total number of shards in the cluster.
+
+### Mongos
+
+Shows the number of mongos routers registered in the cluster.
+
+### Draining Shards
+
+Shows how many shards are currently being drained via `removeShard`. A non-zero value means the balancer is actively moving chunks off a shard being removed. Watch this alongside **Chunks Move Events** to track progress.
+
+### DBs
+
+Shows the number of user-created databases in the cluster. Watch this over time to track database growth.
+
+### Balancer Enabled
+
+Shows whether the cluster balancer is currently enabled. YES means the balancer is active and will redistribute chunks when shards become unbalanced. NO means balancing is paused, which may cause chunk distribution to drift over time. Investigate if the balancer is unexpectedly disabled.
+
+### Total data size
+
+Shows how much storage your sharded cluster is currently using for data and indexes 
+across all shard primaries. System databases (`admin`, `local`, `config`) and config server metadata are excluded.
+
+Check this panel regularly to understand your cluster's total storage footprint. Compare it with the **Data distribution** panel to see whether data is growing evenly across shards or concentrating on specific ones. Use the trend in **Data size over time** to decide when to add shards or storage capacity.
+
+This panel requires the `dbstats` collector on the MongoDB exporter on each shard `mongod` node. To enable it, see [Add database services](https://per.co.na/pmm/pmm-admin-add).
+
+### Data size over time
+
+Shows how your cluster's total data and index size changes over the selected time range. 
+Use this to spot growth trends, identify unexpected spikes, and plan when you will need to scale storage or add shards. A sudden increase may indicate a bulk data load, a missing TTL index, or uneven shard growth that needs investigation.
+
+Shows the total logical data size (uncompressed data plus indexes) summed across all shard primaries in the cluster. System databases (`admin`, `local`, and `config`) are excluded. Config server metadata is not included in this total.
+
+Use this metric to monitor overall data growth for the sharded cluster, similar to the cluster data size view in Ops Manager. The **Data Size Over Time** graph shows the same total over the selected time range.
+
+This panel requires the MongoDB exporter **dbstats** collector on shard `mongod` nodes. Enable it by turning on **Enable all collectors** for the MongoDB service in PMM (or ensure `dbstats` is not listed under disabled collectors).
+
+### Chunks distribution
+
+Shows the total number of chunks across all shards. A sudden increase may indicate rapid data growth or a change in sharding key selectivity.
+
+### Last Election
+
+Shows how long ago the most recent primary election occurred in the cluster. A very recent election may indicate an unexpected failover or replica set instability. Click to open the **MongoDB ReplSet Summary** for more context.
+
+### Data distribution
+
+Shows the total storage size of user-created collections per shard in bytes. 
+
+A balanced cluster should show roughly equal bars across shards. Large differences between shards indicate data is not evenly distributed, which can cause some shards to become storage or query hotspots.
+
+### Command Operations
+
+Shows operation rates per second broken down by type: query, insert, update, delete, getmore, replicated write operations, and TTL index document deletions. Use this to understand the overall workload mix. A spike in any operation type helps correlate with latency changes in **Operations Latencies**.
+
+### Top Hottest Collections by Read
+
+Shows the five collections with the highest read rates, in operations per second using a stable rate window. The bar gauge keeps collection names visible. Use this to identify collections that may need index tuning or caching improvements.
+
+### Operations Latencies
+
+Shows average operation latency in microseconds over time, broken down by reads, writes, and commands. Rising latency on one operation type while others remain stable usually points to a query or index problem specific to that operation type.
+
+### Top Hottest Collections by Write
+
+Shows the five collections with the highest write rates, in operations per second using a stable rate window. The bar gauge keeps collection names visible. Use this to identify collections that may be driving lock contention or replication lag.
+
+### Operations Per Shard
+
+Shows total operations per second for each shard as a stacked area chart, combining all operation types. Use this to see how query load is distributed across shards and whether any shard is taking a disproportionate share of the work.
+
+### MongoDB Versions
+
+Shows the MongoDB version running on each service in the cluster. Check this after upgrades to confirm all nodes are on the expected version. Mixed versions in a cluster can indicate a rolling upgrade is in progress or stalled.
 
 ## Node States
 
-Displays a timeline of each node's status in your MongoDB replica set over the selected time period. Node states (PRIMARY, SECONDARY, ARBITER, etc.) are color-coded for easy monitoring, with green indicating healthy states and red showing potential issues.
+### All Node States
 
-Use this visualization to track role changes, identify replica set instability, and monitor the overall health of your MongoDB cluster at a glance.
+Shows the PRIMARY, SECONDARY, ARBITER, or other state of each node in a replica set over time as a state timeline. One timeline is shown per replica set. Use this to identify when role changes happened and whether any node has been in an unexpected state for an extended period.
 
-## Collection Details
+### Fragmentation Analysis
 
-### Size of Collections in Shards
+Shows the estimated fragmentation percentage for each collection, broken down by shard. The value is calculated as the ratio of free (unused) storage to total allocated storage, and the table is sorted from most to least fragmented. Only the top 100 collections are shown; admin and config databases are excluded.
 
-Displays the storage size of MongoDB collections across different shards in your cluster, excluding system databases, excluding system databases. The data is organized by database and collection, with separate columns for each shard.
+Fragmentation builds up when documents are deleted or moved, leaving gaps in storage blocks that MongoDB has not yet reclaimed. A value of 30% means roughly 30% of that collection's allocated space is wasted. 
 
-This visualization helps you understand how your data is distributed and identify which collections are using the most storage space. Use this information to optimize data distribution and storage usage in your MongoDB cluster.
-
-### Number of Collections in Shards
-
-Shows how many collections each database has across different shards in your MongoDB cluster, excluding system databases. It lists database names in rows and shard names in columns, with the number of collections at each intersection.
-
-This overview helps you quickly see how your data is spread out, identify databases with many collections, and check if collections are evenly distributed across shards. 
-
-Use this information to optimize your database structure and sharding strategy for better performance and resource usage.
+Use this table to identify collections worth compacting — run `compact` on the affected nodes during a maintenance window to reclaim disk space.
 
 ## Connections
 
 ### Current Connections Per Shard
 
-Shows the number of current TCP connections for each shard in your MongoDB cluster over time. It uses a stacked area chart to display incoming connections across different shards, allowing you to see both individual shard activity and total cluster connections at a glance. 
-
-This visualization helps you monitor connection load distribution, identify any shards experiencing unusual connection patterns, and track overall cluster usage. Use this information to balance workloads, plan for capacity, and ensure your MongoDB cluster is handling connections efficiently.
+Shows the number of incoming connections per shard over time as a stacked area chart. Use this to spot shards that are receiving significantly more connections than others, which can indicate uneven client routing.
 
 ### Available Connections
 
-Displays the number of available connections for each service in your MongoDB cluster over time. It uses a stacked area chart to show how many connections are still open for new client requests across different services.
+Shows the number of remaining available connections per service over time. When available connections approach zero for a service, that service is near its connection limit and new client connections will be rejected. Use this to plan connection pool sizing and scaling.
 
-This visualization helps you monitor connection capacity, identify services that might be reaching their connection limits, and track overall cluster availability. Use this information to ensure your MongoDB cluster has sufficient capacity to handle incoming connections, plan for scaling, and prevent potential connection-related issues before they impact performance or availability.
+## Collection Details
 
-## Chunks in Shards
+### Number of Collections in Shards
+
+Shows the number of collections per database in each shard, excluding system databases. Use this to verify collections are distributed as expected across shards.
+
+### Size of Collections in Shards
+
+Shows the storage size of collections per shard, excluding system databases. Use this to identify which collections are consuming the most storage and whether data is evenly distributed.
+
+### Fragmentation Analysis
+
+Shows the fragmentation ratio for collections across shards. A high fragmentation value means a collection has significant wasted space from deleted or moved documents. Use this to identify collections that would benefit from a compact operation.
+
+### Count of Documents in Shards
+
+Shows the number of documents per collection across shards. Use this alongside **Size of Collections** to detect unusually large average document sizes or collections growing faster than expected.
+
+## Chunks in Shards 
+
+### Chunk distribution 
+
+Shows the percentage of total chunks held by each shard as a bar chart. Use this to confirm chunk distribution matches your expected layout.
+
+With standard sharding, chunks should spread roughly evenly, but zoned sharding intentionally concentrates chunks on specific shards. If distribution looks uneven and you are not using zones, check whether the balancer is enabled and running.
 
 ### Amount of Chunks in Shards
 
-Shows how data chunks are distributed across shards in your MongoDB cluster. It displays the shard names and the number of chunks each shard contains. Chunks are subsets of your sharded data, and their distribution indicates how evenly your data is spread across the cluster.
-
-This overview helps you quickly identify any imbalances in data distribution, which could affect query performance and storage utilization. Use this information to assess your sharding strategy and determine if rebalancing is needed to optimize your MongoDB cluster's performance and resource usage.
+Shows the number of chunks per shard as a bar chart and table. Use this alongside **Chunk distribution** in the Overview to confirm the balancer is keeping chunks evenly spread.
 
 ### Dynamic of Chunks
 
-Shows how the number of data chunks changes over time for each shard in your MongoDB cluster. It displays the rate of change in chunks per second, helping you visualize the balancer's activity in redistributing data across shards.
-
-This dynamic view allows you to monitor how your cluster adapts to data growth and changing query patterns. Use this information to assess the effectiveness of your sharding strategy, identify periods of high balancing activity, and ensure that your data remains evenly distributed for optimal performance and scalability.
+Shows the rate of change in chunks per shard over time. Positive values mean chunks are being added to a shard. Negative values mean chunks are being moved away. Elevated activity here indicates the balancer is actively rebalancing data.
 
 ### Chunks Move Events
 
-Displays the frequency of chunk movement events in your MongoDB sharded cluster over time. It shows how often chunks are being migrated between shards to maintain an even data distribution. The graph helps you visualize the balancer's activity, with higher bars indicating periods of more frequent chunk migrations. 
+Shows the rate of chunk migrations between shards over time. Sustained high migration rates can consume network and disk I/O on the affected shards and increase replication lag. Investigate if chunk moves are frequent during peak traffic hours.
 
-This information is crucial for understanding your cluster's balancing behavior, identifying times of high data redistribution activity, and ensuring that your sharded data remains optimally distributed for efficient query performance and storage utilization across all shards.
+### Chunk Split Events
 
-### Chunk Split Activity
-
-Shows how frequently chunks are being split in your MongoDB sharded cluster over time. It visualizes the rate at which chunks grow beyond their configured size limit and need to be divided, typically due to data insertions or updates.
-
-Higher bars indicate periods of more frequent chunk splits, which can signal rapid data growth or changes in data distribution.
-
-This information helps you understand your cluster's data growth patterns, assess the effectiveness of your current chunk size configuration, and anticipate when you might need to adjust your sharding strategy or add capacity to maintain optimal performance.
+Shows the rate at which chunks are being split over time. Splits happen automatically when a chunk grows beyond the configured maximum size. A high split rate indicates rapid data growth or a sharding key with low cardinality that is causing hotspots.
 
 ## Replication
 
 ### Replication Lag by Shard
 
-Displays the maximum replication lag for each shard in your MongoDB cluster over time. Replication lag shows how far behind secondary nodes are in applying operations from the primary node. 
-
-The chart helps you visualize lag trends across different shards, with higher values indicating longer delays in data replication. This information is crucial for monitoring the health of your replica sets, identifying potential performance issues, and ensuring data consistency across your sharded cluster.
-
-Use this graph to quickly spot any shards experiencing significant replication delays, which could impact read operations directed to secondary nodes and overall cluster reliability.
+Shows the maximum replication lag across replica set members for each shard over time. Any shard with consistently rising lag may be under disk or CPU pressure on its secondaries, or the primary may be generating more write traffic than the secondaries can keep up with.
 
 ### Oplog Range by Shard
 
-Shows the time span covered by the oplog (operation log) for each shard in your MongoDB cluster. It displays the duration between the oldest and newest operations stored in the oplog, measured in seconds. 
+Shows the time span covered by the oplog for each shard, representing the effective recovery window. If the oplog range is shorter than your backup window, a secondary that falls behind cannot be recovered to a consistent point in time without a full resync. A shrinking range means the oplog is rolling over faster than expected. Increase the oplog size if this occurs.
 
-This information is crucial for understanding your cluster's replication capacity and resilience. A larger time range indicates a longer history of operations is available for replication, which can be beneficial for recovery scenarios or when secondary nodes fall behind.
+### Flow Control
 
-Monitor this graph to ensure your oplogs maintain sufficient history across all shards, helping you manage replication health and plan for potential adjustments to oplog size if needed.
+Shows the flow control throttle rate per shard over time. Flow control is a mechanism MongoDB uses to keep replica set lag below a configurable threshold by slowing write operations on the primary. A non-zero throttle rate means the primary is being intentionally slowed to allow secondaries to catch up. Persistent flow control activity is a signal that secondaries are struggling to keep pace with the primary.
 
 ### Oplog GB/Hour
-Shows the size of the MongoDB oplog generated by the Primary server. Use this to track oplog growth, plan storage needs, and detect high-write periods. Values are displayed in bytes with hourly intervals.
+
+Shows the average gigabytes of oplog data generated per hour by the primary for each shard. Use this to validate oplog sizing. If this value is high relative to your configured oplog size, the recovery window in **Oplog Range by Shard** will shrink quickly. A rising trend means write activity is increasing.
+
+## Nodes Summary
+
+### Nodes Overview
+
+A table listing all nodes across the cluster with their current status and key metrics, including replication state, uptime, and version. 
+
+Use this to get a per-node health snapshot without navigating to individual dashboards. Click a node name to open its **Node Summary** dashboard.

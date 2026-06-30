@@ -34,7 +34,7 @@ export const NAV_HOME_PAGE: NavItem = {
 export const NAV_MYSQL: NavItem = {
   id: 'mysql',
   text: 'MySQL',
-  icon: 'mysql',
+  icon: 'percona-my',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-instance-overview/mysql-instances-overview`,
   children: [
     {
@@ -120,7 +120,7 @@ export const NAV_MYSQL: NavItem = {
 //
 export const NAV_MONGO: NavItem = {
   id: 'mongo',
-  icon: 'mongo',
+  icon: 'percona-mo',
   text: 'MongoDB',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-instance-overview/mongodb-instances-overview`,
   children: [
@@ -183,7 +183,7 @@ export const NAV_MONGO: NavItem = {
 export const NAV_POSTGRESQL: NavItem = {
   id: 'postgre',
   text: 'PostgreSQL',
-  icon: 'postgresql',
+  icon: 'percona-po',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-instance-overview/postgresql-instances-overview`,
   children: [
     {
@@ -309,7 +309,7 @@ export const NAV_PROXYSQL: NavItem = {
 export const NAV_VALKEY: NavItem = {
   id: 'valkey',
   text: 'Valkey',
-  icon: 'valkey',
+  icon: 'percona-va',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-overview/valkey-redis-overview`,
   children: [
     {
@@ -616,8 +616,10 @@ export const NAV_CONFIGURATION: NavItem = {
   id: 'configuration',
   icon: 'configuration',
   text: 'Configuration',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/settings`,
+  url: `${PMM_NEW_NAV_PATH}/settings`,
   matches: [
+    `${PMM_NEW_NAV_PATH}/settings`,
+    `${PMM_NEW_NAV_PATH}/settings/*`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/plugins`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/admin`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/admin/general`,
@@ -630,8 +632,11 @@ export const NAV_CONFIGURATION: NavItem = {
     {
       id: 'configuration-settings',
       text: 'Settings',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/settings/advanced-settings`,
-      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/settings/*`],
+      url: `${PMM_NEW_NAV_PATH}/settings`,
+      matches: [
+        `${PMM_NEW_NAV_PATH}/settings`,
+        `${PMM_NEW_NAV_PATH}/settings/*`,
+      ],
     },
     {
       id: 'updates',

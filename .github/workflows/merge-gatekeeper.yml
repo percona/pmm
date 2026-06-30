@@ -1,0 +1,38 @@
+---
+name: Merge Gatekeeper
+
+on:
+  pull_request_target:
+
+permissions:
+  checks: read
+  statuses: read
+  packages: read
+
+jobs:
+  merge-gatekeeper:
+    name: Merge Gatekeeper
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Merge Gatekeeper
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REF: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          docker run --rm \
+            -e GITHUB_REPOSITORY \
+            ghcr.io/percona/pmm/merge-gatekeeper:2.0 validate \
+              --token "$GH_TOKEN" \
+              --repo "$GITHUB_REPOSITORY" \
+              --ref "$REF" \
+              --self "Merge Gatekeeper" \
+              --interval 45 \
+              --timeout 1200 \
+              --ignored "linkspector"

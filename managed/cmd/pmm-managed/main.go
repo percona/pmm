@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"errors"
 	_ "expvar" // register /debug/vars
 	"fmt"
 	"html/template"
@@ -40,7 +41,6 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/pkg/errors"
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -74,7 +74,6 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
-	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
@@ -101,7 +100,6 @@ import (
 	"github.com/percona/pmm/managed/services/server"
 	"github.com/percona/pmm/managed/services/supervisord"
 	"github.com/percona/pmm/managed/services/telemetry"
-	"github.com/percona/pmm/managed/services/telemetry/uievents"
 	"github.com/percona/pmm/managed/services/user"
 	"github.com/percona/pmm/managed/services/versioncache"
 	"github.com/percona/pmm/managed/services/victoriametrics"
@@ -194,7 +192,8 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 		rw.Header().Set(`Content-Disposition`, `attachment; filename="`+filename+`"`)
 
 		ctx = logger.Set(ctx, "logs")
-		if err := logs.Zip(ctx, rw, pprofConfig, int(lineCount)); err != nil {
+		err = logs.Zip(ctx, rw, pprofConfig, int(lineCount))
+		if err != nil {
 			l.Errorf("%+v", err)
 		}
 	})
@@ -228,15 +227,12 @@ type gRPCServerDeps struct {
 	schedulerService          *scheduler.Service
 	supervisord               *supervisord.Service
 	server                    *server.Server
-	uieventsService           *uievents.Service
 	versionCache              *versioncache.Service
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
-//
-//nolint:lll
 func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
@@ -250,11 +246,13 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.UnaryAdd(grpcMetrics.UnaryServerInterceptor()),
 			interceptors.UnaryServiceEnabledInterceptor(),
-			grpc_validator.UnaryServerInterceptor())),
+			grpc_validator.UnaryServerInterceptor(),
+		)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			interceptors.Stream(grpcMetrics.StreamServerInterceptor()),
 			interceptors.StreamServiceEnabledInterceptor(),
-			grpc_validator.StreamServerInterceptor())),
+			grpc_validator.StreamServerInterceptor(),
+		)),
 	)
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
@@ -272,18 +270,30 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	agentsSvc := inventory.NewAgentsService(
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
-		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService)
+		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService,
+	)
 
-	mgmtBackupService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService, deps.backupRemovalService, deps.pbmPITRService)
+	mgmtBackupService := managementbackup.NewBackupsService(
+		deps.db, deps.backupService,
+		deps.compatibilityService, deps.schedulerService,
+		deps.backupRemovalService, deps.pbmPITRService,
+	)
 	mgmtRestoreService := managementbackup.NewRestoreService(deps.db, deps.backupService, deps.schedulerService)
 	mgmtServices := common.NewMgmtServices(mgmtBackupService, mgmtRestoreService)
 
-	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache, mgmtServices)
+	servicesSvc := inventory.NewServicesService(
+		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
+		deps.vmdb, deps.versionCache, mgmtServices,
+	)
 	inventoryv1.RegisterNodesServiceServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
 	inventoryv1.RegisterServicesServiceServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
 	inventoryv1.RegisterAgentsServiceServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
-	managementSvc := management.NewManagementService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb, deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient))
+	managementSvc := management.NewManagementService(
+		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
+		deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb,
+		deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient),
+	)
 
 	managementv1.RegisterManagementServiceServer(gRPCServer, managementSvc)
 	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
@@ -301,8 +311,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
-	uieventsv1.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
-
 	hav1beta1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
 
 	// Register RTA service with in-memory store
@@ -317,7 +325,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
 	if err != nil {
-		l.Panic(err)
+		l.Fatal(err)
 	}
 	go func() {
 		for {
@@ -343,8 +351,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 }
 
 type http1ServerDeps struct {
-	logs       *server.Logs
-	authServer *grafana.AuthServer
+	logs               *server.Logs
+	authServer         *grafana.AuthServer
+	currentUserHandler http.Handler
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -368,7 +377,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	proxyMux := grpc_gateway.NewServeMux(
 		grpc_gateway.WithMarshalerOption(grpc_gateway.MIMEWildcard, marshaller),
 		grpc_gateway.WithErrorHandler(pmmerrors.PMMHTTPErrorHandler),
-		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler))
+		grpc_gateway.WithRoutingErrorHandler(pmmerrors.PMMRoutingErrorHandler),
+	)
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -378,11 +388,12 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	// Create a shared gRPC connection for handlers that use Register*Handler
 	sharedConn, err := grpc.NewClient(gRPCAddr, opts...)
 	if err != nil {
-		l.Panic(err)
+		l.Fatal(err)
 	}
 	go func() {
 		<-ctx.Done()
-		if err := sharedConn.Close(); err != nil {
+		err := sharedConn.Close()
+		if err != nil {
 			l.Errorf("Failed to close the shared gRPC connection: %s", err)
 		}
 	}()
@@ -411,20 +422,21 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		rtav1.RegisterRealtimeAnalyticsServiceHandler,
 
-		uieventsv1.RegisterUIEventsServiceHandler,
-
 		userv1.RegisterUserServiceHandler,
 
 		hav1beta1.RegisterHAServiceHandler,
 	} {
-		if err := r(ctx, proxyMux, sharedConn); err != nil {
-			l.Panic(err)
+		err := r(ctx, proxyMux, sharedConn)
+		if err != nil {
+			l.Fatal(err)
 		}
 	}
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	mux.Handle("/auth_request", deps.authServer)
+	mux.Handle("/v1/users/current/orgs", deps.currentUserHandler)
+	mux.Handle("/v1/users/current", deps.currentUserHandler)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -433,15 +445,17 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		Handler:  mux,
 	}
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-			l.Panic(err)
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
+			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
 	}()
 
 	<-ctx.Done()
-	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout) //nolint:contextcheck
+	err = server.Shutdown(ctx)
+	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
@@ -482,7 +496,7 @@ func runDebugServer(ctx context.Context) {
 	</html>
 	`)).Execute(&buf, handlers)
 	if err != nil {
-		l.Panic(err)
+		l.Fatal(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
 		rw.Write(buf.Bytes()) //nolint:errcheck
@@ -494,15 +508,17 @@ func runDebugServer(ctx context.Context) {
 		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
 	}
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-			l.Panic(err)
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
+			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
 	}()
 
 	<-ctx.Done()
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
+	err = server.Shutdown(ctx) //nolint:contextcheck
+	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
@@ -551,14 +567,16 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	}
 
 	deps.l.Infof("Checking VictoriaMetrics...")
-	if err = deps.vmdb.IsReady(ctx); err != nil {
+	err = deps.vmdb.IsReady(ctx)
+	if err != nil {
 		deps.l.Warnf("Failed to check VictoriaMetrics readiness: %+v.", err)
 		return false
 	}
 	deps.vmdb.RequestConfigurationUpdate()
 
 	deps.l.Infof("Checking VMAlert...")
-	if err = deps.vmalert.IsReady(ctx); err != nil {
+	err = deps.vmalert.IsReady(ctx)
+	if err != nil {
 		deps.l.Warnf("VMAlert problem: %+v.", err)
 		return false
 	}
@@ -568,7 +586,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	return true
 }
 
-func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string) *qan.Client {
+func getQANClient(sqlDB *sql.DB, dbName, qanAPIAddr string) *qan.Client {
 	bc := backoff.DefaultConfig
 	bc.MaxDelay = time.Second
 
@@ -578,12 +596,14 @@ func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string)
 			Backoff: bc,
 		}),
 		grpc.WithUserAgent("pmm-managed/" + version.Version),
-		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(gRPCMessageMaxSize)),
+		grpc.WithDefaultCallOptions(
+			grpc.MaxCallRecvMsgSize(gRPCMessageMaxSize),
+			// Wait for connection to be ready before sending RPC calls
+			grpc.WaitForReady(true),
+		),
 	}
 
-	// Without grpc.WithBlock() DialContext returns an error only if something very wrong with address or options;
-	// it does not return an error of connection failure but tries to reconnect in the background.
-	conn, err := grpc.DialContext(ctx, qanAPIAddr, opts...)
+	conn, err := grpc.NewClient(qanAPIAddr, opts...)
 	if err != nil {
 		logrus.Fatalf("Failed to connect QAN API %s: %s.", qanAPIAddr, err)
 	}
@@ -625,7 +645,7 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error) {
 	db, err := sql.Open("clickhouse", dsn)
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to open connection to QAN DB")
+		return nil, fmt.Errorf("failed to open connection to QAN DB: %w", err)
 	}
 
 	db.SetConnMaxLifetime(0)
@@ -635,7 +655,7 @@ func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error
 	return db, nil
 }
 
-func main() { //nolint:maintidx,cyclop
+func main() { //nolint:gocognit,maintidx,cyclop
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
 		panic("pmm-managed version is not set during build.")
@@ -722,7 +742,6 @@ func main() { //nolint:maintidx,cyclop
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
 	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
-
 	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
 
 	// Nomad garbage collection flags
@@ -787,7 +806,8 @@ func main() { //nolint:maintidx,cyclop
 	haService := ha.New(haParams)
 
 	cfg := config.NewService()
-	if err := cfg.Load(); err != nil {
+	err := cfg.Load()
+	if err != nil {
 		l.Panicf("Failed to load config: %+v", err)
 	}
 	// in order to reproduce postgres behaviour.
@@ -817,21 +837,25 @@ func main() { //nolint:maintidx,cyclop
 	grafanadb.DSN.DB = "grafana"
 	grafanadb.DSN.Params = q.Encode()
 
-	chURI := url.URL{
-		Scheme: "tcp",
-		User:   url.UserPassword(*clickhouseUsernameF, *clickhousePasswordF),
-		Host:   *clickhouseAddrF,
-		Path:   *clickHouseDatabaseF,
+	chParams, err := models.NewClickHouseParams(
+		*clickhouseAddrF,
+		*clickHouseDatabaseF,
+		*clickhouseUsernameF,
+		*clickhousePasswordF,
+	)
+	if err != nil {
+		l.Panicf("cannot load clickhouse params: %+v", err)
 	}
 
 	qanDB := ds.QanDBSelect
-	qanDB.DSN = chURI.String()
+	qanDB.DSN = chParams.URL().String()
 
 	ds.VM.Address = *victoriaMetricsURLF
 
 	vmParams, err := models.NewVictoriaMetricsParams(
 		models.BasePrometheusConfigPath,
-		*victoriaMetricsURLF)
+		*victoriaMetricsURLF,
+	)
 	if err != nil {
 		l.Panicf("cannot load victoriametrics params problem: %+v", err)
 	}
@@ -874,7 +898,7 @@ func main() { //nolint:maintidx,cyclop
 
 	cleaner := clean.New(db)
 	externalRules := vmalert.NewExternalRules()
-	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, haService)
+	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, chParams, haService)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
@@ -887,7 +911,7 @@ func main() { //nolint:maintidx,cyclop
 
 	minioClient := minio.New()
 
-	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
+	qanClient := getQANClient(sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
 	agentsRegistry := agents.NewRegistry(db, vmParams, haService)
 
@@ -929,7 +953,8 @@ func main() { //nolint:maintidx,cyclop
 				SSLCertPath: *postgresSSLCertPathF,
 			},
 			HAParams: haParams,
-		})
+		},
+	)
 
 	// Keep the agent always running, even on follower nodes.
 	err = supervisord.StartSupervisedService("pmm-agent")
@@ -942,20 +967,10 @@ func main() { //nolint:maintidx,cyclop
 		l.Fatal(err)
 	}
 
-	platformClient, err := platformClient.NewClient(platformAddress)
-	if err != nil {
-		l.Fatalf("Could not create telemetry client: %s", err)
-	}
-
-	uieventsService := uievents.New()
-	uieventsService.ScheduleCleanup(ctx)
-
-	telemetryExtensions := map[telemetry.ExtensionType]telemetry.Extension{
-		telemetry.UIEventsExtension: uieventsService,
-	}
+	platformClient := platformClient.NewClient(platformAddress)
 
 	dus := distribution.NewService(distributionInfoFilePath, osInfoFilePath, l)
-	telemetry, err := telemetry.NewService(db, platformClient, version.Version, dus, cfg.Config.Services.Telemetry, telemetryExtensions)
+	telemetry, err := telemetry.NewService(db, platformClient, version.Version, dus, cfg.Config.Services.Telemetry)
 	if err != nil {
 		l.Fatalf("Could not create telemetry service: %s", err)
 	}
@@ -1013,7 +1028,7 @@ func main() { //nolint:maintidx,cyclop
 	versionCache := versioncache.New(db, versioner)
 
 	dumpService := dump.New(db, &dump.URLs{
-		ClickhouseURL: chURI.String(),
+		ClickhouseURL: chParams.URL().String(),
 		VMURL:         *victoriaMetricsURLF,
 	})
 
@@ -1117,11 +1132,9 @@ func main() { //nolint:maintidx,cyclop
 		vmdb.Run(ctx)
 	})
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		externalExporterStatusSvc.Run(ctx)
-	}()
+	})
 
 	haService.AddLeaderService(ha.NewContextService("checks", func(ctx context.Context) error {
 		checksService.Run(ctx)
@@ -1182,7 +1195,6 @@ func main() { //nolint:maintidx,cyclop
 				settings:                  settings,
 				supervisord:               supervisord,
 				templatesService:          alertingService,
-				uieventsService:           uieventsService,
 				versionCache:              versionCache,
 				vmalert:                   vmalert,
 				vmClient:                  &vmClient,
@@ -1192,8 +1204,9 @@ func main() { //nolint:maintidx,cyclop
 
 	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
-			logs:       logs,
-			authServer: authServer,
+			logs:               logs,
+			authServer:         authServer,
+			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
 		})
 	})
 
@@ -1206,14 +1219,12 @@ func main() { //nolint:maintidx,cyclop
 		return nil
 	}))
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		err := haService.Run(ctx)
 		if err != nil {
-			l.Panicf("cannot start high availability service: %+v", err)
+			l.Fatalf("cannot start high availability service: %+v", err)
 		}
-	}()
+	})
 
 	wg.Wait()
 }

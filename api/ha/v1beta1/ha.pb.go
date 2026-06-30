@@ -343,7 +343,7 @@ var (
 	file_ha_v1beta1_ha_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_ha_v1beta1_ha_proto_msgTypes  = make([]protoimpl.MessageInfo, 5)
 	file_ha_v1beta1_ha_proto_goTypes   = []any{
-		(NodeRole)(0),             // 0: ha.v1beta1.NodeRole
+		NodeRole(0),               // 0: ha.v1beta1.NodeRole
 		(*ListNodesRequest)(nil),  // 1: ha.v1beta1.ListNodesRequest
 		(*HANode)(nil),            // 2: ha.v1beta1.HANode
 		(*ListNodesResponse)(nil), // 3: ha.v1beta1.ListNodesResponse

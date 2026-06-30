@@ -15,8 +15,6 @@
 package flags
 
 import (
-	"github.com/AlekSi/pointer"
-
 	"github.com/percona/pmm/utils/enums"
 )
 
@@ -30,5 +28,5 @@ type MetricsMode string
 
 // EnumValue returns pointer to string representation of LogLevel.
 func (l MetricsMode) EnumValue() *string {
-	return pointer.To(enums.ConvertEnum("METRICS_MODE", string(l)))
+	return new(enums.ConvertEnum("METRICS_MODE", string(l)))
 }

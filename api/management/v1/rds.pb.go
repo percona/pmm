@@ -14,7 +14,9 @@ import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 
+	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -355,8 +357,10 @@ type AddRDSServiceParams struct {
 	DisableCommentsParsing bool `protobuf:"varint,32,opt,name=disable_comments_parsing,json=disableCommentsParsing,proto3" json:"disable_comments_parsing,omitempty"`
 	// Maximum number of exporter connections to PostgreSQL instance.
 	MaxPostgresqlExporterConnections int32 `protobuf:"varint,33,opt,name=max_postgresql_exporter_connections,json=maxPostgresqlExporterConnections,proto3" json:"max_postgresql_exporter_connections,omitempty"`
-	unknownFields                    protoimpl.UnknownFields
-	sizeCache                        protoimpl.SizeCache
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,35,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddRDSServiceParams) Reset() {
@@ -627,6 +631,13 @@ func (x *AddRDSServiceParams) GetMaxPostgresqlExporterConnections() int32 {
 	return 0
 }
 
+func (x *AddRDSServiceParams) GetConnectionTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.ConnectionTimeout
+	}
+	return nil
+}
+
 type RDSServiceResult struct {
 	state                     protoimpl.MessageState             `protogen:"open.v1"`
 	Node                      *v1.RemoteRDSNode                  `protobuf:"bytes,1,opt,name=node,proto3" json:"node,omitempty"`
@@ -731,7 +742,7 @@ var File_management_v1_rds_proto protoreflect.FileDescriptor
 
 const file_management_v1_rds_proto_rawDesc = "" +
 	"\n" +
-	"\x17management/v1/rds.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x18inventory/v1/nodes.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x17validate/validate.proto\"\x8c\x02\n" +
+	"\x17management/v1/rds.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x18inventory/v1/nodes.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x17validate/validate.proto\"\x8c\x02\n" +
 	"\x13DiscoverRDSInstance\x12\x16\n" +
 	"\x06region\x18\x01 \x01(\tR\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12\x1f\n" +
@@ -742,12 +753,12 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\aaddress\x18\x05 \x01(\tR\aaddress\x12\x12\n" +
 	"\x04port\x18\x06 \x01(\rR\x04port\x128\n" +
 	"\x06engine\x18\a \x01(\x0e2 .management.v1.DiscoverRDSEngineR\x06engine\x12%\n" +
-	"\x0eengine_version\x18\b \x01(\tR\rengineVersion\"`\n" +
-	"\x12DiscoverRDSRequest\x12$\n" +
-	"\x0eaws_access_key\x18\x01 \x01(\tR\fawsAccessKey\x12$\n" +
-	"\x0eaws_secret_key\x18\x02 \x01(\tR\fawsSecretKey\"^\n" +
+	"\x0eengine_version\x18\b \x01(\tR\rengineVersion\"l\n" +
+	"\x12DiscoverRDSRequest\x12*\n" +
+	"\x0eaws_access_key\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12*\n" +
+	"\x0eaws_secret_key\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01R\fawsSecretKey\"^\n" +
 	"\x13DiscoverRDSResponse\x12G\n" +
-	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\x9e\f\n" +
+	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\x8e\r\n" +
 	"\x13AddRDSServiceParams\x12\x1f\n" +
 	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12(\n" +
@@ -765,11 +776,11 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\venvironment\x18\n" +
 	" \x01(\tR\venvironment\x12\x18\n" +
 	"\acluster\x18\v \x01(\tR\acluster\x12'\n" +
-	"\x0freplication_set\x18\f \x01(\tR\x0ereplicationSet\x12#\n" +
-	"\busername\x18\r \x01(\tB\a\xfaB\x04r\x02\x10\x01R\busername\x12\x1a\n" +
-	"\bpassword\x18\x0e \x01(\tR\bpassword\x12$\n" +
-	"\x0eaws_access_key\x18\x0f \x01(\tR\fawsAccessKey\x12$\n" +
-	"\x0eaws_secret_key\x18\x10 \x01(\tR\fawsSecretKey\x12!\n" +
+	"\x0freplication_set\x18\f \x01(\tR\x0ereplicationSet\x12'\n" +
+	"\busername\x18\r \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\bpassword\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12*\n" +
+	"\x0eaws_access_key\x18\x0f \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12*\n" +
+	"\x0eaws_secret_key\x18\x10 \x01(\tB\x04\x88\xb5\x18\x01R\fawsSecretKey\x12!\n" +
 	"\frds_exporter\x18\x11 \x01(\bR\vrdsExporter\x120\n" +
 	"\x14qan_mysql_perfschema\x18\x12 \x01(\bR\x12qanMysqlPerfschema\x12Y\n" +
 	"\rcustom_labels\x18\x13 \x03(\v24.management.v1.AddRDSServiceParams.CustomLabelsEntryR\fcustomLabels\x122\n" +
@@ -781,12 +792,13 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\x15disable_basic_metrics\x18\x19 \x01(\bR\x13disableBasicMetrics\x128\n" +
 	"\x18disable_enhanced_metrics\x18\x1a \x01(\bR\x16disableEnhancedMetrics\x12=\n" +
 	"\fmetrics_mode\x18\x1b \x01(\x0e2\x1a.management.v1.MetricsModeR\vmetricsMode\x12>\n" +
-	"\x1bqan_postgresql_pgstatements\x18\x1c \x01(\bR\x19qanPostgresqlPgstatements\x12%\n" +
-	"\x0eagent_password\x18\x1d \x01(\tR\ragentPassword\x12\x1a\n" +
+	"\x1bqan_postgresql_pgstatements\x18\x1c \x01(\bR\x19qanPostgresqlPgstatements\x12+\n" +
+	"\x0eagent_password\x18\x1d \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x12\x1a\n" +
 	"\bdatabase\x18\x1e \x01(\tR\bdatabase\x120\n" +
 	"\x14auto_discovery_limit\x18\x1f \x01(\x05R\x12autoDiscoveryLimit\x128\n" +
 	"\x18disable_comments_parsing\x18  \x01(\bR\x16disableCommentsParsing\x12M\n" +
-	"#max_postgresql_exporter_connections\x18! \x01(\x05R maxPostgresqlExporterConnections\x1a?\n" +
+	"#max_postgresql_exporter_connections\x18! \x01(\x05R maxPostgresqlExporterConnections\x12R\n" +
+	"\x12connection_timeout\x18# \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd3\x04\n" +
@@ -823,22 +835,23 @@ var (
 	file_management_v1_rds_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_management_v1_rds_proto_msgTypes  = make([]protoimpl.MessageInfo, 6)
 	file_management_v1_rds_proto_goTypes   = []any{
-		(DiscoverRDSEngine)(0),                    // 0: management.v1.DiscoverRDSEngine
+		DiscoverRDSEngine(0),                      // 0: management.v1.DiscoverRDSEngine
 		(*DiscoverRDSInstance)(nil),               // 1: management.v1.DiscoverRDSInstance
 		(*DiscoverRDSRequest)(nil),                // 2: management.v1.DiscoverRDSRequest
 		(*DiscoverRDSResponse)(nil),               // 3: management.v1.DiscoverRDSResponse
 		(*AddRDSServiceParams)(nil),               // 4: management.v1.AddRDSServiceParams
 		(*RDSServiceResult)(nil),                  // 5: management.v1.RDSServiceResult
 		nil,                                       // 6: management.v1.AddRDSServiceParams.CustomLabelsEntry
-		(MetricsMode)(0),                          // 7: management.v1.MetricsMode
-		(*v1.RemoteRDSNode)(nil),                  // 8: inventory.v1.RemoteRDSNode
-		(*v1.RDSExporter)(nil),                    // 9: inventory.v1.RDSExporter
-		(*v1.MySQLService)(nil),                   // 10: inventory.v1.MySQLService
-		(*v1.MySQLdExporter)(nil),                 // 11: inventory.v1.MySQLdExporter
-		(*v1.QANMySQLPerfSchemaAgent)(nil),        // 12: inventory.v1.QANMySQLPerfSchemaAgent
-		(*v1.PostgreSQLService)(nil),              // 13: inventory.v1.PostgreSQLService
-		(*v1.PostgresExporter)(nil),               // 14: inventory.v1.PostgresExporter
-		(*v1.QANPostgreSQLPgStatementsAgent)(nil), // 15: inventory.v1.QANPostgreSQLPgStatementsAgent
+		MetricsMode(0),                            // 7: management.v1.MetricsMode
+		(*durationpb.Duration)(nil),               // 8: google.protobuf.Duration
+		(*v1.RemoteRDSNode)(nil),                  // 9: inventory.v1.RemoteRDSNode
+		(*v1.RDSExporter)(nil),                    // 10: inventory.v1.RDSExporter
+		(*v1.MySQLService)(nil),                   // 11: inventory.v1.MySQLService
+		(*v1.MySQLdExporter)(nil),                 // 12: inventory.v1.MySQLdExporter
+		(*v1.QANMySQLPerfSchemaAgent)(nil),        // 13: inventory.v1.QANMySQLPerfSchemaAgent
+		(*v1.PostgreSQLService)(nil),              // 14: inventory.v1.PostgreSQLService
+		(*v1.PostgresExporter)(nil),               // 15: inventory.v1.PostgresExporter
+		(*v1.QANPostgreSQLPgStatementsAgent)(nil), // 16: inventory.v1.QANPostgreSQLPgStatementsAgent
 	}
 )
 
@@ -848,19 +861,20 @@ var file_management_v1_rds_proto_depIdxs = []int32{
 	0,  // 2: management.v1.AddRDSServiceParams.engine:type_name -> management.v1.DiscoverRDSEngine
 	6,  // 3: management.v1.AddRDSServiceParams.custom_labels:type_name -> management.v1.AddRDSServiceParams.CustomLabelsEntry
 	7,  // 4: management.v1.AddRDSServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
-	8,  // 5: management.v1.RDSServiceResult.node:type_name -> inventory.v1.RemoteRDSNode
-	9,  // 6: management.v1.RDSServiceResult.rds_exporter:type_name -> inventory.v1.RDSExporter
-	10, // 7: management.v1.RDSServiceResult.mysql:type_name -> inventory.v1.MySQLService
-	11, // 8: management.v1.RDSServiceResult.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
-	12, // 9: management.v1.RDSServiceResult.qan_mysql_perfschema:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
-	13, // 10: management.v1.RDSServiceResult.postgresql:type_name -> inventory.v1.PostgreSQLService
-	14, // 11: management.v1.RDSServiceResult.postgresql_exporter:type_name -> inventory.v1.PostgresExporter
-	15, // 12: management.v1.RDSServiceResult.qan_postgresql_pgstatements:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
-	13, // [13:13] is the sub-list for method output_type
-	13, // [13:13] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	8,  // 5: management.v1.AddRDSServiceParams.connection_timeout:type_name -> google.protobuf.Duration
+	9,  // 6: management.v1.RDSServiceResult.node:type_name -> inventory.v1.RemoteRDSNode
+	10, // 7: management.v1.RDSServiceResult.rds_exporter:type_name -> inventory.v1.RDSExporter
+	11, // 8: management.v1.RDSServiceResult.mysql:type_name -> inventory.v1.MySQLService
+	12, // 9: management.v1.RDSServiceResult.mysqld_exporter:type_name -> inventory.v1.MySQLdExporter
+	13, // 10: management.v1.RDSServiceResult.qan_mysql_perfschema:type_name -> inventory.v1.QANMySQLPerfSchemaAgent
+	14, // 11: management.v1.RDSServiceResult.postgresql:type_name -> inventory.v1.PostgreSQLService
+	15, // 12: management.v1.RDSServiceResult.postgresql_exporter:type_name -> inventory.v1.PostgresExporter
+	16, // 13: management.v1.RDSServiceResult.qan_postgresql_pgstatements:type_name -> inventory.v1.QANPostgreSQLPgStatementsAgent
+	14, // [14:14] is the sub-list for method output_type
+	14, // [14:14] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_rds_proto_init() }

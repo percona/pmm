@@ -228,7 +228,7 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
     
         To configure automatic rotation when adding a service, use the `--size-slow-logs` option with the `pmm-admin` command. This option sets the size threshold at which the slow query log file will be rotated. 
         
-        The size is specified as a number followed by a suffix (e.g., `10M` for 10 megabytes). For detailed syntax, see [pmm-admin add mysql](../../../../use/commands/pmm-admin/pmm-admin-add.md#pmm-admin-add-mysql).
+        The size is specified as a number followed by a suffix (e.g., `10M` for 10 megabytes). For detailed syntax, see [pmm-admin add mysql](../../../../use/commands/pmm-admin/pmm-admin.md#add-a-mysql-database).
     
         When the log reaches the specified size, PMM Client will:
     
@@ -406,34 +406,11 @@ To disable query examples for data privacy:
 
 ### Add service to PMM
 
-After creating your PMM database user, you can quickly add your MySQL service to PMM. You can do this either through the PMM user interface or via the command line.
+After creating your PMM database user, you can add your MySQL service to PMM using the command line or the UI.
 
-=== "Via UI"
+The **command line** (`pmm-admin`) deploys an exporter directly on the database host and automatically collects node-level metrics (CPU, memory, disk I/O) alongside MySQL metrics. Use the UI only if you cannot install PMM Client on the database host.
 
-    To add the service from the user interface:
-    {.power-number}
-    
-    1. Go to **PMM Configuration > PMM Inventory > Add Service**.
-    
-    2. Select **MySQL** service type.
-    
-    3. Enter or select values for the fields:
-
-        - **Service Name**: A descriptive name for your MySQL instance
-        - **Host/Socket**: Use `localhost` for local monitoring or hostname/IP for remote monitoring
-        - **Port**: MySQL port (default: 3306)
-        - **Username**: The PMM user created earlier
-        - **Password**: Your PMM user password
-        - **Query Source**: Choose between **Slow Log** or **Performance Schema**
-        - **PMM Agent**: Select which PMM agent should monitor this instance
-        - **Disable query examples**: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.
-
-    4. Click **Add Service**.
-
-    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key information. 
-    ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.png)
-
-=== "Via command line "
+=== "Via command line (recommended)"
 
     === "Basic setup"
     
@@ -530,6 +507,32 @@ After creating your PMM database user, you can quickly add your MySQL service to
             The `allowCleartextPasswords=1` parameter transmits passwords without encryption. 
             Only use when connections are secured with TLS/SSL or over trusted networks.
 
+=== "Via UI"
+
+    To add the service from the user interface:
+    {.power-number}
+    
+    1. Go to **Inventory > Add Service**.
+    
+    2. Select **MySQL** service type.
+    
+    3. Enter or select values for the fields:
+
+        - **Service Name**: A descriptive name for your MySQL instance
+        - **Host/Socket**: Use `localhost` for local monitoring or hostname/IP for remote monitoring
+        - **Port**: MySQL port (default: 3306)
+        - **Username**: The PMM user created earlier
+        - **Password**: Your PMM user password
+        - **Query Source**: Choose between **Slow Log** or **Performance Schema**
+        - **PMM Agent**: Select which PMM agent should monitor this instance
+        - **Disable query examples**: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.
+        - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 2s.
+
+    4. Click **Add Service**.
+
+    5. If using TLS, check **Use TLS for database connections** and fill in your TLS certificates and key information. 
+    ![TLS Configuration Screen](../../../../images/PMM_Add_Instance_MySQL_TLS.png)
+
 #### TLS/SSL certificate configuration
 
 PMM supports flexible TLS certificate configurations for MySQL connections, enabling you to use partial certificates when client authentication is not required.
@@ -612,7 +615,7 @@ After adding your MySQL service to PMM, it's important to verify that it's prope
     To verify your service in the web interface:
     {.power-number}
 
-    1. Navigate to **PMM Configuration > PMM Inventory**.
+    1. Navigate to **Inventory > Services**.
     2. In the **Services** tab, find your newly added MySQL service.
     3. Verify the **Service Name** and **Address** match your configuration.
     4. Check the **Status** column shows as *Active*.
@@ -668,14 +671,14 @@ Once the service is confirmed as active, verify that metrics are being properly 
 [DASH_MYSQLUSERDETAILS]: ../../../../reference//dashboards/dashboard-mysql-user-details.md
 [LOGROTATE]: https://linux.die.net/man/8/logrotate
 [PERCONA_SERVER_MYSQL]: https://www.percona.com/software/mysql-database/percona-server
-[PERCONA_XTRADB_CLUSTER]: https://www.percona.com/software/mysql-database/percona-xtradb-cluster
+[PERCONA_XTRADB_CLUSTER]: https://docs.percona.com/percona-xtradb-cluster/
 [ORACLE_MYSQL]: https://www.mysql.com/
 [MARIADB]: https://mariadb.org/
-[BLOG_CUSTOM_QUERIES_MYSQL]: https://www.percona.com/blog/2020/06/10/running-custom-queries-in-percona-monitoring-and-management/
-[BLOG_INNODB_METRICS]: https://www.percona.com/blog/2014/11/18/mysqls-innodb_metrics-table-how-much-is-the-overhead/
-[BLOG_LOGGING]: https://www.percona.com/blog/2009/02/10/impact-of-logging-on-mysql%E2%80%99s-performance/
-[BLOG_LOG_ROTATION]: https://www.percona.com/blog/2013/04/18/rotating-mysql-slow-logs-safely/
-[BLOG_PS_VS_SLOW]: https://www.percona.com/blog/2014/02/11/performance_schema-vs-slow-query-log/
+[BLOG_CUSTOM_QUERIES_MYSQL]: https://www.percona.com/blog/running-custom-queries-in-percona-monitoring-and-management/
+[BLOG_INNODB_METRICS]: https://www.percona.com/blog/mysqls-innodb_metrics-table-how-much-is-the-overhead/
+[BLOG_LOGGING]: https://www.percona.com/blog/impact-of-logging-on-mysqls-performance/
+[BLOG_LOG_ROTATION]: https://www.percona.com/blog/rotating-mysql-slow-logs-safely/
+[BLOG_PS_VS_SLOW]: https://www.percona.com/blog/performance_schema-vs-slow-query-log/
 [PS_FEATURES_REMOVED]: https://docs.percona.com/percona-server/8.0/upgrade-changes-removed.html
 [ps_slow_query_ext]: https://docs.percona.com/percona-server/latest/slow-extended.html
 [ps_query_response_time_stats]: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#usage

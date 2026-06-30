@@ -17,13 +17,14 @@ package backup
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"path"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -131,7 +132,7 @@ func (s *PBMPITRService) getPITROplogs(ctx context.Context, storage Storage, loc
 	s3Config := location.S3Config
 	pitrFiles, err := storage.List(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, prefix, "")
 	if err != nil {
-		return nil, errors.Wrap(err, "get list of pitr chunks")
+		return nil, fmt.Errorf("get list of pitr chunks: %w", err)
 	}
 	if len(pitrFiles) == 0 {
 		return nil, nil
@@ -158,16 +159,13 @@ func (s *PBMPITRService) ListPITRTimeranges(ctx context.Context, storage Storage
 
 	oplogs, err := s.getPITROplogs(ctx, storage, location, artifact)
 	if err != nil {
-		return nil, errors.Wrap(err, "get slice")
+		return nil, fmt.Errorf("get slice: %w", err)
 	}
 	if len(oplogs) == 0 {
 		return nil, nil
 	}
 
-	t, err := getTimelines(oplogs), nil
-	if err != nil {
-		return nil, errors.Wrapf(err, "get PITR timeranges for backup '%s'", artifact.Name)
-	}
+	t := getTimelines(oplogs)
 	if len(t) != 0 {
 		timelines = append(timelines, t)
 	}
@@ -270,7 +268,7 @@ func getTimelines(slices []*oplogChunk) []Timeline {
 
 // mergeTimelines merges overlapping sets on timelines
 // it presumes timelines are sorted and don't start from 0.
-func mergeTimelines(timelines ...[]Timeline) []Timeline {
+func mergeTimelines(timelines ...[]Timeline) []Timeline { //nolint:gocognit
 	// fast paths
 	if len(timelines) == 0 {
 		return nil

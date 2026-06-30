@@ -215,7 +215,7 @@ Expand the table below for the list of checks types that you can use to define y
 To develop custom checks for PMM:
 {.power-number}
 
-1. Install the latest PMM Server and PMM Client builds following the [installation instructions](https://www.percona.com/software/pmm/quickstart#).
+1. Install the latest PMM Server and PMM Client builds following the [installation instructions](../quickstart/quickstart.md).
 2. Run PMM Server with special environment variables:
 
     - `PMM_DEV_ADVISOR_CHECKS_FILE=/srv/custom-checks.yml` to use checks from the local files instead of default PMM ones.
@@ -230,7 +230,7 @@ To develop custom checks for PMM:
 
 3. Log into Grafana with credentials **admin/admin**.
 
-4. Go to **PMM Configuration > Settings > Advanced Settings** and make sure the **Advisors** option is enabled.
+4. Go to **Configuration > Settings > Advanced settings** and make sure the **Advisors** option is enabled.
 
 5. Create `/srv/custom-checks.yml` inside the `pmm-server` container with the content of your check. Specify **dev** advisor in your check.
 

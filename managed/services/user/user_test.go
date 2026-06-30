@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -94,7 +93,7 @@ func TestSnoozeUpdate(t *testing.T) {
 		require.NoError(t, err)
 
 		resp, err := service.UpdateUser(ctx, &userv1.UpdateUserRequest{
-			SnoozedPmmVersion: pointer.ToString("1.0.0"),
+			SnoozedPmmVersion: new("1.0.0"),
 		})
 
 		require.NoError(t, err)
@@ -115,7 +114,7 @@ func TestSnoozeUpdate(t *testing.T) {
 
 		for i := range 3 {
 			resp, err := service.UpdateUser(ctx, &userv1.UpdateUserRequest{
-				SnoozedPmmVersion: pointer.ToString("1.0.0"),
+				SnoozedPmmVersion: new("1.0.0"),
 			})
 
 			require.NoError(t, err)
@@ -136,7 +135,7 @@ func TestSnoozeUpdate(t *testing.T) {
 		require.NoError(t, err)
 
 		resp, err := service.UpdateUser(ctx, &userv1.UpdateUserRequest{
-			SnoozedPmmVersion: pointer.ToString("1.0.0"),
+			SnoozedPmmVersion: new("1.0.0"),
 		})
 
 		require.NoError(t, err)
@@ -147,7 +146,7 @@ func TestSnoozeUpdate(t *testing.T) {
 		assert.Equal(t, uint32(1), resp.SnoozeCount)
 
 		resp, err = service.UpdateUser(ctx, &userv1.UpdateUserRequest{
-			SnoozedPmmVersion: pointer.ToString("2.0.0"),
+			SnoozedPmmVersion: new("2.0.0"),
 		})
 
 		require.NoError(t, err)
@@ -169,9 +168,9 @@ func TestSnoozeUpdate(t *testing.T) {
 		// Set up existing snooze data
 		params := &models.UpdateUserParams{
 			UserID:            userInfo.ID,
-			SnoozedPMMVersion: pointer.ToString("1.0.0"),
-			SnoozedAt:         pointer.ToTime(time.Now().Add(-1 * time.Hour)),
-			SnoozeCount:       pointer.ToInt(2),
+			SnoozedPMMVersion: new("1.0.0"),
+			SnoozedAt:         new(time.Now().Add(-1 * time.Hour)),
+			SnoozeCount:       new(2),
 		}
 		userInfo, err = models.UpdateUser(db.Querier, params)
 		require.NoError(t, err)
@@ -182,7 +181,7 @@ func TestSnoozeUpdate(t *testing.T) {
 
 		// Subsequent snooze with same version
 		req := &userv1.UpdateUserRequest{
-			SnoozedPmmVersion: pointer.ToString("1.0.0"),
+			SnoozedPmmVersion: new("1.0.0"),
 		}
 
 		resp, err := service.UpdateUser(ctx, req)
@@ -215,9 +214,9 @@ func TestSnoozeUpdate(t *testing.T) {
 		// Set up existing snooze data for version 1.0.0
 		params := &models.UpdateUserParams{
 			UserID:            userInfo.ID,
-			SnoozedPMMVersion: pointer.ToString("1.0.0"),
-			SnoozedAt:         pointer.ToTime(time.Now().Add(-1 * time.Hour)),
-			SnoozeCount:       pointer.ToInt(5),
+			SnoozedPMMVersion: new("1.0.0"),
+			SnoozedAt:         new(time.Now().Add(-1 * time.Hour)),
+			SnoozeCount:       new(5),
 		}
 		userInfo, err = models.UpdateUser(db.Querier, params)
 		require.NoError(t, err)
@@ -228,7 +227,7 @@ func TestSnoozeUpdate(t *testing.T) {
 
 		// Snooze with different version
 		req := &userv1.UpdateUserRequest{
-			SnoozedPmmVersion: pointer.ToString("2.0.0"),
+			SnoozedPmmVersion: new("2.0.0"),
 		}
 
 		resp, err := service.UpdateUser(ctx, req)
@@ -263,7 +262,7 @@ func TestSnoozeUpdate(t *testing.T) {
 		version := "1.5.0"
 		for i := 1; i <= 3; i++ {
 			req := &userv1.UpdateUserRequest{
-				SnoozedPmmVersion: pointer.ToString(version),
+				SnoozedPmmVersion: new(version),
 			}
 
 			resp, err := service.UpdateUser(ctx, req)

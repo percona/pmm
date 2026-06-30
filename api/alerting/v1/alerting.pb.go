@@ -1430,8 +1430,8 @@ var (
 	file_alerting_v1_alerting_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 	file_alerting_v1_alerting_proto_msgTypes  = make([]protoimpl.MessageInfo, 20)
 	file_alerting_v1_alerting_proto_goTypes   = []any{
-		(TemplateSource)(0),            // 0: alerting.v1.TemplateSource
-		(FilterType)(0),                // 1: alerting.v1.FilterType
+		TemplateSource(0),              // 0: alerting.v1.TemplateSource
+		FilterType(0),                  // 1: alerting.v1.FilterType
 		(*BoolParamDefinition)(nil),    // 2: alerting.v1.BoolParamDefinition
 		(*FloatParamDefinition)(nil),   // 3: alerting.v1.FloatParamDefinition
 		(*StringParamDefinition)(nil),  // 4: alerting.v1.StringParamDefinition
@@ -1452,10 +1452,10 @@ var (
 		nil,                            // 19: alerting.v1.Template.LabelsEntry
 		nil,                            // 20: alerting.v1.Template.AnnotationsEntry
 		nil,                            // 21: alerting.v1.CreateRuleRequest.CustomLabelsEntry
-		(ParamUnit)(0),                 // 22: alerting.v1.ParamUnit
-		(ParamType)(0),                 // 23: alerting.v1.ParamType
+		ParamUnit(0),                   // 22: alerting.v1.ParamUnit
+		ParamType(0),                   // 23: alerting.v1.ParamType
 		(*durationpb.Duration)(nil),    // 24: google.protobuf.Duration
-		(v1.Severity)(0),               // 25: management.v1.Severity
+		v1.Severity(0),                 // 25: management.v1.Severity
 		(*timestamppb.Timestamp)(nil),  // 26: google.protobuf.Timestamp
 	}
 )

@@ -16,7 +16,6 @@
 package base
 
 import (
-	"context"
 	"crypto/tls"
 	"fmt"
 	"io"
@@ -52,7 +51,7 @@ var (
 )
 
 // SetupClients configures local and PMM Server API clients.
-func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
+func SetupClients(globalFlags *flags.GlobalFlags) {
 	//nolint:nestif
 	if globalFlags.ServerURL == nil || globalFlags.ServerURL.String() == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo) //nolint:contextcheck
@@ -98,10 +97,9 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 	}
 	transport.SetLogger(logrus.WithField("component", "server-transport"))
 	transport.SetDebug(globalFlags.EnableDebug || globalFlags.EnableTrace)
-	transport.Context = ctx
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ interface{}) error {
+	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ any) error {
 		b, _ := io.ReadAll(reader)
 		return nginxError(string(b))
 	})

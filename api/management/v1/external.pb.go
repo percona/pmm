@@ -15,6 +15,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 
+	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -299,15 +300,15 @@ var File_management_v1_external_proto protoreflect.FileDescriptor
 
 const file_management_v1_external_proto_rawDesc = "" +
 	"\n" +
-	"\x1cmanagement/v1/external.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xce\x06\n" +
+	"\x1cmanagement/v1/external.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xda\x06\n" +
 	"\x18AddExternalServiceParams\x12%\n" +
 	"\x0fruns_on_node_id\x18\x01 \x01(\tR\frunsOnNodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
 	"\badd_node\x18\x03 \x01(\v2\x1c.management.v1.AddNodeParamsR\aaddNode\x12\x18\n" +
 	"\aaddress\x18\x04 \x01(\tR\aaddress\x12*\n" +
-	"\fservice_name\x18\x05 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\vserviceName\x12\x1a\n" +
-	"\busername\x18\x06 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\a \x01(\tR\bpassword\x12\x16\n" +
+	"\fservice_name\x18\x05 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\vserviceName\x12 \n" +
+	"\busername\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\bpassword\x18\a \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x16\n" +
 	"\x06scheme\x18\b \x01(\tR\x06scheme\x12!\n" +
 	"\fmetrics_path\x18\t \x01(\tR\vmetricsPath\x12,\n" +
 	"\vlisten_port\x18\n" +
@@ -349,7 +350,7 @@ var (
 		(*ExternalServiceResult)(nil),    // 1: management.v1.ExternalServiceResult
 		nil,                              // 2: management.v1.AddExternalServiceParams.CustomLabelsEntry
 		(*AddNodeParams)(nil),            // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),                 // 4: management.v1.MetricsMode
+		MetricsMode(0),                   // 4: management.v1.MetricsMode
 		(*v1.ExternalService)(nil),       // 5: inventory.v1.ExternalService
 		(*v1.ExternalExporter)(nil),      // 6: inventory.v1.ExternalExporter
 	}

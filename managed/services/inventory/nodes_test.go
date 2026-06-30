@@ -376,7 +376,8 @@ func TestAddNode(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
-		_, err := ns.AddNode(ctx,
+		_, err := ns.AddNode(
+			ctx,
 			&inventoryv1.AddNodeRequest{
 				Node: &inventoryv1.AddNodeRequest_Generic{
 					Generic: &inventoryv1.AddGenericNodeParams{NodeName: ""},

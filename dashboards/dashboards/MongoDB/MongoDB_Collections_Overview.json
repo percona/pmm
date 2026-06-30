@@ -1,1929 +1,1929 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": {
-          "type": "datasource",
-          "uid": "grafana"
-        },
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "name": "Annotations & Alerts",
-        "target": {
-          "limit": 100,
-          "matchAny": false,
-          "tags": [],
-          "type": "dashboard"
-        },
-        "type": "dashboard"
-      },
-      {
-        "datasource": {
-          "type": "datasource",
-          "uid": "grafana"
-        },
-        "enable": true,
-        "iconColor": "orange",
-        "name": "PMM Annotations",
-        "target": {
-          "limit": 100,
-          "matchAny": false,
-          "tags": [
-            "pmm_annotation"
-          ],
-          "type": "tags"
-        }
-      }
-    ]
-  },
-  "editable": false,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 1,
-  "id": null,
-  "links": [],
-  "liveNow": false,
-  "panels": [
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 29,
-      "panels": [],
-      "title": "Datasize",
-      "type": "row"
-    },
-    {
-      "description": "Provides the names and sizes of the 5 largest databases in an instance/cluster. Data showing only from Primary node in replica set.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
             },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 2,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 1
-      },
-      "id": 31,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "sortBy": "Mean",
-          "sortDesc": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "9.2.20",
-      "repeatDirection": "h",
-      "targets": [
-        {
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "avg by(database) (topk(5, mongodb_dbstats_dataSize{cluster=~\"$cluster\", rs_nm=~\"$replication_set\", service_name=~\"$service_name\"}))",
-          "interval": "$interval",
-          "legendFormat": "{{database}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Top 5 Databases By Size",
-      "type": "timeseries"
-    },
-    {
-      "description": "Provides the number of collections in the selected databases",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "blue",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 12,
-        "x": 0,
-        "y": 9
-      },
-      "id": 33,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.1.8",
-      "targets": [
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "count(mongodb_top_commands_time{database=~\"$database\",service_name=~\"$service_name\"})",
-          "interval": "$interval",
-          "legendFormat": "",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Collections in Database ($database)",
-      "type": "stat"
-    },
-    {
-      "description": "Provides the number of indexes in the selected databases",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "blue",
-            "mode": "fixed"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 12,
-        "x": 12,
-        "y": 9
-      },
-      "id": 35,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.1.8",
-      "targets": [
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "sum(mongodb_dbstats_indexes{database=~\"$database\",service_name=~\"$service_name\"})",
-          "interval": "$interval",
-          "legendFormat": "",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Indexes in Database ($database)",
-      "type": "stat"
-    },
-    {
-      "description": "Average size of each document in bytes. dataSize divided by number of documents",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 2,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 12
-      },
-      "id": 37,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "sortBy": "Mean",
-          "sortDesc": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "9.2.20",
-      "repeatDirection": "h",
-      "targets": [
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "sum by (database)(mongodb_dbstats_avgObjSize{ service_name=~\"$service_name\", database=~\"$database\"})",
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "{{database}}",
-          "range": true,
-          "refId": "A",
-          "step": 300
-        }
-      ],
-      "title": "Avg Object Size in Database ($database)",
-      "type": "timeseries"
-    },
-    {
-      "description": "Total size of all indexes in a given database",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 2,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 20
-      },
-      "id": 39,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "sortBy": "Mean",
-          "sortDesc": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "9.2.20",
-      "repeatDirection": "h",
-      "targets": [
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "sum by (database)(mongodb_dbstats_indexSize{database=~\"$database\", service_name=~\"$service_name\"})",
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "{{database}}",
-          "range": true,
-          "refId": "A",
-          "step": 300
-        }
-      ],
-      "title": "Index Size in Database ($database)",
-      "type": "timeseries"
-    },
-    {
-      "description": "Total size of uncompressed data in a database in bytes. May be larger than storageSize due to WT compression. ",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 2,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 28
-      },
-      "id": 41,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "sortBy": "Mean",
-          "sortDesc": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "9.2.20",
-      "repeatDirection": "h",
-      "targets": [
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "sum by (database)(mongodb_dbstats_dataSize{database=~\"$database\",service_name=~\"$service_name\"})",
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "{{database}}",
-          "range": true,
-          "refId": "A",
-          "step": 300
-        }
-      ],
-      "title": "Data Size for Database ($database)",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": false,
-      "datasource": "Metrics",
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 36
-      },
-      "id": 16,
-      "panels": [],
-      "targets": [
-        {
-          "datasource": "Metrics",
-          "refId": "A"
-        }
-      ],
-      "title": "Instance Level",
-      "type": "row"
-    },
-    {
-      "description": "Show summary information on the top 5 collections that are most frequently read.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": false,
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Reads"
-              },
-              {
-                "id": "unit",
-                "value": "short"
-              },
-              {
-                "id": "custom.align"
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "auto"
+            {
+                "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                },
+                "enable": true,
+                "iconColor": "orange",
+                "name": "PMM Annotations",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [
+                        "pmm_annotation"
+                    ],
+                    "type": "tags"
                 }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "database"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Database"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "collection"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Collection"
-              }
-            ]
-          }
+            }
         ]
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 37
-      },
-      "id": 3,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true
-      },
-      "pluginVersion": "11.1.8",
-      "targets": [
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "topk (5,sum by (database, collection) (mongodb_top_queries_count{database =~ \"$database\",service_name=~\"$service_name\"}))",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "intervalFactor": 2,
-          "legendFormat": "",
-          "refId": "A",
-          "step": 10
-        }
-      ],
-      "title": "Top 5 Hottest Collections by Read  (Total)",
-      "transformations": [
-        {
-          "id": "filterFieldsByName",
-          "options": {
-            "include": {
-              "names": [
-                "Value",
-                "database",
-                "collection"
-              ]
-            }
-          }
-        },
-        {
-          "id": "renameByRegex",
-          "options": {
-            "regex": "(.*)",
-            "renamePattern": "$1"
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "includeByName": {},
-            "indexByName": {
-              "Value": 2,
-              "collection": 1,
-              "database": 0
-            },
-            "renameByName": {
-              "Value": "",
-              "collection": ""
-            }
-          }
-        }
-      ],
-      "type": "table"
     },
-    {
-      "description": "Show summary information on the top 5 collections that are most frequently written to (insert, update, delete, etc.).",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
+    "editable": false,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "id": null,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
             },
-            "filterable": false,
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "short"
+            "id": 29,
+            "panels": [],
+            "title": "Datasize",
+            "type": "row"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value"
+        {
+            "description": "Provides the names and sizes of the 5 largest databases in an instance/cluster. Data showing only from Primary node in replica set.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
             },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Writes"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "database"
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 1
             },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Database"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "collection"
+            "id": 31,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
             },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Collection"
-              }
-            ]
-          }
+            "pluginVersion": "9.2.20",
+            "repeatDirection": "h",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "avg by(database) (topk(5, mongodb_dbstats_dataSize{cluster=~\"$cluster\", rs_nm=~\"$replication_set\", service_name=~\"$service_name\"}))",
+                    "interval": "$interval",
+                    "legendFormat": "{{database}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 5 Databases By Size",
+            "type": "timeseries"
+        },
+        {
+            "description": "Provides the number of collections in the selected databases",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "blue",
+                        "mode": "fixed"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 12,
+                "x": 0,
+                "y": 9
+            },
+            "id": 33,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                    "valueSize": 24
+                },
+                "textMode": "auto",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.1.8",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "count(mongodb_top_commands_time{database=~\"$database\",service_name=~\"$service_name\"})",
+                    "interval": "$interval",
+                    "legendFormat": "",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Collections in Database ($database)",
+            "type": "stat"
+        },
+        {
+            "description": "Provides the number of indexes in the selected databases",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "blue",
+                        "mode": "fixed"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 3,
+                "w": 12,
+                "x": 12,
+                "y": 9
+            },
+            "id": 35,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                    "valueSize": 24
+                },
+                "textMode": "auto",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.1.8",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "sum(mongodb_dbstats_indexes{database=~\"$database\",service_name=~\"$service_name\"})",
+                    "interval": "$interval",
+                    "legendFormat": "",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Indexes in Database ($database)",
+            "type": "stat"
+        },
+        {
+            "description": "Average size of each document in bytes. dataSize divided by number of documents",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 12
+            },
+            "id": 37,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "9.2.20",
+            "repeatDirection": "h",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "sum by (database)(mongodb_dbstats_avgObjSize{ service_name=~\"$service_name\", database=~\"$database\"})",
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{database}}",
+                    "range": true,
+                    "refId": "A",
+                    "step": 300
+                }
+            ],
+            "title": "Avg Object Size in Database ($database)",
+            "type": "timeseries"
+        },
+        {
+            "description": "Total size of all indexes in a given database",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 20
+            },
+            "id": 39,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "9.2.20",
+            "repeatDirection": "h",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "sum by (database)(mongodb_dbstats_indexSize{database=~\"$database\", service_name=~\"$service_name\"})",
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{database}}",
+                    "range": true,
+                    "refId": "A",
+                    "step": 300
+                }
+            ],
+            "title": "Index Size in Database ($database)",
+            "type": "timeseries"
+        },
+        {
+            "description": "Total size of uncompressed data in a database in bytes. May be larger than storageSize due to WT compression. ",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "bytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 28
+            },
+            "id": 41,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "9.2.20",
+            "repeatDirection": "h",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "sum by (database)(mongodb_dbstats_dataSize{database=~\"$database\",service_name=~\"$service_name\"})",
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{database}}",
+                    "range": true,
+                    "refId": "A",
+                    "step": 300
+                }
+            ],
+            "title": "Data Size for Database ($database)",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "datasource": "Metrics",
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 36
+            },
+            "id": 16,
+            "panels": [],
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "refId": "A"
+                }
+            ],
+            "title": "Instance Level",
+            "type": "row"
+        },
+        {
+            "description": "Show summary information on the top 5 collections that are most frequently read.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "filterable": false,
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Reads"
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "custom.align"
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "database"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Database"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "collection"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Collection"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 37
+            },
+            "id": 3,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true
+            },
+            "pluginVersion": "11.1.8",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "topk (5,sum by (database, collection) (mongodb_top_queries_count{database =~ \"$database\",service_name=~\"$service_name\"}))",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "",
+                    "refId": "A",
+                    "step": 10
+                }
+            ],
+            "title": "Top 5 Hottest Collections by Read  (Total)",
+            "transformations": [
+                {
+                    "id": "filterFieldsByName",
+                    "options": {
+                        "include": {
+                            "names": [
+                                "Value",
+                                "database",
+                                "collection"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "id": "renameByRegex",
+                    "options": {
+                        "regex": "(.*)",
+                        "renamePattern": "$1"
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "includeByName": {},
+                        "indexByName": {
+                            "Value": 2,
+                            "collection": 1,
+                            "database": 0
+                        },
+                        "renameByName": {
+                            "Value": "",
+                            "collection": ""
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "description": "Show summary information on the top 5 collections that are most frequently written to (insert, update, delete, etc.).",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "filterable": false,
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Writes"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "database"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Database"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "collection"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Collection"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 37
+            },
+            "id": 19,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Write"
+                    }
+                ]
+            },
+            "pluginVersion": "11.1.8",
+            "repeatDirection": "v",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "topk(5, sum by (database, collection) (mongodb_top_insert_count{database =~ \"$database\", service_name=~\"$service_name\"}) + sum by (database, collection) (mongodb_top_remove_count{database =~ \"$database\", service_name=~\"$service_name\"}) + sum by (database, collection) (mongodb_top_update_count{database =~ \"$database\", service_name=~\"$service_name\"}))",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "__auto",
+                    "refId": "A",
+                    "step": 10
+                }
+            ],
+            "title": "Top 5 Hottest Collections by Write (Total)",
+            "transformations": [
+                {
+                    "id": "filterFieldsByName",
+                    "options": {
+                        "include": {
+                            "names": [
+                                "collection",
+                                "Value",
+                                "database"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "id": "merge",
+                    "options": {
+                        "reducers": []
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {},
+                        "indexByName": {
+                            "Value": 2,
+                            "collection": 1,
+                            "database": 0
+                        },
+                        "renameByName": {}
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "description": "Show the 5 collections that are most frequently read.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "blue",
+                        "mode": "fixed"
+                    },
+                    "decimals": 1,
+                    "mappings": [],
+                    "unit": "ops/s",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 44
+            },
+            "id": 24,
+            "options": {
+                "displayMode": "gradient",
+                "maxVizHeight": 300,
+                "minVizHeight": 10,
+                "minVizWidth": 0,
+                "namePlacement": "left",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showUnfilled": true,
+                "sizing": "auto",
+                "text": {},
+                "valueMode": "color"
+            },
+            "pluginVersion": "11.1.8",
+            "repeatDirection": "v",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "topk(5, sum by (environment, cluster, database, collection) (rate(mongodb_top_queries_count{database =~ \"$database\", service_name=~\"$service_name\"}[$__rate_interval])))",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{ database }}.{{ collection }}",
+                    "refId": "A",
+                    "step": 10
+                }
+            ],
+            "title": "Top 5 Hottest Collections by Read (Rate)",
+            "type": "bargauge"
+        },
+        {
+            "description": "Show the 5 collections that are most frequently written to (insert, update, delete, etc.).",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "blue",
+                        "mode": "fixed"
+                    },
+                    "decimals": 1,
+                    "mappings": [],
+                    "unit": "ops/s",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 12,
+                "y": 44
+            },
+            "id": 20,
+            "options": {
+                "displayMode": "gradient",
+                "maxVizHeight": 300,
+                "minVizHeight": 10,
+                "minVizWidth": 0,
+                "namePlacement": "left",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showUnfilled": true,
+                "sizing": "auto",
+                "text": {},
+                "valueMode": "color"
+            },
+            "pluginVersion": "11.1.8",
+            "repeatDirection": "v",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "topk(5, sum by (environment, cluster, database, collection) (rate(mongodb_top_insert_count{database =~ \"$database\", service_name=~\"$service_name\"}[$__rate_interval]) + rate(mongodb_top_remove_count{database =~ \"$database\", service_name=~\"$service_name\"}[$__rate_interval]) + rate(mongodb_top_update_count{database =~ \"$database\", service_name=~\"$service_name\"}[$__rate_interval])))",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "{{ database }}.{{ collection }}",
+                    "refId": "A",
+                    "step": 10
+                }
+            ],
+            "title": "Top 5 Hottest Collections by Write (Rate)",
+            "type": "bargauge"
+        },
+        {
+            "collapsed": false,
+            "datasource": "Metrics",
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 51
+            },
+            "id": 12,
+            "panels": [],
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "refId": "A"
+                }
+            ],
+            "title": "Database Level",
+            "type": "row"
+        },
+        {
+            "description": "Provides information on the rate of activity against the database then breaks down into activity type over the selected time period",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 52
+            },
+            "id": 8,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "9.2.20",
+            "repeatDirection": "v",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "rate(sum by (database) (mongodb_top_commands_count{database=~\"$database\",service_name=~\"$service_name\"}[$interval]))",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "Commands - {{database}}",
+                    "refId": "A",
+                    "step": 10
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "rate(sum by (database) (mongodb_top_insert_count {database=~\"$database\",service_name=~\"$service_name\"}[$interval]))",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "Insert - {{database}}",
+                    "refId": "B",
+                    "step": 10
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "rate(sum by (database) (mongodb_top_update_count {database=~\"$database\", service_name=~\"$service_name\"}[$interval]))",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "Update - {{database}}",
+                    "refId": "C"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "rate(sum by (database) (mongodb_top_remove_count {database=~\"$database\", service_name=~\"$service_name\"}[$interval]))",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "Remove - {{database}}",
+                    "refId": "D"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "rate(sum by (database) (mongodb_top_getmore_count {database=~\"$database\",service_name=~\"$service_name\"}[$interval]))",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Getmore - {{database}}",
+                    "range": true,
+                    "refId": "E"
+                },
+                {
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "rate(sum by (database) (mongodb_top_queries_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"}[$interval]))",
+                    "hide": false,
+                    "legendFormat": "Queries - {{database}}",
+                    "range": true,
+                    "refId": "F"
+                }
+            ],
+            "title": "Collections statistics  for $database (rate)",
+            "type": "timeseries"
+        },
+        {
+            "description": "Provides summary information on the activity running against the database then breaks down into activity type over the selected time period",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 2,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 60
+            },
+            "id": 25,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "9.2.20",
+            "repeatDirection": "v",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "sum by (database) (mongodb_top_commands_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"}[$interval])",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "Commands - {{database}}",
+                    "refId": "A",
+                    "step": 10
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "sum by (database) (mongodb_top_insert_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"}[$interval])",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "intervalFactor": 2,
+                    "legendFormat": "Insert - {{database}}",
+                    "refId": "B",
+                    "step": 10
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "sum by (database) (mongodb_top_update_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"}[$interval])",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "Update - {{database}}",
+                    "refId": "C"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "sum by (database) (mongodb_top_remove_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"}[$interval])",
+                    "format": "time_series",
+                    "hide": false,
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "Remove - {{database}}",
+                    "refId": "D"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "sum by (database) (mongodb_top_getmore_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"}[$interval])",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Getmore - {{database}}",
+                    "range": true,
+                    "refId": "E"
+                },
+                {
+                    "editorMode": "code",
+                    "exemplar": true,
+                    "expr": "sum by (database) (mongodb_top_queries_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"}[$interval])",
+                    "hide": false,
+                    "legendFormat": "Queries - {{database}}",
+                    "range": true,
+                    "refId": "F"
+                }
+            ],
+            "title": "Collections statistics  for $database (summary)",
+            "type": "timeseries"
+        },
+        {
+            "description": "Provides totals for each activity type hitting a database for collections",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "filterable": false,
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #A"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width"
+                            },
+                            {
+                                "id": "noValue"
+                            },
+                            {
+                                "id": "displayName",
+                                "value": "Queries"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #B"
+                        },
+                        "properties": [
+                            {
+                                "id": "noValue"
+                            },
+                            {
+                                "id": "displayName",
+                                "value": "Insert"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #C"
+                        },
+                        "properties": [
+                            {
+                                "id": "noValue"
+                            },
+                            {
+                                "id": "displayName",
+                                "value": "Remove"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #D"
+                        },
+                        "properties": [
+                            {
+                                "id": "noValue"
+                            },
+                            {
+                                "id": "displayName",
+                                "value": "Update"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Value #E"
+                        },
+                        "properties": [
+                            {
+                                "id": "noValue"
+                            },
+                            {
+                                "id": "displayName",
+                                "value": "Getmore"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "collection"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Collection"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 24,
+                "x": 0,
+                "y": 68
+            },
+            "id": 27,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Queries"
+                    }
+                ]
+            },
+            "pluginVersion": "11.1.8",
+            "repeat": "database",
+            "repeatDirection": "v",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "sum by (collection) (mongodb_top_queries_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "sum by (collection) (mongodb_top_insert_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "sum by (collection) (mongodb_top_remove_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "C"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "sum by (collection) (mongodb_top_update_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "D"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "sum by (collection) (mongodb_top_getmore_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "",
+                    "refId": "E"
+                }
+            ],
+            "title": "Collections statistics  $database",
+            "transformations": [
+                {
+                    "id": "merge",
+                    "options": {}
+                },
+                {
+                    "id": "filterFieldsByName",
+                    "options": {
+                        "include": {
+                            "names": [
+                                "collection",
+                                "Value #A",
+                                "Value #B",
+                                "Value #C",
+                                "Value #D",
+                                "Value #E"
+                            ]
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 39,
+    "tags": [
+        "Percona",
+        "MongoDB"
+    ],
+    "templating": {
+        "list": [
+            {
+                "auto": true,
+                "auto_count": 200,
+                "auto_min": "1s",
+                "current": {
+                    "selected": false,
+                    "text": "auto",
+                    "value": "$__auto_interval_interval"
+                },
+                "hide": 0,
+                "label": "Interval",
+                "name": "interval",
+                "options": [
+                    {
+                        "selected": true,
+                        "text": "auto",
+                        "value": "$__auto_interval_interval"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1s",
+                        "value": "1s"
+                    },
+                    {
+                        "selected": false,
+                        "text": "5s",
+                        "value": "5s"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1m",
+                        "value": "1m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "5m",
+                        "value": "5m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1h",
+                        "value": "1h"
+                    },
+                    {
+                        "selected": false,
+                        "text": "6h",
+                        "value": "6h"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1d",
+                        "value": "1d"
+                    }
+                ],
+                "query": "1s,5s,1m,5m,1h,6h,1d",
+                "queryValue": "",
+                "refresh": 2,
+                "skipUrlSync": false,
+                "type": "interval"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "definition": "label_values({__name__=~\"mongodb_up\"}, environment)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Environment",
+                "multi": false,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "query": "label_values({__name__=~\"mongodb_up\"}, environment)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "selected": false,
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "definition": "label_values(mongodb_up{environment=~\"$environment\"},cluster)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Cluster",
+                "multi": false,
+                "name": "cluster",
+                "options": [],
+                "query": {
+                    "query": "label_values(mongodb_up{environment=~\"$environment\"},cluster)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "current": {
+                    "selected": false,
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "definition": "label_values(mongodb_mongod_replset_my_state{cluster=~\"$cluster\"}, set)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Replication Set",
+                "multi": false,
+                "name": "replication_set",
+                "options": [],
+                "query": {
+                    "query": "label_values(mongodb_mongod_replset_my_state{cluster=~\"$cluster\"}, set)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": "",
+                "current": {
+                    "selected": false,
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$replication_set\"}, node_name)",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Node Name",
+                "multi": true,
+                "name": "node_name",
+                "options": [],
+                "query": {
+                    "query": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$replication_set\"}, node_name)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",set=~\"$replication_set\"}, service_name)",
+                "hide": 0,
+                "includeAll": false,
+                "label": "MongoDB Node",
+                "multi": false,
+                "name": "service_name",
+                "options": [],
+                "query": {
+                    "query": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",set=~\"$replication_set\"}, service_name)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "definition": "label_values(mongodb_top_commands_count{cluster=~\"$cluster\",service_name=~\"$service_name\"}, database)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "Database",
+                "multi": true,
+                "name": "database",
+                "options": [],
+                "query": {
+                    "query": "label_values(mongodb_top_commands_count{cluster=~\"$cluster\",service_name=~\"$service_name\"}, database)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            },
+            {
+                "current": {
+                    "selected": false,
+                    "text": "",
+                    "value": ""
+                },
+                "definition": "label_values(mongodb_top_commands_count{database=~\"$database\"}, collection)",
+                "hide": 2,
+                "includeAll": false,
+                "multi": true,
+                "name": "collection",
+                "options": [],
+                "query": {
+                    "query": "label_values(mongodb_top_commands_count{database=~\"$database\"}, collection)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            }
         ]
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 37
-      },
-      "id": 19,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "Write"
-          }
-        ]
-      },
-      "pluginVersion": "11.1.8",
-      "repeatDirection": "v",
-      "targets": [
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": false,
-            "expr": "topk(5, sum by (database, collection) (mongodb_top_insert_count{database =~ \"$database\", service_name=~\"$service_name\"}) + sum by (database, collection) (mongodb_top_remove_count{database =~ \"$database\", service_name=~\"$service_name\"}) + sum by (database, collection) (mongodb_top_update_count{database =~ \"$database\", service_name=~\"$service_name\"}))",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "intervalFactor": 2,
-          "legendFormat": "__auto",
-          "refId": "A",
-          "step": 10
-        }
-      ],
-      "title": "Top 5 Hottest Collections by Write (Total)",
-      "transformations": [
-        {
-          "id": "filterFieldsByName",
-          "options": {
-            "include": {
-              "names": [
-                "collection",
-                "Value",
-                "database"
-              ]
-            }
-          }
-        },
-        {
-          "id": "merge",
-          "options": {
-            "reducers": []
-          }
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "indexByName": {
-              "Value": 2,
-              "collection": 1,
-              "database": 0
-            },
-            "renameByName": {}
-          }
-        }
-      ],
-      "type": "table"
     },
-    {
-      "description": "Show the 5 collections that are most frequently read.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "blue",
-            "mode": "fixed"
-          },
-          "decimals": 1,
-          "mappings": [],
-          "unit": "ops/s",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 44
-      },
-      "id": 24,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 10,
-        "minVizWidth": 0,
-        "namePlacement": "left",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "text": {},
-        "valueMode": "color"
-      },
-      "pluginVersion": "11.1.8",
-      "repeatDirection": "v",
-      "targets": [
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": false,
-            "expr": "topk(5, sum by (environment, cluster, database, collection) (rate(mongodb_top_queries_count{database =~ \"$database\", service_name=~\"$service_name\"}[$__rate_interval])))",
-          "format": "time_series",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "intervalFactor": 1,
-          "legendFormat": "{{ database }}.{{ collection }}",
-          "refId": "A",
-          "step": 10
-        }
-      ],
-      "title": "Top 5 Hottest Collections by Read (Rate)",
-      "type": "bargauge"
+    "time": {
+        "from": "now-12h",
+        "to": "now"
     },
-    {
-      "description": "Show the 5 collections that are most frequently written to (insert, update, delete, etc.).",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "blue",
-            "mode": "fixed"
-          },
-          "decimals": 1,
-          "mappings": [],
-          "unit": "ops/s",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 44
-      },
-      "id": 20,
-      "options": {
-        "displayMode": "gradient",
-        "maxVizHeight": 300,
-        "minVizHeight": 10,
-        "minVizWidth": 0,
-        "namePlacement": "left",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showUnfilled": true,
-        "sizing": "auto",
-        "text": {},
-        "valueMode": "color"
-      },
-      "pluginVersion": "11.1.8",
-      "repeatDirection": "v",
-      "targets": [
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": false,
-            "expr": "topk(5, sum by (environment, cluster, database, collection) (rate(mongodb_top_insert_count{database =~ \"$database\", service_name=~\"$service_name\"}[$__rate_interval]) + rate(mongodb_top_remove_count{database =~ \"$database\", service_name=~\"$service_name\"}[$__rate_interval]) + rate(mongodb_top_update_count{database =~ \"$database\", service_name=~\"$service_name\"}[$__rate_interval])))",
-          "format": "time_series",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "intervalFactor": 2,
-          "legendFormat": "{{ database }}.{{ collection }}",
-          "refId": "A",
-          "step": 10
-        }
-      ],
-      "title": "Top 5 Hottest Collections by Write (Rate)",
-      "type": "bargauge"
-    },
-    {
-      "collapsed": false,
-      "datasource": "Metrics",
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 51
-      },
-      "id": 12,
-      "panels": [],
-      "targets": [
-        {
-          "datasource": "Metrics",
-          "refId": "A"
-        }
-      ],
-      "title": "Database Level",
-      "type": "row"
-    },
-    {
-      "description": "Provides information on the rate of activity against the database then breaks down into activity type over the selected time period",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 2,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 52
-      },
-      "id": 8,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "sortBy": "Mean",
-          "sortDesc": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "9.2.20",
-      "repeatDirection": "v",
-      "targets": [
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "rate(sum by (database) (mongodb_top_commands_count{database=~\"$database\",service_name=~\"$service_name\"}[$interval]))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "intervalFactor": 2,
-          "legendFormat": "Commands - {{database}}",
-          "refId": "A",
-          "step": 10
-        },
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "rate(sum by (database) (mongodb_top_insert_count {database=~\"$database\",service_name=~\"$service_name\"}[$interval]))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "intervalFactor": 2,
-          "legendFormat": "Insert - {{database}}",
-          "refId": "B",
-          "step": 10
-        },
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "rate(sum by (database) (mongodb_top_update_count {database=~\"$database\", service_name=~\"$service_name\"}[$interval]))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "Update - {{database}}",
-          "refId": "C"
-        },
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "rate(sum by (database) (mongodb_top_remove_count {database=~\"$database\", service_name=~\"$service_name\"}[$interval]))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "Remove - {{database}}",
-          "refId": "D"
-        },
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "rate(sum by (database) (mongodb_top_getmore_count {database=~\"$database\",service_name=~\"$service_name\"}[$interval]))",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Getmore - {{database}}",
-          "range": true,
-          "refId": "E"
-        },
-        {
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "rate(sum by (database) (mongodb_top_queries_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"}[$interval]))",
-          "hide": false,
-          "legendFormat": "Queries - {{database}}",
-          "range": true,
-          "refId": "F"
-        }
-      ],
-      "title": "Collections statistics  for $database (rate)",
-      "type": "timeseries"
-    },
-    {
-      "description": "Provides summary information on the activity running against the database then breaks down into activity type over the selected time period",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "decimals": 2,
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 60
-      },
-      "id": 25,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "sortBy": "Mean",
-          "sortDesc": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "9.2.20",
-      "repeatDirection": "v",
-      "targets": [
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "sum by (database) (mongodb_top_commands_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"}[$interval])",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "intervalFactor": 2,
-          "legendFormat": "Commands - {{database}}",
-          "refId": "A",
-          "step": 10
-        },
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "sum by (database) (mongodb_top_insert_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"}[$interval])",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "intervalFactor": 2,
-          "legendFormat": "Insert - {{database}}",
-          "refId": "B",
-          "step": 10
-        },
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "sum by (database) (mongodb_top_update_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"}[$interval])",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "Update - {{database}}",
-          "refId": "C"
-        },
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "sum by (database) (mongodb_top_remove_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"}[$interval])",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "legendFormat": "Remove - {{database}}",
-          "refId": "D"
-        },
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "sum by (database) (mongodb_top_getmore_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"}[$interval])",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Getmore - {{database}}",
-          "range": true,
-          "refId": "E"
-        },
-        {
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "sum by (database) (mongodb_top_queries_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"}[$interval])",
-          "hide": false,
-          "legendFormat": "Queries - {{database}}",
-          "range": true,
-          "refId": "F"
-        }
-      ],
-      "title": "Collections statistics  for $database (summary)",
-      "type": "timeseries"
-    },
-    {
-      "description": "Provides totals for each activity type hitting a database for collections",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": false,
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #A"
-            },
-            "properties": [
-              {
-                "id": "custom.width"
-              },
-              {
-                "id": "noValue"
-              },
-              {
-                "id": "displayName",
-                "value": "Queries"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #B"
-            },
-            "properties": [
-              {
-                "id": "noValue"
-              },
-              {
-                "id": "displayName",
-                "value": "Insert"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #C"
-            },
-            "properties": [
-              {
-                "id": "noValue"
-              },
-              {
-                "id": "displayName",
-                "value": "Remove"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #D"
-            },
-            "properties": [
-              {
-                "id": "noValue"
-              },
-              {
-                "id": "displayName",
-                "value": "Update"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #E"
-            },
-            "properties": [
-              {
-                "id": "noValue"
-              },
-              {
-                "id": "displayName",
-                "value": "Getmore"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "collection"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Collection"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 68
-      },
-      "id": 27,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": true,
-            "displayName": "Queries"
-          }
-        ]
-      },
-      "pluginVersion": "11.1.8",
-      "repeat": "database",
-      "repeatDirection": "v",
-      "targets": [
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum by (collection) (mongodb_top_queries_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"})",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "A"
-        },
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum by (collection) (mongodb_top_insert_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"})",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "B"
-        },
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum by (collection) (mongodb_top_remove_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"})",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "C"
-        },
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum by (collection) (mongodb_top_update_count{environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"})",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "D"
-        },
-        {
-          "datasource": "Metrics",
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum by (collection) (mongodb_top_getmore_count {environment=~\"$environment\", cluster=~\"$cluster\", rs_nm=~\"$replication_set\", database=~\"$database\", service_name=~\"$service_name\"})",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "E"
-        }
-      ],
-      "title": "Collections statistics  $database",
-      "transformations": [
-        {
-          "id": "merge",
-          "options": {}
-        },
-        {
-          "id": "filterFieldsByName",
-          "options": {
-            "include": {
-              "names": [
-                "collection",
-                "Value #A",
-                "Value #B",
-                "Value #C",
-                "Value #D",
-                "Value #E"
-              ]
-            }
-          }
-        }
-      ],
-      "type": "table"
-    }
-  ],
-  "refresh": "1m",
-  "schemaVersion": 39,
-  "tags": [
-    "Percona",
-    "MongoDB"
-  ],
-  "templating": {
-    "list": [
-      {
-        "auto": true,
-        "auto_count": 200,
-        "auto_min": "1s",
-        "current": {
-          "selected": false,
-          "text": "auto",
-          "value": "$__auto_interval_interval"
-        },
-        "hide": 0,
-        "label": "Interval",
-        "name": "interval",
-        "options": [
-          {
-            "selected": true,
-            "text": "auto",
-            "value": "$__auto_interval_interval"
-          },
-          {
-            "selected": false,
-            "text": "1s",
-            "value": "1s"
-          },
-          {
-            "selected": false,
-            "text": "5s",
-            "value": "5s"
-          },
-          {
-            "selected": false,
-            "text": "1m",
-            "value": "1m"
-          },
-          {
-            "selected": false,
-            "text": "5m",
-            "value": "5m"
-          },
-          {
-            "selected": false,
-            "text": "1h",
-            "value": "1h"
-          },
-          {
-            "selected": false,
-            "text": "6h",
-            "value": "6h"
-          },
-          {
-            "selected": false,
-            "text": "1d",
-            "value": "1d"
-          }
+    "timepicker": {
+        "collapse": false,
+        "enable": true,
+        "hidden": false,
+        "notice": false,
+        "now": true,
+        "refresh_intervals": [
+            "1s",
+            "5s",
+            "1m",
+            "5m",
+            "1h",
+            "6h",
+            "1d"
         ],
-        "query": "1s,5s,1m,5m,1h,6h,1d",
-        "queryValue": "",
-        "refresh": 2,
-        "skipUrlSync": false,
-        "type": "interval"
-      },
-      {
-        "allValue": ".*",
-        "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "definition": "label_values({__name__=~\"mongodb_up\"}, environment)",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Environment",
-        "multi": false,
-        "name": "environment",
-        "options": [],
-        "query": {
-          "query": "label_values({__name__=~\"mongodb_up\"}, environment)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 5,
-        "type": "query"
-      },
-      {
-        "allValue": ".*",
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "definition": "label_values(mongodb_up{environment=~\"$environment\"},cluster)",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Cluster",
-        "multi": false,
-        "name": "cluster",
-        "options": [],
-        "query": {
-          "query": "label_values(mongodb_up{environment=~\"$environment\"},cluster)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 5,
-        "type": "query"
-      },
-      {
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "definition": "label_values(mongodb_mongod_replset_my_state{cluster=~\"$cluster\"}, set)",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Replication Set",
-        "multi": false,
-        "name": "replication_set",
-        "options": [],
-        "query": {
-          "query": "label_values(mongodb_mongod_replset_my_state{cluster=~\"$cluster\"}, set)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 5,
-        "type": "query"
-      },
-      {
-        "allValue": "",
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$replication_set\"}, node_name)",
-        "hide": 2,
-        "includeAll": true,
-        "label": "Node Name",
-        "multi": true,
-        "name": "node_name",
-        "options": [],
-        "query": {
-          "query": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$replication_set\"}, node_name)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 5,
-        "type": "query"
-      },
-      {
-        "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",set=~\"$replication_set\"}, service_name)",
-        "hide": 0,
-        "includeAll": false,
-        "label": "MongoDB Node",
-        "multi": false,
-        "name": "service_name",
-        "options": [],
-        "query": {
-          "query": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",set=~\"$replication_set\"}, service_name)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 5,
-        "type": "query"
-      },
-      {
-        "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "definition": "label_values(mongodb_top_commands_count{cluster=~\"$cluster\",service_name=~\"$service_name\"}, database)",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Database",
-        "multi": true,
-        "name": "database",
-        "options": [],
-        "query": {
-          "query": "label_values(mongodb_top_commands_count{cluster=~\"$cluster\",service_name=~\"$service_name\"}, database)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 5,
-        "tagValuesQuery": "",
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "current": {
-          "selected": false,
-          "text": "",
-          "value": ""
-        },
-        "definition": "label_values(mongodb_top_commands_count{database=~\"$database\"}, collection)",
-        "hide": 2,
-        "includeAll": false,
-        "multi": true,
-        "name": "collection",
-        "options": [],
-        "query": {
-          "query": "label_values(mongodb_top_commands_count{database=~\"$database\"}, collection)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 5,
-        "tagValuesQuery": "",
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      }
-    ]
-  },
-  "time": {
-    "from": "now-12h",
-    "to": "now"
-  },
-  "timepicker": {
-    "collapse": false,
-    "enable": true,
-    "hidden": false,
-    "notice": false,
-    "now": true,
-    "refresh_intervals": [
-      "1s",
-      "5s",
-      "1m",
-      "5m",
-      "1h",
-      "6h",
-      "1d"
-    ],
-    "status": "Stable",
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
-    ],
-    "type": "timepicker"
-  },
-  "timezone": "browser",
-  "title": "MongoDB Collections Overview",
-  "uid": "mongodb-collections-overview",
-  "version": 2,
-  "weekStart": ""
+        "status": "Stable",
+        "time_options": [
+            "5m",
+            "15m",
+            "1h",
+            "6h",
+            "12h",
+            "24h",
+            "2d",
+            "7d",
+            "30d"
+        ],
+        "type": "timepicker"
+    },
+    "timezone": "",
+    "title": "MongoDB Collections Overview",
+    "uid": "mongodb-collections-overview",
+    "version": 2,
+    "weekStart": ""
 }

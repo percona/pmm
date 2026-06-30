@@ -35,13 +35,13 @@ func (v *GRPC) V(l int) bool { //nolint:revive
 // Override InfoXXX methods with TraceXXX to keep gRPC and logrus levels in sync.
 //
 // Info logs a message at the Info level.
-func (v *GRPC) Info(args ...interface{}) { v.Trace(args...) }
+func (v *GRPC) Info(args ...any) { v.Trace(args...) }
 
 // Infoln logs a message at the Info level.
-func (v *GRPC) Infoln(args ...interface{}) { v.Traceln(args...) }
+func (v *GRPC) Infoln(args ...any) { v.Traceln(args...) }
 
 // Infof logs a formatted message at the Info level.
-func (v *GRPC) Infof(format string, args ...interface{}) { v.Tracef(format, args...) }
+func (v *GRPC) Infof(format string, args ...any) { v.Tracef(format, args...) }
 
 // check interfaces.
 var (

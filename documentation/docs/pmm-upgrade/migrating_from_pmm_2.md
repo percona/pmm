@@ -412,19 +412,19 @@ The following table lists all the environment variable changes between PMM v2 an
 ??? note "Click to expand migration reference table"
 
     #### Configuration variables
-    | PMM 2                          | PMM 3                              | Comments                      |
+    | PMM 2                           | PMM 3                              | Comments                     |
     |---------------------------------|------------------------------------|------------------------------|
     | `DATA_RETENTION`                | `PMM_DATA_RETENTION`               |                              |
     | `DISABLE_ALERTING`              | `PMM_ENABLE_ALERTING`              |                              |
     | `DISABLE_UPDATES`               | `PMM_ENABLE_UPDATES`               |                              |
     | `DISABLE_TELEMETRY`             | `PMM_ENABLE_TELEMETRY`             |                              |
-    | `DISABLE_BACKUP_MANAGEMENT`      | `PMM_ENABLE_BACKUP_MANAGEMENT`     | Note the reverted boolean   |
+    | `DISABLE_BACKUP_MANAGEMENT`     | `PMM_ENABLE_BACKUP_MANAGEMENT`     | Note the reverted boolean    |
     | `ENABLE_AZUREDISCOVER`          | `PMM_ENABLE_AZURE_DISCOVER`        |                              |
     | `ENABLE_RBAC`                   | `PMM_ENABLE_ACCESS_CONTROL`        |                              |
     | `LESS_LOG_NOISE`                |                                    | Removed in PMM v3            |
     
     #### Metrics configuration
-    | PMM 2                          | PMM 3                              | 
+    | PMM 2                           | PMM 3                              | 
     |---------------------------------|------------------------------------|
     | `METRICS_RESOLUTION`            | `PMM_METRICS_RESOLUTION`           | 
     | `METRICS_RESOLUTION_HR`         | `PMM_METRICS_RESOLUTION_HR`        | 
@@ -472,9 +472,9 @@ The following table lists all the environment variable changes between PMM v2 an
     #### Removed variables
     | PMM 2                               | PMM 3                              | Comments                     |
     |-------------------------------------|------------------------------------|------------------------------|
-    | `PERCONA_TEST_AUTH_HOST`            |                                    | Removed, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS` |
-    | `PERCONA_TEST_CHECKS_HOST`          |                                    | Removed, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS` |
+    | `PERCONA_TEST_AUTH_HOST`            |                                    | Removed, use `PMM_PERCONA_PLATFORM_ADDRESS` |
+    | `PERCONA_TEST_CHECKS_HOST`          |                                    | Removed, use `PMM_PERCONA_PLATFORM_ADDRESS` |
     | `PERCONA_TEST_CHECKS_INTERVAL`      |                                    | Removed, not used            |
     | `PERCONA_TEST_CHECKS_PUBLIC_KEY`    |                                    | Removed, use `PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY` |
     | `PERCONA_TEST_NICER_API`            |                                    | Removed in PMM v3            |
-    | `PERCONA_TEST_SAAS_HOST`            |                                    | Removed, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS` |
+    | `PERCONA_TEST_SAAS_HOST`            |                                    | Removed, use `PMM_PERCONA_PLATFORM_ADDRESS` |

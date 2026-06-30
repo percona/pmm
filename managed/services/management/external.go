@@ -29,7 +29,7 @@ import (
 )
 
 // AddExternal adds an external service based on the provided request.
-func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.AddExternalServiceParams) (*managementv1.AddServiceResponse, error) {
+func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.AddExternalServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
 	external := &managementv1.ExternalServiceResult{}
 	var pmmAgentID *string
 
@@ -55,7 +55,8 @@ func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.A
 		var port *uint16
 		if runsOnNodeID != "" {
 			node := &models.Node{NodeID: runsOnNodeID}
-			if err := tx.Reload(node); err == nil && node.Address != "" {
+			err := tx.Reload(node)
+			if err == nil && node.Address != "" {
 				address = &node.Address
 			}
 		}
@@ -117,7 +118,8 @@ func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.A
 		}
 
 		if !req.SkipConnectionCheck {
-			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}

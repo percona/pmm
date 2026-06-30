@@ -227,7 +227,8 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 
 	var queryBuffer bytes.Buffer
 
-	if err := tmplQueryReport.Execute(&queryBuffer, tmplArgs); err != nil {
+	err = tmplQueryReport.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, fmt.Errorf("cannot execute tmplQueryReport: %w", err)
 	}
 
@@ -326,7 +327,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	amountOfPoints := int64(optimalAmountOfPoint)
 	timePeriod := periodStartToSec - periodStartFromSec
 	// reduce amount of point if period less then 2h.
-	if timePeriod < int64((minFullTimeFrame).Seconds()) {
+	if timePeriod < int64(minFullTimeFrame.Seconds()) {
 		// minimum point is 1 minute
 		amountOfPoints = timePeriod / 60 //nolint:mnd
 	}
@@ -383,7 +384,8 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	var results []*qanpbv1.Point
 	var queryBuffer bytes.Buffer
 
-	if err := tmplQueryReportSparklines.Execute(&queryBuffer, tmplArgs); err != nil {
+	err = tmplQueryReportSparklines.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, fmt.Errorf("cannot execute tmplQueryReportSparklines: %w", err)
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
@@ -456,40 +458,26 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	return results, err
 }
 
+// queryDimension lists every value of a dimension in the period (so the filter panel
+// can show values that currently match no active filter) together with the main metric
+// summed only over rows matching the other selected dimensions. A single scan with
+// sumIf replaces the previous filtered + "enumerate with 0" UNION ALL (two scans).
 const queryDimension = `
 SELECT
-    key,
-    value,
-    sum(main_metric_sum) AS main_metric_sum
-FROM
-(
-    SELECT
-        '{{ .DimensionName }}' AS key,
-        {{ .DimensionName }} AS value,
-        SUM({{ .MainMetric }}) AS main_metric_sum
-    FROM metrics
-    WHERE (period_start >= ?) AND (period_start <= ?)
-    {{range $key, $vals := .Dimensions }} AND ({{ $key }} IN ('{{ StringsJoin $vals "', '" }}')){{ end }}
-    {{ if .LbacFilter }}
-      AND ({{ .LbacFilter }})
-    {{ end }}
-    GROUP BY {{ .DimensionName }}
-    UNION ALL
-    SELECT
-        '{{ .DimensionName }}' AS key,
-        {{ .DimensionName }} AS value,
-        0 AS main_metric_sum
-    FROM metrics
-    WHERE (period_start >= ?) AND (period_start <= ?)
-    {{ if .LbacFilter }}
-      AND ({{ .LbacFilter }})
-    {{ end }}
-    GROUP BY {{ .DimensionName }}
-)
-GROUP BY
-    key,
-    value
-    WITH TOTALS
+    '{{ .DimensionName }}' AS key,
+    {{ .DimensionName }} AS value,
+    sumIf({{ .MainMetric }},
+        {{ if .Dimensions }}{{ $i := 0 }}
+        {{ range $key, $vals := .Dimensions }}{{ $i = inc $i }}{{ if gt $i 1 }} AND {{ end }}{{ $key }} IN ('{{ StringsJoin $vals "', '" }}'){{ end }}
+        {{ else }}1{{ end }}
+    ) AS main_metric_sum
+FROM metrics
+WHERE (period_start >= ?) AND (period_start <= ?)
+{{ if .LbacFilter }}
+  AND ({{ .LbacFilter }})
+{{ end }}
+GROUP BY {{ .DimensionName }}
+WITH TOTALS
 ORDER BY
     main_metric_sum DESC,
     value ASC
@@ -532,7 +520,12 @@ var (
 )
 
 // SelectFilters selects dimension and their values, and also keys and values of labels.
-func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpbv1.GetFilteredMetricsNamesResponse, error) { //nolint:lll
+func (r *Reporter) SelectFilters(
+	ctx context.Context,
+	periodStartFromSec, periodStartToSec int64,
+	mainMetricName string,
+	dimensions, labels map[string][]string,
+) (*qanpbv1.GetFilteredMetricsNamesResponse, error) {
 	if !isValidMetricColumn(mainMetricName) {
 		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
 	}
@@ -610,11 +603,12 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 
 	var queryBuffer bytes.Buffer
 
-	if err := tmplQueryFilter.Execute(&queryBuffer, tmplArgs); err != nil {
+	err = tmplQueryFilter.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, 0, fmt.Errorf("cannot execute tmplQueryFilter %s: %w", queryBuffer.String(), err)
 	}
 
-	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec, periodStartFromSec, periodStartToSec)
+	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to select for QueryFilter %s: %w", queryBuffer.String(), err)
 	}
@@ -629,7 +623,8 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 		label.mainMetricPerSec /= float32(durationSec)
 		labels = append(labels, &label)
 	}
-	if err = rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		return nil, 0, fmt.Errorf("failed to select for QueryFilter %s: %w", queryBuffer.String(), err)
 	}
 
@@ -644,7 +639,8 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 			}
 			totalMainMetricPerSec = labelTotal.mainMetricPerSec / float32(durationSec)
 		}
-		if err = rows.Err(); err != nil {
+		err = rows.Err()
+		if err != nil {
 			return nil, 0, fmt.Errorf("failed to select total for QueryFilter %s: %w", queryBuffer.String(), err)
 		}
 	}
@@ -686,7 +682,8 @@ func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec, periodSt
 		LbacFilter: lbacFilter,
 	}
 
-	if err := queryLabelsTmpl.Execute(&queryBuffer, tmplArgs); err != nil {
+	err = queryLabelsTmpl.Execute(&queryBuffer, tmplArgs)
+	if err != nil {
 		return nil, fmt.Errorf("cannot execute queryLabelsTmpl: %w", err)
 	}
 
@@ -705,7 +702,8 @@ func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec, periodSt
 		}
 		labels = append(labels, &label)
 	}
-	if err = rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		return nil, fmt.Errorf("failed to select for QueryFilter %s: %w", queryLabels, err)
 	}
 
@@ -765,7 +763,8 @@ func parseFilters(filters []string) ([]string, error) {
 	}
 
 	var parsed []string
-	if err := json.Unmarshal(decoded, &parsed); err != nil {
+	err = json.Unmarshal(decoded, &parsed)
+	if err != nil {
 		return nil, fmt.Errorf("failed to parse JSON: %w", err)
 	}
 

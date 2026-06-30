@@ -8,7 +8,7 @@ This is relevant because setting a too high number of sessions can negatively im
 
 The parameter also needs to be set at the configuration file.
 
-To avoid performance issues, see [The (In)famous MongoDB Message blogpost](https://www.percona.com/blog/2021/06/03/mongodb-message-cannot-add-session-into-the-cache-toomanylogicalsessions) to check and set the right value for your environment.
+To avoid performance issues, see [The (In)famous MongoDB Message blogpost](https://www.percona.com/blog/mongodb-message-cannot-add-session-into-the-cache-toomanylogicalsessions/) to check and set the right value for your environment.
 
 ## Rule
 
@@ -24,7 +24,7 @@ Make sure to remove the idle sessions from cache to make room for the new ones a
  
  See [logicalSessionRefreshMillis](https://www.mongodb.com/docs/manual/reference/parameters/#mongodb-parameter-param.logicalSessionRefreshMillis) in the MongoDB documentation. 
 
-To avoid performance issues, see [The (In)famous MongoDB Message blogpost](https://www.percona.com/blog/2021/06/03/mongodb-message-cannot-add-session-into-the-cache-toomanylogicalsessions) to check and set the right values for your environment. You can adjust the max number of sessions and the cache refreshment interval for both your `mongod` and `mongos` nodes.
+To avoid performance issues, see [The (In)famous MongoDB Message blogpost](https://www.percona.com/blog/mongodb-message-cannot-add-session-into-the-cache-toomanylogicalsessions/) to check and set the right values for your environment. You can adjust the max number of sessions and the cache refreshment interval for both your `mongod` and `mongos` nodes.
 
 ## Need more support from Percona?
 

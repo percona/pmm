@@ -17,6 +17,8 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
+
+	_ "github.com/percona/pmm/api/extensions/v1"
 )
 
 const (
@@ -79,13 +81,15 @@ func (DumpStatus) EnumDescriptor() ([]byte, []int) {
 }
 
 type Dump struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	DumpId        string                 `protobuf:"bytes,1,opt,name=dump_id,json=dumpId,proto3" json:"dump_id,omitempty"`
-	Status        DumpStatus             `protobuf:"varint,2,opt,name=status,proto3,enum=dump.v1beta1.DumpStatus" json:"status,omitempty"`
-	ServiceNames  []string               `protobuf:"bytes,3,rep,name=service_names,json=serviceNames,proto3" json:"service_names,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	DumpId       string                 `protobuf:"bytes,1,opt,name=dump_id,json=dumpId,proto3" json:"dump_id,omitempty"`
+	Status       DumpStatus             `protobuf:"varint,2,opt,name=status,proto3,enum=dump.v1beta1.DumpStatus" json:"status,omitempty"`
+	ServiceNames []string               `protobuf:"bytes,3,rep,name=service_names,json=serviceNames,proto3" json:"service_names,omitempty"`
+	StartTime    *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime      *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	CreatedAt    *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// This field is set to true if the dump was created with encryption enabled, and false otherwise.
+	Encrypted     bool `protobuf:"varint,8,opt,name=encrypted,proto3" json:"encrypted,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -162,15 +166,26 @@ func (x *Dump) GetCreatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Dump) GetEncrypted() bool {
+	if x != nil {
+		return x.Encrypted
+	}
+	return false
+}
+
 type StartDumpRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ServiceNames  []string               `protobuf:"bytes,1,rep,name=service_names,json=serviceNames,proto3" json:"service_names,omitempty"`
-	StartTime     *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
-	EndTime       *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
-	ExportQan     bool                   `protobuf:"varint,4,opt,name=export_qan,json=exportQan,proto3" json:"export_qan,omitempty"`
-	IgnoreLoad    bool                   `protobuf:"varint,5,opt,name=ignore_load,json=ignoreLoad,proto3" json:"ignore_load,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	ServiceNames []string               `protobuf:"bytes,1,rep,name=service_names,json=serviceNames,proto3" json:"service_names,omitempty"`
+	StartTime    *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=start_time,json=startTime,proto3" json:"start_time,omitempty"`
+	EndTime      *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=end_time,json=endTime,proto3" json:"end_time,omitempty"`
+	ExportQan    bool                   `protobuf:"varint,4,opt,name=export_qan,json=exportQan,proto3" json:"export_qan,omitempty"`
+	IgnoreLoad   bool                   `protobuf:"varint,5,opt,name=ignore_load,json=ignoreLoad,proto3" json:"ignore_load,omitempty"`
+	// If true, the dump will be encrypted. Note that enabling encryption may increase the time required to create the dump.
+	EnableEncryption bool `protobuf:"varint,6,opt,name=enable_encryption,json=enableEncryption,proto3" json:"enable_encryption,omitempty"`
+	// The password used for encryption. It must be at least 8 characters long. This field is required if enable_encryption is true.
+	EncryptionPassword string `protobuf:"bytes,7,opt,name=encryption_password,json=encryptionPassword,proto3" json:"encryption_password,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *StartDumpRequest) Reset() {
@@ -236,6 +251,20 @@ func (x *StartDumpRequest) GetIgnoreLoad() bool {
 		return x.IgnoreLoad
 	}
 	return false
+}
+
+func (x *StartDumpRequest) GetEnableEncryption() bool {
+	if x != nil {
+		return x.EnableEncryption
+	}
+	return false
+}
+
+func (x *StartDumpRequest) GetEncryptionPassword() string {
+	if x != nil {
+		return x.EncryptionPassword
+	}
+	return ""
 }
 
 type StartDumpResponse struct {
@@ -768,7 +797,7 @@ var File_dump_v1beta1_dump_proto protoreflect.FileDescriptor
 
 const file_dump_v1beta1_dump_proto_rawDesc = "" +
 	"\n" +
-	"\x17dump/v1beta1/dump.proto\x12\fdump.v1beta1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xa3\x02\n" +
+	"\x17dump/v1beta1/dump.proto\x12\fdump.v1beta1\x1a\x1aextensions/v1/redact.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xc1\x02\n" +
 	"\x04Dump\x12\x17\n" +
 	"\adump_id\x18\x01 \x01(\tR\x06dumpId\x120\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x18.dump.v1beta1.DumpStatusR\x06status\x12#\n" +
@@ -777,7 +806,8 @@ const file_dump_v1beta1_dump_proto_rawDesc = "" +
 	"start_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
 	"\bend_time\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x129\n" +
 	"\n" +
-	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xe9\x01\n" +
+	"created_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1c\n" +
+	"\tencrypted\x18\b \x01(\bR\tencrypted\"\xc7\x02\n" +
 	"\x10StartDumpRequest\x12#\n" +
 	"\rservice_names\x18\x01 \x03(\tR\fserviceNames\x129\n" +
 	"\n" +
@@ -786,7 +816,9 @@ const file_dump_v1beta1_dump_proto_rawDesc = "" +
 	"\n" +
 	"export_qan\x18\x04 \x01(\bR\texportQan\x12\x1f\n" +
 	"\vignore_load\x18\x05 \x01(\bR\n" +
-	"ignoreLoad\",\n" +
+	"ignoreLoad\x12+\n" +
+	"\x11enable_encryption\x18\x06 \x01(\bR\x10enableEncryption\x12/\n" +
+	"\x13encryption_password\x18\a \x01(\tR\x12encryptionPassword\",\n" +
 	"\x11StartDumpResponse\x12\x17\n" +
 	"\adump_id\x18\x01 \x01(\tR\x06dumpId\"\x12\n" +
 	"\x10ListDumpsRequest\"=\n" +
@@ -805,11 +837,11 @@ const file_dump_v1beta1_dump_proto_rawDesc = "" +
 	"\x03end\x18\x02 \x01(\bR\x03end\"9\n" +
 	"\bLogChunk\x12\x19\n" +
 	"\bchunk_id\x18\x01 \x01(\rR\achunkId\x12\x12\n" +
-	"\x04data\x18\x02 \x01(\tR\x04data\"\x93\x01\n" +
+	"\x04data\x18\x02 \x01(\tR\x04data\"\x9b\x01\n" +
 	"\x0eSFTPParameters\x12!\n" +
-	"\aaddress\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aaddress\x12\x1b\n" +
-	"\x04user\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04user\x12#\n" +
-	"\bpassword\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bpassword\x12\x1c\n" +
+	"\aaddress\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aaddress\x12\x1f\n" +
+	"\x04user\x18\x02 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\x04user\x12'\n" +
+	"\bpassword\x18\x03 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\bpassword\x12\x1c\n" +
 	"\tdirectory\x18\x04 \x01(\tR\tdirectory\"\x8b\x01\n" +
 	"\x11UploadDumpRequest\x12%\n" +
 	"\bdump_ids\x18\x01 \x03(\tB\n" +
@@ -848,7 +880,7 @@ var (
 	file_dump_v1beta1_dump_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_dump_v1beta1_dump_proto_msgTypes  = make([]protoimpl.MessageInfo, 13)
 	file_dump_v1beta1_dump_proto_goTypes   = []any{
-		(DumpStatus)(0),               // 0: dump.v1beta1.DumpStatus
+		DumpStatus(0),                 // 0: dump.v1beta1.DumpStatus
 		(*Dump)(nil),                  // 1: dump.v1beta1.Dump
 		(*StartDumpRequest)(nil),      // 2: dump.v1beta1.StartDumpRequest
 		(*StartDumpResponse)(nil),     // 3: dump.v1beta1.StartDumpResponse

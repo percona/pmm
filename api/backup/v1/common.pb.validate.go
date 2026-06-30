@@ -133,7 +133,8 @@ func (e FileValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = FileValidationError{}
@@ -234,7 +235,8 @@ func (e PbmMetadataValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = PbmMetadataValidationError{}
@@ -442,7 +444,8 @@ func (e MetadataValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = MetadataValidationError{}
@@ -545,7 +548,8 @@ func (e LogChunkValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = LogChunkValidationError{}

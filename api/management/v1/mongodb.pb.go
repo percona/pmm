@@ -14,7 +14,9 @@ import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 
+	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -109,8 +111,10 @@ type AddMongoDBServiceParams struct {
 	EnvironmentVariableNames []string `protobuf:"bytes,36,rep,name=environment_variable_names,json=environmentVariableNames,proto3" json:"environment_variable_names,omitempty"`
 	// If true, adds Real-Time Analytics agent for the provided service.
 	RtaMongodbAgent bool `protobuf:"varint,37,opt,name=rta_mongodb_agent,json=rtaMongodbAgent,proto3" json:"rta_mongodb_agent,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,38,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddMongoDBServiceParams) Reset() {
@@ -388,6 +392,13 @@ func (x *AddMongoDBServiceParams) GetRtaMongodbAgent() bool {
 	return false
 }
 
+func (x *AddMongoDBServiceParams) GetConnectionTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.ConnectionTimeout
+	}
+	return nil
+}
+
 type MongoDBServiceResult struct {
 	state              protoimpl.MessageState      `protogen:"open.v1"`
 	Service            *v1.MongoDBService          `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -468,7 +479,7 @@ var File_management_v1_mongodb_proto protoreflect.FileDescriptor
 
 const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xed\f\n" +
+	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xdf\r\n" +
 	"\x17AddMongoDBServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -482,31 +493,32 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\venvironment\x18\n" +
 	" \x01(\tR\venvironment\x12\x18\n" +
 	"\acluster\x18\v \x01(\tR\acluster\x12'\n" +
-	"\x0freplication_set\x18\f \x01(\tR\x0ereplicationSet\x12\x1a\n" +
-	"\busername\x18\r \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x0e \x01(\tR\bpassword\x120\n" +
+	"\x0freplication_set\x18\f \x01(\tR\x0ereplicationSet\x12 \n" +
+	"\busername\x18\r \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\bpassword\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x120\n" +
 	"\x14qan_mongodb_profiler\x18\x0f \x01(\bR\x12qanMongodbProfiler\x120\n" +
 	"\x14qan_mongodb_mongolog\x18# \x01(\bR\x12qanMongodbMongolog\x12]\n" +
 	"\rcustom_labels\x18\x10 \x03(\v28.management.v1.AddMongoDBServiceParams.CustomLabelsEntryR\fcustomLabels\x122\n" +
 	"\x15skip_connection_check\x18\x11 \x01(\bR\x13skipConnectionCheck\x12\x10\n" +
 	"\x03tls\x18\x13 \x01(\bR\x03tls\x12&\n" +
-	"\x0ftls_skip_verify\x18\x14 \x01(\bR\rtlsSkipVerify\x12.\n" +
-	"\x13tls_certificate_key\x18\x15 \x01(\tR\x11tlsCertificateKey\x12H\n" +
-	"!tls_certificate_key_file_password\x18\x16 \x01(\tR\x1dtlsCertificateKeyFilePassword\x12\x15\n" +
+	"\x0ftls_skip_verify\x18\x14 \x01(\bR\rtlsSkipVerify\x124\n" +
+	"\x13tls_certificate_key\x18\x15 \x01(\tB\x04\x88\xb5\x18\x01R\x11tlsCertificateKey\x12N\n" +
+	"!tls_certificate_key_file_password\x18\x16 \x01(\tB\x04\x88\xb5\x18\x01R\x1dtlsCertificateKeyFilePassword\x12\x15\n" +
 	"\x06tls_ca\x18\x17 \x01(\tR\x05tlsCa\x12(\n" +
 	"\x10max_query_length\x18\x18 \x01(\x05R\x0emaxQueryLength\x12=\n" +
 	"\fmetrics_mode\x18\x19 \x01(\x0e2\x1a.management.v1.MetricsModeR\vmetricsMode\x12-\n" +
 	"\x12disable_collectors\x18\x1a \x03(\tR\x11disableCollectors\x129\n" +
 	"\x18authentication_mechanism\x18\x1b \x01(\tR\x17authenticationMechanism\x127\n" +
-	"\x17authentication_database\x18\x1c \x01(\tR\x16authenticationDatabase\x12%\n" +
-	"\x0eagent_password\x18\x1d \x01(\tR\ragentPassword\x12+\n" +
+	"\x17authentication_database\x18\x1c \x01(\tR\x16authenticationDatabase\x12+\n" +
+	"\x0eagent_password\x18\x1d \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x12+\n" +
 	"\x11stats_collections\x18\x1e \x03(\tR\x10statsCollections\x12+\n" +
 	"\x11collections_limit\x18\x1f \x01(\x05R\x10collectionsLimit\x122\n" +
 	"\x15enable_all_collectors\x18  \x01(\bR\x13enableAllCollectors\x123\n" +
 	"\tlog_level\x18! \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12'\n" +
 	"\x0fexpose_exporter\x18\" \x01(\bR\x0eexposeExporter\x12<\n" +
 	"\x1aenvironment_variable_names\x18$ \x03(\tR\x18environmentVariableNames\x12*\n" +
-	"\x11rta_mongodb_agent\x18% \x01(\bR\x0frtaMongodbAgent\x1a?\n" +
+	"\x11rta_mongodb_agent\x18% \x01(\bR\x0frtaMongodbAgent\x12R\n" +
+	"\x12connection_timeout\x18& \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\x95\x03\n" +
@@ -537,13 +549,14 @@ var (
 		(*MongoDBServiceResult)(nil),       // 1: management.v1.MongoDBServiceResult
 		nil,                                // 2: management.v1.AddMongoDBServiceParams.CustomLabelsEntry
 		(*AddNodeParams)(nil),              // 3: management.v1.AddNodeParams
-		(MetricsMode)(0),                   // 4: management.v1.MetricsMode
-		(v1.LogLevel)(0),                   // 5: inventory.v1.LogLevel
-		(*v1.MongoDBService)(nil),          // 6: inventory.v1.MongoDBService
-		(*v1.MongoDBExporter)(nil),         // 7: inventory.v1.MongoDBExporter
-		(*v1.QANMongoDBProfilerAgent)(nil), // 8: inventory.v1.QANMongoDBProfilerAgent
-		(*v1.QANMongoDBMongologAgent)(nil), // 9: inventory.v1.QANMongoDBMongologAgent
-		(*v1.RTAMongoDBAgent)(nil),         // 10: inventory.v1.RTAMongoDBAgent
+		MetricsMode(0),                     // 4: management.v1.MetricsMode
+		v1.LogLevel(0),                     // 5: inventory.v1.LogLevel
+		(*durationpb.Duration)(nil),        // 6: google.protobuf.Duration
+		(*v1.MongoDBService)(nil),          // 7: inventory.v1.MongoDBService
+		(*v1.MongoDBExporter)(nil),         // 8: inventory.v1.MongoDBExporter
+		(*v1.QANMongoDBProfilerAgent)(nil), // 9: inventory.v1.QANMongoDBProfilerAgent
+		(*v1.QANMongoDBMongologAgent)(nil), // 10: inventory.v1.QANMongoDBMongologAgent
+		(*v1.RTAMongoDBAgent)(nil),         // 11: inventory.v1.RTAMongoDBAgent
 	}
 )
 
@@ -552,16 +565,17 @@ var file_management_v1_mongodb_proto_depIdxs = []int32{
 	2,  // 1: management.v1.AddMongoDBServiceParams.custom_labels:type_name -> management.v1.AddMongoDBServiceParams.CustomLabelsEntry
 	4,  // 2: management.v1.AddMongoDBServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
 	5,  // 3: management.v1.AddMongoDBServiceParams.log_level:type_name -> inventory.v1.LogLevel
-	6,  // 4: management.v1.MongoDBServiceResult.service:type_name -> inventory.v1.MongoDBService
-	7,  // 5: management.v1.MongoDBServiceResult.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
-	8,  // 6: management.v1.MongoDBServiceResult.qan_mongodb_profiler:type_name -> inventory.v1.QANMongoDBProfilerAgent
-	9,  // 7: management.v1.MongoDBServiceResult.qan_mongodb_mongolog:type_name -> inventory.v1.QANMongoDBMongologAgent
-	10, // 8: management.v1.MongoDBServiceResult.rta_mongodb_agent:type_name -> inventory.v1.RTAMongoDBAgent
-	9,  // [9:9] is the sub-list for method output_type
-	9,  // [9:9] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	6,  // 4: management.v1.AddMongoDBServiceParams.connection_timeout:type_name -> google.protobuf.Duration
+	7,  // 5: management.v1.MongoDBServiceResult.service:type_name -> inventory.v1.MongoDBService
+	8,  // 6: management.v1.MongoDBServiceResult.mongodb_exporter:type_name -> inventory.v1.MongoDBExporter
+	9,  // 7: management.v1.MongoDBServiceResult.qan_mongodb_profiler:type_name -> inventory.v1.QANMongoDBProfilerAgent
+	10, // 8: management.v1.MongoDBServiceResult.qan_mongodb_mongolog:type_name -> inventory.v1.QANMongoDBMongologAgent
+	11, // 9: management.v1.MongoDBServiceResult.rta_mongodb_agent:type_name -> inventory.v1.RTAMongoDBAgent
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_mongodb_proto_init() }

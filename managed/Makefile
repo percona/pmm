@@ -55,7 +55,7 @@ test:                           ## Run tests
 	go test $(PMM_TEST_FLAGS) -p 1 -race $(PMM_TEST_FILES)
 
 test-cover:                     ## Run tests and collect per-package coverage information
-	go test $(PMM_TEST_FLAGS) -p 1 -race -coverprofile=cover.out -covermode=atomic -coverpkg=$(PMM_TEST_FILES) $(PMM_TEST_FILES)
+	go test $(PMM_TEST_FLAGS) -p 1 -race -coverprofile=cover.out -covermode=atomic $(PMM_TEST_FILES)
 
 test-update:                   ## Run pmm update test
 	PMM_TEST_RUN_UPDATE=1 go test -timeout=600s -v -p 1 -race ./services/supervisord -run ^TestDevContainer/Update$$

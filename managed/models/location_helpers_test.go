@@ -16,7 +16,6 @@
 package models_test
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 	"testing"
@@ -305,7 +304,7 @@ func TestBackupLocations(t *testing.T) {
 			ServiceType: models.MySQLServiceType,
 			ServiceName: "Service 1",
 			NodeID:      nodeID1,
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(777),
 		}
 		require.NoError(t, q.Insert(s))
@@ -336,10 +335,10 @@ func TestBackupLocations(t *testing.T) {
 		require.NoError(t, err)
 
 		_, err = models.FindArtifactByID(q, artifact.ID)
-		require.True(t, errors.Is(err, models.ErrNotFound))
+		require.ErrorIs(t, err, models.ErrNotFound)
 
 		_, err = models.FindRestoreHistoryItemByID(q, rhi.ID)
-		require.True(t, errors.Is(err, models.ErrNotFound))
+		require.ErrorIs(t, err, models.ErrNotFound)
 
 		locations, err := models.FindBackupLocations(q)
 		require.NoError(t, err)
@@ -561,10 +560,10 @@ func TestCreateBackupLocationValidation(t *testing.T) {
 
 			c, err := models.CreateBackupLocation(q, test.params)
 			if test.errorMsg != "" {
-				assert.EqualError(t, err, test.errorMsg)
+				require.EqualError(t, err, test.errorMsg)
 				return
 			}
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.NotNil(t, c)
 		})
 	}
@@ -611,10 +610,10 @@ func TestParseEndpoint(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			res, err := models.ParseEndpoint(test.endpoint)
 			if test.errorMsg != "" {
-				assert.EqualError(t, err, test.errorMsg)
+				require.EqualError(t, err, test.errorMsg)
 				return
 			}
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, test.url, *res)
 		})
 	}

@@ -15,6 +15,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 
+	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -2430,9 +2431,9 @@ var File_qan_v1_collector_proto protoreflect.FileDescriptor
 
 const file_qan_v1_collector_proto_rawDesc = "" +
 	"\n" +
-	"\x16qan/v1/collector.proto\x12\x06qan.v1\x1a\x1bgoogle/api/visibility.proto\x1a\x19inventory/v1/agents.proto\x1a\x10qan/v1/qan.proto\"N\n" +
+	"\x16qan/v1/collector.proto\x12\x06qan.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1bgoogle/api/visibility.proto\x1a\x19inventory/v1/agents.proto\x1a\x10qan/v1/qan.proto\"N\n" +
 	"\x0eCollectRequest\x12<\n" +
-	"\x0emetrics_bucket\x18\x01 \x03(\v2\x15.qan.v1.MetricsBucketR\rmetricsBucket\"\xdek\n" +
+	"\x0emetrics_bucket\x18\x01 \x03(\v2\x15.qan.v1.MetricsBucketR\rmetricsBucket\"\xe4k\n" +
 	"\rMetricsBucket\x12\x18\n" +
 	"\aqueryid\x18\x01 \x01(\tR\aqueryid\x12/\n" +
 	"\x13explain_fingerprint\x18\x02 \x01(\tR\x12explainFingerprint\x12-\n" +
@@ -2442,8 +2443,8 @@ const file_qan_v1_collector_proto_rawDesc = "" +
 	" \x01(\tR\vserviceName\x12\x1a\n" +
 	"\bdatabase\x18\v \x01(\tR\bdatabase\x12\x16\n" +
 	"\x06schema\x18\f \x01(\tR\x06schema\x12\x16\n" +
-	"\x06tables\x18\r \x03(\tR\x06tables\x12\x1a\n" +
-	"\busername\x18\x0e \x01(\tR\busername\x12\x1f\n" +
+	"\x06tables\x18\r \x03(\tR\x06tables\x12 \n" +
+	"\busername\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x1f\n" +
 	"\vclient_host\x18\x0f \x01(\tR\n" +
 	"clientHost\x12\x17\n" +
 	"\anode_id\x18\x14 \x01(\tR\x06nodeId\x12\x1b\n" +
@@ -2752,8 +2753,8 @@ var (
 		nil,                     // 3: qan.v1.MetricsBucket.LabelsEntry
 		nil,                     // 4: qan.v1.MetricsBucket.WarningsEntry
 		nil,                     // 5: qan.v1.MetricsBucket.ErrorsEntry
-		(v1.AgentType)(0),       // 6: inventory.v1.AgentType
-		(ExampleType)(0),        // 7: qan.v1.ExampleType
+		v1.AgentType(0),         // 6: inventory.v1.AgentType
+		ExampleType(0),          // 7: qan.v1.ExampleType
 	}
 )
 

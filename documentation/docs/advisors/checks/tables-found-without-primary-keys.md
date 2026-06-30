@@ -2,7 +2,7 @@
 
 ## Description
 
-Checks if there are any InnoDB tables without a Primary Key. For more information about InnoDB Primary Keys, see the [Tuning InnoDB Primary Keys blogpost](https://www.percona.com/blog/2018/07/26/tuning-innodb-primary-keys). 
+Checks if there are any InnoDB tables without a Primary Key. For more information about InnoDB Primary Keys, see the [Tuning InnoDB Primary Keys blogpost](https://www.percona.com/blog/tuning-innodb-primary-keys/). 
 
 ## Resolution
 

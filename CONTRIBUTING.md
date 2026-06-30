@@ -23,19 +23,19 @@ This project is built from several repositories:
 
 #### Backends
 
-* [percona/pmm-managed](https://github.com/percona/pmm/tree/v3/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/v3/admin)
-* [percona/qan-api](https://github.com/percona/pmm/tree/v3/qan-api2) query analytics API
+* [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/main/admin)
+* [percona/qan-api](https://github.com/percona/pmm/tree/main/qan-api2) query analytics API
 
 #### Frontends
 
 * [percona/grafana](https://github.com/percona/grafana) user interface for PMM (Grafana-based)
-* [percona/ui](https://github.com/percona/pmm/tree/v3/ui) user interface for PMM (own)
-* [percona/dashboards](https://github.com/percona/pmm/tree/v3/dashboards) PMM dashboards for database monitoring
+* [percona/ui](https://github.com/percona/pmm/tree/main/ui) user interface for PMM (own)
+* [percona/dashboards](https://github.com/percona/pmm/tree/main/dashboards) PMM dashboards for database monitoring
 
 ### PMM Client
 
-* [percona/pmm-agent](https://github.com/percona/pmm/tree/v3/agent) monitoring agent for PMM. Runs exporters, and VMAgent that collects data from exporters and send to VictoriaMetrics
-* [percona/pmm-admin](https://github.com/percona/pmm/tree/v3/admin) admin tool for PMM to manage service that should be monitored by PMM
+* [percona/pmm-agent](https://github.com/percona/pmm/tree/main/agent) monitoring agent for PMM. Runs exporters, and VMAgent that collects data from exporters and send to VictoriaMetrics
+* [percona/pmm-admin](https://github.com/percona/pmm/tree/main/admin) admin tool for PMM to manage service that should be monitored by PMM
 * [percona/node_exporter](https://github.com/percona/node_exporter) exports machine's metrics
 * [percona/mysqld_exporter](https://github.com/percona/mysqld_exporter) exports MySQL server's metrics
 * [percona/mongodb_exporter](https://github.com/percona/mongodb_exporter) exports MongoDB server's metrics
@@ -54,7 +54,6 @@ This project is built from several repositories:
 * [Percona-Lab/jenkins-pipelines](https://github.com/Percona-Lab/jenkins-pipelines)
 
 ### QA, Testing and Documentation
-* [percona/pmm-ui-tests](https://github.com/percona/pmm-ui-tests)
 * [percona/pmm-qa](https://github.com/percona/pmm-qa)
 * [percona/documentation](https://github.com/percona/pmm/tree/main/documentation)
 
@@ -62,7 +61,7 @@ This project is built from several repositories:
 
 You can review the PMM API definition [here](https://percona-pmm.readme.io/).
 
-It is generated from our `.proto` [files](./api/) using a special [OpenAPI v2 tool](https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-openapiv2) and additional API documentation source files which are located in the `docs/api/` directory. The
+It is generated from our `.proto` [files](./api/) using a special [OpenAPI v2 tool](https://github.com/grpc-ecosystem/grpc-gateway/tree/master/protoc-gen-openapiv2) and additional API documentation source files which are located in the `documentation/api/` directory. The
 content and structure of these is formatted using [Markdown markup language](https://www.markdownguide.org/) and published on
 [ReadMe.com](https://readme.com/).
 
@@ -123,13 +122,13 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 * Clone [pmm repository](https://github.com/percona/pmm).
 * Navigate to the `/agent` folder in the root of the repository.
 * Run `make setup-dev` to connect pmm-agent to PMM Server.
-  * This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
+  * This command will rebuild the local pmm-agent, register it to PMM Server and generate `pmm-agent.yaml` configuration file.
 * Once it's connected just use `make run` to run pmm-agent.
 * To work correctly, pmm-agent needs vmagent and exporters installed on the system.
   * The first option is to install pmm-client using this instruction https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/index.html. It will install all exporters as well.
   * Another option is to do it manually
-    * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to the exporters_base directory configured in `pmm-agent-dev.yaml` file.
-    * All paths to exporter binaries are configured in `pmm-agent-dev.yaml`, so they can be changed manually if necessary.
+    * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads) and copying binaries to the exporters_base directory configured in `pmm-agent.yaml` file.
+    * All paths to exporter binaries are configured in `pmm-agent.yaml`, so they can be changed manually if necessary.
 
 ### Exporters
 
@@ -137,7 +136,12 @@ Exporters by themselves are independent applications, so each of them contains i
 
 ### UI
 
-See [Grafana Dashboards Contribution Guide](https://github.com/percona/pmm/tree/v3/dashboards/CONTRIBUTING.md).
+The devcontainer ships Node 22 and Yarn out of the box and exposes Vite (`make run-ui`) for the main PMM UI and webpack + livereload (`make run-qan-ui`) for the QAN Grafana plugin. See:
+
+- [`ui/README.md`](https://github.com/percona/pmm/tree/main/ui/README.md) — main PMM UI (Vite, React, MUI).
+- [`dashboards/CONTRIBUTING.md`](https://github.com/percona/pmm/tree/main/dashboards/CONTRIBUTING.md) — QAN plugin and Grafana dashboards.
+
+Both docs cover the devcontainer flow and the host-local alternative.
 
 ## Tests
 
@@ -163,9 +167,9 @@ Please refer to [readme](https://github.com/percona/pmm-qa#readme) for details o
 ## Submitting a Pull Request
 
 Before proceeding with your first pull request, we highly recommend you to read the following documents:
-- [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md)
-- [Tech stack](docs/process/tech_stack.md)
-- [Best practices](docs/process/best_practices.md)
+- [Working with Git and GitHub](dev/docs/process/GIT_AND_GITHUB.md)
+- [Tech stack](dev/docs/process/tech_stack.md)
+- [Best practices](dev/docs/process/best_practices.md)
 
 Once your PR is created, please do the following:
 * prepare your PR for review

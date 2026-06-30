@@ -278,7 +278,8 @@ func (e PointValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = PointValidationError{}
@@ -380,7 +381,8 @@ func (e MapFieldEntryValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = MapFieldEntryValidationError{}

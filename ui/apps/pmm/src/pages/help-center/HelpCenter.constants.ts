@@ -34,7 +34,7 @@ export const getCardData = ({
       },
     ],
     adminOnly: false,
-    borderColor: '#1486FF',
+    borderColorKey: 'chart2',
   },
   {
     id: CARD_IDS.support,
@@ -49,7 +49,7 @@ export const getCardData = ({
       },
     ],
     adminOnly: false,
-    borderColor: '#F24500',
+    borderColorKey: 'chart2',
   },
   {
     id: CARD_IDS.forum,
@@ -64,7 +64,7 @@ export const getCardData = ({
       },
     ],
     adminOnly: false,
-    borderColor: '#30D1B2',
+    borderColorKey: 'chart2',
   },
   {
     id: CARD_IDS.pmmDump,
@@ -78,7 +78,7 @@ export const getCardData = ({
       },
     ],
     adminOnly: true,
-    borderColor: '#F0B336',
+    borderColorKey: 'chart2',
   },
   {
     id: CARD_IDS.pmmLogs,

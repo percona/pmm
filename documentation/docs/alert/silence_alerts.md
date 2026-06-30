@@ -11,7 +11,7 @@ Silenced alerts are still recorded under **Alerting > Fired Alerts** so that you
 
 ## Using silences
 
-You can silence an alert by creating a silence from the **Silences** page.  Here you define labels that match the alert that you want to silence.
+You can silence an alert by creating a silence from the **Alerts > Silences** page.  Here you define labels that match the alert that you want to silence.
 
 To create a new silence:
 {.power-number}
@@ -19,10 +19,10 @@ To create a new silence:
 1. Click the **Create silence** button.
 2. Select the start and end date to indicate when the silence should go into effect and expire.
 3. Optionally, update the duration to alter the time for the end of silence in the previous step to correspond to the start plus the duration.
-4. Enter one or more matching labels by filling out the **Name** and **Value** fields. Matchers determine which rules the silence will apply to. Note that all labels specified here must be matched by an alert for it to be silenced.
+4. Enter one or more matching labels by filling out the **Name** and **Value** fields. Matchers determine which rules the silence will apply to. Note that all labels specified here must be matched by an alert for it to be silenced. For a list of available labels, see [Labels reference](../reference/labels-reference.md).
 5. Enter any additional comments you would like about this silence - by default, the date the silence was created is placed here.
 6. Review the affected alert instances that will be silenced.
-7. Click **Save silece**.
+7. Click **Save silence**.
 
 For more information on working with silences, see [About alerting silences](https://grafana.com/docs/grafana/latest/alerting/manage-notifications/create-silence/) in the Grafana documentation.
 
@@ -32,14 +32,14 @@ For more information on working with silences, see [About alerting silences](htt
 
 After upgrading from the latest PMM 2 version to PMM 3, you will find all your alert templates under **Alerting > Alert rule templates**.
 
-If you have any templates available in the  `/srv/ia/templates` folder, make sure to transfer them to `/srv/alerting/templates` as PMM 3 will look for custom templates in this location.
+If you have any templates available in the `/srv/ia/templates` folder, make sure to transfer them to `/srv/alerting/templates` as PMM 3 will look for custom templates in this location.
 
 ### Template compatibility with other alerting tools
 
 If you have existing YAML alert templates that you want to leverage in Percona Alerting:
 {.power-number}
 
-1. Go to **Alerting > Alert rule templates** tab and click **Add template** at the top right-hand side of the table.
+1. Go to **Alerts > Alert templates** tab and click **Add template** at the top right-hand side of the table.
 2. Upload a local .yaml file that contains the definition of one or more alert templates then click **Add**. Alert templates added in bulk will be displayed individually on **Alert rule templates** page.
 
 #### Script commands

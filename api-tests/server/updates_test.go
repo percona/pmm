@@ -21,7 +21,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -107,7 +106,7 @@ func TestCheckUpdates(t *testing.T) {
 
 	t.Run("Force", func(t *testing.T) {
 		params = &server.CheckUpdatesParams{
-			Force:   pointer.ToBool(true),
+			Force:   new(true),
 			Context: pmmapitests.Context,
 		}
 		params.SetTimeout(slow) // that call with force can be slow
@@ -120,17 +119,17 @@ func TestCheckUpdates(t *testing.T) {
 	})
 
 	t.Run("forced with updates disabled", func(t *testing.T) {
-		defer restoreSettingsDefaults(t)
+		defer RestoreSettingsDefaults(t)
 		settingsRes, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 			Body: server.ChangeSettingsBody{
-				EnableUpdates: pointer.ToBool(false),
+				EnableUpdates: new(false),
 			},
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		assert.False(t, settingsRes.Payload.Settings.UpdatesEnabled)
 		params = &server.CheckUpdatesParams{
-			Force:   pointer.ToBool(true),
+			Force:   new(true),
 			Context: pmmapitests.Context,
 		}
 		params.SetTimeout(slow) // that call with force can be slow
@@ -167,10 +166,10 @@ func TestListUpdates(t *testing.T) {
 	}
 
 	t.Run("with updates disabled", func(t *testing.T) {
-		defer restoreSettingsDefaults(t)
+		defer RestoreSettingsDefaults(t)
 		settingsRes, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 			Body: server.ChangeSettingsBody{
-				EnableUpdates: pointer.ToBool(false),
+				EnableUpdates: new(false),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -214,10 +213,10 @@ func TestUpdate(t *testing.T) {
 	pmmapitests.AssertAPIErrorf(t, err, 401, codes.Unauthenticated, "Unauthorized")
 
 	t.Run("with PMM updates disabled", func(t *testing.T) {
-		defer restoreSettingsDefaults(t)
+		defer RestoreSettingsDefaults(t)
 		settingsRes, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 			Body: server.ChangeSettingsBody{
-				EnableUpdates: pointer.ToBool(false),
+				EnableUpdates: new(false),
 			},
 			Context: pmmapitests.Context,
 		})

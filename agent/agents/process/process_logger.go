@@ -21,7 +21,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
 )
 
@@ -93,7 +92,7 @@ func (pl *processLogger) Write(p []byte) (int, error) {
 				pl.l.Infoln(line)
 			}
 		}
-		pl.data[pl.i] = pointer.ToString(line)
+		pl.data[pl.i] = new(line)
 		pl.i = (pl.i + 1) % len(pl.data)
 	}
 }

@@ -6,7 +6,7 @@ Percona does not provide support or issue hotfixes for end-of-life releases.
 ## Resolution
 Upgrade to the latest version of Percona Distribution for PostgreSQL, following the [upgrade instructions](https://docs.percona.com/postgresql/15/major-upgrade.html).
 
-For more information, check out the [Percona software support lifecycle information](https://www.percona.com/services/policies/percona-software-support-lifecycle)
+For more information, check out the [Percona software support lifecycle information](https://www.percona.com/services/policies/percona-services-lifecycle-policy/)
 
 ## Need more support from Percona?
 

@@ -18,7 +18,7 @@ Configure both the Server and Client to implement SSL/TLS encryption in your PMM
     - [Copy certificates](#copy-certificates) directly into the PMM Server container
 2. **Restart PMM Server** to apply the new certificates
 3. **Configure client trust**: Ensure PMM Clients can verify the server certificate:
-    - Add the CA certificate to the system trust store ([Ubuntu guide](https://ubuntu.com/server/docs/how-to/security/install-a-root-ca-certificate-in-the-trust-store/) | [Red Hat guide](https://www.redhat.com/sysadmin/configure-ca-trust-list))
+    - Add the CA certificate to the system trust store ([Ubuntu guide](https://documentation.ubuntu.com/server/how-to/security/install-a-root-ca-certificate-in-the-trust-store/) | [Red Hat guide](https://www.redhat.com/sysadmin/configure-ca-trust-list))
     - **Or use the `SSL_CERT_FILE` environment variable** for [custom CA certificates](#use-custom-ca-certificates-with-pmm-client)
 
 ### Certificate storage location

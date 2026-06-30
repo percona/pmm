@@ -5,14 +5,21 @@ import { useGrafana } from 'contexts/grafana';
 import { PMM_BASE_PATH, PMM_HOME_URL } from 'lib/constants';
 import messenger from 'lib/messenger';
 import { constructUrl } from 'utils/link.utils';
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { isGrafanaLoginPath } from 'contexts/auth/auth.clientSession';
+import { handleGrafanaUserLoggedOut } from 'contexts/auth/auth.grafanaLogout';
 import { GrafanaPageFrame } from 'components/grafana-page-frame';
+import {
+  getIframePathname,
+  redirectIframeFromPmmShell,
+} from './grafanaIframe.utils';
 
 export const GrafanaPage: FC = () => {
+  const queryClient = useQueryClient();
   const { isFrameLoaded, isOnGrafanaPage, frameRef, isFullScreen } =
     useGrafana();
   const src = useMemo(
-    // load specific grafana page as the first one
     () =>
       isFrameLoaded
         ? constructUrl({
@@ -25,12 +32,25 @@ export const GrafanaPage: FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (isFrameLoaded) {
-      messenger
-        .waitForMessage('GRAFANA_READY', 5_000)
-        .finally(() => setLoading(false));
+    if (!isFrameLoaded) {
+      return;
     }
+
+    messenger.waitForMessage('GRAFANA_READY', 5_000).finally(() => {
+      setLoading(false);
+    });
   }, [isFrameLoaded]);
+
+  const handleIframeLoad = useCallback(() => {
+    const iframe = frameRef?.current;
+    if (isGrafanaLoginPath(getIframePathname(iframe))) {
+      handleGrafanaUserLoggedOut(queryClient);
+      return;
+    }
+    if (iframe) {
+      redirectIframeFromPmmShell(iframe, src);
+    }
+  }, [frameRef, queryClient, src]);
 
   if (!isFrameLoaded) {
     return null;
@@ -58,20 +78,16 @@ export const GrafanaPage: FC = () => {
       >
         <GrafanaPageFrame>
           <Box
+            key={src}
             id="grafana-iframe"
             ref={frameRef}
             src={src}
             component="iframe"
+            onLoad={handleIframeLoad}
             sx={
               isFullScreen
-                ? {
-                    border: 'none',
-                    flex: 1,
-                  }
-                : {
-                    flex: 1,
-                    border: 0,
-                  }
+                ? { border: 'none', flex: 1 }
+                : { flex: 1, border: 0 }
             }
           />
         </GrafanaPageFrame>

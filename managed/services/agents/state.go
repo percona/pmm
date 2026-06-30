@@ -17,11 +17,11 @@ package agents
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/encoding/prototext"
 	"gopkg.in/reform.v1"
@@ -34,8 +34,9 @@ import (
 
 const (
 	// Constants for delayed batch updates.
-	updateBatchDelay   = time.Second
-	stateChangeTimeout = 5 * time.Second
+	updateBatchDelay                = time.Second
+	stateChangeTimeout              = 5 * time.Second
+	loggerComponentNameStateUpdater = "state-updater"
 )
 
 // StateUpdater handles updating status of agents.
@@ -61,7 +62,7 @@ func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService, vmParam
 // RequestStateUpdate requests state update on pmm-agent with given ID. It sets
 // the status to done if the agent is not connected.
 func (u *StateUpdater) RequestStateUpdate(ctx context.Context, pmmAgentID string) {
-	l := logger.Get(ctx)
+	l := logger.Get(ctx).WithField("component", loggerComponentNameStateUpdater)
 
 	agent, err := u.r.get(pmmAgentID)
 	if err != nil {
@@ -79,7 +80,7 @@ func (u *StateUpdater) RequestStateUpdate(ctx context.Context, pmmAgentID string
 func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 	pmmAgents, err := models.FindAllPMMAgentsIDs(u.db.Querier)
 	if err != nil {
-		return errors.Wrap(err, "cannot find pmmAgentsIDs for AgentsState update")
+		return fmt.Errorf("cannot find pmmAgentsIDs for AgentsState update: %w", err)
 	}
 	var wg sync.WaitGroup
 	limiter := make(chan struct{}, 10) //nolint:mnd
@@ -98,7 +99,9 @@ func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 
 // runStateChangeHandler runs pmm-agent state update loop for given pmm-agent until ctx is canceled or agent is kicked.
 func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgentInfo) {
-	l := logger.Get(ctx).WithField("agent_id", agent.id)
+	l := logger.Get(ctx).
+		WithField("component", loggerComponentNameStateUpdater).
+		WithField("agent_id", agent.id)
 
 	l.Info("Starting runStateChangeHandler ...")
 	defer l.Info("Done runStateChangeHandler.")
@@ -140,8 +143,8 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 }
 
 // sendSetStateRequest sends SetStateRequest to given pmm-agent.
-func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:cyclop,maintidx
-	l := logger.Get(ctx)
+func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:gocognit,cyclop,maintidx
+	l := logger.Get(ctx).WithField("component", loggerComponentNameStateUpdater)
 	start := time.Now()
 	defer func() {
 		if dur := time.Since(start); dur > time.Second {
@@ -150,27 +153,27 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	}()
 	pmmAgent, err := models.FindAgentByID(u.db.Querier, agent.id)
 	if err != nil {
-		return errors.Wrap(err, "failed to get PMM Agent")
+		return fmt.Errorf("failed to get PMM Agent: %w", err)
 	}
 	pmmAgentVersion, err := version.Parse(*pmmAgent.Version)
 	if err != nil {
-		return errors.Wrapf(err, "failed to parse PMM agent version %q", *pmmAgent.Version)
+		return fmt.Errorf("failed to parse PMM agent version %q: %w", *pmmAgent.Version, err)
 	}
 
 	settings, err := models.GetSettings(u.db.Querier)
 	if err != nil {
-		return errors.Wrap(err, "failed to get settings")
+		return fmt.Errorf("failed to get settings: %w", err)
 	}
 
 	filters := models.AgentFilters{
 		PMMAgentID:  agent.id,
 		IgnoreNomad: !settings.IsNomadEnabled(),
 		// fetch enabled only
-		Disabled: pointer.To(false),
+		Disabled: new(false),
 	}
 	agents, err := models.FindAgents(u.db.Querier, filters)
 	if err != nil {
-		return errors.Wrap(err, "failed to collect agents")
+		return fmt.Errorf("failed to collect agents: %w", err)
 	}
 
 	redactMode := redactSecrets
@@ -188,7 +191,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		case models.VMAgentType:
 			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(ctx, agent.id)
 			if err != nil {
-				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
+				return fmt.Errorf("cannot get agent scrape config for agent %s: %w", agent.id, err)
 			}
 			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
 		case models.NomadAgentType:
@@ -286,7 +289,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			}
 
 		default:
-			return errors.Errorf("cannot send request for unknown agent type %s", row.AgentType)
+			return fmt.Errorf("cannot send request for unknown agent type %s", row.AgentType)
 		}
 	}
 
@@ -321,7 +324,12 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		AgentProcesses: agentProcesses,
 		BuiltinAgents:  builtinAgents,
 	}
-	l.Debugf("sendSetStateRequest:\n%s", prototext.Format(state))
+
+	// Check log level before calling formatting function.
+	// Do not waste resources in case debug level is not enabled.
+	if l.Logger.IsLevelEnabled(logrus.DebugLevel) {
+		l.Debugf("sendSetStateRequest:\n%s\n", prototext.Format(logger.RedactMessage(state)))
+	}
 
 	resp, err := agent.channel.SendAndWaitResponse(state)
 	if err != nil {

@@ -34,7 +34,7 @@ export const useSnooze = () => {
 
     return (
       diffFromNow(user.info.snoozedAt) <=
-      parseDuration(settings.updateSnoozeDuration)
+      parseDuration(settings.updateSnoozeDuration ?? '')
     );
   }, [latest, user, settings]);
 

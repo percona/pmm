@@ -40,11 +40,10 @@
         For example to suppress logging of the ConfigReloader you can use:
         NOTE: levels.logger is reserved, see below.
         -->
-        <!--
+
         <levels>
-          <ConfigReloader>none</ConfigReloader>
+          <CertificateReloader>none</CertificateReloader>
         </levels>
-        -->
 
         <!-- Per level overrides:
 
@@ -144,7 +143,7 @@
     <!-- Compatibility with PostgreSQL protocol.
          ClickHouse will pretend to be PostgreSQL for applications connecting to this port.
     -->
-    <postgresql_port>9005</postgresql_port>
+    <!-- <postgresql_port>9005</postgresql_port> -->
 
     <!-- HTTP API with TLS (HTTPS).
          You have to configure certificate to enable this interface.
@@ -171,7 +170,7 @@
          Data transferred over connections to this port should not go through untrusted networks.
          See also 'interserver_https_port'.
       -->
-    <interserver_http_port>9009</interserver_http_port>
+    <!-- <interserver_http_port>9009</interserver_http_port> -->
 
     <!-- Port for communication between replicas with TLS.
          You have to configure certificate to enable this interface.
@@ -270,43 +269,6 @@
     </grpc>
 
     <!-- Used with https_port and tcp_port_secure. Full ssl options list: https://github.com/ClickHouse-Extras/poco/blob/master/NetSSL_OpenSSL/include/Poco/Net/SSLManager.h#L71 -->
-    <openSSL>
-        <server> <!-- Used for https server AND secure tcp port -->
-            <!-- openssl req -subj "/CN=localhost" -new -newkey rsa:2048 -days 365 -nodes -x509 -keyout /etc/clickhouse-server/server.key -out /etc/clickhouse-server/server.crt -->
-            <certificateFile>/etc/clickhouse-server/server.crt</certificateFile>
-            <privateKeyFile>/etc/clickhouse-server/server.key</privateKeyFile>
-            <!-- dhparams are optional. You can delete the <dhParamsFile> element.
-                 To generate dhparams, use the following command:
-                  openssl dhparam -out /etc/clickhouse-server/dhparam.pem 4096
-                 Only file format with BEGIN DH PARAMETERS is supported.
-              -->
-            <dhParamsFile>/etc/clickhouse-server/dhparam.pem</dhParamsFile>
-            <verificationMode>none</verificationMode>
-            <loadDefaultCAFile>true</loadDefaultCAFile>
-            <cacheSessions>true</cacheSessions>
-            <disableProtocols>sslv2,sslv3</disableProtocols>
-            <preferServerCiphers>true</preferServerCiphers>
-
-            <invalidCertificateHandler>
-                <!-- The server, in contrast to the client, cannot ask about the certificate interactively.
-                     The only reasonable option is to reject.
-                -->
-                <name>RejectCertificateHandler</name>
-            </invalidCertificateHandler>
-        </server>
-
-        <client> <!-- Used for connecting to https dictionary source and secured Zookeeper communication -->
-            <loadDefaultCAFile>true</loadDefaultCAFile>
-            <cacheSessions>true</cacheSessions>
-            <disableProtocols>sslv2,sslv3</disableProtocols>
-            <preferServerCiphers>true</preferServerCiphers>
-            <!-- Use for self-signed: <verificationMode>none</verificationMode> -->
-            <invalidCertificateHandler>
-                <!-- Use for self-signed: <name>AcceptCertificateHandler</name> -->
-                <name>RejectCertificateHandler</name>
-            </invalidCertificateHandler>
-        </client>
-    </openSSL>
 
     <!-- Default root page on http[s] server. For example load UI from https://tabix.io/ when opening http://localhost:8123 -->
     <!--

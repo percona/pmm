@@ -955,7 +955,7 @@ var (
 	file_management_v1_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_management_v1_service_proto_msgTypes  = make([]protoimpl.MessageInfo, 8)
 	file_management_v1_service_proto_goTypes   = []any{
-		(UniversalService_Status)(0),          // 0: management.v1.UniversalService.Status
+		UniversalService_Status(0),            // 0: management.v1.UniversalService.Status
 		(*AddServiceRequest)(nil),             // 1: management.v1.AddServiceRequest
 		(*AddServiceResponse)(nil),            // 2: management.v1.AddServiceResponse
 		(*RemoveServiceRequest)(nil),          // 3: management.v1.RemoveServiceRequest
@@ -980,7 +980,7 @@ var (
 		(*ExternalServiceResult)(nil),         // 22: management.v1.ExternalServiceResult
 		(*RDSServiceResult)(nil),              // 23: management.v1.RDSServiceResult
 		(*ValkeyServiceResult)(nil),           // 24: management.v1.ValkeyServiceResult
-		(v1.ServiceType)(0),                   // 25: inventory.v1.ServiceType
+		v1.ServiceType(0),                     // 25: inventory.v1.ServiceType
 		(*timestamppb.Timestamp)(nil),         // 26: google.protobuf.Timestamp
 		(*UniversalAgent)(nil),                // 27: management.v1.UniversalAgent
 		(*AddAnnotationRequest)(nil),          // 28: management.v1.AddAnnotationRequest

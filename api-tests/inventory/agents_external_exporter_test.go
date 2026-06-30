@@ -18,7 +18,6 @@ package inventory
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -31,14 +30,12 @@ import (
 
 func TestExternalExporter(t *testing.T) {
 	t.Parallel()
+
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			External: &services.AddServiceParamsBodyExternal{
 				NodeID:      genericNodeID,
 				ServiceName: pmmapitests.TestString(t, "External Service for External Exporter test"),
@@ -46,9 +43,8 @@ func TestExternalExporter(t *testing.T) {
 			},
 		})
 		serviceID := service.External.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		ExternalExporter := addAgent(t, agents.AddAgentBody{
+		ExternalExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 				RunsOnNodeID: genericNodeID,
 				ServiceID:    serviceID,
@@ -59,7 +55,6 @@ func TestExternalExporter(t *testing.T) {
 			},
 		})
 		agentID := ExternalExporter.ExternalExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			AgentID: agentID,
@@ -77,7 +72,7 @@ func TestExternalExporter(t *testing.T) {
 				CustomLabels: map[string]string{
 					"custom_label_for_external_exporter": "external_exporter",
 				},
-				Status: pointer.ToString(AgentStatusUnknown),
+				Status: new(AgentStatusUnknown),
 			},
 		}, getAgentRes.Payload)
 	})
@@ -86,14 +81,9 @@ func TestExternalExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		nodeID := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for external exporter")).NodeID
 
-		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for external exporter"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			External: &services.AddServiceParamsBodyExternal{
 				NodeID:      nodeID,
 				ServiceName: pmmapitests.TestString(t, "External Service for External Exporter test"),
@@ -101,9 +91,8 @@ func TestExternalExporter(t *testing.T) {
 			},
 		})
 		serviceID := service.External.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		ExternalExporter := addAgent(t, agents.AddAgentBody{
+		ExternalExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 				RunsOnNodeID: genericNodeID,
 				ServiceID:    serviceID,
@@ -119,7 +108,6 @@ func TestExternalExporter(t *testing.T) {
 			},
 		})
 		agentID := ExternalExporter.ExternalExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			AgentID: agentID,
@@ -139,7 +127,7 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_external_exporter": "external_exporter",
 				},
 				TLSSkipVerify: true,
-				Status:        pointer.ToString(AgentStatusUnknown),
+				Status:        new(AgentStatusUnknown),
 			},
 		}, getAgentRes.Payload)
 
@@ -149,12 +137,13 @@ func TestExternalExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyExternalExporterCustomLabels{},
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			ExternalExporter: &agents.ChangeAgentOKBodyExternalExporter{
@@ -168,7 +157,7 @@ func TestExternalExporter(t *testing.T) {
 				Disabled:      true,
 				CustomLabels:  map[string]string{},
 				TLSSkipVerify: true,
-				Status:        pointer.ToString(AgentStatusDone),
+				Status:        new(AgentStatusDone),
 			},
 		}, changeExternalExporterOK.Payload)
 
@@ -177,7 +166,7 @@ func TestExternalExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyExternalExporterCustomLabels{
 							Values: map[string]string{
 								"new_label": "external_exporter",
@@ -186,7 +175,8 @@ func TestExternalExporter(t *testing.T) {
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			ExternalExporter: &agents.ChangeAgentOKBodyExternalExporter{
@@ -202,7 +192,7 @@ func TestExternalExporter(t *testing.T) {
 					"new_label": "external_exporter",
 				},
 				TLSSkipVerify: true,
-				Status:        pointer.ToString(AgentStatusDone),
+				Status:        new(AgentStatusDone),
 			},
 		}, changeExternalExporterOK.Payload)
 	})
@@ -211,10 +201,7 @@ func TestExternalExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+		_, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
 				ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 					ServiceID:    "",
@@ -225,19 +212,13 @@ func TestExternalExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Empty Service ID.")
-		if !assert.Nil(t, res) {
-			pmmapitests.RemoveNodes(t, res.Payload.ExternalExporter.AgentID)
-		}
 	})
 
 	t.Run("AddListenPortEmpty", func(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			External: &services.AddServiceParamsBodyExternal{
 				NodeID:      genericNodeID,
 				ServiceName: pmmapitests.TestString(t, "External Service for agent"),
@@ -245,9 +226,8 @@ func TestExternalExporter(t *testing.T) {
 			},
 		})
 		serviceID := service.External.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+		_, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
 				ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 					ServiceID:    serviceID,
@@ -257,19 +237,14 @@ func TestExternalExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalExporterParams.ListenPort: value must be inside range (0, 65536)")
-		if !assert.Nil(t, res) {
-			pmmapitests.RemoveNodes(t, res.Payload.ExternalExporter.AgentID)
-		}
 	})
 
 	t.Run("AddRunsOnNodeIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			External: &services.AddServiceParamsBodyExternal{
 				NodeID:      genericNodeID,
 				ServiceName: pmmapitests.TestString(t, "External Service for agent"),
@@ -277,9 +252,8 @@ func TestExternalExporter(t *testing.T) {
 			},
 		})
 		serviceID := service.External.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+		_, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
 				ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 					ServiceID:    serviceID,
@@ -290,19 +264,14 @@ func TestExternalExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalExporterParams.RunsOnNodeId: value length must be at least 1 runes")
-		if !assert.Nil(t, res) {
-			pmmapitests.RemoveAgents(t, res.Payload.ExternalExporter.AgentID)
-		}
 	})
 
 	t.Run("NotExistServiceID", func(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+		_, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
 				ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 					ServiceID:    "pmm-service-id",
@@ -313,19 +282,14 @@ func TestExternalExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID \"pmm-service-id\" not found.")
-		if !assert.Nil(t, res) {
-			pmmapitests.RemoveAgents(t, res.Payload.ExternalExporter.AgentID)
-		}
 	})
 
 	t.Run("NotExistNodeID", func(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			External: &services.AddServiceParamsBodyExternal{
 				NodeID:      genericNodeID,
 				ServiceName: pmmapitests.TestString(t, "External Service for not exists node ID"),
@@ -333,9 +297,8 @@ func TestExternalExporter(t *testing.T) {
 			},
 		})
 		serviceID := service.External.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+		_, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 			Body: agents.AddAgentBody{
 				ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 					ServiceID:    serviceID,
@@ -346,31 +309,23 @@ func TestExternalExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Node with ID \"pmm-not-exist-server\" not found.")
-		if !assert.Nil(t, res) {
-			pmmapitests.RemoveAgents(t, res.Payload.ExternalExporter.AgentID)
-		}
 	})
 
 	t.Run("WithPushMetrics", func(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+		pmmapitests.AddPMMAgent(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			External: &services.AddServiceParamsBodyExternal{
 				NodeID:      genericNodeID,
 				ServiceName: pmmapitests.TestString(t, "External Service for External Exporter test"),
 			},
 		})
 		serviceID := service.External.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
-		ExternalExporter := addAgent(t, agents.AddAgentBody{
+		ExternalExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 				RunsOnNodeID: genericNodeID,
 				ServiceID:    serviceID,
@@ -382,7 +337,6 @@ func TestExternalExporter(t *testing.T) {
 			},
 		})
 		agentID := ExternalExporter.ExternalExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			AgentID: agentID,
@@ -401,7 +355,7 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_for_external_exporter": "external_exporter",
 				},
 				PushMetricsEnabled: true,
-				Status:             pointer.ToString(AgentStatusUnknown),
+				Status:             new(AgentStatusUnknown),
 			},
 		}, getAgentRes.Payload)
 
@@ -411,11 +365,12 @@ func TestExternalExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-						EnablePushMetrics: pointer.ToBool(false),
+						EnablePushMetrics: new(false),
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			ExternalExporter: &agents.ChangeAgentOKBodyExternalExporter{
@@ -429,7 +384,7 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_for_external_exporter": "external_exporter",
 				},
 				PushMetricsEnabled: false,
-				Status:             pointer.ToString(AgentStatusUnknown),
+				Status:             new(AgentStatusUnknown),
 			},
 		}, changeExternalExporterOK.Payload)
 
@@ -438,11 +393,12 @@ func TestExternalExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-						EnablePushMetrics: pointer.ToBool(true),
+						EnablePushMetrics: new(true),
 					},
 				},
 				Context: pmmapitests.Context,
-			})
+			},
+		)
 		require.NoError(t, err)
 		assert.Equal(t, &agents.ChangeAgentOKBody{
 			ExternalExporter: &agents.ChangeAgentOKBodyExternalExporter{
@@ -456,7 +412,7 @@ func TestExternalExporter(t *testing.T) {
 					"custom_label_for_external_exporter": "external_exporter",
 				},
 				PushMetricsEnabled: true,
-				Status:             pointer.ToString(AgentStatusUnknown),
+				Status:             new(AgentStatusUnknown),
 			},
 		}, changeExternalExporterOK.Payload)
 	})
@@ -465,10 +421,8 @@ func TestExternalExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			External: &services.AddServiceParamsBodyExternal{
 				NodeID:      genericNodeID,
 				ServiceName: pmmapitests.TestString(t, "External Service for External Exporter field changes test"),
@@ -476,10 +430,9 @@ func TestExternalExporter(t *testing.T) {
 			},
 		})
 		serviceID := service.External.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Create External Exporter with initial configuration (Note: External Exporter ChangeAgent API doesn't support password changes)
-		ExternalExporter := addAgent(t, agents.AddAgentBody{
+		ExternalExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 				RunsOnNodeID: genericNodeID,
 				ServiceID:    serviceID,
@@ -494,14 +447,13 @@ func TestExternalExporter(t *testing.T) {
 			},
 		})
 		agentID := ExternalExporter.ExternalExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		// Test changing username (External Exporter ChangeAgent doesn't support password changes)
 		changeExternalExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-					Username: pointer.ToString("rotated-external-user"),
+					Username: new("rotated-external-user"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -515,8 +467,8 @@ func TestExternalExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-					Scheme:      pointer.ToString("http"),
-					MetricsPath: pointer.ToString("/new-metrics"),
+					Scheme:      new("http"),
+					MetricsPath: new("/new-metrics"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -539,10 +491,9 @@ func TestExternalExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		pmmapitests.AddPMMAgent(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			External: &services.AddServiceParamsBodyExternal{
 				NodeID:      genericNodeID,
 				ServiceName: pmmapitests.TestString(t, "External Service for External Exporter partial update test"),
@@ -550,14 +501,9 @@ func TestExternalExporter(t *testing.T) {
 			},
 		})
 		serviceID := service.External.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
 		// Create External Exporter with comprehensive initial configuration
-		ExternalExporter := addAgent(t, agents.AddAgentBody{
+		ExternalExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 				RunsOnNodeID: genericNodeID,
 				ServiceID:    serviceID,
@@ -575,14 +521,13 @@ func TestExternalExporter(t *testing.T) {
 			},
 		})
 		agentID := ExternalExporter.ExternalExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		// Change only username, verify all other fields remain unchanged
 		_, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-					Username: pointer.ToString("changed-external-user"),
+					Username: new("changed-external-user"),
 					// Note: custom labels, scheme, metrics path, push metrics are NOT specified
 				},
 			},
@@ -618,10 +563,9 @@ func TestExternalExporter(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		pmmapitests.AddPMMAgent(t, genericNodeID)
 
-		service := addService(t, services.AddServiceBody{
+		service := pmmapitests.AddService(t, services.AddServiceBody{
 			External: &services.AddServiceParamsBodyExternal{
 				NodeID:      genericNodeID,
 				ServiceName: pmmapitests.TestString(t, "External Service for External Exporter change all fields test"),
@@ -629,14 +573,9 @@ func TestExternalExporter(t *testing.T) {
 			},
 		})
 		serviceID := service.External.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
-		pmmAgentID := pmmAgent.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
 		// Create External Exporter with initial configuration
-		ExternalExporter := addAgent(t, agents.AddAgentBody{
+		ExternalExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 				RunsOnNodeID: genericNodeID,
 				ServiceID:    serviceID,
@@ -653,17 +592,16 @@ func TestExternalExporter(t *testing.T) {
 			},
 		})
 		agentID := ExternalExporter.ExternalExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		// Change ALL available fields at once (External Exporter ChangeAgent doesn't support password changes)
 		changeExternalExporterOK, err := client.Default.AgentsService.ChangeAgent(&agents.ChangeAgentParams{
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				ExternalExporter: &agents.ChangeAgentParamsBodyExternalExporter{
-					Username:    pointer.ToString("changed-external-user"),
-					Scheme:      pointer.ToString("https"),
-					MetricsPath: pointer.ToString("/new-metrics"),
-					ListenPort:  pointer.ToInt64(8080),
+					Username:    new("changed-external-user"),
+					Scheme:      new("https"),
+					MetricsPath: new("/new-metrics"),
+					ListenPort:  new(int64(8080)),
 					CustomLabels: &agents.ChangeAgentParamsBodyExternalExporterCustomLabels{
 						Values: map[string]string{
 							"environment": "production",
@@ -671,8 +609,8 @@ func TestExternalExporter(t *testing.T) {
 							"team":        "infrastructure",
 						},
 					},
-					EnablePushMetrics: pointer.ToBool(true),
-					Enable:            pointer.ToBool(false), // disable the agent
+					EnablePushMetrics: new(true),
+					Enable:            new(false), // disable the agent
 				},
 			},
 			Context: pmmapitests.Context,

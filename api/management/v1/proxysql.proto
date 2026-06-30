@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package management.v1;
 
+import "extensions/v1/redact.proto";
+import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
 import "inventory/v1/services.proto";
@@ -41,9 +43,12 @@ message AddProxySQLServiceParams {
   // Replication set name.
   string replication_set = 11;
   // ProxySQL username for scraping metrics.
-  string username = 12 [(validate.rules).string.min_len = 1];
+  string username = 12 [
+    (validate.rules).string.min_len = 1,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
   // ProxySQL password for scraping metrics.
-  string password = 13;
+  string password = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom user-assigned labels for Service.
   map<string, string> custom_labels = 14;
   // Skip connection check.
@@ -59,11 +64,15 @@ message AddProxySQLServiceParams {
   // List of collector names to disable in this exporter.
   repeated string disable_collectors = 20;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 21;
+  string agent_password = 21 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Exporter log level
   inventory.v1.LogLevel log_level = 22;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 23;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 24 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message ProxySQLServiceResult {

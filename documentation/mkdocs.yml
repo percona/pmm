@@ -8,7 +8,4 @@ extra:
   analytics:
     provider: google
     property: G-J4J70BNH0G
-theme:
-  name: material
-  features:
-    - content.images.zoom
+

@@ -22,7 +22,6 @@ import (
 	"strings"
 
 	pgquery "github.com/pganalyze/pg_query_go/v6"
-	"github.com/pkg/errors"
 )
 
 var extractTablesRecover = true
@@ -30,20 +29,20 @@ var extractTablesRecover = true
 // ExtractTables extracts table names from query.
 func ExtractTables(query string) ([]string, error) {
 	var err error
-	var tables []string //nolint:prealloc
 
 	if extractTablesRecover {
 		defer func() {
 			if r := recover(); r != nil {
 				// preserve stack
-				err = errors.WithStack(fmt.Errorf("panic: %v", r))
+				err = fmt.Errorf("panic: %v", r)
 			}
 		}()
 	}
 
 	var jsonTree string
-	if jsonTree, err = pgquery.ParseToJSON(query); err != nil {
-		err = errors.Wrap(err, "error on parsing sql query")
+	jsonTree, err = pgquery.ParseToJSON(query)
+	if err != nil {
+		err = fmt.Errorf("error on parsing sql query: %w", err)
 		return nil, err
 	}
 
@@ -64,6 +63,7 @@ func ExtractTables(query string) ([]string, error) {
 		delete(tableNames, v)
 	}
 
+	tables := make([]string, 0, len(tableNames))
 	for k := range tableNames {
 		tables = append(tables, k)
 	}

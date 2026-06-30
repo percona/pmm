@@ -33,7 +33,9 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 
 	dsn := tests.GetTestPostgreSQLDSN(t)
 	db := tests.OpenTestPostgreSQL(t)
-	t.Cleanup(func() { db.Close() }) //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, db.Close())
+	})
 
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
@@ -52,12 +54,12 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 		require.NoError(t, err)
 		t.Logf("Full JSON:\n%s", b)
 
-		var actual [][]interface{}
+		var actual [][]any
 		err = json.Unmarshal(b, &actual)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
 
-		assert.Equal(t, [][]interface{}{
+		assert.Equal(t, [][]any{
 			{"schemaname", "tablename", "indexname", "tablespace", "indexdef"},
 			{"public", "city", "city_pkey", nil, "CREATE UNIQUE INDEX city_pkey ON public.city USING btree (id)"},
 		}, actual)
@@ -80,12 +82,12 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 		require.NoError(t, err)
 		t.Logf("Full JSON:\n%s", b)
 
-		var actual [][]interface{}
+		var actual [][]any
 		err = json.Unmarshal(b, &actual)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
 
-		assert.Equal(t, [][]interface{}{
+		assert.Equal(t, [][]any{
 			{"schemaname", "tablename", "indexname", "tablespace", "indexdef"},
 			{"public", "city", "city_pkey", nil, "CREATE UNIQUE INDEX city_pkey ON public.city USING btree (id)"},
 		}, actual)

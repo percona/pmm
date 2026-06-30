@@ -8,14 +8,18 @@
     mode: 0775
   loop:
     - /usr/share/pmm-server/static/
-    - /usr/share/pmm-server/nginx/
-    - /usr/share/pmm-server/nginx/client_temp/
-    - /usr/share/pmm-server/nginx/proxy_temp/
-    - /usr/share/pmm-server/nginx/fastcgi_temp/
-    - /usr/share/pmm-server/nginx/uwsgi_temp/
-    - /usr/share/pmm-server/nginx/scgi_temp/
+    - /srv/nginx/tmp/client/
+    - /srv/nginx/tmp/proxy/
+    - /srv/nginx/tmp/fastcgi/
+    - /srv/nginx/tmp/uwsgi/
+    - /srv/nginx/tmp/scgi/
     - /etc/nginx/conf.d/
     - /etc/nginx/ssl/
+
+- name: Enable nginx 1.26 module stream
+  command: dnf -y module enable nginx:1.26
+  args:
+    creates: /etc/dnf/modules.d/nginx.module
 
 - name: Install nginx
   dnf:

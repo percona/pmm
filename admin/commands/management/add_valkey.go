@@ -15,6 +15,8 @@
 package management
 
 import (
+	"time"
+
 	"github.com/AlekSi/pointer"
 
 	"github.com/percona/pmm/admin/agentlocal"
@@ -63,6 +65,7 @@ type AddValkeyCommand struct {
 	TLSKeyFile          string            `name:"tls-key" help:"Path to client key file"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	ConnectionTimeout   *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	AddCommonFlags
 	flags.MetricsModeFlags
@@ -152,13 +155,14 @@ func (cmd *AddValkeyCommand) RunCmd() (commands.Result, error) {
 
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 
-				TLS:           cmd.TLS,
-				TLSSkipVerify: cmd.TLSSkipVerify,
-				TLSCa:         tlsCa,
-				TLSCert:       tlsCert,
-				TLSKey:        tlsKey,
-				MetricsMode:   cmd.MetricsModeFlags.MetricsMode.EnumValue(),
-				LogLevel:      cmd.LogLevelNoFatalFlags.LogLevel.EnumValue(),
+				TLS:               cmd.TLS,
+				TLSSkipVerify:     cmd.TLSSkipVerify,
+				TLSCa:             tlsCa,
+				TLSCert:           tlsCert,
+				TLSKey:            tlsKey,
+				MetricsMode:       cmd.MetricsMode.EnumValue(),
+				LogLevel:          cmd.LogLevel.EnumValue(),
+				ConnectionTimeout: commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

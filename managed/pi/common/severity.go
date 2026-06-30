@@ -22,7 +22,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-//go:generate ../../../bin/stringer -type=Severity -linecomment
+//go:generate go tool stringer -type=Severity -linecomment
 
 // Severity represents alert severity level as present in Advisors.
 type Severity int //nolint:recvcheck

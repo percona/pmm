@@ -39,7 +39,7 @@ To learn how to create and restore backups, check out subtopics below:
     - [PERCONA_QPRESS](https://docs.percona.com/percona-xtrabackup/2.4/backup_scenarios/compressed_backup.html)
     - [PERCONA_XBCLOUD](https://www.percona.com/doc/percona-xtrabackup/2.3/xbcloud/xbcloud.html)
     - [PERCONA_XBSTREAM](https://www.percona.com/doc/percona-xtrabackup/2.3/xbstream/xbstream.html)
-    - [PERCONA_XTRABACKUP](https://www.percona.com/software/mysql-database/percona-xtrabackup)
+    - [PERCONA_XTRABACKUP](https://docs.percona.com/percona-xtrabackup/)
     - [oplog slices](https://www.percona.com/doc/percona-backup-mongodb/glossary.html#term-oplog-slice)
     - [Percona Server for MongoDB](https://www.percona.com/software/mongo-database/percona-server-for-mongodb)
     - [MongoDB Replication](https://docs.mongodb.com/manual/replication/)

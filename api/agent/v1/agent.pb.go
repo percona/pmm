@@ -18,6 +18,7 @@ import (
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 
 	v11 "github.com/percona/pmm/api/backup/v1"
+	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -3794,7 +3795,7 @@ type SetStateRequest_BuiltinAgent struct {
 
 func (x *SetStateRequest_BuiltinAgent) Reset() {
 	*x = SetStateRequest_BuiltinAgent{}
-	mi := &file_agent_v1_agent_proto_msgTypes[44]
+	mi := &file_agent_v1_agent_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3806,7 +3807,7 @@ func (x *SetStateRequest_BuiltinAgent) String() string {
 func (*SetStateRequest_BuiltinAgent) ProtoMessage() {}
 
 func (x *SetStateRequest_BuiltinAgent) ProtoReflect() protoreflect.Message {
-	mi := &file_agent_v1_agent_proto_msgTypes[44]
+	mi := &file_agent_v1_agent_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3819,7 +3820,7 @@ func (x *SetStateRequest_BuiltinAgent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SetStateRequest_BuiltinAgent.ProtoReflect.Descriptor instead.
 func (*SetStateRequest_BuiltinAgent) Descriptor() ([]byte, []int) {
-	return file_agent_v1_agent_proto_rawDescGZIP(), []int{7, 1}
+	return file_agent_v1_agent_proto_rawDescGZIP(), []int{7, 2}
 }
 
 func (x *SetStateRequest_BuiltinAgent) GetType() v1.AgentType {
@@ -4087,7 +4088,7 @@ type StartActionRequest_MySQLShowTableStatusParams struct {
 	// DSN for the service. May contain connection (dial) timeout.
 	Dsn   string `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
 	Table string `protobuf:"bytes,2,opt,name=table,proto3" json:"table,omitempty"`
-	// Contains files and their contents which can be used in DSN.
+	// Contains files and their contents which can be used in REDACT_TYPE_DSN.
 	TlsFiles *TextFiles `protobuf:"bytes,3,opt,name=tls_files,json=tlsFiles,proto3" json:"tls_files,omitempty"`
 	// TLS certificate wont be verified.
 	TlsSkipVerify bool `protobuf:"varint,4,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
@@ -4765,7 +4766,7 @@ type StartActionRequest_MySQLQuerySelectParams struct {
 	Dsn string `protobuf:"bytes,1,opt,name=dsn,proto3" json:"dsn,omitempty"`
 	// Query suffix (without leading SELECT).
 	Query string `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
-	// Contains files and their contents which can be used in DSN.
+	// Contains files and their contents which can be used in REDACT_TYPE_DSN.
 	TlsFiles *TextFiles `protobuf:"bytes,3,opt,name=tls_files,json=tlsFiles,proto3" json:"tls_files,omitempty"`
 	// TLS certificate wont be verified.
 	TlsSkipVerify bool `protobuf:"varint,4,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
@@ -6632,9 +6633,9 @@ var File_agent_v1_agent_proto protoreflect.FileDescriptor
 
 const file_agent_v1_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x14agent/v1/agent.proto\x12\bagent.v1\x1a\x18agent/v1/collector.proto\x1a\x16backup/v1/common.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17google/rpc/status.proto\x1a\x1finventory/v1/agent_status.proto\x1a\x19inventory/v1/agents.proto\x1a\x1binventory/v1/services.proto\"\xdd\x01\n" +
-	"\tTextFiles\x124\n" +
-	"\x05files\x18\x01 \x03(\v2\x1e.agent.v1.TextFiles.FilesEntryR\x05files\x12.\n" +
+	"\x14agent/v1/agent.proto\x12\bagent.v1\x1a\x18agent/v1/collector.proto\x1a\x16backup/v1/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17google/rpc/status.proto\x1a\x1finventory/v1/agent_status.proto\x1a\x19inventory/v1/agents.proto\x1a\x1binventory/v1/services.proto\"\xe3\x01\n" +
+	"\tTextFiles\x12:\n" +
+	"\x05files\x18\x01 \x03(\v2\x1e.agent.v1.TextFiles.FilesEntryB\x04\x88\xb5\x18\x02R\x05files\x12.\n" +
 	"\x13template_left_delim\x18\x02 \x01(\tR\x11templateLeftDelim\x120\n" +
 	"\x14template_right_delim\x18\x03 \x01(\tR\x12templateRightDelim\x1a8\n" +
 	"\n" +
@@ -6654,26 +6655,29 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"listenPort\x12*\n" +
 	"\x11process_exec_path\x18\x04 \x01(\tR\x0fprocessExecPath\x12\x18\n" +
 	"\aversion\x18\x05 \x01(\tR\aversion\"\x16\n" +
-	"\x14StateChangedResponse\"\xbb\v\n" +
+	"\x14StateChangedResponse\"\xd9\v\n" +
 	"\x0fSetStateRequest\x12V\n" +
 	"\x0fagent_processes\x18\x01 \x03(\v2-.agent.v1.SetStateRequest.AgentProcessesEntryR\x0eagentProcesses\x12S\n" +
-	"\x0ebuiltin_agents\x18\x02 \x03(\v2,.agent.v1.SetStateRequest.BuiltinAgentsEntryR\rbuiltinAgents\x1a\xa8\x03\n" +
+	"\x0ebuiltin_agents\x18\x02 \x03(\v2,.agent.v1.SetStateRequest.BuiltinAgentsEntryR\rbuiltinAgents\x1a\xba\x03\n" +
 	"\fAgentProcess\x12+\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x17.inventory.v1.AgentTypeR\x04type\x12.\n" +
 	"\x13template_left_delim\x18\x02 \x01(\tR\x11templateLeftDelim\x120\n" +
 	"\x14template_right_delim\x18\x03 \x01(\tR\x12templateRightDelim\x12\x12\n" +
-	"\x04args\x18\x04 \x03(\tR\x04args\x12\x10\n" +
-	"\x03env\x18\x05 \x03(\tR\x03env\x12T\n" +
+	"\x04args\x18\x04 \x03(\tR\x04args\x12\x16\n" +
+	"\x03env\x18\x05 \x03(\tB\x04\x88\xb5\x18\x03R\x03env\x12Z\n" +
 	"\n" +
-	"text_files\x18\x06 \x03(\v25.agent.v1.SetStateRequest.AgentProcess.TextFilesEntryR\ttextFiles\x12!\n" +
-	"\fredact_words\x18\a \x03(\tR\vredactWords\x12,\n" +
+	"text_files\x18\x06 \x03(\v25.agent.v1.SetStateRequest.AgentProcess.TextFilesEntryB\x04\x88\xb5\x18\x02R\ttextFiles\x12'\n" +
+	"\fredact_words\x18\a \x03(\tB\x04\x88\xb5\x18\x01R\vredactWords\x12,\n" +
 	"\x12env_variable_names\x18\b \x03(\tR\x10envVariableNames\x1a<\n" +
 	"\x0eTextFilesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a\xfa\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ai\n" +
+	"\x13AgentProcessesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
+	"\x05value\x18\x02 \x01(\v2&.agent.v1.SetStateRequest.AgentProcessR\x05value:\x028\x01\x1a\x86\x05\n" +
 	"\fBuiltinAgent\x12+\n" +
-	"\x04type\x18\x01 \x01(\x0e2\x17.inventory.v1.AgentTypeR\x04type\x12\x10\n" +
-	"\x03dsn\x18\x02 \x01(\tR\x03dsn\x12(\n" +
+	"\x04type\x18\x01 \x01(\x0e2\x17.inventory.v1.AgentTypeR\x04type\x12\x16\n" +
+	"\x03dsn\x18\x02 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x12(\n" +
 	"\x10max_query_length\x18\x03 \x01(\x05R\x0emaxQueryLength\x128\n" +
 	"\x18disable_comments_parsing\x18\x04 \x01(\bR\x16disableCommentsParsing\x124\n" +
 	"\x16disable_query_examples\x18\x05 \x01(\bR\x14disableQueryExamples\x12+\n" +
@@ -6681,9 +6685,9 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\n" +
 	"text_files\x18\a \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x12\x10\n" +
 	"\x03tls\x18\b \x01(\bR\x03tls\x12&\n" +
-	"\x0ftls_skip_verify\x18\t \x01(\bR\rtlsSkipVerify\x12A\n" +
+	"\x0ftls_skip_verify\x18\t \x01(\bR\rtlsSkipVerify\x12G\n" +
 	"\x03env\x18\n" +
-	" \x03(\v2/.agent.v1.SetStateRequest.BuiltinAgent.EnvEntryR\x03env\x129\n" +
+	" \x03(\v2/.agent.v1.SetStateRequest.BuiltinAgent.EnvEntryB\x04\x88\xb5\x18\x03R\x03env\x129\n" +
 	"\vrta_options\x18\v \x01(\v2\x18.inventory.v1.RTAOptionsR\n" +
 	"rtaOptions\x12\x1d\n" +
 	"\n" +
@@ -6691,10 +6695,7 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\fservice_name\x18\r \x01(\tR\vserviceName\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ai\n" +
-	"\x13AgentProcessesEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
-	"\x05value\x18\x02 \x01(\v2&.agent.v1.SetStateRequest.AgentProcessR\x05value:\x028\x01\x1ah\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ah\n" +
 	"\x12BuiltinAgentsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
 	"\x05value\x18\x02 \x01(\v2&.agent.v1.SetStateRequest.BuiltinAgentR\x05value:\x028\x01\"\x12\n" +
@@ -6725,7 +6726,7 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x11QueryActionResult\x12\x18\n" +
 	"\acolumns\x18\x01 \x03(\tR\acolumns\x12.\n" +
 	"\x04rows\x18\x02 \x03(\v2\x1a.agent.v1.QueryActionSliceR\x04rows\x12,\n" +
-	"\x04docs\x18\x03 \x03(\v2\x18.agent.v1.QueryActionMapR\x04docs\"\x98,\n" +
+	"\x04docs\x18\x03 \x03(\v2\x18.agent.v1.QueryActionMapR\x04docs\"\x9d-\n" +
 	"\x12StartActionRequest\x12\x1b\n" +
 	"\taction_id\x18\x01 \x01(\tR\bactionId\x123\n" +
 	"\atimeout\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x12c\n" +
@@ -6750,99 +6751,99 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"#mongodb_query_getcmdlineopts_params\x18\x1b \x01(\v2=.agent.v1.StartActionRequest.MongoDBQueryGetCmdLineOptsParamsH\x00R mongodbQueryGetcmdlineoptsParams\x12\x94\x01\n" +
 	"%mongodb_query_replsetgetstatus_params\x18\x1c \x01(\v2?.agent.v1.StartActionRequest.MongoDBQueryReplSetGetStatusParamsH\x00R\"mongodbQueryReplsetgetstatusParams\x12\x97\x01\n" +
 	"&mongodb_query_getdiagnosticdata_params\x18\x1d \x01(\v2@.agent.v1.StartActionRequest.MongoDBQueryGetDiagnosticDataParamsH\x00R#mongodbQueryGetdiagnosticdataParams\x12v\n" +
-	"\x1arestart_sys_service_params\x182 \x01(\v27.agent.v1.StartActionRequest.RestartSystemServiceParamsH\x00R\x17restartSysServiceParams\x1a\x8f\x02\n" +
-	"\x12MySQLExplainParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x12\x14\n" +
+	"\x1arestart_sys_service_params\x182 \x01(\v27.agent.v1.StartActionRequest.RestartSystemServiceParamsH\x00R\x17restartSysServiceParams\x1a\x95\x02\n" +
+	"\x12MySQLExplainParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x12\x14\n" +
 	"\x05query\x18\x02 \x01(\tR\x05query\x12\x16\n" +
 	"\x06values\x18\x03 \x03(\tR\x06values\x12\x16\n" +
 	"\x06schema\x18\x04 \x01(\tR\x06schema\x12G\n" +
 	"\routput_format\x18\x05 \x01(\x0e2\".agent.v1.MysqlExplainOutputFormatR\foutputFormat\x120\n" +
 	"\ttls_files\x18\x06 \x01(\v2\x13.agent.v1.TextFilesR\btlsFiles\x12&\n" +
-	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x1a\x9e\x01\n" +
-	"\x1aMySQLShowCreateTableParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x12\x14\n" +
+	"\x0ftls_skip_verify\x18\a \x01(\bR\rtlsSkipVerify\x1a\xa4\x01\n" +
+	"\x1aMySQLShowCreateTableParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x12\x14\n" +
+	"\x05table\x18\x02 \x01(\tR\x05table\x120\n" +
+	"\ttls_files\x18\x03 \x01(\v2\x13.agent.v1.TextFilesR\btlsFiles\x12&\n" +
+	"\x0ftls_skip_verify\x18\x04 \x01(\bR\rtlsSkipVerify\x1a\xa4\x01\n" +
+	"\x1aMySQLShowTableStatusParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x12\x14\n" +
 	"\x05table\x18\x02 \x01(\tR\x05table\x120\n" +
 	"\ttls_files\x18\x03 \x01(\v2\x13.agent.v1.TextFilesR\btlsFiles\x12&\n" +
 	"\x0ftls_skip_verify\x18\x04 \x01(\bR\rtlsSkipVerify\x1a\x9e\x01\n" +
-	"\x1aMySQLShowTableStatusParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x12\x14\n" +
+	"\x14MySQLShowIndexParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x12\x14\n" +
 	"\x05table\x18\x02 \x01(\tR\x05table\x120\n" +
 	"\ttls_files\x18\x03 \x01(\v2\x13.agent.v1.TextFilesR\btlsFiles\x12&\n" +
-	"\x0ftls_skip_verify\x18\x04 \x01(\bR\rtlsSkipVerify\x1a\x98\x01\n" +
-	"\x14MySQLShowIndexParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x12\x14\n" +
+	"\x0ftls_skip_verify\x18\x04 \x01(\bR\rtlsSkipVerify\x1a\xa9\x01\n" +
+	"\x1fPostgreSQLShowCreateTableParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x12\x14\n" +
 	"\x05table\x18\x02 \x01(\tR\x05table\x120\n" +
 	"\ttls_files\x18\x03 \x01(\v2\x13.agent.v1.TextFilesR\btlsFiles\x12&\n" +
 	"\x0ftls_skip_verify\x18\x04 \x01(\bR\rtlsSkipVerify\x1a\xa3\x01\n" +
-	"\x1fPostgreSQLShowCreateTableParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x12\x14\n" +
+	"\x19PostgreSQLShowIndexParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x12\x14\n" +
 	"\x05table\x18\x02 \x01(\tR\x05table\x120\n" +
 	"\ttls_files\x18\x03 \x01(\v2\x13.agent.v1.TextFilesR\btlsFiles\x12&\n" +
-	"\x0ftls_skip_verify\x18\x04 \x01(\bR\rtlsSkipVerify\x1a\x9d\x01\n" +
-	"\x19PostgreSQLShowIndexParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x12\x14\n" +
-	"\x05table\x18\x02 \x01(\tR\x05table\x120\n" +
-	"\ttls_files\x18\x03 \x01(\v2\x13.agent.v1.TextFilesR\btlsFiles\x12&\n" +
-	"\x0ftls_skip_verify\x18\x04 \x01(\bR\rtlsSkipVerify\x1ar\n" +
-	"\x14MongoDBExplainParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x12\x14\n" +
+	"\x0ftls_skip_verify\x18\x04 \x01(\bR\rtlsSkipVerify\x1ax\n" +
+	"\x14MongoDBExplainParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x12\x14\n" +
 	"\x05query\x18\x02 \x01(\tR\x05query\x122\n" +
 	"\n" +
 	"text_files\x18\x03 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x1a\x11\n" +
-	"\x0fPTSummaryParams\x1as\n" +
+	"\x0fPTSummaryParams\x1a\x7f\n" +
 	"\x11PTPgSummaryParams\x12\x12\n" +
 	"\x04host\x18\x01 \x01(\tR\x04host\x12\x12\n" +
-	"\x04port\x18\x02 \x01(\rR\x04port\x12\x1a\n" +
-	"\busername\x18\x03 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x04 \x01(\tR\bpassword\x1ax\n" +
+	"\x04port\x18\x02 \x01(\rR\x04port\x12 \n" +
+	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x1a\x84\x01\n" +
 	"\x16PTMongoDBSummaryParams\x12\x12\n" +
 	"\x04host\x18\x01 \x01(\tR\x04host\x12\x12\n" +
-	"\x04port\x18\x02 \x01(\rR\x04port\x12\x1a\n" +
-	"\busername\x18\x03 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x04 \x01(\tR\bpassword\x1a\x8e\x01\n" +
+	"\x04port\x18\x02 \x01(\rR\x04port\x12 \n" +
+	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x1a\x9a\x01\n" +
 	"\x14PTMySQLSummaryParams\x12\x12\n" +
 	"\x04host\x18\x01 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\rR\x04port\x12\x16\n" +
-	"\x06socket\x18\x03 \x01(\tR\x06socket\x12\x1a\n" +
-	"\busername\x18\x04 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x05 \x01(\tR\bpassword\x1a\x98\x01\n" +
-	"\x14MySQLQueryShowParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x12\x14\n" +
+	"\x06socket\x18\x03 \x01(\tR\x06socket\x12 \n" +
+	"\busername\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\bpassword\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x1a\x9e\x01\n" +
+	"\x14MySQLQueryShowParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x12\x14\n" +
 	"\x05query\x18\x02 \x01(\tR\x05query\x120\n" +
 	"\ttls_files\x18\x03 \x01(\v2\x13.agent.v1.TextFilesR\btlsFiles\x12&\n" +
-	"\x0ftls_skip_verify\x18\x04 \x01(\bR\rtlsSkipVerify\x1a\x9a\x01\n" +
-	"\x16MySQLQuerySelectParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x12\x14\n" +
+	"\x0ftls_skip_verify\x18\x04 \x01(\bR\rtlsSkipVerify\x1a\xa0\x01\n" +
+	"\x16MySQLQuerySelectParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x12\x14\n" +
 	"\x05query\x18\x02 \x01(\tR\x05query\x120\n" +
 	"\ttls_files\x18\x03 \x01(\v2\x13.agent.v1.TextFilesR\btlsFiles\x12&\n" +
-	"\x0ftls_skip_verify\x18\x04 \x01(\bR\rtlsSkipVerify\x1a\x87\x01\n" +
-	"\x19PostgreSQLQueryShowParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x120\n" +
+	"\x0ftls_skip_verify\x18\x04 \x01(\bR\rtlsSkipVerify\x1a\x8d\x01\n" +
+	"\x19PostgreSQLQueryShowParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x120\n" +
 	"\ttls_files\x18\x02 \x01(\v2\x13.agent.v1.TextFilesR\btlsFiles\x12&\n" +
-	"\x0ftls_skip_verify\x18\x03 \x01(\bR\rtlsSkipVerify\x1a\x9f\x01\n" +
-	"\x1bPostgreSQLQuerySelectParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x12\x14\n" +
+	"\x0ftls_skip_verify\x18\x03 \x01(\bR\rtlsSkipVerify\x1a\xa5\x01\n" +
+	"\x1bPostgreSQLQuerySelectParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x12\x14\n" +
 	"\x05query\x18\x02 \x01(\tR\x05query\x120\n" +
 	"\ttls_files\x18\x03 \x01(\v2\x13.agent.v1.TextFilesR\btlsFiles\x12&\n" +
-	"\x0ftls_skip_verify\x18\x04 \x01(\bR\rtlsSkipVerify\x1af\n" +
-	"\x1eMongoDBQueryGetParameterParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x122\n" +
+	"\x0ftls_skip_verify\x18\x04 \x01(\bR\rtlsSkipVerify\x1al\n" +
+	"\x1eMongoDBQueryGetParameterParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x122\n" +
 	"\n" +
-	"text_files\x18\x02 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x1ac\n" +
-	"\x1bMongoDBQueryBuildInfoParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x122\n" +
+	"text_files\x18\x02 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x1ai\n" +
+	"\x1bMongoDBQueryBuildInfoParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x122\n" +
 	"\n" +
-	"text_files\x18\x02 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x1ah\n" +
-	" MongoDBQueryGetCmdLineOptsParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x122\n" +
+	"text_files\x18\x02 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x1an\n" +
+	" MongoDBQueryGetCmdLineOptsParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x122\n" +
 	"\n" +
-	"text_files\x18\x02 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x1aj\n" +
-	"\"MongoDBQueryReplSetGetStatusParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x122\n" +
+	"text_files\x18\x02 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x1ap\n" +
+	"\"MongoDBQueryReplSetGetStatusParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x122\n" +
 	"\n" +
-	"text_files\x18\x02 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x1ak\n" +
-	"#MongoDBQueryGetDiagnosticDataParams\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x122\n" +
+	"text_files\x18\x02 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x1aq\n" +
+	"#MongoDBQueryGetDiagnosticDataParams\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x122\n" +
 	"\n" +
 	"text_files\x18\x02 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x1a\xf4\x01\n" +
 	"\x1aRestartSystemServiceParams\x12l\n" +
@@ -6861,9 +6862,9 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x06output\x18\x03 \x01(\fR\x06output\x12\x12\n" +
 	"\x04done\x18\x04 \x01(\bR\x04done\x12\x14\n" +
 	"\x05error\x18\x05 \x01(\tR\x05error\"\x16\n" +
-	"\x14ActionResultResponse\"v\n" +
-	"\x14PBMSwitchPITRRequest\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x122\n" +
+	"\x14ActionResultResponse\"|\n" +
+	"\x14PBMSwitchPITRRequest\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x122\n" +
 	"\n" +
 	"text_files\x18\x02 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x12\x18\n" +
 	"\aenabled\x18\x03 \x01(\bR\aenabled\"-\n" +
@@ -6874,10 +6875,10 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x05limit\x18\x02 \x01(\rR\x05limit\"g\n" +
 	"\x11AgentLogsResponse\x12\x12\n" +
 	"\x04logs\x18\x01 \x03(\tR\x04logs\x12>\n" +
-	"\x1cagent_config_log_lines_count\x18\x02 \x01(\rR\x18agentConfigLogLinesCount\"\xfc\x01\n" +
+	"\x1cagent_config_log_lines_count\x18\x02 \x01(\rR\x18agentConfigLogLinesCount\"\x82\x02\n" +
 	"\x16CheckConnectionRequest\x12-\n" +
-	"\x04type\x18\x01 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\x04type\x12\x10\n" +
-	"\x03dsn\x18\x02 \x01(\tR\x03dsn\x123\n" +
+	"\x04type\x18\x01 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\x04type\x12\x16\n" +
+	"\x03dsn\x18\x02 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x123\n" +
 	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x122\n" +
 	"\n" +
 	"text_files\x18\x04 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x12&\n" +
@@ -6887,10 +6888,10 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x05error\x18\x01 \x01(\tR\x05error\x1a(\n" +
 	"\x05Stats\x12\x1f\n" +
 	"\vtable_count\x18\x01 \x01(\x05R\n" +
-	"tableCount\"\xf8\x01\n" +
+	"tableCount\"\xfe\x01\n" +
 	"\x12ServiceInfoRequest\x12-\n" +
-	"\x04type\x18\x01 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\x04type\x12\x10\n" +
-	"\x03dsn\x18\x02 \x01(\tR\x03dsn\x123\n" +
+	"\x04type\x18\x01 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\x04type\x12\x16\n" +
+	"\x03dsn\x18\x02 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x123\n" +
 	"\atimeout\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x122\n" +
 	"\n" +
 	"text_files\x18\x04 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x12&\n" +
@@ -6907,28 +6908,28 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x10JobStatusRequest\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\")\n" +
 	"\x11JobStatusResponse\x12\x14\n" +
-	"\x05alive\x18\x01 \x01(\bR\x05alive\"\xb2\x01\n" +
+	"\x05alive\x18\x01 \x01(\bR\x05alive\"\xbe\x01\n" +
 	"\x10S3LocationConfig\x12\x1a\n" +
-	"\bendpoint\x18\x01 \x01(\tR\bendpoint\x12\x1d\n" +
+	"\bendpoint\x18\x01 \x01(\tR\bendpoint\x12#\n" +
 	"\n" +
-	"access_key\x18\x02 \x01(\tR\taccessKey\x12\x1d\n" +
+	"access_key\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01R\taccessKey\x12#\n" +
 	"\n" +
-	"secret_key\x18\x03 \x01(\tR\tsecretKey\x12\x1f\n" +
+	"secret_key\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\tsecretKey\x12\x1f\n" +
 	"\vbucket_name\x18\x04 \x01(\tR\n" +
 	"bucketName\x12#\n" +
 	"\rbucket_region\x18\x05 \x01(\tR\fbucketRegion\".\n" +
 	"\x18FilesystemLocationConfig\x12\x12\n" +
-	"\x04path\x18\x01 \x01(\tR\x04path\"\xd3\r\n" +
+	"\x04path\x18\x01 \x01(\tR\x04path\"\xeb\r\n" +
 	"\x0fStartJobRequest\x12\x15\n" +
 	"\x06job_id\x18\x01 \x01(\tR\x05jobId\x123\n" +
 	"\atimeout\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x12J\n" +
 	"\fmysql_backup\x18\v \x01(\v2%.agent.v1.StartJobRequest.MySQLBackupH\x00R\vmysqlBackup\x12`\n" +
 	"\x14mysql_restore_backup\x18\f \x01(\v2,.agent.v1.StartJobRequest.MySQLRestoreBackupH\x00R\x12mysqlRestoreBackup\x12P\n" +
 	"\x0emongodb_backup\x18\r \x01(\v2'.agent.v1.StartJobRequest.MongoDBBackupH\x00R\rmongodbBackup\x12f\n" +
-	"\x16mongodb_restore_backup\x18\x0e \x01(\v2..agent.v1.StartJobRequest.MongoDBRestoreBackupH\x00R\x14mongodbRestoreBackup\x1a\x96\x02\n" +
-	"\vMySQLBackup\x12\x12\n" +
-	"\x04user\x18\x01 \x01(\tR\x04user\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x18\n" +
+	"\x16mongodb_restore_backup\x18\x0e \x01(\v2..agent.v1.StartJobRequest.MongoDBRestoreBackupH\x00R\x14mongodbRestoreBackup\x1a\xa2\x02\n" +
+	"\vMySQLBackup\x12\x18\n" +
+	"\x04user\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01R\x04user\x12 \n" +
+	"\bpassword\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x12\x18\n" +
 	"\aaddress\x18\x03 \x01(\tR\aaddress\x12\x12\n" +
 	"\x04port\x18\x04 \x01(\x05R\x04port\x12\x16\n" +
 	"\x06socket\x18\x05 \x01(\tR\x06socket\x12\x12\n" +
@@ -6944,9 +6945,9 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x06folder\x18\x03 \x01(\tR\x06folder\x129\n" +
 	"\ts3_config\x18\n" +
 	" \x01(\v2\x1a.agent.v1.S3LocationConfigH\x00R\bs3ConfigB\x11\n" +
-	"\x0flocation_configJ\x04\b\v\x10\fR\x11filesystem_config\x1a\xf8\x02\n" +
-	"\rMongoDBBackup\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x122\n" +
+	"\x0flocation_configJ\x04\b\v\x10\fR\x11filesystem_config\x1a\xfe\x02\n" +
+	"\rMongoDBBackup\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x122\n" +
 	"\n" +
 	"text_files\x18\x02 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x16\n" +
@@ -6958,9 +6959,9 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\ts3_config\x18\n" +
 	" \x01(\v2\x1a.agent.v1.S3LocationConfigH\x00R\bs3Config\x12Q\n" +
 	"\x11filesystem_config\x18\v \x01(\v2\".agent.v1.FilesystemLocationConfigH\x00R\x10filesystemConfigB\x11\n" +
-	"\x0flocation_config\x1a\xa7\x03\n" +
-	"\x14MongoDBRestoreBackup\x12\x10\n" +
-	"\x03dsn\x18\x01 \x01(\tR\x03dsn\x122\n" +
+	"\x0flocation_config\x1a\xad\x03\n" +
+	"\x14MongoDBRestoreBackup\x12\x16\n" +
+	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x122\n" +
 	"\n" +
 	"text_files\x18\x02 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x16\n" +
@@ -7113,59 +7114,59 @@ var (
 	file_agent_v1_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 	file_agent_v1_agent_proto_msgTypes  = make([]protoimpl.MessageInfo, 92)
 	file_agent_v1_agent_proto_goTypes   = []any{
-		(MysqlExplainOutputFormat)(0),                                    // 0: agent.v1.MysqlExplainOutputFormat
-		(StartActionRequest_RestartSystemServiceParams_SystemService)(0), // 1: agent.v1.StartActionRequest.RestartSystemServiceParams.SystemService
-		(*TextFiles)(nil),                             // 2: agent.v1.TextFiles
-		(*Ping)(nil),                                  // 3: agent.v1.Ping
-		(*Pong)(nil),                                  // 4: agent.v1.Pong
-		(*QANCollectRequest)(nil),                     // 5: agent.v1.QANCollectRequest
-		(*QANCollectResponse)(nil),                    // 6: agent.v1.QANCollectResponse
-		(*StateChangedRequest)(nil),                   // 7: agent.v1.StateChangedRequest
-		(*StateChangedResponse)(nil),                  // 8: agent.v1.StateChangedResponse
-		(*SetStateRequest)(nil),                       // 9: agent.v1.SetStateRequest
-		(*SetStateResponse)(nil),                      // 10: agent.v1.SetStateResponse
-		(*QueryActionValue)(nil),                      // 11: agent.v1.QueryActionValue
-		(*QueryActionSlice)(nil),                      // 12: agent.v1.QueryActionSlice
-		(*QueryActionMap)(nil),                        // 13: agent.v1.QueryActionMap
-		(*QueryActionBinary)(nil),                     // 14: agent.v1.QueryActionBinary
-		(*QueryActionResult)(nil),                     // 15: agent.v1.QueryActionResult
-		(*StartActionRequest)(nil),                    // 16: agent.v1.StartActionRequest
-		(*StartActionResponse)(nil),                   // 17: agent.v1.StartActionResponse
-		(*StopActionRequest)(nil),                     // 18: agent.v1.StopActionRequest
-		(*StopActionResponse)(nil),                    // 19: agent.v1.StopActionResponse
-		(*ActionResultRequest)(nil),                   // 20: agent.v1.ActionResultRequest
-		(*ActionResultResponse)(nil),                  // 21: agent.v1.ActionResultResponse
-		(*PBMSwitchPITRRequest)(nil),                  // 22: agent.v1.PBMSwitchPITRRequest
-		(*PBMSwitchPITRResponse)(nil),                 // 23: agent.v1.PBMSwitchPITRResponse
-		(*AgentLogsRequest)(nil),                      // 24: agent.v1.AgentLogsRequest
-		(*AgentLogsResponse)(nil),                     // 25: agent.v1.AgentLogsResponse
-		(*CheckConnectionRequest)(nil),                // 26: agent.v1.CheckConnectionRequest
-		(*CheckConnectionResponse)(nil),               // 27: agent.v1.CheckConnectionResponse
-		(*ServiceInfoRequest)(nil),                    // 28: agent.v1.ServiceInfoRequest
-		(*ServiceInfoResponse)(nil),                   // 29: agent.v1.ServiceInfoResponse
-		(*JobStatusRequest)(nil),                      // 30: agent.v1.JobStatusRequest
-		(*JobStatusResponse)(nil),                     // 31: agent.v1.JobStatusResponse
-		(*S3LocationConfig)(nil),                      // 32: agent.v1.S3LocationConfig
-		(*FilesystemLocationConfig)(nil),              // 33: agent.v1.FilesystemLocationConfig
-		(*StartJobRequest)(nil),                       // 34: agent.v1.StartJobRequest
-		(*StartJobResponse)(nil),                      // 35: agent.v1.StartJobResponse
-		(*StopJobRequest)(nil),                        // 36: agent.v1.StopJobRequest
-		(*StopJobResponse)(nil),                       // 37: agent.v1.StopJobResponse
-		(*JobResult)(nil),                             // 38: agent.v1.JobResult
-		(*JobProgress)(nil),                           // 39: agent.v1.JobProgress
-		(*GetVersionsRequest)(nil),                    // 40: agent.v1.GetVersionsRequest
-		(*GetVersionsResponse)(nil),                   // 41: agent.v1.GetVersionsResponse
-		(*AgentMessage)(nil),                          // 42: agent.v1.AgentMessage
-		(*ServerMessage)(nil),                         // 43: agent.v1.ServerMessage
-		nil,                                           // 44: agent.v1.TextFiles.FilesEntry
-		(*SetStateRequest_AgentProcess)(nil),          // 45: agent.v1.SetStateRequest.AgentProcess
-		(*SetStateRequest_BuiltinAgent)(nil),          // 46: agent.v1.SetStateRequest.BuiltinAgent
-		nil,                                           // 47: agent.v1.SetStateRequest.AgentProcessesEntry
-		nil,                                           // 48: agent.v1.SetStateRequest.BuiltinAgentsEntry
-		nil,                                           // 49: agent.v1.SetStateRequest.AgentProcess.TextFilesEntry
-		nil,                                           // 50: agent.v1.SetStateRequest.BuiltinAgent.EnvEntry
-		nil,                                           // 51: agent.v1.QueryActionMap.MapEntry
-		(*StartActionRequest_MySQLExplainParams)(nil), // 52: agent.v1.StartActionRequest.MySQLExplainParams
+		MysqlExplainOutputFormat(0),                                    // 0: agent.v1.MysqlExplainOutputFormat
+		StartActionRequest_RestartSystemServiceParams_SystemService(0), // 1: agent.v1.StartActionRequest.RestartSystemServiceParams.SystemService
+		(*TextFiles)(nil),                                              // 2: agent.v1.TextFiles
+		(*Ping)(nil),                                                   // 3: agent.v1.Ping
+		(*Pong)(nil),                                                   // 4: agent.v1.Pong
+		(*QANCollectRequest)(nil),                                      // 5: agent.v1.QANCollectRequest
+		(*QANCollectResponse)(nil),                                     // 6: agent.v1.QANCollectResponse
+		(*StateChangedRequest)(nil),                                    // 7: agent.v1.StateChangedRequest
+		(*StateChangedResponse)(nil),                                   // 8: agent.v1.StateChangedResponse
+		(*SetStateRequest)(nil),                                        // 9: agent.v1.SetStateRequest
+		(*SetStateResponse)(nil),                                       // 10: agent.v1.SetStateResponse
+		(*QueryActionValue)(nil),                                       // 11: agent.v1.QueryActionValue
+		(*QueryActionSlice)(nil),                                       // 12: agent.v1.QueryActionSlice
+		(*QueryActionMap)(nil),                                         // 13: agent.v1.QueryActionMap
+		(*QueryActionBinary)(nil),                                      // 14: agent.v1.QueryActionBinary
+		(*QueryActionResult)(nil),                                      // 15: agent.v1.QueryActionResult
+		(*StartActionRequest)(nil),                                     // 16: agent.v1.StartActionRequest
+		(*StartActionResponse)(nil),                                    // 17: agent.v1.StartActionResponse
+		(*StopActionRequest)(nil),                                      // 18: agent.v1.StopActionRequest
+		(*StopActionResponse)(nil),                                     // 19: agent.v1.StopActionResponse
+		(*ActionResultRequest)(nil),                                    // 20: agent.v1.ActionResultRequest
+		(*ActionResultResponse)(nil),                                   // 21: agent.v1.ActionResultResponse
+		(*PBMSwitchPITRRequest)(nil),                                   // 22: agent.v1.PBMSwitchPITRRequest
+		(*PBMSwitchPITRResponse)(nil),                                  // 23: agent.v1.PBMSwitchPITRResponse
+		(*AgentLogsRequest)(nil),                                       // 24: agent.v1.AgentLogsRequest
+		(*AgentLogsResponse)(nil),                                      // 25: agent.v1.AgentLogsResponse
+		(*CheckConnectionRequest)(nil),                                 // 26: agent.v1.CheckConnectionRequest
+		(*CheckConnectionResponse)(nil),                                // 27: agent.v1.CheckConnectionResponse
+		(*ServiceInfoRequest)(nil),                                     // 28: agent.v1.ServiceInfoRequest
+		(*ServiceInfoResponse)(nil),                                    // 29: agent.v1.ServiceInfoResponse
+		(*JobStatusRequest)(nil),                                       // 30: agent.v1.JobStatusRequest
+		(*JobStatusResponse)(nil),                                      // 31: agent.v1.JobStatusResponse
+		(*S3LocationConfig)(nil),                                       // 32: agent.v1.S3LocationConfig
+		(*FilesystemLocationConfig)(nil),                               // 33: agent.v1.FilesystemLocationConfig
+		(*StartJobRequest)(nil),                                        // 34: agent.v1.StartJobRequest
+		(*StartJobResponse)(nil),                                       // 35: agent.v1.StartJobResponse
+		(*StopJobRequest)(nil),                                         // 36: agent.v1.StopJobRequest
+		(*StopJobResponse)(nil),                                        // 37: agent.v1.StopJobResponse
+		(*JobResult)(nil),                                              // 38: agent.v1.JobResult
+		(*JobProgress)(nil),                                            // 39: agent.v1.JobProgress
+		(*GetVersionsRequest)(nil),                                     // 40: agent.v1.GetVersionsRequest
+		(*GetVersionsResponse)(nil),                                    // 41: agent.v1.GetVersionsResponse
+		(*AgentMessage)(nil),                                           // 42: agent.v1.AgentMessage
+		(*ServerMessage)(nil),                                          // 43: agent.v1.ServerMessage
+		nil,                                                            // 44: agent.v1.TextFiles.FilesEntry
+		(*SetStateRequest_AgentProcess)(nil),                           // 45: agent.v1.SetStateRequest.AgentProcess
+		nil,                                                            // 46: agent.v1.SetStateRequest.AgentProcessesEntry
+		(*SetStateRequest_BuiltinAgent)(nil),                           // 47: agent.v1.SetStateRequest.BuiltinAgent
+		nil,                                                            // 48: agent.v1.SetStateRequest.BuiltinAgentsEntry
+		nil,                                                            // 49: agent.v1.SetStateRequest.AgentProcess.TextFilesEntry
+		nil,                                                            // 50: agent.v1.SetStateRequest.BuiltinAgent.EnvEntry
+		nil,                                                            // 51: agent.v1.QueryActionMap.MapEntry
+		(*StartActionRequest_MySQLExplainParams)(nil),                  // 52: agent.v1.StartActionRequest.MySQLExplainParams
 		(*StartActionRequest_MySQLShowCreateTableParams)(nil),          // 53: agent.v1.StartActionRequest.MySQLShowCreateTableParams
 		(*StartActionRequest_MySQLShowTableStatusParams)(nil),          // 54: agent.v1.StartActionRequest.MySQLShowTableStatusParams
 		(*StartActionRequest_MySQLShowIndexParams)(nil),                // 55: agent.v1.StartActionRequest.MySQLShowIndexParams
@@ -7209,13 +7210,13 @@ var (
 		(*GetVersionsResponse_Version)(nil),                            // 93: agent.v1.GetVersionsResponse.Version
 		(*timestamppb.Timestamp)(nil),                                  // 94: google.protobuf.Timestamp
 		(*MetricsBucket)(nil),                                          // 95: agent.v1.MetricsBucket
-		(v1.AgentStatus)(0),                                            // 96: inventory.v1.AgentStatus
+		v1.AgentStatus(0),                                              // 96: inventory.v1.AgentStatus
 		(*durationpb.Duration)(nil),                                    // 97: google.protobuf.Duration
-		(v1.ServiceType)(0),                                            // 98: inventory.v1.ServiceType
+		v1.ServiceType(0),                                              // 98: inventory.v1.ServiceType
 		(*status.Status)(nil),                                          // 99: google.rpc.Status
-		(v1.AgentType)(0),                                              // 100: inventory.v1.AgentType
+		v1.AgentType(0),                                                // 100: inventory.v1.AgentType
 		(*v1.RTAOptions)(nil),                                          // 101: inventory.v1.RTAOptions
-		(v11.DataModel)(0),                                             // 102: backup.v1.DataModel
+		v11.DataModel(0),                                               // 102: backup.v1.DataModel
 		(*v11.PbmMetadata)(nil),                                        // 103: backup.v1.PbmMetadata
 		(*v11.Metadata)(nil),                                           // 104: backup.v1.Metadata
 	}
@@ -7226,7 +7227,7 @@ var file_agent_v1_agent_proto_depIdxs = []int32{
 	94,  // 1: agent.v1.Pong.current_time:type_name -> google.protobuf.Timestamp
 	95,  // 2: agent.v1.QANCollectRequest.metrics_bucket:type_name -> agent.v1.MetricsBucket
 	96,  // 3: agent.v1.StateChangedRequest.status:type_name -> inventory.v1.AgentStatus
-	47,  // 4: agent.v1.SetStateRequest.agent_processes:type_name -> agent.v1.SetStateRequest.AgentProcessesEntry
+	46,  // 4: agent.v1.SetStateRequest.agent_processes:type_name -> agent.v1.SetStateRequest.AgentProcessesEntry
 	48,  // 5: agent.v1.SetStateRequest.builtin_agents:type_name -> agent.v1.SetStateRequest.BuiltinAgentsEntry
 	94,  // 6: agent.v1.QueryActionValue.timestamp:type_name -> google.protobuf.Timestamp
 	12,  // 7: agent.v1.QueryActionValue.slice:type_name -> agent.v1.QueryActionSlice
@@ -7320,12 +7321,12 @@ var file_agent_v1_agent_proto_depIdxs = []int32{
 	28,  // 95: agent.v1.ServerMessage.service_info:type_name -> agent.v1.ServiceInfoRequest
 	100, // 96: agent.v1.SetStateRequest.AgentProcess.type:type_name -> inventory.v1.AgentType
 	49,  // 97: agent.v1.SetStateRequest.AgentProcess.text_files:type_name -> agent.v1.SetStateRequest.AgentProcess.TextFilesEntry
-	100, // 98: agent.v1.SetStateRequest.BuiltinAgent.type:type_name -> inventory.v1.AgentType
-	2,   // 99: agent.v1.SetStateRequest.BuiltinAgent.text_files:type_name -> agent.v1.TextFiles
-	50,  // 100: agent.v1.SetStateRequest.BuiltinAgent.env:type_name -> agent.v1.SetStateRequest.BuiltinAgent.EnvEntry
-	101, // 101: agent.v1.SetStateRequest.BuiltinAgent.rta_options:type_name -> inventory.v1.RTAOptions
-	45,  // 102: agent.v1.SetStateRequest.AgentProcessesEntry.value:type_name -> agent.v1.SetStateRequest.AgentProcess
-	46,  // 103: agent.v1.SetStateRequest.BuiltinAgentsEntry.value:type_name -> agent.v1.SetStateRequest.BuiltinAgent
+	45,  // 98: agent.v1.SetStateRequest.AgentProcessesEntry.value:type_name -> agent.v1.SetStateRequest.AgentProcess
+	100, // 99: agent.v1.SetStateRequest.BuiltinAgent.type:type_name -> inventory.v1.AgentType
+	2,   // 100: agent.v1.SetStateRequest.BuiltinAgent.text_files:type_name -> agent.v1.TextFiles
+	50,  // 101: agent.v1.SetStateRequest.BuiltinAgent.env:type_name -> agent.v1.SetStateRequest.BuiltinAgent.EnvEntry
+	101, // 102: agent.v1.SetStateRequest.BuiltinAgent.rta_options:type_name -> inventory.v1.RTAOptions
+	47,  // 103: agent.v1.SetStateRequest.BuiltinAgentsEntry.value:type_name -> agent.v1.SetStateRequest.BuiltinAgent
 	11,  // 104: agent.v1.QueryActionMap.MapEntry.value:type_name -> agent.v1.QueryActionValue
 	0,   // 105: agent.v1.StartActionRequest.MySQLExplainParams.output_format:type_name -> agent.v1.MysqlExplainOutputFormat
 	2,   // 106: agent.v1.StartActionRequest.MySQLExplainParams.tls_files:type_name -> agent.v1.TextFiles

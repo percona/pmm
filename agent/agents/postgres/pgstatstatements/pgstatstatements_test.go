@@ -67,7 +67,9 @@ func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
 
 func TestPGStatStatementsQAN(t *testing.T) {
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public")
@@ -75,7 +77,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 	defer func() {
 		_, err := db.Exec("DROP EXTENSION pg_stat_statements")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}()
 
 	structs, err := db.SelectAllFrom(pgStatDatabaseView, "")
@@ -204,7 +206,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.InEpsilon(t, mSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
+		assert.InDelta(t, mSharedBlksHitSum, actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
@@ -285,8 +287,8 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		const n = 500
 		placeholders := db.Placeholders(1, n)
-		args := make([]interface{}, n)
-		for i := 0; i < n; i++ {
+		args := make([]any, n)
+		for i := range n {
 			args[i] = i
 		}
 		q := fmt.Sprintf("SELECT /* AllCitiesTruncated:pgstatstatements controller='test' */ * FROM city WHERE id IN (%s)", strings.Join(placeholders, ", "))
@@ -393,7 +395,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		)`, tableName))
 		require.NoError(t, err)
 		defer func() {
-			_, err := db.Exec(fmt.Sprintf(`DROP TABLE %s`, tableName))
+			_, err := db.Exec("DROP TABLE " + tableName)
 			require.NoError(t, err)
 		}()
 		m := setup(t, db)
@@ -401,17 +403,16 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		var waitGroup sync.WaitGroup
 		n := 1000
 		errChan := make(chan error, 1)
-		for i := 0; i < n; i++ {
+		for i := range n {
 			id := i
-			waitGroup.Add(1)
-			go func() {
-				defer waitGroup.Done()
+			waitGroup.Go(func() {
 				_, err := db.Exec(
-					fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id))
+					fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id),
+				)
 				if err != nil {
 					errChan <- err
 				}
-			}()
+			})
 		}
 		go func() {
 			waitGroup.Wait()
@@ -436,7 +437,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		actual := buckets[0]
 		assert.NotZero(t, actual.Postgresql.MSharedBlkReadTimeSum+actual.Postgresql.MSharedBlkWriteTimeSum)
-		assert.InEpsilon(t, float32(n), actual.Postgresql.MSharedBlkReadTimeCnt+actual.Postgresql.MSharedBlkWriteTimeCnt, 0.0001)
+		assert.InDelta(t, float32(n), actual.Postgresql.MSharedBlkReadTimeCnt+actual.Postgresql.MSharedBlkWriteTimeCnt, 0.0001)
 		expected := &agentv1.MetricsBucket{
 			Common: &agentv1.MetricsBucket_Common{
 				Queryid:             actual.Common.Queryid,
@@ -479,7 +480,9 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 func TestPGStatStatementsQPS(t *testing.T) {
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public")
@@ -487,7 +490,7 @@ func TestPGStatStatementsQPS(t *testing.T) {
 
 	defer func() {
 		_, err := db.Exec("DROP EXTENSION pg_stat_statements")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}()
 
 	// filterInsertQueries retrieves only buckets for insert queries used by test.
@@ -518,12 +521,12 @@ func TestPGStatStatementsQPS(t *testing.T) {
 
 		runTimes := 7000
 		t.Cleanup(func() {
-			for i := 0; i < runTimes; i++ {
+			for i := range runTimes {
 				_, _ = db.Exec(fmt.Sprintf("drop table if exists t%d", i))
 			}
 		})
 
-		for i := 0; i < runTimes; i++ {
+		for i := range runTimes {
 			_, err = db.Exec(fmt.Sprintf("create /* controller='test' */ table t%d (id int);", i))
 			require.NoError(t, err)
 			_, err = db.Exec(fmt.Sprintf("insert /* controller='test' */ into t%d values(1);", i))
@@ -535,14 +538,14 @@ func TestPGStatStatementsQPS(t *testing.T) {
 		insertBuckets := filterInsertQueries(t, buckets)
 		mismatchedCount := 0
 		for _, b := range insertBuckets {
-			assert.Equal(t, float32(1), b.Common.NumQueries)
+			assert.InDelta(t, float32(1), b.Common.NumQueries, 0.0001)
 			if b.Common.NumQueries != 1 {
 				mismatchedCount++
 			}
 		}
 		assert.Zero(t, mismatchedCount)
 
-		for i := 0; i < runTimes; i++ {
+		for i := range runTimes {
 			_, err = db.Exec(fmt.Sprintf("insert /* controller='test' */ into t%d values(1);", i))
 			require.NoError(t, err)
 		}

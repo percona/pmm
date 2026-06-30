@@ -211,7 +211,8 @@ func (e MetricsResolutionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = MetricsResolutionsValidationError{}

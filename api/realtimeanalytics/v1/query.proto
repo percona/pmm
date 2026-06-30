@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package realtimeanalytics.v1;
 
+import "extensions/v1/redact.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -20,7 +21,7 @@ message QueryMongoDBData {
   // The start time of the operation.
   google.protobuf.Timestamp operation_start_time = 6;
   // MongoDB user name associated with the query.
-  string username = 7;
+  string username = 7 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Indicates if an index (COLLSCAN vs IXSCAN) was utilized in the query.
   string plan_summary = 8;
 }

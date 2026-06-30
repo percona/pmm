@@ -21,7 +21,7 @@ import (
 )
 
 // WithLogger returns http.RoundTripper with request/response logger.
-func WithLogger(t http.RoundTripper, printf func(format string, v ...interface{})) http.RoundTripper {
+func WithLogger(t http.RoundTripper, printf func(format string, v ...any)) http.RoundTripper {
 	return &loggerRoundTripper{
 		t:      t,
 		printf: printf,
@@ -30,7 +30,7 @@ func WithLogger(t http.RoundTripper, printf func(format string, v ...interface{}
 
 type loggerRoundTripper struct {
 	t      http.RoundTripper
-	printf func(format string, v ...interface{})
+	printf func(format string, v ...any)
 }
 
 func (lrt *loggerRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {

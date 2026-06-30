@@ -1,10 +1,10 @@
+---
 name: 'Client: pmm-admin'
 
 on:
   push:
     branches:
       - main
-      - v3
       - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
@@ -16,7 +16,7 @@ on:
     paths-ignore:
       - "agent/**"
       - "api-tests/**"
-      - "docs/**"
+      - "dev/docs/**"
       - "documentation/**"
       - "managed/**"
       - "qan-api2/**"
@@ -27,10 +27,15 @@ on:
 permissions:
   contents: read
 
+env:
+  GONOPROXY: 'github.com/percona,github.com/Percona-Lab'
+  GONOSUMDB: 'github.com/percona,github.com/Percona-Lab'
+  GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
+
 jobs:
   test:
     name: Tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     defaults:
       run:
@@ -38,16 +43,16 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Set up Go
-        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
         with:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
 
       - name: Enable Go build cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: ~/.cache/go-build
           key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
@@ -56,7 +61,7 @@ jobs:
             ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
@@ -72,7 +77,7 @@ jobs:
         run: make test-cover
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           files: cover.out
           flags: admin

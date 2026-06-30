@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -34,9 +33,9 @@ func TestGenerateNomadAgentConfig(t *testing.T) {
 			Address:  "node-address",
 		}
 		agent := &models.Agent{
-			PMMAgentID: pointer.ToString("agent-id"),
+			PMMAgentID: new("agent-id"),
 			AgentType:  models.NomadAgentType,
-			LogLevel:   pointer.To("debug"),
+			LogLevel:   new("debug"),
 		}
 		tdp := models.TemplateDelimsPair()
 		config, err := generateNomadAgentConfig(node, agent, tdp, models.NomadClient{

@@ -2614,7 +2614,7 @@ var (
 	file_actions_v1_actions_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_actions_v1_actions_proto_msgTypes  = make([]protoimpl.MessageInfo, 32)
 	file_actions_v1_actions_proto_goTypes   = []any{
-		(ActionType)(0),                                      // 0: actions.v1.ActionType
+		ActionType(0),                                        // 0: actions.v1.ActionType
 		(*GetActionRequest)(nil),                             // 1: actions.v1.GetActionRequest
 		(*GetActionResponse)(nil),                            // 2: actions.v1.GetActionResponse
 		(*StartMySQLExplainActionParams)(nil),                // 3: actions.v1.StartMySQLExplainActionParams

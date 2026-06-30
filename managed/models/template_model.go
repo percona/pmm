@@ -17,15 +17,15 @@ package models
 
 import (
 	"database/sql/driver"
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/pi/common"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // Template represents Percona Alerting rule template.
 //
@@ -98,7 +98,7 @@ type AlertExprParamsDefinitions []AlertExprParamDefinition
 func (p AlertExprParamsDefinitions) Value() (driver.Value, error) { return jsonValue(p) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (p *AlertExprParamsDefinitions) Scan(src interface{}) error { return jsonScan(p, src) }
+func (p *AlertExprParamsDefinitions) Scan(src any) error { return jsonScan(p, src) }
 
 // AlertExprParamDefinition represents query parameter definition.
 type AlertExprParamDefinition struct {
@@ -156,24 +156,26 @@ type Severity common.Severity
 // Value implements database/sql/driver Valuer interface.
 func (s Severity) Value() (driver.Value, error) {
 	cs := common.Severity(s)
-	if err := cs.Validate(); err != nil {
+	err := cs.Validate()
+	if err != nil {
 		return nil, err
 	}
 	return cs.String(), nil
 }
 
 // Scan implements database/sql Scanner interface.
-func (s *Severity) Scan(src interface{}) error {
+func (s *Severity) Scan(src any) error {
 	switch src := src.(type) {
 	case string:
 		cs := common.ParseSeverity(src)
-		if err := cs.Validate(); err != nil {
+		err := cs.Validate()
+		if err != nil {
 			return err
 		}
 		*s = Severity(cs)
 		return nil
 	default:
-		return errors.Errorf("expected string, got %T (%q)", src, src)
+		return fmt.Errorf("expected string, got %T (%q)", src, src)
 	}
 }
 

@@ -20,6 +20,7 @@ import (
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/mysql"
 )
@@ -30,7 +31,10 @@ func TestGetMySQLVersion(t *testing.T) {
 		t.Log("error creating mock database")
 		return
 	}
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		_ = mock.ExpectClose()
+		assert.NoError(t, sqlDB.Close())
+	})
 
 	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag("pmm-agent:mysqlversion")
 	ctx := context.Background()
@@ -125,7 +129,7 @@ func TestGetMySQLVersion(t *testing.T) {
 			version, vendor, err := GetMySQLVersion(ctx, q)
 			assert.Equal(t, tc.wantVersion, version.String())
 			assert.Equal(t, tc.wantVendor, vendor)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 	}
 }

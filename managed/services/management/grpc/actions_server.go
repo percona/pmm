@@ -18,9 +18,9 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -95,7 +95,7 @@ func (s *actionsServer) StartServiceAction(ctx context.Context, req *actionsv1.S
 	case *actionsv1.StartServiceActionRequest_PtPostgresSummary:
 		return s.StartPTPgSummaryAction(ctx, req.GetPtPostgresSummary())
 	default:
-		return nil, errors.Errorf("invalid request %v", req.GetAction())
+		return nil, fmt.Errorf("invalid request %v", req.GetAction())
 	}
 }
 
@@ -106,7 +106,14 @@ func (s *actionsServer) StartMySQLExplainAction(ctx context.Context, req *action
 		return nil, err
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointer.To(models.MySQLdExporterType)}) //nolint:lll
+	agents, err := models.FindAgents(
+		s.db.Querier,
+		models.AgentFilters{
+			ServiceID:  req.ServiceId,
+			PMMAgentID: req.PmmAgentId,
+			AgentType:  new(models.MySQLdExporterType),
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -131,15 +138,23 @@ func (s *actionsServer) StartMySQLExplainAction(ctx context.Context, req *action
 }
 
 // StartMySQLExplainJSONAction starts MySQL EXPLAIN Action with JSON output.
-//
-//nolint:lll
-func (s *actionsServer) StartMySQLExplainJSONAction(ctx context.Context, req *actionsv1.StartMySQLExplainJSONActionParams) (*actionsv1.StartServiceActionResponse, error) {
+func (s *actionsServer) StartMySQLExplainJSONAction(
+	ctx context.Context,
+	req *actionsv1.StartMySQLExplainJSONActionParams,
+) (*actionsv1.StartServiceActionResponse, error) {
 	res, dsn, files, tdp, err := s.prepareServiceActionWithFiles(req.ServiceId, req.PmmAgentId, req.Database)
 	if err != nil {
 		return nil, err
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointer.To(models.MySQLdExporterType)})
+	agents, err := models.FindAgents(
+		s.db.Querier,
+		models.AgentFilters{
+			ServiceID:  req.ServiceId,
+			PMMAgentID: req.PmmAgentId,
+			AgentType:  new(models.MySQLdExporterType),
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -164,15 +179,23 @@ func (s *actionsServer) StartMySQLExplainJSONAction(ctx context.Context, req *ac
 }
 
 // StartMySQLExplainTraditionalJSONAction starts MySQL EXPLAIN Action with traditional JSON output.
-//
-//nolint:lll
-func (s *actionsServer) StartMySQLExplainTraditionalJSONAction(ctx context.Context, req *actionsv1.StartMySQLExplainTraditionalJSONActionParams) (*actionsv1.StartServiceActionResponse, error) {
+func (s *actionsServer) StartMySQLExplainTraditionalJSONAction(
+	ctx context.Context,
+	req *actionsv1.StartMySQLExplainTraditionalJSONActionParams,
+) (*actionsv1.StartServiceActionResponse, error) {
 	res, dsn, files, tdp, err := s.prepareServiceActionWithFiles(req.ServiceId, req.PmmAgentId, req.Database)
 	if err != nil {
 		return nil, err
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointer.To(models.MySQLdExporterType)})
+	agents, err := models.FindAgents(
+		s.db.Querier,
+		models.AgentFilters{
+			ServiceID:  req.ServiceId,
+			PMMAgentID: req.PmmAgentId,
+			AgentType:  new(models.MySQLdExporterType),
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -197,15 +220,23 @@ func (s *actionsServer) StartMySQLExplainTraditionalJSONAction(ctx context.Conte
 }
 
 // StartMySQLShowCreateTableAction starts MySQL SHOW CREATE TABLE Action.
-//
-//nolint:lll
-func (s *actionsServer) StartMySQLShowCreateTableAction(ctx context.Context, req *actionsv1.StartMySQLShowCreateTableActionParams) (*actionsv1.StartServiceActionResponse, error) {
+func (s *actionsServer) StartMySQLShowCreateTableAction(
+	ctx context.Context,
+	req *actionsv1.StartMySQLShowCreateTableActionParams,
+) (*actionsv1.StartServiceActionResponse, error) {
 	res, dsn, files, tdp, err := s.prepareServiceActionWithFiles(req.ServiceId, req.PmmAgentId, req.Database)
 	if err != nil {
 		return nil, err
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointer.To(models.MySQLdExporterType)})
+	agents, err := models.FindAgents(
+		s.db.Querier,
+		models.AgentFilters{
+			ServiceID:  req.ServiceId,
+			PMMAgentID: req.PmmAgentId,
+			AgentType:  new(models.MySQLdExporterType),
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -229,15 +260,23 @@ func (s *actionsServer) StartMySQLShowCreateTableAction(ctx context.Context, req
 }
 
 // StartMySQLShowTableStatusAction starts MySQL SHOW TABLE STATUS Action.
-//
-//nolint:lll
-func (s *actionsServer) StartMySQLShowTableStatusAction(ctx context.Context, req *actionsv1.StartMySQLShowTableStatusActionParams) (*actionsv1.StartServiceActionResponse, error) {
+func (s *actionsServer) StartMySQLShowTableStatusAction(
+	ctx context.Context,
+	req *actionsv1.StartMySQLShowTableStatusActionParams,
+) (*actionsv1.StartServiceActionResponse, error) {
 	res, dsn, files, tdp, err := s.prepareServiceActionWithFiles(req.ServiceId, req.PmmAgentId, req.Database)
 	if err != nil {
 		return nil, err
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointer.To(models.MySQLdExporterType)})
+	agents, err := models.FindAgents(
+		s.db.Querier,
+		models.AgentFilters{
+			ServiceID:  req.ServiceId,
+			PMMAgentID: req.PmmAgentId,
+			AgentType:  new(models.MySQLdExporterType),
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -261,15 +300,23 @@ func (s *actionsServer) StartMySQLShowTableStatusAction(ctx context.Context, req
 }
 
 // StartMySQLShowIndexAction starts MySQL SHOW INDEX Action.
-//
-//nolint:lll
-func (s *actionsServer) StartMySQLShowIndexAction(ctx context.Context, req *actionsv1.StartMySQLShowIndexActionParams) (*actionsv1.StartServiceActionResponse, error) {
+func (s *actionsServer) StartMySQLShowIndexAction(
+	ctx context.Context,
+	req *actionsv1.StartMySQLShowIndexActionParams,
+) (*actionsv1.StartServiceActionResponse, error) {
 	res, dsn, files, tdp, err := s.prepareServiceActionWithFiles(req.ServiceId, req.PmmAgentId, req.Database)
 	if err != nil {
 		return nil, err
 	}
 
-	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{ServiceID: req.ServiceId, PMMAgentID: req.PmmAgentId, AgentType: pointer.To(models.MySQLdExporterType)})
+	agents, err := models.FindAgents(
+		s.db.Querier,
+		models.AgentFilters{
+			ServiceID:  req.ServiceId,
+			PMMAgentID: req.PmmAgentId,
+			AgentType:  new(models.MySQLdExporterType),
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -293,9 +340,10 @@ func (s *actionsServer) StartMySQLShowIndexAction(ctx context.Context, req *acti
 }
 
 // StartPostgreSQLShowCreateTableAction starts PostgreSQL SHOW CREATE TABLE Action.
-//
-//nolint:lll
-func (s *actionsServer) StartPostgreSQLShowCreateTableAction(ctx context.Context, req *actionsv1.StartPostgreSQLShowCreateTableActionParams) (*actionsv1.StartServiceActionResponse, error) {
+func (s *actionsServer) StartPostgreSQLShowCreateTableAction(
+	ctx context.Context,
+	req *actionsv1.StartPostgreSQLShowCreateTableActionParams,
+) (*actionsv1.StartServiceActionResponse, error) {
 	res, dsn, err := s.prepareServiceAction(req.ServiceId, req.PmmAgentId, req.Database)
 	if err != nil {
 		return nil, err
@@ -317,9 +365,10 @@ func (s *actionsServer) StartPostgreSQLShowCreateTableAction(ctx context.Context
 }
 
 // StartPostgreSQLShowIndexAction starts PostgreSQL SHOW INDEX Action.
-//
-//nolint:lll
-func (s *actionsServer) StartPostgreSQLShowIndexAction(ctx context.Context, req *actionsv1.StartPostgreSQLShowIndexActionParams) (*actionsv1.StartServiceActionResponse, error) {
+func (s *actionsServer) StartPostgreSQLShowIndexAction(
+	ctx context.Context,
+	req *actionsv1.StartPostgreSQLShowIndexActionParams,
+) (*actionsv1.StartServiceActionResponse, error) {
 	res, dsn, err := s.prepareServiceAction(req.ServiceId, req.PmmAgentId, req.Database)
 	if err != nil {
 		return nil, err
@@ -438,7 +487,7 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actions
 		return nil, err
 	}
 
-	agentFilter := models.AgentFilters{ServiceID: req.ServiceId, AgentType: pointer.To(models.PostgresExporterType)}
+	agentFilter := models.AgentFilters{ServiceID: req.ServiceId, AgentType: new(models.PostgresExporterType)}
 	postgresExporters, err := models.FindAgents(s.db.Querier, agentFilter)
 	if err != nil {
 		return nil, err
@@ -473,9 +522,10 @@ func (s *actionsServer) StartPTPgSummaryAction(ctx context.Context, req *actions
 }
 
 // StartPTMongoDBSummaryAction starts pt-mongodb-summary action and returns the pointer to the response message.
-//
-//nolint:lll
-func (s *actionsServer) StartPTMongoDBSummaryAction(ctx context.Context, req *actionsv1.StartPTMongoDBSummaryActionParams) (*actionsv1.StartServiceActionResponse, error) {
+func (s *actionsServer) StartPTMongoDBSummaryAction(
+	ctx context.Context,
+	req *actionsv1.StartPTMongoDBSummaryActionParams,
+) (*actionsv1.StartServiceActionResponse, error) {
 	// Need to get the service id's pointer to retrieve the list of agent pointers therefrom
 	// to get the particular agentID from the request.
 	service, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
@@ -501,7 +551,7 @@ func (s *actionsServer) StartPTMongoDBSummaryAction(ctx context.Context, req *ac
 	// Exporters to be filtered by service ID and agent type
 	agentFilter := models.AgentFilters{
 		PMMAgentID: "", NodeID: "",
-		ServiceID: req.ServiceId, AgentType: pointer.To(models.MongoDBExporterType),
+		ServiceID: req.ServiceId, AgentType: new(models.MongoDBExporterType),
 	}
 
 	// Need to get the mongoDB exporters to get the username and password therefrom
@@ -579,7 +629,7 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *acti
 
 	agentFilter := models.AgentFilters{
 		PMMAgentID: "", NodeID: "",
-		ServiceID: req.ServiceId, AgentType: pointer.To(models.MySQLdExporterType),
+		ServiceID: req.ServiceId, AgentType: new(models.MySQLdExporterType),
 	}
 	mysqldExporters, err := models.FindAgents(s.db.Querier, agentFilter)
 	if err != nil {
@@ -618,7 +668,7 @@ func (s *actionsServer) CancelAction(ctx context.Context, req *actionsv1.CancelA
 		return nil, err
 	}
 
-	err = s.a.StopAction(ctx, ar.ID)
+	err = s.a.StopAction(ctx, ar.PMMAgentID, ar.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -635,11 +685,13 @@ func (s *actionsServer) prepareServiceAction(serviceID, pmmAgentID, database str
 			return err
 		}
 
-		if pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(pmmAgentID, agents); err != nil {
+		pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(pmmAgentID, agents)
+		if err != nil {
 			return err
 		}
 
-		if dsn, _, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database); err != nil {
+		dsn, _, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database)
+		if err != nil {
 			return err
 		}
 
@@ -652,7 +704,9 @@ func (s *actionsServer) prepareServiceAction(serviceID, pmmAgentID, database str
 	return res, dsn, nil
 }
 
-func (s *actionsServer) prepareServiceActionWithFiles(serviceID, pmmAgentID, database string) (*models.ActionResult, string, map[string]string, *models.DelimiterPair, error) { //nolint:lll
+func (s *actionsServer) prepareServiceActionWithFiles(
+	serviceID, pmmAgentID, database string,
+) (*models.ActionResult, string, map[string]string, *models.DelimiterPair, error) {
 	var res *models.ActionResult
 	var dsn string
 	var files map[string]string
@@ -668,12 +722,14 @@ func (s *actionsServer) prepareServiceActionWithFiles(serviceID, pmmAgentID, dat
 			return err
 		}
 
-		if pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(pmmAgentID, pmmAgents); err != nil {
+		pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(pmmAgentID, pmmAgents)
+		if err != nil {
 			return err
 		}
 
 		var agent *models.Agent
-		if dsn, agent, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database); err != nil {
+		dsn, agent, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database)
+		if err != nil {
 			return err
 		}
 

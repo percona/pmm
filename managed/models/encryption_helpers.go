@@ -34,7 +34,7 @@ func DecryptAgent(agent Agent) Agent {
 	return agentEncryption(agent, encryption.Decrypt)
 }
 
-func agentEncryption(agent Agent, handler func(string) (string, error)) Agent {
+func agentEncryption(agent Agent, handler func(string) (string, error)) Agent { //nolint:gocognit
 	if agent.Username != nil {
 		username, err := handler(*agent.Username)
 		if err != nil {

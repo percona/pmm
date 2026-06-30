@@ -25,6 +25,17 @@ Fine-tune data retention and collection intervals to balance monitoring detail w
 !!! tip "Performance impact"
     Higher resolution (lower values) provides more detailed metrics but increases storage requirements and system load. For high-traffic production environments, consider increasing these values.
 
+### Built-in ClickHouse configuration
+Select the configuration profile for the built-in ClickHouse instance 
+
+| Variable | Default | Description | Example |
+|----------|---------|-------------|----------|
+| `PMM_CLICKHOUSE_CONFIG` | `default` | Use `low-memory` for PMM Server environments with less than 16 GB RAM. | `low-memory` |
+
+!!! note "low-memory config" 
+    While this configuration attempts to optimize ClickHouse for low-memory environments, we highly recommend users to follow our configuration guide. 
+    For details, see [ClickHouse memory issues](../../../../troubleshoot/qan_issues.md#clickhouse-memory-issues-in-low-memory-environments).
+
 ### Feature controls
 Enable or disable specific PMM features:
 
@@ -35,7 +46,7 @@ Enable or disable specific PMM features:
 | `PMM_ENABLE_ALERTING` | `true` | Enables Percona Alerting system |
 | `PMM_ENABLE_BACKUP_MANAGEMENT` | `true` | Enables backup features |
 | `PMM_ENABLE_AZURE_DISCOVER` | `false` | Enables Azure database discovery |
-| `PMM_ENABLE_INTERNAL_PG_QAN` | `0` (disabled) | Enables Query Analytics for PMM Server's internal PostgreSQL. Useful for troubleshooting or HA scenarios. Set to `1` to enable. Can also be controlled via **PMM Configuration > Settings > Advanced Settings**. See [QAN for PMM Server's internal PostgreSQL](../../../../use/qan/QAN-stored-metrics.md#monitor-pmm-servers-internal-postgresql)
+| `PMM_ENABLE_INTERNAL_PG_QAN` | `0` (disabled) | Enables Query Analytics for PMM Server's internal PostgreSQL. Useful for troubleshooting or HA scenarios. Set to `1` to enable. Can also be controlled via **Configuration > Settings > Advanced settings**. See [QAN for PMM Server's internal PostgreSQL](../../../../use/qan/QAN-stored-metrics.md#monitor-pmm-servers-internal-postgresql)
 
 ### Debugging and troubleshooting
 Use these variables when diagnosing issues with PMM Server:

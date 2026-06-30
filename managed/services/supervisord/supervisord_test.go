@@ -21,7 +21,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -49,8 +48,8 @@ func TestConfig(t *testing.T) {
 		DataRetention:    30 * 24 * time.Hour,
 		PMMPublicAddress: "192.168.0.42:8443",
 	}
-	settings.VictoriaMetrics.CacheEnabled = pointer.ToBool(false)
-	settings.Nomad.Enabled = pointer.ToBool(true)
+	settings.VictoriaMetrics.CacheEnabled = new(false)
+	settings.Nomad.Enabled = new(true)
 
 	for _, tmpl := range templates.Templates() {
 		n := tmpl.Name()
@@ -87,7 +86,7 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 		DataRetention:    30 * 24 * time.Hour,
 		PMMPublicAddress: "192.168.0.42:8443",
 	}
-	settings.VictoriaMetrics.CacheEnabled = pointer.ToBool(false)
+	settings.VictoriaMetrics.CacheEnabled = new(false)
 
 	// Test environment variables being passed to VictoriaMetrics.
 	t.Setenv("VM_search_maxQueryLen", "2MB")
@@ -119,10 +118,10 @@ func TestParseStatus(t *testing.T) {
 	t.Parallel()
 
 	for str, expected := range map[string]*bool{
-		`pmm-agent                        STOPPED   Sep 20 08:55 AM`:         pointer.ToBool(false),
-		`pmm-managed                      RUNNING   pid 826, uptime 0:19:36`: pointer.ToBool(true),
+		`pmm-agent                        STOPPED   Sep 20 08:55 AM`:         new(false),
+		`pmm-managed                      RUNNING   pid 826, uptime 0:19:36`: new(true),
 		`pmm-init                         EXITED    Sep 20 07:42 AM`:         nil,
-		`pmm-init                         STARTING`:                          pointer.ToBool(true), // no last column in that case
+		`pmm-init                         STARTING`:                          new(true), // no last column in that case
 	} {
 		assert.Equal(t, expected, parseStatus(str), "%q", str)
 	}

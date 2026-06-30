@@ -16,10 +16,10 @@
 package checks
 
 import (
+	"fmt"
 	"net"
 	"strconv"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/pi/starlark"
@@ -37,20 +37,20 @@ func GetFuncsForVersion(version uint32) (map[string]starlark.GoFunc, error) {
 			"format_version_num": formatVersionNum,
 		}, nil
 	default:
-		return nil, errors.Errorf("unsupported check version: %d", version)
+		return nil, fmt.Errorf("unsupported check version: %d", version)
 	}
 }
 
 // parseVersion accepts a single string argument (version), and returns map[string]interface{}
 // with keys: major, minor, patch (int64), num (MMmmpp, int64), and rest (string).
-func parseVersion(args ...interface{}) (interface{}, error) {
+func parseVersion(args ...any) (any, error) {
 	if l := len(args); l != 1 {
-		return nil, errors.Errorf("expected 1 argument, got %d", l)
+		return nil, fmt.Errorf("expected 1 argument, got %d", l)
 	}
 
 	s, ok := args[0].(string)
 	if !ok {
-		return nil, errors.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
+		return nil, fmt.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
 	}
 
 	p, err := version.Parse(s)
@@ -58,7 +58,7 @@ func parseVersion(args ...interface{}) (interface{}, error) {
 		return nil, err
 	}
 
-	return map[string]interface{}{
+	return map[string]any{
 		"major":   int64(p.Major),
 		"minor":   int64(p.Minor),
 		"patch":   int64(p.Patch),
@@ -70,14 +70,14 @@ func parseVersion(args ...interface{}) (interface{}, error) {
 
 // formatVersionNum accepts a single int64 argument (version num MMmmpp or MMmmppRRR), and returns
 // MM.mm.pp or MM.mm.pp-RRR as a string.
-func formatVersionNum(args ...interface{}) (interface{}, error) {
+func formatVersionNum(args ...any) (any, error) {
 	if l := len(args); l != 1 {
-		return nil, errors.Errorf("expected 1 argument, got %d", l)
+		return nil, fmt.Errorf("expected 1 argument, got %d", l)
 	}
 
 	num, ok := args[0].(int64)
 	if !ok {
-		return nil, errors.Errorf("expected int64 argument, got %[1]T (%[1]v)", args[0])
+		return nil, fmt.Errorf("expected int64 argument, got %[1]T (%[1]v)", args[0])
 	}
 	// process numbers with a rest part included
 	if num > 10000000 {
@@ -112,16 +112,16 @@ func GetAdditionalContext() map[string]starlark.GoFunc {
 
 // ipIsPrivate accepts a single string argument (IP address or a network) and
 // returns true for a private address, otherwise false. It returns nil in case of an invalid argument.
-func ipIsPrivate(args ...interface{}) (interface{}, error) {
+func ipIsPrivate(args ...any) (any, error) {
 	log := logrus.WithField("component", "checks")
 
 	if l := len(args); l != 1 {
-		return nil, errors.Errorf("expected 1 argument, got %d", l)
+		return nil, fmt.Errorf("expected 1 argument, got %d", l)
 	}
 
 	ip, ok := args[0].(string)
 	if !ok {
-		return nil, errors.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
+		return nil, fmt.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
 	}
 
 	ipAddress := net.ParseIP(ip)

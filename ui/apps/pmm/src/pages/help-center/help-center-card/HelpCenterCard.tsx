@@ -1,4 +1,5 @@
 import { Button, CardContent, Typography, Card, Stack } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import Support from '@mui/icons-material/Support';
 import ForumOutlined from '@mui/icons-material/ForumOutlined';
 import DatasetOutlined from '@mui/icons-material/DatasetOutlined';
@@ -6,13 +7,20 @@ import NorthEast from '@mui/icons-material/NorthEast';
 import SaveAlt from '@mui/icons-material/SaveAlt';
 import MapOutlined from '@mui/icons-material/MapOutlined';
 import { FC, ReactNode, useCallback } from 'react';
+import { semanticTokensLight, semanticTokensDark } from '@percona/percona-ui';
 import { CARD_IDS, START_ICON } from '../HelpCenter.constants';
 import { HelpCenterCardProps } from './HelpCenterCard.types';
 import { Link } from 'react-router-dom';
 import { Icon } from 'components/icon';
 
 export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {
-  const { id, title, borderColor, description, buttons } = card;
+  const { id, title, borderColorKey, description, buttons } = card;
+  const theme = useTheme();
+  const chartTokens =
+    theme.palette.mode === 'light'
+      ? semanticTokensLight.charts
+      : semanticTokensDark.charts;
+  const borderColor = borderColorKey ? chartTokens[borderColorKey] : undefined;
 
   const getIcon = useCallback((cardId: string): ReactNode => {
     switch (cardId) {

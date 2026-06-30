@@ -17,8 +17,11 @@
 package validators
 
 import (
+	"errors"
 	"fmt"
+	"slices"
 	"time"
+	"unicode"
 )
 
 const (
@@ -81,18 +84,11 @@ func ValidateDataRetention(value time.Duration) (time.Duration, error) {
 // ValidateAWSPartitions validates AWS partitions list.
 func ValidateAWSPartitions(partitions []string) error {
 	if len(partitions) > len(AWSPartitions()) {
-		return fmt.Errorf("aws_partitions: list is too long")
+		return errors.New("aws_partitions: list is too long")
 	}
 
 	for _, p := range partitions {
-		var valid bool
-		for _, partition := range AWSPartitions() {
-			if p == partition {
-				valid = true
-				break
-			}
-		}
-		if !valid {
+		if !slices.Contains(AWSPartitions(), p) {
 			return fmt.Errorf("aws_partitions: partition %q is invalid", p)
 		}
 	}
@@ -108,4 +104,61 @@ func AWSPartitions() []string {
 		"aws-iso",    // Isolated
 		"aws-us-gov", // U.S. GovCloud regions
 	}
+}
+
+var (
+	// ErrInvalidPasswordLen is returned when a password does not meet complexity requirements.
+	ErrInvalidPasswordLen = func(minLen int) error {
+		return fmt.Errorf("password must be at least %d characters long", minLen)
+	}
+	// ErrInvalidPasswordLetter is returned when a password does not contain at least one letter.
+	ErrInvalidPasswordLetter = errors.New("password must contain at least one letter")
+	// ErrInvalidPasswordDigit is returned when a password does not contain at least one digit.
+	ErrInvalidPasswordDigit = errors.New("password must contain at least one digit")
+	// ErrInvalidPasswordSpecial is returned when a password does not contain at least one special character.
+	ErrInvalidPasswordSpecial = errors.New("password must contain at least one special character")
+)
+
+// ValidatePassword checks if a password meets complexity requirements:
+// - At least minLen characters long
+// - At least one uppercase or lowercase letter
+// - At least one numeric digit
+// - At least one special character (punctuation or symbol).
+func ValidatePassword(password string, minLen int) error {
+	var (
+		hasLetter  = false
+		hasNumber  = false
+		hasSpecial = false
+	)
+
+	if len(password) < minLen {
+		return ErrInvalidPasswordLen(minLen)
+	}
+
+	for _, r := range password {
+		switch {
+		case unicode.IsLetter(r):
+			hasLetter = true
+		case unicode.IsNumber(r):
+			hasNumber = true
+		case unicode.IsPunct(r) || unicode.IsSymbol(r):
+			hasSpecial = true
+		}
+		// If all conditions are met, we can stop checking further characters.
+		if hasLetter && hasNumber && hasSpecial {
+			break
+		}
+	}
+
+	if !hasLetter {
+		return ErrInvalidPasswordLetter
+	}
+	if !hasNumber {
+		return ErrInvalidPasswordDigit
+	}
+	if !hasSpecial {
+		return ErrInvalidPasswordSpecial
+	}
+
+	return nil
 }

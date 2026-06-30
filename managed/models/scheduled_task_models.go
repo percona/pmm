@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // ScheduledTaskType represents scheduled task type.
 type ScheduledTaskType string
@@ -86,7 +86,7 @@ type MongoBackupTaskData struct {
 func (c ScheduledTaskData) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *ScheduledTaskData) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *ScheduledTaskData) Scan(src any) error { return jsonScan(c, src) }
 
 // BeforeInsert implements reform.BeforeInserter interface.
 func (s *ScheduledTask) BeforeInsert() error {

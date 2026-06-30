@@ -1,11 +1,6 @@
 import { FC } from 'react';
 import { UpdateProgressProps } from './UpdateProgress.types';
-import {
-  LinearProgress,
-  Stack,
-  Typography,
-  linearProgressClasses,
-} from '@mui/material';
+import { LinearProgress, Stack, Typography } from '@mui/material';
 import { UpdateStatus } from 'types/updates.types';
 import { Messages } from './UpdateProgress.messages';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -48,12 +43,7 @@ export const UpdateProgress: FC<UpdateProgressProps> = ({ status }) => {
         }}
       >
         {status === UpdateStatus.Completed && (
-          <CheckCircleIcon
-            fontSize="small"
-            sx={{
-              color: '#008C71',
-            }}
-          />
+          <CheckCircleIcon fontSize="small" color="success" />
         )}
         <Typography
           sx={{
@@ -66,12 +56,7 @@ export const UpdateProgress: FC<UpdateProgressProps> = ({ status }) => {
       <LinearProgress
         variant="determinate"
         value={getStatusPercentage(status)}
-        sx={() => ({
-          [`& .${linearProgressClasses.bar}`]: {
-            backgroundColor:
-              status === UpdateStatus.Completed ? '#008C71' : '#606C86',
-          },
-        })}
+        color={status === UpdateStatus.Completed ? 'success' : 'primary'}
       />
     </Stack>
   );

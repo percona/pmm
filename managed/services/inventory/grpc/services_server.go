@@ -17,10 +17,10 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -57,8 +57,7 @@ func serviceType(serviceType inventoryv1.ServiceType) *models.ServiceType {
 	if serviceType == inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED {
 		return nil
 	}
-	result := serviceTypes[serviceType]
-	return &result
+	return new(serviceTypes[serviceType])
 }
 
 // ListServices returns a list of Services for a given filters.
@@ -332,7 +331,8 @@ func (s *servicesServer) addExternalService(ctx context.Context, params *invento
 
 // RemoveService removes Service.
 func (s *servicesServer) RemoveService(ctx context.Context, req *inventoryv1.RemoveServiceRequest) (*inventoryv1.RemoveServiceResponse, error) {
-	if err := s.s.Remove(ctx, req.GetServiceId(), req.GetForce()); err != nil {
+	err := s.s.Remove(ctx, req.GetServiceId(), req.GetForce())
+	if err != nil {
 		return nil, err
 	}
 

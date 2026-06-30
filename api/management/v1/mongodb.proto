@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package management.v1;
 
+import "extensions/v1/redact.proto";
+import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
 import "inventory/v1/services.proto";
@@ -44,9 +46,9 @@ message AddMongoDBServiceParams {
   // Replication set name.
   string replication_set = 12;
   // MongoDB username for exporter and QAN agent access.
-  string username = 13;
+  string username = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // MongoDB password for exporter and QAN agent access.
-  string password = 14;
+  string password = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // If true, adds qan-mongodb-profiler-agent for provided service.
   bool qan_mongodb_profiler = 15;
   // If true, adds qan-mongodb-mongolog-agent for provided service.
@@ -60,9 +62,9 @@ message AddMongoDBServiceParams {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 20;
   // Client certificate and key.
-  string tls_certificate_key = 21;
+  string tls_certificate_key = 21 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_certificate_key.
-  string tls_certificate_key_file_password = 22;
+  string tls_certificate_key_file_password = 22 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Certificate Authority certificate chain.
   string tls_ca = 23;
   // Limit query length in QAN (default: server-defined; -1: no limit).
@@ -80,7 +82,7 @@ message AddMongoDBServiceParams {
   // Authentication database.
   string authentication_database = 28;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 29;
+  string agent_password = 29 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // List of collections to get stats from. Can use * .
   repeated string stats_collections = 30;
   // Collections limit. Only get Databases and collection stats if the total number of collections in the server
@@ -97,6 +99,10 @@ message AddMongoDBServiceParams {
   repeated string environment_variable_names = 36;
   // If true, adds Real-Time Analytics agent for the provided service.
   bool rta_mongodb_agent = 37;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 38 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message MongoDBServiceResult {

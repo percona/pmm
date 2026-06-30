@@ -13,8 +13,6 @@ if [ -s ci.yml ]; then
     echo $pmm_url > apiURL
     echo $pmm_qa_branch > pmmQABranch
     echo $pmm_qa_commit > pmmQACommitSha
-    echo $pmm_ui_tests_branch > pmmUITestBranch
-    echo $pmm_ui_tests_commit > pmmUITestsCommitSha
 else
     # Define variables using git queries, i.e. w/o python
     pmm_commit=$(git submodule status | grep 'sources/pmm/src' | awk -F ' ' '{print $1}')
@@ -27,10 +25,6 @@ else
     echo $pmm_qa_branch > pmmQABranch
     pmm_qa_commit=$(git submodule status | grep 'pmm-qa' | awk -F ' ' '{print $1}')
     echo $pmm_qa_commit > pmmQACommitSha
-    pmm_ui_tests_branch=$(git config -f .gitmodules submodule.pmm-ui-tests.branch)
-    echo $pmm_ui_tests_branch > pmmUITestBranch
-    pmm_ui_tests_commit=$(git submodule status | grep 'pmm-ui-tests' | awk -F ' ' '{print $1}')
-    echo $pmm_ui_tests_commit > pmmUITestsCommitSha
 fi
 
 fb_commit_sha=$(git rev-parse HEAD)

@@ -48,11 +48,11 @@ type Sender struct {
 }
 
 // Start starts but doesn't wait until it exits.
-func (s *Sender) Start() error {
+func (s *Sender) Start() {
 	s.m.Lock()
 	defer s.m.Unlock()
 	if s.running {
-		return nil
+		return
 	}
 
 	// create new channels over which we will communicate to...
@@ -71,7 +71,6 @@ func (s *Sender) Start() error {
 	})
 
 	s.running = true
-	return nil
 }
 
 // Stop stops running sender.
@@ -88,10 +87,9 @@ func (s *Sender) Stop() {
 
 	// wait for goroutines to exit
 	s.wg.Wait()
-	return
 }
 
-func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Report, w Writer, logger *logrus.Entry, doneChan <-chan struct{}) {
+func start(_ context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Report, w Writer, logger *logrus.Entry, doneChan <-chan struct{}) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
@@ -113,7 +111,8 @@ func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Re
 			}
 
 			// sent report
-			if err := w.Write(report); err != nil {
+			err := w.Write(report)
+			if err != nil {
 				logger.Warn("Lost report:", err)
 				continue
 			}
@@ -123,7 +122,7 @@ func start(ctx context.Context, wg *sync.WaitGroup, reportChan <-chan *report.Re
 	}
 }
 
-// Writer write QAN Report
+// Writer writes QAN report.
 type Writer interface {
 	Write(r *report.Report) error
 }

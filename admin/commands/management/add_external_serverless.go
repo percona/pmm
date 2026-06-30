@@ -21,9 +21,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
-
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
@@ -113,15 +110,16 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 
 	serviceName := cmd.Name
 	if serviceName == "" {
-		serviceName = fmt.Sprintf("%s-external", address)
+		serviceName = address + "-external"
 	}
 
 	if cmd.MetricsPath != "" && !strings.HasPrefix(cmd.MetricsPath, "/") {
-		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
+		cmd.MetricsPath = "/" + cmd.MetricsPath
 	}
 
 	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
+		err := cmd.GetCredentials()
+		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
 	}
@@ -130,7 +128,7 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 		Body: mservice.AddServiceBody{
 			External: &mservice.AddServiceParamsBodyExternal{
 				AddNode: &mservice.AddServiceParamsBodyExternalAddNode{
-					NodeType:      pointer.ToString(mservice.AddServiceParamsBodyExternalAddNodeNodeTypeNODETYPEREMOTENODE),
+					NodeType:      new(mservice.AddServiceParamsBodyExternalAddNodeNodeTypeNODETYPEREMOTENODE),
 					NodeName:      serviceName,
 					MachineID:     cmd.MachineID,
 					Distro:        cmd.Distro,
@@ -152,7 +150,7 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 				Cluster:             cmd.Cluster,
 				ReplicationSet:      cmd.ReplicationSet,
 				CustomLabels:        *customLabels,
-				MetricsMode:         pointer.ToString(mservice.AddServiceParamsBodyExternalMetricsModeMETRICSMODEPULL),
+				MetricsMode:         new(mservice.AddServiceParamsBodyExternalMetricsModeMETRICSMODEPULL),
 				Group:               cmd.Group,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 				TLSSkipVerify:       cmd.TLSSkipVerify,
@@ -180,7 +178,7 @@ func (cmd *AddExternalServerlessCommand) processURLFlags() (string, string, stri
 	case cmd.URL != "":
 		uri, err := url.Parse(cmd.URL)
 		if err != nil {
-			return "", "", "", 0, errors.Wrapf(err, "couldn't parse URL: %s", cmd.URL)
+			return "", "", "", 0, fmt.Errorf("couldn't parse URL: %s: %w", cmd.URL, err)
 		}
 		scheme = uri.Scheme
 		address = uri.Hostname()

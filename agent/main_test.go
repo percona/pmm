@@ -21,6 +21,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/tools/go/packages"
 )
@@ -210,7 +211,9 @@ func TestImports(t *testing.T) {
 
 	f, err := os.Create("packages.dot")
 	require.NoError(t, err)
-	defer func() { require.NoError(t, f.Close()) }()
+	t.Cleanup(func() {
+		assert.NoError(t, f.Close())
+	})
 
 	var lines []string
 	for _, p := range allPkgs {
@@ -230,15 +233,18 @@ func TestImports(t *testing.T) {
 	}
 	sort.Strings(lines)
 
-	fmt.Fprintf(f, "digraph packages {\n")
+	_, err = fmt.Fprintf(f, "digraph packages {\n")
+	require.NoError(t, err)
 	duplicate := make(map[string]struct{})
 	for _, line := range lines {
 		if _, ok := duplicate[line]; !ok {
 			duplicate[line] = struct{}{}
-			fmt.Fprint(f, line) //nolint:errcheck
+			_, err = fmt.Fprint(f, line)
+			require.NoError(t, err)
 		}
 	}
-	fmt.Fprintf(f, "}\n")
+	_, err = fmt.Fprintf(f, "}\n")
+	require.NoError(t, err)
 }
 
 func formatPkgName(t *testing.T, name string) string {

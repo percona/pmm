@@ -61,6 +61,18 @@ def install_go():
     ])
 
 
+def install_node():
+    """Installs Node.js 22 and Yarn."""
+
+    run_commands([
+        "dnf module enable -y nodejs:22",
+        "dnf install -y nodejs npm",
+        "npm install -g yarn@1.22.22",
+        "node --version",
+        "yarn --version",
+    ])
+
+
 def make_init():
     """Runs make init."""
 
@@ -77,7 +89,10 @@ def setup():
         # Turns fsync off. Create database operations with fsync on are very slow on Ubuntu.
         # Having fsync off in dev environment is fine.
         "sed -i -e \"s/#fsync = on/fsync = off/\" /srv/postgres14/postgresql.conf",
+        # Configure pg_hba.conf for password authentication from all hosts (dev environment only)
+        # Note: In dev, we allow both trust and scram-sha-256 for convenience        
         "echo 'host    all         all     0.0.0.0/0     trust' >> /srv/postgres14/pg_hba.conf",
+        "echo 'host    all         all     0.0.0.0/0     scram-sha-256' >> /srv/postgres14/pg_hba.conf",
         # "supervisorctl restart postgresql",
     ])
 
@@ -85,6 +100,7 @@ def setup():
 def main():
     install_packages()
     install_go()
+    install_node()
     make_init()
 
     # do basic setup

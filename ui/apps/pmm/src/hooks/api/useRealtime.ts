@@ -127,7 +127,7 @@ export const useAvailableServices = (serviceTypes?: ServiceType[]) => {
     useQuery({
       queryKey: [KEYS.AVAILABLE_SERVICES],
       queryFn: () => getAvailableServices(serviceTypes),
-      enabled: user?.isPMMAdmin,
+      enabled: !!user,
     });
 
   const availableServices = useMemo<VersionedService[]>(() => {

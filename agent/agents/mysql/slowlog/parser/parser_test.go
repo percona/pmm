@@ -40,7 +40,7 @@ func parseSlowLog(t *testing.T, filepath string, opts log.Options) []log.Event {
 	r, err := filereader.NewSimpleFileReader(filepath)
 	require.NoError(t, err)
 	defer func() {
-		assert.NoError(t, r.Close())
+		require.NoError(t, r.Close())
 	}()
 
 	p := NewSlowLogParser(r, opts)
@@ -335,7 +335,7 @@ func TestParserSpecial(t *testing.T) {
 		r, err := filereader.NewSimpleFileReader(filepath.Join("testdata", "slow023.log"))
 		require.NoError(t, err)
 		defer func() {
-			assert.NoError(t, r.Close())
+			require.NoError(t, r.Close())
 		}()
 
 		opts := log.Options{
