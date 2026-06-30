@@ -23,7 +23,7 @@ const AlertDetailsTab: FC<Props> = ({ alert }) => {
   return (
     <Stack spacing={3}>
       <Typography variant="h6">{Messages.details.summary}</Typography>
-      <Grid container spacing={3} columns={{ xs: 4 }}>
+      <Grid container spacing={3} columns={{ xs: 1, sm: 2, md: 4 }}>
         <DataPoint
           size={2}
           title={Messages.details.alertName}
@@ -72,7 +72,7 @@ const AlertDetailsTab: FC<Props> = ({ alert }) => {
         <Typography variant="h6">
           {Messages.details.ruleConfiguration}
         </Typography>
-        <Grid container spacing={3} columns={{ xs: 4 }}>
+        <Grid container spacing={3} columns={{ xs: 1, sm: 2, md: 4 }}>
           <DataPoint size={1} title={Messages.details.evaluate}>
             {formatDurationSeconds(alert.ruleGroup?.interval)}
           </DataPoint>
