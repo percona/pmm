@@ -122,13 +122,13 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 * Clone [pmm repository](https://github.com/percona/pmm).
 * Navigate to the `/agent` folder in the root of the repository.
 * Run `make setup-dev` to connect pmm-agent to PMM Server.
-  * This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
+  * This command will rebuild the local pmm-agent, register it to PMM Server and generate `pmm-agent.yaml` configuration file.
 * Once it's connected just use `make run` to run pmm-agent.
 * To work correctly, pmm-agent needs vmagent and exporters installed on the system.
   * The first option is to install pmm-client using this instruction https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/index.html. It will install all exporters as well.
   * Another option is to do it manually
-    * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to the exporters_base directory configured in `pmm-agent-dev.yaml` file.
-    * All paths to exporter binaries are configured in `pmm-agent-dev.yaml`, so they can be changed manually if necessary.
+    * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads) and copying binaries to the exporters_base directory configured in `pmm-agent.yaml` file.
+    * All paths to exporter binaries are configured in `pmm-agent.yaml`, so they can be changed manually if necessary.
 
 ### Exporters
 

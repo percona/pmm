@@ -36,7 +36,7 @@ const (
 	PlatformAPITimeout = "PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT"
 
 	// PlatformAddress is the environment variable name used to store the URL for Percona Platform.
-	PlatformAddress = "PMM_DEV_PERCONA_PLATFORM_ADDRESS"
+	PlatformAddress = "PMM_PERCONA_PLATFORM_ADDRESS"
 
 	// EnableInternalPgQAN is used to enable Query Analytics for PMM's internal PostgreSQL.
 	EnableInternalPgQAN = "PMM_ENABLE_INTERNAL_PG_QAN"

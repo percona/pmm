@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	defaultPlatformAddress    = "https://check.percona.com"
+	defaultPlatformAddress    = "https://check-dev.percona.com"
 	defaultPlatformAPITimeout = 30 * time.Second
 	// EnvVMAgentPrefix is the prefix for environment variables related to the VMAgent.
 	EnvVMAgentPrefix = "VMAGENT_"
@@ -243,6 +243,10 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			envSettings.EnableAccessControl = &b
 
 		case pkgenv.PlatformAPITimeout:
+			// This variable is not part of the settings and is parsed separately.
+			continue
+
+		case pkgenv.PlatformAddress:
 			// This variable is not part of the settings and is parsed separately.
 			continue
 
