@@ -2,7 +2,10 @@ import { addons } from "storybook/manager-api";
 import type { TagBadgeParameters } from "storybook-addon-tag-badges/manager-helpers";
 import peakDesign from "./peak-design";
 
-const sidebarOnComponent = [{ type: "component", skipInherited: true } as const];
+const sidebarDisplay = [
+  { type: "component", skipInherited: true } as const,
+  { type: "group", skipInherited: false } as const,
+];
 
 const chip = (bg: string, fg: string, border: string) => ({
   backgroundColor: bg,
@@ -22,7 +25,7 @@ const STATUS = {
   deprecated: chip("rgba(198, 40, 40, 0.14)", "#c62828", "rgba(198, 40, 40, 0.3)"),
 };
 
-const display = { sidebar: sidebarOnComponent, toolbar: true, mdx: true };
+const display = { sidebar: sidebarDisplay, toolbar: true, mdx: true };
 
 const tagBadges: TagBadgeParameters = [
   {
