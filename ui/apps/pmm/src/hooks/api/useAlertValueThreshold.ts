@@ -6,7 +6,7 @@ import {
   pickSeriesValue,
   resolveEvalPlan,
   ValueThresholdResult,
-} from 'pages/alerting/status/details-pane/alertEvaluation.utils';
+} from 'utils/alert-evaluation.utils';
 
 export const ALERT_VALUE_THRESHOLD_QUERY_KEY = 'alerting:valueThreshold';
 

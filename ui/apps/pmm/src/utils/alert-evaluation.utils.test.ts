@@ -8,7 +8,7 @@ import {
   parseComparison,
   pickSeriesValue,
   resolveEvalPlan,
-} from './alertEvaluation.utils';
+} from './alert-evaluation.utils';
 
 describe('parseComparison', () => {
   it('splits a trailing comparison', () => {
@@ -28,7 +28,11 @@ describe('parseComparison', () => {
 
   it('flags the bool modifier', () => {
     const parsed = parseComparison('pmm_managed_inventory_agents{} == bool 0 ');
-    expect(parsed).toMatchObject({ operator: '==', threshold: 0, isBool: true });
+    expect(parsed).toMatchObject({
+      operator: '==',
+      threshold: 0,
+      isBool: true,
+    });
   });
 
   it('returns null without a trailing comparison', () => {
@@ -73,7 +77,7 @@ const SINGLE_QUERY_RULE: GrafanaAlertRuleDefinition = {
   ],
 };
 
-// Boolean up/down check — no value/threshold.
+// Boolean up/down check (equality) — no value/threshold.
 const BOOL_RULE: GrafanaAlertRuleDefinition = {
   uid: 'afqkr5oldd5vka',
   condition: 'A',
@@ -84,6 +88,38 @@ const BOOL_RULE: GrafanaAlertRuleDefinition = {
       model: {
         refId: 'A',
         expr: 'pmm_managed_inventory_agents{agent_type="pmm-agent"} == bool 1 ',
+      },
+    },
+  ],
+};
+
+// Percentage rule with the `bool` modifier on an inequality — IS gauge-able.
+const BOOL_PERCENT_RULE: GrafanaAlertRuleDefinition = {
+  uid: 'cfqkr76psnvnkg',
+  condition: 'A',
+  data: [
+    {
+      refId: 'A',
+      datasourceUid: 'PA58DA793C7250F1B',
+      model: {
+        refId: 'A',
+        expr: 'max_over_time(mysql_global_status_threads_connected[5m]) / ignoring (job) mysql_global_variables_max_connections * 100 > bool 90',
+      },
+    },
+  ],
+};
+
+// Logical composite (`... and ...`) — multiple comparisons, not a single value/threshold gauge.
+const COMPOSITE_RULE: GrafanaAlertRuleDefinition = {
+  uid: 'dfqkr76psnvnkh',
+  condition: 'A',
+  data: [
+    {
+      refId: 'A',
+      datasourceUid: 'PA58DA793C7250F1B',
+      model: {
+        refId: 'A',
+        expr: 'pg_bloat_table_bloat_pct > 70 and on (relname) (pg_bloat_table_real_size > 200000000)',
       },
     },
   ],
@@ -134,8 +170,25 @@ describe('resolveEvalPlan', () => {
     expect(plan?.data[0].model.instant).toBe(true);
   });
 
-  it('returns null for a boolean rule', () => {
+  it('returns null for an equality (up/down) rule', () => {
     expect(resolveEvalPlan(BOOL_RULE)).toBeNull();
+  });
+
+  it('resolves a bool-modified inequality (percentage) rule', () => {
+    const plan = resolveEvalPlan(BOOL_PERCENT_RULE);
+    expect(plan).toMatchObject({
+      valueRefId: 'A',
+      operator: '>',
+      thresholdConst: 90,
+    });
+    expect(plan?.data[0].model.expr).toBe(
+      'max_over_time(mysql_global_status_threads_connected[5m]) / ignoring (job) mysql_global_variables_max_connections * 100'
+    );
+    expect(plan?.data[0].model.instant).toBe(true);
+  });
+
+  it('returns null for a logical composite (and/or) rule', () => {
+    expect(resolveEvalPlan(COMPOSITE_RULE)).toBeNull();
   });
 
   it('resolves a threshold expression rule', () => {
@@ -192,12 +245,13 @@ describe('pickSeriesValue', () => {
 });
 
 describe('computeValueThreshold', () => {
-  it('computes over direction and floored percent', () => {
+  it('computes over direction, floored percent and breaching', () => {
     expect(computeValueThreshold(247, 200, '>')).toEqual({
       value: 247,
       threshold: 200,
       operator: '>',
       direction: 'over',
+      breaching: true,
       percent: 23,
     });
   });
@@ -215,6 +269,17 @@ describe('computeValueThreshold', () => {
       direction: 'under',
       percent: 93,
     });
+  });
+
+  it('derives breaching from the operator', () => {
+    // `<` rule breaches when the value is below the threshold.
+    expect(computeValueThreshold(3, 5, '<').breaching).toBe(true);
+    expect(computeValueThreshold(7, 5, '<').breaching).toBe(false);
+    // `>` rule whose value dropped below the threshold is no longer breaching.
+    expect(computeValueThreshold(5, 80, '>').breaching).toBe(false);
+    // `>=`/`<=` boundaries.
+    expect(computeValueThreshold(5, 5, '>=').breaching).toBe(true);
+    expect(computeValueThreshold(5, 5, '<=').breaching).toBe(true);
   });
 
   it('returns null percent for a zero threshold', () => {

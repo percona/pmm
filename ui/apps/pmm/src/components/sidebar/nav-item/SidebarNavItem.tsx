@@ -2,7 +2,11 @@ import { useLinkWithVariables } from 'hooks/utils/useLinkWithVariables';
 import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { NavItemProps } from './SidebarNavItem.types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { getLinkProps, hasChildMatch, shouldShowBadge } from './SidebarNavItem.utils';
+import {
+  getLinkProps,
+  hasChildMatch,
+  shouldShowBadge,
+} from './SidebarNavItem.utils';
 import { getStyles } from './SidebarNavItem.styles';
 import { useTheme } from '@mui/material/styles';
 import { NavItem } from '@percona/percona-ui';
@@ -99,16 +103,18 @@ const SidebarNavItem: FC<NavItemProps> = ({
               icon={item.icon ? <NavItemIcon icon={item.icon} /> : undefined}
               showDot={showBadge && !!item.icon}
               badge={
-                item.badge && item.badgeAlwaysVisible && drawerOpen
-                  ? <NavItemBadge badge={item.badge} />
-                  : undefined
+                item.badge && item.badgeAlwaysVisible && drawerOpen ? (
+                  <NavItemBadge badge={item.badge} />
+                ) : undefined
               }
               selected={active}
               sx={[
                 level === 0 && styles.navItemRootCollapsible,
                 !drawerOpen && { justifyContent: 'center' },
               ]}
-              {...(linkProps as Omit<typeof linkProps, 'component'> & { component?: React.ElementType })}
+              {...(linkProps as Omit<typeof linkProps, 'component'> & {
+                component?: React.ElementType;
+              })}
               onClick={handleOpenCollapsible}
               data-testid={dataTestid}
               data-navlevel={level}
@@ -215,7 +221,9 @@ const SidebarNavItem: FC<NavItemProps> = ({
             level === 0 && styles.navItemRoot,
             !drawerOpen && { justifyContent: 'center' },
           ]}
-          {...(linkProps as Omit<typeof linkProps, 'component'> & { component?: React.ElementType })}
+          {...(linkProps as Omit<typeof linkProps, 'component'> & {
+            component?: React.ElementType;
+          })}
           onClick={handleItemClick}
           data-testid={dataTestid}
           data-navlevel={level}

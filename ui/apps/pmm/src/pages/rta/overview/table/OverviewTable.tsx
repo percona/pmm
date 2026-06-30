@@ -31,14 +31,17 @@ const OverviewTable: FC<Props> = ({
 }) => {
   const tableRef = useRef<MRT_TableInstance<QueryData> | null>(null);
   // Controlled table state is required to read the filtered/sorted row model via tableInstanceRef.
-  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
+    []
+  );
   const [sorting, setSorting] = useState<MRT_SortingState>([]);
 
   // Pre-pagination so navigation covers all filtered rows, not only the current page.
   const getNavigableQueries = useCallback(
     () =>
-      tableRef.current?.getPrePaginationRowModel().rows.map((row) => row.original) ??
-      queries,
+      tableRef.current
+        ?.getPrePaginationRowModel()
+        .rows.map((row) => row.original) ?? queries,
     [queries]
   );
 

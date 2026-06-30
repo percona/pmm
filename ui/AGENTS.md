@@ -11,31 +11,32 @@ The `/ui` directory contains the PMM web frontend — a React/TypeScript applica
 
 The UI uses a **Yarn workspaces + Turborepo** monorepo with three packages:
 
-| Package | Path | Purpose |
-|---------|------|---------|
-| **pmm** | `ui/apps/pmm/` | Main PMM UI application (Vite + React) |
-| **pmm-compat** | `ui/apps/pmm-compat/` | Grafana plugin for PMM ↔ Grafana integration (Webpack) |
+| Package         | Path                  | Purpose                                                       |
+| --------------- | --------------------- | ------------------------------------------------------------- |
+| **pmm**         | `ui/apps/pmm/`        | Main PMM UI application (Vite + React)                        |
+| **pmm-compat**  | `ui/apps/pmm-compat/` | Grafana plugin for PMM ↔ Grafana integration (Webpack)        |
 | **@pmm/shared** | `ui/packages/shared/` | Shared code: cross-frame messaging, types, utilities (Rollup) |
 
 ### Key Technology Choices
 
-| Technology | Role |
-|------------|------|
-| **React 18** | UI framework |
-| **TypeScript** | Type-safe development |
-| **Vite** | Dev server and production build (main app) |
-| **MUI (Material UI)** | Component library |
-| **@percona/percona-ui** | Percona's shared UI component library and theme |
-| **TanStack Query (React Query)** | Server state management (API caching, mutations) |
-| **React Context** | UI/auth state (AuthProvider, SettingsProvider, etc.) |
-| **Vitest** | Unit testing (main app) |
-| **Jest** | Unit testing (shared package) |
-| **Webpack** | Build for Grafana plugin (pmm-compat) |
-| **Rollup** | Build for shared package |
+| Technology                       | Role                                                 |
+| -------------------------------- | ---------------------------------------------------- |
+| **React 18**                     | UI framework                                         |
+| **TypeScript**                   | Type-safe development                                |
+| **Vite**                         | Dev server and production build (main app)           |
+| **MUI (Material UI)**            | Component library                                    |
+| **@percona/percona-ui**          | Percona's shared UI component library and theme      |
+| **TanStack Query (React Query)** | Server state management (API caching, mutations)     |
+| **React Context**                | UI/auth state (AuthProvider, SettingsProvider, etc.) |
+| **Vitest**                       | Unit testing (main app)                              |
+| **Jest**                         | Unit testing (shared package)                        |
+| **Webpack**                      | Build for Grafana plugin (pmm-compat)                |
+| **Rollup**                       | Build for shared package                             |
 
 ### Communication with Grafana
 
 PMM UI runs inside a Grafana iframe. Cross-frame communication uses `CrossFrameMessenger` from `@pmm/shared`:
+
 - Navigation events
 - Theme synchronization
 - Authentication state
@@ -44,18 +45,18 @@ PMM UI runs inside a Grafana iframe. Cross-frame communication uses `CrossFrameM
 
 Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createBrowserRouter` with `basename: '/pmm-ui'`:
 
-| Route | Page |
-|-------|------|
-| `/` | Redirects to `/graph` (Grafana) |
-| `/updates` | PMM Server updates |
-| `/updates/clients` | Client updates |
-| `/help` | Help center |
-| `/rta` | Real-Time Analytics tab |
-| `/rta/selection` | RTA service selection |
-| `/rta/sessions` | RTA sessions list |
-| `/rta/overview` | RTA overview |
-| `/graph/*` | Grafana iframe |
-| `*` | 404 fallback |
+| Route              | Page                            |
+| ------------------ | ------------------------------- |
+| `/`                | Redirects to `/graph` (Grafana) |
+| `/updates`         | PMM Server updates              |
+| `/updates/clients` | Client updates                  |
+| `/help`            | Help center                     |
+| `/rta`             | Real-Time Analytics tab         |
+| `/rta/selection`   | RTA service selection           |
+| `/rta/sessions`    | RTA sessions list               |
+| `/rta/overview`    | RTA overview                    |
+| `/graph/*`         | Grafana iframe                  |
+| `*`                | 404 fallback                    |
 
 ## State Management
 
@@ -75,6 +76,7 @@ Query keys follow the pattern: `['domain:action', params]` (e.g., `['services:li
 ### UI/Auth State (React Context)
 
 Providers are composed in `Providers.tsx`:
+
 - `AuthProvider` — authentication state
 - `UserProvider` — current user info
 - `SettingsProvider` — PMM Server settings
@@ -91,6 +93,7 @@ API calls are organized in `src/api/` using axios. Each API module provides type
 ## Patterns and Conventions
 
 ### Do
+
 - Use TanStack Query (`useQuery`, `useMutation`) for all server state
 - Create custom hooks per API domain in `src/hooks/`
 - Use MUI and `@percona/percona-ui` components for consistent styling
@@ -99,6 +102,7 @@ API calls are organized in `src/api/` using axios. Each API module provides type
 - Use `CrossFrameMessenger` for communication with the Grafana iframe
 
 ### Don't
+
 - Don't use Redux or other state management — TanStack Query + Context covers all needs
 - Don't bypass React Query for API calls — it handles caching, deduplication, and background refetch
 - Don't use CSS-in-JS directly — use MUI's `sx` prop or theme-aware styled components

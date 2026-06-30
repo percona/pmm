@@ -102,3 +102,14 @@ export interface AlertEvalResult {
 export interface AlertEvalResponse {
   results: Record<string, AlertEvalResult>;
 }
+
+export type AlertSeverity =
+  | 'unknown'
+  | 'emergency'
+  | 'alert'
+  | 'critical'
+  | 'error'
+  | 'warning'
+  | 'notice'
+  | 'info'
+  | 'debug';

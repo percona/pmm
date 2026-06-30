@@ -1,21 +1,23 @@
 import { FC } from 'react';
 import { Grid, Stack, Typography } from '@mui/material';
-import { AlertRow } from '../AlertsPage.types';
-import { Messages } from './AlertDetails.messages';
+import { AlertRow } from '../../AlertsPage.types';
+import { Messages } from './AlertDetailsTab.messages';
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import DataPoint from 'components/details-pane/DataPoint';
-import ValueThreshold from './ValueThreshold';
+import ValueThreshold from './value-threshold/ValueThreshold';
 import { Chip } from '@percona/percona-ui';
-import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../AlertsPage.constants';
-import { formatTriggeredAt } from '../table/AlertStatusTable.utils';
+import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../../AlertsPage.constants';
+import { formatTriggeredAt } from '../../table/AlertStatusTable.utils';
 import { useTimezone } from 'hooks/utils/useTimezone';
 import { formatDurationSeconds } from 'utils/duration.utils';
+import AlertSeverityDetail from './severity/AlertSeverityDetail';
+import { AlertSeverity } from 'types/alerting.types';
 
 interface Props {
   alert: AlertRow;
 }
 
-const AlertDetails: FC<Props> = ({ alert }) => {
+const AlertDetailsTab: FC<Props> = ({ alert }) => {
   const timezone = useTimezone();
 
   return (
@@ -48,7 +50,9 @@ const AlertDetails: FC<Props> = ({ alert }) => {
           {formatTriggeredAt(alert.activeAt, timezone)}
         </DataPoint>
         <DataPoint size={1} title={Messages.details.severity}>
-          {alert.labels.severity}
+          <AlertSeverityDetail
+            severity={alert.labels.severity as AlertSeverity}
+          />
         </DataPoint>
         <DataPoint size={1} title={Messages.details.valueThreshold}>
           <ValueThreshold alert={alert} />
@@ -110,4 +114,4 @@ const AlertDetails: FC<Props> = ({ alert }) => {
   );
 };
 
-export default AlertDetails;
+export default AlertDetailsTab;

@@ -30,6 +30,9 @@ export interface ValueThresholdResult {
   threshold: number;
   operator: ThresholdOperator;
   direction: 'over' | 'under';
+  // Whether the rule's operator is satisfied at the current value (`>` rule => value > threshold,
+  // `<` rule => value < threshold). Drives the gauge colour; `direction` only describes position.
+  breaching: boolean;
   percent: number | null;
 }
 
@@ -39,9 +42,12 @@ const EXPR_DATASOURCE = '__expr__';
 const TRAILING_COMPARISON =
   /^([\s\S]*?)\s*(>=|<=|==|!=|>|<)\s*(bool\s+)?(-?\d+(?:\.\d+)?)\s*$/;
 
+// Top-level logical operators (`and`/`or`/`unless`) — PromQL requires surrounding whitespace, so
+// this won't match metric names like `node_memory_..._and_...` or `command`.
+const LOGICAL_OPERATOR = /\s+(and|or|unless)\s+/i;
+
 // `$A > $B` style condition inside a Grafana math expression.
-const MATH_COMPARISON =
-  /\$\{?(\w+)\}?\s*(>=|<=|==|!=|>|<)\s*\$\{?(\w+)\}?/;
+const MATH_COMPARISON = /\$\{?(\w+)\}?\s*(>=|<=|==|!=|>|<)\s*\$\{?(\w+)\}?/;
 
 const mapEvaluatorType = (type: string): ThresholdOperator | null => {
   switch (type) {
@@ -85,6 +91,22 @@ export const parseComparison = (expr?: string): ParsedComparison | null => {
     threshold,
     isBool: Boolean(match[3]),
   };
+};
+
+/**
+ * Decides whether a parsed PromQL comparison yields a meaningful value/threshold gauge. Rejects
+ * equality/up-down checks (`== bool 0`, `!= ...`) and logical composites (`... and ...`, `... or ...`),
+ * whose trailing comparison would latch onto a meaningless sub-comparison. `bool`-modified
+ * inequalities (e.g. `... * 100 > bool 90`) ARE gauge-able — `bool` only changes the result shape.
+ */
+const isGaugeableComparison = (
+  parsed: ParsedComparison,
+  expr: string
+): boolean => {
+  if (parsed.operator === '==' || parsed.operator === '!=') {
+    return false;
+  }
+  return !LOGICAL_OPERATOR.test(expr);
 };
 
 /**
@@ -146,8 +168,9 @@ export const resolveEvalPlan = (
   }
 
   // Datasource query with the comparison baked into PromQL.
-  const parsed = parseComparison(condition.model.expr);
-  if (!parsed || parsed.isBool) {
+  const expr = condition.model.expr;
+  const parsed = parseComparison(expr);
+  if (!parsed || !expr || !isGaugeableComparison(parsed, expr)) {
     return null;
   }
 
@@ -204,9 +227,31 @@ export const pickSeriesValue = (
   return match ? frameValue(match) : null;
 };
 
-// `direction` and `percent` describe where the value actually sits relative to the
-// threshold (positional), not the rule's alerting operator — so a `>` rule whose metric
-// has dropped back below the threshold reads as "under", not a misleading "over".
+// Whether the rule's operator holds at the current value (i.e. the rule is breaching).
+const isBreaching = (
+  value: number,
+  threshold: number,
+  operator: ThresholdOperator
+): boolean => {
+  switch (operator) {
+    case '>':
+      return value > threshold;
+    case '>=':
+      return value >= threshold;
+    case '<':
+      return value < threshold;
+    case '<=':
+      return value <= threshold;
+    case '==':
+      return value === threshold;
+    case '!=':
+      return value !== threshold;
+  }
+};
+
+// `direction` and `percent` describe where the value sits relative to the threshold (positional),
+// while `breaching` reflects the rule's alerting operator (a `<` rule breaches when the value is
+// below the threshold) and drives the gauge colour.
 export const computeValueThreshold = (
   value: number,
   threshold: number,
@@ -216,6 +261,7 @@ export const computeValueThreshold = (
   threshold,
   operator,
   direction: value >= threshold ? 'over' : 'under',
+  breaching: isBreaching(value, threshold, operator),
   percent:
     threshold === 0
       ? null
