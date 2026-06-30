@@ -48,6 +48,9 @@ jobs:
           cache: yarn
           cache-dependency-path: ui/yarn.lock
 
+      - name: Check formatting
+        run: make format-check
+
       - name: Run lint
         run: make lint
 
