@@ -1,3 +1,4 @@
+---
 name: 'Client: pmm-agent'
 
 on:
@@ -35,7 +36,7 @@ env:
 jobs:
   test:
     name: Tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         images:
@@ -138,7 +139,7 @@ jobs:
 
   build-gssapi:
     name: Build PMM Agent with GSSAPI support
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     continue-on-error: false
     defaults:
       run:
