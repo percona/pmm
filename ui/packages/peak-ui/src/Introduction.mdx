@@ -1,38 +1,9 @@
 import { Meta } from '@storybook/addon-docs/blocks';
+import { MATURITY_TAGS, badgeStyle } from '../.storybook/maturity-tags';
 
 <Meta title="Introduction" />
 
-export const statusTag = (bg, fg, border) => ({
-  display: 'inline-block',
-  padding: '1px 6px',
-  borderRadius: '4px',
-  fontSize: '10px',
-  fontWeight: 500,
-  letterSpacing: 0,
-  lineHeight: '16px',
-  color: fg,
-  backgroundColor: bg,
-  border: `1px solid ${border}`,
-});
-
-export const stableTag = statusTag('rgba(46, 125, 50, 0.14)', '#2e7d32', 'rgba(46, 125, 50, 0.3)');
-export const experimentalTag = statusTag(
-  'rgba(106, 63, 209, 0.14)',
-  '#6a3fd1',
-  'rgba(106, 63, 209, 0.3)'
-);
-export const needsReviewTag = statusTag(
-  'rgba(180, 83, 9, 0.14)',
-  '#b45309',
-  'rgba(180, 83, 9, 0.3)'
-);
-export const deprecatedTag = statusTag(
-  'rgba(198, 40, 40, 0.14)',
-  '#c62828',
-  'rgba(198, 40, 40, 0.3)'
-);
-
-export const tagCell = { display: 'inline-block', width: '110px' };
+export const tagCell = { display: 'inline-block', width: 'auto' };
 
 # Welcome to Peak Design
 
@@ -42,41 +13,18 @@ While our Figma kit represents our design intent, **this Storybook is our defini
 
 ## Maturity tags
 
-Every documented component carries a **maturity tag** so humans and agents can tell at a glance what's safe to build on and what needs care. The tag renders as a colored badge next to the component in the sidebar and on its docs page. You can also filter the sidebar by status using the filter menu (the funnel icon at the bottom of the sidebar), and each tag is present in the generated `index.json` for tooling.
-
-Exactly one status applies per component, from this closed set:
+Every documented component carries a **maturity tag** so humans and agents can tell at a glance what's safe to build on and what needs care. You can also filter the sidebar by status. Exactly one status applies per documentation section or component, from this set:
 
 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '1.25rem 0' }}>
-  <div>
-    <span style={tagCell}>
-      <span style={stableTag}>Stable</span>
-    </span>
-    Production-ready and reviewed. Safe to use in any product — copy the snippets with confidence.
-  </div>
-  <div>
-    <span style={tagCell}>
-      <span style={experimentalTag}>Experimental</span>
-    </span>
-    Intentionally early. The API may change without notice; pin to a version and expect churn.
-  </div>
-  <div>
-    <span style={tagCell}>
-      <span style={needsReviewTag}>Needs review</span>
-    </span>
-    Functional but not yet vetted against the design system. Usable, but may change after review —
-    check with us before relying on it.
-  </div>
-  <div>
-    <span style={tagCell}>
-      <span style={deprecatedTag}>Deprecated</span>
-    </span>
-    On the way out. Avoid in new code and migrate existing usage to the recommended replacement.
-  </div>
+  {MATURITY_TAGS.map((tag) => (
+    <div key={tag.id} style={{ display: 'flex', gap: '0.5rem' }}>
+      <span style={tagCell}>
+        <span style={badgeStyle(tag.colors, 12)}>{tag.label}</span>
+      </span>
+      <span>{tag.description}</span>
+    </div>
+  ))}
 </div>
-
-Components grouped under **To be reviewed** in the sidebar are all tagged `needs review`. The absence of a tag means we haven't classified it yet — treat it as unreviewed.
-
-By default the sidebar hides `needs review` and `deprecated` entries so you see the safe set first. Storybook marks the filter as active (the funnel icon at the bottom of the sidebar is highlighted) — open it and clear the status filters to reveal everything.
 
 ## Resources
 

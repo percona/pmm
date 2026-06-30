@@ -19,8 +19,8 @@ const config: StorybookConfig = {
   tags: {
     stable: {},
     experimental: {},
-    "needs-review": { defaultFilterSelection: "exclude" },
-    deprecated: { defaultFilterSelection: "exclude" },
+    "needs-review": {},
+    deprecated: {},
   },
   framework: {
     name: "@storybook/react-vite",
