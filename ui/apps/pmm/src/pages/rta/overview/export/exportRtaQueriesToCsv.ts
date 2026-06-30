@@ -1,6 +1,7 @@
 import { format, formatDuration } from 'date-fns';
 import { download, generateCsv, mkConfig } from 'export-to-csv';
 import { QueryData } from 'types/rta.types';
+import { Messages } from '../table/OverviewTable.messages';
 
 export const formatElapsedTimeForExport = (
   queryExecutionDurationMs?: number | null
@@ -20,11 +21,12 @@ export const formatElapsedTimeForExport = (
 };
 
 export const mapQueryToCsvRow = (query: QueryData) => ({
-  'Operation ID': query.queryId,
-  Service: query.serviceName,
-  'Query Text': query.queryText,
-  'Elapsed Time': formatElapsedTimeForExport(query.queryExecutionDurationMs),
-  'Plan Summary': query.mongoDbPayload.planSummary ?? '',
+  [Messages.columns.queryText]: query.queryText,
+  [Messages.columns.host]: query.serviceName,
+  [Messages.columns.operationId]: query.queryId,
+  [Messages.columns.elapsedTime]: formatElapsedTimeForExport(
+    query.queryExecutionDurationMs
+  ),
 });
 
 export const buildRtaExportFilename = (date = new Date()): string => {

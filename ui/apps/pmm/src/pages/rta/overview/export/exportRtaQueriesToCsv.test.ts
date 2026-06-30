@@ -36,12 +36,11 @@ describe('exportRtaQueriesToCsv', () => {
         queryExecutionDurationMs: 10,
       })
     ).toEqual({
-      'Operation ID': 'query-1',
-      Service: 'Service 1',
-      'Query Text':
+      'Query text':
         '{ find: "mycollection", filter: { status: "active" } }',
-      'Elapsed Time': '10 seconds',
-      'Plan Summary': 'plan-summary',
+      Host: 'Service 1',
+      'Operation ID': 'query-1',
+      'Elapsed time': '10 seconds',
     });
   });
 
