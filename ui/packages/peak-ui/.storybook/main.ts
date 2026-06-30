@@ -1,5 +1,6 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { MATURITY_TAGS } from "./maturity-tags";
 
 const cjsInteropDeps = [
   "material-react-table",
@@ -16,12 +17,7 @@ const config: StorybookConfig = {
     "storybook-addon-pseudo-states",
     "storybook-addon-tag-badges",
   ],
-  tags: {
-    stable: {},
-    experimental: {},
-    "needs-review": {},
-    deprecated: {},
-  },
+  tags: Object.fromEntries(MATURITY_TAGS.map(({ id }) => [id, {}])),
   framework: {
     name: "@storybook/react-vite",
     options: {},
