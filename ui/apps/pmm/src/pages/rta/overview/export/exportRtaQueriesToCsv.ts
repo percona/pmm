@@ -1,7 +1,6 @@
-import { format, formatDuration } from 'date-fns';
+import { format } from 'date-fns';
 import { download, generateCsv, mkConfig } from 'export-to-csv';
 import { QueryData } from 'types/rta.types';
-import { Messages } from '../table/OverviewTable.messages';
 
 const CSV_FORMULA_PREFIX = /^[=+\-@\t\r]/;
 
@@ -13,31 +12,38 @@ export const sanitizeCsvCell = (value: string): string => {
   return value;
 };
 
-export const formatElapsedTimeForExport = (
+export const formatElapsedExecTimeSec = (
   queryExecutionDurationMs?: number | null
-): string => {
+): number | '' => {
   if (queryExecutionDurationMs == null) {
     return '';
   }
 
-  return formatDuration(
-    {
-      seconds: queryExecutionDurationMs,
-    },
-    {
-      format: ['seconds'],
-    }
-  );
+  return queryExecutionDurationMs;
 };
 
-export const mapQueryToCsvRow = (query: QueryData) => ({
-  [Messages.columns.queryText]: sanitizeCsvCell(query.queryText),
-  [Messages.columns.host]: sanitizeCsvCell(query.serviceName),
-  [Messages.columns.operationId]: sanitizeCsvCell(query.queryId),
-  [Messages.columns.elapsedTime]: sanitizeCsvCell(
-    formatElapsedTimeForExport(query.queryExecutionDurationMs)
-  ),
-});
+export const mapQueryToCsvRow = (query: QueryData) => {
+  const { mongoDbPayload } = query;
+
+  return {
+    operation_id: sanitizeCsvCell(query.queryId),
+    elapsed_exec_time_sec: formatElapsedExecTimeSec(
+      query.queryExecutionDurationMs
+    ),
+    db_instance_address: sanitizeCsvCell(mongoDbPayload.dbInstanceAddress),
+    client_address: sanitizeCsvCell(query.clientAddress),
+    database_name: sanitizeCsvCell(mongoDbPayload.databaseName),
+    service: sanitizeCsvCell(query.serviceName),
+    user_name: sanitizeCsvCell(mongoDbPayload.username),
+    collection: sanitizeCsvCell(mongoDbPayload.collection ?? ''),
+    operation: sanitizeCsvCell(mongoDbPayload.operation),
+    plan_summary: sanitizeCsvCell(mongoDbPayload.planSummary),
+    client_app_name: sanitizeCsvCell(mongoDbPayload.clientAppName),
+    operation_start_time: sanitizeCsvCell(mongoDbPayload.operationStartTime),
+    data_capture_time: sanitizeCsvCell(query.queryCollectTime),
+    raw_query: sanitizeCsvCell(query.queryRawJson),
+  };
+};
 
 export const buildRtaExportFilename = (date = new Date()): string => {
   const timestamp = format(date, 'yyyyMMdd_HHmmss');

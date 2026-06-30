@@ -3,7 +3,7 @@ import { TEST_MONGO_DB_QUERY_DATA } from 'utils/testStubs';
 import {
   buildRtaExportFilename,
   exportRtaQueriesToCsv,
-  formatElapsedTimeForExport,
+  formatElapsedExecTimeSec,
   mapQueryToCsvRow,
   sanitizeCsvCell,
 } from './exportRtaQueriesToCsv';
@@ -20,14 +20,23 @@ vi.mock('export-to-csv', () => ({
   mkConfig,
 }));
 
+const TEST_QUERY = {
+  ...TEST_MONGO_DB_QUERY_DATA,
+  queryExecutionDurationMs: 10,
+  mongoDbPayload: {
+    ...TEST_MONGO_DB_QUERY_DATA.mongoDbPayload,
+    collection: 'mycollection',
+  },
+};
+
 describe('exportRtaQueriesToCsv', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('formats elapsed time like the overview table', () => {
-    expect(formatElapsedTimeForExport(10)).toBe('10 seconds');
-    expect(formatElapsedTimeForExport(null)).toBe('');
+  it('formats elapsed exec time as seconds', () => {
+    expect(formatElapsedExecTimeSec(10)).toBe(10);
+    expect(formatElapsedExecTimeSec(null)).toBe('');
   });
 
   it('sanitizes values that could be interpreted as spreadsheet formulas', () => {
@@ -38,18 +47,41 @@ describe('exportRtaQueriesToCsv', () => {
     expect(sanitizeCsvCell('{ find: "x" }')).toBe('{ find: "x" }');
   });
 
-  it('maps query data to csv row columns', () => {
-    expect(
-      mapQueryToCsvRow({
-        ...TEST_MONGO_DB_QUERY_DATA,
-        queryExecutionDurationMs: 10,
-      })
-    ).toEqual({
-      'Query text':
-        '{ find: "mycollection", filter: { status: "active" } }',
-      Host: 'Service 1',
-      'Operation ID': 'query-1',
-      'Elapsed time': '10 seconds',
+  it('maps query data to csv row columns in the required order', () => {
+    const row = mapQueryToCsvRow(TEST_QUERY);
+
+    expect(Object.keys(row)).toEqual([
+      'operation_id',
+      'elapsed_exec_time_sec',
+      'db_instance_address',
+      'client_address',
+      'database_name',
+      'service',
+      'user_name',
+      'collection',
+      'operation',
+      'plan_summary',
+      'client_app_name',
+      'operation_start_time',
+      'data_capture_time',
+      'raw_query',
+    ]);
+
+    expect(row).toEqual({
+      operation_id: 'query-1',
+      elapsed_exec_time_sec: 10,
+      db_instance_address: '127.0.0.1',
+      client_address: '127.0.0.1',
+      database_name: 'database-name',
+      service: 'Service 1',
+      user_name: 'username',
+      collection: 'mycollection',
+      operation: 'operation',
+      plan_summary: 'plan-summary',
+      client_app_name: 'client-app-name',
+      operation_start_time: '2021-01-01T00:00:00Z',
+      data_capture_time: '2021-01-01T00:00:00Z',
+      raw_query: '{ find: "mycollection", filter: { status: "active" } }',
     });
   });
 
@@ -60,12 +92,7 @@ describe('exportRtaQueriesToCsv', () => {
   });
 
   it('exports filtered query rows to csv', () => {
-    const query = {
-      ...TEST_MONGO_DB_QUERY_DATA,
-      queryExecutionDurationMs: 10,
-    };
-
-    exportRtaQueriesToCsv([query]);
+    exportRtaQueriesToCsv([TEST_QUERY]);
 
     expect(mkConfig).toHaveBeenCalledWith({
       useKeysAsHeaders: true,
