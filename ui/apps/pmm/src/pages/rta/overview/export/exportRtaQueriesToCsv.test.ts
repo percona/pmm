@@ -5,6 +5,7 @@ import {
   exportRtaQueriesToCsv,
   formatElapsedTimeForExport,
   mapQueryToCsvRow,
+  sanitizeCsvCell,
 } from './exportRtaQueriesToCsv';
 
 const { download, generateCsv, mkConfig } = vi.hoisted(() => ({
@@ -27,6 +28,14 @@ describe('exportRtaQueriesToCsv', () => {
   it('formats elapsed time like the overview table', () => {
     expect(formatElapsedTimeForExport(10)).toBe('10 seconds');
     expect(formatElapsedTimeForExport(null)).toBe('');
+  });
+
+  it('sanitizes values that could be interpreted as spreadsheet formulas', () => {
+    expect(sanitizeCsvCell('=1+1')).toBe("'=1+1");
+    expect(sanitizeCsvCell('+cmd')).toBe("'+cmd");
+    expect(sanitizeCsvCell('-10')).toBe("'-10");
+    expect(sanitizeCsvCell('@SUM(A1)')).toBe("'@SUM(A1)");
+    expect(sanitizeCsvCell('{ find: "x" }')).toBe('{ find: "x" }');
   });
 
   it('maps query data to csv row columns', () => {
