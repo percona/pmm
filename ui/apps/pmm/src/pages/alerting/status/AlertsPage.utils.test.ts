@@ -136,6 +136,53 @@ describe('flattenAlertRules', () => {
     expect(mysqlConnectionsRuleAlert?.serviceName).toBe('mysql-service-b');
   });
 
+  it('carries the originating rule onto each alert row', () => {
+    const payload: PrometheusAlertRulesResponse = {
+      data: {
+        groups: [
+          {
+            name: 'mysql-group',
+            interval: 60,
+            rules: [
+              {
+                uid: 'rule-uid-1',
+                name: 'mysql_replication_lag',
+                query: 'up == 0',
+                duration: 300,
+                keepFiringFor: 120,
+                type: 'alerting',
+                health: 'ok',
+                alerts: [
+                  {
+                    state: 'firing',
+                    value: '42',
+                    labels: {
+                      node_name: 'node-a',
+                      alertname: 'MySQL Replication Delay',
+                      service_name: 'mysql-service-a',
+                    },
+                    annotations: {},
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    const rows = flattenAlertRules(payload);
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0].rule).toBeDefined();
+    expect(rows[0].rule?.uid).toBe('rule-uid-1');
+    expect(rows[0].rule?.duration).toBe(300);
+    expect(rows[0].rule?.keepFiringFor).toBe(120);
+    expect(rows[0].rule?.type).toBe('alerting');
+    expect(rows[0].rule?.health).toBe('ok');
+    expect(rows[0].value).toBe('42');
+  });
+
   it('falls back to unknown-node when node_name label is absent', () => {
     const payload: PrometheusAlertRulesResponse = {
       data: {

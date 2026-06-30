@@ -1,3 +1,4 @@
+---
 name: Sync API Docs
 on:
   push:

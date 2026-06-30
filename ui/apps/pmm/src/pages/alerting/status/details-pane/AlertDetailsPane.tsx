@@ -10,12 +10,12 @@ import Tooltip from '@mui/material/Tooltip';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import { Icon } from 'components/icon';
-import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { useEscapeKey } from 'utils/keys.utils';
 import { AlertsTableRow } from '../AlertsPage.types';
-import AlertDetails from './AlertDetails';
+import AlertDetailsTab from './details/AlertDetailsTab';
 import { Messages } from './AlertDetailsPane.messages';
 import { UseDetailsPaneNavigationResult } from '@percona/percona-ui';
+import RawDataTab from './raw-data/RawDataTab';
 
 interface Props extends UseDetailsPaneNavigationResult {
   alert?: AlertsTableRow;
@@ -129,17 +129,8 @@ const AlertDetailsPane: FC<Props> = ({
               overflowX: 'hidden',
             }}
           >
-            {tab === 'details' && <AlertDetails alert={alert} />}
-            {tab === 'raw-data' && (
-              <SyntaxHighlighter
-                language="json"
-                content={alert.rawJson}
-                showCopyButton
-                showLineNumbers
-                maxHeight="80vh"
-                data-testid="alert-raw-data"
-              />
-            )}
+            {tab === 'details' && <AlertDetailsTab alert={alert} />}
+            {tab === 'raw-data' && <RawDataTab alert={alert} />}
           </CardContent>
         ) : null}
       </Paper>

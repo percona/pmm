@@ -92,7 +92,7 @@ bench:                          ## Run benchmarks
 	go test -bench=. -benchtime=1s -count=5 -cpu=1 -timeout=30m -failfast github.com/percona/pmm/agent/agents/postgres/parser | tee postgres_parser_new.bench
 	go tool benchstat postgres_parser_old.bench postgres_parser_new.bench
 
-RUN_FLAGS = --config-file=pmm-agent-dev.yaml
+RUN_FLAGS = --config-file=pmm-agent.yaml
 
 run: install _run               ## Run pmm-agent
 

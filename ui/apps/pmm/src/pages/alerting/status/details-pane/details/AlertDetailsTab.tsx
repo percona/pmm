@@ -1,19 +1,23 @@
 import { FC } from 'react';
 import { Grid, Stack, Typography } from '@mui/material';
-import { AlertRow } from '../AlertsPage.types';
-import { Messages } from './AlertDetails.messages';
+import { AlertRow } from '../../AlertsPage.types';
+import { Messages } from './AlertDetailsTab.messages';
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import DataPoint from 'components/details-pane/DataPoint';
+import ValueThreshold from './value-threshold/ValueThreshold';
 import { Chip } from '@percona/percona-ui';
-import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../AlertsPage.constants';
-import { formatTriggeredAt } from '../table/AlertStatusTable.utils';
+import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../../AlertsPage.constants';
+import { formatTriggeredAt } from '../../table/AlertStatusTable.utils';
 import { useTimezone } from 'hooks/utils/useTimezone';
+import { formatDurationSeconds } from 'utils/duration.utils';
+import AlertSeverityDetail from './severity/AlertSeverityDetail';
+import { AlertSeverity } from 'types/alerting.types';
 
 interface Props {
   alert: AlertRow;
 }
 
-const AlertDetails: FC<Props> = ({ alert }) => {
+const AlertDetailsTab: FC<Props> = ({ alert }) => {
   const timezone = useTimezone();
 
   return (
@@ -46,9 +50,13 @@ const AlertDetails: FC<Props> = ({ alert }) => {
           {formatTriggeredAt(alert.activeAt, timezone)}
         </DataPoint>
         <DataPoint size={1} title={Messages.details.severity}>
-          {alert.labels.severity}
+          <AlertSeverityDetail
+            severity={alert.labels.severity as AlertSeverity}
+          />
         </DataPoint>
-        <DataPoint size={1} title={Messages.details.valueThreshold}></DataPoint>
+        <DataPoint size={1} title={Messages.details.valueThreshold}>
+          <ValueThreshold alert={alert} />
+        </DataPoint>
         <DataPoint size={1} title={Messages.details.summaryLabel}>
           {alert.annotations.summary}
         </DataPoint>
@@ -65,26 +73,27 @@ const AlertDetails: FC<Props> = ({ alert }) => {
           {Messages.details.ruleConfiguration}
         </Typography>
         <Grid container spacing={3} columns={{ xs: 4 }}>
-          <DataPoint size={1} title={Messages.details.evaluate}></DataPoint>
+          <DataPoint size={1} title={Messages.details.evaluate}>
+            {formatDurationSeconds(alert.ruleGroup?.interval)}
+          </DataPoint>
           <DataPoint size={1} title={Messages.details.lastEvaluated}>
             {formatTriggeredAt(alert.ruleGroup?.lastEvaluation, timezone)}
           </DataPoint>
           <DataPoint size={1} title={Messages.details.lastEvaluationDuration}>
-            {alert.ruleGroup?.evaluationTime}
+            {formatDurationSeconds(alert.ruleGroup?.evaluationTime)}
           </DataPoint>
-          <DataPoint
-            size={1}
-            title={Messages.details.pendingPeriod}
-          ></DataPoint>
-          <DataPoint
-            size={1}
-            title={Messages.details.keepFiringFor}
-          ></DataPoint>
-          <DataPoint size={1} title={Messages.details.ruleType}></DataPoint>
-          <DataPoint
-            size={1}
-            title={Messages.details.ruleIdentifier}
-          ></DataPoint>
+          <DataPoint size={1} title={Messages.details.pendingPeriod}>
+            {formatDurationSeconds(alert.rule?.duration)}
+          </DataPoint>
+          <DataPoint size={1} title={Messages.details.keepFiringFor}>
+            {formatDurationSeconds(alert.rule?.keepFiringFor)}
+          </DataPoint>
+          <DataPoint size={1} title={Messages.details.ruleType}>
+            {alert.rule?.type}
+          </DataPoint>
+          <DataPoint size={1} title={Messages.details.ruleIdentifier}>
+            {alert.rule?.uid}
+          </DataPoint>
           <DataPoint
             size={1}
             title={Messages.details.lastUpdatedBy}
@@ -96,11 +105,13 @@ const AlertDetails: FC<Props> = ({ alert }) => {
           <DataPoint size={1} title={Messages.details.folder}>
             {alert.ruleGroup?.file}
           </DataPoint>
-          <DataPoint size={1} title={Messages.details.ruleHealth}></DataPoint>
+          <DataPoint size={1} title={Messages.details.ruleHealth}>
+            {alert.rule?.health}
+          </DataPoint>
         </Grid>
       </Stack>
     </Stack>
   );
 };
 
-export default AlertDetails;
+export default AlertDetailsTab;
