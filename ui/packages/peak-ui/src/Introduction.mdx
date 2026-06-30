@@ -3,8 +3,6 @@ import { MATURITY_TAGS, badgeStyle } from '../.storybook/maturity-tags';
 
 <Meta title="Introduction" />
 
-export const tagCell = { display: 'inline-block', width: 'auto' };
-
 # Welcome to Peak Design
 
 Peak Design is Percona's design system and UI library containing the guidelines and assets that allow Perconians and the community to create functional, professional, and attractive GUIs for our software products.
@@ -17,10 +15,8 @@ Every documented component carries a **maturity tag** so humans and agents can t
 
 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '1.25rem 0' }}>
   {MATURITY_TAGS.map((tag) => (
-    <div key={tag.id} style={{ display: 'flex', gap: '0.5rem' }}>
-      <span style={tagCell}>
-        <span style={badgeStyle(tag.colors, 12)}>{tag.label}</span>
-      </span>
+    <div key={tag.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+      <span style={badgeStyle(tag.colors, 'mdx')}>{tag.label}</span>
       <span>{tag.description}</span>
     </div>
   ))}
