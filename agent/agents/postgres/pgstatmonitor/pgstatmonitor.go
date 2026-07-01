@@ -42,7 +42,7 @@ import (
 
 const defaultWaitTime = 60 * time.Second
 
-// QAN services connects to PostgreSQL and extracts stats.
+// QAN connects to PostgreSQL and extracts stats using pg_stat_monitor.
 type QAN struct {
 	q                      *reform.Querier
 	dbCloser               io.Closer
