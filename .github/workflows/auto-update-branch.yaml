@@ -14,6 +14,7 @@ on:
 concurrency:
   group: auto-update-branch-${{ github.ref }}
   cancel-in-progress: true
+permissions: {}
 
 jobs:
   auto-update-branch:
@@ -78,7 +79,7 @@ jobs:
                     }
                     // 1. Check if GitHub is still calculating the state
                     if (pr.mergeable === null || pr.mergeable_state === "unknown") {
-                      console.log(`[INFO] PR #${pull.number}: GitHub is computing mergeability. Queuing for retry.`);
+                      console.log(`[INFO] PR #${pull.number}: GitHub is computing mergeability (Attempt ${attemptCount}). Queuing for retry.`);
                       retryList.push(pull);
                       continue;
                     }
@@ -91,7 +92,7 @@ jobs:
 
                     // 3. Check if it actually needs an update
                     if (pr.mergeable_state !== "behind") {
-                      console.log(`[INFO] PR #${pull.number}: Not behind base branch (state: ${pr.mergeable_state}).`);
+                      console.log(`[INFO] PR #${pull.number}: Update not required (state: ${pr.mergeable_state}).`);
                       continue;
                     }
 
