@@ -23,9 +23,9 @@ import (
 
 // agentPBServer provides methods for pmm-agent <-> pmm-managed interactions.
 type agentPBServer struct {
-	handler *agents.Handler
-
 	agentpb.UnimplementedAgentServer
+
+	handler *agents.Handler
 }
 
 // NewAgentPBServer creates new agent server.

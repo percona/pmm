@@ -83,9 +83,10 @@ func (s pbmSeverity) String() string {
 }
 
 type pbmLogEntry struct {
-	TS         int64 `json:"ts"`
 	pbmLogKeys `json:",inline"`
-	Msg        string `json:"msg"`
+
+	TS  int64  `json:"ts"`
+	Msg string `json:"msg"`
 }
 
 func (e pbmLogEntry) String() string {

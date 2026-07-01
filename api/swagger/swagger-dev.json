@@ -24978,6 +24978,22 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 34
+                    },
+                    "mysql_disable_collectors": {
+                      "description": "List of collector names to disable in the MySQL database exporter.\nApplies only when engine is DISCOVER_RDS_ENGINE_MYSQL, otherwise it is ignored.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 35
+                    },
+                    "postgresql_disable_collectors": {
+                      "description": "List of collector names to disable in the PostgreSQL database exporter.\nApplies only when engine is DISCOVER_RDS_ENGINE_POSTGRESQL, otherwise it is ignored.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 36
                     }
                   },
                   "x-order": 6
