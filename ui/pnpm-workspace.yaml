@@ -1,11 +1,13 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+  - 'packages/sep/*'
   - 'packages/plugins/*'
 
 allowBuilds:
   '@swc/core': true
   esbuild: true
+  msw: true
   protobufjs: true
 
 # @grafana/ui pulls react-data-grid via a git ref; pnpm 11 blocks exotic subdeps by default.

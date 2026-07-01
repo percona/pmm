@@ -30,7 +30,7 @@
     "@percona/percona-ui": "1.0.22",
     "@pmm/shared": "workspace:*",
     "@reactour/tour": "^3.8.0",
-    "@tanstack/react-query": "^5.45.1",
+    "@tanstack/react-query": "^5.100.7",
     "axios": "^1.13.5",
     "axios-case-converter": "^1.1.1",
     "date-fns": "4.1.0",

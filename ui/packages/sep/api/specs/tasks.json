@@ -1,0 +1,3261 @@
+{
+  "components": {
+    "schemas": {
+      "ConnectivityCheckResponse": {
+        "description": "Represent a connectivity check result.\n\n:param success: Whether the connectivity check succeeded.\n:type success: bool\n:param error: Error message if the check failed. Defaults to ``None``.\n:type error: str | None\n:param task_history_id: The ID of the task history record for this check.\n:type task_history_id: int",
+        "properties": {
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "success": {
+            "title": "Success",
+            "type": "boolean"
+          },
+          "task_history_id": {
+            "title": "Task History Id",
+            "type": "integer"
+          }
+        },
+        "required": ["success", "task_history_id"],
+        "title": "ConnectivityCheckResponse",
+        "type": "object"
+      },
+      "ConnectivityCheckWrite": {
+        "description": "Represent a connectivity check request payload.\n\n:param target: The Nomad node name to run the check on.\n:type target: str\n:param host: The database host address.\n:type host: str\n:param port: The database port number.\n:type port: int\n:param service_type: The type of database service to check.\n:type service_type: ConnectivityServiceType\n:param timeout: Maximum seconds to wait for the check. Defaults to 30.\n:type timeout: int",
+        "properties": {
+          "host": {
+            "title": "Host",
+            "type": "string"
+          },
+          "port": {
+            "title": "Port",
+            "type": "integer"
+          },
+          "service_type": {
+            "$ref": "#/components/schemas/ConnectivityServiceType"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "timeout": {
+            "default": 30,
+            "exclusiveMinimum": 0.0,
+            "maximum": 60.0,
+            "title": "Timeout",
+            "type": "integer"
+          }
+        },
+        "required": ["target", "host", "port", "service_type"],
+        "title": "ConnectivityCheckWrite",
+        "type": "object"
+      },
+      "ConnectivityServiceType": {
+        "description": "Define supported database service types for connectivity checks.\n\n:cvar MYSQL: MySQL database service.\n:vartype MYSQL: str\n:cvar POSTGRESQL: PostgreSQL database service.\n:vartype POSTGRESQL: str\n:cvar MONGODB: MongoDB database service.\n:vartype MONGODB: str",
+        "enum": ["mysql", "postgresql", "mongodb"],
+        "title": "ConnectivityServiceType",
+        "type": "string"
+      },
+      "CrontabSchedule": {
+        "description": "Representing a crontab schedule.\n\n:param minute: Represents the minute component in cron format. Defaults to `\"*\"`.\n:type minute: str\n:param hour: Represents the hour component in cron format. Defaults to `\"*\"`.\n:type hour: str\n:param day_of_week: Represents the day of the week component in cron format.\n    Defaults to `\"*\"`.\n:type day_of_week: str\n:param day_of_month: Represents the day of the month component in cron format.\n    Defaults to `\"*\"`.\n:type day_of_month: str\n:param month_of_year: Represents the month component in cron format.\n    Defaults to `\"*\"`.\n:type month_of_year: str\n:param timezone: The timezone for the cron schedule. Defaults to \"UTC\". Must be a\n    valid timezone as returned in `available_timezones()`\n:type timezone: str",
+        "properties": {
+          "day_of_month": {
+            "default": "*",
+            "title": "Day Of Month",
+            "type": "string"
+          },
+          "day_of_week": {
+            "default": "*",
+            "title": "Day Of Week",
+            "type": "string"
+          },
+          "hour": {
+            "default": "*",
+            "title": "Hour",
+            "type": "string"
+          },
+          "minute": {
+            "default": "*",
+            "title": "Minute",
+            "type": "string"
+          },
+          "month_of_year": {
+            "default": "*",
+            "title": "Month Of Year",
+            "type": "string"
+          },
+          "timezone": {
+            "default": "UTC",
+            "title": "Timezone",
+            "type": "string"
+          }
+        },
+        "title": "CrontabSchedule",
+        "type": "object"
+      },
+      "ExecutionEvent": {
+        "description": "A single lifecycle event from a task executor (executor-agnostic shape).\n\n:param timestamp: When the event occurred (UTC).\n:type timestamp: UTCDatetime\n:param event_type: Executor-specific event category (e.g. Nomad task event type).\n:type event_type: str\n:param description: Human-readable message for the event (no step prefix).\n:type description: str\n:param step: Optional executor task/step name (e.g. Nomad task within the group).\n:type step: str | None",
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "step": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Step"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "title": "Timestamp",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": ["timestamp", "type", "description"],
+        "title": "ExecutionEvent",
+        "type": "object"
+      },
+      "FileMetadata": {
+        "description": "Represent file metadata for task artifacts.",
+        "properties": {
+          "is_dir": {
+            "default": false,
+            "title": "Is Dir",
+            "type": "boolean"
+          },
+          "size": {
+            "default": 0,
+            "title": "Size",
+            "type": "integer"
+          }
+        },
+        "title": "FileMetadata",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "IntervalSchedule": {
+        "description": "Represent an interval schedule.\n\n:param every: The number of periods between each execution.\n:type every: PositiveInt\n:param period: The period unit for the interval (e.g., hours, minutes).\n:type period: Period",
+        "properties": {
+          "every": {
+            "exclusiveMinimum": 0.0,
+            "title": "Every",
+            "type": "integer"
+          },
+          "period": {
+            "$ref": "#/components/schemas/Period"
+          }
+        },
+        "required": ["every", "period"],
+        "title": "IntervalSchedule",
+        "type": "object"
+      },
+      "JsonValue": {},
+      "PaginatedResponse_TaskHistoryResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TaskHistoryResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": ["items", "total", "offset", "limit"],
+        "title": "PaginatedResponse[TaskHistoryResponse]",
+        "type": "object"
+      },
+      "PaginatedResponse_TaskResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TaskResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": ["items", "total", "offset", "limit"],
+        "title": "PaginatedResponse[TaskResponse]",
+        "type": "object"
+      },
+      "Period": {
+        "enum": ["days", "hours", "minutes", "seconds", "microseconds"],
+        "title": "Period",
+        "type": "string"
+      },
+      "PeriodicTaskCreate": {
+        "description": "Define the model for creating periodic tasks.\n\nExtends `PeriodicTaskWrite` and includes additional fields required for creating\nnew periodic tasks.\n\n:param task: The Celery task name.\n:type task: str\n:param execute_request: The execution request details for the task.\n:type execute_request: PeriodicTaskExecuteRequest | None\n:param interval: The interval schedule for the task. Defaults to None.\n:type interval: IntervalSchedule | None\n:param crontab: The crontab schedule for the task. Defaults to None.\n:type crontab: CrontabSchedule | None\n:param kwargs: A JSON string representing additional keyword arguments for the task.\n:type kwargs: str\n:param name: The name of the periodic task. Defaults to an empty string, meaning\n    the value will be automatically generated on create.\n:type name: str\n:param start_time: The start time for the task execution. Defaults to None.\n:type start_time:  UTCDatetime | None\n:param enabled: Whether the task is enabled. Defaults to True.\n:type enabled: bool\n:param description: A description of the task. Defaults to an empty string.\n:type description: str",
+        "properties": {
+          "crontab": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CrontabSchedule"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "default": "",
+            "title": "Description",
+            "type": "string"
+          },
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "execute_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PeriodicTaskExecuteRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "interval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IntervalSchedule"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kwargs": {
+            "title": "Kwargs",
+            "type": "string"
+          },
+          "name": {
+            "default": "",
+            "title": "Name",
+            "type": "string"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "task": {
+            "title": "Task",
+            "type": "string"
+          }
+        },
+        "required": ["task", "kwargs"],
+        "title": "PeriodicTaskCreate",
+        "type": "object"
+      },
+      "PeriodicTaskExecuteRequest": {
+        "description": "Represent the execute request the periodic task will use for executions.\n\n:param meta: A dictionary of meta variables for the task execution.\n    Defaults to an empty dictionary.\n:type meta: dict[str, Any]\n:param payload: Optional payload data or file path for the task execution.\n    Defaults to None.\n:type payload: str | None\n:param eta: The earliest time the task can be executed. Forced to None, as periodic\n    tasks are always executed on the defined schedule.\n:type eta: datetime | None",
+        "properties": {
+          "anonymize_mask": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anonymize Mask"
+          },
+          "chain_on_failure": {
+            "default": false,
+            "title": "Chain On Failure",
+            "type": "boolean"
+          },
+          "chain_task_names": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chain Task Names"
+          },
+          "eta": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta"
+          },
+          "meta": {
+            "default": {},
+            "title": "Meta",
+            "type": "object"
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload"
+          }
+        },
+        "title": "PeriodicTaskExecuteRequest",
+        "type": "object"
+      },
+      "PeriodicTaskResponse": {
+        "description": "Representing a response for a periodic task API call.\n\nThis model extends `BasePeriodicTask` and includes additional fields such as ID,\nlast run time, total run count, and date changed.\n\n:param name: The name of the periodic task.\n:type name: str\n:param task: The SEP task name.\n:type task: str\n:param start_time: The start time for the task execution.\n:type start_time: UTCDatetime | None\n:param enabled: Whether the task is enabled.\n:type enabled: bool\n:param description: A description of the task.\n:type description: str\n:param execute_request: The execution request details for the task.\n:type execute_request: PeriodicTaskExecuteRequest | None\n:param id: The unique identifier of the periodic task.\n:type id: int\n:param last_run_at: The datetime of the last run.\n:type last_run_at: UTCDatetime | None\n:param total_run_count: The total number of times the task has run.\n:type total_run_count: int\n:param date_changed: The datetime when the task was last changed.\n:type date_changed: UTCDatetime | None\n:param interval: The interval schedule for the task. Defaults to None. This field\n    is populated with the alias \"model_intervalschedule\".\n:type interval: IntervalSchedule | None\n:param crontab: The crontab schedule for the task. Defaults to None. This field\n    is populated with the alias \"model_crontabschedule\".\n:type crontab: CrontabSchedule | None",
+        "properties": {
+          "crontab": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CrontabSchedule"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "date_changed": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Changed"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "execute_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PeriodicTaskExecuteRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "interval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IntervalSchedule"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_run_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Run At"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "next_run_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Compute the next scheduled execution time.\n\nReturn the next execution time based on the task's schedule. For crontab\nschedules, use `croniter` to compute the next fire time from the cron\nexpression in the schedule's timezone, converted to UTC. For interval\nschedules, add the interval duration to `last_run_at`, falling back to\n`start_time`, then the current time.\n\n:return: The next scheduled execution time in UTC, or `None` if the task\n    is disabled.\n:rtype: UTCDatetime | None",
+            "readOnly": true,
+            "title": "Next Run At"
+          },
+          "period": {
+            "description": "Get the period string for the periodic task.\n\nReturns a string representation of the task's schedule based on whether it uses\nan interval or crontab schedule.\n\n:return: A string representing the task's period.\n:rtype: str",
+            "readOnly": true,
+            "title": "Period",
+            "type": "string"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "task": {
+            "title": "Task",
+            "type": "string"
+          },
+          "total_run_count": {
+            "default": 0,
+            "title": "Total Run Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "name",
+          "task",
+          "start_time",
+          "enabled",
+          "description",
+          "id",
+          "last_run_at",
+          "date_changed",
+          "period",
+          "next_run_at"
+        ],
+        "title": "PeriodicTaskResponse",
+        "type": "object"
+      },
+      "PeriodicTaskUpdate": {
+        "description": "Define the model for updating periodic tasks.\n\nExtends `PeriodicTaskWrite` and adds validations specific to updating tasks.\n\n:param name: The name of the periodic task.\n:type name: str\n:param task: The Celery task name.\n:type task: str\n:param start_time: The start time for the task execution.\n:type start_time: UTCDatetime | None\n:param enabled: Whether the task is enabled.\n:type enabled: bool\n:param description: A description of the task.\n:type description: str\n:param execute_request: The execution request details for the task.\n:type execute_request: PeriodicTaskExecuteRequest | None\n:param interval: The interval schedule for the task. Defaults to None.\n:type interval: IntervalSchedule | None\n:param crontab: The crontab schedule for the task. Defaults to None.\n:type crontab: CrontabSchedule | None\n:param kwargs: A JSON string representing additional keyword arguments for the task.\n:type kwargs: str",
+        "properties": {
+          "crontab": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CrontabSchedule"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "execute_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PeriodicTaskExecuteRequest"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "interval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IntervalSchedule"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kwargs": {
+            "title": "Kwargs",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "task": {
+            "title": "Task",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "task",
+          "start_time",
+          "enabled",
+          "description",
+          "kwargs"
+        ],
+        "title": "PeriodicTaskUpdate",
+        "type": "object"
+      },
+      "ReloadClassification": {
+        "description": "Declare the reload behavior of an overridable settings field.\n\n:cvar HOT: Field can be overridden via a DB row and the new value takes\n    effect on the next snapshot refresh, without restarting the service.\n    For a nested-model field, ``HOT`` permits both whole-object override\n    (``PATCH {parent: {...}}``) and per-child override (``parent__leaf``).\n:vartype HOT: str\n:cvar NESTED_ONLY: Nested-model field whose children may be overridden\n    (``parent__leaf``) while the parent itself rejects whole-object\n    override (``PATCH {parent: {...}}`` → 422). Children default to\n    HOT-inherit unless explicitly marked :func:`not_overridable_field`.\n:vartype NESTED_ONLY: str\n:cvar NOT_OVERRIDABLE: Field is not overridable from the database; YAML\n    and environment variables remain the only sources of truth.\n:vartype NOT_OVERRIDABLE: str",
+        "enum": ["hot", "nested_only", "not_overridable"],
+        "title": "ReloadClassification",
+        "type": "string"
+      },
+      "SettingClassEnum": {
+        "description": "Enumerate settings classes that may have HOT override rows.\n\nThe wired classes are ``SEPSettings``, ``TasksSettings``,\n``SnippetsSettings``, ``MessagesSettings``, the global ``Settings``,\n``AlertSettings`` and ``AnonymizerSettings``. ``InventorySettings`` is\nintentionally NOT here -- wrapping it is deferred to a follow-up ticket.\n\nTo wire a new settings class:\n\n1. Add a member here whose value matches the Pydantic class ``__name__``.\n2. Generate an Alembic migration on every consumer track that extends the\n   ``CHECK`` constraint on ``settingoverride.setting_class``. The column\n   uses ``native_enum=False`` so the value list lives in a constraint,\n   not a PostgreSQL ``TYPE`` -- the migration ``ALTER``s the constraint.\n   Note that the column and ``CHECK`` constraint persist the enum member\n   *names* (e.g. ``SEP_SETTINGS``), which is distinct from the member\n   *value* (the Pydantic class name, e.g. ``SEPSettings``).\n3. Wire a ``ProxyEntry`` for the new class in the relevant service's\n   lifespan (``app/sep/main.py`` or ``app/tasks/main.py``).",
+        "enum": [
+          "SEPSettings",
+          "TasksSettings",
+          "SnippetsSettings",
+          "MessagesSettings",
+          "Settings",
+          "AlertSettings",
+          "AnonymizerSettings"
+        ],
+        "title": "SettingClassEnum",
+        "type": "string"
+      },
+      "SettingClassGroup": {
+        "description": "One settings-class group in the LIST response.\n\n:param setting_class: The settings class this group represents.\n:type setting_class: SettingClassEnum\n:param settings: The fields declared on the settings class, with their\n    current values and metadata.\n:type settings: list[SettingResponse]",
+        "properties": {
+          "setting_class": {
+            "$ref": "#/components/schemas/SettingClassEnum"
+          },
+          "settings": {
+            "items": {
+              "$ref": "#/components/schemas/SettingResponse"
+            },
+            "title": "Settings",
+            "type": "array"
+          }
+        },
+        "required": ["setting_class", "settings"],
+        "title": "SettingClassGroup",
+        "type": "object"
+      },
+      "SettingResponse": {
+        "description": "Represent a single setting's metadata and current value.\n\n:param setting_class: The settings class the field belongs to.\n:type setting_class: SettingClassEnum\n:param key: The field name on the settings class.\n:type key: str\n:param key_path: Carry the canonical key segments for ``key`` such that\n    ``\"__\".join(key_path) == key``.\n:type key_path: list[str]\n:param value: The current value visible through the proxy, dumped to a\n    JSON-safe shape via the field's annotation. ``SecretStr`` fields are\n    redacted to ``\"**********\"``.\n:type value: Any\n:param default_value: The field's declared default value, dumped via the\n    same JSON serialiser. ``None`` when no default exists.\n:type default_value: Any\n:param type: A human-readable representation of the field's declared\n    annotation (for operator visibility; validation uses the actual\n    ``FieldInfo``).\n:type type: str\n:param reload: The reload classification (HOT or NOT_OVERRIDABLE).\n:type reload: ReloadClassification\n:param description: The field's free-text description, or ``None``.\n:type description: str | None\n:param is_secret: Whether the field's annotation contains a Pydantic secret\n    (``SecretStr`` / ``SecretBytes``) at any depth.\n:type is_secret: bool\n:param is_complex: Whether the field's annotation is or contains a Pydantic\n    ``BaseModel`` subclass (true for nested submodels).\n:type is_complex: bool\n:param has_override: Whether a row exists in the ``settingoverride`` table\n    for this ``(setting_class, key)`` pair, regardless of ``is_active``.\n:type has_override: bool\n:param is_advanced: Whether the setting is flagged ``advanced`` so the UI can\n    present it separately from everyday settings. Display-only:\n    it does not affect PATCH/DELETE eligibility.",
+        "properties": {
+          "default_value": {
+            "title": "Default Value"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "has_override": {
+            "title": "Has Override",
+            "type": "boolean"
+          },
+          "is_advanced": {
+            "default": false,
+            "title": "Is Advanced",
+            "type": "boolean"
+          },
+          "is_complex": {
+            "title": "Is Complex",
+            "type": "boolean"
+          },
+          "is_secret": {
+            "title": "Is Secret",
+            "type": "boolean"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "key_path": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Key Path",
+            "type": "array"
+          },
+          "reload": {
+            "$ref": "#/components/schemas/ReloadClassification"
+          },
+          "setting_class": {
+            "$ref": "#/components/schemas/SettingClassEnum"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "setting_class",
+          "key",
+          "value",
+          "default_value",
+          "type",
+          "reload",
+          "description",
+          "is_secret",
+          "is_complex",
+          "has_override"
+        ],
+        "title": "SettingResponse",
+        "type": "object"
+      },
+      "SettingsListResponse": {
+        "description": "The LIST endpoint response, grouping settings by class.\n\n:param groups: One :class:`SettingClassGroup` per settings class the\n    router was configured with.\n:type groups: list[SettingClassGroup]",
+        "properties": {
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/SettingClassGroup"
+            },
+            "title": "Groups",
+            "type": "array"
+          }
+        },
+        "required": ["groups"],
+        "title": "SettingsListResponse",
+        "type": "object"
+      },
+      "SettingsPatch": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/JsonValue"
+        },
+        "description": "Batch PATCH payload: a flat ``{field_name: new_value, ...}`` mapping.\n\nAn empty body is rejected as 422 because a no-op PATCH is a client bug, not\na valid request. The server coerces each value to the field's declared\ntype via :func:`coerce_field_value`; validation is all-or-nothing -- if any\nkey fails, nothing is written.",
+        "minProperties": 1,
+        "title": "SettingsPatch",
+        "type": "object"
+      },
+      "TaskBackendEnum": {
+        "description": "Control the choice of backends.\n\n:cvar NOMAD: Enum value for Nomad backend.\n:vartype NOMAD: str\n:cvar PROXY: Enum value for Proxy backend.\n:vartype PROXY: str\n:cvar CELERY: Enum value for Celery backend.\n:vartype CELERY: str",
+        "enum": ["nomad", "proxy", "celery"],
+        "title": "TaskBackendEnum",
+        "type": "string"
+      },
+      "TaskExecuteRequest": {
+        "description": "Represent a request to execute a task with additional metadata and payload.\n\n:param meta: A dictionary of meta variables for the task execution.\n    Defaults to an empty dictionary.\n:type meta: dict[str, Any]\n:param payload: Optional payload data or file path for the task execution.\n    Defaults to None.\n:type payload: str | None\n:param eta: The earliest time the task can be executed. Defaults to None, meaning\n    it will be executed as soon as possible.\n:type eta: datetime | None\n:param anonymize_mask: Bitmask of PII entities to anonymize. Defaults to None.\n:type anonymize_mask: int | None\n:param chain_task_names: Ordered list of task names to execute sequentially after\n    this one completes. Defaults to None.\n:type chain_task_names: list[str] | None\n:param chain_on_failure: Whether the chain should continue when a task fails,\n    stops, or is lost. Defaults to False (chain only on success).\n:type chain_on_failure: bool",
+        "properties": {
+          "anonymize_mask": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anonymize Mask"
+          },
+          "chain_on_failure": {
+            "default": false,
+            "title": "Chain On Failure",
+            "type": "boolean"
+          },
+          "chain_task_names": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chain Task Names"
+          },
+          "eta": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta"
+          },
+          "meta": {
+            "default": {},
+            "title": "Meta",
+            "type": "object"
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload"
+          }
+        },
+        "title": "TaskExecuteRequest",
+        "type": "object"
+      },
+      "TaskExecutionRequest": {
+        "additionalProperties": true,
+        "description": "Represent an execution request.\n\n:param task: The task name.\n:type task: str\n:param target: The target system or environment.\n:type target: str\n:param meta: Additional metadata for the task. Defaults to an empty dictionary.\n:type meta: dict | None\n:param payload: Optional payload or file path for parameterizing the task.\n    Defaults to None.\n:type payload: str | None\n:param tracking: Tracking information for task execution. Defaults to a dictionary\n    with keys for allocation and evaluation IDs.\n:type tracking: dict | None",
+        "properties": {
+          "eta": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": {},
+            "title": "Meta"
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload"
+          },
+          "target": {
+            "title": "Target",
+            "type": "string"
+          },
+          "task": {
+            "title": "Task",
+            "type": "string"
+          },
+          "tracking": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": {},
+            "title": "Tracking"
+          }
+        },
+        "required": ["task", "target"],
+        "title": "TaskExecutionRequest",
+        "type": "object"
+      },
+      "TaskHistory": {
+        "description": "Represent a task execution history.\n\n:param execution_request: The request that triggered the task execution.\n:type execution_request: TaskExecutionRequest\n:param status: The status of the task execution. Defaults to pending.\n:type status: TaskHistoryStatusEnum\n:param started_at: The datetime when the task execution started.\n:type started_at: UTCDatetime | None\n:param finished_at: The datetime when the task execution finished.\n:type finished_at: UTCDatetime | None\n:param anonymize_mask: The bitmask representing PII entities to be anonymized in\n    logs and files generated by the execution. Defaults to None, meaning it uses\n    the value defined in the associated task's :attr:`Task.anonymize_mask`.\n:type anonymize_mask: int | None\n:param task_id: The ID of the task associated with the execution.\n:type task_id: int\n:param task: The task associated with this execution history.\n:type task: Task\n:param sync_in_progress_started_at: Timestamp lock for a sync currently in progress.\n:type sync_in_progress_started_at: UTCDatetime | None\n:param executed_by: The user ID of the user who executed the task.\n:type executed_by: str | None",
+        "properties": {
+          "anonymize_mask": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anonymize Mask"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "executed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executed By"
+          },
+          "execution_request": {
+            "$ref": "#/components/schemas/TaskExecutionRequest"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TaskHistoryStatusEnum",
+            "default": "pending"
+          },
+          "sync_in_progress_started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync In Progress Started At"
+          },
+          "task_id": {
+            "title": "Task Id",
+            "type": "integer"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": ["id", "execution_request", "task_id"],
+        "title": "TaskHistory",
+        "type": "object"
+      },
+      "TaskHistoryLatestStatusRequest": {
+        "description": "Define request body for batch latest-history status lookup.\n\n:param names: Task names to resolve latest non-null history statuses for.\n:type names: list[str]",
+        "properties": {
+          "names": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 200,
+            "title": "Names",
+            "type": "array"
+          }
+        },
+        "title": "TaskHistoryLatestStatusRequest",
+        "type": "object"
+      },
+      "TaskHistoryResponse": {
+        "description": "Represent a task history API response.\n\n:param execution_request: The request that triggered the task execution.\n:type execution_request: TaskExecutionRequest\n:param status: The status of the task execution.\n:type status: TaskHistoryStatusEnum\n:param started_at: The datetime when the task execution started.\n:type started_at: UTCDatetime | None\n:param finished_at: The datetime when the task execution finished.\n:type finished_at: UTCDatetime | None\n:param anonymize_mask: The bitmask representing PII entities to be anonymized in\n    logs and files generated by the execution. Defaults to None, meaning it uses\n    the value defined in the associated task's :attr:`Task.anonymize_mask`.\n:type anonymize_mask: int | None\n:param task: The task associated with this execution history.\n:type task: TaskResponse\n:param executed_by: The user ID of the user who executed the task.\n:type executed_by: str | None\n:param has_logs: Whether this task history has any readable log content --\n    either a chunk-store row or a legacy ``tracking[\"task_logs\"]`` blob.\n    Populated by list/retrieve routes; defaults to ``False``.\n:type has_logs: bool\n:param display_name: A user-meaningful label derived from the task name or\n    execution-request metadata. Read-only; computed on serialisation.",
+        "properties": {
+          "anonymize_mask": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anonymize Mask"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "display_name": {
+            "description": "Return a user-meaningful display label for this task history row.\n\nFor normal tasks, returns ``task.name``. For generic executor templates\n(``run-python``, ``exec-artifact``, ``exec-python-artifact``), builds a\n``\"<source>/<filename> on <target>\"`` label so otherwise-identical rows\nare distinguishable: the filename comes from the snippet metadata or the\n``file://`` payload basename, the source directory from whichever of those\ncarries one, and the target from the execution request. Falls back to\n``\"<task> on <target>\"`` when no filename is available.\n\n:return: The display label for the task history entry.",
+            "readOnly": true,
+            "title": "Display Name",
+            "type": "string"
+          },
+          "duration": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Return the duration of the task execution in seconds.\n\n:return: The duration in seconds, or None if not available.\n:rtype: float | None",
+            "readOnly": true,
+            "title": "Duration"
+          },
+          "executed_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executed By"
+          },
+          "execution_request": {
+            "$ref": "#/components/schemas/TaskExecutionRequest"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "has_logs": {
+            "default": false,
+            "title": "Has Logs",
+            "type": "boolean"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TaskHistoryStatusEnum",
+            "default": "pending"
+          },
+          "task": {
+            "$ref": "#/components/schemas/TaskResponse"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "id",
+          "execution_request",
+          "task",
+          "duration",
+          "display_name"
+        ],
+        "title": "TaskHistoryResponse",
+        "type": "object"
+      },
+      "TaskHistoryStatusEnum": {
+        "description": "Define status codes for task executions.\n\n:cvar FAILED: Enum value for failed tasks.\n:vartype FAILED: str\n:cvar PENDING: Enum value for pending tasks.\n:vartype PENDING: str\n:cvar RUNNING: Enum value for running tasks.\n:vartype RUNNING: str\n:cvar SUCCESS: Enum value for successfully completed tasks.\n:vartype SUCCESS: str\n:cvar STOPPED: Enum value for stopped tasks.\n:vartype STOPPED: str\n:cvar LOST: Enum value for tasks that are lost.\n:vartype LOST: str\n:cvar STALE: Enum value for tasks skipped because Nomad placement\n    exceeded the configured staleness threshold.\n:vartype STALE: str",
+        "enum": [
+          "failed",
+          "pending",
+          "running",
+          "success",
+          "stopped",
+          "lost",
+          "stale"
+        ],
+        "title": "TaskHistoryStatusEnum",
+        "type": "string"
+      },
+      "TaskOwner": {
+        "description": "Control the choice of task owners.\n\n:cvar ANY: Value for tasks without owner restrictions.\n:vartype ANY: str\n:cvar ALTERS: Value for schema change tasks.\n:vartype ALTERS: str\n:cvar ARCHIVER: Value for data archiver tasks.\n:vartype ARCHIVER: str\n:cvar BACKUPS: Value for backup tasks.\n:vartype BACKUPS: str\n:cvar RESTORES: Value for restore tasks.\n:vartype RESTORES: str\n:cvar CHECKSUMS: Value for checksum tasks.\n:vartype CHECKSUMS: str",
+        "enum": [
+          "ANY",
+          "ALTERS",
+          "ARCHIVER",
+          "BACKUPS",
+          "RESTORES",
+          "CHECKSUMS",
+          "BACKUP_MONGO",
+          "RESTORE_MONGO",
+          "BACKUP_PG"
+        ],
+        "title": "TaskOwner",
+        "type": "string"
+      },
+      "TaskResponse": {
+        "description": "Represent a task API response.\n\n:param name: The name of the task.\n:type name: str\n:param data: The task data stored in JSON format.\n:type data: dict\n:param backend: The backend used for task execution. Defaults to Nomad.\n:type backend: TaskBackendEnum\n:param owner: The owner of the task. Defaults to TaskOwner.ANY.\n:type owner: TaskOwner\n:param is_template: Whether the task is a template. Defaults to False.\n:type is_template: bool\n:param protected: Whether the task is protected from deletion. Defaults to False.\n:type protected: bool\n:param alert_on_fail: Whether to trigger an alert on task failure and\n    auto-resolve it on subsequent success. Defaults to False.\n:type alert_on_fail: bool\n:param alert_detail_builder: The ``\"module:function\"`` path of a plugin\n    callable that enriches this task's failure alert, or None.\n:type alert_detail_builder: str | None\n:param deleted_at: The deletion timestamp, if applicable.\n:type deleted_at: UTCDatetime | None\n:param anonymize_mask: The bitmask representing PII entities to be anonymized in\n    logs and files generated by the task. Defaults to 0 (no anonymization).\n:type anonymize_mask: int | None\n:param created_by: The user ID of the user who created the task.\n:type created_by: str | None\n:param last_updated_by: The user ID of the user who last modified the task.\n:type last_updated_by: str | None\n:param anonymized_entities: Sorted list of PII entity names derived from\n    ``anonymize_mask`` (or from the owner's configured defaults when the\n    mask is ``None``). Each name is the raw ``PIIEntity`` member name\n    (e.g. ``\"EMAIL_ADDRESS\"``). Read-only; computed on serialisation.\n:type anonymized_entities: list[str]",
+        "properties": {
+          "alert_detail_builder": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alert Detail Builder"
+          },
+          "alert_on_fail": {
+            "default": false,
+            "title": "Alert On Fail",
+            "type": "boolean"
+          },
+          "anonymize_mask": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anonymize Mask"
+          },
+          "anonymized_entities": {
+            "description": "Return sorted PII entity names decoded from ``anonymize_mask``.",
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "title": "Anonymized Entities",
+            "type": "array"
+          },
+          "backend": {
+            "$ref": "#/components/schemas/TaskBackendEnum",
+            "default": "nomad"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By"
+          },
+          "data": {
+            "title": "Data",
+            "type": "object"
+          },
+          "deleted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deleted At"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "is_template": {
+            "default": false,
+            "title": "Is Template",
+            "type": "boolean"
+          },
+          "last_updated_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Updated By"
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "owner": {
+            "default": "ANY",
+            "title": "Owner",
+            "type": "string"
+          },
+          "protected": {
+            "default": false,
+            "title": "Protected",
+            "type": "boolean"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "data",
+          "deleted_at",
+          "created_by",
+          "last_updated_by",
+          "anonymized_entities"
+        ],
+        "title": "TaskResponse",
+        "type": "object"
+      },
+      "TaskStats": {
+        "description": "Model for task statistics.\n\n:param engine: The backend engine used for task execution. Defaults to \"nomad\".\n:type engine: str\n:param tasks: A list of task execution histories.\n:type tasks: list[TaskHistory]",
+        "properties": {
+          "duration": {
+            "description": "Return the task duration summary.\n\n:return: A dictionary summarizing average, last, and total task durations.\n:rtype: dict[str, Any]",
+            "readOnly": true,
+            "title": "Duration",
+            "type": "object"
+          },
+          "engine": {
+            "default": "nomad",
+            "title": "Engine",
+            "type": "string"
+          },
+          "last_finished_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Return the last finished task timestamp.\n\n:return: The timestamp of the last task finished, or None if not available.\n:rtype: str | None",
+            "readOnly": true,
+            "title": "Last Finished At"
+          },
+          "status": {
+            "description": "Return the task status summary.\n\n:return: A dictionary summarizing the number of passed and failed tasks.\n:rtype: dict[str, int]",
+            "readOnly": true,
+            "title": "Status",
+            "type": "object"
+          },
+          "total": {
+            "description": "Return the total number of tasks.\n\n:return: The total number of tasks.\n:rtype: int",
+            "readOnly": true,
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": ["total", "status", "duration", "last_finished_at"],
+        "title": "TaskStats",
+        "type": "object"
+      },
+      "TaskWrite": {
+        "description": "Define the model for creating new tasks.\n\n:param name: The name of the task.\n:type name: str\n:param data: The task data stored in JSON format.\n:type data: dict\n:param backend: The backend used for task execution. Defaults to Nomad.\n:type backend: TaskBackendEnum\n:param owner: The owner of the task. Defaults to TaskOwner.ANY.\n:type owner: TaskOwner\n:param is_template: Whether the task is a template. Defaults to False.\n:type is_template: bool\n:param protected: Whether the task is protected from deletion. Defaults to False.\n:type protected: bool\n:param alert_on_fail: Whether to trigger an alert on task failure and\n    auto-resolve it on subsequent success. Defaults to False.\n:type alert_on_fail: bool\n:param alert_detail_builder: The ``\"module:function\"`` path of a plugin\n    callable that enriches this task's failure alert, or None.\n:type alert_detail_builder: str | None\n:param anonymize_mask: The bitmask representing PII entities to be anonymized in\n    logs and files generated by the task. Defaults to 0 (no anonymization).\n:type anonymize_mask: int | None",
+        "properties": {
+          "alert_detail_builder": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alert Detail Builder"
+          },
+          "alert_on_fail": {
+            "default": false,
+            "title": "Alert On Fail",
+            "type": "boolean"
+          },
+          "anonymize_mask": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Anonymize Mask"
+          },
+          "backend": {
+            "$ref": "#/components/schemas/TaskBackendEnum",
+            "default": "nomad"
+          },
+          "data": {
+            "title": "Data",
+            "type": "object"
+          },
+          "is_template": {
+            "default": false,
+            "title": "Is Template",
+            "type": "boolean"
+          },
+          "name": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "owner": {
+            "default": "ANY",
+            "title": "Owner",
+            "type": "string"
+          },
+          "protected": {
+            "default": false,
+            "title": "Protected",
+            "type": "boolean"
+          }
+        },
+        "required": ["name", "data"],
+        "title": "TaskWrite",
+        "type": "object"
+      },
+      "TransformPayloadRequest": {
+        "description": "Define the request body for the /transform/ API route.\n\n:param payload: The job specification payload to be parsed.\n:type payload: str | bytes\n:param fmt: The format of the payload, which can be \"hcl\", \"json\", or \"yaml\".\n:type fmt: Literal[\"hcl\", \"json\", \"yaml\"]",
+        "properties": {
+          "fmt": {
+            "enum": ["hcl", "json", "yaml"],
+            "title": "Fmt",
+            "type": "string"
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "contentMediaType": "application/octet-stream",
+                "type": "string"
+              }
+            ],
+            "title": "Payload"
+          }
+        },
+        "required": ["payload", "fmt"],
+        "title": "TransformPayloadRequest",
+        "type": "object"
+      },
+      "TransformPayloadResponse": {
+        "additionalProperties": true,
+        "description": "Define the parsed job specification returned from ``POST /transform/``.\n\nThe concrete keys depend on the executor backend; clients should treat values as\nuntyped JSON except where they validate domain-specific job fields themselves.",
+        "properties": {},
+        "title": "TransformPayloadResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "flows": {
+          "password": {
+            "scopes": {},
+            "tokenUrl": "/api/oauth/token"
+          }
+        },
+        "type": "oauth2"
+      }
+    }
+  },
+  "info": {
+    "description": "Percona Services Enablement Platform — task execution, history, periodic jobs, connectivity.",
+    "title": "SEP Tasks API",
+    "version": "v1.0.0.dev0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/": {
+      "get": {
+        "description": "List all active tasks.",
+        "operationId": "tasks_list_tasks__get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "owner",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Owner"
+            }
+          },
+          {
+            "in": "query",
+            "name": "target",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Target"
+            }
+          },
+          {
+            "in": "query",
+            "name": "parent_is_null",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Parent Is Null"
+            }
+          },
+          {
+            "in": "query",
+            "name": "backup_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Backup Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "self_parent",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Self Parent"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_TaskResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Tasks",
+        "tags": ["tasks"]
+      },
+      "post": {
+        "description": "Create a new task.",
+        "operationId": "tasks_create_task__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Create Task",
+        "tags": ["tasks"]
+      }
+    },
+    "/admin/settings/": {
+      "get": {
+        "description": "List every exposed settings class with current values and metadata.\n\nLocal classes are read from their config singletons; remote classes\n(``remote_classes``) are fetched server-side from their owning sub-app\nand appended in declaration order. A failed remote fetch fails the whole\nrequest with ``502`` -- the LIST never silently drops a remote group.\n\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:return: Grouped responses, one group per configured settings class.",
+        "operationId": "settings_list_settings_admin_settings__get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Settings",
+        "tags": ["settings"]
+      }
+    },
+    "/admin/settings/{setting_class}": {
+      "patch": {
+        "description": "Apply a batch of overrides for one settings class atomically.\n\nFor a remote class the batch is forwarded to the owning sub-app, which\nowns the validation and persistence; the upstream's per-field ``422``\n(and its ``detail``) is preserved so the UI can render inline messages.\n\nFor a local class: Phase A validates every key in ``body`` (existence on\nthe class, HOT classification, type/constraint coercion) and collects\nper-key errors. If any key fails, the whole batch is rejected with a\nstructured 422 and nothing is written. Phase B persists every valid entry\nin a single transaction, refreshes the proxy snapshot once, then fires\nthe rebind callbacks for any changed keys so a HOT target rebinds without\nwaiting for the next background refresh cycle.\n\n:param request: The incoming request; its ``app.state`` carries the\n    sub-app's rebind-callback registry.\n:param setting_class: The settings class the override targets.\n:param body: The batch of ``{key: value, ...}`` overrides.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:return: One :class:`SettingResponse` per applied key, in input order.\n:raises HTTPNotFoundException: If the class isn't exposed.\n:raises HTTPUnprocessableEntityException: If any key fails validation;\n    no rows are written.",
+        "operationId": "settings_patch_settings_admin_settings__setting_class__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "setting_class",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SettingClassEnum"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SettingResponse"
+                  },
+                  "title": "Response Settings Patch Settings Admin Settings  Setting Class  Patch",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Patch Settings",
+        "tags": ["settings"]
+      }
+    },
+    "/admin/settings/{setting_class}/{key}": {
+      "delete": {
+        "description": "Revert one override row to the field's declared default.\n\nFor a remote class the DELETE is forwarded to the owning sub-app, which\nowns the idempotency and ``NOT_OVERRIDABLE`` semantics; its status and\n``detail`` are preserved through the proxy.\n\nFor a local class: idempotent -- deleting a (class, key) pair that has no\noverride row succeeds with 204. Attempting to delete a NOT_OVERRIDABLE\nfield responds 409 -- the field cannot have an override row in the first\nplace, so the operator's intent is unsatisfiable.\n\nAfter republishing the snapshot, fires the rebind callbacks for the\nreverted key so a HOT target rebinds to its restored value without\nwaiting for the next background refresh cycle.\n\n:param request: The incoming request; its ``app.state`` carries the\n    sub-app's rebind-callback registry.\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:raises HTTPNotFoundException: If the class isn't exposed or the key\n    doesn't exist on the class.\n:raises HTTPConflictException: If the field is NOT_OVERRIDABLE.\n:raises HTTPUnprocessableEntityException: If ``key`` names a\n    ``NESTED_ONLY`` parent (the whole parent cannot be overridden;\n    target an individual ``parent__leaf`` instead).\n:raises HTTPBadGatewayException: For a remote class, when the owning\n    sub-app returns a server error (status >= 500) or is unreachable.",
+        "operationId": "settings_delete_setting_admin_settings__setting_class___key__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "setting_class",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SettingClassEnum"
+            }
+          },
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Delete Setting",
+        "tags": ["settings"]
+      },
+      "get": {
+        "description": "Return one field's metadata and current value.\n\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:return: The structured response for the field.\n:raises HTTPNotFoundException: If the class isn't exposed or the key\n    doesn't exist on the class.",
+        "operationId": "settings_get_setting_admin_settings__setting_class___key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "setting_class",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SettingClassEnum"
+            }
+          },
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Get Setting",
+        "tags": ["settings"]
+      }
+    },
+    "/connectivity-check/": {
+      "post": {
+        "description": "Check database connectivity via a Nomad task.\n\n:param session: The async database session.\n:type session: AsyncSession\n:param request: The connectivity check request parameters.\n:type request: ConnectivityCheckWrite\n:return: The connectivity check result.\n:rtype: ConnectivityCheckResponse",
+        "operationId": "connectivity_connectivity_check_connectivity_check__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnectivityCheckWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConnectivityCheckResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Connectivity Check",
+        "tags": ["connectivity"]
+      }
+    },
+    "/execute/{task_name}": {
+      "post": {
+        "description": "Send a task for execution.\n\nWhen ``tasks_settings.PRE_EXECUTION_CONNECTIVITY_CHECK`` is enabled and the\ntask carries ``_connectivity_*`` meta fields, run a Nomad-side connectivity\ncheck against the target before dispatch. In ``block`` mode, dispatch is\nrejected with HTTP 400 on failure; in ``warn`` mode, a warning is logged\nand dispatch proceeds. ETA-scheduled tasks always skip the check.",
+        "operationId": "tasks_execute_task_name_execute__task_name__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_name",
+            "required": true,
+            "schema": {
+              "title": "Task Name",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/TaskExecuteRequest"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Execution Data"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskHistoryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Execute Task Name",
+        "tags": ["tasks"]
+      }
+    },
+    "/history/": {
+      "get": {
+        "description": "List all task history records.",
+        "operationId": "tasks_list_task_history_history__get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/TaskHistoryStatusEnum"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "exclude_internal",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Exclude Internal",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_TaskHistoryResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Task History",
+        "tags": ["tasks"]
+      },
+      "post": {
+        "description": "Create a new task history.\n\n``has_logs`` is not populated on this response -- a row that was just\ncreated has no chunk-store entry or legacy tracking blob yet, so the\nfield defaults to ``False`` on serialization.",
+        "operationId": "tasks_create_task_history_history__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskHistory"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskHistoryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Create Task History",
+        "tags": ["tasks"]
+      }
+    },
+    "/history/latest": {
+      "post": {
+        "description": "Return the latest known execution status for each requested task name.",
+        "operationId": "tasks_latest_task_history_status_history_latest_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskHistoryLatestStatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/components/schemas/TaskHistoryStatusEnum"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "title": "Response Tasks Latest Task History Status History Latest Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Latest Task History Status",
+        "tags": ["tasks"]
+      }
+    },
+    "/history/{task_history_id}": {
+      "get": {
+        "description": "Retrieve a task history by id.",
+        "operationId": "tasks_retrieve_task_history_history__task_history_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_history_id",
+            "required": true,
+            "schema": {
+              "title": "Task History Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskHistoryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Retrieve Task History",
+        "tags": ["tasks"]
+      }
+    },
+    "/history/{task_history_id}/events": {
+      "get": {
+        "description": "Return structured execution events from executor tracking (oldest first).",
+        "operationId": "tasks_list_task_history_events_history__task_history_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_history_id",
+            "required": true,
+            "schema": {
+              "title": "Task History Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "backend",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TaskBackendEnum",
+              "default": "nomad"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ExecutionEvent"
+                  },
+                  "title": "Response Tasks List Task History Events History  Task History Id  Events Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Task History Events",
+        "tags": ["tasks"]
+      }
+    },
+    "/history/{task_history_id}/file/": {
+      "get": {
+        "description": "Stream a file from a task history.",
+        "operationId": "tasks_stream_task_history_file_history__task_history_id__file__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_history_id",
+            "required": true,
+            "schema": {
+              "title": "Task History Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "title": "Path",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "backend",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TaskBackendEnum",
+              "default": "nomad"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Stream Task History File",
+        "tags": ["tasks"]
+      }
+    },
+    "/history/{task_history_id}/files/": {
+      "get": {
+        "description": "List files from a task history.",
+        "operationId": "tasks_list_task_history_files_history__task_history_id__files__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_history_id",
+            "required": true,
+            "schema": {
+              "title": "Task History Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "backend",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TaskBackendEnum",
+              "default": "nomad"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/FileMetadata"
+                  },
+                  "title": "Response Tasks List Task History Files History  Task History Id  Files  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Task History Files",
+        "tags": ["tasks"]
+      }
+    },
+    "/history/{task_history_id}/logs/": {
+      "get": {
+        "description": "Stream a task history's logs.\n\n``tail`` limits output to the last N lines per stream for finished histories\nonly. It is ignored while the task is ``RUNNING`` (live executor stream).",
+        "operationId": "tasks_stream_task_history_logs_history__task_history_id__logs__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_history_id",
+            "required": true,
+            "schema": {
+              "title": "Task History Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "step",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Step"
+            }
+          },
+          {
+            "in": "query",
+            "name": "tail",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tail"
+            }
+          },
+          {
+            "in": "query",
+            "name": "backend",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TaskBackendEnum",
+              "default": "nomad"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Stream Task History Logs",
+        "tags": ["tasks"]
+      }
+    },
+    "/history/{task_history_id}/stop/": {
+      "post": {
+        "description": "Stop a task history.",
+        "operationId": "tasks_stop_task_history_history__task_history_id__stop__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_history_id",
+            "required": true,
+            "schema": {
+              "title": "Task History Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "backend",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TaskBackendEnum",
+              "default": "nomad"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskHistoryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Stop Task History",
+        "tags": ["tasks"]
+      }
+    },
+    "/history/{task_history_id}/sync/": {
+      "post": {
+        "description": "Sync task history with the executor and persist the latest status.\n\nAtomically claim the ``sync_in_progress_started_at`` lock before calling\nthe executor so the celery ``sync_running_tasks`` periodic and this route\nnever both progress past the executor call for the same row. When the\nclaim returns no rows — either because another syncer holds the lock or\nbecause the status has already flipped to terminal — refresh the row\nfrom the DB and return without re-syncing. The holder (or completed\nsyncer) is responsible for dispatching any chained task.",
+        "operationId": "tasks_sync_task_history_history__task_history_id__sync__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_history_id",
+            "required": true,
+            "schema": {
+              "title": "Task History Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "backend",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TaskBackendEnum",
+              "default": "nomad"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskHistoryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Sync Task History",
+        "tags": ["tasks"]
+      }
+    },
+    "/hosts/": {
+      "get": {
+        "description": "Return the executor hosts from the executor.\n\nWrap the upstream executor call so connection failures or non-JSON\nbodies surface as a 502 JSON response instead of leaking a default\n500 + text/plain that masks the real failure on the dashboard banner.\n\n:param executor: The task executor backend used to fetch host metadata.\n:type executor: TaskExecutor\n:return: A mapping of executor node name to network address.\n:rtype: dict[str, str]\n:raises HTTPBadGatewayException: If the executor backend raises a\n    ``requests.exceptions.RequestException`` (e.g. a non-JSON response\n    body or a connection failure outside the Nomad SDK's own wrapping).",
+        "operationId": "tasks_get_executor_hosts_hosts__get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "backend",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TaskBackendEnum",
+              "default": "nomad"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Tasks Get Executor Hosts Hosts  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Get Executor Hosts",
+        "tags": ["tasks"]
+      }
+    },
+    "/periodic/": {
+      "get": {
+        "description": "List all periodic tasks.",
+        "operationId": "periodic_list_periodic_tasks_periodic__get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "owner",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/TaskOwner"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Owner"
+            }
+          },
+          {
+            "in": "query",
+            "name": "enabled",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Enabled"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PeriodicTaskResponse"
+                  },
+                  "title": "Response Periodic List Periodic Tasks Periodic  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Periodic Tasks",
+        "tags": ["periodic", "schedule", "tasks"]
+      }
+    },
+    "/periodic/{periodic_task_id}": {
+      "delete": {
+        "description": "Delete a periodic task.",
+        "operationId": "periodic_delete_periodic_task_periodic__periodic_task_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "periodic_task_id",
+            "required": true,
+            "schema": {
+              "title": "Periodic Task Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Delete Periodic Task",
+        "tags": ["periodic", "schedule", "tasks"]
+      },
+      "get": {
+        "description": "Retrieve a periodic task by ID.",
+        "operationId": "periodic_retrieve_periodic_task_periodic__periodic_task_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "periodic_task_id",
+            "required": true,
+            "schema": {
+              "title": "Periodic Task Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeriodicTaskResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Retrieve Periodic Task",
+        "tags": ["periodic", "schedule", "tasks"]
+      },
+      "put": {
+        "description": "Update a periodic task.",
+        "operationId": "periodic_update_periodic_task_periodic__periodic_task_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "periodic_task_id",
+            "required": true,
+            "schema": {
+              "title": "Periodic Task Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PeriodicTaskUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeriodicTaskResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Update Periodic Task",
+        "tags": ["periodic", "schedule", "tasks"]
+      }
+    },
+    "/stats/{task}": {
+      "get": {
+        "description": "Calculate the statistics for the task.",
+        "operationId": "tasks_get_task_stats_stats__task__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task",
+            "required": true,
+            "schema": {
+              "title": "Task",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskStats"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Get Task Stats",
+        "tags": ["tasks"]
+      }
+    },
+    "/transform/": {
+      "post": {
+        "description": "Transform a payload string into a dictionary.",
+        "operationId": "tasks_transform_payload_transform__post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "backend",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TaskBackendEnum",
+              "default": "nomad"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransformPayloadRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransformPayloadResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Transform Payload",
+        "tags": ["tasks"]
+      }
+    },
+    "/{task_name}": {
+      "delete": {
+        "description": "Delete a task.",
+        "operationId": "tasks_delete_task__task_name__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_name",
+            "required": true,
+            "schema": {
+              "title": "Task Name",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Delete Task",
+        "tags": ["tasks"]
+      },
+      "get": {
+        "description": "Retrieve a task by its name.",
+        "operationId": "tasks_get_task__task_name__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_name",
+            "required": true,
+            "schema": {
+              "title": "Task Name",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Get Task",
+        "tags": ["tasks"]
+      },
+      "put": {
+        "description": "Update an existing task.",
+        "operationId": "tasks_update_task__task_name__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_name",
+            "required": true,
+            "schema": {
+              "title": "Task Name",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Update Task",
+        "tags": ["tasks"]
+      }
+    },
+    "/{task_name}/periodic/": {
+      "get": {
+        "description": "List periodic tasks by task name.",
+        "operationId": "tasks_list_periodic_tasks_by_task_name__task_name__periodic__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_name",
+            "required": true,
+            "schema": {
+              "title": "Task Name",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PeriodicTaskResponse"
+                  },
+                  "title": "Response Tasks List Periodic Tasks By Task Name  Task Name  Periodic  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Periodic Tasks By Task Name",
+        "tags": ["tasks"]
+      },
+      "post": {
+        "description": "Create a new periodic task for the specified task name.",
+        "operationId": "tasks_create_periodic_task_for_task_name__task_name__periodic__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_name",
+            "required": true,
+            "schema": {
+              "title": "Task Name",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PeriodicTaskCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeriodicTaskResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Create Periodic Task For Task Name",
+        "tags": ["tasks"]
+      }
+    },
+    "/{task}/history/": {
+      "get": {
+        "description": "Retrieve task history by task name.",
+        "operationId": "tasks_get_task_history__task__history__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task",
+            "required": true,
+            "schema": {
+              "title": "Task",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/TaskHistoryStatusEnum"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "snippet_filename",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Snippet Filename"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_TaskHistoryResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Get Task History",
+        "tags": ["tasks"]
+      }
+    }
+  }
+}

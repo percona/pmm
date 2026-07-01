@@ -1,0 +1,41 @@
+/**
+ * Copyright (C) 2026 Percona LLC
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * Extract a numeric id from a value that may be:
+ *   - a finite number (returned as-is),
+ *   - a numeric string (parsed),
+ *   - an option object with an `id` field (recursively extracted),
+ *   - or anything else (returns `null`).
+ *
+ * Used by the cascading selectors to handle parent values that may come from
+ * either an upstream selector (object form) or a persisted form default
+ * (scalar form, possibly stringified).
+ */
+export function extractId(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string' && value !== '') {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+  if (value && typeof value === 'object' && 'id' in value) {
+    return extractId((value as { id: unknown }).id);
+  }
+  return null;
+}
