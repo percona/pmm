@@ -29,6 +29,7 @@ import {
   SettingsUpdatedEvent,
   FrontendSettingsUpdatedEvent,
   TimeZoneUpdatedEvent,
+  OpenAlertThresholdsModalEvent,
 } from 'lib/events';
 import { handleExternalLinks } from 'compat/links';
 
@@ -198,6 +199,13 @@ export const initialize = () => {
       type: 'SERVICE_ADDED',
     });
   });
+
+  getAppEvents().subscribe(OpenAlertThresholdsModalEvent, (e) =>
+    messenger.sendMessage({
+      type: 'OPEN_ALERT_THRESHOLDS_MODAL',
+      payload: e.payload,
+    })
+  );
 
   getAppEvents().subscribe(ServiceDeletedEvent, () => {
     messenger.sendMessage({

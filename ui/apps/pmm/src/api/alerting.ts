@@ -13,6 +13,13 @@ export const getPrometheusAlertRules = async () => {
   return response.data;
 };
 
+export const getAlertRules = async () => {
+  const response = await grafanaApi.get<GrafanaAlertRuleDefinition[]>(
+    '/ruler/grafana/api/v1/rules/'
+  );
+  return response.data;
+};
+
 export const getAlertRuleDefinition = async (uid: string) => {
   const response = await grafanaApi.get<GrafanaAlertRuleDefinition>(
     `/v1/provisioning/alert-rules/${uid}`

@@ -36,7 +36,11 @@ export const Modal: FC<ModalProps> = ({
             pb: 0,
           }}
         >
-          <Stack direction="row" justifyContent="space-between">
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Typography variant="h5" data-testid="modal-title">
               {title}
             </Typography>

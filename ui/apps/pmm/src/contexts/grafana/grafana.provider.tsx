@@ -64,6 +64,8 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
 
   // Theme source
   const { colorMode, setFromGrafana } = useColorMode();
+  const setFromGrafanaRef = useRef(setFromGrafana);
+  setFromGrafanaRef.current = setFromGrafana;
 
   useEffect(() => {
     const canLoadGrafanaIframe =
@@ -89,10 +91,12 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
       onMessage: (message: { payload?: { theme?: ColorMode } }) => {
         // No normalization here — setFromGrafana already normalizes inside the hook.
         if (!message.payload?.theme) return;
-        setFromGrafana(message.payload.theme).catch((err: unknown) => {
-          // eslint-disable-next-line no-console
-          console.warn('[GrafanaProvider] setFromGrafana failed:', err);
-        });
+        setFromGrafanaRef
+          .current(message.payload.theme)
+          .catch((err: unknown) => {
+            // eslint-disable-next-line no-console
+            console.warn('[GrafanaProvider] setFromGrafana failed:', err);
+          });
       },
     });
 
@@ -160,7 +164,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, setFromGrafana, navigate]);
+  }, [isLoaded, navigate]);
 
   // -------- OUTGOING TO GRAFANA --------
 
