@@ -126,11 +126,12 @@ func (ms *Monitors) StopAll() {
 // Stop stops the monitor for a specific database and removes it from the internal registry.
 func (ms *Monitors) Stop(dbName string) {
 	m := ms.Get(dbName)
-	m.Stop()
-
-	ms.rw.Lock()
-	defer ms.rw.Unlock()
-	delete(ms.monitors, dbName)
+	if m != nil {
+		m.Stop()
+		ms.rw.Lock()
+		defer ms.rw.Unlock()
+		delete(ms.monitors, dbName)
+	}
 }
 
 // Get returns the monitor instance for the specified database name.
