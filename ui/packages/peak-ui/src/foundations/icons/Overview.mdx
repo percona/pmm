@@ -1,0 +1,55 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Foundations/Icons/Overview" />
+
+# Icons
+
+Peak Design sources the artwork for icons from [Material Symbols](https://fonts.google.com/icons) so it can be used in design phases and mockups. However, in code, **icons reach consumers through two complementary sources**.
+
+## Source #1: MUI icons (default)
+
+Most icons come from [`@mui/icons-material`](https://mui.com/material-ui/material-icons/), which ships the full Material icon library as ready-made React components.
+
+This is what consumers use today, and it should stay as **the first place you should look when searching for an icon to use**.
+
+- Browse and search the catalog at [mui.com/material-ui/material-icons](https://mui.com/material-ui/material-icons/).
+- Import per icon — only the icons you use are bundled.
+- They inherit color and size from the theme via `fontSize`, `color`, and `sx`.
+
+```tsx
+import Search from '@mui/icons-material/Search';
+
+<Search fontSize="small" color="action" />;
+```
+
+Use default path imports (`@mui/icons-material/Search`), never barrel imports (`{ Search } from '@mui/icons-material'`) — path imports keep dev startup fast.
+
+## Source #2: Custom icons created on demand
+
+Sometimes a design for a new icon may come up in two ways:
+
+- **Preferrably**, a designer has the sensibility to pick it from Material Symbols (that is not available in the MUI library). It's visually consistent with the rest of the icon family.
+- **Alternatively**, a designer may create artwork from scratch for a new icon and then provide the SVG code to the developer.
+
+When a new custom icon comes up, it gets folded into the design system so it behaves like every other icon:
+
+1. **Added to Peak Design** — the SVG becomes a React component (in `src/components/icons/`) that wraps MUI's `SvgIcon` and uses `currentColor`, so it inherits theme color and `fontSize` exactly like a MUI icon. Never hardcode colors.
+2. **Exported from `@percona/percona-ui`** — so any consumer can import it by name.
+3. **Listed on the Custom Icons page** — so it's discoverable and searchable alongside the rest.
+
+From then on, consumers import it exactly like any other component:
+
+```tsx
+import { PerconaMyIcon } from '@percona/percona-ui';
+
+<PerconaMyIcon fontSize="medium" />;
+```
+
+The **Custom Icons** page is the home for everything we build this way — every icon MUI doesn't provide out of the box.
+
+## Which one do I use?
+
+1. **Search MUI first** at [mui.com/material-ui/material-icons](https://mui.com/material-ui/material-icons/). If it's there, use it.
+2. **If it's missing**, it becomes a Peak Design custom icon as explained in the previous section.
+
+Because MUI carries the previous-generation Material **Icons** while Figma (or other design tools) uses Material **Symbols**, an icon that exists in both spaces can look slightly different. Match the design name, accept the minor stylistic gap on shared icons, and reserve custom icons for what MUI genuinely lacks.

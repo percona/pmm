@@ -1,6 +1,6 @@
 export * from './db';
 
-export * from './other';
+export * from './peak';
 
 export * from './no-match';
 export { NoMatchIcon } from './no-match';

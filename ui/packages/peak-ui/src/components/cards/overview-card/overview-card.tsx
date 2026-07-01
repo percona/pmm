@@ -7,7 +7,6 @@ import {
   CardHeader,
   CardHeaderProps,
 } from '@mui/material';
-import { DatabaseIcon } from '../../icons';
 
 export interface OverviewCardProps extends Omit<MuiCardProps, 'content'> {
   cardHeaderProps?: CardHeaderProps;
@@ -35,7 +34,6 @@ const OverviewCard = ({
         <CardHeader
           data-testid={`${dataTestId}-card-header`}
           title={cardHeaderProps?.title}
-          avatar={<DatabaseIcon />}
           {...cardHeaderProps}
         />
       )}
