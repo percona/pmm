@@ -1,0 +1,206 @@
+syntax = "proto3";
+
+package backup.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+// ScriptBackupStatus reflects the lifecycle of a script-based backup run
+// dispatched to a DB node through Nomad.
+enum ScriptBackupStatus {
+  SCRIPT_BACKUP_STATUS_UNSPECIFIED = 0;
+  // The Nomad job has been registered but no allocation is running yet.
+  SCRIPT_BACKUP_STATUS_PENDING = 1;
+  // The backup script is running on the node.
+  SCRIPT_BACKUP_STATUS_RUNNING = 2;
+  // The backup finished successfully.
+  SCRIPT_BACKUP_STATUS_SUCCESS = 3;
+  // The backup failed.
+  SCRIPT_BACKUP_STATUS_ERROR = 4;
+}
+
+// BackupScriptConfig is the persistent, versioned configuration used to render
+// the ALL_SERVERS/SERVER_LIST YAML that the Percona XtraBackup payload consumes.
+message BackupScriptConfig {
+  // Machine-readable config ID.
+  string config_id = 1;
+  // Human-readable config name, unique per service.
+  string name = 2;
+  // PMM service ID this config backs up.
+  string service_id = 3;
+  // Nomad client node name to target (node.unique.name).
+  string node_name = 4;
+  // Root backup directory on the node (BACKUP_DIR).
+  string backup_dir = 5;
+  // Whether to compress the backup.
+  bool compress = 6;
+  // Compression algorithm (zstd, lz4, quicklz).
+  string compression_algorithm = 7;
+  // Number of backup copies to retain (XTRABACKUP_COPIES).
+  uint32 copies = 8;
+  // Record replica coordinates. Maps to the REPLICA-era key
+  // XTRABACKUP_REPLICA_INFO (never the stale SLAVE key).
+  bool replica_info = 9;
+  // xtrabackup binary to invoke (e.g. xtrabackup for 8.4).
+  string xtrabackup_binary = 10;
+  // The authoritative rendered YAML shipped to the node.
+  string rendered_yaml = 11;
+  // Monotonic config version, bumped on every update.
+  uint32 config_version = 12;
+  // Creation time.
+  google.protobuf.Timestamp created_at = 13;
+  // Last update time.
+  google.protobuf.Timestamp updated_at = 14;
+}
+
+// BackupScriptRun is a single dispatch of a config to a node via Nomad.
+message BackupScriptRun {
+  // Machine-readable run ID (backup_run_id), the cross-store correlation key.
+  string run_id = 1;
+  // Config used for this run.
+  string config_id = 2;
+  // PMM service ID.
+  string service_id = 3;
+  // Target node name.
+  string node_name = 4;
+  // Nomad job ID registered for this run.
+  string nomad_job_id = 5;
+  // Current status.
+  ScriptBackupStatus status = 6;
+  // Backup directory produced on the node (from the result manifest).
+  string backup_dir = 7;
+  // Backup size in bytes (from the result manifest).
+  int64 size_bytes = 8;
+  // Error message when status is ERROR.
+  string error = 9;
+  // Dispatch time.
+  google.protobuf.Timestamp started_at = 10;
+  // Completion time.
+  google.protobuf.Timestamp finished_at = 11;
+}
+
+message CreateBackupScriptConfigRequest {
+  // Human-readable config name.
+  string name = 1 [(validate.rules).string.min_len = 1];
+  // PMM service ID this config backs up.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+  // Nomad client node name to target.
+  string node_name = 3 [(validate.rules).string.min_len = 1];
+  // Root backup directory on the node.
+  string backup_dir = 4 [(validate.rules).string.min_len = 1];
+  // Whether to compress the backup.
+  bool compress = 5;
+  // Compression algorithm (defaults to zstd when empty).
+  string compression_algorithm = 6;
+  // Number of copies to retain (defaults to 2 when zero).
+  uint32 copies = 7;
+  // Record replica coordinates (XTRABACKUP_REPLICA_INFO).
+  bool replica_info = 8;
+  // xtrabackup binary (defaults to xtrabackup when empty).
+  string xtrabackup_binary = 9;
+}
+
+message CreateBackupScriptConfigResponse {
+  BackupScriptConfig config = 1;
+}
+
+message ListBackupScriptConfigsRequest {}
+
+message ListBackupScriptConfigsResponse {
+  repeated BackupScriptConfig configs = 1;
+}
+
+message GetBackupScriptConfigRequest {
+  string config_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message GetBackupScriptConfigResponse {
+  BackupScriptConfig config = 1;
+}
+
+message DeleteBackupScriptConfigRequest {
+  string config_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message DeleteBackupScriptConfigResponse {}
+
+message RunNowRequest {
+  // Config to dispatch.
+  string config_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message RunNowResponse {
+  // Correlation key for the dispatched run.
+  string run_id = 1;
+  // Registered Nomad job ID.
+  string nomad_job_id = 2;
+}
+
+message ListBackupScriptRunsRequest {}
+
+message ListBackupScriptRunsResponse {
+  repeated BackupScriptRun runs = 1;
+}
+
+message GetBackupScriptRunRequest {
+  string run_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message GetBackupScriptRunResponse {
+  BackupScriptRun run = 1;
+}
+
+message GetBackupScriptRunLogsRequest {
+  string run_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message GetBackupScriptRunLogsResponse {
+  // Live stdout captured from the Nomad allocation.
+  string logs = 1;
+}
+
+// BackupScriptService manages script-based MySQL physical backups executed on
+// DB nodes through Nomad. It renders the XtraBackup payload config, dispatches a
+// Nomad batch job, and catalogs the resulting runs.
+service BackupScriptService {
+  // CreateConfig persists a new versioned backup config and its rendered YAML.
+  rpc CreateConfig(CreateBackupScriptConfigRequest) returns (CreateBackupScriptConfigResponse) {
+    option (google.api.http) = {
+      post: "/v1/backups/script/configs"
+      body: "*"
+    };
+  }
+  // ListConfigs returns all stored backup configs.
+  rpc ListConfigs(ListBackupScriptConfigsRequest) returns (ListBackupScriptConfigsResponse) {
+    option (google.api.http) = {get: "/v1/backups/script/configs"};
+  }
+  // GetConfig returns a single backup config.
+  rpc GetConfig(GetBackupScriptConfigRequest) returns (GetBackupScriptConfigResponse) {
+    option (google.api.http) = {get: "/v1/backups/script/configs/{config_id}"};
+  }
+  // DeleteConfig removes a backup config.
+  rpc DeleteConfig(DeleteBackupScriptConfigRequest) returns (DeleteBackupScriptConfigResponse) {
+    option (google.api.http) = {delete: "/v1/backups/script/configs/{config_id}"};
+  }
+  // RunNow dispatches an ad-hoc backup for the given config via Nomad.
+  rpc RunNow(RunNowRequest) returns (RunNowResponse) {
+    option (google.api.http) = {
+      post: "/v1/backups/script/runs"
+      body: "*"
+    };
+  }
+  // ListRuns returns the catalog of dispatched backup runs.
+  rpc ListRuns(ListBackupScriptRunsRequest) returns (ListBackupScriptRunsResponse) {
+    option (google.api.http) = {get: "/v1/backups/script/runs"};
+  }
+  // GetRun returns details for a single backup run.
+  rpc GetRun(GetBackupScriptRunRequest) returns (GetBackupScriptRunResponse) {
+    option (google.api.http) = {get: "/v1/backups/script/runs/{run_id}"};
+  }
+  // GetRunLogs streams the live allocation logs for a run.
+  rpc GetRunLogs(GetBackupScriptRunLogsRequest) returns (GetBackupScriptRunLogsResponse) {
+    option (google.api.http) = {get: "/v1/backups/script/runs/{run_id}/logs"};
+  }
+}

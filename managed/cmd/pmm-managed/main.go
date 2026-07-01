@@ -83,6 +83,7 @@ import (
 	"github.com/percona/pmm/managed/services/alerting"
 	"github.com/percona/pmm/managed/services/autoinvestigate"
 	"github.com/percona/pmm/managed/services/backup"
+	"github.com/percona/pmm/managed/services/backupscript"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config" //nolint:staticcheck
 	"github.com/percona/pmm/managed/services/dump"
@@ -381,6 +382,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	backupv1.RegisterBackupServiceServer(gRPCServer, mgmtBackupService)
 	backupv1.RegisterLocationsServiceServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
 	backupv1.RegisterRestoreServiceServer(gRPCServer, mgmtRestoreService)
+	backupv1.RegisterBackupScriptServiceServer(gRPCServer, backupscript.New(deps.db, logrus.WithField("component", "backup-script")))
 
 	dumpv1beta1.RegisterDumpServiceServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
 
@@ -497,6 +499,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		backupv1.RegisterBackupServiceHandler,
 		backupv1.RegisterLocationsServiceHandler,
 		backupv1.RegisterRestoreServiceHandler,
+		backupv1.RegisterBackupScriptServiceHandler,
 
 		dumpv1beta1.RegisterDumpServiceHandler,
 

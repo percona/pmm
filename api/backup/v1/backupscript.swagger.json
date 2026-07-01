@@ -1,0 +1,535 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "backup/v1/backupscript.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "BackupScriptService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/backups/script/configs": {
+      "get": {
+        "summary": "ListConfigs returns all stored backup configs.",
+        "operationId": "ListConfigs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListBackupScriptConfigsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "BackupScriptService"
+        ]
+      },
+      "post": {
+        "summary": "CreateConfig persists a new versioned backup config and its rendered YAML.",
+        "operationId": "CreateConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateBackupScriptConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateBackupScriptConfigRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BackupScriptService"
+        ]
+      }
+    },
+    "/v1/backups/script/configs/{config_id}": {
+      "get": {
+        "summary": "GetConfig returns a single backup config.",
+        "operationId": "GetConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetBackupScriptConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "config_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BackupScriptService"
+        ]
+      },
+      "delete": {
+        "summary": "DeleteConfig removes a backup config.",
+        "operationId": "DeleteConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteBackupScriptConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "config_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BackupScriptService"
+        ]
+      }
+    },
+    "/v1/backups/script/runs": {
+      "get": {
+        "summary": "ListRuns returns the catalog of dispatched backup runs.",
+        "operationId": "ListRuns",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListBackupScriptRunsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "BackupScriptService"
+        ]
+      },
+      "post": {
+        "summary": "RunNow dispatches an ad-hoc backup for the given config via Nomad.",
+        "operationId": "RunNow",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RunNowResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RunNowRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BackupScriptService"
+        ]
+      }
+    },
+    "/v1/backups/script/runs/{run_id}": {
+      "get": {
+        "summary": "GetRun returns details for a single backup run.",
+        "operationId": "GetRun",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetBackupScriptRunResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BackupScriptService"
+        ]
+      }
+    },
+    "/v1/backups/script/runs/{run_id}/logs": {
+      "get": {
+        "summary": "GetRunLogs streams the live allocation logs for a run.",
+        "operationId": "GetRunLogs",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetBackupScriptRunLogsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BackupScriptService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1BackupScriptConfig": {
+      "type": "object",
+      "properties": {
+        "config_id": {
+          "type": "string",
+          "description": "Machine-readable config ID."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable config name, unique per service."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "PMM service ID this config backs up."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Nomad client node name to target (node.unique.name)."
+        },
+        "backup_dir": {
+          "type": "string",
+          "description": "Root backup directory on the node (BACKUP_DIR)."
+        },
+        "compress": {
+          "type": "boolean",
+          "description": "Whether to compress the backup."
+        },
+        "compression_algorithm": {
+          "type": "string",
+          "description": "Compression algorithm (zstd, lz4, quicklz)."
+        },
+        "copies": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Number of backup copies to retain (XTRABACKUP_COPIES)."
+        },
+        "replica_info": {
+          "type": "boolean",
+          "description": "Record replica coordinates. Maps to the REPLICA-era key\nXTRABACKUP_REPLICA_INFO (never the stale SLAVE key)."
+        },
+        "xtrabackup_binary": {
+          "type": "string",
+          "description": "xtrabackup binary to invoke (e.g. xtrabackup for 8.4)."
+        },
+        "rendered_yaml": {
+          "type": "string",
+          "description": "The authoritative rendered YAML shipped to the node."
+        },
+        "config_version": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Monotonic config version, bumped on every update."
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation time."
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update time."
+        }
+      },
+      "description": "BackupScriptConfig is the persistent, versioned configuration used to render\nthe ALL_SERVERS/SERVER_LIST YAML that the Percona XtraBackup payload consumes."
+    },
+    "v1BackupScriptRun": {
+      "type": "object",
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "description": "Machine-readable run ID (backup_run_id), the cross-store correlation key."
+        },
+        "config_id": {
+          "type": "string",
+          "description": "Config used for this run."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "PMM service ID."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Target node name."
+        },
+        "nomad_job_id": {
+          "type": "string",
+          "description": "Nomad job ID registered for this run."
+        },
+        "status": {
+          "$ref": "#/definitions/v1ScriptBackupStatus",
+          "description": "Current status."
+        },
+        "backup_dir": {
+          "type": "string",
+          "description": "Backup directory produced on the node (from the result manifest)."
+        },
+        "size_bytes": {
+          "type": "string",
+          "format": "int64",
+          "description": "Backup size in bytes (from the result manifest)."
+        },
+        "error": {
+          "type": "string",
+          "description": "Error message when status is ERROR."
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Dispatch time."
+        },
+        "finished_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Completion time."
+        }
+      },
+      "description": "BackupScriptRun is a single dispatch of a config to a node via Nomad."
+    },
+    "v1CreateBackupScriptConfigRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Human-readable config name."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "PMM service ID this config backs up."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Nomad client node name to target."
+        },
+        "backup_dir": {
+          "type": "string",
+          "description": "Root backup directory on the node."
+        },
+        "compress": {
+          "type": "boolean",
+          "description": "Whether to compress the backup."
+        },
+        "compression_algorithm": {
+          "type": "string",
+          "description": "Compression algorithm (defaults to zstd when empty)."
+        },
+        "copies": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Number of copies to retain (defaults to 2 when zero)."
+        },
+        "replica_info": {
+          "type": "boolean",
+          "description": "Record replica coordinates (XTRABACKUP_REPLICA_INFO)."
+        },
+        "xtrabackup_binary": {
+          "type": "string",
+          "description": "xtrabackup binary (defaults to xtrabackup when empty)."
+        }
+      }
+    },
+    "v1CreateBackupScriptConfigResponse": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/v1BackupScriptConfig"
+        }
+      }
+    },
+    "v1DeleteBackupScriptConfigResponse": {
+      "type": "object"
+    },
+    "v1GetBackupScriptConfigResponse": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/v1BackupScriptConfig"
+        }
+      }
+    },
+    "v1GetBackupScriptRunLogsResponse": {
+      "type": "object",
+      "properties": {
+        "logs": {
+          "type": "string",
+          "description": "Live stdout captured from the Nomad allocation."
+        }
+      }
+    },
+    "v1GetBackupScriptRunResponse": {
+      "type": "object",
+      "properties": {
+        "run": {
+          "$ref": "#/definitions/v1BackupScriptRun"
+        }
+      }
+    },
+    "v1ListBackupScriptConfigsResponse": {
+      "type": "object",
+      "properties": {
+        "configs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1BackupScriptConfig"
+          }
+        }
+      }
+    },
+    "v1ListBackupScriptRunsResponse": {
+      "type": "object",
+      "properties": {
+        "runs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1BackupScriptRun"
+          }
+        }
+      }
+    },
+    "v1RunNowRequest": {
+      "type": "object",
+      "properties": {
+        "config_id": {
+          "type": "string",
+          "description": "Config to dispatch."
+        }
+      }
+    },
+    "v1RunNowResponse": {
+      "type": "object",
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "description": "Correlation key for the dispatched run."
+        },
+        "nomad_job_id": {
+          "type": "string",
+          "description": "Registered Nomad job ID."
+        }
+      }
+    },
+    "v1ScriptBackupStatus": {
+      "type": "string",
+      "enum": [
+        "SCRIPT_BACKUP_STATUS_UNSPECIFIED",
+        "SCRIPT_BACKUP_STATUS_PENDING",
+        "SCRIPT_BACKUP_STATUS_RUNNING",
+        "SCRIPT_BACKUP_STATUS_SUCCESS",
+        "SCRIPT_BACKUP_STATUS_ERROR"
+      ],
+      "default": "SCRIPT_BACKUP_STATUS_UNSPECIFIED",
+      "description": "ScriptBackupStatus reflects the lifecycle of a script-based backup run\ndispatched to a DB node through Nomad.\n\n - SCRIPT_BACKUP_STATUS_PENDING: The Nomad job has been registered but no allocation is running yet.\n - SCRIPT_BACKUP_STATUS_RUNNING: The backup script is running on the node.\n - SCRIPT_BACKUP_STATUS_SUCCESS: The backup finished successfully.\n - SCRIPT_BACKUP_STATUS_ERROR: The backup failed."
+    }
+  }
+}

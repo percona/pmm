@@ -1815,6 +1815,46 @@ $yaml$,
 		// (stored encrypted at rest, like the other adre_provisioning secrets).
 		`ALTER TABLE adre_provisioning ADD COLUMN IF NOT EXISTS alert_webhook_secret VARCHAR NOT NULL DEFAULT ''`,
 	},
+	142: {
+		// Script-based MySQL backups dispatched to DB nodes via Nomad.
+		// Persistent, versioned config that renders the XtraBackup payload YAML.
+		`CREATE TABLE backup_script_configs (
+			id VARCHAR NOT NULL,
+			name VARCHAR NOT NULL CHECK (name <> ''),
+			service_id VARCHAR NOT NULL,
+			node_name VARCHAR NOT NULL,
+			backup_dir VARCHAR NOT NULL,
+			compress BOOLEAN NOT NULL,
+			compression_algorithm VARCHAR NOT NULL,
+			copies INTEGER NOT NULL,
+			replica_info BOOLEAN NOT NULL,
+			xtrabackup_binary VARCHAR NOT NULL,
+			rendered_yaml TEXT NOT NULL,
+			config_version INTEGER NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+			PRIMARY KEY (id),
+			UNIQUE (service_id, name)
+		)`,
+		// Catalog of dispatched runs, keyed by the cross-store backup_run_id.
+		`CREATE TABLE backup_script_runs (
+			id VARCHAR NOT NULL,
+			config_id VARCHAR NOT NULL,
+			service_id VARCHAR NOT NULL,
+			node_name VARCHAR NOT NULL,
+			nomad_job_id VARCHAR NOT NULL,
+			status VARCHAR NOT NULL,
+			backup_dir VARCHAR NOT NULL,
+			size_bytes BIGINT NOT NULL,
+			error VARCHAR NOT NULL,
+			manifest JSONB,
+			started_at TIMESTAMP NOT NULL,
+			finished_at TIMESTAMP,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+			PRIMARY KEY (id)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
