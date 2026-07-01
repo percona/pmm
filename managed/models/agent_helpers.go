@@ -767,7 +767,12 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 
 	scheme := params.Scheme
 	if scheme == "" {
-		scheme = "http"
+		// Infer scheme from port: use HTTPS for common HTTPS ports, HTTP otherwise
+		if params.ListenPort == 443 || params.ListenPort == 8443 {
+			scheme = "https"
+		} else {
+			scheme = "http"
+		}
 	}
 	metricsPath := params.MetricsPath
 	if metricsPath == "" {

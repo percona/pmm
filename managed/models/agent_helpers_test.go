@@ -513,6 +513,100 @@ func TestAgentHelpers(t *testing.T) {
 				UpdatedAt: now,
 			}, agent)
 		})
+		t.Run("HTTPS inferred from port 443", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+			agent, err := models.CreateExternalExporter(q, &models.CreateExternalExporterParams{
+				RunsOnNodeID: "N1",
+				ServiceID:    "S1",
+				ListenPort:   443,
+			})
+			require.NoError(t, err)
+			assert.Equal(t, &models.Agent{
+				AgentID:      agent.AgentID,
+				AgentType:    models.ExternalExporterType,
+				RunsOnNodeID: pointer.ToString("N1"),
+				ServiceID:    pointer.ToString("S1"),
+				ListenPort:   pointer.ToUint16(443),
+				ExporterOptions: models.ExporterOptions{
+					MetricsPath:   "/metrics",
+					MetricsScheme: "https",
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
+			}, agent)
+		})
+		t.Run("Explicit scheme overrides port inference", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+			agent, err := models.CreateExternalExporter(q, &models.CreateExternalExporterParams{
+				RunsOnNodeID: "N1",
+				ServiceID:    "S1",
+				ListenPort:   443,
+				Scheme:       "http",
+			})
+			require.NoError(t, err)
+			assert.Equal(t, &models.Agent{
+				AgentID:      agent.AgentID,
+				AgentType:    models.ExternalExporterType,
+				RunsOnNodeID: pointer.ToString("N1"),
+				ServiceID:    pointer.ToString("S1"),
+				ListenPort:   pointer.ToUint16(443),
+				ExporterOptions: models.ExporterOptions{
+					MetricsPath:   "/metrics",
+					MetricsScheme: "http",
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
+			}, agent)
+		})
+		t.Run("HTTPS inferred from port 8443", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+			agent, err := models.CreateExternalExporter(q, &models.CreateExternalExporterParams{
+				RunsOnNodeID: "N1",
+				ServiceID:    "S1",
+				ListenPort:   8443,
+			})
+			require.NoError(t, err)
+			assert.Equal(t, &models.Agent{
+				AgentID:      agent.AgentID,
+				AgentType:    models.ExternalExporterType,
+				RunsOnNodeID: pointer.ToString("N1"),
+				ServiceID:    pointer.ToString("S1"),
+				ListenPort:   pointer.ToUint16(8443),
+				ExporterOptions: models.ExporterOptions{
+					MetricsPath:   "/metrics",
+					MetricsScheme: "https",
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
+			}, agent)
+		})
+		t.Run("Explicit HTTPS scheme on non-standard port", func(t *testing.T) {
+			q, teardown := setup(t)
+			defer teardown(t)
+			agent, err := models.CreateExternalExporter(q, &models.CreateExternalExporterParams{
+				RunsOnNodeID: "N1",
+				ServiceID:    "S1",
+				ListenPort:   9443,
+				Scheme:       "https",
+			})
+			require.NoError(t, err)
+			assert.Equal(t, &models.Agent{
+				AgentID:      agent.AgentID,
+				AgentType:    models.ExternalExporterType,
+				RunsOnNodeID: pointer.ToString("N1"),
+				ServiceID:    pointer.ToString("S1"),
+				ListenPort:   pointer.ToUint16(9443),
+				ExporterOptions: models.ExporterOptions{
+					MetricsPath:   "/metrics",
+					MetricsScheme: "https",
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
+			}, agent)
+		})
 		t.Run("Invalid listen port", func(t *testing.T) {
 			q, teardown := setup(t)
 			defer teardown(t)
