@@ -18,11 +18,20 @@ interface Props {
 const RawDataTab: FC<Props> = ({ alert }) => {
   return (
     <Stack
-      direction={{ xs: 'column', sm: 'row' }}
-      justifyContent="space-evenly"
+      direction={{ xs: 'column', md: 'row' }}
       spacing={2}
+      sx={{
+        '& > *': {
+          xs: {
+            width: '100%',
+          },
+          md: {
+            width: '50%',
+          },
+        },
+      }}
     >
-      <Stack flex={1} spacing={2}>
+      <Stack spacing={2}>
         <Typography variant="h6">{Messages.labels.title}</Typography>
         <TableContainer>
           <Table>
@@ -50,7 +59,7 @@ const RawDataTab: FC<Props> = ({ alert }) => {
           </Table>
         </TableContainer>
       </Stack>
-      <Stack flex={1} spacing={2}>
+      <Stack spacing={2}>
         <Typography variant="h6">{Messages.json.title}</Typography>
         <SyntaxHighlighter
           language="json"
