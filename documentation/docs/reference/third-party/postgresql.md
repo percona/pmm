@@ -84,7 +84,8 @@ To use PostgreSQL as an external database with PMM:
 
 3.  Create a directory where PostgreSQL will find initialization SQL scripts:
     ```sh
-    mkdir -p /path/to/queries
+    PG_INIT_DIR="/path/to/queries"
+    mkdir -p "${PG_INIT_DIR}"
     ```
 
 4.  Create an `init.sql.template` file in the directory with the following content:
@@ -115,11 +116,12 @@ To use PostgreSQL as an external database with PMM:
 6.  Run the PostgreSQL container:
 
     ```sh
+
     docker run -d \
       --name pg \
       -p 5432:5432 \
       -e POSTGRES_PASSWORD=${PG_PASSWORD} \
-      -v /path/to/queries:/docker-entrypoint-initdb.d \
+      -v ${PG_INIT_DIR}/init.sql:/docker-entrypoint-initdb.d/init.sql \
       -v pg_data:/var/lib/postgresql/data \
       postgres:14 \
       postgres -c shared_preload_libraries=pg_stat_statements \
@@ -150,7 +152,7 @@ If you need to secure the connection with SSL:
     --name pg \
     -p 5432:5432 \
     -e POSTGRES_PASSWORD=${PG_PASSWORD} \
-    -v /path/to/queries:/docker-entrypoint-initdb.d \
+    -v ${PG_INIT_DIR}/init.sql:/docker-entrypoint-initdb.d/init.sql \
     -v pg_data:/var/lib/postgresql/data \
     -v /path/to/certificates:/etc/postgresql/certs \
     postgres:14 \
@@ -178,17 +180,17 @@ Now that PostgreSQL is set up, configure PMM Server to use it:
 === "PMM 3.1.x and 3.0.0"
     ```sh
     docker run -d \
-    -p 443:443 \
+    -p 443:8443 \
     -v pmm-data:/srv \
     -e PMM_POSTGRES_ADDR=postgres-host:5432 \
     -e PMM_POSTGRES_DBNAME=pmm-managed \
-    -e PMM_POSTGRES_USERNAME=pmm_user \
-    -e PMM_POSTGRES_DBPASSWORD=pmm_password \
-    -e GF_DATABASE_URL=postgres://your_grafana_user:your_grafana_password@postgres-host:5432/grafana \
-    -e GF_DATABASE_SSL_MODE=$GF_SSL_MODE \
-    -e GF_DATABASE_CA_CERT_PATH=$GF_CA_PATH \
-    -e GF_DATABASE_CLIENT_KEY_PATH=$GF_KEY_PATH \
-    -e GF_DATABASE_CLIENT_CERT_PATH=$GF_CERT_PATH \
+    -e PMM_POSTGRES_USERNAME=${PG_USERNAME} \
+    -e PMM_POSTGRES_DBPASSWORD=${PG_PASSWORD} \
+    -e GF_DATABASE_URL=postgres://${GF_USERNAME}:${GF_PASSWORD}@postgres-host:5432/grafana \
+    -e GF_DATABASE_SSL_MODE=${GF_SSL_MODE} \
+    -e GF_DATABASE_CA_CERT_PATH=${GF_CA_PATH} \
+    -e GF_DATABASE_CLIENT_KEY_PATH=${GF_KEY_PATH} \
+    -e GF_DATABASE_CLIENT_CERT_PATH=${GF_CERT_PATH} \
     -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
     --name pmm-server \
     percona/pmm-server:3
@@ -196,20 +198,20 @@ Now that PostgreSQL is set up, configure PMM Server to use it:
 === "PMM 3.2.0 and later"
     ```sh
     docker run -d \
-    -p 443:443 \
+    -p 443:8443 \
     -v pmm-data:/srv \
     -e PMM_POSTGRES_ADDR=postgres-host:5432 \
     -e PMM_POSTGRES_DBNAME=pmm-managed \
-    -e GF_DATABASE_PASSWORD=your_grafana_password \
-    -e PMM_POSTGRES_DBPASSWORD=pmm_password \
+    -e PMM_POSTGRES_USERNAME=${PG_USERNAME} \
+    -e PMM_POSTGRES_DBPASSWORD=${PG_PASSWORD} \
     -e GF_DATABASE_HOST=postgres-host:5432 \
     -e GF_DATABASE_NAME=grafana \
-    -e GF_DATABASE_USER=your_grafana_user \
-    -e GF_DATABASE_PASSWORD=your_grafana_password \
-    -e GF_DATABASE_SSL_MODE=$GF_SSL_MODE \
-    -e GF_DATABASE_CA_CERT_PATH=$GF_CA_PATH \
-    -e GF_DATABASE_CLIENT_KEY_PATH=$GF_KEY_PATH \
-    -e GF_DATABASE_CLIENT_CERT_PATH=$GF_CERT_PATH \
+    -e GF_DATABASE_USER=${GF_USERNAME} \
+    -e GF_DATABASE_PASSWORD=${GF_PASSWORD} \
+    -e GF_DATABASE_SSL_MODE=${GF_SSL_MODE} \
+    -e GF_DATABASE_CA_CERT_PATH=${GF_CA_PATH} \
+    -e GF_DATABASE_CLIENT_KEY_PATH=${GF_KEY_PATH} \
+    -e GF_DATABASE_CLIENT_CERT_PATH=${GF_CERT_PATH} \
     -e PMM_DISABLE_BUILTIN_POSTGRES=1 \
     --name pmm-server \
     percona/pmm-server:3
@@ -223,18 +225,18 @@ Create a `docker-compose.yml` file with the following content (adjust values as 
      pmm-server:
        image: percona/pmm-server:3
        ports:
-         - "443:443"
+         - "443:8443"
        volumes:
          - pmm-data:/srv
        environment:
          # PMM PostgreSQL connection variables
          - PMM_POSTGRES_ADDR=your_host:your_port
          - PMM_POSTGRES_DBNAME=pmm-managed
-         - PMM_POSTGRES_USERNAME=your_pmm_user
-         - PMM_POSTGRES_DBPASSWORD=your_pmm_password
+         - PMM_POSTGRES_USERNAME=${PG_USERNAME}
+         - PMM_POSTGRES_DBPASSWORD=${PG_PASSWORD}
          # Grafana PostgreSQL connection variables (for PMM 3.2.0+)
-         - GF_DATABASE_USER=your_grafana_user
-         - GF_DATABASE_PASSWORD=your_grafana_password
+         - GF_DATABASE_USER=${GF_USERNAME}
+         - GF_DATABASE_PASSWORD=${GF_PASSWORD}
          - GF_DATABASE_HOST=your_host:your_port
          - GF_DATABASE_NAME=grafana
          # Disable built-in PostgreSQL
