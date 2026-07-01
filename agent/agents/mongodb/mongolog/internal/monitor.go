@@ -87,6 +87,7 @@ type row struct {
 
 type systemProfile struct {
 	proto.SystemProfile
+
 	Command bson.M `json:"command"`
 	Type    string `json:"type"`
 	Remote  string `json:"remote"`

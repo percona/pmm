@@ -41,6 +41,8 @@ import (
 
 // BackupService represents backups API.
 type BackupService struct { //nolint:revive
+	backupv1.UnimplementedBackupServiceServer
+
 	db                   *reform.DB
 	backupService        backupService
 	compatibilityService compatibilityService
@@ -48,8 +50,6 @@ type BackupService struct { //nolint:revive
 	removalSVC           removalService
 	pbmPITRService       pbmPITRService
 	l                    *logrus.Entry
-
-	backupv1.UnimplementedBackupServiceServer
 }
 
 const (
