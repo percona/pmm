@@ -92,6 +92,11 @@ func (res *addMySQLResult) TablestatStatus() string {
 //
 //nolint:lll
 type AddMySQLCommand struct {
+	AddCommonFlags
+	flags.MetricsModeFlags
+	flags.CommentsParsingFlags
+	flags.LogLevelNoFatalFlags
+
 	ServiceName   string `name:"name" arg:"" default:"${hostname}-mysql" help:"Service name (autodetected default: ${hostname}-mysql)"`
 	Address       string `arg:"" optional:"" help:"MySQL address and port (default: 127.0.0.1:3306)"`
 	Socket        string `help:"Path to MySQL socket"`
@@ -122,11 +127,6 @@ type AddMySQLCommand struct {
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 	ConnectionTimeout      *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
-
-	AddCommonFlags
-	flags.MetricsModeFlags
-	flags.CommentsParsingFlags
-	flags.LogLevelNoFatalFlags
 }
 
 // GetServiceName returns the service name for AddMySQLCommand.

@@ -69,6 +69,8 @@ type configGetReloader interface {
 
 // Server represents local pmm-agent API server.
 type Server struct {
+	agentlocal.UnimplementedAgentLocalServiceServer
+
 	cfg            configGetReloader
 	supervisor     supervisor
 	client         client
@@ -78,8 +80,6 @@ type Server struct {
 	logStore        *tailog.Store
 	reload          chan struct{}
 	reloadCloseOnce sync.Once
-
-	agentlocal.UnimplementedAgentLocalServiceServer
 }
 
 // NewServer creates new server.

@@ -41,6 +41,9 @@ func (res *configResult) String() string {
 
 // ConfigCommand is used by Kong for CLI flags and commands.
 type ConfigCommand struct {
+	flags.MetricsModeFlags
+	flags.LogLevelFatalFlags
+
 	NodeAddress       string   `arg:"" default:"${nodeIp}" help:"Node address (autodetected, default: ${nodeIp})"`
 	NodeType          string   `arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type. One of: [${enum}]. Default: ${default}"`
 	NodeName          string   `arg:"" default:"${hostname}" help:"Node name (autodetected, default: ${hostname})"`
@@ -53,9 +56,6 @@ type ConfigCommand struct {
 	CustomLabels      string   `placeholder:"KEY=VALUE,KEY=VALUE,..." help:"Custom user-assigned labels"`
 	BasePath          string   `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`
 	LogLinesCount     uint     `help:"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents" default:"1024"`
-
-	flags.MetricsModeFlags
-	flags.LogLevelFatalFlags
 }
 
 func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
