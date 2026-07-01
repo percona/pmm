@@ -45,6 +45,10 @@ func (res *addValkeyResult) String() string {
 
 // AddValkeyCommand is used by Kong for CLI flags and commands.
 type AddValkeyCommand struct {
+	AddCommonFlags
+	flags.MetricsModeFlags
+	flags.LogLevelNoFatalFlags
+
 	ServiceName         string            `name:"name" arg:"" default:"${hostname}-valkey" help:"Service name (autodetected default: ${hostname}-valkey)"`
 	Address             string            `arg:"" optional:"" help:"Valkey address and port (default: 127.0.0.1:6379)"`
 	Socket              string            `help:"Path to Valkey socket"`
@@ -66,10 +70,6 @@ type AddValkeyCommand struct {
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 	ConnectionTimeout   *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
-
-	AddCommonFlags
-	flags.MetricsModeFlags
-	flags.LogLevelNoFatalFlags
 }
 
 // GetServiceName returns the service name for AddValkeyCommand.
