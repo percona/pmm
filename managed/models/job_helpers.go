@@ -16,12 +16,12 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -44,7 +44,7 @@ func FindJobByID(q *reform.Querier, id string) (*Job, error) {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Job with ID %q not found.", id)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return res, nil
@@ -126,7 +126,7 @@ func (p CreateJobParams) Validate() error {
 	case MongoDBBackupJob:
 	case MongoDBRestoreBackupJob:
 	default:
-		return errors.Errorf("unknown job type: %v", p.Type)
+		return fmt.Errorf("unknown job type: %v", p.Type)
 	}
 	return nil
 }
@@ -148,7 +148,7 @@ func CreateJob(q *reform.Querier, params CreateJobParams) (*Job, error) {
 	}
 	err = q.Insert(result)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return result, nil
 }
@@ -177,7 +177,7 @@ func CreateJobLog(q *reform.Querier, params CreateJobLogParams) (*JobLog, error)
 	}
 	err := q.Insert(log)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return log, nil
 }
@@ -204,7 +204,7 @@ func FindJobLogs(q *reform.Querier, filters JobLogsFilter) ([]*JobLog, error) {
 
 	rows, err := q.SelectAllFrom(JobLogView, tail, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select artifacts")
+		return nil, fmt.Errorf("failed to select artifacts: %w", err)
 	}
 
 	logs := make([]*JobLog, 0, len(rows))
