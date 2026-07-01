@@ -41,5 +41,5 @@ pmm-admin config --server-insecure-tls \
 
 5. Decommission the OVF instance once everything is confirmed working.
 
-!!! note
-    Migrating historical data — time-series metrics (VictoriaMetrics) and QAN stored metrics — from the OVF deployment to the new server is not supported. There are no validated steps for transferring this data between PMM instances. To retain access to historical data, keep the OVA running alongside the new instance until the data ages out of your retention window.
+!!! note "Historical data"
+    Migrating time-series metrics (VictoriaMetrics) and QAN stored metrics from the OVF deployment to the new server is not supported. There are no validated steps for transferring this data between PMM instances. To retain access to historical data, keep the OVA running alongside the new instance until the data ages out of your retention window.
