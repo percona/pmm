@@ -371,16 +371,39 @@ func TestContextService_Stop(t *testing.T) {
 	t.Run("handles stop before start", func(t *testing.T) {
 		t.Parallel()
 
-		startFunc := func(_ context.Context) error { return nil }
+		var started bool
+		var mu sync.Mutex
+		startFunc := func(ctx context.Context) error {
+			mu.Lock()
+			started = true
+			mu.Unlock()
+			<-ctx.Done()
+			return nil
+		}
 		svc := NewContextService("test", startFunc)
 
-		svc.m.Lock()
-		svc.cancel = func() {}
-		svc.m.Unlock()
-
+		// cancel is still nil because Start has not run yet: Stop must not panic.
 		assert.NotPanics(t, func() {
 			svc.Stop()
 		})
+
+		// The pending stop must prevent startFunc from running.
+		err := svc.Start(t.Context())
+		require.NoError(t, err)
+		mu.Lock()
+		assert.False(t, started, "startFunc must not run when stop preceded start")
+		mu.Unlock()
+
+		// The pending stop is consumed, so a subsequent Start runs normally.
+		go func() {
+			_ = svc.Start(t.Context())
+		}()
+		require.Eventually(t, func() bool {
+			mu.Lock()
+			defer mu.Unlock()
+			return started
+		}, time.Second, 10*time.Millisecond)
+		svc.Stop()
 	})
 
 	t.Run("handles multiple stop calls safely", func(t *testing.T) {

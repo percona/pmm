@@ -371,6 +371,46 @@ func TestTrimPITRArtifact(t *testing.T) {
 		assert.Len(t, artifact.MetadataList, 2)
 	})
 
+	t.Run("trimming all remaining metadata", func(t *testing.T) {
+		chunksRet := []*oplogChunk{
+			{FName: "chunkA"},
+		}
+
+		mockedStorage.On("RemoveRecursive", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/dir2/").
+			Return(nil).Once()
+		mockedStorage.On("Remove", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/file4").
+			Return(nil).Once()
+		mockedStorage.On("Remove", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/file5").
+			Return(nil).Once()
+		mockedStorage.On("Remove", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/file6").
+			Return(nil).Once()
+		mockedStorage.On("RemoveRecursive", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/dir3/").
+			Return(nil).Once()
+		mockedStorage.On("Remove", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/file7").
+			Return(nil).Once()
+		mockedStorage.On("Remove", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/file8").
+			Return(nil).Once()
+		mockedStorage.On("Remove", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/file9").
+			Return(nil).Once()
+
+		// All metadata is removed, so there is no remaining restore point and
+		// every PITR chunk is deleted (until == nil). Trimming must not panic
+		// indexing an empty MetadataList.
+		mockedPbmPITRService.On("GetPITRFiles", mock.Anything, mock.Anything, locationRes, mock.Anything, mock.Anything).Return(chunksRet, nil).Once()
+		mockedStorage.On("Remove", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "chunkA").
+			Return(nil).Once()
+
+		err := removalService.TrimPITRArtifact(mockedStorage, artifact.ID, 2)
+		require.NoError(t, err)
+
+		time.Sleep(time.Second * 2)
+
+		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
+		require.NoError(t, err)
+		require.NotNil(t, artifact)
+		assert.Empty(t, artifact.MetadataList)
+	})
+
 	mockedStorage.AssertExpectations(t)
 	mockedPbmPITRService.AssertExpectations(t)
 }

@@ -17,6 +17,8 @@ package server
 
 import (
 	"context"
+	"io"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -356,4 +358,44 @@ PMM_SERVER_UPDATE_VERSION=docker.io/perconalab/pmm-server:3-dev-container
 PMM_IMAGE=docker.io/perconalab/pmm-server:3-dev-container
 PMM_DISTRIBUTION_METHOD=ami`, string(newContent))
 	})
+}
+
+// trackingReadCloser records whether Close was called.
+type trackingReadCloser struct {
+	io.Reader
+
+	closed bool
+}
+
+func (rc *trackingReadCloser) Close() error {
+	rc.closed = true
+	return nil
+}
+
+type stubRoundTripper struct {
+	statusCode int
+	body       io.ReadCloser
+}
+
+func (rt stubRoundTripper) RoundTrip(_ *http.Request) (*http.Response, error) {
+	return &http.Response{
+		StatusCode: rt.statusCode,
+		Body:       rt.body,
+		Header:     make(http.Header),
+	}, nil
+}
+
+func TestGetReleaseNotesClosesResponseBody(t *testing.T) {
+	t.Setenv(env.PlatformAddress, "https://version.test")
+
+	body := &trackingReadCloser{Reader: strings.NewReader("")}
+	origTransport := http.DefaultClient.Transport
+	http.DefaultClient.Transport = stubRoundTripper{statusCode: http.StatusNotFound, body: body}
+	t.Cleanup(func() { http.DefaultClient.Transport = origTransport })
+
+	u := NewUpdater(nil, 0, nil)
+	text, err := u.getReleaseNotesText(t.Context(), *version.MustParse("3.0.0"))
+	require.NoError(t, err)
+	assert.Empty(t, text)
+	assert.True(t, body.closed, "response body must be closed on non-200 status")
 }

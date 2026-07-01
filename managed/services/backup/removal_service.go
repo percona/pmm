@@ -163,7 +163,13 @@ func (s *RemovalService) TrimPITRArtifact(storage Storage, artifactID string, fi
 			return
 		}
 
-		err = s.deleteArtifactPITRChunks(context.Background(), storage, location, artifact, artifact.MetadataList[0].RestoreTo)
+		// After trimming, MetadataList may be empty (firstN covered all
+		// records); a nil "until" then deletes all remaining PITR chunks.
+		var until *time.Time
+		if len(artifact.MetadataList) > 0 {
+			until = artifact.MetadataList[0].RestoreTo
+		}
+		err = s.deleteArtifactPITRChunks(context.Background(), storage, location, artifact, until)
 		if err != nil {
 			s.l.WithError(err).Error("couldn't delete artifact PITR chunks")
 			return
