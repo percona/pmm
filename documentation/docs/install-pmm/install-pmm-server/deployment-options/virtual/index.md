@@ -49,4 +49,3 @@ You cannot automatically migrate your historical monitoring data (dashboard metr
 2. Restore the backup on the new server.
 
 If you need continued access to historical data but cannot perform a migration, keep the OVA running alongside your new instance until the data ages out of your retention window, then decommission it.                                                                                                                  
-
