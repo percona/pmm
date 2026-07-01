@@ -45,9 +45,9 @@ func NewMonitors(client *mongo.Client, newMonitor newMonitor, logger *logrus.Ent
 }
 
 // Monitors manages the lifecycle of individual database monitors for a MongoDB instance.
-// It tracks which databases should be monitored by periodically reconciling the list
-// of existing databases with active monitor instances. It ensures thread-safe access
-// to the collection of monitors.
+// It reconciles the list of existing databases with active monitor instances.
+//
+// MonitorAll mutates the internal registry and is expected to be called from a single goroutine.
 type Monitors struct {
 	// dependencies
 	client     *mongo.Client
