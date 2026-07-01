@@ -22,9 +22,15 @@ jobs:
   auto-update-branch:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: generate-token
+        with:
+          client-id: ${{ secrets.PMM_PRBOT_APPID }}
+          private-key: ${{ secrets.PMM_PRBOT_KEY }}
+
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             // Extract the branch name that triggered this workflow (e.g., 'main' or 'pmm-3.9')
             const pushedBranch = context.ref.replace('refs/heads/', '');
