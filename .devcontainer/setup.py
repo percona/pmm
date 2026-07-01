@@ -62,14 +62,15 @@ def install_go():
 
 
 def install_node():
-    """Installs Node.js 22 and Yarn."""
+    """Installs Node.js 22 and pnpm (via corepack)."""
 
     run_commands([
         "dnf module enable -y nodejs:22",
         "dnf install -y nodejs npm",
-        "npm install -g yarn@1.22.22",
+        "corepack enable",
+        "corepack prepare pnpm@11.1.3 --activate",
         "node --version",
-        "yarn --version",
+        "pnpm --version",
     ])
 
 

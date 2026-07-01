@@ -47,12 +47,12 @@ export default defineConfig({
     },
     proxy: {
       '/v1': {
-        target,
+        target: process.env.PMM_SERVER_URL || 'https://localhost',
         secure: false,
         changeOrigin: true,
       },
       '/graph': {
-        target,
+        target: process.env.PMM_SERVER_URL || 'https://localhost',
         secure: false,
         changeOrigin: true,
       },
