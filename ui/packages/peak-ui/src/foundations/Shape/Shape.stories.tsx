@@ -42,7 +42,6 @@ const Swatch = ({ name, radius }: { name: string; radius: number }) => (
 );
 
 export const Scale: Story = {
-  tags: ['!dev'],
   render: () => (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
       {tokenNames.map((name) => (
