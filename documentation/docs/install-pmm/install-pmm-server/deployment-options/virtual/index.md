@@ -9,7 +9,7 @@ Your PMM Server stores monitoring data, dashboards, alert configurations, and us
 
 1. Note your current PMM Server version. Run `pmm-admin status` on any connected client or check **Configuration > Updates** in the PMM UI.
 2. Document your connected databases. Go to **Configuration > Inventory** in the PMM UI and record all monitored services, their connection parameters, and any custom labels.
-3. Export custom dashboards. If you have created or modified dashboards, export them as JSON from the Grafana UI (**Dashboard > Share > Export**).
+3. Export custom dashboards. For each custom dashboard, open it and click **Export > Export as code** to save it as a JSON file.
 4. Back up alert rules and contact points. Note any custom alert templates, notification channels, and silences you have configured.
 
 ## Deploy your new PMM Server
@@ -42,4 +42,4 @@ pmm-admin config --server-insecure-tls \
 5. Decommission the OVF instance once everything is confirmed working.
 
 !!! note
-    Historical metrics from the OVF deployment are not automatically transferred to the new server. If you need to preserve historical data, consider running both instances in parallel until the old data ages out of your retention window.
+    Time-series metrics (VictoriaMetrics) and query analytics data (ClickHouse) from the OVF deployment are not automatically transferred to the new server. If you need to preserve this data, consider running both instances in parallel until the old data ages out of your retention window.
