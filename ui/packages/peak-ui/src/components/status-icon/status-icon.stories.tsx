@@ -10,7 +10,7 @@ const SEVERITIES: StatusIconSeverity[] = ['success', 'info', 'indeterminate', 'w
 const meta = {
   title: 'Feedback/Status Icon',
   component: StatusIcon,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'stable'],
   parameters: {
     layout: 'centered',
     docs: {
