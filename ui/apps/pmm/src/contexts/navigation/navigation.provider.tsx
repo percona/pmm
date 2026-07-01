@@ -49,7 +49,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     true
   );
   const { data: haInfo } = useHaInfo({
-    enabled: user?.isAnonymous === false
+    enabled: user?.isAnonymous === false,
   });
 
   const navTree = useMemo<NavItem[]>(() => {
@@ -71,7 +71,9 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     if (user && settings) {
       if (settings.frontend.exploreEnabled && user.isEditor) {
-        items.push(addExplore('grafana-metricsdrilldown-app' in settings.frontend.apps));
+        items.push(
+          addExplore('grafana-metricsdrilldown-app' in settings.frontend.apps)
+        );
       }
 
       if (settings.frontend.unifiedAlertingEnabled) {
