@@ -573,6 +573,17 @@ export const NAV_INVENTORY: NavItem = {
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes`,
       matches: ['*'],
     },
+    {
+      id: 'install-pmm-client',
+      text: 'Install PMM Client',
+      url: `${PMM_NEW_NAV_PATH}/install-client`,
+      matches: ['*'],
+      badge: {
+        label: 'Preview',
+        color: 'default',
+        variant: 'filled',
+      },
+    },
   ],
 };
 
