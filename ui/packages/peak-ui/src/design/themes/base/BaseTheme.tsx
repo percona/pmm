@@ -89,6 +89,24 @@ declare module '@mui/material/styles' {
       styleOverrides?: ComponentsOverrides<Theme>['MuiMultiSectionDigitalClock'];
     };
   }
+
+  interface Shape {
+    borderRadiusXs: number;
+    borderRadiusSm: number;
+    borderRadiusMd: number;
+    borderRadiusLg: number;
+    borderRadiusXl: number;
+    borderRadiusFull: number;
+  }
+
+  interface ShapeOptions {
+    borderRadiusXs?: number;
+    borderRadiusSm?: number;
+    borderRadiusMd?: number;
+    borderRadiusLg?: number;
+    borderRadiusXl?: number;
+    borderRadiusFull?: number;
+  }
 }
 
 declare module '@mui/material/Typography' {
@@ -464,6 +482,18 @@ export const defaultPrimaryDark = {
 export type SemanticTokens = typeof semanticTokensLight;
 export type PrimaryTokens = typeof defaultPrimaryLight;
 
+// Border radius scale shared across all themes. borderRadiusSm is the theme-wide default.
+export const shape = {
+  borderRadiusXs: 3,
+  borderRadiusSm: 5,
+  borderRadiusMd: 8,
+  borderRadiusLg: 13,
+  borderRadiusXl: 21,
+  borderRadiusFull: 999,
+} as const;
+
+export type ShapeTokens = typeof shape;
+
 const BaseTheme = createTheme();
 
 const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
@@ -736,6 +766,10 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         lg: 1200,
         xl: 1536,
       },
+    },
+    shape: {
+      ...shape,
+      borderRadius: shape.borderRadiusSm,
     },
     components: {
       MuiCssBaseline: {
