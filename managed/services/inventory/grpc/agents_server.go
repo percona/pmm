@@ -29,9 +29,9 @@ import (
 )
 
 type agentsServer struct {
-	s *inventory.AgentsService
-
 	inventoryv1.UnimplementedAgentsServiceServer
+
+	s *inventory.AgentsService
 }
 
 // NewAgentsServer returns Inventory API handler for managing Agents.
