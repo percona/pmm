@@ -139,5 +139,5 @@ func formatTypeValue(acceptableTypeValues map[string][]string, input string) (*s
 	return nil, fmt.Errorf("unexpected type value %q", input)
 }
 
-// RunCmd is a stub that allows to display the InventoryCommand's help.
+// RunCmd is a stub that allows to display the Command's help.
 func (cmd *Command) RunCmd() {}
