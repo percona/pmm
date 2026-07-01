@@ -58,6 +58,8 @@ const (
 
 // Service is responsible alerting templates and rules creation from them.
 type Service struct {
+	alerting.UnimplementedAlertingServiceServer
+
 	db                *reform.DB
 	l                 *logrus.Entry
 	grafanaClient     grafanaClient
@@ -65,8 +67,6 @@ type Service struct {
 
 	rw        sync.RWMutex
 	templates map[string]models.Template
-
-	alerting.UnimplementedAlertingServiceServer
 }
 
 // NewService creates a new Service.

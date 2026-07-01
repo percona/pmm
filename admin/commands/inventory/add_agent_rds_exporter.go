@@ -47,6 +47,8 @@ func (res *addAgentRDSExporterResult) String() string {
 
 // AddAgentRDSExporterCommand is used by Kong for CLI flags and commands.
 type AddAgentRDSExporterCommand struct {
+	flags.LogLevelFatalFlags
+
 	PMMAgentID             string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	NodeID                 string            `arg:"" help:"Node identifier"`
 	AWSAccessKey           string            `help:"AWS Access Key ID"`
@@ -56,8 +58,6 @@ type AddAgentRDSExporterCommand struct {
 	DisableBasicMetrics    bool              `help:"Disable basic metrics"`
 	DisableEnhancedMetrics bool              `help:"Disable enhanced metrics"`
 	PushMetrics            bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
-
-	flags.LogLevelFatalFlags
 }
 
 // RunCmd executes the AddAgentRDSExporterCommand and returns the result.

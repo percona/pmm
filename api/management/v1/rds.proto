@@ -127,6 +127,12 @@ message AddRDSServiceParams {
   google.protobuf.Duration connection_timeout = 35 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // List of collector names to disable in the MySQL database exporter.
+  // Applies only when engine is DISCOVER_RDS_ENGINE_MYSQL, otherwise it is ignored.
+  repeated string mysql_disable_collectors = 36;
+  // List of collector names to disable in the PostgreSQL database exporter.
+  // Applies only when engine is DISCOVER_RDS_ENGINE_POSTGRESQL, otherwise it is ignored.
+  repeated string postgresql_disable_collectors = 37;
 }
 
 message RDSServiceResult {
