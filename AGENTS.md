@@ -248,3 +248,16 @@ All long-running daemons expose on `127.0.0.1`:
 - `dev/docs/process/tech_stack.md` — technology choices and rationale
 - `dev/docs/process/best_practices.md` — coding best practices
 - `dev/docs/process/GIT_AND_GITHUB.md` — git workflow
+
+## Cursor Cloud specific instructions
+
+The entire PMM Server dev environment runs **inside a single Docker container** (`make env-up`, using `docker-compose.dev.yml` with the default `pmm` profile). Docker is preinstalled in the VM snapshot. The startup update script ensures `.env` exists (`cp .env.dev.example .env`). Key non-obvious caveats:
+
+- **Start the Docker daemon first.** `dockerd` is not managed by systemd here. If `docker info` fails, start it (e.g. in tmux): `sudo dockerd` and then `sudo chmod 666 /var/run/docker.sock` (or use `sudo` for docker commands). Docker 29 is configured with the `fuse-overlayfs` storage driver and `containerd-snapshotter` disabled in `/etc/docker/daemon.json` — do not remove those, the VM kernel needs them.
+- **Bring up the server:** from the repo root run `make env-up` (pulls/starts `pmm-server`). First boot runs the `pmm-init` Ansible provisioning; wait ~30–60s and confirm all services with `docker exec pmm-server supervisorctl status` (postgresql, clickhouse, grafana, pmm-managed, victoriametrics, vmproxy, qan-api2, vmalert, pmm-agent should be RUNNING; `pmm-init` shows EXITED, which is normal).
+- **UI/API:** `https://localhost` (self-signed cert — use `curl -k`), credentials `admin` / `admin`. Readiness: `curl -sk https://localhost/v1/readyz`.
+- **Running Go tooling inside the container:** the default `docker exec pmm-server` user is `pmm` (uid 1000) and **cannot write** the `go-modules` volume at `/root/go/pkg/mod` (owned by root). Run Go builds/tests/lint as root: `docker exec -u root ... pmm-server` (equivalently `make env-root TARGET=...`). Also configure git once for root to avoid "dubious ownership" on the bind-mounted repo: `docker exec -u root pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm`.
+- **Go toolchain download:** `go.mod` pins `toolchain go1.26.4`, so the first `go` invocation in the container downloads it (needs network). This is expected.
+- **Dev component workflow:** rebuild+hot-swap a server component with `make env-root TARGET=run-<managed|agent|vmproxy|qan>-ci` (the non-`-ci` variants tail logs and block). Example verified: `run-vmproxy-ci`.
+- **`pmm-admin add`/`list` return "Unauthorized"** because the server has access control enabled; the in-container `pmm-admin` is not configured with server credentials. To add/inspect inventory, use the REST API with `-u admin:admin` (e.g. `POST https://localhost/v1/management/services`) or configure `pmm-admin` with the server URL + credentials. `pmm-admin status` works without extra config.
+- **Host toolchain:** the host has Go 1.22, Node 22, and Yarn 1.22 for host-local UI/agent dev (`ui/`, `agent/`), but the canonical workflow is the container above.
