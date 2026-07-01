@@ -57,4 +57,11 @@ export const FEATURE_MANAGEMENT_SETTINGS = [
     link: Messages.advanced.enableInternalPgQanLink,
     testId: 'enable-internal-pg-qan',
   },
+  {
+    name: 'nativeQan' as const,
+    label: Messages.advanced.nativeQanLabel,
+    tooltip: Messages.advanced.nativeQanTooltip,
+    link: Messages.advanced.nativeQanLink,
+    testId: 'enable-native-qan',
+  },
 ];

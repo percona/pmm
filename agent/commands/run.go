@@ -52,6 +52,7 @@ func Run() {
 	// handle termination signals
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
+
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
@@ -80,6 +81,7 @@ func Run() {
 		var wg sync.WaitGroup
 		wg.Add(3)
 		reloadCh := make(chan bool, 1)
+
 		go func() {
 			defer wg.Done()
 			supervisor.Run(ctx)
@@ -100,6 +102,7 @@ func Run() {
 
 		cleanupTmp(cfg.Paths.TempDir, l)
 		wg.Wait()
+
 		select {
 		case <-rootCtx.Done():
 			return
@@ -172,6 +175,7 @@ func cleanupTmp(tmpRoot string, log *logrus.Entry) {
 		log.Warnf("Failed to read directory '%s': %s", tmpRoot, err.Error())
 		return
 	}
+
 	for _, dir := range dirs {
 		if dir.IsDir() {
 			dirPath := filepath.Join(tmpRoot, dir.Name())

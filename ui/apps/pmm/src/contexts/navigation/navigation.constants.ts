@@ -378,12 +378,38 @@ export const NAV_VALKEY: NavItem = {
 //
 // QAN
 //
+//
+// eBPF — OTel traces & service map (dashboard bundled with PMM dashboards)
+//
+export const NAV_EBPF: NavItem = {
+  id: 'ebpf',
+  icon: 'network',
+  text: 'eBPF',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/otel-traces-clickhouse`,
+  matches: [
+    `${PMM_NEW_NAV_GRAFANA_PATH}/d/otel-traces-clickhouse`,
+    `${PMM_NEW_NAV_GRAFANA_PATH}/d/otel-traces-clickhouse/*`,
+  ],
+};
+
 export const NAV_QAN: NavItem = {
   id: 'qan',
   icon: 'qan',
   text: 'Query Analytics (QAN)',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`,
   matches: ['*', `${PMM_NEW_NAV_PATH}/rta/*`],
+};
+
+export const NAV_QAN_NATIVE: NavItem = {
+  id: 'qan',
+  icon: 'qan',
+  text: 'Query Analytics (QAN)',
+  url: `${PMM_NEW_NAV_PATH}/qan`,
+  matches: [
+    `${PMM_NEW_NAV_PATH}/qan`,
+    `${PMM_NEW_NAV_PATH}/qan/*`,
+    `${PMM_NEW_NAV_PATH}/rta/*`,
+  ],
 };
 
 //
@@ -394,6 +420,28 @@ export const NAV_RTA: NavItem = {
   icon: 'qan',
   text: 'Real-Time Query Analysis',
   url: `${PMM_NEW_NAV_PATH}/rta/selection`,
+};
+
+export const NAV_ADRE: NavItem = {
+  id: 'adre',
+  icon: 'intelligence',
+  text: 'Autonomous Database Reliability Engineer',
+  url: `${PMM_NEW_NAV_PATH}/adre`,
+};
+
+export const NAV_ADRE_USAGE: NavItem = {
+  id: 'adre-usage',
+  icon: 'intelligence',
+  text: 'AI Usage',
+  url: `${PMM_NEW_NAV_PATH}/adre/usage`,
+};
+
+export const NAV_INVESTIGATIONS: NavItem = {
+  id: 'investigations',
+  icon: 'intelligence',
+  text: 'Investigations',
+  url: `${PMM_NEW_NAV_PATH}/investigations`,
+  matches: [`${PMM_NEW_NAV_PATH}/investigations`, `${PMM_NEW_NAV_PATH}/investigations/*`],
 };
 
 //
@@ -627,6 +675,8 @@ export const NAV_CONFIGURATION: NavItem = {
     `${PMM_NEW_NAV_GRAFANA_PATH}/admin/plugins`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/datasources/correlations`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/admin/extensions`,
+    `${PMM_NEW_NAV_PATH}/configuration/ai-assistant`,
+    `${PMM_NEW_NAV_PATH}/configuration/ai-deployment`,
   ],
   children: [
     {
@@ -642,6 +692,16 @@ export const NAV_CONFIGURATION: NavItem = {
       id: 'updates',
       text: 'Updates',
       url: `${PMM_NEW_NAV_PATH}/updates`,
+    },
+    {
+      id: 'ai-assistant',
+      text: 'AI Assistant',
+      url: `${PMM_NEW_NAV_PATH}/configuration/ai-assistant`,
+    },
+    {
+      id: 'ai-deployment',
+      text: 'AI Deployment',
+      url: `${PMM_NEW_NAV_PATH}/configuration/ai-deployment`,
     },
     {
       id: 'org-management',

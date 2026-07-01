@@ -105,6 +105,8 @@ var rules = map[string]role{
 	"/v1/qan":  viewer,
 	"/v1/qan:": viewer,
 
+	"/otlp": viewer, // OTLP ingest from pmm-agent (logs/traces); viewer is enough for push
+
 	"/prometheus":      admin,
 	"/victoriametrics": admin,
 	"/nomad":           admin,
@@ -126,6 +128,19 @@ var rules = map[string]role{
 	"/v1/realtimeanalytics/services":       viewer,
 	"/v1/realtimeanalytics/queries:search": viewer,
 
+	// ADRE (Autonomous Database Reliability Engineer) / HolmesGPT.
+	"/v1/adre/qan-insights/servicenow": admin,
+	"/v1/adre/settings":                viewer,
+	"/v1/adre":                         viewer,
+
+	// Grafana panel render (image or JSON with image_url/dashboard_url).
+	"/v1/grafana/render": viewer,
+	// Observability map (intent-based dashboard/panel routing for ADRE/Holmes).
+	"/v1/grafana/observability-map": viewer,
+
+	// Investigations (AI Investigations).
+	"/v1/investigations": viewer,
+
 	// "/auth_request"  has auth_request disabled in nginx config
 
 	// "/" is a special case in this code
@@ -139,6 +154,10 @@ var methodRules = map[string]role{
 	http.MethodPost + " /v1/alerting/templates":    editor,
 	http.MethodPut + " /v1/alerting/templates/":    editor,
 	http.MethodDelete + " /v1/alerting/templates/": editor,
+
+	// ADRE settings writes are admin-only (they set integration URLs/secrets);
+	// the GET on the same path stays viewer (see rules).
+	http.MethodPost + " /v1/adre/settings": admin,
 }
 
 var lbacPrefixes = []string{

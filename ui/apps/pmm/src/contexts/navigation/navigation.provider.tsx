@@ -22,8 +22,12 @@ import {
   NAV_BACKUPS,
   NAV_DIVIDERS,
   NAV_HELP,
+  NAV_INVESTIGATIONS,
+  NAV_ADRE,
+  NAV_ADRE_USAGE,
   NAV_INVENTORY,
   NAV_QAN,
+  NAV_QAN_NATIVE,
   NAV_SIGN_IN,
 } from './navigation.constants';
 import { useFolders } from 'hooks/api/useFolders';
@@ -67,9 +71,13 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     items.push(...addDashboardItems(currentServiceTypes, folders, user));
 
-    items.push(NAV_QAN);
+    items.push(settings?.nativeQanEnabled ? NAV_QAN_NATIVE : NAV_QAN);
 
     if (user && settings) {
+      items.push(NAV_INVESTIGATIONS);
+      items.push(NAV_ADRE);
+      items.push(NAV_ADRE_USAGE);
+
       if (settings.frontend.exploreEnabled && user.isEditor) {
         items.push(addExplore('grafana-metricsdrilldown-app' in settings.frontend.apps));
       }

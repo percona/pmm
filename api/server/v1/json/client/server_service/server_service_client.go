@@ -77,9 +77,15 @@ func WithAcceptApplicationZip(r *runtime.ClientOperation) {
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	AddLogParserPreset(params *AddLogParserPresetParams, opts ...ClientOption) (*AddLogParserPresetOK, error)
+
+	ChangeLogParserPreset(params *ChangeLogParserPresetParams, opts ...ClientOption) (*ChangeLogParserPresetOK, error)
+
 	ChangeSettings(params *ChangeSettingsParams, opts ...ClientOption) (*ChangeSettingsOK, error)
 
 	CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) (*CheckUpdatesOK, error)
+
+	GetLogParserPreset(params *GetLogParserPresetParams, opts ...ClientOption) (*GetLogParserPresetOK, error)
 
 	GetReadOnlySettings(params *GetReadOnlySettingsParams, opts ...ClientOption) (*GetReadOnlySettingsOK, error)
 
@@ -89,9 +95,13 @@ type ClientService interface {
 
 	ListChangeLogs(params *ListChangeLogsParams, opts ...ClientOption) (*ListChangeLogsOK, error)
 
+	ListLogParserPresets(params *ListLogParserPresetsParams, opts ...ClientOption) (*ListLogParserPresetsOK, error)
+
 	Logs(params *LogsParams, writer io.Writer, opts ...ClientOption) (*LogsOK, error)
 
 	Readiness(params *ReadinessParams, opts ...ClientOption) (*ReadinessOK, error)
+
+	RemoveLogParserPreset(params *RemoveLogParserPresetParams, opts ...ClientOption) (*RemoveLogParserPresetOK, error)
 
 	StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*StartUpdateOK, error)
 
@@ -100,6 +110,94 @@ type ClientService interface {
 	Version(params *VersionParams, opts ...ClientOption) (*VersionOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+AddLogParserPreset adds o t e l log parser preset
+
+Creates a custom log parser preset.
+*/
+func (a *Client) AddLogParserPreset(params *AddLogParserPresetParams, opts ...ClientOption) (*AddLogParserPresetOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewAddLogParserPresetParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AddLogParserPreset",
+		Method:             "POST",
+		PathPattern:        "/v1/server/log-parser-presets",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddLogParserPresetReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*AddLogParserPresetOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*AddLogParserPresetDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ChangeLogParserPreset changes o t e l log parser preset
+
+Updates description and/or operator YAML for any preset.
+*/
+func (a *Client) ChangeLogParserPreset(params *ChangeLogParserPresetParams, opts ...ClientOption) (*ChangeLogParserPresetOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewChangeLogParserPresetParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ChangeLogParserPreset",
+		Method:             "PUT",
+		PathPattern:        "/v1/server/log-parser-presets/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeLogParserPresetReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ChangeLogParserPresetOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ChangeLogParserPresetDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -186,6 +284,50 @@ func (a *Client) CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) 
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*CheckUpdatesDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetLogParserPreset gets o t e l log parser preset
+
+Returns one log parser preset.
+*/
+func (a *Client) GetLogParserPreset(params *GetLogParserPresetParams, opts ...ClientOption) (*GetLogParserPresetOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewGetLogParserPresetParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetLogParserPreset",
+		Method:             "GET",
+		PathPattern:        "/v1/server/log-parser-presets/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetLogParserPresetReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*GetLogParserPresetOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*GetLogParserPresetDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
@@ -367,6 +509,50 @@ func (a *Client) ListChangeLogs(params *ListChangeLogsParams, opts ...ClientOpti
 }
 
 /*
+ListLogParserPresets lists o t e l log parser presets
+
+Returns all rows from log_parser_presets.
+*/
+func (a *Client) ListLogParserPresets(params *ListLogParserPresetsParams, opts ...ClientOption) (*ListLogParserPresetsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListLogParserPresetsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListLogParserPresets",
+		Method:             "GET",
+		PathPattern:        "/v1/server/log-parser-presets",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListLogParserPresetsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListLogParserPresetsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListLogParserPresetsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 Logs logs
 
 Returns the PMM Server logs.
@@ -450,6 +636,50 @@ func (a *Client) Readiness(params *ReadinessParams, opts ...ClientOption) (*Read
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ReadinessDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+RemoveLogParserPreset removes o t e l log parser preset
+
+Deletes a non-built-in preset when it is not in use.
+*/
+func (a *Client) RemoveLogParserPreset(params *RemoveLogParserPresetParams, opts ...ClientOption) (*RemoveLogParserPresetOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewRemoveLogParserPresetParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "RemoveLogParserPreset",
+		Method:             "DELETE",
+		PathPattern:        "/v1/server/log-parser-presets/{id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RemoveLogParserPresetReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*RemoveLogParserPresetOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*RemoveLogParserPresetDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

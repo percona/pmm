@@ -36,3 +36,17 @@ datasources:
     tlsSkipVerify: false
   secureJsonData:
     password: ${PMM_CLICKHOUSE_PASSWORD}
+
+# OTEL logs (and later traces) stored in ClickHouse otel.logs
+- name: ClickHouse-OTEL
+  orgId: 1
+  version: 2
+  type: grafana-clickhouse-datasource
+  jsonData:
+    username: ${PMM_CLICKHOUSE_USER}
+    port: ${PMM_CLICKHOUSE_PORT}
+    host: ${PMM_CLICKHOUSE_HOST}
+    defaultDatabase: otel
+    tlsSkipVerify: false
+  secureJsonData:
+    password: ${PMM_CLICKHOUSE_PASSWORD}

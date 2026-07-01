@@ -46,6 +46,22 @@ const (
 
 	// ClickHouseConfig specifies the configuration for ClickHouse.
 	ClickHouseConfig = "PMM_CLICKHOUSE_CONFIG"
+
+	// AdreURL is the HolmesGPT (ADRE) base URL, applied at startup to settings.
+	AdreURL = "PMM_ADRE_URL"
+
+	// AdreTLSSkipVerify disables TLS certificate verification for PMM → HolmesGPT.
+	AdreTLSSkipVerify = "PMM_ADRE_TLS_SKIP_VERIFY"
+
+	// AdreAllowInsecureURL permits plaintext http to public ADRE/ServiceNow/callback URLs (dev/lab only).
+	AdreAllowInsecureURL = "PMM_DEV_ADRE_ALLOW_INSECURE_URL"
+
+	// OrchestratorLLMProvider selects the LLM provider for Investigations (e.g. ollama).
+	OrchestratorLLMProvider = "PMM_ORCHESTRATOR_LLM_PROVIDER"
+	// OrchestratorLLMURL is the base URL of the orchestrator LLM endpoint.
+	OrchestratorLLMURL = "PMM_ORCHESTRATOR_LLM_URL"
+	// OrchestratorLLMModel selects the model name on the orchestrator LLM provider.
+	OrchestratorLLMModel = "PMM_ORCHESTRATOR_LLM_MODEL"
 )
 
 // GetBool returns the boolean value of the environment variable.

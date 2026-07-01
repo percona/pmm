@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
 )
@@ -112,6 +113,64 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Equal(t, expectedEnvVars, gotEnvVars)
 		assert.Nil(t, gotErrs)
 		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("PMM_ADRE_URL valid", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{"PMM_ADRE_URL=http://holmesgpt:8080"}
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+		assert.NotNil(t, gotEnvVars.AdreURL)
+		assert.Equal(t, "http://holmesgpt:8080", *gotEnvVars.AdreURL)
+		assert.NotNil(t, gotEnvVars.EnableAdre)
+		assert.True(t, *gotEnvVars.EnableAdre)
+	})
+
+	t.Run("PMM_ADRE_TLS_SKIP_VERIFY valid", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{"PMM_ADRE_TLS_SKIP_VERIFY=true"}
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+		require.NotNil(t, gotEnvVars.AdreTLSSkipVerify)
+		assert.True(t, *gotEnvVars.AdreTLSSkipVerify)
+	})
+
+	t.Run("PMM_ADRE_URL invalid", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{"PMM_ADRE_URL=not-a-url"}
+		gotEnvVars, gotErrs, _ := ParseEnvVars(envs)
+		assert.Len(t, gotErrs, 1)
+		assert.Contains(t, gotErrs[0].Error(), "PMM_ADRE_URL")
+		assert.Nil(t, gotEnvVars.AdreURL)
+	})
+
+	t.Run("PMM_ADRE_URL plaintext public rejected", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{"PMM_ADRE_URL=http://holmes.example.com"}
+		gotEnvVars, gotErrs, _ := ParseEnvVars(envs)
+		assert.Len(t, gotErrs, 1)
+		assert.Contains(t, gotErrs[0].Error(), "PMM_ADRE_URL")
+		assert.Nil(t, gotEnvVars.AdreURL)
+	})
+
+	t.Run("PMM_ADRE_URL plaintext public allowed with dev flag", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"PMM_ADRE_URL=http://holmes.example.com",
+			"PMM_DEV_ADRE_ALLOW_INSECURE_URL=true",
+		}
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+		require.NotNil(t, gotEnvVars.AdreURL)
+		assert.Equal(t, "http://holmes.example.com", *gotEnvVars.AdreURL)
 	})
 
 	t.Run("Skipped clickhouse env vars", func(t *testing.T) {

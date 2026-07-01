@@ -17,12 +17,14 @@ package supervisor
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"runtime/pprof"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -800,6 +802,15 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		templateParams["nomad_data_dir"] = cfg.Paths.NomadDataDir
 		processParams.Path = cfg.Paths.Nomad
 		processParams.Env = append(processParams.Env, os.Environ()...)
+	case inventoryv1.AgentType_AGENT_TYPE_OTEL_COLLECTOR:
+		scheme := "https"
+		if cfg.Server.WithoutTLS {
+			scheme = "http"
+		}
+		templateParams["server_otlp_url"] = fmt.Sprintf("%s://%s/otlp", scheme, cfg.Server.Address)
+		templateParams["server_auth_b64"] = base64.StdEncoding.EncodeToString([]byte(cfg.Server.Username + ":" + cfg.Server.Password))
+		templateParams["server_insecure"] = strconv.FormatBool(cfg.Server.InsecureTLS)
+		processParams.Path = cfg.Paths.OtelCollector
 	default:
 		return nil, fmt.Errorf("unhandled agent type %[1]s (%[1]d)", agentProcess.Type)
 	}

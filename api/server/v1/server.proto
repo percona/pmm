@@ -183,6 +183,22 @@ message Settings {
   bool enable_internal_pg_qan = 19;
   // Duration for which an update is snoozed
   google.protobuf.Duration update_snooze_duration = 20;
+  // OTEL collector and ClickHouse retention settings.
+  OtelSettings otel = 21;
+  // True if native Query Analytics UI is enabled (Technical Preview).
+  bool native_qan_enabled = 22;
+}
+
+// OtelSettings configures the server-side OTEL receiver and ClickHouse retention.
+message OtelSettings {
+  // True if the OTEL collector on PMM Server is enabled (OTLP receiver → ClickHouse).
+  bool collector_enabled = 1;
+  // TTL in days for otel.logs in ClickHouse.
+  int32 logs_retention_days = 2;
+  // TTL in days for otel.otel_traces in ClickHouse.
+  int32 traces_retention_days = 3;
+  // TTL in days for otel.otel_metrics_sum in ClickHouse.
+  int32 metrics_retention_days = 4;
 }
 
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
@@ -203,6 +219,8 @@ message ReadOnlySettings {
   bool azurediscover_enabled = 7;
   // True if Access Control is enabled.
   bool enable_access_control = 8;
+  // True if native Query Analytics UI is enabled.
+  bool native_qan_enabled = 9;
 }
 
 message GetSettingsRequest {}
@@ -243,11 +261,68 @@ message ChangeSettingsRequest {
   optional bool enable_internal_pg_qan = 14;
   // A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
   google.protobuf.Duration update_snooze_duration = 15;
+  // OTEL settings (partial update).
+  optional OtelSettings otel = 16;
+  // Enable native Query Analytics UI (Technical Preview).
+  optional bool enable_native_qan = 17;
 }
 
 message ChangeSettingsResponse {
   Settings settings = 1;
 }
+
+// LogParserPreset is one row in PostgreSQL log_parser_presets (OTEL filelog operator YAML).
+message LogParserPreset {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string operator_yaml = 4;
+  bool built_in = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+  // Number of OTEL collector agents referencing this preset name (list API only).
+  int32 usage_count = 8;
+}
+
+message ListLogParserPresetsRequest {}
+
+message ListLogParserPresetsResponse {
+  repeated LogParserPreset presets = 1;
+}
+
+message GetLogParserPresetRequest {
+  string id = 1;
+}
+
+message GetLogParserPresetResponse {
+  LogParserPreset preset = 1;
+}
+
+message AddLogParserPresetRequest {
+  string name = 1;
+  string description = 2;
+  string operator_yaml = 3;
+}
+
+message AddLogParserPresetResponse {
+  LogParserPreset preset = 1;
+}
+
+message ChangeLogParserPresetRequest {
+  string id = 1;
+  optional string description = 2;
+  optional string operator_yaml = 3;
+}
+
+message ChangeLogParserPresetResponse {
+  LogParserPreset preset = 1;
+}
+
+message RemoveLogParserPresetRequest {
+  string id = 1;
+}
+
+message RemoveLogParserPresetResponse {}
 
 // Server service provides generic PMM Server public APIs.
 service ServerService {
@@ -339,6 +414,52 @@ service ServerService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change settings"
       description: "Changes PMM Server settings."
+    };
+  }
+  // ListLogParserPresets returns all OTEL log parser presets (built-in and custom).
+  rpc ListLogParserPresets(ListLogParserPresetsRequest) returns (ListLogParserPresetsResponse) {
+    option (google.api.http) = {get: "/v1/server/log-parser-presets"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List OTEL log parser presets"
+      description: "Returns all rows from log_parser_presets."
+    };
+  }
+  // GetLogParserPreset returns a single preset by id.
+  rpc GetLogParserPreset(GetLogParserPresetRequest) returns (GetLogParserPresetResponse) {
+    option (google.api.http) = {get: "/v1/server/log-parser-presets/{id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get OTEL log parser preset"
+      description: "Returns one log parser preset."
+    };
+  }
+  // AddLogParserPreset creates a custom preset (built_in = false).
+  rpc AddLogParserPreset(AddLogParserPresetRequest) returns (AddLogParserPresetResponse) {
+    option (google.api.http) = {
+      post: "/v1/server/log-parser-presets"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add OTEL log parser preset"
+      description: "Creates a custom log parser preset."
+    };
+  }
+  // ChangeLogParserPreset updates description and/or operator_yaml. built_in and name are not changed.
+  rpc ChangeLogParserPreset(ChangeLogParserPresetRequest) returns (ChangeLogParserPresetResponse) {
+    option (google.api.http) = {
+      put: "/v1/server/log-parser-presets/{id}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change OTEL log parser preset"
+      description: "Updates description and/or operator YAML for any preset."
+    };
+  }
+  // RemoveLogParserPreset deletes a custom preset if no OTEL collector references it.
+  rpc RemoveLogParserPreset(RemoveLogParserPresetRequest) returns (RemoveLogParserPresetResponse) {
+    option (google.api.http) = {delete: "/v1/server/log-parser-presets/{id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Remove OTEL log parser preset"
+      description: "Deletes a non-built-in preset when it is not in use."
     };
   }
 }

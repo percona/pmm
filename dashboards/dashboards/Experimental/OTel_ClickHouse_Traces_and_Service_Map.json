@@ -1,0 +1,2006 @@
+{
+    "__elements": {},
+    "__requires": [
+        {
+            "id": "grafana",
+            "name": "Grafana",
+            "type": "grafana",
+            "version": "11.0.0"
+        },
+        {
+            "id": "grafana-clickhouse-datasource",
+            "name": "ClickHouse",
+            "type": "datasource",
+            "version": "4.0.0"
+        },
+        {
+            "id": "prometheus",
+            "name": "Prometheus",
+            "type": "datasource",
+            "version": ""
+        },
+        {
+            "id": "timeseries",
+            "name": "Time series",
+            "type": "panel",
+            "version": ""
+        },
+        {
+            "id": "stat",
+            "name": "Stat",
+            "type": "panel",
+            "version": ""
+        },
+        {
+            "id": "table",
+            "name": "Table",
+            "type": "panel",
+            "version": ""
+        },
+        {
+            "id": "bargauge",
+            "name": "Bar gauge",
+            "type": "panel",
+            "version": ""
+        },
+        {
+            "id": "row",
+            "name": "Row",
+            "type": "panel",
+            "version": ""
+        },
+        {
+            "id": "traces",
+            "name": "Traces",
+            "type": "panel",
+            "version": ""
+        },
+        {
+            "id": "nodeGraph",
+            "name": "Node Graph",
+            "type": "panel",
+            "version": ""
+        },
+        {
+            "id": "pmm-service-map-panel",
+            "name": "Service Map",
+            "type": "panel",
+            "version": "0.1.0"
+        }
+    ],
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+            }
+        ]
+    },
+    "description": "OpenTelemetry traces in ClickHouse (otel.otel_traces). Uses PMM-provisioned datasources **ClickHouse-OTEL** (default database `otel`) and **Metrics** (VictoriaMetrics/Prometheus). Assumes: Timestamp (DateTime/DateTime64), Duration in nanoseconds, SpanAttributes as Map (use JSON functions if your column is String). Adjust StatusCode / SpanKind literals if your exporter normalizes differently.\n\nOverview counts use $__timeFilter(Timestamp): they are totals inside the dashboard time range only (not monotonic all-time counters).\n\nThe Traces panel uses the official Grafana ClickHouse datasource trace mode (queryType traces, format 3)—the same pattern as Percona’s opentelemetry-clickhouse dashboard—not Tempo/Jaeger. Set Trace ID from the top variable or click a TraceId in the tables below. If your table has no ResourceAttributes column, edit the Traces panel SQL and replace the serviceTags expression with CAST([], 'Array(Map(String, String))') AS serviceTags.",
+    "editable": false,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "id": null,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 1,
+            "panels": [],
+            "title": "Overview",
+            "type": "row"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "description": "Number of span rows with Timestamp in the selected dashboard time range. Compare to “Distinct traces” to see average spans per trace. Not a cumulative counter unless your query ignores the time filter.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "blue",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 0,
+                "y": 1
+            },
+            "id": 2,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "11.0.0",
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "table",
+                    "rawSql": "SELECT count() AS value FROM otel.otel_traces WHERE $__timeFilter(Timestamp)",
+                    "refId": "A"
+                }
+            ],
+            "title": "Spans in time range",
+            "type": "stat"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "description": "Distinct TraceId values in the selected time range. Useful with “Spans in time range” for spans-per-trace; shrink the range to see if load is bursty vs steady.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "purple",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 6,
+                "y": 1
+            },
+            "id": 3,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "11.0.0",
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "table",
+                    "rawSql": "SELECT uniqExact(TraceId) AS value FROM otel.otel_traces WHERE $__timeFilter(Timestamp)",
+                    "refId": "A"
+                }
+            ],
+            "title": "Distinct traces (time range)",
+            "type": "stat"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "description": "Count of error-status spans in the time range. Use the panel link to jump to the error table; click TraceId there to load the Traces panel.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 12,
+                "y": 1
+            },
+            "id": 4,
+            "links": [
+                {
+                    "icon": "table",
+                    "keepTime": true,
+                    "targetBlank": false,
+                    "title": "Open Recent error spans (same dashboard)",
+                    "type": "link",
+                    "url": "/d/otel-traces-clickhouse?from=${__from}&to=${__to}&viewPanel=19"
+                }
+            ],
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "11.0.0",
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "table",
+                    "rawSql": "SELECT countIf(StatusCode IN ('Error', 'STATUS_CODE_ERROR')) AS value FROM otel.otel_traces WHERE $__timeFilter(Timestamp)",
+                    "refId": "A"
+                }
+            ],
+            "title": "Error spans (time range)",
+            "type": "stat"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "description": "Share of spans that are errors within the selected time range.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 2,
+                    "mappings": [],
+                    "max": 100,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 5
+                            }
+                        ]
+                    },
+                    "unit": "percent"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 6,
+                "x": 18,
+                "y": 1
+            },
+            "id": 5,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "11.0.0",
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "table",
+                    "rawSql": "SELECT if(count() = 0, 0, 100.0 * countIf(StatusCode IN ('Error', 'STATUS_CODE_ERROR')) / count()) AS value FROM otel.otel_traces WHERE $__timeFilter(Timestamp)",
+                    "refId": "A"
+                }
+            ],
+            "title": "Error span % (time range)",
+            "type": "stat"
+        },
+        {
+            "datasource": null,
+            "description": "Interactive service topology from recording-rule metrics with synchronized ClickHouse trace table. Click an edge to see traces.",
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 16,
+                "w": 24,
+                "x": 0,
+                "y": 5
+            },
+            "id": 30,
+            "options": {
+                "clickhouseDatasource": "ClickHouse-OTEL",
+                "errorAmberThreshold": 1,
+                "errorRedThreshold": 5,
+                "labelMode": "name",
+                "minEdgeWeight": 0,
+                "namespaceRenameMap": "",
+                "promDatasource": "Metrics"
+            },
+            "title": "Service Map",
+            "type": "pmm-service-map-panel"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "description": "Click a point → context menu (or tooltip) → data link sets dashboard time to a 2m window centered on that point and scrolls to “Spans in dashboard time range” below. TraceId column there opens the Traces panel.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 15,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [
+                        {
+                            "targetBlank": false,
+                            "title": "Open 2m window + span list (panel below)",
+                            "url": "/d/otel-traces-clickhouse?time=${__value.time}&time.window=2m&viewPanel=22"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 5
+            },
+            "id": 6,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max"
+                    ],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 0,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "timeseries",
+                    "rawSql": "SELECT\n  toStartOfInterval(Timestamp, INTERVAL $__interval_s SECOND) AS t,\n  count() / $__interval_s AS spans_per_sec\nFROM otel.otel_traces\nWHERE $__timeFilter(Timestamp)\nGROUP BY t\nORDER BY t WITH FILL STEP $__interval_s",
+                    "refId": "A"
+                }
+            ],
+            "title": "Span throughput (approx. /s)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "description": "Uses the dashboard time picker. After drilling from throughput, the range is ~2 minutes; otherwise it follows whatever range you selected. Limit 200 rows.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "footer": {
+                            "reducers": []
+                        },
+                        "inspect": false
+                    },
+                    "decimals": 3,
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "ms"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "TraceId"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 280
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Open in Traces panel",
+                                        "url": "/d/otel-traces-clickhouse?${__url_time_range}&var-trace_id=${__value.raw}&viewPanel=20"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 24,
+                "x": 0,
+                "y": 13
+            },
+            "id": 22,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Timestamp"
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "table",
+                    "rawSql": "SELECT\n  Timestamp,\n  TraceId,\n  SpanId,\n  ServiceName,\n  SpanName,\n  StatusCode,\n  Duration / 1000000 AS duration_ms\nFROM otel.otel_traces\nWHERE $__timeFilter(Timestamp)\nORDER BY Timestamp DESC\nLIMIT 200",
+                    "refId": "A"
+                }
+            ],
+            "title": "Spans in dashboard time range (throughput drill-down)",
+            "type": "table"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 20
+            },
+            "id": 7,
+            "panels": [],
+            "title": "Latency (Duration stored as nanoseconds → ms)",
+            "type": "row"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "ms"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 21
+            },
+            "id": 8,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max"
+                    ],
+                    "displayMode": "table",
+                    "placement": "right",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 0,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "timeseries",
+                    "rawSql": "SELECT\n  toStartOfInterval(Timestamp, INTERVAL $__interval_s SECOND) AS t,\n  quantile(0.5)(Duration / 1000000) AS p50_ms,\n  quantile(0.95)(Duration / 1000000) AS p95_ms,\n  quantile(0.99)(Duration / 1000000) AS p99_ms\nFROM otel.otel_traces\nWHERE $__timeFilter(Timestamp)\nGROUP BY t\nORDER BY t WITH FILL STEP $__interval_s",
+                    "refId": "A"
+                }
+            ],
+            "title": "Span duration quantiles (all spans)",
+            "type": "timeseries"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 21
+            },
+            "id": 9,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max"
+                    ],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 0,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "timeseries",
+                    "rawSql": "SELECT\n  toStartOfInterval(Timestamp, INTERVAL $__interval_s SECOND) AS t,\n  countIf(StatusCode IN ('Error', 'STATUS_CODE_ERROR')) / $__interval_s AS errors_per_sec\nFROM otel.otel_traces\nWHERE $__timeFilter(Timestamp)\nGROUP BY t\nORDER BY t WITH FILL STEP $__interval_s",
+                    "refId": "A"
+                }
+            ],
+            "title": "Error spans / s (approx.)",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 29
+            },
+            "id": 10,
+            "panels": [],
+            "title": "Breakdowns",
+            "type": "row"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "max": 100,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "dark-blue",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 20
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 50
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 30
+            },
+            "id": 11,
+            "options": {
+                "displayMode": "gradient",
+                "minVizHeight": 10,
+                "minVizWidth": 0,
+                "namePlacement": "left",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "showUnfilled": true,
+                "sizing": "auto",
+                "valueMode": "color"
+            },
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "table",
+                    "rawSql": "SELECT ServiceName AS metric, count() AS value\nFROM otel.otel_traces\nWHERE $__timeFilter(Timestamp)\nGROUP BY ServiceName\nORDER BY value DESC\nLIMIT 15",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top services by span count",
+            "type": "bargauge"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "max": 100,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "purple",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 20
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 50
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 30
+            },
+            "id": 12,
+            "options": {
+                "displayMode": "gradient",
+                "minVizHeight": 10,
+                "minVizWidth": 0,
+                "namePlacement": "left",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "showUnfilled": true,
+                "sizing": "auto",
+                "valueMode": "color"
+            },
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "table",
+                    "rawSql": "SELECT SpanName AS metric, count() AS value\nFROM otel.otel_traces\nWHERE $__timeFilter(Timestamp)\nGROUP BY SpanName\nORDER BY value DESC\nLIMIT 15",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top span names by count",
+            "type": "bargauge"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "footer": {
+                            "reducers": []
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "spans"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 24,
+                "x": 0,
+                "y": 38
+            },
+            "id": 13,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "spans"
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "table",
+                    "rawSql": "SELECT\n  SpanKind,\n  count() AS spans,\n  quantile(0.95)(Duration / 1000000) AS p95_ms,\n  countIf(StatusCode IN ('Error', 'STATUS_CODE_ERROR')) AS errors\nFROM otel.otel_traces\nWHERE $__timeFilter(Timestamp)\nGROUP BY SpanKind\nORDER BY spans DESC",
+                    "refId": "A"
+                }
+            ],
+            "title": "By SpanKind",
+            "type": "table"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 47
+            },
+            "id": 14,
+            "panels": [],
+            "title": "Dependencies & database client spans",
+            "type": "row"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "description": "Service map built from trace parent->child edges in ClickHouse. Edge stats show calls, RPS, p95 latency, and error rate. This view does not include eBPF TCP bytes/connectivity; add rr_connection_* metrics from VictoriaMetrics for that.",
+            "fieldConfig": {
+                "defaults": {},
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "mainstat"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Drill down edge",
+                                        "url": "/d/otel-traces-clickhouse?${__url_time_range}&var-edge_source=${__data.fields.source}&var-edge_target=${__data.fields.target}&viewPanel=23"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 12,
+                "w": 12,
+                "x": 0,
+                "y": 48
+            },
+            "id": 21,
+            "options": {
+                "edges": {
+                    "mainStatUnit": "short"
+                },
+                "layoutAlgorithm": "force",
+                "nodes": {
+                    "arcs": [],
+                    "mainStatUnit": "short"
+                },
+                "zoomMode": "cooperative"
+            },
+            "pluginVersion": "11.0.0",
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "hide": false,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT\n  id,\n  id AS title\nFROM (\n  SELECT coalesce(nullIf(ServiceName, ''), '(unknown)') AS id\n  FROM otel.otel_traces\n  WHERE $__timeFilter(Timestamp)\n\n  UNION DISTINCT\n\n  SELECT coalesce(\n    nullIf(trim(BOTH '\"' FROM toString(SpanAttributes['peer.service'])), ''),\n    '(external)'\n  ) AS id\n  FROM otel.otel_traces\n  WHERE $__timeFilter(Timestamp)\n    AND (\n      positionCaseInsensitive(SpanKind, 'CLIENT') > 0\n      OR SpanKind IN ('SPAN_KIND_CLIENT', 'Client', '3')\n    )\n)\nWHERE id != ''\nLIMIT 1000",
+                    "refId": "A"
+                },
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "hide": false,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT\n  concat(source, '→', target) AS id,\n  source,\n  target,\n  sum(calls) AS mainstat,\n  round(sum(weighted_p95_ms_numer) / greatest(toFloat64(sum(calls)), 1), 2) AS detail__p95_ms,\n  round(100.0 * sum(errors) / greatest(toFloat64(sum(calls)), 1), 2) AS detail__error_pct,\n  sum(calls) AS detail__calls,\n  if(sum(errors) > 0, 'red', 'green') AS color\nFROM (\n  SELECT\n    coalesce(nullIf(parent.ServiceName, ''), '(unknown)') AS source,\n    coalesce(nullIf(child.ServiceName, ''), '(unknown)') AS target,\n    count() AS calls,\n    quantile(0.95)(child.Duration / 1000000) AS p95_ms,\n    countIf(child.StatusCode IN ('Error', 'STATUS_CODE_ERROR')) AS errors,\n    quantile(0.95)(child.Duration / 1000000) * count() AS weighted_p95_ms_numer\n  FROM otel.otel_traces AS child\n  INNER JOIN otel.otel_traces AS parent\n    ON child.TraceId = parent.TraceId\n   AND child.ParentSpanId = parent.SpanId\n   AND parent.SpanId != ''\n  WHERE $__timeFilter(child.Timestamp)\n  GROUP BY source, target\n  HAVING source != target\n\n  UNION ALL\n\n  SELECT\n    coalesce(nullIf(ServiceName, ''), '(unknown)') AS source,\n    coalesce(nullIf(trim(BOTH '\"' FROM toString(SpanAttributes['peer.service'])), ''), '(external)') AS target,\n    count() AS calls,\n    quantile(0.95)(Duration / 1000000) AS p95_ms,\n    countIf(StatusCode IN ('Error', 'STATUS_CODE_ERROR')) AS errors,\n    quantile(0.95)(Duration / 1000000) * count() AS weighted_p95_ms_numer\n  FROM otel.otel_traces\n  WHERE $__timeFilter(Timestamp)\n    AND (\n      positionCaseInsensitive(SpanKind, 'CLIENT') > 0\n      OR SpanKind IN ('SPAN_KIND_CLIENT', 'Client', '3')\n    )\n  GROUP BY source, target\n  HAVING source != target\n)\nGROUP BY source, target\nORDER BY sum(calls) DESC\nLIMIT 500",
+                    "refId": "B"
+                }
+            ],
+            "title": "Service map (trace-based)",
+            "type": "nodeGraph"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Connection edges from recording rules. This panel is Prometheus/VictoriaMetrics-backed and uses rr_connection_* metrics.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.0001
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "mainstat"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Drill down edge",
+                                        "url": "/d/otel-traces-clickhouse?${__url_time_range}&var-edge_source=${__data.fields.source}&var-edge_target=${__data.fields.target}&viewPanel=23"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 12,
+                "w": 12,
+                "x": 12,
+                "y": 48
+            },
+            "id": 22,
+            "options": {
+                "edges": {
+                    "mainStatUnit": "short"
+                },
+                "layoutAlgorithm": "force",
+                "nodes": {
+                    "arcs": [],
+                    "mainStatUnit": "short"
+                },
+                "zoomMode": "cooperative"
+            },
+            "pluginVersion": "11.0.0",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "label_replace((\n  label_replace(sum by (app_id) (rr_connection_l7_requests), \"id\", \"$1\", \"app_id\", \"(.*)\")\n  OR\n  label_replace(sum by (destination) (rr_connection_l7_requests), \"id\", \"$1\", \"destination\", \"(.*)\")\n), \"title\", \"$1\", \"id\", \"(.*)\")",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "label_join(sum by (source, target) (label_replace(label_replace(rr_connection_l7_requests, \"source\", \"$1\", \"app_id\", \"(.*)\"), \"target\", \"$1\", \"destination\", \"(.*)\")), \"id\", \"→\", \"source\", \"target\")",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "B"
+                }
+            ],
+            "title": "Service map (recording rules)",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "Time #A": true,
+                            "Time #B": true
+                        },
+                        "renameByName": {
+                            "Value": "mainstat",
+                            "Value #A": "mainstat",
+                            "Value #B": "mainstat"
+                        }
+                    }
+                }
+            ],
+            "type": "nodeGraph"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "description": "Edge drilldown. Set by clicking an edge in either map panel.",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "footer": {
+                            "reducers": []
+                        },
+                        "inspect": false
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "TraceId"
+                        },
+                        "properties": [
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Open in Traces panel",
+                                        "url": "/d/otel-traces-clickhouse?${__url_time_range}&var-trace_id=${__value.raw}&viewPanel=20"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 95
+            },
+            "id": 23,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true
+            },
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "queryType": "table",
+                    "rawSql": "SELECT\n  Timestamp,\n  TraceId,\n  ServiceName,\n  SpanName,\n  StatusCode,\n  Duration / 1000000 AS duration_ms,\n  coalesce(\n    nullIf(trim(BOTH '\"' FROM toString(SpanAttributes['peer.service'])), ''),\n    nullIf(trim(BOTH '\"' FROM toString(SpanAttributes['server.address'])), ''),\n    nullIf(trim(BOTH '\"' FROM toString(SpanAttributes['net.peer.name'])), ''),\n    nullIf(trim(BOTH '\"' FROM toString(SpanAttributes['net.peer.ip'])), ''),\n    ''\n  ) AS target\nFROM otel.otel_traces\nWHERE $__timeFilter(Timestamp)\n  AND ('${edge_source}' = '' OR ServiceName = '${edge_source}')\n  AND ('${edge_target}' = '' OR target = '${edge_target}' OR ServiceName = '${edge_target}')\nORDER BY Timestamp DESC\nLIMIT 200",
+                    "refId": "A"
+                }
+            ],
+            "title": "Edge drilldown (traces)",
+            "type": "table"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "description": "Uses SpanAttributes as Map. If SpanAttributes is JSON String, replace with JSONExtractString(SpanAttributes, 'server.address').",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "footer": {
+                            "reducers": []
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 12,
+                "x": 0,
+                "y": 60
+            },
+            "id": 15,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "calls"
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "table",
+                    "rawSql": "SELECT\n  ServiceName AS client_service,\n  coalesce(nullIf(trim(BOTH '\"' FROM toString(SpanAttributes['server.address'])), ''), nullIf(trim(BOTH '\"' FROM toString(SpanAttributes['net.peer.name'])), ''), '(internal)') AS peer,\n  count() AS calls,\n  quantile(0.95)(Duration / 1000000) AS p95_ms\nFROM otel.otel_traces\nWHERE $__timeFilter(Timestamp)\n  AND (\n    positionCaseInsensitive(SpanKind, 'CLIENT') > 0\n    OR SpanKind IN ('SPAN_KIND_CLIENT', 'Client', '3')\n  )\nGROUP BY client_service, peer\nORDER BY calls DESC\nLIMIT 50",
+                    "refId": "A"
+                }
+            ],
+            "title": "Client spans → peer (server.address / net.peer.name)",
+            "type": "table"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "description": "Requires db.system in SpanAttributes. If using JSON column, use JSONHas / JSONExtractString instead of mapContains.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "footer": {
+                            "reducers": []
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 12,
+                "x": 12,
+                "y": 60
+            },
+            "id": 16,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "spans"
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "table",
+                    "rawSql": "SELECT\n  coalesce(nullIf(trim(BOTH '\"' FROM toString(SpanAttributes['db.system'])), ''), '(unknown)') AS db_system,\n  coalesce(nullIf(trim(BOTH '\"' FROM toString(SpanAttributes['db.name'])), ''), '') AS db_name,\n  count() AS spans,\n  quantile(0.95)(Duration / 1000000) AS p95_ms,\n  countIf(StatusCode IN ('Error', 'STATUS_CODE_ERROR')) AS errors\nFROM otel.otel_traces\nWHERE $__timeFilter(Timestamp)\n  AND mapContains(SpanAttributes, 'db.system')\nGROUP BY db_system, db_name\nORDER BY spans DESC\nLIMIT 40",
+                    "refId": "A"
+                }
+            ],
+            "title": "Database client spans (db.system / db.name)",
+            "type": "table"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 70
+            },
+            "id": 17,
+            "panels": [],
+            "title": "Slow traces & recent errors",
+            "type": "row"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "description": "Native Grafana Traces visualization fed by ClickHouse (grafana-clickhouse-datasource queryType=traces). Enter Trace ID above or click a TraceId in the tables below. duration is ns→ms via multiply(Duration, 1e-6).",
+            "gridPos": {
+                "h": 14,
+                "w": 24,
+                "x": 0,
+                "y": 71
+            },
+            "id": 20,
+            "targets": [
+                {
+                    "builderOptions": {
+                        "columns": [
+                            {
+                                "hint": "trace_id",
+                                "name": "TraceId"
+                            },
+                            {
+                                "hint": "trace_span_id",
+                                "name": "SpanId"
+                            },
+                            {
+                                "hint": "trace_parent_span_id",
+                                "name": "ParentSpanId"
+                            },
+                            {
+                                "hint": "trace_service_name",
+                                "name": "ServiceName"
+                            },
+                            {
+                                "hint": "trace_operation_name",
+                                "name": "SpanName"
+                            },
+                            {
+                                "hint": "time",
+                                "name": "Timestamp"
+                            },
+                            {
+                                "hint": "trace_duration_time",
+                                "name": "Duration"
+                            },
+                            {
+                                "hint": "trace_tags",
+                                "name": "SpanAttributes"
+                            },
+                            {
+                                "hint": "trace_service_tags",
+                                "name": "ResourceAttributes"
+                            },
+                            {
+                                "hint": "trace_status_code",
+                                "name": "StatusCode"
+                            }
+                        ],
+                        "database": "otel",
+                        "filters": [
+                            {
+                                "condition": "AND",
+                                "filterType": "custom",
+                                "hint": "time",
+                                "key": "",
+                                "operator": "WITH IN DASHBOARD TIME RANGE",
+                                "type": "datetime"
+                            },
+                            {
+                                "condition": "AND",
+                                "filterType": "custom",
+                                "hint": "trace_service_name",
+                                "key": "",
+                                "operator": "IS ANYTHING",
+                                "type": "string",
+                                "value": ""
+                            }
+                        ],
+                        "limit": 1000,
+                        "meta": {
+                            "isTraceIdMode": true,
+                            "otelEnabled": true,
+                            "otelVersion": "latest",
+                            "traceDurationUnit": "nanoseconds",
+                            "traceId": "${trace_id}"
+                        },
+                        "mode": "list",
+                        "orderBy": [
+                            {
+                                "default": true,
+                                "dir": "ASC",
+                                "hint": "time",
+                                "name": ""
+                            }
+                        ],
+                        "queryType": "traces",
+                        "table": "otel_traces"
+                    },
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 3,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 100,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "pluginVersion": "4.0.0",
+                    "queryType": "traces",
+                    "rawSql": "WITH '${trace_id}' AS trace_id\nSELECT\n  TraceId AS traceID,\n  SpanId AS spanID,\n  ParentSpanId AS parentSpanID,\n  ServiceName AS serviceName,\n  SpanName AS operationName,\n  Timestamp AS startTime,\n  multiply(Duration, 0.000001) AS duration,\n  arrayMap(key -> map('key', key, 'value', toString(SpanAttributes[key])), mapKeys(SpanAttributes)) AS tags,\n  arrayMap(key -> map('key', key, 'value', toString(ResourceAttributes[key])), mapKeys(ResourceAttributes)) AS serviceTags\nFROM otel.otel_traces\nWHERE trace_id != ''\n  AND TraceId = trace_id\n  AND $__timeFilter(Timestamp)\nORDER BY Timestamp ASC\nLIMIT 1000",
+                    "refId": "A"
+                }
+            ],
+            "title": "Trace (ClickHouse → Traces panel)",
+            "type": "traces"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "description": "Click TraceId to set the dashboard variable and load the trace in the Traces panel above.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "footer": {
+                            "reducers": []
+                        },
+                        "inspect": false
+                    },
+                    "decimals": 3,
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "ms"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "TraceId"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 280
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Open in Traces panel",
+                                        "url": "/d/otel-traces-clickhouse?${__url_time_range}&var-trace_id=${__value.raw}&viewPanel=20"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 12,
+                "x": 0,
+                "y": 85
+            },
+            "id": 18,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "max_span_ms"
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "table",
+                    "rawSql": "SELECT\n  TraceId,\n  max(Duration) / 1000000 AS max_span_ms,\n  sum(Duration) / 1000000 AS sum_span_ms,\n  count() AS span_count,\n  anyHeavy(ServiceName) AS sample_service,\n  anyHeavy(SpanName) AS sample_span\nFROM otel.otel_traces\nWHERE $__timeFilter(Timestamp)\nGROUP BY TraceId\nORDER BY max_span_ms DESC\nLIMIT 40",
+                    "refId": "A"
+                }
+            ],
+            "title": "Slowest traces (by max span duration)",
+            "type": "table"
+        },
+        {
+            "datasource": "ClickHouse-OTEL",
+            "description": "Click TraceId to load that trace in the Traces panel (same datasource, queryType traces).",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "footer": {
+                            "reducers": []
+                        },
+                        "inspect": false
+                    },
+                    "decimals": 3,
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "ms"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "TraceId"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 280
+                            },
+                            {
+                                "id": "links",
+                                "value": [
+                                    {
+                                        "targetBlank": false,
+                                        "title": "Open in Traces panel",
+                                        "url": "/d/otel-traces-clickhouse?${__url_time_range}&var-trace_id=${__value.raw}&viewPanel=20"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 12,
+                "x": 12,
+                "y": 85
+            },
+            "id": 19,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": true,
+                        "displayName": "Timestamp"
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "datasource": "ClickHouse-OTEL",
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "queryType": "table",
+                    "rawSql": "SELECT\n  Timestamp,\n  TraceId,\n  SpanId,\n  ServiceName,\n  SpanName,\n  StatusCode,\n  Duration / 1000000 AS duration_ms\nFROM otel.otel_traces\nWHERE $__timeFilter(Timestamp)\n  AND StatusCode IN ('Error', 'STATUS_CODE_ERROR')\nORDER BY Timestamp DESC\nLIMIT 100",
+                    "refId": "A"
+                }
+            ],
+            "title": "Recent error spans",
+            "type": "table"
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 39,
+    "tags": [
+        "otel",
+        "clickhouse",
+        "traces"
+    ],
+    "templating": {
+        "list": [
+            {
+                "current": {
+                    "selected": false,
+                    "text": "",
+                    "value": ""
+                },
+                "hide": 0,
+                "label": "Trace ID",
+                "name": "trace_id",
+                "options": [
+                    {
+                        "selected": true,
+                        "text": "",
+                        "value": ""
+                    }
+                ],
+                "query": "",
+                "skipUrlSync": false,
+                "type": "textbox"
+            },
+            {
+                "current": {
+                    "selected": false,
+                    "text": "",
+                    "value": ""
+                },
+                "hide": 0,
+                "label": "Edge source",
+                "name": "edge_source",
+                "options": [
+                    {
+                        "selected": true,
+                        "text": "",
+                        "value": ""
+                    }
+                ],
+                "query": "",
+                "skipUrlSync": false,
+                "type": "textbox"
+            },
+            {
+                "current": {
+                    "selected": false,
+                    "text": "",
+                    "value": ""
+                },
+                "hide": 0,
+                "label": "Edge target",
+                "name": "edge_target",
+                "options": [
+                    {
+                        "selected": true,
+                        "text": "",
+                        "value": ""
+                    }
+                ],
+                "query": "",
+                "skipUrlSync": false,
+                "type": "textbox"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-12h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "OTEL traces — ClickHouse (otel.otel_traces)",
+    "uid": "otel-traces-clickhouse",
+    "version": 2,
+    "weekStart": ""
+}

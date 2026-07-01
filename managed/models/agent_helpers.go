@@ -519,6 +519,22 @@ func FindPMMAgentsForVersion(logger *logrus.Entry, agents []*Agent, minPMMAgentV
 	return result
 }
 
+// FindOtelCollectorAgentsForPMMAgent returns active otel_collector inventory rows for a pmm-agent (may be empty).
+func FindOtelCollectorAgentsForPMMAgent(q *reform.Querier, pmmAgentID string) ([]*Agent, error) {
+	structs, err := q.SelectAllFrom(AgentTable,
+		"WHERE agent_type = $1 AND pmm_agent_id = $2 AND NOT disabled ORDER BY agent_id",
+		OtelCollectorType, pmmAgentID)
+	if err != nil {
+		return nil, err
+	}
+	res := make([]*Agent, len(structs))
+	for i, s := range structs {
+		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		res[i] = &decryptedAgent
+	}
+	return res, nil
+}
+
 // FindAgentsForScrapeConfig returns Agents for scrape config generation by pmm_agent_id and push_metrics value.
 func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetrics bool) ([]*Agent, error) {
 	var (

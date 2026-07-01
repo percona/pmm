@@ -1,4 +1,4 @@
-import { CircularProgress, Stack } from '@mui/material';
+import { Box, CircularProgress, Stack } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { useAuth } from 'contexts/auth';
 import { useBootstrap } from 'hooks/utils/useBootstrap';
@@ -8,6 +8,7 @@ import { useGrafana } from 'contexts/grafana';
 import { useUser } from 'contexts/user';
 import { UpdateModal } from 'components/main/update-modal';
 import { DelayedRender } from 'components/delayed-render';
+import { AdreChatWidget } from 'components/adre/AdreChatWidget';
 import { SHOW_UPDATE_INFO_DELAY_MS } from 'lib/constants';
 import { isRenderingServer } from '@pmm/shared';
 import Header from './header/Header';
@@ -22,6 +23,7 @@ const useMainNavVisible = () => {
 
 export const MainWithNav = () => {
   const { isReady } = useBootstrap();
+  const { isOnGrafanaPage } = useGrafana();
   const showNav = useMainNavVisible();
 
   if (!isReady) {
@@ -40,16 +42,29 @@ export const MainWithNav = () => {
   }
 
   return (
-    <Stack direction="row" flex={1} sx={{ minWidth: 0 }}>
+    <Stack direction="row" flex={1} sx={{ minHeight: 0, minWidth: 0, height: '100%', width: '100%' }}>
       {showNav && <Sidebar />}
-      <Stack flex={1} direction="column" sx={{ minWidth: 0 }}>
+      <Stack flex={1} direction="column" sx={{ minHeight: 0, minWidth: 0, height: '100%', width: '100%' }}>
         {showNav && <Header />}
-        <Outlet />
+        <Box
+          sx={{
+            flex: '1 1 0%',
+            minHeight: 0,
+            minWidth: 0,
+            width: '100%',
+            display: isOnGrafanaPage ? 'none' : 'flex',
+            flexDirection: 'column',
+            overflow: 'auto',
+          }}
+        >
+          <Outlet />
+        </Box>
         <GrafanaPage />
       </Stack>
       <DelayedRender delay={SHOW_UPDATE_INFO_DELAY_MS}>
         <UpdateModal />
       </DelayedRender>
+      {showNav && <AdreChatWidget />}
     </Stack>
   );
 };

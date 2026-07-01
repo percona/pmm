@@ -28,6 +28,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	pkgenv "github.com/percona/pmm/managed/utils/env"
+	"github.com/percona/pmm/managed/utils/validators"
 )
 
 const (
@@ -65,6 +66,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
+//   - PMM_ADRE_URL sets the HolmesGPT (ADRE) base URL at startup and enables ADRE (e.g. http://holmesgpt:8080).
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
 //   - the environment variables relating to proxies
 //   - the environment variable set by podman
@@ -72,6 +74,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 	envSettings := &models.ChangeSettingsParams{}
 	var errs []error
 	var warns []string
+
+	// Resolved up front so it applies regardless of where it sits relative to PMM_ADRE_URL in the list.
+	allowInsecureAdreURL := envFlagEnabled(envs, pkgenv.AdreAllowInsecureURL)
 
 	for _, env := range envs {
 		p := strings.SplitN(env, "=", 2) //nolint:mnd
@@ -224,6 +229,32 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			if err != nil {
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
 			}
+
+		case pkgenv.AdreURL:
+			trimmed := strings.TrimSpace(v)
+			if trimmed == "" {
+				envSettings.AdreURL = new("")
+				envSettings.EnableAdre = new(false)
+				continue
+			}
+			if _, err := validators.RequireSecureServiceURL(trimmed, allowInsecureAdreURL); err != nil { //nolint:noinlineerr
+				errs = append(errs, fmt.Errorf("environment variable %q: %w", k, err))
+				continue
+			}
+			envSettings.AdreURL = new(trimmed)
+			envSettings.EnableAdre = new(true)
+
+		case pkgenv.AdreTLSSkipVerify:
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
+			}
+			envSettings.AdreTLSSkipVerify = &b
+
+		case pkgenv.OrchestratorLLMProvider, pkgenv.OrchestratorLLMURL, pkgenv.OrchestratorLLMModel:
+			// Orchestrator (Ollama) settings removed; ignore these env vars.
+			continue
 
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue
@@ -409,4 +440,17 @@ func formatEnvVariableError(err error, env, value string) error {
 	default:
 		return fmt.Errorf("unknown error: %w", err)
 	}
+}
+
+// envFlagEnabled reports whether the named PMM_* boolean env var is set to a truthy value in envs.
+func envFlagEnabled(envs []string, name string) bool {
+	for _, env := range envs {
+		k, v, ok := strings.Cut(env, "=")
+		if !ok || strings.ToUpper(strings.TrimSpace(k)) != name {
+			continue
+		}
+		b, err := strconv.ParseBool(strings.TrimSpace(v))
+		return err == nil && b
+	}
+	return false
 }

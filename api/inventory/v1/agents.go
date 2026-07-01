@@ -44,3 +44,4 @@ func (*ExternalExporter) sealedAgent()                {}
 func (*AzureDatabaseExporter) sealedAgent()           {}
 func (*ValkeyExporter) sealedAgent()                  {}
 func (*RTAMongoDBAgent) sealedAgent()                 {}
+func (*OtelCollector) sealedAgent()                   {}

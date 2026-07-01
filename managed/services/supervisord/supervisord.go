@@ -39,11 +39,13 @@ import (
 	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/otel"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
 const (
+	otelCollectorConfigPath             = "/srv/otelcol/config.yaml"
 	defaultClickhouseDatabase           = "pmm"
 	defaultClickhouseAddr               = "127.0.0.1:9000"
 	defaultClickhouseUser               = "default"
@@ -184,6 +186,12 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 	s.supervisordConfigsM.Lock()
 	defer s.supervisordConfigsM.Unlock()
 
+	s.ensureOtelClickHouseSchemas(settings)
+	werr := s.writeOtelCollectorConfigFile(settings)
+	if werr != nil {
+		s.l.Warnf("Failed to write OTEL collector YAML: %s.", werr)
+	}
+
 	var err error
 
 	err = s.vmParams.UpdateParams()
@@ -236,6 +244,40 @@ func (s *Service) StartSupervisedService(serviceName string) error {
 // StopSupervisedService stops given service.
 func (s *Service) StopSupervisedService(serviceName string) error {
 	return s.supervisorctl("stop", serviceName)
+}
+
+func (s *Service) ensureOtelClickHouseSchemas(settings *models.Settings) {
+	ctx := context.Background()
+	addr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
+	username := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
+	password := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
+	chURI := url.URL{
+		Scheme: "tcp",
+		User:   url.UserPassword(username, password),
+		Host:   addr,
+		Path:   "/default",
+	}
+	dsn := chURI.String()
+	err := otel.EnsureOtelSchema(ctx, dsn, settings.GetOtelLogsRetentionDays())
+	if err != nil {
+		s.l.Warnf("Failed to ensure OTEL logs ClickHouse schema: %s.", err)
+	}
+	err = otel.EnsureOtelTracesMetricsAndServiceMapTables(ctx, dsn, settings.GetOtelTracesRetentionDays(), settings.GetOtelMetricsRetentionDays())
+	if err != nil {
+		s.l.Warnf("Failed to ensure OTEL traces/metrics/service map ClickHouse schema: %s.", err)
+	}
+}
+
+func (s *Service) writeOtelCollectorConfigFile(settings *models.Settings) error {
+	addr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
+	username := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
+	password := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
+	yaml := buildOtelCollectorConfigYAML(addr, username, password, settings.GetOtelLogsRetentionDays(), settings.GetOtelTracesRetentionDays(), settings.GetOtelMetricsRetentionDays()) //nolint:lll
+	err := os.MkdirAll(filepath.Dir(otelCollectorConfigPath), 0o755)                                                                                                                   //nolint:gosec,lll,mnd
+	if err != nil {
+		return fmt.Errorf("mkdir otelcol: %w", err)
+	}
+	return os.WriteFile(otelCollectorConfigPath, []byte(yaml), 0o644) //nolint:gosec,mnd
 }
 
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
@@ -401,6 +443,22 @@ stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true
 {{end}}
+
+{{define "otel-collector"}}
+[program:otel-collector]
+priority = 6
+command = /usr/local/percona/pmm/tools/otelcol-contrib --config=/srv/otelcol/config.yaml
+autorestart = true
+autostart = {{ .OtelCollectorAutostart }}
+startretries = 10
+startsecs = 1
+stopsignal = INT
+stopwaitsecs = 60
+stdout_logfile = /srv/logs/otel-collector.log
+stdout_logfile_maxbytes = 10MB
+stdout_logfile_backups = 3
+redirect_stderr = true
+{{end}}
 `))
 
 func (s *Service) supervisorctl(args ...string) error {
@@ -499,6 +557,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 	s.addPostgresParams(templateParams)
 	s.addClusterParams(templateParams)
+	templateParams["OtelCollectorAutostart"] = settings.IsOtelCollectorEnabled()
 
 	if settings.PMMPublicAddress != "" {
 		pmmPublicAddress := settings.PMMPublicAddress

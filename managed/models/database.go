@@ -12,7 +12,10 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+// Package models provides the data models for the managed package and
+// the schema-migration machinery used by pmm-managed at startup.
+//
+//nolint:lll
 package models
 
 import (
@@ -24,6 +27,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -78,6 +82,30 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 			{Name: "mongo_options", CustomHandler: EncryptMongoDBOptionsHandler},
 			{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
 			{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
+		},
+	},
+	{
+		// ADRE LLM model list; api_key is the LLM provider key. Identified by the unique VARCHAR name
+		// so the BIGINT id is never scanned by the column encryptor.
+		Name:        "adre_models",
+		Identifiers: []string{"name"},
+		Columns: []encryption.Column{
+			{Name: "api_key"},
+		},
+	},
+	{
+		// ADRE provisioning singleton: minted/integration secrets. Identified by the BOOLEAN id
+		// (supported by prepareRowPointers as an identifier-only type).
+		Name:        "adre_provisioning",
+		Identifiers: []string{"id"},
+		Columns: []encryption.Column{
+			{Name: "holmes_api_key"},
+			{Name: "pmm_sa_token"},
+			{Name: "servicenow_api_key"},
+			{Name: "servicenow_client_token"},
+			{Name: "slack_bot_token"},
+			{Name: "slack_app_token"},
+			{Name: "alert_webhook_secret"},
 		},
 	},
 }
@@ -1178,12 +1206,614 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents ADD COLUMN rta_options JSONB`,
 		`UPDATE agents SET rta_options = '{}'::jsonb`,
 	},
-	117: {
+	127: {
+		`CREATE TABLE log_parser_presets (
+			id VARCHAR NOT NULL,
+			name VARCHAR NOT NULL,
+			description TEXT,
+			operator_yaml TEXT NOT NULL,
+			built_in BOOLEAN NOT NULL DEFAULT false,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+			PRIMARY KEY (id),
+			UNIQUE (name)
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'00000000-0000-4000-8000-000000000001',
+			'mysql_error',
+			'MySQL 8 error log format (timestamp thread_id [Subsystem] [CODE] [Component] message)',
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z) (?P<thread_id>\d+) \[(?P<subsystem>[^\]]+)\] \[(?P<code>[^\]]+)\] \[(?P<component>[^\]]+)\] (?P<message>.*)$'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006-01-02T15:04:05.000000Z'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.subsystem
+  preset: none
+  mapping:
+    System: info
+    Warning: warn
+    Error: error
+- type: move
+  from: attributes.message
+  to: body
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+	},
+	128: {
+		// Server log presets: used by pmm-agent on the server (and optionally elsewhere) for nginx, grafana, pmm-managed, pmm-agent, postgres.
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'nginx_access',
+			'nginx_access',
+			'Nginx access log (logfmt: time=..., host=..., status=...)',
+			$yaml$- type: key_value_parser
+  parse_from: body
+  parse_to: attributes
+  pair_delimiter: " "
+  key_value_delimiter: "="
+- type: time_parser
+  parse_from: attributes.time
+  layout: '2006-01-02T15:04:05Z07:00'
+  layout_type: gotime
+- type: add
+  field: attributes.level
+  value: 'EXPR(int(attributes.status) >= 500 ? "error" : (int(attributes.status) >= 400 ? "warn" : "info"))'
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    info: info
+    warn: warn
+    error: error
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'nginx_error',
+			'nginx_error',
+			'Nginx error log (timestamp [level] pid#tid: message)',
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}) \[(?P<level>\w+)\] (?P<pid>\d+)#(?P<tid>\d+): (?P<message>.*?)(?:, client: (?P<client>[^,]+))?(?:, server: (?P<server>[^,]+))?(?:, request: "(?P<request>[^"]*)")?(?:, host: "(?P<host>[^"]*)")?.*'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006/01/02 15:04:05'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    debug: debug
+    info: info
+    notice: info
+    warn: warn
+    error: error
+    crit: fatal
+    alert: fatal
+    emerg: fatal
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'grafana',
+			'grafana',
+			'Grafana log (logfmt, time with 9 fractional digits)',
+			$yaml$- type: key_value_parser
+  parse_from: body
+  parse_to: attributes
+  pair_delimiter: " "
+  key_value_delimiter: "="
+- type: time_parser
+  parse_from: attributes.t
+  layout: '2006-01-02T15:04:05.000000000Z07:00'
+  layout_type: gotime
+  on_error: drop
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    debug: debug
+    info: info
+    warn: warn
+    error: error
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'pmm_managed',
+			'pmm_managed',
+			'PMM-managed log (logfmt)',
+			$yaml$- type: key_value_parser
+  parse_from: body
+  parse_to: attributes
+  pair_delimiter: " "
+  key_value_delimiter: "="
+- type: time_parser
+  parse_from: attributes.time
+  layout: '2006-01-02T15:04:05.000Z07:00'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    debug: debug
+    info: info
+    warning: warn
+    warn: warn
+    error: error
+    fatal: fatal
+    panic: fatal
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'pmm_agent',
+			'pmm_agent',
+			'PMM-agent log (logfmt)',
+			$yaml$- type: key_value_parser
+  parse_from: body
+  parse_to: attributes
+  pair_delimiter: " "
+  key_value_delimiter: "="
+- type: time_parser
+  parse_from: attributes.time
+  layout: '2006-01-02T15:04:05.000Z07:00'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    debug: debug
+    info: info
+    warning: warn
+    warn: warn
+    error: error
+    fatal: fatal
+    panic: fatal
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'postgres',
+			'postgres',
+			'PostgreSQL log (timestamp UTC [pid] level: message)',
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+) UTC \[(?P<pid>\d+)\] (?P<level>\w+):\s*(?P<message>.*)$'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006-01-02 15:04:05.000 UTC'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    debug: debug
+    info: info
+    notice: info
+    warning: warn
+    warn: warn
+    error: error
+    fatal: fatal
+    panic: fatal
+    LOG: info
+    STATEMENT: info
+- type: move
+  from: attributes.message
+  to: body
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+	},
+	129: {
+		// Additional PMM server log presets: clickhouse, otel-collector, supervisord.
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'clickhouse_server',
+			'clickhouse_server',
+			'ClickHouse server log (timestamp [pid] {} <Level> message)',
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}\.\d+) .*? <(?P<level>\w+)> (?P<message>.*)$'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006.01.02 15:04:05.000000'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    Trace: debug
+    Debug: debug
+    Information: info
+    Warning: warn
+    Error: error
+- type: move
+  from: attributes.message
+  to: body
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'otel_collector',
+			'otel_collector',
+			'OTEL Collector log (tab-separated: timestamp, level, message)',
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>[\d\-T:Z\.]+)\t(?P<level>\w+)\t(?P<message>.*)$'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006-01-02T15:04:05.000Z'
+  layout_type: gotime
+  on_error: drop
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    debug: debug
+    info: info
+    warn: warn
+    error: error
+- type: move
+  from: attributes.message
+  to: body
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'supervisord',
+			'supervisord',
+			'Supervisord log (timestamp,ms LEVEL message)',
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d+) (?P<level>\w+) (?P<message>.*)$'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006-01-02 15:04:05,000'
+  layout_type: gotime
+- type: severity_parser
+  parse_from: attributes.level
+  preset: none
+  mapping:
+    INFO: info
+    WARN: warn
+    ERROR: error
+    CRIT: fatal
+- type: move
+  from: attributes.message
+  to: body
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+	},
+	130: {
+		// PMM AI Investigations: persistent incident reports with blocks, comments, chat.
+		`CREATE TABLE investigations (
+			id VARCHAR NOT NULL,
+			title VARCHAR NOT NULL,
+			status VARCHAR NOT NULL,
+			severity VARCHAR NOT NULL DEFAULT '',
+			created_at TIMESTAMPTZ NOT NULL,
+			updated_at TIMESTAMPTZ NOT NULL,
+			created_by VARCHAR NOT NULL DEFAULT '',
+			time_from TIMESTAMPTZ NOT NULL,
+			time_to TIMESTAMPTZ NOT NULL,
+			summary TEXT NOT NULL DEFAULT '',
+			summary_detailed TEXT NOT NULL DEFAULT '',
+			root_cause_summary TEXT NOT NULL DEFAULT '',
+			resolution_summary TEXT NOT NULL DEFAULT '',
+			source_type VARCHAR NOT NULL DEFAULT 'manual',
+			source_ref VARCHAR NOT NULL DEFAULT '',
+			tags JSONB,
+			config JSONB,
+			PRIMARY KEY (id)
+		)`,
+		`CREATE TABLE investigation_blocks (
+			id VARCHAR NOT NULL,
+			investigation_id VARCHAR NOT NULL,
+			type VARCHAR NOT NULL,
+			title VARCHAR NOT NULL DEFAULT '',
+			position INTEGER NOT NULL,
+			config_json JSONB,
+			data_json JSONB,
+			created_at TIMESTAMPTZ NOT NULL,
+			updated_at TIMESTAMPTZ NOT NULL,
+			created_by VARCHAR NOT NULL DEFAULT '',
+			updated_by VARCHAR NOT NULL DEFAULT '',
+			PRIMARY KEY (id),
+			FOREIGN KEY (investigation_id) REFERENCES investigations (id) ON DELETE CASCADE
+		)`,
+		`CREATE TABLE investigation_artifacts (
+			id VARCHAR NOT NULL,
+			investigation_id VARCHAR NOT NULL,
+			type VARCHAR NOT NULL,
+			uri_or_blob_ref TEXT NOT NULL DEFAULT '',
+			source TEXT NOT NULL DEFAULT '',
+			metadata_json JSONB,
+			created_at TIMESTAMPTZ NOT NULL,
+			PRIMARY KEY (id),
+			FOREIGN KEY (investigation_id) REFERENCES investigations (id) ON DELETE CASCADE
+		)`,
+		`CREATE TABLE investigation_messages (
+			id VARCHAR NOT NULL,
+			investigation_id VARCHAR NOT NULL,
+			role VARCHAR NOT NULL,
+			content TEXT NOT NULL DEFAULT '',
+			tool_name VARCHAR NOT NULL DEFAULT '',
+			tool_result_json JSONB,
+			created_at TIMESTAMPTZ NOT NULL,
+			PRIMARY KEY (id),
+			FOREIGN KEY (investigation_id) REFERENCES investigations (id) ON DELETE CASCADE
+		)`,
+		`CREATE TABLE investigation_comments (
+			id VARCHAR NOT NULL,
+			investigation_id VARCHAR NOT NULL,
+			block_id VARCHAR,
+			anchor_json JSONB,
+			author VARCHAR NOT NULL DEFAULT '',
+			content TEXT NOT NULL DEFAULT '',
+			created_at TIMESTAMPTZ NOT NULL,
+			updated_at TIMESTAMPTZ NOT NULL,
+			PRIMARY KEY (id),
+			FOREIGN KEY (investigation_id) REFERENCES investigations (id) ON DELETE CASCADE
+		)`,
+		`CREATE TABLE investigation_timeline_events (
+			id VARCHAR NOT NULL,
+			investigation_id VARCHAR NOT NULL,
+			event_time TIMESTAMPTZ NOT NULL,
+			type VARCHAR NOT NULL DEFAULT '',
+			title VARCHAR NOT NULL DEFAULT '',
+			description TEXT NOT NULL DEFAULT '',
+			source VARCHAR NOT NULL DEFAULT '',
+			metadata_json JSONB,
+			PRIMARY KEY (id),
+			FOREIGN KEY (investigation_id) REFERENCES investigations (id) ON DELETE CASCADE
+		)`,
+		`CREATE INDEX idx_investigation_blocks_investigation_id ON investigation_blocks (investigation_id)`,
+		`CREATE INDEX idx_investigation_artifacts_investigation_id ON investigation_artifacts (investigation_id)`,
+		`CREATE INDEX idx_investigation_messages_investigation_id ON investigation_messages (investigation_id)`,
+		`CREATE INDEX idx_investigation_comments_investigation_id ON investigation_comments (investigation_id)`,
+		`CREATE INDEX idx_investigation_timeline_events_investigation_id ON investigation_timeline_events (investigation_id)`,
+	},
+	131: {
+		`ALTER TABLE investigations ADD COLUMN IF NOT EXISTS servicenow_ticket_id VARCHAR NOT NULL DEFAULT ''`,
+	},
+	132: {
+		`ALTER TABLE investigations ADD COLUMN IF NOT EXISTS servicenow_ticket_number VARCHAR NOT NULL DEFAULT ''`,
+	},
+	133: {
+		`CREATE TABLE IF NOT EXISTS qan_insights_cache (
+			id VARCHAR NOT NULL,
+			query_id VARCHAR NOT NULL,
+			service_id VARCHAR NOT NULL,
+			fingerprint VARCHAR NOT NULL DEFAULT '',
+			time_from VARCHAR NOT NULL DEFAULT '',
+			time_to VARCHAR NOT NULL DEFAULT '',
+			analysis TEXT NOT NULL,
+			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			PRIMARY KEY (id)
+		)`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_qan_insights_cache_query_service ON qan_insights_cache (query_id, service_id)`,
+	},
+	134: {
+		// Syslog / journal-style line: ISO8601 host tag[pid]: message (mysqld[8794], (mysqled)[9049], systemd[1], CRON[123], …).
+		`INSERT INTO log_parser_presets (id, name, description, operator_yaml, built_in, created_at, updated_at) VALUES (
+			'syslog_mysql_systemd',
+			'syslog_mysql_systemd',
+			'Syslog/journal line: ISO8601 host tag[pid]: message (e.g. mysqld[8794], systemd[1], (mysqled)[9049], CRON[1])',
+			$yaml$- type: regex_parser
+  regex: '^(?P<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2}))\s+(?P<host>\S+)\s+(?P<tag>\S+):\s*(?P<message>.*)$'
+  parse_from: body
+  parse_to: attributes
+- type: time_parser
+  parse_from: attributes.timestamp
+  layout: '2006-01-02T15:04:05.999999999Z07:00'
+  layout_type: gotime
+  on_error: send
+- type: move
+  from: attributes.message
+  to: body
+$yaml$,
+			true,
+			NOW(),
+			NOW()
+		)`,
+	},
+	135: {
 		`DROP TABLE IF EXISTS percona_sso_details`,
 	},
 	118: {
 		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
 		`UPDATE dumps SET encrypted = false`,
+	},
+	136: {
+		`CREATE TABLE adre_conversations (
+			id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+			title VARCHAR(50) NOT NULL DEFAULT 'New chat',
+			created_by VARCHAR NOT NULL,
+			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			last_message_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb
+		)`,
+		`CREATE INDEX idx_adre_conversations_created_by_last_msg ON adre_conversations (created_by, last_message_at DESC)`,
+		`CREATE TABLE adre_messages (
+			id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+			conversation_id BIGINT NOT NULL REFERENCES adre_conversations(id) ON DELETE CASCADE,
+			role VARCHAR NOT NULL,
+			content TEXT NOT NULL DEFAULT '',
+			tool_name VARCHAR NOT NULL DEFAULT '',
+			tool_result_json JSONB,
+			model VARCHAR NOT NULL DEFAULT '',
+			prompt_tokens INTEGER,
+			completion_tokens INTEGER,
+			total_tokens INTEGER,
+			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			content_tsv tsvector GENERATED ALWAYS AS (
+				to_tsvector('simple', coalesce(content,'') || ' ' || coalesce(tool_result_json::text,''))
+			) STORED
+		)`,
+		`CREATE INDEX idx_adre_messages_conv_created ON adre_messages (conversation_id, created_at)`,
+		`CREATE INDEX idx_adre_messages_content_tsv ON adre_messages USING gin (content_tsv)`,
+	},
+	137: {
+		`CREATE TABLE holmes_usage_events (
+			id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			feature VARCHAR NOT NULL,
+			feature_ref VARCHAR NOT NULL DEFAULT '',
+			adre_conversation_id BIGINT,
+			investigation_id VARCHAR NOT NULL DEFAULT '',
+			model VARCHAR NOT NULL DEFAULT '',
+			prompt_tokens INTEGER,
+			completion_tokens INTEGER,
+			total_tokens INTEGER,
+			cached_tokens INTEGER,
+			total_cost NUMERIC(14, 8),
+			cost_prompt NUMERIC(14, 8),
+			cost_completion NUMERIC(14, 8),
+			cost_cached NUMERIC(14, 8),
+			latency_ms INTEGER,
+			triggered_by VARCHAR NOT NULL DEFAULT '',
+			stream BOOLEAN NOT NULL DEFAULT FALSE,
+			metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb
+		)`,
+		`CREATE INDEX idx_holmes_usage_created_at ON holmes_usage_events (created_at DESC)`,
+		`CREATE INDEX idx_holmes_usage_feature_created ON holmes_usage_events (feature, created_at DESC)`,
+		`CREATE INDEX idx_holmes_usage_investigation ON holmes_usage_events (investigation_id) WHERE investigation_id <> ''`,
+		`CREATE INDEX idx_holmes_usage_conversation ON holmes_usage_events (adre_conversation_id) WHERE adre_conversation_id IS NOT NULL`,
+		`CREATE INDEX idx_holmes_usage_model ON holmes_usage_events (model, created_at DESC)`,
+		`ALTER TABLE adre_messages ADD COLUMN IF NOT EXISTS cached_tokens INTEGER`,
+		`ALTER TABLE adre_messages ADD COLUMN IF NOT EXISTS total_cost NUMERIC(14, 8)`,
+		`ALTER TABLE adre_messages ADD COLUMN IF NOT EXISTS usage_event_id BIGINT`,
+		`ALTER TABLE investigation_messages ADD COLUMN IF NOT EXISTS model VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE investigation_messages ADD COLUMN IF NOT EXISTS prompt_tokens INTEGER`,
+		`ALTER TABLE investigation_messages ADD COLUMN IF NOT EXISTS completion_tokens INTEGER`,
+		`ALTER TABLE investigation_messages ADD COLUMN IF NOT EXISTS total_tokens INTEGER`,
+		`ALTER TABLE investigation_messages ADD COLUMN IF NOT EXISTS cached_tokens INTEGER`,
+		`ALTER TABLE investigation_messages ADD COLUMN IF NOT EXISTS total_cost NUMERIC(14, 8)`,
+		`ALTER TABLE investigation_messages ADD COLUMN IF NOT EXISTS usage_event_id BIGINT`,
+		`ALTER TABLE investigation_messages ADD COLUMN IF NOT EXISTS holmes_feature VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE investigations ADD COLUMN IF NOT EXISTS holmes_total_tokens BIGINT NOT NULL DEFAULT 0`,
+		`ALTER TABLE investigations ADD COLUMN IF NOT EXISTS holmes_total_cost NUMERIC(14, 8) NOT NULL DEFAULT 0`,
+		`ALTER TABLE investigations ADD COLUMN IF NOT EXISTS holmes_call_count INTEGER NOT NULL DEFAULT 0`,
+		`ALTER TABLE qan_insights_cache ADD COLUMN IF NOT EXISTS model VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE qan_insights_cache ADD COLUMN IF NOT EXISTS prompt_tokens INTEGER`,
+		`ALTER TABLE qan_insights_cache ADD COLUMN IF NOT EXISTS completion_tokens INTEGER`,
+		`ALTER TABLE qan_insights_cache ADD COLUMN IF NOT EXISTS total_tokens INTEGER`,
+		`ALTER TABLE qan_insights_cache ADD COLUMN IF NOT EXISTS cached_tokens INTEGER`,
+		`ALTER TABLE qan_insights_cache ADD COLUMN IF NOT EXISTS total_cost NUMERIC(14, 8)`,
+		`ALTER TABLE qan_insights_cache ADD COLUMN IF NOT EXISTS usage_event_id BIGINT`,
+	},
+	138: {
+		// ADRE/HolmesGPT deployment config managed by PMM and rendered to the shared config dir.
+		// Secret columns (adre_models.api_key, adre_provisioning.{holmes_api_key, pmm_sa_token,
+		// servicenow_api_key, servicenow_client_token, slack_bot_token, slack_app_token}) are
+		// encrypted at rest via DefaultAgentEncryptionColumnsV3 and masked on the API.
+		// Singleton tables use a BOOLEAN id with a CHECK.
+		`CREATE TABLE adre_holmes_config (
+			id BOOLEAN PRIMARY KEY DEFAULT TRUE,
+			config_yaml TEXT NOT NULL DEFAULT '',
+			updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			updated_by VARCHAR NOT NULL DEFAULT '',
+			CONSTRAINT adre_holmes_config_singleton CHECK (id)
+		)`,
+		// The default chat/fast model is the config.yaml model: / fast_model: (what HolmesGPT honors);
+		// this table only defines the available models rendered into model_list.yaml.
+		`CREATE TABLE adre_models (
+			id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+			name VARCHAR NOT NULL UNIQUE,
+			litellm_model VARCHAR NOT NULL,
+			api_base VARCHAR NOT NULL DEFAULT '',
+			api_key VARCHAR NOT NULL DEFAULT '',
+			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+		)`,
+		`CREATE TABLE adre_skills (
+			id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+			name VARCHAR NOT NULL UNIQUE,
+			description TEXT NOT NULL DEFAULT '',
+			body TEXT NOT NULL DEFAULT '',
+			source VARCHAR NOT NULL DEFAULT 'user',
+			enabled BOOLEAN NOT NULL DEFAULT TRUE,
+			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			updated_by VARCHAR NOT NULL DEFAULT ''
+		)`,
+		`CREATE TABLE adre_provisioning (
+			id BOOLEAN PRIMARY KEY DEFAULT TRUE,
+			holmes_api_key VARCHAR NOT NULL DEFAULT '',
+			pmm_sa_token VARCHAR NOT NULL DEFAULT '',
+			servicenow_api_key VARCHAR NOT NULL DEFAULT '',
+			servicenow_client_token VARCHAR NOT NULL DEFAULT '',
+			slack_bot_token VARCHAR NOT NULL DEFAULT '',
+			slack_app_token VARCHAR NOT NULL DEFAULT '',
+			pmm_sa_id INTEGER NOT NULL DEFAULT 0,
+			pmm_url VARCHAR NOT NULL DEFAULT '',
+			last_render_at TIMESTAMPTZ,
+			render_status VARCHAR NOT NULL DEFAULT '',
+			restart_required BOOLEAN NOT NULL DEFAULT FALSE,
+			CONSTRAINT adre_provisioning_singleton CHECK (id)
+		)`,
+		`CREATE TABLE adre_config_audit (
+			id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+			actor VARCHAR NOT NULL DEFAULT '',
+			action VARCHAR NOT NULL,
+			target VARCHAR NOT NULL DEFAULT '',
+			at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+			diff TEXT NOT NULL DEFAULT ''
+		)`,
+		`CREATE INDEX idx_adre_config_audit_at ON adre_config_audit (at DESC)`,
+	},
+	139: {
+		// Per-model extra LiteLLM params (YAML) for local/self-hosted models (temperature, num_ctx, etc.).
+		`ALTER TABLE adre_models ADD COLUMN IF NOT EXISTS extra_params TEXT NOT NULL DEFAULT ''`,
+	},
+	140: {
+		// F5 auto-investigate redesign: authoritative alert fingerprint on investigations, enabling
+		// episode-scoped idempotency (one active investigation per firing alert). The partial unique
+		// index coalesces concurrent claims for the same firing alert.
+		`ALTER TABLE investigations ADD COLUMN IF NOT EXISTS alert_fingerprint VARCHAR NOT NULL DEFAULT ''`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS investigations_active_alert ` +
+			`ON investigations (alert_fingerprint) ` +
+			`WHERE alert_fingerprint <> '' AND status IN ('open','in_progress','investigating','running')`,
+		// Supports the hourly auto-investigate cap count (created_by + created_at window) without a
+		// sequential scan as the investigations table grows.
+		`CREATE INDEX IF NOT EXISTS investigations_auto_created_at ` +
+			`ON investigations (created_at) WHERE created_by = 'auto-investigate'`,
+	},
+	141: {
+		// F5 auto-investigate webhook: shared secret PMM verifies on the Grafana alert webhook
+		// (stored encrypted at rest, like the other adre_provisioning secrets).
+		`ALTER TABLE adre_provisioning ADD COLUMN IF NOT EXISTS alert_webhook_secret VARCHAR NOT NULL DEFAULT ''`,
 	},
 }
 
@@ -1352,19 +1982,43 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 		return err
 	}
 
-	encryptedItems := []string{}
-	if expectedState {
-		encryptedItems = prepared
-	}
-
+	// Fold the just-processed columns into the tracked set, preserving already-tracked columns.
+	// Replacing the set wholesale with only this run's columns would drop already-encrypted columns
+	// (e.g. agents) when a new table is added to DefaultAgentEncryptionColumnsV3, causing them to be
+	// re-encrypted (corrupted) on the next startup.
 	_, err = UpdateSettings(tx, &ChangeSettingsParams{
-		EncryptedItems: encryptedItems,
+		EncryptedItems: mergeEncryptedItems(settings.EncryptedItems, prepared, expectedState),
 	})
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// mergeEncryptedItems folds the just-processed columns into the tracked encrypted-columns set: on
+// encrypt it adds them, on decrypt it removes them. The result is sorted. Keeping the existing entries
+// (rather than replacing the set with only this run's columns) is what makes adding a table to
+// DefaultAgentEncryptionColumnsV3 safe — otherwise already-encrypted columns would be dropped from the
+// set and re-encrypted (corrupted) on a later run.
+func mergeEncryptedItems(current, prepared []string, encrypt bool) []string {
+	set := make(map[string]bool, len(current))
+	for _, v := range current {
+		set[v] = true
+	}
+	for _, key := range prepared {
+		if encrypt {
+			set[key] = true
+		} else {
+			delete(set, key)
+		}
+	}
+	out := make([]string, 0, len(set))
+	for k := range set {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
 }
 
 // checkVersion checks minimal required PostgreSQL server version.
@@ -1517,6 +2171,24 @@ type agentConfig struct {
 	ID string `yaml:"id"`
 }
 
+func runPMMAgentSetupHA(pmmAgentID string) error {
+	args := []string{
+		"setup",
+		"--config-file", AgentConfigFilePath,
+		"--server-address", "127.0.0.1:8443",
+		"--id", pmmAgentID,
+		"--skip-registration",
+		"--server-insecure-tls",
+	}
+	cmd := exec.CommandContext(context.Background(), "pmm-agent", args...) //nolint:gosec
+	logrus.Debugf("Running: pmm-agent %s", strings.Join(cmd.Args, " "))
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("error setting up pmm-agent: %w: %s", err, output)
+	}
+	return nil
+}
+
 func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 	agentID := uuid.New().String()
 	nodeID := uuid.New().String()
@@ -1553,24 +2225,57 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		}
 	}
 
-	args := []string{
-		"setup",
-		"--config-file", AgentConfigFilePath,
-		"--server-address", "127.0.0.1:8443",
-		"--id", agentID,
-		"--skip-registration",
-		"--server-insecure-tls",
-	}
-	cmd := exec.Command("pmm-agent", args...) //nolint:gosec
-	logrus.Debugf("Running: pmm-agent %s", strings.Join(cmd.Args, " "))
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("error setting up pmm-agent: %w: %s", err, output)
-	}
-
 	labels := map[string]string{
 		"cluster":     "pmm",
 		"environment": "pmm",
+	}
+
+	// Shared inventory DB may already contain this HA node (e.g. replaced pod with a fresh PVC while
+	// the hostname / HANodeID is unchanged). Re-use the existing node and pmm-agent IDs so local
+	// pmm-agent setup matches inventory; otherwise createNodeWithID fails with AlreadyExists.
+	existingNode, err := FindNodeByName(q, params.HANodeID)
+	if err == nil { //nolint:nestif
+		pmmAgents, ferr := FindPMMAgentsRunningOnNode(q, existingNode.NodeID)
+		if ferr != nil {
+			return ferr
+		}
+		if len(pmmAgents) == 0 {
+			return fmt.Errorf("node %q (ID %s) exists in inventory but has no pmm-agent", params.HANodeID, existingNode.NodeID)
+		}
+		if len(pmmAgents) > 1 {
+			logrus.Warnf("Multiple pmm-agents on HA node %q; using %s", params.HANodeID, pmmAgents[0].AgentID)
+		}
+		existingPmmAgentID := pmmAgents[0].AgentID
+
+		if err := runPMMAgentSetupHA(existingPmmAgentID); err != nil { //nolint:noinlineerr
+			return err
+		}
+
+		nodeExporters, err := FindAgents(q, AgentFilters{
+			PMMAgentID: existingPmmAgentID,
+			AgentType:  new(NodeExporterType),
+		})
+		if err != nil {
+			return err
+		}
+		if len(nodeExporters) == 0 {
+			if _, err := CreateNodeExporter(q, existingPmmAgentID, labels, false, false, []string{}, nil, ""); err != nil { //nolint:noinlineerr
+				return err
+			}
+		}
+
+		PMMServerAgentID = existingPmmAgentID
+		logrus.Infof("Set PMMServerAgentID to (adopted existing HA inventory): %s", PMMServerAgentID)
+		PMMServerNodeID = existingNode.NodeID
+		logrus.Infof("Set PMMServerNodeID to (adopted existing HA inventory): %s", PMMServerNodeID)
+		return nil
+	}
+	if status.Code(err) != codes.NotFound {
+		return err
+	}
+
+	if err := runPMMAgentSetupHA(agentID); err != nil { //nolint:noinlineerr
+		return err
 	}
 
 	node, err := createNodeWithID(q, nodeID, GenericNodeType, &CreateNodeParams{

@@ -474,6 +474,9 @@ type ListAgentsOKBody struct {
 
 	// rta mongodb agent
 	RtaMongodbAgent []*ListAgentsOKBodyRtaMongodbAgentItems0 `json:"rta_mongodb_agent"`
+
+	// otel collector
+	OtelCollector []*ListAgentsOKBodyOtelCollectorItems0 `json:"otel_collector"`
 }
 
 // Validate validates this list agents OK body
@@ -553,6 +556,10 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRtaMongodbAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateOtelCollector(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1132,6 +1139,36 @@ func (o *ListAgentsOKBody) validateRtaMongodbAgent(formats strfmt.Registry) erro
 	return nil
 }
 
+func (o *ListAgentsOKBody) validateOtelCollector(formats strfmt.Registry) error {
+	if swag.IsZero(o.OtelCollector) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.OtelCollector); i++ {
+		if swag.IsZero(o.OtelCollector[i]) { // not required
+			continue
+		}
+
+		if o.OtelCollector[i] != nil {
+			if err := o.OtelCollector[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listAgentsOk" + "." + "otel_collector" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listAgentsOk" + "." + "otel_collector" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list agents OK body based on the context it is used
 func (o *ListAgentsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -1209,6 +1246,10 @@ func (o *ListAgentsOKBody) ContextValidate(ctx context.Context, formats strfmt.R
 	}
 
 	if err := o.contextValidateRtaMongodbAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateOtelCollector(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1702,6 +1743,32 @@ func (o *ListAgentsOKBody) contextValidateRtaMongodbAgent(ctx context.Context, f
 				ce := new(errors.CompositeError)
 				if stderrors.As(err, &ce) {
 					return ce.ValidateName("listAgentsOk" + "." + "rta_mongodb_agent" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) contextValidateOtelCollector(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.OtelCollector); i++ {
+		if o.OtelCollector[i] != nil {
+
+			if swag.IsZero(o.OtelCollector[i]) { // not required
+				return nil
+			}
+
+			if err := o.OtelCollector[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("listAgentsOk" + "." + "otel_collector" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("listAgentsOk" + "." + "otel_collector" + "." + strconv.Itoa(i))
 				}
 
 				return err
@@ -3427,6 +3494,136 @@ func (o *ListAgentsOKBodyNomadAgentItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBodyNomadAgentItems0) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBodyNomadAgentItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAgentsOKBodyOtelCollectorItems0 OtelCollector runs on the same node as pmm-agent and collects logs (and later traces, profiles) for OTEL.
+swagger:model ListAgentsOKBodyOtelCollectorItems0
+*/
+type ListAgentsOKBodyOtelCollectorItems0 struct {
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
+
+	// pmm agent id
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
+
+	// custom labels
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// process exec path
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+}
+
+// Validate validates this list agents OK body otel collector items0
+func (o *ListAgentsOKBodyOtelCollectorItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listAgentsOkBodyOtelCollectorItems0TypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listAgentsOkBodyOtelCollectorItems0TypeStatusPropEnum = append(listAgentsOkBodyOtelCollectorItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ListAgentsOKBodyOtelCollectorItems0StatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *ListAgentsOKBodyOtelCollectorItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listAgentsOkBodyOtelCollectorItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBodyOtelCollectorItems0) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this list agents OK body otel collector items0 based on context it is used
+func (o *ListAgentsOKBodyOtelCollectorItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBodyOtelCollectorItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBodyOtelCollectorItems0) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBodyOtelCollectorItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

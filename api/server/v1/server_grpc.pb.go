@@ -20,16 +20,21 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ServerService_Version_FullMethodName             = "/server.v1.ServerService/Version"
-	ServerService_Readiness_FullMethodName           = "/server.v1.ServerService/Readiness"
-	ServerService_LeaderHealthCheck_FullMethodName   = "/server.v1.ServerService/LeaderHealthCheck"
-	ServerService_CheckUpdates_FullMethodName        = "/server.v1.ServerService/CheckUpdates"
-	ServerService_ListChangeLogs_FullMethodName      = "/server.v1.ServerService/ListChangeLogs"
-	ServerService_StartUpdate_FullMethodName         = "/server.v1.ServerService/StartUpdate"
-	ServerService_UpdateStatus_FullMethodName        = "/server.v1.ServerService/UpdateStatus"
-	ServerService_GetSettings_FullMethodName         = "/server.v1.ServerService/GetSettings"
-	ServerService_GetReadOnlySettings_FullMethodName = "/server.v1.ServerService/GetReadOnlySettings"
-	ServerService_ChangeSettings_FullMethodName      = "/server.v1.ServerService/ChangeSettings"
+	ServerService_Version_FullMethodName               = "/server.v1.ServerService/Version"
+	ServerService_Readiness_FullMethodName             = "/server.v1.ServerService/Readiness"
+	ServerService_LeaderHealthCheck_FullMethodName     = "/server.v1.ServerService/LeaderHealthCheck"
+	ServerService_CheckUpdates_FullMethodName          = "/server.v1.ServerService/CheckUpdates"
+	ServerService_ListChangeLogs_FullMethodName        = "/server.v1.ServerService/ListChangeLogs"
+	ServerService_StartUpdate_FullMethodName           = "/server.v1.ServerService/StartUpdate"
+	ServerService_UpdateStatus_FullMethodName          = "/server.v1.ServerService/UpdateStatus"
+	ServerService_GetSettings_FullMethodName           = "/server.v1.ServerService/GetSettings"
+	ServerService_GetReadOnlySettings_FullMethodName   = "/server.v1.ServerService/GetReadOnlySettings"
+	ServerService_ChangeSettings_FullMethodName        = "/server.v1.ServerService/ChangeSettings"
+	ServerService_ListLogParserPresets_FullMethodName  = "/server.v1.ServerService/ListLogParserPresets"
+	ServerService_GetLogParserPreset_FullMethodName    = "/server.v1.ServerService/GetLogParserPreset"
+	ServerService_AddLogParserPreset_FullMethodName    = "/server.v1.ServerService/AddLogParserPreset"
+	ServerService_ChangeLogParserPreset_FullMethodName = "/server.v1.ServerService/ChangeLogParserPreset"
+	ServerService_RemoveLogParserPreset_FullMethodName = "/server.v1.ServerService/RemoveLogParserPreset"
 )
 
 // ServerServiceClient is the client API for ServerService service.
@@ -59,6 +64,16 @@ type ServerServiceClient interface {
 	GetReadOnlySettings(ctx context.Context, in *GetReadOnlySettingsRequest, opts ...grpc.CallOption) (*GetReadOnlySettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
 	ChangeSettings(ctx context.Context, in *ChangeSettingsRequest, opts ...grpc.CallOption) (*ChangeSettingsResponse, error)
+	// ListLogParserPresets returns all OTEL log parser presets (built-in and custom).
+	ListLogParserPresets(ctx context.Context, in *ListLogParserPresetsRequest, opts ...grpc.CallOption) (*ListLogParserPresetsResponse, error)
+	// GetLogParserPreset returns a single preset by id.
+	GetLogParserPreset(ctx context.Context, in *GetLogParserPresetRequest, opts ...grpc.CallOption) (*GetLogParserPresetResponse, error)
+	// AddLogParserPreset creates a custom preset (built_in = false).
+	AddLogParserPreset(ctx context.Context, in *AddLogParserPresetRequest, opts ...grpc.CallOption) (*AddLogParserPresetResponse, error)
+	// ChangeLogParserPreset updates description and/or operator_yaml. built_in and name are not changed.
+	ChangeLogParserPreset(ctx context.Context, in *ChangeLogParserPresetRequest, opts ...grpc.CallOption) (*ChangeLogParserPresetResponse, error)
+	// RemoveLogParserPreset deletes a custom preset if no OTEL collector references it.
+	RemoveLogParserPreset(ctx context.Context, in *RemoveLogParserPresetRequest, opts ...grpc.CallOption) (*RemoveLogParserPresetResponse, error)
 }
 
 type serverServiceClient struct {
@@ -169,6 +184,56 @@ func (c *serverServiceClient) ChangeSettings(ctx context.Context, in *ChangeSett
 	return out, nil
 }
 
+func (c *serverServiceClient) ListLogParserPresets(ctx context.Context, in *ListLogParserPresetsRequest, opts ...grpc.CallOption) (*ListLogParserPresetsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListLogParserPresetsResponse)
+	err := c.cc.Invoke(ctx, ServerService_ListLogParserPresets_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serverServiceClient) GetLogParserPreset(ctx context.Context, in *GetLogParserPresetRequest, opts ...grpc.CallOption) (*GetLogParserPresetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetLogParserPresetResponse)
+	err := c.cc.Invoke(ctx, ServerService_GetLogParserPreset_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serverServiceClient) AddLogParserPreset(ctx context.Context, in *AddLogParserPresetRequest, opts ...grpc.CallOption) (*AddLogParserPresetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AddLogParserPresetResponse)
+	err := c.cc.Invoke(ctx, ServerService_AddLogParserPreset_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serverServiceClient) ChangeLogParserPreset(ctx context.Context, in *ChangeLogParserPresetRequest, opts ...grpc.CallOption) (*ChangeLogParserPresetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ChangeLogParserPresetResponse)
+	err := c.cc.Invoke(ctx, ServerService_ChangeLogParserPreset_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serverServiceClient) RemoveLogParserPreset(ctx context.Context, in *RemoveLogParserPresetRequest, opts ...grpc.CallOption) (*RemoveLogParserPresetResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveLogParserPresetResponse)
+	err := c.cc.Invoke(ctx, ServerService_RemoveLogParserPreset_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServerServiceServer is the server API for ServerService service.
 // All implementations must embed UnimplementedServerServiceServer
 // for forward compatibility.
@@ -196,6 +261,16 @@ type ServerServiceServer interface {
 	GetReadOnlySettings(context.Context, *GetReadOnlySettingsRequest) (*GetReadOnlySettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
 	ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error)
+	// ListLogParserPresets returns all OTEL log parser presets (built-in and custom).
+	ListLogParserPresets(context.Context, *ListLogParserPresetsRequest) (*ListLogParserPresetsResponse, error)
+	// GetLogParserPreset returns a single preset by id.
+	GetLogParserPreset(context.Context, *GetLogParserPresetRequest) (*GetLogParserPresetResponse, error)
+	// AddLogParserPreset creates a custom preset (built_in = false).
+	AddLogParserPreset(context.Context, *AddLogParserPresetRequest) (*AddLogParserPresetResponse, error)
+	// ChangeLogParserPreset updates description and/or operator_yaml. built_in and name are not changed.
+	ChangeLogParserPreset(context.Context, *ChangeLogParserPresetRequest) (*ChangeLogParserPresetResponse, error)
+	// RemoveLogParserPreset deletes a custom preset if no OTEL collector references it.
+	RemoveLogParserPreset(context.Context, *RemoveLogParserPresetRequest) (*RemoveLogParserPresetResponse, error)
 	mustEmbedUnimplementedServerServiceServer()
 }
 
@@ -244,6 +319,26 @@ func (UnimplementedServerServiceServer) GetReadOnlySettings(context.Context, *Ge
 
 func (UnimplementedServerServiceServer) ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ChangeSettings not implemented")
+}
+
+func (UnimplementedServerServiceServer) ListLogParserPresets(context.Context, *ListLogParserPresetsRequest) (*ListLogParserPresetsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListLogParserPresets not implemented")
+}
+
+func (UnimplementedServerServiceServer) GetLogParserPreset(context.Context, *GetLogParserPresetRequest) (*GetLogParserPresetResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetLogParserPreset not implemented")
+}
+
+func (UnimplementedServerServiceServer) AddLogParserPreset(context.Context, *AddLogParserPresetRequest) (*AddLogParserPresetResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method AddLogParserPreset not implemented")
+}
+
+func (UnimplementedServerServiceServer) ChangeLogParserPreset(context.Context, *ChangeLogParserPresetRequest) (*ChangeLogParserPresetResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ChangeLogParserPreset not implemented")
+}
+
+func (UnimplementedServerServiceServer) RemoveLogParserPreset(context.Context, *RemoveLogParserPresetRequest) (*RemoveLogParserPresetResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RemoveLogParserPreset not implemented")
 }
 func (UnimplementedServerServiceServer) mustEmbedUnimplementedServerServiceServer() {}
 func (UnimplementedServerServiceServer) testEmbeddedByValue()                       {}
@@ -446,6 +541,96 @@ func _ServerService_ChangeSettings_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ServerService_ListLogParserPresets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListLogParserPresetsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServiceServer).ListLogParserPresets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServerService_ListLogParserPresets_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServiceServer).ListLogParserPresets(ctx, req.(*ListLogParserPresetsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServerService_GetLogParserPreset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetLogParserPresetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServiceServer).GetLogParserPreset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServerService_GetLogParserPreset_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServiceServer).GetLogParserPreset(ctx, req.(*GetLogParserPresetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServerService_AddLogParserPreset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddLogParserPresetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServiceServer).AddLogParserPreset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServerService_AddLogParserPreset_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServiceServer).AddLogParserPreset(ctx, req.(*AddLogParserPresetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServerService_ChangeLogParserPreset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeLogParserPresetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServiceServer).ChangeLogParserPreset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServerService_ChangeLogParserPreset_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServiceServer).ChangeLogParserPreset(ctx, req.(*ChangeLogParserPresetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServerService_RemoveLogParserPreset_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveLogParserPresetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServiceServer).RemoveLogParserPreset(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServerService_RemoveLogParserPreset_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServiceServer).RemoveLogParserPreset(ctx, req.(*RemoveLogParserPresetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ServerService_ServiceDesc is the grpc.ServiceDesc for ServerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -492,6 +677,26 @@ var ServerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ChangeSettings",
 			Handler:    _ServerService_ChangeSettings_Handler,
+		},
+		{
+			MethodName: "ListLogParserPresets",
+			Handler:    _ServerService_ListLogParserPresets_Handler,
+		},
+		{
+			MethodName: "GetLogParserPreset",
+			Handler:    _ServerService_GetLogParserPreset_Handler,
+		},
+		{
+			MethodName: "AddLogParserPreset",
+			Handler:    _ServerService_AddLogParserPreset_Handler,
+		},
+		{
+			MethodName: "ChangeLogParserPreset",
+			Handler:    _ServerService_ChangeLogParserPreset_Handler,
+		},
+		{
+			MethodName: "RemoveLogParserPreset",
+			Handler:    _ServerService_RemoveLogParserPreset_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

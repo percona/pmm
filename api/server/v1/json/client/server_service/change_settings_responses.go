@@ -225,6 +225,9 @@ type ChangeSettingsBody struct {
 	// A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
 	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
 
+	// Enable native Query Analytics UI (Technical Preview).
+	EnableNativeQAN *bool `json:"enable_native_qan,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -233,6 +236,9 @@ type ChangeSettingsBody struct {
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
+
+	// otel
+	Otel *ChangeSettingsParamsBodyOtel `json:"otel,omitempty"`
 }
 
 // Validate validates this change settings body
@@ -248,6 +254,10 @@ func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateOtel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -326,6 +336,29 @@ func (o *ChangeSettingsBody) validateMetricsResolutions(formats strfmt.Registry)
 	return nil
 }
 
+func (o *ChangeSettingsBody) validateOtel(formats strfmt.Registry) error {
+	if swag.IsZero(o.Otel) { // not required
+		return nil
+	}
+
+	if o.Otel != nil {
+		if err := o.Otel.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "otel")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "otel")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change settings body based on the context it is used
 func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -339,6 +372,10 @@ func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt
 	}
 
 	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateOtel(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -411,6 +448,30 @@ func (o *ChangeSettingsBody) contextValidateMetricsResolutions(ctx context.Conte
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "metrics_resolutions")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeSettingsBody) contextValidateOtel(ctx context.Context, formats strfmt.Registry) error {
+	if o.Otel != nil {
+
+		if swag.IsZero(o.Otel) { // not required
+			return nil
+		}
+
+		if err := o.Otel.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "otel")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "otel")
 			}
 
 			return err
@@ -989,11 +1050,17 @@ type ChangeSettingsOKBodySettings struct {
 	// Duration for which an update is snoozed
 	UpdateSnoozeDuration string `json:"update_snooze_duration,omitempty"`
 
+	// True if native Query Analytics UI is enabled (Technical Preview).
+	NativeQANEnabled bool `json:"native_qan_enabled,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
+
+	// otel
+	Otel *ChangeSettingsOKBodySettingsOtel `json:"otel,omitempty"`
 }
 
 // Validate validates this change settings OK body settings
@@ -1005,6 +1072,10 @@ func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateOtel(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1060,6 +1131,29 @@ func (o *ChangeSettingsOKBodySettings) validateMetricsResolutions(formats strfmt
 	return nil
 }
 
+func (o *ChangeSettingsOKBodySettings) validateOtel(formats strfmt.Registry) error {
+	if swag.IsZero(o.Otel) { // not required
+		return nil
+	}
+
+	if o.Otel != nil {
+		if err := o.Otel.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "otel")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "otel")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this change settings OK body settings based on the context it is used
 func (o *ChangeSettingsOKBodySettings) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -1069,6 +1163,10 @@ func (o *ChangeSettingsOKBodySettings) ContextValidate(ctx context.Context, form
 	}
 
 	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateOtel(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1117,6 +1215,30 @@ func (o *ChangeSettingsOKBodySettings) contextValidateMetricsResolutions(ctx con
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeSettingsOKBodySettings) contextValidateOtel(ctx context.Context, formats strfmt.Registry) error {
+	if o.Otel != nil {
+
+		if swag.IsZero(o.Otel) { // not required
+			return nil
+		}
+
+		if err := o.Otel.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "otel")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "otel")
 			}
 
 			return err
@@ -1223,6 +1345,52 @@ func (o *ChangeSettingsOKBodySettingsMetricsResolutions) MarshalBinary() ([]byte
 // UnmarshalBinary interface implementation
 func (o *ChangeSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res ChangeSettingsOKBodySettingsMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeSettingsOKBodySettingsOtel OtelSettings configures the server-side OTEL receiver and ClickHouse retention.
+swagger:model ChangeSettingsOKBodySettingsOtel
+*/
+type ChangeSettingsOKBodySettingsOtel struct {
+	// True if the OTEL collector on PMM Server is enabled (OTLP receiver → ClickHouse).
+	CollectorEnabled bool `json:"collector_enabled,omitempty"`
+
+	// TTL in days for otel.logs in ClickHouse.
+	LogsRetentionDays int32 `json:"logs_retention_days,omitempty"`
+
+	// TTL in days for otel.otel_traces in ClickHouse.
+	TracesRetentionDays int32 `json:"traces_retention_days,omitempty"`
+
+	// TTL in days for otel.otel_metrics_sum in ClickHouse.
+	MetricsRetentionDays int32 `json:"metrics_retention_days,omitempty"`
+}
+
+// Validate validates this change settings OK body settings otel
+func (o *ChangeSettingsOKBodySettingsOtel) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change settings OK body settings otel based on context it is used
+func (o *ChangeSettingsOKBodySettingsOtel) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsOKBodySettingsOtel) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsOKBodySettingsOtel) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsOKBodySettingsOtel
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1346,6 +1514,52 @@ func (o *ChangeSettingsParamsBodyMetricsResolutions) MarshalBinary() ([]byte, er
 // UnmarshalBinary interface implementation
 func (o *ChangeSettingsParamsBodyMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res ChangeSettingsParamsBodyMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeSettingsParamsBodyOtel OtelSettings configures the server-side OTEL receiver and ClickHouse retention.
+swagger:model ChangeSettingsParamsBodyOtel
+*/
+type ChangeSettingsParamsBodyOtel struct {
+	// True if the OTEL collector on PMM Server is enabled (OTLP receiver → ClickHouse).
+	CollectorEnabled bool `json:"collector_enabled,omitempty"`
+
+	// TTL in days for otel.logs in ClickHouse.
+	LogsRetentionDays int32 `json:"logs_retention_days,omitempty"`
+
+	// TTL in days for otel.otel_traces in ClickHouse.
+	TracesRetentionDays int32 `json:"traces_retention_days,omitempty"`
+
+	// TTL in days for otel.otel_metrics_sum in ClickHouse.
+	MetricsRetentionDays int32 `json:"metrics_retention_days,omitempty"`
+}
+
+// Validate validates this change settings params body otel
+func (o *ChangeSettingsParamsBodyOtel) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change settings params body otel based on context it is used
+func (o *ChangeSettingsParamsBodyOtel) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyOtel) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyOtel) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsParamsBodyOtel
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

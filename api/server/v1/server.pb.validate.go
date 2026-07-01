@@ -2524,6 +2524,37 @@ func (m *Settings) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetOtel()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "Otel",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "Otel",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetOtel()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SettingsValidationError{
+				field:  "Otel",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for NativeQanEnabled
+
 	if len(errors) > 0 {
 		return SettingsMultiError(errors)
 	}
@@ -2602,6 +2633,114 @@ var _ interface {
 	ErrorName() string
 } = SettingsValidationError{}
 
+// Validate checks the field values on OtelSettings with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *OtelSettings) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on OtelSettings with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in OtelSettingsMultiError, or
+// nil if none found.
+func (m *OtelSettings) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *OtelSettings) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for CollectorEnabled
+
+	// no validation rules for LogsRetentionDays
+
+	// no validation rules for TracesRetentionDays
+
+	// no validation rules for MetricsRetentionDays
+
+	if len(errors) > 0 {
+		return OtelSettingsMultiError(errors)
+	}
+
+	return nil
+}
+
+// OtelSettingsMultiError is an error wrapping multiple validation errors
+// returned by OtelSettings.ValidateAll() if the designated constraints aren't met.
+type OtelSettingsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m OtelSettingsMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m OtelSettingsMultiError) AllErrors() []error { return m }
+
+// OtelSettingsValidationError is the validation error returned by
+// OtelSettings.Validate if the designated constraints aren't met.
+type OtelSettingsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e OtelSettingsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e OtelSettingsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e OtelSettingsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e OtelSettingsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e OtelSettingsValidationError) ErrorName() string { return "OtelSettingsValidationError" }
+
+// Error satisfies the builtin error interface
+func (e OtelSettingsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sOtelSettings.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = OtelSettingsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = OtelSettingsValidationError{}
+
 // Validate checks the field values on ReadOnlySettings with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -2639,6 +2778,8 @@ func (m *ReadOnlySettings) validate(all bool) error {
 	// no validation rules for AzurediscoverEnabled
 
 	// no validation rules for EnableAccessControl
+
+	// no validation rules for NativeQanEnabled
 
 	if len(errors) > 0 {
 		return ReadOnlySettingsMultiError(errors)
@@ -3399,6 +3540,41 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 		// no validation rules for EnableInternalPgQan
 	}
 
+	if m.Otel != nil {
+		if all {
+			switch v := interface{}(m.GetOtel()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeSettingsRequestValidationError{
+						field:  "Otel",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeSettingsRequestValidationError{
+						field:  "Otel",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetOtel()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeSettingsRequestValidationError{
+					field:  "Otel",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
+	if m.EnableNativeQan != nil {
+		// no validation rules for EnableNativeQan
+	}
+
 	if len(errors) > 0 {
 		return ChangeSettingsRequestMultiError(errors)
 	}
@@ -3611,3 +3787,1351 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ChangeSettingsResponseValidationError{}
+
+// Validate checks the field values on LogParserPreset with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *LogParserPreset) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LogParserPreset with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LogParserPresetMultiError, or nil if none found.
+func (m *LogParserPreset) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LogParserPreset) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Name
+
+	// no validation rules for Description
+
+	// no validation rules for OperatorYaml
+
+	// no validation rules for BuiltIn
+
+	if all {
+		switch v := interface{}(m.GetCreatedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, LogParserPresetValidationError{
+					field:  "CreatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, LogParserPresetValidationError{
+					field:  "CreatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return LogParserPresetValidationError{
+				field:  "CreatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetUpdatedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, LogParserPresetValidationError{
+					field:  "UpdatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, LogParserPresetValidationError{
+					field:  "UpdatedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return LogParserPresetValidationError{
+				field:  "UpdatedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for UsageCount
+
+	if len(errors) > 0 {
+		return LogParserPresetMultiError(errors)
+	}
+
+	return nil
+}
+
+// LogParserPresetMultiError is an error wrapping multiple validation errors
+// returned by LogParserPreset.ValidateAll() if the designated constraints
+// aren't met.
+type LogParserPresetMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LogParserPresetMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LogParserPresetMultiError) AllErrors() []error { return m }
+
+// LogParserPresetValidationError is the validation error returned by
+// LogParserPreset.Validate if the designated constraints aren't met.
+type LogParserPresetValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LogParserPresetValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LogParserPresetValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LogParserPresetValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LogParserPresetValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LogParserPresetValidationError) ErrorName() string { return "LogParserPresetValidationError" }
+
+// Error satisfies the builtin error interface
+func (e LogParserPresetValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLogParserPreset.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = LogParserPresetValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LogParserPresetValidationError{}
+
+// Validate checks the field values on ListLogParserPresetsRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListLogParserPresetsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListLogParserPresetsRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListLogParserPresetsRequestMultiError, or nil if none found.
+func (m *ListLogParserPresetsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListLogParserPresetsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListLogParserPresetsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListLogParserPresetsRequestMultiError is an error wrapping multiple
+// validation errors returned by ListLogParserPresetsRequest.ValidateAll() if
+// the designated constraints aren't met.
+type ListLogParserPresetsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListLogParserPresetsRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListLogParserPresetsRequestMultiError) AllErrors() []error { return m }
+
+// ListLogParserPresetsRequestValidationError is the validation error returned
+// by ListLogParserPresetsRequest.Validate if the designated constraints
+// aren't met.
+type ListLogParserPresetsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListLogParserPresetsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListLogParserPresetsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListLogParserPresetsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListLogParserPresetsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListLogParserPresetsRequestValidationError) ErrorName() string {
+	return "ListLogParserPresetsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListLogParserPresetsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListLogParserPresetsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ListLogParserPresetsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListLogParserPresetsRequestValidationError{}
+
+// Validate checks the field values on ListLogParserPresetsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListLogParserPresetsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListLogParserPresetsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListLogParserPresetsResponseMultiError, or nil if none found.
+func (m *ListLogParserPresetsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListLogParserPresetsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetPresets() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListLogParserPresetsResponseValidationError{
+						field:  fmt.Sprintf("Presets[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListLogParserPresetsResponseValidationError{
+						field:  fmt.Sprintf("Presets[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListLogParserPresetsResponseValidationError{
+					field:  fmt.Sprintf("Presets[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ListLogParserPresetsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListLogParserPresetsResponseMultiError is an error wrapping multiple
+// validation errors returned by ListLogParserPresetsResponse.ValidateAll() if
+// the designated constraints aren't met.
+type ListLogParserPresetsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListLogParserPresetsResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListLogParserPresetsResponseMultiError) AllErrors() []error { return m }
+
+// ListLogParserPresetsResponseValidationError is the validation error returned
+// by ListLogParserPresetsResponse.Validate if the designated constraints
+// aren't met.
+type ListLogParserPresetsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListLogParserPresetsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListLogParserPresetsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListLogParserPresetsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListLogParserPresetsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListLogParserPresetsResponseValidationError) ErrorName() string {
+	return "ListLogParserPresetsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListLogParserPresetsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListLogParserPresetsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ListLogParserPresetsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListLogParserPresetsResponseValidationError{}
+
+// Validate checks the field values on GetLogParserPresetRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetLogParserPresetRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetLogParserPresetRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetLogParserPresetRequestMultiError, or nil if none found.
+func (m *GetLogParserPresetRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetLogParserPresetRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return GetLogParserPresetRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetLogParserPresetRequestMultiError is an error wrapping multiple validation
+// errors returned by GetLogParserPresetRequest.ValidateAll() if the
+// designated constraints aren't met.
+type GetLogParserPresetRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetLogParserPresetRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetLogParserPresetRequestMultiError) AllErrors() []error { return m }
+
+// GetLogParserPresetRequestValidationError is the validation error returned by
+// GetLogParserPresetRequest.Validate if the designated constraints aren't met.
+type GetLogParserPresetRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetLogParserPresetRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetLogParserPresetRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetLogParserPresetRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetLogParserPresetRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetLogParserPresetRequestValidationError) ErrorName() string {
+	return "GetLogParserPresetRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetLogParserPresetRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetLogParserPresetRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = GetLogParserPresetRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetLogParserPresetRequestValidationError{}
+
+// Validate checks the field values on GetLogParserPresetResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetLogParserPresetResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetLogParserPresetResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetLogParserPresetResponseMultiError, or nil if none found.
+func (m *GetLogParserPresetResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetLogParserPresetResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetPreset()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetLogParserPresetResponseValidationError{
+					field:  "Preset",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetLogParserPresetResponseValidationError{
+					field:  "Preset",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPreset()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetLogParserPresetResponseValidationError{
+				field:  "Preset",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return GetLogParserPresetResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetLogParserPresetResponseMultiError is an error wrapping multiple
+// validation errors returned by GetLogParserPresetResponse.ValidateAll() if
+// the designated constraints aren't met.
+type GetLogParserPresetResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetLogParserPresetResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetLogParserPresetResponseMultiError) AllErrors() []error { return m }
+
+// GetLogParserPresetResponseValidationError is the validation error returned
+// by GetLogParserPresetResponse.Validate if the designated constraints aren't met.
+type GetLogParserPresetResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetLogParserPresetResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetLogParserPresetResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetLogParserPresetResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetLogParserPresetResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetLogParserPresetResponseValidationError) ErrorName() string {
+	return "GetLogParserPresetResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetLogParserPresetResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetLogParserPresetResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = GetLogParserPresetResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetLogParserPresetResponseValidationError{}
+
+// Validate checks the field values on AddLogParserPresetRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddLogParserPresetRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddLogParserPresetRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddLogParserPresetRequestMultiError, or nil if none found.
+func (m *AddLogParserPresetRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddLogParserPresetRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Name
+
+	// no validation rules for Description
+
+	// no validation rules for OperatorYaml
+
+	if len(errors) > 0 {
+		return AddLogParserPresetRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddLogParserPresetRequestMultiError is an error wrapping multiple validation
+// errors returned by AddLogParserPresetRequest.ValidateAll() if the
+// designated constraints aren't met.
+type AddLogParserPresetRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddLogParserPresetRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddLogParserPresetRequestMultiError) AllErrors() []error { return m }
+
+// AddLogParserPresetRequestValidationError is the validation error returned by
+// AddLogParserPresetRequest.Validate if the designated constraints aren't met.
+type AddLogParserPresetRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddLogParserPresetRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddLogParserPresetRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddLogParserPresetRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddLogParserPresetRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddLogParserPresetRequestValidationError) ErrorName() string {
+	return "AddLogParserPresetRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddLogParserPresetRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddLogParserPresetRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = AddLogParserPresetRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddLogParserPresetRequestValidationError{}
+
+// Validate checks the field values on AddLogParserPresetResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddLogParserPresetResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddLogParserPresetResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddLogParserPresetResponseMultiError, or nil if none found.
+func (m *AddLogParserPresetResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddLogParserPresetResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetPreset()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AddLogParserPresetResponseValidationError{
+					field:  "Preset",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AddLogParserPresetResponseValidationError{
+					field:  "Preset",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPreset()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AddLogParserPresetResponseValidationError{
+				field:  "Preset",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return AddLogParserPresetResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddLogParserPresetResponseMultiError is an error wrapping multiple
+// validation errors returned by AddLogParserPresetResponse.ValidateAll() if
+// the designated constraints aren't met.
+type AddLogParserPresetResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddLogParserPresetResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddLogParserPresetResponseMultiError) AllErrors() []error { return m }
+
+// AddLogParserPresetResponseValidationError is the validation error returned
+// by AddLogParserPresetResponse.Validate if the designated constraints aren't met.
+type AddLogParserPresetResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddLogParserPresetResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddLogParserPresetResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddLogParserPresetResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddLogParserPresetResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddLogParserPresetResponseValidationError) ErrorName() string {
+	return "AddLogParserPresetResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddLogParserPresetResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddLogParserPresetResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = AddLogParserPresetResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddLogParserPresetResponseValidationError{}
+
+// Validate checks the field values on ChangeLogParserPresetRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeLogParserPresetRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeLogParserPresetRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeLogParserPresetRequestMultiError, or nil if none found.
+func (m *ChangeLogParserPresetRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeLogParserPresetRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if m.Description != nil {
+		// no validation rules for Description
+	}
+
+	if m.OperatorYaml != nil {
+		// no validation rules for OperatorYaml
+	}
+
+	if len(errors) > 0 {
+		return ChangeLogParserPresetRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeLogParserPresetRequestMultiError is an error wrapping multiple
+// validation errors returned by ChangeLogParserPresetRequest.ValidateAll() if
+// the designated constraints aren't met.
+type ChangeLogParserPresetRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeLogParserPresetRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeLogParserPresetRequestMultiError) AllErrors() []error { return m }
+
+// ChangeLogParserPresetRequestValidationError is the validation error returned
+// by ChangeLogParserPresetRequest.Validate if the designated constraints
+// aren't met.
+type ChangeLogParserPresetRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeLogParserPresetRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeLogParserPresetRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeLogParserPresetRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeLogParserPresetRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeLogParserPresetRequestValidationError) ErrorName() string {
+	return "ChangeLogParserPresetRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeLogParserPresetRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeLogParserPresetRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ChangeLogParserPresetRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeLogParserPresetRequestValidationError{}
+
+// Validate checks the field values on ChangeLogParserPresetResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeLogParserPresetResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeLogParserPresetResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ChangeLogParserPresetResponseMultiError, or nil if none found.
+func (m *ChangeLogParserPresetResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeLogParserPresetResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetPreset()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangeLogParserPresetResponseValidationError{
+					field:  "Preset",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangeLogParserPresetResponseValidationError{
+					field:  "Preset",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetPreset()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangeLogParserPresetResponseValidationError{
+				field:  "Preset",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return ChangeLogParserPresetResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeLogParserPresetResponseMultiError is an error wrapping multiple
+// validation errors returned by ChangeLogParserPresetResponse.ValidateAll()
+// if the designated constraints aren't met.
+type ChangeLogParserPresetResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeLogParserPresetResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeLogParserPresetResponseMultiError) AllErrors() []error { return m }
+
+// ChangeLogParserPresetResponseValidationError is the validation error
+// returned by ChangeLogParserPresetResponse.Validate if the designated
+// constraints aren't met.
+type ChangeLogParserPresetResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeLogParserPresetResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeLogParserPresetResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeLogParserPresetResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeLogParserPresetResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeLogParserPresetResponseValidationError) ErrorName() string {
+	return "ChangeLogParserPresetResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeLogParserPresetResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeLogParserPresetResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ChangeLogParserPresetResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeLogParserPresetResponseValidationError{}
+
+// Validate checks the field values on RemoveLogParserPresetRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RemoveLogParserPresetRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RemoveLogParserPresetRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// RemoveLogParserPresetRequestMultiError, or nil if none found.
+func (m *RemoveLogParserPresetRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RemoveLogParserPresetRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	if len(errors) > 0 {
+		return RemoveLogParserPresetRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// RemoveLogParserPresetRequestMultiError is an error wrapping multiple
+// validation errors returned by RemoveLogParserPresetRequest.ValidateAll() if
+// the designated constraints aren't met.
+type RemoveLogParserPresetRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RemoveLogParserPresetRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RemoveLogParserPresetRequestMultiError) AllErrors() []error { return m }
+
+// RemoveLogParserPresetRequestValidationError is the validation error returned
+// by RemoveLogParserPresetRequest.Validate if the designated constraints
+// aren't met.
+type RemoveLogParserPresetRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RemoveLogParserPresetRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RemoveLogParserPresetRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RemoveLogParserPresetRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RemoveLogParserPresetRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RemoveLogParserPresetRequestValidationError) ErrorName() string {
+	return "RemoveLogParserPresetRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RemoveLogParserPresetRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRemoveLogParserPresetRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = RemoveLogParserPresetRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RemoveLogParserPresetRequestValidationError{}
+
+// Validate checks the field values on RemoveLogParserPresetResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *RemoveLogParserPresetResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RemoveLogParserPresetResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// RemoveLogParserPresetResponseMultiError, or nil if none found.
+func (m *RemoveLogParserPresetResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RemoveLogParserPresetResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return RemoveLogParserPresetResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// RemoveLogParserPresetResponseMultiError is an error wrapping multiple
+// validation errors returned by RemoveLogParserPresetResponse.ValidateAll()
+// if the designated constraints aren't met.
+type RemoveLogParserPresetResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RemoveLogParserPresetResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RemoveLogParserPresetResponseMultiError) AllErrors() []error { return m }
+
+// RemoveLogParserPresetResponseValidationError is the validation error
+// returned by RemoveLogParserPresetResponse.Validate if the designated
+// constraints aren't met.
+type RemoveLogParserPresetResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RemoveLogParserPresetResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RemoveLogParserPresetResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RemoveLogParserPresetResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RemoveLogParserPresetResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RemoveLogParserPresetResponseValidationError) ErrorName() string {
+	return "RemoveLogParserPresetResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e RemoveLogParserPresetResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRemoveLogParserPresetResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = RemoveLogParserPresetResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RemoveLogParserPresetResponseValidationError{}

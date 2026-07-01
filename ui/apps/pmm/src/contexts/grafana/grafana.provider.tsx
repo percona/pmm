@@ -59,6 +59,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   isGrafanaPageRef.current = isGrafanaPage;
 
   const [isLoaded, setIsLoaded] = useState(false);
+  const [grafanaDocumentTitle, setGrafanaDocumentTitle] = useState<string | null>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const kioskMode = useKioskMode();
 
@@ -70,6 +71,12 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
       isLoggedIn || Boolean(frontendSettings?.anonymousEnabled);
     setIsLoaded(isGrafanaPage && canLoadGrafanaIframe);
   }, [isGrafanaPage, isLoggedIn, frontendSettings?.anonymousEnabled]);
+
+  useEffect(() => {
+    if (!isGrafanaPage) {
+      setGrafanaDocumentTitle(null);
+    }
+  }, [isGrafanaPage]);
 
   // Register messenger, set iframe target, and add INCOMING listeners
   useEffect(() => {
@@ -119,11 +126,17 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
       },
     });
 
-    // Document title
+    // Document title (browser tab + ADRE chat context when on Grafana routes)
     messenger.addListener({
       type: 'DOCUMENT_TITLE_CHANGE',
       onMessage: ({ payload }: DocumentTitleUpdateMessage) => {
-        if (payload?.title) updateDocumentTitle(payload.title);
+        if (!payload?.title) {
+          return;
+        }
+        updateDocumentTitle(payload.title);
+        if (typeof window !== 'undefined' && window.location.pathname.includes('/graph')) {
+          setGrafanaDocumentTitle(payload.title);
+        }
       },
     });
 
@@ -203,6 +216,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
         isFrameLoaded: isLoaded,
         isOnGrafanaPage: isGrafanaPage,
         isFullScreen: kioskMode.active,
+        grafanaDocumentTitle,
       }}
     >
       {children}

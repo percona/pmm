@@ -53,6 +53,7 @@ var acceptableAgentTypes = map[string][]string{
 	types.AgentTypeQANPostgreSQLPgStatMonitorAgent: {types.AgentTypeName(types.AgentTypeQANPostgreSQLPgStatMonitorAgent), "qan-postgresql-pgstatmonitor-agent"},
 	types.AgentTypeRDSExporter:                     {types.AgentTypeName(types.AgentTypeRDSExporter), "rds-exporter"},
 	types.AgentTypeRTAMongoDBAgent:                 {types.AgentTypeName(types.AgentTypeRTAMongoDBAgent), "rta-mongodb-agent"},
+	types.AgentTypeOtelCollector:                   {types.AgentTypeName(types.AgentTypeOtelCollector), "otel-collector"},
 }
 
 type listResultAgent struct {
@@ -307,6 +308,18 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 			ServiceID:  a.ServiceID,
 			Status:     getAgentStatus(a.Status),
 			Disabled:   a.Disabled,
+		})
+	}
+
+	for _, a := range agentsRes.Payload.OtelCollector {
+		agentsList = append(agentsList, listResultAgent{
+			AgentType:  types.AgentTypeOtelCollector,
+			AgentID:    a.AgentID,
+			PMMAgentID: a.PMMAgentID,
+			ServiceID:  "",
+			Status:     getAgentStatus(a.Status),
+			Disabled:   a.Disabled,
+			Port:       0,
 		})
 	}
 

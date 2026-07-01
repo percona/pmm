@@ -99,15 +99,18 @@ linters:
     rules:
       - linters:
           - contextcheck     # not critical, too many things to disable
+          - dogsled          # tests use `_, _, _, x := ...` patterns frequently
           - errcheck         # not critical, too many things to disable
           - exhaustivestruct # very annoying
           - forcetypeassert  # for tests' brevity sake 
           - funlen           # tests may be long
           - gocognit         # triggered by subtests
+          - gosec            # tests legitimately use insecure setups (0644, ignored errors, etc.)
           - ireturn          # we have exceptions, so need to silence them in tests
           - lll              # tests often require long lines
           - maintidx         # not critical for tests
           - mnd              # tests are full of magic numbers
+          - noctx            # tests often hit local httptest servers without context
           - nonamedreturns   # not critical for tests, albeit desirable
           - testpackage      # senseless
           - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
@@ -119,6 +122,9 @@ linters:
       - linters:
           - mnd
         path: api-tests
+      - linters:
+          - lll
+        path: managed/services/adre/prompts\.go
     paths:
       - managed/utils/interceptors/go-grpc-prometheus.go
       - agent/agents/mongodb/internal/

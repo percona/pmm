@@ -568,6 +568,16 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			ListenPort:      uint32(pointer.GetUint16(agent.ListenPort)),
 		}, nil
 
+	case models.OtelCollectorType:
+		return &inventoryv1.OtelCollector{
+			AgentId:         agent.AgentID,
+			PmmAgentId:      pointer.GetString(agent.PMMAgentID),
+			Disabled:        agent.Disabled,
+			CustomLabels:    labels,
+			Status:          inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
+			ProcessExecPath: processExecPath,
+		}, nil
+
 	case models.ValkeyExporterType:
 		exporter := &inventoryv1.ValkeyExporter{
 			AgentId:            agent.AgentID,

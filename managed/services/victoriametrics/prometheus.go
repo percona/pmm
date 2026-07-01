@@ -17,6 +17,7 @@ package victoriametrics
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/AlekSi/pointer"
 	config "github.com/percona/promconfig"
@@ -259,6 +260,28 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 			l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
 		}
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
+	}
+
+	if pmmAgentID != nil && pushMetrics {
+		otelRows, oerr := models.FindOtelCollectorAgentsForPMMAgent(q, pointer.GetString(pmmAgentID))
+		if oerr != nil {
+			return fmt.Errorf("failed to find OTel collector agents: %w", oerr)
+		}
+		for _, oc := range otelRows {
+			ocl, lerr := oc.GetCustomLabels()
+			if lerr != nil {
+				l.Warnf("Skip coroot scrape for otel_collector %s: %s", oc.AgentID, lerr)
+				continue
+			}
+			if ocl == nil || strings.TrimSpace(ocl["pmm_ebpf_pipeline"]) == "" {
+				continue
+			}
+			target := strings.TrimSpace(ocl["pmm_coroot_metrics_listen"])
+			if target == "" {
+				target = "127.0.0.1:19190"
+			}
+			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForCorootNodeAgent(globalResolutions.MR, target, oc.AgentID))
+		}
 	}
 
 	scfgs := scrapeConfigsForRDSExporter(rdsParams)

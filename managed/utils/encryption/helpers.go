@@ -39,18 +39,20 @@ func prepareRowPointers(rows *sql.Rows) ([]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	columns := make(map[string]string)
+	// Iterate columnTypes in declared (SELECT) order so the returned pointers align positionally
+	// with the "identifiers ++ columns" order built by Table.read. A map would randomize the order,
+	// which is only harmless when every column scans into the same pointer type.
+	row := make([]any, 0, len(columnTypes))
 	for _, columnType := range columnTypes {
-		columns[columnType.Name()] = columnType.DatabaseTypeName()
-	}
-
-	row := []any{}
-	for _, t := range columns {
-		switch t {
+		switch columnType.DatabaseTypeName() {
 		case "VARCHAR", "JSONB":
 			row = append(row, &sql.NullString{})
+		case "BOOL":
+			// Only safe for identifier columns (e.g. a singleton BOOLEAN primary key): identifiers
+			// are used as WHERE bind params and never pass through the *sql.NullString handlers.
+			row = append(row, &sql.NullBool{})
 		default:
-			return nil, fmt.Errorf("unsupported identificator type %s", t)
+			return nil, fmt.Errorf("unsupported identificator type %s", columnType.DatabaseTypeName())
 		}
 	}
 

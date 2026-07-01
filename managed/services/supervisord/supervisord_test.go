@@ -50,6 +50,7 @@ func TestConfig(t *testing.T) {
 	}
 	settings.VictoriaMetrics.CacheEnabled = new(false)
 	settings.Nomad.Enabled = new(true)
+	settings.Otel.CollectorEnabled = new(false)
 
 	for _, tmpl := range templates.Templates() {
 		n := tmpl.Name()
@@ -87,6 +88,7 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 		PMMPublicAddress: "192.168.0.42:8443",
 	}
 	settings.VictoriaMetrics.CacheEnabled = new(false)
+	settings.Otel.CollectorEnabled = new(false)
 
 	// Test environment variables being passed to VictoriaMetrics.
 	t.Setenv("VM_search_maxQueryLen", "2MB")

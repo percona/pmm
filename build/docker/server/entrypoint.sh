@@ -78,7 +78,7 @@ declare DIST_FILE=/srv/pmm-distribution
 if [ ! -f "$DIST_FILE" ]; then
     echo -n "$PMM_DISTRIBUTION_METHOD" > "$DIST_FILE"
     echo "Initializing /srv..."
-    mkdir -p /srv/{backup,clickhouse,grafana/plugins,logs,nginx,prometheus/rules,victoriametrics}
+    mkdir -p /srv/{backup,clickhouse,grafana/plugins,logs,nginx,otelcol,prometheus/rules,victoriametrics}
     echo "Copying grafana plugins and the VERSION file..."
     cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
 
