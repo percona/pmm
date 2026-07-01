@@ -54,7 +54,7 @@ type PMMAdminCommands struct {
 	Remove     management.RemoveCommand     `cmd:"" help:"Remove Service from monitoring"`
 	Register   management.RegisterCommand   `cmd:"" help:"Register current Node with PMM Server"`
 	Add        management.AddCommand        `cmd:"" help:"Add Service to monitoring"`
-	Inventory  inventory.InventoryCommand   `cmd:"" hidden:"" help:"Inventory commands"`
+	Inventory  inventory.Command            `cmd:"" hidden:"" help:"Inventory commands"`
 	Version    commands.VersionCommand      `cmd:"" help:"Print version"`
 	Completion commands.CompletionCommand   `cmd:"" help:"Outputs shell code for initialising tab completions"`
 }

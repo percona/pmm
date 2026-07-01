@@ -105,18 +105,22 @@ func (m *MongoDB) Write(r *report.Report) error {
 	return nil
 }
 
+// Profiler defines the lifecycle methods for the underlying MongoDB profiling mechanism
+// that handles the extraction of performance data.
 type Profiler interface {
+	// Start begins the profiling data collection process.
 	Start() error
+	// Stop gracefully ends the profiling data collection and cleans up resources.
 	Stop() error
 }
 
 // Describe implements prometheus.Collector.
-func (m *MongoDB) Describe(ch chan<- *prometheus.Desc) {
+func (m *MongoDB) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (m *MongoDB) Collect(ch chan<- prometheus.Metric) {
+func (m *MongoDB) Collect(_ chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 

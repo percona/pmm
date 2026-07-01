@@ -20,8 +20,8 @@ import (
 	"strings"
 )
 
-// InventoryCommand is used by Kong for CLI flags and commands.
-type InventoryCommand struct {
+// Command is used by Kong for CLI flags and commands.
+type Command struct {
 	List   ListCommand   `cmd:"" help:"List inventory commands"`
 	Add    AddCommand    `cmd:"" help:"Add to inventory commands"`
 	Remove RemoveCommand `cmd:"" help:"Remove from inventory commands"`
@@ -140,4 +140,4 @@ func formatTypeValue(acceptableTypeValues map[string][]string, input string) (*s
 }
 
 // RunCmd is a stub that allows to display the InventoryCommand's help.
-func (cmd *InventoryCommand) RunCmd() {}
+func (cmd *Command) RunCmd() {}

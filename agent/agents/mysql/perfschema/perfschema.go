@@ -269,7 +269,7 @@ func (m *PerfSchema) Changes() <-chan agents.Change {
 }
 
 // Describe implements prometheus.Collector.
-func (m *PerfSchema) Describe(ch chan<- *prometheus.Desc) {
+func (m *PerfSchema) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 

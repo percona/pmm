@@ -122,7 +122,7 @@ var commandTypeToText = []string{
 	commandTextNotAvailable,
 }
 
-// New creates new QAN QAN service.
+// New creates new QAN service.
 func New(params *Params, l *logrus.Entry) (*QAN, error) {
 	sqlDB, err := sql.Open("postgres", params.DSN)
 	if err != nil {

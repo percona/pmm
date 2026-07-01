@@ -174,7 +174,7 @@ func TestSlowLog(t *testing.T) {
 		assert.Equal(t, expected, actual)
 
 		cancel()
-		for range s.Changes() {
+		for range s.Changes() { //nolint:revive
 		}
 	})
 
@@ -225,7 +225,7 @@ func TestSlowLog(t *testing.T) {
 		assert.Equal(t, expected, actual)
 
 		cancel()
-		for range s.Changes() {
+		for range s.Changes() { //nolint:revive
 		}
 	})
 
@@ -274,7 +274,7 @@ func TestSlowLog(t *testing.T) {
 		assert.Equal(t, expected, actual)
 
 		cancel()
-		for range s.Changes() {
+		for range s.Changes() { //nolint:revive
 		}
 	})
 }
