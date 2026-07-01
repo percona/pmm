@@ -16,11 +16,11 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
@@ -94,7 +94,7 @@ func CreateServiceSoftwareVersions(q *reform.Querier, params CreateServiceSoftwa
 
 	err = q.Insert(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to insert service software versions")
+		return nil, fmt.Errorf("failed to insert service software versions: %w", err)
 	}
 
 	return row, nil
@@ -153,7 +153,7 @@ func UpdateServiceSoftwareVersions(
 
 	err = q.Update(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to update service software versions")
+		return nil, fmt.Errorf("failed to update service software versions: %w", err)
 	}
 
 	return row, nil
@@ -170,9 +170,9 @@ func FindServiceSoftwareVersionsByServiceID(q *reform.Querier, serviceID string)
 	err := q.Reload(versions)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, errors.Wrapf(ErrNotFound, "service software versions by service id '%s'", serviceID)
+			return nil, fmt.Errorf("service software versions by service id '%s': %w", serviceID, ErrNotFound)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return versions, nil
@@ -199,11 +199,11 @@ func FindServicesSoftwareVersions(
 	if filter.ServiceType != nil {
 		err = ValidateServiceType(*filter.ServiceType)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return nil, err
 		}
 		_, err = fmt.Fprintf(&tail, "WHERE service_type = %s ", q.Placeholder(idx))
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return nil, err
 		}
 		args = append(args, string(*filter.ServiceType))
 		idx++
@@ -218,14 +218,14 @@ func FindServicesSoftwareVersions(
 	if filter.Limit != nil {
 		_, err = fmt.Fprintf(&tail, "LIMIT %s", q.Placeholder(idx))
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return nil, err
 		}
 		args = append(args, *filter.Limit)
 	}
 
 	structs, err := q.SelectAllFrom(ServiceSoftwareVersionsTable, tail.String(), args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	versions := make([]*ServiceSoftwareVersions, len(structs))
@@ -245,7 +245,7 @@ func DeleteServiceSoftwareVersions(q *reform.Querier, serviceID string) error {
 
 	err = q.Delete(&ServiceSoftwareVersions{ServiceID: serviceID})
 	if err != nil {
-		return errors.Wrapf(err, "failed to delete services software versions by service id '%s'", serviceID)
+		return fmt.Errorf("failed to delete services software versions by service id '%s': %w", serviceID, err)
 	}
 	return nil
 }

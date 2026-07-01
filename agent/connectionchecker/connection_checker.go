@@ -20,6 +20,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -30,7 +31,6 @@ import (
 	"github.com/go-sql-driver/mysql"
 	"github.com/gomodule/redigo/redis"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/prometheus/common/expfmt"
 	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
@@ -155,12 +155,12 @@ func (cc *ConnectionChecker) checkMySQLConnection(
 
 	err = cc.sqlPing(ctx, db)
 	if err != nil {
-		if errors.As(err, &x509.HostnameError{}) {
-			res.Error = errors.Wrap(err,
-				"mysql ssl certificate is misconfigured, make sure the certificate includes the requested hostname/IP in CN or subjectAltName fields").Error()
-		} else {
-			res.Error = err.Error()
+		_, ok := errors.AsType[*x509.HostnameError](err)
+		if ok {
+			err = fmt.Errorf("mysql ssl certificate is misconfigured, make sure the "+
+				"certificate includes the requested hostname/IP in CN or subjectAltName fields: %w", err)
 		}
+		res.Error = err.Error()
 	}
 
 	return &res

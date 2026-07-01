@@ -20,12 +20,13 @@ import (
 	"bufio"
 	"context"
 	"encoding/base64"
+	"errors"
+	"fmt"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
-	"github.com/pkg/errors"
 	"github.com/pkg/sftp"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
@@ -85,7 +86,7 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 		if basic, ok := strings.CutPrefix(authHeader[0], "Basic"); ok {
 			decodedBasic, err := base64.StdEncoding.DecodeString(strings.TrimSpace(basic))
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to decode basic authorization header")
+				return nil, fmt.Errorf("failed to decode basic authorization header: %w", err)
 			}
 
 			s := strings.Split(string(decodedBasic), ":")
@@ -250,20 +251,20 @@ func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpReque
 
 	sshClient, err := ssh.Dial("tcp", req.SftpParameters.Address, conf)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to open TCP connection to SFTP server")
+		return nil, fmt.Errorf("failed to open TCP connection to SFTP server: %w", err)
 	}
 	defer sshClient.Close() //nolint:errcheck
 
 	sftpClient, err := sftp.NewClient(sshClient)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create SFTP client")
+		return nil, fmt.Errorf("failed to create SFTP client: %w", err)
 	}
 	defer sftpClient.Close() //nolint:errcheck
 
 	for _, filePath := range filePaths {
 		err = s.uploadFile(sftpClient, filePath, req.SftpParameters.Directory)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to upload file on SFTP server")
+			return nil, fmt.Errorf("failed to upload file on SFTP server: %w", err)
 		}
 	}
 
@@ -276,12 +277,12 @@ func (s *Service) uploadFile(client *sftp.Client, localFilePath, remoteDir strin
 
 	nf, err := client.OpenFile(remoteFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC)
 	if err != nil {
-		return errors.Wrap(err, "failed to create file on SFTP server")
+		return fmt.Errorf("failed to create file on SFTP server: %w", err)
 	}
 
 	f, err := os.Open(localFilePath) //nolint:gosec
 	if err != nil {
-		return errors.Wrap(err, "failed to open dump file")
+		return fmt.Errorf("failed to open dump file: %w", err)
 	}
 	defer func() {
 		err := f.Close()
@@ -291,7 +292,7 @@ func (s *Service) uploadFile(client *sftp.Client, localFilePath, remoteDir strin
 	}()
 	_, err = bufio.NewReader(f).WriteTo(nf)
 	if err != nil {
-		return errors.Wrap(err, "failed to write dump file on SFTP server")
+		return fmt.Errorf("failed to write dump file on SFTP server: %w", err)
 	}
 
 	return nil
@@ -300,7 +301,7 @@ func (s *Service) uploadFile(client *sftp.Client, localFilePath, remoteDir strin
 func convertDump(dump *models.Dump) (*dumpv1beta1.Dump, error) {
 	ds, err := convertDumpStatus(dump.Status)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to convert dump ds")
+		return nil, fmt.Errorf("failed to convert dump ds: %w", err)
 	}
 
 	d := &dumpv1beta1.Dump{
@@ -331,6 +332,6 @@ func convertDumpStatus(status models.DumpStatus) (dumpv1beta1.DumpStatus, error)
 	case models.DumpStatusInProgress:
 		return dumpv1beta1.DumpStatus_DUMP_STATUS_IN_PROGRESS, nil
 	default:
-		return dumpv1beta1.DumpStatus_DUMP_STATUS_UNSPECIFIED, errors.Errorf("invalid status '%s'", status)
+		return dumpv1beta1.DumpStatus_DUMP_STATUS_UNSPECIFIED, fmt.Errorf("invalid status '%s'", status)
 	}
 }

@@ -19,6 +19,7 @@ package dump
 import (
 	"bufio"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -28,7 +29,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -105,7 +105,7 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	})
 	if err != nil {
 		s.running.Store(false)
-		return "", errors.Wrap(err, "failed to create dump")
+		return "", fmt.Errorf("failed to create dump: %w", err)
 	}
 
 	l := s.l.WithField("dump_id", dump.ID)
@@ -124,12 +124,12 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		service, err := models.FindServiceByName(s.db.Querier, serviceName)
 		if err != nil {
 			s.running.Store(false)
-			return "", errors.Wrapf(err, "failed to find service %s", serviceName)
+			return "", fmt.Errorf("failed to find service %s: %w", serviceName, err)
 		}
 		node, err := models.FindNodeByID(s.db.Querier, service.NodeID)
 		if err != nil {
 			s.running.Store(false)
-			return "", errors.Wrapf(err, "failed to find node for service %s", serviceName)
+			return "", fmt.Errorf("failed to find node for service %s: %w", serviceName, err)
 		}
 		instances = append(instances, serviceName)
 		nodeNames[node.NodeName] = struct{}{}
@@ -226,23 +226,23 @@ func (s *Service) StartDump(params *Params) (string, error) {
 func (s *Service) DeleteDump(dumpID string) error {
 	dump, err := models.FindDumpByID(s.db.Querier, dumpID)
 	if err != nil {
-		return errors.Wrap(err, "failed to find dump")
+		return fmt.Errorf("failed to find dump: %w", err)
 	}
 
 	filePath := getDumpFilePath(dump.ID, dump.Encrypted)
 	err = validateFilePath(filePath)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return errors.WithStack(err)
+		return err
 	}
 
 	err = os.Remove(filePath)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return errors.Wrap(err, "failed to remove pmm-dump files")
+		return fmt.Errorf("failed to remove pmm-dump files: %w", err)
 	}
 
 	err = models.DeleteDump(s.db.Querier, dumpID)
 	if err != nil {
-		return errors.Wrap(err, "failed to delete dump")
+		return fmt.Errorf("failed to delete dump: %w", err)
 	}
 
 	return nil
@@ -264,7 +264,7 @@ func (s *Service) GetFilePathsForDumps(dumpIDs []string) (map[string]string, err
 		filePath := getDumpFilePath(d.ID, d.Encrypted)
 		err = validateFilePath(filePath)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return nil, err
 		}
 
 		res[d.ID] = filePath
@@ -290,8 +290,8 @@ func (s *Service) persistLogs(dumpID string, r io.Reader) error {
 	for scanner.Scan() {
 		nErr := s.saveLogChunk(dumpID, chunkN.Add(1)-1, scanner.Text(), false)
 		if nErr != nil {
-			s.l.Warnf("failed to read pmm-dump logs: %v", err)
-			return errors.WithStack(nErr)
+			s.l.Warnf("Failed to read pmm-dump logs: %v", nErr)
+			return nErr
 		}
 	}
 
@@ -300,13 +300,13 @@ func (s *Service) persistLogs(dumpID string, r io.Reader) error {
 		s.l.Warnf("Failed to read pmm-dump logs: %+v", err)
 		nErr := s.saveLogChunk(dumpID, chunkN.Add(1)-1, err.Error(), false)
 		if nErr != nil {
-			return errors.WithStack(nErr)
+			return nErr
 		}
 	}
 
 	nErr := s.saveLogChunk(dumpID, chunkN.Add(1)-1, "", true)
 	if nErr != nil {
-		return errors.WithStack(nErr)
+		return nErr
 	}
 
 	return nil
@@ -320,7 +320,7 @@ func (s *Service) saveLogChunk(dumpID string, chunkN uint32, text string, last b
 		LastChunk: last,
 	})
 	if err != nil {
-		return errors.Wrap(err, "failed to save pmm-dump log chunk")
+		return fmt.Errorf("failed to save pmm-dump log chunk: %w", err)
 	}
 
 	return nil
@@ -346,12 +346,12 @@ func validateFilePath(path string) error {
 	c := filepath.Clean(path)
 	r, err := filepath.EvalSymlinks(c)
 	if err != nil {
-		return errors.Wrap(err, "unsafe or invalid dump filepath")
+		return fmt.Errorf("unsafe or invalid dump filepath: %w", err)
 	}
 
 	if path != r {
-		return errors.Errorf("actual file path doesn't match expected, that may be caused by symlinks "+
-			"of path traversal, expected path: %s, actual: %s", path, r)
+		return fmt.Errorf("actual file path doesn't match expected, that may be caused by symlinks "+
+			"or path traversal, expected path: %s, actual: %s", path, r)
 	}
 
 	return nil

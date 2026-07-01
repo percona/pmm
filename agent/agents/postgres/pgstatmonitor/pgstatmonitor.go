@@ -18,6 +18,7 @@ package pgstatmonitor
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +27,6 @@ import (
 	"github.com/AlekSi/pointer"
 	ver "github.com/hashicorp/go-version"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -194,11 +194,11 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 	var result string
 	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ pg_stat_monitor_version()", queryTag)).Scan(&result)
 	if err != nil {
-		return pgStatMonitorVersion06, "", errors.Wrap(err, "failed to get pg_stat_monitor version from DB")
+		return pgStatMonitorVersion06, "", fmt.Errorf("failed to get pg_stat_monitor version from DB: %w", err)
 	}
 	vPGSM, err := ver.NewVersion(result)
 	if err != nil {
-		return pgStatMonitorVersion06, "", errors.Wrap(err, "failed to parse pg_stat_monitor version")
+		return pgStatMonitorVersion06, "", fmt.Errorf("failed to parse pg_stat_monitor version: %w", err)
 	}
 
 	vPG, err := getPGVersion(q)
@@ -374,7 +374,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			m.resetWaitTime(t, waitTime)
 
 			if err != nil {
-				m.l.Error(errors.Wrap(err, "getNewBuckets failed"))
+				m.l.WithError(err).Error("getNewBuckets failed")
 				running = false
 				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 				continue
@@ -528,7 +528,7 @@ func (s settings) getWaitTime() (time.Duration, error) {
 
 	valueInt, err := strconv.ParseInt(s[key].Value, 10, 64)
 	if err != nil {
-		return defaultWaitTime, errors.Wrap(err, "property pgsm_bucket_time cannot be parsed as integer, wait time set on 60 seconds")
+		return defaultWaitTime, fmt.Errorf("property pgsm_bucket_time cannot be parsed as integer, wait time set on 60 seconds: %w", err)
 	}
 
 	return time.Duration(valueInt) * time.Second, nil
@@ -567,7 +567,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 	for bucketStartTime, bucket := range current {
 		vPGSM, _, err := getPGMonitorVersion(m.q)
 		if err != nil {
-			m.l.Error(errors.Wrap(err, "failed to get row and view for pg_stat_monitor version"))
+			m.l.WithError(err).Error("Failed to get row and view for pg_stat_monitor version")
 			continue
 		}
 
@@ -727,7 +727,7 @@ func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.Stri
 	for k, v := range respCalls {
 		val, err := strconv.ParseInt(v, 10, 32)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse histogram")
+			return nil, fmt.Errorf("failed to parse histogram: %w", err)
 		}
 
 		histogram[k].Frequency = uint32(val)
@@ -736,7 +736,7 @@ func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.Stri
 	for k, v := range prevRespCalls {
 		val, err := strconv.ParseInt(v, 10, 32)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse histogram")
+			return nil, fmt.Errorf("failed to parse histogram: %w", err)
 		}
 
 		histogram[k].Frequency -= uint32(val)
