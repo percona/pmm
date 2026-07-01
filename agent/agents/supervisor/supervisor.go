@@ -688,6 +688,18 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), agent.Run)
 
 	go func() {
+		qanDeliveryRequests := make(chan *agentv1.QANCollectRequest, qanRequestsBufferSize)
+		qanDeliveryDone := make(chan struct{})
+		go func() {
+			defer close(qanDeliveryDone)
+			s.deliverQANRequests(ctx, l, agentID, qanDeliveryRequests)
+		}()
+		defer close(done)
+		defer func() {
+			close(qanDeliveryRequests)
+			<-qanDeliveryDone
+		}()
+
 		rtaBucketLastCollectTime := timestamppb.New(time.Now()).AsTime()
 
 		for change := range agent.Changes() {
@@ -700,9 +712,13 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 				}
 			}
 			if change.MetricsBucket != nil {
-				l.Infof("Sending %d metrics buckets.", len(change.MetricsBucket))
-				s.qanRequests <- &agentv1.QANCollectRequest{
+				request := &agentv1.QANCollectRequest{
 					MetricsBucket: change.MetricsBucket,
+				}
+				select {
+				case qanDeliveryRequests <- request:
+				case <-ctx.Done():
+					return
 				}
 			}
 
@@ -726,7 +742,6 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 				}
 			}
 		}
-		close(done)
 	}()
 
 	//nolint:forcetypeassert
@@ -739,6 +754,54 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		logStore:       logStore,
 	}
 	return nil
+}
+
+func (s *Supervisor) deliverQANRequests(ctx context.Context, l *logrus.Entry, agentID string, requests <-chan *agentv1.QANCollectRequest) {
+	var qanDeliveryOffset time.Duration
+	qanDeliveryOffsetAssigned := false
+	var releaseQANDeliveryOffset func()
+
+	for request := range requests {
+		if !qanDeliveryOffsetAssigned {
+			var offset time.Duration
+			offset, releaseQANDeliveryOffset = agents.RandomMinuteOffset(agentID)
+			qanDeliveryOffset = offset
+			qanDeliveryOffsetAssigned = true
+		}
+
+		delay := agents.DelayUntilOffset(time.Now(), time.Minute, qanDeliveryOffset)
+		s.sendQANRequest(ctx, l, request, delay)
+	}
+
+	if releaseQANDeliveryOffset != nil {
+		releaseQANDeliveryOffset()
+	}
+}
+
+func (s *Supervisor) sendQANRequest(ctx context.Context, l *logrus.Entry, request *agentv1.QANCollectRequest, delay time.Duration) bool {
+	if delay > 0 {
+		l.Debugf("Scheduling QAN delivery in %s.", delay)
+		t := time.NewTimer(delay)
+		select {
+		case <-t.C:
+		case <-ctx.Done():
+			if !t.Stop() {
+				select {
+				case <-t.C:
+				default:
+				}
+			}
+			return false
+		}
+	}
+
+	l.Infof("Sending %d metrics buckets.", len(request.MetricsBucket))
+	select {
+	case s.qanRequests <- request:
+		return true
+	case <-ctx.Done():
+		return false
+	}
 }
 
 // agentLogger write logs to Store so can get last N.
