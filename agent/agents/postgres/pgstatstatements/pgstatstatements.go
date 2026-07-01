@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package pgstatstatements runs built-in QAN Agent for PostgreSQL pg stats statements.
+// Package pgstatstatements runs built-in PGStatStatementsQAN Agent for PostgreSQL pg stats statements.
 package pgstatstatements
 
 import (
@@ -55,8 +55,8 @@ var (
 
 type statementsMap map[int64]*pgStatStatementsExtended
 
-// QAN connects to PostgreSQL and extracts stats using pg_stat_statements.
-type QAN struct {
+// PGStatStatementsQAN connects to PostgreSQL and extracts stats using pg_stat_statements.
+type PGStatStatementsQAN struct { //nolint:revive
 	q                      *reform.Querier
 	dbCloser               io.Closer
 	agentID                string
@@ -81,8 +81,8 @@ const (
 	pgssMaxQuery = "SELECT /* " + queryTag + " */ setting FROM pg_settings WHERE name = 'pg_stat_statements.max'"
 )
 
-// New creates new QAN service.
-func New(params *Params, l *logrus.Entry) (*QAN, error) {
+// New creates new PGStatStatementsQAN service.
+func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	sqlDB, err := sql.Open("postgres", params.DSN)
 	if err != nil {
 		return nil, err
@@ -115,14 +115,14 @@ func newPgStatStatementsQAN(
 	maxQueryLength int32,
 	disableCommentsParsing bool,
 	l *logrus.Entry,
-) (*QAN, error) {
+) (*PGStatStatementsQAN, error) {
 	cacheSize := getPgStatStatementsCacheSize(q, l)
 	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, cacheSize, l)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create cache: %w", err)
 	}
 
-	return &QAN{
+	return &PGStatStatementsQAN{
 		q:                      q,
 		dbCloser:               dbCloser,
 		agentID:                agentID,
@@ -153,7 +153,7 @@ func getPgStatVersion(q *reform.Querier) (semver.Version, error) {
 }
 
 // Run extracts stats data and sends it to the channel until ctx is canceled.
-func (m *QAN) Run(ctx context.Context) {
+func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	defer func() {
 		m.dbCloser.Close() //nolint:errcheck
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
@@ -226,8 +226,8 @@ func (m *QAN) Run(ctx context.Context) {
 }
 
 // getStatStatementsExtended returns the current state of pg_stat_statements table with extended information (database, username, tables)
-// and the previous cashed state.
-func (m *QAN) getStatStatementsExtended(
+// and the previous cached state.
+func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	ctx context.Context,
 ) (statementsMap, statementsMap, error) {
 	var totalN, newN, newSharedN, oldN int
@@ -305,7 +305,7 @@ func (m *QAN) getStatStatementsExtended(
 	return current, prev, err
 }
 
-func (m *QAN) getNewBuckets(ctx context.Context, periodStart time.Time, periodLengthSecs uint32) ([]*agentv1.MetricsBucket, error) {
+func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart time.Time, periodLengthSecs uint32) ([]*agentv1.MetricsBucket, error) {
 	current, prev, err := m.getStatStatementsExtended(ctx)
 	if err != nil {
 		return nil, err
@@ -337,7 +337,7 @@ func (m *QAN) getNewBuckets(ctx context.Context, periodStart time.Time, periodLe
 
 // makeBuckets uses current state of pg_stat_statements table and accumulated previous state
 // to make metrics buckets. It's a pure function for easier testing.
-func (m *QAN) makeBuckets(current, prev statementsMap) []*agentv1.MetricsBucket {
+func (m *PGStatStatementsQAN) makeBuckets(current, prev statementsMap) []*agentv1.MetricsBucket {
 	res := make([]*agentv1.MetricsBucket, 0, len(current))
 	l := m.l
 
@@ -432,17 +432,17 @@ func (m *QAN) makeBuckets(current, prev statementsMap) []*agentv1.MetricsBucket 
 }
 
 // Changes returns channel that should be read until it is closed.
-func (m *QAN) Changes() <-chan agents.Change {
+func (m *PGStatStatementsQAN) Changes() <-chan agents.Change {
 	return m.changes
 }
 
 // Describe implements prometheus.Collector.
-func (m *QAN) Describe(_ chan<- *prometheus.Desc) {
+func (m *PGStatStatementsQAN) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (m *QAN) Collect(ch chan<- prometheus.Metric) {
+func (m *PGStatStatementsQAN) Collect(ch chan<- prometheus.Metric) {
 	stats := m.statementsCache.cache.Stats()
 	metrics := cache.MetricsFromStats(stats, m.agentID, "")
 	for _, metric := range metrics {
@@ -452,5 +452,5 @@ func (m *QAN) Collect(ch chan<- prometheus.Metric) {
 
 // check interfaces.
 var (
-	_ prometheus.Collector = (*QAN)(nil)
+	_ prometheus.Collector = (*PGStatStatementsQAN)(nil)
 )
