@@ -1,5 +1,9 @@
 jest.mock('@grafana/runtime', () => ({
-  locationService: { getLocation: () => ({ pathname: '/', search: '', hash: '' }), push: jest.fn(), replace: jest.fn() },
+  locationService: {
+    getLocation: () => ({ pathname: '/', search: '', hash: '' }),
+    push: jest.fn(),
+    replace: jest.fn(),
+  },
   getAppEvents: () => ({ subscribe: jest.fn() }),
   config: { bootData: { user: {} }, theme2: { isDark: true } },
   ThemeChangedEvent: class {},

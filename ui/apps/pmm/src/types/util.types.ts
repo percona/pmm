@@ -8,4 +8,4 @@ export type SvgIconComponent = typeof SvgIcon;
 
 export type EmptyResponse = Record<string, never>;
 
-export type CodeLanguage = 'text' | 'mongodb' | 'json';
+export type CodeLanguage = 'text' | 'mongodb' | 'json' | 'promql';

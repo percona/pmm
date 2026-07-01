@@ -2,7 +2,6 @@ import axios, { AxiosError } from 'axios';
 import applyCaseMiddleware from 'axios-case-converter';
 import { enqueueSnackbar } from 'notistack';
 
-
 export const api = applyCaseMiddleware(
   axios.create({
     baseURL: '/v1/',
@@ -22,10 +21,7 @@ export const addApiErrorInterceptor = () => {
     errorInterceptor = api.interceptors.response.use(
       (response) => response,
       (error: AxiosError<{ message?: string }>) => {
-        if (
-          error.response &&
-          error.response.status >= 400
-        ) {
+        if (error.response && error.response.status >= 400) {
           let message = error.response.data?.message ?? DEFAULT_ERROR_MESSAGE;
           let notificationsDisabled =
             error.config?.disableNotifications ?? error.response.status === 429;
