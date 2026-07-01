@@ -618,7 +618,8 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, status.Error(codes.InvalidArgument, "Rule group name should be specified.")
 	}
 
-	metricsDatasourceUID, err := s.grafanaClient.GetDatasourceUIDByID(ctx, 1) // 1 - it's id of Metrics datasource in PMM
+	// The datasource name is defined in `build/ansible/roles/grafana/files/datasources.yml`
+	metricsDatasourceUID, err := s.grafanaClient.GetDatasourceUIDByName(ctx, "Metrics")
 	if err != nil {
 		return nil, err
 	}
@@ -705,7 +706,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 					RefID:         "A",
 					DatasourceUID: metricsDatasourceUID,
 					// TODO: https://community.grafana.com/t/grafana-requires-time-range-for-alert-rule-creation-with-instant-promql-quieriy/70919
-					RelativeTimeRange: services.RelativeTimeRange{From: 600, To: 0},
+					RelativeTimeRange: services.RelativeTimeRange{From: 600, To: 0}, //nolint:mnd
 					Model: services.Model{
 						Expr:    expr,
 						RefID:   "A",

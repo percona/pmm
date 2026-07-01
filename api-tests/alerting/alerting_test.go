@@ -26,7 +26,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	gapi "github.com/grafana/grafana-api-golang-client"
+	"github.com/grafana/grafana-openapi-client-go/client/folders"
+	"github.com/grafana/grafana-openapi-client-go/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -46,10 +47,11 @@ func TestRulesAPI(t *testing.T) {
 
 	// Create grafana folder for test alert rules
 	gClient := pmmapitests.GetGrafanaClient(t)
-	folder, err := gClient.NewFolder(pmmapitests.TestString(t, "test-folder"))
+	createdFolder, err := gClient.Folders.CreateFolder(&models.CreateFolderCommand{Title: pmmapitests.TestString(t, "test-folder")})
 	require.NoError(t, err)
+	folder := createdFolder.Payload
 	t.Cleanup(func() {
-		_ = gClient.DeleteFolder(folder.UID, gapi.ForceDeleteFolderRules())
+		_, _ = gClient.Folders.DeleteFolder(folders.NewDeleteFolderParams().WithFolderUID(folder.UID).WithForceDeleteRules(new(true)))
 	})
 
 	dummyFilter := &alerting.CreateRuleParamsBodyFiltersItems0{
