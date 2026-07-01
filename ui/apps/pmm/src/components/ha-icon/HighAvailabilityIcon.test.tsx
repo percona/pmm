@@ -12,7 +12,7 @@ describe('HighAvailabilityIcon', () => {
   });
 
   it('should render the health icon for all types except healthy', async () => {
-    const healthTypes: HAHealth[] = ['degraded', 'critical', 'down'];
+    const healthTypes: HAHealth[] = ['degraded', 'critical', 'unreachable'];
 
     for (const health of healthTypes) {
       render(<HighAvailabilityIcon health={health} />);

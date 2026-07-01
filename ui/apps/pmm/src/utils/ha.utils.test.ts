@@ -25,7 +25,7 @@ describe('ha.utils', () => {
 
     const health = getHAHealth(nodes, expectedNodes);
 
-    expect(health).toBe('down');
+    expect(health).toBe('unreachable');
   });
 
   it('should return "down" if all suspect', () => {
@@ -37,7 +37,7 @@ describe('ha.utils', () => {
 
     const health = getHAHealth(nodes, expectedNodes);
 
-    expect(health).toBe('down');
+    expect(health).toBe('unreachable');
   });
 
   it('should return "down" if all left', () => {
@@ -49,7 +49,7 @@ describe('ha.utils', () => {
 
     const health = getHAHealth(nodes, expectedNodes);
 
-    expect(health).toBe('down');
+    expect(health).toBe('unreachable');
   });
 
   it('should return "down" if all unknown', () => {
@@ -61,7 +61,7 @@ describe('ha.utils', () => {
 
     const health = getHAHealth(nodes, expectedNodes);
 
-    expect(health).toBe('down');
+    expect(health).toBe('unreachable');
   });
 
   it('should return "degraded" if not alive <= 1/3', () => {

@@ -9,16 +9,17 @@ import { HA_ICON_MAP } from './HighAvailabilityIcon.constants';
 const HighAvailabilityIcon: FC<HighAvailabilityIconProps> = ({ health }) => {
   const theme = useTheme();
   const styles = getStyles(theme);
+  const haIcon = HA_ICON_MAP[health];
 
   return (
     <Box sx={{ position: 'relative' }}>
       <Icon data-testid="ha-icon" name="cluster" />
-      {health !== 'healthy' && (
+      {haIcon && (
         <Box
           data-testid="ha-health-icon"
           sx={{ position: 'absolute', top: -4, right: -7 }}
         >
-          <Icon sx={styles.icon} name={HA_ICON_MAP[health]} />
+          <Icon sx={styles.icon} name={haIcon} />
         </Box>
       )}
     </Box>

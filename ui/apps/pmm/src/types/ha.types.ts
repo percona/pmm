@@ -30,4 +30,9 @@ export interface HAInfo {
   nodes: GetHANodeResponse[];
 }
 
-export type HAHealth = 'healthy' | 'degraded' | 'critical' | 'down';
+export type HAHealth =
+  | 'healthy'
+  | 'degraded'
+  | 'critical'
+  | 'unreachable'
+  | 'unknown';

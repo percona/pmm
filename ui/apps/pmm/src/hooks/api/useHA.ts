@@ -36,7 +36,8 @@ export const useHaInfo = (
 
   const health = getHAHealth(
     nodesQuery.data?.nodes || [],
-    nodesQuery.data?.expectedNodes || 0
+    nodesQuery.data?.expectedNodes || 0,
+    nodesQuery
   );
   const enabled = statusQuery.data?.status === 'Enabled';
   const leader = nodesQuery.data?.nodes.find(
