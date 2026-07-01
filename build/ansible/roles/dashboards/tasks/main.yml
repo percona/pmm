@@ -1,4 +1,16 @@
 ---
+# On PMM upgrade Grafana may already be running while bundled plugins under
+# /srv/grafana/plugins are replaced. Grafana discovers plugins only at startup,
+# so stop it before sync and start it afterward.
+- name: Stop Grafana before plugin sync
+  supervisorctl:
+    name: grafana
+    state: stopped
+  failed_when: false
+  become: true
+  become_user: pmm
+  become_method: su
+
 - name: Retrieve Percona plugins
   find:
     paths: /usr/share/percona-dashboards/panels/
@@ -31,3 +43,12 @@
     dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
     mode: 0664
     remote_src: yes
+
+- name: Start Grafana after plugin sync
+  supervisorctl:
+    name: grafana
+    state: started
+  failed_when: false
+  become: true
+  become_user: pmm
+  become_method: su
