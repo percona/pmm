@@ -13,6 +13,8 @@ import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import { SnippetsPlugin } from '@sep/plugins-snippets';
+import { SchemaDrivenPlugin } from '@sep/framework';
 
 const router = createBrowserRouter(
   [
@@ -64,6 +66,18 @@ const router = createBrowserRouter(
                   element: <RealtimeOverviewPage />,
                 },
               ],
+            },
+            // SEP apps mounted as native routes. Both plugins compose their own
+            // <Routes>, so the paths are splats.
+            {
+              path: 'sep/snippets/*',
+              // isAdmin hardcoded true while auth is stubbed (interim Option D);
+              // real value comes from the token role claim once Option B lands.
+              element: <SnippetsPlugin isAdmin />,
+            },
+            {
+              path: 'sep/mysql-backups/*',
+              element: <SchemaDrivenPlugin pluginName="mysql_backups" />,
             },
             // Fallback
             {
