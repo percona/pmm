@@ -141,14 +141,15 @@
             ],
             "title": "Transactions per Seconds",
             "transparent": true,
-            "type": "timeseries"
+            "type": "timeseries",
+            "description": "Commit rate per second (pg_stat_database). A drop may indicate connection saturation, long-running transactions, or deadlocks — check pg_stat_activity for blocking sessions."
         },
         {
             "datasource": {
                 "type": "grafana-clickhouse-datasource",
                 "uid": "PDEE91DDB90597936"
             },
-            "description": "Slowest average execution time",
+            "description": "Highest average execution time per call — expensive on every run. Use QAN EXPLAIN to find sequential scans, missing indexes, or inefficient join strategies.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -280,7 +281,7 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "PDEE91DDB90597936"
             },
-            "description": "Postgresql spent the most time on these queries.",
+            "description": "Most cumulative execution time overall. A fast query called thousands of times can dominate here — start here when diagnosing CPU saturation or poor throughput.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -398,7 +399,7 @@
                     },
                     "pluginVersion": "4.4.0",
                     "queryType": "table",
-                    "rawSql": "SELECT   \n    service_name as \"Service Name\",\n    database as Database,\n    fingerprint AS \"Query\", \n    sum(m_query_time_sum) AS \"Execution Time Summary\"\nFROM pmm.\"metrics\"\nWHERE \n    period_start >= $__fromTime \n    AND period_start <= $__toTime \n    AND if(length('${service_name:csv}') = 0,1, service_name in ($service_name))\n    AND service_type = 'postgresql'\n    AND database NOT IN ('postgres', '<database name not available>', 'template1')\n    AND fingerprint NOT IN ('SELECT version()')\n    AND fingerprint NOT ILIKE '%pg_stat_%'\n    AND fingerprint NOT ILIKE '%pg_replication_slots%'\n    AND fingerprint NOT ILIKE '%pg_publication%'\n    AND fingerprint NOT ILIKE '%pg_last_wal_receive_lsn%'\nGROUP BY \n    service_name,  \n    database, \n    fingerprint \nORDER BY \"Execution Time Summary\" DESC\nLIMIT 100;",
+                    "rawSql": "SELECT   \n    service_name as \"Service Name\",\n    database as Database,\n    fingerprint AS \"Query\", \n    sum(m_query_time_sum) AS \"Execution Time Summary\"\nFROM pmm.\"metrics\"\nWHERE \n    period_start >= $__fromTime \n    AND period_start <= $__toTime \n    AND if(length('${service_name:csv}') = 0,1, service_name in ($service_name))\n    AND service_type = 'postgresql'\n    AND database NOT IN ('postgres', '<database name not available>', 'template1')\n    AND fingerprint NOT IN ('SELECT version()')\n    AND fingerprint NOT ILIKE '%pg_stat_%'\n    AND fingerprint NOT ILIKE '%pg_replication_slots%'\n    AND fingerprint NOT ILIKE '%pg_publication%'\n    AND fingerprint NOT ILIKE '%pg_last_wal_receive_lsn%'\nGROUP BY \n    service_name,  \n    database, \n    fingerprint \nORDER BY \"Execution Time Summary\" DESC\nLIMIT 10;",
                     "refId": "A"
                 }
             ],
@@ -411,7 +412,7 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "PDEE91DDB90597936"
             },
-            "description": "Queries which executed the most time.",
+            "description": "Most frequently called queries. Small savings here multiply into large gains — check for N+1 patterns or result caching opportunities.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -542,7 +543,7 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "PDEE91DDB90597936"
             },
-            "description": "Queries which writes the most rows",
+            "description": "INSERT/UPDATE/DELETE with the highest total rows affected. Heavy DML drives autovacuum pressure, WAL generation, and replication lag — consider batching or rate-limiting bulk operations.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -673,7 +674,7 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "PDEE91DDB90597936"
             },
-            "description": "These Queries are affecting the most rows.",
+            "description": "Total rows returned or affected across all query types, including SELECTs. Large result sets waste memory and bandwidth — check for missing pagination or absent WHERE clauses.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -804,7 +805,7 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "PDEE91DDB90597936"
             },
-            "description": "These users executed the most queries",
+            "description": "Database users by query volume. A single account dominating traffic may indicate a misconfigured connection pool or a runaway batch job — consider workload isolation via a connection pooler.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -939,6 +940,530 @@
                 }
             ],
             "title": "Top 10 User Executed the most queries",
+            "transparent": true,
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "description": "Most total CPU time consumed (user + system). High values point to full-table scans, complex aggregations, or missing indexes — use QAN EXPLAIN to verify. Requires pg_stat_monitor; empty with standard pg_stat_statements.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 300
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 500
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Total CPU Time (s)"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 63
+            },
+            "id": 10,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "11.6.1",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "pluginVersion": "4.4.0",
+                    "queryType": "table",
+                    "rawSql": "SELECT   \n    service_name as \"Service Name\",\n    database as Database,\n    fingerprint AS \"Query\", \n    sum(m_cpu_user_time_sum + m_cpu_sys_time_sum) AS \"Total CPU Time (s)\",\n    avgIf((m_cpu_user_time_sum + m_cpu_sys_time_sum) / num_queries, num_queries > 0) AS \"Avg CPU / Query (s)\"\nFROM pmm.\"metrics\"\nWHERE \n    period_start >= $__fromTime \n    AND period_start <= $__toTime \n    AND if(length('${service_name:csv}') = 0,1, service_name in ($service_name))\n    AND service_type = 'postgresql'\n    AND database NOT IN ('postgres', '<database name not available>', 'template1')\n    AND fingerprint NOT IN ('SELECT version()')\n    AND fingerprint NOT ILIKE '%pg_stat_%'\n    AND fingerprint NOT ILIKE '%pg_replication_slots%'\n    AND fingerprint NOT ILIKE '%pg_publication%'\n    AND fingerprint NOT ILIKE '%pg_last_wal_receive_lsn%'\n    AND (m_cpu_user_time_sum > 0 OR m_cpu_sys_time_sum > 0)\nGROUP BY \n    service_name, \n    database, \n    fingerprint\nORDER BY \"Total CPU Time (s)\" DESC\nLIMIT 10;",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 CPU Intensive Queries",
+            "transparent": true,
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "description": "Queries spilling sort/hash work to disk (temp blocks, 8 KB each). Disk spills are ~100x slower than memory — increase work_mem, add indexes to avoid large sorts, or reduce intermediate result sizes. Available with standard pg_stat_statements.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 300
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 500
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Temp Blocks"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 71
+            },
+            "id": 11,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "11.6.1",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "pluginVersion": "4.4.0",
+                    "queryType": "table",
+                    "rawSql": "SELECT   \n    service_name as \"Service Name\",\n    database as Database,\n    fingerprint AS \"Query\", \n    sum(m_temp_blks_written_sum + m_temp_blks_read_sum) AS \"Temp Blocks\",\n    sum(m_shared_blks_read_sum) AS \"Shared Blocks Read\",\n    sum(num_queries) AS \"Executions\"\nFROM pmm.\"metrics\"\nWHERE \n    period_start >= $__fromTime \n    AND period_start <= $__toTime \n    AND if(length('${service_name:csv}') = 0,1, service_name in ($service_name))\n    AND service_type = 'postgresql'\n    AND database NOT IN ('postgres', '<database name not available>', 'template1')\n    AND fingerprint NOT IN ('SELECT version()')\n    AND fingerprint NOT ILIKE '%pg_stat_%'\n    AND fingerprint NOT ILIKE '%pg_replication_slots%'\n    AND fingerprint NOT ILIKE '%pg_publication%'\n    AND fingerprint NOT ILIKE '%pg_last_wal_receive_lsn%'\n    AND (m_temp_blks_written_sum > 0 OR m_temp_blks_read_sum > 0)\nGROUP BY \n    service_name, \n    database, \n    fingerprint\nORDER BY \"Temp Blocks\" DESC\nLIMIT 10;",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Memory Intensive Queries",
+            "transparent": true,
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "description": "Most time waiting on block I/O (ms). High read wait signals sequential scans — add indexes. High write wait may need checkpoint tuning. I/O-bound queries hold locks longer, increasing contention. Requires track_io_timing = on in postgresql.conf.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 300
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 500
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Total I/O Wait (ms)"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 79
+            },
+            "id": 12,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "11.6.1",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "pluginVersion": "4.4.0",
+                    "queryType": "table",
+                    "rawSql": "SELECT   \n    service_name as \"Service Name\",\n    database as Database,\n    fingerprint AS \"Query\", \n    sum(m_shared_blk_read_time_sum + m_shared_blk_write_time_sum) AS \"Total I/O Wait (ms)\",\n    avgIf((m_shared_blk_read_time_sum + m_shared_blk_write_time_sum) / num_queries, num_queries > 0) AS \"Avg I/O Wait / Query (ms)\",\n    sum(num_queries) AS \"Executions\"\nFROM pmm.\"metrics\"\nWHERE \n    period_start >= $__fromTime \n    AND period_start <= $__toTime \n    AND if(length('${service_name:csv}') = 0,1, service_name in ($service_name))\n    AND service_type = 'postgresql'\n    AND database NOT IN ('postgres', '<database name not available>', 'template1')\n    AND fingerprint NOT IN ('SELECT version()')\n    AND fingerprint NOT ILIKE '%pg_stat_%'\n    AND fingerprint NOT ILIKE '%pg_replication_slots%'\n    AND fingerprint NOT ILIKE '%pg_publication%'\n    AND fingerprint NOT ILIKE '%pg_last_wal_receive_lsn%'\nGROUP BY \n    service_name, \n    database, \n    fingerprint\nORDER BY \"Total I/O Wait (ms)\" DESC\nLIMIT 10;",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Queries by I/O Wait",
+            "transparent": true,
+            "type": "table"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "description": "SELECT queries reading the most shared blocks per execution on average. A high ratio signals a likely sequential scan — use QAN EXPLAIN to confirm, then index the most selective filter columns.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": {
+                            "type": "auto"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service Name"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 300
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Database"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.minWidth",
+                                "value": 500
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Avg Blocks / Query"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "mode": "basic",
+                                    "type": "gauge"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 87
+            },
+            "id": 13,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true,
+                "sortBy": []
+            },
+            "pluginVersion": "11.6.1",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "editorType": "sql",
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "columns": [],
+                            "database": "",
+                            "limit": 1000,
+                            "mode": "list",
+                            "queryType": "table",
+                            "table": ""
+                        }
+                    },
+                    "pluginVersion": "4.4.0",
+                    "queryType": "table",
+                    "rawSql": "SELECT   \n    service_name as \"Service Name\",\n    database as Database,\n    fingerprint AS \"Query\", \n    sum(m_shared_blks_read_sum) AS \"Total Shared Blocks Read\",\n    CASE WHEN sum(num_queries) > 0 THEN sum(m_shared_blks_read_sum) / sum(num_queries) ELSE 0 END AS \"Avg Blocks / Query\",\n    sum(num_queries) AS \"Executions\"\nFROM pmm.\"metrics\"\nWHERE \n    period_start >= $__fromTime \n    AND period_start <= $__toTime \n    AND if(length('${service_name:csv}') = 0,1, service_name in ($service_name))\n    AND service_type = 'postgresql'\n    AND database NOT IN ('postgres', '<database name not available>', 'template1')\n    AND fingerprint NOT IN ('SELECT version()')\n    AND fingerprint NOT ILIKE '%pg_stat_%'\n    AND fingerprint NOT ILIKE '%pg_replication_slots%'\n    AND fingerprint NOT ILIKE '%pg_publication%'\n    AND fingerprint NOT ILIKE '%pg_last_wal_receive_lsn%'\n    AND cmd_type = 'SELECT'\n    AND m_shared_blks_read_sum > 0\nGROUP BY \n    service_name, \n    database, \n    fingerprint\nORDER BY \"Avg Blocks / Query\" DESC\nLIMIT 10;",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Queries by Shared Block Reads (Sequential Scan Indicator)",
             "transparent": true,
             "type": "table"
         }
