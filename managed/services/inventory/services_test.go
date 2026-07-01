@@ -39,6 +39,10 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+// setup returns vmdb for the custom-label tests (currently skipped via t.Skip).
+// Keep it for future work; suppress unparam which otherwise reports the return value is unused.
+//
+//nolint:unparam
 func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(t *testing.T), context.Context, *mockPrometheusService) {
 	t.Helper()
 

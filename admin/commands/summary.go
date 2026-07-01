@@ -33,7 +33,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/agentlocal"
@@ -237,21 +236,21 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 func getURL(ctx context.Context, url string) ([]byte, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, errors.Errorf("status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("status code: %d", resp.StatusCode)
 	}
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot read response body")
+		return nil, fmt.Errorf("cannot read response body: %w", err)
 	}
 	return b, nil
 }
@@ -260,14 +259,14 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 func downloadFile(ctx context.Context, zipW *zip.Writer, url, fileName string) error {
 	b, err := getURL(ctx, url)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	responseReader := bytes.NewReader(b)
 
 	zipReader, err := zip.NewReader(responseReader, responseReader.Size())
 	if err != nil {
-		return errors.Wrap(err, "cannot create ZipLogs reader")
+		return fmt.Errorf("cannot create ZipLogs reader: %w", err)
 	}
 
 	for _, rf := range zipReader.File {
@@ -365,13 +364,13 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.Globa
 
 	f, err = os.Create(cmd.Filename)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	defer func() {
 		e := f.Close()
 		if e != nil && err == nil {
-			err = errors.WithStack(e)
+			err = e
 		}
 	}()
 
@@ -380,7 +379,7 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.Globa
 	defer func() {
 		e := zipW.Close()
 		if e != nil && err == nil {
-			err = errors.WithStack(e)
+			err = e
 		}
 	}()
 

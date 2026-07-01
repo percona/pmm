@@ -16,12 +16,12 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -38,7 +38,7 @@ func checkUniqueDumpID(q *reform.Querier, id string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Dump with id %q already exists.", id)
@@ -63,7 +63,7 @@ type CreateDumpParams struct {
 // Validate checks the validity of CreateDumpParams.
 func (p *CreateDumpParams) Validate() error {
 	if p.StartTime != nil && p.EndTime != nil && p.StartTime.After(*p.EndTime) {
-		return errors.Errorf("dump start time can't be greater than end time")
+		return errors.New("dump start time can't be greater than end time")
 	}
 
 	return nil
@@ -73,7 +73,7 @@ func (p *CreateDumpParams) Validate() error {
 func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
 	err := params.Validate()
 	if err != nil {
-		return nil, errors.Wrap(err, "invalid dump creation params")
+		return nil, fmt.Errorf("invalid dump creation params: %w", err)
 	}
 
 	id := uuid.New().String()
@@ -94,7 +94,7 @@ func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
 	}
 	err = q.Insert(dump)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return dump, nil
@@ -118,7 +118,7 @@ func FindDumps(q *reform.Querier, filters DumpFilters) ([]*Dump, error) {
 	}
 	rows, err := q.SelectAllFrom(DumpTable, whereClause+" ORDER BY created_at DESC", args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select dumps")
+		return nil, fmt.Errorf("failed to select dumps: %w", err)
 	}
 
 	dumps := make([]*Dump, 0, len(rows))
@@ -144,7 +144,7 @@ func FindDumpsByIDs(q *reform.Querier, ids []string) (map[string]*Dump, error) {
 
 	all, err := q.SelectAllFrom(DumpTable, tail, args...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	dumps := make(map[string]*Dump, len(all))
@@ -165,9 +165,9 @@ func FindDumpByID(q *reform.Querier, id string) (*Dump, error) {
 	err := q.Reload(dump)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, errors.Wrapf(ErrNotFound, "dump by id '%s'", id)
+			return nil, fmt.Errorf("dump by id '%s': %w", id, ErrNotFound)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return dump, nil
@@ -184,7 +184,7 @@ func UpdateDumpStatus(q *reform.Querier, id string, status DumpStatus) error {
 
 	err = q.Update(dump)
 	if err != nil {
-		return errors.Wrap(err, "failed to update dump status")
+		return fmt.Errorf("failed to update dump status: %w", err)
 	}
 
 	return nil
@@ -199,7 +199,7 @@ func DeleteDump(q *reform.Querier, id string) error {
 
 	err = q.Delete(&Dump{ID: id})
 	if err != nil {
-		return errors.Wrapf(err, "failed to delete dump by id '%s'", id)
+		return fmt.Errorf("failed to delete dump by id '%s': %w", id, err)
 	}
 	return nil
 }
@@ -222,7 +222,7 @@ func CreateDumpLog(q *reform.Querier, params CreateDumpLogParams) (*DumpLog, err
 	}
 	err := q.Insert(log)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return log, nil
 }
@@ -249,7 +249,7 @@ func FindDumpLogs(q *reform.Querier, filters DumpLogsFilter) ([]*DumpLog, error)
 
 	rows, err := q.SelectAllFrom(DumpLogView, tail, args...)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select dump logs")
+		return nil, fmt.Errorf("failed to select dump logs: %w", err)
 	}
 
 	logs := make([]*DumpLog, 0, len(rows))

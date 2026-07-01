@@ -16,10 +16,11 @@ package perfschema
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -51,7 +52,7 @@ func getHistory(q *reform.Querier, long *bool) (historyMap, error) {
 	}
 	rows, err := q.SelectRows(view, "WHERE DIGEST IS NOT NULL AND SQL_TEXT IS NOT NULL AND DIGEST_TEXT IS NOT NULL")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to query events_statements_history")
+		return nil, fmt.Errorf("failed to query events_statements_history: %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -70,7 +71,7 @@ func getHistoryRows(rows *sql.Rows, q *reform.Querier) (historyMap, error) {
 		res[queryIDWithSchema(pointer.GetString(esh.CurrentSchema), *esh.Digest)] = &esh
 	}
 	if !errors.Is(err, reform.ErrNoRows) {
-		return nil, errors.Wrap(err, "failed to fetch events_statements_history")
+		return nil, fmt.Errorf("failed to fetch events_statements_history: %w", err)
 	}
 	return res, nil
 }
