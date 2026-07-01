@@ -53,34 +53,37 @@ func extractCredentialsFromURL(urlStr string) (string, string) {
 }
 
 // vmAgentConfig returns desired configuration of vmagent process.
-func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetStateRequest_AgentProcess {
+func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams, haEnabled bool) *agentv1.SetStateRequest_AgentProcess {
+	// Push directly to an external VictoriaMetrics in standalone mode. in HA, always route via the server.
+	useExternalVM := params.ExternalVM() && !haEnabled
+
+	interfaceToBind := envvars.GetInterfaceToBind()
+	// Only keep the specified exceptions as command line arguments
+	args := []string{
+		"-envflag.enable=true",
+		"-envflag.prefix=VMAGENT_",
+		"-remoteWrite.tmpDataPath={{.tmp_dir}}/vmagent-temp-dir",
+		"-promscrape.config={{.TextFiles.vmagentscrapecfg}}",
+		"-httpListenAddr=" + interfaceToBind + ":{{.listen_port}}",
+	}
+
 	serverURL := "{{.server_url}}/victoriametrics/"
 	var vmUsername, vmPassword string
 
-	if params.ExternalVM() {
+	if useExternalVM {
 		serverURL = params.URL()
 
 		// Extract username and password from external VM URL if present
 		vmUsername, vmPassword = extractCredentialsFromURL(serverURL)
+
+		// Direct external VM push: pass the VM URL's embedded basic-auth as vmagent args.
+		args = append(args, params.VMAgentArgs()...)
 	}
 
 	maxScrapeSize := maxScrapeSizeDefault
 	if space := os.Getenv(maxScrapeSizeEnv); space != "" {
 		maxScrapeSize = space
 	}
-
-	interfaceToBind := envvars.GetInterfaceToBind()
-
-	// Only keep the specified exceptions as command line arguments
-	args := append([]string{
-		"-envflag.enable=true",
-		"-envflag.prefix=VMAGENT_",
-		"-remoteWrite.tmpDataPath={{.tmp_dir}}/vmagent-temp-dir",
-		"-promscrape.config={{.TextFiles.vmagentscrapecfg}}",
-		"-httpListenAddr=" + interfaceToBind + ":{{.listen_port}}",
-	}, params.VMAgentArgs()...)
-
-	sort.Strings(args)
 
 	// Move all other parameters to environment variables
 	var envs []string
@@ -94,6 +97,12 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetS
 				systemEnvs[parts[0]] = parts[1]
 			}
 		}
+	}
+
+	// When routing metric writes through the PMM server, authenticate with the PMM server credentials.
+	if !useExternalVM {
+		delete(systemEnvs, "VMAGENT_remoteWrite_basicAuth_username")
+		delete(systemEnvs, "VMAGENT_remoteWrite_basicAuth_password")
 	}
 
 	// Helper function to add env var only if not already set by system
@@ -111,14 +120,14 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetS
 	addEnvIfNotSet("VMAGENT_loggerLevel", "INFO")
 
 	// Set authentication based on VM type
-	if params.ExternalVM() && vmUsername != "" {
+	if useExternalVM && vmUsername != "" {
 		// Use credentials from external VM URL
 		addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_username", vmUsername)
 		if vmPassword != "" {
 			addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_password", vmPassword)
 		}
-	} else if !params.ExternalVM() {
-		// Use PMM server credentials for internal VM
+	} else if !useExternalVM {
+		// Use PMM server credentials when routing through the server (internal VM or HA).
 		addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_username", "{{.server_username}}")
 		addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_password", "{{.server_password}}")
 	}
@@ -129,7 +138,7 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetS
 	}
 
 	sort.Strings(envs)
-
+	sort.Strings(args)
 	res := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_VM_AGENT,
 		TemplateLeftDelim:  "{{",
