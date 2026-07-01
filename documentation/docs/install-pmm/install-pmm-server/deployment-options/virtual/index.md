@@ -42,4 +42,4 @@ pmm-admin config --server-insecure-tls \
 5. Decommission the OVF instance once everything is confirmed working.
 
 !!! note
-    Time-series metrics (VictoriaMetrics) and query analytics data (ClickHouse) from the OVF deployment are not automatically transferred to the new server. If you need to preserve this data, consider running both instances in parallel until the old data ages out of your retention window.
+    Time-series metrics (VictoriaMetrics) and QAN stored metrics from the OVF deployment are not automatically transferred to the new server. If you need to preserve this data, consider running both instances in parallel until the old data ages out of your retention window.
