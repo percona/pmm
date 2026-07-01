@@ -28,6 +28,6 @@ jobs:
           echo "[INFO] Deleting caches for PR #${{ github.event.pull_request.number }}"
 
           # Delete caches associated with the PR merge ref
-          gh cache delete --all --succeed-on-no-caches --ref "refs/pull/${{ github.event.pull_request.number }}/merge"
+          gh cache delete --all --succeed-on-no-caches --repo "${{ github.repository }}" --ref "refs/pull/${{ github.event.pull_request.number }}/merge"
 
           echo "[INFO] Cache cleanup complete"
