@@ -22,9 +22,9 @@ Deploy on a **different host or IP address** from your current OVA, then follow 
 - **[Podman](../podman/index.md)**: rootless containers for security-sensitive environments
 - **[Helm](../helm/index.md)**: Kubernetes-native deployment with high availability support
 
-Once your new server is up, continue with the steps below.
 
 ## After deploying the new PMM Server
+Once your new server is up and running, reconnect your clients, restore your configuration, and decommission the old instance:
 {.power-number}
 
 1. [Configure each PMM Client](../../../install-pmm-client/package_manager.md#step-2-install-pmm-client) to point to the new server using service accounts:
@@ -43,7 +43,8 @@ pmm-admin config --server-insecure-tls \
 
 ## Preserve historical data
 
-You cannot automatically migrate your historical monitoring data (dashboard metrics and query analytics history) to the new server. To transfer historical data, you need to:
+You cannot automatically migrate your historical monitoring data (dashboard metrics and query analytics history) to the new server. To transfer historical data:
+{.power-number}
 
 1. Back up the data from your OVA instance.
 2. Restore the backup on the new server.
