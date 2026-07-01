@@ -1,9 +1,12 @@
 ---
 name: Dependabot
-on: pull_request
 
-permissions:
-  contents: read
+on:
+  pull_request:
+    types:
+      - opened
+
+permissions: {}
 
 jobs:
   dependabot:
@@ -14,15 +17,33 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: generate-token
+        with:
+          client-id: ${{ secrets.PMM_PRBOT_APPID }}
+          private-key: ${{ secrets.PMM_PRBOT_KEY }}
+
       - name: Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          github-token: ${{ steps.generate-token.outputs.token }}
 
       - name: Enable auto-merge for Dependabot PRs
         if: ${{steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch'}}
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+
+      - name: Add auto-update-branch label
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['auto-update-branch']
+            });
