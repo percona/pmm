@@ -411,6 +411,371 @@
         }
       }
     },
+    "/v1/advisors/checks/history": {
+      "get": {
+        "description": "Returns the history of Advisor check runs, including their outcomes.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "List Advisor Check Results History",
+        "operationId": "ListCheckResultsHistory",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum number of results per page.",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "Index of the requested page, starts from 0.",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by service ID.",
+            "name": "service_id",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
+              "ADVISOR_CHECK_RESULT_STATUS_OK",
+              "ADVISOR_CHECK_RESULT_STATUS_FAILED",
+              "ADVISOR_CHECK_RESULT_STATUS_ERROR"
+            ],
+            "type": "string",
+            "default": "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
+            "description": "Filter by outcome.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "Filter by read state.",
+            "name": "is_read",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Return only results recorded at or after this time.",
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Return only results recorded at or before this time.",
+            "name": "to",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by service name (partial, case-insensitive match).",
+            "name": "service_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by node name (partial, case-insensitive match).",
+            "name": "node_name",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by advisor category.",
+            "name": "category",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by check name.",
+            "name": "check_name",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "SEVERITY_UNSPECIFIED",
+              "SEVERITY_EMERGENCY",
+              "SEVERITY_ALERT",
+              "SEVERITY_CRITICAL",
+              "SEVERITY_ERROR",
+              "SEVERITY_WARNING",
+              "SEVERITY_NOTICE",
+              "SEVERITY_INFO",
+              "SEVERITY_DEBUG"
+            ],
+            "type": "string",
+            "default": "SEVERITY_UNSPECIFIED",
+            "description": "Filter by severity.",
+            "name": "severity",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total_items": {
+                  "description": "Total number of results.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "total_pages": {
+                  "description": "Total number of pages.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "results": {
+                  "description": "History records.",
+                  "type": "array",
+                  "items": {
+                    "description": "CheckResultHistoryItem represents a single persisted Advisor check run against a service.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "Unique identifier of the history record.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "check_name": {
+                        "description": "Name of the check that ran.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "advisor_name": {
+                        "description": "Name of the advisor the check belongs to.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "category": {
+                        "description": "Category of the advisor the check belongs to.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "interval": {
+                        "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
+                        "type": "string",
+                        "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                        "enum": [
+                          "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                          "ADVISOR_CHECK_INTERVAL_STANDARD",
+                          "ADVISOR_CHECK_INTERVAL_FREQUENT",
+                          "ADVISOR_CHECK_INTERVAL_RARE"
+                        ],
+                        "x-order": 4
+                      },
+                      "service_id": {
+                        "description": "ID of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "service_name": {
+                        "description": "Name of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "service_type": {
+                        "description": "Type of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "node_id": {
+                        "description": "ID of the node the service runs on.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "node_name": {
+                        "description": "Name of the node the service runs on.",
+                        "type": "string",
+                        "x-order": 9
+                      },
+                      "status": {
+                        "description": "AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.",
+                        "type": "string",
+                        "default": "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
+                          "ADVISOR_CHECK_RESULT_STATUS_OK",
+                          "ADVISOR_CHECK_RESULT_STATUS_FAILED",
+                          "ADVISOR_CHECK_RESULT_STATUS_ERROR"
+                        ],
+                        "x-order": 10
+                      },
+                      "summary": {
+                        "description": "Short human-readable summary of the result.",
+                        "type": "string",
+                        "x-order": 11
+                      },
+                      "description": {
+                        "description": "Long human-readable description of the result.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "read_more_url": {
+                        "description": "URL containing information on how to resolve a detected issue.",
+                        "type": "string",
+                        "x-order": 13
+                      },
+                      "severity": {
+                        "description": "Severity represents severity level of the check result or alert.",
+                        "type": "string",
+                        "default": "SEVERITY_UNSPECIFIED",
+                        "enum": [
+                          "SEVERITY_UNSPECIFIED",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ],
+                        "x-order": 14
+                      },
+                      "labels": {
+                        "description": "Result labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 15
+                      },
+                      "checked_at": {
+                        "description": "Time when the check ran.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 16
+                      },
+                      "is_read": {
+                        "description": "Whether the result has been marked as read.",
+                        "type": "boolean",
+                        "x-order": 17
+                      }
+                    }
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/advisors/checks/history:markRead": {
+      "post": {
+        "description": "Sets the read state on the specified Advisor check history records. Set is_read to false to mark them unread.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Mark Advisor Check Results Read",
+        "operationId": "MarkCheckResultsRead",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ids": {
+                  "description": "IDs of the history records to update.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                },
+                "is_read": {
+                  "description": "Read state to set on the records.",
+                  "type": "boolean",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/advisors/checks:batchChange": {
       "post": {
         "description": "Enables/disables advisor checks or changes their exec interval.",

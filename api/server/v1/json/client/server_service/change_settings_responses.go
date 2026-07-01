@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ChangeSettingsReader is a Reader for the ChangeSettings structure.
@@ -198,6 +199,16 @@ type ChangeSettingsBody struct {
 	// A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
 	DataRetention string `json:"data_retention,omitempty"`
 
+	// A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
+	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
+
+	// Enable Advisor email notifications.
+	EnableAdvisorNotifications *bool `json:"enable_advisor_notifications,omitempty"`
+
+	// Severity represents severity level of the check result or alert.
+	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
+	AdvisorNotificationSeverityThreshold *string `json:"advisor_notification_severity_threshold,omitempty"`
+
 	// ssh key
 	SSHKey *string `json:"ssh_key,omitempty"`
 
@@ -239,6 +250,10 @@ type ChangeSettingsBody struct {
 func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateAdvisorNotificationSeverityThreshold(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateAdvisorRunIntervals(formats); err != nil {
 		res = append(res, err)
 	}
@@ -254,6 +269,69 @@ func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var changeSettingsBodyTypeAdvisorNotificationSeverityThresholdPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeSettingsBodyTypeAdvisorNotificationSeverityThresholdPropEnum = append(changeSettingsBodyTypeAdvisorNotificationSeverityThresholdPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYUNSPECIFIED captures enum value "SEVERITY_UNSPECIFIED"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYUNSPECIFIED string = "SEVERITY_UNSPECIFIED"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYALERT captures enum value "SEVERITY_ALERT"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYALERT string = "SEVERITY_ALERT"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYERROR captures enum value "SEVERITY_ERROR"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYERROR string = "SEVERITY_ERROR"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYWARNING string = "SEVERITY_WARNING"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYNOTICE string = "SEVERITY_NOTICE"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYINFO captures enum value "SEVERITY_INFO"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYINFO string = "SEVERITY_INFO"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYDEBUG string = "SEVERITY_DEBUG"
+)
+
+// prop value enum
+func (o *ChangeSettingsBody) validateAdvisorNotificationSeverityThresholdEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeSettingsBodyTypeAdvisorNotificationSeverityThresholdPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeSettingsBody) validateAdvisorNotificationSeverityThreshold(formats strfmt.Registry) error {
+	if swag.IsZero(o.AdvisorNotificationSeverityThreshold) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateAdvisorNotificationSeverityThresholdEnum("body"+"."+"advisor_notification_severity_threshold", "body", *o.AdvisorNotificationSeverityThreshold); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -947,6 +1025,16 @@ type ChangeSettingsOKBodySettings struct {
 	// data retention
 	DataRetention string `json:"data_retention,omitempty"`
 
+	// Advisor check results history retention.
+	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
+
+	// True if Advisor email notifications are enabled.
+	AdvisorNotificationsEnabled bool `json:"advisor_notifications_enabled,omitempty"`
+
+	// Severity represents severity level of the check result or alert.
+	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
+	AdvisorNotificationSeverityThreshold *string `json:"advisor_notification_severity_threshold,omitempty"`
+
 	// ssh key
 	SSHKey string `json:"ssh_key,omitempty"`
 
@@ -1000,6 +1088,10 @@ type ChangeSettingsOKBodySettings struct {
 func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateAdvisorNotificationSeverityThreshold(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateAdvisorRunIntervals(formats); err != nil {
 		res = append(res, err)
 	}
@@ -1011,6 +1103,69 @@ func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var changeSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum = append(changeSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYUNSPECIFIED captures enum value "SEVERITY_UNSPECIFIED"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYUNSPECIFIED string = "SEVERITY_UNSPECIFIED"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYALERT captures enum value "SEVERITY_ALERT"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYALERT string = "SEVERITY_ALERT"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYERROR captures enum value "SEVERITY_ERROR"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYERROR string = "SEVERITY_ERROR"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYWARNING string = "SEVERITY_WARNING"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYNOTICE string = "SEVERITY_NOTICE"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYINFO captures enum value "SEVERITY_INFO"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYINFO string = "SEVERITY_INFO"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYDEBUG string = "SEVERITY_DEBUG"
+)
+
+// prop value enum
+func (o *ChangeSettingsOKBodySettings) validateAdvisorNotificationSeverityThresholdEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeSettingsOKBodySettings) validateAdvisorNotificationSeverityThreshold(formats strfmt.Registry) error {
+	if swag.IsZero(o.AdvisorNotificationSeverityThreshold) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateAdvisorNotificationSeverityThresholdEnum("changeSettingsOk"+"."+"settings"+"."+"advisor_notification_severity_threshold", "body", *o.AdvisorNotificationSeverityThreshold); err != nil {
+		return err
+	}
+
 	return nil
 }
 

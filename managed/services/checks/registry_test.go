@@ -16,11 +16,14 @@
 package checks
 
 import (
+	"strings"
 	"testing"
 
+	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
@@ -236,4 +239,32 @@ func TestRegistry(t *testing.T) {
 		collectedAlerts := r.getCheckResults("")
 		assert.Empty(t, collectedAlerts)
 	})
+}
+
+func TestRegistryInsightsMetric(t *testing.T) {
+	r := newRegistry()
+	r.set([]services.CheckResult{
+		{
+			CheckName:   "mysql_version",
+			AdvisorName: "adv",
+			Interval:    check.Standard,
+			Target: services.Target{
+				ServiceID:   "svc-id",
+				ServiceName: "mysql-prod",
+				ServiceType: models.MySQLServiceType,
+			},
+			Result: check.Result{
+				Summary:  "outdated",
+				Severity: common.Error,
+			},
+		},
+	})
+
+	const expected = `
+# HELP pmm_managed_advisor_check_insights Number of advisor insights per service type, service name, advisor, check name and severity
+# TYPE pmm_managed_advisor_check_insights gauge
+pmm_managed_advisor_check_insights{advisor="adv",check_name="mysql_version",service_name="mysql-prod",service_type="mysql",severity="error"} 1
+`
+	err := testutil.CollectAndCompare(r, strings.NewReader(expected), "pmm_managed_advisor_check_insights")
+	require.NoError(t, err)
 }

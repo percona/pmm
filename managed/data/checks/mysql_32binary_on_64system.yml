@@ -12,7 +12,7 @@ checks:
       - type: MYSQL_SELECT
         query: "@@global.version_compile_machine as version_compile_machine"
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       def check_context(docs, context):
           """

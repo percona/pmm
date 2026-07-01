@@ -7,6 +7,7 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
+	models "github.com/percona/pmm/managed/models"
 	check "github.com/percona/pmm/managed/pi/check"
 	services "github.com/percona/pmm/managed/services"
 )
@@ -100,6 +101,43 @@ func (_m *mockChecksService) GetAdvisors() ([]check.Advisor, error) {
 	return r0, r1
 }
 
+// GetCheckResultsHistory provides a mock function with given fields: ctx, filters, pageIndex, pageSize
+func (_m *mockChecksService) GetCheckResultsHistory(ctx context.Context, filters models.CheckResultFilters, pageIndex int, pageSize int) ([]*models.CheckResult, int, error) {
+	ret := _m.Called(ctx, filters, pageIndex, pageSize)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCheckResultsHistory")
+	}
+
+	var r0 []*models.CheckResult
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, models.CheckResultFilters, int, int) ([]*models.CheckResult, int, error)); ok {
+		return rf(ctx, filters, pageIndex, pageSize)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, models.CheckResultFilters, int, int) []*models.CheckResult); ok {
+		r0 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.CheckResult)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, models.CheckResultFilters, int, int) int); ok {
+		r1 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, models.CheckResultFilters, int, int) error); ok {
+		r2 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
 // GetChecks provides a mock function with no fields
 func (_m *mockChecksService) GetChecks() (map[string]check.Check, error) {
 	ret := _m.Called()
@@ -188,6 +226,24 @@ func (_m *mockChecksService) GetDisabledChecks() ([]string, error) {
 	}
 
 	return r0, r1
+}
+
+// MarkCheckResultsRead provides a mock function with given fields: ctx, ids, isRead
+func (_m *mockChecksService) MarkCheckResultsRead(ctx context.Context, ids []string, isRead bool) error {
+	ret := _m.Called(ctx, ids, isRead)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MarkCheckResultsRead")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []string, bool) error); ok {
+		r0 = rf(ctx, ids, isRead)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // StartChecks provides a mock function with given fields: checkNames

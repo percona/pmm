@@ -19,15 +19,18 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	advisorsv1 "github.com/percona/pmm/api/advisors/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/check"
 	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
@@ -202,6 +205,127 @@ func TestGetFailedChecks(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.Equal(t, response, resp)
+	})
+}
+
+func TestListCheckResultsHistory(t *testing.T) {
+	t.Parallel()
+
+	t.Run("internal error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("GetCheckResultsHistory", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return(nil, 0, errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ListCheckResultsHistory(t.Context(), &advisorsv1.ListCheckResultsHistoryRequest{})
+		require.EqualError(t, err, "failed to get check results history: random error")
+		assert.Nil(t, resp)
+	})
+
+	t.Run("returns converted history with pagination totals", func(t *testing.T) {
+		t.Parallel()
+
+		checkedAt := time.Date(2026, time.June, 27, 10, 0, 0, 0, time.UTC)
+		record := &models.CheckResult{
+			ID:          "id1",
+			CheckName:   "test_check",
+			AdvisorName: "test_advisor",
+			Category:    "configuration",
+			Interval:    models.Standard,
+			ServiceID:   "test_svc",
+			ServiceName: "svc",
+			ServiceType: models.MySQLServiceType,
+			NodeID:      "node1",
+			NodeName:    "node",
+			Status:      models.CheckResultFailed,
+			Summary:     "Check summary",
+			Description: "Check Description",
+			ReadMoreURL: "https://www.example.com",
+			Severity:    int(common.Emergency),
+			CheckedAt:   checkedAt,
+		}
+		require.NoError(t, record.SetLabels(map[string]string{"label_key": "label_value"}))
+
+		var checksService mockChecksService
+		checksService.On("GetCheckResultsHistory", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return([]*models.CheckResult{record}, 3, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ListCheckResultsHistory(t.Context(), &advisorsv1.ListCheckResultsHistoryRequest{
+			ServiceId: "test_svc",
+			PageSize:  new(int32(2)),
+			PageIndex: new(int32(0)),
+		})
+		require.NoError(t, err)
+
+		expected := &advisorsv1.ListCheckResultsHistoryResponse{
+			Results: []*advisorsv1.CheckResultHistoryItem{
+				{
+					Id:          "id1",
+					CheckName:   "test_check",
+					AdvisorName: "test_advisor",
+					Category:    "configuration",
+					Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
+					ServiceId:   "test_svc",
+					ServiceName: "svc",
+					ServiceType: string(models.MySQLServiceType),
+					NodeId:      "node1",
+					NodeName:    "node",
+					Status:      advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_FAILED,
+					Summary:     "Check summary",
+					Description: "Check Description",
+					ReadMoreUrl: "https://www.example.com",
+					Severity:    managementv1.Severity(common.Emergency),
+					Labels:      map[string]string{"label_key": "label_value"},
+					CheckedAt:   timestamppb.New(checkedAt),
+				},
+			},
+			TotalItems: 3,
+			TotalPages: 2,
+		}
+		assert.Equal(t, expected, resp)
+	})
+}
+
+func TestMarkCheckResultsRead(t *testing.T) {
+	t.Parallel()
+
+	t.Run("internal error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("MarkCheckResultsRead", mock.Anything, mock.Anything, mock.Anything).
+			Return(errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.MarkCheckResultsRead(t.Context(), &advisorsv1.MarkCheckResultsReadRequest{
+			Ids:    []string{"id1"},
+			IsRead: true,
+		})
+		require.EqualError(t, err, "failed to mark check results read: random error")
+		assert.Nil(t, resp)
+	})
+
+	t.Run("passes ids and read state through", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("MarkCheckResultsRead", mock.Anything, []string{"id1", "id2"}, true).Return(nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.MarkCheckResultsRead(t.Context(), &advisorsv1.MarkCheckResultsReadRequest{
+			Ids:    []string{"id1", "id2"},
+			IsRead: true,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, &advisorsv1.MarkCheckResultsReadResponse{}, resp)
+		checksService.AssertExpectations(t)
 	})
 }
 

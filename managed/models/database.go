@@ -1185,6 +1185,32 @@ var databaseSchema = [][]string{
 		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
 		`UPDATE dumps SET encrypted = false`,
 	},
+	119: {
+		`CREATE TABLE check_results (
+			id VARCHAR NOT NULL,
+			check_name VARCHAR NOT NULL CHECK (check_name <> ''),
+			advisor_name VARCHAR NOT NULL,
+			category VARCHAR NOT NULL,
+			interval VARCHAR NOT NULL,
+			service_id VARCHAR NOT NULL,
+			service_name VARCHAR NOT NULL,
+			service_type VARCHAR NOT NULL,
+			node_id VARCHAR NOT NULL,
+			node_name VARCHAR NOT NULL,
+			status VARCHAR NOT NULL CHECK (status <> ''),
+			summary VARCHAR NOT NULL,
+			description TEXT NOT NULL,
+			read_more_url VARCHAR NOT NULL,
+			severity INTEGER NOT NULL,
+			labels TEXT,
+			checked_at TIMESTAMP NOT NULL,
+			is_read BOOLEAN NOT NULL,
+
+			PRIMARY KEY (id)
+		)`,
+		`CREATE INDEX check_results_service_id_idx ON check_results (service_id)`,
+		`CREATE INDEX check_results_checked_at_idx ON check_results (checked_at)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

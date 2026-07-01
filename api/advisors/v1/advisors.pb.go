@@ -16,6 +16,7 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 
 	v1 "github.com/percona/pmm/api/management/v1"
 )
@@ -130,6 +131,62 @@ func (x AdvisorCheckFamily) Number() protoreflect.EnumNumber {
 // Deprecated: Use AdvisorCheckFamily.Descriptor instead.
 func (AdvisorCheckFamily) EnumDescriptor() ([]byte, []int) {
 	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{1}
+}
+
+// AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.
+type AdvisorCheckResultStatus int32
+
+const (
+	AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED AdvisorCheckResultStatus = 0
+	// The check ran and found no issue.
+	AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_OK AdvisorCheckResultStatus = 1
+	// The check ran and detected an issue.
+	AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_FAILED AdvisorCheckResultStatus = 2
+	// The check could not be executed.
+	AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_ERROR AdvisorCheckResultStatus = 3
+)
+
+// Enum value maps for AdvisorCheckResultStatus.
+var (
+	AdvisorCheckResultStatus_name = map[int32]string{
+		0: "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
+		1: "ADVISOR_CHECK_RESULT_STATUS_OK",
+		2: "ADVISOR_CHECK_RESULT_STATUS_FAILED",
+		3: "ADVISOR_CHECK_RESULT_STATUS_ERROR",
+	}
+	AdvisorCheckResultStatus_value = map[string]int32{
+		"ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED": 0,
+		"ADVISOR_CHECK_RESULT_STATUS_OK":          1,
+		"ADVISOR_CHECK_RESULT_STATUS_FAILED":      2,
+		"ADVISOR_CHECK_RESULT_STATUS_ERROR":       3,
+	}
+)
+
+func (x AdvisorCheckResultStatus) Enum() *AdvisorCheckResultStatus {
+	p := new(AdvisorCheckResultStatus)
+	*p = x
+	return p
+}
+
+func (x AdvisorCheckResultStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AdvisorCheckResultStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_advisors_v1_advisors_proto_enumTypes[2].Descriptor()
+}
+
+func (AdvisorCheckResultStatus) Type() protoreflect.EnumType {
+	return &file_advisors_v1_advisors_proto_enumTypes[2]
+}
+
+func (x AdvisorCheckResultStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AdvisorCheckResultStatus.Descriptor instead.
+func (AdvisorCheckResultStatus) EnumDescriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{2}
 }
 
 // AdvisorCheckResult represents the check result returned from pmm-managed after running the check.
@@ -1229,11 +1286,507 @@ func (x *GetFailedChecksResponse) GetResults() []*CheckResult {
 	return nil
 }
 
+// CheckResultHistoryItem represents a single persisted Advisor check run against a service.
+type CheckResultHistoryItem struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Unique identifier of the history record.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Name of the check that ran.
+	CheckName string `protobuf:"bytes,2,opt,name=check_name,json=checkName,proto3" json:"check_name,omitempty"`
+	// Name of the advisor the check belongs to.
+	AdvisorName string `protobuf:"bytes,3,opt,name=advisor_name,json=advisorName,proto3" json:"advisor_name,omitempty"`
+	// Category of the advisor the check belongs to.
+	Category string `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`
+	// Check execution interval.
+	Interval AdvisorCheckInterval `protobuf:"varint,5,opt,name=interval,proto3,enum=advisors.v1.AdvisorCheckInterval" json:"interval,omitempty"`
+	// ID of the monitored service on which the check ran.
+	ServiceId string `protobuf:"bytes,6,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// Name of the monitored service on which the check ran.
+	ServiceName string `protobuf:"bytes,7,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	// Type of the monitored service on which the check ran.
+	ServiceType string `protobuf:"bytes,8,opt,name=service_type,json=serviceType,proto3" json:"service_type,omitempty"`
+	// ID of the node the service runs on.
+	NodeId string `protobuf:"bytes,9,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Name of the node the service runs on.
+	NodeName string `protobuf:"bytes,10,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// Outcome of the check run.
+	Status AdvisorCheckResultStatus `protobuf:"varint,11,opt,name=status,proto3,enum=advisors.v1.AdvisorCheckResultStatus" json:"status,omitempty"`
+	// Short human-readable summary of the result.
+	Summary string `protobuf:"bytes,12,opt,name=summary,proto3" json:"summary,omitempty"`
+	// Long human-readable description of the result.
+	Description string `protobuf:"bytes,13,opt,name=description,proto3" json:"description,omitempty"`
+	// URL containing information on how to resolve a detected issue.
+	ReadMoreUrl string `protobuf:"bytes,14,opt,name=read_more_url,json=readMoreUrl,proto3" json:"read_more_url,omitempty"`
+	// Severity of the result.
+	Severity v1.Severity `protobuf:"varint,15,opt,name=severity,proto3,enum=management.v1.Severity" json:"severity,omitempty"`
+	// Result labels.
+	Labels map[string]string `protobuf:"bytes,16,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Time when the check ran.
+	CheckedAt *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=checked_at,json=checkedAt,proto3" json:"checked_at,omitempty"`
+	// Whether the result has been marked as read.
+	IsRead        bool `protobuf:"varint,18,opt,name=is_read,json=isRead,proto3" json:"is_read,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckResultHistoryItem) Reset() {
+	*x = CheckResultHistoryItem{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckResultHistoryItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckResultHistoryItem) ProtoMessage() {}
+
+func (x *CheckResultHistoryItem) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckResultHistoryItem.ProtoReflect.Descriptor instead.
+func (*CheckResultHistoryItem) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *CheckResultHistoryItem) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetCheckName() string {
+	if x != nil {
+		return x.CheckName
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetAdvisorName() string {
+	if x != nil {
+		return x.AdvisorName
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetInterval() AdvisorCheckInterval {
+	if x != nil {
+		return x.Interval
+	}
+	return AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED
+}
+
+func (x *CheckResultHistoryItem) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetServiceType() string {
+	if x != nil {
+		return x.ServiceType
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetNodeName() string {
+	if x != nil {
+		return x.NodeName
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetStatus() AdvisorCheckResultStatus {
+	if x != nil {
+		return x.Status
+	}
+	return AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED
+}
+
+func (x *CheckResultHistoryItem) GetSummary() string {
+	if x != nil {
+		return x.Summary
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetReadMoreUrl() string {
+	if x != nil {
+		return x.ReadMoreUrl
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetSeverity() v1.Severity {
+	if x != nil {
+		return x.Severity
+	}
+	return v1.Severity(0)
+}
+
+func (x *CheckResultHistoryItem) GetLabels() map[string]string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+func (x *CheckResultHistoryItem) GetCheckedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CheckedAt
+	}
+	return nil
+}
+
+func (x *CheckResultHistoryItem) GetIsRead() bool {
+	if x != nil {
+		return x.IsRead
+	}
+	return false
+}
+
+type ListCheckResultsHistoryRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Maximum number of results per page.
+	PageSize *int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
+	// Index of the requested page, starts from 0.
+	PageIndex *int32 `protobuf:"varint,2,opt,name=page_index,json=pageIndex,proto3,oneof" json:"page_index,omitempty"`
+	// Filter by service ID.
+	ServiceId string `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// Filter by outcome.
+	Status *AdvisorCheckResultStatus `protobuf:"varint,4,opt,name=status,proto3,enum=advisors.v1.AdvisorCheckResultStatus,oneof" json:"status,omitempty"`
+	// Filter by read state.
+	IsRead *bool `protobuf:"varint,5,opt,name=is_read,json=isRead,proto3,oneof" json:"is_read,omitempty"`
+	// Return only results recorded at or after this time.
+	From *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=from,proto3" json:"from,omitempty"`
+	// Return only results recorded at or before this time.
+	To *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=to,proto3" json:"to,omitempty"`
+	// Filter by service name (partial, case-insensitive match).
+	ServiceName string `protobuf:"bytes,8,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	// Filter by node name (partial, case-insensitive match).
+	NodeName string `protobuf:"bytes,9,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// Filter by advisor category.
+	Category string `protobuf:"bytes,10,opt,name=category,proto3" json:"category,omitempty"`
+	// Filter by check name.
+	CheckName string `protobuf:"bytes,11,opt,name=check_name,json=checkName,proto3" json:"check_name,omitempty"`
+	// Filter by severity.
+	Severity      *v1.Severity `protobuf:"varint,12,opt,name=severity,proto3,enum=management.v1.Severity,oneof" json:"severity,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCheckResultsHistoryRequest) Reset() {
+	*x = ListCheckResultsHistoryRequest{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCheckResultsHistoryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCheckResultsHistoryRequest) ProtoMessage() {}
+
+func (x *ListCheckResultsHistoryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCheckResultsHistoryRequest.ProtoReflect.Descriptor instead.
+func (*ListCheckResultsHistoryRequest) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *ListCheckResultsHistoryRequest) GetPageSize() int32 {
+	if x != nil && x.PageSize != nil {
+		return *x.PageSize
+	}
+	return 0
+}
+
+func (x *ListCheckResultsHistoryRequest) GetPageIndex() int32 {
+	if x != nil && x.PageIndex != nil {
+		return *x.PageIndex
+	}
+	return 0
+}
+
+func (x *ListCheckResultsHistoryRequest) GetServiceId() string {
+	if x != nil {
+		return x.ServiceId
+	}
+	return ""
+}
+
+func (x *ListCheckResultsHistoryRequest) GetStatus() AdvisorCheckResultStatus {
+	if x != nil && x.Status != nil {
+		return *x.Status
+	}
+	return AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED
+}
+
+func (x *ListCheckResultsHistoryRequest) GetIsRead() bool {
+	if x != nil && x.IsRead != nil {
+		return *x.IsRead
+	}
+	return false
+}
+
+func (x *ListCheckResultsHistoryRequest) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *ListCheckResultsHistoryRequest) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.To
+	}
+	return nil
+}
+
+func (x *ListCheckResultsHistoryRequest) GetServiceName() string {
+	if x != nil {
+		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *ListCheckResultsHistoryRequest) GetNodeName() string {
+	if x != nil {
+		return x.NodeName
+	}
+	return ""
+}
+
+func (x *ListCheckResultsHistoryRequest) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *ListCheckResultsHistoryRequest) GetCheckName() string {
+	if x != nil {
+		return x.CheckName
+	}
+	return ""
+}
+
+func (x *ListCheckResultsHistoryRequest) GetSeverity() v1.Severity {
+	if x != nil && x.Severity != nil {
+		return *x.Severity
+	}
+	return v1.Severity(0)
+}
+
+type ListCheckResultsHistoryResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Total number of results.
+	TotalItems int32 `protobuf:"varint,1,opt,name=total_items,json=totalItems,proto3" json:"total_items,omitempty"`
+	// Total number of pages.
+	TotalPages int32 `protobuf:"varint,2,opt,name=total_pages,json=totalPages,proto3" json:"total_pages,omitempty"`
+	// History records.
+	Results       []*CheckResultHistoryItem `protobuf:"bytes,3,rep,name=results,proto3" json:"results,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListCheckResultsHistoryResponse) Reset() {
+	*x = ListCheckResultsHistoryResponse{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListCheckResultsHistoryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListCheckResultsHistoryResponse) ProtoMessage() {}
+
+func (x *ListCheckResultsHistoryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListCheckResultsHistoryResponse.ProtoReflect.Descriptor instead.
+func (*ListCheckResultsHistoryResponse) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ListCheckResultsHistoryResponse) GetTotalItems() int32 {
+	if x != nil {
+		return x.TotalItems
+	}
+	return 0
+}
+
+func (x *ListCheckResultsHistoryResponse) GetTotalPages() int32 {
+	if x != nil {
+		return x.TotalPages
+	}
+	return 0
+}
+
+func (x *ListCheckResultsHistoryResponse) GetResults() []*CheckResultHistoryItem {
+	if x != nil {
+		return x.Results
+	}
+	return nil
+}
+
+type MarkCheckResultsReadRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// IDs of the history records to update.
+	Ids []string `protobuf:"bytes,1,rep,name=ids,proto3" json:"ids,omitempty"`
+	// Read state to set on the records.
+	IsRead        bool `protobuf:"varint,2,opt,name=is_read,json=isRead,proto3" json:"is_read,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MarkCheckResultsReadRequest) Reset() {
+	*x = MarkCheckResultsReadRequest{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MarkCheckResultsReadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MarkCheckResultsReadRequest) ProtoMessage() {}
+
+func (x *MarkCheckResultsReadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MarkCheckResultsReadRequest.ProtoReflect.Descriptor instead.
+func (*MarkCheckResultsReadRequest) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *MarkCheckResultsReadRequest) GetIds() []string {
+	if x != nil {
+		return x.Ids
+	}
+	return nil
+}
+
+func (x *MarkCheckResultsReadRequest) GetIsRead() bool {
+	if x != nil {
+		return x.IsRead
+	}
+	return false
+}
+
+type MarkCheckResultsReadResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MarkCheckResultsReadResponse) Reset() {
+	*x = MarkCheckResultsReadResponse{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MarkCheckResultsReadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MarkCheckResultsReadResponse) ProtoMessage() {}
+
+func (x *MarkCheckResultsReadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MarkCheckResultsReadResponse.ProtoReflect.Descriptor instead.
+func (*MarkCheckResultsReadResponse) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{22}
+}
+
 var File_advisors_v1_advisors_proto protoreflect.FileDescriptor
 
 const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\n" +
-	"\x1aadvisors/v1/advisors.proto\x12\vadvisors.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1cmanagement/v1/severity.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xcc\x02\n" +
+	"\x1aadvisors/v1/advisors.proto\x12\vadvisors.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cmanagement/v1/severity.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xcc\x02\n" +
 	"\x12AdvisorCheckResult\x12\x18\n" +
 	"\asummary\x18\x01 \x01(\tR\asummary\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x123\n" +
@@ -1325,7 +1878,67 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"totalItems\x12\x1f\n" +
 	"\vtotal_pages\x18\x02 \x01(\x05R\n" +
 	"totalPages\x122\n" +
-	"\aresults\x18\x03 \x03(\v2\x18.advisors.v1.CheckResultR\aresults*\xa9\x01\n" +
+	"\aresults\x18\x03 \x03(\v2\x18.advisors.v1.CheckResultR\aresults\"\x8c\x06\n" +
+	"\x16CheckResultHistoryItem\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\n" +
+	"check_name\x18\x02 \x01(\tR\tcheckName\x12!\n" +
+	"\fadvisor_name\x18\x03 \x01(\tR\vadvisorName\x12\x1a\n" +
+	"\bcategory\x18\x04 \x01(\tR\bcategory\x12=\n" +
+	"\binterval\x18\x05 \x01(\x0e2!.advisors.v1.AdvisorCheckIntervalR\binterval\x12\x1d\n" +
+	"\n" +
+	"service_id\x18\x06 \x01(\tR\tserviceId\x12!\n" +
+	"\fservice_name\x18\a \x01(\tR\vserviceName\x12!\n" +
+	"\fservice_type\x18\b \x01(\tR\vserviceType\x12\x17\n" +
+	"\anode_id\x18\t \x01(\tR\x06nodeId\x12\x1b\n" +
+	"\tnode_name\x18\n" +
+	" \x01(\tR\bnodeName\x12=\n" +
+	"\x06status\x18\v \x01(\x0e2%.advisors.v1.AdvisorCheckResultStatusR\x06status\x12\x18\n" +
+	"\asummary\x18\f \x01(\tR\asummary\x12 \n" +
+	"\vdescription\x18\r \x01(\tR\vdescription\x12\"\n" +
+	"\rread_more_url\x18\x0e \x01(\tR\vreadMoreUrl\x123\n" +
+	"\bseverity\x18\x0f \x01(\x0e2\x17.management.v1.SeverityR\bseverity\x12G\n" +
+	"\x06labels\x18\x10 \x03(\v2/.advisors.v1.CheckResultHistoryItem.LabelsEntryR\x06labels\x129\n" +
+	"\n" +
+	"checked_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\tcheckedAt\x12\x17\n" +
+	"\ais_read\x18\x12 \x01(\bR\x06isRead\x1a9\n" +
+	"\vLabelsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcb\x04\n" +
+	"\x1eListCheckResultsHistoryRequest\x12)\n" +
+	"\tpage_size\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01H\x00R\bpageSize\x88\x01\x01\x12+\n" +
+	"\n" +
+	"page_index\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x00H\x01R\tpageIndex\x88\x01\x01\x12\x1d\n" +
+	"\n" +
+	"service_id\x18\x03 \x01(\tR\tserviceId\x12B\n" +
+	"\x06status\x18\x04 \x01(\x0e2%.advisors.v1.AdvisorCheckResultStatusH\x02R\x06status\x88\x01\x01\x12\x1c\n" +
+	"\ais_read\x18\x05 \x01(\bH\x03R\x06isRead\x88\x01\x01\x12.\n" +
+	"\x04from\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x02to\x12!\n" +
+	"\fservice_name\x18\b \x01(\tR\vserviceName\x12\x1b\n" +
+	"\tnode_name\x18\t \x01(\tR\bnodeName\x12\x1a\n" +
+	"\bcategory\x18\n" +
+	" \x01(\tR\bcategory\x12\x1d\n" +
+	"\n" +
+	"check_name\x18\v \x01(\tR\tcheckName\x128\n" +
+	"\bseverity\x18\f \x01(\x0e2\x17.management.v1.SeverityH\x04R\bseverity\x88\x01\x01B\f\n" +
+	"\n" +
+	"_page_sizeB\r\n" +
+	"\v_page_indexB\t\n" +
+	"\a_statusB\n" +
+	"\n" +
+	"\b_is_readB\v\n" +
+	"\t_severity\"\xa2\x01\n" +
+	"\x1fListCheckResultsHistoryResponse\x12\x1f\n" +
+	"\vtotal_items\x18\x01 \x01(\x05R\n" +
+	"totalItems\x12\x1f\n" +
+	"\vtotal_pages\x18\x02 \x01(\x05R\n" +
+	"totalPages\x12=\n" +
+	"\aresults\x18\x03 \x03(\v2#.advisors.v1.CheckResultHistoryItemR\aresults\"R\n" +
+	"\x1bMarkCheckResultsReadRequest\x12\x1a\n" +
+	"\x03ids\x18\x01 \x03(\tB\b\xfaB\x05\x92\x01\x02\b\x01R\x03ids\x12\x17\n" +
+	"\ais_read\x18\x02 \x01(\bR\x06isRead\"\x1e\n" +
+	"\x1cMarkCheckResultsReadResponse*\xa9\x01\n" +
 	"\x14AdvisorCheckInterval\x12&\n" +
 	"\"ADVISOR_CHECK_INTERVAL_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fADVISOR_CHECK_INTERVAL_STANDARD\x10\x01\x12#\n" +
@@ -1335,11 +1948,17 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	" ADVISOR_CHECK_FAMILY_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aADVISOR_CHECK_FAMILY_MYSQL\x10\x01\x12#\n" +
 	"\x1fADVISOR_CHECK_FAMILY_POSTGRESQL\x10\x02\x12 \n" +
-	"\x1cADVISOR_CHECK_FAMILY_MONGODB\x10\x032\xee\n" +
-	"\n" +
+	"\x1cADVISOR_CHECK_FAMILY_MONGODB\x10\x03*\xba\x01\n" +
+	"\x18AdvisorCheckResultStatus\x12+\n" +
+	"'ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED\x10\x00\x12\"\n" +
+	"\x1eADVISOR_CHECK_RESULT_STATUS_OK\x10\x01\x12&\n" +
+	"\"ADVISOR_CHECK_RESULT_STATUS_FAILED\x10\x02\x12%\n" +
+	"!ADVISOR_CHECK_RESULT_STATUS_ERROR\x10\x032\xac\x0f\n" +
 	"\x0eAdvisorService\x12\xf3\x01\n" +
 	"\x12ListFailedServices\x12&.advisors.v1.ListFailedServicesRequest\x1a'.advisors.v1.ListFailedServicesResponse\"\x8b\x01\x92Ae\x12\x14List Failed Services\x1aMReturns a list of services with failed checks and a summary of check results.\x82\xd3\xe4\x93\x02\x1d\x12\x1b/v1/advisors/failedServices\x12\xd5\x01\n" +
-	"\x0fGetFailedChecks\x12#.advisors.v1.GetFailedChecksRequest\x1a$.advisors.v1.GetFailedChecksResponse\"w\x92AR\x12\x19Get Failed Advisor Checks\x1a5Returns the latest check results for a given service.\x82\xd3\xe4\x93\x02\x1c\x12\x1a/v1/advisors/checks/failed\x12\xb0\x02\n" +
+	"\x0fGetFailedChecks\x12#.advisors.v1.GetFailedChecksRequest\x1a$.advisors.v1.GetFailedChecksResponse\"w\x92AR\x12\x19Get Failed Advisor Checks\x1a5Returns the latest check results for a given service.\x82\xd3\xe4\x93\x02\x1c\x12\x1a/v1/advisors/checks/failed\x12\x87\x02\n" +
+	"\x17ListCheckResultsHistory\x12+.advisors.v1.ListCheckResultsHistoryRequest\x1a,.advisors.v1.ListCheckResultsHistoryResponse\"\x90\x01\x92Aj\x12\"List Advisor Check Results History\x1aDReturns the history of Advisor check runs, including their outcomes.\x82\xd3\xe4\x93\x02\x1d\x12\x1b/v1/advisors/checks/history\x12\xb1\x02\n" +
+	"\x14MarkCheckResultsRead\x12(.advisors.v1.MarkCheckResultsReadRequest\x1a).advisors.v1.MarkCheckResultsReadResponse\"\xc3\x01\x92A\x90\x01\x12\x1fMark Advisor Check Results Read\x1amSets the read state on the specified Advisor check history records. Set is_read to false to mark them unread.\x82\xd3\xe4\x93\x02):\x01*\"$/v1/advisors/checks/history:markRead\x12\xb0\x02\n" +
 	"\x12StartAdvisorChecks\x12&.advisors.v1.StartAdvisorChecksRequest\x1a'.advisors.v1.StartAdvisorChecksResponse\"\xc8\x01\x92A\xa0\x01\x12\x14Start Advisor Checks\x1a\x87\x01Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified.\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/advisors/checks:start\x12\xc3\x01\n" +
 	"\x11ListAdvisorChecks\x12%.advisors.v1.ListAdvisorChecksRequest\x1a&.advisors.v1.ListAdvisorChecksResponse\"_\x92AA\x12\x13List Advisor Checks\x1a*List advisor checks available to the user.\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/advisors/checks\x12\xa1\x01\n" +
 	"\fListAdvisors\x12 .advisors.v1.ListAdvisorsRequest\x1a!.advisors.v1.ListAdvisorsResponse\"L\x92A5\x12\rList Advisors\x1a$List advisors available to the user.\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/advisors\x12\xf0\x01\n" +
@@ -1359,66 +1978,88 @@ func file_advisors_v1_advisors_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_advisors_v1_advisors_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-	file_advisors_v1_advisors_proto_msgTypes  = make([]protoimpl.MessageInfo, 20)
+	file_advisors_v1_advisors_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+	file_advisors_v1_advisors_proto_msgTypes  = make([]protoimpl.MessageInfo, 26)
 	file_advisors_v1_advisors_proto_goTypes   = []any{
-		AdvisorCheckInterval(0),             // 0: advisors.v1.AdvisorCheckInterval
-		AdvisorCheckFamily(0),               // 1: advisors.v1.AdvisorCheckFamily
-		(*AdvisorCheckResult)(nil),          // 2: advisors.v1.AdvisorCheckResult
-		(*CheckResultSummary)(nil),          // 3: advisors.v1.CheckResultSummary
-		(*CheckResult)(nil),                 // 4: advisors.v1.CheckResult
-		(*AdvisorCheck)(nil),                // 5: advisors.v1.AdvisorCheck
-		(*Advisor)(nil),                     // 6: advisors.v1.Advisor
-		(*ChangeAdvisorCheckParams)(nil),    // 7: advisors.v1.ChangeAdvisorCheckParams
-		(*StartAdvisorChecksRequest)(nil),   // 8: advisors.v1.StartAdvisorChecksRequest
-		(*StartAdvisorChecksResponse)(nil),  // 9: advisors.v1.StartAdvisorChecksResponse
-		(*ListAdvisorChecksRequest)(nil),    // 10: advisors.v1.ListAdvisorChecksRequest
-		(*ListAdvisorChecksResponse)(nil),   // 11: advisors.v1.ListAdvisorChecksResponse
-		(*ListAdvisorsRequest)(nil),         // 12: advisors.v1.ListAdvisorsRequest
-		(*ListAdvisorsResponse)(nil),        // 13: advisors.v1.ListAdvisorsResponse
-		(*ChangeAdvisorChecksRequest)(nil),  // 14: advisors.v1.ChangeAdvisorChecksRequest
-		(*ChangeAdvisorChecksResponse)(nil), // 15: advisors.v1.ChangeAdvisorChecksResponse
-		(*ListFailedServicesRequest)(nil),   // 16: advisors.v1.ListFailedServicesRequest
-		(*ListFailedServicesResponse)(nil),  // 17: advisors.v1.ListFailedServicesResponse
-		(*GetFailedChecksRequest)(nil),      // 18: advisors.v1.GetFailedChecksRequest
-		(*GetFailedChecksResponse)(nil),     // 19: advisors.v1.GetFailedChecksResponse
-		nil,                                 // 20: advisors.v1.AdvisorCheckResult.LabelsEntry
-		nil,                                 // 21: advisors.v1.CheckResult.LabelsEntry
-		v1.Severity(0),                      // 22: management.v1.Severity
+		AdvisorCheckInterval(0),                 // 0: advisors.v1.AdvisorCheckInterval
+		AdvisorCheckFamily(0),                   // 1: advisors.v1.AdvisorCheckFamily
+		AdvisorCheckResultStatus(0),             // 2: advisors.v1.AdvisorCheckResultStatus
+		(*AdvisorCheckResult)(nil),              // 3: advisors.v1.AdvisorCheckResult
+		(*CheckResultSummary)(nil),              // 4: advisors.v1.CheckResultSummary
+		(*CheckResult)(nil),                     // 5: advisors.v1.CheckResult
+		(*AdvisorCheck)(nil),                    // 6: advisors.v1.AdvisorCheck
+		(*Advisor)(nil),                         // 7: advisors.v1.Advisor
+		(*ChangeAdvisorCheckParams)(nil),        // 8: advisors.v1.ChangeAdvisorCheckParams
+		(*StartAdvisorChecksRequest)(nil),       // 9: advisors.v1.StartAdvisorChecksRequest
+		(*StartAdvisorChecksResponse)(nil),      // 10: advisors.v1.StartAdvisorChecksResponse
+		(*ListAdvisorChecksRequest)(nil),        // 11: advisors.v1.ListAdvisorChecksRequest
+		(*ListAdvisorChecksResponse)(nil),       // 12: advisors.v1.ListAdvisorChecksResponse
+		(*ListAdvisorsRequest)(nil),             // 13: advisors.v1.ListAdvisorsRequest
+		(*ListAdvisorsResponse)(nil),            // 14: advisors.v1.ListAdvisorsResponse
+		(*ChangeAdvisorChecksRequest)(nil),      // 15: advisors.v1.ChangeAdvisorChecksRequest
+		(*ChangeAdvisorChecksResponse)(nil),     // 16: advisors.v1.ChangeAdvisorChecksResponse
+		(*ListFailedServicesRequest)(nil),       // 17: advisors.v1.ListFailedServicesRequest
+		(*ListFailedServicesResponse)(nil),      // 18: advisors.v1.ListFailedServicesResponse
+		(*GetFailedChecksRequest)(nil),          // 19: advisors.v1.GetFailedChecksRequest
+		(*GetFailedChecksResponse)(nil),         // 20: advisors.v1.GetFailedChecksResponse
+		(*CheckResultHistoryItem)(nil),          // 21: advisors.v1.CheckResultHistoryItem
+		(*ListCheckResultsHistoryRequest)(nil),  // 22: advisors.v1.ListCheckResultsHistoryRequest
+		(*ListCheckResultsHistoryResponse)(nil), // 23: advisors.v1.ListCheckResultsHistoryResponse
+		(*MarkCheckResultsReadRequest)(nil),     // 24: advisors.v1.MarkCheckResultsReadRequest
+		(*MarkCheckResultsReadResponse)(nil),    // 25: advisors.v1.MarkCheckResultsReadResponse
+		nil,                                     // 26: advisors.v1.AdvisorCheckResult.LabelsEntry
+		nil,                                     // 27: advisors.v1.CheckResult.LabelsEntry
+		nil,                                     // 28: advisors.v1.CheckResultHistoryItem.LabelsEntry
+		v1.Severity(0),                          // 29: management.v1.Severity
+		(*timestamppb.Timestamp)(nil),           // 30: google.protobuf.Timestamp
 	}
 )
 
 var file_advisors_v1_advisors_proto_depIdxs = []int32{
-	22, // 0: advisors.v1.AdvisorCheckResult.severity:type_name -> management.v1.Severity
-	20, // 1: advisors.v1.AdvisorCheckResult.labels:type_name -> advisors.v1.AdvisorCheckResult.LabelsEntry
-	22, // 2: advisors.v1.CheckResult.severity:type_name -> management.v1.Severity
-	21, // 3: advisors.v1.CheckResult.labels:type_name -> advisors.v1.CheckResult.LabelsEntry
+	29, // 0: advisors.v1.AdvisorCheckResult.severity:type_name -> management.v1.Severity
+	26, // 1: advisors.v1.AdvisorCheckResult.labels:type_name -> advisors.v1.AdvisorCheckResult.LabelsEntry
+	29, // 2: advisors.v1.CheckResult.severity:type_name -> management.v1.Severity
+	27, // 3: advisors.v1.CheckResult.labels:type_name -> advisors.v1.CheckResult.LabelsEntry
 	0,  // 4: advisors.v1.AdvisorCheck.interval:type_name -> advisors.v1.AdvisorCheckInterval
 	1,  // 5: advisors.v1.AdvisorCheck.family:type_name -> advisors.v1.AdvisorCheckFamily
-	5,  // 6: advisors.v1.Advisor.checks:type_name -> advisors.v1.AdvisorCheck
+	6,  // 6: advisors.v1.Advisor.checks:type_name -> advisors.v1.AdvisorCheck
 	0,  // 7: advisors.v1.ChangeAdvisorCheckParams.interval:type_name -> advisors.v1.AdvisorCheckInterval
-	5,  // 8: advisors.v1.ListAdvisorChecksResponse.checks:type_name -> advisors.v1.AdvisorCheck
-	6,  // 9: advisors.v1.ListAdvisorsResponse.advisors:type_name -> advisors.v1.Advisor
-	7,  // 10: advisors.v1.ChangeAdvisorChecksRequest.params:type_name -> advisors.v1.ChangeAdvisorCheckParams
-	3,  // 11: advisors.v1.ListFailedServicesResponse.result:type_name -> advisors.v1.CheckResultSummary
-	4,  // 12: advisors.v1.GetFailedChecksResponse.results:type_name -> advisors.v1.CheckResult
-	16, // 13: advisors.v1.AdvisorService.ListFailedServices:input_type -> advisors.v1.ListFailedServicesRequest
-	18, // 14: advisors.v1.AdvisorService.GetFailedChecks:input_type -> advisors.v1.GetFailedChecksRequest
-	8,  // 15: advisors.v1.AdvisorService.StartAdvisorChecks:input_type -> advisors.v1.StartAdvisorChecksRequest
-	10, // 16: advisors.v1.AdvisorService.ListAdvisorChecks:input_type -> advisors.v1.ListAdvisorChecksRequest
-	12, // 17: advisors.v1.AdvisorService.ListAdvisors:input_type -> advisors.v1.ListAdvisorsRequest
-	14, // 18: advisors.v1.AdvisorService.ChangeAdvisorChecks:input_type -> advisors.v1.ChangeAdvisorChecksRequest
-	17, // 19: advisors.v1.AdvisorService.ListFailedServices:output_type -> advisors.v1.ListFailedServicesResponse
-	19, // 20: advisors.v1.AdvisorService.GetFailedChecks:output_type -> advisors.v1.GetFailedChecksResponse
-	9,  // 21: advisors.v1.AdvisorService.StartAdvisorChecks:output_type -> advisors.v1.StartAdvisorChecksResponse
-	11, // 22: advisors.v1.AdvisorService.ListAdvisorChecks:output_type -> advisors.v1.ListAdvisorChecksResponse
-	13, // 23: advisors.v1.AdvisorService.ListAdvisors:output_type -> advisors.v1.ListAdvisorsResponse
-	15, // 24: advisors.v1.AdvisorService.ChangeAdvisorChecks:output_type -> advisors.v1.ChangeAdvisorChecksResponse
-	19, // [19:25] is the sub-list for method output_type
-	13, // [13:19] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	6,  // 8: advisors.v1.ListAdvisorChecksResponse.checks:type_name -> advisors.v1.AdvisorCheck
+	7,  // 9: advisors.v1.ListAdvisorsResponse.advisors:type_name -> advisors.v1.Advisor
+	8,  // 10: advisors.v1.ChangeAdvisorChecksRequest.params:type_name -> advisors.v1.ChangeAdvisorCheckParams
+	4,  // 11: advisors.v1.ListFailedServicesResponse.result:type_name -> advisors.v1.CheckResultSummary
+	5,  // 12: advisors.v1.GetFailedChecksResponse.results:type_name -> advisors.v1.CheckResult
+	0,  // 13: advisors.v1.CheckResultHistoryItem.interval:type_name -> advisors.v1.AdvisorCheckInterval
+	2,  // 14: advisors.v1.CheckResultHistoryItem.status:type_name -> advisors.v1.AdvisorCheckResultStatus
+	29, // 15: advisors.v1.CheckResultHistoryItem.severity:type_name -> management.v1.Severity
+	28, // 16: advisors.v1.CheckResultHistoryItem.labels:type_name -> advisors.v1.CheckResultHistoryItem.LabelsEntry
+	30, // 17: advisors.v1.CheckResultHistoryItem.checked_at:type_name -> google.protobuf.Timestamp
+	2,  // 18: advisors.v1.ListCheckResultsHistoryRequest.status:type_name -> advisors.v1.AdvisorCheckResultStatus
+	30, // 19: advisors.v1.ListCheckResultsHistoryRequest.from:type_name -> google.protobuf.Timestamp
+	30, // 20: advisors.v1.ListCheckResultsHistoryRequest.to:type_name -> google.protobuf.Timestamp
+	29, // 21: advisors.v1.ListCheckResultsHistoryRequest.severity:type_name -> management.v1.Severity
+	21, // 22: advisors.v1.ListCheckResultsHistoryResponse.results:type_name -> advisors.v1.CheckResultHistoryItem
+	17, // 23: advisors.v1.AdvisorService.ListFailedServices:input_type -> advisors.v1.ListFailedServicesRequest
+	19, // 24: advisors.v1.AdvisorService.GetFailedChecks:input_type -> advisors.v1.GetFailedChecksRequest
+	22, // 25: advisors.v1.AdvisorService.ListCheckResultsHistory:input_type -> advisors.v1.ListCheckResultsHistoryRequest
+	24, // 26: advisors.v1.AdvisorService.MarkCheckResultsRead:input_type -> advisors.v1.MarkCheckResultsReadRequest
+	9,  // 27: advisors.v1.AdvisorService.StartAdvisorChecks:input_type -> advisors.v1.StartAdvisorChecksRequest
+	11, // 28: advisors.v1.AdvisorService.ListAdvisorChecks:input_type -> advisors.v1.ListAdvisorChecksRequest
+	13, // 29: advisors.v1.AdvisorService.ListAdvisors:input_type -> advisors.v1.ListAdvisorsRequest
+	15, // 30: advisors.v1.AdvisorService.ChangeAdvisorChecks:input_type -> advisors.v1.ChangeAdvisorChecksRequest
+	18, // 31: advisors.v1.AdvisorService.ListFailedServices:output_type -> advisors.v1.ListFailedServicesResponse
+	20, // 32: advisors.v1.AdvisorService.GetFailedChecks:output_type -> advisors.v1.GetFailedChecksResponse
+	23, // 33: advisors.v1.AdvisorService.ListCheckResultsHistory:output_type -> advisors.v1.ListCheckResultsHistoryResponse
+	25, // 34: advisors.v1.AdvisorService.MarkCheckResultsRead:output_type -> advisors.v1.MarkCheckResultsReadResponse
+	10, // 35: advisors.v1.AdvisorService.StartAdvisorChecks:output_type -> advisors.v1.StartAdvisorChecksResponse
+	12, // 36: advisors.v1.AdvisorService.ListAdvisorChecks:output_type -> advisors.v1.ListAdvisorChecksResponse
+	14, // 37: advisors.v1.AdvisorService.ListAdvisors:output_type -> advisors.v1.ListAdvisorsResponse
+	16, // 38: advisors.v1.AdvisorService.ChangeAdvisorChecks:output_type -> advisors.v1.ChangeAdvisorChecksResponse
+	31, // [31:39] is the sub-list for method output_type
+	23, // [23:31] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_advisors_v1_advisors_proto_init() }
@@ -1428,13 +2069,14 @@ func file_advisors_v1_advisors_proto_init() {
 	}
 	file_advisors_v1_advisors_proto_msgTypes[5].OneofWrappers = []any{}
 	file_advisors_v1_advisors_proto_msgTypes[16].OneofWrappers = []any{}
+	file_advisors_v1_advisors_proto_msgTypes[19].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_advisors_v1_advisors_proto_rawDesc), len(file_advisors_v1_advisors_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   20,
+			NumEnums:      3,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

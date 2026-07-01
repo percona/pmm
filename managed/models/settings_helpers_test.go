@@ -24,6 +24,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -43,8 +44,9 @@ func TestSettings(t *testing.T) {
 				MR: 10 * time.Second,
 				LR: time.Minute,
 			},
-			DataRetention: 30 * 24 * time.Hour,
-			AWSPartitions: []string{"aws"},
+			DataRetention:           30 * 24 * time.Hour,
+			AdvisorHistoryRetention: 30 * 24 * time.Hour,
+			AWSPartitions:           []string{"aws"},
 			SaaS: models.Advisors{
 				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,
@@ -56,6 +58,7 @@ func TestSettings(t *testing.T) {
 			EncryptedItems: actual.EncryptedItems,
 		}
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
+		expected.AdvisorNotifications.SeverityThreshold = models.AdvisorNotificationSeverityDefault
 		assert.Equal(t, expected, actual)
 	})
 
@@ -69,8 +72,9 @@ func TestSettings(t *testing.T) {
 				MR: 10 * time.Second,
 				LR: time.Minute,
 			},
-			DataRetention: 30 * 24 * time.Hour,
-			AWSPartitions: []string{"aws"},
+			DataRetention:           30 * 24 * time.Hour,
+			AdvisorHistoryRetention: 30 * 24 * time.Hour,
+			AWSPartitions:           []string{"aws"},
 			SaaS: models.Advisors{
 				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,
@@ -80,7 +84,26 @@ func TestSettings(t *testing.T) {
 			},
 		}
 		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
+		expected.AdvisorNotifications.SeverityThreshold = models.AdvisorNotificationSeverityDefault
 		assert.Equal(t, expected, s)
+	})
+
+	t.Run("AdvisorNotifications", func(t *testing.T) {
+		settings, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			EnableAdvisorNotifications:           new(true),
+			AdvisorNotificationSeverityThreshold: common.Warning,
+			AdvisorHistoryRetention:              48 * time.Hour,
+		})
+		require.NoError(t, err)
+		assert.True(t, settings.IsAdvisorNotificationsEnabled())
+		assert.Equal(t, common.Warning, settings.AdvisorNotifications.SeverityThreshold)
+		assert.Equal(t, 48*time.Hour, settings.AdvisorHistoryRetention)
+
+		// An out-of-range severity threshold is rejected.
+		_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationSeverityThreshold: common.Severity(42),
+		})
+		require.ErrorContains(t, err, "advisor_notification_severity_threshold")
 	})
 
 	t.Run("Validation", func(t *testing.T) {

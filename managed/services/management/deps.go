@@ -59,6 +59,8 @@ type checksService interface {
 	GetChecks() (map[string]check.Check, error)
 	GetAdvisors() ([]check.Advisor, error)
 	GetChecksResults(ctx context.Context, serviceID string) ([]services.CheckResult, error)
+	GetCheckResultsHistory(ctx context.Context, filters models.CheckResultFilters, pageIndex, pageSize int) ([]*models.CheckResult, int, error)
+	MarkCheckResultsRead(ctx context.Context, ids []string, isRead bool) error
 	GetDisabledChecks() ([]string, error)
 	DisableChecks(checkNames []string) error
 	EnableChecks(checkNames []string) error

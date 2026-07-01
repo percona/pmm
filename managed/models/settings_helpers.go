@@ -25,6 +25,7 @@ import (
 	"github.com/google/uuid"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/utils/validators"
 )
 
@@ -59,6 +60,13 @@ type ChangeSettingsParams struct {
 	MetricsResolutions MetricsResolutions
 
 	DataRetention time.Duration
+
+	AdvisorHistoryRetention time.Duration
+
+	// Enable Advisor email notifications.
+	EnableAdvisorNotifications *bool
+	// Least-severe level that triggers an Advisor notification. Unknown means "do not change".
+	AdvisorNotificationSeverityThreshold common.Severity
 
 	// List of AWS partitions to use. If empty - default partitions will be used. If nil - no changes will be made.
 	AWSPartitions []string
@@ -173,6 +181,18 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.DataRetention = params.DataRetention
 	}
 
+	if params.AdvisorHistoryRetention != 0 {
+		settings.AdvisorHistoryRetention = params.AdvisorHistoryRetention
+	}
+
+	if params.EnableAdvisorNotifications != nil {
+		settings.AdvisorNotifications.Enabled = params.EnableAdvisorNotifications
+	}
+
+	if params.AdvisorNotificationSeverityThreshold != common.Unknown {
+		settings.AdvisorNotifications.SeverityThreshold = params.AdvisorNotificationSeverityThreshold
+	}
+
 	if params.AWSPartitions != nil {
 		settings.AWSPartitions = deduplicateStrings(params.AWSPartitions)
 	}
@@ -281,7 +301,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			case validators.MinDurationError:
 				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return fmt.Errorf("%s: unknown error: %w", v.fieldName, err)
+				return fmt.Errorf("%s: %w", v.fieldName, err)
 			}
 		}
 	}
@@ -307,7 +327,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			case validators.MinDurationError:
 				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return fmt.Errorf("%s: unknown error: %w", v.fieldName, err)
+				return fmt.Errorf("%s: %w", v.fieldName, err)
 			}
 		}
 	}
@@ -321,8 +341,29 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			case validators.MinDurationError:
 				return errors.New("data_retention: minimal resolution is 24h")
 			default:
-				return fmt.Errorf("data_retention: unknown error: %w", err)
+				return fmt.Errorf("data_retention: %w", err)
 			}
+		}
+	}
+
+	if params.AdvisorHistoryRetention != 0 {
+		_, err := validators.ValidateDataRetention(params.AdvisorHistoryRetention)
+		if err != nil {
+			switch err.(type) { //nolint:errorlint
+			case validators.DurationNotAllowedError:
+				return errors.New("advisor_history_retention: should be a natural number of days")
+			case validators.MinDurationError:
+				return errors.New("advisor_history_retention: minimal resolution is 24h")
+			default:
+				return fmt.Errorf("advisor_history_retention: %w", err)
+			}
+		}
+	}
+
+	if params.AdvisorNotificationSeverityThreshold != common.Unknown {
+		err := params.AdvisorNotificationSeverityThreshold.Validate()
+		if err != nil {
+			return fmt.Errorf("advisor_notification_severity_threshold: %w", err)
 		}
 	}
 

@@ -540,6 +540,32 @@ func TestFindTargets(t *testing.T) {
 	})
 }
 
+func TestFindTargetsSkipsOnlyInternalPostgreSQL(t *testing.T) {
+	// NOTE: no t.Parallel() - testdb.Open recreates a single shared database, so concurrent
+	// testdb tests collide.
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	s := New(db, nil, vmClient, clickhouseDB)
+
+	// A user service registered on the PMM Server node must still be a valid target.
+	setup(t, db, "mysql-on-pmm-node", models.PMMServerNodeID, "")
+
+	mysqlTargets, err := s.findTargets(models.MySQLServiceType, nil)
+	require.NoError(t, err)
+	require.Len(t, mysqlTargets, 1)
+	assert.Equal(t, "mysql-on-pmm-node", mysqlTargets[0].ServiceName)
+
+	// PMM Server's internal PostgreSQL must be skipped, leaving no PostgreSQL targets.
+	pgTargets, err := s.findTargets(models.PostgreSQLServiceType, nil)
+	require.NoError(t, err)
+	assert.Empty(t, pgTargets)
+}
+
 func TestFilterChecksByInterval(t *testing.T) {
 	t.Parallel()
 	s := New(nil, nil, vmClient, clickhouseDB)

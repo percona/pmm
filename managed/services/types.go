@@ -28,6 +28,7 @@ type Target struct {
 	ServiceID     string
 	ServiceName   string
 	ServiceType   models.ServiceType
+	NodeID        string
 	NodeName      string
 	Labels        map[string]string
 	DSN           string
@@ -49,6 +50,7 @@ func (t *Target) Copy() Target {
 		ServiceID:     t.ServiceID,
 		ServiceName:   t.ServiceName,
 		ServiceType:   t.ServiceType,
+		NodeID:        t.NodeID,
 		NodeName:      t.NodeName,
 		Labels:        labels,
 		DSN:           t.DSN,

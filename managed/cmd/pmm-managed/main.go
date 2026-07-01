@@ -129,6 +129,8 @@ const (
 	cleanInterval  = 10 * time.Minute
 	cleanOlderThan = 30 * time.Minute
 
+	advisorHistoryCleanInterval = time.Hour
+
 	defaultContextTimeout = 10 * time.Second
 	pProfProfileDuration  = 30 * time.Second
 	pProfTraceDuration    = 10 * time.Second
@@ -897,6 +899,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 
 	cleaner := clean.New(db)
+	advisorHistoryCleaner := clean.NewCheckResults(db)
 	externalRules := vmalert.NewExternalRules()
 	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, chParams, haService)
 	if err != nil {
@@ -1216,6 +1219,11 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	haService.AddLeaderService(ha.NewContextService("cleaner", func(ctx context.Context) error {
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
+		return nil
+	}))
+
+	haService.AddLeaderService(ha.NewContextService("advisor-history-cleaner", func(ctx context.Context) error {
+		advisorHistoryCleaner.Run(ctx, advisorHistoryCleanInterval)
 		return nil
 	}))
 
