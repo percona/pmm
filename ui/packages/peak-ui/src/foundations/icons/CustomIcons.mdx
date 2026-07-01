@@ -1,0 +1,20 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as CustomIconsStories from './CustomIcons.stories';
+
+<Meta of={CustomIconsStories} />
+
+# Custom icons
+
+This is the index for custom, on demand, created icons for **Peak Design** (because they weren't available in the [MUI library](https://mui.com/material-ui/material-icons/)).
+
+Each one is exported from `@percona/percona-ui` and consumed like any other component:
+
+```tsx
+import { PerconaMyIcon } from '@percona/percona-ui';
+
+<PerconaMyIcon fontSize="medium" />;
+```
+
+Search by the design name or the component name, and use the copy button to grab the import. To create a new custom icon, follow the instructions in **Overview** page.
+
+<Canvas of={CustomIconsStories.Gallery} sourceState="none" />
