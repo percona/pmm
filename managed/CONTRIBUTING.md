@@ -63,7 +63,7 @@ go test -timeout=30s -p 1 ./...
 | PMM_DEV_TELEMETRY_FILE                   | Sets path for telemetry config file                                                                                 |                                          |
 | PMM_DEV_TELEMETRY_DISABLE_START_DELAY    | Disable the default telemetry execution start delay, so that telemetry gathering is run immediately upon system     | false                                    |
 | PMM_DEV_TELEMETRY_RETRY_BACKOFF          | Sets telemetry reporting retry backoff time                                                                         | 1h                                       |   
-| PMM_DEV_PERCONA_PLATFORM_ADDRESS         | Sets Percona Platform address                                                                                       | https://check.percona.com                |
+| PMM_PERCONA_PLATFORM_ADDRESS             | Sets Percona Platform address                                                                                       | https://check-dev.percona.com            |
 
 ## Add instances for monitoring
 

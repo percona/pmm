@@ -19,8 +19,6 @@ package receiver
 import (
 	"context"
 
-	"github.com/sirupsen/logrus"
-
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 	"github.com/percona/pmm/qan-api2/utils/logger"
@@ -28,10 +26,9 @@ import (
 
 // Service implements gRPC service to communicate with agent.
 type Service struct {
-	mbm *models.MetricsBucket
-	l   *logrus.Entry //nolint:unused
-
 	qanpb.UnimplementedCollectorServiceServer
+
+	mbm *models.MetricsBucket
 }
 
 // NewService create new insstance of Service.
