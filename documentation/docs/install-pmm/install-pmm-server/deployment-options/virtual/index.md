@@ -14,11 +14,17 @@ Your PMM Server stores monitoring data, dashboards, alert configurations, and us
 3. Export custom dashboards. If you have created or modified dashboards, export them as JSON from the Grafana UI (**Dashboard > Share > Export**).
 4. Back up alert rules and contact points. Note any custom alert templates, notification channels, and silences you have configured.
 
-### Choose your target deployment
+### Deploy your new PMM Server
+
+Keep your OVA instance running while setting up the new server — you'll need it for client reconfiguration and parallel validation.
+
+Deploy on a **different host or IP address** from your current OVA, then follow the guide for your chosen method:
 
 - **[Docker](../docker/index.md) (recommended)**: simplest migration path with minimal operational change
 - **[Podman](../podman/index.md)**: rootless containers for security-sensitive environments
 - **[Helm](../helm/index.md)**: Kubernetes-native deployment with high availability support
+
+Once your new server is up, continue with the steps below.
 
 ### After deploying the new PMM Server
 Once your new PMM Server is running, complete these steps to finish the migration:
