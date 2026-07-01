@@ -43,7 +43,7 @@ import (
 const defaultWaitTime = 60 * time.Second
 
 // PGStatMonitorQAN connects to PostgreSQL and extracts stats using pg_stat_monitor.
-type PGStatMonitorQAN struct {
+type PGStatMonitorQAN struct { //nolint:revive
 	q                      *reform.Querier
 	dbCloser               io.Closer
 	agentID                string
