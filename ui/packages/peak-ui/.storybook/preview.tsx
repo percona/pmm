@@ -85,6 +85,7 @@ const preview: Preview = {
             'Colors',
             ['Primitives', 'Primary', 'Structural UI', 'Messaging', 'Charts'],
             'Typography',
+            'Shape',
             'Icons',
             ['Overview', 'Custom Icons'],
             'Illustrations',

@@ -1,0 +1,60 @@
+import * as ShapeStories from './Shape.stories.tsx';
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import { shape } from '../../design/themes/base';
+
+<Meta of={ShapeStories} />
+
+# Shape
+
+Shape tokens define the border radius scale for Peak Design. They give components a single, consistent source for corner rounding, replacing MUI's default `borderRadius` and any hard-coded pixel values scattered across the codebase.
+
+The scale is a curated set of steps (`3, 5, 8, 13, 21`, plus fully rounded). `0px` is the implicit default — sharp corners need no token. `borderRadiusSm` (`5px`) is the theme-wide default applied to any component that doesn't set its own radius.
+
+<Canvas of={ShapeStories.Scale} sourceState="none" />
+
+## Tokens
+
+Every token lives on the theme at `theme.shape.*` and is shared across all themes (`base`, `pmm`, `sep`).
+
+<table>
+  <thead>
+    <tr>
+      <th style={{ textAlign: 'left' }}>Token</th>
+      <th style={{ textAlign: 'left' }}>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    {Object.entries(shape).map(([name, value]) => (
+      <tr key={name}>
+        <td>
+          <code>{name}</code>
+        </td>
+        <td>{value}px</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+## Fully rounded
+
+`borderRadiusFull` (`999px`) rounds corners completely: a circle on square elements, a pill on wider ones.
+
+<Canvas of={ShapeStories.FullyRounded} sourceState="none" />
+
+## Usage
+
+Always draw radius from the theme so components stay in sync as the scale evolves — never hard-code pixel values.
+
+```tsx
+import { useTheme } from '@mui/material';
+
+const theme = useTheme();
+
+// Read a specific token
+theme.shape.borderRadiusMd; // 8
+
+// Or in an sx prop
+<Box sx={{ borderRadius: `${theme.shape.borderRadiusLg}px` }} />;
+```
+
+Components that don't set a radius inherit the theme default (`borderRadiusSm`, `5px`) automatically via MUI's `theme.shape.borderRadius`.
