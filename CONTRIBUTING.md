@@ -136,7 +136,12 @@ Exporters by themselves are independent applications, so each of them contains i
 
 ### UI
 
-See [Grafana Dashboards Contribution Guide](https://github.com/percona/pmm/tree/main/dashboards/CONTRIBUTING.md).
+The devcontainer ships Node 22 and Yarn out of the box and exposes Vite (`make run-ui`) for the main PMM UI and webpack + livereload (`make run-qan-ui`) for the QAN Grafana plugin. See:
+
+- [`ui/README.md`](https://github.com/percona/pmm/tree/main/ui/README.md) — main PMM UI (Vite, React, MUI).
+- [`dashboards/CONTRIBUTING.md`](https://github.com/percona/pmm/tree/main/dashboards/CONTRIBUTING.md) — QAN plugin and Grafana dashboards.
+
+Both docs cover the devcontainer flow and the host-local alternative.
 
 ## Tests
 
