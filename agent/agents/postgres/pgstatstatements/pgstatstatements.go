@@ -55,7 +55,7 @@ var (
 
 type statementsMap map[int64]*pgStatStatementsExtended
 
-// QAN services connects to PostgreSQL and extracts stats.
+// QAN connects to PostgreSQL and extracts stats using pg_stat_statements.
 type QAN struct {
 	q                      *reform.Querier
 	dbCloser               io.Closer
