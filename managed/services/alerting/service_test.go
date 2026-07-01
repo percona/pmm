@@ -25,6 +25,7 @@ import (
 
 	alerting "github.com/percona/pmm/api/alerting/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/alert"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -239,5 +240,51 @@ templates:
 		assert.Nil(t, resp)
 		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = failed to fill expression "+
 			"placeholders: template: :4:5: executing \"\" at <.threshold>: map has no entry for key \"threshold\".")
+	})
+}
+
+func TestEnsureRuleLabel(t *testing.T) {
+	t.Parallel()
+
+	t.Run("adds missing label", func(t *testing.T) {
+		t.Parallel()
+
+		labels := map[string]string{
+			"template_name": "pmm_mysql_down",
+		}
+
+		ensureRuleLabel(labels, "node_name", buildRuleLabelTemplate("node_name", "A"))
+		assert.Equal(
+			t,
+			"{{ if $labels.node_name }}{{ $labels.node_name }}{{ else }}{{ $values.A.Labels.node_name }}{{ end }}",
+			labels["node_name"],
+		)
+	})
+
+	t.Run("does not override existing label", func(t *testing.T) {
+		t.Parallel()
+
+		labels := map[string]string{
+			"service_name": "custom-service",
+		}
+
+		ensureRuleLabel(labels, "service_name", "{{ $labels.service_name }}")
+		assert.Equal(t, "custom-service", labels["service_name"])
+	})
+}
+
+func TestQueryRefForRuleLabels(t *testing.T) {
+	t.Parallel()
+
+	t.Run("defaults to A for single-expression templates", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "A", queryRefForRuleLabels(&alert.Template{}))
+	})
+
+	t.Run("uses first query ref for multi-expression templates", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "Q1", queryRefForRuleLabels(&alert.Template{
+			Queries: []alert.TemplateQuery{{RefID: "Q1"}, {RefID: "Q2"}},
+		}))
 	})
 }
