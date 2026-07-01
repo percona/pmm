@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <!-- Listen on all interfaces for external access -->
+    <listen_host>0.0.0.0</listen_host>
+    
+    <!-- Startup scripts for database initialization -->
+    <startup_scripts>
+        <throw_on_error>false</throw_on_error>
+        <scripts>
+            <query>CREATE DATABASE IF NOT EXISTS otel</query>
+        </scripts>
+    </startup_scripts>
+</clickhouse>
