@@ -81,7 +81,7 @@ const (
 	pgssMaxQuery = "SELECT /* " + queryTag + " */ setting FROM pg_settings WHERE name = 'pg_stat_statements.max'"
 )
 
-// New creates new PGStatStatementsQAN QAN service.
+// New creates new QAN service.
 func New(params *Params, l *logrus.Entry) (*QAN, error) {
 	sqlDB, err := sql.Open("postgres", params.DSN)
 	if err != nil {
