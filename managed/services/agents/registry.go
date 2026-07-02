@@ -205,8 +205,7 @@ func (r *Registry) rebuildConnectionCache() {
 
 	// Fetch pmm-agents from the database, reset cache to empty on error.
 	_ = r.db.InTransaction(func(tx *reform.TX) error {
-		agentType := models.PMMAgentType
-		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: &agentType})
+		agents, err := models.FindAgents(tx.Querier, models.AgentFilters{AgentType: new(models.PMMAgentType)})
 		if err != nil {
 			return err
 		}
@@ -255,7 +254,8 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		ServerVersion:     version.Version,
 	}
 	l.Debugf("Sending metadata: %+v.", serverMD)
-	if err = agentv1.SendServerConnectMetadata(stream, &serverMD); err != nil {
+	err = agentv1.SendServerConnectMetadata(stream, &serverMD)
+	if err != nil {
 		return nil, err
 	}
 
@@ -296,7 +296,8 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 				return fmt.Errorf("failed to find agent: %w", err)
 			}
 			a.IsConnected = true
-			if err := tx.Update(a); err != nil {
+			err = tx.Update(a)
+			if err != nil {
 				return fmt.Errorf("failed to update agent: %w", err)
 			}
 			return nil
@@ -343,16 +344,19 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 		return nil, status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", md.ID)
 	}
 
-	if err := r.addOrRemoveVMAgent(q, md.ID, runsOnNodeID); err != nil {
+	err = r.addOrRemoveVMAgent(q, md.ID, runsOnNodeID)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := r.addNomadAgentToPMMAgent(q, md.ID, runsOnNodeID, agentVersion); err != nil {
+	err = r.addNomadAgentToPMMAgent(q, md.ID, runsOnNodeID, agentVersion)
+	if err != nil {
 		return nil, err
 	}
 
 	agent.Version = &md.Version
-	if err := q.Update(agent); err != nil {
+	err = q.Update(agent)
+	if err != nil {
 		return nil, fmt.Errorf("failed to update agent: %w", err)
 	}
 
@@ -395,7 +399,8 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 				return fmt.Errorf("failed to find agent: %w", err)
 			}
 			a.IsConnected = false
-			if err := tx.Update(a); err != nil {
+			err = tx.Update(a)
+			if err != nil {
 				return fmt.Errorf("failed to update agent: %w", err)
 			}
 			return nil
@@ -448,19 +453,19 @@ func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNod
 	if runsOnNodeID == models.PMMServerNodeID && !r.isExternalVM {
 		return nil
 	}
-	vmAgentType := models.VMAgentType
-	vmAgent, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: &vmAgentType})
+	vmAgent, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: new(models.VMAgentType)})
 	if err != nil {
 		return status.Errorf(codes.Internal, "Can't get 'vmAgent' for pmm-agent with ID %q", pmmAgentID)
 	}
 	if len(vmAgent) == 0 {
-		if _, err := models.CreateAgent(q, models.VMAgentType, &models.CreateAgentParams{
+		_, err = models.CreateAgent(q, models.VMAgentType, &models.CreateAgentParams{
 			PMMAgentID: pmmAgentID,
 			NodeID:     runsOnNodeID,
 			ExporterOptions: models.ExporterOptions{
 				PushMetrics: true,
 			},
-		}); err != nil {
+		})
+		if err != nil {
 			return fmt.Errorf("can't create 'vmAgent' for pmm-agent with ID %q: %w", pmmAgentID, err)
 		}
 	}
@@ -471,15 +476,16 @@ func (r *Registry) addNomadAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOn
 	if !pmmAgentVersion.IsFeatureSupported(version.NomadAgentSupportVersion) {
 		return nil
 	}
-	nomadClient, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: pointer.To(models.NomadAgentType)})
+	nomadClient, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID, AgentType: new(models.NomadAgentType)})
 	if err != nil {
 		return status.Errorf(codes.Internal, "Can't get 'nomadClient' for pmm-agent with ID %q", pmmAgentID)
 	}
 	if len(nomadClient) == 0 {
-		if _, err := models.CreateAgent(q, models.NomadAgentType, &models.CreateAgentParams{
+		_, err = models.CreateAgent(q, models.NomadAgentType, &models.CreateAgentParams{
 			PMMAgentID: pmmAgentID,
 			NodeID:     runsOnNodeID,
-		}); err != nil {
+		})
+		if err != nil {
 			return fmt.Errorf("can't create 'nomadClient' for pmm-agent with ID %q: %w", pmmAgentID, err)
 		}
 	}

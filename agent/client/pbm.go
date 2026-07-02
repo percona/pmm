@@ -32,7 +32,8 @@ const pbmBin = "pbm"
 
 func (c *Client) handlePBMSwitchRequest(ctx context.Context, req *agentv1.PBMSwitchPITRRequest, id uint32) error {
 	c.l.Infof("Switching pbm Point-in-Time Recovery feature to the state enabled: %t", req.Enabled)
-	if _, err := exec.LookPath(pbmBin); err != nil {
+	_, err := exec.LookPath(pbmBin)
+	if err != nil {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 

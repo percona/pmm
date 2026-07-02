@@ -5259,9 +5259,8 @@
             "30d"
         ]
     },
-    "timezone": "browser",
+    "timezone": "",
     "title": "MongoDB ReplSet Summary",
     "uid": "mongodb-replicaset-summary",
     "version": 2
 }
-

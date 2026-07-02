@@ -75,7 +75,7 @@ domain/v1/
 ### Do
 - Edit only `.proto` files — they are the source of truth
 - Run `make gen` (from repo root) after any proto change
-- Use `buf lint` to validate proto files before committing
+- Use `go tool buf lint` to validate proto files before committing
 - Add `(validate.rules)` annotations for field validation
 - Use `google.api.http` annotations for REST endpoint mapping
 - Use gRPC status codes (`codes.NotFound`, `codes.InvalidArgument`, etc.) not HTTP status codes
@@ -105,7 +105,7 @@ cd api && make serve
 ```
 
 ### What `make gen` Does
-1. `buf generate` — compiles `.proto` files to Go, gRPC, gateway, validation, OpenAPI
+1. `go tool buf generate` — compiles `.proto` files to Go, gRPC, gateway, validation, OpenAPI
 2. `swagger generate client` — generates typed Go HTTP clients per API domain
 3. Formats generated code
 
@@ -114,7 +114,7 @@ cd api && make serve
 API definitions themselves are not unit-tested. Testing happens at:
 - **Server-side**: `managed/services/*/` — unit tests for gRPC server implementations
 - **Integration**: `/api-tests/` — tests against a live PMM Server using generated Go HTTP clients
-- **Proto linting**: `buf lint` catches style and compatibility issues
+- **Proto linting**: `go tool buf lint` catches style and compatibility issues
 
 ## Key Files to Reference
 

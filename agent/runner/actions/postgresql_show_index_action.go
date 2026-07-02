@@ -17,7 +17,6 @@ package actions
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"path/filepath"
 	"strings"
 	"time"
@@ -91,7 +90,7 @@ func (a *postgresqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 	defer db.Close() //nolint:errcheck
 
 	var namespaceQuery string
-	var args []interface{}
+	var args []any
 	table := strings.Split(a.params.Table, ".")
 	switch len(table) {
 	case 2:
@@ -101,7 +100,7 @@ func (a *postgresqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 		args = append(args, table[0])
 	}
 	// TODO: Throw error if table doesn't exist.
-	rows, err := db.QueryContext(ctx, fmt.Sprintf("SELECT /* pmm-agent */ * FROM pg_indexes WHERE tablename = $1 %s", namespaceQuery), args...)
+	rows, err := db.QueryContext(ctx, "SELECT /* pmm-agent */ * FROM pg_indexes WHERE tablename = $1 "+namespaceQuery, args...) //nolint:gosec
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

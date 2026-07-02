@@ -71,7 +71,7 @@ type Channel struct {
 
 	mRecv, mSend prometheus.Counter
 
-	lastSentRequestID uint32
+	lastSentRequestID atomic.Uint32
 
 	sendM sync.Mutex
 
@@ -167,7 +167,7 @@ func (c *Channel) Send(resp *AgentResponse) {
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
 func (c *Channel) SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error) { //nolint:ireturn,nolintlint
-	id := atomic.AddUint32(&c.lastSentRequestID, 1)
+	id := c.lastSentRequestID.Add(1)
 	ch := c.subscribe(id)
 
 	c.send(&agentv1.AgentMessage{

@@ -204,8 +204,10 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	var s summaryMap
 	var err error
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
-	if s, err = getSummaries(m.q); err == nil {
-		if err = m.summaryCache.Set(s); err == nil {
+	s, err = getSummaries(m.q)
+	if err == nil {
+		err = m.summaryCache.Set(s)
+		if err == nil {
 			m.l.Debugf("Got %d initial summaries.", len(s))
 			running = true
 			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
@@ -297,7 +299,8 @@ func (m *PerfSchema) runHistoryCacheRefresher(ctx context.Context) {
 	defer t.Stop()
 
 	for {
-		if err := m.refreshHistoryCache(ctx); err != nil {
+		err := m.refreshHistoryCache(ctx)
+		if err != nil {
 			m.l.Error(err)
 		}
 
@@ -316,14 +319,15 @@ func (m *PerfSchema) refreshHistoryCache(ctx context.Context) error {
 		if err != nil {
 			return errors.Wrap(err, "cannot get MySQL version")
 		}
-		m.useLong = pointer.ToBool(vendor == version.MariaDBVendor && sqlVersion.Float() >= 11)
+		m.useLong = new(vendor == version.MariaDBVendor && sqlVersion.Float() >= 11)
 	}
 	current, err := getHistory(m.q, m.useLong)
 	if err != nil {
 		return err
 	}
 
-	if err = m.historyCache.Set(current); err != nil {
+	err = m.historyCache.Set(current)
+	if err != nil {
 		return err
 	}
 	m.l.Debugf("historyCache: %s", m.historyCache.cache.Stats())
@@ -336,7 +340,8 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 		return nil, err
 	}
 	prev := make(summaryMap)
-	if err = m.summaryCache.Get(prev); err != nil {
+	err = m.summaryCache.Get(prev)
+	if err != nil {
 		return nil, err
 	}
 
@@ -346,14 +351,16 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
 
 	// merge prev and current in cache
-	if err = m.summaryCache.Set(current); err != nil {
+	err = m.summaryCache.Set(current)
+	if err != nil {
 		return nil, err
 	}
 	m.l.Debugf("summaryCache: %s", m.summaryCache.cache.Stats())
 
 	// add agent_id, timestamps, and examples from history cache
 	history := make(historyMap)
-	if err = m.historyCache.Get(history); err != nil {
+	err = m.historyCache.Get(history)
+	if err != nil {
 		return nil, err
 	}
 	for i, b := range buckets {

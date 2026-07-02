@@ -34,7 +34,7 @@ def set_refresh(dashboard):
 def set_timezone(dashboard):
     """Set Dashboard Time zone."""
     
-    dashboard['timezone'] = "browser"
+    dashboard['timezone'] = ""
     return dashboard
 
 def set_time(dashboard):

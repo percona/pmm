@@ -1,3 +1,18 @@
+interface GrafanaBootData {
+  user?: {
+    id?: number;
+    isSignedIn?: boolean;
+  };
+  settings?: {
+    appSubUrl?: string;
+  };
+  [key: string]: unknown;
+}
+
+interface Window {
+  grafanaBootData?: GrafanaBootData;
+}
+
 // Image declarations
 declare module '*.gif' {
   const src: string;

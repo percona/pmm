@@ -16,7 +16,7 @@ package process
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"os"
 	"os/exec"
 	"runtime"
@@ -110,12 +110,9 @@ func TestProcess(t *testing.T) {
 	})
 
 	t.Run("Killed", func(t *testing.T) {
-		f, err := os.CreateTemp("", "pmm-agent-process-test-noterm")
+		f, err := os.CreateTemp(t.TempDir(), "pmm-agent-process-test-noterm")
 		require.NoError(t, err)
 		require.NoError(t, f.Close())
-		defer func() {
-			require.NoError(t, os.Remove(f.Name()))
-		}()
 
 		build(t, "", "process_noterm.go", f.Name())
 
@@ -133,12 +130,9 @@ func TestProcess(t *testing.T) {
 			t.Skip("Pdeathsig is implemented only on Linux")
 		}
 
-		f, err := os.CreateTemp("", "pmm-agent-process-test-child")
+		f, err := os.CreateTemp(t.TempDir(), "pmm-agent-process-test-child")
 		require.NoError(t, err)
 		require.NoError(t, f.Close())
-		defer func() {
-			require.NoError(t, os.Remove(f.Name()))
-		}()
 
 		build(t, "child", "process_child.go", f.Name())
 
@@ -190,7 +184,7 @@ func TestExtractLogLevel(t *testing.T) {
 		{"duplicate level key", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=warn msg="Starting mysqld_exporter" duplicate=" level=debug "`, logrus.WarnLevel, true, nil},
 		{"missing level key", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492             msg="Starting mysqld_exporter"`, 0, false, nil},
 		{"level key with empty value", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level= msg="Starting mysqld_exporter"`, 0, false, nil},
-		{"level key with incorrect value", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=info123 msg="Starting mysqld_exporter"`, 0, false, fmt.Errorf(`not a valid logrus Level: "info123"`)},
+		{"level key with incorrect value", `ts=2022-06-14T21:43:42.984Z caller=mysqld_exporter.go:492 level=info123 msg="Starting mysqld_exporter"`, 0, false, errors.New(`not a valid logrus Level: "info123"`)},
 	}
 
 	for _, tt := range tests {

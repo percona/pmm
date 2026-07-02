@@ -27,7 +27,6 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     }),
   },
   {
-    size: 150,
     header: Messages.columns.operationId,
     accessorKey: 'queryId',
     enableColumnFilter: false,
@@ -38,7 +37,6 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     }),
   },
   {
-    size: 150,
     header: Messages.columns.elapsedTime,
     accessorKey: 'queryExecutionDurationMs',
     filterVariant: 'range',

@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 // Package main.
+
 package main
 
 import (
@@ -69,8 +70,8 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
 		l.Errorf("Error connecting to ClickHouse: %v", err)
-		var exception *clickhouse.Exception
-		if errors.As(err, &exception) && exception.Code == databaseNotExistErrorCode {
+		exception, ok := errors.AsType[*clickhouse.Exception](err)
+		if ok && exception.Code == databaseNotExistErrorCode {
 			err = createDB(dsn, clusterName)
 			if err != nil {
 				l.Fatalf("Database wasn't created: %v", err)
@@ -100,7 +101,8 @@ func NewDB(dsn string, maxIdleConns, maxOpenConns int, isCluster bool, clusterNa
 	data := map[string]any{
 		"engine": migrations.GetEngine(isCluster),
 	}
-	if err := migrations.Run(dsn, data, isCluster, clusterName); err != nil {
+	err = migrations.Run(dsn, data, isCluster, clusterName)
+	if err != nil {
 		l.Fatalf("migrations: %v", err)
 	}
 	l.Info("Migrations applied successfully")
@@ -124,13 +126,13 @@ func createDB(dsn string, clusterName string) error {
 	}
 	defer defaultDB.Close() //nolint:errcheck
 
-	sql := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", databaseName)
+	sql := "CREATE DATABASE IF NOT EXISTS " + databaseName
 	if clusterName != "" {
 		l.Infof("Using ClickHouse cluster name: %s", clusterName)
-		sql = fmt.Sprintf("%s ON CLUSTER \"%s\"", sql, clusterName)
-		sql = fmt.Sprintf("%s ENGINE = Replicated('/clickhouse/databases/{uuid}', '{shard}', '{replica}')", sql)
+		sql += " ON CLUSTER \"" + clusterName + "\""
+		sql += " ENGINE = Replicated('/clickhouse/databases/{uuid}', '{shard}', '{replica}')"
 	} else {
-		sql = fmt.Sprintf("%s ENGINE = Atomic", sql)
+		sql += " ENGINE = Atomic"
 	}
 
 	result, err := defaultDB.Exec(sql)

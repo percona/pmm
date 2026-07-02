@@ -64,7 +64,8 @@ func getSummaries(q *reform.Querier) (summaryMap, error) {
 	res := make(summaryMap)
 	for {
 		var ess eventsStatementsSummaryByDigest
-		if err = q.NextRow(&ess, rows); err != nil {
+		err = q.NextRow(&ess, rows)
+		if err != nil {
 			break
 		}
 

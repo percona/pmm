@@ -16,7 +16,7 @@ import {
 import { useUser } from 'contexts/user';
 import { useAdvisors } from 'hooks/api/useAdvisors';
 import { useColorMode } from 'hooks/theme';
-import { ALL_SERVICE_TYPES, INTERVALS_MS } from 'lib/constants';
+import { INTERVALS_MS } from 'lib/constants';
 import { useSettings } from 'contexts/settings';
 import {
   NAV_BACKUPS,
@@ -48,14 +48,14 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     'pmm-ui.sidebar.expanded',
     true
   );
-  const { data: haInfo } = useHaInfo();
+  const { data: haInfo } = useHaInfo({
+    enabled: user?.isAnonymous === false
+  });
 
   const navTree = useMemo<NavItem[]>(() => {
     const items: NavItem[] = [];
-    // provide all service types for anonymous mode
-    const currentServiceTypes = user
-      ? serviceTypes?.serviceTypes || []
-      : ALL_SERVICE_TYPES;
+    // use fetched service types, falling back to an empty list while unavailable
+    const currentServiceTypes = serviceTypes?.serviceTypes || [];
 
     items.push(addHomePage(user?.preferences));
 
@@ -70,9 +70,8 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     items.push(NAV_QAN);
 
     if (user && settings) {
-
       if (settings.frontend.exploreEnabled && user.isEditor) {
-        items.push(addExplore(settings.frontend));
+        items.push(addExplore('grafana-metricsdrilldown-app' in settings.frontend.apps));
       }
 
       if (settings.frontend.unifiedAlertingEnabled) {

@@ -19,7 +19,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -99,7 +98,7 @@ func TestServices(t *testing.T) {
 
 		// Filter by node ID.
 		res, err = client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			NodeID:      pointer.ToString(genericNodeID),
+			NodeID:      new(genericNodeID),
 			ServiceType: nil,
 			Context:     pmmapitests.Context,
 		})
@@ -115,7 +114,7 @@ func TestServices(t *testing.T) {
 
 		// Filter by service type.
 		res, err = client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			ServiceType: pointer.ToString(types.ServiceTypePostgreSQLService),
+			ServiceType: new(types.ServiceTypePostgreSQLService),
 			Context:     pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -155,7 +154,7 @@ func TestServices(t *testing.T) {
 		remoteServiceID := remoteService.Mysql.ServiceID
 
 		res, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			NodeID:  pointer.ToString(remoteNodeID),
+			NodeID:  new(remoteNodeID),
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -257,7 +256,7 @@ func TestRemoveService(t *testing.T) {
 		// Remove with force flag.
 		params = &services.RemoveServiceParams{
 			ServiceID: serviceID,
-			Force:     pointer.ToBool(true),
+			Force:     new(true),
 			Context:   pmmapitests.Context,
 		}
 		res, err = client.Default.ServicesService.RemoveService(params)
@@ -273,7 +272,7 @@ func TestRemoveService(t *testing.T) {
 		assert.Nil(t, getServiceResp)
 
 		listAgentsOK, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			ServiceID: pointer.ToString(serviceID),
+			ServiceID: new(serviceID),
 			Context:   pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
@@ -1187,7 +1186,7 @@ func TestExternalService(t *testing.T) {
 
 		// Filter services by external group.
 		servicesList, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			ExternalGroup: pointer.ToString("redis"),
+			ExternalGroup: new("redis"),
 			Context:       pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -1201,7 +1200,7 @@ func TestExternalService(t *testing.T) {
 
 		// Filter services by a non-existing external group.
 		emptyServicesList, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			ExternalGroup: pointer.ToString("non-existing-external-group"),
+			ExternalGroup: new("non-existing-external-group"),
 			Context:       pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -1214,15 +1213,14 @@ func TestExternalService(t *testing.T) {
 
 		//  List services with out filter by external group.
 		noFilterServicesList, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			ExternalGroup: pointer.ToString(""),
+			ExternalGroup: new(""),
 			Context:       pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		assert.NotNil(t, noFilterServicesList)
-		assert.GreaterOrEqual(t, len(noFilterServicesList.Payload.Mysql), 0)
-		assert.GreaterOrEqual(t, len(noFilterServicesList.Payload.Mongodb), 0)
+		// No filter returns the shared inventory; parallel tests may add other
+		// service types, so only assert on what this test guarantees.
 		assert.NotEmpty(t, noFilterServicesList.Payload.Postgresql)
-		assert.GreaterOrEqual(t, len(noFilterServicesList.Payload.Proxysql), 0)
 		assert.NotEmpty(t, noFilterServicesList.Payload.External)
 		assert.Conditionf(t, containsExternalWithGroup(noFilterServicesList.Payload.External, "redis"), "list does not contain external group %s", "redis")
 

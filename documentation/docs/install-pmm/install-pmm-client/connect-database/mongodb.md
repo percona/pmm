@@ -398,6 +398,7 @@ After configuring your database server, add a MongoDB service using either the u
 
     !!! hint alert alert-success "Tips"
         - When adding members of a replica set or sharded cluster, ensure to add each node using the same `--cluster my_cluster_or_rs_name`. This allows the [MongoDB Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) and [MongoDB ReplSetSummary](../../../reference/dashboards/dashboard-mongodb-replset-summary.md) dashboards to populate correctly. 
+        - Some dashboard panels, such as **Total data size** on the [MongoDB ReplSet Summary](../../../reference/dashboards/dashboard-mongodb-replset-summary.md) and [MongoDB Sharded Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboards, require the `dbstats` collector. Pass [`--enable-all-collectors`](../../../use/commands/pmm-admin/add.md#collector-options) when adding the service to enable it.
         - PMM does not gather collection and index metrics if it detects you have more than 200 collections, in order to limit the resource consumption. Check the [advanced options](../../../use/commands/pmm-admin/add.md#collector-options) section if you want to modify this behaviour. 
         - When running mongos routers in containers, specify the `diagnosticDataCollectionDirectoryPath` to ensure that pmm-agent can properly capture mongos metrics. For example: `mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/`
         
@@ -407,7 +408,7 @@ After configuring your database server, add a MongoDB service using either the u
     To add a service with the UI:
     {.power-number}
 
-    1. Select **PMM Configuration > Add Service > MongoDB**.
+    1. Select **Inventory > Add service > MongoDB**.
 
     2. Fill in the required fields.
 
@@ -459,7 +460,7 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
         To check the service from the UI:
         {.power-number}
 
-        1. Select **PMM Configuration > Inventory > Services**. 
+        1. Select **Inventory > Services**. 
         2. Find your MongoDB service in the list and verify it shows **Active** status.
         3. Verify the **Service name**, **Addresses**, and other connection details are correct.
         4. In the **Options** column, expand the **Details** section to check that agents are properly connected.
@@ -491,7 +492,7 @@ If you need to remove MongoDB service from PMM, follow these steps:
     To remove the services through the PMM interface:
     {.power-number}
 
-    1. Go to **PMM Configuration > Inventory > Services**.
+    1. Go to **Inventory > Services**.
     2. In the **Status** column, check the box for the service you want to remove and click **Delete**.
     3. On the confirmation pop-up, click **Delete service** and select **Force mode** if you want to also delete associated Clients.
 

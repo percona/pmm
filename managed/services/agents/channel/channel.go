@@ -81,7 +81,7 @@ type Channel struct {
 
 	mSent, mRecv uint32
 
-	lastSentRequestID uint32
+	lastSentRequestID atomic.Uint32
 
 	sendM sync.Mutex
 
@@ -162,7 +162,7 @@ func (c *Channel) Send(resp *ServerResponse) {
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
 func (c *Channel) SendAndWaitResponse(payload agentv1.ServerRequestPayload) (agentv1.AgentResponsePayload, error) { //nolint:ireturn
-	id := atomic.AddUint32(&c.lastSentRequestID, 1)
+	id := c.lastSentRequestID.Add(1)
 	ch := c.subscribe(id)
 
 	c.send(&agentv1.ServerMessage{

@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -64,13 +63,13 @@ func TestAgents(t *testing.T) {
 			as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
 			as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
 			as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-				mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-				mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-				mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+				mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+				mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+				mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 			as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-				mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-				mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-				mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+				mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+				mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+				mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 			as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate").Return()
 
 			pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
@@ -110,7 +109,7 @@ func TestAgents(t *testing.T) {
 				ctx,
 				"00000000-0000-4000-8000-000000000006",
 				&inventoryv1.ChangeNodeExporterParams{
-					Enable: pointer.ToBool(false),
+					Enable: new(false),
 					// passing an empty map to remove custom labels
 					CustomLabels: &common.StringMap{},
 					MetricsResolutions: &common.MetricsResolutions{
@@ -141,23 +140,25 @@ func TestAgents(t *testing.T) {
 			ms, err = ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 			})
 			require.NoError(t, err)
 
 			actualAgent, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
-				PmmAgentId: pmmAgentID,
-				ServiceId:  ms.ServiceId,
-				Username:   "username",
+				PmmAgentId:        pmmAgentID,
+				ServiceId:         ms.ServiceId,
+				Username:          "username",
+				ConnectionTimeout: durationpb.New(11 * time.Second),
 			})
 			require.NoError(t, err)
 			expectedMySQLdExporter = &inventoryv1.MySQLdExporter{
-				AgentId:    "00000000-0000-4000-8000-000000000008",
-				PmmAgentId: "00000000-0000-4000-8000-000000000005",
-				ServiceId:  ms.ServiceId,
-				Username:   "username",
-				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				AgentId:           "00000000-0000-4000-8000-000000000008",
+				PmmAgentId:        "00000000-0000-4000-8000-000000000005",
+				ServiceId:         ms.ServiceId,
+				Username:          "username",
+				Status:            inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				ConnectionTimeout: durationpb.New(11 * time.Second),
 			}
 			assert.Equal(t, expectedMySQLdExporter, actualAgent.GetMysqldExporter())
 
@@ -170,8 +171,8 @@ func TestAgents(t *testing.T) {
 			ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-mongo",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(27017),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(27017)),
 			})
 			require.NoError(t, err)
 
@@ -223,23 +224,25 @@ func TestAgents(t *testing.T) {
 			ps, err = ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-postgres",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(5432),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(5432)),
 			})
 			require.NoError(t, err)
 
 			actualAgent, err := as.AddPostgresExporter(ctx, &inventoryv1.AddPostgresExporterParams{
-				PmmAgentId: pmmAgentID,
-				ServiceId:  ps.ServiceId,
-				Username:   "username",
+				PmmAgentId:        pmmAgentID,
+				ServiceId:         ps.ServiceId,
+				Username:          "username",
+				ConnectionTimeout: durationpb.New(13 * time.Second),
 			})
 			require.NoError(t, err)
 			expectedPostgresExporter = &inventoryv1.PostgresExporter{
-				AgentId:    "00000000-0000-4000-8000-00000000000d",
-				PmmAgentId: pmmAgentID,
-				ServiceId:  ps.ServiceId,
-				Username:   "username",
-				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				AgentId:           "00000000-0000-4000-8000-00000000000d",
+				PmmAgentId:        pmmAgentID,
+				ServiceId:         ps.ServiceId,
+				Username:          "username",
+				Status:            inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				ConnectionTimeout: durationpb.New(13 * time.Second),
 			}
 			assert.Equal(t, expectedPostgresExporter, actualAgent.GetPostgresExporter())
 
@@ -274,8 +277,8 @@ func TestAgents(t *testing.T) {
 			valkey, err = ss.AddValkey(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-valkey",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(6379),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(6379)),
 			})
 			require.NoError(t, err)
 
@@ -346,8 +349,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("FilterByAgentType", func(t *testing.T) {
-			agentType := models.ExternalExporterType
-			actualAgents, err := as.List(ctx, models.AgentFilters{AgentType: &agentType})
+			actualAgents, err := as.List(ctx, models.AgentFilters{AgentType: new(models.ExternalExporterType)})
 			require.NoError(t, err)
 			require.Len(t, actualAgents, 1)
 			assert.Equal(t, expectedExternalExporter, actualAgents[0])
@@ -464,6 +466,34 @@ func TestAgents(t *testing.T) {
 			Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 		}
 		assert.Equal(t, expectedAgent, agent.GetRdsExporter())
+
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
+
+		changedAgent, err := as.ChangeRDSExporter(ctx, "00000000-0000-4000-8000-000000000006", &inventoryv1.ChangeRDSExporterParams{})
+		require.NoError(t, err)
+		expectedAgent = &inventoryv1.RDSExporter{
+			AgentId:      "00000000-0000-4000-8000-000000000006",
+			PmmAgentId:   "pmm-server",
+			NodeId:       "00000000-0000-4000-8000-000000000005",
+			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+			CustomLabels: map[string]string{"baz": "qux"},
+			Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+		}
+		assert.Equal(t, expectedAgent, changedAgent.GetRdsExporter())
+
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
+
+		changedAgent, err = as.ChangeRDSExporter(ctx, "00000000-0000-4000-8000-000000000006", &inventoryv1.ChangeRDSExporterParams{})
+		require.NoError(t, err)
+		expectedAgent = &inventoryv1.RDSExporter{
+			AgentId:      "00000000-0000-4000-8000-000000000006",
+			PmmAgentId:   "pmm-server",
+			NodeId:       "00000000-0000-4000-8000-000000000005",
+			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+			CustomLabels: map[string]string{"baz": "qux"},
+			Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+		}
+		assert.Equal(t, expectedAgent, changedAgent.GetRdsExporter())
 	})
 
 	t.Run("AddExternalExporter", func(t *testing.T) {
@@ -541,13 +571,13 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
@@ -562,8 +592,8 @@ func TestAgents(t *testing.T) {
 		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mongo",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
 		})
 		require.NoError(t, err)
 		actualAgent, err := as.AddMongoDBExporter(ctx, &inventoryv1.AddMongoDBExporterParams{
@@ -633,13 +663,13 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
@@ -654,8 +684,8 @@ func TestAgents(t *testing.T) {
 		ps, err := ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-postgres",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(5432),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(5432)),
 		})
 		require.NoError(t, err)
 
@@ -689,13 +719,13 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
@@ -712,8 +742,8 @@ func TestAgents(t *testing.T) {
 		s, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
 		})
 		require.NoError(t, err)
 
@@ -858,8 +888,8 @@ func TestAgents(t *testing.T) {
 		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mongo-rta",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
 		})
 		require.NoError(t, err)
 
@@ -899,7 +929,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		// Try to change the internal PostgreSQL QAN agent (pmm-server's agent)
 		// The agent with ID "00000000-0000-4000-8000-000000000004" is the internal PostgreSQL QAN agent
 		_, err := as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
-			Enable: pointer.ToBool(false),
+			Enable: new(false),
 		})
 
 		// Expect a FailedPrecondition error
@@ -919,7 +949,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 
 		// Try to change the internal PostgreSQL QAN agent
 		agent, err := as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
-			Enable: pointer.ToBool(false),
+			Enable: new(false),
 		})
 
 		// Should succeed
@@ -929,7 +959,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		// Change it back to enabled
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
 		agent, err = as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
-			Enable: pointer.ToBool(true),
+			Enable: new(true),
 		})
 
 		// Should succeed
@@ -968,8 +998,8 @@ func TestChangeRTAMongoDBAgent(t *testing.T) {
 		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mongo-rta",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
 		})
 		require.NoError(t, err)
 

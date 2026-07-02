@@ -85,7 +85,7 @@ func TestTemplateFS_ReadFile_InvalidTemplate(t *testing.T) {
 func TestTemplateFS_ReadFile_NonexistentFile(t *testing.T) {
 	tfs := NewTemplateFS(testFS, nil, "")
 	_, err := tfs.ReadFile("nonexistent.sql")
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestTemplateFS_ReadDir(t *testing.T) {
@@ -100,7 +100,7 @@ func TestTemplateFS_ReadDir(t *testing.T) {
 func TestTemplateFS_ReadDir_NonexistentDir(t *testing.T) {
 	tfs := NewTemplateFS(testFS, nil, "nonexistent")
 	_, err := tfs.Names()
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestTemplateFS_FilenameExtraction(t *testing.T) {

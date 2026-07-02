@@ -138,7 +138,8 @@ func prepareConfig(l *logrus.Entry) (*config.Storage, string) {
 
 	if configFilepath != "" {
 		cfg := configStorage.Get()
-		if err := config.SaveToFile(configFilepath, cfg, ""); err != nil {
+		err := config.SaveToFile(configFilepath, cfg, "")
+		if err != nil {
 			l.Warnf("Failed to save updated config: %s", err)
 		}
 	}

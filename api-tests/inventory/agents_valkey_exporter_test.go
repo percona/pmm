@@ -18,7 +18,6 @@ package inventory
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -89,7 +88,7 @@ func TestValkeyExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ValkeyExporter: &agents.ChangeAgentParamsBodyValkeyExporter{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyValkeyExporterCustomLabels{},
 					},
 				},
@@ -117,7 +116,7 @@ func TestValkeyExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ValkeyExporter: &agents.ChangeAgentParamsBodyValkeyExporter{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyValkeyExporterCustomLabels{
 							Values: map[string]string{
 								"new_label": "valkey_exporter",
@@ -317,7 +316,7 @@ func TestValkeyExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ValkeyExporter: &agents.ChangeAgentParamsBodyValkeyExporter{
-						EnablePushMetrics: pointer.ToBool(false),
+						EnablePushMetrics: new(false),
 					},
 				},
 				Context: pmmapitests.Context,
@@ -345,7 +344,7 @@ func TestValkeyExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					ValkeyExporter: &agents.ChangeAgentParamsBodyValkeyExporter{
-						EnablePushMetrics: pointer.ToBool(true),
+						EnablePushMetrics: new(true),
 					},
 				},
 				Context: pmmapitests.Context,

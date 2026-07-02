@@ -80,7 +80,8 @@ func (p *CreateServiceSoftwareVersionsParams) Validate() error {
 
 // CreateServiceSoftwareVersions creates service software versions entry in DB.
 func CreateServiceSoftwareVersions(q *reform.Querier, params CreateServiceSoftwareVersionsParams) (*ServiceSoftwareVersions, error) {
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 
@@ -91,7 +92,8 @@ func CreateServiceSoftwareVersions(q *reform.Querier, params CreateServiceSoftwa
 		NextCheckAt:      params.NextCheckAt,
 	}
 
-	if err := q.Insert(row); err != nil {
+	err = q.Insert(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to insert service software versions")
 	}
 
@@ -131,7 +133,8 @@ func UpdateServiceSoftwareVersions(
 	serviceID string,
 	params UpdateServiceSoftwareVersionsParams,
 ) (*ServiceSoftwareVersions, error) {
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 
@@ -148,7 +151,8 @@ func UpdateServiceSoftwareVersions(
 		row.SoftwareVersions = params.SoftwareVersions
 	}
 
-	if err := q.Update(row); err != nil {
+	err = q.Update(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to update service software versions")
 	}
 
@@ -187,15 +191,20 @@ func FindServicesSoftwareVersions(
 	filter FindServicesSoftwareVersionsFilter,
 	orderBy SoftwareVersionsOrderBy,
 ) ([]*ServiceSoftwareVersions, error) {
-	var args []interface{}
+	var args []any
 	var tail strings.Builder
 	idx := 1
 
+	var err error
 	if filter.ServiceType != nil {
-		if err := ValidateServiceType(*filter.ServiceType); err != nil {
+		err = ValidateServiceType(*filter.ServiceType)
+		if err != nil {
 			return nil, errors.WithStack(err)
 		}
-		tail.WriteString(fmt.Sprintf("WHERE service_type = %s ", q.Placeholder(idx)))
+		_, err = fmt.Fprintf(&tail, "WHERE service_type = %s ", q.Placeholder(idx))
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
 		args = append(args, string(*filter.ServiceType))
 		idx++
 	}
@@ -207,7 +216,10 @@ func FindServicesSoftwareVersions(
 	}
 
 	if filter.Limit != nil {
-		tail.WriteString(fmt.Sprintf("LIMIT %s", q.Placeholder(idx)))
+		_, err = fmt.Fprintf(&tail, "LIMIT %s", q.Placeholder(idx))
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
 		args = append(args, *filter.Limit)
 	}
 
@@ -226,11 +238,13 @@ func FindServicesSoftwareVersions(
 
 // DeleteServiceSoftwareVersions removes entry from the DB by service ID.
 func DeleteServiceSoftwareVersions(q *reform.Querier, serviceID string) error {
-	if _, err := FindServiceSoftwareVersionsByServiceID(q, serviceID); err != nil {
+	_, err := FindServiceSoftwareVersionsByServiceID(q, serviceID)
+	if err != nil {
 		return err
 	}
 
-	if err := q.Delete(&ServiceSoftwareVersions{ServiceID: serviceID}); err != nil {
+	err = q.Delete(&ServiceSoftwareVersions{ServiceID: serviceID})
+	if err != nil {
 		return errors.Wrapf(err, "failed to delete services software versions by service id '%s'", serviceID)
 	}
 	return nil

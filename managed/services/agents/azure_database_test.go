@@ -19,7 +19,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/require"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -36,7 +35,7 @@ func TestAzureExporterConfig(t *testing.T) {
 		NodeType:  models.RemoteAzureDatabaseNodeType,
 		NodeName:  "prod-mysql56",
 		NodeModel: "B_Gen5_1",
-		Region:    pointer.ToString("eastus"),
+		Region:    new("eastus"),
 		AZ:        "eastus-1c",
 		Address:   "pmm-dev-mysql-db1.mysql.database.azure.com",
 	}
@@ -48,8 +47,8 @@ func TestAzureExporterConfig(t *testing.T) {
 	service1 := &models.Service{
 		ServiceID:   "service1",
 		NodeID:      node1.NodeID,
-		Address:     pointer.ToString("pmm-dev-mysql-db1.mysql.database.azure.com"),
-		Port:        pointer.ToUint16(3306),
+		Address:     new("pmm-dev-mysql-db1.mysql.database.azure.com"),
+		Port:        new(uint16(3306)),
 		ServiceName: "service1",
 		ServiceType: models.MySQLServiceType,
 	}

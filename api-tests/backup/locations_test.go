@@ -19,7 +19,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -471,7 +470,7 @@ func TestRemoveLocation(t *testing.T) {
 
 	_, err = client.RemoveLocation(&locations.RemoveLocationParams{
 		LocationID: resp.Payload.LocationID,
-		Force:      pointer.ToBool(false),
+		Force:      new(false),
 		Context:    pmmapitests.Context,
 	})
 
@@ -588,7 +587,7 @@ func deleteLocation(t *testing.T, client locations.ClientService, id string) {
 	t.Helper()
 	_, _ = client.RemoveLocation(&locations.RemoveLocationParams{
 		LocationID: id,
-		Force:      pointer.ToBool(false),
+		Force:      new(false),
 		Context:    pmmapitests.Context,
 	})
 }

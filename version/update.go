@@ -28,7 +28,7 @@ type PackageInfo struct {
 // UpdateCheckResult describes the latest update check result.
 type UpdateCheckResult struct {
 	Installed       PackageInfo       `json:"installed"`
-	Latest          DockerVersionInfo `json:"latest,omitempty"`
+	Latest          DockerVersionInfo `json:"latest"`
 	UpdateAvailable bool              `json:"update_available"`
 	LatestNewsURL   string            `json:"latest_news_url"`
 }

@@ -43,8 +43,8 @@ type Data struct {
 	RefID             string            `json:"refId"`
 	DatasourceUID     string            `json:"datasourceUid"`
 	QueryType         string            `json:"queryType"`
-	RelativeTimeRange RelativeTimeRange `json:"relativeTimeRange,omitempty"`
-	Model             Model             `json:"model,omitempty"`
+	RelativeTimeRange RelativeTimeRange `json:"relativeTimeRange"`
+	Model             Model             `json:"model"`
 }
 
 // GrafanaAlert represent grafana alerting rule.

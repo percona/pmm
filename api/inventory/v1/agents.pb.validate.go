@@ -611,6 +611,35 @@ func (m *MySQLdExporter) validate(all bool) error {
 
 	// no validation rules for ExtraDsnParams
 
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MySQLdExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MySQLdExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MySQLdExporterValidationError{
+				field:  "ConnectionTimeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return MySQLdExporterMultiError(errors)
 	}
@@ -767,6 +796,35 @@ func (m *MongoDBExporter) validate(all bool) error {
 		if err := v.Validate(); err != nil {
 			return MongoDBExporterValidationError{
 				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MongoDBExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MongoDBExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MongoDBExporterValidationError{
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -935,6 +993,35 @@ func (m *PostgresExporter) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, PostgresExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, PostgresExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return PostgresExporterValidationError{
+				field:  "ConnectionTimeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return PostgresExporterMultiError(errors)
 	}
@@ -1093,6 +1180,35 @@ func (m *ProxySQLExporter) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ProxySQLExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ProxySQLExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ProxySQLExporterValidationError{
+				field:  "ConnectionTimeout",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return ProxySQLExporterMultiError(errors)
 	}
@@ -1243,6 +1359,35 @@ func (m *ValkeyExporter) validate(all bool) error {
 		if err := v.Validate(); err != nil {
 			return ValkeyExporterValidationError{
 				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetConnectionTimeout()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ValkeyExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ValkeyExporterValidationError{
+					field:  "ConnectionTimeout",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConnectionTimeout()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ValkeyExporterValidationError{
+				field:  "ConnectionTimeout",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -8849,6 +8994,36 @@ func (m *AddMySQLdExporterParams) validate(all bool) error {
 
 	// no validation rules for ExtraDsnParams
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddMySQLdExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddMySQLdExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddMySQLdExporterParamsMultiError(errors)
 	}
@@ -8978,6 +9153,36 @@ func (m *ChangeMySQLdExporterParams) validate(all bool) error {
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
+		}
+	}
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeMySQLdExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeMySQLdExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
 		}
 	}
 
@@ -9227,6 +9432,36 @@ func (m *AddMongoDBExporterParams) validate(all bool) error {
 
 	// no validation rules for EnableAllCollectors
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddMongoDBExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddMongoDBExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddMongoDBExporterParamsMultiError(errors)
 	}
@@ -9356,6 +9591,36 @@ func (m *ChangeMongoDBExporterParams) validate(all bool) error {
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
+		}
+	}
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeMongoDBExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeMongoDBExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
 		}
 	}
 
@@ -9623,6 +9888,36 @@ func (m *AddPostgresExporterParams) validate(all bool) error {
 
 	// no validation rules for MaxExporterConnections
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddPostgresExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddPostgresExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddPostgresExporterParamsMultiError(errors)
 	}
@@ -9752,6 +10047,36 @@ func (m *ChangePostgresExporterParams) validate(all bool) error {
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
+		}
+	}
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangePostgresExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangePostgresExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
 		}
 	}
 
@@ -10001,6 +10326,36 @@ func (m *AddProxySQLExporterParams) validate(all bool) error {
 
 	// no validation rules for ExposeExporter
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddProxySQLExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddProxySQLExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddProxySQLExporterParamsMultiError(errors)
 	}
@@ -10130,6 +10485,36 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
+		}
+	}
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeProxySQLExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeProxySQLExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
 		}
 	}
 
@@ -13765,6 +14150,36 @@ func (m *AddValkeyExporterParams) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddValkeyExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddValkeyExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddValkeyExporterParamsMultiError(errors)
 	}
@@ -13902,6 +14317,36 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
+		}
+	}
+
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = ChangeValkeyExporterParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := ChangeValkeyExporterParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
 		}
 	}
 

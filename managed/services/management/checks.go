@@ -17,10 +17,12 @@ package management
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"maps"
 	"strings"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -56,7 +58,7 @@ func (s *ChecksAPIService) ListFailedServices(ctx context.Context, _ *advisorsv1
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
-		return nil, errors.Wrap(err, "failed to get check results")
+		return nil, fmt.Errorf("failed to get check results: %w", err)
 	}
 
 	summaries := make(map[string]*services.CheckResultSummary)
@@ -119,18 +121,14 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
-		return nil, errors.Wrapf(err, "failed to get check results for service '%s'", req.ServiceId)
+		return nil, fmt.Errorf("failed to get check results for service '%s': %w", req.ServiceId, err)
 	}
 
 	failedChecks := make([]*advisorsv1.CheckResult, 0, len(results))
 	for _, result := range results {
 		labels := make(map[string]string, len(result.Target.Labels)+len(result.Result.Labels))
-		for k, v := range result.Result.Labels {
-			labels[k] = v
-		}
-		for k, v := range result.Target.Labels {
-			labels[k] = v
-		}
+		maps.Copy(labels, result.Result.Labels)
+		maps.Copy(labels, result.Target.Labels)
 
 		failedChecks = append(failedChecks, &advisorsv1.CheckResult{
 			Summary:     result.Result.Summary,
@@ -186,7 +184,7 @@ func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
-		return nil, errors.Wrap(err, "failed to start advisor checks")
+		return nil, fmt.Errorf("failed to start advisor checks: %w", err)
 	}
 
 	return &advisorsv1.StartAdvisorChecksResponse{}, nil
@@ -196,7 +194,7 @@ func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1
 func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *advisorsv1.ListAdvisorChecksRequest) (*advisorsv1.ListAdvisorChecksResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get disabled checks list")
+		return nil, fmt.Errorf("failed to get disabled checks list: %w", err)
 	}
 
 	m := make(map[string]struct{}, len(disChecks))
@@ -206,7 +204,7 @@ func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *advisorsv1.Li
 
 	checks, err := s.checksService.GetChecks()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get available checks list")
+		return nil, fmt.Errorf("failed to get available checks list: %w", err)
 	}
 
 	res := make([]*advisorsv1.AdvisorCheck, 0, len(checks))
@@ -229,7 +227,7 @@ func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *advisorsv1.Li
 func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdvisorsRequest) (*advisorsv1.ListAdvisorsResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get disabled checks list")
+		return nil, fmt.Errorf("failed to get disabled checks list: %w", err)
 	}
 
 	m := make(map[string]struct{}, len(disChecks))
@@ -239,7 +237,7 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdv
 
 	advisors, err := s.checksService.GetAdvisors()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get available checks list")
+		return nil, fmt.Errorf("failed to get available checks list: %w", err)
 	}
 
 	res := make([]*advisorsv1.Advisor, 0, len(advisors))
@@ -326,18 +324,18 @@ func (s *ChecksAPIService) ChangeAdvisorChecks(_ context.Context, req *advisorsv
 	if len(changeIntervalParams) != 0 {
 		err := s.checksService.ChangeInterval(changeIntervalParams)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to change advisor check interval")
+			return nil, fmt.Errorf("failed to change advisor check interval: %w", err)
 		}
 	}
 
 	err := s.checksService.EnableChecks(enableChecks)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to enable disabled advisor checks")
+		return nil, fmt.Errorf("failed to enable disabled advisor checks: %w", err)
 	}
 
 	err = s.checksService.DisableChecks(disableChecks)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to disable advisor checks")
+		return nil, fmt.Errorf("failed to disable advisor checks: %w", err)
 	}
 
 	return &advisorsv1.ChangeAdvisorChecksResponse{}, nil

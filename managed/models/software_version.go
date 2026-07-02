@@ -23,7 +23,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // SoftwareName represents software name.
 type SoftwareName string
@@ -67,7 +67,7 @@ func (sv SoftwareVersions) Value() (driver.Value, error) {
 }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (sv *SoftwareVersions) Scan(src interface{}) error {
+func (sv *SoftwareVersions) Scan(src any) error {
 	return jsonScan(sv, src)
 }
 

@@ -3,7 +3,7 @@ coverage:
   status:
     default_rules:
       flag_coverage_not_uploaded_behavior: exclude
-    
+
     # disabled for now until we agree on the thresholds
     patch: off
 
@@ -11,7 +11,7 @@ coverage:
       default:
         flag_coverage_not_uploaded_behavior: pass
         threshold: 1%
-      
+
       admin:
         threshold: 1%
         paths:
@@ -19,6 +19,8 @@ coverage:
 
       agent:
         threshold: 1%
+        flags:
+          - agent
         paths:
           - agent/
 

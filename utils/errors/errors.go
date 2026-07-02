@@ -1,17 +1,16 @@
 // Copyright (C) 2023 Percona LLC
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU Affero General Public License for more details.
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
-// You should have received a copy of the GNU Affero General Public License
-// along with this program. If not, see <https://www.gnu.org/licenses/>.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 // Package errors contains a custom HTTP error handler that adds an extra `Error` field to error payloads.
 // This helps us maintain compatibility with older PMM clients while keeping the benefits of grpc-gateway v2.
@@ -20,6 +19,7 @@ package errors
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -27,7 +27,6 @@ import (
 	"strings"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/status"
@@ -72,7 +71,8 @@ func PMMHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler r
 	if merr != nil {
 		grpclog.Infof("Failed to marshal error message %q: %v", body, merr)
 		w.WriteHeader(http.StatusInternalServerError)
-		if _, err := io.WriteString(w, fallback); err != nil {
+		_, err = io.WriteString(w, fallback)
+		if err != nil {
 			grpclog.Infof("Failed to write response: %v", err)
 		}
 		return
@@ -103,7 +103,8 @@ func PMMHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler r
 	}
 
 	w.WriteHeader(st)
-	if _, err := w.Write(buf); err != nil {
+	_, err = w.Write(buf)
+	if err != nil {
 		grpclog.Infof("Failed to write response: %v", err)
 	}
 

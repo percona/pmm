@@ -20,7 +20,6 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -74,7 +73,7 @@ func TestAgents(t *testing.T) {
 		// conversion loop a parallel test may delete a pmm_agent that an external exporter
 		// (created with push_metrics) still references, causing a spurious 404.
 		resByAgent, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			PMMAgentID: pointer.ToString(pmmAgentID),
+			PMMAgentID: new(pmmAgentID),
 			Context:    pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -86,7 +85,7 @@ func TestAgents(t *testing.T) {
 		// Filter by agent type instead: pmmAgent conversion has no secondary DB lookups,
 		// so it is immune to the TOCTOU race that affects external exporters.
 		resByType, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			AgentType: pointer.ToString(types.AgentTypePMMAgent),
+			AgentType: new(types.AgentTypePMMAgent),
 			Context:   pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -136,7 +135,7 @@ func TestAgents(t *testing.T) {
 		// Filter by pmm agent ID.
 		res, err := client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				PMMAgentID: pointer.ToString(pmmAgentID),
+				PMMAgentID: new(pmmAgentID),
 				Context:    pmmapitests.Context,
 			},
 		)
@@ -150,7 +149,7 @@ func TestAgents(t *testing.T) {
 		// Filter by node ID.
 		res, err = client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				NodeID:  pointer.ToString(nodeID),
+				NodeID:  new(nodeID),
 				Context: pmmapitests.Context,
 			},
 		)
@@ -164,7 +163,7 @@ func TestAgents(t *testing.T) {
 		// Filter by service ID.
 		res, err = client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				ServiceID: pointer.ToString(serviceID),
+				ServiceID: new(serviceID),
 				Context:   pmmapitests.Context,
 			},
 		)
@@ -175,11 +174,13 @@ func TestAgents(t *testing.T) {
 		assertPMMAgentNotExists(t, res, pmmAgentID)
 		assertNodeExporterNotExists(t, res, nodeExporterID)
 
-		// Filter by service ID.
+		// Filter by agent type, scoped to this test's pmm-agent to avoid the 404
+		// race an unscoped type filter hits (see the List subtest).
 		res, err = client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				AgentType: pointer.ToString(types.AgentTypeMySQLdExporter),
-				Context:   pmmapitests.Context,
+				PMMAgentID: new(pmmAgentID),
+				AgentType:  new(types.AgentTypeMySQLdExporter),
+				Context:    pmmapitests.Context,
 			},
 		)
 		require.NoError(t, err)
@@ -198,9 +199,9 @@ func TestAgents(t *testing.T) {
 
 		res, err := client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				PMMAgentID: pointer.ToString(pmmAgentID),
-				NodeID:     pointer.ToString(genericNodeID),
-				ServiceID:  pointer.ToString("some-service-id"),
+				PMMAgentID: new(pmmAgentID),
+				NodeID:     new(genericNodeID),
+				ServiceID:  new("some-service-id"),
 				Context:    pmmapitests.Context,
 			},
 		)
@@ -355,7 +356,7 @@ func TestPMMAgent(t *testing.T) {
 
 		listAgentsOK, err := client.Default.AgentsService.ListAgents(
 			&agents.ListAgentsParams{
-				PMMAgentID: pointer.ToString(pmmAgentID),
+				PMMAgentID: new(pmmAgentID),
 				Context:    pmmapitests.Context,
 			},
 		)
@@ -367,7 +368,7 @@ func TestPMMAgent(t *testing.T) {
 				Status:             &AgentStatusUnknown,
 				CustomLabels:       map[string]string{},
 				DisabledCollectors: make([]string, 0),
-				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 			},
 		},
 			listAgentsOK.Payload.NodeExporter)
@@ -381,7 +382,7 @@ func TestPMMAgent(t *testing.T) {
 					"custom_label_mysql_exporter": "mysql_exporter",
 				},
 				Status:             &AgentStatusUnknown,
-				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 				ExtraDsnParams:     map[string]string{},
 				DisabledCollectors: make([]string, 0),
 			},
@@ -390,7 +391,7 @@ func TestPMMAgent(t *testing.T) {
 		// Remove with force flag.
 		params = &agents.RemoveAgentParams{
 			AgentID: pmmAgentID,
-			Force:   pointer.ToBool(true),
+			Force:   new(true),
 			Context: context.Background(),
 		}
 		res, err = client.Default.AgentsService.RemoveAgent(params)
@@ -408,7 +409,7 @@ func TestPMMAgent(t *testing.T) {
 		assert.Nil(t, getAgentRes)
 
 		listAgentsOK, err = client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			PMMAgentID: pointer.ToString(pmmAgentID),
+			PMMAgentID: new(pmmAgentID),
 			Context:    pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID %s not found.", pmmAgentID)
@@ -444,7 +445,7 @@ func TestPMMAgent(t *testing.T) {
 		removeResp, err := client.Default.AgentsService.RemoveAgent(
 			&agents.RemoveAgentParams{
 				AgentID: "pmm-server",
-				Force:   pointer.ToBool(true),
+				Force:   new(true),
 				Context: context.Background(),
 			},
 		)
@@ -502,7 +503,7 @@ func TestQanAgentExporter(t *testing.T) {
 						"new_label": "QANMysqlPerfschemaAgent",
 					},
 					Status:         &AgentStatusUnknown,
-					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:       new("LOG_LEVEL_UNSPECIFIED"),
 					ExtraDsnParams: map[string]string{},
 				},
 			},
@@ -514,7 +515,7 @@ func TestQanAgentExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCustomLabels{},
 					},
 				},
@@ -533,7 +534,7 @@ func TestQanAgentExporter(t *testing.T) {
 					Status:         &AgentStatusDone,
 					CustomLabels:   map[string]string{},
 					ExtraDsnParams: map[string]string{},
-					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:       new("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANMySQLPerfSchemaAgentOK)
@@ -543,7 +544,7 @@ func TestQanAgentExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					QANMysqlPerfschemaAgent: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgent{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyQANMysqlPerfschemaAgentCustomLabels{
 							Values: map[string]string{
 								"new_label": "QANMysqlPerfschemaAgent",
@@ -567,7 +568,7 @@ func TestQanAgentExporter(t *testing.T) {
 						"new_label": "QANMysqlPerfschemaAgent",
 					},
 					Status:         &AgentStatusDone,
-					LogLevel:       pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:       new("LOG_LEVEL_UNSPECIFIED"),
 					ExtraDsnParams: map[string]string{},
 				},
 			},
@@ -744,7 +745,7 @@ func TestMetricsResolutionsChange(t *testing.T) {
 			"custom_label_postgres_exporter": "postgres_exporter",
 		},
 		Status:             &AgentStatusUnknown,
-		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 		DisabledCollectors: []string{},
 	}, getAgentRes.Payload.PostgresExporter)
 
@@ -774,7 +775,7 @@ func TestMetricsResolutionsChange(t *testing.T) {
 			"custom_label_postgres_exporter": "postgres_exporter",
 		},
 		Status:             &AgentStatusUnknown,
-		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 		DisabledCollectors: []string{},
 		MetricsResolutions: &agents.ChangeAgentOKBodyPostgresExporterMetricsResolutions{
 			Hr: "600s",
@@ -809,7 +810,7 @@ func TestMetricsResolutionsChange(t *testing.T) {
 			"custom_label_postgres_exporter": "postgres_exporter",
 		},
 		Status:             &AgentStatusUnknown,
-		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 		DisabledCollectors: []string{},
 		MetricsResolutions: &agents.ChangeAgentOKBodyPostgresExporterMetricsResolutions{
 			Hr: "600s",
@@ -841,7 +842,7 @@ func TestMetricsResolutionsChange(t *testing.T) {
 			"custom_label_postgres_exporter": "postgres_exporter",
 		},
 		Status:             &AgentStatusUnknown,
-		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+		LogLevel:           new("LOG_LEVEL_UNSPECIFIED"),
 		DisabledCollectors: []string{},
 		MetricsResolutions: &agents.ChangeAgentOKBodyPostgresExporterMetricsResolutions{
 			Hr: "500s",

@@ -122,7 +122,6 @@ Relationships:
 |-----------|---------|
 | `/docs` | API documentation and process docs (tech stack, best practices, git workflow) |
 | `/documentation` | User-facing documentation (MkDocs) |
-| `/tools` | Development tools (mockery, buf, golangci-lint, etc.) |
 | `/version` | Version info and feature flags |
 | `/dev` | Development utilities (e.g., mongo-rs-backups) |
 | `/.devcontainer` | Devcontainer setup for local development |
@@ -181,7 +180,7 @@ Relationships:
 - Use `status.Error()` with proper gRPC codes for API errors
 - Wrap errors with context: `fmt.Errorf("descriptive context: %w", err)`
 - Return early on errors to avoid deep nesting
-- Use `errors.Is()` and `errors.As()` for type checking
+- Use `errors.Is()`, `errors.As()` or `errors.AsType()` for error inspection
 - Use standard `errors` package, not `github.com/pkg/errors`
 - Check `reform.ErrNoRows` for "not found" scenarios in pmm-managed
 
@@ -206,7 +205,7 @@ Relationships:
 
 ### Code Generation
 - Protobuf/gRPC: `make gen` from repo root
-- reform ORM: `//go:generate ../../bin/reform` (pmm-managed only)
+- reform ORM: `//go:generate go tool reform` (pmm-managed only)
 - Mocks: `mockery` per `.mockery.yaml`
 - **Never edit generated files** (`.pb.go`, `.pb.gw.go`, `*_reform.go`, `*.pb.validate.go`, swagger specs, `json/client/`)
 
@@ -244,6 +243,6 @@ All long-running daemons expose on `127.0.0.1`:
 - `go.mod` — Go module definition
 - `.golangci.yml` — linter configuration
 - `.mockery.yaml` — mock generation configuration
-- `docs/process/tech_stack.md` — technology choices and rationale
-- `docs/process/best_practices.md` — coding best practices
-- `docs/process/GIT_AND_GITHUB.md` — git workflow
+- `dev/docs/process/tech_stack.md` — technology choices and rationale
+- `dev/docs/process/best_practices.md` — coding best practices
+- `dev/docs/process/GIT_AND_GITHUB.md` — git workflow

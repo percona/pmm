@@ -17,10 +17,11 @@ package supervisord
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"os"
 	"text/template"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -32,8 +33,9 @@ func SavePMMConfig(params map[string]any) error {
 	if err != nil {
 		return err
 	}
-	if err := saveConfig(pmmConfig, cfg); err != nil {
-		return errors.Wrapf(err, "failed to save pmm config")
+	err = saveConfig(pmmConfig, cfg)
+	if err != nil {
+		return fmt.Errorf("failed to save pmm config: %w", err)
 	}
 	logrus.Info("pmm.ini configuration has been updated.")
 	return nil
@@ -41,8 +43,9 @@ func SavePMMConfig(params map[string]any) error {
 
 func marshalConfig(params map[string]any) ([]byte, error) {
 	var buf bytes.Buffer
-	if err := pmmTemplate.Execute(&buf, params); err != nil {
-		return nil, errors.Wrapf(err, "failed to render pmm template")
+	err := pmmTemplate.Execute(&buf, params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to render pmm template: %w", err)
 	}
 	return buf.Bytes(), nil
 }
@@ -55,7 +58,7 @@ func saveConfig(path string, cfg []byte) (err error) {
 		err = nil
 	}
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to read config file %s: %w", path, err)
 	}
 
 	// compare with new config
@@ -69,17 +72,20 @@ func saveConfig(path string, cfg []byte) (err error) {
 		if err == nil {
 			return
 		}
-		if resErr := os.WriteFile(path, oldCfg, wwrPermissions); resErr != nil { //nolint:gosec
-			err = errors.Wrap(err, errors.Wrap(resErr, "failed to restore config").Error())
+		resErr := os.WriteFile(path, oldCfg, wwrPermissions) //nolint:gosec
+		if resErr != nil {
+			err = errors.Join(fmt.Errorf("failed to restore config: %w", resErr), err)
 		}
 	}()
 
-	if err = os.WriteFile(path, cfg, wwrPermissions); err != nil { //nolint:gosec
-		err = errors.Wrap(err, "failed to write new config")
+	err = os.WriteFile(path, cfg, wwrPermissions)
+	if err != nil {
+		err = fmt.Errorf("failed to write new config: %w", err)
 	}
 	return err
 }
 
+// TODO: remove [unix_http_server] and [supervisorctl] as they duplicate supervisord.conf.
 var pmmTemplate = template.Must(template.New("").Option("missingkey=error").Parse(`[unix_http_server]
 chmod = 0700
 username = dummy

@@ -123,7 +123,8 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 
 			case *agentv1.StateChangedRequest:
 				pprof.Do(ctx, pprof.Labels("request", "StateChangedRequest"), func(ctx context.Context) {
-					if err := h.stateChanged(ctx, p); err != nil {
+					err := h.stateChanged(ctx, p)
+					if err != nil {
 						l.Errorf("%+v", err)
 					}
 
@@ -135,7 +136,8 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 
 			case *agentv1.QANCollectRequest:
 				pprof.Do(ctx, pprof.Labels("request", "QANCollectRequest"), func(ctx context.Context) {
-					if err := h.qanClient.Collect(ctx, p.MetricsBucket); err != nil {
+					err := h.qanClient.Collect(ctx, p.MetricsBucket)
+					if err != nil {
 						l.Errorf("%+v", err)
 					}
 
@@ -215,7 +217,8 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 	// VictoriaMetrics from scraping stale ports (PMM-14267)
 	if portsChanged {
 		l.Debug("Listen port changed, forcing immediate VictoriaMetrics configuration update")
-		if err := h.vmdb.ForceConfigurationUpdate(ctx); err != nil {
+		err := h.vmdb.ForceConfigurationUpdate(ctx)
+		if err != nil {
 			return fmt.Errorf("failed to force configuration update: %w", err)
 		}
 	} else {
@@ -283,7 +286,7 @@ func updateAgentStatus(
 
 	agent.Status = status.String()
 	agent.ProcessExecPath = processExecPath
-	agent.ListenPort = pointer.ToUint16(uint16(listenPort)) //nolint:gosec // port is uint16
+	agent.ListenPort = new(uint16(listenPort)) //nolint:gosec // port is uint16
 	if version != nil {
 		agent.Version = version
 	}

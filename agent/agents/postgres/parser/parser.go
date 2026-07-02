@@ -30,7 +30,6 @@ var extractTablesRecover = true
 // ExtractTables extracts table names from query.
 func ExtractTables(query string) ([]string, error) {
 	var err error
-	var tables []string //nolint:prealloc
 
 	if extractTablesRecover {
 		defer func() {
@@ -42,7 +41,8 @@ func ExtractTables(query string) ([]string, error) {
 	}
 
 	var jsonTree string
-	if jsonTree, err = pgquery.ParseToJSON(query); err != nil {
+	jsonTree, err = pgquery.ParseToJSON(query)
+	if err != nil {
 		err = errors.Wrap(err, "error on parsing sql query")
 		return nil, err
 	}
@@ -64,6 +64,7 @@ func ExtractTables(query string) ([]string, error) {
 		delete(tableNames, v)
 	}
 
+	tables := make([]string, 0, len(tableNames))
 	for k := range tableNames {
 		tables = append(tables, k)
 	}

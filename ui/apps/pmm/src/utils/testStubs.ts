@@ -17,6 +17,7 @@ export const TEST_USER_ADMIN: User = {
   id: 1,
   login: 'admin',
   name: 'admin',
+  isAnonymous: false,
   isAuthorized: true,
   isViewer: true,
   isEditor: true,

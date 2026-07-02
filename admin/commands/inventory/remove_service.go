@@ -15,8 +15,6 @@
 package inventory
 
 import (
-	"github.com/AlekSi/pointer"
-
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
@@ -44,7 +42,7 @@ type RemoveServiceCommand struct {
 func (cmd *RemoveServiceCommand) RunCmd() (commands.Result, error) {
 	params := &services.RemoveServiceParams{
 		ServiceID: cmd.ServiceID,
-		Force:     pointer.ToBool(cmd.Force),
+		Force:     new(cmd.Force),
 		Context:   commands.Ctx,
 	}
 	_, err := client.Default.ServicesService.RemoveService(params)

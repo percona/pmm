@@ -1,108 +1,151 @@
 # MongoDB ReplSet Summary
 
-![!image](../../images/PMM_MongoDB_ReplSet_Summary.jpg)
+This dashboard gives you a consolidated view of a MongoDB replica set, covering member states, database activity, replication health, and host-level resources. 
+
+Use it to monitor the health of a specific replica set and drill into nodes that need attention.
+
+![MongoDB ReplSet Summary](../../images/PMM_MongoDB_ReplSet_Summary.jpg)
+
+## Members
+
+A hexagon grid showing the current state of each replica set member. Each hexagon displays the member's service name and role. Green means PRIMARY, yellow means SECONDARY, dark yellow means ARBITER, and red means a problem state such as DOWN, RECOVERING, or ROLLBACK.
+
+Use this for an instant topology view of the entire replica set. Any red hexagon means a member is in an unexpected state and needs investigation before you check detailed metrics.
 
 ## Overview
-Displays key metrics for individual nodes, such as their role, CPU usage, memory consumption, disk space, network traffic, uptime, and current MongoDB version.
 
 ### Feature Compatibility Version
-Shows the Feature Compatibility Version (FCV) currently active in your MongoDB deployment. The FCV controls which database features are available and affects data file format compatibility between MongoDB versions.
 
-This panel helps you confirm that your cluster is running the expected FCV—especially useful after upgrades, when the FCV may lag behind the MongoDB binary version.
+Shows the Feature Compatibility Version (FCV) currently active in the selected replica set deployment. 
 
-Monitoring FCV is important when planning upgrades or downgrades, as setting a newer FCV can enable advanced features but may prevent rolling back to older MongoDB versions.
+The FCV controls which features are available and determines data file format compatibility between MongoDB versions.
 
-### Nodes
-Displays the total number of nodes in the replica set, including all members regardless of state. 
+Check this after upgrades to confirm the FCV has been advanced as expected. A value lower than your MongoDB binary version is normal immediately after an upgrade, but should be updated once you are ready to enable new features. 
 
-Monitoring this value ensures the replica set maintains the expected number of nodes for proper replication and fault tolerance.
+You cannot roll back to an older FCV without a full downgrade.
+
+### Members
+
+Shows the total number of members in the replica set.
+
+A count lower than expected means a member may be offline or removed. Fewer members than planned reduces fault tolerance.
 
 ### DBs
-Shows the total number of user-created databases, excluding system databases (like admin, local, and config). This metric helps track database growth and understand the scale of your MongoDB deployment.
+
+Shows the total number of user-created databases in the replica set.
 
 ### Last Election
-Displays the time elapsed since the most recent primary election.
 
-Frequent elections can indicate connectivity issues or node failures. A stable replica set should show a relatively high value.
+Shows the time elapsed since the most recent primary election.
 
-If the value is low, it may indicate a problem that needs investigation.
+A recent election is worth investigating to find out whether it was a planned failover or an unexpected event. Frequent elections indicate connectivity issues or node instability.
 
 ### State
-Shows the current replica set state of this MongoDB node. MongoDB replica set members can be in various states including PRIMARY (handling all write operations), SECONDARY (replicating data from the primary), ARBITER (participating in elections but not storing data), or several transitional states.
 
-This status indicator helps you quickly identify the role of each node and spot any nodes experiencing issues. Color coding makes it easy to distinguish primaries (green) from secondaries (yellow) and problem states.
+Shows the current replica set state for each selected service: PRIMARY, SECONDARY, ARBITER, or a problem state such as RECOVERING, ROLLBACK, or DOWN. "Exporter is not connected" means PMM cannot reach the MongoDB exporter for that service.
+
+To recover, verify that `pmm-agent` is running on that node, confirm PMM can reach the MongoDB exporter endpoint, and then restart `pmm-agent`. 
+
+If the state persists, re-check MongoDB monitoring credentials and TLS settings, then re-register the MongoDB service in PMM.
+
+Make sure to investigate any state other than PRIMARY, SECONDARY, or ARBITER.
 
 ### CPU Usage
-Shows CPU usage as a percentage from 0% to 100%. It updates every minute, turning from green to red when usage exceeds 80%. This helps quickly spot high CPU load, which could affect system performance, and monitor how hard the CPU is working at a glance.
+
+Shows current CPU utilization as a gauge from 0 to 100%. Turns orange at 80% and red at 90%.
 
 ### Memory Used
-Displays the percentage of total system memory currently in use. It updates regularly, showing green up to 80% of usage and red beyond that threshold.
 
-Use this for a quick visual indicator of memory consumption to monitor available memory without swapping as it's an easy way to assess how close the system is to its memory limits.
+Shows the percentage of total host memory currently in use. Turns orange at 80% and red at 90%.
 
 ### Disk IO Utilization
-Shows how busy the disk is handling read/write requests. The meter turns red above 80%, warning of potential slowdowns. It updates regularly, giving administrators a quick way to check if the disk is keeping up with demand or if it's becoming a bottleneck in system performance.
+
+Shows the percentage of elapsed time the disk was busy servicing read or write requests.
+
+A value approaching 100% over sustained periods suggests disk saturation. 
+
+For storage that supports parallelism (SSDs, NVMe, RAID), high values do not always indicate a performance problem. Check I/O latency and queue depth alongside this value for a full picture.
 
 ### Disk Space Utilization
-Shows how much of the total disk space is currently in use. The meter turns red when usage exceeds 80%, warning of low free space. It updates regularly, giving you a quick way to check if the disk is nearing capacity. This helps prevent "disk full" errors that could disrupt services or system operation.
+
+Shows how much of the filesystem where MongoDB stores data is currently in use. Turns orange at 80% and red at 90%.
+
+Watch this to prevent disk full conditions that would cause MongoDB to stop accepting writes.
 
 ### Disk IOPS
-Shows how many read and write operations the disk performs each second. The blue color helps spot spikes in disk activity. These spikes could mean the disk is struggling to keep up, which might slow down the system. It's a quick way for you to check if the disk is working too hard.
+
+Shows current read and write operations per second on the host disk.
+
+Spikes in IOPS often correspond to increased query load, index builds, or compaction. A sudden sustained increase may indicate an I/O subsystem bottleneck.
 
 ### Network Traffic
-Combines both incoming (received) and outgoing (transmitted) data, excluding local traffic. It gives you a quick view of overall network activity, helping spot unusual spikes or drops in data flow that might affect system performance.
+
+Shows current inbound and outbound network throughput in bytes per second, excluding loopback traffic. Click to open **Network Details** for this node.
 
 ### Uptime
-Shows how long the system has been running without a restart. As uptime increases, the color changes from red to orange to green, giving a quick visual indicator of system stability. Red indicates very recent restarts (less than 5 minutes), orange shows short uptimes (5 minutes to 1 hour), and green represents longer uptimes (over 1 hour). This helps you easily spot recent system restarts or confirm continuous operation.
+
+Shows how long the host has been running since its last boot. Red means under 5 minutes, orange means 5 minutes to 1 hour, green means over 1 hour.
+
+A recent restart may indicate an unexpected crash or planned maintenance.
 
 ### Version
-Displays the current version of MongoDB running on the system. This information is crucial for ensuring the system is running the intended version and for quickly identifying any nodes that might need updates.
 
-## States
+Shows the MongoDB version running on the selected service.
 
-### Node States
-Shows the state timeline of MongoDB replica set members during the selected time range. Each node's state (PRIMARY, SECONDARY, ARBITER, etc.) is color-coded for easy monitoring, with green indicating healthy states and red showing potential issues. Use this to track role changes and identify stability problems across your replica set.
+Check this after upgrades to confirm all members are running the expected version.
 
-## Details
+## Operations
 
 ### Command Operations
-Shows the rate of MongoDB operations per second, including both regular and replicated operations (query, insert, update, delete, getmore), as well as document deletions by TTL indexes. Use this metric to monitor database activity patterns and identify potential performance bottlenecks.
+
+Shows operation rates per second, broken down by type: query, insert, update, delete, getmore, replicated write operations (repl_insert, repl_update, repl_delete), and TTL index document deletions.
+
+Use this to understand the workload mix. A spike in `repl_*` operations on a secondary means it is catching up on replication. A high `ttl_delete` rate means a batch of documents expired at once.
 
 ### Top Hottest Collections by Read
-Shows the five MongoDB collections with the highest read operations per second. Use this to identify your most frequently accessed collections and optimize their performance.
+
+Shows the five collections with the highest read operation rate per second.
+
+Use this to identify which collections are driving the most read traffic. High-traffic collections are the first place to look when investigating read latency or indexing opportunities.
+
+### Operation Latencies
+
+Shows average operation latency in microseconds over time, broken down by operation type: reads, writes, and commands.
+
+Rising read latency alongside normal write latency usually points to a query or index problem. If all operation types are elevated, look at resource contention such as CPU usage or lock queues.
 
 ### Top Hottest Collections by Write
-Shows the five MongoDB collections with the highest write operations (inserts, updates, and deletes) per second. Use this to identify your most frequently modified collections and optimize their write performance.
+
+Shows the five collections with the highest write operation rate per second, combining inserts, updates, and deletes.
+
+Use this to identify which collections are driving the most write traffic and where write optimization would have the most impact.
 
 ### Query Efficiency
-Shows the ratio of documents or index entries scanned versus documents returned. A ratio of 1 indicates optimal query performance where each scanned document matches the query criteria. 
 
-Higher values suggest less efficient queries that scan many documents to find matches. Use this to identify queries that might need index optimization.
+Shows two scan ratios over time:
+
+- **Scanned objects / returned**: documents scanned per document returned. A value of 1 means every scanned document matched the query. Higher values mean queries are scanning many documents to return few, which usually indicates a missing or poorly selective index.
+- **Scanned idx / returned**: index entries scanned per document returned. Lower is better.
+
+Rising ratios indicate worsening query efficiency. Compare with **Command Operations** to identify which workloads are driving the inefficiency.
 
 ### Queued Operations
-Shows the number of operations waiting because the database is busy with other operations. Use this to identify when MongoDB operations are being delayed due to resource conflicts.
+
+Shows the number of operations waiting to acquire a lock, broken down by read and write queues.
+
+Any value above zero means lock contention is occurring. A queue that stays elevated points to long-running write operations blocking other work.
 
 ### Reads & Writes
-Shows both active and queued read/write operations in your MongoDB deployment. Use this to monitor database activity and identify when operations are being delayed due to high load.
 
-### Connections
+Shows active readers, active writers, queued readers, and queued writers over time.
 
-Shows the number of current, available, and idle MongoDB connections. Current connections represent all established connections to the database. 
+Use this alongside **Queued Operations** to understand whether contention is read-driven or write-driven. A growing queued writers count typically indicates write lock pressure.
 
-Available connections indicate remaining connection capacity. Idle connections (calculated as current minus active connections) represent established connections that are not actively processing requests. 
+### Average Connections
 
-Use this to monitor connection capacity and identify connection pool inefficiencies.
+Shows current, available, and idle connections over time.
 
-### Operations Latency
-Shows the average latency in microseconds (µs) for read, write, and command operations. Use this metric to monitor query performance and identify slow operations that may need optimization.
-
-## Collection Details
-
-### Size of Collections
-Shows storage size of MongoDB collections across different databases. Use this to monitor database growth and plan storage capacity needs.
-
-### Number of Collections
-Shows the total number of collections in each MongoDB database. Use this to track database organization and growth patterns.
+When current connections approach the maximum, the instance is near its connection limit. A high idle count suggests inefficient connection pooling. A sudden drop to zero means the instance became unreachable.
 
 ### Fragmentation Analysis
 
@@ -115,41 +158,71 @@ Use this table to identify collections worth compacting — run `compact` on the
 ## Replication
 
 ### Replication Lag
-Shows how many seconds Secondary nodes are behind the Primary in replicating data. Higher values indicate potential issues with network latency or system resources. The red threshold line at 10 seconds helps identify when lag requires attention.
 
-### Oplog Recovery Window 
-Shows the time range (in seconds) between the newest and oldest operations in the oplog. Use this to ensure sufficient history is maintained for recovery and secondary synchronization.
+Shows how many seconds each secondary is behind the primary. A red threshold line appears at 10 seconds.
 
-### Oplog GB/Hour 
-Shows the size of the MongoDB oplog generated by the Primary server. Use this to track oplog growth, plan storage needs, and detect high-write periods. Values are displayed in bytes with hourly intervals.
+Sustained lag above 10 seconds means the secondary cannot keep up with the primary write rate. 
 
-## Performance
+Causes include network latency, I/O bottlenecks on the secondary, or excessive write load on the primary. Click a series to open the **MongoDB Instance Summary** for that service.
+
+### Oplog Recovery Window
+
+Shows the time span in seconds between the newest and oldest entries in the oplog.
+
+This is the window within which a secondary can resync using the oplog alone. If replication lag approaches this value, the secondary may fall out of sync and require a full resync. 
+
+A shrinking window means the oplog is rolling over faster than expected. 
+
+Consider increasing the oplog size. Click a series to open the **MongoDB Instance Summary** for that service.
 
 ### Flow Control
-Shows the frequency and duration (in microseconds) of MongoDB write throttling. Use this to understand when your deployment is slowing down writes to keep replication lag under control.
 
-### WiredTiger Concurrency Tickets Available
-Shows how many more read and write operations your MongoDB deployment can handle simultaneously. Use this to monitor database concurrency limits and potential bottlenecks.
+Shows the rate of flow control events (`fc_count`) and the additional latency they introduce in microseconds (`fc_time`).
 
-## Nodes Summary
+MongoDB uses flow control to throttle primary writes when secondaries fall behind. 
 
-### Nodes Overview
-Shows key system metrics for each node: uptime, load average, memory usage, disk space, and more. Use this table to monitor the health and resource utilization of your infrastructure at a glance.
+A non-zero and rising `fc_count` means the primary is being throttled to protect replication. Investigate secondary lag and resource usage when this appears.
+
+### Oplog GB/Hour
+
+Shows the average hourly oplog data written by the primary, displayed as a bar chart.
+
+Use this to validate oplog sizing. If oplog GB/Hour is high relative to your configured oplog size, the **Oplog Recovery Window** will be short. A rising value means write activity on the primary is increasing.
+
+## Member States
+
+Shows the replica set state of each member over the selected time range as a state timeline. Each row represents one member, color-coded by state: green for PRIMARY, yellow for SECONDARY, dark yellow for ARBITER, and red for any problem state.
+
+Use this to identify when role changes or state transitions occurred and whether they coincide with an incident.
+
+## Nodes Overview
+
+A table showing key host metrics for each node: uptime, load average, available memory, total RAM, virtual memory, disk space, and minimum available disk space. Click a node name to open the **Node Summary** dashboard for that node.
+
+Use this to check host health across all replica set members without opening each node's dashboard individually.
 
 ## CPU Usage
-Shows CPU utilization as a percentage of total capacity, broken down by user and system activity. Use this to monitor CPU load and identify potential performance bottlenecks.
 
-## CPU Saturation
+Shows CPU utilization as a stacked time series, broken down by mode: user, system, iowait, and others.
 
-### CPU Saturation and Max Core Usage
-Shows how heavily your CPU is loaded with waiting processes and maximum core utilization. Use this to identify when your system needs more CPU capacity or when processes are competing for CPU time.
+High iowait combined with replication lag often means the secondary disk cannot keep up with oplog apply. High user or system time points to CPU-bound workloads.
+
+## CPU Saturation and Max Core Usage
+
+Shows normalized CPU load (running processes divided by CPU count) and the utilization of the most-loaded core over time.
+
+Normalized load above 1.0 means processes are waiting for CPU time. A high **Max CPU Core Utilization** with low overall load means work is concentrated on a single core, which can bottleneck single-threaded workloads like oplog application.
 
 ## Disk I/O and Swap Activity
-Shows disk I/O operations (reads/writes) and memory swap activity for each MongoDB node, measuring data flow between storage and RAM. 
 
-Use this metric to monitor storage performance, detect memory pressure, and identify when MongoDB's working set may exceed available RAM.
+Shows disk read throughput (positive) and write throughput (negative) in bytes per second, plus swap in and swap out activity. Links to the Disk Performance dashboard.
 
-##  Network Traffic
-Shows inbound and outbound network traffic for each MongoDB node, measuring data flow in bytes per second. 
+Sustained swap activity means the host working set no longer fits in RAM, which will severely degrade MongoDB performance. 
 
-Use this metric to monitor bandwidth usage, identify unusual traffic patterns, and detect potential network bottlenecks that could affect replication performance.
+High disk reads alongside replication lag suggest the secondary is reading from disk frequently due to a cold page cache.
+
+## Network Traffic
+
+Shows inbound network throughput (positive) and outbound network throughput (negative) in bytes per second.
+
+Unexpected spikes can indicate replication traffic, a backup in progress, or a client sending or receiving large result sets.

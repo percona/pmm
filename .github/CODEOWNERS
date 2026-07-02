@@ -1,9 +1,8 @@
 *                                       @percona/pmm-review-be
-/docs/                                  @percona/pmm-docs @percona/pmm-review-be
+/dev/docs/                              @percona/pmm-review-be
 /documentation/                         @percona/pmm-docs
 /ui/                                    @percona/pmm-review-fe
 /dashboards/                            @nailya @percona/pmm-review-fe
 /api/                                   @percona/pmm-review-be
-/agent/agents/postgres/                 @JiriCtvrtka @percona/pmm-review-be
 **/go.mod                               @percona/pmm-review-be
 /.github/                               @percona/pmm-review-be

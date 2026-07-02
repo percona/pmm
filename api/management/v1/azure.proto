@@ -3,6 +3,7 @@ syntax = "proto3";
 package management.v1;
 
 import "extensions/v1/redact.proto";
+import "google/protobuf/duration.proto";
 import "validate/validate.proto";
 
 // DiscoverAzureDatabaseRequest discover azure databases request.
@@ -41,7 +42,7 @@ message DiscoverAzureDatabaseInstance {
   // Azure database server name.
   string service_name = 3;
   // Database username.
-  string username = 4;
+  string username = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Address used to connect to it.
   string address = 5;
   // Azure Resource group.
@@ -125,6 +126,10 @@ message AddAzureDatabaseRequest {
   int32 tablestats_group_table_limit = 24;
   // Azure database resource type (mysql, maria, postgres)
   DiscoverAzureDatabaseType type = 25;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 26 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message AddAzureDatabaseResponse {}

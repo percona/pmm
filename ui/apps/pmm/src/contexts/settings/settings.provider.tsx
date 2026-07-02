@@ -11,10 +11,10 @@ import { useUser } from 'contexts/user';
 export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
   const settings = useSettings({
-    enabled: !!user && user.isPMMAdmin,
+    enabled: user?.isAnonymous === false && user?.isPMMAdmin,
   });
   const readonlySettings = useReadonlySettings({
-    enabled: !!user && !user.isPMMAdmin,
+    enabled: user?.isAnonymous === false && !user?.isPMMAdmin,
   });
   const frontendSettings = useFrontendSettings({
     refetchOnMount: false,

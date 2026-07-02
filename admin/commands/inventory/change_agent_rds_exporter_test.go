@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,14 +38,14 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentRDSExporterCommand{
 				AgentID:                "test-agent-rds-update",
-				Enable:                 pointer.ToBool(true),
-				AWSAccessKey:           pointer.ToString("AKIAIOSFODNN7EXAMPLE"),
-				AWSSecretKey:           pointer.ToString("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"),
-				DisableBasicMetrics:    pointer.ToBool(false),
-				DisableEnhancedMetrics: pointer.ToBool(true),
-				PushMetrics:            pointer.ToBool(true),
+				Enable:                 new(true),
+				AWSAccessKey:           new("AKIAIOSFODNN7EXAMPLE"),
+				AWSSecretKey:           new("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"),
+				DisableBasicMetrics:    new(false),
+				DisableEnhancedMetrics: new(true),
+				PushMetrics:            new(true),
 				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("debug")),
+					LogLevel: new(flags.LogLevel("debug")),
 				},
 				CustomLabels: &map[string]string{"environment": "production", "region": "us-west-2"},
 			}
@@ -83,8 +82,8 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentRDSExporterCommand{
 				AgentID:             "test-agent-rds-disable",
-				Enable:              pointer.ToBool(false),
-				DisableBasicMetrics: pointer.ToBool(true),
+				Enable:              new(false),
+				DisableBasicMetrics: new(true),
 			}
 
 			result, err := cmd.RunCmd()
@@ -207,7 +206,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentRDSExporterCommand{
 			AgentID: "invalid-agent-rds",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()

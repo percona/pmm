@@ -38,7 +38,7 @@ func TestScheduleBackup(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := management.RegisterNode(t, mservice.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
+			NodeType: new(mservice.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		t.Cleanup(func() {
 			pmmapitests.UnregisterNodes(t, nodeID)
@@ -123,9 +123,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing",
 					Description:    "testing",
-					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
+					Mode:           new(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        false,
-					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      new(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 					Folder:         "backup_folder",
 				},
 				Context: pmmapitests.Context,
@@ -136,10 +136,10 @@ func TestScheduleBackup(t *testing.T) {
 
 			body := backup.ChangeScheduledBackupBody{
 				ScheduledBackupID: backupRes.Payload.ScheduledBackupID,
-				Enabled:           pointer.ToBool(true),
-				CronExpression:    pointer.ToString("0 2 2 2 2"),
-				Name:              pointer.ToString("test2"),
-				Description:       pointer.ToString("test2"),
+				Enabled:           new(true),
+				CronExpression:    new("0 2 2 2 2"),
+				Name:              new("test2"),
+				Description:       new("test2"),
 			}
 			changeRes, err := client.ChangeScheduledBackup(&backup.ChangeScheduledBackupParams{
 				Body:    body,
@@ -202,9 +202,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing1",
 					Description:    "testing",
-					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
+					Mode:           new(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      new(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -221,9 +221,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing2",
 					Description:    "testing",
-					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
+					Mode:           new(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      new(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -244,9 +244,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing1",
 					Description:    "testing",
-					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
+					Mode:           new(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        false,
-					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      new(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -263,9 +263,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing2",
 					Description:    "testing",
-					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
+					Mode:           new(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        false,
-					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      new(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -282,9 +282,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing3",
 					Description:    "testing",
-					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
+					Mode:           new(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      new(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -304,9 +304,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing1",
 					Description:    "testing",
-					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
+					Mode:           new(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      new(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -323,9 +323,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing2",
 					Description:    "testing",
-					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
+					Mode:           new(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
+					DataModel:      new(backup.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -342,9 +342,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "some_backup_name",
 					Description:    "testing",
-					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
+					Mode:           new(backup.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backup.ScheduleBackupBodyDataModelDATAMODELPHYSICAL),
+					DataModel:      new(backup.ScheduleBackupBodyDataModelDATAMODELPHYSICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -361,9 +361,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing",
 					Description:    "testing",
-					Mode:           pointer.ToString(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
+					Mode:           new(backup.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backup.ScheduleBackupBodyDataModelDATAMODELPHYSICAL),
+					DataModel:      new(backup.ScheduleBackupBodyDataModelDATAMODELPHYSICAL),
 				},
 				Context: pmmapitests.Context,
 			})

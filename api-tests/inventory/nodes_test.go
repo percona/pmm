@@ -19,7 +19,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -76,7 +75,7 @@ func TestNodes(t *testing.T) {
 		}, "There should be a remote node with id `%s`", remoteNodeID)
 
 		res, err = client.Default.NodesService.ListNodes(&nodes.ListNodesParams{
-			NodeType: pointer.ToString(types.NodeTypeGenericNode),
+			NodeType: new(types.NodeTypeGenericNode),
 			Context:  pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -440,7 +439,7 @@ func TestRemoveNode(t *testing.T) {
 		require.NoError(t, err)
 
 		listAgentsOK, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			NodeID:  pointer.ToString(node.Generic.NodeID),
+			NodeID:  new(node.Generic.NodeID),
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -459,7 +458,7 @@ func TestRemoveNode(t *testing.T) {
 		// Remove with force flag.
 		params := &nodes.RemoveNodeParams{
 			NodeID:  node.Generic.NodeID,
-			Force:   pointer.ToBool(true),
+			Force:   new(true),
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.NodesService.RemoveNode(params)
@@ -475,7 +474,7 @@ func TestRemoveNode(t *testing.T) {
 		assert.Nil(t, getServiceResp)
 
 		listAgentsOK, err = client.Default.ServicesService.ListServices(&services.ListServicesParams{
-			NodeID:  pointer.ToString(node.Generic.NodeID),
+			NodeID:  new(node.Generic.NodeID),
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -516,7 +515,7 @@ func TestRemoveNode(t *testing.T) {
 		// Remove with force flag.
 		params := &nodes.RemoveNodeParams{
 			NodeID:  node.Generic.NodeID,
-			Force:   pointer.ToBool(true),
+			Force:   new(true),
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.NodesService.RemoveNode(params)
@@ -532,7 +531,7 @@ func TestRemoveNode(t *testing.T) {
 		assert.Nil(t, getServiceResp)
 
 		listAgentsOK, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-			NodeID:  pointer.ToString(node.Generic.NodeID),
+			NodeID:  new(node.Generic.NodeID),
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Node with ID %q not found.", node.Generic.NodeID)
@@ -566,7 +565,7 @@ func TestRemoveNode(t *testing.T) {
 
 		removeResp, err := client.Default.NodesService.RemoveNode(&nodes.RemoveNodeParams{
 			NodeID:  "pmm-server",
-			Force:   pointer.ToBool(true),
+			Force:   new(true),
 			Context: context.Background(),
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 403, codes.PermissionDenied, "PMM Server node can't be removed.")

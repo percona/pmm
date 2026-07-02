@@ -93,13 +93,11 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 	}
 	transport.SetLogger(logrus.WithField("component", "client"))
 	transport.SetDebug(logrus.GetLevel() >= logrus.DebugLevel)
-	transport.Context = context.Background() // not Context - do not cancel the whole transport
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ interface{}) error {
+	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ any) error {
 		b, _ := io.ReadAll(reader)
-		err := NginxError(string(b))
-		return &err
+		return new(NginxError(b))
 	})
 	transport.Consumers = map[string]runtime.Consumer{
 		runtime.JSONMime:    runtime.JSONConsumer(),

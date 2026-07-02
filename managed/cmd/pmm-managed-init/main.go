@@ -62,7 +62,8 @@ func main() {
 		pmmConfigParams["AgentConfigFilePath"] = "/srv/pmm-agent/config/pmm-agent.yaml"
 	}
 
-	if err := supervisord.SavePMMConfig(pmmConfigParams); err != nil {
+	err = supervisord.SavePMMConfig(pmmConfigParams)
+	if err != nil {
 		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)
 	}

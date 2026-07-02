@@ -20,7 +20,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -97,32 +96,32 @@ type ServiceFilters struct {
 // FindServices returns Services by filters.
 func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error) {
 	var conditions []string
-	var args []interface{}
+	var args []any
 	idx := 1
 	if filters.NodeID != "" {
-		conditions = append(conditions, fmt.Sprintf("node_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "node_id = "+q.Placeholder(idx))
 		args = append(args, filters.NodeID)
 		idx++
 	}
 	if filters.ExternalGroup != "" {
-		conditions = append(conditions, fmt.Sprintf("external_group = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "external_group = "+q.Placeholder(idx))
 		args = append(args, filters.ExternalGroup)
 		idx++
 	}
 	if filters.ServiceType != nil {
-		conditions = append(conditions, fmt.Sprintf("service_type = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "service_type = "+q.Placeholder(idx))
 		args = append(args, filters.ServiceType)
 		idx++
 	}
 	if filters.Cluster != "" {
-		conditions = append(conditions, fmt.Sprintf("cluster = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "cluster = "+q.Placeholder(idx))
 		args = append(args, filters.Cluster)
 	}
 	var whereClause string
 	if len(conditions) != 0 {
-		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
+		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
-	structs, err := q.SelectAllFrom(ServiceTable, fmt.Sprintf("%s ORDER BY service_id", whereClause), args...)
+	structs, err := q.SelectAllFrom(ServiceTable, whereClause+" ORDER BY service_id", args...)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -137,14 +136,15 @@ func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error)
 
 // FindActiveServiceTypes returns all active Service Types.
 func FindActiveServiceTypes(q *reform.Querier) ([]ServiceType, error) {
-	query := fmt.Sprintf(`SELECT DISTINCT service_type FROM %s`, ServiceTable.s.SQLName)
+	query := "SELECT DISTINCT service_type FROM " + ServiceTable.s.SQLName
 	rows, err := q.Query(query)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	defer func() {
-		if rowsErr := rows.Close(); rowsErr != nil {
+		rowsErr := rows.Close()
+		if rowsErr != nil {
 			logrus.Debug(rowsErr)
 		}
 	}()
@@ -152,7 +152,8 @@ func FindActiveServiceTypes(q *reform.Querier) ([]ServiceType, error) {
 	var res []ServiceType
 	for rows.Next() {
 		var serviceType ServiceType
-		if err = rows.Scan(&serviceType); err != nil {
+		err = rows.Scan(&serviceType)
+		if err != nil {
 			return nil, err
 		}
 
@@ -171,7 +172,8 @@ func FindActiveUserServiceTypes(q *reform.Querier) ([]ServiceType, error) {
 	}
 
 	defer func() {
-		if rowsErr := rows.Close(); rowsErr != nil {
+		rowsErr := rows.Close()
+		if rowsErr != nil {
 			logrus.Debug(rowsErr)
 		}
 	}()
@@ -179,7 +181,8 @@ func FindActiveUserServiceTypes(q *reform.Querier) ([]ServiceType, error) {
 	var res []ServiceType
 	for rows.Next() {
 		var serviceType ServiceType
-		if err = rows.Scan(&serviceType); err != nil {
+		err = rows.Scan(&serviceType)
+		if err != nil {
 			return nil, err
 		}
 
@@ -272,7 +275,8 @@ type AddDBMSServiceParams struct {
 func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSServiceParams) (*Service, error) {
 	switch serviceType {
 	case MySQLServiceType, MongoDBServiceType, PostgreSQLServiceType, ProxySQLServiceType, ValkeyServiceType:
-		if err := validateDBConnectionOptions(params.Socket, params.Address, params.Port); err != nil {
+		err := validateDBConnectionOptions(params.Socket, params.Address, params.Port)
+		if err != nil {
 			return nil, err
 		}
 		if params.ExternalGroup != "" {
@@ -292,14 +296,17 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 	}
 
 	id := uuid.New().String()
-	if err := checkServiceUniqueID(q, id); err != nil {
+	err := checkServiceUniqueID(q, id)
+	if err != nil {
 		return nil, err
 	}
-	if err := checkServiceUniqueName(q, params.ServiceName); err != nil {
+	err = checkServiceUniqueName(q, params.ServiceName)
+	if err != nil {
 		return nil, err
 	}
 
-	if _, err := FindNodeByID(q, params.NodeID); err != nil {
+	_, err = FindNodeByID(q, params.NodeID)
+	if err != nil {
 		return nil, err
 	}
 
@@ -325,14 +332,17 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 		Socket:         params.Socket,
 		ExternalGroup:  params.ExternalGroup,
 	}
-	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+	err = row.SetCustomLabels(params.CustomLabels)
+	if err != nil {
 		return nil, err
 	}
-	if err := q.Insert(row); err != nil {
+	err = q.Insert(row)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	if err := initSoftwareVersions(q, id, serviceType); err != nil {
+	err = initSoftwareVersions(q, id, serviceType)
+	if err != nil {
 		return nil, err
 	}
 
@@ -386,24 +396,28 @@ func RemoveService(q *reform.Querier, id string, mode RemoveMode) error { //noli
 		}
 	case RemoveCascade:
 		for _, a := range agents {
-			if _, err := RemoveAgent(q, a.AgentID, RemoveCascade); err != nil {
+			_, err = RemoveAgent(q, a.AgentID, RemoveCascade)
+			if err != nil {
 				return err
 			}
 		}
 		for _, a := range artifacts {
-			if _, err := UpdateArtifact(q, a.ID, UpdateArtifactParams{
-				ServiceID: pointer.ToString(""),
-			}); err != nil {
+			_, err = UpdateArtifact(q, a.ID, UpdateArtifactParams{
+				ServiceID: new(""),
+			})
+			if err != nil {
 				return err
 			}
 		}
 		for _, i := range restoreItems {
-			if err := RemoveRestoreHistoryItem(q, i.ID); err != nil {
+			err = RemoveRestoreHistoryItem(q, i.ID)
+			if err != nil {
 				return err
 			}
 		}
 		for _, t := range tasks {
-			if err := RemoveScheduledTask(q, t.ID); err != nil {
+			err = RemoveScheduledTask(q, t.ID)
+			if err != nil {
 				return err
 			}
 		}
@@ -472,7 +486,8 @@ func ChangeStandardLabels(q *reform.Querier, serviceID string, labels ServiceSta
 		return nil
 	}
 
-	if err = q.UpdateColumns(s, columns...); err != nil {
+	err = q.UpdateColumns(s, columns...)
+	if err != nil {
 		return err
 	}
 
@@ -484,12 +499,13 @@ func initSoftwareVersions(q *reform.Querier, serviceID string, serviceType Servi
 	case MySQLServiceType:
 		fallthrough
 	case MongoDBServiceType:
-		if _, err := CreateServiceSoftwareVersions(q, CreateServiceSoftwareVersionsParams{
+		_, err := CreateServiceSoftwareVersions(q, CreateServiceSoftwareVersionsParams{
 			ServiceID:        serviceID,
 			ServiceType:      serviceType,
 			SoftwareVersions: []SoftwareVersion{},
 			NextCheckAt:      time.Now(),
-		}); err != nil {
+		})
+		if err != nil {
 			return errors.Wrapf(err, "couldn't initialize software versions for service %s", serviceID)
 		}
 	default:

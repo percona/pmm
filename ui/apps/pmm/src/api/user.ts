@@ -9,12 +9,12 @@ import {
 import { api, grafanaApi } from './api';
 
 export const getCurrentUser = async () => {
-  const res = await grafanaApi.get<GetUserResponse>('/user');
+  const res = await api.get<GetUserResponse>('/users/current');
   return res.data;
 };
 
 export const getCurrentUserOrgs = async () => {
-  const res = await grafanaApi.get<UserOrg[]>('/user/orgs');
+  const res = await api.get<UserOrg[]>('/users/current/orgs');
   return res.data;
 };
 

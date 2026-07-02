@@ -27,7 +27,7 @@ import (
 
 // IDReader is used in tests for ID/UUID generation.
 type IDReader struct {
-	lastID uint64
+	lastID atomic.Uint64
 }
 
 // Read returns non-random data for ID/UUID generation.
@@ -39,7 +39,7 @@ func (t *IDReader) Read(b []byte) (int, error) {
 	for i := range b {
 		b[i] = 0
 	}
-	id := atomic.AddUint64(&t.lastID, 1)
+	id := t.lastID.Add(1)
 	binary.BigEndian.PutUint64(b[8:], id)
 	return len(b), nil
 }

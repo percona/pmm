@@ -54,11 +54,11 @@ func TestDevContainer(t *testing.T) {
 		defer func() {
 			for name, b := range originals {
 				err = os.WriteFile(name, b, 0)
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 			// force update supervisor config
 			_, err := s.supervisorctl("update")
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		}()
 
 		settings := &models.Settings{

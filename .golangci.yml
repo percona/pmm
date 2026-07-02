@@ -1,4 +1,13 @@
 version: "2"
+issues:
+  # Maximum issues count per one linter.
+  # Set to 0 to disable - unlimited.
+  # Default: 50
+  max-issues-per-linter: 0
+  # Maximum count of issues with the same text.
+  # Set to 0 to disable - unlimited.
+  # Default: 3
+  max-same-issues: 0
 linters:
   default: all
   disable:
@@ -7,11 +16,13 @@ linters:
     - err113              # extra work & poor benefit (renamed from goerr113)
     - exhaustruct         # too many files to fix/nolint
     - funlen              # useless
+    - funcorder           # too many so far
     - gochecknoglobals    # mostly useless
     - gochecknoinits      # we use init functions
     - gocyclo             # using cyclop with the max 30 instead
     - godox               # we sometimes leave TODOS right in the code
     - gomoddirectives     # we use replace directives
+    - gomodguard          # deprecated
     - nlreturn            # too annoying
     - paralleltest
     - protogetter         # we need direct access to proto fields
@@ -115,6 +126,7 @@ linters:
       - third_party$
       - builtin$
       - examples$
+      - ui/
 formatters:
   enable:
     - gci

@@ -25,7 +25,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -120,7 +119,7 @@ func TestUpdater(t *testing.T) {
 				want: &versionInfo{
 					Version:     "3.0.1",
 					DockerImage: "percona/pmm-server:3.0.1",
-					BuildTime:   pointer.To(time.Date(2024, 3, 20, 15, 48, 7, 145620000, time.UTC)),
+					BuildTime:   new(time.Date(2024, 3, 20, 15, 48, 7, 145620000, time.UTC)),
 				},
 			},
 			{
@@ -323,7 +322,7 @@ func TestUpdater(t *testing.T) {
 
 	t.Run("with disabled updates check", func(t *testing.T) {
 		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
-			EnableUpdates: pointer.ToBool(false),
+			EnableUpdates: new(false),
 		})
 		require.NoError(t, err)
 

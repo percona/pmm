@@ -195,7 +195,7 @@ func FindBackupLocationsByIDs(q *reform.Querier, ids []string) (map[string]*Back
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE id IN (%s)", p)
-	args := make([]interface{}, 0, len(ids))
+	args := make([]any, 0, len(ids))
 	for _, id := range ids {
 		args = append(args, id)
 	}
@@ -274,20 +274,23 @@ type CreateBackupLocationParams struct {
 
 // CreateBackupLocation creates backup location.
 func CreateBackupLocation(q *reform.Querier, params CreateBackupLocationParams) (*BackupLocation, error) {
-	if err := params.Validate(BackupLocationValidationParams{
+	err := params.Validate(BackupLocationValidationParams{
 		RequireConfig:    true,
 		WithBucketRegion: true,
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 
 	id := uuid.New().String()
 
-	if err := checkUniqueBackupLocationID(q, id); err != nil {
+	err = checkUniqueBackupLocationID(q, id)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := checkUniqueBackupLocationName(q, params.Name); err != nil {
+	err = checkUniqueBackupLocationName(q, params.Name)
+	if err != nil {
 		return nil, err
 	}
 
@@ -299,7 +302,8 @@ func CreateBackupLocation(q *reform.Querier, params CreateBackupLocationParams) 
 
 	params.FillLocationModel(row)
 
-	if err := q.Insert(row); err != nil {
+	err = q.Insert(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to create backup location")
 	}
 
@@ -316,10 +320,11 @@ type ChangeBackupLocationParams struct {
 
 // ChangeBackupLocation updates existing location by specified locationID and params.
 func ChangeBackupLocation(q *reform.Querier, locationID string, params ChangeBackupLocationParams) (*BackupLocation, error) {
-	if err := params.Validate(BackupLocationValidationParams{
+	err := params.Validate(BackupLocationValidationParams{
 		RequireConfig:    false,
 		WithBucketRegion: true,
-	}); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
 
@@ -329,7 +334,8 @@ func ChangeBackupLocation(q *reform.Querier, locationID string, params ChangeBac
 	}
 
 	if params.Name != "" && params.Name != row.Name {
-		if err := checkUniqueBackupLocationName(q, params.Name); err != nil {
+		err = checkUniqueBackupLocationName(q, params.Name)
+		if err != nil {
 			return nil, err
 		}
 		row.Name = params.Name
@@ -341,7 +347,8 @@ func ChangeBackupLocation(q *reform.Querier, locationID string, params ChangeBac
 	// Replace old configuration by config from params
 	params.FillLocationModel(row)
 
-	if err := q.Update(row); err != nil {
+	err = q.Update(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to update backup location")
 	}
 
@@ -350,7 +357,8 @@ func ChangeBackupLocation(q *reform.Querier, locationID string, params ChangeBac
 
 // RemoveBackupLocation removes BackupLocation by ID.
 func RemoveBackupLocation(q *reform.Querier, id string, mode RemoveMode) error {
-	if _, err := FindBackupLocationByID(q, id); err != nil {
+	_, err := FindBackupLocationByID(q, id)
+	if err != nil {
 		return err
 	}
 
@@ -391,25 +399,29 @@ func RemoveBackupLocation(q *reform.Querier, id string, mode RemoveMode) error {
 	}
 
 	for _, i := range restoreItems {
-		if err := RemoveRestoreHistoryItem(q, i.ID); err != nil {
+		err = RemoveRestoreHistoryItem(q, i.ID)
+		if err != nil {
 			return err
 		}
 	}
 
 	for _, a := range artifacts {
 		// TODO removing artifact this way is not correct. Should be done via calling "removal service".
-		if err := DeleteArtifact(q, a.ID); err != nil {
+		err = DeleteArtifact(q, a.ID)
+		if err != nil {
 			return err
 		}
 	}
 
 	for _, t := range tasks {
-		if err := RemoveScheduledTask(q, t.ID); err != nil {
+		err = RemoveScheduledTask(q, t.ID)
+		if err != nil {
 			return err
 		}
 	}
 
-	if err := q.Delete(&BackupLocation{ID: id}); err != nil {
+	err = q.Delete(&BackupLocation{ID: id})
+	if err != nil {
 		return errors.Wrap(err, "failed to delete BackupLocation")
 	}
 

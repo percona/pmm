@@ -16,9 +16,11 @@
 package backup
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
 )
@@ -145,21 +147,21 @@ func TestMysqlAndXtrabackupCompatible(t *testing.T) {
 
 	for _, ver := range compatible {
 		actual, err := mysqlAndXtrabackupCompatible(ver.mysql, ver.pxb)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.True(t, actual, "mysql version %q, xtrabackup version %q", ver.mysql, ver.pxb)
 	}
 
 	for _, ver := range incompatible {
 		actual, err := mysqlAndXtrabackupCompatible(ver.mysql, ver.pxb)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.False(t, actual, "mysql version %q, xtrabackup version %q", ver.mysql, ver.pxb)
 	}
 
 	_, err := mysqlAndXtrabackupCompatible("eight", "8.0.6")
-	assert.Error(t, err)
+	require.Error(t, err)
 
 	_, err = mysqlAndXtrabackupCompatible("8.0", "eight")
-	assert.Error(t, err)
+	require.Error(t, err)
 }
 
 func TestVendorToServiceType(t *testing.T) {
@@ -195,7 +197,7 @@ func TestVendorToServiceType(t *testing.T) {
 			if test.errString != "" {
 				assert.Contains(t, err.Error(), test.errString)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}
@@ -290,9 +292,9 @@ func TestMySQLSoftwaresInstalledAndCompatible(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			err := mySQLBackupSoftwareInstalledAndCompatible(test.input)
 			if test.err != nil {
-				assert.ErrorIs(t, err, test.err)
+				require.ErrorIs(t, err, test.err)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}
@@ -318,7 +320,7 @@ func TestMongoDBBackupSoftwareInstalledAndCompatible(t *testing.T) {
 				models.SoftwareName("mongodb"): "6.0.2",
 				models.SoftwareName("pbm"):     "1.8.0",
 			},
-			err: ErrIncompatiblePBM,
+			err: fmt.Errorf("installed pbm version %q, min required pbm version %q: %w", "1.8.0", pbmMinSupportedVersion, ErrIncompatiblePBM),
 		},
 		{
 			name: "pbm not installed",
@@ -326,7 +328,7 @@ func TestMongoDBBackupSoftwareInstalledAndCompatible(t *testing.T) {
 				models.SoftwareName("mongodb"): "6.0.2",
 				models.SoftwareName("pbm"):     "",
 			},
-			err: ErrIncompatibleService,
+			err: fmt.Errorf("software %q is not installed: %w", "pbm", ErrIncompatibleService),
 		},
 		{
 			name: "mongod not installed",
@@ -334,15 +336,16 @@ func TestMongoDBBackupSoftwareInstalledAndCompatible(t *testing.T) {
 				models.SoftwareName("mongodb"): "",
 				models.SoftwareName("pbm"):     "2.0.1",
 			},
-			err: ErrIncompatibleService,
+			err: fmt.Errorf("software %q is not installed: %w", "mongodb", ErrIncompatibleService),
 		},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			err := mongoDBBackupSoftwareInstalledAndCompatible(test.input)
 			if test.err != nil {
-				assert.ErrorIs(t, err, test.err)
+				require.Error(t, err)
+				require.Equal(t, test.err.Error(), err.Error())
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
 		})
 	}

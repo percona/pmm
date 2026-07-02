@@ -18,7 +18,6 @@ package inventory
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -81,7 +80,7 @@ func TestMongoDBExporter(t *testing.T) {
 					Status:                   &AgentStatusUnknown,
 					DisabledCollectors:       make([]string, 0),
 					StatsCollections:         make([]string, 0),
-					LogLevel:                 pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:                 new("LOG_LEVEL_UNSPECIFIED"),
 					EnvironmentVariableNames: make([]string, 0),
 				},
 			},
@@ -93,7 +92,7 @@ func TestMongoDBExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-						Enable:       pointer.ToBool(false),
+						Enable:       new(false),
 						CustomLabels: &agents.ChangeAgentParamsBodyMongodbExporterCustomLabels{},
 					},
 				},
@@ -112,7 +111,7 @@ func TestMongoDBExporter(t *testing.T) {
 					Status:                   &AgentStatusDone,
 					DisabledCollectors:       make([]string, 0),
 					StatsCollections:         make([]string, 0),
-					LogLevel:                 pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:                 new("LOG_LEVEL_UNSPECIFIED"),
 					CustomLabels:             map[string]string{},
 					EnvironmentVariableNames: make([]string, 0),
 				},
@@ -124,7 +123,7 @@ func TestMongoDBExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-						Enable: pointer.ToBool(true),
+						Enable: new(true),
 						CustomLabels: &agents.ChangeAgentParamsBodyMongodbExporterCustomLabels{
 							Values: map[string]string{
 								"new_label": "mongodb_exporter",
@@ -150,7 +149,7 @@ func TestMongoDBExporter(t *testing.T) {
 					Status:                   &AgentStatusDone,
 					DisabledCollectors:       make([]string, 0),
 					StatsCollections:         make([]string, 0),
-					LogLevel:                 pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:                 new("LOG_LEVEL_UNSPECIFIED"),
 					EnvironmentVariableNames: make([]string, 0),
 				},
 			},
@@ -305,7 +304,7 @@ func TestMongoDBExporter(t *testing.T) {
 					PushMetricsEnabled:       true,
 					Status:                   &AgentStatusUnknown,
 					DisabledCollectors:       make([]string, 0),
-					LogLevel:                 pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:                 new("LOG_LEVEL_UNSPECIFIED"),
 					StatsCollections:         make([]string, 0),
 					EnvironmentVariableNames: make([]string, 0),
 				},
@@ -318,7 +317,7 @@ func TestMongoDBExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-						EnablePushMetrics: pointer.ToBool(false),
+						EnablePushMetrics: new(false),
 					},
 				},
 				Context: pmmapitests.Context,
@@ -338,7 +337,7 @@ func TestMongoDBExporter(t *testing.T) {
 					Status:                   &AgentStatusUnknown,
 					DisabledCollectors:       make([]string, 0),
 					StatsCollections:         make([]string, 0),
-					LogLevel:                 pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:                 new("LOG_LEVEL_UNSPECIFIED"),
 					EnvironmentVariableNames: make([]string, 0),
 				},
 			},
@@ -349,7 +348,7 @@ func TestMongoDBExporter(t *testing.T) {
 				AgentID: agentID,
 				Body: agents.ChangeAgentBody{
 					MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-						EnablePushMetrics: pointer.ToBool(true),
+						EnablePushMetrics: new(true),
 					},
 				},
 				Context: pmmapitests.Context,
@@ -370,7 +369,7 @@ func TestMongoDBExporter(t *testing.T) {
 					Status:                   &AgentStatusUnknown,
 					DisabledCollectors:       make([]string, 0),
 					StatsCollections:         make([]string, 0),
-					LogLevel:                 pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					LogLevel:                 new("LOG_LEVEL_UNSPECIFIED"),
 					EnvironmentVariableNames: make([]string, 0),
 				},
 			},
@@ -413,32 +412,32 @@ func TestMongoDBExporter(t *testing.T) {
 			Body: agents.ChangeAgentBody{
 				MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
 					// Core agent settings
-					Enable:            pointer.ToBool(true),
-					EnablePushMetrics: pointer.ToBool(true),
-					Username:          pointer.ToString("new-mongodb-user"),
+					Enable:            new(true),
+					EnablePushMetrics: new(true),
+					Username:          new("new-mongodb-user"),
 
 					// TLS configuration
-					TLS:                           pointer.ToBool(true),
-					TLSSkipVerify:                 pointer.ToBool(false),
-					TLSCertificateKey:             pointer.ToString("test-cert-key"),
-					TLSCertificateKeyFilePassword: pointer.ToString("test-password"),
-					TLSCa:                         pointer.ToString("test-ca-cert"),
+					TLS:                           new(true),
+					TLSSkipVerify:                 new(false),
+					TLSCertificateKey:             new("test-cert-key"),
+					TLSCertificateKeyFilePassword: new("test-password"),
+					TLSCa:                         new("test-ca-cert"),
 
 					// Authentication
-					AuthenticationMechanism: pointer.ToString("MONGODB-X509"),
-					AuthenticationDatabase:  pointer.ToString("$external"),
+					AuthenticationMechanism: new("MONGODB-X509"),
+					AuthenticationDatabase:  new("$external"),
 
 					// Collection and monitoring settings
-					SkipConnectionCheck: pointer.ToBool(true),
+					SkipConnectionCheck: new(true),
 					StatsCollections:    []string{"db1.coll1", "db2.coll2"},
-					CollectionsLimit:    pointer.ToInt32(500),
-					EnableAllCollectors: pointer.ToBool(true),
+					CollectionsLimit:    new(int32(500)),
+					EnableAllCollectors: new(true),
 					DisableCollectors:   []string{"collstats", "indexstats"},
 
 					// Agent configuration
-					AgentPassword:  pointer.ToString("new-agent-password"),
-					LogLevel:       pointer.ToString(agents.ChangeAgentParamsBodyMongodbExporterLogLevelLOGLEVELDEBUG),
-					ExposeExporter: pointer.ToBool(true),
+					AgentPassword:  new("new-agent-password"),
+					LogLevel:       new(agents.ChangeAgentParamsBodyMongodbExporterLogLevelLOGLEVELDEBUG),
+					ExposeExporter: new(true),
 
 					// Metrics configuration
 					MetricsResolutions: &agents.ChangeAgentParamsBodyMongodbExporterMetricsResolutions{
@@ -477,7 +476,7 @@ func TestMongoDBExporter(t *testing.T) {
 		assert.True(t, mongodbExporter.EnableAllCollectors)
 
 		// Agent configuration
-		assert.Equal(t, pointer.ToString("LOG_LEVEL_DEBUG"), mongodbExporter.LogLevel)
+		assert.Equal(t, new("LOG_LEVEL_DEBUG"), mongodbExporter.LogLevel)
 		assert.True(t, mongodbExporter.ExposeExporter)
 		assert.True(t, mongodbExporter.PushMetricsEnabled)
 
@@ -524,7 +523,7 @@ func TestMongoDBExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-					EnableAllCollectors: pointer.ToBool(true),
+					EnableAllCollectors: new(true),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -547,7 +546,7 @@ func TestMongoDBExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-					EnableAllCollectors: pointer.ToBool(false),
+					EnableAllCollectors: new(false),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -600,7 +599,7 @@ func TestMongoDBExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-					Password: pointer.ToString("rotated-mongodb-password-456"),
+					Password: new("rotated-mongodb-password-456"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -628,10 +627,10 @@ func TestMongoDBExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-					Username:                pointer.ToString("new-mongodb-user"),
-					Password:                pointer.ToString("final-mongodb-password-789"),
-					AuthenticationMechanism: pointer.ToString("SCRAM-SHA-256"),
-					AuthenticationDatabase:  pointer.ToString("admin"),
+					Username:                new("new-mongodb-user"),
+					Password:                new("final-mongodb-password-789"),
+					AuthenticationMechanism: new("SCRAM-SHA-256"),
+					AuthenticationDatabase:  new("admin"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -689,7 +688,7 @@ func TestMongoDBExporter(t *testing.T) {
 				AuthenticationMechanism:       "SCRAM-SHA-1",
 				AuthenticationDatabase:        "admin",
 				PushMetrics:                   true,
-				LogLevel:                      pointer.ToString("LOG_LEVEL_WARN"),
+				LogLevel:                      new("LOG_LEVEL_WARN"),
 				ExposeExporter:                true,
 				DisableCollectors:             []string{"collstats", "indexstats"},
 				TLSCertificateKey:             "initial-cert-key",
@@ -715,7 +714,7 @@ func TestMongoDBExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-					Password: pointer.ToString("new-password-only"),
+					Password: new("new-password-only"),
 					// All other fields are intentionally NOT set (nil)
 				},
 			},
@@ -752,7 +751,7 @@ func TestMongoDBExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				MongodbExporter: &agents.ChangeAgentParamsBodyMongodbExporter{
-					CollectionsLimit: pointer.ToInt32(2000),
+					CollectionsLimit: new(int32(2000)),
 					// All other fields are intentionally NOT set (nil)
 				},
 			},

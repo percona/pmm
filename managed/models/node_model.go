@@ -23,7 +23,7 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-//go:generate ../../bin/reform
+//go:generate go tool reform
 
 // NodeType represents Node type as stored in databases:
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
@@ -134,7 +134,8 @@ func (s *Node) UnifiedLabels() (map[string]string, error) {
 	}
 	maps.Copy(res, custom)
 
-	if err = prepareLabels(res, true); err != nil {
+	err = prepareLabels(res, true)
+	if err != nil {
 		return nil, err
 	}
 	return res, nil

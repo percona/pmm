@@ -17,14 +17,13 @@ package backup
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"time"
 
-	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -93,11 +92,13 @@ func (s *BackupService) StartBackup(ctx context.Context, req *backupv1.StartBack
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
-	if err := isFolderSafe(req.Folder); err != nil {
+	err := isFolderSafe(req.Folder)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := isNameSafe(req.Name); err != nil {
+	err = isNameSafe(req.Name)
+	if err != nil {
 		return nil, err
 	}
 
@@ -148,11 +149,13 @@ func (s *BackupService) ScheduleBackup(ctx context.Context, req *backupv1.Schedu
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
-	if err := isFolderSafe(req.Folder); err != nil {
+	err := isFolderSafe(req.Folder)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := isNameSafe(req.Name); err != nil {
+	err = isNameSafe(req.Name)
+	if err != nil {
 		return nil, err
 	}
 
@@ -344,7 +347,7 @@ func (s *BackupService) ChangeScheduledBackup(ctx context.Context, req *backupv1
 		}
 
 		if req.Enabled != nil {
-			params.Disable = pointer.ToBool(!*req.Enabled)
+			params.Disable = new(!*req.Enabled)
 			if scheduledTask.Type == models.ScheduledMongoDBBackupTask && !*req.Enabled {
 				disablePITR = data.Mode == models.PITR
 			}
@@ -359,7 +362,8 @@ func (s *BackupService) ChangeScheduledBackup(ctx context.Context, req *backupv1
 	}
 
 	if disablePITR {
-		if err := s.backupService.SwitchMongoPITR(ctx, serviceID, false); err != nil {
+		err := s.backupService.SwitchMongoPITR(ctx, serviceID, false)
+		if err != nil {
 			s.l.WithError(err).Error("failed to disable PITR")
 		}
 	}
@@ -382,7 +386,7 @@ func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backupv1
 		// for enabled incremental mongoDB backups switch-off PITR
 		disablePITR = task.Data.MongoDBBackupTask.Mode == models.PITR && !task.Disabled
 	default:
-		return nil, errors.Errorf("non-backup task: %s", task.Type)
+		return nil, fmt.Errorf("non-backup task: %s", task.Type)
 	}
 
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -395,7 +399,7 @@ func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backupv1
 
 		for _, artifact := range artifacts {
 			_, err := models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
-				ScheduleID: pointer.ToString(""),
+				ScheduleID: new(""),
 			})
 			if err != nil {
 				return err
@@ -409,7 +413,8 @@ func (s *BackupService) RemoveScheduledBackup(ctx context.Context, req *backupv1
 	}
 
 	if disablePITR {
-		if err = s.backupService.SwitchMongoPITR(ctx, task.Data.MongoDBBackupTask.ServiceID, false); err != nil {
+		err = s.backupService.SwitchMongoPITR(ctx, task.Data.MongoDBBackupTask.ServiceID, false)
+		if err != nil {
 			s.l.WithError(err).Error("failed to disable PITR")
 		}
 	}
@@ -445,7 +450,7 @@ func (s *BackupService) GetLogs(_ context.Context, req *backupv1.GetLogsRequest)
 		Offset: int(req.Offset),
 	}
 	if req.Limit > 0 {
-		filter.Limit = pointer.ToInt(int(req.Limit))
+		filter.Limit = new(int(req.Limit))
 	}
 
 	jobLogs, err := models.FindJobLogs(s.db.Querier, filter)
@@ -576,7 +581,8 @@ func (s *BackupService) DeleteArtifact(ctx context.Context, req *backupv1.Delete
 
 	storage := backup.GetStorageForLocation(location)
 
-	if err := s.removalSVC.DeleteArtifact(storage, req.ArtifactId, req.RemoveFiles); err != nil {
+	err = s.removalSVC.DeleteArtifact(storage, req.ArtifactId, req.RemoveFiles)
+	if err != nil {
 		return nil, err
 	}
 	return &backupv1.DeleteArtifactResponse{}, nil
@@ -655,7 +661,7 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	case models.ScheduledMongoDBBackupTask:
 		commonBackupData = task.Data.MongoDBBackupTask.CommonBackupTaskData
 	default:
-		return nil, errors.Errorf("unknown task type: %s", task.Type)
+		return nil, fmt.Errorf("unknown task type: %s", task.Type)
 	}
 
 	scheduledBackup.ServiceId = commonBackupData.ServiceID
@@ -667,11 +673,13 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	scheduledBackup.Folder = commonBackupData.Folder
 
 	var err error
-	if scheduledBackup.DataModel, err = convertDataModel(commonBackupData.DataModel); err != nil {
+	scheduledBackup.DataModel, err = convertDataModel(commonBackupData.DataModel)
+	if err != nil {
 		return nil, err
 	}
 
-	if scheduledBackup.Mode, err = convertModelToBackupMode(commonBackupData.Mode); err != nil {
+	scheduledBackup.Mode, err = convertModelToBackupMode(commonBackupData.Mode)
+	if err != nil {
 		return nil, err
 	}
 
@@ -710,7 +718,7 @@ func convertModelToBackupMode(mode models.BackupMode) (backupv1.BackupMode, erro
 	case models.PITR:
 		return backupv1.BackupMode_BACKUP_MODE_PITR, nil
 	default:
-		return 0, errors.Errorf("unknown backup mode: %s", mode)
+		return 0, fmt.Errorf("unknown backup mode: %s", mode)
 	}
 }
 
@@ -721,7 +729,7 @@ func convertModelToBackupModel(dataModel backupv1.DataModel) (models.DataModel, 
 	case backupv1.DataModel_DATA_MODEL_PHYSICAL:
 		return models.PhysicalDataModel, nil
 	default:
-		return "", errors.Errorf("unknown backup mode: %s", dataModel)
+		return "", fmt.Errorf("unknown backup mode: %s", dataModel)
 	}
 }
 
@@ -817,7 +825,7 @@ func convertDataModel(model models.DataModel) (backupv1.DataModel, error) {
 	case models.LogicalDataModel:
 		return backupv1.DataModel_DATA_MODEL_LOGICAL, nil
 	default:
-		return 0, errors.Errorf("unknown data model: %s", model)
+		return 0, fmt.Errorf("unknown data model: %s", model)
 	}
 }
 
@@ -840,7 +848,7 @@ func convertBackupStatus(status models.BackupStatus) (backupv1.BackupStatus, err
 	case models.CleanupInProgressStatus:
 		return backupv1.BackupStatus_BACKUP_STATUS_CLEANUP_IN_PROGRESS, nil
 	default:
-		return 0, errors.Errorf("invalid status '%s'", status)
+		return 0, fmt.Errorf("invalid status '%s'", status)
 	}
 }
 
@@ -850,13 +858,14 @@ func convertArtifact(
 	locationModels map[string]*models.BackupLocation,
 ) (*backupv1.Artifact, error) {
 	createdAt := timestamppb.New(a.CreatedAt)
-	if err := createdAt.CheckValid(); err != nil {
-		return nil, errors.Wrap(err, "failed to convert timestamp")
+	err := createdAt.CheckValid()
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert timestamp: %w", err)
 	}
 
 	l, ok := locationModels[a.LocationID]
 	if !ok {
-		return nil, errors.Errorf(
+		return nil, fmt.Errorf(
 			"failed to convert artifact with id '%s': no location id '%s' in the map", a.ID, a.LocationID,
 		)
 	}
@@ -868,17 +877,17 @@ func convertArtifact(
 
 	dataModel, err := convertDataModel(a.DataModel)
 	if err != nil {
-		return nil, errors.Wrapf(err, "artifact id '%s'", a.ID)
+		return nil, fmt.Errorf("artifact id '%s': %w", a.ID, err)
 	}
 
 	backupStatus, err := convertBackupStatus(a.Status)
 	if err != nil {
-		return nil, errors.Wrapf(err, "artifact id '%s'", a.ID)
+		return nil, fmt.Errorf("artifact id '%s': %w", a.ID, err)
 	}
 
 	backupMode, err := convertModelToBackupMode(a.Mode)
 	if err != nil {
-		return nil, errors.Wrapf(err, "artifact id '%s'", a.ID)
+		return nil, fmt.Errorf("artifact id '%s': %w", a.ID, err)
 	}
 
 	return &backupv1.Artifact{

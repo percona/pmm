@@ -1,1846 +1,1846 @@
 {
-  "annotations": {
-    "list": [
-      {
-        "builtIn": 1,
-        "datasource": {
-          "type": "datasource",
-          "uid": "grafana"
-        },
-        "enable": true,
-        "hide": false,
-        "iconColor": "#e0752d",
-        "limit": 100,
-        "matchAny": true,
-        "name": "PMM Annotations",
-        "showIn": 0,
-        "tags": [
-          "pmm_annotation",
-          "$service_name"
-        ],
-        "target": {
-          "limit": 100,
-          "matchAny": true,
-          "tags": [
-            "pmm_annotation",
-            "$service_name"
-          ],
-          "type": "tags"
-        },
-        "type": "tags"
-      },
-      {
-        "builtIn": 1,
-        "datasource": {
-          "type": "datasource",
-          "uid": "grafana"
-        },
-        "enable": true,
-        "hide": true,
-        "iconColor": "#6ed0e0",
-        "limit": 100,
-        "name": "Annotations & Alerts",
-        "showIn": 0,
-        "tags": [],
-        "target": {
-          "limit": 100,
-          "matchAny": false,
-          "tags": [],
-          "type": "dashboard"
-        },
-        "type": "dashboard"
-      }
-    ]
-  },
-  "editable": false,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 1,
-  "id": null,
-  "links": [],
-  "panels": [
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 1177,
-      "panels": [
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                },
+                "enable": true,
+                "hide": false,
+                "iconColor": "#e0752d",
+                "limit": 100,
+                "matchAny": true,
+                "name": "PMM Annotations",
+                "showIn": 0,
+                "tags": [
+                    "pmm_annotation",
+                    "$service_name"
+                ],
+                "target": {
+                    "limit": 100,
+                    "matchAny": true,
+                    "tags": [
+                        "pmm_annotation",
+                        "$service_name"
+                    ],
+                    "type": "tags"
+                },
+                "type": "tags"
+            },
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "datasource",
+                    "uid": "grafana"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "#6ed0e0",
+                "limit": 100,
+                "name": "Annotations & Alerts",
+                "showIn": 0,
+                "tags": [],
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": false,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "id": null,
+    "links": [],
+    "panels": [
         {
-          "description": "",
-          "fieldConfig": {
-            "defaults": {
-              "mappings": [
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 1177,
+            "panels": [
                 {
-                  "options": {
-                    "0": {
-                      "index": 1,
-                      "text": "DOWN"
+                    "description": "",
+                    "fieldConfig": {
+                        "defaults": {
+                            "mappings": [
+                                {
+                                    "options": {
+                                        "0": {
+                                            "index": 1,
+                                            "text": "DOWN"
+                                        },
+                                        "1": {
+                                            "index": 0,
+                                            "text": "UP"
+                                        }
+                                    },
+                                    "type": "value"
+                                }
+                            ]
+                        },
+                        "overrides": []
                     },
-                    "1": {
-                      "index": 0,
-                      "text": "UP"
-                    }
-                  },
-                  "type": "value"
+                    "gridPos": {
+                        "h": 5,
+                        "w": 24,
+                        "x": 0,
+                        "y": 1
+                    },
+                    "id": 1178,
+                    "options": {
+                        "autoSizeColumns": true,
+                        "autoSizePolygons": true,
+                        "autoSizeRows": true,
+                        "compositeConfig": {
+                            "animationSpeed": "2500",
+                            "composites": [],
+                            "enabled": true
+                        },
+                        "compositeGlobalAliasingEnabled": false,
+                        "ellipseCharacters": 18,
+                        "ellipseEnabled": true,
+                        "globalAutoScaleFonts": false,
+                        "globalClickthrough": "",
+                        "globalClickthroughCustomTarget": "",
+                        "globalClickthroughCustomTargetEnabled": false,
+                        "globalClickthroughNewTabEnabled": false,
+                        "globalClickthroughSanitizedEnabled": false,
+                        "globalCompositeValueFontSize": 14,
+                        "globalDecimals": 2,
+                        "globalDisplayMode": "all",
+                        "globalDisplayTextTriggeredEmpty": "OK",
+                        "globalFillColor": "#0a55a1",
+                        "globalGradientsEnabled": true,
+                        "globalLabelFontSize": 12,
+                        "globalOperator": "last",
+                        "globalPolygonBorderColor": "#000000",
+                        "globalPolygonBorderSize": 2,
+                        "globalPolygonSize": 50,
+                        "globalRegexPattern": "",
+                        "globalShape": "hexagon_pointed_top",
+                        "globalShowTimestampEnabled": false,
+                        "globalShowTimestampFontSize": 12,
+                        "globalShowTimestampFormat": "YYYY-MM-DD HH:mm:ss",
+                        "globalShowTimestampPosition": "below_value",
+                        "globalShowTimestampYOffset": 0,
+                        "globalShowTooltipColumnHeadersEnabled": true,
+                        "globalShowValueEnabled": true,
+                        "globalTextFontAutoColor": "#000000",
+                        "globalTextFontAutoColorEnabled": false,
+                        "globalTextFontColor": "#000000",
+                        "globalTextFontFamily": "Inter",
+                        "globalThresholdsConfig": [
+                            {
+                                "color": "#E02F44",
+                                "state": 2,
+                                "value": 0
+                            },
+                            {
+                                "color": "#56A64B",
+                                "state": 0,
+                                "value": 1
+                            }
+                        ],
+                        "globalTooltipsEnabled": true,
+                        "globalTooltipsFontFamily": "Inter",
+                        "globalTooltipsShowTimestampEnabled": true,
+                        "globalTooltipsShowValueEnabled": true,
+                        "globalUnitFormat": "short",
+                        "globalValueFontSize": 14,
+                        "layoutDisplayLimit": 100,
+                        "layoutNumColumns": 8,
+                        "layoutNumRows": 8,
+                        "overrideConfig": {
+                            "overrides": []
+                        },
+                        "panelId": 0,
+                        "radius": 100,
+                        "sortByDirection": 1,
+                        "sortByField": "name",
+                        "tooltipDisplayMode": "all",
+                        "tooltipDisplayTextTriggeredEmpty": "OK",
+                        "tooltipPrimarySortByField": "thresholdLevel",
+                        "tooltipPrimarySortDirection": 2,
+                        "tooltipSecondarySortByField": "value",
+                        "tooltipSecondarySortDirection": 2
+                    },
+                    "pluginVersion": "2.1.15",
+                    "targets": [
+                        {
+                            "editorMode": "code",
+                            "exemplar": false,
+                            "expr": "max by (service_name) (mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
+                            "hide": true,
+                            "instant": true,
+                            "legendFormat": "__auto",
+                            "range": false,
+                            "refId": "A"
+                        },
+                        {
+                            "editorMode": "code",
+                            "expr": "max by (service_name) (mongodb_up{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\"})",
+                            "hide": false,
+                            "instant": false,
+                            "legendFormat": "__auto",
+                            "range": true,
+                            "refId": "B"
+                        }
+                    ],
+                    "title": "Routers",
+                    "type": "grafana-polystat-panel"
                 }
-              ]
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 5,
-            "w": 24,
-            "x": 0,
-            "y": 1
-          },
-          "id": 1178,
-          "options": {
-            "autoSizeColumns": true,
-            "autoSizePolygons": true,
-            "autoSizeRows": true,
-            "compositeConfig": {
-              "animationSpeed": "2500",
-              "composites": [],
-              "enabled": true
-            },
-            "compositeGlobalAliasingEnabled": false,
-            "ellipseCharacters": 18,
-            "ellipseEnabled": true,
-            "globalAutoScaleFonts": false,
-            "globalClickthrough": "",
-            "globalClickthroughCustomTarget": "",
-            "globalClickthroughCustomTargetEnabled": false,
-            "globalClickthroughNewTabEnabled": false,
-            "globalClickthroughSanitizedEnabled": false,
-            "globalCompositeValueFontSize": 14,
-            "globalDecimals": 2,
-            "globalDisplayMode": "all",
-            "globalDisplayTextTriggeredEmpty": "OK",
-            "globalFillColor": "#0a55a1",
-            "globalGradientsEnabled": true,
-            "globalLabelFontSize": 12,
-            "globalOperator": "last",
-            "globalPolygonBorderColor": "#000000",
-            "globalPolygonBorderSize": 2,
-            "globalPolygonSize": 50,
-            "globalRegexPattern": "",
-            "globalShape": "hexagon_pointed_top",
-            "globalShowTimestampEnabled": false,
-            "globalShowTimestampFontSize": 12,
-            "globalShowTimestampFormat": "YYYY-MM-DD HH:mm:ss",
-            "globalShowTimestampPosition": "below_value",
-            "globalShowTimestampYOffset": 0,
-            "globalShowTooltipColumnHeadersEnabled": true,
-            "globalShowValueEnabled": true,
-            "globalTextFontAutoColor": "#000000",
-            "globalTextFontAutoColorEnabled": false,
-            "globalTextFontColor": "#000000",
-            "globalTextFontFamily": "Inter",
-            "globalThresholdsConfig": [
-              {
-                "color": "#E02F44",
-                "state": 2,
-                "value": 0
-              },
-              {
-                "color": "#56A64B",
-                "state": 0,
-                "value": 1
-              }
             ],
-            "globalTooltipsEnabled": true,
-            "globalTooltipsFontFamily": "Inter",
-            "globalTooltipsShowTimestampEnabled": true,
-            "globalTooltipsShowValueEnabled": true,
-            "globalUnitFormat": "short",
-            "globalValueFontSize": 14,
-            "layoutDisplayLimit": 100,
-            "layoutNumColumns": 8,
-            "layoutNumRows": 8,
-            "overrideConfig": {
-              "overrides": []
-            },
-            "panelId": 0,
-            "radius": 100,
-            "sortByDirection": 1,
-            "sortByField": "name",
-            "tooltipDisplayMode": "all",
-            "tooltipDisplayTextTriggeredEmpty": "OK",
-            "tooltipPrimarySortByField": "thresholdLevel",
-            "tooltipPrimarySortDirection": 2,
-            "tooltipSecondarySortByField": "value",
-            "tooltipSecondarySortDirection": 2
-          },
-          "pluginVersion": "2.1.15",
-          "targets": [
-            {
-              "editorMode": "code",
-              "exemplar": false,
-              "expr": "max by (service_name) (mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"})",
-              "hide": true,
-              "instant": true,
-              "legendFormat": "__auto",
-              "range": false,
-              "refId": "A"
-            },
-            {
-              "editorMode": "code",
-              "expr": "max by (service_name) (mongodb_up{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\"})",
-              "hide": false,
-              "instant": false,
-              "legendFormat": "__auto",
-              "range": true,
-              "refId": "B"
-            }
-          ],
-          "title": "Routers",
-          "type": "grafana-polystat-panel"
-        }
-      ],
-      "title": "Current Topology",
-      "type": "row"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 1
-      },
-      "id": 1030,
-      "panels": [],
-      "repeat": "node_name",
-      "title": "Overview - $node_name",
-      "type": "row"
-    },
-    {
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [],
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "#EAB839",
-                "value": 80
-              },
-              {
-                "color": "red",
-                "value": 90
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Max Core Utilization"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#bf1b00",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "idle"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#806EB7",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "iowait"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#E24D42",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "nice"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#1F78C1",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "softirq"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FFFFFF",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "steal"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#8F3BB8",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "system"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#EAB839",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "user"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#508642",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "steal"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FFEE52",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 0,
-        "y": 2
-      },
-      "id": 1071,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "100 - (avg by (node_name) (rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"idle\"}[1m])) * 100)",
-          "format": "time_series",
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "{{ mode }}",
-          "range": true,
-          "refId": "B"
-        }
-      ],
-      "title": "CPU Usage",
-      "type": "gauge"
-    },
-    {
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [],
-          "mappings": [],
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "#EAB839",
-                "value": 0.8
-              },
-              {
-                "color": "red",
-                "value": 0.9
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 3,
-        "y": 2
-      },
-      "id": 1060,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "1 - avg(node_memory_MemAvailable_bytes{node_name=~\"$node_name\"})/ avg(node_memory_MemTotal_bytes{node_name=~\"$node_name\"})",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Memory Used",
-      "type": "gauge"
-    },
-    {
-      "description": "The percentage of elapsed time the disk device was busy servicing I/O requests (reads or writes).\n\nA value approaching or at 100% over sustained periods means the disk is likely saturated. If the storage device supports parallelism (e.g. SSDs, NVMe, RAID), even high values may not always imply performance issues. \n\nAlways consider complementing this metric with I/O latency, queue length, and throughput to get the full picture.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 0,
-          "links": [],
-          "mappings": [],
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 6,
-        "y": 2
-      },
-      "id": 1073,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "sum by (node_name) (rate(node_disk_io_time_seconds_total{node_name=~\"$node_name\"}[$interval]) or irate(node_disk_io_time_seconds_total{node_name=~\"$node_name\"}[5m]))",
-          "interval": "$interval",
-          "legendFormat": "{{ node_name }}",
-          "range": true,
-          "refId": "B"
-        }
-      ],
-      "title": "Disk IO Utilization",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus"
-      },
-      "description": "Shows information about the disk space usage of the filesystem where MongoDB stores data",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 1,
-          "links": [],
-          "mappings": [],
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "#EAB839",
-                "value": 0.8
-              },
-              {
-                "color": "red",
-                "value": 0.9
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 9,
-        "y": 2
-      },
-      "id": 1062,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "avg(mongodb_dbstats_fsUsedSize{service_name=~\"$service_name\"})/ avg (mongodb_dbstats_fsTotalSize{service_name=~\"$service_name\"})",
-          "hide": false,
-          "interval": "$interval",
-          "legendFormat": "Total Size",
-          "range": true,
-          "refId": "A"
+            "title": "Current Topology",
+            "type": "row"
         },
         {
-          "editorMode": "code",
-          "expr": "avg(mongodb_dbstats_fsUsedSize{service_name=~\"$service_name\"})",
-          "hide": true,
-          "interval": "$interval",
-          "legendFormat": "Usage",
-          "range": true,
-          "refId": "C"
-        }
-      ],
-      "title": "Disk Space Utilization",
-      "type": "gauge"
-    },
-    {
-      "description": "Shows amount of physical IOs (reads and writes) different devices are serving. Spikes in number of IOs served often corresponds to performance problems due to IO subsystem overload.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "blue",
-            "mode": "fixed"
-          },
-          "decimals": 0,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 12,
-        "y": 2
-      },
-      "id": 1076,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "calculatedInterval": "2m",
-          "datasourceErrors": {},
-          "editorMode": "code",
-          "errors": {},
-          "expr": "avg by (node_name) (sum(\n(rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval]) or \nirate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[5m]))\n))",
-          "format": "time_series",
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "Read",
-          "metric": "",
-          "range": true,
-          "refId": "A",
-          "step": 300,
-          "target": ""
-        },
-        {
-          "calculatedInterval": "2m",
-          "datasourceErrors": {},
-          "editorMode": "code",
-          "errors": {},
-          "expr": "avg by (node_name) (sum(\n(rate(node_disk_writes_completed_total{node_name=~\"$node_name\"}[$interval]) or \nirate(node_disk_writes_completed_total{node_name=~\"$node_name\"}[5m])) \n))",
-          "format": "time_series",
-          "hide": false,
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "Write",
-          "metric": "",
-          "range": true,
-          "refId": "B",
-          "step": 300,
-          "target": ""
-        }
-      ],
-      "title": "Disk IOPS",
-      "type": "stat"
-    },
-    {
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "blue",
-            "mode": "fixed"
-          },
-          "decimals": 0,
-          "links": [
-            {
-              "targetBlank": true,
-              "title": "Network Details - ${__field.labels.node_name}",
-              "url": "/graph/d/node-network/network-details?var-node_name=${__field.labels.node_name}&$__url_time_range"
-            }
-          ],
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
-          "unit": "Bps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 16,
-        "y": 2
-      },
-      "id": 1052,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "calculatedInterval": "2s",
-          "datasourceErrors": {},
-          "errors": {},
-          "expr": "sum by (node_name) (rate(node_network_receive_bytes_total{node_name=~\"$node_name\", device!=\"lo\"}[$interval])) or sum by (node_name) (irate(node_network_receive_bytes_total{node_name=~\"$node_name\", device!=\"lo\"}[5m])) or sum by (node_name) (max_over_time(rdsosmetrics_network_rx{node_name=~\"$node_name\"}[$interval])) or sum by (node_name) (max_over_time(rdsosmetrics_network_rx{node_name=~\"$node_name\"}[5m])) ",
-          "format": "time_series",
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "Inbound",
-          "metric": "",
-          "refId": "B",
-          "step": 300,
-          "target": ""
-        },
-        {
-          "calculatedInterval": "2s",
-          "datasourceErrors": {},
-          "errors": {},
-          "expr": "sum by (node_name) (rate(node_network_transmit_bytes_total{node_name=~\"$node_name\", device!=\"lo\"}[$interval])) or sum by (node_name) (irate(node_network_transmit_bytes_total{node_name=~\"$node_name\", device!=\"lo\"}[5m])) or\nsum by (node_name) (max_over_time(rdsosmetrics_network_tx{node_name=~\"$node_name\"}[$interval])) or sum by (node_name) (max_over_time(rdsosmetrics_network_tx{node_name=~\"$node_name\"}[5m]))",
-          "format": "time_series",
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "Outbound",
-          "metric": "",
-          "refId": "A",
-          "step": 300,
-          "target": ""
-        }
-      ],
-      "title": "Network Traffic",
-      "type": "stat"
-    },
-    {
-      "description": "The parameter shows how long a system has been “up” and running without a shut down or restart.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 1,
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "rgba(245, 54, 54, 0.9)"
-              },
-              {
-                "color": "rgba(237, 129, 40, 0.89)",
-                "value": 300
-              },
-              {
-                "color": "rgba(50, 172, 45, 0.97)",
-                "value": 3600
-              }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 2,
-        "x": 20,
-        "y": 2
-      },
-      "id": 321,
-      "interval": "$interval",
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {
-          "valueSize": 20
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "calculatedInterval": "10m",
-          "datasourceErrors": {},
-          "errors": {},
-          "exemplar": true,
-          "expr": "mongodb_ss_uptime{node_name=~\"$node_name\"}",
-          "format": "time_series",
-          "hide": false,
-          "interval": "5m",
-          "intervalFactor": 1,
-          "legendFormat": "",
-          "metric": "",
-          "refId": "A",
-          "step": 300
-        }
-      ],
-      "title": "Uptime",
-      "type": "stat"
-    },
-    {
-      "description": "Mongos version",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
-          "unit": "string"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 2,
-        "x": 22,
-        "y": 2
-      },
-      "id": 1039,
-      "interval": "$interval",
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "none",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "/^mongodb$/",
-          "values": false
-        },
-        "showPercentChange": false,
-        "text": {
-          "valueSize": 20
-        },
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "calculatedInterval": "10m",
-          "datasourceErrors": {},
-          "editorMode": "code",
-          "errors": {},
-          "exemplar": false,
-          "expr": "avg by (service_name,mongodb) (mongodb_version_info{service_name=~\"$service_name\"})",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "5m",
-          "intervalFactor": 1,
-          "legendFormat": "{{mongodb}}",
-          "metric": "",
-          "range": false,
-          "refId": "A",
-          "step": 300
-        }
-      ],
-      "title": "Version",
-      "type": "stat"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 6
-      },
-      "id": 1170,
-      "panels": [],
-      "title": "Details",
-      "type": "row"
-    },
-    {
-      "description": "Ops or Replicated Ops/sec classified by legacy wire protocol type (query, insert, update, delete, getmore). And (from the internal TTL threads) the docs deletes/sec by TTL indexes.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 1
             },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "links": [],
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
-          "unit": "ops"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": "/repl.*/"
-            },
-            "properties": [
-              {
-                "id": "custom.axisPlacement",
-                "value": "right"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 7
-      },
-      "id": 15,
-      "options": {
-        "alertThreshold": true,
-        "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "avg by (legacy_op_type,service_name) (rate(mongodb_ss_opcountersRepl{service_name=~\"$service_name\", legacy_op_type!~\"(command|query|getmore)\"}[$interval]))",
-          "format": "time_series",
-          "hide": false,
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "repl_{{legacy_op_type}} - {{service_name}}",
-          "range": true,
-          "refId": "A",
-          "step": 300
+            "id": 1030,
+            "panels": [],
+            "repeat": "node_name",
+            "title": "Overview - $node_name",
+            "type": "row"
         },
         {
-          "editorMode": "code",
-          "expr": "avg by (service_name) (rate(mongodb_ss_metrics_ttl_deletedDocuments{service_name=~\"$service_name\"}[$interval]))",
-          "format": "time_series",
-          "hide": false,
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "ttl_delete - {{service_name}}",
-          "range": true,
-          "refId": "B",
-          "step": 300
-        },
-        {
-          "editorMode": "code",
-          "expr": "avg by (legacy_op_type,service_name) (rate(mongodb_ss_opcounters{service_name=~\"$service_name\", legacy_op_type!=\"command\"}[$interval]))",
-          "format": "time_series",
-          "hide": false,
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "{{legacy_op_type}} - {{service_name}}",
-          "range": true,
-          "refId": "C",
-          "step": 300
-        }
-      ],
-      "title": "Command Operations",
-      "type": "timeseries"
-    },
-    {
-      "description": "Operations queued due to a lock.",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "line+area"
-            }
-          },
-          "links": [],
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "transparent"
-              },
-              {
-                "color": "red",
-                "value": 0
-              }
-            ]
-          },
-          "unit": "ops"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 7
-      },
-      "id": 1175,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "sortBy": "Mean",
-          "sortDesc": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "max by (type,service_name) (mongodb_mongod_global_lock_current_queue{service_name=~\"$service_name\"})",
-          "format": "time_series",
-          "hide": false,
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "{{type}} - {{service_name}}",
-          "range": true,
-          "refId": "J",
-          "step": 300
-        }
-      ],
-      "title": "Queued Operations",
-      "type": "timeseries"
-    },
-    {
-      "description": "Average latency of operations (classified by read, write, or (other) command)",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "links": [],
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
-          "unit": "µs"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 15
-      },
-      "id": 1064,
-      "options": {
-        "alertThreshold": true,
-        "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "avg by (op_type,service_name) (rate(mongodb_ss_opLatencies_latency{service_name=~\"$service_name\"}[$interval]) / (rate(mongodb_ss_opLatencies_ops{service_name=~\"$service_name\"}[$interval]) > 0) or irate(mongodb_ss_opLatencies_latency{service_name=~\"$service_name\"}[5m]) / (irate(mongodb_ss_opLatencies_ops{service_name=~\"$service_name\"}[5m]) > 0))",
-          "interval": "$interval",
-          "legendFormat": "{{op_type}} - {{service_name}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Operation Latencies",
-      "type": "timeseries"
-    },
-    {
-      "description": "MongoDB Connections",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "links": [],
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 15
-      },
-      "id": 1074,
-      "options": {
-        "alertThreshold": true,
-        "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "mongodb_ss_connections{service_name=~\"$service_name\",conn_type=~\"current\"}",
-          "format": "time_series",
-          "hide": false,
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": " Current - {{ service_name}}",
-          "range": true,
-          "refId": "J",
-          "step": 300
-        },
-        {
-          "editorMode": "code",
-          "expr": "mongodb_ss_connections{service_name=~\"$service_name\",conn_type=~\"available\"}",
-          "format": "time_series",
-          "hide": false,
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": " Available - {{ service_name}}",
-          "range": true,
-          "refId": "A",
-          "step": 300
-        },
-        {
-          "editorMode": "code",
-          "expr": "avg by(service_name)(mongodb_ss_connections{conn_type=\"current\", service_name=~\"$service_name\"}) - avg by(service_name)(mongodb_ss_connections{conn_type=\"active\", service_name=~\"$service_name\"})",
-          "format": "time_series",
-          "hide": false,
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": " Idle - {{ service_name }}",
-          "range": true,
-          "refId": "B",
-          "step": 300
-        }
-      ],
-      "title": "Average Connections",
-      "type": "timeseries"
-    },
-    {
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 20,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "links": [],
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 23
-      },
-      "id": 1176,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true,
-          "sortBy": "Mean",
-          "sortDesc": true
-        },
-        "tooltip": {
-          "hideZeros": false,
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.6.4",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "avg by(service_name) (mongodb_ss_globalLock_activeClients_readers{service_name=~\"$service_name\"})",
-          "format": "time_series",
-          "hide": false,
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "Active Readers - {{service_name}}",
-          "range": true,
-          "refId": "J",
-          "step": 300
-        },
-        {
-          "editorMode": "code",
-          "expr": "avg by(service_name) (mongodb_ss_globalLock_activeClients_writers{service_name=~\"$service_name\"})",
-          "format": "time_series",
-          "hide": false,
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "Active Writers - {{service_name}}",
-          "range": true,
-          "refId": "A",
-          "step": 300
-        },
-        {
-          "editorMode": "code",
-          "expr": "avg by(service_name) (mongodb_ss_globalLock_currentQueue{service_name=~\"$service_name\",count_type=\"readers\"})",
-          "hide": false,
-          "legendFormat": "Queued Readers - {{service_name}}",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "editorMode": "code",
-          "expr": "avg by(service_name) (mongodb_ss_globalLock_currentQueue{service_name=~\"$service_name\",count_type=\"writers\"})",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Queued Writers - {{service_name}}",
-          "range": true,
-          "refId": "C"
-        }
-      ],
-      "title": "Reads & Writes",
-      "type": "timeseries"
-    },
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 31
-      },
-      "id": 1172,
-      "panels": [
-        {
-          "description": "",
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisPlacement": "auto",
-                "fillOpacity": 100,
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineWidth": 0,
-                "spanNulls": false
-              },
-              "mappings": [
-                {
-                  "options": {
-                    "0": {
-                      "color": "#F2495C",
-                      "index": 1,
-                      "text": "DOWN"
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
                     },
-                    "1": {
-                      "color": "rgb(107, 152, 102)",
-                      "index": 2,
-                      "text": "UP"
+                    "links": [],
+                    "mappings": [],
+                    "max": 100,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 80
+                            },
+                            {
+                                "color": "red",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    "unit": "percent"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Max Core Utilization"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#bf1b00",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "idle"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#806EB7",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "iowait"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#E24D42",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "nice"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#1F78C1",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "softirq"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#FFFFFF",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "steal"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#8F3BB8",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "system"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#EAB839",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "user"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#508642",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "steal"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "#FFEE52",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
                     }
-                  },
-                  "type": "value"
+                ]
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 0,
+                "y": 2
+            },
+            "id": 1071,
+            "options": {
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "sizing": "auto"
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "100 - (avg by (node_name) (rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode=\"idle\"}[1m])) * 100)",
+                    "format": "time_series",
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{ mode }}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "CPU Usage",
+            "type": "gauge"
+        },
+        {
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 0.8
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.9
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 3,
+                "y": 2
+            },
+            "id": 1060,
+            "options": {
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "sizing": "auto"
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "1 - avg(node_memory_MemAvailable_bytes{node_name=~\"$node_name\"})/ avg(node_memory_MemTotal_bytes{node_name=~\"$node_name\"})",
+                    "hide": false,
+                    "instant": false,
+                    "legendFormat": "__auto",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Memory Used",
+            "type": "gauge"
+        },
+        {
+            "description": "The percentage of elapsed time the disk device was busy servicing I/O requests (reads or writes).\n\nA value approaching or at 100% over sustained periods means the disk is likely saturated. If the storage device supports parallelism (e.g. SSDs, NVMe, RAID), even high values may not always imply performance issues. \n\nAlways consider complementing this metric with I/O latency, queue length, and throughput to get the full picture.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 0,
+                    "links": [],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 6,
+                "y": 2
+            },
+            "id": 1073,
+            "options": {
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "sizing": "auto"
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "sum by (node_name) (rate(node_disk_io_time_seconds_total{node_name=~\"$node_name\"}[$interval]) or irate(node_disk_io_time_seconds_total{node_name=~\"$node_name\"}[5m]))",
+                    "interval": "$interval",
+                    "legendFormat": "{{ node_name }}",
+                    "range": true,
+                    "refId": "B"
+                }
+            ],
+            "title": "Disk IO Utilization",
+            "type": "gauge"
+        },
+        {
+            "datasource": {
+                "type": "prometheus"
+            },
+            "description": "Shows information about the disk space usage of the filesystem where MongoDB stores data",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 1,
+                    "links": [],
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 0.8
+                            },
+                            {
+                                "color": "red",
+                                "value": 0.9
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 9,
+                "y": 2
+            },
+            "id": 1062,
+            "options": {
+                "minVizHeight": 75,
+                "minVizWidth": 75,
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true,
+                "sizing": "auto"
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "avg(mongodb_dbstats_fsUsedSize{service_name=~\"$service_name\"})/ avg (mongodb_dbstats_fsTotalSize{service_name=~\"$service_name\"})",
+                    "hide": false,
+                    "interval": "$interval",
+                    "legendFormat": "Total Size",
+                    "range": true,
+                    "refId": "A"
                 },
                 {
-                  "options": {
-                    "result": {
-                      "index": 0,
-                      "text": "N/A"
-                    }
-                  },
-                  "type": "range"
+                    "editorMode": "code",
+                    "expr": "avg(mongodb_dbstats_fsUsedSize{service_name=~\"$service_name\"})",
+                    "hide": true,
+                    "interval": "$interval",
+                    "legendFormat": "Usage",
+                    "range": true,
+                    "refId": "C"
                 }
-              ],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
+            ],
+            "title": "Disk Space Utilization",
+            "type": "gauge"
+        },
+        {
+            "description": "Shows amount of physical IOs (reads and writes) different devices are serving. Spikes in number of IOs served often corresponds to performance problems due to IO subsystem overload.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "blue",
+                        "mode": "fixed"
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 12,
+                "y": 2
+            },
+            "id": 1076,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "calculatedInterval": "2m",
+                    "datasourceErrors": {},
+                    "editorMode": "code",
+                    "errors": {},
+                    "expr": "avg by (node_name) (sum(\n(rate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[$interval]) or \nirate(node_disk_reads_completed_total{node_name=~\"$node_name\"}[5m]))\n))",
+                    "format": "time_series",
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Read",
+                    "metric": "",
+                    "range": true,
+                    "refId": "A",
+                    "step": 300,
+                    "target": ""
+                },
+                {
+                    "calculatedInterval": "2m",
+                    "datasourceErrors": {},
+                    "editorMode": "code",
+                    "errors": {},
+                    "expr": "avg by (node_name) (sum(\n(rate(node_disk_writes_completed_total{node_name=~\"$node_name\"}[$interval]) or \nirate(node_disk_writes_completed_total{node_name=~\"$node_name\"}[5m])) \n))",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Write",
+                    "metric": "",
+                    "range": true,
+                    "refId": "B",
+                    "step": 300,
+                    "target": ""
+                }
+            ],
+            "title": "Disk IOPS",
+            "type": "stat"
+        },
+        {
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "blue",
+                        "mode": "fixed"
+                    },
+                    "decimals": 0,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "Network Details - ${__field.labels.node_name}",
+                            "url": "/graph/d/node-network/network-details?var-node_name=${__field.labels.node_name}&$__url_time_range"
+                        }
+                    ],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "Bps"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 16,
+                "y": 2
+            },
+            "id": 1052,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "area",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "auto",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "calculatedInterval": "2s",
+                    "datasourceErrors": {},
+                    "errors": {},
+                    "expr": "sum by (node_name) (rate(node_network_receive_bytes_total{node_name=~\"$node_name\", device!=\"lo\"}[$interval])) or sum by (node_name) (irate(node_network_receive_bytes_total{node_name=~\"$node_name\", device!=\"lo\"}[5m])) or sum by (node_name) (max_over_time(rdsosmetrics_network_rx{node_name=~\"$node_name\"}[$interval])) or sum by (node_name) (max_over_time(rdsosmetrics_network_rx{node_name=~\"$node_name\"}[5m])) ",
+                    "format": "time_series",
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Inbound",
+                    "metric": "",
+                    "refId": "B",
+                    "step": 300,
+                    "target": ""
+                },
+                {
+                    "calculatedInterval": "2s",
+                    "datasourceErrors": {},
+                    "errors": {},
+                    "expr": "sum by (node_name) (rate(node_network_transmit_bytes_total{node_name=~\"$node_name\", device!=\"lo\"}[$interval])) or sum by (node_name) (irate(node_network_transmit_bytes_total{node_name=~\"$node_name\", device!=\"lo\"}[5m])) or\nsum by (node_name) (max_over_time(rdsosmetrics_network_tx{node_name=~\"$node_name\"}[$interval])) or sum by (node_name) (max_over_time(rdsosmetrics_network_tx{node_name=~\"$node_name\"}[5m]))",
+                    "format": "time_series",
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Outbound",
+                    "metric": "",
+                    "refId": "A",
+                    "step": 300,
+                    "target": ""
+                }
+            ],
+            "title": "Network Traffic",
+            "type": "stat"
+        },
+        {
+            "description": "The parameter shows how long a system has been “up” and running without a shut down or restart.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "decimals": 1,
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "rgba(245, 54, 54, 0.9)"
+                            },
+                            {
+                                "color": "rgba(237, 129, 40, 0.89)",
+                                "value": 300
+                            },
+                            {
+                                "color": "rgba(50, 172, 45, 0.97)",
+                                "value": 3600
+                            }
+                        ]
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 2,
+                "x": 20,
+                "y": 2
+            },
+            "id": 321,
+            "interval": "$interval",
+            "maxDataPoints": 100,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                    "valueSize": 20
+                },
+                "textMode": "auto",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "calculatedInterval": "10m",
+                    "datasourceErrors": {},
+                    "errors": {},
+                    "exemplar": true,
+                    "expr": "mongodb_ss_uptime{node_name=~\"$node_name\"}",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "5m",
+                    "intervalFactor": 1,
+                    "legendFormat": "",
+                    "metric": "",
+                    "refId": "A",
+                    "step": 300
+                }
+            ],
+            "title": "Uptime",
+            "type": "stat"
+        },
+        {
+            "description": "Mongos version",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "string"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 2,
+                "x": 22,
+                "y": 2
+            },
+            "id": 1039,
+            "interval": "$interval",
+            "maxDataPoints": 100,
+            "options": {
+                "colorMode": "none",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "/^mongodb$/",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "text": {
+                    "valueSize": 20
+                },
+                "textMode": "auto",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "calculatedInterval": "10m",
+                    "datasourceErrors": {},
+                    "editorMode": "code",
+                    "errors": {},
+                    "exemplar": false,
+                    "expr": "avg by (service_name,mongodb) (mongodb_version_info{service_name=~\"$service_name\"})",
+                    "format": "table",
+                    "hide": false,
+                    "instant": true,
+                    "interval": "5m",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{mongodb}}",
+                    "metric": "",
+                    "range": false,
+                    "refId": "A",
+                    "step": 300
+                }
+            ],
+            "title": "Version",
+            "type": "stat"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 6
+            },
+            "id": 1170,
+            "panels": [],
+            "title": "Details",
+            "type": "row"
+        },
+        {
+            "description": "Ops or Replicated Ops/sec classified by legacy wire protocol type (query, insert, update, delete, getmore). And (from the internal TTL threads) the docs deletes/sec by TTL indexes.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byRegexp",
+                            "options": "/repl.*/"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "right"
+                            }
+                        ]
+                    }
                 ]
-              },
-              "unit": "short"
             },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 6,
-            "w": 24,
-            "x": 0,
-            "y": 32
-          },
-          "id": 1174,
-          "options": {
-            "alignValue": "center",
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 7
             },
-            "mergeValues": true,
-            "rowHeight": 0.9,
-            "showValue": "auto",
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.4",
-          "targets": [
-            {
-              "editorMode": "code",
-              "expr": "max by (service_name) (mongodb_up{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\"})",
-              "interval": "$interval",
-              "legendFormat": "{{service_name}}",
-              "range": true,
-              "refId": "A"
-            }
-          ],
-          "title": "Router Status",
-          "type": "state-timeline"
+            "id": 15,
+            "options": {
+                "alertThreshold": true,
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "avg by (legacy_op_type,service_name) (rate(mongodb_ss_opcountersRepl{service_name=~\"$service_name\", legacy_op_type!~\"(command|query|getmore)\"}[$interval]))",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "repl_{{legacy_op_type}} - {{service_name}}",
+                    "range": true,
+                    "refId": "A",
+                    "step": 300
+                },
+                {
+                    "editorMode": "code",
+                    "expr": "avg by (service_name) (rate(mongodb_ss_metrics_ttl_deletedDocuments{service_name=~\"$service_name\"}[$interval]))",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "ttl_delete - {{service_name}}",
+                    "range": true,
+                    "refId": "B",
+                    "step": 300
+                },
+                {
+                    "editorMode": "code",
+                    "expr": "avg by (legacy_op_type,service_name) (rate(mongodb_ss_opcounters{service_name=~\"$service_name\", legacy_op_type!=\"command\"}[$interval]))",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{legacy_op_type}} - {{service_name}}",
+                    "range": true,
+                    "refId": "C",
+                    "step": 300
+                }
+            ],
+            "title": "Command Operations",
+            "type": "timeseries"
+        },
+        {
+            "description": "Operations queued due to a lock.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "line+area"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "transparent"
+                            },
+                            {
+                                "color": "red",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    "unit": "ops"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 7
+            },
+            "id": 1175,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "max by (type,service_name) (mongodb_mongod_global_lock_current_queue{service_name=~\"$service_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "{{type}} - {{service_name}}",
+                    "range": true,
+                    "refId": "J",
+                    "step": 300
+                }
+            ],
+            "title": "Queued Operations",
+            "type": "timeseries"
+        },
+        {
+            "description": "Average latency of operations (classified by read, write, or (other) command)",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "µs"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 15
+            },
+            "id": 1064,
+            "options": {
+                "alertThreshold": true,
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "desc"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "avg by (op_type,service_name) (rate(mongodb_ss_opLatencies_latency{service_name=~\"$service_name\"}[$interval]) / (rate(mongodb_ss_opLatencies_ops{service_name=~\"$service_name\"}[$interval]) > 0) or irate(mongodb_ss_opLatencies_latency{service_name=~\"$service_name\"}[5m]) / (irate(mongodb_ss_opLatencies_ops{service_name=~\"$service_name\"}[5m]) > 0))",
+                    "interval": "$interval",
+                    "legendFormat": "{{op_type}} - {{service_name}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Operation Latencies",
+            "type": "timeseries"
+        },
+        {
+            "description": "MongoDB Connections",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 15
+            },
+            "id": 1074,
+            "options": {
+                "alertThreshold": true,
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "mongodb_ss_connections{service_name=~\"$service_name\",conn_type=~\"current\"}",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": " Current - {{ service_name}}",
+                    "range": true,
+                    "refId": "J",
+                    "step": 300
+                },
+                {
+                    "editorMode": "code",
+                    "expr": "mongodb_ss_connections{service_name=~\"$service_name\",conn_type=~\"available\"}",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": " Available - {{ service_name}}",
+                    "range": true,
+                    "refId": "A",
+                    "step": 300
+                },
+                {
+                    "editorMode": "code",
+                    "expr": "avg by(service_name)(mongodb_ss_connections{conn_type=\"current\", service_name=~\"$service_name\"}) - avg by(service_name)(mongodb_ss_connections{conn_type=\"active\", service_name=~\"$service_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": " Idle - {{ service_name }}",
+                    "range": true,
+                    "refId": "B",
+                    "step": 300
+                }
+            ],
+            "title": "Average Connections",
+            "type": "timeseries"
+        },
+        {
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "links": [],
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 23
+            },
+            "id": 1176,
+            "options": {
+                "legend": {
+                    "calcs": [
+                        "mean",
+                        "max",
+                        "min"
+                    ],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true,
+                    "sortBy": "Mean",
+                    "sortDesc": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "avg by(service_name) (mongodb_ss_globalLock_activeClients_readers{service_name=~\"$service_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Active Readers - {{service_name}}",
+                    "range": true,
+                    "refId": "J",
+                    "step": 300
+                },
+                {
+                    "editorMode": "code",
+                    "expr": "avg by(service_name) (mongodb_ss_globalLock_activeClients_writers{service_name=~\"$service_name\"})",
+                    "format": "time_series",
+                    "hide": false,
+                    "interval": "$interval",
+                    "intervalFactor": 1,
+                    "legendFormat": "Active Writers - {{service_name}}",
+                    "range": true,
+                    "refId": "A",
+                    "step": 300
+                },
+                {
+                    "editorMode": "code",
+                    "expr": "avg by(service_name) (mongodb_ss_globalLock_currentQueue{service_name=~\"$service_name\",count_type=\"readers\"})",
+                    "hide": false,
+                    "legendFormat": "Queued Readers - {{service_name}}",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "editorMode": "code",
+                    "expr": "avg by(service_name) (mongodb_ss_globalLock_currentQueue{service_name=~\"$service_name\",count_type=\"writers\"})",
+                    "hide": false,
+                    "interval": "",
+                    "legendFormat": "Queued Writers - {{service_name}}",
+                    "range": true,
+                    "refId": "C"
+                }
+            ],
+            "title": "Reads & Writes",
+            "type": "timeseries"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 31
+            },
+            "id": 1172,
+            "panels": [
+                {
+                    "description": "",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisPlacement": "auto",
+                                "fillOpacity": 100,
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineWidth": 0,
+                                "spanNulls": false
+                            },
+                            "mappings": [
+                                {
+                                    "options": {
+                                        "0": {
+                                            "color": "#F2495C",
+                                            "index": 1,
+                                            "text": "DOWN"
+                                        },
+                                        "1": {
+                                            "color": "rgb(107, 152, 102)",
+                                            "index": 2,
+                                            "text": "UP"
+                                        }
+                                    },
+                                    "type": "value"
+                                },
+                                {
+                                    "options": {
+                                        "result": {
+                                            "index": 0,
+                                            "text": "N/A"
+                                        }
+                                    },
+                                    "type": "range"
+                                }
+                            ],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green"
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 6,
+                        "w": 24,
+                        "x": 0,
+                        "y": 32
+                    },
+                    "id": 1174,
+                    "options": {
+                        "alignValue": "center",
+                        "legend": {
+                            "displayMode": "list",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "mergeValues": true,
+                        "rowHeight": 0.9,
+                        "showValue": "auto",
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "single",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "11.6.4",
+                    "targets": [
+                        {
+                            "editorMode": "code",
+                            "expr": "max by (service_name) (mongodb_up{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\"})",
+                            "interval": "$interval",
+                            "legendFormat": "{{service_name}}",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Router Status",
+                    "type": "state-timeline"
+                }
+            ],
+            "title": "Status",
+            "type": "row"
         }
-      ],
-      "title": "Status",
-      "type": "row"
-    }
-  ],
-  "preload": false,
-  "refresh": false,
-  "schemaVersion": 41,
-  "tags": [
-    "MongoDB_HA",
-    "Percona"
-  ],
-  "templating": {
-    "list": [
-      {
-        "auto": true,
-        "auto_count": 200,
-        "auto_min": "1s",
-        "current": {
-          "text": "$__auto",
-          "value": "$__auto"
-        },
-        "label": "Interval",
-        "name": "interval",
-        "options": [
-          {
-            "selected": false,
-            "text": "1s",
-            "value": "1s"
-          },
-          {
-            "selected": false,
-            "text": "5s",
-            "value": "5s"
-          },
-          {
-            "selected": false,
-            "text": "1m",
-            "value": "1m"
-          },
-          {
-            "selected": false,
-            "text": "5m",
-            "value": "5m"
-          },
-          {
-            "selected": false,
-            "text": "1h",
-            "value": "1h"
-          },
-          {
-            "selected": false,
-            "text": "6h",
-            "value": "6h"
-          },
-          {
-            "selected": false,
-            "text": "1d",
-            "value": "1d"
-          }
-        ],
-        "query": "1s,5s,1m,5m,1h,6h,1d",
-        "refresh": 2,
-        "type": "interval"
-      },
-      {
-        "allValue": ".*",
-        "current": {
-          "text": "",
-          "value": ""
-        },
-        "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-        "includeAll": false,
-        "label": "Environment",
-        "name": "environment",
-        "options": [],
-        "query": {
-          "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-          "refId": "Metrics-environment-Variable-Query"
-        },
-        "refresh": 2,
-        "regex": "",
-        "sort": 5,
-        "type": "query"
-      },
-      {
-        "allValue": ".*",
-        "current": {
-          "text": "",
-          "value": ""
-        },
-        "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\"},cluster)",
-        "includeAll": false,
-        "label": "Cluster",
-        "name": "cluster",
-        "options": [],
-        "query": {
-          "query": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\"},cluster)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "sort": 5,
-        "type": "query"
-      },
-      {
-        "current": {
-          "text": "All",
-          "value": [
-            "$__all"
-          ]
-        },
-        "definition": "label_values(mongodb_mongos_sharding_shards_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}, node_name)",
-        "hide": 2,
-        "includeAll": true,
-        "multi": true,
-        "name": "node_name",
-        "options": [],
-        "query": {
-          "query": "label_values(mongodb_mongos_sharding_shards_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}, node_name)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "sort": 1,
-        "type": "query"
-      },
-      {
-        "current": {
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "definition": "label_values(mongodb_mongos_sharding_shards_total{environment=~\"$environment\",cluster=~\"$cluster\"}, service_name)",
-        "includeAll": true,
-        "label": "Router",
-        "multi": true,
-        "name": "service_name",
-        "options": [],
-        "query": {
-          "query": "label_values(mongodb_mongos_sharding_shards_total{environment=~\"$environment\",cluster=~\"$cluster\"}, service_name)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "sort": 5,
-        "type": "query"
-      }
-    ]
-  },
-  "time": {
-    "from": "now-12h",
-    "to": "now"
-  },
-  "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "1m",
-      "5m",
-      "1h",
-      "6h",
-      "1d"
     ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
-    ]
-  },
-  "timezone": "browser",
-  "title": "MongoDB Router Summary",
-  "uid": "mongodb-router-summary",
-  "version": 4
+    "preload": false,
+    "refresh": false,
+    "schemaVersion": 41,
+    "tags": [
+        "MongoDB_HA",
+        "Percona"
+    ],
+    "templating": {
+        "list": [
+            {
+                "auto": true,
+                "auto_count": 200,
+                "auto_min": "1s",
+                "current": {
+                    "text": "$__auto",
+                    "value": "$__auto"
+                },
+                "label": "Interval",
+                "name": "interval",
+                "options": [
+                    {
+                        "selected": false,
+                        "text": "1s",
+                        "value": "1s"
+                    },
+                    {
+                        "selected": false,
+                        "text": "5s",
+                        "value": "5s"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1m",
+                        "value": "1m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "5m",
+                        "value": "5m"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1h",
+                        "value": "1h"
+                    },
+                    {
+                        "selected": false,
+                        "text": "6h",
+                        "value": "6h"
+                    },
+                    {
+                        "selected": false,
+                        "text": "1d",
+                        "value": "1d"
+                    }
+                ],
+                "query": "1s,5s,1m,5m,1h,6h,1d",
+                "refresh": 2,
+                "type": "interval"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "",
+                    "value": ""
+                },
+                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
+                "includeAll": false,
+                "label": "Environment",
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
+                    "refId": "Metrics-environment-Variable-Query"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "",
+                    "value": ""
+                },
+                "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\"},cluster)",
+                "includeAll": false,
+                "label": "Cluster",
+                "name": "cluster",
+                "options": [],
+                "query": {
+                    "query": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\"},cluster)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "current": {
+                    "text": "All",
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "definition": "label_values(mongodb_mongos_sharding_shards_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}, node_name)",
+                "hide": 2,
+                "includeAll": true,
+                "multi": true,
+                "name": "node_name",
+                "options": [],
+                "query": {
+                    "query": "label_values(mongodb_mongos_sharding_shards_total{environment=~\"$environment\",cluster=~\"$cluster\",service_name=~\"$service_name\"}, node_name)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 1,
+                "type": "query"
+            },
+            {
+                "current": {
+                    "text": [
+                        "All"
+                    ],
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "definition": "label_values(mongodb_mongos_sharding_shards_total{environment=~\"$environment\",cluster=~\"$cluster\"}, service_name)",
+                "includeAll": true,
+                "label": "Router",
+                "multi": true,
+                "name": "service_name",
+                "options": [],
+                "query": {
+                    "query": "label_values(mongodb_mongos_sharding_shards_total{environment=~\"$environment\",cluster=~\"$cluster\"}, service_name)",
+                    "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
+            }
+        ]
+    },
+    "time": {
+        "from": "now-12h",
+        "to": "now"
+    },
+    "timepicker": {
+        "refresh_intervals": [
+            "5s",
+            "1m",
+            "5m",
+            "1h",
+            "6h",
+            "1d"
+        ],
+        "time_options": [
+            "5m",
+            "15m",
+            "1h",
+            "6h",
+            "12h",
+            "24h",
+            "2d",
+            "7d",
+            "30d"
+        ]
+    },
+    "timezone": "",
+    "title": "MongoDB Router Summary",
+    "uid": "mongodb-router-summary",
+    "version": 4
 }

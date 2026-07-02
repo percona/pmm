@@ -3799,7 +3799,7 @@
             "30d"
         ]
     },
-    "timezone": "browser",
+    "timezone": "",
     "title": "MongoDB InMemory Details",
     "uid": "mongodb-inmemory",
     "version": 1,

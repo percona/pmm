@@ -108,7 +108,14 @@ func getPgStatStatementsCacheSize(q *reform.Querier, l *logrus.Entry) uint {
 	return pgSSCacheSize
 }
 
-func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int32, disableCommentsParsing bool, l *logrus.Entry) (*PGStatStatementsQAN, error) { //nolint:lll
+func newPgStatStatementsQAN(
+	q *reform.Querier,
+	dbCloser io.Closer,
+	agentID string,
+	maxQueryLength int32,
+	disableCommentsParsing bool,
+	l *logrus.Entry,
+) (*PGStatStatementsQAN, error) {
 	cacheSize := getPgStatStatementsCacheSize(q, l)
 	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, cacheSize, l)
 	if err != nil {
@@ -159,8 +166,10 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	var err error
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
-	if current, _, err = m.getStatStatementsExtended(ctx); err == nil {
-		if err = m.statementsCache.Set(current); err == nil {
+	current, _, err = m.getStatStatementsExtended(ctx)
+	if err == nil {
+		err = m.statementsCache.Set(current)
+		if err == nil {
 			m.l.Debugf("Got %d initial stat statements.", len(current))
 			running = true
 			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
@@ -231,7 +240,8 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 
 	current := make(statementsMap, m.statementsCache.cache.Len())
 	prev := make(statementsMap, m.statementsCache.cache.Len())
-	if err := m.statementsCache.Get(prev); err != nil {
+	err = m.statementsCache.Get(prev)
+	if err != nil {
 		return nil, nil, err
 	}
 
@@ -256,7 +266,8 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	defer rows.Close() //nolint:errcheck
 
 	for ctx.Err() == nil {
-		if err = q.NextRow(row, rows); err != nil {
+		err = q.NextRow(row, rows)
+		if err != nil {
 			if errors.Is(err, reform.ErrNoRows) {
 				err = nil
 			}
@@ -306,7 +317,8 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
 
 	// merge prev and current in cache
-	if err = m.statementsCache.Set(current); err != nil {
+	err = m.statementsCache.Set(current)
+	if err != nil {
 		return nil, err
 	}
 	m.l.Debugf("statStatementsCache: %s", m.statementsCache.cache.Stats())

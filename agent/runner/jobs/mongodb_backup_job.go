@@ -108,7 +108,8 @@ func (j *MongoDBBackupJob) DSN() string {
 func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	defer j.jobLogger.sendLog(send, "", true)
 
-	if _, err := exec.LookPath(pbmBin); err != nil {
+	_, err := exec.LookPath(pbmBin)
+	if err != nil {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
@@ -128,12 +129,14 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		forceResync:    false,
 		dsn:            j.dsn,
 	}
-	if err := pbmConfigure(ctx, j.l, configParams); err != nil {
+	err = pbmConfigure(ctx, j.l, configParams)
+	if err != nil {
 		return errors.Wrap(err, "failed to configure pbm")
 	}
 
 	rCtx, cancel := context.WithTimeout(ctx, resyncTimeout)
-	if err := waitForPBMNoRunningOperations(rCtx, j.l, j.dsn); err != nil {
+	err = waitForPBMNoRunningOperations(rCtx, j.l, j.dsn)
+	if err != nil {
 		cancel()
 		return errors.Wrap(err, "failed to wait configuration completion")
 	}
@@ -153,7 +156,8 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		}
 	}()
 
-	if err := waitForPBMBackup(ctx, j.l, j.dsn, pbmBackupOut.Name); err != nil {
+	err = waitForPBMBackup(ctx, j.l, j.dsn, pbmBackupOut.Name)
+	if err != nil {
 		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.Wrap(err, "failed to wait backup completion")
 	}
@@ -216,7 +220,8 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 		return nil, errors.Errorf("'%s' is not a supported data model for backups", j.dataModel)
 	}
 
-	if err := execPBMCommand(ctx, j.dsn, &result, pbmArgs...); err != nil {
+	err := execPBMCommand(ctx, j.dsn, &result, pbmArgs...)
+	if err != nil {
 		return nil, err
 	}
 

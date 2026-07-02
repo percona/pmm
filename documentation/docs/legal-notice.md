@@ -1,0 +1,3 @@
+# Legal Notice
+
+You are interacting with an AI-powered chatbot that provides automated responses for general information about our IT services and software. Responses may be inaccurate or incomplete and do not constitute professional or contractual advice. Do not submit personal data, confidential information, credentials, or other sensitive information through this chat. Conversations may be logged and processed to improve our services in accordance with our [Privacy Policy](https://www.percona.com/privacy-policy#h.c033wws8ytgb) and applicable laws, including the GDPR. If you require assistance, please contact a [human representative](https://www.percona.com/about/contact).

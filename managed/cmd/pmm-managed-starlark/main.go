@@ -129,13 +129,15 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 				if !ok {
 					return nil, errors.Errorf("unexpected query result type: %T", dbQr)
 				}
-				if dbRes[dbName], err = unmarshalQueryResult(s); err != nil {
+				dbRes[dbName], err = unmarshalQueryResult(s)
+				if err != nil {
 					return nil, err
 				}
 			}
 			res[i] = dbRes
 		case string: // used for all other databases
-			if res[i], err = unmarshalQueryResult(qr); err != nil {
+			res[i], err = unmarshalQueryResult(qr)
+			if err != nil {
 				return nil, err
 			}
 		default:

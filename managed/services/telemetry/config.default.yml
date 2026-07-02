@@ -951,11 +951,6 @@ telemetry:
       - metric_name: "pxc_cluster_nodes_count"
         value: 1
 
-  # UI Events
-  - id: UIEvents
-    summary: "UI Events"
-    extension: UIEventsExtension
-
   - id: PostgresDBCount
     source: VM
     query: count by (service_id) (pg_stat_database_tup_fetched{service_name!="pmm-server-postgresql", datname!~"template.*|postgres", datid!="0"})
@@ -991,69 +986,76 @@ telemetry:
       - metric_name: "pmm_server_ha_vm_url"
         column: "PMM_VM_URL"
 
-  - id: RTADBVersion
+  # Real-Time Analytics for MongoDB (RTA)
+  - id: RTAMongoAgentsRegisteredTotalCount
     source: PMMDB_SELECT
     query: >
-      a.agent_type as agent_type,
-      s.version as db_version,
-      count(a.agent_id) as agent_count
-      FROM
-        agents a
-      INNER JOIN
-        services s ON a.service_id = s.service_id
-      WHERE
-        a.agent_type = 'rta-mongodb-agent'
-        AND a.created_at >= now() -  interval '1 day'
-      GROUP BY
-        agent_type, db_version;
-    summary: "Real-Time Analytics agents used for last day grouped by DB version"
-    transform:
-      type: JSON
-      metric: "rta_db_versions"
+      count(*) AS agent_count
+      FROM agents
+      WHERE agent_type = 'rta-mongodb-agent';
+    summary: "Total count of RTA MongoDB agents ever registered (including stopped/disabled ones)"
     data:
-      - metric_name: "agent_type"
-        column: "agent_type"
-      - metric_name: "db_version"
-        column: "db_version"
-      - metric_name: "agent_count"
+      - metric_name: "rta_mongo_agents_total_count"
         column: "agent_count"
 
-  - id: RTASessionDuration
+  # disabled=false means "user configured PMM to run this agent" (intent flag set by StartSession/StopSession).
+  # It does not guarantee the pmm-agent process is connected, but is the cleanest available proxy for adoption.
+  - id: RTAMongoAgentsEnabled
     source: PMMDB_SELECT
     query: >
-      agent_type,
-      EXTRACT(EPOCH FROM updated_at  - created_at)::int  AS duration_sec
+      count(*) AS agent_count
       FROM agents
-      WHERE
-        agent_type = 'rta-mongodb-agent'
-        AND EXTRACT(EPOCH FROM updated_at  - created_at)::int > 0
-        AND created_at >= now() -  interval '1 day';
-    summary: "Real-Time Analytics session durations for last day"
-    transform:
-      type: JSON
-      metric: "rta_session_durations"
+      WHERE agent_type = 'rta-mongodb-agent'
+        AND disabled = false;
+    summary: "Count of Real-Time Analytics MongoDB agents currently enabled (disabled=false)"
     data:
-      - metric_name: "agent_type"
-        column: "agent_type"
-      - metric_name: "duration_sec"
-        column: "duration_sec"
+      - metric_name: "rta_mongo_agents_enabled"
+        column: "agent_count"
 
-  - id: RTAAgentCollectInterval
+  # disabled=true means StopSession was called; mirrors the disabled=false logic of RTAMongoAgentsEnabled.
+  - id: RTAMongoAgentsDisabled
     source: PMMDB_SELECT
     query: >
-      agent_type,
-      ((rta_options->'collect_interval')::numeric / 1000000000)::int as collect_interval_sec
+      count(*) AS agent_count
       FROM agents
-      WHERE
-        agent_type = 'rta-mongodb-agent'
-        AND rta_options->'collect_interval' != 'null'
-        AND created_at >= now() -  interval '1 day';
-    summary: "Real-Time Analytics collect interval (sec)"
-    transform:
-      type: JSON
-      metric: "rta_agent_collect_interval"
+      WHERE agent_type = 'rta-mongodb-agent'
+        AND disabled = true;
+    summary: "Count of Real-Time Analytics MongoDB agents currently disabled (disabled=true)"
     data:
-      - metric_name: "agent_type"
+      - metric_name: "rta_mongo_agents_disabled"
+        column: "agent_count"
+
+  # Real-Time Analytics (RTA) agents details
+  # Per-agent rows; agent_type is the row marker (consumer assumes 4 lines per agent).
+  # COALESCE keeps row alignment when version/collect_interval are NULL (empty values would be dropped by removeEmpty).
+  # 1_000_000_000 divisor converts the stored nanosecond CollectInterval to seconds. LIKE 'rta-%' is forward-compatible with future PG/MySQL RTA agents.
+  - id: RTAAgentsEnabledDetail
+    source: PMMDB_SELECT
+    query: >
+      a.agent_type AS agent_type,
+      COALESCE(s.version, 'unknown') AS db_version,
+      EXTRACT(EPOCH FROM a.updated_at - a.created_at)::int AS session_sec,
+      COALESCE(((a.rta_options->>'collect_interval')::bigint / 1000000000)::int, 0) AS collect_interval_sec
+      FROM agents a
+      LEFT JOIN services s ON a.service_id = s.service_id
+      WHERE a.agent_type LIKE 'rta-%'
+        AND a.disabled = false;
+    summary: "Per-agent details for Real-Time Analytics agents currently enabled (disabled=false)"
+    data:
+      - metric_name: "rta_agent_running_type"
         column: "agent_type"
-      - metric_name: "collect_interval_sec"
+      - metric_name: "rta_agent_running_db_version"
+        column: "db_version"
+      - metric_name: "rta_agent_session_sec"
+        column: "session_sec"
+      - metric_name: "rta_agent_collect_interval"
         column: "collect_interval_sec"
+
+  # legacy promdb usage
+  - id: VMPromDBSeriesReadPerQuery
+    source: VM
+    query: sum(rate(vm_promdb_series_read_per_query_sum[24h])) / sum(rate(vm_promdb_series_read_per_query_count[24h]))
+    summary: "Average number of series read per query against Prometheus-native db on PMM Server for the last 24 hours"
+    data:
+      - metric_name: "vm_promdb_series_read_per_query_avg"
+        value: 1

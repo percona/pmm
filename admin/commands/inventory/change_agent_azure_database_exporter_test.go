@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,15 +38,15 @@ func TestAzureDatabaseExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentAzureDatabaseExporterCommand{
 				AgentID:             "test-agent-azure-update",
-				Enable:              pointer.ToBool(true),
-				AzureClientID:       pointer.ToString("12345678-1234-1234-1234-123456789012"),
-				AzureClientSecret:   pointer.ToString("secret123"),
-				AzureTenantID:       pointer.ToString("87654321-4321-4321-4321-210987654321"),
-				AzureSubscriptionID: pointer.ToString("11111111-2222-3333-4444-555555555555"),
-				AzureResourceGroup:  pointer.ToString("pmm-rg"),
-				PushMetrics:         pointer.ToBool(true),
+				Enable:              new(true),
+				AzureClientID:       new("12345678-1234-1234-1234-123456789012"),
+				AzureClientSecret:   new("secret123"),
+				AzureTenantID:       new("87654321-4321-4321-4321-210987654321"),
+				AzureSubscriptionID: new("11111111-2222-3333-4444-555555555555"),
+				AzureResourceGroup:  new("pmm-rg"),
+				PushMetrics:         new(true),
 				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("debug")),
+					LogLevel: new(flags.LogLevel("debug")),
 				},
 				CustomLabels: &map[string]string{"environment": "production", "cloud": "azure"},
 			}
@@ -84,8 +83,8 @@ func TestAzureDatabaseExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentAzureDatabaseExporterCommand{
 				AgentID:     "test-agent-azure-disable",
-				Enable:      pointer.ToBool(false),
-				PushMetrics: pointer.ToBool(false),
+				Enable:      new(false),
+				PushMetrics: new(false),
 			}
 
 			result, err := cmd.RunCmd()
@@ -212,7 +211,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentAzureDatabaseExporterCommand{
 			AgentID: "invalid-agent-azure",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()

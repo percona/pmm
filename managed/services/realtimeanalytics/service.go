@@ -174,7 +174,7 @@ func (s *Service) ListSessions(ctx context.Context, req *rtav1.ListSessionsReque
 		// Fetch all RTA agents of this type
 		agents, err := models.FindAgents(dbWithCtx, models.AgentFilters{
 			AgentType: &at,
-			Disabled:  pointer.To(false), // fetch enabled only
+			Disabled:  new(false), // fetch enabled only
 		})
 		if err != nil {
 			return nil, err
@@ -269,7 +269,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		// Need to update CreatedAt to reflect the new session start time.
 		rtaAgent.CreatedAt = time.Now()
 		// Encrypt agent's sensitive data before updating it in the database.
-		rtaAgent = pointer.To(models.EncryptAgent(*rtaAgent))
+		rtaAgent = new(models.EncryptAgent(*rtaAgent))
 
 		err = tx.Update(rtaAgent)
 		if err != nil {
@@ -419,7 +419,7 @@ func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest
 		existingRTAAgents, err := models.FindAgents(tx.Querier, models.AgentFilters{
 			ServiceID: req.ServiceId,
 			AgentType: &agentType,
-			Disabled:  pointer.To(false), // fetch enabled only
+			Disabled:  new(false), // fetch enabled only
 		})
 		if err != nil {
 			return status.Errorf(codes.Internal, "Failed to find Real-Time Analytics agents for service %s: %v", req.ServiceId, err)
@@ -434,7 +434,7 @@ func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest
 		rtaAgent := existingRTAAgents[0]
 		rtaAgent.Disabled = true
 		// Encrypt agent's sensitive data before updating it in the database.
-		rtaAgent = pointer.To(models.EncryptAgent(*rtaAgent))
+		rtaAgent = new(models.EncryptAgent(*rtaAgent))
 
 		err = tx.Update(rtaAgent)
 		if err != nil {

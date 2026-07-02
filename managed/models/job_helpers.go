@@ -59,7 +59,7 @@ type JobsFilter struct {
 
 // FindJobs returns logs satisfying filters.
 func FindJobs(q *reform.Querier, filters JobsFilter) ([]*Job, error) {
-	var args []interface{}
+	var args []any
 	var andConds []string
 	idx := 1
 	if len(filters.Types) != 0 {
@@ -133,7 +133,8 @@ func (p CreateJobParams) Validate() error {
 
 // CreateJob stores a job result in the storage.
 func CreateJob(q *reform.Querier, params CreateJobParams) (*Job, error) {
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 	result := &Job{
@@ -145,7 +146,8 @@ func CreateJob(q *reform.Querier, params CreateJobParams) (*Job, error) {
 		Interval:   params.Interval,
 		Retries:    params.Retries,
 	}
-	if err := q.Insert(result); err != nil {
+	err = q.Insert(result)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	return result, nil
@@ -173,7 +175,8 @@ func CreateJobLog(q *reform.Querier, params CreateJobLogParams) (*JobLog, error)
 		Data:      params.Data,
 		LastChunk: params.LastChunk,
 	}
-	if err := q.Insert(log); err != nil {
+	err := q.Insert(log)
+	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	return log, nil
@@ -193,7 +196,7 @@ func FindJobLogs(q *reform.Querier, filters JobLogsFilter) ([]*JobLog, error) {
 	if filters.Limit != nil {
 		limit = *filters.Limit
 	}
-	args := []interface{}{
+	args := []any{
 		filters.JobID,
 		filters.Offset,
 		limit,

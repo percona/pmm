@@ -30,9 +30,11 @@ if [ -z "${DOCKER_TAG}" ]; then
 fi
 
 IMAGE_VERSION=$(echo "$DOCKER_TAG" | cut -d ':' -f2)
+GO_VERSION=$(grep '^go ' ${root_dir}/tmp/source/pmm/go.mod | awk '{print $2}')
 
 docker build --build-arg BUILD_DATE="`date --rfc-3339=seconds`" \
              --build-arg VERSION="$IMAGE_VERSION" \
+             --build-arg GO_VERSION="$GO_VERSION" \
              -f ${docker_root}/${docker_file} \
              -t ${DOCKER_TAG} \
              ${docker_root}/

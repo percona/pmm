@@ -2,10 +2,9 @@
 ARG VERSION=dev
 ARG GIT_COMMIT=unknown
 ARG BUILD_TIME=unknown
-ARG GO_VERSION="1.25"
-ARG GO_BASE_IMAGE="golang:${GO_VERSION}"
+ARG GO_VERSION
 
-FROM $GO_BASE_IMAGE AS builder
+FROM golang:$GO_VERSION AS builder
 ENV GONOPROXY='github.com/percona,github.com/Percona-Lab'
 ENV GONOSUMDB='github.com/percona,github.com/Percona-Lab'
 ENV GOPRIVATE='github.com/percona,github.com/Percona-Lab'

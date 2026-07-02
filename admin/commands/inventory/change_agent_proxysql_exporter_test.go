@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,17 +38,17 @@ func TestProxySQLExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentProxysqlExporterCommand{
 				AgentID:           "test-agent-proxysql-update",
-				Enable:            pointer.ToBool(true),
-				Username:          pointer.ToString("proxysql_user"),
-				Password:          pointer.ToString("proxysql_pass"),
-				AgentPassword:     pointer.ToString("agent_pass"),
-				TLS:               pointer.ToBool(true),
-				TLSSkipVerify:     pointer.ToBool(false),
+				Enable:            new(true),
+				Username:          new("proxysql_user"),
+				Password:          new("proxysql_pass"),
+				AgentPassword:     new("agent_pass"),
+				TLS:               new(true),
+				TLSSkipVerify:     new(false),
 				DisableCollectors: []string{"connection_pool", "stats_mysql_global"},
-				ExposeExporter:    pointer.ToBool(true),
-				PushMetrics:       pointer.ToBool(true),
+				ExposeExporter:    new(true),
+				PushMetrics:       new(true),
 				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("debug")),
+					LogLevel: new(flags.LogLevel("debug")),
 				},
 				CustomLabels: &map[string]string{"environment": "staging", "service": "proxysql"},
 			}
@@ -88,8 +87,8 @@ func TestProxySQLExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentProxysqlExporterCommand{
 				AgentID:        "test-agent-proxysql-disable",
-				Enable:         pointer.ToBool(false),
-				ExposeExporter: pointer.ToBool(false),
+				Enable:         new(false),
+				ExposeExporter: new(false),
 			}
 
 			result, err := cmd.RunCmd()
@@ -227,7 +226,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentProxysqlExporterCommand{
 			AgentID: "invalid-agent-proxysql",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()

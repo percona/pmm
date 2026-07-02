@@ -15,7 +15,6 @@
 package management
 
 import (
-	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
@@ -82,7 +81,7 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 
 	params := &mservice.UnregisterNodeParams{
 		NodeID:  nodeID,
-		Force:   pointer.ToBool(cmd.Force),
+		Force:   new(cmd.Force),
 		Context: commands.Ctx,
 	}
 

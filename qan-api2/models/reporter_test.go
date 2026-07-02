@@ -150,7 +150,7 @@ func TestHeadersToLbacFilter(t *testing.T) {
 		ctx := setup(t, `["{custom_label=\"value\",service_type=\"mysql\"}"]`)
 		filter, err := headersToLbacFilter(ctx)
 		require.NoError(t, err)
-		require.Equal(t, filter, "((hasAny(labels.key, ['custom_label']) AND hasAny(labels.value, ['value'])) AND service_type = 'mysql')")
+		require.Equal(t, "((hasAny(labels.key, ['custom_label']) AND hasAny(labels.value, ['value'])) AND service_type = 'mysql')", filter)
 	})
 }
 

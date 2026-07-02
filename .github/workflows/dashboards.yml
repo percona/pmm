@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Install NodeJS
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
@@ -24,6 +24,16 @@ jobs:
           node-version: "22"
           cache: "yarn"
           cache-dependency-path: dashboards/pmm-app/yarn.lock
+
+      - name: Verify plugin.json dashboard paths exist
+        run: |
+          missing=$(jq -r '.includes[] | select(.path) | .path' dashboards/pmm-app/src/plugin.json \
+            | while read -r p; do [ -f "dashboards/$p" ] || echo "$p"; done)
+          if [ -n "$missing" ]; then
+            echo "::error::plugin.json references dashboard files that do not exist:"
+            echo "$missing" | sed 's/^/  - /'
+            exit 1
+          fi
 
       - name: Install deps
         run: make -C dashboards install
@@ -43,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Install NodeJS
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
@@ -63,7 +73,7 @@ jobs:
 
       - name: Upload unit test coverage
         if: github.event.pull_request.head.repo.full_name == github.repository
-        uses: codecov/codecov-action@57e3a136b779b570ffcdbf80b3bdc90e7fab3de2 # v6.0.0
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           fail_ci_if_error: true
           flags: unittests # optional
@@ -76,7 +86,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           fetch-depth: 0
 
@@ -100,7 +110,9 @@ jobs:
           # The [ -n "$f" ] ensures the last line is read even if it lacks a newline
           while IFS= read -r f || [ -n "$f" ]; do
             [ -z "$f" ] && continue
-            
+            # Deleted dashboards still appear in git diff; skip missing files.
+            [ ! -f "$f" ] && continue
+
             if python3 dashboards/misc/cleanup-dash.py --check-only "$f"; then
               echo "| \`$f\` | ✅ OK | - |" >> $GITHUB_STEP_SUMMARY
             else
@@ -132,7 +144,7 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+        uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
 
   workflow_failure:
     if: ${{ failure() }}
@@ -150,4 +162,4 @@ jobs:
 
     steps:
       - name: Slack Notification
-        uses: rtCamp/action-slack-notify@e31e87e03dd19038e411e38ae27cbad084a90661 # v2.3.3
+        uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0

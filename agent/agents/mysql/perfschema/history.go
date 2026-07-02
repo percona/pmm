@@ -63,7 +63,8 @@ func getHistoryRows(rows *sql.Rows, q *reform.Querier) (historyMap, error) {
 	res := make(historyMap)
 	for {
 		var esh eventsStatementsHistory
-		if err = q.NextRow(&esh, rows); err != nil {
+		err = q.NextRow(&esh, rows)
+		if err != nil {
 			break
 		}
 		res[queryIDWithSchema(pointer.GetString(esh.CurrentSchema), *esh.Digest)] = &esh

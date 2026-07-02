@@ -39,7 +39,7 @@ func TestAggregator(t *testing.T) {
 		t.Run("error if aggregator is not running", func(t *testing.T) {
 			a := New(time.Now(), "test-agent", logrus.WithField("component", "test"), truncate.GetMongoDBDefaultMaxQueryLength())
 			err := a.Add(context.TODO(), proto.SystemProfile{})
-			assert.EqualError(t, err, "aggregator is not running")
+			require.EqualError(t, err, "aggregator is not running")
 		})
 	})
 

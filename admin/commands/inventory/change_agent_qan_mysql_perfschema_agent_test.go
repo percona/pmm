@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,18 +38,18 @@ func TestQANMySQLPerfSchemaAgentChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentQANMySQLPerfSchemaAgentCommand{
 				AgentID:              "test-agent-qan-perfschema-update",
-				Enable:               pointer.ToBool(true),
-				Username:             pointer.ToString("mysql_user"),
-				Password:             pointer.ToString("mysql_pass"),
-				TLS:                  pointer.ToBool(true),
-				TLSSkipVerify:        pointer.ToBool(false),
-				MaxQueryLength:       pointer.ToInt32(2048),
-				DisableQueryExamples: pointer.ToBool(false),
+				Enable:               new(true),
+				Username:             new("mysql_user"),
+				Password:             new("mysql_pass"),
+				TLS:                  new(true),
+				TLSSkipVerify:        new(false),
+				MaxQueryLength:       new(int32(2048)),
+				DisableQueryExamples: new(false),
 				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("debug")),
+					LogLevel: new(flags.LogLevel("debug")),
 				},
 				CommentsParsingChangeFlags: flags.CommentsParsingChangeFlags{
-					CommentsParsing: pointer.ToString("off"),
+					CommentsParsing: new("off"),
 				},
 				CustomLabels: &map[string]string{"service": "mysql", "role": "primary"},
 			}
@@ -88,8 +87,8 @@ func TestQANMySQLPerfSchemaAgentChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentQANMySQLPerfSchemaAgentCommand{
 				AgentID:              "test-agent-qan-perfschema-disable",
-				Enable:               pointer.ToBool(false),
-				DisableQueryExamples: pointer.ToBool(true),
+				Enable:               new(false),
+				DisableQueryExamples: new(true),
 			}
 
 			result, err := cmd.RunCmd()
@@ -114,7 +113,7 @@ func TestQANMySQLPerfSchemaAgentChangeAgent(t *testing.T) {
 
 		cmd := &ChangeAgentQANMySQLPerfSchemaAgentCommand{
 			AgentID: "invalid-agent-qan-perfschema",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()

@@ -43,46 +43,47 @@ type ArtifactFilters struct {
 // FindArtifacts returns artifact list sorted by creation time in DESCENDING order.
 func FindArtifacts(q *reform.Querier, filters ArtifactFilters) ([]*Artifact, error) {
 	var conditions []string
-	var args []interface{}
+	var args []any
 	idx := 1
 	if filters.ServiceID != "" {
-		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "service_id = "+q.Placeholder(idx))
 		args = append(args, filters.ServiceID)
 		idx++
 	}
 
 	if filters.LocationID != "" {
-		if _, err := FindBackupLocationByID(q, filters.LocationID); err != nil {
+		_, err := FindBackupLocationByID(q, filters.LocationID)
+		if err != nil {
 			return nil, err
 		}
-		conditions = append(conditions, fmt.Sprintf("location_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "location_id = "+q.Placeholder(idx))
 		args = append(args, filters.LocationID)
 		idx++
 	}
 
 	if filters.ScheduleID != "" {
-		conditions = append(conditions, fmt.Sprintf("schedule_id = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "schedule_id = "+q.Placeholder(idx))
 		args = append(args, filters.ScheduleID)
 		idx++
 	}
 
 	if filters.Status != "" {
-		conditions = append(conditions, fmt.Sprintf("status = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "status = "+q.Placeholder(idx))
 		args = append(args, filters.Status)
 		idx++
 	}
 
 	if filters.Folder != nil {
-		conditions = append(conditions, fmt.Sprintf("folder = %s", q.Placeholder(idx)))
+		conditions = append(conditions, "folder = "+q.Placeholder(idx))
 		args = append(args, *filters.Folder)
 		// idx++
 	}
 
 	var whereClause string
 	if len(conditions) != 0 {
-		whereClause = fmt.Sprintf("WHERE %s", strings.Join(conditions, " AND "))
+		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
-	rows, err := q.SelectAllFrom(ArtifactTable, fmt.Sprintf("%s ORDER BY created_at DESC", whereClause), args...)
+	rows, err := q.SelectAllFrom(ArtifactTable, whereClause+" ORDER BY created_at DESC", args...)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to select artifacts")
 	}
@@ -103,7 +104,7 @@ func FindArtifactsByIDs(q *reform.Querier, ids []string) (map[string]*Artifact, 
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE id IN (%s)", p)
-	args := make([]interface{}, 0, len(ids))
+	args := make([]any, 0, len(ids))
 	for _, id := range ids {
 		args = append(args, id)
 	}
@@ -203,11 +204,13 @@ func (p *CreateArtifactParams) Validate() error {
 		return NewInvalidArgumentError("service_id shouldn't be empty")
 	}
 
-	if err := p.Mode.Validate(); err != nil {
+	err := p.Mode.Validate()
+	if err != nil {
 		return err
 	}
 
-	if err := p.DataModel.Validate(); err != nil {
+	err = p.DataModel.Validate()
+	if err != nil {
 		return err
 	}
 
@@ -216,12 +219,13 @@ func (p *CreateArtifactParams) Validate() error {
 
 // CreateArtifact creates artifact entry in DB.
 func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, error) {
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 
 	id := uuid.New().String()
-	_, err := FindArtifactByID(q, id)
+	_, err = FindArtifactByID(q, id)
 	switch {
 	case err == nil:
 		return nil, errors.Errorf("artifact with id '%s' already exists", id)
@@ -230,7 +234,8 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 		return nil, errors.WithStack(err)
 	}
 
-	if err := checkUniqueArtifactName(q, params.Name); err != nil {
+	err = checkUniqueArtifactName(q, params.Name)
+	if err != nil {
 		return nil, err
 	}
 
@@ -254,7 +259,8 @@ func CreateArtifact(q *reform.Querier, params CreateArtifactParams) (*Artifact, 
 		row.Type = ScheduledArtifactType
 	}
 
-	if err := q.Insert(row); err != nil {
+	err = q.Insert(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to insert artifact")
 	}
 
@@ -300,7 +306,8 @@ func UpdateArtifact(q *reform.Querier, artifactID string, params UpdateArtifactP
 		row.Folder = *params.Folder
 	}
 
-	if err := q.Update(row); err != nil {
+	err = q.Update(row)
+	if err != nil {
 		return nil, errors.Wrap(err, "failed to update backup artifact")
 	}
 
@@ -309,11 +316,13 @@ func UpdateArtifact(q *reform.Querier, artifactID string, params UpdateArtifactP
 
 // DeleteArtifact removes artifact by ID.
 func DeleteArtifact(q *reform.Querier, id string) error {
-	if _, err := FindArtifactByID(q, id); err != nil {
+	_, err := FindArtifactByID(q, id)
+	if err != nil {
 		return err
 	}
 
-	if err := q.Delete(&Artifact{ID: id}); err != nil {
+	err = q.Delete(&Artifact{ID: id})
+	if err != nil {
 		return errors.Wrapf(err, "failed to delete artifact by id '%s'", id)
 	}
 	return nil
@@ -325,7 +334,8 @@ func (s *Artifact) MetadataRemoveFirstN(q *reform.Querier, n uint32) error {
 		n = uint32(len(s.MetadataList))
 	}
 	s.MetadataList = s.MetadataList[n:]
-	if err := q.Update(s); err != nil {
+	err := q.Update(s)
+	if err != nil {
 		return errors.Wrap(err, "failed to remove artifact metadata records")
 	}
 	return nil
