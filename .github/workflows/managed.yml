@@ -32,14 +32,8 @@ jobs:
       - name: Check out code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - name: Enable Go build and module cache
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
-        with:
-          path: |
-            ~/go-build-cache
-            ~/go-mod-cache
-          key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
-          restore-keys: ${{ runner.os }}-go-
+      - name: Setup Go release
+        uses: .github/actions/setup-go-release
 
       - name: Launch PMM Server
         run: |
@@ -62,8 +56,8 @@ jobs:
             -e GOPRIVATE=github.com/percona,github.com/Percona-Lab \
             -w /root/go/src/github.com/percona/pmm \
             -v ./:/root/go/src/github.com/percona/pmm \
-            -v ~/go-mod-cache:/home/pmm/.cache/go/mod \
-            -v ~/go-build-cache:/home/pmm/.cache/go-build \
+            -v ~/go/pkg/mod:/home/pmm/.cache/go/mod \
+            -v ~/.cache/go-build:/home/pmm/.cache/go-build \
             -v ./managed/data/advisors/:/usr/local/percona/advisors/ \
             -v ./managed/data/checks/:/usr/local/percona/checks/ \
             -v ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/ \

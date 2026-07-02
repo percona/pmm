@@ -1,0 +1,36 @@
+---
+# This GitHub Action sets up the Go development environment for a workflow.
+# It automatically determines the Go version from the go.mod file, and configures
+# caching for Go build artifacts and modules to optimize subsequent workflow runs.
+# Finally, it downloads all necessary Go modules.
+name: Setup Go release
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Go
+      uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+      with:
+        go-version-file: ${{ github.workspace }}/go.mod
+        cache: false
+
+    - name: Enable Go build cache
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.cache/go-build
+        key: ${{ runner.os }}-go-build-${{ hashFiles('go.mod', 'go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-build-
+
+    - name: Enable Go modules cache
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-modules-${{ hashFiles('go.mod', 'go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-modules-
+
+    - name: Download Go modules
+      shell: bash
+      working-directory: ${{ github.workspace }}
+      run: |
+        go mod download -x
