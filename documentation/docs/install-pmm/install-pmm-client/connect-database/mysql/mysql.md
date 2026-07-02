@@ -7,7 +7,7 @@ Easily connect your MySQL databasesâ€”whether self-hosted or running on AWS EC2â
 Get your MySQL instance connected to PMM in just a few steps:
 {.power-number}
 
-1. Create a dedicated MySQL user with the required permissions.  If you are using an [Administrative Connection](https://dev.mysql.com/doc/refman/8.4/en/administrative-connection-interface.html), you will also need to grant the `SERVICE_CONNECTION_ADMIN` privilege to the `pmm` user:
+1. Create a dedicated MySQL user with the required permissions. If you are using an [Administrative Connection](https://dev.mysql.com/doc/refman/8.4/en/administrative-connection-interface.html), you will also need to grant the `SERVICE_CONNECTION_ADMIN` privilege to the `pmm` user:
 
     ```sql
     -- Create PMM user with required permissions
@@ -115,7 +115,7 @@ This example creates a pmm user account that has just enough access to collect m
 
 PMM can collect metrics from two primary sources: Slow query log and Performance Schema.
 
-While you can use both at the same time we recommend using only one--there is some overlap in the data reported, and each incurs a small performance penalty.
+While you can use both at the same time we recommend using only one. There is some overlap in the data reported, and each incurs a small performance penalty.
 
 The choice depends on the version and variant of your MySQL instance, and how much detail you want to see.
 
@@ -407,9 +407,9 @@ To disable query examples for data privacy:
 ### Add service to PMM
 
 After creating your PMM database user, you can add your MySQL service to PMM using the command line or the UI.
+The **command line** (`pmm-admin`) deploys an exporter directly on the database host and automatically collects node-level metrics (CPU, memory, disk I/O) alongside MySQL metrics. Use the UI only if you cannot install PMM Client on the database host.
 
 === "Via command line (recommended)"
-The **command line** (`pmm-admin`) deploys an exporter directly on the database host and automatically collects node-level metrics (CPU, memory, disk I/O) alongside MySQL metrics. Use the UI only if you cannot install PMM Client on the database host.
 
     === "Basic setup"
     
