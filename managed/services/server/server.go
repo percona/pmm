@@ -51,6 +51,8 @@ import (
 
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
+	serverv1.UnimplementedServerServiceServer
+
 	db                   *reform.DB
 	vmdb                 prometheusService
 	agentsState          agentsStateUpdater
@@ -75,8 +77,6 @@ type Server struct {
 	envSettings *models.ChangeSettingsParams
 
 	sshKeyM sync.Mutex
-
-	serverv1.UnimplementedServerServiceServer
 }
 
 type pmmUpdateAuth struct {

@@ -34,11 +34,11 @@ import (
 )
 
 type actionsServer struct {
+	actionsv1.UnimplementedActionsServiceServer
+
 	a  *agents.ActionsService
 	db *reform.DB
 	l  *logrus.Entry
-
-	actionsv1.UnimplementedActionsServiceServer
 }
 
 var (

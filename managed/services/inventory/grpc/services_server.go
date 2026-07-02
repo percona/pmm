@@ -31,9 +31,9 @@ import (
 )
 
 type servicesServer struct {
-	s *inventory.ServicesService
-
 	inventoryv1.UnimplementedServicesServiceServer
+
+	s *inventory.ServicesService
 }
 
 // NewServicesServer returns Inventory API handler for managing Services.
