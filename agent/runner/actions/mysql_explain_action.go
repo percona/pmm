@@ -49,7 +49,7 @@ type explainResponse struct {
 	IsDMLQuery    bool   `json:"is_dml"`
 }
 
-// ErrCannotEncodeExplainResponse cannot JSON encode the explain response.
+// errCannotEncodeExplainResponse cannot JSON encode the explain response.
 var (
 	errCannotEncodeExplainResponse = errors.New("cannot JSON encode the explain response")
 	errEmptyQuery                  = errors.New("query to EXPLAIN is empty")
