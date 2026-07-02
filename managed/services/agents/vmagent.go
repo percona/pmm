@@ -99,7 +99,8 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams, haEnabled boo
 		}
 	}
 
-	// When routing metric writes through the PMM server, authenticate with the PMM server credentials.
+	// When routing metric writes through the PMM server, authenticate with the PMM server credentials:
+	// drop any deployment-injected basic-auth override.
 	if !useExternalVM {
 		delete(systemEnvs, "VMAGENT_remoteWrite_basicAuth_username")
 		delete(systemEnvs, "VMAGENT_remoteWrite_basicAuth_password")
