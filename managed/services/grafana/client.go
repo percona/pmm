@@ -52,7 +52,12 @@ const (
 	defaultKeepAliveTimeout      = 30 * time.Second
 	defaultIdleConnTimeout       = 90 * time.Second
 	defaultExpectContinueTimeout = 1 * time.Second
-	defaultMaxIdleConns          = 50
+	// pmm-managed talks to a single Grafana host, so MaxIdleConnsPerHost is what actually
+	// bounds the idle pool. Both match Grafana's max_open_conn = 100 (see
+	// build/ansible/roles/grafana/files/grafana.ini): that DB pool caps how many authUser
+	// lookups Grafana can process in parallel, so a larger client-side pool would never drain.
+	defaultMaxIdleConns        = 100
+	defaultMaxIdleConnsPerHost = 100
 )
 
 // Client represents a client for Grafana API.
@@ -70,6 +75,7 @@ func NewClient(addr string) *Client {
 			KeepAlive: defaultKeepAliveTimeout,
 		}).DialContext,
 		MaxIdleConns:          defaultMaxIdleConns,
+		MaxIdleConnsPerHost:   defaultMaxIdleConnsPerHost,
 		IdleConnTimeout:       defaultIdleConnTimeout,
 		ExpectContinueTimeout: defaultExpectContinueTimeout,
 	}

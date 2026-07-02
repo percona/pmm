@@ -161,8 +161,8 @@ const authenticationErrorCode = 401
 
 const (
 	// Note: cacheInvalidationInterval is used to invalidate cache for grafana responses.
-	cacheInvalidationInterval = 3 * time.Second
-	authenticationTimeout     = 3 * time.Second
+	cacheInvalidationInterval = 60 * time.Second
+	authenticationTimeout     = 15 * time.Second
 )
 
 // clientError contains authentication error response details.
@@ -602,7 +602,10 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	s.rw.RLock()
 	item, ok := s.cache[hash]
 	s.rw.RUnlock()
-	if ok {
+	// Check the item's age on read: the background invalidator runs only once per
+	// cacheInvalidationInterval, so without this an entry could be served for almost
+	// twice that long. Re-fetch once an entry is older than the interval.
+	if ok && time.Since(item.created) < cacheInvalidationInterval {
 		return &item.u, nil
 	}
 

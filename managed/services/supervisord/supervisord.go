@@ -56,6 +56,10 @@ const (
 	defaultVMSearchMaxQueryDuration     = "90s"
 	defaultVMSearchLogSlowQueryDuration = "30s"
 	defaultVMPromscrapeStreamParse      = "true"
+	// 0 keeps VictoriaMetrics' native default of no ingestion rate limit. A hard cap risks
+	// pausing ingestion on large legitimate fleets, so the limit is left opt-in via the
+	// VM_maxIngestionRate environment variable for deployments that need to throttle bursts.
+	defaultVMMaxIngestionRate = "0"
 )
 
 // Service is responsible for interactions with Supervisord via supervisorctl.
@@ -258,6 +262,7 @@ command =
 		--search.logSlowQueryDuration={{ .VMSearchLogSlowQueryDuration }}
 		--search.maxQueryDuration={{ .VMSearchMaxQueryDuration }}
 		--promscrape.streamParse={{ .VMPromscrapeStreamParse }}
+		--maxIngestionRate={{ .VMMaxIngestionRate }}
 		--http.pathPrefix=/prometheus
 		--envflag.enable
 		--envflag.prefix=VM_
@@ -470,6 +475,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	vmSearchMaxQueryDuration := envvars.GetEnv("VM_search_maxQueryDuration", defaultVMSearchMaxQueryDuration)
 	vmSearchLogSlowQueryDuration := envvars.GetEnv("VM_search_logSlowQueryDuration", defaultVMSearchLogSlowQueryDuration)
 	vmPromscrapeStreamParse := envvars.GetEnv("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
+	vmMaxIngestionRate := envvars.GetEnv("VM_maxIngestionRate", defaultVMMaxIngestionRate)
 
 	templateParams := map[string]any{
 		"DataRetentionHours":           int(settings.DataRetention.Hours()),
@@ -484,6 +490,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMSearchMaxQueryDuration":     vmSearchMaxQueryDuration,
 		"VMSearchLogSlowQueryDuration": vmSearchLogSlowQueryDuration,
 		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
+		"VMMaxIngestionRate":           vmMaxIngestionRate,
 		"VMURL":                        s.vmParams.URL(),
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"NomadEnabled":                 settings.IsNomadEnabled(),
