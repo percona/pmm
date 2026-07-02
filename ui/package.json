@@ -1,6 +1,6 @@
 {
   "name": "ui",
-  "private": true,
+  "private": false,
   "workspaces": {
     "packages": [
       "apps/*",
