@@ -60,6 +60,12 @@
                     }
                   },
                   "x-order": 0
+                },
+                "expected_nodes": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Expected number of nodes in the cluster",
+                  "x-order": 1
                 }
               }
             }

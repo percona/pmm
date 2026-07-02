@@ -1,17 +1,35 @@
-import { GetHANodeResponse, HAHealth } from 'types/ha.types';
+import { UseQueryResult } from '@tanstack/react-query';
+import {
+  GetHANodeResponse,
+  GetHANodesResponse,
+  HAHealth,
+} from 'types/ha.types';
 
-export const getHAHealth = (nodes: GetHANodeResponse[]): HAHealth => {
-  const nonAliveCount = nodes.filter((node) => node.status !== 'alive').length;
-
-  if (nonAliveCount === nodes.length) {
-    return 'down';
+export const getHAHealth = (
+  nodes?: GetHANodeResponse[],
+  expectedNodes?: number,
+  query?: UseQueryResult<GetHANodesResponse, Error>
+): HAHealth => {
+  if (query?.isLoading || nodes === undefined || expectedNodes === undefined) {
+    return 'unknown';
   }
 
-  if (nonAliveCount >= 2 * (nodes.length / 3.0)) {
+  const nonAliveCount =
+    expectedNodes - nodes.filter((node) => node.status === 'alive').length;
+
+  if (
+    nonAliveCount === expectedNodes ||
+    query?.isError ||
+    query?.fetchStatus === 'paused'
+  ) {
+    return 'unreachable';
+  }
+
+  if (nonAliveCount >= 2 * (expectedNodes / 3.0)) {
     return 'critical';
   }
 
-  if (nonAliveCount >= nodes.length / 3.0) {
+  if (nonAliveCount >= expectedNodes / 3.0) {
     return 'degraded';
   }
 

@@ -15,10 +15,14 @@ export const getStyles = (theme: Theme) => ({
     backgroundColor: theme.palette.error.surface,
     transition: 'none',
   },
-  down: {
+  unreachable: {
     color: theme.palette.error.contrastText,
     borderColor: theme.palette.error.surface,
     backgroundColor: theme.palette.error.surface,
     transition: 'none',
+  },
+  unknown: {
+    color: theme.palette.text.primary,
+    borderColor: theme.palette.text.primary,
   },
 });
