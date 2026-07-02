@@ -36,12 +36,10 @@ This restores all monitored services, dashboards, alert rules, and historical da
 
 ## Step 4: Reconfigure PMM Clients
 
-Point each PMM Client to the new server so it sends monitoring data to the correct endpoint:
-
-```bash
+Point each PMM Client to the new server so it sends monitoring data to the correct endpoint: `
 pmm-admin config --server-insecure-tls \
   --server-url=https://service_token:<YOUR_GLSA_TOKEN>@<NEW_PMM_SERVER_IP>:443
-```
+`
 
 ## Step 5: Verify and decommission
 Confirm the migration is complete, then shut down the old instance:
