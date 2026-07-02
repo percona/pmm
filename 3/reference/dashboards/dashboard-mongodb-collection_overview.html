@@ -16583,10 +16583,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <p>Shows the five most-written collections in the selected database as a table, with the database name, collection name, and total write count (inserts, updates, and deletes combined) since the service started.</p>
 <p>Use this to find collections under the heaviest write load. Collections with very high write counts are the most sensitive to index overhead, as every write must update all indexes on that collection.</p>
 <h3 id="top-5-hottest-collections-by-read-rate">Top 5 Hottest Collections by Read (Rate)<a class="headerlink" href="#top-5-hottest-collections-by-read-rate" title="Permanent link">&para;</a></h3>
-<p>Shows the five most-read collections as a horizontal bar gauge, ranked by current read rate (reads per second) over the selected interval.</p>
+<p>Shows the five most-read collections as a horizontal bar gauge, ranked by current read rate (reads per second) using a stable rate window. Collection names are kept visible for long names.</p>
 <p>Unlike the Total panels above, this reflects recent activity rather than cumulative counts, so it&rsquo;s more useful for spotting what&rsquo;s hot right now. Use it during an incident or after a deployment to see which collections are suddenly receiving more traffic than usual.</p>
 <h3 id="top-5-hottest-collections-by-write-rate">Top 5 Hottest Collections by Write (Rate)<a class="headerlink" href="#top-5-hottest-collections-by-write-rate" title="Permanent link">&para;</a></h3>
-<p>Shows the five most-written collections as a horizontal bar gauge, ranked by current write rate (inserts, updates, and deletes per second) over the selected interval.</p>
+<p>Shows the five most-written collections as a horizontal bar gauge, ranked by current write rate (inserts, updates, and deletes per second) using a stable rate window. Collection names are kept visible for long names.</p>
 <p>Use this alongside the Read Rate panel to get a full picture of which collections are under the most active load right now. A collection appearing in both the read and write rate charts is handling high traffic on both sides and is worth watching closely for performance issues.</p>
 <h2 id="database-level">Database Level<a class="headerlink" href="#database-level" title="Permanent link">&para;</a></h2>
 <h3 id="collections-statistics-for-database-rate">Collections statistics for $database (rate)<a class="headerlink" href="#collections-statistics-for-database-rate" title="Permanent link">&para;</a></h3>
@@ -16622,7 +16622,7 @@ If you&rsquo;ve selected multiple databases using the filter, a separate table a
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 2, 2026 15:38:22 UTC">July 2, 2026</span>
   </span>
 
     

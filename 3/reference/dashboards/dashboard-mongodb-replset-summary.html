@@ -17102,13 +17102,13 @@ Shows the total logical data size (uncompressed data plus indexes) across all us
 <p>Shows operation rates per second, broken down by type: query, insert, update, delete, getmore, replicated write operations (repl_insert, repl_update, repl_delete), and TTL index document deletions.</p>
 <p>Use this to understand the workload mix. A spike in <code>repl_*</code> operations on a secondary means it is catching up on replication. A high <code>ttl_delete</code> rate means a batch of documents expired at once.</p>
 <h3 id="top-hottest-collections-by-read">Top Hottest Collections by Read<a class="headerlink" href="#top-hottest-collections-by-read" title="Permanent link">&para;</a></h3>
-<p>Shows the five collections with the highest read operation rate per second.</p>
+<p>Shows the five collections with the highest read operation rate per second using a stable rate window. Use this to identify your most frequently accessed collections and optimize their performance.</p>
 <p>Use this to identify which collections are driving the most read traffic. High-traffic collections are the first place to look when investigating read latency or indexing opportunities.</p>
 <h3 id="operation-latencies">Operation Latencies<a class="headerlink" href="#operation-latencies" title="Permanent link">&para;</a></h3>
 <p>Shows average operation latency in microseconds over time, broken down by operation type: reads, writes, and commands.</p>
 <p>Rising read latency alongside normal write latency usually points to a query or index problem. If all operation types are elevated, look at resource contention such as CPU usage or lock queues.</p>
 <h3 id="top-hottest-collections-by-write">Top Hottest Collections by Write<a class="headerlink" href="#top-hottest-collections-by-write" title="Permanent link">&para;</a></h3>
-<p>Shows the five collections with the highest write operation rate per second, combining inserts, updates, and deletes.</p>
+<p>Shows the five collections with the highest write operation rate per second using a stable rate window, combining inserts, updates, and deletes.</p>
 <p>Use this to identify which collections are driving the most write traffic and where write optimization would have the most impact.</p>
 <h3 id="query-efficiency">Query Efficiency<a class="headerlink" href="#query-efficiency" title="Permanent link">&para;</a></h3>
 <p>Shows two scan ratios over time:</p>
@@ -17188,7 +17188,7 @@ Shows the total logical data size (uncompressed data plus indexes) across all us
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="June 24, 2026 16:03:07 UTC">June 24, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 2, 2026 15:38:22 UTC">July 2, 2026</span>
   </span>
 
     

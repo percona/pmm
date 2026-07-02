@@ -17356,11 +17356,11 @@ Use this to spot growth trends, identify unexpected spikes, and plan when you wi
 <h3 id="command-operations">Command Operations<a class="headerlink" href="#command-operations" title="Permanent link">&para;</a></h3>
 <p>Shows operation rates per second broken down by type: query, insert, update, delete, getmore, replicated write operations, and TTL index document deletions. Use this to understand the overall workload mix. A spike in any operation type helps correlate with latency changes in <strong>Operations Latencies</strong>.</p>
 <h3 id="top-hottest-collections-by-read">Top Hottest Collections by Read<a class="headerlink" href="#top-hottest-collections-by-read" title="Permanent link">&para;</a></h3>
-<p>Shows the five collections with the highest read rates, in operations per second. Use this to identify collections that may need index tuning or caching improvements.</p>
+<p>Shows the five collections with the highest read rates, in operations per second using a stable rate window. The bar gauge keeps collection names visible. Use this to identify collections that may need index tuning or caching improvements.</p>
 <h3 id="operations-latencies">Operations Latencies<a class="headerlink" href="#operations-latencies" title="Permanent link">&para;</a></h3>
 <p>Shows average operation latency in microseconds over time, broken down by reads, writes, and commands. Rising latency on one operation type while others remain stable usually points to a query or index problem specific to that operation type.</p>
 <h3 id="top-hottest-collections-by-write">Top Hottest Collections by Write<a class="headerlink" href="#top-hottest-collections-by-write" title="Permanent link">&para;</a></h3>
-<p>Shows the five collections with the highest write rates, in operations per second. Use this to identify collections that may be driving lock contention or replication lag.</p>
+<p>Shows the five collections with the highest write rates, in operations per second using a stable rate window. The bar gauge keeps collection names visible. Use this to identify collections that may be driving lock contention or replication lag.</p>
 <h3 id="operations-per-shard">Operations Per Shard<a class="headerlink" href="#operations-per-shard" title="Permanent link">&para;</a></h3>
 <p>Shows total operations per second for each shard as a stacked area chart, combining all operation types. Use this to see how query load is distributed across shards and whether any shard is taking a disproportionate share of the work.</p>
 <h3 id="mongodb-versions">MongoDB Versions<a class="headerlink" href="#mongodb-versions" title="Permanent link">&para;</a></h3>
@@ -17433,7 +17433,7 @@ Use this to spot growth trends, identify unexpected spikes, and plan when you wi
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="June 24, 2026 16:03:07 UTC">June 24, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 2, 2026 15:38:22 UTC">July 2, 2026</span>
   </span>
 
     
