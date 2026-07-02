@@ -14,12 +14,25 @@ import type { QueryData } from 'types/rta.types';
 import { Icon } from 'components/icon';
 import { Messages } from './RealtimeOverview.messages';
 import { createRealtimeSessionsUrl } from 'utils/link.utils';
+import FileDownloadOutlined from '@mui/icons-material/FileDownloadOutlined';
+import { Tooltip } from '@percona/percona-ui';
+import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
 import { AutoRefreshSelect } from './auto-refresh-select';
+import { exportRtaQueriesToCsv } from './export/exportRtaQueriesToCsv';
 
 const EMPTY_QUERIES: QueryData[] = [];
+
+const EXPORT_BUTTON_SX = {
+  width: 100,
+  height: 36,
+  '&.Mui-disabled': {
+    cursor: 'not-allowed',
+    pointerEvents: 'auto',
+  },
+};
 
 const RealtimeOverviewPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -92,7 +105,7 @@ const RealtimeOverviewPage: FC = () => {
         queries={tableQueries}
         onQuerySelected={handleQuerySelected}
         onNavigableQueriesChange={setNavigableQueries}
-        actions={() => (
+        actions={({ table }) => (
           <Stack
             direction="row"
             alignItems="center"
@@ -155,6 +168,50 @@ const RealtimeOverviewPage: FC = () => {
                   }}
                 >
                   {Messages.refresh}
+                </Button>
+              )}
+              {fetching ? (
+                <Tooltip title={Messages.exportDisabledTooltip} arrow>
+                  <Box
+                    component="span"
+                    sx={{ cursor: 'not-allowed', display: 'inline-flex' }}
+                  >
+                    <Button
+                      data-testid="overview-table-export-button"
+                      size="small"
+                      variant="text"
+                      startIcon={<FileDownloadOutlined />}
+                      disabled
+                      color="inherit"
+                      disableElevation
+                      sx={EXPORT_BUTTON_SX}
+                    >
+                      {Messages.export}
+                    </Button>
+                  </Box>
+                </Tooltip>
+              ) : (
+                <Button
+                  data-testid="overview-table-export-button"
+                  size="small"
+                  variant="text"
+                  startIcon={<FileDownloadOutlined />}
+                  disabled={
+                    serviceIds.length === 0 ||
+                    table.getPrePaginationRowModel().rows.length === 0
+                  }
+                  onClick={() =>
+                    exportRtaQueriesToCsv(
+                      table
+                        .getPrePaginationRowModel()
+                        .rows.map((row) => row.original)
+                    )
+                  }
+                  color="inherit"
+                  disableElevation
+                  sx={EXPORT_BUTTON_SX}
+                >
+                  {Messages.export}
                 </Button>
               )}
             </Stack>

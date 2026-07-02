@@ -9,6 +9,14 @@ import {
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Messages } from './RealtimeOverview.messages';
 
+const { exportRtaQueriesToCsv } = vi.hoisted(() => ({
+  exportRtaQueriesToCsv: vi.fn(),
+}));
+
+vi.mock('./export/exportRtaQueriesToCsv', () => ({
+  exportRtaQueriesToCsv,
+}));
+
 const { searchQueries, getRunningSessions } = vi.hoisted(() => ({
   searchQueries: vi.fn().mockResolvedValue({
     queries1: [],
@@ -349,5 +357,53 @@ describe('RealtimeOverview', () => {
     await waitFor(() =>
       expect(screen.getByTestId('realtime-selection')).toBeInTheDocument()
     );
+  });
+
+  it('disables export while live updates are running', async () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    await waitFor(() => screen.getByTestId('realtime-overview-table'));
+
+    expect(screen.getByTestId('overview-table-export-button')).toBeDisabled();
+  });
+
+  it('enables export after pausing live updates', async () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    await waitFor(() => screen.getByTestId('realtime-overview-table'));
+
+    fireEvent.click(screen.getByTestId('overview-table-pause-button'));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('overview-table-export-button')).not.toBeDisabled()
+    );
+  });
+
+  it('exports visible rows when export is clicked', async () => {
+    renderComponent({
+      initialEntry:
+        '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
+    });
+
+    await waitFor(() => screen.getByTestId('realtime-overview-table'));
+
+    fireEvent.click(screen.getByTestId('overview-table-pause-button'));
+
+    fireEvent.click(screen.getByTestId('overview-table-export-button'));
+
+    expect(exportRtaQueriesToCsv).toHaveBeenCalledWith([
+      expect.objectContaining({
+        queryId: TEST_MONGO_DB_QUERY_DATA.queryId,
+        serviceName: TEST_MONGO_DB_QUERY_DATA.serviceName,
+        queryText: TEST_MONGO_DB_QUERY_DATA.queryText,
+        queryExecutionDurationMs: 10,
+      }),
+    ]);
   });
 });
