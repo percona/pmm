@@ -234,7 +234,7 @@ func TestMySQLExplain(t *testing.T) {
 			OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a, err := NewMySQLExplainAction("", time.Second, params)
-		require.ErrorContains(t, err, "EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value.")
+		require.ErrorIs(t, err, errExplainFailedMaxQueryLength)
 		assert.Nil(t, a)
 	})
 

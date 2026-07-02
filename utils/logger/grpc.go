@@ -25,7 +25,7 @@ type GRPC struct {
 }
 
 // V reports whether verbosity level l is at least the requested verbose level.
-func (v *GRPC) V(l int) bool { //nolint:revive
+func (v *GRPC) V(int) bool {
 	// we don't need real implementation ATM
 	return true
 }

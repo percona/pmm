@@ -219,7 +219,7 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 
 // Readiness returns an error when some PMM Server component is not ready yet or is being restarted.
 // It can be used as for Docker health check or Kubernetes readiness probe.
-func (s *Server) Readiness(ctx context.Context, req *serverv1.ReadinessRequest) (*serverv1.ReadinessResponse, error) { //nolint:revive
+func (s *Server) Readiness(ctx context.Context, _ *serverv1.ReadinessRequest) (*serverv1.ReadinessResponse, error) {
 	var notReady bool
 	for n, svc := range map[string]healthChecker{
 		"grafana":         s.grafanaClient,
@@ -244,7 +244,7 @@ func (s *Server) Readiness(ctx context.Context, req *serverv1.ReadinessRequest) 
 // LeaderHealthCheck checks if the instance is the leader in a cluster.
 // Returns an error if the instance isn't the leader.
 // It's used for HA purpose.
-func (s *Server) LeaderHealthCheck(ctx context.Context, req *serverv1.LeaderHealthCheckRequest) (*serverv1.LeaderHealthCheckResponse, error) { //nolint:revive
+func (s *Server) LeaderHealthCheck(context.Context, *serverv1.LeaderHealthCheckRequest) (*serverv1.LeaderHealthCheckResponse, error) {
 	if s.haService.IsLeader() {
 		return &serverv1.LeaderHealthCheckResponse{}, nil
 	}
@@ -540,11 +540,12 @@ func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.Re
 }
 
 // GetSettings returns current PMM Server settings.
-func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsRequest) (*serverv1.GetSettingsResponse, error) { //nolint:revive
+func (s *Server) GetSettings(ctx context.Context, _ *serverv1.GetSettingsRequest) (*serverv1.GetSettingsResponse, error) {
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
-	settings, err := models.GetSettings(s.db)
+	dbCtx := s.db.WithContext(ctx)
+	settings, err := models.GetSettings(dbCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -554,7 +555,7 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 		// In HA mode, internal QAN is always disabled as PostgreSQL is external
 		disabledInternalPgQan = true
 	} else {
-		internalPgQanAgent, err := s.getInternalPgQANAgent(s.db.Querier)
+		internalPgQanAgent, err := s.getInternalPgQANAgent(dbCtx)
 		if err != nil {
 			// if we can't get the agent, log the error and set it to disabled.
 			s.l.Errorf("failed to get internal pgQAN agent: %v", err)
@@ -569,11 +570,11 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 }
 
 // GetReadOnlySettings returns current PMM Server settings .
-func (s *Server) GetReadOnlySettings(ctx context.Context, req *serverv1.GetReadOnlySettingsRequest) (*serverv1.GetReadOnlySettingsResponse, error) { //nolint:revive
+func (s *Server) GetReadOnlySettings(ctx context.Context, _ *serverv1.GetReadOnlySettingsRequest) (*serverv1.GetReadOnlySettingsResponse, error) {
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
-	settings, err := models.GetSettings(s.db)
+	settings, err := models.GetSettings(s.db.WithContext(ctx))
 	if err != nil {
 		return nil, err
 	}

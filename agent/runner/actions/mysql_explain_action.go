@@ -50,24 +50,29 @@ type explainResponse struct {
 }
 
 // ErrCannotEncodeExplainResponse cannot JSON encode the explain response.
-var errCannotEncodeExplainResponse = errors.New("cannot JSON encode the explain response")
+var (
+	errCannotEncodeExplainResponse = errors.New("cannot JSON encode the explain response")
+	errEmptyQuery                  = errors.New("query to EXPLAIN is empty")
+	errExplainFailedMaxQueryLength = errors.New("query EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value")
+	errExplainFailedDMLOnly        = errors.New("query EXPLAIN functionality is supported only for DML queries - SELECT, INSERT, UPDATE, DELETE and REPLACE")
+)
 
 // NewMySQLExplainAction creates MySQL Explain Action.
 // This is an Action that can run `EXPLAIN` command on MySQL service with given DSN.
 func NewMySQLExplainAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_MySQLExplainParams) (Action, error) {
 	if params.Query == "" {
-		return nil, errors.New("Query to EXPLAIN is empty")
+		return nil, errEmptyQuery
 	}
 
 	// You cant run Explain on trimmed queries.
 	if strings.HasSuffix(params.Query, "...") {
-		return nil, errors.New("EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value.") //nolint:revive,lll // explain is a keyword
+		return nil, errExplainFailedMaxQueryLength
 	}
 
 	// Explain is supported only for DML queries.
 	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
 	if !isDMLQuery(params.Query) {
-		return nil, errors.New("EXPLAIN functionality is supported only for DML queries - SELECT, INSERT, UPDATE, DELETE and REPLACE.") //nolint:revive,lll // explain is a keyword
+		return nil, errExplainFailedDMLOnly
 	}
 
 	return &mysqlExplainAction{

@@ -14,7 +14,7 @@
 //
 
 // Package mongo_fix provides utilities for fixing MongoDB-related issues.
-package mongo_fix //nolint:revive
+package mongo_fix
 
 import (
 	"net/url"
