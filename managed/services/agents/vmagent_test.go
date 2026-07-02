@@ -29,7 +29,7 @@ func TestMaxScrapeSize(t *testing.T) {
 	t.Run("by default 64MiB", func(t *testing.T) {
 		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 		require.NoError(t, err)
-		actual := vmAgentConfig("", params)
+		actual := vmAgentConfig("", params, false)
 		assert.Contains(t, actual.Env, "VMAGENT_promscrape_maxScrapeSize="+maxScrapeSizeDefault)
 	})
 	t.Run("overridden with ENV", func(t *testing.T) {
@@ -37,7 +37,7 @@ func TestMaxScrapeSize(t *testing.T) {
 		require.NoError(t, err)
 		newValue := "16MiB"
 		t.Setenv(maxScrapeSizeEnv, newValue)
-		actual := vmAgentConfig("", params)
+		actual := vmAgentConfig("", params, false)
 		assert.Contains(t, actual.Env, "VMAGENT_promscrape_maxScrapeSize="+newValue)
 	})
 	t.Run("VMAGENT_ ENV variables", func(t *testing.T) {
@@ -45,7 +45,7 @@ func TestMaxScrapeSize(t *testing.T) {
 		require.NoError(t, err)
 		t.Setenv("VMAGENT_promscrape_maxScrapeSize", "16MiB")
 		t.Setenv("VM_remoteWrite_basicAuth_password", "password")
-		actual := vmAgentConfig("", params)
+		actual := vmAgentConfig("", params, false)
 		assert.Contains(t, actual.Env, "VMAGENT_promscrape_maxScrapeSize=16MiB")
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
 		assert.NotContains(t, actual.Env, "VM_remoteWrite_basicAuth_password=password")
@@ -54,7 +54,7 @@ func TestMaxScrapeSize(t *testing.T) {
 		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://victoriametrics:8428")
 		require.NoError(t, err)
 		t.Setenv("VMAGENT_promscrape_maxScrapeSize", "16MiB")
-		actual := vmAgentConfig("", params)
+		actual := vmAgentConfig("", params, false)
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://victoriametrics:8428/api/v1/write")
 		assert.Contains(t, actual.Env, "VMAGENT_promscrape_maxScrapeSize=16MiB")
 		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
@@ -62,7 +62,7 @@ func TestMaxScrapeSize(t *testing.T) {
 	t.Run("External Victoria Metrics with credentials in URL", func(t *testing.T) {
 		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://user:pass@victoriametrics:8428")
 		require.NoError(t, err)
-		actual := vmAgentConfig("", params)
+		actual := vmAgentConfig("", params, false)
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://user:pass@victoriametrics:8428/api/v1/write")
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=user")
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=pass")
@@ -73,7 +73,7 @@ func TestMaxScrapeSize(t *testing.T) {
 	t.Run("External Victoria Metrics with username only in URL", func(t *testing.T) {
 		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://user@victoriametrics:8428")
 		require.NoError(t, err)
-		actual := vmAgentConfig("", params)
+		actual := vmAgentConfig("", params, false)
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://user@victoriametrics:8428/api/v1/write")
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=user")
 		// Should not contain password or server credentials
@@ -84,7 +84,7 @@ func TestMaxScrapeSize(t *testing.T) {
 	t.Run("External Victoria Metrics with special characters in credentials", func(t *testing.T) {
 		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://user%40domain:p%40ss%21@victoriametrics:8428")
 		require.NoError(t, err)
-		actual := vmAgentConfig("", params)
+		actual := vmAgentConfig("", params, false)
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://user%40domain:p%40ss%21@victoriametrics:8428/api/v1/write")
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=user@domain")
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=p@ss!")
@@ -95,7 +95,7 @@ func TestMaxScrapeSize(t *testing.T) {
 		// Set system environment variables that should override defaults
 		t.Setenv("VMAGENT_loggerLevel", "DEBUG")
 		t.Setenv("VMAGENT_remoteWrite_maxDiskUsagePerURL", "2147483648") // 2GB instead of 1GB
-		actual := vmAgentConfig("", params)
+		actual := vmAgentConfig("", params, false)
 
 		// Verify that system variables override defaults
 		assert.Contains(t, actual.Env, "VMAGENT_loggerLevel=DEBUG")
@@ -111,7 +111,7 @@ func TestMaxScrapeSize(t *testing.T) {
 	t.Run("httpListenAddr is in Args not Env", func(t *testing.T) {
 		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 		require.NoError(t, err)
-		actual := vmAgentConfig("", params)
+		actual := vmAgentConfig("", params, false)
 
 		// Verify that httpListenAddr is in Args (not overrideable)
 		found := false
@@ -180,7 +180,7 @@ func TestVMAgentExternalVM(t *testing.T) {
 			params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, tc.vmURL)
 			require.NoError(t, err)
 
-			actual := vmAgentConfig("", params)
+			actual := vmAgentConfig("", params, false)
 
 			// External VM uses actual URL
 			expectedURL := params.URL() + "api/v1/write"
@@ -211,7 +211,7 @@ func TestVMAgentInternalVM(t *testing.T) {
 		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 		require.NoError(t, err)
 
-		actual := vmAgentConfig("", params)
+		actual := vmAgentConfig("", params, false)
 
 		// Internal VM should use templated URL
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url={{.server_url}}/victoriametrics/api/v1/write")
@@ -224,6 +224,139 @@ func TestVMAgentInternalVM(t *testing.T) {
 		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=admin")
 		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=secret")
 	})
+
+	t.Run("Internal VM sets expected defaults", func(t *testing.T) {
+		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+		require.NoError(t, err)
+
+		actual := vmAgentConfig("", params, false)
+
+		// Positive assertions for defaults that are otherwise only checked indirectly.
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_tlsInsecureSkipVerify={{.server_insecure}}")
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_maxDiskUsagePerURL=1073741824")
+		assert.Contains(t, actual.Env, "VMAGENT_loggerLevel=INFO")
+	})
+
+	t.Run("Internal VM drops deployment-injected VM basic-auth in favor of server credentials", func(t *testing.T) {
+		// The delete(systemEnvs, ...) block also applies to non-HA internal VM: a deployment that
+		// injects VMAGENT_remoteWrite_basicAuth_* must not override the server credentials used for
+		// the /victoriametrics/ proxy path.
+		t.Setenv("VMAGENT_remoteWrite_basicAuth_username", "injected_user")
+		t.Setenv("VMAGENT_remoteWrite_basicAuth_password", "injected_pass")
+
+		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+		require.NoError(t, err)
+
+		actual := vmAgentConfig("", params, false)
+
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password={{.server_password}}")
+		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=injected_user")
+		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=injected_pass")
+	})
+}
+
+func TestVMAgentHA(t *testing.T) {
+	// In HA mode the configured VictoriaMetrics URL (PMM_VM_URL) points at an in-cluster-only
+	// endpoint that external pmm-clients cannot reach, so agents must route metric writes through
+	// the PMM server regardless of the external-looking URL (PMM-14678).
+	t.Run("HA routes external VM through the server with server credentials", func(t *testing.T) {
+		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://user:pass@victoriametrics:8428")
+		require.NoError(t, err)
+
+		actual := vmAgentConfig("", params, true)
+
+		// Must use the server-proxied path + server credentials...
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url={{.server_url}}/victoriametrics/api/v1/write")
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password={{.server_password}}")
+
+		// ...and must NOT leak the external VM URL or its embedded credentials (env or args).
+		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_url=http://user:pass@victoriametrics:8428/api/v1/write")
+		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=user")
+		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=pass")
+		for _, arg := range actual.Args {
+			assert.NotContains(t, arg, "-remoteWrite.basicAuth.username=user")
+			assert.NotContains(t, arg, "-remoteWrite.basicAuth.password=pass")
+		}
+	})
+
+	t.Run("HA ignores deployment VM basic-auth override and uses server credentials", func(t *testing.T) {
+		// The HA chart injects the VictoriaMetrics credentials as VMAGENT_remoteWrite_basicAuth_*
+		// (for a direct push to vmauth). When routing through the server those must be ignored,
+		// otherwise the server's /victoriametrics/ proxy rejects them with 401 (PMM-14678).
+		t.Setenv("VMAGENT_remoteWrite_basicAuth_username", "victoriametrics_pmm")
+		t.Setenv("VMAGENT_remoteWrite_basicAuth_password", "vm-password")
+
+		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://victoriametrics_pmm:vm-password@vmauth:8427")
+		require.NoError(t, err)
+
+		actual := vmAgentConfig("", params, true)
+
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password={{.server_password}}")
+		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=victoriametrics_pmm")
+		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=vm-password")
+	})
+
+	t.Run("HA routes external VM without credentials through the server", func(t *testing.T) {
+		// Even when PMM_VM_URL carries no basic-auth, HA must still route through the server proxy
+		// with server credentials rather than pushing directly to the in-cluster VM endpoint.
+		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://victoriametrics:8428")
+		require.NoError(t, err)
+
+		actual := vmAgentConfig("", params, true)
+
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url={{.server_url}}/victoriametrics/api/v1/write")
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password={{.server_password}}")
+		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_url=http://victoriametrics:8428/api/v1/write")
+	})
+
+	t.Run("HA emits the canonical Args set with no external VM basic-auth args", func(t *testing.T) {
+		// When routing through the server, the external VM's VMAgentArgs() basic-auth flags must not be appended.
+		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://user:pass@victoriametrics:8428")
+		require.NoError(t, err)
+
+		actual := vmAgentConfig("", params, true)
+
+		assert.ElementsMatch(t, []string{
+			"-envflag.enable=true",
+			"-envflag.prefix=VMAGENT_",
+			"-remoteWrite.tmpDataPath={{.tmp_dir}}/vmagent-temp-dir",
+			"-promscrape.config={{.TextFiles.vmagentscrapecfg}}",
+			"-httpListenAddr=127.0.0.1:{{.listen_port}}",
+		}, actual.Args)
+	})
+}
+
+func TestVMAgentExternalVMBasicAuthOverridePreserved(t *testing.T) {
+	// Guards the scope of the delete(systemEnvs, ...) block: for a genuine external VM (non-HA), a
+	// deployment-supplied VMAGENT_remoteWrite_basicAuth_* override must be preserved
+	t.Setenv("VMAGENT_remoteWrite_basicAuth_username", "override_user")
+	t.Setenv("VMAGENT_remoteWrite_basicAuth_password", "override_pass")
+
+	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://user:pass@victoriametrics:8428")
+	require.NoError(t, err)
+
+	actual := vmAgentConfig("", params, false)
+
+	// The injected override survives and wins over the URL-extracted credentials...
+	assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=override_user")
+	assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=override_pass")
+	// ...and server credentials are not used for an external VM.
+	assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
+	assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password={{.server_password}}")
+}
+
+func TestVMAgentScrapeConfigPassthrough(t *testing.T) {
+	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+
+	scrapeCfg := "global:\n  scrape_interval: 15s\n"
+	actual := vmAgentConfig(scrapeCfg, params, false)
+
+	assert.Equal(t, scrapeCfg, actual.TextFiles["vmagentscrapecfg"])
 }
 
 func TestExtractCredentialsFromURL(t *testing.T) {
