@@ -1,24 +1,17 @@
-# Configure environment variables for PMM Server (Virtual machines: AMI/OVF)
+# Configure environment variables for PMM Server on AWS
 
-!!! warning "OVF support ending in PMM 3.9.0"
-    OVF virtual appliance deployment is deprecated starting with PMM 3.7.0 and will be removed in PMM 3.9.0 (expected July 2026). If you currently run PMM on a virtual appliance, [migrate to a supported deployment method](index.md).
+Set up environment variables in the `systemd` environment file to customize performance, storage, features, and other settings without modifying the container directly.
 
-Set up environment variables in the `systemd` environment file to customize performance, storage, features, and other settings without modifying the container directly. Use these instructions if you have PMM Server running on:
-
-- **AWS AMI instances**: EC2 instances deployed from AWS Marketplace
-- **Virtual appliances (OVF)**: Deployed on VirtualBox and some other virtualization platforms
-
-Both deployment types use the same `systemd` user service that launches a Podman container, with environment variables configured through a dedicated environment file.
+Your PMM Server on AWS runs as a `systemd` user service that launches a Podman container, with environment variables configured through a dedicated environment file.
 
 ## Configure environment variables
-Your PMM Server runs as a systemd user service that launches a Podman container. You can customize its behavior by setting environment variables in the `pmm-server.env` file on your virtual machine.
 
-To set environment variables for PMM Server on virtual machine deployments:
+To set environment variables for PMM Server on AWS:
 {.power-number}
 
-1. Connect to your PMM Server virtual machine via SSH using the `admin` user (see [SSH configuration](../virtual/ssh.md) for authentication setup):
+1. Connect to your PMM Server instance via SSH using the `admin` user:
     ```bash
-    ssh -i your-key admin@<pmm-server-ip>
+    ssh -i your-key.pem admin@<pmm-server-ip>
     ```
 
 2. Open `/home/admin/.config/systemd/user/pmm-server.env` and edit the environment variables file. This file is automatically loaded by the `systemd` service:
@@ -48,11 +41,11 @@ To set environment variables for PMM Server on virtual machine deployments:
 
 ## Available variables
 
-Unlike Docker deployments that use `-e` flags, virtual machines configure PMM Server using the systemd environment file instructions above. However, PMM uses the same [list of environment variables](../docker/env_var.md) across all deployment methods.
+Unlike Docker deployments that use `-e` flags, AWS AMI instances configure PMM Server using the systemd environment file instructions above. However, PMM uses the same [list of environment variables](../docker/env_var.md) across all deployment methods.
 
-### Common examples for virtual machines
+### Common examples for AWS AMI
 
-These variables are particularly useful for both AWS AMI and virtual appliance deployments:
+These variables are particularly useful for AWS AMI deployments:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -65,7 +58,7 @@ These variables are particularly useful for both AWS AMI and virtual appliance d
 
 ### VictoriaMetrics performance tuning
 
-PMM Server uses VictoriaMetrics as its metrics storage engine. For high-volume environments or extended retention periods, you may need to tune VictoriaMetrics settings to optimize performance and resource usage. To do this: 
+PMM Server uses VictoriaMetrics as its metrics storage engine. For high-volume environments or extended retention periods, you may need to tune VictoriaMetrics settings to optimize performance and resource usage. To do this:
 {.power-number}
 
 1. Add the following variables to your `pmm-server.env` file:

@@ -22,7 +22,6 @@ Install and run at least one PMM Server using one of the following deployment me
 | Environment/Requirement       | Recommended method          | Documentation Link                                                                 |
 |-------------------------------|-----------------------------|-----------------------------------------------------------------------------------|
 | **Kubernetes** environments   | Helm chart                  | [Helm installation guide →](../install-pmm-server/deployment-options/helm/index.md) |
-| **Virtual machines** *(deprecated)* | Virtual appliance (VirtualBox and other OVF-compatible platforms). Deprecated in PMM 3.7.0, will be removed in PMM 3.9.0. | [VM installation →](../install-pmm-server/deployment-options/virtual/index.md)   |
 | **Quick setup** needs         | Docker container            | [Docker guide →](../install-pmm-server/deployment-options/docker/index.md)         |
 | **Security-focused** setups   | Podman (rootless containers)| [Podman instructions →](../install-pmm-server/deployment-options/podman/index.md)  |
 |  **AWS cloud** deployments     | AWS Marketplace             | [AWS instructions →](../install-pmm-server/deployment-options/aws/deploy_aws.md)|

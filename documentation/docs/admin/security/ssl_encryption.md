@@ -23,7 +23,7 @@ Configure both the Server and Client to implement SSL/TLS encryption in your PMM
 
 ### Certificate storage location
 
-With Docker, OVF, and AMI deployments, certificates are stored in `/srv/nginx` where self-signed certificates are placed by default.
+With Docker and AMI deployments, certificates are stored in `/srv/nginx` where self-signed certificates are placed by default.
 
 ## Configure server-side certificates
 
