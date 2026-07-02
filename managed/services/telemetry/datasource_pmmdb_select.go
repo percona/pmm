@@ -98,10 +98,10 @@ func (d *dsPmmDBSelect) FetchMetrics(ctx context.Context, config Config) ([]*tel
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
 
-func (d *dsPmmDBSelect) Init(ctx context.Context) error { //nolint:revive
+func (d *dsPmmDBSelect) Init(context.Context) error {
 	return nil
 }
 
-func (d *dsPmmDBSelect) Dispose(ctx context.Context) error { //nolint:revive
+func (d *dsPmmDBSelect) Dispose(context.Context) error {
 	return nil
 }

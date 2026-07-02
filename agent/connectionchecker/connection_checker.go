@@ -39,7 +39,7 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tlshelpers"
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 	"github.com/percona/pmm/agent/utils/templates"
 	agent_version "github.com/percona/pmm/agent/utils/version"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -181,7 +181,7 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 		return &res
 	}
 
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongofix.ClientOptionsForDSN(dsn)
 	if err != nil {
 		cc.l.Debugf("failed to parse DSN: %s", err)
 		res.Error = err.Error()

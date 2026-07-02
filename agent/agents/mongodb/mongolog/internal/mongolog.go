@@ -33,7 +33,7 @@ import (
 	"github.com/percona/pmm/agent/agents/mongodb/shared/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/shared/sender"
 	"github.com/percona/pmm/agent/utils/filereader"
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 )
 
 const (
@@ -220,7 +220,7 @@ func createSession(ctx context.Context, dsn string, agentID string) (*mongo.Clie
 	ctxWithTimeout, cancel := context.WithTimeout(ctx, mgoTimeoutDialInfo)
 	defer cancel()
 
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongofix.ClientOptionsForDSN(dsn)
 	if err != nil {
 		return nil, err
 	}

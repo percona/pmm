@@ -23,7 +23,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
@@ -89,7 +89,7 @@ func (a *mongodbQueryAdmincommandAction) DSN() string {
 // Run runs an action and returns output and error.
 func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error) {
 	defer templates.CleanupTempDir(a.tmpDir, logrus.WithField("component", mongoDBQueryAdminCommandActionType))
-	opts, err := mongo_fix.ClientOptionsForDSN(a.dsn)
+	opts, err := mongofix.ClientOptionsForDSN(a.dsn)
 	if err != nil {
 		return nil, err
 	}

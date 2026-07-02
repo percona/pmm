@@ -243,8 +243,8 @@ func (s *BackupService) ScheduleBackup(ctx context.Context, req *backupv1.Schedu
 }
 
 // ListScheduledBackups lists all tasks related to a backup.
-func (s *BackupService) ListScheduledBackups(ctx context.Context, req *backupv1.ListScheduledBackupsRequest) (*backupv1.ListScheduledBackupsResponse, error) { //nolint:revive,lll
-	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{
+func (s *BackupService) ListScheduledBackups(ctx context.Context, _ *backupv1.ListScheduledBackupsRequest) (*backupv1.ListScheduledBackupsResponse, error) {
+	tasks, err := models.FindScheduledTasks(s.db.WithContext(ctx), models.ScheduledTasksFilter{
 		Types: []models.ScheduledTaskType{
 			models.ScheduledMySQLBackupTask,
 			models.ScheduledMongoDBBackupTask,
@@ -568,13 +568,14 @@ func (s *BackupService) Enabled() bool {
 }
 
 // DeleteArtifact deletes specified artifact and its files.
-func (s *BackupService) DeleteArtifact(ctx context.Context, req *backupv1.DeleteArtifactRequest) (*backupv1.DeleteArtifactResponse, error) { //nolint:revive
-	artifact, err := models.FindArtifactByID(s.db.Querier, req.ArtifactId)
+func (s *BackupService) DeleteArtifact(ctx context.Context, req *backupv1.DeleteArtifactRequest) (*backupv1.DeleteArtifactResponse, error) {
+	dbCtx := s.db.WithContext(ctx)
+	artifact, err := models.FindArtifactByID(dbCtx, req.ArtifactId)
 	if err != nil {
 		return nil, err
 	}
 
-	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+	location, err := models.FindBackupLocationByID(dbCtx, artifact.LocationID)
 	if err != nil {
 		return nil, err
 	}
