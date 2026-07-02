@@ -359,8 +359,14 @@ type AddRDSServiceParams struct {
 	MaxPostgresqlExporterConnections int32 `protobuf:"varint,33,opt,name=max_postgresql_exporter_connections,json=maxPostgresqlExporterConnections,proto3" json:"max_postgresql_exporter_connections,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,35,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// List of collector names to disable in the MySQL database exporter.
+	// Applies only when engine is DISCOVER_RDS_ENGINE_MYSQL, otherwise it is ignored.
+	MysqlDisableCollectors []string `protobuf:"bytes,36,rep,name=mysql_disable_collectors,json=mysqlDisableCollectors,proto3" json:"mysql_disable_collectors,omitempty"`
+	// List of collector names to disable in the PostgreSQL database exporter.
+	// Applies only when engine is DISCOVER_RDS_ENGINE_POSTGRESQL, otherwise it is ignored.
+	PostgresqlDisableCollectors []string `protobuf:"bytes,37,rep,name=postgresql_disable_collectors,json=postgresqlDisableCollectors,proto3" json:"postgresql_disable_collectors,omitempty"`
+	unknownFields               protoimpl.UnknownFields
+	sizeCache                   protoimpl.SizeCache
 }
 
 func (x *AddRDSServiceParams) Reset() {
@@ -638,6 +644,20 @@ func (x *AddRDSServiceParams) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+func (x *AddRDSServiceParams) GetMysqlDisableCollectors() []string {
+	if x != nil {
+		return x.MysqlDisableCollectors
+	}
+	return nil
+}
+
+func (x *AddRDSServiceParams) GetPostgresqlDisableCollectors() []string {
+	if x != nil {
+		return x.PostgresqlDisableCollectors
+	}
+	return nil
+}
+
 type RDSServiceResult struct {
 	state                     protoimpl.MessageState             `protogen:"open.v1"`
 	Node                      *v1.RemoteRDSNode                  `protobuf:"bytes,1,opt,name=node,proto3" json:"node,omitempty"`
@@ -758,7 +778,7 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\x0eaws_access_key\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12*\n" +
 	"\x0eaws_secret_key\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01R\fawsSecretKey\"^\n" +
 	"\x13DiscoverRDSResponse\x12G\n" +
-	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\x8e\r\n" +
+	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\x8c\x0e\n" +
 	"\x13AddRDSServiceParams\x12\x1f\n" +
 	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12(\n" +
@@ -798,7 +818,9 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\x14auto_discovery_limit\x18\x1f \x01(\x05R\x12autoDiscoveryLimit\x128\n" +
 	"\x18disable_comments_parsing\x18  \x01(\bR\x16disableCommentsParsing\x12M\n" +
 	"#max_postgresql_exporter_connections\x18! \x01(\x05R maxPostgresqlExporterConnections\x12R\n" +
-	"\x12connection_timeout\x18# \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18# \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x128\n" +
+	"\x18mysql_disable_collectors\x18$ \x03(\tR\x16mysqlDisableCollectors\x12B\n" +
+	"\x1dpostgresql_disable_collectors\x18% \x03(\tR\x1bpostgresqlDisableCollectors\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd3\x04\n" +
