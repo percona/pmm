@@ -54,6 +54,20 @@ You can customize the ProxySQL service configuration using command-line flags. T
 - `--port`: Port number for ProxySQL admin interface
 - `--socket`: UNIX socket path (alternative to host/port)
 
+### Disable collectors
+
+Use `--disable-collectors` to exclude specific collectors from metric collection. This can reduce monitoring overhead or suppress metrics that are not relevant to your environment:
+
+```sh
+pmm-admin add proxysql \
+  --username=pmm \
+  --password=pmm \
+  --disable-collectors=mysql_connection_list,stats_memory_metrics
+```
+
+??? info "Available ProxySQL collectors"
+    `mysql_connection_list`, `mysql_connection_pool`, `mysql_status`, `runtime_mysql_servers`, `stats_command_counter`, `stats_memory_metrics`
+
 ### Connection examples
 
 **TCP connection with custom service name:**

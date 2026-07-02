@@ -412,7 +412,12 @@ After configuring your database server, add a MongoDB service using either the u
 
     2. Fill in the required fields.
 
-    3. Click **Add service**.
+    3. (Optional) Under **Additional options**, in the **Disable collectors** field, enter a comma-separated list of collector names to exclude from metric collection. Use this to reduce monitoring overhead or suppress metrics that are not relevant to your environment.
+
+        ??? info "Available MongoDB collectors"
+            `collstats`, `currentopmetrics`, `dbstats`, `diagnosticdata`, `fcv`, `indexstats`, `pbm`, `replicasetstatus`, `shards`, `topmetrics`
+
+    4. Click **Add service**.
 
     ![!](../../../images/PMM_Add_Instance_MongoDB.jpg)
 

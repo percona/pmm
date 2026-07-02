@@ -408,9 +408,8 @@ To disable query examples for data privacy:
 
 After creating your PMM database user, you can add your MySQL service to PMM using the command line or the UI.
 
-The **command line** (`pmm-admin`) deploys an exporter directly on the database host and automatically collects node-level metrics (CPU, memory, disk I/O) alongside MySQL metrics. Use the UI only if you cannot install PMM Client on the database host.
-
 === "Via command line (recommended)"
+The **command line** (`pmm-admin`) deploys an exporter directly on the database host and automatically collects node-level metrics (CPU, memory, disk I/O) alongside MySQL metrics. Use the UI only if you cannot install PMM Client on the database host.
 
     === "Basic setup"
     
