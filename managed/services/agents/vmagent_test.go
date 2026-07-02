@@ -238,9 +238,9 @@ func TestVMAgentInternalVM(t *testing.T) {
 	})
 
 	t.Run("Internal VM drops deployment-injected VM basic-auth in favor of server credentials", func(t *testing.T) {
-		// The delete(systemEnvs, ...) block also applies to non-HA internal VM: a deployment that
-		// injects VMAGENT_remoteWrite_basicAuth_* must not override the server credentials used for
-		// the /victoriametrics/ proxy path.
+		// Writes routed through the server (!useExternalVM) always authenticate with the server
+		// credentials: a deployment-injected VMAGENT_remoteWrite_basicAuth_* must not override them.
+		// The remote-write URL passthrough is unaffected; only its deletion is HA-gated.
 		t.Setenv("VMAGENT_remoteWrite_basicAuth_username", "injected_user")
 		t.Setenv("VMAGENT_remoteWrite_basicAuth_password", "injected_pass")
 
@@ -297,6 +297,21 @@ func TestVMAgentHA(t *testing.T) {
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password={{.server_password}}")
 		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=victoriametrics_pmm")
 		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=vm-password")
+	})
+
+	t.Run("HA ignores a deployment-injected remote-write URL and forces the server proxy", func(t *testing.T) {
+		// A deployment could inject VMAGENT_remoteWrite_url pointing at the in-cluster VM endpoint.
+		// When routing through the server it must be dropped, otherwise systemEnvs precedence would
+		// keep vmagent pointed at an endpoint external clients cannot reach (PMM-14678).
+		t.Setenv("VMAGENT_remoteWrite_url", "http://vmauth:8427/api/v1/write")
+
+		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://victoriametrics_pmm:vm-password@vmauth:8427")
+		require.NoError(t, err)
+
+		actual := vmAgentConfig("", params, true)
+
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url={{.server_url}}/victoriametrics/api/v1/write")
+		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_url=http://vmauth:8427/api/v1/write")
 	})
 
 	t.Run("HA routes external VM without credentials through the server", func(t *testing.T) {

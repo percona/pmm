@@ -106,6 +106,11 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams, haEnabled boo
 		delete(systemEnvs, "VMAGENT_remoteWrite_basicAuth_password")
 	}
 
+	// In HA, also force the server proxy endpoint
+	if haEnabled {
+		delete(systemEnvs, "VMAGENT_remoteWrite_url")
+	}
+
 	// Helper function to add env var only if not already set by system
 	addEnvIfNotSet := func(key, value string) {
 		if _, exists := systemEnvs[key]; !exists {
