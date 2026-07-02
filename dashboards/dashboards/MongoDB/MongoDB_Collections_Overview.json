@@ -870,7 +870,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk(5,sum by (database,collection) (mongodb_top_insert_count{database =~ \"$database\",service_name=~\"$service_name\"})+sum by (database,collection) (mongodb_top_insert_count{database =~ \"$database\",service_name=~\"$service_name\"})+sum by (database,collection) (mongodb_top_remove_count{database =~ \"$database\",service_name=~\"$service_name\"})+sum by (database,collection) (mongodb_top_update_count{database =~ \"$database\",service_name=~\"$service_name\"}))",
+                    "expr": "topk(5, sum by (database, collection) (mongodb_top_insert_count{database =~ \"$database\", service_name=~\"$service_name\"}) + sum by (database, collection) (mongodb_top_remove_count{database =~ \"$database\", service_name=~\"$service_name\"}) + sum by (database, collection) (mongodb_top_update_count{database =~ \"$database\", service_name=~\"$service_name\"}))",
                     "format": "table",
                     "hide": false,
                     "instant": true,
@@ -926,6 +926,7 @@
                     },
                     "decimals": 1,
                     "mappings": [],
+                    "unit": "ops/s",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -950,7 +951,7 @@
                 "maxVizHeight": 300,
                 "minVizHeight": 10,
                 "minVizWidth": 0,
-                "namePlacement": "auto",
+                "namePlacement": "left",
                 "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
@@ -971,7 +972,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk (5, rate(sum by (environment, cluster, database, collection) (mongodb_top_queries_count{database =~ \"$database\",service_name=~\"$service_name\"})[$interval]))",
+                    "expr": "topk(5, sum by (environment, cluster, database, collection) (rate(mongodb_top_queries_count{database =~ \"$database\", service_name=~\"$service_name\"}[$__rate_interval])))",
                     "format": "time_series",
                     "hide": false,
                     "instant": true,
@@ -995,6 +996,7 @@
                     },
                     "decimals": 1,
                     "mappings": [],
+                    "unit": "ops/s",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -1019,7 +1021,7 @@
                 "maxVizHeight": 300,
                 "minVizHeight": 10,
                 "minVizWidth": 0,
-                "namePlacement": "auto",
+                "namePlacement": "left",
                 "orientation": "horizontal",
                 "reduceOptions": {
                     "calcs": [
@@ -1040,7 +1042,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "topk (5, rate(sum by (environment, cluster, database, collection) (mongodb_top_insert_count{database =~ \"$database\",service_name=~\"$service_name\"})+sum by (environment, cluster, database, collection) (mongodb_top_insert_count{database =~ \"$database\",service_name=~\"$service_name\"})+sum by (environment, cluster, database, collection) (mongodb_top_remove_count{database =~ \"$database\",service_name=~\"$service_name\"})+sum by (environment, cluster, database, collection) (mongodb_top_update_count{database =~ \"$database\",service_name=~\"$service_name\"})))",
+                    "expr": "topk(5, sum by (environment, cluster, database, collection) (rate(mongodb_top_insert_count{database =~ \"$database\", service_name=~\"$service_name\"}[$__rate_interval]) + rate(mongodb_top_remove_count{database =~ \"$database\", service_name=~\"$service_name\"}[$__rate_interval]) + rate(mongodb_top_update_count{database =~ \"$database\", service_name=~\"$service_name\"}[$__rate_interval])))",
                     "format": "time_series",
                     "hide": false,
                     "instant": true,
