@@ -72,10 +72,15 @@ type Table struct {
 	Columns     []Column
 }
 
-// Column represents column name and column's custom handler (if needed).
+// Column represents column name and column's custom handlers (if needed).
+// CustomEncryptHandler and CustomDecryptHandler must be provided as a matching
+// pair: the encrypt handler is used by EncryptItems and the decrypt handler by
+// DecryptItems. Using a single handler for both directions would re-encrypt data
+// during the decrypt phase (see PMM-15188).
 type Column struct {
-	Name          string
-	CustomHandler func(e *Encryption, val any) (any, error)
+	Name                 string
+	CustomEncryptHandler func(e *Encryption, val any) (any, error)
+	CustomDecryptHandler func(e *Encryption, val any) (any, error)
 }
 
 // QueryValues represents query to update row after encrypt/decrypt.
@@ -235,11 +240,11 @@ func (e *Encryption) EncryptItems(tx *reform.TX, tables []Table) error {
 			for i, val := range v {
 				var encrypted any
 				var err error
-				switch table.Columns[i].CustomHandler {
+				switch table.Columns[i].CustomEncryptHandler {
 				case nil:
 					encrypted, err = encryptColumnStringHandler(e, val)
 				default:
-					encrypted, err = table.Columns[i].CustomHandler(e, val)
+					encrypted, err = table.Columns[i].CustomEncryptHandler(e, val)
 				}
 
 				if err != nil {
@@ -305,11 +310,11 @@ func (e *Encryption) DecryptItems(tx *reform.TX, tables []Table) error {
 			for i, val := range v {
 				var decrypted any
 				var err error
-				switch table.Columns[i].CustomHandler {
+				switch table.Columns[i].CustomDecryptHandler {
 				case nil:
 					decrypted, err = decryptColumnStringHandler(e, val)
 				default:
-					decrypted, err = table.Columns[i].CustomHandler(e, val)
+					decrypted, err = table.Columns[i].CustomDecryptHandler(e, val)
 				}
 
 				if err != nil {

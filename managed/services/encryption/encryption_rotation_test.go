@@ -17,6 +17,7 @@ package encryption
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"os"
 	"testing"
@@ -37,6 +38,23 @@ const (
 	originalUsernameHash = `AYxEFsZsg7lp9+eSy6+wPFHlaNNy0ZpTbYN0NuCLPnQOZUYf2S6H9B+XJdF4+DscxC/pJwI=`
 	// pmm-managed-password encrypted with originalEncryptionKey
 	originalPasswordHash = `AYxEFsZuL5xZb5IxGGh8NI6GrjDxCzFGxIcHe94UXcg+dnZphu7GQSgmZm633XvZ8CBU2wo=` //nolint:gosec
+
+	// MySQL TLS material stored in agents.mysql_options. tls_ca is kept as plaintext
+	// PEM, while tls_cert and tls_key are stored encrypted at rest. These are used to
+	// reproduce PMM-15188: encryption key rotation must decrypt-then-re-encrypt the
+	// custom option columns instead of re-encrypting them during the decrypt phase.
+	testMySQLTLSCa = `-----BEGIN CERTIFICATE-----
+MIIBderTESTca0000000000000000000000000000000000000000000000000000
+-----END CERTIFICATE-----
+`
+	testMySQLTLSCert = `-----BEGIN CERTIFICATE-----
+MIIBderTESTcert00000000000000000000000000000000000000000000000000
+-----END CERTIFICATE-----
+`
+	testMySQLTLSKey = `-----BEGIN PRIVATE KEY-----
+MIIEvderTESTkey000000000000000000000000000000000000000000000000000
+-----END PRIVATE KEY-----
+`
 )
 
 func TestEncryptionRotation(t *testing.T) {
@@ -62,8 +80,58 @@ func TestEncryptionRotation(t *testing.T) {
 	err = checkNewlyEncryptedData(db)
 	require.NoError(t, err)
 
+	// PMM-15188: after rotation the custom option columns (mysql_options) must still
+	// decrypt back to the original PEM material. With the bug they were re-encrypted
+	// during the decrypt phase, so a single Decrypt no longer yields valid PEM.
+	require.NoError(t, checkMySQLOptionsDecryptable(db))
+
+	// A second rotation must remain stable - repeated rotations must not accumulate
+	// encryption layers (the reported ~80% growth per cycle).
+	statusCode, err = RotateEncryptionKey(db, "pmm-managed-dev")
+	require.NoError(t, err)
+	require.Equal(t, 0, statusCode)
+	require.NoError(t, checkMySQLOptionsDecryptable(db))
+
 	err = os.Remove(encryptionKeyTestPath)
 	require.NoError(t, err)
+}
+
+// checkMySQLOptionsDecryptable verifies that agents.mysql_options survives key
+// rotation: tls_ca stays as plaintext PEM and tls_cert/tls_key decrypt back to
+// the original PEM material with a single Decrypt call.
+func checkMySQLOptionsDecryptable(db *sql.DB) error {
+	var raw string
+	err := db.QueryRow(`SELECT mysql_options FROM agents WHERE agent_id = $1`, "1").Scan(&raw)
+	if err != nil {
+		return err
+	}
+
+	o := models.MySQLOptions{}
+	if err := json.Unmarshal([]byte(raw), &o); err != nil {
+		return err
+	}
+
+	if o.TLSCa != testMySQLTLSCa {
+		return errors.New("mysql_options tls_ca changed during rotation")
+	}
+
+	cert, err := encryption.Decrypt(o.TLSCert)
+	if err != nil {
+		return err
+	}
+	if cert != testMySQLTLSCert {
+		return errors.New("mysql_options tls_cert not properly decrypted after rotation (re-encrypted during decrypt phase)")
+	}
+
+	key, err := encryption.Decrypt(o.TLSKey)
+	if err != nil {
+		return err
+	}
+	if key != testMySQLTLSKey {
+		return errors.New("mysql_options tls_key not properly decrypted after rotation (re-encrypted during decrypt phase)")
+	}
+
+	return nil
 }
 
 func createOriginalEncryptionKey(t *testing.T) error {
@@ -81,6 +149,25 @@ func createOriginalEncryptionKey(t *testing.T) error {
 func insertTestData(db *sql.DB) error {
 	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{
 		EncryptedItems: []string{"pmm-managed-dev.agents.username", "pmm-managed-dev.agents.password", "pmm-managed-dev.agents.agent_password", "pmm-managed-dev.agents.aws_options", "pmm-managed-dev.agents.azure_options", "pmm-managed-dev.agents.mongo_options", "pmm-managed-dev.agents.mysql_options", "pmm-managed-dev.agents.postgresql_options"},
+	})
+	if err != nil {
+		return err
+	}
+
+	// Store tls_cert/tls_key encrypted with the original key (as pmm-managed does at
+	// rest), while tls_ca stays plaintext PEM. This mirrors the PMM-15188 scenario.
+	encCert, err := encryption.Encrypt(testMySQLTLSCert)
+	if err != nil {
+		return err
+	}
+	encKey, err := encryption.Encrypt(testMySQLTLSKey)
+	if err != nil {
+		return err
+	}
+	mysqlOptions, err := json.Marshal(models.MySQLOptions{
+		TLSCa:   testMySQLTLSCa,
+		TLSCert: encCert,
+		TLSKey:  encKey,
 	})
 	if err != nil {
 		return err
@@ -105,8 +192,8 @@ func insertTestData(db *sql.DB) error {
 	}
 	_, err = db.Exec(
 		`INSERT INTO agents (agent_id, agent_type, username, password, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
-			`VALUES ('1', 'pmm-agent', $1, $2, '1', NULL, false, '', $3, $4, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": true, "rds_enhanced_metrics_disabled": true}', '{"push_metrics": false, "expose_exporter": false}')`,
-		originalUsernameHash, originalPasswordHash, now, now,
+			`VALUES ('1', 'pmm-agent', $1, $2, '1', NULL, false, '', $3, $4, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', $5, '{"rds_basic_metrics_disabled": true, "rds_enhanced_metrics_disabled": true}', '{"push_metrics": false, "expose_exporter": false}')`,
+		originalUsernameHash, originalPasswordHash, now, now, string(mysqlOptions),
 	)
 	if err != nil {
 		return err
