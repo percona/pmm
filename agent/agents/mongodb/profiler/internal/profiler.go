@@ -30,8 +30,8 @@ import (
 )
 
 // New creates new Profiler.
-func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, maxQueryLength int32) *profiler {
-	return &profiler{
+func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, maxQueryLength int32) *Profiler {
+	return &Profiler{
 		mongoDSN:       mongoDSN,
 		maxQueryLength: maxQueryLength,
 		logger:         logger,
@@ -40,7 +40,11 @@ func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string,
 	}
 }
 
-type profiler struct {
+// Profiler is a service that manages MongoDB query profiling.
+// It monitors databases for new profiling data, aggregates raw system.profile documents
+// into statistical buckets using an internal aggregator, and dispatches Query Analytics
+// reports to the PMM Server via an asynchronous sender.
+type Profiler struct {
 	// dependencies
 	mongoDSN string
 	w        sender.Writer
@@ -48,7 +52,7 @@ type profiler struct {
 	agentID  string
 
 	// internal deps
-	monitors   *monitors
+	monitors   *Monitors
 	client     *mongo.Client
 	aggregator *aggregator.Aggregator
 	sender     *sender.Sender
@@ -64,7 +68,7 @@ type profiler struct {
 }
 
 // Start starts analyzer but doesn't wait until it exits.
-func (p *profiler) Start() error {
+func (p *Profiler) Start() error {
 	p.m.Lock()
 	defer p.m.Unlock()
 	if p.running {
@@ -86,7 +90,7 @@ func (p *profiler) Start() error {
 	p.sender = sender.New(reportChan, p.w, p.logger)
 	p.sender.Start()
 
-	f := func(client *mongo.Client, logger *logrus.Entry, dbName string) *monitor {
+	f := func(client *mongo.Client, logger *logrus.Entry, dbName string) *Monitor {
 		return NewMonitor(client, dbName, p.aggregator, logger)
 	}
 
@@ -121,7 +125,7 @@ func (p *profiler) Start() error {
 }
 
 // Stop stops running analyzer, waits until it stops.
-func (p *profiler) Stop() error {
+func (p *Profiler) Stop() error {
 	p.m.Lock()
 	defer p.m.Unlock()
 	if !p.running {
@@ -148,7 +152,7 @@ func (p *profiler) Stop() error {
 	return nil
 }
 
-func start(ctx context.Context, monitors *monitors, wg *sync.WaitGroup, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry) {
+func start(ctx context.Context, monitors *Monitors, wg *sync.WaitGroup, doneChan <-chan struct{}, ready *sync.Cond, logger *logrus.Entry) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 

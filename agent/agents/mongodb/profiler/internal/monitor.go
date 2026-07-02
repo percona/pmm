@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package profiler implements the orchestration logic for MongoDB query profiling.
+// It manages the lifecycle of database monitors, coordinates raw data collection
+// from system.profile, and handles the transformation of that data into
+// Query Analytics (QAN) reports.
 package profiler
 
 import (
@@ -27,8 +31,8 @@ import (
 )
 
 // NewMonitor creates new monitor.
-func NewMonitor(client *mongo.Client, dbName string, aggregator *aggregator.Aggregator, logger *logrus.Entry) *monitor {
-	return &monitor{
+func NewMonitor(client *mongo.Client, dbName string, aggregator *aggregator.Aggregator, logger *logrus.Entry) *Monitor {
+	return &Monitor{
 		client:     client,
 		dbName:     dbName,
 		aggregator: aggregator,
@@ -36,7 +40,11 @@ func NewMonitor(client *mongo.Client, dbName string, aggregator *aggregator.Aggr
 	}
 }
 
-type monitor struct {
+// Monitor coordinates the profiling process for a specific MongoDB database.
+// It manages the lifecycle of internal collector and parser services, facilitating
+// the flow of profiling data from the database into the shared aggregator
+// while ensuring thread-safe state management.
+type Monitor struct {
 	// dependencies
 	client     *mongo.Client
 	dbName     string
@@ -52,7 +60,7 @@ type monitor struct {
 }
 
 // Start starts monitor to collect and parse data.
-func (m *monitor) Start(ctx context.Context) error {
+func (m *Monitor) Start(ctx context.Context) error {
 	m.m.Lock()
 	defer m.m.Unlock()
 
@@ -92,7 +100,7 @@ func (m *monitor) Start(ctx context.Context) error {
 }
 
 // Stop stops monitor.
-func (m *monitor) Stop() {
+func (m *Monitor) Stop() {
 	m.m.Lock()
 	defer m.m.Unlock()
 

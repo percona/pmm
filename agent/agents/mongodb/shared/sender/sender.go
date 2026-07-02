@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package sender provides an asynchronous worker to send
+// MongoDB Query Analytics reports. It manages the lifecycle of the reporting
+// process, including starting/stopping goroutines and writing reports via
+// the provided Writer.
 package sender
 
 import (

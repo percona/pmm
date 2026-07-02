@@ -33,10 +33,10 @@ type Backoff struct {
 }
 
 // New returns new reset backoff.
-func New(min, max time.Duration) *Backoff {
+func New(minD, maxD time.Duration) *Backoff {
 	b := &Backoff{
-		delayBaseMin: min,
-		delayBaseMax: max,
+		delayBaseMin: minD,
+		delayBaseMax: maxD,
 	}
 	b.Reset()
 	return b
