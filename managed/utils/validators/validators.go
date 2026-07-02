@@ -76,7 +76,7 @@ func ValidateMetricResolution(value time.Duration) (time.Duration, error) {
 	return validateDuration(value, MinMetricsResolution, MetricsResolutionMultipleOf)
 }
 
-// ValidateDataRetention validate metric resolution.
+// ValidateDataRetention validates data retention.
 func ValidateDataRetention(value time.Duration) (time.Duration, error) {
 	return validateDuration(value, MinDataRetention, DataRetentionMultipleOf)
 }
