@@ -25,16 +25,16 @@ import (
 )
 
 const (
-	// MetricsResolutionMin is the smallest value metric resolution can accept.
-	MetricsResolutionMin = time.Second
+	// MinMetricsResolution is the smallest value metric resolution can accept.
+	MinMetricsResolution = time.Second
 	// MetricsResolutionMultipleOf is value metrics resolution should be multiple of.
 	MetricsResolutionMultipleOf = time.Second
-	// AdvisorRunIntervalMin is the smallest value Advisors run intervals can accept.
-	AdvisorRunIntervalMin = time.Second
+	// MinAdvisorRunInterval is the smallest value Advisors run intervals can accept.
+	MinAdvisorRunInterval = time.Second
 	// AdvisorRunIntervalMultipleOf is value Advisors run intervals should be multiple of.
 	AdvisorRunIntervalMultipleOf = time.Second
-	// DataRetentionMin is the smallest value data retention can accept.
-	DataRetentionMin = 24 * time.Hour
+	// MinDataRetention is the smallest value data retention can accept.
+	MinDataRetention = 24 * time.Hour
 	// DataRetentionMultipleOf is a value of data retention should be multiple of.
 	DataRetentionMultipleOf = 24 * time.Hour
 )
@@ -68,17 +68,17 @@ func validateDuration(d, minDuration, multipleOf time.Duration) (time.Duration, 
 
 // ValidateAdvisorRunInterval validates an Advisor run interval.
 func ValidateAdvisorRunInterval(value time.Duration) (time.Duration, error) {
-	return validateDuration(value, AdvisorRunIntervalMin, AdvisorRunIntervalMultipleOf)
+	return validateDuration(value, MinAdvisorRunInterval, AdvisorRunIntervalMultipleOf)
 }
 
 // ValidateMetricResolution validate metric resolution.
 func ValidateMetricResolution(value time.Duration) (time.Duration, error) {
-	return validateDuration(value, MetricsResolutionMin, MetricsResolutionMultipleOf)
+	return validateDuration(value, MinMetricsResolution, MetricsResolutionMultipleOf)
 }
 
 // ValidateDataRetention validate metric resolution.
 func ValidateDataRetention(value time.Duration) (time.Duration, error) {
-	return validateDuration(value, DataRetentionMin, DataRetentionMultipleOf)
+	return validateDuration(value, MinDataRetention, DataRetentionMultipleOf)
 }
 
 // ValidateAWSPartitions validates AWS partitions list.

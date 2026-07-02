@@ -21,7 +21,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 )
 
 const (
@@ -36,7 +36,7 @@ const (
 // createSession creates new MongoDB client and checks connection to MongoDB by pinging it.
 func createSession(ctx context.Context, dsn string, agentID string) (*mongo.Client, error) {
 	// if dsn is incorrect we should exit immediately as this is not gonna correct itself
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongofix.ClientOptionsForDSN(dsn)
 	if err != nil {
 		return nil, err
 	}

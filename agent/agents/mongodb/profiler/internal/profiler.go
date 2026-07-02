@@ -26,7 +26,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents/mongodb/shared/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/shared/sender"
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 )
 
 // New creates new Profiler.
@@ -197,7 +197,7 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutDialInfo)
 	defer cancel()
 
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongofix.ClientOptionsForDSN(dsn)
 	if err != nil {
 		return nil, err
 	}

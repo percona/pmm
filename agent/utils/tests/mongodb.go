@@ -24,7 +24,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/version"
 )
@@ -105,7 +105,7 @@ func GetTestMongoDBReplicatedWithSSLDSN(tb testing.TB, pathToRoot string) (strin
 func OpenTestMongoDB(tb testing.TB, dsn string) *mongo.Client {
 	tb.Helper()
 
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongofix.ClientOptionsForDSN(dsn)
 	if err != nil {
 		require.NoError(tb, err)
 	}

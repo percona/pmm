@@ -198,7 +198,7 @@ func TestMySQLExplain(t *testing.T) {
 			OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a, err := NewMySQLExplainAction("", time.Second, params)
-		require.ErrorContains(t, err, `Query to EXPLAIN is empty`)
+		require.ErrorIs(t, err, errEmptyQuery)
 		assert.Nil(t, a)
 	})
 
