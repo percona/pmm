@@ -41,6 +41,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/utils/pdeathsig"
+	"github.com/percona/pmm/version"
 )
 
 const (
@@ -83,6 +84,13 @@ type sub struct {
 // values from supervisord configuration.
 const (
 	pmmConfig = "/etc/supervisord.d/pmm.ini"
+
+	// The grafanaDashboardsVersionFile holds the dashboards/plugins version
+	// currently synced to the persistent volume; pmmDashboardsVersionFile holds
+	// the version bundled in the image. On upgrade, pmm-init syncs the former
+	// from the latter.
+	grafanaDashboardsVersionFile = "/srv/grafana/PERCONA_DASHBOARDS_VERSION"
+	pmmDashboardsVersionFile     = "/usr/share/percona-dashboards/VERSION"
 )
 
 // New creates new service.
@@ -375,7 +383,7 @@ environment =
     {{- end}}
 directory = /usr/share/grafana
 autorestart = true
-autostart = true
+autostart = {{ .GrafanaAutostart }}
 startretries = 10
 startsecs = 1
 stopsignal = TERM
@@ -454,6 +462,45 @@ func (s *Service) reload(name string) error {
 	return s.supervisorctl("update", name)
 }
 
+// grafanaAutostart reports whether supervisord should start Grafana on its own.
+//
+// During initialization or upgrade, pmm-init replaces the bundled Grafana
+// plugins under /srv/grafana/plugins; Grafana discovers plugins only at startup,
+// so it must not start until that sync completes. In that case pmm-init owns the
+// start and pmm-managed renders autostart=false, removing the race where Grafana
+// would otherwise boot on a half-synced plugin directory. The condition mirrors
+// pmm-init's "need_initialization or need_upgrade"; when it cannot be determined
+// the previous behavior (autostart) is kept so Grafana is never left down.
+func (s *Service) grafanaAutostart() bool {
+	image, err := os.ReadFile(pmmDashboardsVersionFile)
+	if err != nil {
+		s.l.Warnf("Failed to read %s (%s); starting Grafana normally.", pmmDashboardsVersionFile, err)
+		return true
+	}
+	imageVer, err := version.Parse(strings.TrimSpace(string(image)))
+	if err != nil {
+		s.l.Warnf("Failed to parse %s (%s); starting Grafana normally.", pmmDashboardsVersionFile, err)
+		return true
+	}
+
+	stored, err := os.ReadFile(grafanaDashboardsVersionFile)
+	if err != nil {
+		s.l.Infof("Dashboards not yet initialized; deferring Grafana start to pmm-init.")
+		return false
+	}
+	storedVer, err := version.Parse(strings.TrimSpace(string(stored)))
+	if err != nil {
+		s.l.Infof("Unparsed synced dashboards version %q; deferring Grafana start to pmm-init.", strings.TrimSpace(string(stored)))
+		return false
+	}
+
+	if storedVer.Less(imageVer) {
+		s.l.Infof("Dashboards upgrade pending (%s -> %s); deferring Grafana start to pmm-init.", storedVer, imageVer)
+		return false
+	}
+	return true
+}
+
 // marshalConfig marshals supervisord program configuration.
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings) ([]byte, error) {
 	clickhouseDatabase := envvars.GetEnv("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
@@ -474,6 +521,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	templateParams := map[string]any{
 		"DataRetentionHours":           int(settings.DataRetention.Hours()),
 		"DataRetentionDays":            int(settings.DataRetention.Hours() / 24), //nolint:mnd
+		"GrafanaAutostart":             s.grafanaAutostart(),
 		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
 		"VMSearchDisableCache":         vmSearchDisableCache,
 		"VMSearchMaxQueryLen":          vmSearchMaxQueryLen,
