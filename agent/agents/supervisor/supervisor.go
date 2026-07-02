@@ -445,13 +445,13 @@ func filter(existing, ap map[string]agentv1.AgentParams) ([]string, []string, []
 const (
 	typeTestSleep       inventoryv1.AgentType = 998 // process
 	typeTestNoop        inventoryv1.AgentType = 999 // built-in
-	processRetryTime    int                   = 3
+	processRetryCount   int                   = 3
 	startProcessWaiting                       = 2 * time.Second
 )
 
 func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16) error {
 	var err error
-	for range processRetryTime {
+	for range processRetryCount {
 		if port == 0 {
 			_port, err := s.portsRegistry.Reserve()
 			if err != nil {
