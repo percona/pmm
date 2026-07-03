@@ -14,6 +14,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package inventoryv1 provides the inventory API.
+//
+//nolint:godoclint
 package inventoryv1
 
 //go-sumtype:decl Agent
