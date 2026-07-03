@@ -55,9 +55,9 @@ type DurationNotAllowedError struct {
 func (e DurationNotAllowedError) Error() string { return e.Msg }
 
 // ValidateDuration validates duration.
-func validateDuration(d, min, multipleOf time.Duration) (time.Duration, error) {
-	if d < min {
-		return d, MinDurationError{"min duration error", min}
+func validateDuration(d, minDuration, multipleOf time.Duration) (time.Duration, error) {
+	if d < minDuration {
+		return d, MinDurationError{"min duration error", minDuration}
 	}
 
 	if d.Truncate(multipleOf) != d {
