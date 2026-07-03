@@ -199,7 +199,7 @@ func TestDeleteArtifact(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		chunksRet := []*oplogChunk{
+		chunksRet := []*OplogChunk{
 			{FName: "chunk1"},
 			{FName: "chunk2"},
 			{FName: "chunk3"},
@@ -335,7 +335,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 	})
 
 	t.Run("successful", func(t *testing.T) {
-		chunksRet := []*oplogChunk{
+		chunksRet := []*OplogChunk{
 			{FName: "chunk1"},
 			{FName: "chunk2"},
 			{FName: "chunk3"},
