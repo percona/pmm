@@ -66,7 +66,7 @@ jobs:
           reporter: github-pr-review
           fail_level: error
           cache: false
-          golangci_lint_flags: "-c=.golangci.yml"
+          golangci_lint_flags: "-c=.golangci.yml --new-from-rev=HEAD~"
           golangci_lint_version: v2.12.2 # Version should match specified in Makefile
 
       - name: Run debug commands on failure

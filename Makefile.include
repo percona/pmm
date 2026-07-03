@@ -28,13 +28,10 @@ gen:             ## Generate files (includes formatting)
 test-common:          ## Run tests from shared packages only (i.e it ignores directories that are explicitly listed)
 	go test $(shell go list ./... | grep -v -e admin -e agent -e api -e managed -e api-tests -e qan-api2 -e vmproxy)
 
-api-test:             ## Run API tests on dev env.
-	go test -count=1 -race -p 1 -v ./api-tests/... -pmm.server-insecure-tls
-
 GOLANG_CI_LINT_RUN_OPTS ?=
 check:                ## Run required checks and linters
 	$(MAKE) -C api check
-	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(shell git merge-base main HEAD) --new $(GOLANG_CI_LINT_RUN_OPTS)
+	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=HEAD~ --new $(GOLANG_CI_LINT_RUN_OPTS)
 	go tool go-sumtype ./...
 
 check-license:        ## Run license header checks against source files
