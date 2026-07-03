@@ -162,7 +162,7 @@ Relationships:
 | **Kong** | CLI framework for pmm-admin |
 | **Docker Compose** | Development environment |
 | **Ansible** | Server provisioning and configuration |
-| **Packer** | Machine image builds (AMI, OVA, Azure, DigitalOcean) |
+| **Packer** | Machine image builds (AMI) |
 
 ## Global Development Conventions
 

@@ -1,6 +1,6 @@
 ---
 # This workflow automatically updates a PR branch with the latest changes from
-#  its base branch (i.e. performs the equivalent of the GitHub UI "Update branch" action).
+# its base branch (i.e. performs the equivalent of the GitHub UI "Update branch" button).
 # To make it work it is required to set "auto-update-branch" label on PR.
 # There will be max 10 attempts to update branches.
 name: Auto-Update PR Branch (from base)
@@ -12,14 +12,14 @@ on:
       - pmm-*
 
 concurrency:
-  group: auto-update-base-${{ github.ref }}
+  group: auto-update-branch-${{ github.ref }}
   cancel-in-progress: true
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  auto-update-base:
+  auto-update-branch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
@@ -45,12 +45,12 @@ jobs:
                 per_page: 100,
               });
 
-              // 2. Filter in-memory: Only care about PRs having the label.
+              // 2. Filter in-memory: Only care about non-draft PRs having the label.
               let pendingPRs = pulls.filter(pr => 
-                pr.labels.some(label => label.name === "auto-update-branch")
+                !pr.draft && pr.labels.some(label => label.name === "auto-update-branch")
               );
 
-              console.log(`[INFO] Found ${pendingPRs.length} PR(s) targeting ${pushedBranch} requiring updates.`);
+              console.log(`[INFO] Found ${pendingPRs.length} non-draft PR(s) targeting ${pushedBranch} requiring updates.`);
 
               let attemptCount = 0;
 
