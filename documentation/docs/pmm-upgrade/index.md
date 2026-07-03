@@ -13,4 +13,4 @@ Choose your preferred upgrade method based on your setup:
 * [Upgrade PMM Server using Docker](upgrade_docker.md)
 * [Upgrade PMM Server using Helm](upgrade_helm.md)
 * [Upgrade PMM Server from the UI](ui_upgrade.md) (deprecated)
-* [Migrate from PMM 2](migrating_from_pmm_2.md) (direct migration deprecated)
+* [Migrate from PMM 2](migrating_from_pmm_2.md) (via PMM 3.8.1, the last version that supports migration)
