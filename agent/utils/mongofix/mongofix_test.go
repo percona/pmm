@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package mongo_fix //nolint:revive
+package mongofix
 
 import (
 	"net/url"
