@@ -1,6 +1,6 @@
 # Connect MySQL databases to PMM
 
-Easily connect your MySQL databases—whether self-hosted or running on AWS EC2—to Percona Monitoring and Management (PMM) for in-depth performance insights.
+Monitor your MySQL database performance with Percona Monitoring and Management (PMM). PMM collects metrics and query analytics from your self-hosted or AWS EC2 instances to provide insights into query performance, resource usage, and replication health.
 
 ## Quick setup
 
@@ -404,6 +404,29 @@ To disable query examples for data privacy:
         MySQL-Private
     ```
 
+### Disable collectors
+
+You can exclude specific metric collectors from being run by the MySQL exporter. This is useful when certain collectors generate metrics you don't need, add overhead, or cause issues in your environment.
+
+=== "Via command line"
+    Use the `--disable-collectors` flag when adding a MySQL service:
+
+    ```bash
+    pmm-admin add mysql \
+      --username=pmm \
+      --password=StrongPassword \
+      --host=localhost \
+      --port=3306 \
+      --query-source=slowlog \
+      --disable-collectors=heartbeat,global_status,info_schema.innodb_cmp \
+      MySQL-Primary
+    ```
+
+=== "Via UI"
+    When adding a MySQL service through the PMM UI, expand **Additional options** and enter a comma-separated list of collector names in the **Disable collectors** field.
+
+For the full list of available collectors, see the [mysqld_exporter repository](https://github.com/percona/mysqld_exporter).
+
 ### Add service to PMM
 
 After creating your PMM database user, you can add your MySQL service to PMM using the command line or the UI.
@@ -525,6 +548,7 @@ The **command line** (`pmm-admin`) deploys an exporter directly on the database 
         - **Query Source**: Choose between **Slow Log** or **Performance Schema**
         - **PMM Agent**: Select which PMM agent should monitor this instance
         - **Disable query examples**: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.
+        - **Disable collectors**: Under **Additional options**, enter a comma-separated list of collector names to exclude from metric collection. Use this to reduce monitoring overhead or suppress metrics that are not relevant to your environment. For the full list of available collectors, see the [mysqld_exporter repository](https://github.com/percona/mysqld_exporter).
         - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 2s.
 
     4. Click **Add Service**.
