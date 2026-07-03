@@ -10,11 +10,7 @@ Back up the PMM Server data from your OVA instance so you can restore it on the 
 
 1. SSH into the virtual machine.
 
-2. Stop PMM Server:
-
-    ```bash
-    docker stop pmm-server
-    ```
+2. Stop PMM Server: `docker stop pmm-server`
 
 3. Follow the [Back up PMM Server Docker container](../docker/backup_container.md) guide to create a backup archive of the `/srv` directory.
 
@@ -36,10 +32,11 @@ This restores all monitored services, dashboards, alert rules, and historical da
 
 ## Step 4: Reconfigure PMM Clients
 
-Point each PMM Client to the new server so it sends monitoring data to the correct endpoint: `
-pmm-admin config --server-insecure-tls \
+Point each PMM Client to the new server so it sends monitoring data to the correct endpoint:
+  ``` bash
+  pmm-admin config --server-insecure-tls \
   --server-url=https://service_token:<YOUR_GLSA_TOKEN>@<NEW_PMM_SERVER_IP>:443
-`
+  ```
 
 ## Step 5: Verify and decommission
 Confirm the migration is complete, then shut down the old instance:
