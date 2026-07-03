@@ -16,6 +16,9 @@ trap cleanup SIGINT SIGTERM ERR EXIT
 # Set defaults.
 network_name=${NETWORK_NAME:-pmm-net}
 tag=${PMM_TAG:-3}
+tag_provided=0
+# PMM 3.8.1 is the last version that supports migration from PMM 2.
+pmm2_migration_tag=3.8.1
 repo=${PMM_REPO:-percona/pmm-server}
 port=${PMM_PORT:-443}
 container_name=${CONTAINER_NAME:-pmm-server}
@@ -75,6 +78,8 @@ EOF
 #######################################
 # Clean up setup if interrupt.
 #######################################
+# Invoked via the trap registered at the top of the script.
+# shellcheck disable=SC2329
 cleanup() {
   trap - SIGINT SIGTERM ERR EXIT
 }
@@ -83,10 +88,11 @@ cleanup() {
 # Defines colours for output messages.
 #######################################
 setup_colors() {
-  if [[ -t 2 ]] && [[ -z "${NO_COLOR-}" ]] && [[ "${TERM-}" != "dumb" ]]; then
+  if [ -t 2 ] && [ -z "${NO_COLOR-}" ] && [ "${TERM-}" != "dumb" ]; then
     NOFORMAT='\033[0m' RED='\033[0;31m' GREEN='\033[0;32m' ORANGE='\033[0;33m'
     BLUE='\033[0;34m' PURPLE='\033[0;35m' CYAN='\033[0;36m' YELLOW='\033[1;33m'
   else
+    # shellcheck disable=SC2034
     NOFORMAT='' RED='' GREEN='' ORANGE='' BLUE='' PURPLE='' CYAN='' YELLOW=''
   fi
 }
@@ -125,6 +131,7 @@ parse_params() {
     -i | --interactive) interactive=1 ;;
     -t | --tag)
       tag="${2-}"
+      tag_provided=1
       shift
       ;;
     -r | --repo)
@@ -175,12 +182,15 @@ gather_info() {
   default_port=$port
   default_container_name=$container_name
   default_tag=$tag
-  read -p "  Port Number to start PMM Server on (default: $default_port): " port
-  : ${port:=$default_port}
-  read -p "  PMM Server Container Name (default: $default_container_name): " container_name
-  : ${container_name:="$default_container_name"}
-  read -p "  Override specific version (container tag) (default: $default_tag in 3.x series) format: 3.x.y: " tag
-  : ${tag:=$default_tag}
+  read -r -p "  Port Number to start PMM Server on (default: $default_port): " port
+  : "${port:=$default_port}"
+  read -r -p "  PMM Server Container Name (default: $default_container_name): " container_name
+  : "${container_name:=$default_container_name}"
+  read -r -p "  Override specific version (container tag) (default: $default_tag in 3.x series) format: 3.x.y: " tag
+  if [ -n "$tag" ]; then
+    tag_provided=1
+  fi
+  : "${tag:=$default_tag}"
 }
 
 check_command() {
@@ -198,7 +208,7 @@ run_root() {
     elif check_command su; then
       sh='su -c'
     else
-      die "${RED}ERROR: root rights needed to run "$*" command${NOFORMAT}"
+      die "${RED}ERROR: root rights needed to run \"$*\" command${NOFORMAT}"
     fi
   fi
   ${sh} "$@"
@@ -265,7 +275,7 @@ run_docker() {
 # Generates Watchtower token if needed, or reuses existing one.
 #######################################
 generate_watchtower_token() {
-  if [ !  "$watchtower_token" == "" ]; then
+  if [ -n "$watchtower_token" ]; then
     msg "Using provided Watchtower token"
     return 0
   fi
@@ -279,7 +289,7 @@ generate_watchtower_token() {
     msg "Found Watchtower Token: $watchtower_token"
     # we don't return here, as we want to generate a new token if it's not found
   fi
-  if [ "$watchtower_token" == "" ]; then
+  if [ -z "$watchtower_token" ]; then
     watchtower_token=random-$(date "+%F-%H%M%S")
     msg "Generated Watchtower Token: $watchtower_token"
   fi
@@ -388,7 +398,7 @@ get_mapped_key() {
     for mapping in "${ENV_MAPPING[@]}"; do
         local old_key="${mapping%%=*}"
         local new_key="${mapping#*=}"
-        if [[ "$old_key" == "$key" ]]; then
+        if [ "$old_key" = "$key" ]; then
             echo "$new_key"
             return
         fi
@@ -399,7 +409,7 @@ get_mapped_key() {
 needs_to_drop() {
     local key="$1"
     for drop_key in "${ENV_TO_DROP[@]}"; do
-        if [[ "$drop_key" == "$key" ]]; then
+        if [ "$drop_key" = "$key" ]; then
             return 0
         fi
     done
@@ -416,17 +426,14 @@ migrate_env_vars() {
         local key="${env%%=*}"
         local value="${env#*=}"
 
-        if [[ -z "$value" ]]; then
+        if [ -z "$value" ]; then
             continue
         fi
 
         local new_key
         new_key=$(get_mapped_key "$key")
 
-        local needs_drop
-        needs_drop=$(needs_to_drop "$key")
-
-        if [[ -n "$new_key" ]]; then
+        if [ -n "$new_key" ]; then
             msg "Migrating env variable $key to $new_key"
             # Handle DISABLE_* to ENABLE_* boolean reversal
             if [[ "$key" =~ ^DISABLE_ ]]; then
@@ -434,10 +441,10 @@ migrate_env_vars() {
             fi
 
             docker_env_flags+="--env $new_key=\"$value\" "
-        elif [[ "$needs_drop" -eq 0 ]]; then
-            docker_env_flags+="--env $key=\"$value\" "
-        else
+        elif needs_to_drop "$key"; then
             msg "Dropping env variable $key"
+        else
+            docker_env_flags+="--env $key=\"$value\" "
         fi
     done
 
@@ -457,6 +464,33 @@ backup_pmm_data() {
 }
 
 #######################################
+# Checks if the tag was provided explicitly via the PMM_TAG env variable,
+# the -t|--tag option, or interactive input.
+#######################################
+is_tag_provided() {
+  [ "$tag_provided" = 1 ] || [ -n "${PMM_TAG:-}" ]
+}
+
+#######################################
+# Pins the tag to the last version that supports migration from PMM 2
+# if the installed PMM Server is 2.x and no tag was provided explicitly.
+#######################################
+adjust_tag_for_migration() {
+  if is_tag_provided; then
+    return 0
+  fi
+  if ! run_docker "inspect $container_name 1> /dev/null 2> /dev/null"; then
+    return 0
+  fi
+  local installed_version
+  installed_version=$(run_docker "inspect --format='{{.Config.Image}}' $container_name | cut -d':' -f2")
+  if [[ "$installed_version" =~ ^2$|^2\.|^dev-latest$ ]]; then
+    tag=$pmm2_migration_tag
+    msg "Detected PMM Server $installed_version. PMM $pmm2_migration_tag is the last version that supports migration from PMM 2, it will be used instead of the latest version.\n"
+  fi
+}
+
+#######################################
 # Starts PMM Server container with given repo, tag, name and port.
 # If a PMM Server instance is running - stop and back it up.
 #######################################
@@ -470,13 +504,13 @@ start_pmm() {
     msg "\tExisting PMM Server found, renaming to $pmm_archive\n"
     run_docker "stop $container_name" || :
     volume_name=$(run_docker "inspect -f '{{ range .Mounts }}{{ if and (eq .Type \"volume\") (eq .Destination \"/srv\" )}}{{ .Name }}{{ \"\n\" }}{{ end }}{{ end }}' $container_name")
-    if [[ "$backup_data" == 1 ]]; then
+    if [ "$backup_data" = 1 ]; then
       backup_pmm_data
     fi
     # get container tag from inspect
     old_version=$(run_docker "inspect --format='{{.Config.Image}}' $container_name | cut -d':' -f2")
     # if tag starts with 2.x, we need to migrate data
-    if [[ "$old_version" == "2" || "$old_version" == 2.* || "$old_version" == "dev-latest" ]]; then
+    if [[ "$old_version" =~ ^2$|^2\.|^dev-latest$ ]]; then
       docker_env_flags=$(migrate_env_vars "$docker_env_flags")
       migrate_pmm_data
     fi
@@ -526,11 +560,12 @@ show_message() {
 
 main() {
   setup_colors
-  if [[ "$interactive" == 1 ]]; then
+  if [ "$interactive" = 1 ]; then
     gather_info
   fi
   msg "Gathering/downloading required components, this may take a moment\n"
   install_docker
+  adjust_tag_for_migration
   create_pmm_network
   generate_watchtower_token
   start_pmm
