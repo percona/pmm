@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package pgstatstatements runs built-in QAN Agent for PostgreSQL pg stats statements.
+// Package pgstatstatements runs built-in PGStatStatementsQAN Agent for PostgreSQL pg stats statements.
 package pgstatstatements
 
 import (
@@ -55,7 +55,7 @@ var (
 
 type statementsMap map[int64]*pgStatStatementsExtended
 
-// PGStatStatementsQAN QAN services connects to PostgreSQL and extracts stats.
+// PGStatStatementsQAN connects to PostgreSQL and extracts stats using pg_stat_statements.
 type PGStatStatementsQAN struct { //nolint:revive
 	q                      *reform.Querier
 	dbCloser               io.Closer
@@ -81,7 +81,7 @@ const (
 	pgssMaxQuery = "SELECT /* " + queryTag + " */ setting FROM pg_settings WHERE name = 'pg_stat_statements.max'"
 )
 
-// New creates new PGStatStatementsQAN QAN service.
+// New creates new PGStatStatementsQAN service.
 func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	sqlDB, err := sql.Open("postgres", params.DSN)
 	if err != nil {
@@ -226,7 +226,7 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 }
 
 // getStatStatementsExtended returns the current state of pg_stat_statements table with extended information (database, username, tables)
-// and the previous cashed state.
+// and the previous cached state.
 func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	ctx context.Context,
 ) (statementsMap, statementsMap, error) {
@@ -437,7 +437,7 @@ func (m *PGStatStatementsQAN) Changes() <-chan agents.Change {
 }
 
 // Describe implements prometheus.Collector.
-func (m *PGStatStatementsQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+func (m *PGStatStatementsQAN) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 
