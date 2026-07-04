@@ -106,7 +106,6 @@ import (
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
 	"github.com/percona/pmm/managed/utils/distribution"
-	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
@@ -879,24 +878,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		l.Panicf("Failed to connect to database: %+v", err)
 	}
 	defer sqlDB.Close() //nolint:errcheck
-
-	keyPath := encryption.DefaultKeyPath()
-	cipher, err := encryption.LoadCipher(encryption.NewFileKeyProvider(keyPath))
-	if errors.Is(err, encryption.ErrKeysetNotFound) {
-		hasEncryptedData, probeErr := models.DatabaseHasEncryptedData(ctx, sqlDB)
-		if probeErr != nil {
-			l.Panicf("Failed to initialize encryption: %+v", probeErr)
-		}
-		if hasEncryptedData {
-			l.Panicf("Encryption key not found at %s, but the database contains encrypted data. "+
-				"Restore the key file or point PMM_ENCRYPTION_KEY_PATH at it; generating a new key would make that data unreadable.", keyPath)
-		}
-		cipher, err = encryption.CreateCipher(encryption.NewFileKeyProvider(keyPath))
-	}
-	if err != nil {
-		l.Panicf("Failed to initialize encryption: %+v", err)
-	}
-	encryption.SetDefaultCipher(cipher)
 
 	if *haEnabled {
 		models.AgentConfigFilePath = "/srv/pmm-agent/config/pmm-agent.yaml"

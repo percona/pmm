@@ -28,6 +28,38 @@ import (
 	"github.com/percona/pmm/managed/utils/encryption"
 )
 
+// initDefaultCipher loads the encryption keyset from the default path
+// (PMM_ENCRYPTION_KEY_PATH or DefaultEncryptionKeyPath) and installs it as
+// the process-wide cipher. It must run after the database connection is
+// bootstrapped and before migrations: a missing keyset is generated only when
+// the database contains no encrypted data; otherwise startup is refused to
+// avoid making that data permanently unreadable.
+func initDefaultCipher(ctx context.Context, db *sql.DB) error {
+	keyPath := encryption.DefaultKeyPath()
+	provider := encryption.NewFileKeyProvider(keyPath)
+
+	cipher, err := encryption.LoadCipher(provider)
+	if errors.Is(err, encryption.ErrKeysetNotFound) {
+		var hasEncryptedData bool
+		hasEncryptedData, err = DatabaseHasEncryptedData(ctx, db)
+		if err != nil {
+			return err
+		}
+		if hasEncryptedData {
+			return fmt.Errorf("encryption key not found at %s, but the database contains encrypted data; "+
+				"restore the key file or point %s at it — generating a new key would make that data unreadable",
+				keyPath, encryption.CustomEncryptionKeyPathEnvVar)
+		}
+		cipher, err = encryption.CreateCipher(provider)
+	}
+	if err != nil {
+		return err
+	}
+	encryption.SetDefaultCipher(cipher)
+
+	return nil
+}
+
 // DatabaseHasEncryptedData reports whether the database contains values that
 // can only be read with the existing encryption key: envelope-format secrets,
 // or legacy ciphertext recorded by the pre-envelope PMM 3.x bookkeeping. It

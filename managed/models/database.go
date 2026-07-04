@@ -1269,7 +1269,12 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	err := migrateDB(db, params)
+	err := initDefaultCipher(ctx, sqlDB)
+	if err != nil {
+		return nil, err
+	}
+
+	err = migrateDB(db, params)
 	if err != nil {
 		return nil, err
 	}
