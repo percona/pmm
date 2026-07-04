@@ -94,12 +94,13 @@ func TestStandardService_Start(t *testing.T) {
 		}
 		stopFunc := func() {}
 
+		type ctxKey string
 		svc := NewStandardService("test", startFunc, stopFunc)
-		ctx := context.WithValue(t.Context(), "key", "value") //nolint:revive,staticcheck
+		ctx := context.WithValue(t.Context(), ctxKey("key"), "value")
 		err := svc.Start(ctx)
 
 		require.NoError(t, err)
-		assert.Equal(t, "value", receivedCtx.Value("key"))
+		assert.Equal(t, "value", receivedCtx.Value(ctxKey("key")))
 	})
 
 	t.Run("handles concurrent start calls safely", func(t *testing.T) {

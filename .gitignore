@@ -1,6 +1,9 @@
+# IDE
 /.idea/
 /.vscode/
 *.iml
+*.sw[o,p]
+settings.json
 
 /api/nginx/*.pem
 bin/
@@ -8,6 +11,27 @@ bin/
 
 # System Files
 .DS_Store
+
+# Temporary (build, config, etc)
+/tmp/
+
+.env
+.netrc
+.modules
+build.log
+build/.cache/
+packer.log
+ci.yml
+
+
+# PMM specific
+/dev/clickhouse-backups/
+encryption.key
+backoff.png
+pmm-agent-dev.yaml
+compose.yml
+api-tests/*.txt
+api-tests/*.xml
 
 cover.out
 crosscover.out
@@ -23,35 +47,10 @@ fuzzing/
 *-fuzz.zip
 *.bench
 
-backoff.png
-pmm-agent-dev.yaml
-compose.yml
-
+# QAN
 /qan-api2/logs/
 
-# ViM temporary files
-*.sw[o,p]
-
-.env
-.netrc
-.modules
-build.log
-build/.cache/
-packer.log
-ci.yml
-
-api-tests/*.txt
-api-tests/*.xml
-
-
-/tmp/
-settings.json
-
-# PMM specific
-/dev/clickhouse-backups/
-encryption.key
-
-# Exclude AI skills to support fast local experimentation
+# Ignore AI-related files to support fast local experimentation
 .claude/
 .cursor/
 .cursorrules/

@@ -140,26 +140,4 @@ We need to update the `scripts` in the `package.json` to use the extended Webpac
 +"dev": "webpack -w -c ./webpack.config.ts --env development",
 ```
 
-### Configure grafana image to use when running docker
-
-By default, `grafana-enterprise` will be used as the docker image for all docker related commands. If you want to override this behavior, simply alter the `docker-compose.yaml` by adding the following build arg `grafana_image`.
-
-**Example:**
-
-```yaml
-version: '3.7'
-
-services:
-  grafana:
-    extends:
-      file: .config/docker-compose-base.yaml
-      service: grafana
-    build:
-      args:
-        grafana_version: ${GRAFANA_VERSION:-9.1.2}
-        grafana_image: ${GRAFANA_IMAGE:-grafana}
-```
-
-In this example, we assign the environment variable `GRAFANA_IMAGE` to the build arg `grafana_image` with a default value of `grafana`. This will allow you to set the value while running the docker compose commands, which might be convenient in some scenarios.
-
 ---

@@ -1,3 +1,4 @@
+---
 name: 'Percona Intelligence'
 on:
   push:
@@ -26,7 +27,7 @@ env:
 jobs:
   validate:
     name: Validate PI files
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Check out code

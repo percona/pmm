@@ -472,9 +472,9 @@ The following table lists all the environment variable changes between PMM v2 an
     #### Removed variables
     | PMM 2                               | PMM 3                              | Comments                     |
     |-------------------------------------|------------------------------------|------------------------------|
-    | `PERCONA_TEST_AUTH_HOST`            |                                    | Removed, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS` |
-    | `PERCONA_TEST_CHECKS_HOST`          |                                    | Removed, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS` |
+    | `PERCONA_TEST_AUTH_HOST`            |                                    | Removed, use `PMM_PERCONA_PLATFORM_ADDRESS` |
+    | `PERCONA_TEST_CHECKS_HOST`          |                                    | Removed, use `PMM_PERCONA_PLATFORM_ADDRESS` |
     | `PERCONA_TEST_CHECKS_INTERVAL`      |                                    | Removed, not used            |
     | `PERCONA_TEST_CHECKS_PUBLIC_KEY`    |                                    | Removed, use `PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY` |
     | `PERCONA_TEST_NICER_API`            |                                    | Removed in PMM v3            |
-    | `PERCONA_TEST_SAAS_HOST`            |                                    | Removed, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS` |
+    | `PERCONA_TEST_SAAS_HOST`            |                                    | Removed, use `PMM_PERCONA_PLATFORM_ADDRESS` |
