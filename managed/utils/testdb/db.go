@@ -21,13 +21,16 @@ import (
 	"database/sql"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/encryption"
 )
 
 const (
@@ -80,10 +83,35 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 	return db
 }
 
+var encryptionOnce sync.Once
+
+// setupEncryption points the models field codec at a per-process temporary
+// key file (respecting PMM_ENCRYPTION_KEY_PATH if set).
+func setupEncryption(tb testing.TB) {
+	tb.Helper()
+
+	encryptionOnce.Do(func() {
+		path := os.Getenv(encryption.CustomEncryptionKeyPathEnvVar)
+		if path == "" {
+			// the key and env var must outlive the test that triggers Once,
+			// so tb.TempDir and tb.Setenv cannot be used here
+			dir, err := os.MkdirTemp("", "pmm-encryption-test") //nolint:usetesting
+			require.NoError(tb, err)
+			path = filepath.Join(dir, "encryption.key")
+			require.NoError(tb, os.Setenv(encryption.CustomEncryptionKeyPathEnvVar, path)) //nolint:usetesting
+		}
+
+		cipher, err := encryption.LoadOrCreateCipher(encryption.NewFileKeyProvider(path))
+		require.NoError(tb, err)
+		encryption.SetDefaultCipher(cipher)
+	})
+}
+
 // SetupDB runs PostgreSQL database migrations and optionally adds initial data for testing DB.
 // Please use Open method to recreate DB for each test if you don't need to control migrations.
 func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, migrationVersion *int) {
 	tb.Helper()
+	setupEncryption(tb)
 	ctx := context.TODO()
 	params := models.SetupDBParams{
 		// Uncomment to see all setup queries:

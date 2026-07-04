@@ -19,7 +19,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/AlekSi/pointer"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
@@ -94,10 +93,10 @@ var pmmAgentPathsBaseSupport = version.MustParse("2.22.99")
 // redactWords returns words that should be redacted from given Agent logs/output.
 func redactWords(agent *models.Agent) []string {
 	var words []string
-	if s := pointer.GetString(agent.Password); s != "" {
+	if s := agent.Password.Reveal(); s != "" {
 		words = append(words, s)
 	}
-	if s := pointer.GetString(agent.AgentPassword); s != "" {
+	if s := agent.AgentPassword.Reveal(); s != "" {
 		words = append(words, s)
 	}
 	if s := agent.AWSOptions.AWSSecretKey; s != "" {

@@ -48,8 +48,8 @@ func TestAgent(t *testing.T) {
 
 	t.Run("DSN", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:          new("username"),
-			Password:          new("s3cur3 p@$$w0r4."),
+			Username:          new(models.EncryptedString("username")),
+			Password:          new(models.EncryptedString("s3cur3 p@$$w0r4.")),
 			ExporterOptions:   models.ExporterOptions{},
 			QANOptions:        models.QANOptions{},
 			MongoDBOptions:    models.MongoDBOptions{},
@@ -85,8 +85,8 @@ func TestAgent(t *testing.T) {
 
 	t.Run("DSN socket", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:        new("username"),
-			Password:        new("s3cur3 p@$$w0r4."),
+			Username:        new(models.EncryptedString("username")),
+			Password:        new(models.EncryptedString("s3cur3 p@$$w0r4.")),
 			ExporterOptions: models.ExporterOptions{},
 			QANOptions:      models.QANOptions{},
 			MySQLOptions:    models.MySQLOptions{},
@@ -109,8 +109,8 @@ func TestAgent(t *testing.T) {
 
 	t.Run("DSN timeout", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:        new("username"),
-			Password:        new("s3cur3 p@$$w0r4."),
+			Username:        new(models.EncryptedString("username")),
+			Password:        new(models.EncryptedString("s3cur3 p@$$w0r4.")),
 			ExporterOptions: models.ExporterOptions{},
 			QANOptions:      models.QANOptions{},
 			MongoDBOptions:  models.MongoDBOptions{},
@@ -147,8 +147,8 @@ func TestAgent(t *testing.T) {
 			SSLKey:  "key",
 		}
 		agent := &models.Agent{
-			Username:          new("username"),
-			Password:          new("s3cur3 p@$$w0r4."),
+			Username:          new(models.EncryptedString("username")),
+			Password:          new(models.EncryptedString("s3cur3 p@$$w0r4.")),
 			TLS:               true,
 			ExporterOptions:   models.ExporterOptions{},
 			MongoDBOptions:    mongoDBOptions,
@@ -209,8 +209,8 @@ func TestAgent(t *testing.T) {
 
 	t.Run("DSN ssl-skip-verify", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:          new("username"),
-			Password:          new("s3cur3 p@$$w0r4."),
+			Username:          new(models.EncryptedString("username")),
+			Password:          new(models.EncryptedString("s3cur3 p@$$w0r4.")),
 			TLS:               true,
 			TLSSkipVerify:     true,
 			ExporterOptions:   models.ExporterOptions{},
@@ -249,8 +249,8 @@ func TestAgent(t *testing.T) {
 
 func TestPostgresAgentTLS(t *testing.T) {
 	agent := &models.Agent{
-		Username:          new("username"),
-		Password:          new("s3cur3 p@$$w0r4."),
+		Username:          new(models.EncryptedString("username")),
+		Password:          new(models.EncryptedString("s3cur3 p@$$w0r4.")),
 		AgentType:         models.PostgresExporterType,
 		ExporterOptions:   models.ExporterOptions{},
 		PostgreSQLOptions: models.PostgreSQLOptions{},
@@ -288,8 +288,8 @@ func TestPostgresAgentTLS(t *testing.T) {
 func TestValkey(t *testing.T) {
 	t.Run("Redis DSN", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:        new("username"),
-			Password:        new("s3cur3 p@$$w0r4."),
+			Username:        new(models.EncryptedString("username")),
+			Password:        new(models.EncryptedString("s3cur3 p@$$w0r4.")),
 			AgentType:       models.ValkeyExporterType,
 			ExporterOptions: models.ExporterOptions{},
 			ValkeyOptions:   models.ValkeyOptions{},
@@ -306,8 +306,8 @@ func TestValkey(t *testing.T) {
 
 	t.Run("Valkey DSN with TLS", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:        new("username"),
-			Password:        new("s3cur3 p@$$w0r4."),
+			Username:        new(models.EncryptedString("username")),
+			Password:        new(models.EncryptedString("s3cur3 p@$$w0r4.")),
 			AgentType:       models.ValkeyExporterType,
 			ExporterOptions: models.ExporterOptions{},
 			TLS:             true,
@@ -331,7 +331,7 @@ func TestValkey(t *testing.T) {
 func TestPostgresWithSocket(t *testing.T) {
 	t.Run("empty-password", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:          new("username"),
+			Username:          new(models.EncryptedString("username")),
 			AgentType:         models.PostgresExporterType,
 			TLS:               true,
 			TLSSkipVerify:     false,
@@ -375,7 +375,7 @@ func TestPostgresWithSocket(t *testing.T) {
 func TestMongoWithSocket(t *testing.T) {
 	t.Run("empty-password", func(t *testing.T) {
 		agent := &models.Agent{
-			Username:        new("username"),
+			Username:        new(models.EncryptedString("username")),
 			AgentType:       models.MongoDBExporterType,
 			TLS:             true,
 			TLSSkipVerify:   false,
@@ -533,8 +533,8 @@ func TestExporterURL(t *testing.T) {
 				ServiceID:    new("external"),
 				RunsOnNodeID: new("ExporterNodeID"),
 				ListenPort:   new(uint16(9121)),
-				Username:     new("user"),
-				Password:     new("secret"),
+				Username:     new(models.EncryptedString("user")),
+				Password:     new(models.EncryptedString("secret")),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics:   false,
 					MetricsPath:   "/metrics",
@@ -548,8 +548,8 @@ func TestExporterURL(t *testing.T) {
 				RunsOnNodeID: new("ExporterServerlessNodeID"),
 				ServiceID:    new("redis_exporter-external"),
 				ListenPort:   new(uint16(9121)),
-				Username:     new("user"),
-				Password:     new("secret"),
+				Username:     new(models.EncryptedString("user")),
+				Password:     new(models.EncryptedString("secret")),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics:   false,
 					MetricsPath:   "/metrics",
@@ -563,8 +563,8 @@ func TestExporterURL(t *testing.T) {
 				RunsOnNodeID: new("ExporterServerlessNodeID2"),
 				ServiceID:    new("nomad_exporter-external"),
 				ListenPort:   new(uint16(9121)),
-				Username:     new("user"),
-				Password:     new("secret"),
+				Username:     new(models.EncryptedString("user")),
+				Password:     new(models.EncryptedString("secret")),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics:   false,
 					MetricsPath:   "/metrics?format=prometheus&output=json",
@@ -578,8 +578,8 @@ func TestExporterURL(t *testing.T) {
 				RunsOnNodeID: new("ExporterServerlessNodeID2"),
 				ServiceID:    new("nomad_exporter-external"),
 				ListenPort:   new(uint16(9121)),
-				Username:     new("user"),
-				Password:     new("secret"),
+				Username:     new(models.EncryptedString("user")),
+				Password:     new(models.EncryptedString("secret")),
 				ExporterOptions: models.ExporterOptions{
 					PushMetrics:   false,
 					MetricsPath:   "/",
@@ -587,9 +587,6 @@ func TestExporterURL(t *testing.T) {
 				},
 			},
 		} {
-			if v, ok := str.(*models.Agent); ok {
-				str = new(models.EncryptAgent(*v))
-			}
 			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
 		}
 
