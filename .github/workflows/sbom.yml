@@ -1,3 +1,4 @@
+---
 name: SBOM
 
 on:
@@ -10,7 +11,7 @@ permissions:
 
 jobs:
   sbom:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -27,7 +28,7 @@ jobs:
           sbom-artifact-match: ".*\\.spdx\\.json$"
 
   vmproxy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0

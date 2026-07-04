@@ -1,15 +1,17 @@
-import { FC, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import type { FC } from 'react';
 import {
   Navigate,
   Link as RouterLink,
   useSearchParams,
 } from 'react-router-dom';
+import { useDetailsPaneNavigation } from '@percona/percona-ui';
 import { RealtimePage } from '../components/rta-page';
 import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
 import OverviewTable from './table/OverviewTable';
 import { isTransactionControl } from './table/OverviewTable.utils';
 import { DetailsPane } from './details-pane';
-import { QueryData } from 'types/rta.types';
+import type { QueryData } from 'types/rta.types';
 import { Icon } from 'components/icon';
 import { Messages } from './RealtimeOverview.messages';
 import { createRealtimeSessionsUrl } from 'utils/link.utils';
@@ -49,12 +51,6 @@ const RealtimeOverviewPage: FC = () => {
   const previousFetchingState = useRef<boolean>(fetching);
   const { data: sessions = [], isLoading } = useRealtimeSessions();
 
-  const selectedQueryIndex = selectedQuery
-    ? navigableQueries.findIndex(
-        (query) => query.queryId === selectedQuery.queryId
-      )
-    : -1;
-
   const handleQuerySelected = (query: QueryData) => {
     setSelectedQuery(query);
     previousFetchingState.current = fetching;
@@ -66,16 +62,13 @@ const RealtimeOverviewPage: FC = () => {
     setFetching(previousFetchingState.current);
   };
 
-  const handleAdjacentQuery = (offset: -1 | 1) => {
-    if (selectedQueryIndex < 0) {
-      return;
-    }
-    const nextIndex = selectedQueryIndex + offset;
-    if (nextIndex < 0 || nextIndex >= navigableQueries.length) {
-      return;
-    }
-    handleQuerySelected(navigableQueries[nextIndex]);
-  };
+  const { isFirst, isLast, next, previous } =
+    useDetailsPaneNavigation<QueryData>({
+      rows: navigableQueries,
+      selected: selectedQuery,
+      getRowId: (query) => query.queryId,
+      onSelect: handleQuerySelected,
+    });
 
   const handleServiceIdsChange = (newServiceIds: string[]) => {
     // start fetching if previous state was empty
@@ -204,13 +197,10 @@ const RealtimeOverviewPage: FC = () => {
       <DetailsPane
         query={selectedQuery}
         onClose={handleCloseDetails}
-        isFirstQuery={selectedQueryIndex <= 0}
-        isLastQuery={
-          selectedQueryIndex < 0 ||
-          selectedQueryIndex >= navigableQueries.length - 1
-        }
-        onNext={() => handleAdjacentQuery(1)}
-        onPrevious={() => handleAdjacentQuery(-1)}
+        isFirstQuery={isFirst}
+        isLastQuery={isLast}
+        onNext={next}
+        onPrevious={previous}
       />
     </RealtimePage>
   );

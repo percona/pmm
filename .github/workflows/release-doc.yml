@@ -1,3 +1,4 @@
+---
 name: Publish release changelog
 on:
   push:
@@ -30,7 +31,7 @@ jobs:
       contents: write  # for softprops/action-gh-release to create GitHub release
 
     if: (startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && github.repository == 'percona/pmm'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Set version for testing
         id: set_version
@@ -94,7 +95,7 @@ jobs:
           grep -rl '!!! note alert alert-primary' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! note alert alert-primary/\> \:memo\: **Note**/g'
 
       - name: Create Release
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           body_path: ${{ github.workspace }}-CHANGELOG.txt
           draft: true

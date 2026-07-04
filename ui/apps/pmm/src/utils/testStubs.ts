@@ -188,3 +188,16 @@ export const TEST_MYSQL_QUERY_DATA: QueryData = {
     fullScan: true,
   },
 };
+
+export const TEST_USER_ANONYMOUS: User = {
+  ...TEST_USER_VIEWER,
+  id: 0,
+  login: 'anonymous',
+  name: 'Anonymous',
+  isAnonymous: true,
+  isPMMAdmin: false,
+  info: {
+    ...TEST_USER_ADMIN.info,
+    userId: 0,
+  },
+};

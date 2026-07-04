@@ -1,3 +1,4 @@
+---
 name: UI
 
 on:
@@ -30,7 +31,7 @@ permissions:
 jobs:
   ci:
     name: CI
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     defaults:
       run:

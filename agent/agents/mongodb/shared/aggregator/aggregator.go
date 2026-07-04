@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package aggregator provides functionality to aggregate MongoDB profiling data.
+// It collects system.profile documents, calculates query performance statistics
+// over fixed time intervals, and transforms them into Query Analytics (QAN) reports
+// containing query fingerprints and metric buckets.
 package aggregator
 
 import (
