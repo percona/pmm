@@ -107,18 +107,21 @@ func (m *MongoDB) Write(r *report.Report) error {
 	return nil
 }
 
-type Mongolog interface { //nolint:revive
+// Mongolog represents the internal engine that collects and processes MongoDB log data.
+type Mongolog interface {
+	// Start begins log collection and processing until the context is canceled.
 	Start(ctx context.Context) error
+	// Stop halts log collection and processing.
 	Stop() error
 }
 
 // Describe implements prometheus.Collector.
-func (m *MongoDB) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+func (m *MongoDB) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (m *MongoDB) Collect(ch chan<- prometheus.Metric) { //nolint:revive
+func (m *MongoDB) Collect(_ chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 

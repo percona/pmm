@@ -384,9 +384,8 @@ func waitForPBMRestore(ctx context.Context, l logrus.FieldLogger, dsn string, re
 					maxRetryCount--
 					l.Warnf("PMM failed to get backup restore status and will retry: %s", err)
 					continue
-				} else { //nolint:revive
-					return fmt.Errorf("failed to get restore status: %w", err)
 				}
+				return fmt.Errorf("failed to get restore status: %w", err)
 			}
 			// reset maxRetryCount if we were able to successfully get the current restore status
 			maxRetryCount = 5
