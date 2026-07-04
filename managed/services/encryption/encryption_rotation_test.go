@@ -121,7 +121,8 @@ func TestEncryptionRotation(t *testing.T) {
 
 func insertLegacyTestData(ctx context.Context, db *sql.DB) error {
 	now := time.Now()
-	_, err := db.ExecContext(ctx,
+	_, err := db.ExecContext(
+		ctx,
 		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
 			"VALUES ('1', 'generic', 'name', '', '', '', '', $1, $2)",
 		now, now,
@@ -130,7 +131,8 @@ func insertLegacyTestData(ctx context.Context, db *sql.DB) error {
 		return err
 	}
 
-	_, err = db.ExecContext(ctx,
+	_, err = db.ExecContext(
+		ctx,
 		`INSERT INTO agents (agent_id, agent_type, username, password, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 			`VALUES ('1', 'pmm-agent', $1, $2, '1', NULL, false, '', $3, $4, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": true, "rds_enhanced_metrics_disabled": true}', '{"push_metrics": false, "expose_exporter": false}')`,
 		originalUsernameHash, originalPasswordHash, now, now,

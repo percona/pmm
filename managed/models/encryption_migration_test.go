@@ -69,7 +69,8 @@ func TestMigrateEncryption(t *testing.T) {
 	require.NoError(t, err)
 
 	now := time.Now()
-	_, err = sqlDB.ExecContext(t.Context(),
+	_, err = sqlDB.ExecContext(
+		t.Context(),
 		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
 			"VALUES ('N1', 'generic', 'name', '', '', '', '', $1, $2)",
 		now, now,
@@ -77,14 +78,16 @@ func TestMigrateEncryption(t *testing.T) {
 	require.NoError(t, err)
 	// username in legacy format, password in pre-encryption plaintext
 	//nolint:dupword
-	_, err = sqlDB.ExecContext(t.Context(),
+	_, err = sqlDB.ExecContext(
+		t.Context(),
 		`INSERT INTO agents (agent_id, agent_type, username, password, runs_on_node_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, aws_options, mysql_options) `+
 			`VALUES ('A1', 'pmm-agent', $1, $2, 'N1', false, '', $3, $4, false, false, $5, $6)`,
 		toLegacy("legacy-user"), "plain-password", now, now, string(awsOptions), string(mysqlOptions),
 	)
 	require.NoError(t, err)
 	// backup location with pre-encryption plaintext S3 credentials
-	_, err = sqlDB.ExecContext(t.Context(),
+	_, err = sqlDB.ExecContext(
+		t.Context(),
 		`INSERT INTO backup_locations (id, name, description, type, s3_config, created_at, updated_at) `+
 			`VALUES ('L1', 'loc', '', 's3', '{"endpoint": "https://s3.example.com", "access_key": "s3-access-key", "secret_key": "s3-secret-key", "bucket_name": "b", "bucket_region": "r"}', $1, $2)`,
 		now, now,
