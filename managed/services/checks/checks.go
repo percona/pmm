@@ -45,6 +45,7 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/check"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/utils/pdeathsig"
 	"github.com/percona/pmm/utils/sqlrows"
@@ -772,6 +773,13 @@ func newCheckResultRecord(
 		ReadMoreURL: result.ReadMoreURL,
 		Severity:    int(result.Severity),
 		CheckedAt:   checkedAt,
+	}
+	// OK and error outcomes carry no finding; fall back to the check's own summary
+	if r.Summary == "" {
+		r.Summary = c.Summary
+	}
+	if status == models.CheckResultOK {
+		r.Severity = int(common.Info)
 	}
 	if len(result.Labels) != 0 {
 		_ = r.SetLabels(result.Labels)

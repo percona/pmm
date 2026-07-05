@@ -540,10 +540,18 @@ export const NAV_ADVISORS: NavItem = {
   url: `${PMM_NEW_NAV_PATH}/advisors`,
 };
 
+// the sidebar links a parent item to its first child's url,
+// so the checks list must be an explicit (and first) child
+export const NAV_ADVISORS_CHECKS: NavItem = {
+  id: 'advisors-checks',
+  text: 'Advisor checks',
+  url: `${PMM_NEW_NAV_PATH}/advisors`,
+};
+
 export const NAV_ADVISORS_INSIGHTS = {
   id: 'advisors-insights',
   text: 'Advisor insights',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/insights`,
+  url: `${PMM_NEW_NAV_PATH}/advisors/insights`,
 };
 
 //

@@ -2,10 +2,13 @@ import {
   Advisor,
   ChangeAdvisorCheckParams,
   ChangeAdvisorChecksRequest,
+  CheckResultHistoryItem,
   ListAdvisorsResponse,
+  ListCheckResultsHistoryParams,
+  MarkCheckResultsReadRequest,
   StartAdvisorChecksRequest,
 } from 'types/advisors.types';
-import { EmptyResponse } from 'types/util.types';
+import { EmptyResponse, PaginatedResponse } from 'types/util.types';
 import { api } from './api';
 
 export const listAdvisors = async (): Promise<Advisor[]> => {
@@ -23,4 +26,20 @@ export const changeAdvisorChecks = async (
 ): Promise<void> => {
   const payload: ChangeAdvisorChecksRequest = { params };
   await api.post<EmptyResponse>('/advisors/checks:batchChange', payload);
+};
+
+export const listCheckResultsHistory = async (
+  params: ListCheckResultsHistoryParams
+): Promise<PaginatedResponse<CheckResultHistoryItem>> => {
+  const res = await api.get<PaginatedResponse<CheckResultHistoryItem>>(
+    '/advisors/checks/history',
+    { params }
+  );
+  return res.data;
+};
+
+export const markCheckResultsRead = async (
+  payload: MarkCheckResultsReadRequest
+): Promise<void> => {
+  await api.post<EmptyResponse>('/advisors/checks/history:markRead', payload);
 };

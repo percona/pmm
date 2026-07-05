@@ -1,4 +1,9 @@
-import { AdvisorFamily, AdvisorInterval } from 'types/advisors.types';
+import {
+  AdvisorCheckResultStatus,
+  AdvisorFamily,
+  AdvisorInterval,
+} from 'types/advisors.types';
+import { Severity } from 'types/severity.types';
 import { ServiceType } from 'types/services.types';
 
 export const PMM_TITLE = 'Percona Monitoring and Management';
@@ -33,6 +38,26 @@ export const ADVISOR_INTERVAL: Record<AdvisorInterval, string> = {
   [AdvisorInterval.rare]: 'Rare',
   [AdvisorInterval.frequent]: 'Frequent',
   [AdvisorInterval.unspecified]: 'Unspecified',
+};
+
+export const ADVISOR_RESULT_STATUS: Record<AdvisorCheckResultStatus, string> =
+  {
+    [AdvisorCheckResultStatus.ok]: 'OK',
+    [AdvisorCheckResultStatus.failed]: 'Failed',
+    [AdvisorCheckResultStatus.error]: 'Error',
+    [AdvisorCheckResultStatus.unspecified]: 'Unspecified',
+  };
+
+export const SEVERITY: Record<Severity, string> = {
+  [Severity.emergency]: 'Emergency',
+  [Severity.alert]: 'Alert',
+  [Severity.critical]: 'Critical',
+  [Severity.error]: 'Error',
+  [Severity.warning]: 'Warning',
+  [Severity.notice]: 'Notice',
+  [Severity.info]: 'Info',
+  [Severity.debug]: 'Debug',
+  [Severity.unspecified]: 'Unspecified',
 };
 
 export const ALL_SERVICE_TYPES = [

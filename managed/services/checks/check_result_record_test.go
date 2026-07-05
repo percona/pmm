@@ -30,7 +30,7 @@ import (
 func TestNewCheckResultRecord(t *testing.T) {
 	t.Parallel()
 
-	c := check.Check{Name: "chk", Advisor: "adv", Interval: check.Standard}
+	c := check.Check{Name: "chk", Summary: "Check title", Advisor: "adv", Interval: check.Standard}
 	target := services.Target{
 		ServiceID:   "sid",
 		ServiceName: "sname",
@@ -74,17 +74,30 @@ func TestNewCheckResultRecord(t *testing.T) {
 		assert.Equal(t, map[string]string{"k": "v"}, labels)
 	})
 
-	t.Run("ok outcome has empty finding fields", func(t *testing.T) {
+	t.Run("ok outcome falls back to check summary and info severity", func(t *testing.T) {
 		t.Parallel()
 
 		rec := newCheckResultRecord(c, target, "performance", models.CheckResultOK, check.Result{}, checkedAt)
 
 		assert.Equal(t, models.CheckResultOK, rec.Status)
-		assert.Empty(t, rec.Summary)
-		assert.Zero(t, rec.Severity)
+		assert.Equal(t, "Check title", rec.Summary)
+		assert.Equal(t, int(common.Info), rec.Severity)
 
 		labels, err := rec.GetLabels()
 		require.NoError(t, err)
 		assert.Empty(t, labels)
+	})
+
+	t.Run("error outcome falls back to check summary", func(t *testing.T) {
+		t.Parallel()
+
+		result := check.Result{Description: "execution failed"}
+
+		rec := newCheckResultRecord(c, target, "performance", models.CheckResultError, result, checkedAt)
+
+		assert.Equal(t, models.CheckResultError, rec.Status)
+		assert.Equal(t, "Check title", rec.Summary)
+		assert.Equal(t, "execution failed", rec.Description)
+		assert.Zero(t, rec.Severity)
 	})
 }

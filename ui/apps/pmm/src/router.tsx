@@ -14,6 +14,7 @@ import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AdvisorsList } from 'pages/advisors';
+import { AdvisorInsights } from 'pages/advisors/insights';
 
 const router = createBrowserRouter(
   [
@@ -72,6 +73,10 @@ const router = createBrowserRouter(
                 {
                   path: '',
                   element: <AdvisorsList />,
+                },
+                {
+                  path: 'insights',
+                  element: <AdvisorInsights />,
                 },
               ],
             },

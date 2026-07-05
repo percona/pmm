@@ -1,3 +1,5 @@
+import { Severity } from './severity.types';
+
 export enum AdvisorInterval {
   standard = 'ADVISOR_CHECK_INTERVAL_STANDARD',
   rare = 'ADVISOR_CHECK_INTERVAL_RARE',
@@ -52,6 +54,54 @@ export interface ChangeAdvisorCheckParams {
 
 export interface ChangeAdvisorChecksRequest {
   params: ChangeAdvisorCheckParams[];
+}
+
+export enum AdvisorCheckResultStatus {
+  unspecified = 'ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED',
+  ok = 'ADVISOR_CHECK_RESULT_STATUS_OK',
+  failed = 'ADVISOR_CHECK_RESULT_STATUS_FAILED',
+  error = 'ADVISOR_CHECK_RESULT_STATUS_ERROR',
+}
+
+export interface CheckResultHistoryItem {
+  id: string;
+  checkName: string;
+  advisorName: string;
+  category: string;
+  interval: AdvisorInterval;
+  serviceId: string;
+  serviceName: string;
+  serviceType: string;
+  nodeId: string;
+  nodeName: string;
+  status: AdvisorCheckResultStatus;
+  summary: string;
+  description: string;
+  readMoreUrl: string;
+  severity: Severity;
+  labels: Record<string, string>;
+  checkedAt: string;
+  isRead: boolean;
+}
+
+export interface ListCheckResultsHistoryParams {
+  pageSize?: number;
+  pageIndex?: number;
+  serviceId?: string;
+  serviceName?: string;
+  nodeName?: string;
+  category?: string;
+  checkName?: string;
+  status?: AdvisorCheckResultStatus;
+  severity?: Severity;
+  isRead?: boolean;
+  from?: string;
+  to?: string;
+}
+
+export interface MarkCheckResultsReadRequest {
+  ids: string[];
+  isRead: boolean;
 }
 
 export interface AdvisorCheckRow {
