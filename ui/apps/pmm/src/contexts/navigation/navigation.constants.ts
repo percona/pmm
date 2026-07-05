@@ -537,7 +537,7 @@ export const NAV_ADVISORS: NavItem = {
   id: 'advisors',
   icon: 'intelligence',
   text: 'Advisors',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors`,
+  url: `${PMM_NEW_NAV_PATH}/advisors`,
 };
 
 export const NAV_ADVISORS_INSIGHTS = {

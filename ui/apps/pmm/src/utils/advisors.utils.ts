@@ -1,5 +1,23 @@
 import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
-import { Advisor, CategorizedAdvisor } from 'types/advisors.types';
+import {
+  Advisor,
+  AdvisorCheckRow,
+  CategorizedAdvisor,
+} from 'types/advisors.types';
+
+export const flattenAdvisorChecks = (advisors: Advisor[]): AdvisorCheckRow[] =>
+  advisors.flatMap((advisor) =>
+    advisor.checks.map((check) => ({
+      checkName: check.name,
+      summary: check.summary,
+      description: check.description,
+      advisorName: advisor.summary,
+      category: advisor.category,
+      family: check.family,
+      interval: check.interval,
+      enabled: check.enabled,
+    }))
+  );
 
 export const groupAdvisorsIntoCategories = (
   advisors: Advisor[]

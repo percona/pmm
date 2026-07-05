@@ -1,8 +1,6 @@
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
 import { User, UserPreferences } from 'types/user.types';
-import { Advisor } from 'types/advisors.types';
-import { groupAdvisorsIntoCategories } from 'utils/advisors.utils';
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
 import { ColorMode } from '@pmm/shared';
 import {
@@ -48,7 +46,6 @@ import {
   NAV_HOME_PAGE,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
-import { capitalize } from 'utils/text.utils';
 import { DashboardFolder } from 'types/folders.types';
 import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 import { HighAvailabilityIcon } from 'components/ha-icon';
@@ -167,20 +164,10 @@ export const addExplore = (exploreMetricsEnabled: boolean): NavItem => {
   return { ...NAV_EXPLORE, children };
 };
 
-export const addAdvisors = (advisors: Advisor[]): NavItem => {
-  const children: NavItem[] = [NAV_ADVISORS_INSIGHTS];
-  const categories = groupAdvisorsIntoCategories(advisors);
-
-  for (const category of Object.keys(categories)) {
-    children.push({
-      id: `advisors-${category}`,
-      text: `${capitalize(category)} advisors`,
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/${category}`,
-    });
-  }
-
-  return { ...NAV_ADVISORS, children };
-};
+export const addAdvisors = (): NavItem => ({
+  ...NAV_ADVISORS,
+  children: [NAV_ADVISORS_INSIGHTS],
+});
 
 export const addAccount = (
   user: User,

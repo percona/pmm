@@ -13,6 +13,7 @@ import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import { AdvisorsList } from 'pages/advisors';
 
 const router = createBrowserRouter(
   [
@@ -62,6 +63,15 @@ const router = createBrowserRouter(
                 {
                   path: 'overview',
                   element: <RealtimeOverviewPage />,
+                },
+              ],
+            },
+            {
+              path: 'advisors',
+              children: [
+                {
+                  path: '',
+                  element: <AdvisorsList />,
                 },
               ],
             },

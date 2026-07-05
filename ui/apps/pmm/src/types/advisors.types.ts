@@ -39,3 +39,28 @@ export interface CategorizedAdvisor {
 export interface ListAdvisorsResponse {
   advisors: Advisor[];
 }
+
+export interface StartAdvisorChecksRequest {
+  names: string[];
+}
+
+export interface ChangeAdvisorCheckParams {
+  name: string;
+  enable?: boolean;
+  interval?: AdvisorInterval;
+}
+
+export interface ChangeAdvisorChecksRequest {
+  params: ChangeAdvisorCheckParams[];
+}
+
+export interface AdvisorCheckRow {
+  checkName: string;
+  summary: string;
+  description: string;
+  advisorName: string;
+  category: string;
+  family: AdvisorFamily;
+  interval: AdvisorInterval;
+  enabled: boolean;
+}
