@@ -24,6 +24,7 @@ export const Page: FC<PageProps> = ({
   footer,
   children,
   fullWidth,
+  wide,
   surface,
   roles,
 }) => {
@@ -50,7 +51,7 @@ export const Page: FC<PageProps> = ({
           flex: 1,
           width: '100%',
           maxWidth: {
-            lg: 1000,
+            lg: wide ? 'none' : 1000,
           },
           p: {
             xs: 2,

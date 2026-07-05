@@ -7,7 +7,7 @@ export const Messages = {
     check: 'Check',
     description: 'Description',
     category: 'Category',
-    technology: 'Technology',
+    vendor: 'Vendor',
     interval: 'Interval',
     status: 'Status',
   },
@@ -15,9 +15,9 @@ export const Messages = {
     enabled: 'Enabled',
     disabled: 'Disabled',
   },
-  runAll: 'Run all checks',
-  runCategory: 'Run category',
-  runTechnology: 'Run technology',
+  runAll: 'Run all',
+  runSelected: 'Run selected',
+  addAdvisor: 'Add advisor',
   run: 'Run',
   success: {
     checksStarted:

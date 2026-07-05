@@ -83,6 +83,7 @@ const waitForRows = async () => {
   );
 };
 
+
 describe('AdvisorsList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -98,6 +99,15 @@ describe('AdvisorsList', () => {
 
     expect(screen.getByText('PostgreSQL super role')).toBeInTheDocument();
     expect(screen.getByText('PostgreSQL disabled check')).toBeInTheDocument();
+    expect(screen.getByTestId('add-advisor')).toBeInTheDocument();
+  });
+
+  it('disables run selected when nothing is filtered', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    expect(screen.getByTestId('run-selected-checks')).toBeDisabled();
   });
 
   it('filters checks with global search', async () => {
@@ -138,15 +148,22 @@ describe('AdvisorsList', () => {
     ).toBeInTheDocument();
   });
 
-  it('runs enabled checks of a category', async () => {
+  it('runs checks matching the global search', async () => {
     renderComponent();
 
     await waitForRows();
 
-    fireEvent.click(screen.getByTestId(`run-menu-${Messages.runCategory}`));
+    fireEvent.change(screen.getByPlaceholderText(/search/i), {
+      target: { value: 'super role' },
+    });
 
-    const menu = await screen.findByRole('menu');
-    fireEvent.click(within(menu).getByText('Security'));
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('check-mysql_version_check-run')
+      ).not.toBeInTheDocument()
+    );
+
+    fireEvent.click(screen.getByTestId('run-selected-checks'));
 
     await waitFor(() =>
       expect(advisorsApi.startAdvisorChecks).toHaveBeenCalledWith(
@@ -156,22 +173,22 @@ describe('AdvisorsList', () => {
     );
   });
 
-  it('runs enabled checks of a technology', async () => {
+  it('disables run selected when only disabled checks are visible', async () => {
     renderComponent();
 
     await waitForRows();
 
-    fireEvent.click(screen.getByTestId(`run-menu-${Messages.runTechnology}`));
-
-    const menu = await screen.findByRole('menu');
-    fireEvent.click(within(menu).getByText('MySQL'));
+    fireEvent.change(screen.getByPlaceholderText(/search/i), {
+      target: { value: 'A disabled check' },
+    });
 
     await waitFor(() =>
-      expect(advisorsApi.startAdvisorChecks).toHaveBeenCalledWith(
-        ['mysql_version_check'],
-        expect.anything()
-      )
+      expect(
+        screen.queryByTestId('check-mysql_version_check-run')
+      ).not.toBeInTheDocument()
     );
+
+    expect(screen.getByTestId('run-selected-checks')).toBeDisabled();
   });
 
   it('runs an individual check', async () => {

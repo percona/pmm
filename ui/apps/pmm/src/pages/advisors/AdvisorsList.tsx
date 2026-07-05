@@ -1,7 +1,9 @@
 import { FC, useCallback, useMemo } from 'react';
 import Button from '@mui/material/Button';
+import { boxClasses } from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 import { Table } from '@percona/percona-ui';
 import { enqueueSnackbar } from 'notistack';
@@ -18,7 +20,6 @@ import { capitalize } from 'utils/text.utils';
 import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
 import { Messages } from './AdvisorsList.messages';
 import { getAdvisorsColumns } from './AdvisorsList.constants';
-import { RunMenuButton, RunMenuOption } from './run-menu-button';
 
 const AdvisorsList: FC = () => {
   const { data: advisors = [], isLoading } = useAdvisors();
@@ -28,25 +29,14 @@ const AdvisorsList: FC = () => {
 
   const rows = useMemo(() => flattenAdvisorChecks(advisors), [advisors]);
 
-  const categoryOptions = useMemo<RunMenuOption[]>(
+  const categories = useMemo(
     () =>
-      [...new Set(rows.map((row) => row.category))].sort().map((category) => ({
-        label: capitalize(category),
-        names: rows
-          .filter((row) => row.category === category && row.enabled)
-          .map((row) => row.checkName),
-      })),
+      [...new Set(rows.map((row) => capitalize(row.category)))].sort(),
     [rows]
   );
 
-  const technologyOptions = useMemo<RunMenuOption[]>(
-    () =>
-      [...new Set(rows.map((row) => row.family))].sort().map((family) => ({
-        label: ADVISOR_FAMILY[family],
-        names: rows
-          .filter((row) => row.family === family && row.enabled)
-          .map((row) => row.checkName),
-      })),
+  const vendors = useMemo(
+    () => [...new Set(rows.map((row) => ADVISOR_FAMILY[row.family]))].sort(),
     [rows]
   );
 
@@ -90,16 +80,21 @@ const AdvisorsList: FC = () => {
   const columns = useMemo(
     () =>
       getAdvisorsColumns({
-        categories: categoryOptions.map((option) => option.label),
-        technologies: technologyOptions.map((option) => option.label),
+        categories,
+        vendors,
         onToggleCheck: handleToggleCheck,
         onChangeInterval: handleChangeInterval,
       }),
-    [categoryOptions, technologyOptions, handleToggleCheck, handleChangeInterval]
+    [categories, vendors, handleToggleCheck, handleChangeInterval]
   );
 
   return (
-    <Page title={Messages.title} fullWidth roles={[OrgRole.Editor, OrgRole.Admin]}>
+    <Page
+      title={Messages.title}
+      fullWidth
+      wide
+      roles={[OrgRole.Editor, OrgRole.Admin]}
+    >
       <Stack gap={2} sx={{ flex: 1 }}>
         <Typography variant="body2">{Messages.description}</Typography>
         <Table
@@ -135,34 +130,67 @@ const AdvisorsList: FC = () => {
               {Messages.run}
             </Button>
           )}
-          renderTopToolbarCustomActions={() => (
-            <Stack direction="row" alignItems="center" gap={2}>
-              <Button
-                startIcon={<PlayArrowOutlinedIcon />}
-                disabled={isStarting}
-                onClick={() => runChecks([], Messages.success.checksStarted)}
-                data-testid="run-all-checks"
-              >
-                {Messages.runAll}
-              </Button>
-              <RunMenuButton
-                label={Messages.runCategory}
-                options={categoryOptions}
-                disabled={isStarting}
-                onRun={(option) =>
-                  runChecks(option.names, Messages.success.checksStarted)
-                }
-              />
-              <RunMenuButton
-                label={Messages.runTechnology}
-                options={technologyOptions}
-                disabled={isStarting}
-                onRun={(option) =>
-                  runChecks(option.names, Messages.success.checksStarted)
-                }
-              />
-            </Stack>
-          )}
+          renderTopToolbarCustomActions={({ table }) => {
+            const { globalFilter, columnFilters } = table.getState();
+            // no active search/filter means no selection ("all")
+            const hasSelection =
+              !!globalFilter ||
+              columnFilters.some(
+                (filter) => filter.value !== undefined && filter.value !== ''
+              );
+            // enabled checks currently visible after global search + filters
+            const selectedNames = hasSelection
+              ? table
+                  .getFilteredRowModel()
+                  .rows.map((row) => row.original)
+                  .filter((row) => row.enabled)
+                  .map((row) => row.checkName)
+              : [];
+
+            return (
+              <Stack direction="row" alignItems="center" gap={2}>
+                <Button
+                  startIcon={<PlayArrowOutlinedIcon />}
+                  disabled={isStarting}
+                  onClick={() => runChecks([], Messages.success.checksStarted)}
+                  data-testid="run-all-checks"
+                >
+                  {Messages.runAll}
+                </Button>
+                <Button
+                  startIcon={<PlayArrowOutlinedIcon />}
+                  disabled={isStarting || !selectedNames.length}
+                  onClick={() =>
+                    runChecks(selectedNames, Messages.success.checksStarted)
+                  }
+                  data-testid="run-selected-checks"
+                >
+                  {Messages.runSelected}
+                </Button>
+                <Button
+                  startIcon={<AddOutlinedIcon />}
+                  data-testid="add-advisor"
+                >
+                  {Messages.addAdvisor}
+                </Button>
+              </Stack>
+            );
+          }}
+          muiSearchTextFieldProps={{
+            // inline style: MRT's toolbar overwrites any `sx` passed here
+            style: { width: 400 },
+          }}
+          muiTopToolbarProps={{
+            sx: {
+              // search on the left, action buttons on the right,
+              // flush with the table edges
+              [`& > .${boxClasses.root}`]: {
+                alignItems: 'center',
+                flexDirection: 'row-reverse',
+                px: 0,
+              },
+            },
+          }}
           muiTableContainerProps={{
             sx: {
               flex: 1,

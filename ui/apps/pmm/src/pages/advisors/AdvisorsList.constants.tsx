@@ -15,14 +15,14 @@ export const INTERVAL_OPTIONS = [
 
 interface AdvisorsColumnsProps {
   categories: string[];
-  technologies: string[];
+  vendors: string[];
   onToggleCheck: (check: AdvisorCheckRow) => void;
   onChangeInterval: (check: AdvisorCheckRow, interval: AdvisorInterval) => void;
 }
 
 export const getAdvisorsColumns = ({
   categories,
-  technologies,
+  vendors,
   onToggleCheck,
   onChangeInterval,
 }: AdvisorsColumnsProps): MRT_ColumnDef<AdvisorCheckRow>[] => [
@@ -43,15 +43,17 @@ export const getAdvisorsColumns = ({
     header: Messages.columns.category,
     accessorFn: (row) => capitalize(row.category),
     filterVariant: 'select',
+    filterFn: 'equals',
     filterSelectOptions: categories,
     size: 150,
   },
   {
-    id: 'technology',
-    header: Messages.columns.technology,
+    id: 'vendor',
+    header: Messages.columns.vendor,
     accessorFn: (row) => ADVISOR_FAMILY[row.family],
     filterVariant: 'select',
-    filterSelectOptions: technologies,
+    filterFn: 'equals',
+    filterSelectOptions: vendors,
     size: 140,
   },
   {
@@ -59,6 +61,7 @@ export const getAdvisorsColumns = ({
     header: Messages.columns.interval,
     accessorFn: (row) => ADVISOR_INTERVAL[row.interval],
     filterVariant: 'select',
+    filterFn: 'equals',
     filterSelectOptions: INTERVAL_OPTIONS.map(
       (interval) => ADVISOR_INTERVAL[interval]
     ),
@@ -91,6 +94,7 @@ export const getAdvisorsColumns = ({
     accessorFn: (row) =>
       row.enabled ? Messages.status.enabled : Messages.status.disabled,
     filterVariant: 'select',
+    filterFn: 'equals',
     filterSelectOptions: [Messages.status.enabled, Messages.status.disabled],
     size: 110,
     Cell: ({ row }) => (
