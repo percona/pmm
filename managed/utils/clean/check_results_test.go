@@ -16,10 +16,10 @@
 package clean
 
 import (
-	"context"
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -48,12 +48,8 @@ func TestCheckResultsCleaner(t *testing.T) {
 		Status: models.CheckResultFailed, Summary: "s", CheckedAt: models.Now(),
 	}))
 
-	ctx, cancel := context.WithTimeout(t.Context(), 1*time.Second)
-	defer cancel()
-
-	go NewCheckResults(db).Run(ctx, 5*time.Second)
-	// Give the cleaner the chance to run one iteration.
-	time.Sleep(100 * time.Millisecond)
+	// Run a single cleanup pass synchronously; the ticker loop in Run is trivial plumbing.
+	NewCheckResults(db).cleanup(logrus.WithField("component", "test"))
 
 	results, err := models.FindCheckResults(q, models.CheckResultFilters{ServiceID: "svc"}, 0, 0)
 	require.NoError(t, err)
