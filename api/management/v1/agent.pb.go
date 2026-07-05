@@ -1241,6 +1241,7 @@ var (
 		(*durationpb.Duration)(nil),              // 17: google.protobuf.Duration
 	}
 )
+
 var file_management_v1_agent_proto_depIdxs = []int32{
 	8,  // 0: management.v1.UniversalAgent.azure_options:type_name -> management.v1.UniversalAgent.AzureOptions
 	14, // 1: management.v1.UniversalAgent.created_at:type_name -> google.protobuf.Timestamp

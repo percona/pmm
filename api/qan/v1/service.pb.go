@@ -258,6 +258,7 @@ var (
 		(*GetQueryExampleResponse)(nil),             // 24: qan.v1.GetQueryExampleResponse
 	}
 )
+
 var file_qan_v1_service_proto_depIdxs = []int32{
 	4,  // 0: qan.v1.GetMetricsNamesResponse.data:type_name -> qan.v1.GetMetricsNamesResponse.DataEntry
 	5,  // 1: qan.v1.QANService.GetReport:input_type -> qan.v1.GetReportRequest

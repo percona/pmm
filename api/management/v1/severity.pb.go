@@ -125,6 +125,7 @@ var (
 		Severity(0), // 0: management.v1.Severity
 	}
 )
+
 var file_management_v1_severity_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
