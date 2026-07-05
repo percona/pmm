@@ -7,6 +7,7 @@ import {
   ListCheckResultsHistoryParams,
   MarkCheckResultsReadRequest,
   StartAdvisorChecksRequest,
+  StartAdvisorChecksResponse,
 } from 'types/advisors.types';
 import { EmptyResponse, PaginatedResponse } from 'types/util.types';
 import { api } from './api';
@@ -16,9 +17,15 @@ export const listAdvisors = async (): Promise<Advisor[]> => {
   return res.data.advisors;
 };
 
-export const startAdvisorChecks = async (names: string[]): Promise<void> => {
+export const startAdvisorChecks = async (
+  names: string[]
+): Promise<string> => {
   const payload: StartAdvisorChecksRequest = { names };
-  await api.post<EmptyResponse>('/advisors/checks:start', payload);
+  const res = await api.post<StartAdvisorChecksResponse>(
+    '/advisors/checks:start',
+    payload
+  );
+  return res.data.runId;
 };
 
 export const changeAdvisorChecks = async (

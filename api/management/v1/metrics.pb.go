@@ -103,7 +103,6 @@ var (
 		MetricsMode(0), // 0: management.v1.MetricsMode
 	}
 )
-
 var file_management_v1_metrics_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

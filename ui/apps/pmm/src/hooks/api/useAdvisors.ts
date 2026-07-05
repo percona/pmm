@@ -38,7 +38,7 @@ export const useAdvisors = (options?: Partial<UseQueryOptions<Advisor[]>>) =>
   });
 
 export const useStartAdvisorChecks = (
-  options?: Partial<UseMutationOptions<void, Error, string[]>>
+  options?: Partial<UseMutationOptions<string, Error, string[]>>
 ) =>
   useMutation({
     mutationKey: [KEYS.START_CHECKS],

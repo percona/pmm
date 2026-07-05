@@ -886,6 +886,8 @@ func (m *StartAdvisorChecksResponse) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for RunId
+
 	if len(errors) > 0 {
 		return StartAdvisorChecksResponseMultiError(errors)
 	}
@@ -2224,6 +2226,8 @@ func (m *CheckResultHistoryItem) validate(all bool) error {
 
 	// no validation rules for Id
 
+	// no validation rules for RunId
+
 	// no validation rules for CheckName
 
 	// no validation rules for AdvisorName
@@ -2284,6 +2288,8 @@ func (m *CheckResultHistoryItem) validate(all bool) error {
 	}
 
 	// no validation rules for IsRead
+
+	// no validation rules for TriggeredBy
 
 	if len(errors) > 0 {
 		return CheckResultHistoryItemMultiError(errors)
@@ -2456,6 +2462,8 @@ func (m *ListCheckResultsHistoryRequest) validate(all bool) error {
 
 	// no validation rules for CheckName
 
+	// no validation rules for RunId
+
 	if m.PageSize != nil {
 		if m.GetPageSize() < 1 {
 			err := ListCheckResultsHistoryRequestValidationError{
@@ -2492,6 +2500,10 @@ func (m *ListCheckResultsHistoryRequest) validate(all bool) error {
 
 	if m.Severity != nil {
 		// no validation rules for Severity
+	}
+
+	if m.TriggeredBy != nil {
+		// no validation rules for TriggeredBy
 	}
 
 	if len(errors) > 0 {

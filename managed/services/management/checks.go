@@ -196,6 +196,7 @@ func (s *ChecksAPIService) ListCheckResultsHistory(
 		NodeName:    req.NodeName,
 		Category:    req.Category,
 		CheckName:   req.CheckName,
+		RunID:       req.RunId,
 		IsRead:      req.IsRead,
 	}
 	if req.Status != nil {
@@ -203,8 +204,13 @@ func (s *ChecksAPIService) ListCheckResultsHistory(
 			filters.Status = &st
 		}
 	}
+	if req.TriggeredBy != nil {
+		if tb := convertAPITriggeredBy(*req.TriggeredBy); tb != "" {
+			filters.TriggeredBy = &tb
+		}
+	}
 	if req.Severity != nil {
-		severity := int(*req.Severity)
+		severity := convertAPISeverity(*req.Severity)
 		filters.Severity = &severity
 	}
 	if req.From != nil {
@@ -243,10 +249,12 @@ func (s *ChecksAPIService) ListCheckResultsHistory(
 			Summary:     r.Summary,
 			Description: r.Description,
 			ReadMoreUrl: r.ReadMoreURL,
-			Severity:    managementv1.Severity(r.Severity), //nolint:gosec
+			Severity:    convertModelSeverity(r.Severity),
 			Labels:      labels,
 			CheckedAt:   timestamppb.New(r.CheckedAt),
 			IsRead:      r.IsRead,
+			RunId:       r.RunID,
+			TriggeredBy: convertModelTriggeredBy(r.TriggeredBy),
 		})
 	}
 
@@ -278,10 +286,10 @@ func (s *ChecksAPIService) MarkCheckResultsRead(
 	return &advisorsv1.MarkCheckResultsReadResponse{}, nil
 }
 
-// StartAdvisorChecks executes advisor checks and returns when all checks are executed.
+// StartAdvisorChecks executes advisor checks and returns the ID assigned to this run.
 func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1.StartAdvisorChecksRequest) (*advisorsv1.StartAdvisorChecksResponse, error) {
 	// Start only specified checks from any group.
-	err := s.checksService.StartChecks(req.Names)
+	runID, err := s.checksService.StartChecks(req.Names)
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
@@ -290,7 +298,7 @@ func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1
 		return nil, fmt.Errorf("failed to start advisor checks: %w", err)
 	}
 
-	return &advisorsv1.StartAdvisorChecksResponse{}, nil
+	return &advisorsv1.StartAdvisorChecksResponse{RunId: runID}, nil
 }
 
 // ListAdvisorChecks returns a list of available advisor checks and their statuses.
@@ -496,6 +504,83 @@ func convertAPIResultStatus(status advisorsv1.AdvisorCheckResultStatus) models.C
 		return models.CheckResultFailed
 	case advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_ERROR:
 		return models.CheckResultError
+	default:
+		return ""
+	}
+}
+
+// convertModelSeverity converts models.CheckSeverity to managementv1.Severity.
+func convertModelSeverity(severity models.CheckSeverity) managementv1.Severity {
+	switch severity {
+	case models.CheckSeverityEmergency:
+		return managementv1.Severity_SEVERITY_EMERGENCY
+	case models.CheckSeverityAlert:
+		return managementv1.Severity_SEVERITY_ALERT
+	case models.CheckSeverityCritical:
+		return managementv1.Severity_SEVERITY_CRITICAL
+	case models.CheckSeverityError:
+		return managementv1.Severity_SEVERITY_ERROR
+	case models.CheckSeverityWarning:
+		return managementv1.Severity_SEVERITY_WARNING
+	case models.CheckSeverityNotice:
+		return managementv1.Severity_SEVERITY_NOTICE
+	case models.CheckSeverityInfo:
+		return managementv1.Severity_SEVERITY_INFO
+	case models.CheckSeverityDebug:
+		return managementv1.Severity_SEVERITY_DEBUG
+	case models.CheckSeverityUnknown:
+		return managementv1.Severity_SEVERITY_UNSPECIFIED
+	default:
+		return managementv1.Severity_SEVERITY_UNSPECIFIED
+	}
+}
+
+// convertAPISeverity converts managementv1.Severity to models.CheckSeverity.
+func convertAPISeverity(severity managementv1.Severity) models.CheckSeverity {
+	switch severity {
+	case managementv1.Severity_SEVERITY_EMERGENCY:
+		return models.CheckSeverityEmergency
+	case managementv1.Severity_SEVERITY_ALERT:
+		return models.CheckSeverityAlert
+	case managementv1.Severity_SEVERITY_CRITICAL:
+		return models.CheckSeverityCritical
+	case managementv1.Severity_SEVERITY_ERROR:
+		return models.CheckSeverityError
+	case managementv1.Severity_SEVERITY_WARNING:
+		return models.CheckSeverityWarning
+	case managementv1.Severity_SEVERITY_NOTICE:
+		return models.CheckSeverityNotice
+	case managementv1.Severity_SEVERITY_INFO:
+		return models.CheckSeverityInfo
+	case managementv1.Severity_SEVERITY_DEBUG:
+		return models.CheckSeverityDebug
+	case managementv1.Severity_SEVERITY_UNSPECIFIED:
+		return models.CheckSeverityUnknown
+	default:
+		return models.CheckSeverityUnknown
+	}
+}
+
+// convertModelTriggeredBy converts models.CheckTriggeredBy to advisorsv1.AdvisorCheckTriggeredBy.
+func convertModelTriggeredBy(triggeredBy models.CheckTriggeredBy) advisorsv1.AdvisorCheckTriggeredBy {
+	switch triggeredBy {
+	case models.CheckTriggeredByUser:
+		return advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_USER
+	case models.CheckTriggeredByScheduler:
+		return advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER
+	default:
+		return advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED
+	}
+}
+
+// convertAPITriggeredBy converts advisorsv1.AdvisorCheckTriggeredBy to models.CheckTriggeredBy.
+// An empty string is returned for unknown values.
+func convertAPITriggeredBy(triggeredBy advisorsv1.AdvisorCheckTriggeredBy) models.CheckTriggeredBy {
+	switch triggeredBy {
+	case advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_USER:
+		return models.CheckTriggeredByUser
+	case advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER:
+		return models.CheckTriggeredByScheduler
 	default:
 		return ""
 	}

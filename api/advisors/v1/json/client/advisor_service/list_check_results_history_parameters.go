@@ -106,6 +106,12 @@ type ListCheckResultsHistoryParams struct {
 	*/
 	PageSize *int32
 
+	/* RunID.
+
+	   Filter by run ID.
+	*/
+	RunID *string
+
 	/* ServiceID.
 
 	   Filter by service ID.
@@ -146,6 +152,17 @@ type ListCheckResultsHistoryParams struct {
 	*/
 	To *strfmt.DateTime
 
+	/* TriggeredBy.
+
+	    Filter by the actor that initiated the run.
+
+	- ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.
+	- ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.
+
+	    Default: "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED"
+	*/
+	TriggeredBy *string
+
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -167,11 +184,14 @@ func (o *ListCheckResultsHistoryParams) SetDefaults() {
 		severityDefault = string("SEVERITY_UNSPECIFIED")
 
 		statusDefault = string("ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED")
+
+		triggeredByDefault = string("ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED")
 	)
 
 	val := ListCheckResultsHistoryParams{
-		Severity: &severityDefault,
-		Status:   &statusDefault,
+		Severity:    &severityDefault,
+		Status:      &statusDefault,
+		TriggeredBy: &triggeredByDefault,
 	}
 
 	val.timeout = o.timeout
@@ -290,6 +310,17 @@ func (o *ListCheckResultsHistoryParams) SetPageSize(pageSize *int32) {
 	o.PageSize = pageSize
 }
 
+// WithRunID adds the runID to the list check results history params
+func (o *ListCheckResultsHistoryParams) WithRunID(runID *string) *ListCheckResultsHistoryParams {
+	o.SetRunID(runID)
+	return o
+}
+
+// SetRunID adds the runId to the list check results history params
+func (o *ListCheckResultsHistoryParams) SetRunID(runID *string) {
+	o.RunID = runID
+}
+
 // WithServiceID adds the serviceID to the list check results history params
 func (o *ListCheckResultsHistoryParams) WithServiceID(serviceID *string) *ListCheckResultsHistoryParams {
 	o.SetServiceID(serviceID)
@@ -343,6 +374,17 @@ func (o *ListCheckResultsHistoryParams) WithTo(to *strfmt.DateTime) *ListCheckRe
 // SetTo adds the to to the list check results history params
 func (o *ListCheckResultsHistoryParams) SetTo(to *strfmt.DateTime) {
 	o.To = to
+}
+
+// WithTriggeredBy adds the triggeredBy to the list check results history params
+func (o *ListCheckResultsHistoryParams) WithTriggeredBy(triggeredBy *string) *ListCheckResultsHistoryParams {
+	o.SetTriggeredBy(triggeredBy)
+	return o
+}
+
+// SetTriggeredBy adds the triggeredBy to the list check results history params
+func (o *ListCheckResultsHistoryParams) SetTriggeredBy(triggeredBy *string) {
+	o.TriggeredBy = triggeredBy
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -464,6 +506,22 @@ func (o *ListCheckResultsHistoryParams) WriteToRequest(r runtime.ClientRequest, 
 		}
 	}
 
+	if o.RunID != nil {
+
+		// query param run_id
+		var qrRunID string
+
+		if o.RunID != nil {
+			qrRunID = *o.RunID
+		}
+		qRunID := qrRunID
+		if qRunID != "" {
+			if err := r.SetQueryParam("run_id", qRunID); err != nil {
+				return err
+			}
+		}
+	}
+
 	if o.ServiceID != nil {
 
 		// query param service_id
@@ -539,6 +597,22 @@ func (o *ListCheckResultsHistoryParams) WriteToRequest(r runtime.ClientRequest, 
 		qTo := qrTo.String()
 		if qTo != "" {
 			if err := r.SetQueryParam("to", qTo); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.TriggeredBy != nil {
+
+		// query param triggered_by
+		var qrTriggeredBy string
+
+		if o.TriggeredBy != nil {
+			qrTriggeredBy = *o.TriggeredBy
+		}
+		qTriggeredBy := qrTriggeredBy
+		if qTriggeredBy != "" {
+			if err := r.SetQueryParam("triggered_by", qTriggeredBy); err != nil {
 				return err
 			}
 		}

@@ -35,6 +35,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/google/uuid"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/common/model"
@@ -282,40 +283,49 @@ func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interv
 	}
 
 	s.UpdateAdvisorsList(ctx)
-	return s.run(ctx, intervalGroup, nil)
+	ri := runInfo{runID: uuid.NewString(), triggeredBy: models.CheckTriggeredByScheduler}
+	return s.run(ctx, intervalGroup, nil, ri)
 }
 
-// StartChecks downloads and executes advisor checks in asynchronous way.
+// StartChecks downloads and executes advisor checks in asynchronous way and returns the run ID.
 // If checkNames specified then only matched checks will be executed.
-func (s *Service) StartChecks(checkNames []string) error {
+func (s *Service) StartChecks(checkNames []string) (string, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if !settings.IsAdvisorsEnabled() {
-		return services.ErrAdvisorsDisabled
+		return "", services.ErrAdvisorsDisabled
 	}
+
+	ri := runInfo{runID: uuid.NewString(), triggeredBy: models.CheckTriggeredByUser}
 
 	go func() {
 		ctx := context.Background()
 		s.UpdateAdvisorsList(ctx)
-		err := s.run(ctx, "", checkNames)
+		err := s.run(ctx, "", checkNames, ri)
 		if err != nil {
 			s.l.Errorf("Failed to execute advisor checks: %+v.", err)
 		}
 	}()
 
-	return nil
+	return ri.runID, nil
 }
 
-func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNames []string) error {
+// runInfo identifies a single Advisor checks execution batch.
+type runInfo struct {
+	runID       string
+	triggeredBy models.CheckTriggeredBy
+}
+
+func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNames []string, ri runInfo) error {
 	err := intervalGroup.Validate()
 	if err != nil {
 		return err
 	}
 
-	res, err := s.executeChecks(ctx, intervalGroup, checkNames)
+	res, err := s.executeChecks(ctx, intervalGroup, checkNames, ri)
 	if err != nil {
 		return err
 	}
@@ -638,7 +648,7 @@ func (s *Service) getActiveUserServiceTypes() (map[models.ServiceType]struct{}, 
 
 // executeChecks runs checks for all reachable services. If intervalGroup specified only checks from that group will be
 // executed. If checkNames specified then only matched checks will be executed.
-func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interval, checkNames []string) ([]services.CheckResult, error) {
+func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interval, checkNames []string, ri runInfo) ([]services.CheckResult, error) {
 	disabledChecks, err := s.GetDisabledChecks()
 	if err != nil {
 		return nil, err
@@ -659,7 +669,7 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 	// Execute MySQL checks only if MySQL services exist
 	if _, hasMySQL := activeServiceTypes[models.MySQLServiceType]; hasMySQL {
 		mySQLChecks = s.filterChecks(mySQLChecks, intervalGroup, disabledChecks, checkNames)
-		mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks)
+		mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks, ri)
 		res = append(res, mySQLCheckResults...)
 	} else {
 		s.l.Info("Skipping MySQL advisor checks: no MySQL services in inventory")
@@ -668,7 +678,7 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 	// Execute PostgreSQL checks only if PostgreSQL services exist
 	if _, hasPostgreSQL := activeServiceTypes[models.PostgreSQLServiceType]; hasPostgreSQL {
 		postgreSQLChecks = s.filterChecks(postgreSQLChecks, intervalGroup, disabledChecks, checkNames)
-		postgreSQLCheckResults := s.executeChecksForTargetType(ctx, models.PostgreSQLServiceType, postgreSQLChecks)
+		postgreSQLCheckResults := s.executeChecksForTargetType(ctx, models.PostgreSQLServiceType, postgreSQLChecks, ri)
 		res = append(res, postgreSQLCheckResults...)
 	} else {
 		s.l.Info("Skipping PostgreSQL advisor checks: no PostgreSQL services in inventory")
@@ -677,7 +687,7 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 	// Execute MongoDB checks only if MongoDB services exist
 	if _, hasMongoDB := activeServiceTypes[models.MongoDBServiceType]; hasMongoDB {
 		mongoDBChecks = s.filterChecks(mongoDBChecks, intervalGroup, disabledChecks, checkNames)
-		mongoDBCheckResults := s.executeChecksForTargetType(ctx, models.MongoDBServiceType, mongoDBChecks)
+		mongoDBCheckResults := s.executeChecksForTargetType(ctx, models.MongoDBServiceType, mongoDBChecks, ri)
 		res = append(res, mongoDBCheckResults...)
 	} else {
 		s.l.Info("Skipping MongoDB advisor checks: no MongoDB services in inventory")
@@ -686,11 +696,10 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 	return res, nil
 }
 
-func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType models.ServiceType, checks map[string]check.Check) []services.CheckResult {
+func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType models.ServiceType, checks map[string]check.Check, ri runInfo) []services.CheckResult {
 	var res []services.CheckResult
 	var history []*models.CheckResult
 	categories := s.advisorCategories()
-	checkedAt := models.Now()
 
 	for _, c := range checks {
 		s.l.Infof("Executing check: %s with interval: %s", c.Name, c.Interval)
@@ -706,10 +715,12 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 
 		for _, target := range targets {
 			results, err := s.executeCheck(ctx, target, c)
+			// stamp each (check, target) outcome with its actual completion time
+			checkedAt := models.Now()
 			if err != nil {
 				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
 				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "error").Inc()
-				history = append(history, newCheckResultRecord(c, target, category, models.CheckResultError, check.Result{Description: err.Error()}, checkedAt))
+				history = append(history, newCheckResultRecord(c, target, category, models.CheckResultError, check.Result{Description: err.Error()}, checkedAt, ri))
 				continue
 			}
 
@@ -718,12 +729,12 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "ok").Inc()
 
 			if len(results) == 0 {
-				history = append(history, newCheckResultRecord(c, target, category, models.CheckResultOK, check.Result{}, checkedAt))
+				history = append(history, newCheckResultRecord(c, target, category, models.CheckResultOK, check.Result{}, checkedAt, ri))
 				continue
 			}
 
 			for _, finding := range results {
-				history = append(history, newCheckResultRecord(c, target, category, models.CheckResultFailed, finding.Result, checkedAt))
+				history = append(history, newCheckResultRecord(c, target, category, models.CheckResultFailed, finding.Result, checkedAt, ri))
 			}
 		}
 	}
@@ -756,6 +767,7 @@ func newCheckResultRecord(
 	status models.CheckResultStatus,
 	result check.Result,
 	checkedAt time.Time,
+	ri runInfo,
 ) *models.CheckResult {
 	r := &models.CheckResult{
 		CheckName:   c.Name,
@@ -771,20 +783,54 @@ func newCheckResultRecord(
 		Summary:     result.Summary,
 		Description: result.Description,
 		ReadMoreURL: result.ReadMoreURL,
-		Severity:    int(result.Severity),
+		Severity:    convertCommonSeverity(result.Severity),
 		CheckedAt:   checkedAt,
+		RunID:       ri.runID,
+		TriggeredBy: ri.triggeredBy,
 	}
 	// OK and error outcomes carry no finding; fall back to the check's own summary
 	if r.Summary == "" {
 		r.Summary = c.Summary
 	}
-	if status == models.CheckResultOK {
-		r.Severity = int(common.Info)
+	switch status {
+	case models.CheckResultOK:
+		r.Severity = models.CheckSeverityInfo
+	case models.CheckResultError:
+		// the check could not be executed, which is a diagnostic concern, not a database issue
+		r.Severity = models.CheckSeverityDebug
+	case models.CheckResultFailed:
+		// keep the severity reported by the finding
 	}
 	if len(result.Labels) != 0 {
 		_ = r.SetLabels(result.Labels)
 	}
 	return r
+}
+
+// convertCommonSeverity converts common.Severity to models.CheckSeverity.
+func convertCommonSeverity(severity common.Severity) models.CheckSeverity {
+	switch severity {
+	case common.Emergency:
+		return models.CheckSeverityEmergency
+	case common.Alert:
+		return models.CheckSeverityAlert
+	case common.Critical:
+		return models.CheckSeverityCritical
+	case common.Error:
+		return models.CheckSeverityError
+	case common.Warning:
+		return models.CheckSeverityWarning
+	case common.Notice:
+		return models.CheckSeverityNotice
+	case common.Info:
+		return models.CheckSeverityInfo
+	case common.Debug:
+		return models.CheckSeverityDebug
+	case common.Unknown:
+		return models.CheckSeverityUnknown
+	default:
+		return models.CheckSeverityUnknown
+	}
 }
 
 // saveCheckResultsHistory persists Advisor check results history in a single transaction.

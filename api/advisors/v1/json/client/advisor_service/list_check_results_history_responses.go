@@ -538,6 +538,9 @@ type ListCheckResultsHistoryOKBodyResultsItems0 struct {
 	// Unique identifier of the history record.
 	ID string `json:"id,omitempty"`
 
+	// ID of the run this result belongs to; all results produced by one execution share it.
+	RunID string `json:"run_id,omitempty"`
+
 	// Name of the check that ran.
 	CheckName string `json:"check_name,omitempty"`
 
@@ -596,6 +599,13 @@ type ListCheckResultsHistoryOKBodyResultsItems0 struct {
 
 	// Whether the result has been marked as read.
 	IsRead bool `json:"is_read,omitempty"`
+
+	// AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.
+	//
+	//  - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.
+	//  - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.
+	// Enum: ["ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED","ADVISOR_CHECK_TRIGGERED_BY_USER","ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"]
+	TriggeredBy *string `json:"triggered_by,omitempty"`
 }
 
 // Validate validates this list check results history OK body results items0
@@ -615,6 +625,10 @@ func (o *ListCheckResultsHistoryOKBodyResultsItems0) Validate(formats strfmt.Reg
 	}
 
 	if err := o.validateCheckedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateTriggeredBy(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -789,6 +803,51 @@ func (o *ListCheckResultsHistoryOKBodyResultsItems0) validateCheckedAt(formats s
 	}
 
 	if err := validate.FormatOf("checked_at", "body", "date-time", o.CheckedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var listCheckResultsHistoryOkBodyResultsItems0TypeTriggeredByPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED","ADVISOR_CHECK_TRIGGERED_BY_USER","ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listCheckResultsHistoryOkBodyResultsItems0TypeTriggeredByPropEnum = append(listCheckResultsHistoryOkBodyResultsItems0TypeTriggeredByPropEnum, v)
+	}
+}
+
+const (
+
+	// ListCheckResultsHistoryOKBodyResultsItems0TriggeredByADVISORCHECKTRIGGEREDBYUNSPECIFIED captures enum value "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED"
+	ListCheckResultsHistoryOKBodyResultsItems0TriggeredByADVISORCHECKTRIGGEREDBYUNSPECIFIED string = "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED"
+
+	// ListCheckResultsHistoryOKBodyResultsItems0TriggeredByADVISORCHECKTRIGGEREDBYUSER captures enum value "ADVISOR_CHECK_TRIGGERED_BY_USER"
+	ListCheckResultsHistoryOKBodyResultsItems0TriggeredByADVISORCHECKTRIGGEREDBYUSER string = "ADVISOR_CHECK_TRIGGERED_BY_USER"
+
+	// ListCheckResultsHistoryOKBodyResultsItems0TriggeredByADVISORCHECKTRIGGEREDBYSCHEDULER captures enum value "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+	ListCheckResultsHistoryOKBodyResultsItems0TriggeredByADVISORCHECKTRIGGEREDBYSCHEDULER string = "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+)
+
+// prop value enum
+func (o *ListCheckResultsHistoryOKBodyResultsItems0) validateTriggeredByEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listCheckResultsHistoryOkBodyResultsItems0TypeTriggeredByPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListCheckResultsHistoryOKBodyResultsItems0) validateTriggeredBy(formats strfmt.Registry) error {
+	if swag.IsZero(o.TriggeredBy) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateTriggeredByEnum("triggered_by", "body", *o.TriggeredBy); err != nil {
 		return err
 	}
 

@@ -36,6 +36,34 @@ const (
 	CheckResultError CheckResultStatus = "error"
 )
 
+// CheckSeverity represents the severity of an Advisor check result persisted to history.
+// The values match the lowercase names of management API severity levels.
+type CheckSeverity string
+
+// Available Advisor check result severities.
+const (
+	CheckSeverityUnknown   CheckSeverity = "unknown"
+	CheckSeverityEmergency CheckSeverity = "emergency"
+	CheckSeverityAlert     CheckSeverity = "alert"
+	CheckSeverityCritical  CheckSeverity = "critical"
+	CheckSeverityError     CheckSeverity = "error"
+	CheckSeverityWarning   CheckSeverity = "warning"
+	CheckSeverityNotice    CheckSeverity = "notice"
+	CheckSeverityInfo      CheckSeverity = "info"
+	CheckSeverityDebug     CheckSeverity = "debug"
+)
+
+// CheckTriggeredBy represents the actor that initiated an Advisor check run.
+type CheckTriggeredBy string
+
+// Available Advisor check run initiators.
+const (
+	// CheckTriggeredByUser means the run was started by a user via the API or UI.
+	CheckTriggeredByUser CheckTriggeredBy = "user"
+	// CheckTriggeredByScheduler means the run was started by the built-in scheduler.
+	CheckTriggeredByScheduler CheckTriggeredBy = "scheduler"
+)
+
 // CheckResult represents a single Advisor check run against a target persisted to history.
 //
 //reform:check_results
@@ -54,10 +82,12 @@ type CheckResult struct {
 	Summary     string            `reform:"summary"`
 	Description string            `reform:"description"`
 	ReadMoreURL string            `reform:"read_more_url"`
-	Severity    int               `reform:"severity"`
+	Severity    CheckSeverity     `reform:"severity"`
 	Labels      []byte            `reform:"labels"`
 	CheckedAt   time.Time         `reform:"checked_at"`
 	IsRead      bool              `reform:"is_read"`
+	RunID       string            `reform:"run_id"`
+	TriggeredBy CheckTriggeredBy  `reform:"triggered_by"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

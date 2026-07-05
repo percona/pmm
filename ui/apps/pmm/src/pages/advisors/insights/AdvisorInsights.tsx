@@ -9,6 +9,7 @@ import {
   type MRT_Updater,
 } from 'material-react-table';
 import { enqueueSnackbar } from 'notistack';
+import { useSearchParams } from 'react-router-dom';
 import { Page } from 'components/page';
 import {
   useAdvisors,
@@ -26,6 +27,9 @@ import { Messages } from './AdvisorInsights.messages';
 import { getInsightsColumns } from './AdvisorInsights.constants';
 
 const AdvisorInsights: FC = () => {
+  const [searchParams] = useSearchParams();
+  // deep link to the results of a concrete run, e.g. from the "View results" snackbar
+  const runId = searchParams.get('runId') || undefined;
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
     pageSize: 100,
@@ -43,13 +47,14 @@ const AdvisorInsights: FC = () => {
     return {
       pageIndex: pagination.pageIndex,
       pageSize: pagination.pageSize,
+      runId,
       serviceName: filterValue('serviceName'),
       category: filterValue('category'),
       severity: filterValue('severity') as Severity | undefined,
       status: filterValue('status') as AdvisorCheckResultStatus | undefined,
       isRead: isRead === undefined ? undefined : isRead === 'true',
     };
-  }, [pagination, columnFilters]);
+  }, [pagination, columnFilters, runId]);
 
   const { data, isLoading, isFetching } = useCheckResultsHistory(params);
   const { data: advisors = [] } = useAdvisors();

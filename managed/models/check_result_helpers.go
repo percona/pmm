@@ -38,14 +38,16 @@ type CheckResultFilters struct {
 	// ServiceName is matched as a case-insensitive substring.
 	ServiceName string
 	// NodeName is matched as a case-insensitive substring.
-	NodeName  string
-	Category  string
-	CheckName string
-	Severity  *int
-	Status    *CheckResultStatus
-	IsRead    *bool
-	From      *time.Time
-	To        *time.Time
+	NodeName    string
+	Category    string
+	CheckName   string
+	RunID       string
+	TriggeredBy *CheckTriggeredBy
+	Severity    *CheckSeverity
+	Status      *CheckResultStatus
+	IsRead      *bool
+	From        *time.Time
+	To          *time.Time
 }
 
 // checkResultConditions builds the WHERE clause and arguments for the given filters.
@@ -72,6 +74,14 @@ func checkResultConditions(q *reform.Querier, filters CheckResultFilters) (strin
 	if filters.CheckName != "" {
 		conditions = append(conditions, "check_name = "+q.Placeholder(len(args)+1))
 		args = append(args, filters.CheckName)
+	}
+	if filters.RunID != "" {
+		conditions = append(conditions, "run_id = "+q.Placeholder(len(args)+1))
+		args = append(args, filters.RunID)
+	}
+	if filters.TriggeredBy != nil {
+		conditions = append(conditions, "triggered_by = "+q.Placeholder(len(args)+1))
+		args = append(args, *filters.TriggeredBy)
 	}
 	if filters.Severity != nil {
 		conditions = append(conditions, "severity = "+q.Placeholder(len(args)+1))

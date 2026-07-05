@@ -34,6 +34,15 @@ enum AdvisorCheckResultStatus {
   ADVISOR_CHECK_RESULT_STATUS_ERROR = 3;
 }
 
+// AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.
+enum AdvisorCheckTriggeredBy {
+  ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED = 0;
+  // The run was started by a user via the API or UI.
+  ADVISOR_CHECK_TRIGGERED_BY_USER = 1;
+  // The run was started by the built-in scheduler.
+  ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER = 2;
+}
+
 // AdvisorCheckResult represents the check result returned from pmm-managed after running the check.
 message AdvisorCheckResult {
   string summary = 1;
@@ -131,7 +140,10 @@ message StartAdvisorChecksRequest {
   repeated string names = 1;
 }
 
-message StartAdvisorChecksResponse {}
+message StartAdvisorChecksResponse {
+  // ID assigned to this run; all check results produced by it share this run_id.
+  string run_id = 1;
+}
 
 message ListAdvisorChecksRequest {}
 
@@ -179,40 +191,44 @@ message GetFailedChecksResponse {
 message CheckResultHistoryItem {
   // Unique identifier of the history record.
   string id = 1;
+  // ID of the run this result belongs to; all results produced by one execution share it.
+  string run_id = 2;
   // Name of the check that ran.
-  string check_name = 2;
+  string check_name = 3;
   // Name of the advisor the check belongs to.
-  string advisor_name = 3;
+  string advisor_name = 4;
   // Category of the advisor the check belongs to.
-  string category = 4;
+  string category = 5;
   // Check execution interval.
-  AdvisorCheckInterval interval = 5;
+  AdvisorCheckInterval interval = 6;
   // ID of the monitored service on which the check ran.
-  string service_id = 6;
+  string service_id = 7;
   // Name of the monitored service on which the check ran.
-  string service_name = 7;
+  string service_name = 8;
   // Type of the monitored service on which the check ran.
-  string service_type = 8;
+  string service_type = 9;
   // ID of the node the service runs on.
-  string node_id = 9;
+  string node_id = 10;
   // Name of the node the service runs on.
-  string node_name = 10;
+  string node_name = 11;
   // Outcome of the check run.
-  AdvisorCheckResultStatus status = 11;
+  AdvisorCheckResultStatus status = 12;
   // Short human-readable summary of the result.
-  string summary = 12;
+  string summary = 13;
   // Long human-readable description of the result.
-  string description = 13;
+  string description = 14;
   // URL containing information on how to resolve a detected issue.
-  string read_more_url = 14;
+  string read_more_url = 15;
   // Severity of the result.
-  management.v1.Severity severity = 15;
+  management.v1.Severity severity = 16;
   // Result labels.
-  map<string, string> labels = 16;
+  map<string, string> labels = 17;
   // Time when the check ran.
-  google.protobuf.Timestamp checked_at = 17;
+  google.protobuf.Timestamp checked_at = 18;
   // Whether the result has been marked as read.
-  bool is_read = 18;
+  bool is_read = 19;
+  // The actor that initiated the run.
+  AdvisorCheckTriggeredBy triggered_by = 20;
 }
 
 message ListCheckResultsHistoryRequest {
@@ -240,6 +256,10 @@ message ListCheckResultsHistoryRequest {
   string check_name = 11;
   // Filter by severity.
   optional management.v1.Severity severity = 12;
+  // Filter by run ID.
+  string run_id = 13;
+  // Filter by the actor that initiated the run.
+  optional AdvisorCheckTriggeredBy triggered_by = 14;
 }
 
 message ListCheckResultsHistoryResponse {

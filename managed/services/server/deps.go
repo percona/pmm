@@ -56,7 +56,7 @@ type prometheusService interface { //nolint:iface
 // checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
-	StartChecks(checkNames []string) error
+	StartChecks(checkNames []string) (string, error)
 	UpdateAdvisorsList(ctx context.Context)
 	CleanupAlerts()
 	UpdateIntervals(rare, standard, frequent time.Duration)

@@ -11,6 +11,7 @@ import {
 } from 'utils/testUtils';
 import {
   AdvisorCheckResultStatus,
+  AdvisorCheckTriggeredBy,
   AdvisorInterval,
   CheckResultHistoryItem,
 } from 'types/advisors.types';
@@ -37,6 +38,8 @@ const TEST_ITEM: CheckResultHistoryItem = {
   labels: {},
   checkedAt: '2026-07-05T10:00:00Z',
   isRead: true,
+  runId: 'run-1',
+  triggeredBy: AdvisorCheckTriggeredBy.user,
 };
 
 const TEST_ITEM_UNREAD: CheckResultHistoryItem = {
@@ -50,11 +53,15 @@ const TEST_ITEM_UNREAD: CheckResultHistoryItem = {
   isRead: false,
 };
 
-const renderComponent = () =>
+const renderComponent = (initialEntry = '/advisors/insights') =>
   render(
     wrapWithQueryProvider(
       wrapWithSnackbarProvider(
-        wrapWithUserProvider(wrapWithRouter(<AdvisorInsights />))
+        wrapWithUserProvider(
+          wrapWithRouter(<AdvisorInsights />, {
+            initialEntries: [initialEntry],
+          })
+        )
       )
     )
   );
@@ -100,6 +107,16 @@ describe('AdvisorInsights', () => {
 
     expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
       expect.objectContaining({ pageIndex: 0, pageSize: 100 })
+    );
+  });
+
+  it('passes the runId deep link to the API', async () => {
+    renderComponent('/advisors/insights?runId=run-42');
+
+    await waitForRows();
+
+    expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+      expect.objectContaining({ runId: 'run-42' })
     );
   });
 

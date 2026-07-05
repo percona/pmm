@@ -46,6 +46,8 @@ func (v *checkResultTableType) Columns() []string {
 		"labels",
 		"checked_at",
 		"is_read",
+		"run_id",
+		"triggered_by",
 	}
 }
 
@@ -84,10 +86,12 @@ var CheckResultTable = &checkResultTableType{
 			{Name: "Summary", Type: "string", Column: "summary"},
 			{Name: "Description", Type: "string", Column: "description"},
 			{Name: "ReadMoreURL", Type: "string", Column: "read_more_url"},
-			{Name: "Severity", Type: "int", Column: "severity"},
+			{Name: "Severity", Type: "CheckSeverity", Column: "severity"},
 			{Name: "Labels", Type: "[]uint8", Column: "labels"},
 			{Name: "CheckedAt", Type: "time.Time", Column: "checked_at"},
 			{Name: "IsRead", Type: "bool", Column: "is_read"},
+			{Name: "RunID", Type: "string", Column: "run_id"},
+			{Name: "TriggeredBy", Type: "CheckTriggeredBy", Column: "triggered_by"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -96,7 +100,7 @@ var CheckResultTable = &checkResultTableType{
 
 // String returns a string representation of this struct or record.
 func (s CheckResult) String() string {
-	res := make([]string, 18)
+	res := make([]string, 20)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "CheckName: " + reform.Inspect(s.CheckName, true)
 	res[2] = "AdvisorName: " + reform.Inspect(s.AdvisorName, true)
@@ -115,6 +119,8 @@ func (s CheckResult) String() string {
 	res[15] = "Labels: " + reform.Inspect(s.Labels, true)
 	res[16] = "CheckedAt: " + reform.Inspect(s.CheckedAt, true)
 	res[17] = "IsRead: " + reform.Inspect(s.IsRead, true)
+	res[18] = "RunID: " + reform.Inspect(s.RunID, true)
+	res[19] = "TriggeredBy: " + reform.Inspect(s.TriggeredBy, true)
 	return strings.Join(res, ", ")
 }
 
@@ -140,6 +146,8 @@ func (s *CheckResult) Values() []interface{} {
 		s.Labels,
 		s.CheckedAt,
 		s.IsRead,
+		s.RunID,
+		s.TriggeredBy,
 	}
 }
 
@@ -165,6 +173,8 @@ func (s *CheckResult) Pointers() []interface{} {
 		&s.Labels,
 		&s.CheckedAt,
 		&s.IsRead,
+		&s.RunID,
+		&s.TriggeredBy,
 	}
 }
 

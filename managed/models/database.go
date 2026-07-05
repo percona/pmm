@@ -1188,6 +1188,7 @@ var databaseSchema = [][]string{
 	119: {
 		`CREATE TABLE check_results (
 			id VARCHAR NOT NULL,
+			run_id VARCHAR NOT NULL,
 			check_name VARCHAR NOT NULL CHECK (check_name <> ''),
 			advisor_name VARCHAR NOT NULL,
 			category VARCHAR NOT NULL,
@@ -1201,13 +1202,15 @@ var databaseSchema = [][]string{
 			summary VARCHAR NOT NULL,
 			description TEXT NOT NULL,
 			read_more_url VARCHAR NOT NULL,
-			severity INTEGER NOT NULL,
+			severity VARCHAR NOT NULL,
 			labels TEXT,
 			checked_at TIMESTAMP NOT NULL,
 			is_read BOOLEAN NOT NULL,
+			triggered_by VARCHAR NOT NULL,
 
 			PRIMARY KEY (id)
 		)`,
+		`CREATE INDEX check_results_run_id_idx ON check_results (run_id)`,
 		`CREATE INDEX check_results_service_id_idx ON check_results (service_id)`,
 		`CREATE INDEX check_results_checked_at_idx ON check_results (checked_at)`,
 	},

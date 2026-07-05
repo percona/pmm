@@ -6,7 +6,8 @@ import Typography from '@mui/material/Typography';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 import { Table } from '@percona/percona-ui';
-import { enqueueSnackbar } from 'notistack';
+import { closeSnackbar, enqueueSnackbar } from 'notistack';
+import { useNavigate } from 'react-router-dom';
 import { Page } from 'components/page';
 import {
   useAdvisors,
@@ -22,6 +23,7 @@ import { Messages } from './AdvisorsList.messages';
 import { getAdvisorsColumns } from './AdvisorsList.constants';
 
 const AdvisorsList: FC = () => {
+  const navigate = useNavigate();
   const { data: advisors = [], isLoading } = useAdvisors();
   const { mutate: startChecks, isPending: isStarting } =
     useStartAdvisorChecks();
@@ -43,9 +45,25 @@ const AdvisorsList: FC = () => {
   const runChecks = useCallback(
     (names: string[], message: string) =>
       startChecks(names, {
-        onSuccess: () => enqueueSnackbar(message, { variant: 'success' }),
+        onSuccess: (runId) =>
+          enqueueSnackbar(message, {
+            variant: 'success',
+            action: (key) => (
+              <Button
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  closeSnackbar(key);
+                  navigate(`/advisors/insights?runId=${runId}`);
+                }}
+                data-testid="view-run-results"
+              >
+                {Messages.viewResults}
+              </Button>
+            ),
+          }),
       }),
-    [startChecks]
+    [startChecks, navigate]
   );
 
   const handleToggleCheck = useCallback(

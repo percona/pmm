@@ -39,6 +39,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 		NodeName:    "nname",
 	}
 	checkedAt := models.Now()
+	ri := runInfo{runID: "run-1", triggeredBy: models.CheckTriggeredByUser}
 
 	t.Run("failed finding maps all fields", func(t *testing.T) {
 		t.Parallel()
@@ -51,7 +52,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 			Labels:      map[string]string{"k": "v"},
 		}
 
-		rec := newCheckResultRecord(c, target, "performance", models.CheckResultFailed, result, checkedAt)
+		rec := newCheckResultRecord(c, target, "performance", models.CheckResultFailed, result, checkedAt, ri)
 
 		assert.Equal(t, "chk", rec.CheckName)
 		assert.Equal(t, "adv", rec.AdvisorName)
@@ -66,8 +67,10 @@ func TestNewCheckResultRecord(t *testing.T) {
 		assert.Equal(t, "sum", rec.Summary)
 		assert.Equal(t, "desc", rec.Description)
 		assert.Equal(t, "https://example.com", rec.ReadMoreURL)
-		assert.Equal(t, int(common.Error), rec.Severity)
+		assert.Equal(t, models.CheckSeverityError, rec.Severity)
 		assert.Equal(t, checkedAt, rec.CheckedAt)
+		assert.Equal(t, "run-1", rec.RunID)
+		assert.Equal(t, models.CheckTriggeredByUser, rec.TriggeredBy)
 
 		labels, err := rec.GetLabels()
 		require.NoError(t, err)
@@ -77,27 +80,27 @@ func TestNewCheckResultRecord(t *testing.T) {
 	t.Run("ok outcome falls back to check summary and info severity", func(t *testing.T) {
 		t.Parallel()
 
-		rec := newCheckResultRecord(c, target, "performance", models.CheckResultOK, check.Result{}, checkedAt)
+		rec := newCheckResultRecord(c, target, "performance", models.CheckResultOK, check.Result{}, checkedAt, ri)
 
 		assert.Equal(t, models.CheckResultOK, rec.Status)
 		assert.Equal(t, "Check title", rec.Summary)
-		assert.Equal(t, int(common.Info), rec.Severity)
+		assert.Equal(t, models.CheckSeverityInfo, rec.Severity)
 
 		labels, err := rec.GetLabels()
 		require.NoError(t, err)
 		assert.Empty(t, labels)
 	})
 
-	t.Run("error outcome falls back to check summary", func(t *testing.T) {
+	t.Run("error outcome falls back to check summary and debug severity", func(t *testing.T) {
 		t.Parallel()
 
 		result := check.Result{Description: "execution failed"}
 
-		rec := newCheckResultRecord(c, target, "performance", models.CheckResultError, result, checkedAt)
+		rec := newCheckResultRecord(c, target, "performance", models.CheckResultError, result, checkedAt, ri)
 
 		assert.Equal(t, models.CheckResultError, rec.Status)
 		assert.Equal(t, "Check title", rec.Summary)
 		assert.Equal(t, "execution failed", rec.Description)
-		assert.Zero(t, rec.Severity)
+		assert.Equal(t, models.CheckSeverityDebug, rec.Severity)
 	})
 }

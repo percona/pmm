@@ -247,21 +247,31 @@ func (_m *mockChecksService) MarkCheckResultsRead(ctx context.Context, ids []str
 }
 
 // StartChecks provides a mock function with given fields: checkNames
-func (_m *mockChecksService) StartChecks(checkNames []string) error {
+func (_m *mockChecksService) StartChecks(checkNames []string) (string, error) {
 	ret := _m.Called(checkNames)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartChecks")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func([]string) error); ok {
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func([]string) (string, error)); ok {
+		return rf(checkNames)
+	}
+	if rf, ok := ret.Get(0).(func([]string) string); ok {
 		r0 = rf(checkNames)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(string)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func([]string) error); ok {
+		r1 = rf(checkNames)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // newMockChecksService creates a new instance of mockChecksService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

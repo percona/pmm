@@ -63,6 +63,16 @@ export enum AdvisorCheckResultStatus {
   error = 'ADVISOR_CHECK_RESULT_STATUS_ERROR',
 }
 
+export enum AdvisorCheckTriggeredBy {
+  unspecified = 'ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED',
+  user = 'ADVISOR_CHECK_TRIGGERED_BY_USER',
+  scheduler = 'ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER',
+}
+
+export interface StartAdvisorChecksResponse {
+  runId: string;
+}
+
 export interface CheckResultHistoryItem {
   id: string;
   checkName: string;
@@ -82,6 +92,8 @@ export interface CheckResultHistoryItem {
   labels: Record<string, string>;
   checkedAt: string;
   isRead: boolean;
+  runId: string;
+  triggeredBy: AdvisorCheckTriggeredBy;
 }
 
 export interface ListCheckResultsHistoryParams {
@@ -95,6 +107,8 @@ export interface ListCheckResultsHistoryParams {
   status?: AdvisorCheckResultStatus;
   severity?: Severity;
   isRead?: boolean;
+  runId?: string;
+  triggeredBy?: AdvisorCheckTriggeredBy;
   from?: string;
   to?: string;
 }

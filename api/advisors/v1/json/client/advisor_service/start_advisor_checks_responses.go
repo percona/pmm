@@ -53,7 +53,7 @@ StartAdvisorChecksOK describes a response with status code 200, with default hea
 A successful response.
 */
 type StartAdvisorChecksOK struct {
-	Payload any
+	Payload *StartAdvisorChecksOKBody
 }
 
 // IsSuccess returns true when this start advisor checks Ok response has a 2xx status code
@@ -96,13 +96,15 @@ func (o *StartAdvisorChecksOK) String() string {
 	return fmt.Sprintf("[POST /v1/advisors/checks:start][%d] startAdvisorChecksOk %s", 200, payload)
 }
 
-func (o *StartAdvisorChecksOK) GetPayload() any {
+func (o *StartAdvisorChecksOK) GetPayload() *StartAdvisorChecksOKBody {
 	return o.Payload
 }
 
 func (o *StartAdvisorChecksOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(StartAdvisorChecksOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
 		return err
 	}
 
@@ -440,6 +442,43 @@ func (o *StartAdvisorChecksDefaultBodyDetailsItems0) MarshalBinary() ([]byte, er
 // UnmarshalBinary interface implementation
 func (o *StartAdvisorChecksDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	var res StartAdvisorChecksDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+StartAdvisorChecksOKBody start advisor checks OK body
+swagger:model StartAdvisorChecksOKBody
+*/
+type StartAdvisorChecksOKBody struct {
+	// ID assigned to this run; all check results produced by it share this run_id.
+	RunID string `json:"run_id,omitempty"`
+}
+
+// Validate validates this start advisor checks OK body
+func (o *StartAdvisorChecksOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this start advisor checks OK body based on context it is used
+func (o *StartAdvisorChecksOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StartAdvisorChecksOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StartAdvisorChecksOKBody) UnmarshalBinary(b []byte) error {
+	var res StartAdvisorChecksOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

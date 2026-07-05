@@ -514,6 +514,24 @@
             "description": "Filter by severity.",
             "name": "severity",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Filter by run ID.",
+            "name": "run_id",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+              "ADVISOR_CHECK_TRIGGERED_BY_USER",
+              "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+            ],
+            "type": "string",
+            "default": "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+            "description": "Filter by the actor that initiated the run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
+            "name": "triggered_by",
+            "in": "query"
           }
         ],
         "responses": {
@@ -546,20 +564,25 @@
                         "type": "string",
                         "x-order": 0
                       },
+                      "run_id": {
+                        "description": "ID of the run this result belongs to; all results produced by one execution share it.",
+                        "type": "string",
+                        "x-order": 1
+                      },
                       "check_name": {
                         "description": "Name of the check that ran.",
                         "type": "string",
-                        "x-order": 1
+                        "x-order": 2
                       },
                       "advisor_name": {
                         "description": "Name of the advisor the check belongs to.",
                         "type": "string",
-                        "x-order": 2
+                        "x-order": 3
                       },
                       "category": {
                         "description": "Category of the advisor the check belongs to.",
                         "type": "string",
-                        "x-order": 3
+                        "x-order": 4
                       },
                       "interval": {
                         "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
@@ -571,32 +594,32 @@
                           "ADVISOR_CHECK_INTERVAL_FREQUENT",
                           "ADVISOR_CHECK_INTERVAL_RARE"
                         ],
-                        "x-order": 4
+                        "x-order": 5
                       },
                       "service_id": {
                         "description": "ID of the monitored service on which the check ran.",
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "service_name": {
                         "description": "Name of the monitored service on which the check ran.",
                         "type": "string",
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "service_type": {
                         "description": "Type of the monitored service on which the check ran.",
                         "type": "string",
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "node_id": {
                         "description": "ID of the node the service runs on.",
                         "type": "string",
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "node_name": {
                         "description": "Name of the node the service runs on.",
                         "type": "string",
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "status": {
                         "description": "AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.",
@@ -608,22 +631,22 @@
                           "ADVISOR_CHECK_RESULT_STATUS_FAILED",
                           "ADVISOR_CHECK_RESULT_STATUS_ERROR"
                         ],
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "summary": {
                         "description": "Short human-readable summary of the result.",
                         "type": "string",
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "description": {
                         "description": "Long human-readable description of the result.",
                         "type": "string",
-                        "x-order": 12
+                        "x-order": 13
                       },
                       "read_more_url": {
                         "description": "URL containing information on how to resolve a detected issue.",
                         "type": "string",
-                        "x-order": 13
+                        "x-order": 14
                       },
                       "severity": {
                         "description": "Severity represents severity level of the check result or alert.",
@@ -640,7 +663,7 @@
                           "SEVERITY_INFO",
                           "SEVERITY_DEBUG"
                         ],
-                        "x-order": 14
+                        "x-order": 15
                       },
                       "labels": {
                         "description": "Result labels.",
@@ -648,18 +671,29 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 15
+                        "x-order": 16
                       },
                       "checked_at": {
                         "description": "Time when the check ran.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 16
+                        "x-order": 17
                       },
                       "is_read": {
                         "description": "Whether the result has been marked as read.",
                         "type": "boolean",
-                        "x-order": 17
+                        "x-order": 18
+                      },
+                      "triggered_by": {
+                        "description": "AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
+                        "type": "string",
+                        "default": "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                        "enum": [
+                          "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                          "ADVISOR_CHECK_TRIGGERED_BY_USER",
+                          "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+                        ],
+                        "x-order": 19
                       }
                     }
                   },
@@ -901,7 +935,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "run_id": {
+                  "description": "ID assigned to this run; all check results produced by it share this run_id.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {

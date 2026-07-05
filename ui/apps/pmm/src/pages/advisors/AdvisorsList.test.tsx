@@ -88,7 +88,7 @@ describe('AdvisorsList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(advisorsApi.listAdvisors).mockResolvedValue(TEST_ADVISORS);
-    vi.mocked(advisorsApi.startAdvisorChecks).mockResolvedValue();
+    vi.mocked(advisorsApi.startAdvisorChecks).mockResolvedValue('run-123');
     vi.mocked(advisorsApi.changeAdvisorChecks).mockResolvedValue();
   });
 
@@ -146,6 +146,7 @@ describe('AdvisorsList', () => {
     expect(
       screen.getByText(Messages.success.checksStarted)
     ).toBeInTheDocument();
+    expect(screen.getByTestId('view-run-results')).toBeInTheDocument();
   });
 
   it('runs checks matching the global search', async () => {

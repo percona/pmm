@@ -18,6 +18,7 @@ export const Messages = {
   runAll: 'Run all',
   runSelected: 'Run selected',
   addAdvisor: 'Add advisor',
+  viewResults: 'View results',
   run: 'Run',
   success: {
     checksStarted:

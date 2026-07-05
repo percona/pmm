@@ -40,7 +40,7 @@ import (
 func TestStartAdvisorChecks(t *testing.T) {
 	t.Run("internal error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", []string(nil)).Return(errors.New("random error"))
+		checksService.On("StartChecks", []string(nil)).Return("", errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
@@ -51,7 +51,7 @@ func TestStartAdvisorChecks(t *testing.T) {
 
 	t.Run("Advisors disabled error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", []string(nil)).Return(services.ErrAdvisorsDisabled)
+		checksService.On("StartChecks", []string(nil)).Return("", services.ErrAdvisorsDisabled)
 
 		s := NewChecksAPIService(&checksService)
 
@@ -117,7 +117,7 @@ func TestGetFailedChecks(t *testing.T) {
 					Summary:     "Check summary",
 					Description: "Check Description",
 					ReadMoreUrl: "https://www.example.com",
-					Severity:    managementv1.Severity(common.Emergency),
+					Severity:    managementv1.Severity_SEVERITY_EMERGENCY,
 					Labels:      map[string]string{"label_key": "label_value"},
 					ServiceName: "svc",
 					ServiceId:   "test_svc",
@@ -244,7 +244,7 @@ func TestListCheckResultsHistory(t *testing.T) {
 			Summary:     "Check summary",
 			Description: "Check Description",
 			ReadMoreURL: "https://www.example.com",
-			Severity:    int(common.Emergency),
+			Severity:    models.CheckSeverityEmergency,
 			CheckedAt:   checkedAt,
 		}
 		require.NoError(t, record.SetLabels(map[string]string{"label_key": "label_value"}))
@@ -279,7 +279,7 @@ func TestListCheckResultsHistory(t *testing.T) {
 					Summary:     "Check summary",
 					Description: "Check Description",
 					ReadMoreUrl: "https://www.example.com",
-					Severity:    managementv1.Severity(common.Emergency),
+					Severity:    managementv1.Severity_SEVERITY_EMERGENCY,
 					Labels:      map[string]string{"label_key": "label_value"},
 					CheckedAt:   timestamppb.New(checkedAt),
 				},
