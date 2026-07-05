@@ -22,6 +22,7 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -35,6 +36,11 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 )
+
+// ErrReloadUnsupported is returned by Reload when HolmesGPT's admin API is unavailable
+// (the endpoint returns 404) — typically an older Holmes build or ENABLE_ADMIN_API unset.
+// Callers should fall back to requiring a container restart.
+var ErrReloadUnsupported = errors.New("HolmesGPT reload endpoint unavailable (admin API disabled or unsupported)")
 
 const (
 	defaultTimeout = 60 * time.Second
@@ -265,4 +271,54 @@ func (c *Client) ChatStream(ctx context.Context, req *ChatRequest) (io.ReadClose
 		return nil, fmt.Errorf("HolmesGPT /api/chat (stream): %s: %s", resp.Status, string(respBody))
 	}
 	return resp.Body, nil
+}
+
+// ReloadResult is the response body from HolmesGPT's POST /api/admin/reload.
+type ReloadResult struct {
+	Status    string         `json:"status"`
+	Component string         `json:"component"`
+	Detail    string         `json:"detail"`
+	Counts    map[string]int `json:"counts"`
+}
+
+// Reload asks HolmesGPT to re-read its on-disk config (config.yaml, model_list.yaml, skills)
+// via POST /api/admin/reload, so config changes apply without recreating the container. It
+// returns ErrReloadUnsupported when the endpoint is missing (HTTP 404) — the admin API is
+// disabled (ENABLE_ADMIN_API) or the Holmes build predates it; callers should then fall back
+// to requiring a restart. The reload endpoints re-read config.yaml/model_list.yaml/skills only,
+// NOT .env — env-delivered values (PMM_URL, PMM_API_TOKEN, HOLMES_API_KEY) still need a restart.
+func (c *Client) Reload(ctx context.Context) (*ReloadResult, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.url("/api/admin/reload"), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Accept", "application/json")
+	c.setAuth(req)
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode == http.StatusNotFound {
+		// A 404 is treated as "admin API absent", but a proxy/ingress 404 (path rewrite, wrong base
+		// URL) looks identical — log the body so that misconfiguration is diagnosable rather than
+		// silently reported to the operator as "restart to apply".
+		body, _ := io.ReadAll(resp.Body)
+		if trimmed := strings.TrimSpace(string(body)); trimmed != "" {
+			c.l.Warnf("HolmesGPT /api/admin/reload returned 404 with body (could be a proxy/ingress 404, not the admin API being off): %s", trimmed)
+		}
+		return nil, ErrReloadUnsupported
+	}
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("HolmesGPT /api/admin/reload: %s: %s", resp.Status, string(body))
+	}
+
+	var out ReloadResult
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil { //nolint:noinlineerr
+		return nil, err
+	}
+	return &out, nil
 }

@@ -90,6 +90,10 @@ func (p *Provisioner) EnsureProvisioned(ctx context.Context, pmmURL string) (*mo
 	}
 
 	if changed {
+		// The minted service-account token, HOLMES_API_KEY and PMM URL are delivered to Holmes via
+		// .env, which a hot-reload cannot pick up, so a container restart is required to apply them.
+		prov.EnvRestartRequired = true
+		prov.RestartRequired = true
 		err := models.SaveAdreProvisioning(p.db, prov)
 		if err != nil {
 			return nil, err

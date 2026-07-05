@@ -28,6 +28,7 @@ import {
   useApplyAdreDeployment,
   useDeleteAdreDeploymentModel,
   useDeleteAdreDeploymentSkill,
+  useMarkAdreDeploymentRestarted,
   useProvisionAdreDeployment,
   useUpdateAdreDeploymentConfig,
   useUpdateAdreDeploymentModels,
@@ -39,6 +40,7 @@ import type {
   AdreDeploymentModel,
   AdreDeploymentModelInput,
   AdreDeploymentSkill,
+  AdreReloadOutcome,
 } from 'api/adre';
 
 const pageProps = {
@@ -53,6 +55,19 @@ const monospace = { fontFamily: 'Roboto Mono, monospace' };
 function errMessage(e: unknown): string {
   const resp = (e as { response?: { data?: { message?: string; error?: string } } })?.response?.data;
   return resp?.message ?? resp?.error ?? (e as Error)?.message ?? 'Request failed';
+}
+
+// reloadMsg turns a save's hot-reload outcome into a user message: green when Holmes reloaded live,
+// amber when the save persisted but a restart is still needed.
+function reloadMsg(action: string, r: AdreReloadOutcome): string {
+  if (r.reloaded) {
+    const base = r.detail ? `${action} — HolmesGPT reloaded (${r.detail})` : `${action} — HolmesGPT reloaded`;
+    // A hot-reload can succeed while a pending .env change still needs a restart — say so rather than
+    // implying everything is live.
+    return r.restartRequired ? `${base}. A container restart is still required for a pending .env change.` : base;
+  }
+  const why = r.error ? ` (${r.error})` : '';
+  return `${action}. HolmesGPT was not reloaded${why} — restart the container to apply.`;
 }
 
 const AdreDeploymentPage: FC = () => {
@@ -107,6 +122,7 @@ const AdreDeploymentPage: FC = () => {
       tokenConfigured: false,
       holmesApiKeyConfigured: false,
       restartRequired: false,
+      envRestartRequired: false,
       renderStatus: '',
       configDir: '',
     },
@@ -115,6 +131,11 @@ const AdreDeploymentPage: FC = () => {
   const notify = {
     onError: (e: unknown) => enqueueSnackbar(errMessage(e), { variant: 'error' }),
     onOk: (m: string) => enqueueSnackbar(m, { variant: 'success' }),
+    onWarn: (m: string) => enqueueSnackbar(m, { variant: 'warning' }),
+    onReload: (action: string, r: AdreReloadOutcome) =>
+      enqueueSnackbar(reloadMsg(action, r), {
+        variant: r.reloaded && !r.restartRequired ? 'success' : 'warning',
+      }),
   };
 
   return (
@@ -122,7 +143,19 @@ const AdreDeploymentPage: FC = () => {
       <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', p: 2 }}>
         {safeData.provisioning.restartRequired && (
           <Alert severity="warning" sx={{ mb: 2 }}>
-            Configuration changed. Click <strong>Apply</strong>, then restart the HolmesGPT container to take effect.
+            {safeData.provisioning.envRestartRequired ? (
+              <>
+                An environment change (PMM URL or minted secrets) needs a HolmesGPT{' '}
+                <strong>container restart</strong> to take effect — a hot-reload cannot apply <code>.env</code>
+                values. Recreate the container, then acknowledge it on the <strong>Provisioning</strong> tab.
+              </>
+            ) : (
+              <>
+                A recent change could not be hot-applied to HolmesGPT (it was unreachable or the admin API is
+                off). <strong>Restart the container</strong> to apply it, or re-save once Holmes is reachable —
+                see the <strong>Provisioning</strong> tab.
+              </>
+            )}
           </Alert>
         )}
         <Tabs value={tab} onChange={(_: SyntheticEvent, v: number) => setTab(v)} sx={{ mb: 2 }}>
@@ -145,6 +178,8 @@ interface TabProps {
   data: AdreDeployment;
   onError: (e: unknown) => void;
   onOk: (m: string) => void;
+  onWarn: (m: string) => void;
+  onReload: (action: string, r: AdreReloadOutcome) => void;
 }
 
 type ModelRow = AdreDeploymentModel & { apiKey: string };
@@ -186,7 +221,7 @@ const modelHelpTooltip = (
   </Tooltip>
 );
 
-const ModelsTab: FC<TabProps> = ({ data, onError, onOk }) => {
+const ModelsTab: FC<TabProps> = ({ data, onError, onReload }) => {
   const [rows, setRows] = useState<ModelRow[]>([]);
   const save = useUpdateAdreDeploymentModels();
   const del = useDeleteAdreDeploymentModel();
@@ -207,8 +242,7 @@ const ModelsTab: FC<TabProps> = ({ data, onError, onOk }) => {
     const row = rows[i];
     if (row.name && savedNames.has(row.name)) {
       try {
-        await del.mutateAsync(row.name);
-        onOk('Model deleted');
+        onReload('Model deleted', await del.mutateAsync(row.name));
       } catch (e) {
         onError(e);
       }
@@ -228,8 +262,7 @@ const ModelsTab: FC<TabProps> = ({ data, onError, onOk }) => {
         extraParams: r.extraParams,
       }));
     try {
-      await save.mutateAsync(payload);
-      onOk('Models saved');
+      onReload('Models saved', await save.mutateAsync(payload));
     } catch (e) {
       onError(e);
     }
@@ -293,7 +326,7 @@ const ModelsTab: FC<TabProps> = ({ data, onError, onOk }) => {
   );
 };
 
-const ConfigTab: FC<TabProps> = ({ data, onError, onOk }) => {
+const ConfigTab: FC<TabProps> = ({ data, onError, onReload }) => {
   const [yaml, setYaml] = useState(data.configYaml);
   const save = useUpdateAdreDeploymentConfig();
 
@@ -301,8 +334,7 @@ const ConfigTab: FC<TabProps> = ({ data, onError, onOk }) => {
 
   const onSave = async () => {
     try {
-      await save.mutateAsync(yaml);
-      onOk('config.yaml saved');
+      onReload('config.yaml saved', await save.mutateAsync(yaml));
     } catch (e) {
       onError(e);
     }
@@ -331,7 +363,7 @@ const ConfigTab: FC<TabProps> = ({ data, onError, onOk }) => {
   );
 };
 
-const SkillsTab: FC<TabProps> = ({ data, onError, onOk }) => {
+const SkillsTab: FC<TabProps> = ({ data, onError, onReload }) => {
   const [selected, setSelected] = useState<string>('');
   const [draftName, setDraftName] = useState('');
   const [draftDesc, setDraftDesc] = useState('');
@@ -359,9 +391,9 @@ const SkillsTab: FC<TabProps> = ({ data, onError, onOk }) => {
 
   const onSave = async () => {
     try {
-      await upsert.mutateAsync({ name: draftName.trim(), description: draftDesc, body: draftBody });
+      const r = await upsert.mutateAsync({ name: draftName.trim(), description: draftDesc, body: draftBody });
       setSelected(draftName.trim());
-      onOk('Skill saved');
+      onReload('Skill saved', r);
     } catch (e) {
       onError(e);
     }
@@ -369,8 +401,8 @@ const SkillsTab: FC<TabProps> = ({ data, onError, onOk }) => {
 
   const onToggle = async (s: AdreDeploymentSkill) => {
     try {
-      await upsert.mutateAsync({ name: s.name, description: s.description, body: s.body, enabled: !s.enabled });
-      onOk(s.enabled ? 'Skill disabled' : 'Skill enabled');
+      const r = await upsert.mutateAsync({ name: s.name, description: s.description, body: s.body, enabled: !s.enabled });
+      onReload(s.enabled ? 'Skill disabled' : 'Skill enabled', r);
     } catch (e) {
       onError(e);
     }
@@ -378,9 +410,9 @@ const SkillsTab: FC<TabProps> = ({ data, onError, onOk }) => {
 
   const onDelete = async (name: string) => {
     try {
-      await del.mutateAsync(name);
+      const r = await del.mutateAsync(name);
       if (selected === name) startNew();
-      onOk('Skill deleted');
+      onReload('Skill deleted', r);
     } catch (e) {
       onError(e);
     }
@@ -431,10 +463,11 @@ const SkillsTab: FC<TabProps> = ({ data, onError, onOk }) => {
   );
 };
 
-const ProvisioningTab: FC<TabProps> = ({ data, onError, onOk }) => {
+const ProvisioningTab: FC<TabProps> = ({ data, onError, onOk, onWarn, onReload }) => {
   const apply = useApplyAdreDeployment();
   const provision = useProvisionAdreDeployment();
   const savePmmUrl = useUpdateAdreDeploymentPmmUrl();
+  const markRestarted = useMarkAdreDeploymentRestarted();
   const p = data.provisioning;
   const [pmmUrl, setPmmUrl] = useState(p.pmmUrl);
 
@@ -442,8 +475,12 @@ const ProvisioningTab: FC<TabProps> = ({ data, onError, onOk }) => {
 
   const onSavePmmUrl = async () => {
     try {
-      await savePmmUrl.mutateAsync(pmmUrl.trim());
-      onOk('PMM URL saved');
+      const res = await savePmmUrl.mutateAsync(pmmUrl.trim());
+      if (res.restartRequired) {
+        onWarn('PMM URL saved — recreate the HolmesGPT container to apply (a hot-reload cannot update .env).');
+      } else {
+        onOk('PMM URL saved');
+      }
     } catch (e) {
       onError(e);
     }
@@ -451,8 +488,7 @@ const ProvisioningTab: FC<TabProps> = ({ data, onError, onOk }) => {
 
   const onApply = async () => {
     try {
-      const res = await apply.mutateAsync();
-      onOk(res.message ?? 'Applied — restart HolmesGPT to take effect.');
+      onReload('Applied', await apply.mutateAsync());
     } catch (e) {
       onError(e);
     }
@@ -461,7 +497,16 @@ const ProvisioningTab: FC<TabProps> = ({ data, onError, onOk }) => {
   const onProvision = async () => {
     try {
       await provision.mutateAsync();
-      onOk('Provisioned — service-account token and HOLMES_API_KEY are set.');
+      onWarn('Provisioned — recreate the HolmesGPT container to apply the token / HOLMES_API_KEY (.env).');
+    } catch (e) {
+      onError(e);
+    }
+  };
+
+  const onMarkRestarted = async () => {
+    try {
+      await markRestarted.mutateAsync();
+      onOk('Restart acknowledged — the requirement is cleared.');
     } catch (e) {
       onError(e);
     }
@@ -470,6 +515,16 @@ const ProvisioningTab: FC<TabProps> = ({ data, onError, onOk }) => {
   return (
     <Card variant="outlined">
       <CardContent>
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          <strong>These settings require restarting / recreating the HolmesGPT container.</strong> The PMM
+          URL, <code>PMM_API_TOKEN</code> and <code>HOLMES_API_KEY</code> are delivered to Holmes as
+          environment variables (<code>.env</code>), which are only read when the container starts — a live
+          reload cannot pick them up. After changing them here, recreate the container (e.g.{' '}
+          <code>docker compose up -d --force-recreate holmesgpt</code>).
+          <br />
+          Models, config.yaml and skills are <strong>not</strong> here — those apply automatically on save,
+          no restart.
+        </Alert>
         <Stack spacing={1.5}>
           <Stack direction="row" spacing={2} alignItems="center">
             <Typography sx={{ minWidth: 240 }} color="text.secondary">PMM URL (Holmes → PMM)</Typography>
@@ -487,16 +542,38 @@ const ProvisioningTab: FC<TabProps> = ({ data, onError, onOk }) => {
           <Row label="PMM_API_TOKEN" chip={p.tokenConfigured ? 'minted' : 'missing'} ok={p.tokenConfigured} />
           <Row label="HOLMES_API_KEY" chip={p.holmesApiKeyConfigured ? 'generated' : 'missing'} ok={p.holmesApiKeyConfigured} />
           <Row label="Last render" value={p.lastRenderAt ? new Date(p.lastRenderAt).toLocaleString() : 'never'} />
-          <Row label="Restart required" chip={p.restartRequired ? 'yes' : 'no'} ok={!p.restartRequired} />
+          <Row
+            label="Restart required"
+            chip={p.restartRequired ? (p.envRestartRequired ? 'yes — env change' : 'yes') : 'no'}
+            ok={!p.restartRequired}
+          />
           {p.renderStatus && <Row label="Render status" value={p.renderStatus} />}
         </Stack>
         <Divider sx={{ my: 2 }} />
         <Stack direction="row" spacing={2}>
           <Button variant="outlined" onClick={onProvision} disabled={provision.isPending}>Provision secrets</Button>
-          <Button variant="contained" onClick={onApply} disabled={apply.isPending}>Apply (render to disk)</Button>
+          <Button variant="contained" onClick={onApply} disabled={apply.isPending}>Apply (render + reload)</Button>
+          <Tooltip
+            arrow
+            title="Click only after you have recreated the HolmesGPT container. It clears the restart requirement — for a config/skill change that just failed to hot-reload, re-saving once Holmes is reachable is the lighter fix."
+          >
+            <span>
+              <Button
+                variant="outlined"
+                color="warning"
+                onClick={onMarkRestarted}
+                disabled={markRestarted.isPending || !p.restartRequired}
+              >
+                Mark as restarted
+              </Button>
+            </span>
+          </Tooltip>
         </Stack>
         <Alert severity="info" sx={{ mt: 2 }}>
-          Apply renders config.yaml, model_list.yaml, .env and skills to the shared directory. Until the Holmes reload API ships, restart the HolmesGPT container to pick up changes.
+          <strong>Apply</strong> re-renders config.yaml, model_list.yaml, .env and skills and hot-reloads
+          Holmes. A successful reload applies config / model / skill changes with no restart; a pending{' '}
+          <code>.env</code> change still needs a container recreate, after which click <strong>Mark as
+          restarted</strong> to clear the requirement.
         </Alert>
       </CardContent>
     </Card>

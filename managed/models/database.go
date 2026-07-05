@@ -1815,6 +1815,12 @@ $yaml$,
 		// (stored encrypted at rest, like the other adre_provisioning secrets).
 		`ALTER TABLE adre_provisioning ADD COLUMN IF NOT EXISTS alert_webhook_secret VARCHAR NOT NULL DEFAULT ''`,
 	},
+	142: {
+		// Tracks a pending .env change (PMM_URL / minted secrets) that a HolmesGPT hot-reload cannot
+		// apply, so config/model/skill saves (which do hot-reload) don't clear the restart requirement
+		// for an env change. Cleared by the "restarted" acknowledgement after the container is recreated.
+		`ALTER TABLE adre_provisioning ADD COLUMN IF NOT EXISTS env_restart_required BOOLEAN NOT NULL DEFAULT FALSE`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

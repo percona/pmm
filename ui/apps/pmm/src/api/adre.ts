@@ -684,6 +684,8 @@ export interface AdreDeploymentProvisioning {
   tokenConfigured: boolean;
   holmesApiKeyConfigured: boolean;
   restartRequired: boolean;
+  /** True when a .env change (PMM URL / secrets) needs a container restart a hot-reload can't apply. */
+  envRestartRequired: boolean;
   lastRenderAt?: string;
   renderStatus: string;
   configDir: string;
@@ -712,44 +714,82 @@ export interface AdreDeploymentSkillInput {
   enabled?: boolean;
 }
 
+/**
+ * Result of PMM's best-effort HolmesGPT hot-reload after a reload-able save (config.yaml,
+ * model_list.yaml, skills). reloaded=true means the change is already live with no restart.
+ * When false, the save still persisted but Holmes was not reloaded (down, admin API off, or an
+ * older build) — a container restart is needed to apply it; `error` carries the reason.
+ */
+export interface AdreReloadOutcome {
+  reloaded: boolean;
+  /** Post-operation restart state: a hot-reload can succeed while a pending .env change still needs a restart. */
+  restartRequired?: boolean;
+  /** Human-readable summary from Holmes, e.g. "12 toolsets (10 enabled), 3 skills, 2 models". */
+  detail?: string;
+  error?: string;
+}
+
+const reloadFrom = (data: { reload?: AdreReloadOutcome }): AdreReloadOutcome =>
+  data.reload ?? { reloaded: false };
+
 export const getAdreDeployment = async (): Promise<AdreDeployment> => {
   const res = await api.get<AdreDeployment>('/adre/deployment');
   return res.data;
 };
 
-export const updateAdreDeploymentConfig = async (configYaml: string): Promise<void> => {
-  await api.put('/adre/deployment/config', { configYaml });
+export const updateAdreDeploymentConfig = async (configYaml: string): Promise<AdreReloadOutcome> => {
+  const res = await api.put<{ reload?: AdreReloadOutcome }>('/adre/deployment/config', { configYaml });
+  return reloadFrom(res.data);
 };
 
 export const updateAdreDeploymentModels = async (
   models: AdreDeploymentModelInput[]
-): Promise<void> => {
-  await api.put('/adre/deployment/models', { models });
+): Promise<AdreReloadOutcome> => {
+  const res = await api.put<{ reload?: AdreReloadOutcome }>('/adre/deployment/models', { models });
+  return reloadFrom(res.data);
 };
 
-export const deleteAdreDeploymentModel = async (name: string): Promise<void> => {
-  await api.delete(`/adre/deployment/models/${encodeURIComponent(name)}`);
+export const deleteAdreDeploymentModel = async (name: string): Promise<AdreReloadOutcome> => {
+  const res = await api.delete<{ reload?: AdreReloadOutcome }>(
+    `/adre/deployment/models/${encodeURIComponent(name)}`
+  );
+  return reloadFrom(res.data);
 };
 
-export const updateAdreDeploymentPmmUrl = async (pmmUrl: string): Promise<void> => {
-  await api.put('/adre/deployment/provisioning', { pmmUrl });
+export const updateAdreDeploymentPmmUrl = async (
+  pmmUrl: string
+): Promise<{ restartRequired: boolean }> => {
+  const res = await api.put<{ restartRequired?: boolean }>('/adre/deployment/provisioning', { pmmUrl });
+  return { restartRequired: res.data.restartRequired ?? false };
 };
 
 export const upsertAdreDeploymentSkill = async (
   skill: AdreDeploymentSkillInput
-): Promise<void> => {
-  await api.put(`/adre/deployment/skills/${encodeURIComponent(skill.name)}`, skill);
+): Promise<AdreReloadOutcome> => {
+  const res = await api.put<{ reload?: AdreReloadOutcome }>(
+    `/adre/deployment/skills/${encodeURIComponent(skill.name)}`,
+    skill
+  );
+  return reloadFrom(res.data);
 };
 
-export const deleteAdreDeploymentSkill = async (name: string): Promise<void> => {
-  await api.delete(`/adre/deployment/skills/${encodeURIComponent(name)}`);
+export const deleteAdreDeploymentSkill = async (name: string): Promise<AdreReloadOutcome> => {
+  const res = await api.delete<{ reload?: AdreReloadOutcome }>(
+    `/adre/deployment/skills/${encodeURIComponent(name)}`
+  );
+  return reloadFrom(res.data);
 };
 
-export const applyAdreDeployment = async (): Promise<{ restartRequired: boolean; message?: string }> => {
-  const res = await api.post<{ restartRequired: boolean; message?: string }>('/adre/deployment/apply', {});
-  return res.data;
+export const applyAdreDeployment = async (): Promise<AdreReloadOutcome> => {
+  const res = await api.post<{ reload?: AdreReloadOutcome }>('/adre/deployment/apply', {});
+  return reloadFrom(res.data);
 };
 
 export const provisionAdreDeployment = async (): Promise<void> => {
   await api.post('/adre/deployment/provision', {});
+};
+
+/** Acknowledge that the HolmesGPT container was recreated, clearing the restart requirement. */
+export const markAdreDeploymentRestarted = async (): Promise<void> => {
+  await api.post('/adre/deployment/restarted', {});
 };

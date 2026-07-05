@@ -13,6 +13,7 @@ import {
   deleteAdreDeploymentSkill,
   applyAdreDeployment,
   provisionAdreDeployment,
+  markAdreDeploymentRestarted,
   type AdreSettings,
   type AdreDeploymentModelInput,
   type AdreDeploymentSkillInput,
@@ -69,7 +70,7 @@ export const useAdreDeployment = (options?: { enabled?: boolean }) =>
     enabled: options?.enabled ?? true,
   });
 
-const useDeploymentMutation = <TArgs>(fn: (args: TArgs) => Promise<unknown>) => {
+const useDeploymentMutation = <TArgs, TResult>(fn: (args: TArgs) => Promise<TResult>) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: fn,
@@ -107,6 +108,14 @@ export const useProvisionAdreDeployment = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () => provisionAdreDeployment(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ADRE_KEYS.deployment }),
+  });
+};
+
+export const useMarkAdreDeploymentRestarted = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => markAdreDeploymentRestarted(),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ADRE_KEYS.deployment }),
   });
 };

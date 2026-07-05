@@ -18,6 +18,7 @@ package adre
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"os"
@@ -97,13 +98,14 @@ type deploymentSkillView struct {
 }
 
 type deploymentProvisioningView struct {
-	PMMURL          string     `json:"pmm_url"`
-	TokenConfigured bool       `json:"token_configured"`
-	HolmesKeyConfig bool       `json:"holmes_api_key_configured"`
-	RestartRequired bool       `json:"restart_required"`
-	LastRenderAt    *time.Time `json:"last_render_at,omitempty"`
-	RenderStatus    string     `json:"render_status"`
-	ConfigDir       string     `json:"config_dir"`
+	PMMURL             string     `json:"pmm_url"`
+	TokenConfigured    bool       `json:"token_configured"`
+	HolmesKeyConfig    bool       `json:"holmes_api_key_configured"`
+	RestartRequired    bool       `json:"restart_required"`
+	EnvRestartRequired bool       `json:"env_restart_required"`
+	LastRenderAt       *time.Time `json:"last_render_at,omitempty"`
+	RenderStatus       string     `json:"render_status"`
+	ConfigDir          string     `json:"config_dir"`
 }
 
 type deploymentResponse struct {
@@ -164,8 +166,8 @@ func (h *Handlers) buildDeploymentResponse() (*deploymentResponse, error) {
 	}
 	resp.Provisioning = deploymentProvisioningView{
 		PMMURL: prov.PMMURL, TokenConfigured: prov.PMMSAToken != "", HolmesKeyConfig: prov.HolmesAPIKey != "",
-		RestartRequired: prov.RestartRequired, LastRenderAt: prov.LastRenderAt, RenderStatus: prov.RenderStatus,
-		ConfigDir: adreConfigDir(),
+		RestartRequired: prov.RestartRequired, EnvRestartRequired: prov.EnvRestartRequired,
+		LastRenderAt: prov.LastRenderAt, RenderStatus: prov.RenderStatus, ConfigDir: adreConfigDir(),
 	}
 	return resp, nil
 }
@@ -196,8 +198,8 @@ func (h *Handlers) PutDeploymentConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	_ = models.InsertAdreConfigAudit(h.db, login, "update", "config.yaml", "")
-	h.markRestartRequired()
-	writeJSON(w, http.StatusOK, map[string]any{"saved": true})
+	reload, _ := h.renderAndReload(r.Context())
+	writeJSON(w, http.StatusOK, map[string]any{"saved": true, "reload": reload})
 }
 
 // PutDeploymentModels handles PUT /v1/adre/deployment/models (upsert; empty api_key keeps existing).
@@ -246,8 +248,8 @@ func (h *Handlers) PutDeploymentModels(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	_ = models.InsertAdreConfigAudit(h.db, login, "update", "models", "")
-	h.markRestartRequired()
-	writeJSON(w, http.StatusOK, map[string]any{"saved": len(body.Models)})
+	reload, _ := h.renderAndReload(r.Context())
+	writeJSON(w, http.StatusOK, map[string]any{"saved": len(body.Models), "reload": reload})
 }
 
 // DeleteDeploymentModel handles DELETE /v1/adre/deployment/models/{name}.
@@ -263,8 +265,8 @@ func (h *Handlers) DeleteDeploymentModel(w http.ResponseWriter, r *http.Request,
 		return
 	}
 	_ = models.InsertAdreConfigAudit(h.db, login, "delete", "model:"+name, "")
-	h.markRestartRequired()
-	writeJSON(w, http.StatusOK, map[string]any{"deleted": true})
+	reload, _ := h.renderAndReload(r.Context())
+	writeJSON(w, http.StatusOK, map[string]any{"deleted": true, "reload": reload})
 }
 
 // PutDeploymentProvisioning handles PUT /v1/adre/deployment/provisioning (set the PMM URL Holmes uses).
@@ -291,15 +293,29 @@ func (h *Handlers) PutDeploymentProvisioning(w http.ResponseWriter, r *http.Requ
 			return
 		}
 	}
+	if prov.PMMURL == pmmURL {
+		// Unchanged — don't force a spurious restart requirement for a no-op save.
+		writeJSON(w, http.StatusOK, map[string]any{"saved": true})
+		return
+	}
 	prov.PMMURL = pmmURL
-	prov.RestartRequired = true                                     // PMM_URL lives in .env → needs a Holmes restart
+	// Persist the restart flags with the URL so they survive even if the render below fails — PMM_URL
+	// lives in .env, which a hot-reload cannot pick up.
+	prov.RestartRequired = true
+	prov.EnvRestartRequired = true
 	if err := models.SaveAdreProvisioning(h.db, prov); err != nil { //nolint:noinlineerr
 		h.l.Errorf("SaveAdreProvisioning: %v", err)
 		writeJSONError(w, http.StatusInternalServerError, "Failed to save PMM URL")
 		return
 	}
+	// Render the new PMM_URL into .env now, so recreating the container actually applies it — the
+	// banner tells the operator to restart, and .env must already hold the new value.
+	if err := h.applyRender("provisioned"); err != nil { //nolint:noinlineerr
+		writeJSONError(w, http.StatusInternalServerError, "Render failed: "+err.Error())
+		return
+	}
 	_ = models.InsertAdreConfigAudit(h.db, login, "update", "pmm_url", "")
-	writeJSON(w, http.StatusOK, map[string]any{"saved": true})
+	writeJSON(w, http.StatusOK, map[string]any{"saved": true, "restart_required": true})
 }
 
 // PutDeploymentSkill handles POST/PUT /v1/adre/deployment/skills[/{name}].
@@ -346,8 +362,8 @@ func (h *Handlers) PutDeploymentSkill(w http.ResponseWriter, r *http.Request, na
 		return
 	}
 	_ = models.InsertAdreConfigAudit(h.db, login, "update", "skill:"+name, "")
-	h.markRestartRequired()
-	writeJSON(w, http.StatusOK, map[string]any{"saved": true})
+	reload, _ := h.renderAndReload(r.Context())
+	writeJSON(w, http.StatusOK, map[string]any{"saved": true, "reload": reload})
 }
 
 // DeleteDeploymentSkill handles DELETE /v1/adre/deployment/skills/{name}.
@@ -363,8 +379,8 @@ func (h *Handlers) DeleteDeploymentSkill(w http.ResponseWriter, r *http.Request,
 		return
 	}
 	_ = models.InsertAdreConfigAudit(h.db, login, "delete", "skill:"+name, "")
-	h.markRestartRequired()
-	writeJSON(w, http.StatusOK, map[string]any{"deleted": true})
+	reload, _ := h.renderAndReload(r.Context())
+	writeJSON(w, http.StatusOK, map[string]any{"deleted": true, "reload": reload})
 }
 
 // PostDeploymentProvision handles POST /v1/adre/deployment/provision (mint token/key, render .env).
@@ -387,7 +403,9 @@ func (h *Handlers) PostDeploymentProvision(w http.ResponseWriter, r *http.Reques
 	writeJSON(w, http.StatusOK, map[string]any{"provisioned": true, "restart_required": true})
 }
 
-// PostDeploymentApply handles POST /v1/adre/deployment/apply (render to disk; manual restart until Phase 4).
+// PostDeploymentApply handles POST /v1/adre/deployment/apply — render everything to disk and hot-reload
+// Holmes. A successful reload applies config/model/skill changes with no restart; a pending .env change
+// still needs a container recreate.
 func (h *Handlers) PostDeploymentApply(w http.ResponseWriter, r *http.Request) {
 	login, ok := h.requireAdmin(w, r)
 	if !ok {
@@ -397,56 +415,153 @@ func (h *Handlers) PostDeploymentApply(w http.ResponseWriter, r *http.Request) {
 	if _, err := h.provisioner().EnsureProvisioned(incomingAuthContext(r), h.resolvePMMURL()); err != nil { //nolint:contextcheck,noinlineerr
 		h.l.Warnf("EnsureProvisioned during apply: %v", err)
 	}
-	err := h.applyRender("applied")
+	// Render to disk and hot-reload Holmes. For Apply the render IS the action, so a render failure
+	// is fatal (nothing reached disk); a failed hot-reload is reported in the outcome, not the error.
+	reload, err := h.renderAndReload(r.Context())
 	if err != nil {
 		writeJSONError(w, http.StatusInternalServerError, "Render failed: "+err.Error())
 		return
 	}
 	_ = models.InsertAdreConfigAudit(h.db, login, "apply", "deployment", "")
-	// TODO(Phase 4): when feat/config-reload-endpoints merges, call Holmes /api/admin/reload here and
-	// clear restart_required instead of asking for a manual restart.
-	writeJSON(w, http.StatusOK, map[string]any{
-		"applied": true, "restart_required": true,
-		"message": "Config rendered. Restart the HolmesGPT container to apply.",
-	})
+	writeJSON(w, http.StatusOK, map[string]any{"applied": true, "reload": reload})
 }
 
-// applyRender renders to disk and records render status; keeps restart_required set (pre-Phase-4).
+// PostDeploymentRestarted handles POST /v1/adre/deployment/restarted — the operator's acknowledgement
+// that the HolmesGPT container was recreated. It clears the restart requirement, including the env one
+// (PMM_URL / secrets) that a hot-reload cannot satisfy and that config saves therefore preserve.
+func (h *Handlers) PostDeploymentRestarted(w http.ResponseWriter, r *http.Request) {
+	login, ok := h.requireAdmin(w, r)
+	if !ok {
+		return
+	}
+	if err := h.updateProvisioning(func(prov *models.AdreProvisioning) {
+		prov.RestartRequired = false
+		prov.EnvRestartRequired = false
+	}); err != nil {
+		h.l.Errorf("PostDeploymentRestarted: %v", err)
+		writeJSONError(w, http.StatusInternalServerError, "Failed to clear restart flag")
+		return
+	}
+	_ = models.InsertAdreConfigAudit(h.db, login, "restarted", "deployment", "")
+	writeJSON(w, http.StatusOK, map[string]any{"restart_required": false})
+}
+
+// applyRender renders to disk and records render status, keeping restart_required set. Used by the
+// provisioning path, whose .env changes (PMM_URL / minted secrets) cannot be hot-reloaded and so
+// always require a container restart — hence env_restart_required is set too.
 func (h *Handlers) applyRender(status string) error {
 	if err := h.renderer().Render(); err != nil { //nolint:noinlineerr
 		_ = h.saveProvStatus("error: "+err.Error(), true)
 		return err
 	}
 	now := time.Now()
-	prov, err := models.GetAdreProvisioning(h.db)
-	if err != nil {
-		return err
-	}
-	prov.LastRenderAt = &now
-	prov.RenderStatus = status
-	prov.RestartRequired = true
-	return models.SaveAdreProvisioning(h.db, prov)
+	return h.updateProvisioning(func(prov *models.AdreProvisioning) {
+		prov.LastRenderAt = &now
+		prov.RenderStatus = status
+		prov.RestartRequired = true
+		prov.EnvRestartRequired = true
+	})
 }
 
 func (h *Handlers) saveProvStatus(status string, restartRequired bool) error {
+	return h.updateProvisioning(func(prov *models.AdreProvisioning) {
+		prov.RenderStatus = status
+		prov.RestartRequired = restartRequired
+	})
+}
+
+// updateProvisioning loads the singleton provisioning row, applies mutate, and saves it — the common
+// load/mutate/save shared by the render and restart-flag bookkeeping.
+func (h *Handlers) updateProvisioning(mutate func(*models.AdreProvisioning)) error {
 	prov, err := models.GetAdreProvisioning(h.db)
 	if err != nil {
 		return err
 	}
-	prov.RenderStatus = status
-	prov.RestartRequired = restartRequired
+	mutate(prov)
 	return models.SaveAdreProvisioning(h.db, prov)
 }
 
-func (h *Handlers) markRestartRequired() {
-	prov, err := models.GetAdreProvisioning(h.db)
+// reloadTimeout bounds the best-effort HolmesGPT hot-reload. It runs on a context detached from the
+// request (see reloadHolmes) so a client disconnect can't abort it, but is still capped so a slow or
+// unreachable Holmes never blocks the response for long.
+const reloadTimeout = 30 * time.Second
+
+// reloadOutcome summarizes a render + HolmesGPT hot-reload attempt, returned to the UI so it can
+// show "reloaded" versus "restart still needed".
+type reloadOutcome struct {
+	Reloaded bool   `json:"reloaded"`
+	Detail   string `json:"detail,omitempty"`
+	Error    string `json:"error,omitempty"`
+	// RestartRequired is the post-operation restart state: a hot-reload can succeed while a pending
+	// .env change still needs a restart, so the UI keys its toast off this, not off Reloaded alone.
+	RestartRequired bool `json:"restart_required"`
+}
+
+// renderAndReload renders the current DB config to disk and asks HolmesGPT to hot-reload it, so
+// config/model/skill changes apply without recreating the container (POST /api/admin/reload).
+//
+// It returns a non-nil error only when the render to disk fails (the hard failure — nothing reached
+// disk); a failed hot-reload is reported via the reloadOutcome, not the error. Callers whose real
+// action is a DB write (config/model/skill saves) can ignore the error and surface the outcome;
+// Apply, whose only action is the render, should treat the error as fatal.
+//
+// restart_required is set when the hot-reload did not apply the change, and is otherwise reduced to
+// env_restart_required: a pending .env change (PMM_URL / secrets) survives config saves because a
+// hot-reload cannot pick up env-delivered values — only a container restart can.
+func (h *Handlers) renderAndReload(ctx context.Context) (reloadOutcome, error) {
+	if err := h.renderer().Render(); err != nil { //nolint:noinlineerr
+		h.l.Errorf("renderAndReload: render failed: %v", err)
+		_ = h.saveProvStatus("error: "+err.Error(), true)
+		return reloadOutcome{Error: "render failed: " + err.Error()}, err
+	}
+
+	outcome, status, reloaded := h.reloadHolmes(ctx)
+
+	now := time.Now()
+	restartRequired := true
+	if err := h.updateProvisioning(func(prov *models.AdreProvisioning) {
+		prov.LastRenderAt = &now
+		prov.RenderStatus = status
+		if reloaded {
+			// Change is live; keep only a pending env restart, which a hot-reload cannot satisfy.
+			prov.RestartRequired = prov.EnvRestartRequired
+		} else {
+			prov.RestartRequired = true
+		}
+		restartRequired = prov.RestartRequired
+	}); err != nil {
+		h.l.Errorf("renderAndReload: persist provisioning: %v", err)
+	}
+	outcome.RestartRequired = restartRequired
+	return outcome, nil
+}
+
+// reloadHolmes performs the best-effort hot-reload and returns the API outcome, the render status to
+// persist, and whether the reload actually succeeded. It runs on a context detached from the request
+// so a client disconnect (e.g. the browser navigating away) cannot cancel the reload.
+func (h *Handlers) reloadHolmes(ctx context.Context) (reloadOutcome, string, bool) {
+	settings, err := models.GetSettings(h.db)
 	if err != nil {
-		return
+		h.l.Errorf("reloadHolmes: get settings: %v", err)
+		return reloadOutcome{Error: "could not load PMM settings to reach HolmesGPT: " + err.Error()}, "rendered", false
 	}
-	if !prov.RestartRequired {
-		prov.RestartRequired = true
-		_ = models.SaveAdreProvisioning(h.db, prov)
+	if strings.TrimSpace(settings.GetAdreURL()) == "" {
+		h.l.Warn("HolmesGPT hot-reload skipped: HolmesGPT URL is not configured")
+		return reloadOutcome{Error: "HolmesGPT URL is not configured — set it in AI Assistant settings, then restart to apply"}, "rendered", false
 	}
+
+	rctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), reloadTimeout)
+	defer cancel()
+	result, err := NewClientFromSettings(settings).Reload(rctx)
+	if err != nil {
+		if errors.Is(err, ErrReloadUnsupported) {
+			h.l.Warn("HolmesGPT hot-reload unavailable (admin API disabled or older Holmes build); restart required to apply")
+		} else {
+			h.l.Warnf("HolmesGPT hot-reload failed; restart required to apply: %v", err)
+		}
+		return reloadOutcome{Error: err.Error()}, "rendered", false
+	}
+	return reloadOutcome{Reloaded: true, Detail: result.Detail}, "reloaded", true
 }
 
 // resolvePMMURL returns the PMM URL Holmes uses to call back into PMM: the stored value, else the
@@ -522,6 +637,8 @@ func (h *Handlers) ServeDeploymentSubroutes(w http.ResponseWriter, r *http.Reque
 		h.PutDeploymentProvisioning(w, r)
 	case path == "apply" && r.Method == http.MethodPost:
 		h.PostDeploymentApply(w, r)
+	case path == "restarted" && r.Method == http.MethodPost:
+		h.PostDeploymentRestarted(w, r)
 	case path == "provision" && r.Method == http.MethodPost:
 		h.PostDeploymentProvision(w, r)
 	case path == "skills" && (r.Method == http.MethodPost || r.Method == http.MethodPut):

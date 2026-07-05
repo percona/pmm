@@ -88,6 +88,10 @@ type AdreProvisioning struct {
 	LastRenderAt          *time.Time
 	RenderStatus          string
 	RestartRequired       bool
+	// EnvRestartRequired is set when an env-delivered value (PMM_URL / minted secrets in .env) changed.
+	// A hot-reload cannot pick those up, so it survives config saves and is cleared only by an explicit
+	// "restarted" acknowledgement after the container is recreated.
+	EnvRestartRequired bool
 }
 
 // AdreConfigAudit is one audit-log row for a deployment-config mutation.
@@ -256,11 +260,11 @@ func GetAdreProvisioning(q reform.DBTX) (*AdreProvisioning, error) {
 	var lastRender sql.NullTime
 	err := q.QueryRow(
 		`SELECT holmes_api_key, pmm_sa_token, servicenow_api_key, servicenow_client_token, slack_bot_token, slack_app_token,
-		        alert_webhook_secret, pmm_sa_id, pmm_url, last_render_at, render_status, restart_required
+		        alert_webhook_secret, pmm_sa_id, pmm_url, last_render_at, render_status, restart_required, env_restart_required
 		 FROM adre_provisioning WHERE id = TRUE`,
 	).
 		Scan(&p.HolmesAPIKey, &p.PMMSAToken, &p.ServiceNowAPIKey, &p.ServiceNowClientToken, &p.SlackBotToken, &p.SlackAppToken,
-			&p.AlertWebhookSecret, &p.PMMSAID, &p.PMMURL, &lastRender, &p.RenderStatus, &p.RestartRequired)
+			&p.AlertWebhookSecret, &p.PMMSAID, &p.PMMURL, &lastRender, &p.RenderStatus, &p.RestartRequired, &p.EnvRestartRequired)
 	if errors.Is(err, sql.ErrNoRows) {
 		return &AdreProvisioning{}, nil
 	}
@@ -326,15 +330,18 @@ func SaveAdreProvisioning(q reform.DBTX, p *AdreProvisioning) error {
 	}
 	_, err = q.Exec(
 		`INSERT INTO adre_provisioning (id, holmes_api_key, pmm_sa_token, servicenow_api_key, servicenow_client_token,
-		        slack_bot_token, slack_app_token, alert_webhook_secret, pmm_sa_id, pmm_url, last_render_at, render_status, restart_required)
-		 VALUES (TRUE, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+		        slack_bot_token, slack_app_token, alert_webhook_secret, pmm_sa_id, pmm_url, last_render_at, render_status, restart_required,
+		        env_restart_required)
+		 VALUES (TRUE, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 		 ON CONFLICT (id) DO UPDATE SET holmes_api_key = EXCLUDED.holmes_api_key, pmm_sa_token = EXCLUDED.pmm_sa_token,
 		   servicenow_api_key = EXCLUDED.servicenow_api_key, servicenow_client_token = EXCLUDED.servicenow_client_token,
 		   slack_bot_token = EXCLUDED.slack_bot_token, slack_app_token = EXCLUDED.slack_app_token,
 		   alert_webhook_secret = EXCLUDED.alert_webhook_secret,
 		   pmm_sa_id = EXCLUDED.pmm_sa_id, pmm_url = EXCLUDED.pmm_url, last_render_at = EXCLUDED.last_render_at,
-		   render_status = EXCLUDED.render_status, restart_required = EXCLUDED.restart_required`,
+		   render_status = EXCLUDED.render_status, restart_required = EXCLUDED.restart_required,
+		   env_restart_required = EXCLUDED.env_restart_required`,
 		enc[0], enc[1], enc[2], enc[3], enc[4], enc[5], enc[6], p.PMMSAID, p.PMMURL, lastRender, p.RenderStatus, p.RestartRequired,
+		p.EnvRestartRequired,
 	)
 	return errors.Wrap(err, "failed to save adre_provisioning")
 }

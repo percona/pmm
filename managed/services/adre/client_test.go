@@ -17,6 +17,7 @@ package adre
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -70,6 +71,50 @@ func TestClient_Chat(t *testing.T) {
 	resp, err := client.Chat(context.Background(), &ChatRequest{Ask: "Hi"})
 	require.NoError(t, err)
 	assert.Equal(t, "Hello!", resp.Analysis)
+}
+
+func TestClient_Reload(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, "/api/admin/reload", r.URL.Path)
+		assert.Equal(t, http.MethodPost, r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"status":"ok","component":"all","detail":"12 toolsets (10 enabled), 3 skills, 2 models","counts":{"toolsets_total":12,"toolsets_enabled":10,"skills":3,"models_loaded":2}}`))
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL)
+	res, err := client.Reload(context.Background())
+	require.NoError(t, err)
+	assert.Equal(t, "ok", res.Status)
+	assert.Equal(t, 12, res.Counts["toolsets_total"])
+	assert.Equal(t, 2, res.Counts["models_loaded"])
+}
+
+// TestClient_Reload_Unsupported covers an older Holmes / ENABLE_ADMIN_API unset: a 404 maps to the
+// typed ErrReloadUnsupported so callers can fall back to requiring a restart.
+func TestClient_Reload_Unsupported(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL)
+	_, err := client.Reload(context.Background())
+	require.Error(t, err)
+	assert.True(t, errors.Is(err, ErrReloadUnsupported))
+}
+
+func TestClient_Reload_ServerError(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"detail":"reload failed"}`))
+	}))
+	defer server.Close()
+
+	client := NewClient(server.URL)
+	_, err := client.Reload(context.Background())
+	require.Error(t, err)
+	assert.False(t, errors.Is(err, ErrReloadUnsupported))
 }
 
 func TestClient_TLSVerifyFails(t *testing.T) {
