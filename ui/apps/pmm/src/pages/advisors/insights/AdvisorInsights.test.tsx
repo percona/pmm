@@ -78,6 +78,10 @@ const TEST_ITEM: CheckResultHistoryItem = {
   isRead: true,
   runId: 'run-1',
   triggeredBy: AdvisorCheckTriggeredBy.user,
+  outcome: 'Installed version: 5.7.30',
+  environment: 'prod',
+  cluster: 'mysql-cluster',
+  replicationSet: 'rs1',
 };
 
 const TEST_ITEM_UNREAD: CheckResultHistoryItem = {
@@ -375,8 +379,15 @@ describe('AdvisorInsights', () => {
         Messages.details.enabled
       )
     ).toBeInTheDocument();
-    // not-yet-populated fields render an em-dash
-    expect(within(pane).getAllByText('—').length).toBeGreaterThanOrEqual(5);
+    // populated topology fields and outcome
+    expect(within(pane).getByText('prod')).toBeInTheDocument();
+    expect(within(pane).getByText('mysql-cluster')).toBeInTheDocument();
+    expect(within(pane).getByText('rs1')).toBeInTheDocument();
+    expect(
+      within(pane).getByText('Installed version: 5.7.30')
+    ).toBeInTheDocument();
+    // not-yet-populated fields (Region, AZ, First detected) render an em-dash
+    expect(within(pane).getAllByText('—').length).toBeGreaterThanOrEqual(3);
     // no labels on this insight, so no labels section
     expect(
       within(pane).queryByText(Messages.details.otherLabels)
@@ -412,11 +423,15 @@ describe('AdvisorInsights', () => {
       '  Service Name: mysql-prod\n' +
       '  Service Type: mysql\n' +
       '  Node Name: node-1\n' +
+      '  Environment: prod\n' +
+      '  Cluster: mysql-cluster\n' +
+      '  Replication Set: rs1\n' +
       '  Interval: Standard\n' +
       '  Triggered By: User\n' +
       '  Check Run ID: run-1\n' +
       '  Read: Read\n' +
       '  Description: Newer version of MySQL is available\n' +
+      '  Outcome: Installed version: 5.7.30\n' +
       '  Read More: https://percona.com';
 
     await waitFor(() =>

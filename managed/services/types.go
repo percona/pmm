@@ -24,17 +24,20 @@ import (
 
 // Target contains required info about advisor check target.
 type Target struct {
-	AgentID       string
-	ServiceID     string
-	ServiceName   string
-	ServiceType   models.ServiceType
-	NodeID        string
-	NodeName      string
-	Labels        map[string]string
-	DSN           string
-	Files         map[string]string
-	TDP           *models.DelimiterPair
-	TLSSkipVerify bool
+	AgentID        string
+	ServiceID      string
+	ServiceName    string
+	ServiceType    models.ServiceType
+	NodeID         string
+	NodeName       string
+	Environment    string
+	Cluster        string
+	ReplicationSet string
+	Labels         map[string]string
+	DSN            string
+	Files          map[string]string
+	TDP            *models.DelimiterPair
+	TLSSkipVerify  bool
 }
 
 // Copy creates a copy of the Target instance.

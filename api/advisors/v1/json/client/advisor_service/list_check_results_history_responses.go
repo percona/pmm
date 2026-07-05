@@ -569,6 +569,15 @@ type ListCheckResultsHistoryOKBodyResultsItems0 struct {
 	// Name of the node the service runs on.
 	NodeName string `json:"node_name,omitempty"`
 
+	// Environment of the monitored service on which the check ran.
+	Environment string `json:"environment,omitempty"`
+
+	// Cluster of the monitored service on which the check ran.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Replication set of the monitored service on which the check ran.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
 	// AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.
 	//
 	//  - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.
@@ -585,6 +594,9 @@ type ListCheckResultsHistoryOKBodyResultsItems0 struct {
 
 	// URL containing information on how to resolve a detected issue.
 	ReadMoreURL string `json:"read_more_url,omitempty"`
+
+	// Output returned by the check run (finding details or execution error).
+	Outcome string `json:"outcome,omitempty"`
 
 	// Severity represents severity level of the check result or alert.
 	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]

@@ -211,24 +211,32 @@ message CheckResultHistoryItem {
   string node_id = 10;
   // Name of the node the service runs on.
   string node_name = 11;
+  // Environment of the monitored service on which the check ran.
+  string environment = 12;
+  // Cluster of the monitored service on which the check ran.
+  string cluster = 13;
+  // Replication set of the monitored service on which the check ran.
+  string replication_set = 14;
   // Outcome of the check run.
-  AdvisorCheckResultStatus status = 12;
+  AdvisorCheckResultStatus status = 15;
   // Short human-readable summary of the result.
-  string summary = 13;
+  string summary = 16;
   // Long human-readable description of the result.
-  string description = 14;
+  string description = 17;
   // URL containing information on how to resolve a detected issue.
-  string read_more_url = 15;
+  string read_more_url = 18;
+  // Output returned by the check run (finding details or execution error).
+  string outcome = 19;
   // Severity of the result.
-  management.v1.Severity severity = 16;
+  management.v1.Severity severity = 20;
   // Result labels.
-  map<string, string> labels = 17;
+  map<string, string> labels = 21;
   // Time when the check ran.
-  google.protobuf.Timestamp checked_at = 18;
+  google.protobuf.Timestamp checked_at = 22;
   // Whether the result has been marked as read.
-  bool is_read = 19;
+  bool is_read = 23;
   // The actor that initiated the run.
-  AdvisorCheckTriggeredBy triggered_by = 20;
+  AdvisorCheckTriggeredBy triggered_by = 24;
 }
 
 message ListCheckResultsHistoryRequest {

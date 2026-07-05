@@ -68,26 +68,30 @@ const (
 //
 //reform:check_results
 type CheckResult struct {
-	ID          string            `reform:"id,pk"`
-	CheckName   string            `reform:"check_name"`
-	AdvisorName string            `reform:"advisor_name"`
-	Category    string            `reform:"category"`
-	Interval    Interval          `reform:"interval"`
-	ServiceID   string            `reform:"service_id"`
-	ServiceName string            `reform:"service_name"`
-	ServiceType ServiceType       `reform:"service_type"`
-	NodeID      string            `reform:"node_id"`
-	NodeName    string            `reform:"node_name"`
-	Status      CheckResultStatus `reform:"status"`
-	Summary     string            `reform:"summary"`
-	Description string            `reform:"description"`
-	ReadMoreURL string            `reform:"read_more_url"`
-	Severity    CheckSeverity     `reform:"severity"`
-	Labels      []byte            `reform:"labels"`
-	CheckedAt   time.Time         `reform:"checked_at"`
-	IsRead      bool              `reform:"is_read"`
-	RunID       string            `reform:"run_id"`
-	TriggeredBy CheckTriggeredBy  `reform:"triggered_by"`
+	ID             string            `reform:"id,pk"`
+	CheckName      string            `reform:"check_name"`
+	AdvisorName    string            `reform:"advisor_name"`
+	Category       string            `reform:"category"`
+	Interval       Interval          `reform:"interval"`
+	ServiceID      string            `reform:"service_id"`
+	ServiceName    string            `reform:"service_name"`
+	ServiceType    ServiceType       `reform:"service_type"`
+	NodeID         string            `reform:"node_id"`
+	NodeName       string            `reform:"node_name"`
+	Environment    string            `reform:"environment"`
+	Cluster        string            `reform:"cluster"`
+	ReplicationSet string            `reform:"replication_set"`
+	Status         CheckResultStatus `reform:"status"`
+	Summary        string            `reform:"summary"`
+	Description    string            `reform:"description"`
+	Outcome        string            `reform:"outcome"`
+	ReadMoreURL    string            `reform:"read_more_url"`
+	Severity       CheckSeverity     `reform:"severity"`
+	Labels         []byte            `reform:"labels"`
+	CheckedAt      time.Time         `reform:"checked_at"`
+	IsRead         bool              `reform:"is_read"`
+	RunID          string            `reform:"run_id"`
+	TriggeredBy    CheckTriggeredBy  `reform:"triggered_by"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

@@ -2246,6 +2246,12 @@ func (m *CheckResultHistoryItem) validate(all bool) error {
 
 	// no validation rules for NodeName
 
+	// no validation rules for Environment
+
+	// no validation rules for Cluster
+
+	// no validation rules for ReplicationSet
+
 	// no validation rules for Status
 
 	// no validation rules for Summary
@@ -2253,6 +2259,8 @@ func (m *CheckResultHistoryItem) validate(all bool) error {
 	// no validation rules for Description
 
 	// no validation rules for ReadMoreUrl
+
+	// no validation rules for Outcome
 
 	// no validation rules for Severity
 

@@ -181,6 +181,12 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
               </Typography>
             </Field>
 
+            <Field label={m.outcome} span={4}>
+              <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                {insight.outcome || EM_DASH}
+              </Typography>
+            </Field>
+
             <Field label={m.readMore} span={4}>
               {insight.readMoreUrl ? (
                 <Link
@@ -214,14 +220,20 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
               </Typography>
             </Field>
             <Field label={m.environment}>
-              <Typography variant="body1">{EM_DASH}</Typography>
+              <Typography variant="body1">
+                {insight.environment || EM_DASH}
+              </Typography>
             </Field>
 
             <Field label={m.cluster}>
-              <Typography variant="body1">{EM_DASH}</Typography>
+              <Typography variant="body1">
+                {insight.cluster || EM_DASH}
+              </Typography>
             </Field>
             <Field label={m.replicationSet}>
-              <Typography variant="body1">{EM_DASH}</Typography>
+              <Typography variant="body1">
+                {insight.replicationSet || EM_DASH}
+              </Typography>
             </Field>
             <Field label={m.region}>
               <Typography variant="body1">{EM_DASH}</Typography>

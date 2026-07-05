@@ -38,9 +38,13 @@ func (v *checkResultTableType) Columns() []string {
 		"service_type",
 		"node_id",
 		"node_name",
+		"environment",
+		"cluster",
+		"replication_set",
 		"status",
 		"summary",
 		"description",
+		"outcome",
 		"read_more_url",
 		"severity",
 		"labels",
@@ -82,9 +86,13 @@ var CheckResultTable = &checkResultTableType{
 			{Name: "ServiceType", Type: "ServiceType", Column: "service_type"},
 			{Name: "NodeID", Type: "string", Column: "node_id"},
 			{Name: "NodeName", Type: "string", Column: "node_name"},
+			{Name: "Environment", Type: "string", Column: "environment"},
+			{Name: "Cluster", Type: "string", Column: "cluster"},
+			{Name: "ReplicationSet", Type: "string", Column: "replication_set"},
 			{Name: "Status", Type: "CheckResultStatus", Column: "status"},
 			{Name: "Summary", Type: "string", Column: "summary"},
 			{Name: "Description", Type: "string", Column: "description"},
+			{Name: "Outcome", Type: "string", Column: "outcome"},
 			{Name: "ReadMoreURL", Type: "string", Column: "read_more_url"},
 			{Name: "Severity", Type: "CheckSeverity", Column: "severity"},
 			{Name: "Labels", Type: "[]uint8", Column: "labels"},
@@ -100,7 +108,7 @@ var CheckResultTable = &checkResultTableType{
 
 // String returns a string representation of this struct or record.
 func (s CheckResult) String() string {
-	res := make([]string, 20)
+	res := make([]string, 24)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "CheckName: " + reform.Inspect(s.CheckName, true)
 	res[2] = "AdvisorName: " + reform.Inspect(s.AdvisorName, true)
@@ -111,16 +119,20 @@ func (s CheckResult) String() string {
 	res[7] = "ServiceType: " + reform.Inspect(s.ServiceType, true)
 	res[8] = "NodeID: " + reform.Inspect(s.NodeID, true)
 	res[9] = "NodeName: " + reform.Inspect(s.NodeName, true)
-	res[10] = "Status: " + reform.Inspect(s.Status, true)
-	res[11] = "Summary: " + reform.Inspect(s.Summary, true)
-	res[12] = "Description: " + reform.Inspect(s.Description, true)
-	res[13] = "ReadMoreURL: " + reform.Inspect(s.ReadMoreURL, true)
-	res[14] = "Severity: " + reform.Inspect(s.Severity, true)
-	res[15] = "Labels: " + reform.Inspect(s.Labels, true)
-	res[16] = "CheckedAt: " + reform.Inspect(s.CheckedAt, true)
-	res[17] = "IsRead: " + reform.Inspect(s.IsRead, true)
-	res[18] = "RunID: " + reform.Inspect(s.RunID, true)
-	res[19] = "TriggeredBy: " + reform.Inspect(s.TriggeredBy, true)
+	res[10] = "Environment: " + reform.Inspect(s.Environment, true)
+	res[11] = "Cluster: " + reform.Inspect(s.Cluster, true)
+	res[12] = "ReplicationSet: " + reform.Inspect(s.ReplicationSet, true)
+	res[13] = "Status: " + reform.Inspect(s.Status, true)
+	res[14] = "Summary: " + reform.Inspect(s.Summary, true)
+	res[15] = "Description: " + reform.Inspect(s.Description, true)
+	res[16] = "Outcome: " + reform.Inspect(s.Outcome, true)
+	res[17] = "ReadMoreURL: " + reform.Inspect(s.ReadMoreURL, true)
+	res[18] = "Severity: " + reform.Inspect(s.Severity, true)
+	res[19] = "Labels: " + reform.Inspect(s.Labels, true)
+	res[20] = "CheckedAt: " + reform.Inspect(s.CheckedAt, true)
+	res[21] = "IsRead: " + reform.Inspect(s.IsRead, true)
+	res[22] = "RunID: " + reform.Inspect(s.RunID, true)
+	res[23] = "TriggeredBy: " + reform.Inspect(s.TriggeredBy, true)
 	return strings.Join(res, ", ")
 }
 
@@ -138,9 +150,13 @@ func (s *CheckResult) Values() []interface{} {
 		s.ServiceType,
 		s.NodeID,
 		s.NodeName,
+		s.Environment,
+		s.Cluster,
+		s.ReplicationSet,
 		s.Status,
 		s.Summary,
 		s.Description,
+		s.Outcome,
 		s.ReadMoreURL,
 		s.Severity,
 		s.Labels,
@@ -165,9 +181,13 @@ func (s *CheckResult) Pointers() []interface{} {
 		&s.ServiceType,
 		&s.NodeID,
 		&s.NodeName,
+		&s.Environment,
+		&s.Cluster,
+		&s.ReplicationSet,
 		&s.Status,
 		&s.Summary,
 		&s.Description,
+		&s.Outcome,
 		&s.ReadMoreURL,
 		&s.Severity,
 		&s.Labels,

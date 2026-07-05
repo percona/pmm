@@ -30,13 +30,16 @@ import (
 func TestNewCheckResultRecord(t *testing.T) {
 	t.Parallel()
 
-	c := check.Check{Name: "chk", Summary: "Check title", Advisor: "adv", Interval: check.Standard}
+	c := check.Check{Name: "chk", Summary: "Check title", Description: "Check description", Advisor: "adv", Interval: check.Standard}
 	target := services.Target{
-		ServiceID:   "sid",
-		ServiceName: "sname",
-		ServiceType: models.MySQLServiceType,
-		NodeID:      "nid",
-		NodeName:    "nname",
+		ServiceID:      "sid",
+		ServiceName:    "sname",
+		ServiceType:    models.MySQLServiceType,
+		NodeID:         "nid",
+		NodeName:       "nname",
+		Environment:    "prod",
+		Cluster:        "cluster-1",
+		ReplicationSet: "rs-1",
 	}
 	checkedAt := models.Now()
 	ri := runInfo{runID: "run-1", triggeredBy: models.CheckTriggeredByUser}
@@ -65,7 +68,11 @@ func TestNewCheckResultRecord(t *testing.T) {
 		assert.Equal(t, "nname", rec.NodeName)
 		assert.Equal(t, models.CheckResultFailed, rec.Status)
 		assert.Equal(t, "sum", rec.Summary)
-		assert.Equal(t, "desc", rec.Description)
+		assert.Equal(t, "Check description", rec.Description)
+		assert.Equal(t, "desc", rec.Outcome)
+		assert.Equal(t, "prod", rec.Environment)
+		assert.Equal(t, "cluster-1", rec.Cluster)
+		assert.Equal(t, "rs-1", rec.ReplicationSet)
 		assert.Equal(t, "https://example.com", rec.ReadMoreURL)
 		assert.Equal(t, models.CheckSeverityError, rec.Severity)
 		assert.Equal(t, checkedAt, rec.CheckedAt)
@@ -100,7 +107,8 @@ func TestNewCheckResultRecord(t *testing.T) {
 
 		assert.Equal(t, models.CheckResultError, rec.Status)
 		assert.Equal(t, "Check title", rec.Summary)
-		assert.Equal(t, "execution failed", rec.Description)
+		assert.Equal(t, "Check description", rec.Description)
+		assert.Equal(t, "execution failed", rec.Outcome)
 		assert.Equal(t, models.CheckSeverityDebug, rec.Severity)
 	})
 }

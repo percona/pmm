@@ -26,6 +26,7 @@ export const Messages = {
     enabled: 'Enabled',
     disabled: 'Disabled',
     description: 'Description',
+    outcome: 'Outcome',
     readMore: 'Read more',
     service: 'Service',
     node: 'Node',

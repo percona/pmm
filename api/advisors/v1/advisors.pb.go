@@ -1372,24 +1372,32 @@ type CheckResultHistoryItem struct {
 	NodeId string `protobuf:"bytes,10,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// Name of the node the service runs on.
 	NodeName string `protobuf:"bytes,11,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// Environment of the monitored service on which the check ran.
+	Environment string `protobuf:"bytes,12,opt,name=environment,proto3" json:"environment,omitempty"`
+	// Cluster of the monitored service on which the check ran.
+	Cluster string `protobuf:"bytes,13,opt,name=cluster,proto3" json:"cluster,omitempty"`
+	// Replication set of the monitored service on which the check ran.
+	ReplicationSet string `protobuf:"bytes,14,opt,name=replication_set,json=replicationSet,proto3" json:"replication_set,omitempty"`
 	// Outcome of the check run.
-	Status AdvisorCheckResultStatus `protobuf:"varint,12,opt,name=status,proto3,enum=advisors.v1.AdvisorCheckResultStatus" json:"status,omitempty"`
+	Status AdvisorCheckResultStatus `protobuf:"varint,15,opt,name=status,proto3,enum=advisors.v1.AdvisorCheckResultStatus" json:"status,omitempty"`
 	// Short human-readable summary of the result.
-	Summary string `protobuf:"bytes,13,opt,name=summary,proto3" json:"summary,omitempty"`
+	Summary string `protobuf:"bytes,16,opt,name=summary,proto3" json:"summary,omitempty"`
 	// Long human-readable description of the result.
-	Description string `protobuf:"bytes,14,opt,name=description,proto3" json:"description,omitempty"`
+	Description string `protobuf:"bytes,17,opt,name=description,proto3" json:"description,omitempty"`
 	// URL containing information on how to resolve a detected issue.
-	ReadMoreUrl string `protobuf:"bytes,15,opt,name=read_more_url,json=readMoreUrl,proto3" json:"read_more_url,omitempty"`
+	ReadMoreUrl string `protobuf:"bytes,18,opt,name=read_more_url,json=readMoreUrl,proto3" json:"read_more_url,omitempty"`
+	// Output returned by the check run (finding details or execution error).
+	Outcome string `protobuf:"bytes,19,opt,name=outcome,proto3" json:"outcome,omitempty"`
 	// Severity of the result.
-	Severity v1.Severity `protobuf:"varint,16,opt,name=severity,proto3,enum=management.v1.Severity" json:"severity,omitempty"`
+	Severity v1.Severity `protobuf:"varint,20,opt,name=severity,proto3,enum=management.v1.Severity" json:"severity,omitempty"`
 	// Result labels.
-	Labels map[string]string `protobuf:"bytes,17,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Labels map[string]string `protobuf:"bytes,21,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Time when the check ran.
-	CheckedAt *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=checked_at,json=checkedAt,proto3" json:"checked_at,omitempty"`
+	CheckedAt *timestamppb.Timestamp `protobuf:"bytes,22,opt,name=checked_at,json=checkedAt,proto3" json:"checked_at,omitempty"`
 	// Whether the result has been marked as read.
-	IsRead bool `protobuf:"varint,19,opt,name=is_read,json=isRead,proto3" json:"is_read,omitempty"`
+	IsRead bool `protobuf:"varint,23,opt,name=is_read,json=isRead,proto3" json:"is_read,omitempty"`
 	// The actor that initiated the run.
-	TriggeredBy   AdvisorCheckTriggeredBy `protobuf:"varint,20,opt,name=triggered_by,json=triggeredBy,proto3,enum=advisors.v1.AdvisorCheckTriggeredBy" json:"triggered_by,omitempty"`
+	TriggeredBy   AdvisorCheckTriggeredBy `protobuf:"varint,24,opt,name=triggered_by,json=triggeredBy,proto3,enum=advisors.v1.AdvisorCheckTriggeredBy" json:"triggered_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1501,6 +1509,27 @@ func (x *CheckResultHistoryItem) GetNodeName() string {
 	return ""
 }
 
+func (x *CheckResultHistoryItem) GetEnvironment() string {
+	if x != nil {
+		return x.Environment
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetCluster() string {
+	if x != nil {
+		return x.Cluster
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetReplicationSet() string {
+	if x != nil {
+		return x.ReplicationSet
+	}
+	return ""
+}
+
 func (x *CheckResultHistoryItem) GetStatus() AdvisorCheckResultStatus {
 	if x != nil {
 		return x.Status
@@ -1525,6 +1554,13 @@ func (x *CheckResultHistoryItem) GetDescription() string {
 func (x *CheckResultHistoryItem) GetReadMoreUrl() string {
 	if x != nil {
 		return x.ReadMoreUrl
+	}
+	return ""
+}
+
+func (x *CheckResultHistoryItem) GetOutcome() string {
+	if x != nil {
+		return x.Outcome
 	}
 	return ""
 }
@@ -2066,7 +2102,7 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"totalItems\x12\x1f\n" +
 	"\vtotal_pages\x18\x02 \x01(\x05R\n" +
 	"totalPages\x122\n" +
-	"\aresults\x18\x03 \x03(\v2\x18.advisors.v1.CheckResultR\aresults\"\xec\x06\n" +
+	"\aresults\x18\x03 \x03(\v2\x18.advisors.v1.CheckResultR\aresults\"\xeb\a\n" +
 	"\x16CheckResultHistoryItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
 	"\x06run_id\x18\x02 \x01(\tR\x05runId\x12\x1d\n" +
@@ -2081,17 +2117,21 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\fservice_type\x18\t \x01(\tR\vserviceType\x12\x17\n" +
 	"\anode_id\x18\n" +
 	" \x01(\tR\x06nodeId\x12\x1b\n" +
-	"\tnode_name\x18\v \x01(\tR\bnodeName\x12=\n" +
-	"\x06status\x18\f \x01(\x0e2%.advisors.v1.AdvisorCheckResultStatusR\x06status\x12\x18\n" +
-	"\asummary\x18\r \x01(\tR\asummary\x12 \n" +
-	"\vdescription\x18\x0e \x01(\tR\vdescription\x12\"\n" +
-	"\rread_more_url\x18\x0f \x01(\tR\vreadMoreUrl\x123\n" +
-	"\bseverity\x18\x10 \x01(\x0e2\x17.management.v1.SeverityR\bseverity\x12G\n" +
-	"\x06labels\x18\x11 \x03(\v2/.advisors.v1.CheckResultHistoryItem.LabelsEntryR\x06labels\x129\n" +
+	"\tnode_name\x18\v \x01(\tR\bnodeName\x12 \n" +
+	"\venvironment\x18\f \x01(\tR\venvironment\x12\x18\n" +
+	"\acluster\x18\r \x01(\tR\acluster\x12'\n" +
+	"\x0freplication_set\x18\x0e \x01(\tR\x0ereplicationSet\x12=\n" +
+	"\x06status\x18\x0f \x01(\x0e2%.advisors.v1.AdvisorCheckResultStatusR\x06status\x12\x18\n" +
+	"\asummary\x18\x10 \x01(\tR\asummary\x12 \n" +
+	"\vdescription\x18\x11 \x01(\tR\vdescription\x12\"\n" +
+	"\rread_more_url\x18\x12 \x01(\tR\vreadMoreUrl\x12\x18\n" +
+	"\aoutcome\x18\x13 \x01(\tR\aoutcome\x123\n" +
+	"\bseverity\x18\x14 \x01(\x0e2\x17.management.v1.SeverityR\bseverity\x12G\n" +
+	"\x06labels\x18\x15 \x03(\v2/.advisors.v1.CheckResultHistoryItem.LabelsEntryR\x06labels\x129\n" +
 	"\n" +
-	"checked_at\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\tcheckedAt\x12\x17\n" +
-	"\ais_read\x18\x13 \x01(\bR\x06isRead\x12G\n" +
-	"\ftriggered_by\x18\x14 \x01(\x0e2$.advisors.v1.AdvisorCheckTriggeredByR\vtriggeredBy\x1a9\n" +
+	"checked_at\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\tcheckedAt\x12\x17\n" +
+	"\ais_read\x18\x17 \x01(\bR\x06isRead\x12G\n" +
+	"\ftriggered_by\x18\x18 \x01(\x0e2$.advisors.v1.AdvisorCheckTriggeredByR\vtriggeredBy\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc1\x05\n" +

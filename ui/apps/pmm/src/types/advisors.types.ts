@@ -88,6 +88,10 @@ export interface CheckResultHistoryItem {
   isRead: boolean;
   runId: string;
   triggeredBy: AdvisorCheckTriggeredBy;
+  outcome: string;
+  environment: string;
+  cluster: string;
+  replicationSet: string;
 }
 
 export interface ListCheckResultsHistoryParams {

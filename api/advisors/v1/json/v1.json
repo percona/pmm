@@ -621,6 +621,21 @@
                         "type": "string",
                         "x-order": 10
                       },
+                      "environment": {
+                        "description": "Environment of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 11
+                      },
+                      "cluster": {
+                        "description": "Cluster of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "replication_set": {
+                        "description": "Replication set of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 13
+                      },
                       "status": {
                         "description": "AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.",
                         "type": "string",
@@ -631,22 +646,27 @@
                           "ADVISOR_CHECK_RESULT_STATUS_FAILED",
                           "ADVISOR_CHECK_RESULT_STATUS_ERROR"
                         ],
-                        "x-order": 11
+                        "x-order": 14
                       },
                       "summary": {
                         "description": "Short human-readable summary of the result.",
                         "type": "string",
-                        "x-order": 12
+                        "x-order": 15
                       },
                       "description": {
                         "description": "Long human-readable description of the result.",
                         "type": "string",
-                        "x-order": 13
+                        "x-order": 16
                       },
                       "read_more_url": {
                         "description": "URL containing information on how to resolve a detected issue.",
                         "type": "string",
-                        "x-order": 14
+                        "x-order": 17
+                      },
+                      "outcome": {
+                        "description": "Output returned by the check run (finding details or execution error).",
+                        "type": "string",
+                        "x-order": 18
                       },
                       "severity": {
                         "description": "Severity represents severity level of the check result or alert.",
@@ -663,7 +683,7 @@
                           "SEVERITY_INFO",
                           "SEVERITY_DEBUG"
                         ],
-                        "x-order": 15
+                        "x-order": 19
                       },
                       "labels": {
                         "description": "Result labels.",
@@ -671,18 +691,18 @@
                         "additionalProperties": {
                           "type": "string"
                         },
-                        "x-order": 16
+                        "x-order": 20
                       },
                       "checked_at": {
                         "description": "Time when the check ran.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 17
+                        "x-order": 21
                       },
                       "is_read": {
                         "description": "Whether the result has been marked as read.",
                         "type": "boolean",
-                        "x-order": 18
+                        "x-order": 22
                       },
                       "triggered_by": {
                         "description": "AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
@@ -693,7 +713,7 @@
                           "ADVISOR_CHECK_TRIGGERED_BY_USER",
                           "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
                         ],
-                        "x-order": 19
+                        "x-order": 23
                       }
                     }
                   },
