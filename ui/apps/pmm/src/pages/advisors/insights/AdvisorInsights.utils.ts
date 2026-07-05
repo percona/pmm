@@ -1,0 +1,58 @@
+import { format } from 'date-fns';
+import {
+  AdvisorCheckTriggeredBy,
+  CheckResultHistoryItem,
+} from 'types/advisors.types';
+import {
+  ADVISOR_INTERVAL,
+  ADVISOR_RESULT_STATUS,
+  SEVERITY,
+  TIME_FORMAT,
+} from 'lib/constants';
+import { capitalize } from 'utils/text.utils';
+
+const TRIGGERED_BY_LABEL: Record<AdvisorCheckTriggeredBy, string> = {
+  [AdvisorCheckTriggeredBy.user]: 'User',
+  [AdvisorCheckTriggeredBy.scheduler]: 'Scheduler',
+  [AdvisorCheckTriggeredBy.unspecified]: '',
+};
+
+// renders an insight as a human-readable narrative for "Copy as text"
+export const insightToText = (item: CheckResultHistoryItem): string => {
+  const checkedAt = item.checkedAt
+    ? format(new Date(item.checkedAt), TIME_FORMAT)
+    : '';
+  const labels = Object.entries(item.labels ?? {})
+    .map(([key, value]) => `${key}=${value}`)
+    .join(', ');
+
+  const details: Array<[string, string]> = [
+    ['ID', item.id],
+    ['Check Name', item.checkName],
+    ['Advisor', item.advisorName],
+    ['Category', capitalize(item.category)],
+    ['Service Name', item.serviceName],
+    ['Service Type', item.serviceType],
+    ['Node Name', item.nodeName],
+    ['Interval', ADVISOR_INTERVAL[item.interval]],
+    ['Triggered By', TRIGGERED_BY_LABEL[item.triggeredBy]],
+    ['Check Run ID', item.runId],
+    ['Read', item.isRead ? 'Read' : 'Unread'],
+    ['Description', item.description],
+    ['Read More', item.readMoreUrl],
+    ['Labels', labels],
+  ];
+
+  const detailLines = details
+    .filter(([, value]) => !!value)
+    .map(([name, value]) => `  ${name}: ${value}`)
+    .join('\n');
+
+  return (
+    `The Advisor Check "${item.summary}" completed at ${checkedAt} ` +
+    `with status "${ADVISOR_RESULT_STATUS[item.status]}" and severity "${SEVERITY[item.severity]}".\n` +
+    `\n` +
+    `Check Details:\n` +
+    detailLines
+  );
+};

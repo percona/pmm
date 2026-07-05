@@ -16,14 +16,46 @@ import {
   wrapWithUserProvider,
 } from 'utils/testUtils';
 import {
+  Advisor,
   AdvisorCheckResultStatus,
   AdvisorCheckTriggeredBy,
+  AdvisorFamily,
   AdvisorInterval,
   CheckResultHistoryItem,
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
+import { format } from 'date-fns';
+import { TIME_FORMAT } from 'lib/constants';
 
 vi.mock('api/advisors');
+
+const TEST_ADVISORS: Advisor[] = [
+  {
+    name: 'test_advisor',
+    summary: 'Test advisor',
+    description: '',
+    comment: '',
+    category: 'configuration',
+    checks: [
+      {
+        name: 'mysql_version_check',
+        enabled: true,
+        summary: 'MySQL version check',
+        description: '',
+        interval: AdvisorInterval.standard,
+        family: AdvisorFamily.mysql,
+      },
+      {
+        name: 'postgresql_super_role',
+        enabled: false,
+        summary: 'PostgreSQL super role',
+        description: '',
+        interval: AdvisorInterval.rare,
+        family: AdvisorFamily.postgresql,
+      },
+    ],
+  },
+];
 
 const TEST_ITEM: CheckResultHistoryItem = {
   id: 'result-1',
@@ -51,12 +83,15 @@ const TEST_ITEM: CheckResultHistoryItem = {
 const TEST_ITEM_UNREAD: CheckResultHistoryItem = {
   ...TEST_ITEM,
   id: 'result-2',
+  checkName: 'postgresql_super_role',
   serviceName: 'postgresql-prod',
   serviceType: 'postgresql',
   summary: 'PostgreSQL super role detected',
   description: 'A user has the SUPER role',
   severity: Severity.error,
   isRead: false,
+  // recorded before run grouping existed
+  runId: '',
 };
 
 const renderComponent = (initialEntry = '/advisors/insights') =>
@@ -81,13 +116,15 @@ const waitForRows = async () => {
 describe('AdvisorInsights', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(advisorsApi.listAdvisors).mockResolvedValue([]);
+    vi.mocked(advisorsApi.listAdvisors).mockResolvedValue(TEST_ADVISORS);
     vi.mocked(advisorsApi.listCheckResultsHistory).mockResolvedValue({
       totalItems: 250,
       totalPages: 3,
       results: [TEST_ITEM, TEST_ITEM_UNREAD],
     });
     vi.mocked(advisorsApi.markCheckResultsRead).mockResolvedValue();
+    vi.mocked(advisorsApi.startAdvisorChecks).mockResolvedValue('run-123');
+    vi.mocked(advisorsApi.changeAdvisorChecks).mockResolvedValue();
     vi.mocked(advisorsApi.listCheckResultsFilterValues).mockResolvedValue({
       serviceNames: ['mysql-prod', 'postgresql-prod'],
       nodeNames: ['node-1', 'node-2'],
@@ -276,12 +313,13 @@ describe('AdvisorInsights', () => {
     }
   });
 
-  it('marks an unread insight as read', async () => {
+  it('marks an unread insight as read via the row menu', async () => {
     renderComponent();
 
     await waitForRows();
 
-    fireEvent.click(screen.getByTestId('insight-result-2-toggle-read'));
+    fireEvent.click(screen.getByTestId('insight-result-2-actions'));
+    fireEvent.click(await screen.findByTestId('action-toggle-read'));
 
     await waitFor(() =>
       expect(advisorsApi.markCheckResultsRead).toHaveBeenCalledWith(
@@ -294,17 +332,236 @@ describe('AdvisorInsights', () => {
     ).toBeInTheDocument();
   });
 
-  it('marks a read insight as unread', async () => {
+  it('marks a read insight as unread via the row menu', async () => {
     renderComponent();
 
     await waitForRows();
 
-    fireEvent.click(screen.getByTestId('insight-result-1-toggle-read'));
+    fireEvent.click(screen.getByTestId('insight-result-1-actions'));
+    fireEvent.click(await screen.findByTestId('action-toggle-read'));
 
     await waitFor(() =>
       expect(advisorsApi.markCheckResultsRead).toHaveBeenCalledWith(
         { ids: ['result-1'], isRead: false },
         expect.anything()
+      )
+    );
+  });
+
+  it('opens and closes the details pane from the row menu', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('insight-result-1-actions'));
+    fireEvent.click(await screen.findByTestId('action-view-details'));
+
+    const pane = await screen.findByTestId('insight-details-pane');
+    expect(pane).toBeInTheDocument();
+    expect(screen.getByText(Messages.details.title)).toBeInTheDocument();
+    expect(screen.getByTestId('insight-details-maximize')).toBeInTheDocument();
+
+    // content from the selected insight
+    expect(within(pane).getByText('MySQL is outdated')).toBeInTheDocument();
+    expect(
+      within(pane).getByText('Newer version of MySQL is available')
+    ).toBeInTheDocument();
+    expect(
+      within(pane).getByText('MySQL Version/mysql_version_check')
+    ).toBeInTheDocument();
+    // the underlying check is enabled in the advisors fixture
+    expect(
+      within(screen.getByTestId('details-field-advisor-status')).getByText(
+        Messages.details.enabled
+      )
+    ).toBeInTheDocument();
+    // not-yet-populated fields render an em-dash
+    expect(within(pane).getAllByText('—').length).toBeGreaterThanOrEqual(5);
+    // no labels on this insight, so no labels section
+    expect(
+      within(pane).queryByText(Messages.details.otherLabels)
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('insight-details-close'));
+
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('insight-details-pane')
+      ).not.toBeInTheDocument()
+    );
+  });
+
+  it('copies the insight as a narrative text', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('insight-result-1-actions'));
+    fireEvent.click(await screen.findByTestId('action-copy-as-text'));
+
+    const checkedAt = format(new Date(TEST_ITEM.checkedAt), TIME_FORMAT);
+    const expected =
+      `The Advisor Check "MySQL is outdated" completed at ${checkedAt} ` +
+      'with status "Failed" and severity "Warning".\n' +
+      '\n' +
+      'Check Details:\n' +
+      '  ID: result-1\n' +
+      '  Check Name: mysql_version_check\n' +
+      '  Advisor: MySQL Version\n' +
+      '  Category: Version_configuration\n' +
+      '  Service Name: mysql-prod\n' +
+      '  Service Type: mysql\n' +
+      '  Node Name: node-1\n' +
+      '  Interval: Standard\n' +
+      '  Triggered By: User\n' +
+      '  Check Run ID: run-1\n' +
+      '  Read: Read\n' +
+      '  Description: Newer version of MySQL is available\n' +
+      '  Read More: https://percona.com';
+
+    await waitFor(() =>
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expected)
+    );
+    expect(
+      await screen.findByText(Messages.success.copied)
+    ).toBeInTheDocument();
+  });
+
+  it('dims rows whose checks are disabled', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    // postgresql_super_role is disabled in the advisors fixture
+    await waitFor(() =>
+      expect(screen.getByTestId('insight-row-result-2')).toHaveAttribute(
+        'data-check-disabled',
+        'true'
+      )
+    );
+    expect(screen.getByTestId('insight-row-result-1')).not.toHaveAttribute(
+      'data-check-disabled'
+    );
+  });
+
+  it('disables an enabled check from the row menu', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('insight-result-1-actions'));
+    const item = await screen.findByTestId('action-disable-check');
+    expect(item).toHaveTextContent(Messages.actions.disableCheck);
+
+    const advisorsCalls = vi.mocked(advisorsApi.listAdvisors).mock.calls
+      .length;
+    fireEvent.click(item);
+
+    await waitFor(() =>
+      expect(advisorsApi.changeAdvisorChecks).toHaveBeenCalledWith(
+        [{ name: 'mysql_version_check', enable: false }],
+        expect.anything()
+      )
+    );
+    expect(
+      await screen.findByText(
+        Messages.success.checkDisabled('MySQL version check')
+      )
+    ).toBeInTheDocument();
+    // the advisors list refetches, so the menu reflects the new state
+    await waitFor(() =>
+      expect(
+        vi.mocked(advisorsApi.listAdvisors).mock.calls.length
+      ).toBeGreaterThan(advisorsCalls)
+    );
+  });
+
+  it('offers enabling for a disabled check', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('insight-result-2-actions'));
+    const item = await screen.findByTestId('action-disable-check');
+    expect(item).toHaveTextContent(Messages.actions.enableCheck);
+
+    fireEvent.click(item);
+
+    await waitFor(() =>
+      expect(advisorsApi.changeAdvisorChecks).toHaveBeenCalledWith(
+        [{ name: 'postgresql_super_role', enable: true }],
+        expect.anything()
+      )
+    );
+  });
+
+  it('disables re-run for disabled checks and run filter for rows without run ID', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('insight-result-2-actions'));
+    await screen.findByTestId('action-view-details');
+
+    expect(screen.getByTestId('action-rerun-now')).toHaveAttribute(
+      'aria-disabled',
+      'true'
+    );
+    expect(screen.getByTestId('action-filter-by-run-id')).toHaveAttribute(
+      'aria-disabled',
+      'true'
+    );
+  });
+
+  it('filters by run ID from the row menu and clears via the chip', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('insight-result-1-actions'));
+    fireEvent.click(await screen.findByTestId('action-filter-by-run-id'));
+
+    await waitFor(() =>
+      expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+        expect.objectContaining({ runId: 'run-1', pageIndex: 0 })
+      )
+    );
+
+    const chip = await screen.findByTestId('run-id-filter-chip');
+    fireEvent.click(within(chip).getByTestId('CancelIcon'));
+
+    await waitFor(() =>
+      expect(advisorsApi.listCheckResultsHistory).toHaveBeenLastCalledWith(
+        expect.objectContaining({ runId: undefined })
+      )
+    );
+  });
+
+  it('re-runs the check from the row menu and links to the new run', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('insight-result-1-actions'));
+    fireEvent.click(await screen.findByTestId('action-rerun-now'));
+
+    await waitFor(() =>
+      expect(advisorsApi.startAdvisorChecks).toHaveBeenCalledWith(
+        ['mysql_version_check'],
+        expect.anything()
+      )
+    );
+    expect(
+      await screen.findByText(
+        Messages.success.rerunStarted('MySQL version check')
+      )
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('view-run-results'));
+
+    await waitFor(() =>
+      expect(advisorsApi.listCheckResultsHistory).toHaveBeenLastCalledWith(
+        expect.objectContaining({ runId: 'run-123' })
       )
     );
   });

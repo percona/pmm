@@ -30,6 +30,7 @@ export const getInsightsColumns = (): MRT_ColumnDef<CheckResultHistoryItem>[] =>
     accessorKey: 'summary',
     enableSorting: false,
     size: 300,
+    grow: true,
     Cell: ({ row }) => (
       <span>
         {row.original.summary}
@@ -88,7 +89,8 @@ export const getInsightsColumns = (): MRT_ColumnDef<CheckResultHistoryItem>[] =>
     id: 'isRead',
     header: Messages.columns.read,
     accessorFn: (row) => (row.isRead ? Messages.read : Messages.unread),
-    size: 110,
+    size: 90,
+    grow: false,
     Cell: ({ row }) => (
       <Chip
         size="small"
