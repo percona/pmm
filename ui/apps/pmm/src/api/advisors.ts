@@ -4,6 +4,7 @@ import {
   ChangeAdvisorChecksRequest,
   CheckResultHistoryItem,
   ListAdvisorsResponse,
+  ListCheckResultsFilterValuesResponse,
   ListCheckResultsHistoryParams,
   MarkCheckResultsReadRequest,
   StartAdvisorChecksRequest,
@@ -50,3 +51,11 @@ export const markCheckResultsRead = async (
 ): Promise<void> => {
   await api.post<EmptyResponse>('/advisors/checks/history:markRead', payload);
 };
+
+export const listCheckResultsFilterValues =
+  async (): Promise<ListCheckResultsFilterValuesResponse> => {
+    const res = await api.get<ListCheckResultsFilterValuesResponse>(
+      '/advisors/checks/history:filterValues'
+    );
+    return res.data;
+  };

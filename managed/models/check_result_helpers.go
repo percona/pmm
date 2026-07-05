@@ -16,6 +16,7 @@
 package models
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
@@ -25,11 +26,11 @@ import (
 )
 
 // CreateCheckResult inserts a single Advisor check result into the history.
-func CreateCheckResult(q *reform.Querier, r *CheckResult) error {
+func CreateCheckResult(ctx context.Context, q *reform.Querier, r *CheckResult) error {
 	if r.ID == "" {
 		r.ID = uuid.NewString()
 	}
-	return q.Insert(r)
+	return q.WithContext(ctx).Insert(r)
 }
 
 // CheckResultFilters specifies filters for querying Advisor check results history.
@@ -112,7 +113,7 @@ func checkResultConditions(q *reform.Querier, filters CheckResultFilters) (strin
 
 // FindCheckResults returns Advisor check results history matching the filters, ordered by
 // checked_at descending. When pageSize is greater than zero, the results are paginated.
-func FindCheckResults(q *reform.Querier, filters CheckResultFilters, pageIndex, pageSize int) ([]*CheckResult, error) {
+func FindCheckResults(ctx context.Context, q *reform.Querier, filters CheckResultFilters, pageIndex, pageSize int) ([]*CheckResult, error) {
 	tail, args := checkResultConditions(q, filters)
 	tail += " ORDER BY checked_at DESC"
 	if pageSize > 0 {
@@ -122,7 +123,7 @@ func FindCheckResults(q *reform.Querier, filters CheckResultFilters, pageIndex, 
 		args = append(args, pageIndex*pageSize)
 	}
 
-	rows, err := q.SelectAllFrom(CheckResultTable, tail, args...)
+	rows, err := q.WithContext(ctx).SelectAllFrom(CheckResultTable, tail, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to select check results: %w", err)
 	}
@@ -135,19 +136,53 @@ func FindCheckResults(q *reform.Querier, filters CheckResultFilters, pageIndex, 
 }
 
 // CountCheckResults returns the number of Advisor check results history rows matching the filters.
-func CountCheckResults(q *reform.Querier, filters CheckResultFilters) (int, error) {
+func CountCheckResults(ctx context.Context, q *reform.Querier, filters CheckResultFilters) (int, error) {
 	where, args := checkResultConditions(q, filters)
 
 	var count int
-	err := q.QueryRow("SELECT count(*) FROM "+CheckResultTable.Name()+" "+where, args...).Scan(&count)
+	err := q.QueryRowContext(ctx, "SELECT count(*) FROM "+CheckResultTable.Name()+" "+where, args...).Scan(&count)
 	if err != nil {
 		return 0, fmt.Errorf("failed to count check results: %w", err)
 	}
 	return count, nil
 }
 
+// FindCheckResultFilterValues returns the distinct service and node names present in the
+// Advisor check results history, each sorted alphabetically.
+func FindCheckResultFilterValues(ctx context.Context, q *reform.Querier) ([]string, []string, error) {
+	distinct := func(column string) ([]string, error) {
+		rows, err := q.QueryContext(ctx, "SELECT DISTINCT "+column+" FROM "+CheckResultTable.Name()+
+			" ORDER BY "+column)
+		if err != nil {
+			return nil, fmt.Errorf("failed to select distinct %s: %w", column, err)
+		}
+		defer rows.Close() //nolint:errcheck
+
+		var values []string
+		for rows.Next() {
+			var value string
+			err = rows.Scan(&value)
+			if err != nil {
+				return nil, fmt.Errorf("failed to scan distinct %s: %w", column, err)
+			}
+			values = append(values, value)
+		}
+		return values, rows.Err()
+	}
+
+	serviceNames, err := distinct("service_name")
+	if err != nil {
+		return nil, nil, err
+	}
+	nodeNames, err := distinct("node_name")
+	if err != nil {
+		return nil, nil, err
+	}
+	return serviceNames, nodeNames, nil
+}
+
 // MarkCheckResultsRead sets the read state on the check results with the given IDs.
-func MarkCheckResultsRead(q *reform.Querier, ids []string, isRead bool) error {
+func MarkCheckResultsRead(ctx context.Context, q *reform.Querier, ids []string, isRead bool) error {
 	if len(ids) == 0 {
 		return nil
 	}
@@ -161,7 +196,7 @@ func MarkCheckResultsRead(q *reform.Querier, ids []string, isRead bool) error {
 
 	query := "UPDATE " + CheckResultTable.Name() + " SET is_read = " + q.Placeholder(1) +
 		" WHERE id IN (" + strings.Join(placeholders, ", ") + ")"
-	_, err := q.Exec(query, args...)
+	_, err := q.ExecContext(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("failed to mark check results as read: %w", err)
 	}
@@ -169,7 +204,7 @@ func MarkCheckResultsRead(q *reform.Querier, ids []string, isRead bool) error {
 }
 
 // CleanupOldCheckResults deletes Advisor check results older than a specified date.
-func CleanupOldCheckResults(q *reform.Querier, olderThan time.Time) error {
-	_, err := q.DeleteFrom(CheckResultTable, " WHERE checked_at <= $1", olderThan)
+func CleanupOldCheckResults(ctx context.Context, q *reform.Querier, olderThan time.Time) error {
+	_, err := q.WithContext(ctx).DeleteFrom(CheckResultTable, " WHERE checked_at <= $1", olderThan)
 	return err
 }

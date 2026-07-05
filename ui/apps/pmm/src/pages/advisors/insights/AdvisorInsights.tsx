@@ -1,19 +1,23 @@
-import { FC, useMemo, useRef, useState } from 'react';
 import Button from '@mui/material/Button';
+import FilterAltOffOutlinedIcon from '@mui/icons-material/FilterAltOffOutlined';
+import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
 import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { Table } from '@percona/percona-ui';
-import { type MRT_PaginationState } from 'material-react-table';
-import { enqueueSnackbar } from 'notistack';
-import { useSearchParams } from 'react-router-dom';
 import { Page } from 'components/page';
 import {
   useAdvisors,
+  useCheckResultsFilterValues,
   useCheckResultsHistory,
   useMarkCheckResultsRead,
 } from 'hooks/api/useAdvisors';
+import { type MRT_PaginationState } from 'material-react-table';
+import { enqueueSnackbar } from 'notistack';
+import { FC, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   AdvisorCheckResultStatus,
   CheckResultHistoryItem,
@@ -22,18 +26,17 @@ import {
 import { Severity } from 'types/severity.types';
 import { OrgRole } from 'types/user.types';
 import { capitalize } from 'utils/text.utils';
-import { Messages } from './AdvisorInsights.messages';
 import { getInsightsColumns } from './AdvisorInsights.constants';
 import {
   READ_FILTER_OPTIONS,
   SEVERITY_FILTER_OPTIONS,
   STATUS_FILTER_OPTIONS,
 } from './AdvisorInsights.filters';
-
-const SERVICE_FILTER_DEBOUNCE_MS = 400;
+import { Messages } from './AdvisorInsights.messages';
 
 interface InsightFilters {
   serviceName: string;
+  nodeName: string;
   category: string;
   severity: string;
   status: string;
@@ -42,6 +45,7 @@ interface InsightFilters {
 
 const NO_FILTERS: InsightFilters = {
   serviceName: '',
+  nodeName: '',
   category: '',
   severity: '',
   status: '',
@@ -99,8 +103,6 @@ const AdvisorInsights: FC = () => {
     pageSize: 100,
   });
   const [filters, setFilters] = useState<InsightFilters>(NO_FILTERS);
-  const [serviceInput, setServiceInput] = useState('');
-  const serviceTimer = useRef<ReturnType<typeof setTimeout>>();
 
   const updateFilter = (name: keyof InsightFilters, value: string) => {
     setFilters((current) => ({ ...current, [name]: value }));
@@ -108,13 +110,11 @@ const AdvisorInsights: FC = () => {
     setPagination((current) => ({ ...current, pageIndex: 0 }));
   };
 
-  const handleServiceInputChange = (value: string) => {
-    setServiceInput(value);
-    clearTimeout(serviceTimer.current);
-    serviceTimer.current = setTimeout(
-      () => updateFilter('serviceName', value),
-      SERVICE_FILTER_DEBOUNCE_MS
-    );
+  const hasActiveFilters = Object.values(filters).some(Boolean);
+
+  const handleClearFilters = () => {
+    setFilters(NO_FILTERS);
+    setPagination((current) => ({ ...current, pageIndex: 0 }));
   };
 
   const params = useMemo<ListCheckResultsHistoryParams>(
@@ -123,6 +123,7 @@ const AdvisorInsights: FC = () => {
       pageSize: pagination.pageSize,
       runId,
       serviceName: filters.serviceName || undefined,
+      nodeName: filters.nodeName || undefined,
       category: filters.category || undefined,
       severity: (filters.severity as Severity) || undefined,
       status: (filters.status as AdvisorCheckResultStatus) || undefined,
@@ -131,9 +132,19 @@ const AdvisorInsights: FC = () => {
     [pagination, filters, runId]
   );
 
-  const { data, isLoading, isFetching } = useCheckResultsHistory(params);
-  const { data: advisors = [] } = useAdvisors();
+  const { data, isLoading, isFetching, refetch } =
+    useCheckResultsHistory(params);
+  const { data: advisors = [], refetch: refetchAdvisors } = useAdvisors();
+  const { data: filterValues, refetch: refetchFilterValues } =
+    useCheckResultsFilterValues();
   const { mutate: markRead, isPending: isMarking } = useMarkCheckResultsRead();
+
+  // reloads the results and the data behind the filter dropdowns
+  const handleRefresh = () => {
+    refetch();
+    refetchAdvisors();
+    refetchFilterValues();
+  };
 
   const categoryOptions = useMemo<FilterOption[]>(
     () =>
@@ -141,6 +152,24 @@ const AdvisorInsights: FC = () => {
         .sort()
         .map((category) => ({ label: capitalize(category), value: category })),
     [advisors]
+  );
+
+  const serviceOptions = useMemo<FilterOption[]>(
+    () =>
+      (filterValues?.serviceNames ?? []).map((name) => ({
+        label: name,
+        value: name,
+      })),
+    [filterValues]
+  );
+
+  const nodeOptions = useMemo<FilterOption[]>(
+    () =>
+      (filterValues?.nodeNames ?? []).map((name) => ({
+        label: name,
+        value: name,
+      })),
+    [filterValues]
   );
 
   const columns = useMemo(() => getInsightsColumns(), []);
@@ -169,15 +198,19 @@ const AdvisorInsights: FC = () => {
       <Stack gap={2} sx={{ flex: 1 }}>
         <Typography variant="body2">{Messages.description}</Typography>
         <Stack direction="row" flexWrap="wrap" gap={2}>
-          <TextField
-            size="small"
-            id="service-filter-input"
+          <FilterSelect
+            id="serviceName"
             label={Messages.filters.service}
-            placeholder={Messages.filters.servicePlaceholder}
-            value={serviceInput}
-            onChange={(e) => handleServiceInputChange(e.target.value)}
-            sx={{ minWidth: 220 }}
-            data-testid="service-filter"
+            options={serviceOptions}
+            value={filters.serviceName}
+            onChange={(value) => updateFilter('serviceName', value)}
+          />
+          <FilterSelect
+            id="nodeName"
+            label={Messages.filters.node}
+            options={nodeOptions}
+            value={filters.nodeName}
+            onChange={(value) => updateFilter('nodeName', value)}
           />
           <FilterSelect
             id="category"
@@ -207,6 +240,23 @@ const AdvisorInsights: FC = () => {
             value={filters.isRead}
             onChange={(value) => updateFilter('isRead', value)}
           />
+          <Button
+            startIcon={<FilterAltOffOutlinedIcon />}
+            disabled={!hasActiveFilters}
+            onClick={handleClearFilters}
+            data-testid="clear-filters"
+          >
+            {Messages.filters.clear}
+          </Button>
+          <Tooltip title={Messages.filters.refreshTooltip} arrow>
+            <Button
+              startIcon={<RefreshOutlinedIcon />}
+              onClick={handleRefresh}
+              data-testid="refresh-insights"
+            >
+              {Messages.filters.refresh}
+            </Button>
+          </Tooltip>
         </Stack>
         <Table
           tableName="advisor-insights-table"
@@ -216,6 +266,7 @@ const AdvisorInsights: FC = () => {
           noDataMessage={Messages.noData}
           manualPagination
           enablePagination
+          enableTopToolbar={false}
           enableGlobalFilter={false}
           enableColumnFilters={false}
           enableColumnActions={false}

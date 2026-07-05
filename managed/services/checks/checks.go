@@ -251,13 +251,13 @@ func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]servi
 
 // GetCheckResultsHistory returns Advisor check results history matching the filters,
 // together with the total number of matching rows (ignoring pagination).
-func (s *Service) GetCheckResultsHistory(_ context.Context, filters models.CheckResultFilters, pageIndex, pageSize int) ([]*models.CheckResult, int, error) {
-	results, err := models.FindCheckResults(s.db.Querier, filters, pageIndex, pageSize)
+func (s *Service) GetCheckResultsHistory(ctx context.Context, filters models.CheckResultFilters, pageIndex, pageSize int) ([]*models.CheckResult, int, error) {
+	results, err := models.FindCheckResults(ctx, s.db.Querier, filters, pageIndex, pageSize)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	total, err := models.CountCheckResults(s.db.Querier, filters)
+	total, err := models.CountCheckResults(ctx, s.db.Querier, filters)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -265,9 +265,15 @@ func (s *Service) GetCheckResultsHistory(_ context.Context, filters models.Check
 	return results, total, nil
 }
 
+// GetCheckResultsFilterValues returns the distinct service and node names present in the
+// Advisor check results history.
+func (s *Service) GetCheckResultsFilterValues(ctx context.Context) ([]string, []string, error) {
+	return models.FindCheckResultFilterValues(ctx, s.db.Querier)
+}
+
 // MarkCheckResultsRead sets the read state on the check results history with the given IDs.
-func (s *Service) MarkCheckResultsRead(_ context.Context, ids []string, isRead bool) error {
-	return models.MarkCheckResultsRead(s.db.Querier, ids, isRead)
+func (s *Service) MarkCheckResultsRead(ctx context.Context, ids []string, isRead bool) error {
+	return models.MarkCheckResultsRead(ctx, s.db.Querier, ids, isRead)
 }
 
 // runChecksGroup downloads and executes Advisors checks that should run in the interval specified by intervalGroup.
@@ -841,7 +847,7 @@ func (s *Service) saveCheckResultsHistory(ctx context.Context, history []*models
 
 	return s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		for _, r := range history {
-			err := models.CreateCheckResult(tx.Querier, r)
+			err := models.CreateCheckResult(ctx, tx.Querier, r)
 			if err != nil {
 				return err
 			}

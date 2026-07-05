@@ -271,6 +271,15 @@ message ListCheckResultsHistoryResponse {
   repeated CheckResultHistoryItem results = 3;
 }
 
+message ListCheckResultsFilterValuesRequest {}
+
+message ListCheckResultsFilterValuesResponse {
+  // Distinct service names present in the check results history, sorted alphabetically.
+  repeated string service_names = 1;
+  // Distinct node names present in the check results history, sorted alphabetically.
+  repeated string node_names = 2;
+}
+
 message MarkCheckResultsReadRequest {
   // IDs of the history records to update.
   repeated string ids = 1 [(validate.rules).repeated.min_items = 1];
@@ -304,6 +313,14 @@ service AdvisorService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Advisor Check Results History"
       description: "Returns the history of Advisor check runs, including their outcomes."
+    };
+  }
+  // ListCheckResultsFilterValues returns the distinct values usable as history filters.
+  rpc ListCheckResultsFilterValues(ListCheckResultsFilterValuesRequest) returns (ListCheckResultsFilterValuesResponse) {
+    option (google.api.http) = {get: "/v1/advisors/checks/history:filterValues"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Advisor Check Results Filter Values"
+      description: "Returns the distinct service and node names present in the Advisor check results history, for populating filter dropdowns."
     };
   }
   // MarkCheckResultsRead sets the read state on Advisor check history records.

@@ -9,6 +9,7 @@ import {
 import {
   changeAdvisorChecks,
   listAdvisors,
+  listCheckResultsFilterValues,
   listCheckResultsHistory,
   markCheckResultsRead,
   startAdvisorChecks,
@@ -17,6 +18,7 @@ import {
   Advisor,
   ChangeAdvisorCheckParams,
   CheckResultHistoryItem,
+  ListCheckResultsFilterValuesResponse,
   ListCheckResultsHistoryParams,
   MarkCheckResultsReadRequest,
 } from 'types/advisors.types';
@@ -27,6 +29,7 @@ const KEYS = {
   START_CHECKS: 'advisors:start-checks',
   CHANGE_CHECKS: 'advisors:change-checks',
   HISTORY: 'advisors:history',
+  HISTORY_FILTER_VALUES: 'advisors:history-filter-values',
   MARK_READ: 'advisors:mark-read',
 };
 
@@ -57,6 +60,15 @@ export const useCheckResultsHistory = (
     queryFn: () => listCheckResultsHistory(params),
     // keep showing the current page while the next one loads
     placeholderData: keepPreviousData,
+    ...options,
+  });
+
+export const useCheckResultsFilterValues = (
+  options?: Partial<UseQueryOptions<ListCheckResultsFilterValuesResponse>>
+) =>
+  useQuery({
+    queryKey: [KEYS.HISTORY_FILTER_VALUES],
+    queryFn: () => listCheckResultsFilterValues(),
     ...options,
   });
 

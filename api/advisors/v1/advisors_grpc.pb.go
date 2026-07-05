@@ -20,14 +20,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AdvisorService_ListFailedServices_FullMethodName      = "/advisors.v1.AdvisorService/ListFailedServices"
-	AdvisorService_GetFailedChecks_FullMethodName         = "/advisors.v1.AdvisorService/GetFailedChecks"
-	AdvisorService_ListCheckResultsHistory_FullMethodName = "/advisors.v1.AdvisorService/ListCheckResultsHistory"
-	AdvisorService_MarkCheckResultsRead_FullMethodName    = "/advisors.v1.AdvisorService/MarkCheckResultsRead"
-	AdvisorService_StartAdvisorChecks_FullMethodName      = "/advisors.v1.AdvisorService/StartAdvisorChecks"
-	AdvisorService_ListAdvisorChecks_FullMethodName       = "/advisors.v1.AdvisorService/ListAdvisorChecks"
-	AdvisorService_ListAdvisors_FullMethodName            = "/advisors.v1.AdvisorService/ListAdvisors"
-	AdvisorService_ChangeAdvisorChecks_FullMethodName     = "/advisors.v1.AdvisorService/ChangeAdvisorChecks"
+	AdvisorService_ListFailedServices_FullMethodName           = "/advisors.v1.AdvisorService/ListFailedServices"
+	AdvisorService_GetFailedChecks_FullMethodName              = "/advisors.v1.AdvisorService/GetFailedChecks"
+	AdvisorService_ListCheckResultsHistory_FullMethodName      = "/advisors.v1.AdvisorService/ListCheckResultsHistory"
+	AdvisorService_ListCheckResultsFilterValues_FullMethodName = "/advisors.v1.AdvisorService/ListCheckResultsFilterValues"
+	AdvisorService_MarkCheckResultsRead_FullMethodName         = "/advisors.v1.AdvisorService/MarkCheckResultsRead"
+	AdvisorService_StartAdvisorChecks_FullMethodName           = "/advisors.v1.AdvisorService/StartAdvisorChecks"
+	AdvisorService_ListAdvisorChecks_FullMethodName            = "/advisors.v1.AdvisorService/ListAdvisorChecks"
+	AdvisorService_ListAdvisors_FullMethodName                 = "/advisors.v1.AdvisorService/ListAdvisors"
+	AdvisorService_ChangeAdvisorChecks_FullMethodName          = "/advisors.v1.AdvisorService/ChangeAdvisorChecks"
 )
 
 // AdvisorServiceClient is the client API for AdvisorService service.
@@ -42,6 +43,8 @@ type AdvisorServiceClient interface {
 	GetFailedChecks(ctx context.Context, in *GetFailedChecksRequest, opts ...grpc.CallOption) (*GetFailedChecksResponse, error)
 	// ListCheckResultsHistory returns the history of Advisor check runs.
 	ListCheckResultsHistory(ctx context.Context, in *ListCheckResultsHistoryRequest, opts ...grpc.CallOption) (*ListCheckResultsHistoryResponse, error)
+	// ListCheckResultsFilterValues returns the distinct values usable as history filters.
+	ListCheckResultsFilterValues(ctx context.Context, in *ListCheckResultsFilterValuesRequest, opts ...grpc.CallOption) (*ListCheckResultsFilterValuesResponse, error)
 	// MarkCheckResultsRead sets the read state on Advisor check history records.
 	MarkCheckResultsRead(ctx context.Context, in *MarkCheckResultsReadRequest, opts ...grpc.CallOption) (*MarkCheckResultsReadResponse, error)
 	// StartAdvisorChecks executes Advisor checks and returns when all checks are executed.
@@ -86,6 +89,16 @@ func (c *advisorServiceClient) ListCheckResultsHistory(ctx context.Context, in *
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListCheckResultsHistoryResponse)
 	err := c.cc.Invoke(ctx, AdvisorService_ListCheckResultsHistory_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *advisorServiceClient) ListCheckResultsFilterValues(ctx context.Context, in *ListCheckResultsFilterValuesRequest, opts ...grpc.CallOption) (*ListCheckResultsFilterValuesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListCheckResultsFilterValuesResponse)
+	err := c.cc.Invoke(ctx, AdvisorService_ListCheckResultsFilterValues_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -154,6 +167,8 @@ type AdvisorServiceServer interface {
 	GetFailedChecks(context.Context, *GetFailedChecksRequest) (*GetFailedChecksResponse, error)
 	// ListCheckResultsHistory returns the history of Advisor check runs.
 	ListCheckResultsHistory(context.Context, *ListCheckResultsHistoryRequest) (*ListCheckResultsHistoryResponse, error)
+	// ListCheckResultsFilterValues returns the distinct values usable as history filters.
+	ListCheckResultsFilterValues(context.Context, *ListCheckResultsFilterValuesRequest) (*ListCheckResultsFilterValuesResponse, error)
 	// MarkCheckResultsRead sets the read state on Advisor check history records.
 	MarkCheckResultsRead(context.Context, *MarkCheckResultsReadRequest) (*MarkCheckResultsReadResponse, error)
 	// StartAdvisorChecks executes Advisor checks and returns when all checks are executed.
@@ -184,6 +199,10 @@ func (UnimplementedAdvisorServiceServer) GetFailedChecks(context.Context, *GetFa
 
 func (UnimplementedAdvisorServiceServer) ListCheckResultsHistory(context.Context, *ListCheckResultsHistoryRequest) (*ListCheckResultsHistoryResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListCheckResultsHistory not implemented")
+}
+
+func (UnimplementedAdvisorServiceServer) ListCheckResultsFilterValues(context.Context, *ListCheckResultsFilterValuesRequest) (*ListCheckResultsFilterValuesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListCheckResultsFilterValues not implemented")
 }
 
 func (UnimplementedAdvisorServiceServer) MarkCheckResultsRead(context.Context, *MarkCheckResultsReadRequest) (*MarkCheckResultsReadResponse, error) {
@@ -276,6 +295,24 @@ func _AdvisorService_ListCheckResultsHistory_Handler(srv interface{}, ctx contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AdvisorServiceServer).ListCheckResultsHistory(ctx, req.(*ListCheckResultsHistoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdvisorService_ListCheckResultsFilterValues_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCheckResultsFilterValuesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdvisorServiceServer).ListCheckResultsFilterValues(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdvisorService_ListCheckResultsFilterValues_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdvisorServiceServer).ListCheckResultsFilterValues(ctx, req.(*ListCheckResultsFilterValuesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -388,6 +425,10 @@ var AdvisorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListCheckResultsHistory",
 			Handler:    _AdvisorService_ListCheckResultsHistory_Handler,
+		},
+		{
+			MethodName: "ListCheckResultsFilterValues",
+			Handler:    _AdvisorService_ListCheckResultsFilterValues_Handler,
 		},
 		{
 			MethodName: "MarkCheckResultsRead",

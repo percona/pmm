@@ -208,6 +208,41 @@ func TestGetFailedChecks(t *testing.T) {
 	})
 }
 
+func TestListCheckResultsFilterValues(t *testing.T) {
+	t.Parallel()
+
+	t.Run("internal error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("GetCheckResultsFilterValues", mock.Anything).
+			Return(nil, nil, errors.New("random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ListCheckResultsFilterValues(t.Context(), &advisorsv1.ListCheckResultsFilterValuesRequest{})
+		require.EqualError(t, err, "failed to get check results filter values: random error")
+		assert.Nil(t, resp)
+	})
+
+	t.Run("returns distinct values", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("GetCheckResultsFilterValues", mock.Anything).
+			Return([]string{"mysql-1", "pg-1"}, []string{"node-a"}, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ListCheckResultsFilterValues(t.Context(), &advisorsv1.ListCheckResultsFilterValuesRequest{})
+		require.NoError(t, err)
+		assert.Equal(t, &advisorsv1.ListCheckResultsFilterValuesResponse{
+			ServiceNames: []string{"mysql-1", "pg-1"},
+			NodeNames:    []string{"node-a"},
+		}, resp)
+	})
+}
+
 func TestListCheckResultsHistory(t *testing.T) {
 	t.Parallel()
 

@@ -42,7 +42,7 @@ func (c *CheckResults) Run(ctx context.Context, interval time.Duration) {
 	l := logrus.WithField("component", "advisor-history-cleaner")
 
 	for {
-		c.cleanup(l)
+		c.cleanup(ctx, l)
 
 		select {
 		case <-ctx.Done():
@@ -53,7 +53,7 @@ func (c *CheckResults) Run(ctx context.Context, interval time.Duration) {
 }
 
 // cleanup performs a single cleanup pass, removing check results past the configured retention.
-func (c *CheckResults) cleanup(l *logrus.Entry) {
+func (c *CheckResults) cleanup(ctx context.Context, l *logrus.Entry) {
 	settings, err := models.GetSettings(c.db)
 	if err != nil {
 		l.Error(err)
@@ -61,7 +61,7 @@ func (c *CheckResults) cleanup(l *logrus.Entry) {
 	}
 
 	olderThanTS := models.Now().Add(-1 * settings.AdvisorHistoryRetention)
-	err = models.CleanupOldCheckResults(c.db.Querier, olderThanTS)
+	err = models.CleanupOldCheckResults(ctx, c.db.Querier, olderThanTS)
 	if err != nil {
 		l.Error(err)
 	}

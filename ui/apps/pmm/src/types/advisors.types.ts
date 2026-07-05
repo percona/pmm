@@ -112,6 +112,11 @@ export interface MarkCheckResultsReadRequest {
   isRead: boolean;
 }
 
+export interface ListCheckResultsFilterValuesResponse {
+  serviceNames: string[];
+  nodeNames: string[];
+}
+
 export interface AdvisorCheckRow {
   checkName: string;
   summary: string;

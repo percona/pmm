@@ -273,6 +273,22 @@ func (s *ChecksAPIService) ListCheckResultsHistory(
 	}, nil
 }
 
+// ListCheckResultsFilterValues returns the distinct values usable as history filters.
+func (s *ChecksAPIService) ListCheckResultsFilterValues(
+	ctx context.Context,
+	_ *advisorsv1.ListCheckResultsFilterValuesRequest,
+) (*advisorsv1.ListCheckResultsFilterValuesResponse, error) {
+	serviceNames, nodeNames, err := s.checksService.GetCheckResultsFilterValues(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get check results filter values: %w", err)
+	}
+
+	return &advisorsv1.ListCheckResultsFilterValuesResponse{
+		ServiceNames: serviceNames,
+		NodeNames:    nodeNames,
+	}, nil
+}
+
 // MarkCheckResultsRead sets the read state on the specified Advisor check history records.
 func (s *ChecksAPIService) MarkCheckResultsRead(
 	ctx context.Context,

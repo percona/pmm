@@ -10,8 +10,12 @@ export const Messages = {
   unread: 'Unread',
   filters: {
     all: 'All',
+    clear: 'Clear filters',
+    refresh: 'Refresh',
+    refreshTooltip:
+      'Reload the check results and re-populate the filter options.',
     service: 'Service',
-    servicePlaceholder: 'Filter by service name',
+    node: 'Node',
     category: 'Category',
     severity: 'Severity',
     status: 'Status',

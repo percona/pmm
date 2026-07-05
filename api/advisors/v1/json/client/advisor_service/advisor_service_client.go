@@ -59,6 +59,8 @@ type ClientService interface {
 
 	ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) (*ListAdvisorsOK, error)
 
+	ListCheckResultsFilterValues(params *ListCheckResultsFilterValuesParams, opts ...ClientOption) (*ListCheckResultsFilterValuesOK, error)
+
 	ListCheckResultsHistory(params *ListCheckResultsHistoryParams, opts ...ClientOption) (*ListCheckResultsHistoryOK, error)
 
 	ListFailedServices(params *ListFailedServicesParams, opts ...ClientOption) (*ListFailedServicesOK, error)
@@ -242,6 +244,50 @@ func (a *Client) ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) 
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListAdvisorsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListCheckResultsFilterValues lists advisor check results filter values
+
+Returns the distinct service and node names present in the Advisor check results history, for populating filter dropdowns.
+*/
+func (a *Client) ListCheckResultsFilterValues(params *ListCheckResultsFilterValuesParams, opts ...ClientOption) (*ListCheckResultsFilterValuesOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListCheckResultsFilterValuesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListCheckResultsFilterValues",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors/checks/history:filterValues",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListCheckResultsFilterValuesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListCheckResultsFilterValuesOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListCheckResultsFilterValuesDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

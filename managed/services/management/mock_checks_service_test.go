@@ -101,6 +101,45 @@ func (_m *mockChecksService) GetAdvisors() ([]check.Advisor, error) {
 	return r0, r1
 }
 
+// GetCheckResultsFilterValues provides a mock function with given fields: ctx
+func (_m *mockChecksService) GetCheckResultsFilterValues(ctx context.Context) ([]string, []string, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetCheckResultsFilterValues")
+	}
+
+	var r0 []string
+	var r1 []string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]string, []string, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []string); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) []string); ok {
+		r1 = rf(ctx)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context) error); ok {
+		r2 = rf(ctx)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
 // GetCheckResultsHistory provides a mock function with given fields: ctx, filters, pageIndex, pageSize
 func (_m *mockChecksService) GetCheckResultsHistory(ctx context.Context, filters models.CheckResultFilters, pageIndex int, pageSize int) ([]*models.CheckResult, int, error) {
 	ret := _m.Called(ctx, filters, pageIndex, pageSize)

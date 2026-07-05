@@ -2730,6 +2730,218 @@ var _ interface {
 	ErrorName() string
 } = ListCheckResultsHistoryResponseValidationError{}
 
+// Validate checks the field values on ListCheckResultsFilterValuesRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *ListCheckResultsFilterValuesRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListCheckResultsFilterValuesRequest
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// ListCheckResultsFilterValuesRequestMultiError, or nil if none found.
+func (m *ListCheckResultsFilterValuesRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListCheckResultsFilterValuesRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListCheckResultsFilterValuesRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListCheckResultsFilterValuesRequestMultiError is an error wrapping multiple
+// validation errors returned by
+// ListCheckResultsFilterValuesRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ListCheckResultsFilterValuesRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListCheckResultsFilterValuesRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListCheckResultsFilterValuesRequestMultiError) AllErrors() []error { return m }
+
+// ListCheckResultsFilterValuesRequestValidationError is the validation error
+// returned by ListCheckResultsFilterValuesRequest.Validate if the designated
+// constraints aren't met.
+type ListCheckResultsFilterValuesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListCheckResultsFilterValuesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListCheckResultsFilterValuesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListCheckResultsFilterValuesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListCheckResultsFilterValuesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListCheckResultsFilterValuesRequestValidationError) ErrorName() string {
+	return "ListCheckResultsFilterValuesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListCheckResultsFilterValuesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListCheckResultsFilterValuesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ListCheckResultsFilterValuesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListCheckResultsFilterValuesRequestValidationError{}
+
+// Validate checks the field values on ListCheckResultsFilterValuesResponse
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the first error encountered is returned, or nil if
+// there are no violations.
+func (m *ListCheckResultsFilterValuesResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListCheckResultsFilterValuesResponse
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// ListCheckResultsFilterValuesResponseMultiError, or nil if none found.
+func (m *ListCheckResultsFilterValuesResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListCheckResultsFilterValuesResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListCheckResultsFilterValuesResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListCheckResultsFilterValuesResponseMultiError is an error wrapping multiple
+// validation errors returned by
+// ListCheckResultsFilterValuesResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ListCheckResultsFilterValuesResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListCheckResultsFilterValuesResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListCheckResultsFilterValuesResponseMultiError) AllErrors() []error { return m }
+
+// ListCheckResultsFilterValuesResponseValidationError is the validation error
+// returned by ListCheckResultsFilterValuesResponse.Validate if the designated
+// constraints aren't met.
+type ListCheckResultsFilterValuesResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListCheckResultsFilterValuesResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListCheckResultsFilterValuesResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListCheckResultsFilterValuesResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListCheckResultsFilterValuesResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListCheckResultsFilterValuesResponseValidationError) ErrorName() string {
+	return "ListCheckResultsFilterValuesResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListCheckResultsFilterValuesResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListCheckResultsFilterValuesResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ListCheckResultsFilterValuesResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListCheckResultsFilterValuesResponseValidationError{}
+
 // Validate checks the field values on MarkCheckResultsReadRequest with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

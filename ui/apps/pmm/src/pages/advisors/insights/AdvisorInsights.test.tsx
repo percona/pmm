@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import AdvisorInsights from './AdvisorInsights';
 import { Messages } from './AdvisorInsights.messages';
@@ -82,7 +88,22 @@ describe('AdvisorInsights', () => {
       results: [TEST_ITEM, TEST_ITEM_UNREAD],
     });
     vi.mocked(advisorsApi.markCheckResultsRead).mockResolvedValue();
+    vi.mocked(advisorsApi.listCheckResultsFilterValues).mockResolvedValue({
+      serviceNames: ['mysql-prod', 'postgresql-prod'],
+      nodeNames: ['node-1', 'node-2'],
+    });
   });
+
+  const selectFilterOption = async (filterTestId: string, option: string) => {
+    fireEvent.mouseDown(
+      within(screen.getByTestId(filterTestId)).getByRole('combobox')
+    );
+
+    // 'hidden' skips the visibility computation, which crashes in jsdom:
+    // nwsapi expands ':scope' with the listbox's unescaped React useId
+    const listbox = await screen.findByRole('listbox', { hidden: true });
+    fireEvent.click(within(listbox).getByText(option));
+  };
 
   it('renders history items with read state', async () => {
     renderComponent();
@@ -147,18 +168,80 @@ describe('AdvisorInsights', () => {
       )
     );
 
-    fireEvent.change(
-      screen.getByPlaceholderText(Messages.filters.servicePlaceholder),
-      {
-        target: { value: 'mysql-prod' },
-      }
-    );
+    await selectFilterOption('serviceName-filter', 'mysql-prod');
 
     await waitFor(() =>
       expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
         expect.objectContaining({ serviceName: 'mysql-prod', pageIndex: 0 })
       )
     );
+  });
+
+  it('passes the node filter to the API', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    await selectFilterOption('nodeName-filter', 'node-2');
+
+    await waitFor(() =>
+      expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+        expect.objectContaining({ nodeName: 'node-2', pageIndex: 0 })
+      )
+    );
+  });
+
+  it('clears all filters and resets to the first page', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    expect(screen.getByTestId('clear-filters')).toBeDisabled();
+
+    await selectFilterOption('serviceName-filter', 'mysql-prod');
+
+    await waitFor(() =>
+      expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+        expect.objectContaining({ serviceName: 'mysql-prod' })
+      )
+    );
+
+    fireEvent.click(screen.getByTestId('clear-filters'));
+
+    await waitFor(() =>
+      expect(advisorsApi.listCheckResultsHistory).toHaveBeenLastCalledWith(
+        expect.objectContaining({ serviceName: undefined, pageIndex: 0 })
+      )
+    );
+    expect(screen.getByTestId('clear-filters')).toBeDisabled();
+  });
+
+  it('refetches results and filter data on refresh', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    const historyCalls = vi.mocked(advisorsApi.listCheckResultsHistory).mock
+      .calls.length;
+    const advisorsCalls = vi.mocked(advisorsApi.listAdvisors).mock.calls
+      .length;
+    const filterValuesCalls = vi.mocked(
+      advisorsApi.listCheckResultsFilterValues
+    ).mock.calls.length;
+
+    fireEvent.click(screen.getByTestId('refresh-insights'));
+
+    await waitFor(() => {
+      expect(
+        vi.mocked(advisorsApi.listCheckResultsHistory).mock.calls.length
+      ).toBe(historyCalls + 1);
+      expect(vi.mocked(advisorsApi.listAdvisors).mock.calls.length).toBe(
+        advisorsCalls + 1
+      );
+      expect(
+        vi.mocked(advisorsApi.listCheckResultsFilterValues).mock.calls.length
+      ).toBe(filterValuesCalls + 1);
+    });
   });
 
   it('makes every column sortable except summary', async () => {
