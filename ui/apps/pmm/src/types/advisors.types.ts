@@ -32,12 +32,6 @@ export interface Advisor {
   checks: AdvisorCheck[];
 }
 
-export interface CategorizedAdvisor {
-  [category: string]: {
-    [summary: string]: Advisor;
-  };
-}
-
 export interface ListAdvisorsResponse {
   advisors: Advisor[];
 }
