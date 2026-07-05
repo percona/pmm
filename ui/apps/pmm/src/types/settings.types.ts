@@ -1,3 +1,5 @@
+import { Severity } from './severity.types';
+
 export interface ReadonlySettings {
   updatesEnabled: boolean;
   telemetryEnabled: boolean;
@@ -32,6 +34,9 @@ export interface Settings extends ReadonlySettings {
   sshKey?: string;
   awsPartitions?: string[];
   advisorRunIntervals?: AdvisorRunIntervals;
+  advisorHistoryRetention?: string;
+  advisorNotificationsEnabled?: boolean;
+  advisorNotificationSeverityThreshold?: Severity;
   telemetrySummaries?: string[];
   enableInternalPgQan?: boolean;
   defaultRoleId?: number;
@@ -47,6 +52,9 @@ export interface UpdateSettingsPayload {
   enableAlerting?: boolean;
   enableAdvisor?: boolean;
   advisorRunIntervals?: AdvisorRunIntervals;
+  advisorHistoryRetention?: string;
+  enableAdvisorNotifications?: boolean;
+  advisorNotificationSeverityThreshold?: Severity;
   enableBackupManagement?: boolean;
   enableAzurediscover?: boolean;
   enableUpdates?: boolean;

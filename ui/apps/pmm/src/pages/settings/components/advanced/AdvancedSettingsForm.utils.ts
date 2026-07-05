@@ -1,6 +1,11 @@
 import { Settings, UpdateSettingsPayload } from 'types/settings.types';
+import { Severity } from 'types/severity.types';
 import { AdvancedSettingsFormValues } from './AdvancedSettingsForm.schema';
-import { DEFAULT_DATA_RETENTION, SECONDS_IN_DAY } from './Advanced.constants';
+import {
+  DEFAULT_ADVISOR_RETENTION,
+  DEFAULT_DATA_RETENTION,
+  SECONDS_IN_DAY,
+} from './Advanced.constants';
 import {
   convertCheckIntervalsToHours,
   convertHoursStringToSeconds,
@@ -22,6 +27,17 @@ export const toFormValues = (
   publicAddress: settings.pmmPublicAddress,
   stt: settings.advisorEnabled,
   ...convertCheckIntervalsToHours(settings.advisorRunIntervals),
+  advisorRetention: String(
+    convertSecondsToDays(
+      settings.advisorHistoryRetention ?? DEFAULT_ADVISOR_RETENTION
+    ) || '1'
+  ),
+  advisorNotifications: settings.advisorNotificationsEnabled ?? false,
+  advisorSeverityThreshold:
+    settings.advisorNotificationSeverityThreshold &&
+    settings.advisorNotificationSeverityThreshold !== Severity.unspecified
+      ? settings.advisorNotificationSeverityThreshold
+      : Severity.error,
   azureDiscover: settings.azurediscoverEnabled,
   accessControl: settings.enableAccessControl,
 });
@@ -48,6 +64,9 @@ export const toPayload = (
     enableInternalPgQan: values.enableInternalPgQan,
     enableAdvisor: values.stt,
     advisorRunIntervals,
+    advisorHistoryRetention: `${Math.round(parseFloat(values.advisorRetention)) * SECONDS_IN_DAY}s`,
+    enableAdvisorNotifications: values.advisorNotifications,
+    advisorNotificationSeverityThreshold: values.advisorSeverityThreshold,
     enableAzurediscover: values.azureDiscover,
     enableAccessControl: values.accessControl,
   };

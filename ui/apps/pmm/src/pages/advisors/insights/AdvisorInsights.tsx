@@ -1,13 +1,11 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, useMemo, useRef, useState } from 'react';
 import Button from '@mui/material/Button';
+import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Table } from '@percona/percona-ui';
-import {
-  type MRT_ColumnFiltersState,
-  type MRT_PaginationState,
-  type MRT_Updater,
-} from 'material-react-table';
+import { type MRT_PaginationState } from 'material-react-table';
 import { enqueueSnackbar } from 'notistack';
 import { useSearchParams } from 'react-router-dom';
 import { Page } from 'components/page';
@@ -23,8 +21,74 @@ import {
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { OrgRole } from 'types/user.types';
+import { capitalize } from 'utils/text.utils';
 import { Messages } from './AdvisorInsights.messages';
 import { getInsightsColumns } from './AdvisorInsights.constants';
+import {
+  READ_FILTER_OPTIONS,
+  SEVERITY_FILTER_OPTIONS,
+  STATUS_FILTER_OPTIONS,
+} from './AdvisorInsights.filters';
+
+const SERVICE_FILTER_DEBOUNCE_MS = 400;
+
+interface InsightFilters {
+  serviceName: string;
+  category: string;
+  severity: string;
+  status: string;
+  isRead: string;
+}
+
+const NO_FILTERS: InsightFilters = {
+  serviceName: '',
+  category: '',
+  severity: '',
+  status: '',
+  isRead: '',
+};
+
+interface FilterOption {
+  label: string;
+  value: string;
+}
+
+interface FilterSelectProps {
+  id: string;
+  label: string;
+  options: FilterOption[];
+  value: string;
+  onChange: (value: string) => void;
+}
+
+const FilterSelect: FC<FilterSelectProps> = ({
+  id,
+  label,
+  options,
+  value,
+  onChange,
+}) => (
+  <TextField
+    select
+    size="small"
+    // deterministic id: React's useId default breaks jsdom selector matching
+    id={`${id}-filter-select`}
+    label={label}
+    value={value || Messages.filters.all}
+    onChange={(e) =>
+      onChange(e.target.value === Messages.filters.all ? '' : e.target.value)
+    }
+    sx={{ minWidth: 140 }}
+    data-testid={`${id}-filter`}
+  >
+    <MenuItem value={Messages.filters.all}>{Messages.filters.all}</MenuItem>
+    {options.map((option) => (
+      <MenuItem key={option.value} value={option.value}>
+        {option.label}
+      </MenuItem>
+    ))}
+  </TextField>
+);
 
 const AdvisorInsights: FC = () => {
   const [searchParams] = useSearchParams();
@@ -34,46 +98,52 @@ const AdvisorInsights: FC = () => {
     pageIndex: 0,
     pageSize: 100,
   });
-  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
-    []
-  );
+  const [filters, setFilters] = useState<InsightFilters>(NO_FILTERS);
+  const [serviceInput, setServiceInput] = useState('');
+  const serviceTimer = useRef<ReturnType<typeof setTimeout>>();
 
-  const params = useMemo<ListCheckResultsHistoryParams>(() => {
-    const filterValue = (id: string) =>
-      (columnFilters.find((filter) => filter.id === id)?.value as string) ||
-      undefined;
-    const isRead = filterValue('isRead');
+  const updateFilter = (name: keyof InsightFilters, value: string) => {
+    setFilters((current) => ({ ...current, [name]: value }));
+    // filters change the result set, so start from the first page
+    setPagination((current) => ({ ...current, pageIndex: 0 }));
+  };
 
-    return {
+  const handleServiceInputChange = (value: string) => {
+    setServiceInput(value);
+    clearTimeout(serviceTimer.current);
+    serviceTimer.current = setTimeout(
+      () => updateFilter('serviceName', value),
+      SERVICE_FILTER_DEBOUNCE_MS
+    );
+  };
+
+  const params = useMemo<ListCheckResultsHistoryParams>(
+    () => ({
       pageIndex: pagination.pageIndex,
       pageSize: pagination.pageSize,
       runId,
-      serviceName: filterValue('serviceName'),
-      category: filterValue('category'),
-      severity: filterValue('severity') as Severity | undefined,
-      status: filterValue('status') as AdvisorCheckResultStatus | undefined,
-      isRead: isRead === undefined ? undefined : isRead === 'true',
-    };
-  }, [pagination, columnFilters, runId]);
+      serviceName: filters.serviceName || undefined,
+      category: filters.category || undefined,
+      severity: (filters.severity as Severity) || undefined,
+      status: (filters.status as AdvisorCheckResultStatus) || undefined,
+      isRead: filters.isRead === '' ? undefined : filters.isRead === 'true',
+    }),
+    [pagination, filters, runId]
+  );
 
   const { data, isLoading, isFetching } = useCheckResultsHistory(params);
   const { data: advisors = [] } = useAdvisors();
   const { mutate: markRead, isPending: isMarking } = useMarkCheckResultsRead();
 
-  const categories = useMemo(
-    () => [...new Set(advisors.map((advisor) => advisor.category))].sort(),
+  const categoryOptions = useMemo<FilterOption[]>(
+    () =>
+      [...new Set(advisors.map((advisor) => advisor.category))]
+        .sort()
+        .map((category) => ({ label: capitalize(category), value: category })),
     [advisors]
   );
 
-  const columns = useMemo(() => getInsightsColumns(categories), [categories]);
-
-  const handleColumnFiltersChange = (
-    updater: MRT_Updater<MRT_ColumnFiltersState>
-  ) => {
-    setColumnFilters(updater);
-    // filters change the result set, so start from the first page
-    setPagination((current) => ({ ...current, pageIndex: 0 }));
-  };
+  const columns = useMemo(() => getInsightsColumns(), []);
 
   const handleToggleRead = (item: CheckResultHistoryItem) =>
     markRead(
@@ -98,6 +168,46 @@ const AdvisorInsights: FC = () => {
     >
       <Stack gap={2} sx={{ flex: 1 }}>
         <Typography variant="body2">{Messages.description}</Typography>
+        <Stack direction="row" flexWrap="wrap" gap={2}>
+          <TextField
+            size="small"
+            id="service-filter-input"
+            label={Messages.filters.service}
+            placeholder={Messages.filters.servicePlaceholder}
+            value={serviceInput}
+            onChange={(e) => handleServiceInputChange(e.target.value)}
+            sx={{ minWidth: 220 }}
+            data-testid="service-filter"
+          />
+          <FilterSelect
+            id="category"
+            label={Messages.filters.category}
+            options={categoryOptions}
+            value={filters.category}
+            onChange={(value) => updateFilter('category', value)}
+          />
+          <FilterSelect
+            id="severity"
+            label={Messages.filters.severity}
+            options={SEVERITY_FILTER_OPTIONS}
+            value={filters.severity}
+            onChange={(value) => updateFilter('severity', value)}
+          />
+          <FilterSelect
+            id="status"
+            label={Messages.filters.status}
+            options={STATUS_FILTER_OPTIONS}
+            value={filters.status}
+            onChange={(value) => updateFilter('status', value)}
+          />
+          <FilterSelect
+            id="isRead"
+            label={Messages.filters.read}
+            options={READ_FILTER_OPTIONS}
+            value={filters.isRead}
+            onChange={(value) => updateFilter('isRead', value)}
+          />
+        </Stack>
         <Table
           tableName="advisor-insights-table"
           columns={columns}
@@ -105,23 +215,18 @@ const AdvisorInsights: FC = () => {
           rowCount={data?.totalItems ?? 0}
           noDataMessage={Messages.noData}
           manualPagination
-          manualFiltering
           enablePagination
-          enableSorting={false}
           enableGlobalFilter={false}
+          enableColumnFilters={false}
+          enableColumnActions={false}
           enableHiding={false}
           enableStickyHeader
           state={{
             pagination,
-            columnFilters,
             isLoading,
             showProgressBars: isFetching && !isLoading,
           }}
-          initialState={{
-            showColumnFilters: true,
-          }}
           onPaginationChange={setPagination}
-          onColumnFiltersChange={handleColumnFiltersChange}
           enableRowActions
           positionActionsColumn="last"
           renderRowActions={({ row }) => (

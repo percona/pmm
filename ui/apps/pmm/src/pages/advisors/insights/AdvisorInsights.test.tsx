@@ -147,15 +147,50 @@ describe('AdvisorInsights', () => {
       )
     );
 
-    fireEvent.change(screen.getByPlaceholderText('Filter by Service'), {
-      target: { value: 'mysql-prod' },
-    });
+    fireEvent.change(
+      screen.getByPlaceholderText(Messages.filters.servicePlaceholder),
+      {
+        target: { value: 'mysql-prod' },
+      }
+    );
 
     await waitFor(() =>
       expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
         expect.objectContaining({ serviceName: 'mysql-prod', pageIndex: 0 })
       )
     );
+  });
+
+  it('makes every column sortable except summary', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    // 'hidden' skips the visibility computation, which crashes in jsdom:
+    // nwsapi chokes on MRT's unescaped React useId in the pagination select
+    const summaryHeader = screen.getByRole('columnheader', {
+      name: Messages.columns.summary,
+      hidden: true,
+    });
+    expect(summaryHeader.querySelector('.MuiTableSortLabel-root')).toBeNull();
+
+    for (const name of [
+      Messages.columns.service,
+      Messages.columns.category,
+      Messages.columns.severity,
+      Messages.columns.status,
+      Messages.columns.checkedAt,
+      Messages.columns.read,
+    ]) {
+      // sortable headers embed the sort hint in the accessible name
+      const header = screen.getByRole('columnheader', {
+        name: new RegExp(name),
+        hidden: true,
+      });
+      expect(
+        header.querySelector('.MuiTableSortLabel-root')
+      ).not.toBeNull();
+    }
   });
 
   it('marks an unread insight as read', async () => {

@@ -8,6 +8,15 @@ export const Messages = {
   markUnread: 'Mark unread',
   read: 'Read',
   unread: 'Unread',
+  filters: {
+    all: 'All',
+    service: 'Service',
+    servicePlaceholder: 'Filter by service name',
+    category: 'Category',
+    severity: 'Severity',
+    status: 'Status',
+    read: 'Read',
+  },
   columns: {
     summary: 'Summary',
     service: 'Service',

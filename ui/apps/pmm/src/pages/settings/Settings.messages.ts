@@ -32,11 +32,21 @@ export const Messages = {
     sttRareIntervalLabel: 'Rare',
     sttStandardIntervalLabel: 'Standard',
     sttFrequentIntervalLabel: 'Frequent',
+    sttCheckIntervalLabel: 'Check run interval',
     sttCheckIntervalTooltip:
       'How often Advisor checks run. Lower values catch issues faster but increase resource usage.',
     advisorsLink: 'https://per.co.na/advisors',
     advisorsTooltip:
       'Run automated checks to identify potential database performance and configuration issues.',
+    advisorRetentionLabel: 'Advisor history retention',
+    advisorRetentionTooltip:
+      'How long PMM keeps Advisor check results history. Older results are automatically deleted.',
+    advisorNotificationsLabel: 'Advisor notifications',
+    advisorNotificationsTooltip:
+      'Send email notifications when Advisor checks detect issues.',
+    advisorSeverityThresholdLabel: 'Notification severity threshold',
+    advisorSeverityThresholdTooltip:
+      'Least-severe level that triggers a notification.',
     azureDiscoverLabel: 'Microsoft Azure monitoring',
     azureDiscoverTooltip:
       'Option to enable/disable Microsoft Azure DB instances discovery and monitoring',
