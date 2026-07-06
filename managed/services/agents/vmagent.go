@@ -54,9 +54,57 @@ func extractCredentialsFromURL(urlStr string) (string, string) {
 
 // vmAgentConfig returns desired configuration of vmagent process.
 func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams, haEnabled bool) *agentv1.SetStateRequest_AgentProcess {
-	// Push directly to an external VictoriaMetrics in standalone mode. in HA, always route via the server.
-	useExternalVM := params.ExternalVM() && !haEnabled
+	if params.ExternalVM() && !haEnabled {
+		// Scenario: standalone deployment with externally configured VM.
+		return vmAgentConfigExternalVM(scrapeCfg, params)
+	}
+	// Scenarios:
+	// a) standalone deployment with internal VM
+	// b) HA deployment (external VM by default)
+	return vmAgentConfigServerProxy(scrapeCfg, haEnabled)
+}
 
+// vmAgentConfigServerProxy configures the vmagent so that writes go through the PMM server's VM proxy,
+// authenticated by default with each client's own PMM server credentials.
+func vmAgentConfigServerProxy(scrapeCfg string, dropInjectedAuth bool) *agentv1.SetStateRequest_AgentProcess {
+	return buildVMAgentProcess(scrapeCfg, vmAgentSettings{
+		remoteWriteURL:   "{{.server_url}}/victoriametrics/api/v1/write",
+		dropInjectedAuth: dropInjectedAuth,
+		auth:             &basicAuth{username: "{{.server_username}}", password: "{{.server_password}}"},
+	})
+}
+
+// vmAgentConfigExternalVM prepares the vmagent configuration so that clients push directly to the external VictoriaMetrics,
+// authenticated with the credentials embedded in its URL. Deployment-injected VMAGENT_ overrides are honored.
+func vmAgentConfigExternalVM(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetStateRequest_AgentProcess {
+	vmURL := params.URL()
+
+	var auth *basicAuth
+	if vmUsername, vmPassword := extractCredentialsFromURL(vmURL); vmUsername != "" {
+		auth = &basicAuth{username: vmUsername, password: vmPassword}
+	}
+
+	return buildVMAgentProcess(scrapeCfg, vmAgentSettings{
+		remoteWriteURL: vmURL + "api/v1/write",
+		auth:           auth,
+	})
+}
+
+// basicAuth holds default remote-write basic-auth credentials.
+type basicAuth struct {
+	username string
+	password string
+}
+
+// vmAgentSettings captures settings that differ between deployment scenarios.
+type vmAgentSettings struct {
+	remoteWriteURL   string     // default for VMAGENT_remoteWrite_url, can be overridden by an injected value
+	dropInjectedAuth bool       // dropInjectedAuth discards injected VMAGENT_remoteWrite_basicAuth_*.
+	auth             *basicAuth // basic-auth default, applied only if not injected
+}
+
+// buildVMAgentProcess assembles the vmagent process configuration common to all scenarios.
+func buildVMAgentProcess(scrapeCfg string, settings vmAgentSettings) *agentv1.SetStateRequest_AgentProcess {
 	interfaceToBind := envvars.GetInterfaceToBind()
 	// Only keep the specified exceptions as command line arguments
 	args := []string{
@@ -65,19 +113,6 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams, haEnabled boo
 		"-remoteWrite.tmpDataPath={{.tmp_dir}}/vmagent-temp-dir",
 		"-promscrape.config={{.TextFiles.vmagentscrapecfg}}",
 		"-httpListenAddr=" + interfaceToBind + ":{{.listen_port}}",
-	}
-
-	serverURL := "{{.server_url}}/victoriametrics/"
-	var vmUsername, vmPassword string
-
-	if useExternalVM {
-		serverURL = params.URL()
-
-		// Extract username and password from external VM URL if present
-		vmUsername, vmPassword = extractCredentialsFromURL(serverURL)
-
-		// Direct external VM push: pass the VM URL's embedded basic-auth as vmagent args.
-		args = append(args, params.VMAgentArgs()...)
 	}
 
 	maxScrapeSize := maxScrapeSizeDefault
@@ -99,16 +134,13 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams, haEnabled boo
 		}
 	}
 
-	// When routing metric writes through the PMM server, authenticate with the PMM server credentials:
-	// drop any deployment-injected basic-auth override.
-	if !useExternalVM {
-		delete(systemEnvs, "VMAGENT_remoteWrite_basicAuth_username")
-		delete(systemEnvs, "VMAGENT_remoteWrite_basicAuth_password")
-	}
-
-	// In HA, also force the server proxy endpoint
-	if haEnabled {
-		delete(systemEnvs, "VMAGENT_remoteWrite_url")
+	// An injected remote-write URL means the target is no longer the server proxy, so injected
+	// credentials belong with it and must not be dropped.
+	if settings.dropInjectedAuth {
+		if _, urlInjected := systemEnvs["VMAGENT_remoteWrite_url"]; !urlInjected {
+			delete(systemEnvs, "VMAGENT_remoteWrite_basicAuth_username")
+			delete(systemEnvs, "VMAGENT_remoteWrite_basicAuth_password")
+		}
 	}
 
 	// Helper function to add env var only if not already set by system
@@ -119,23 +151,17 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams, haEnabled boo
 	}
 
 	// Add the parameters that were previously command line arguments (only if not overridden)
-	addEnvIfNotSet("VMAGENT_remoteWrite_url", serverURL+"api/v1/write")
+	addEnvIfNotSet("VMAGENT_remoteWrite_url", settings.remoteWriteURL)
 	addEnvIfNotSet("VMAGENT_remoteWrite_tlsInsecureSkipVerify", "{{.server_insecure}}")
 	addEnvIfNotSet("VMAGENT_promscrape_maxScrapeSize", maxScrapeSize)
 	addEnvIfNotSet("VMAGENT_remoteWrite_maxDiskUsagePerURL", "1073741824") // 1GB disk queue size
 	addEnvIfNotSet("VMAGENT_loggerLevel", "INFO")
 
-	// Set authentication based on VM type
-	if useExternalVM && vmUsername != "" {
-		// Use credentials from external VM URL
-		addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_username", vmUsername)
-		if vmPassword != "" {
-			addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_password", vmPassword)
+	if settings.auth != nil {
+		addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_username", settings.auth.username)
+		if settings.auth.password != "" {
+			addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_password", settings.auth.password)
 		}
-	} else if !useExternalVM {
-		// Use PMM server credentials when routing through the server (internal VM or HA).
-		addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_username", "{{.server_username}}")
-		addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_password", "{{.server_password}}")
 	}
 
 	// Add all system VMAGENT_ environment variables
