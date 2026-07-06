@@ -368,7 +368,7 @@ func TestGetReleaseNotesClosesResponseBody(t *testing.T) {
 	http.DefaultClient.Transport = stubRoundTripper{statusCode: http.StatusNotFound, body: body}
 	t.Cleanup(func() { http.DefaultClient.Transport = origTransport })
 
-	u := NewUpdater(nil, 0, nil)
+	u := NewUpdater(nil)
 	text, err := u.getReleaseNotesText(t.Context(), *version.MustParse("3.0.0"))
 	require.NoError(t, err)
 	assert.Empty(t, text)
