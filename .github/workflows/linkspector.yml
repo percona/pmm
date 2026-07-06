@@ -1,3 +1,4 @@
+---
 name: Linkspector
 on:
   pull_request:
@@ -17,7 +18,7 @@ permissions:
 jobs:
   check-links:
     name: linkspector
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
       - name: Check out code

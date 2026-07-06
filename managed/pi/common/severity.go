@@ -13,7 +13,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package common //nolint:revive
+// Package common provides shared types and utilities used across Percona Intelligence (PI) services.
+package common
 
 import (
 	"fmt"

@@ -6,11 +6,6 @@
     group: admin
     mode: '0755'
 
-- name: Set distribution for OVF
-  when: ansible_virtualization_type == "virtualbox"
-  set_fact:
-    pmm_distribution_method: ovf
-
 - name: Set distribution for AMI
   when: >
     ( ansible_virtualization_type == "xen"

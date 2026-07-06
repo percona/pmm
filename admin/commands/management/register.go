@@ -45,6 +45,8 @@ func (res *registerResult) String() string {
 
 // RegisterCommand is used by Kong for CLI flags and commands.
 type RegisterCommand struct {
+	flags.MetricsModeFlags
+
 	Address           string            `name:"node-address" arg:"" default:"${nodeIp}" help:"Node address (autodetected, default: ${nodeIp})"`
 	NodeType          string            `arg:"" enum:"generic,container" default:"generic" help:"Node type. One of: [${enum}]. Default: ${default}"`
 	NodeName          string            `arg:"" default:"${hostname}" help:"Node name (autodetected, default: ${hostname})"`
@@ -59,8 +61,6 @@ type RegisterCommand struct {
 	AgentPassword     string            `help:"Custom password for /metrics endpoint"`
 	Force             bool              `help:"Re-register Node"`
 	DisableCollectors []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-
-	flags.MetricsModeFlags
 }
 
 // RunCmd runs the command for RegisterCommand.

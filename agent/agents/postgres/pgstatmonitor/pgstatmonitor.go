@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package pgstatmonitor runs built-in QAN Agent for PostgreSQL pg stat monitor.
+// Package pgstatmonitor runs built-in PGStatMonitorQAN Agent for PostgreSQL pg stat monitor.
 package pgstatmonitor
 
 import (
@@ -42,7 +42,7 @@ import (
 
 const defaultWaitTime = 60 * time.Second
 
-// PGStatMonitorQAN QAN services connects to PostgreSQL and extracts stats.
+// PGStatMonitorQAN connects to PostgreSQL and extracts stats using pg_stat_monitor.
 type PGStatMonitorQAN struct { //nolint:revive
 	q                      *reform.Querier
 	dbCloser               io.Closer
@@ -122,7 +122,7 @@ var commandTypeToText = []string{
 	commandTextNotAvailable,
 }
 
-// New creates new PGStatMonitorQAN QAN service.
+// New creates new PGStatMonitorQAN service.
 func New(params *Params, l *logrus.Entry) (*PGStatMonitorQAN, error) {
 	sqlDB, err := sql.Open("postgres", params.DSN)
 	if err != nil {
@@ -396,12 +396,12 @@ func (m *PGStatMonitorQAN) Changes() <-chan agents.Change {
 }
 
 // Describe implements prometheus.Collector.
-func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+func (m *PGStatMonitorQAN) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:revive
+func (m *PGStatMonitorQAN) Collect(_ chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 
