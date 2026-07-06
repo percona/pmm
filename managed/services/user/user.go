@@ -33,11 +33,11 @@ import (
 
 // Service is responsible for user related APIs.
 type Service struct {
+	userv1.UnimplementedUserServiceServer
+
 	db *reform.DB
 	l  *logrus.Entry
 	c  grafanaClient
-
-	userv1.UnimplementedUserServiceServer
 }
 
 type grafanaClient interface {

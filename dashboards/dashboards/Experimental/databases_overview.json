@@ -42,7 +42,7 @@
                     "showLineNumbers": false,
                     "showMiniMap": false
                 },
-                "content": " <div style=\"\n          color: #F9A100; \n          font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue,Helvetica,Arial,sans-serif; \n          letter-spacing: 0.011em; \n          font-weight: 600;\n          font-size: 16px;\n          -webkit-font-smoothing: antialiased;\n          border: 0px solid #ffffff;\n          border-radius: 10px;\n          background: #FFEFBA;  /* fallback for old browsers */\n          background: -webkit-linear-gradient(to right, #FFFFFF, #FFEFBA);  /* Chrome 10-25, Safari 5.1-6 */\n          background: linear-gradient(to right, #FFFFFF, #FFEFBA); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */\n          padding: 8px;\n          display:block;\n          width:100%;\n          height:83px;\n          \"> <span style=\"\n          color: #400004; \n          font-size: 25px;\n          \"> ${srvcnt} ${service_type} </span><br/><a href=\"/graph/inventory/services\" target=\"_blank\">Databases monitored</a></div>",
+                "content": " <div style=\"\n          color: #F9A100; \n          font-family: -apple-system, BlinkMacSystemFont, Helvetica Neue,Helvetica,Arial,sans-serif; \n          letter-spacing: 0.011em; \n          font-weight: 600;\n          font-size: 16px;\n          -webkit-font-smoothing: antialiased;\n          border: 0px solid #ffffff;\n          border-radius: 10px;\n          background: #FFEFBA;  /* fallback for old browsers */\n          background: -webkit-linear-gradient(to right, #FFFFFF, #FFEFBA);  /* Chrome 10-25, Safari 5.1-6 */\n          background: linear-gradient(to right, #FFFFFF, #FFEFBA); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */\n          padding: 8px;\n          display:block;\n          width:100%;\n          height:83px;\n          \"> <span style=\"\n          color: #400004; \n          font-size: 25px;\n          \"> ${svccount} ${service_type} </span><br/><a href=\"/graph/inventory/services\" target=\"_blank\">Databases monitored</a></div>",
                 "mode": "html"
             },
             "pluginVersion": "9.2.20",
@@ -230,7 +230,7 @@
                         }
                     },
                     "queryType": "sql",
-                    "rawSql": "SELECT period_start, service_name, avg(m_query_time_sum) \"Execution_time\" FROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' GROUP BY period_start, service_name ORDER BY period_start ASC LIMIT 10000",
+                    "rawSql": "SELECT period_start, service_name, avg(m_query_time_sum) \"Execution_time\" FROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' GROUP BY period_start, service_name ORDER BY period_start ASC LIMIT 1000",
                     "refId": "A",
                     "selectedFormat": 0
                 },
@@ -248,7 +248,7 @@
                         }
                     },
                     "queryType": "sql",
-                    "rawSql": "SELECT period_start, service_name, avg(m_query_time_sum/m_query_time_cnt) \"Execution_time\"\nFROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' GROUP BY period_start, service_name ORDER BY period_start ASC ",
+                    "rawSql": "SELECT period_start, service_name, avg(m_query_time_sum/m_query_time_cnt) \"Execution_time\"\nFROM pmm.\"metrics\" WHERE   ( period_start  >= $__fromTime AND period_start <= $__toTime ) and service_type like '%$service_type%' GROUP BY period_start, service_name ORDER BY period_start ASC LIMIT 1000",
                     "refId": "B"
                 }
             ],
@@ -738,7 +738,7 @@
                         }
                     },
                     "queryType": "sql",
-                    "rawSql": "SELECT $__timeInterval(period_start) as time, service_name \"Service\", username, fingerprint \"Query\", avg(m_query_time_sum/m_query_time_cnt) \"Execution_time\" FROM pmm.\"metrics\" WHERE ( period_start  >= $__fromTime AND period_start <= $__toTime ) AND ( service_type LIKE '%$service_type%' ) GROUP BY service_name, username, fingerprint , m_query_time_sum, time ORDER BY time DESC LIMIT 10000",
+                    "rawSql": "SELECT $__timeInterval(period_start) as time, service_name \"Service\", username, fingerprint \"Query\", avg(m_query_time_sum/m_query_time_cnt) \"Execution_time\" FROM pmm.\"metrics\" WHERE ( period_start  >= $__fromTime AND period_start <= $__toTime ) AND ( service_type LIKE '%$service_type%' ) GROUP BY service_name, username, fingerprint , m_query_time_sum, time ORDER BY time DESC LIMIT 1000",
                     "refId": "A",
                     "selectedFormat": 1
                 }
@@ -826,7 +826,7 @@
                     "text": "mysql",
                     "value": "mysql"
                 },
-                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, service_type)",
+                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|redis_up|proxysql_mysql_status_active_transactions\"}, service_type)",
                 "hide": 0,
                 "includeAll": false,
                 "label": "Engine",
@@ -834,11 +834,11 @@
                 "name": "service_type",
                 "options": [],
                 "query": {
-                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, service_type)",
+                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|redis_up|proxysql_mysql_status_active_transactions\"}, service_type)",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 1,
-                "regex": "/.*^(mysql|postgresql|mongodb)/",
+                "regex": "/.*^(mysql|postgresql|mongodb|valkey|redis)/",
                 "skipUrlSync": false,
                 "sort": 0,
                 "type": "query"
@@ -916,19 +916,19 @@
                     "text": "10",
                     "value": "10"
                 },
-                "datasource": {
-                    "type": "postgres",
-                    "uid": "PCC52D03280B7034C"
-                },
-                "definition": "select count(*) from services where service_type = '${service_type}';",
+                "datasource": "Metrics",
+                "definition": "query_result(count(pmm_managed_inventory_services{service_type=\"$service_type\"}))",
                 "hide": 2,
                 "includeAll": false,
                 "multi": false,
-                "name": "srvcnt",
+                "name": "svccount",
                 "options": [],
-                "query": "select count(*) from services where service_type = '${service_type}';",
+                "query": {
+                    "query": "query_result(count(pmm_managed_inventory_services{service_type=\"$service_type\"}))",
+                    "refId": "StandardVariableQuery"
+                },
                 "refresh": 1,
-                "regex": "",
+                "regex": "/.* ([^\\ ]*) .*/",
                 "skipUrlSync": false,
                 "sort": 0,
                 "type": "query"
