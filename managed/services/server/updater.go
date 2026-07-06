@@ -601,12 +601,12 @@ func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Pars
 		up.l.WithError(err).Errorf("Failed to get release note for version: %s", versionString)
 		return "", fmt.Errorf("failed to get release notes for version: %s: %w", versionString, err)
 	}
+	defer resp.Body.Close() //nolint:errcheck
 
 	if resp.StatusCode != http.StatusOK {
 		up.l.Errorf("Failed to get release notes for PMM %s, got HTTP %d", version.String(), resp.StatusCode)
 		return "", nil
 	}
-	defer resp.Body.Close() //nolint:errcheck
 	var rnResponse ReleaseNotesResponse
 	err = json.NewDecoder(resp.Body).Decode(&rnResponse)
 	if err != nil {
