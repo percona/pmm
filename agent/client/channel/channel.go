@@ -16,10 +16,10 @@
 package channel
 
 import (
+	"fmt"
 	"sync"
 	"sync/atomic"
 
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	protostatus "google.golang.org/genproto/googleapis/rpc/status"
@@ -202,7 +202,7 @@ func (c *Channel) send(msg *agentv1.AgentMessage) {
 	err := c.s.Send(msg)
 	c.sendM.Unlock()
 	if err != nil {
-		c.close(errors.Wrap(err, "failed to send message"))
+		c.close(fmt.Errorf("failed to send message: %w", err))
 		return
 	}
 	c.mSend.Inc()
@@ -218,7 +218,7 @@ func (c *Channel) runReceiver() {
 	for {
 		msg, err := c.s.Recv()
 		if err != nil {
-			c.close(errors.Wrap(err, "failed to receive message"))
+			c.close(fmt.Errorf("failed to receive message: %w", err))
 			return
 		}
 		c.mRecv.Inc()
@@ -308,7 +308,7 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, msg.Status, p.ActionResult)
 
 		default:
-			c.cancel(msg.Id, errors.Errorf("unimplemented: failed to handle received message %s", msg))
+			c.cancel(msg.Id, fmt.Errorf("unimplemented: failed to handle received message %s", msg))
 			if msg.Status != nil && grpcstatus.FromProto(msg.Status).Code() == codes.Unimplemented {
 				// This means pmm-managed does not know the message payload type we just sent.
 				// We continue here to stop endless cycle of Unimplemented messages between pmm-agent and pmm-managed.

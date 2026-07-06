@@ -79,10 +79,8 @@ func TestRenderDSN(t *testing.T) {
 }
 
 func fileExist(file string) bool {
-	if _, err := os.Stat(file); err == nil {
-		return true
-	}
-	return false
+	_, err := os.Stat(file)
+	return err == nil
 }
 
 func fileContentMatch(file, content string) bool {

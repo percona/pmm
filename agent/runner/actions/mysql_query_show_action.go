@@ -18,8 +18,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/pkg/errors"
-
 	"github.com/percona/pmm/agent/tlshelpers"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/sqlrows"
@@ -72,18 +70,18 @@ func (a *mysqlQueryShowAction) Run(ctx context.Context) ([]byte, error) {
 	// use prepared statement to force binary protocol usage that returns correct types
 	stmt, err := db.PrepareContext(ctx, "SHOW /* pmm-agent */ "+a.params.Query)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	defer stmt.Close() //nolint:errcheck
 
 	rows, err := stmt.QueryContext(ctx)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return agentv1.MarshalActionQuerySQLResult(columns, dataRows)
 }

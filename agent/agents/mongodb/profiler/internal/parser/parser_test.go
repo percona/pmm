@@ -105,7 +105,7 @@ func TestParserRunning(t *testing.T) {
 		Ns: "test.test",
 		Ts: timeStart,
 		Query: bson.D{
-			{"find", "test"},
+			{Key: "find", Value: "test"},
 		},
 		Op:             "query",
 		ResponseLength: 100,

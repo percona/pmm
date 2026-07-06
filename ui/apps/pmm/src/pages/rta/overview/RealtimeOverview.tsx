@@ -1,14 +1,16 @@
-import { FC, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import type { FC } from 'react';
 import {
   Navigate,
   Link as RouterLink,
   useSearchParams,
 } from 'react-router-dom';
+import { useDetailsPaneNavigation } from '@percona/percona-ui';
 import { RealtimePage } from '../components/rta-page';
 import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
 import OverviewTable from './table/OverviewTable';
 import { DetailsPane } from './details-pane';
-import { QueryData } from 'types/rta.types';
+import type { QueryData } from 'types/rta.types';
 import { Icon } from 'components/icon';
 import { Messages } from './RealtimeOverview.messages';
 import { createRealtimeSessionsUrl } from 'utils/link.utils';
@@ -17,52 +19,46 @@ import Button from '@mui/material/Button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
 import { AutoRefreshSelect } from './auto-refresh-select';
 
+const EMPTY_QUERIES: QueryData[] = [];
+
 const RealtimeOverviewPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const serviceIds = searchParams.getAll('serviceIds');
   const [fetching, setFetching] = useState(serviceIds.length > 0);
   const [refreshInterval, setRefreshInterval] = useState(2000);
-  const { data: queries = [], refetch } = useRealtimeQueries(
+  const { data: queries, refetch } = useRealtimeQueries(
     { serviceIds },
     {
       enabled: fetching,
       refetchInterval: refreshInterval,
     }
   );
-  const [selectedQueryIndex, setSelectedQueryIndex] = useState<number>();
+  const tableQueries = queries ?? EMPTY_QUERIES;
+  // Synced from the table after filters; details-pane arrows use this list, not the full API result.
+  const [navigableQueries, setNavigableQueries] = useState<QueryData[]>([]);
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
   // We need to store the previous fetching state to restore it when the details pane is closed
   const previousFetchingState = useRef<boolean>(fetching);
   const { data: sessions = [], isLoading } = useRealtimeSessions();
 
-  const handleQueryChange = (query: QueryData, index: number) => {
+  const handleQuerySelected = (query: QueryData) => {
     setSelectedQuery(query);
-    setSelectedQueryIndex(index);
     previousFetchingState.current = fetching;
     setFetching(false);
   };
 
   const handleCloseDetails = () => {
     setSelectedQuery(undefined);
-    setSelectedQueryIndex(undefined);
     setFetching(previousFetchingState.current);
   };
 
-  const handleNextQuery = () => {
-    const idx = (selectedQueryIndex || 0) + 1;
-    if (idx >= queries.length) {
-      return;
-    }
-    handleQueryChange(queries[idx], idx);
-  };
-
-  const handlePreviousQuery = () => {
-    const idx = (selectedQueryIndex || 0) - 1;
-    if (idx < 0) {
-      return;
-    }
-    handleQueryChange(queries[idx], idx);
-  };
+  const { isFirst, isLast, next, previous } =
+    useDetailsPaneNavigation<QueryData>({
+      rows: navigableQueries,
+      selected: selectedQuery,
+      getRowId: (query) => query.queryId,
+      onSelect: handleQuerySelected,
+    });
 
   const handleServiceIdsChange = (newServiceIds: string[]) => {
     // start fetching if previous state was empty
@@ -93,8 +89,9 @@ const RealtimeOverviewPage: FC = () => {
   return (
     <RealtimePage>
       <OverviewTable
-        queries={queries || []}
-        onQuerySelected={handleQueryChange}
+        queries={tableQueries}
+        onQuerySelected={handleQuerySelected}
+        onNavigableQueriesChange={setNavigableQueries}
         actions={() => (
           <Stack
             direction="row"
@@ -176,10 +173,10 @@ const RealtimeOverviewPage: FC = () => {
       <DetailsPane
         query={selectedQuery}
         onClose={handleCloseDetails}
-        isFirstQuery={selectedQueryIndex === 0}
-        isLastQuery={selectedQueryIndex === queries.length - 1}
-        onNext={handleNextQuery}
-        onPrevious={handlePreviousQuery}
+        isFirstQuery={isFirst}
+        isLastQuery={isLast}
+        onNext={next}
+        onPrevious={previous}
       />
     </RealtimePage>
   );

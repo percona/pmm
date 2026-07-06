@@ -14,6 +14,7 @@ import type {
 } from '@pmm/shared';
 import { updateDocumentTitle } from 'utils/document.utils';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
+import { useAuth } from 'contexts/auth';
 import { useColorMode } from 'hooks/theme';
 import { getLocationUrl, isMigratedPage } from './grafana.utils';
 import messenger from 'lib/messenger';
@@ -21,6 +22,8 @@ import { useSettings, useFrontendSettings } from 'hooks/api/useSettings';
 import { useServiceTypes } from 'hooks/api/useServices';
 import { useQueryClient } from '@tanstack/react-query';
 import { USER_PREFERENCES_QUERY_KEY } from 'hooks/api/useUser';
+import { isGrafanaLoginPath } from 'contexts/auth/auth.clientSession';
+import { handleGrafanaUserLoggedOut } from 'contexts/auth/auth.grafanaLogout';
 
 /** Guard DOM usage. */
 const isBrowser = () =>
@@ -39,13 +42,13 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const isGrafanaPageRef = useRef<boolean>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { isLoggedIn } = useAuth();
 
   const { refetch: refetchSettings } = useSettings({
     enabled: false,
   });
-  const { refetch: refetchFrontendSettings } = useFrontendSettings({
-    enabled: false,
-  });
+  const { data: frontendSettings, refetch: refetchFrontendSettings } =
+    useFrontendSettings({ retry: false });
   const { refetch: refetchServiceTypes } = useServiceTypes({
     enabled: false,
   });
@@ -63,8 +66,10 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const { colorMode, setFromGrafana } = useColorMode();
 
   useEffect(() => {
-    if (isGrafanaPage) setIsLoaded(true);
-  }, [isGrafanaPage]);
+    const canLoadGrafanaIframe =
+      isLoggedIn || Boolean(frontendSettings?.anonymousEnabled);
+    setIsLoaded(isGrafanaPage && canLoadGrafanaIframe);
+  }, [isGrafanaPage, isLoggedIn, frontendSettings?.anonymousEnabled]);
 
   // Register messenger, set iframe target, and add INCOMING listeners
   useEffect(() => {
@@ -103,6 +108,10 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
           return;
         }
 
+        if (isGrafanaLoginPath(location.pathname)) {
+          handleGrafanaUserLoggedOut(queryClient);
+          return;
+        }
         navigate(getLocationUrl(location), {
           state: { fromGrafana: true },
           replace: true,

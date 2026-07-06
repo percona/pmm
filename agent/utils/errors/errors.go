@@ -15,7 +15,7 @@
 // Package errors contains common errors definitions.
 package errors
 
-import "github.com/pkg/errors"
+import "errors"
 
 var (
 	// ErrInvalidArgument is returned when an invalid or unknown argument is specified.

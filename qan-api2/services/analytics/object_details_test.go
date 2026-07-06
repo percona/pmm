@@ -17,6 +17,7 @@ package analytics
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -530,7 +531,7 @@ func TestService_GetLabels(t *testing.T) {
 		fields{rm: rm, mm: mm},
 		request,
 		nil,
-		fmt.Errorf("error in selecting object details labels: cannot select object details labels"),
+		errors.New("error in selecting object details labels: cannot select object details labels"),
 	}
 
 	t.Run(tt.name, func(t *testing.T) {

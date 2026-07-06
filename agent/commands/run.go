@@ -138,7 +138,8 @@ func prepareConfig(l *logrus.Entry) (*config.Storage, string) {
 
 	if configFilepath != "" {
 		cfg := configStorage.Get()
-		if err := config.SaveToFile(configFilepath, cfg, ""); err != nil {
+		err := config.SaveToFile(configFilepath, cfg, "")
+		if err != nil {
 			l.Warnf("Failed to save updated config: %s", err)
 		}
 	}
@@ -159,7 +160,7 @@ func cleanupTmp(tmpRoot string, log *logrus.Entry) {
 			continue
 		}
 
-		agentTmp := filepath.Join(tmpRoot, strings.ToLower(agentType.String()))
+		agentTmp := filepath.Join(tmpRoot, strings.TrimPrefix(strings.ToLower(agentType.String()), "agent_type_"))
 		err := os.RemoveAll(agentTmp)
 		if err != nil {
 			log.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())

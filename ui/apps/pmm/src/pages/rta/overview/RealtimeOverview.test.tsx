@@ -167,7 +167,7 @@ describe('RealtimeOverview', () => {
 
     expect(screen.getByTestId('auto-refresh-button')).not.toBeDisabled();
 
-    const clearButton = await waitFor(() => screen.findByTitle('Clear'));
+    const clearButton = await screen.findByTitle('Clear');
     fireEvent.click(clearButton);
 
     expect(screen.getByTestId('auto-refresh-button')).toBeDisabled();
@@ -234,7 +234,7 @@ describe('RealtimeOverview', () => {
 
     expect(screen.getByTestId('auto-refresh-button')).toBeDisabled();
 
-    const openButton = await waitFor(() => screen.findByTitle('Open'));
+    const openButton = await screen.findByTitle('Open');
     fireEvent.click(openButton);
 
     const serviceOptionId =
@@ -265,7 +265,7 @@ describe('RealtimeOverview', () => {
 
     expect(screen.getByTestId('auto-refresh-button')).toBeDisabled();
 
-    const openButton = await waitFor(() => screen.findByTitle('Open'));
+    const openButton = await screen.findByTitle('Open');
     fireEvent.click(openButton);
 
     const serviceOptionId =

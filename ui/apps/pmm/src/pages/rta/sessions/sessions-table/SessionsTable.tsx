@@ -142,6 +142,16 @@ const SessionsTable: FC = () => {
         enableGlobalFilter={false}
         enableRowSelection
         onRowSelectionChange={setRowSelection}
+        displayColumnDefOptions={{
+          'mrt-row-select': {
+            size: 40,
+            muiTableHeadCellProps: { sx: { flex: '0 0 40px !important' } },
+            muiTableBodyCellProps: { sx: { flex: '0 0 40px !important' } },
+          },
+          'mrt-row-expand': {
+            size: 40,
+          },
+        }}
         enableStickyHeader
         enableSubRowSelection
         enableExpanding
@@ -161,17 +171,11 @@ const SessionsTable: FC = () => {
         }
         getSubRows={(row) => row.serviceSessions}
         muiTableContainerProps={{
-          sx: (theme) => ({
-            flex: 1,
-            backgroundColor: 'inherit',
-            borderTopLeftRadius: theme.shape.borderRadius,
-            borderTopRightRadius: theme.shape.borderRadius,
-            borderBottom: 0,
-          }),
-        }}
-        muiTableHeadProps={{
           sx: {
-            backgroundColor: 'inherit',
+            flex: 1,
+            borderRadius: 2,
+            border: '1px solid',
+            borderColor: 'divider',
           },
         }}
         muiTopToolbarProps={{
