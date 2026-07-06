@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import type { Preview } from "@storybook/react";
-import { CssBaseline, createTheme, ThemeProvider } from "@mui/material";
+import CssBaseline from '@mui/material/CssBaseline';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+
 import { getThemeOptions } from "../src/design";
 import peakDesign from "./peak-design";
 
@@ -22,7 +24,7 @@ const preview: Preview = {
       const content = (
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <Story />
+          <Story key={context.id} />
         </ThemeProvider>
       );
 
