@@ -1,0 +1,56 @@
+[Unit]
+Description=PMM GitHub webhook listener
+Documentation=https://github.com/percona/pmm/tree/v3/build/pipeline/webhook
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=admin
+Group=admin
+
+ExecStart=/usr/local/bin/webhook
+WorkingDirectory=/home/admin/build
+
+# Picked up by command scripts (e.g. commands/build does `cd "$PIPELINE_DIR"`).
+Environment=PIPELINE_DIR=/home/admin/build
+
+# Secrets and overrides live here. Mode 0600, owned by admin:admin.
+# At minimum: GITHUB_WEBHOOK_SECRET= and GITHUB_TOKEN=.
+EnvironmentFile=/etc/webhook/webhook.env
+
+# Per-job scratch (run.log, reply.md). Auto-created as /var/lib/webhook,
+# owned by the service user. Kept separate from /home/admin/build so the
+# pipeline can `make clean` without nuking webhook state.
+StateDirectory=webhook
+StateDirectoryMode=0750
+
+# The binary's own shutdown grace is 30s; give scripts time to react too.
+Restart=on-failure
+RestartSec=5s
+KillSignal=SIGTERM
+TimeoutStopSec=2m
+
+# Hardening — moderate. Command scripts may shell out to make/docker/aws,
+# so the more aggressive sandboxes (ProtectSystem=strict, RestrictNamespaces,
+# SystemCallFilter) are intentionally omitted.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=read-only
+# Punch holes through ProtectHome=read-only:
+#   /home/admin/build  — pipeline writes (cache/, output/, tarball/, build.log)
+#   /home/admin/.docker — docker CLI config + buildx activity state
+ReadWritePaths=/home/admin/build /home/admin/.docker
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+LockPersonality=yes
+RestrictSUIDSGID=yes
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=webhook
+
+[Install]
+WantedBy=multi-user.target

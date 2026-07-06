@@ -1,0 +1,9 @@
+webhook
+work/
+*.log
+.git
+.env*
+.gitignore
+README.md
+Makefile
+*_test.go
