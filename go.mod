@@ -308,6 +308,7 @@ require (
 	github.com/toqueteos/webbrowser v1.2.1 // indirect
 	github.com/vbatts/tar-split v0.12.3 // indirect
 	github.com/vektra/mockery/v2 v2.53.6 // indirect
+	github.com/wadey/gocovmerge v0.0.0-20160331181800-b5bfa59ec0ad // indirect
 	github.com/xanzy/go-gitlab v0.20.1 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
@@ -360,6 +361,7 @@ tool (
 	github.com/jstemmer/go-junit-report/v2
 	github.com/reviewdog/reviewdog/cmd/reviewdog
 	github.com/vektra/mockery/v2
+	github.com/wadey/gocovmerge
 	golang.org/x/perf/cmd/benchstat
 	golang.org/x/tools/cmd/goimports
 	golang.org/x/tools/cmd/stringer
