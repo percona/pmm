@@ -765,23 +765,23 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiSelect: {
         styleOverrides: {
           select: {
+            '& > *': {
+              maxWidth: '100%',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            },
             [`.${outlinedInputClasses.adornedEnd} &`]: {
-              paddingRight: '64px !important',
-              '& > *': {
-                maxWidth: '100%',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              },
+              // End adornments reserve their own flex space; only a small gap is needed here
+              paddingRight: '8px !important',
+            },
+            // End adornments flow before the absolutely-positioned caret; the last one clears it
+            '& ~ .MuiInputAdornment-positionEnd:last-of-type': {
+              marginRight: '26px',
             },
           },
           icon: {
-            [`.${outlinedInputClasses.root}:not(.${outlinedInputClasses.adornedEnd}) &`]: {
-              right: '12px !important',
-            },
-            [`.${outlinedInputClasses.adornedEnd} &`]: {
-              marginRight: '32px !important',
-            },
+            right: '12px !important',
           },
         },
       },
