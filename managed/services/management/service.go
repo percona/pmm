@@ -36,6 +36,8 @@ import (
 
 // ManagementService allows to interact with services.
 type ManagementService struct { //nolint:revive
+	managementv1.UnimplementedManagementServiceServer
+
 	db            *reform.DB
 	r             agentsRegistry
 	state         agentsStateUpdater
@@ -46,8 +48,6 @@ type ManagementService struct { //nolint:revive
 	grafanaClient grafanaClient
 	vmClient      victoriaMetricsClient
 	l             *logrus.Entry
-
-	managementv1.UnimplementedManagementServiceServer
 }
 
 type statusMetrics struct {

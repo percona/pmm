@@ -1,6 +1,6 @@
-import { FC, useCallback, useEffect, useRef } from 'react';
-import { type MRT_Row, type MRT_TableInstance, MaterialReactTableProps } from 'material-react-table';
-import { Table } from '@percona/percona-ui';
+import { FC } from 'react';
+import { type MRT_Row, MaterialReactTableProps } from 'material-react-table';
+import { Table, useNavigableRows } from '@percona/percona-ui';
 import { QueryData } from 'types/rta.types';
 import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
@@ -31,31 +31,16 @@ const OverviewTable: FC<Props> = ({
   actions,
   onRowHover,
 }) => {
-  const tableRef = useRef<MRT_TableInstance<QueryData> | null>(null);
-  const { tableProps } = useTableUrlState(OVERVIEW_TABLE_URL_STATE_OPTIONS);
-  const { columnFilters, sorting } = tableProps.state;
-
-  // Pre-pagination so navigation covers all filtered rows, not only the current page.
-  const getNavigableQueries = useCallback(
-    () =>
-      tableRef.current?.getPrePaginationRowModel().rows.map((row) => row.original) ??
-      queries,
-    [queries]
-  );
-
-  const syncNavigableQueries = useCallback(() => {
-    onNavigableQueriesChange(getNavigableQueries());
-  }, [getNavigableQueries, onNavigableQueriesChange]);
-
-  useEffect(() => {
-    syncNavigableQueries();
-  }, [columnFilters, sorting, syncNavigableQueries]);
+  const { tableProps: navigableTableProps, refresh } = useNavigableRows<QueryData>({
+    data: queries,
+    onChange: onNavigableQueriesChange,
+  });
+  const { tableProps: urlStateTableProps } = useTableUrlState(OVERVIEW_TABLE_URL_STATE_OPTIONS);
 
   return (
     <RealtimeTableWrapper>
       <Table
         tableName="realtime-overview-table"
-        {...tableProps}
         columns={OVERVIEW_TABLE_COLUMNS}
         data={queries}
         noDataMessage={Messages.noData}
@@ -68,14 +53,15 @@ const OverviewTable: FC<Props> = ({
             },
           },
         }}
+        {...navigableTableProps}
+        {...urlStateTableProps}
         enableStickyHeader
         enableGlobalFilter={false}
         enableHiding={false}
         enableRowHoverAction
-        tableInstanceRef={tableRef}
         rowHoverAction={(row) => {
-          syncNavigableQueries();
-          onQuerySelected(row.original as QueryData);
+          refresh();
+          onQuerySelected(row.original);
         }}
         renderTopToolbarCustomActions={actions}
         filterFns={{

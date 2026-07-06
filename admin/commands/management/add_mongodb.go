@@ -54,6 +54,10 @@ func (res *addMongoDBResult) String() string {
 //
 //nolint:lll
 type AddMongoDBCommand struct {
+	AddCommonFlags
+	flags.MetricsModeFlags
+	flags.LogLevelFatalFlags
+
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-mongodb" help:"Service name (autodetected default: ${hostname}-mongodb)"`
 	Address           string `arg:"" optional:"" help:"MongoDB address and port (default: 127.0.0.1:27017)"`
 	Socket            string `help:"Path to socket"`
@@ -85,10 +89,6 @@ type AddMongoDBCommand struct {
 	ExposeExporter                bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 	AgentEnvVars                  []string          `name:"agent-env-vars" help:"Comma-separated list of environment variable names to pass to the exporter (values are read from the current environment), e.g. 'VAR1,VAR2'"`
 	ConnectionTimeout             *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
-
-	AddCommonFlags
-	flags.MetricsModeFlags
-	flags.LogLevelFatalFlags
 }
 
 // GetServiceName returns the service name for AddMongoDBCommand.
