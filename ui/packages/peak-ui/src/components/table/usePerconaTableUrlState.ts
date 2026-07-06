@@ -127,8 +127,7 @@ const createStateFromUrl = (
   return {
     ...parsed,
     columnFilters,
-    showColumnFilters:
-      hasActiveColumnFilters(columnFilters) || initialShowColumnFilters,
+    showColumnFilters: hasActiveColumnFilters(columnFilters) || initialShowColumnFilters,
     showGlobalFilter: !!parsed.globalFilter || initialShowGlobalFilter,
   };
 };
@@ -158,12 +157,7 @@ export function usePerconaTableUrlState({
   const searchParamsKey = searchParams.toString();
 
   const [state, setState] = useState<FullTableUrlState>(() =>
-    createStateFromUrl(
-      searchParams,
-      urlOptions,
-      initialShowColumnFilters,
-      initialShowGlobalFilter
-    )
+    createStateFromUrl(searchParams, urlOptions, initialShowColumnFilters, initialShowGlobalFilter)
   );
 
   const globalFilterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
