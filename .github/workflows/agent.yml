@@ -156,7 +156,6 @@ jobs:
         with:
           files: coverage-artifacts/**/cover.out
           flags: agent
-          env_vars: MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
 
