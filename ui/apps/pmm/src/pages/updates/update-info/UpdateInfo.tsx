@@ -20,7 +20,7 @@ export const UpdateInfo: FC = () => (
           target="_blank"
           rel="noopener noreferrer"
         >
-          {Messages.readMore}
+          {Messages.howToUpdate}
         </Link>
       </Typography>
     </Stack>
