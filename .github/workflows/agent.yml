@@ -161,8 +161,15 @@ jobs:
       # merge test coverage files into one file to upload to Codecov
       # to have the full coverage report.
       - name: Merge coverage files
+        shell: bash
         run: |
-          go tool gocovmerge coverage-artifacts/**/*.out > cover-merged.out
+          set -euo pipefail
+          mapfile -t files < <(find coverage-artifacts -type f -name '*.out' | sort)
+          if (( ${#files[@]} == 0 )); then
+            echo "No coverage files found under coverage-artifacts"
+            exit 1
+          fi
+          go tool gocovmerge "${files[@]}" > cover-merged.out
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
