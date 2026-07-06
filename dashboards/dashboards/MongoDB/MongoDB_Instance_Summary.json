@@ -1534,7 +1534,7 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "expr": "avg by (service_name) (rate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\"}[$interval]) or \nirate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\"}[5m]))",
+                    "expr": "avg by (service_name,state) (rate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\"}[$interval]) or \nirate(mongodb_mongod_metrics_query_executor_total{service_name=~\"$service_name\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
