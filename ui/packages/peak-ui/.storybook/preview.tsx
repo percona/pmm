@@ -18,8 +18,8 @@ const preview: Preview = {
         [mode, themeName]
       );
 
-      const bgColor = theme.palette.background.default;
-      document.body.style.backgroundColor = bgColor;
+      const defaultBg = theme.palette.background.default;
+      document.body.style.backgroundColor = defaultBg;
 
       const content = (
         <ThemeProvider theme={theme}>
@@ -29,7 +29,10 @@ const preview: Preview = {
       );
 
       if (context.viewMode === 'docs') {
-        return <div style={{ backgroundColor: bgColor, padding: '2rem' }}>{content}</div>;
+        const canvasSurface =
+          (context.parameters?.canvasSurface as 'default' | 'paper' | undefined) ?? 'default';
+        const canvasBg = theme.palette.background[canvasSurface] ?? defaultBg;
+        return <div style={{ backgroundColor: canvasBg, padding: '2rem' }}>{content}</div>;
       }
 
       return content;
@@ -90,7 +93,7 @@ const preview: Preview = {
               'Charts'
             ],
             'Typography',
-            'Icons'
+            'Icons', ['Overview', 'Custom Icons']
           ],
           'Inputs', ['Icon Button', 'Text Field', 'Copy to Clipboard'],
           'Data display', ['Chip', 'Code Block', 'Table', 'Tooltip'],
