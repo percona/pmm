@@ -85,9 +85,15 @@
       - lookup('env','GF_DATABASE_HOST') == ''
       - need_initialization
 
-  - name: Upgrade/Install dashboards
-    include_role:
-      name: dashboards
+  # Bundled Grafana plugins are synced by the container entrypoint.
+  # Only the version marker is managed here; it also drives the
+  # need_initialization/need_upgrade facts above.
+  - name: Synchronize Percona Dashboards version file after upgrade
+    copy:
+      src: /usr/share/percona-dashboards/VERSION
+      dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+      mode: 0664
+      remote_src: yes
 
   - name: Create a backup directory
     file:
