@@ -1,11 +1,12 @@
 import {
+  Close as CloseIcon,
   FilterList as FilterListIcon,
   KeyboardDoubleArrowDown as KeyboardDoubleArrowDownIcon,
   MoreVert as MoreVertIcon,
   Search as SearchIcon,
   ViewColumn as ViewColumnIcon,
 } from '@mui/icons-material';
-import { Alert, AlertProps, Box, Theme } from '@mui/material';
+import { Alert, AlertProps, Box, IconButton, InputAdornment, Theme, Tooltip } from '@mui/material';
 import visuallyHidden from '@mui/utils/visuallyHidden';
 import {
   MaterialReactTable,
@@ -164,22 +165,62 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
           ? muiFilterTextFieldProps({ column, table, rangeFilterIndex })
           : muiFilterTextFieldProps;
       const isRangeInput = rangeFilterIndex !== undefined;
+      const { filterVariant } = column.columnDef;
+      const usesPicker =
+        !!filterVariant &&
+        (filterVariant.startsWith('date') ||
+          filterVariant.startsWith('time') ||
+          filterVariant === 'autocomplete');
+      const filterFn = table.getState().columnFilterFns?.[column.id];
+      // Own the end adornment so consumer adornments, the select caret and the
+      // clear button coexist (MRT drops its clear button when one is passed).
+      const managesEndAdornment = !usesPicker && filterFn !== 'empty' && filterFn !== 'notEmpty';
+
+      const filterValue = column.getFilterValue();
+      const hasFilterValue = Array.isArray(filterValue)
+        ? filterValue.some((value) => value !== undefined && value !== null && value !== '')
+        : filterValue !== undefined && filterValue !== null && filterValue !== '';
+
+      const { slotProps: consumerSlotProps, ...consumerRest } = consumer ?? {};
+      const consumerInputProps =
+        typeof consumerSlotProps?.input === 'function' ? undefined : consumerSlotProps?.input;
+
+      const clearLabel = table.options.localization.clearFilter;
+      const clearAdornment =
+        managesEndAdornment && !isRangeInput && hasFilterValue ? (
+          <InputAdornment position="end">
+            <Tooltip title={clearLabel}>
+              <IconButton
+                aria-label={clearLabel}
+                size="small"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  column.setFilterValue(filterVariant === 'multi-select' ? [] : undefined);
+                  table.refs.filterInputRefs.current?.[`${column.id}-0`]?.focus?.();
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Tooltip>
+          </InputAdornment>
+        ) : null;
+      const endAdornment =
+        consumerInputProps?.endAdornment || clearAdornment ? (
+          <>
+            {consumerInputProps?.endAdornment}
+            {clearAdornment}
+          </>
+        ) : undefined;
+
       return {
         variant: 'outlined',
         size: 'small',
-        ...consumer,
-        sx: mergeSx(
-          isRangeInput
-            ? {
-                minWidth: 0,
-                width: '100%',
-                mx: 0,
-                '& .MuiInputAdornment-positionEnd': { display: 'none' },
-                '& .MuiOutlinedInput-root': { paddingRight: 0 },
-              }
-            : {},
-          consumer?.sx
-        ),
+        ...consumerRest,
+        slotProps: {
+          ...consumerSlotProps,
+          input: managesEndAdornment ? { ...consumerInputProps, endAdornment } : consumerInputProps,
+        },
+        sx: mergeSx({ minWidth: 0, width: '100%', mx: 0 }, consumer?.sx),
       };
     },
     muiToolbarAlertBannerProps: {
@@ -318,8 +359,44 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
             '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels': {
               gap: 0.5,
             },
+            // "Filtered by" indicator: undo MRT's 0.75 downscale so its icon renders at 20px,
+            // pairing with the 20px column-actions icon
+            '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels > span .MuiIconButton-root': {
+              width: 32,
+              height: 32,
+              margin: 0,
+              padding: '6px',
+              transform: 'none',
+              '& > .MuiSvgIcon-root': { width: 20, height: 20, fontSize: 20 },
+            },
             '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels .MuiTableSortLabel-root': {
               transform: 'none',
+              width: 20,
+              margin: 0,
+              opacity: 0,
+              transition: theme.transitions.create('opacity', {
+                duration: theme.transitions.duration.shortest,
+              }),
+              '@media (hover: none)': { opacity: 0.5 },
+              '& .MuiTableSortLabel-icon': { width: 20, height: 20, fontSize: 20, margin: 0 },
+            },
+            '& .MuiTableCell-head .Mui-TableHeadCell-Content-Actions .MuiIconButton-root': {
+              opacity: 0,
+              transition: theme.transitions.create('opacity', {
+                duration: theme.transitions.duration.shortest,
+              }),
+              '@media (hover: none)': { opacity: 0.5 },
+            },
+            '& .MuiTableCell-head:hover .MuiTableSortLabel-root, & .MuiTableCell-head:focus-within .MuiTableSortLabel-root, & .MuiTableCell-head:hover .Mui-TableHeadCell-Content-Actions .MuiIconButton-root, & .MuiTableCell-head:focus-within .Mui-TableHeadCell-Content-Actions .MuiIconButton-root':
+              {
+                opacity: 0.5,
+              },
+            '& .MuiTableCell-head .MuiTableSortLabel-root:hover, & .MuiTableCell-head .MuiTableSortLabel-root:focus-visible, & .MuiTableCell-head .Mui-TableHeadCell-Content-Actions .MuiIconButton-root:hover, & .MuiTableCell-head .Mui-TableHeadCell-Content-Actions .MuiIconButton-root:focus-visible':
+              {
+                opacity: 1,
+              },
+            '& .MuiTableCell-head[data-sort] .MuiTableSortLabel-root': {
+              opacity: 1,
             },
             '& .MuiTableCell-head:has(.Mui-TableHeadCell-Content-Actions .MuiIconButton-root:hover)':
               {
