@@ -24,17 +24,32 @@
   .sbdocs ol {
     margin: calc(16px * 1.375) 0;
   }
-  .sbdocs code,
+  /* Docs prose code — MDX copy only; Canvas previews (.docs-story) use MUI CssBaseline */
   .sbdocs.sbdocs-preview .token {
     font-family: "Roboto Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
     font-weight: 450;
     font-size: 16px;
     line-height: 1.375;
   }
-  .sbdocs code {
-    margin: calc(16px * 1.375) 0;
+  /* Live component previews own their typography — keep CodeBlock tokens at the component's size */
+  .sbdocs.sbdocs-preview .docs-story .token {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
   }
-  .sbdocs p code {
+  .sbdocs-content > :is(p, h1, h2, h3, h4, h5, h6) code,
+  .sbdocs-content > :is(ul, ol, table, blockquote) code {
+    font-family: "Roboto Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-weight: 450;
+    font-size: 16px;
+    line-height: 1.375;
+    margin: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .sbdocs-content > p code,
+  .sbdocs-content > :is(ul, ol) code {
     font-weight: 475;
     font-size: 14px;
     line-height: 1.5;
@@ -75,11 +90,6 @@
     font-size: 12px;
     line-height: 1.25;
     letter-spacing: 0.03rem;
-  }
-  .sbdocs .sbdocs-content code {
-    padding-top: 0;
-    padding-bottom: 0;
-    margin: 0;
   }
   .docblock-argstable-body > tr[title] > td {
     font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
