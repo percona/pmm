@@ -3,6 +3,7 @@ import type { Preview } from "@storybook/react";
 import { CssBaseline, createTheme, ThemeProvider } from "@mui/material";
 import { getThemeOptions } from "../src/design";
 import peakDesign from "./peak-design";
+import { resolveDisplayName } from "./resolve-display-name";
 
 const preview: Preview = {
   decorators: [
@@ -68,6 +69,9 @@ const preview: Preview = {
     },
   },
   parameters: {
+    jsx: {
+      displayName: resolveDisplayName,
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,

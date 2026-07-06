@@ -19,6 +19,18 @@ const config: StorybookConfig = {
     const { mergeConfig } = await import("vite");
     return mergeConfig(config, {
       plugins: [tsconfigPaths()],
+      // Preserve function/class names through minification so Storybook's code
+      // panel can resolve real component names (e.g. `IconButton`) instead of
+      // `React.ForwardRef` in the production build.
+      esbuild: { keepNames: true },
+      optimizeDeps: { esbuildOptions: { keepNames: true } },
+      build: {
+        minify: "terser",
+        terserOptions: {
+          keep_classnames: true,
+          keep_fnames: true,
+        },
+      },
     });
   },
 };
