@@ -18,6 +18,7 @@ import {
   serializeTableUrlState,
   hasActiveColumnFilters,
   resolveTableUrlSync,
+  normalizeSearchParamsKey,
   type TableUrlStateOptions,
   type TableUrlSyncKey,
 } from './tableUrlState.utils';
@@ -162,7 +163,7 @@ export function usePerconaTableUrlState({
 
   const globalFilterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const columnFilterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const isInternalUrlUpdateRef = useRef(false);
+  const lastWrittenParamsKeyRef = useRef<string | null>(null);
   const latestSearchParamsRef = useRef(searchParams);
   const latestTableStateRef = useRef(state);
 
@@ -175,8 +176,9 @@ export function usePerconaTableUrlState({
   }, [searchParams, searchParamsKey]);
 
   useEffect(() => {
-    if (isInternalUrlUpdateRef.current) {
-      isInternalUrlUpdateRef.current = false;
+    const incomingKey = normalizeSearchParamsKey(searchParams);
+    if (lastWrittenParamsKeyRef.current === incomingKey) {
+      lastWrittenParamsKeyRef.current = null;
       return;
     }
 
@@ -192,19 +194,13 @@ export function usePerconaTableUrlState({
     (nextState: TableStateValues) => {
       const currentParams = latestSearchParamsRef.current;
       const nextParams = serializeTableUrlState(nextState, currentParams, urlOptions);
+      const nextKey = normalizeSearchParamsKey(nextParams);
+      const currentKey = normalizeSearchParamsKey(currentParams);
 
-      const normalizeParams = (params: URLSearchParams) =>
-        Array.from(params.entries())
-          .sort(([aKey, aVal], [bKey, bVal]) =>
-            aKey === bKey ? aVal.localeCompare(bVal) : aKey.localeCompare(bKey)
-          )
-          .map(([key, value]) => `${key}=${value}`)
-          .join('&');
-
-      if (normalizeParams(nextParams) === normalizeParams(currentParams)) {
+      if (nextKey === currentKey) {
         return;
       }
-      isInternalUrlUpdateRef.current = true;
+      lastWrittenParamsKeyRef.current = nextKey;
       setSearchParams(nextParams, { replace });
     },
     [replace, setSearchParams, urlOptions]

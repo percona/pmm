@@ -253,3 +253,10 @@ export const serializeTableUrlState = (
 
   return next;
 };
+
+export const normalizeSearchParamsKey = (params: URLSearchParams): string =>
+  JSON.stringify(
+    Array.from(params.entries()).sort(([aKey, aVal], [bKey, bVal]) =>
+      aKey === bKey ? aVal.localeCompare(bVal) : aKey.localeCompare(bKey)
+    )
+  );

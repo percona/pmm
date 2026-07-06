@@ -1,6 +1,6 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { type MRT_ColumnDef } from 'material-react-table';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { describe, expect, it } from 'vitest';
 import { baseThemeOptions, ThemeContextProvider } from '../../design';
 import Table from './table';

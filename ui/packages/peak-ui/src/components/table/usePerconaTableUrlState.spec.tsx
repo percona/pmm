@@ -1,6 +1,6 @@
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import React, { useState } from 'react';
+import { useRef, useState } from 'react';
 import { usePerconaTableUrlState } from './usePerconaTableUrlState';
 
 function UrlStateHarness({
@@ -67,6 +67,13 @@ function UrlStateHarness({
         onClick={() => tableProps.onColumnFiltersChange([{ id: 'cpu', value: ['10', ''] }])}
       >
         Range
+      </button>
+      <button
+        type="button"
+        data-testid="update-range-filter"
+        onClick={() => tableProps.onColumnFiltersChange([{ id: 'cpu', value: ['25', ''] }])}
+      >
+        Update range
       </button>
       <button
         type="button"
@@ -147,6 +154,26 @@ describe('usePerconaTableUrlState', () => {
     });
   });
 
+  it('updates an existing range filter in the URL', async () => {
+    render(<UrlStateHarness />);
+
+    await act(async () => {
+      screen.getByTestId('set-range-filter').click();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('search').textContent).toContain('f.cpu=%5B%2210%22%2C%22%22%5D');
+    });
+
+    await act(async () => {
+      screen.getByTestId('update-range-filter').click();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('filters').textContent).toBe('cpu=25,');
+      expect(screen.getByTestId('search').textContent).toContain('f.cpu=%5B%2225%22%2C%22%22%5D');
+      expect(screen.getByTestId('search').textContent).not.toContain('%2210%22');
+    });
+  });
+
   it('re-reads state when searchParams change externally', async () => {
     render(<UrlStateHarness />);
 
@@ -158,6 +185,59 @@ describe('usePerconaTableUrlState', () => {
       expect(screen.getByTestId('global-filter').textContent).toBe('from-url');
       expect(screen.getByTestId('sorting').textContent).toBe('status:asc');
       expect(screen.getByTestId('page').textContent).toBe('1');
+    });
+  });
+
+  it('still syncs external URL changes when setSearchParams ignores an internal write', async () => {
+    function Harness() {
+      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+      const suppressNextWriteRef = useRef(false);
+      const { tableProps } = usePerconaTableUrlState({
+        searchParams,
+        setSearchParams: (next) => {
+          if (suppressNextWriteRef.current) {
+            suppressNextWriteRef.current = false;
+            return;
+          }
+          setSearchParams(next);
+        },
+        debounceMs: 0,
+      });
+
+      return (
+        <>
+          <div data-testid="global-filter">{tableProps.state.globalFilter}</div>
+          <div data-testid="search">{searchParams.toString()}</div>
+          <button
+            type="button"
+            data-testid="set-filter"
+            onClick={() => {
+              suppressNextWriteRef.current = true;
+              tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }]);
+            }}
+          />
+          <button
+            type="button"
+            data-testid="sync-from-url"
+            onClick={() => setSearchParams(new URLSearchParams('q=from-url'))}
+          />
+        </>
+      );
+    }
+
+    render(<Harness />);
+
+    await act(async () => {
+      screen.getByTestId('set-filter').click();
+    });
+    expect(screen.getByTestId('search').textContent).toBe('');
+
+    await act(async () => {
+      screen.getByTestId('sync-from-url').click();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('global-filter').textContent).toBe('from-url');
+      expect(screen.getByTestId('search').textContent).toBe('q=from-url');
     });
   });
 
