@@ -187,26 +187,6 @@ TARBALL_KEY       := $(S3_PREFIX)/pmm-client-$(PR_TAG).tar.gz
 TARBALL_URL       := https://s3.$(S3_REGION).amazonaws.com/$(S3_BUCKET)/$(TARBALL_KEY)
 endif
 
-# Resolve effective values for the publish-pr target based on what was built.
-# BUILT is set by the client/server/all shortcuts to one of: client, server, all.
-# Each side (client, server) is independently fresh-or-fallback.
-ifneq ($(filter client all,$(BUILT)),)
-EFFECTIVE_CLIENT_TAG  := $(CLIENT_DOCKER_TAG)
-EFFECTIVE_TARBALL_URL := $(TARBALL_URL)
-PUSH_CLIENT           := 1
-UPLOAD_TARBALL        := 1
-else
-EFFECTIVE_CLIENT_TAG  := $(DEV_LATEST_CLIENT)
-EFFECTIVE_TARBALL_URL := $(LATEST_TARBALL_URL)
-endif
-
-ifneq ($(filter server all,$(BUILT)),)
-EFFECTIVE_SERVER_TAG := $(SERVER_DOCKER_TAG)
-PUSH_SERVER          := 1
-else
-EFFECTIVE_SERVER_TAG := $(DEV_LATEST_SERVER)
-endif
-
 export ALL_REPO_URLS
 export REPO_FETCH_REFS
 export LOG_FILE
@@ -477,34 +457,7 @@ push-client-docker:
 # built).
 # ---------------------------------------------------------------------------
 publish-pr:
-	@if [ -z "$(PR_TAG)" ]; then \
-		echo "publish-pr requires PR_TAG"; exit 1; \
-	fi
-	@case "$(BUILT)" in \
-		client|server|all) ;; \
-		*) echo "publish-pr requires BUILT=client|server|all (got '$(BUILT)')"; exit 1 ;; \
-	esac
-	@# Prune the in-builder layer cache. Safe because $(DOCKER_CACHE_DIR) holds
-	@# the durable type=local cache that the next build hydrates from.
-	@if [ -n "$(PUSH_SERVER)$(PUSH_CLIENT)" ] && docker buildx inspect $(BUILDX_BUILDER) >/dev/null 2>&1; then \
-		echo "Pruning buildx cache for $(BUILDX_BUILDER)..."; \
-		docker buildx prune --builder $(BUILDX_BUILDER) -f || true; \
-		docker buildx stop $(BUILDX_BUILDER) 2>/dev/null || true; \
-	fi
-	@if [ "$(UPLOAD_TARBALL)" = "1" ]; then \
-		echo "Uploading client tarball to s3://$(S3_BUCKET)/$(TARBALL_KEY)..."; \
-		aws s3 cp $(PACKAGE_DIR)/pmm-client.tar.gz s3://$(S3_BUCKET)/$(TARBALL_KEY) --region $(S3_REGION); \
-	fi
-	@if [ -n "$(REPLY_FILE)" ]; then \
-		echo "**Server docker:** \`$(EFFECTIVE_SERVER_TAG)\`"  > $(REPLY_FILE); \
-		echo "**Client docker:** \`$(EFFECTIVE_CLIENT_TAG)\`" >> $(REPLY_FILE); \
-		echo "**Client tarball:** $(EFFECTIVE_TARBALL_URL)"   >> $(REPLY_FILE); \
-		echo "**Staging instance:** $(PMM_STAGING_BASE)?DOCKER_VERSION=$(EFFECTIVE_SERVER_TAG)&CLIENT_VERSION=$(EFFECTIVE_TARBALL_URL)" >> $(REPLY_FILE); \
-		if [ -n "$(LOG_UUID)" ]; then \
-			echo "**Build log:** \`$(LOG_UUID)\` — view with the [pmm-log-viewer](../tree/v3/build/pipeline/log-viewer)" >> $(REPLY_FILE); \
-		fi; \
-	fi
-	@echo "Publish complete (BUILT=$(BUILT))."
+	@$(PIPELINE_DIR)/scripts/publish-pr
 
 # Generate VERSION.json with all component git refs.
 generate-version-json:

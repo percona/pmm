@@ -18,3 +18,4 @@ git checkout "${REF}"
 
 make victoria-metrics-pure vmalert-pure PKG_TAG="${REF}" BUILDINFO_TAG="${REF}"
 cp bin/victoria-metrics-pure bin/vmalert-pure /output/
+find /output -maxdepth 1 -type f -exec strip {} + 2>/dev/null || true

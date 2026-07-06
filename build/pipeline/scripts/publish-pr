@@ -1,0 +1,89 @@
+#!/bin/bash
+# Publish freshly-built PR artifacts: prune buildx cache, upload client tarball
+# to S3, and write the artifact reply file.
+#
+# All inputs come from environment variables exported by the Makefile:
+#   PR_TAG              - feature-branch tag (e.g. PR-5297-22fe5fe); required
+#   BUILT               - what was built: client | server | all; required
+#   PUSH_SERVER         - non-empty when the server image was pushed
+#   PUSH_CLIENT         - non-empty when the client image was pushed
+#   UPLOAD_TARBALL      - "1" when the client tarball should be uploaded
+#   BUILDX_BUILDER      - buildx builder name
+#   DOCKER_CACHE_DIR    - path to the durable type=local layer cache
+#   PACKAGE_DIR         - directory containing pmm-client.tar.gz
+#   S3_BUCKET           - target S3 bucket
+#   S3_REGION           - AWS region
+#   TARBALL_KEY         - S3 key for the tarball upload
+#   EFFECTIVE_SERVER_TAG
+#   EFFECTIVE_CLIENT_TAG
+#   EFFECTIVE_TARBALL_URL
+#   PMM_STAGING_BASE    - base URL for the staging launcher
+#   REPLY_FILE          - path to write the artifact reply (optional)
+#   LOG_UUID            - build log UUID (optional)
+
+set -euo pipefail
+
+# --- Validate required inputs ------------------------------------------------
+
+if [ -z "${PR_TAG:-}" ]; then
+  echo "publish-pr requires PR_TAG" >&2
+  exit 1
+fi
+
+case "${BUILT:-}" in
+  client|server|all) ;;
+  *) echo "publish-pr requires BUILT=client|server|all (got '${BUILT:-}')" >&2; exit 1 ;;
+esac
+
+# Derive per-side flags from BUILT.
+PUSH_SERVER=; PUSH_CLIENT=; UPLOAD_TARBALL=
+case "${BUILT}" in
+  server|all) PUSH_SERVER=1 ;;
+esac
+case "${BUILT}" in
+  client|all) PUSH_CLIENT=1; UPLOAD_TARBALL=1 ;;
+esac
+
+# Resolve effective tags: use the freshly-built tag when available, fall back
+# to the stable dev-latest references.
+EFFECTIVE_SERVER_TAG="${DEV_LATEST_SERVER}"
+EFFECTIVE_CLIENT_TAG="${DEV_LATEST_CLIENT}"
+EFFECTIVE_TARBALL_URL="${LATEST_TARBALL_URL}"
+[ -n "${PUSH_SERVER}" ] && EFFECTIVE_SERVER_TAG="${SERVER_DOCKER_TAG}"
+[ -n "${PUSH_CLIENT}" ] && EFFECTIVE_CLIENT_TAG="${CLIENT_DOCKER_TAG}" && EFFECTIVE_TARBALL_URL="${TARBALL_URL}"
+
+# --- Prune buildx layer cache ------------------------------------------------
+# Safe because DOCKER_CACHE_DIR holds the durable type=local cache that the
+# next build hydrates from.
+
+if [ -n "${PUSH_SERVER}${PUSH_CLIENT}" ] && \
+   docker buildx inspect "${BUILDX_BUILDER}" >/dev/null 2>&1; then
+  echo "Pruning buildx cache for ${BUILDX_BUILDER}..."
+  docker buildx prune --builder "${BUILDX_BUILDER}" -f || true
+  docker buildx stop "${BUILDX_BUILDER}" 2>/dev/null || true
+fi
+
+# --- Upload client tarball to S3 ---------------------------------------------
+
+if [ -n "${UPLOAD_TARBALL}" ]; then
+  echo "Uploading client tarball to s3://${S3_BUCKET}/${TARBALL_KEY}..."
+  aws s3 cp "${PACKAGE_DIR}/pmm-client.tar.gz" \
+    "s3://${S3_BUCKET}/${TARBALL_KEY}" \
+    --region "${S3_REGION}"
+fi
+
+# --- Write artifact reply file -----------------------------------------------
+
+if [ -n "${REPLY_FILE:-}" ]; then
+  {
+    echo "**Server docker:** \`${EFFECTIVE_SERVER_TAG}\`"
+    echo "**Client docker:** \`${EFFECTIVE_CLIENT_TAG}\`"
+    echo "**Client tarball:** ${EFFECTIVE_TARBALL_URL}"
+    echo "**Staging instance:** ${PMM_STAGING_BASE}?DOCKER_VERSION=${EFFECTIVE_SERVER_TAG}&CLIENT_VERSION=${EFFECTIVE_TARBALL_URL}"
+    if [ -n "${LOG_UUID:-}" ]; then
+      echo "**Build log:** \`${LOG_UUID}\` — view with the [pmm-log-viewer](../tree/v3/build/pipeline/log-viewer)"
+    fi
+  } > "${REPLY_FILE}"
+fi
+
+echo "Publish complete (BUILT=${BUILT})."

@@ -18,3 +18,4 @@ git checkout "${REF}"
 
 CGO_ENABLED=0 GOOS=linux GOARCH="${GOARCH}" make build
 cp pmm-dump /output/
+strip /output/pmm-dump 2>/dev/null || true

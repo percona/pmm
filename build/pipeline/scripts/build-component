@@ -41,6 +41,11 @@ BUILD_CACHE_VOL="pmm-build"
 REPO_CACHE_DIR="${REPO_CACHE_DIR:-$(realpath "${SCRIPT_DIR}/../cache/repos")}"
 STAMP_DIR="${STAMP_DIR:-$(realpath "${SCRIPT_DIR}/../cache/stamps")}"
 
+# Post-build: drop debug info and symbol tables from /output binaries so
+# release artifacts match the size of `-ldflags='-s -w'` builds. Non-ELF files
+# (queries/, configs) make strip exit non-zero — ignored.
+STRIP_OUTPUT_BINARIES='find /output -maxdepth 1 -type f -exec strip {} + 2>/dev/null || true'
+
 # Component lists (must match Makefile)
 WORKSPACE_COMPONENTS="pmm-admin pmm-agent"
 EXTERNAL_COMPONENTS="node_exporter mysqld_exporter mongodb_exporter postgres_exporter proxysql_exporter rds_exporter azure_metrics_exporter redis_exporter vmagent nomad percona-toolkit"
@@ -213,7 +218,9 @@ build_workspace_component() {
     -e PMM_RELEASE_BRANCH="${branch}" \
     -w /workspace \
     "${BUILDER_IMAGE}" \
-    bash -c "${full_build_cmd}"
+    bash -c "set -e
+${full_build_cmd}
+${STRIP_OUTPUT_BINARIES}"
 
   # Write build stamp after successful build.
   local current_hash
@@ -329,6 +336,7 @@ build_external_component() {
         cd /build/${component}
         git checkout ${ref}
         ${build_cmd}
+        ${STRIP_OUTPUT_BINARIES}
     "
   docker run --rm \
     --platform "linux/${container_arch}" \

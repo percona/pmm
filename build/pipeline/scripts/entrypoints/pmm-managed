@@ -30,6 +30,8 @@ cp /build/pmm/bin/pmm-managed \
    /build/pmm/bin/vmproxy \
    /output/bin/
 
+find /output/bin -maxdepth 1 -type f -exec strip {} + 2>/dev/null || true
+
 cp -r /build/pmm/api/swagger/. /output/data/swagger/
 cp /build/pmm/managed/data/advisors/*.yml /output/data/advisors/
 cp /build/pmm/managed/data/checks/*.yml /output/data/checks/
