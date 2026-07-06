@@ -81,7 +81,7 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
   const [maximized, setMaximized] = useState(false);
   const { navOpen } = useNavigation();
   const open = !!insight;
-  // when maximized, take all the space except the main navigation
+  // the pane never covers the main navigation
   const sidebarWidth = navOpen ? DRAWER_WIDTH : DRAWER_CLOSED_WIDTH;
 
   // start each viewing at the default height
@@ -105,7 +105,7 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
           'data-testid': 'insight-details-pane',
           sx: {
             height: maximized ? '100vh' : '60vh',
-            left: { xs: 0, md: maximized ? sidebarWidth : 0 },
+            left: { xs: 0, md: sidebarWidth },
             p: 2,
             transition: (theme) =>
               theme.transitions.create(['height', 'left'], {
