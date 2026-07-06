@@ -372,7 +372,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 	})
 
 	t.Run("trimming all remaining metadata", func(t *testing.T) {
-		chunksRet := []*oplogChunk{
+		chunksRet := []*OplogChunk{
 			{FName: "chunkA"},
 		}
 
