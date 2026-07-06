@@ -336,6 +336,24 @@ func TestStartChecks(t *testing.T) {
 	})
 }
 
+func TestNewInitializesStartCheckChannel(t *testing.T) {
+	t.Parallel()
+	// New must initialize the on-demand channel so StartChecks can enqueue a
+	// run before Run starts draining it.
+	s := New(nil, nil, nil, nil)
+	require.NotNil(t, s.startCheckCh)
+}
+
+func TestUpdateIntervalsBeforeRun(t *testing.T) {
+	t.Parallel()
+	// UpdateIntervals must not panic when Run has not created the tickers yet
+	// (e.g. a settings change on a node that is not the leader).
+	s := New(nil, nil, nil, nil)
+	assert.NotPanics(t, func() {
+		s.UpdateIntervals(time.Hour, time.Minute, time.Second)
+	})
+}
+
 func TestFilterChecks(t *testing.T) {
 	t.Parallel()
 
