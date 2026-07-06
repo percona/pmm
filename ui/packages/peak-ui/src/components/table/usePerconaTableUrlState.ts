@@ -6,6 +6,7 @@ import {
   MRT_Updater,
 } from 'material-react-table';
 import {
+  cloneColumnFilters,
   isSameTableState,
   mergePerconaTableState,
   resolveUpdater,
@@ -27,6 +28,8 @@ export interface UsePerconaTableUrlStateOptions extends TableUrlStateOptions {
   debounceMs?: number;
   replace?: boolean;
   additionalState?: Record<string, unknown>;
+  initialShowColumnFilters?: boolean;
+  initialShowGlobalFilter?: boolean;
 }
 
 export type PerconaTableUrlControlledState = TableStateValues & {
@@ -83,7 +86,9 @@ const mergeStateFromUrl = (
 ): FullTableUrlState => {
   const parsed = parseTableUrlState(searchParams, urlOptions);
   const sync = resolveTableUrlSync(urlOptions.sync);
-  const columnFilters = sync.filters ? parsed.columnFilters : prev.columnFilters;
+  const columnFilters = sync.filters
+    ? cloneColumnFilters(parsed.columnFilters)
+    : prev.columnFilters;
   const globalFilter = sync.globalFilter ? parsed.globalFilter : prev.globalFilter;
 
   return {
@@ -113,13 +118,18 @@ const isSameFullTableUrlState = (a: FullTableUrlState, b: FullTableUrlState): bo
 
 const createStateFromUrl = (
   searchParams: URLSearchParams,
-  urlOptions: TableUrlStateOptions
+  urlOptions: TableUrlStateOptions,
+  initialShowColumnFilters = false,
+  initialShowGlobalFilter = false
 ): FullTableUrlState => {
   const parsed = parseTableUrlState(searchParams, urlOptions);
+  const columnFilters = cloneColumnFilters(parsed.columnFilters);
   return {
     ...parsed,
-    showColumnFilters: hasActiveColumnFilters(parsed.columnFilters),
-    showGlobalFilter: !!parsed.globalFilter,
+    columnFilters,
+    showColumnFilters:
+      hasActiveColumnFilters(columnFilters) || initialShowColumnFilters,
+    showGlobalFilter: !!parsed.globalFilter || initialShowGlobalFilter,
   };
 };
 
@@ -132,6 +142,8 @@ export function usePerconaTableUrlState({
   debounceMs = DEFAULT_DEBOUNCE_MS,
   replace = true,
   additionalState,
+  initialShowColumnFilters = false,
+  initialShowGlobalFilter = false,
 }: UsePerconaTableUrlStateOptions): UsePerconaTableUrlStateResult {
   const syncKey = stableDependencyKey(sync);
   const defaultsKey = stableDependencyKey(defaults);
@@ -146,7 +158,12 @@ export function usePerconaTableUrlState({
   const searchParamsKey = searchParams.toString();
 
   const [state, setState] = useState<FullTableUrlState>(() =>
-    createStateFromUrl(searchParams, urlOptions)
+    createStateFromUrl(
+      searchParams,
+      urlOptions,
+      initialShowColumnFilters,
+      initialShowGlobalFilter
+    )
   );
 
   const globalFilterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -222,9 +239,12 @@ export function usePerconaTableUrlState({
   const onColumnFiltersChange = useCallback(
     (updater: MRT_Updater<MRT_ColumnFiltersState>) => {
       const prev = latestTableStateRef.current;
+      const nextColumnFilters = cloneColumnFilters(
+        resolveUpdater(updater, cloneColumnFilters(prev.columnFilters))
+      );
       const nextTableState = {
         ...toTableStateValues(prev),
-        columnFilters: resolveUpdater(updater, prev.columnFilters),
+        columnFilters: nextColumnFilters,
       };
       if (isSameTableState(toTableStateValues(prev), nextTableState)) {
         return;
@@ -305,7 +325,23 @@ export function usePerconaTableUrlState({
     setState(next);
   }, []);
 
-  const tableValues = useMemo(() => toTableStateValues(state), [state]);
+  const columnFiltersKey = stableDependencyKey(state.columnFilters);
+  const columnFiltersForTable = useMemo(
+    () => cloneColumnFilters(state.columnFilters),
+    // columnFiltersKey keeps the clone reference stable when values are unchanged.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [columnFiltersKey]
+  );
+
+  const tableValues = useMemo(
+    (): TableStateValues => ({
+      columnFilters: columnFiltersForTable,
+      globalFilter: state.globalFilter,
+      sorting: state.sorting,
+      pagination: state.pagination,
+    }),
+    [columnFiltersForTable, state.globalFilter, state.sorting, state.pagination]
+  );
 
   const tableState = useMemo<TableControlledState>(
     () => ({

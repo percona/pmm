@@ -1,8 +1,17 @@
-import { MRT_Updater } from 'material-react-table';
+import { MRT_ColumnFiltersState, MRT_Updater } from 'material-react-table';
 import { type TableStateValues } from './tableState.types';
 
 export const resolveUpdater = <S>(updater: MRT_Updater<S>, prev: S): S =>
   updater instanceof Function ? updater(prev) : updater;
+
+// MRT range filters mutate value arrays in place; clone at controlled-state boundaries.
+export const cloneColumnFilters = (
+  filters: MRT_ColumnFiltersState
+): MRT_ColumnFiltersState =>
+  filters.map(({ id, value }) => ({
+    id,
+    value: Array.isArray(value) ? [...value] : value,
+  }));
 
 export const isSameTableState = (a: TableStateValues, b: TableStateValues): boolean =>
   stableDependencyKey(a) === stableDependencyKey(b);

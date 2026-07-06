@@ -1,6 +1,11 @@
+import { MRT_ColumnFiltersState } from 'material-react-table';
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_TABLE_STATE } from './tableState.types';
-import { mergePerconaTableState, stableDependencyKey } from './tableState.utils';
+import {
+  cloneColumnFilters,
+  mergePerconaTableState,
+  stableDependencyKey,
+} from './tableState.utils';
 
 describe('tableState.utils', () => {
   it('lets urlState override overlapping additionalState keys', () => {
@@ -33,5 +38,13 @@ describe('tableState.utils', () => {
 
   it('stableDependencyKey is invariant to object key order', () => {
     expect(stableDependencyKey({ a: 1, b: 2 })).toBe(stableDependencyKey({ b: 2, a: 1 }));
+  });
+
+  it('cloneColumnFilters clones range filter value tuples', () => {
+    const filters: MRT_ColumnFiltersState = [{ id: 'cpu', value: ['10', ''] }];
+    const cloned = cloneColumnFilters(filters);
+
+    expect(cloned).toEqual(filters);
+    expect(cloned[0].value).not.toBe(filters[0].value);
   });
 });

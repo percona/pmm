@@ -44,6 +44,7 @@ export {
   mergePerconaTableState,
   stableDependencyKey,
   isSameTableState,
+  cloneColumnFilters,
 } from './tableState.utils';
 
 // Re-export common Material React Table types so consumers don't have to

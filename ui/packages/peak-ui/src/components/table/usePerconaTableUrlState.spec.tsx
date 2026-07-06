@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import React, { useState } from 'react';
 import { usePerconaTableUrlState } from './usePerconaTableUrlState';
@@ -363,6 +363,66 @@ describe('usePerconaTableUrlState', () => {
     expect(search).not.toContain('f.group');
 
     vi.useRealTimers();
+  });
+
+  it('applies range filter updates when MRT mutates the previous filter array in place', async () => {
+    function Harness() {
+      const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+      const { tableProps } = usePerconaTableUrlState({
+        searchParams,
+        setSearchParams,
+        debounceMs: 0,
+      });
+
+      return (
+        <>
+          <div data-testid="filters">
+            {tableProps.state.columnFilters.map((f) => `${f.id}=${f.value}`).join(',')}
+          </div>
+          <button
+            type="button"
+            data-testid="mutate-range"
+            onClick={() => {
+              tableProps.onColumnFiltersChange((prev) => {
+                const next = prev.length
+                  ? prev
+                  : [{ id: 'cpu', value: ['', ''] as [string, string] }];
+                (next[0].value as string[])[0] = '25';
+                return next;
+              });
+            }}
+          >
+            Mutate
+          </button>
+        </>
+      );
+    }
+
+    render(<Harness />);
+
+    await act(async () => {
+      screen.getByTestId('mutate-range').click();
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('filters').textContent).toBe('cpu=25,');
+    });
+  });
+
+  it('keeps the same columnFilters reference when filter values are unchanged', () => {
+    function useHarness() {
+      const [searchParams, setSearchParams] = useState(
+        () => new URLSearchParams('f.cpu=%5B%222%22%2C%22%22%5D')
+      );
+      return usePerconaTableUrlState({ searchParams, setSearchParams });
+    }
+
+    const { result, rerender } = renderHook(() => useHarness());
+    const firstReference = result.current.tableProps.state.columnFilters;
+
+    rerender();
+
+    expect(result.current.tableProps.state.columnFilters).toBe(firstReference);
   });
 
   it('does not loop when defaults and sync are inline object literals', async () => {
