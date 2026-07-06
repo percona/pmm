@@ -29,9 +29,10 @@ test-common:          ## Run tests from shared packages only (i.e it ignores dir
 	go test $(shell go list ./... | grep -v -e admin -e agent -e api -e managed -e api-tests -e qan-api2 -e vmproxy)
 
 GOLANG_CI_LINT_RUN_OPTS ?=
+check: NEW_FROM_REV ?= $(shell git merge-base --fork-point origin/main HEAD 2>/dev/null || git merge-base origin/main HEAD 2>/dev/null || git merge-base main HEAD 2>/dev/null || git rev-parse HEAD~)
 check:                ## Run required checks and linters
 	$(MAKE) -C api check
-	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=HEAD~ --new $(GOLANG_CI_LINT_RUN_OPTS)
+	LOG_LEVEL=error bin/golangci-lint run -c=.golangci.yml --new-from-rev=$(NEW_FROM_REV) --new $(GOLANG_CI_LINT_RUN_OPTS)
 	go tool go-sumtype ./...
 
 check-license:        ## Run license header checks against source files

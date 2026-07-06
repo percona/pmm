@@ -58,6 +58,14 @@ jobs:
       - name: Run go-sumtype
         run: go tool go-sumtype ./...
 
+      - name: Determine golangci-lint baseline
+        id: lint_base
+        run: |
+          base_ref="${{ github.event.pull_request.base.ref }}"
+          git fetch --no-tags --depth=1 origin "refs/heads/${base_ref}:refs/remotes/origin/${base_ref}"
+          new_from_rev="$(git merge-base --fork-point "origin/${base_ref}" HEAD 2>/dev/null || git merge-base "origin/${base_ref}" HEAD 2>/dev/null || git rev-parse HEAD~)"
+          echo "new_from_rev=${new_from_rev}" >> "$GITHUB_OUTPUT"
+
       - name: Run code linters
         uses: reviewdog/action-golangci-lint@c76cceaaab89abe74e649d2e34c6c9adc26662d2 # v2.10.0
         with:
@@ -66,7 +74,7 @@ jobs:
           reporter: github-pr-review
           fail_level: error
           cache: false
-          golangci_lint_flags: "-c=.golangci.yml --new-from-rev=HEAD~"
+          golangci_lint_flags: "-c=.golangci.yml --new-from-rev=${{ steps.lint_base.outputs.new_from_rev }}"
           golangci_lint_version: v2.12.2 # Version should match specified in Makefile
 
       - name: Run debug commands on failure
