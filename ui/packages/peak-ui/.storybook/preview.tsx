@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import type { Preview } from "@storybook/react";
-import CssBaseline from '@mui/material/CssBaseline';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CssBaseline from "@mui/material/CssBaseline";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import { getThemeOptions } from "../src/design";
 import peakDesign from "./peak-design";

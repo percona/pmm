@@ -4,7 +4,6 @@ import { describe, expect, it, vi } from 'vitest';
 import { baseThemeOptions, ThemeContextProvider } from '../../design';
 import Table from './table';
 import { useNavigableRows, type NavigableRowsScope } from './useNavigableRows';
-import React from 'react';
 
 type TestRow = {
   id: string;

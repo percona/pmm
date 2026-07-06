@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_TABLE_STATE } from './tableState.types';
-import { parseTableUrlState, serializeTableUrlState } from './tableUrlState.utils';
+import {
+  normalizeSearchParamsKey,
+  parseTableUrlState,
+  serializeTableUrlState,
+} from './tableUrlState.utils';
 
 describe('tableUrlState.utils', () => {
   it('parses defaults from an empty query string', () => {
@@ -265,5 +269,24 @@ describe('tableUrlState.utils', () => {
 
     expect(serialized.get('f.cpu')).toBeNull();
     expect(serialized.get('keep')).toBe('1');
+  });
+});
+
+describe('normalizeSearchParamsKey', () => {
+  it('preserves ampersands inside param values', () => {
+    const withAmpersand = new URLSearchParams([['q', 'a&b']]);
+    const withoutAmpersand = new URLSearchParams([['q', 'ab']]);
+
+    expect(normalizeSearchParamsKey(withAmpersand)).not.toBe(
+      normalizeSearchParamsKey(withoutAmpersand)
+    );
+    expect(normalizeSearchParamsKey(withAmpersand)).toContain('a&b');
+  });
+
+  it('is order-independent', () => {
+    const first = new URLSearchParams('b=2&a=1');
+    const second = new URLSearchParams('a=1&b=2');
+
+    expect(normalizeSearchParamsKey(first)).toBe(normalizeSearchParamsKey(second));
   });
 });
