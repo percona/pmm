@@ -2,16 +2,6 @@
 name: 'Client: pmm-agent'
 
 on:
-  push:
-    branches:
-      - main
-      - pmm-*
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-    paths-ignore:
-      - "documentation/**"
-      - "dashboards/**"
-
   pull_request:
     paths-ignore:
       - "admin/**"
@@ -116,14 +106,12 @@ jobs:
       - name: Run tests
         run: make test-cover
 
-      - name: Upload coverage results
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+      - name: Save coverage artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          files: cover.out
-          flags: agent
-          env_vars: MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
+          if-no-files-found: error
+          name: coverage-agent-${{ strategy.job-index }}
+          path: ${{ github.workspace }}/agent/cover.out
 
       - name: Run debug commands on failure
         if: ${{ failure() }}
@@ -136,6 +124,30 @@ jobs:
           docker compose logs
           docker compose ps -a
 
+
+  upload-coverage:
+    name: Upload Coverage
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Check out code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: coverage-agent-*
+          path: coverage-artifacts
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          flags: agent
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   build-gssapi:
     name: Build PMM Agent with GSSAPI support
