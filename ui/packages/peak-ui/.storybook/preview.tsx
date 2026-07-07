@@ -1,10 +1,9 @@
-import { useMemo } from "react";
-import type { Preview } from "@storybook/react";
-import CssBaseline from "@mui/material/CssBaseline";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-
-import { getThemeOptions } from "../src/design";
-import peakDesign from "./peak-design";
+import { useMemo } from 'react';
+import type { Preview } from '@storybook/react';
+import CssBaseline from '@mui/material/CssBaseline';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { getThemeOptions } from '../src/design';
+import peakDesign from './peak-design';
 
 const preview: Preview = {
   decorators: [
@@ -13,10 +12,7 @@ const preview: Preview = {
         globals: { mode, theme: themeName },
       } = context;
 
-      const theme = useMemo(
-        () => createTheme(getThemeOptions(themeName)(mode)),
-        [mode, themeName]
-      );
+      const theme = useMemo(() => createTheme(getThemeOptions(themeName)(mode)), [mode, themeName]);
 
       const defaultBg = theme.palette.background.default;
       document.body.style.backgroundColor = defaultBg;
@@ -39,31 +35,31 @@ const preview: Preview = {
     },
   ],
   initialGlobals: {
-    mode: "light",
-    theme: "base",
+    mode: 'light',
+    theme: 'base',
   },
   globalTypes: {
     mode: {
-      name: "mode",
-      description: "Color mode",
+      name: 'mode',
+      description: 'Color mode',
       toolbar: {
-        icon: "sun",
+        icon: 'sun',
         items: [
-          { value: "light", icon: "sun", title: "Light mode" },
-          { value: "dark", icon: "moon", title: "Dark mode" },
+          { value: 'light', icon: 'sun', title: 'Light mode' },
+          { value: 'dark', icon: 'moon', title: 'Dark mode' },
         ],
         dynamicTitle: true,
       },
     },
     theme: {
-      name: "theme",
-      description: "GUI theme",
+      name: 'theme',
+      description: 'GUI theme',
       toolbar: {
-        icon: "circlehollow",
+        icon: 'circlehollow',
         items: [
-          { value: "base", icon: "circlehollow", title: "Base theme" },
-          { value: "pmm", icon: "hearthollow", title: "PMM theme" },
-          { value: "sep", icon: "database", title: "SEP theme" },
+          { value: 'base', icon: 'circlehollow', title: 'Base theme' },
+          { value: 'pmm', icon: 'hearthollow', title: 'PMM theme' },
+          { value: 'sep', icon: 'database', title: 'SEP theme' },
         ],
         dynamicTitle: true,
       },
@@ -84,22 +80,23 @@ const preview: Preview = {
       storySort: {
         order: [
           'Introduction',
-          'Foundations', [
-            'Colors', [
-              'Primitives',
-              'Primary',
-              'Structural UI',
-              'Messaging',
-              'Charts'
-            ],
+          'Foundations',
+          [
+            'Colors',
+            ['Primitives', 'Primary', 'Structural UI', 'Messaging', 'Charts'],
             'Typography',
-            'Icons', ['Overview', 'Custom Icons']
+            'Icons',
+            ['Overview', 'Custom Icons'],
+            'Illustrations',
+            ['Overview', 'Illustrations'],
           ],
-          'Inputs', ['Icon Button', 'Text Field', 'Copy to Clipboard'],
-          'Data display', ['Chip', 'Code Block', 'Table', 'Tooltip'],
+          'Inputs',
+          ['Icon Button', 'Text Field', 'Copy to Clipboard'],
+          'Data display',
+          ['Chip', 'Code Block', 'Table', 'Tooltip'],
           'Navigation',
           'To be reviewed',
-          '*'
+          '*',
         ],
       },
     },
