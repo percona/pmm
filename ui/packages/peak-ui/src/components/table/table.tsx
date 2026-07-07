@@ -435,13 +435,28 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
       };
     },
     muiBottomToolbarProps: {
-      sx: {
+      sx: (theme: Theme) => ({
         backgroundColor: 'transparent',
         boxShadow: 'none',
         '& label': {
           transform: 'none !important',
         },
-      },
+        '& .MuiTablePagination-root': {
+          '& .MuiInputLabel-root, & .MuiInputBase-root': {
+            typography: 'body2',
+          },
+          // MRT disables the standard-variant underline, dropping the only keyboard focus cue
+          '& .MuiSelect-select:focus-visible': {
+            backgroundColor: theme.palette.primary.focusVisible,
+            borderRadius: '4px',
+          },
+          // MRT hardcodes size="small"; render as medium (20px icons) like the header buttons
+          '& .MuiIconButton-root': {
+            padding: '10px',
+            '& > .MuiSvgIcon-root': { width: 20, height: 20 },
+          },
+        },
+      }),
     },
     muiTableBodyProps: ({ table }) => {
       const consumer =
