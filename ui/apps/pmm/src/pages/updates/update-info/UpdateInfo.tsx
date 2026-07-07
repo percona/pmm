@@ -14,14 +14,6 @@ export const UpdateInfo: FC = () => (
       <Typography variant="h5">{Messages.title}</Typography>
       <Typography>
         {Messages.upgrading}
-        <br />
-        <Link
-          href={PMM_DOCS_UPDATES_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {Messages.howToUpdate}
-        </Link>
       </Typography>
     </Stack>
     <Stack spacing={1}>
