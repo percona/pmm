@@ -781,7 +781,10 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             },
           },
           icon: {
-            right: '12px !important',
+            // outlined only: standard/filled selects (e.g. TablePagination) keep right: 0
+            [`.${outlinedInputClasses.root} &`]: {
+              right: '12px !important',
+            },
           },
         },
       },
