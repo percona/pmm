@@ -122,7 +122,7 @@ const IllustrationsGallery = () => {
                 border: '1px solid',
                 borderColor: 'dividers.contour',
                 textAlign: 'center',
-                '&:hover .copy-button': { opacity: 1 },
+                '&:hover .copy-button, &:focus-within .copy-button': { opacity: 1 },
               }}
             >
               <Illustration sx={{ fontSize: 128, color: 'text.primary' }} />
