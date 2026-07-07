@@ -14,7 +14,6 @@ import type { QueryData } from 'types/rta.types';
 import { Icon } from 'components/icon';
 import { Messages } from './RealtimeOverview.messages';
 import { createRealtimeSessionsUrl } from 'utils/link.utils';
-import FileDownloadOutlined from '@mui/icons-material/FileDownloadOutlined';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
@@ -164,7 +163,7 @@ const RealtimeOverviewPage: FC = () => {
                   data-testid="overview-table-export-button"
                   size="small"
                   variant="text"
-                  startIcon={<FileDownloadOutlined />}
+                  startIcon={<Icon name="file-download" />}
                   disabled={
                     serviceIds.length === 0 ||
                     table.getPrePaginationRowModel().rows.length === 0
