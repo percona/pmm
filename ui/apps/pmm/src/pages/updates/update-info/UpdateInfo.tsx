@@ -1,7 +1,6 @@
-import { Link, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { FC } from 'react';
 import { Messages } from './UpdateInfo.messages';
-import { PMM_DOCS_UPDATES_URL } from 'lib/constants';
 
 export const UpdateInfo: FC = () => (
   <Stack
