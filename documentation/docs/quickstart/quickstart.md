@@ -254,7 +254,7 @@ Once PMM is set up, choose the database or the application that you want it to m
                },
                {
                  "resource": { "db": "", "collection": "system.profile" },
-                 "actions": [ "dbStats", "collStats", "indexStats" ]
+                 "actions": [ "find", "dbStats", "collStats", "indexStats" ]
                }                  
             ],
             "roles": []
