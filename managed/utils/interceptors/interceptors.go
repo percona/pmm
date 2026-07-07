@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package interceptors contains gRPC wrappers for logging and Prometheus metrics.
 package interceptors
 
 import (
@@ -82,7 +81,7 @@ type UnaryInterceptorType = func(ctx context.Context, req any, info *grpc.UnaryS
 
 var dropEndpointsRE = regexp.MustCompile(`^/server.v1.ServerService/(Readiness|LeaderHealthCheck)$`)
 
-// Unary adds context logger and Prometheus metrics to unary server RPC.
+// UnaryAdd adds context logger and Prometheus metrics to unary server RPC.
 func UnaryAdd(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		// add pprof labels for more useful profiles

@@ -931,6 +931,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	inventoryMetricsCollector := inventory.NewInventoryMetricsCollector(inventoryMetrics)
 	prom.MustRegister(inventoryMetricsCollector)
 
+	haMetricsCollector := ha.NewHAMetricsCollector(haService)
+	prom.MustRegister(haMetricsCollector)
+
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
@@ -967,10 +970,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		l.Fatal(err)
 	}
 
-	platformClient, err := platformClient.NewClient(platformAddress)
-	if err != nil {
-		l.Fatalf("Could not create telemetry client: %s", err)
-	}
+	platformClient := platformClient.NewClient(platformAddress)
 
 	dus := distribution.NewService(distributionInfoFilePath, osInfoFilePath, l)
 	telemetry, err := telemetry.NewService(db, platformClient, version.Version, dus, cfg.Config.Services.Telemetry)
@@ -1152,9 +1152,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		updater.Run(ctx)
 	})
 
-	wg.Add(1)
 	haService.AddLeaderService(ha.NewContextService("telemetry", func(ctx context.Context) error {
-		defer wg.Done()
 		telemetry.Run(ctx)
 		return nil
 	}))
