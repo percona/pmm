@@ -5,9 +5,19 @@ interface IllustrationRootProps extends Omit<SvgIconProps, 'children'> {
   children: ReactNode;
 }
 
-const IllustrationRoot = ({ sx, ...props }: IllustrationRootProps) => (
-  <SvgIcon viewBox="0 0 64 64" sx={{ fontSize: 64, ...sx }} {...props} />
-);
+const IllustrationRoot = ({ sx, fontSize, children, ...props }: IllustrationRootProps) => {
+  const sxOverrides = Array.isArray(sx) ? sx : sx ? [sx] : [];
+  return (
+    <SvgIcon
+      viewBox="0 0 64 64"
+      fontSize={fontSize}
+      sx={fontSize ? sxOverrides : [{ fontSize: 64 }, ...sxOverrides]}
+      {...props}
+    >
+      {children}
+    </SvgIcon>
+  );
+};
 
 interface LayerProps {
   translate: string;
