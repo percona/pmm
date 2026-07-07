@@ -359,7 +359,7 @@ describe('RealtimeOverview', () => {
     );
   });
 
-  it('disables export while live updates are running', async () => {
+  it('hides export while live updates are running', async () => {
     renderComponent({
       initialEntry:
         '/rta/overview?serviceIds=' + TEST_REAL_TIME_SESSION.serviceId,
@@ -367,7 +367,9 @@ describe('RealtimeOverview', () => {
 
     await waitFor(() => screen.getByTestId('realtime-overview-table'));
 
-    expect(screen.getByTestId('overview-table-export-button')).toBeDisabled();
+    expect(
+      screen.queryByTestId('overview-table-export-button')
+    ).not.toBeInTheDocument();
   });
 
   it('enables export after pausing live updates', async () => {

@@ -15,8 +15,6 @@ import { Icon } from 'components/icon';
 import { Messages } from './RealtimeOverview.messages';
 import { createRealtimeSessionsUrl } from 'utils/link.utils';
 import FileDownloadOutlined from '@mui/icons-material/FileDownloadOutlined';
-import { Tooltip } from '@percona/percona-ui';
-import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
@@ -24,15 +22,6 @@ import { AutoRefreshSelect } from './auto-refresh-select';
 import { exportRtaQueriesToCsv } from './export/exportRtaQueriesToCsv';
 
 const EMPTY_QUERIES: QueryData[] = [];
-
-const EXPORT_BUTTON_SX = {
-  width: 100,
-  height: 36,
-  '&.Mui-disabled': {
-    cursor: 'not-allowed',
-    pointerEvents: 'auto',
-  },
-};
 
 const RealtimeOverviewPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -170,27 +159,7 @@ const RealtimeOverviewPage: FC = () => {
                   {Messages.refresh}
                 </Button>
               )}
-              {fetching ? (
-                <Tooltip title={Messages.exportDisabledTooltip} arrow>
-                  <Box
-                    component="span"
-                    sx={{ cursor: 'not-allowed', display: 'inline-flex' }}
-                  >
-                    <Button
-                      data-testid="overview-table-export-button"
-                      size="small"
-                      variant="text"
-                      startIcon={<FileDownloadOutlined />}
-                      disabled
-                      color="inherit"
-                      disableElevation
-                      sx={EXPORT_BUTTON_SX}
-                    >
-                      {Messages.export}
-                    </Button>
-                  </Box>
-                </Tooltip>
-              ) : (
+              {!fetching && (
                 <Button
                   data-testid="overview-table-export-button"
                   size="small"
@@ -209,7 +178,10 @@ const RealtimeOverviewPage: FC = () => {
                   }
                   color="inherit"
                   disableElevation
-                  sx={EXPORT_BUTTON_SX}
+                  sx={{
+                    width: 100,
+                    height: 36,
+                  }}
                 >
                   {Messages.export}
                 </Button>

@@ -4,5 +4,4 @@ export const Messages = {
   resume: 'Resume',
   refresh: 'Refresh',
   export: 'Export',
-  exportDisabledTooltip: 'Pause live updates to export a snapshot',
 };
