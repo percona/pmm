@@ -1,4 +1,4 @@
-import { SvgIcon, SvgIconProps } from '@mui/material';
+import SvgIcon, { type SvgIconProps } from '@mui/material/SvgIcon';
 
 /**
  * @deprecated Brand illustration pending migration to a dedicated Illustrations section. Do not adopt in new code.
