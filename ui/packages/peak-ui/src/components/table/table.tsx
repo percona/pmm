@@ -316,6 +316,15 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     },
     muiColumnActionsButtonProps: {
       size: 'medium',
+      // MRT has no open-state hook for its menu, so flag the anchor while open.
+      // DOM-only on purpose: a state update here re-renders mid-click and kills the menu.
+      onClickCapture: (event) => {
+        if (data.length) {
+          event.currentTarget.classList.add('percona-column-actions-open');
+        }
+      },
+      // the closing menu restores focus to the anchor
+      onFocus: (event) => event.currentTarget.classList.remove('percona-column-actions-open'),
       sx: {
         height: 40,
         width: 40,
@@ -398,7 +407,12 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
             '& .MuiTableCell-head[data-sort] .MuiTableSortLabel-root': {
               opacity: 1,
             },
-            '& .MuiTableCell-head:has(.Mui-TableHeadCell-Content-Actions .MuiIconButton-root:hover)':
+            '& .MuiTableCell-head .Mui-TableHeadCell-Content-Actions .MuiIconButton-root.percona-column-actions-open':
+              {
+                opacity: 1,
+                backgroundColor: theme.palette.action.selected,
+              },
+            '& .MuiTableCell-head:has(.Mui-TableHeadCell-Content-Actions .MuiIconButton-root:hover), & .MuiTableCell-head:has(.percona-column-actions-open)':
               {
                 backgroundColor: theme.palette.action.hover,
               },
