@@ -141,7 +141,7 @@ const IllustrationsGallery = () => {
                   layers: {layers}
                 </Typography>
               </Box>
-              <Tooltip title="Copy import name">
+              <Tooltip title="Copy import statement">
                 <IconButton
                   className="copy-button"
                   size="medium"
