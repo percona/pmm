@@ -1,6 +1,6 @@
-# SSH Key
+# SSH key
 
-When you run PMM Server as a virtual machine (AMI or OVF), you can upload your public SSH key to enable SSH access for direct management and troubleshooting.
+When you run PMM Server as an AWS AMI instance, you can upload your public SSH key to enable SSH access for direct management and troubleshooting.
 
 ![PMM Settings SSH Key](../../../../images/PMM_Settings_SSH_Key.jpg)
 
@@ -13,8 +13,6 @@ To configure SSH access:
 2. Enter your public key in the **SSH Key** field.
 3. Click **Apply changes**.
 
-For more information on virtual machine deployments, see [Virtual appliance](../virtual/index.md).
-
 ## Connect via SSH
 
 Once your public key is configured, connect using the `admin` user:
@@ -26,11 +24,6 @@ ssh -i your-private-key admin@<pmm-server-ip>
 === "AWS EC2 instance"
     ```bash
     ssh -i ~/keys/my-aws-key.pem admin@ec2-203-0-113-42.compute-1.amazonaws.com
-    ```
-
-=== "Local virtual appliance"
-    ```bash
-    ssh -i ~/.ssh/pmm_key admin@192.168.1.100
     ```
 
 === "Default key location"
