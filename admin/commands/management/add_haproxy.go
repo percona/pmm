@@ -44,6 +44,8 @@ func (res *addHAProxyResult) String() string {
 
 // AddHAProxyCommand is used by Kong for CLI flags and commands.
 type AddHAProxyCommand struct {
+	flags.MetricsModeFlags
+
 	ServiceName         string            `name:"name" arg:"" default:"${hostname}-haproxy" help:"Service name (autodetected default: ${hostname}-haproxy)"`
 	Username            string            `help:"HAProxy username"`
 	Password            string            `help:"HAProxy password"`
@@ -58,8 +60,6 @@ type AddHAProxyCommand struct {
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
 	TLSSkipVerify       bool              `help:"Skip TLS certificate verification"`
-
-	flags.MetricsModeFlags
 }
 
 // GetCredentials returns the credentials for AddHAProxyCommand.

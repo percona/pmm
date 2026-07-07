@@ -69,8 +69,13 @@ type Response struct {
 	Error   error
 }
 
-type Stream interface { //nolint:revive
+// Stream represents a bidirectional gRPC stream for sending server messages
+// and receiving agent messages.
+type Stream interface {
+	// Send sends a message from the server to the agent.
 	Send(*agentv1.ServerMessage) error
+
+	// Recv blocks until it receives a message from the agent or an error (such as stream closure) occurs.
 	Recv() (*agentv1.AgentMessage, error)
 }
 
