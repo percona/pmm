@@ -163,6 +163,7 @@ Configure connections to external database services:
 
 | Variable | Purpose |
 |----------|----------|
+| `PMM_CLICKHOUSE_CONFIG` | Set to `low-memory` to activate the built-in ClickHouse profile optimized for hosts with less than 16 GB RAM. Omit or set to `default` for standard deployments. See [ClickHouse memory issues](../../../../troubleshoot/qan_issues.md#clickhouse-memory-issues-in-low-memory-environments). |
 | `PMM_CLICKHOUSE_*` | ClickHouse connection settings |
 | `PMM_POSTGRES_*` | PostgreSQL connection settings |
 
