@@ -32,12 +32,12 @@ import (
 
 // RestoreService represents backup restore API.
 type RestoreService struct {
+	backupv1.UnimplementedRestoreServiceServer
+
 	l               *logrus.Entry
 	db              *reform.DB
 	backupService   backupService
 	scheduleService scheduleService
-
-	backupv1.UnimplementedRestoreServiceServer
 }
 
 // NewRestoreService creates new restore API service.

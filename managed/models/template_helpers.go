@@ -16,9 +16,10 @@
 package models
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -37,7 +38,7 @@ func checkUniqueTemplateName(q *reform.Querier, name string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Template with name %q already exists.", name)
@@ -47,7 +48,7 @@ func checkUniqueTemplateName(q *reform.Querier, name string) error {
 func FindTemplates(q *reform.Querier) ([]*Template, error) {
 	structs, err := q.SelectAllFrom(TemplateTable, "")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select notification rule templates")
+		return nil, fmt.Errorf("failed to select notification rule templates: %w", err)
 	}
 
 	templates := make([]*Template, len(structs))
@@ -70,7 +71,7 @@ func FindTemplateByName(q *reform.Querier, name string) (*Template, error) {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Template with name %q not found.", name)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return template, nil
@@ -102,7 +103,7 @@ func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template,
 
 	err = q.Insert(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create rule template")
+		return nil, fmt.Errorf("failed to create rule template: %w", err)
 	}
 
 	return row, nil
@@ -133,7 +134,7 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 
 	yaml, err := alert.ToYAML([]alert.Template{*template})
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	p, err := ConvertParamsDefinitions(params.Template.Params)
@@ -162,7 +163,7 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 
 	err = q.Update(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to update rule template")
+		return nil, fmt.Errorf("failed to update rule template: %w", err)
 	}
 
 	return row, nil
@@ -177,7 +178,7 @@ func RemoveTemplate(q *reform.Querier, name string) error {
 
 	err = q.Delete(&Template{Name: name})
 	if err != nil {
-		return errors.Wrap(err, "failed to delete rule template")
+		return fmt.Errorf("failed to delete rule template: %w", err)
 	}
 	return nil
 }
@@ -186,12 +187,12 @@ func RemoveTemplate(q *reform.Querier, name string) error {
 func ConvertTemplate(template *alert.Template, source Source) (*Template, error) {
 	p, err := ConvertParamsDefinitions(template.Params)
 	if err != nil {
-		return nil, errors.Errorf("invalid rule template parameters: %v.", err) //nolint:revive
+		return nil, fmt.Errorf("invalid rule template parameters: %w", err)
 	}
 
 	yaml, err := alert.ToYAML([]alert.Template{*template})
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	res := &Template{
@@ -236,7 +237,7 @@ func ConvertParamsDefinitions(params []alert.Parameter) (AlertExprParamsDefiniti
 			if param.Value != nil {
 				def, err := param.GetValueForFloat()
 				if err != nil {
-					return nil, errors.Wrap(err, "failed to parse param value")
+					return nil, fmt.Errorf("failed to parse param value: %w", err)
 				}
 				fp.Default = new(def)
 			}
@@ -244,14 +245,14 @@ func ConvertParamsDefinitions(params []alert.Parameter) (AlertExprParamsDefiniti
 			if len(param.Range) != 0 {
 				pMin, pMax, err := param.GetRangeForFloat()
 				if err != nil {
-					return nil, errors.Wrap(err, "failed to parse param range")
+					return nil, fmt.Errorf("failed to parse param range: %w", err)
 				}
 				fp.Min, fp.Max = new(pMin), new(pMax)
 			}
 
 			p.FloatParam = &fp
 		default:
-			return nil, errors.Errorf("unknown parameter type %s", param.Type)
+			return nil, fmt.Errorf("unknown parameter type %s", param.Type)
 		}
 
 		res = append(res, p)

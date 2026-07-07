@@ -1,13 +1,10 @@
 import {
-  type MRT_ColumnFiltersState,
   type MRT_Row,
-  type MRT_SortingState,
-  type MRT_TableInstance,
-  MaterialReactTableProps,
+  type MaterialReactTableProps,
 } from 'material-react-table';
-import { Table } from '@percona/percona-ui';
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
-import { QueryData } from 'types/rta.types';
+import { Table, useNavigableRows } from '@percona/percona-ui';
+import type { FC } from 'react';
+import type { QueryData } from 'types/rta.types';
 import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
@@ -29,26 +26,10 @@ const OverviewTable: FC<Props> = ({
   actions,
   onRowHover,
 }) => {
-  const tableRef = useRef<MRT_TableInstance<QueryData> | null>(null);
-  // Controlled table state is required to read the filtered/sorted row model via tableInstanceRef.
-  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([]);
-  const [sorting, setSorting] = useState<MRT_SortingState>([]);
-
-  // Pre-pagination so navigation covers all filtered rows, not only the current page.
-  const getNavigableQueries = useCallback(
-    () =>
-      tableRef.current?.getPrePaginationRowModel().rows.map((row) => row.original) ??
-      queries,
-    [queries]
-  );
-
-  const syncNavigableQueries = useCallback(() => {
-    onNavigableQueriesChange(getNavigableQueries());
-  }, [getNavigableQueries, onNavigableQueriesChange]);
-
-  useEffect(() => {
-    syncNavigableQueries();
-  }, [columnFilters, sorting, syncNavigableQueries]);
+  const { tableProps, refresh } = useNavigableRows<QueryData>({
+    data: queries,
+    onChange: onNavigableQueriesChange,
+  });
 
   return (
     <RealtimeTableWrapper>
@@ -72,16 +53,13 @@ const OverviewTable: FC<Props> = ({
             },
           },
         }}
-        state={{ columnFilters, sorting }}
-        onColumnFiltersChange={setColumnFilters}
-        onSortingChange={setSorting}
+        {...tableProps}
         enableStickyHeader
         enableGlobalFilter={false}
         enableHiding={false}
         enableRowHoverAction
-        tableInstanceRef={tableRef}
         rowHoverAction={(row) => {
-          syncNavigableQueries();
+          refresh();
           onQuerySelected(row.original);
         }}
         renderTopToolbarCustomActions={actions}

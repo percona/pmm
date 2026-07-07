@@ -79,8 +79,6 @@ if [ ! -f "$DIST_FILE" ]; then
     echo -n "$PMM_DISTRIBUTION_METHOD" > "$DIST_FILE"
     echo "Initializing /srv..."
     mkdir -p /srv/{backup,clickhouse,grafana/plugins,logs,nginx,prometheus/rules,victoriametrics}
-    echo "Copying grafana plugins and the VERSION file..."
-    cp -r /usr/share/percona-dashboards/panels/* /srv/grafana/plugins
 
     if is_enabled "$PMM_HA_ENABLE"; then
         echo "Skipping embedded PostgreSQL initialization in HA mode."
@@ -110,6 +108,27 @@ if [ ! -f "$DIST_FILE" ]; then
         unset POSTGRES_PASSWORD
     fi
 fi
+
+# Sync bundled Grafana plugins into /srv when the bundled set changes. 
+# This must happen before supervisord starts.
+declare PLUGINS_SRC=/usr/share/percona-dashboards/panels
+declare PLUGINS_DST=/srv/grafana/plugins
+declare PLUGINS_MARKER="$PLUGINS_DST/.pmm-synced-version"
+declare BUNDLED_VERSION SYNCED_VERSION=""
+BUNDLED_VERSION=$(< /usr/share/percona-dashboards/VERSION)
+if [ -f "$PLUGINS_MARKER" ]; then
+    SYNCED_VERSION=$(< "$PLUGINS_MARKER")
+fi
+if [ "$BUNDLED_VERSION" != "$SYNCED_VERSION" ]; then
+    echo "Synchronizing Grafana plugins..."
+    mkdir -p "$PLUGINS_DST"
+    for panel in "$PLUGINS_SRC"/*/; do
+        rm -rf "${PLUGINS_DST:?}/$(basename "$panel")"
+    done
+    cp -r "$PLUGINS_SRC"/* "$PLUGINS_DST"
+    echo -n "$BUNDLED_VERSION" > "$PLUGINS_MARKER"
+fi
+unset PLUGINS_SRC PLUGINS_DST PLUGINS_MARKER BUNDLED_VERSION SYNCED_VERSION
 
 echo "Creating nginx temp directories..."
 mkdir -p /srv/nginx/tmp/{client,proxy,fastcgi,uwsgi,scgi}

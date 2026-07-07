@@ -17,11 +17,11 @@ package versioner
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"os/exec"
 	"regexp"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 const (
@@ -97,23 +97,23 @@ func (v *Versioner) binaryVersion(
 			return "", ErrNotFound
 		}
 
-		return "", errors.Wrapf(err, "lookpath: %s", binaryName)
+		return "", fmt.Errorf("lookpath: %s: %w", binaryName, err)
 	}
 
 	versionBytes, err := v.ef.CommandContext(ctx, binaryName, arg...).CombinedOutput()
 	if err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok { //nolint:errorlint
 			if exitError.ExitCode() != expectedExitCode {
-				return "", errors.WithStack(err)
+				return "", err
 			}
 		} else {
-			return "", errors.WithStack(err)
+			return "", err
 		}
 	}
 
 	matches := versionRegexp.FindStringSubmatch(string(versionBytes))
 	if len(matches) != 2 {
-		return "", errors.Errorf("cannot match version from output %q", string(versionBytes))
+		return "", fmt.Errorf("cannot match version from output %q", string(versionBytes))
 	}
 
 	return matches[1], nil
