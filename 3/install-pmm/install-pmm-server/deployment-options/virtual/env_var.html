@@ -7,19 +7,19 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="When you run PMM Server as an AWS AMI instance, you can upload your public SSH key to enable SSH access for direct management and troubleshooting.">
+        <meta name="description" content="Set up environment variables in the systemd environment file to customize performance, storage, features, and other settings without modifying the container directly. Use these instructions if you have PMM Server running on:">
       
       
         <meta name="author" content="Percona LLC">
       
       
-        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/ssh.html">
+        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/virtual/env_var.html">
       
       
-        <link rel="prev" href="env_var.html">
+        <link rel="prev" href="../aws/configure_aws.html">
       
       
-        <link rel="next" href="../helm/index.html">
+        <link rel="next" href="login_UI.html">
       
       
         
@@ -30,7 +30,7 @@
     
     
       
-        <title>SSH key - Percona Monitoring and Management</title>
+        <title>Configure environment variables - Percona Monitoring and Management</title>
       
     
     
@@ -96,7 +96,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - SSH key" />
+                 <meta property="og:title" content="Percona Monitoring and Management - Configure environment variables" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -119,7 +119,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#ssh-key" class="md-skip">
+        <a href="#configure-environment-variables-for-pmm-server-virtual-machines-amiovf" class="md-skip">
           Skip to content
         </a>
       
@@ -226,7 +226,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              SSH key
+              Configure environment variables
             
           </span>
         </div>
@@ -1725,7 +1725,7 @@
   <span class="md-ellipsis">
     
   
-    Install on AWS Marketplace
+    Install on virtual machines
   
 
     
@@ -1738,6 +1738,192 @@
         
         <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5_3_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Install on virtual machines
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3_3_3_1" id="__nav_5_3_3_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install on Virtual Appliance
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Install on Virtual Appliance
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="download_ova.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Download OVA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="virtualbox.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploy on VirtualBox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_3_3_3_2" id="__nav_5_3_3_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Install on AWS Marketplace
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3_3_3_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1754,7 +1940,7 @@
   
   
     <li class="md-nav__item">
-      <a href="plan_aws.html" class="md-nav__link">
+      <a href="../aws/plan_aws.html" class="md-nav__link">
         
   
   
@@ -1782,7 +1968,7 @@
   
   
     <li class="md-nav__item">
-      <a href="deploy_aws.html" class="md-nav__link">
+      <a href="../aws/deploy_aws.html" class="md-nav__link">
         
   
   
@@ -1810,7 +1996,7 @@
   
   
     <li class="md-nav__item">
-      <a href="configure_aws.html" class="md-nav__link">
+      <a href="../aws/configure_aws.html" class="md-nav__link">
         
   
   
@@ -1831,21 +2017,42 @@
 
               
             
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
               
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="env_var.html" class="md-nav__link">
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_3_3_3_3" id="__nav_5_3_3_3_3_label" tabindex="0">
+            
   
   
   <span class="md-ellipsis">
     
   
-    Configure environment variables
+    VM configuration
   
 
     
@@ -1853,11 +2060,19 @@
   
   
 
-      </a>
-    </li>
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_3_3_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    VM configuration
   
 
-              
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -1882,7 +2097,7 @@
   <span class="md-ellipsis">
     
   
-    SSH key
+    Configure environment variables
   
 
     
@@ -1893,14 +2108,14 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="ssh.html" class="md-nav__link md-nav__link--active">
+      <a href="env_var.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    SSH key
+    Configure environment variables
   
 
     
@@ -1926,10 +2141,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configure-ssh-access" class="md-nav__link">
+  <a href="#configure-environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configure SSH access
+        Configure environment variables
       
     </span>
   </a>
@@ -1937,19 +2152,139 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#connect-via-ssh" class="md-nav__link">
+  <a href="#available-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Connect via SSH
+        Available variables
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Available variables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-examples-for-virtual-machines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common examples for virtual machines
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#victoriametrics-performance-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VictoriaMetrics performance tuning
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="login_UI.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Access PMM UI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="remove_virtual_machine.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Remove VM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="ssh.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSH key
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -9691,6 +10026,34 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="ssh.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SSH key
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     
     
     
@@ -9700,10 +10063,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_5" >
         
           
-          <label class="md-nav__link" for="__nav_7_4" id="__nav_7_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_7_5" id="__nav_7_5_label" tabindex="0">
             
   
   
@@ -9721,8 +10084,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_4">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -15776,7 +16139,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
                       <div data-banner="data-banner" class="edit-contrib-banner">
   <div class="banner-content">
     <!-- Edit link centered -->
-    <a href="https://github.com/percona/pmm/edit/main/documentation/docs/install-pmm/install-pmm-server/deployment-options/aws/ssh.md" title="Edit this page on GitHub" class="edit-page-link">
+    <a href="https://github.com/percona/pmm/edit/main/documentation/docs/install-pmm/install-pmm-server/deployment-options/virtual/env_var.md" title="Edit this page on GitHub" class="edit-page-link">
       <span class="edit-page-icon">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
@@ -15827,10 +16190,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configure-ssh-access" class="md-nav__link">
+  <a href="#configure-environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configure SSH access
+        Configure environment variables
       
     </span>
   </a>
@@ -15838,13 +16201,41 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#connect-via-ssh" class="md-nav__link">
+  <a href="#available-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Connect via SSH
+        Available variables
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Available variables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-examples-for-virtual-machines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common examples for virtual machines
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#victoriametrics-performance-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VictoriaMetrics performance tuning
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -15869,40 +16260,129 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     
       
     
-    <a href="https://github.com/percona/pmm/raw/main/documentation/docs/install-pmm/install-pmm-server/deployment-options/aws/ssh.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/main/documentation/docs/install-pmm/install-pmm-server/deployment-options/virtual/env_var.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="ssh-key">SSH key<a class="headerlink" href="#ssh-key" title="Permanent link">&para;</a></h1>
-<p>When you run PMM Server as an AWS AMI instance, you can upload your public SSH key to enable SSH access for direct management and troubleshooting.</p>
-<p><img alt="PMM Settings SSH Key" src="../../../../images/PMM_Settings_SSH_Key.jpg" /></p>
-<h2 id="configure-ssh-access">Configure SSH access<a class="headerlink" href="#configure-ssh-access" title="Permanent link">&para;</a></h2>
-<p class="power-number">To configure SSH access:</p>
+<h1 id="configure-environment-variables-for-pmm-server-virtual-machines-amiovf">Configure environment variables for PMM Server (Virtual machines: AMI/OVF)<a class="headerlink" href="#configure-environment-variables-for-pmm-server-virtual-machines-amiovf" title="Permanent link">&para;</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">OVF support ending in PMM 3.9.0</p>
+<p>OVF virtual appliance deployment is deprecated starting with PMM 3.7.0 and will be removed in PMM 3.9.0 (expected July 2026). If you currently run PMM on a virtual appliance, <a href="index.html">migrate to a supported deployment method</a>.</p>
+</div>
+<p>Set up environment variables in the <code>systemd</code> environment file to customize performance, storage, features, and other settings without modifying the container directly. Use these instructions if you have PMM Server running on:</p>
+<ul>
+<li><strong>AWS AMI instances</strong>: EC2 instances deployed from AWS Marketplace</li>
+<li><strong>Virtual appliances (OVF)</strong>: Deployed on VirtualBox and some other virtualization platforms</li>
+</ul>
+<p>Both deployment types use the same <code>systemd</code> user service that launches a Podman container, with environment variables configured through a dedicated environment file.</p>
+<h2 id="configure-environment-variables">Configure environment variables<a class="headerlink" href="#configure-environment-variables" title="Permanent link">&para;</a></h2>
+<p>Your PMM Server runs as a systemd user service that launches a Podman container. You can customize its behavior by setting environment variables in the <code>pmm-server.env</code> file on your virtual machine.</p>
+<p class="power-number">To set environment variables for PMM Server on virtual machine deployments:</p>
 <ol>
-<li>Go to <strong>Configuration &gt; Settings &gt; SSH key</strong>.</li>
-<li>Enter your public key in the <strong>SSH Key</strong> field.</li>
-<li>Click <strong>Apply changes</strong>.</li>
-</ol>
-<h2 id="connect-via-ssh">Connect via SSH<a class="headerlink" href="#connect-via-ssh" title="Permanent link">&para;</a></h2>
-<p>Once your public key is configured, connect using the <code>admin</code> user:</p>
-<div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>-i<span class="w"> </span>your-private-key<span class="w"> </span>admin@&lt;pmm-server-ip&gt;
-</code></pre></div>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">AWS EC2 instance</label><label for="__tabbed_1_2">Default key location</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>-i<span class="w"> </span>~/keys/my-aws-key.pem<span class="w"> </span>admin@ec2-203-0-113-42.compute-1.amazonaws.com
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<p>If your private key is in the default location (<code>~/.ssh/id_rsa</code> or <code>~/.ssh/id_ed25519</code>), you can omit the <code>-i</code> flag:
-<div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>admin@&lt;pmm-server-ip&gt;
+<li>
+<p>Connect to your PMM Server virtual machine via SSH using the <code>admin</code> user (see <a href="ssh.html">SSH configuration</a> for authentication setup):
+    <div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>-i<span class="w"> </span>your-key<span class="w"> </span>admin@&lt;pmm-server-ip&gt;
 </code></pre></div></p>
-</div>
-</div>
-</div>
+</li>
+<li>
+<p>Open <code>/home/admin/.config/systemd/user/pmm-server.env</code> and edit the environment variables file. This file is automatically loaded by the <code>systemd</code> service:</p>
+<div class="highlight"><pre><span></span><code>nano<span class="w"> </span>~/.config/systemd/user/pmm-server.env
+</code></pre></div>
+</li>
+<li>
+<p>Add your desired environment variables in <code>KEY=VALUE</code> format:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">PMM_DEBUG</span><span class="o">=</span><span class="nb">true</span>
+<span class="nv">PMM_ENABLE_ACCESS_CONTROL</span><span class="o">=</span><span class="nb">true</span>
+</code></pre></div>
+</li>
+<li>
+<p>Restart the PMM Server service to apply the changes:</p>
+<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>--user<span class="w"> </span>restart<span class="w"> </span>pmm-server
+</code></pre></div>
+</li>
+<li>
+<p>Verify the service is running with the new configuration:</p>
+<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>--user<span class="w"> </span>status<span class="w"> </span>pmm-server
+</code></pre></div>
+</li>
+</ol>
+<h2 id="available-variables">Available variables<a class="headerlink" href="#available-variables" title="Permanent link">&para;</a></h2>
+<p>Unlike Docker deployments that use <code>-e</code> flags, virtual machines configure PMM Server using the systemd environment file instructions above. However, PMM uses the same <a href="../docker/env_var.html">list of environment variables</a> across all deployment methods.</p>
+<h3 id="common-examples-for-virtual-machines">Common examples for virtual machines<a class="headerlink" href="#common-examples-for-virtual-machines" title="Permanent link">&para;</a></h3>
+<p>These variables are particularly useful for both AWS AMI and virtual appliance deployments:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PMM_DATA_RETENTION</code></td>
+<td><code>30d</code></td>
+<td>Duration to retain metrics data</td>
+</tr>
+<tr>
+<td><code>PMM_ENABLE_UPDATES</code></td>
+<td><code>true</code></td>
+<td>Allow version checks and updates</td>
+</tr>
+<tr>
+<td><code>PMM_ENABLE_ACCESS_CONTROL</code></td>
+<td><code>true</code></td>
+<td>Enable label-based access control (LBAC)</td>
+</tr>
+<tr>
+<td><code>PMM_PUBLIC_ADDRESS</code></td>
+<td>Auto-detected</td>
+<td>External DNS/IP for PMM Server</td>
+</tr>
+<tr>
+<td><code>PMM_DEBUG</code></td>
+<td><code>true</code></td>
+<td>Enable verbose logging</td>
+</tr>
+<tr>
+<td><code>PMM_METRICS_RESOLUTION</code></td>
+<td><code>1s</code></td>
+<td>Base metrics collection interval</td>
+</tr>
+</tbody>
+</table>
+<h3 id="victoriametrics-performance-tuning">VictoriaMetrics performance tuning<a class="headerlink" href="#victoriametrics-performance-tuning" title="Permanent link">&para;</a></h3>
+<p class="power-number">PMM Server uses VictoriaMetrics as its metrics storage engine. For high-volume environments or extended retention periods, you may need to tune VictoriaMetrics settings to optimize performance and resource usage. To do this: </p>
+<ol>
+<li>
+<p>Add the following variables to your <code>pmm-server.env</code> file:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Configure disk space limit per client during network outages</span>
+<span class="nv">VMAGENT_remoteWrite_maxDiskUsagePerURL</span><span class="o">=</span><span class="m">52428800</span>
+
+<span class="c1"># Configure temporary data storage path</span>
+<span class="nv">VMAGENT_remoteWrite_tmpDataPath</span><span class="o">=</span>/tmp/custom-vmagent
+
+<span class="c1"># Configure logging verbosity level</span>
+<span class="nv">VMAGENT_loggerLevel</span><span class="o">=</span>DEBUG
+
+<span class="c1"># Configure maximum scrape size per target</span>
+<span class="nv">VMAGENT_promscrape_maxScrapeSize</span><span class="o">=</span>128MiB
+</code></pre></div>
+</li>
+<li>
+<p>Restart the PMM Server service after changing environment variables for VictoriaMetrics and monitor disk space when extending retention periods.</p>
+</li>
+</ol>
+<p>When to configure these settings:</p>
+<ul>
+<li>Large deployments (&gt;100 monitored nodes): increase query timeout and adjust memory limits</li>
+<li>Extended retention (&gt;30 days): Set <code>VM_retentionPeriod</code> independently from <code>PMM_DATA_RETENTION</code> for finer control</li>
+<li>Memory-constrained environments: reduce <code>VM_memory.allowedPercent</code> to prevent OOM issues</li>
+<li>High write volume: add merge speed optimization for better ingestion performance</li>
+</ul>
 
 
 
@@ -15925,7 +16405,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 1, 2026 14:08:36 UTC">April 1, 2026</span>
   </span>
 
     
