@@ -73,14 +73,14 @@ func TestMaxScrapeSize(t *testing.T) {
 		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://user:pass@victoriametrics:8428")
 		require.NoError(t, err)
 		actual := vmAgentConfig("", params, false)
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://user:pass@victoriametrics:8428/api/v1/write")
+		// Credentials are stripped from the URL and passed via env only.
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://victoriametrics:8428/api/v1/write")
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=user")
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=pass")
 		// Should not contain server credentials
 		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
 		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password={{.server_password}}")
-		// Credentials travel via env only: args would outrank env in vmagent's envflag scheme,
-		// silently defeating deployment-injected overrides, and would leak into /proc/*/cmdline.
+		// Credentials provided via env only, args would silently override deployment-injected overrides
 		for _, arg := range actual.Args {
 			assert.NotContains(t, arg, "-remoteWrite.basicAuth.")
 		}
@@ -89,7 +89,7 @@ func TestMaxScrapeSize(t *testing.T) {
 		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://user@victoriametrics:8428")
 		require.NoError(t, err)
 		actual := vmAgentConfig("", params, false)
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://user@victoriametrics:8428/api/v1/write")
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://victoriametrics:8428/api/v1/write")
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=user")
 		// Should not contain any password, nor the server username
 		assertNoEnvWithPrefix(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=")
@@ -99,7 +99,7 @@ func TestMaxScrapeSize(t *testing.T) {
 		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://user%40domain:p%40ss%21@victoriametrics:8428")
 		require.NoError(t, err)
 		actual := vmAgentConfig("", params, false)
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://user%40domain:p%40ss%21@victoriametrics:8428/api/v1/write")
+		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://victoriametrics:8428/api/v1/write")
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=user@domain")
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=p@ss!")
 		for _, arg := range actual.Args {
@@ -149,46 +149,42 @@ func TestMaxScrapeSize(t *testing.T) {
 
 func TestVMAgentExternalVM(t *testing.T) {
 	testCases := []struct {
-		name                  string
-		vmURL                 string
-		expectedUsername      string
-		expectedPassword      string
-		shouldHaveCredentials bool
+		name             string
+		vmURL            string
+		expectedUsername string
+		expectedPassword string
 	}{
 		{
-			name:                  "No credentials in URL",
-			vmURL:                 "http://victoriametrics:8428",
-			expectedUsername:      "",
-			expectedPassword:      "",
-			shouldHaveCredentials: false,
+			name:  "No credentials in URL",
+			vmURL: "http://victoriametrics:8428",
 		},
 		{
-			name:                  "Username and password in URL",
-			vmURL:                 "http://user:pass@victoriametrics:8428",
-			expectedUsername:      "user",
-			expectedPassword:      "pass",
-			shouldHaveCredentials: true,
+			name:             "Username and password in URL",
+			vmURL:            "http://user:pass@victoriametrics:8428",
+			expectedUsername: "user",
+			expectedPassword: "pass",
 		},
 		{
-			name:                  "Username only in URL",
-			vmURL:                 "http://user@victoriametrics:8428",
-			expectedUsername:      "user",
-			expectedPassword:      "",
-			shouldHaveCredentials: true,
+			name:             "Username only in URL",
+			vmURL:            "http://user@victoriametrics:8428",
+			expectedUsername: "user",
 		},
 		{
-			name:                  "URL encoded credentials",
-			vmURL:                 "http://user%40domain:p%40ss%21@victoriametrics:8428",
-			expectedUsername:      "user@domain",
-			expectedPassword:      "p@ss!",
-			shouldHaveCredentials: true,
+			name:             "Password only in URL",
+			vmURL:            "http://:pass@victoriametrics:8428",
+			expectedPassword: "pass",
 		},
 		{
-			name:                  "Complex password with special chars",
-			vmURL:                 "http://admin:my%2Bpassword%3D123@victoriametrics:8428",
-			expectedUsername:      "admin",
-			expectedPassword:      "my+password=123",
-			shouldHaveCredentials: true,
+			name:             "URL encoded credentials",
+			vmURL:            "http://user%40domain:p%40ss%21@victoriametrics:8428",
+			expectedUsername: "user@domain",
+			expectedPassword: "p@ss!",
+		},
+		{
+			name:             "Complex password with special chars",
+			vmURL:            "http://admin:my%2Bpassword%3D123@victoriametrics:8428",
+			expectedUsername: "admin",
+			expectedPassword: "my+password=123",
 		},
 	}
 
@@ -199,21 +195,19 @@ func TestVMAgentExternalVM(t *testing.T) {
 
 			actual := vmAgentConfig("", params, false)
 
-			// External VM uses actual URL
-			expectedURL := params.URL() + "api/v1/write"
-			assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url="+expectedURL)
+			// External VM pushes directly to the external URL, always without userinfo:
+			// credentials travel via the basic-auth env vars only.
+			assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://victoriametrics:8428/api/v1/write")
 
-			if tc.shouldHaveCredentials {
-				// Should have extracted credentials
+			if tc.expectedUsername != "" {
 				assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username="+tc.expectedUsername)
-				if tc.expectedPassword != "" {
-					assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password="+tc.expectedPassword)
-				} else {
-					assertNoEnvWithPrefix(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=")
-				}
 			} else {
-				// Should not have any credentials at all for external VM without auth
-				assertNoEnvWithPrefix(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_")
+				assertNoEnvWithPrefix(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=")
+			}
+			if tc.expectedPassword != "" {
+				assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password="+tc.expectedPassword)
+			} else {
+				assertNoEnvWithPrefix(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=")
 			}
 			// Should not have server credentials
 			assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
@@ -233,7 +227,7 @@ func TestVMAgentExternalVM(t *testing.T) {
 		actual := vmAgentConfig("", params, false)
 
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=https://other.example.com/api/v1/write")
-		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_url=http://user:pass@victoriametrics:8428/api/v1/write")
+		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_url=http://victoriametrics:8428/api/v1/write")
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=user")
 		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=pass")
 	})
@@ -498,66 +492,75 @@ func TestVMAgentScrapeConfigPassthrough(t *testing.T) {
 	assert.Equal(t, scrapeCfg, actual.TextFiles["vmagentscrapecfg"])
 }
 
-func TestExtractCredentialsFromURL(t *testing.T) {
+func TestSplitURLCredentials(t *testing.T) {
 	testCases := []struct {
 		name             string
 		url              string
+		expectedURL      string
 		expectedUsername string
 		expectedPassword string
 	}{
 		{
-			name:             "Empty URL",
-			url:              "",
-			expectedUsername: "",
-			expectedPassword: "",
+			name:        "Empty URL",
+			url:         "",
+			expectedURL: "",
 		},
 		{
-			name:             "URL without credentials",
-			url:              "http://example.com:8428",
-			expectedUsername: "",
-			expectedPassword: "",
+			name:        "URL without credentials",
+			url:         "http://example.com:8428",
+			expectedURL: "http://example.com:8428",
 		},
 		{
 			name:             "URL with username and password",
 			url:              "http://user:pass@example.com:8428",
+			expectedURL:      "http://example.com:8428",
 			expectedUsername: "user",
 			expectedPassword: "pass",
 		},
 		{
 			name:             "URL with username only",
 			url:              "http://user@example.com:8428",
+			expectedURL:      "http://example.com:8428",
 			expectedUsername: "user",
-			expectedPassword: "",
 		},
 		{
 			name:             "URL with empty username and password",
 			url:              "http://:pass@example.com:8428",
-			expectedUsername: "",
+			expectedURL:      "http://example.com:8428",
 			expectedPassword: "pass",
 		},
 		{
 			name:             "URL with URL-encoded credentials",
 			url:              "http://user%40domain:p%40ss%21@example.com:8428",
+			expectedURL:      "http://example.com:8428",
 			expectedUsername: "user@domain",
 			expectedPassword: "p@ss!",
 		},
 		{
-			name:             "Invalid URL",
-			url:              "://invalid-url",
-			expectedUsername: "",
-			expectedPassword: "",
+			name:        "Invalid URL",
+			url:         "://invalid-url",
+			expectedURL: "://invalid-url",
 		},
 		{
 			name:             "URL with complex password",
 			url:              "http://admin:my%2Bpassword%3D123@example.com:8428",
+			expectedURL:      "http://example.com:8428",
 			expectedUsername: "admin",
 			expectedPassword: "my+password=123",
+		},
+		{
+			name:             "Trailing slash, path and query preserved",
+			url:              "http://user:pass@example.com:8428/prometheus/?timeout=5s",
+			expectedURL:      "http://example.com:8428/prometheus/?timeout=5s",
+			expectedUsername: "user",
+			expectedPassword: "pass",
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			username, password := extractCredentialsFromURL(tc.url)
+			cleanURL, username, password := splitURLCredentials(tc.url)
+			assert.Equal(t, tc.expectedURL, cleanURL, "URL mismatch")
 			assert.Equal(t, tc.expectedUsername, username, "Username mismatch")
 			assert.Equal(t, tc.expectedPassword, password, "Password mismatch")
 		})

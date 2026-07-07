@@ -31,25 +31,25 @@ var (
 	maxScrapeSizeDefault = "64MiB"
 )
 
-// extractCredentialsFromURL extracts username and password from a URL string.
-// Returns empty strings if no credentials are found or if there's an error parsing the URL.
-func extractCredentialsFromURL(urlStr string) (string, string) {
+// splitURLCredentials strips credentials from a URL string and returns the clean URL
+// together with the extracted username and password (URL-decoded).
+// When no credentials are present, the URL is returned unchanged
+// with empty credentials.
+func splitURLCredentials(urlStr string) (string, string, string) {
 	if urlStr == "" {
-		return "", ""
+		return urlStr, "", ""
 	}
 
 	parsedURL, err := url.Parse(urlStr)
 	if err != nil || parsedURL.User == nil {
-		return "", ""
+		return urlStr, "", ""
 	}
 
 	username := parsedURL.User.Username()
-	password := ""
-	if pwd, ok := parsedURL.User.Password(); ok {
-		password = pwd
-	}
+	password, _ := parsedURL.User.Password()
+	parsedURL.User = nil
 
-	return username, password
+	return parsedURL.String(), username, password
 }
 
 // vmAgentConfig returns desired configuration of vmagent process.
@@ -74,13 +74,14 @@ func vmAgentConfigServerProxy(scrapeCfg string, dropInjectedAuth bool) *agentv1.
 	})
 }
 
-// vmAgentConfigExternalVM prepares the vmagent configuration so that clients push directly to the external VictoriaMetrics,
-// authenticated with the credentials embedded in its URL. Deployment-injected VMAGENT_ overrides are honored.
+// vmAgentConfigExternalVM prepares the vmagent configuration so that clients push directly to the external VictoriaMetrics.
+// Credentials embedded in its URL are stripped and passed as basic-auth environment variables instead.
+// Deployment-injected VMAGENT_ overrides are honored.
 func vmAgentConfigExternalVM(scrapeCfg string, params victoriaMetricsParams) *agentv1.SetStateRequest_AgentProcess {
-	vmURL := params.URL()
+	vmURL, vmUsername, vmPassword := splitURLCredentials(params.URL())
 
 	var auth *basicAuth
-	if vmUsername, vmPassword := extractCredentialsFromURL(vmURL); vmUsername != "" {
+	if vmUsername != "" || vmPassword != "" {
 		auth = &basicAuth{username: vmUsername, password: vmPassword}
 	}
 
@@ -158,7 +159,9 @@ func buildVMAgentProcess(scrapeCfg string, settings vmAgentSettings) *agentv1.Se
 	addEnvIfNotSet("VMAGENT_loggerLevel", "INFO")
 
 	if settings.auth != nil {
-		addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_username", settings.auth.username)
+		if settings.auth.username != "" {
+			addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_username", settings.auth.username)
+		}
 		if settings.auth.password != "" {
 			addEnvIfNotSet("VMAGENT_remoteWrite_basicAuth_password", settings.auth.password)
 		}
