@@ -14,7 +14,7 @@ import {
   MRT_VisibilityState,
   useMaterialReactTable,
 } from 'material-react-table';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useRef, type MutableRefObject, type Ref } from 'react';
 import { mergeSx } from '@/utils';
 import { ICONS_OPACITY } from './table.constants';
 import { TableProps } from './table.types';
@@ -36,6 +36,21 @@ const NoDataAlertMessage = ({ message, ...rest }: { message: string } & AlertPro
     </Alert>
   );
 };
+
+const composeRefs =
+  <T,>(...refs: Array<Ref<T> | undefined>) =>
+  (value: T | null) => {
+    refs.forEach((ref) => {
+      if (!ref) {
+        return;
+      }
+      if (typeof ref === 'function') {
+        ref(value);
+        return;
+      }
+      (ref as MutableRefObject<T | null>).current = value;
+    });
+  };
 
 function Table<T extends MRT_RowData>(props: TableProps<T>) {
   const {
@@ -65,6 +80,7 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     muiTableContainerProps,
     ...rest
   } = props;
+  const tableRootRef = useRef<HTMLDivElement | null>(null);
   const [columnVisibility, setColumnVisibility] = usePersistentColumnVisibility(tableName);
 
   let columnVisibilityState: MRT_VisibilityState | undefined = {};
@@ -81,19 +97,26 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
   };
 
   useEffect(() => {
-    const hideColumnsIcon = document.querySelector('[aria-label="Show/Hide columns"]');
-    const showFiltersIcon = document.querySelector('[aria-label="Show/Hide filters"]');
-    const globalFilterIcon = document.querySelector('[aria-label="Show/Hide search"]');
-    const elementsWithExpandLabel = document.querySelectorAll('[aria-label="Column Actions"]');
-
-    if (!data.length) {
-      hideColumnsIcon?.addEventListener('click', stopPropagation);
-      showFiltersIcon?.addEventListener('click', stopPropagation);
-      globalFilterIcon?.addEventListener('click', stopPropagation);
-      elementsWithExpandLabel.forEach((element) => {
-        element.addEventListener('click', stopPropagation);
-      });
+    if (data.length) {
+      return;
     }
+
+    const root = tableRootRef.current;
+    if (!root) {
+      return;
+    }
+
+    const hideColumnsIcon = root.querySelector('[aria-label="Show/Hide columns"]');
+    const showFiltersIcon = root.querySelector('[aria-label="Show/Hide filters"]');
+    const globalFilterIcon = root.querySelector('[aria-label="Show/Hide search"]');
+    const elementsWithExpandLabel = root.querySelectorAll('[aria-label="Column Actions"]');
+
+    hideColumnsIcon?.addEventListener('click', stopPropagation);
+    showFiltersIcon?.addEventListener('click', stopPropagation);
+    globalFilterIcon?.addEventListener('click', stopPropagation);
+    elementsWithExpandLabel.forEach((element) => {
+      element.addEventListener('click', stopPropagation);
+    });
 
     return () => {
       globalFilterIcon?.removeEventListener('click', stopPropagation);
@@ -103,15 +126,19 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
         element.removeEventListener('click', stopPropagation);
       });
     };
-  }, [data]);
+  }, [data.length]);
 
   // disable hiding for first 2 columns
-  const customColumns = columns.map((col, index) => {
-    if (index < 2) {
-      return { ...col, enableHiding: false };
-    }
-    return col;
-  });
+  const customColumns = useMemo(
+    () =>
+      columns.map((col, index) => {
+        if (index < 2) {
+          return { ...col, enableHiding: false };
+        }
+        return col;
+      }),
+    [columns]
+  );
 
   const rowActionsConsumerOpts = displayColumnDefOptions?.['mrt-row-actions'];
   const rowExpandConsumerOpts = displayColumnDefOptions?.['mrt-row-expand'];
@@ -240,10 +267,12 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
         typeof muiTablePaperProps === 'function'
           ? muiTablePaperProps({ table })
           : muiTablePaperProps;
+      const { ref: consumerRef, sx: consumerSx, ...consumerRest } = consumer || {};
       return {
         elevation: 0,
-        ...consumer,
-        sx: mergeSx({ backgroundColor: 'transparent' }, consumer?.sx),
+        ...consumerRest,
+        ref: composeRefs(tableRootRef, consumerRef),
+        sx: mergeSx({ backgroundColor: 'transparent' }, consumerSx),
       };
     },
     muiTableContainerProps: ({ table }) => {

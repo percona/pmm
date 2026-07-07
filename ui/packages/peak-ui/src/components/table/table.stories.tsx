@@ -28,6 +28,7 @@ import Table from './table';
 import type { TableProps } from './table.types';
 import { useNavigableRows } from './useNavigableRows';
 import { useDetailsPaneNavigation } from './useDetailsPaneNavigation';
+import { usePerconaTableUrlState } from './usePerconaTableUrlState';
 
 type ServerStatus = 'healthy' | 'warning' | 'error';
 
@@ -367,6 +368,232 @@ const meta = {
 export default meta;
 type Story = StoryObj<TableProps<Server>>;
 
+const splitTableStoryArgs = (args: TableProps<Server>) => {
+  const { data, initialState, ...tableArgs } = args;
+  return { data, initialState, tableArgs };
+};
+
+const WithRowSelectionStory = (args: TableProps<Server>) => {
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
+  const selectedCount = Object.values(rowSelection).filter(Boolean).length;
+  return (
+    <Table
+      {...args}
+      state={{ rowSelection }}
+      onRowSelectionChange={setRowSelection}
+      getRowId={(row) => row.id}
+      renderTopToolbarCustomActions={() =>
+        selectedCount > 0 ? (
+          <Stack direction="row" alignItems="center" gap={1}>
+            <Typography variant="body2">{selectedCount} selected</Typography>
+            <Button size="small" variant="outlined" startIcon={<DeleteOutlineOutlinedIcon />}>
+              Remove
+            </Button>
+          </Stack>
+        ) : null
+      }
+    />
+  );
+};
+
+const WithRowHoverActionStory = (args: TableProps<Server>) => {
+  const [selected, setSelected] = useState<Server | null>(null);
+  return (
+    <Stack gap={2}>
+      <Table {...args} rowHoverAction={(row) => setSelected(row.original)} />
+      {selected && (
+        <Box
+          sx={{
+            p: 2,
+            borderRadius: 1,
+            backgroundColor: 'background.paper',
+            border: 1,
+            borderColor: 'divider',
+          }}
+        >
+          <Typography variant="subtitle2">Clicked row</Typography>
+          <Typography variant="body2" color="text.secondary">
+            {selected.name} — {selected.environment} — {selected.region}
+          </Typography>
+        </Box>
+      )}
+    </Stack>
+  );
+};
+
+const WithDetailsPaneNavigationStory = (args: TableProps<Server>) => {
+  const { data: tableData } = args;
+  const [selected, setSelected] = useState<Server | undefined>();
+
+  const { navigableRows, tableProps, refresh } = useNavigableRows<Server>({
+    data: tableData,
+  });
+
+  const { isFirst, isLast, next, previous } = useDetailsPaneNavigation<Server>({
+    rows: navigableRows,
+    selected,
+    getRowId: (row) => row.id,
+    onSelect: setSelected,
+  });
+
+  return (
+    <>
+      <Table
+        {...args}
+        {...tableProps}
+        enableRowHoverAction
+        rowHoverAction={(row) => {
+          refresh();
+          setSelected(row.original);
+        }}
+      />
+      <Drawer anchor="right" open={!!selected} onClose={() => setSelected(undefined)}>
+        <Stack sx={{ width: 320, p: 2 }} gap={2}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between">
+            <Stack direction="row" gap={0.5}>
+              <Tooltip title="Previous">
+                <span>
+                  <IconButton
+                    size="small"
+                    aria-label="Previous"
+                    disabled={isFirst}
+                    onClick={previous}
+                  >
+                    <ChevronLeftIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Tooltip title="Next">
+                <span>
+                  <IconButton size="small" aria-label="Next" disabled={isLast} onClick={next}>
+                    <ChevronRightIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </Stack>
+            <IconButton size="small" aria-label="Close" onClick={() => setSelected(undefined)}>
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+          {selected && (
+            <Box>
+              <Typography variant="subtitle1">{selected.name}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                {selected.environment} — {selected.region} — {selected.status}
+              </Typography>
+            </Box>
+          )}
+        </Stack>
+      </Drawer>
+    </>
+  );
+};
+
+const WithUrlStateStory = (args: TableProps<Server>) => {
+  const { data: tableData, initialState, tableArgs } = splitTableStoryArgs(args);
+  const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+
+  const { tableProps } = usePerconaTableUrlState({
+    searchParams,
+    setSearchParams,
+    initialShowColumnFilters: initialState?.showColumnFilters,
+    initialShowGlobalFilter: initialState?.showGlobalFilter,
+  });
+
+  return (
+    <Stack gap={2}>
+      <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+        ?{searchParams.toString() || '(empty)'}
+      </Typography>
+      <Table {...tableArgs} {...tableProps} data={tableData} />
+    </Stack>
+  );
+};
+
+const WithUrlStateAndDetailsPaneNavigationStory = (args: TableProps<Server>) => {
+  const { data: tableData, initialState, tableArgs } = splitTableStoryArgs(args);
+  const [searchParams, setSearchParams] = useState(() => new URLSearchParams());
+  const [selected, setSelected] = useState<Server | undefined>();
+
+  const { tableState, tableProps: urlTableProps } = usePerconaTableUrlState({
+    searchParams,
+    setSearchParams,
+    initialShowColumnFilters: initialState?.showColumnFilters,
+    initialShowGlobalFilter: initialState?.showGlobalFilter,
+  });
+  const {
+    navigableRows,
+    tableProps: navTableProps,
+    refresh,
+  } = useNavigableRows<Server>({
+    data: tableData,
+    tableState,
+  });
+  const { isFirst, isLast, next, previous } = useDetailsPaneNavigation<Server>({
+    rows: navigableRows,
+    selected,
+    getRowId: (row) => row.id,
+    onSelect: setSelected,
+  });
+
+  return (
+    <>
+      <Typography variant="body2" color="text.secondary" sx={{ fontFamily: 'monospace', mb: 2 }}>
+        ?{searchParams.toString() || '(empty)'}
+      </Typography>
+      <Table
+        {...tableArgs}
+        {...urlTableProps}
+        {...navTableProps}
+        data={tableData}
+        enableRowHoverAction
+        rowHoverAction={(row) => {
+          refresh();
+          setSelected(row.original);
+        }}
+      />
+      <Drawer anchor="right" open={!!selected} onClose={() => setSelected(undefined)}>
+        <Stack sx={{ width: 320, p: 2 }} gap={2}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between">
+            <Stack direction="row" gap={0.5}>
+              <Tooltip title="Previous">
+                <span>
+                  <IconButton
+                    size="small"
+                    aria-label="Previous"
+                    disabled={isFirst}
+                    onClick={previous}
+                  >
+                    <ChevronLeftIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Tooltip title="Next">
+                <span>
+                  <IconButton size="small" aria-label="Next" disabled={isLast} onClick={next}>
+                    <ChevronRightIcon />
+                  </IconButton>
+                </span>
+              </Tooltip>
+            </Stack>
+            <IconButton size="small" aria-label="Close" onClick={() => setSelected(undefined)}>
+              <CloseIcon />
+            </IconButton>
+          </Stack>
+          {selected && (
+            <Box>
+              <Typography variant="subtitle1">{selected.name}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                {selected.environment} — {selected.region} — {selected.status}
+              </Typography>
+            </Box>
+          )}
+        </Stack>
+      </Drawer>
+    </>
+  );
+};
+
 export const Playground: Story = {
   args: {
     tableName: 'playground-table',
@@ -463,28 +690,7 @@ export const WithRowSelection: Story = {
       },
     },
   },
-  render: function Render(args) {
-    const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
-    const selectedCount = Object.values(rowSelection).filter(Boolean).length;
-    return (
-      <Table
-        {...args}
-        state={{ rowSelection }}
-        onRowSelectionChange={setRowSelection}
-        getRowId={(row) => row.id}
-        renderTopToolbarCustomActions={() =>
-          selectedCount > 0 ? (
-            <Stack direction="row" alignItems="center" gap={1}>
-              <Typography variant="body2">{selectedCount} selected</Typography>
-              <Button size="small" variant="outlined" startIcon={<DeleteOutlineOutlinedIcon />}>
-                Remove
-              </Button>
-            </Stack>
-          ) : null
-        }
-      />
-    );
-  },
+  render: (args) => <WithRowSelectionStory {...args} />,
   args: {
     tableName: 'with-row-selection-table',
     columns: baseColumns,
@@ -572,30 +778,7 @@ export const WithRowHoverAction: Story = {
       },
     },
   },
-  render: function Render(args) {
-    const [selected, setSelected] = useState<Server | null>(null);
-    return (
-      <Stack gap={2}>
-        <Table {...args} rowHoverAction={(row) => setSelected(row.original)} />
-        {selected && (
-          <Box
-            sx={{
-              p: 2,
-              borderRadius: 1,
-              backgroundColor: 'background.paper',
-              border: 1,
-              borderColor: 'divider',
-            }}
-          >
-            <Typography variant="subtitle2">Clicked row</Typography>
-            <Typography variant="body2" color="text.secondary">
-              {selected.name} — {selected.environment} — {selected.region}
-            </Typography>
-          </Box>
-        )}
-      </Stack>
-    );
-  },
+  render: (args) => <WithRowHoverActionStory {...args} />,
   args: {
     tableName: 'with-row-hover-action-table',
     columns: baseColumns,
@@ -694,85 +877,66 @@ export const WithDetailsPaneNavigation: Story = {
           'Two Peak Design hooks make this reusable without hand-wiring the table instance:',
           "- **`useNavigableRows`** owns the table's filter/sort state and returns `navigableRows` (the filtered + sorted rows, across all pages by default) plus `tableProps` to spread onto `<Table>`. It emits `onChange` whenever that list changes, and exposes `refresh()` to recompute right before opening the pane on a row click. Use `scope: 'currentPage'` to navigate only the visible page.",
           '- **`useDetailsPaneNavigation`** turns that list plus the current selection into `next` / `previous` actions and `isFirst` / `isLast` flags. If the selection is filtered out, navigation disables itself instead of jumping to an unrelated row.',
+          '- **`usePerconaTableUrlState`** (optional) syncs filter/sort/pagination/global search to URL query params. Pass `searchParams` and `setSearchParams` from your router; spread `tableProps` onto `<Table>` and pass `tableState` into `useNavigableRows` when you need both shareable URLs and details-pane navigation. For other controlled state (e.g. `rowSelection`), pass `additionalState` to the hook or merge with `mergePerconaTableState(tableProps.state, { rowSelection })`.',
           '',
           'Try it: filter by Status or Environment, then open a row and use the arrows — navigation stays within the filtered set.',
         ].join('\n'),
       },
     },
   },
-  render: function Render(args: TableProps<Server>) {
-    const { data: tableData } = args;
-    const [selected, setSelected] = useState<Server | undefined>();
-
-    const { navigableRows, tableProps, refresh } = useNavigableRows<Server>({
-      data: tableData,
-    });
-
-    const { isFirst, isLast, next, previous } = useDetailsPaneNavigation<Server>({
-      rows: navigableRows,
-      selected,
-      getRowId: (row) => row.id,
-      onSelect: setSelected,
-    });
-
-    return (
-      <>
-        <Table
-          {...args}
-          {...tableProps}
-          enableRowHoverAction
-          rowHoverAction={(row) => {
-            refresh();
-            setSelected(row.original);
-          }}
-        />
-        <Drawer anchor="right" open={!!selected} onClose={() => setSelected(undefined)}>
-          <Stack sx={{ width: 320, p: 2 }} gap={2}>
-            <Stack direction="row" alignItems="center" justifyContent="space-between">
-              <Stack direction="row" gap={0.5}>
-                <Tooltip title="Previous">
-                  <span>
-                    <IconButton
-                      size="small"
-                      aria-label="Previous"
-                      disabled={isFirst}
-                      onClick={previous}
-                    >
-                      <ChevronLeftIcon />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-                <Tooltip title="Next">
-                  <span>
-                    <IconButton size="small" aria-label="Next" disabled={isLast} onClick={next}>
-                      <ChevronRightIcon />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-              </Stack>
-              <IconButton size="small" aria-label="Close" onClick={() => setSelected(undefined)}>
-                <CloseIcon />
-              </IconButton>
-            </Stack>
-            {selected && (
-              <Box>
-                <Typography variant="subtitle1">{selected.name}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {selected.environment} — {selected.region} — {selected.status}
-                </Typography>
-              </Box>
-            )}
-          </Stack>
-        </Drawer>
-      </>
-    );
-  },
+  render: (args) => <WithDetailsPaneNavigationStory {...args} />,
   args: {
     tableName: 'with-details-pane-navigation-table',
     columns: baseColumns,
     data: SERVERS_30,
     enableColumnFilters: true,
     initialState: { showColumnFilters: true },
+  },
+};
+
+export const WithUrlState: Story = {
+  name: 'With URL state (filters, sort, pagination)',
+  parameters: {
+    docs: {
+      description: {
+        story: [
+          'Demonstrates **`usePerconaTableUrlState`** with an in-memory URL harness (no router dependency).',
+          'Filter, sort, search, or paginate the table — the mock query string below updates to match.',
+          'Disable filtering per column via `enableColumnFilter: false` on the column definition.',
+          'In an app, wire `searchParams` / `setSearchParams` from React Router or your router of choice.',
+        ].join('\n'),
+      },
+    },
+  },
+  render: (args) => <WithUrlStateStory {...args} />,
+  args: {
+    tableName: 'with-url-state-table',
+    columns: baseColumns,
+    data: SERVERS_30,
+    enableColumnFilters: true,
+    enableGlobalFilter: true,
+    initialState: { showColumnFilters: true, showGlobalFilter: true },
+  },
+};
+
+export const WithUrlStateAndDetailsPaneNavigation: Story = {
+  name: 'With URL state + details pane navigation',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Composes **`usePerconaTableUrlState`** and **`useNavigableRows`**: URL owns table state; navigable rows reads the same `tableState` and only supplies `tableInstanceRef` to `<Table>`.',
+      },
+    },
+  },
+  render: (args) => <WithUrlStateAndDetailsPaneNavigationStory {...args} />,
+  args: {
+    tableName: 'with-url-state-details-pane-table',
+    columns: baseColumns,
+    data: SERVERS_30,
+    enableColumnFilters: true,
+    enableGlobalFilter: true,
+    initialState: { showColumnFilters: true, showGlobalFilter: true },
   },
 };
 
