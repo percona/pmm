@@ -164,9 +164,9 @@ func TestMySQLdExporterConfigTLSSkipVerify(t *testing.T) {
 		return &models.Agent{
 			AgentID:         "agent-id",
 			AgentType:       models.MySQLdExporterType,
-			Username:        new("username"),
-			Password:        new("s3cur3 p@$$w0r4."),
-			AgentPassword:   new("agent-password"),
+			Username:        new(models.EncryptedString("username")),
+			Password:        new(models.EncryptedString("s3cur3 p@$$w0r4.")),
+			AgentPassword:   new(models.EncryptedString("agent-password")),
 			ExporterOptions: models.ExporterOptions{},
 			MySQLOptions:    models.MySQLOptions{},
 		}
