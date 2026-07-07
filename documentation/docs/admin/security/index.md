@@ -10,3 +10,18 @@ Taking the following precautions will ensure that you are truly secure:
 - [Grafana HTTPS secure cookies](../../admin/security/grafana_cookies.md)
 - [Encrypt the PMM Client configuration file](client_config_encryption.md) to protect stored credentials on client hosts
 
+## Manually configure the PostgreSQL Grafana datasource
+
+Starting with PMM 3.9.0, PMM no longer provisions a PostgreSQL Grafana datasource by default. If you need to query PMM's internal PostgreSQL database directly, you can add the datasource manually.
+
+To prevent unauthorized data modification, configure the datasource with a database user that has **SELECT**-only permissions.
+
+To add the PostgreSQL datasource:
+{.power-number}
+
+1. Go to **Administration → Plugins and data → Plugins** (use the search icon in the top-right and search for "plugins").
+2. Find and open the **Postgres** plugin.
+3. Select **Add new datasource**.
+4. Configure the connection parameters and click **Save & test**.
+5. If the test is successful, you can start using the datasource from the **Explore** page.
+
