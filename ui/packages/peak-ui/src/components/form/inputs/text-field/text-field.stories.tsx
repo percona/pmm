@@ -184,7 +184,16 @@ export const Playground: Story = {
   parameters: {
     docs: {
       source: {
-        code: '// See the named stories below (With start/end adornment, Password with toggle, Multiline, etc.) for concrete usage patterns.',
+        code: [
+          '<TextField',
+          '  variant="outlined"',
+          '  size="small"',
+          '  label="Label"',
+          '  placeholder="Placeholder"',
+          '  helperText="Helper text"',
+          '  fullWidth',
+          '/>',
+        ].join('\n'),
       },
     },
   },
