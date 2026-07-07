@@ -1,7 +1,7 @@
 {
   "name": "@percona/percona-ui",
   "type": "module",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "private": false,
   "scripts": {
     "build": "rollup -c",
@@ -51,6 +51,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/react": "^18.2.15",
+    "@types/node": "^22.10.0",
     "date-fns": "^3.6.0",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
@@ -60,6 +61,7 @@
     "jsdom": "^29.1.1",
     "notistack": "^3.0.2",
     "prettier": "^3.8.3",
+    "prop-types": "15.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "rollup": "^4.53.5",
@@ -106,7 +108,12 @@
     "url": "https://github.com/percona/percona-ui/issues"
   },
   "overrides": {
-    "react-is": "^18.3.1"
+    "react-is": "18.3.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "react-is": "18.3.1"
+    }
   },
   "homepage": "https://github.com/percona/percona-ui#readme"
 }
