@@ -1,12 +1,15 @@
-import {
-  Close as CloseIcon,
-  FilterList as FilterListIcon,
-  KeyboardDoubleArrowDown as KeyboardDoubleArrowDownIcon,
-  MoreVert as MoreVertIcon,
-  Search as SearchIcon,
-  ViewColumn as ViewColumnIcon,
-} from '@mui/icons-material';
-import { Alert, AlertProps, Box, IconButton, InputAdornment, Theme, Tooltip } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import SearchIcon from '@mui/icons-material/Search';
+import ViewColumnIcon from '@mui/icons-material/ViewColumn';
+import Alert, { type AlertProps } from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import Tooltip from '@mui/material/Tooltip';
+import { type Theme } from '@mui/material/styles';
 import visuallyHidden from '@mui/utils/visuallyHidden';
 import {
   MaterialReactTable,
