@@ -37,10 +37,10 @@ Resource requirements scale with the number of nodes and services monitored. Her
     - **Storage**: 500+ GB
     - **Example workloads**: Large enterprises, mission-critical database fleets
 
-=== "Extra Large (500+ nodes)"
+=== "Extra large (500+ nodes)"
 
-    Get free database assistance or contact our experts for personalized support.   
-    [Get help from Percona](../../get-help.md)
+    At 500+ nodes, hardware requirements vary significantly based on your specific workload, topology, and data volumes. [Contact Percona experts](../../get-help.md) for sizing guidance specific to your environment.  
+    
 
 ### Optimize ClickHouse for limited memory
 

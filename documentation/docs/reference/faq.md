@@ -13,7 +13,7 @@ See our detailed guides:
 - [Setting up PMM Server](../install-pmm/install-pmm-server/index.md) for server installation  
 - [Setting up PMM Client](../install-pmm/install-pmm-client/index.md) for client setup
 
-Quick reference for typical deployment (up to 30 nodes):
+Quick reference for typical deployments (1-30 nodes):
 
 - **Server**:
 
