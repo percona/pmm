@@ -5,8 +5,13 @@ interface IllustrationRootProps extends Omit<SvgIconProps, 'children'> {
   children: ReactNode;
 }
 
-const IllustrationRoot = ({ sx, ...props }: IllustrationRootProps) => (
-  <SvgIcon viewBox="0 0 64 64" sx={{ fontSize: 64, ...sx }} {...props} />
+const IllustrationRoot = ({ sx, fontSize, ...props }: IllustrationRootProps) => (
+  <SvgIcon
+    viewBox="0 0 64 64"
+    fontSize={fontSize}
+    sx={fontSize ? sx : [{ fontSize: 64 }, ...(Array.isArray(sx) ? sx : [sx])]}
+    {...props}
+  />
 );
 
 interface LayerProps {
