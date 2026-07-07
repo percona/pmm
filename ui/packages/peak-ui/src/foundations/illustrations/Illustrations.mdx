@@ -1,0 +1,20 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as IllustrationsStories from './Illustrations.stories';
+
+<Meta of={IllustrationsStories} />
+
+# Illustrations library
+
+The index of expressive artwork unique to **Peak Design**, used to illustrate moments in the UX such as empty states, errors, and background processes.
+
+Each one is exported from `@percona/percona-ui` and consumed like any other component. By default it's drawn in the text color, and each artwork layer can be recolored via `layerColors`:
+
+```tsx
+import { NothingFoundIllustration } from '@percona/percona-ui';
+
+<NothingFoundIllustration sx={{ fontSize: 96 }} layerColors={{ glass: '#0e5fb5' }} />;
+```
+
+Search by the design name or the component name, and use the copy button to grab the import. To create a new illustration, follow the instructions in the **Overview** page.
+
+<Canvas of={IllustrationsStories.Gallery} sourceState="none" />
