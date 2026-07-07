@@ -604,3 +604,67 @@ func (s *Service) IsLeader() bool {
 func (s *Service) Params() *models.HAParams {
 	return s.params
 }
+
+// Metrics holds HA-related Prometheus metric values for this node.
+type Metrics struct {
+	// Enabled indicates whether HA mode is active.
+	Enabled bool
+	// IsLeader is true when this node currently holds the Raft leader lease.
+	IsLeader bool
+	// RaftTerm is the current Raft consensus term. Rapid increases indicate
+	// an unstable leader or frequent elections (leader flapping).
+	RaftTerm uint64
+	// IsVoter is true when this node participates in Raft leader elections.
+	// Nonvoter nodes replicate logs but never vote.
+	IsVoter bool
+}
+
+// GetMetrics returns current HA Raft metrics for this node. The returned
+// values are intended to be exposed as Prometheus gauges so that VictoriaMetrics
+// can evaluate cluster-health alerting rules such as PMMHALeaderMissing,
+// PMMHASplitBrain, PMMHALeaderFlapping and PMMHAQuorumAtRisk.
+//
+// When HA is disabled, Enabled is false and all other fields are zero values.
+func (s *Service) GetMetrics() Metrics {
+	if !s.params.Enabled {
+		return Metrics{Enabled: false}
+	}
+
+	s.rw.RLock()
+	raftNode := s.raftNode
+	s.rw.RUnlock()
+
+	if raftNode == nil {
+		// HA enabled but Raft not yet initialised (early startup).
+		return Metrics{Enabled: true}
+	}
+
+	isLeader := raftNode.State() == raft.Leader
+
+	// Extract the current Raft term from the stats map (returned as a decimal string).
+	var term uint64
+	stats := raftNode.Stats()
+	if termStr, ok := stats["term"]; ok {
+		term, _ = strconv.ParseUint(termStr, 10, 64)
+	}
+
+	// Determine whether this node is configured as a Raft voter.
+	isVoter := false
+	configFuture := raftNode.GetConfiguration()
+	err := configFuture.Error()
+	if err == nil {
+		for _, server := range configFuture.Configuration().Servers {
+			if server.ID == raft.ServerID(s.params.NodeID) {
+				isVoter = server.Suffrage == raft.Voter
+				break
+			}
+		}
+	}
+
+	return Metrics{
+		Enabled:  true,
+		IsLeader: isLeader,
+		RaftTerm: term,
+		IsVoter:  isVoter,
+	}
+}

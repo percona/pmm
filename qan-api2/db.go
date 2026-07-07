@@ -12,8 +12,8 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-// Package main.
-
+// Package main provides ClickHouse database connectivity, schema migrations,
+// and partition management for the Query Analytics API.
 package main
 
 import (

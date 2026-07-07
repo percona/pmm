@@ -24,8 +24,8 @@ type GRPC struct {
 	*logrus.Entry
 }
 
-// V reports whether verbosity level l is at least the requested verbose level.
-func (v *GRPC) V(l int) bool { //nolint:revive
+// V reports whether verbosity level is at least the requested verbose level.
+func (v *GRPC) V(int) bool {
 	// we don't need real implementation ATM
 	return true
 }

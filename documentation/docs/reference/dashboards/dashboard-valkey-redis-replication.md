@@ -20,7 +20,7 @@ The timeline view shows historical role states, helping correlate role changes w
 
 ## Replication Offsets
 
-### [Replica service name] - Replica vs Master offsets
+### [Replica service name] - Replica vs Primary offsets
 
 Displays replication offsets in bytes for both primary and replica nodes, showing how current each replica is with the primary's write operations.
 
