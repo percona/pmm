@@ -16,10 +16,10 @@
 package models_test
 
 import (
+	"errors"
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -89,15 +89,16 @@ func TestSettings(t *testing.T) {
 				AWSPartitions: []string{"foo"},
 			}
 			_, err := models.UpdateSettings(sqlDB, s)
-			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(err, &errInvalidArgument))
+			_, ok := errors.AsType[*models.InvalidArgumentError](err)
+			assert.True(t, ok)
 			require.EqualError(t, err, `invalid argument: aws_partitions: partition "foo" is invalid`)
 
 			s = &models.ChangeSettingsParams{
 				AWSPartitions: []string{"foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo"},
 			}
 			_, err = models.UpdateSettings(sqlDB, s)
-			assert.True(t, errors.As(err, &errInvalidArgument))
+			_, ok = errors.AsType[*models.InvalidArgumentError](err)
+			assert.True(t, ok)
 			require.EqualError(t, err, `invalid argument: aws_partitions: list is too long`)
 
 			s = &models.ChangeSettingsParams{

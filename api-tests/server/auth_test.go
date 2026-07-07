@@ -217,9 +217,9 @@ func TestBasicAuthPermissions(t *testing.T) {
 		userCase []userCase
 	}{
 		{name: "settings", url: "/v1/server/settings", method: "GET", userCase: []userCase{
-			{userType: "default", login: none, statusCode: 401},
-			{userType: "viewer", login: viewer, statusCode: 401},
-			{userType: "editor", login: editor, statusCode: 401},
+			{userType: "default", login: none, statusCode: 403},
+			{userType: "viewer", login: viewer, statusCode: 403},
+			{userType: "editor", login: editor, statusCode: 403},
 			{userType: "admin", login: admin, statusCode: 200},
 		}},
 	}
@@ -365,8 +365,8 @@ func TestServiceAccountPermissions(t *testing.T) {
 	}{
 		{name: "settings", url: "/v1/server/settings", method: "GET", userCase: []userCase{
 			{userType: "default", statusCode: 401},
-			{userType: "viewer", serviceToken: viewerToken, statusCode: 401},
-			{userType: "editor", serviceToken: editorToken, statusCode: 401},
+			{userType: "viewer", serviceToken: viewerToken, statusCode: 403},
+			{userType: "editor", serviceToken: editorToken, statusCode: 403},
 			{userType: "admin", serviceToken: adminToken, statusCode: 200},
 		}},
 	}

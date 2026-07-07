@@ -154,6 +154,62 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	})
 }
 
+func TestMySQLdExporterConfigTLSSkipVerify(t *testing.T) {
+	node := &models.Node{Address: "1.2.3.4"}
+	mysql := &models.Service{
+		Address: new("1.2.3.4"),
+		Port:    new(uint16(3306)),
+	}
+	newExporter := func() *models.Agent {
+		return &models.Agent{
+			AgentID:         "agent-id",
+			AgentType:       models.MySQLdExporterType,
+			Username:        new("username"),
+			Password:        new("s3cur3 p@$$w0r4."),
+			AgentPassword:   new("agent-password"),
+			ExporterOptions: models.ExporterOptions{},
+			MySQLOptions:    models.MySQLOptions{},
+		}
+	}
+	// The exporter flag depends on the pmm-agent version: agents >= 3.2.0 ship the
+	// new exporter (--tls.insecure-skip-verify); earlier 3.x agents use the old one
+	// (--mysql.ssl-skip-verify).
+	agentV3_2_0 := version.MustParse("3.2.0")
+	agentV3_1_0 := version.MustParse("3.1.0")
+
+	t.Run("SkipVerifyWithoutTLSDoesNotForceTLS", func(t *testing.T) {
+		// tls_skip_verify is meaningless without TLS, the flag must not be passed.
+		exporter := newExporter()
+		exporter.TLS = false
+		exporter.TLSSkipVerify = true
+
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, agentV3_2_0)
+		require.NoError(t, err)
+		assert.NotContains(t, actual.Args, "--tls.insecure-skip-verify")
+		assert.NotContains(t, actual.Args, "--mysql.ssl-skip-verify")
+	})
+
+	t.Run("SkipVerifyWithTLSPassesFlag", func(t *testing.T) {
+		exporter := newExporter()
+		exporter.TLS = true
+		exporter.TLSSkipVerify = true
+
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, agentV3_2_0)
+		require.NoError(t, err)
+		assert.Contains(t, actual.Args, "--tls.insecure-skip-verify")
+	})
+
+	t.Run("SkipVerifyWithTLSPassesLegacyFlag", func(t *testing.T) {
+		exporter := newExporter()
+		exporter.TLS = true
+		exporter.TLSSkipVerify = true
+
+		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, agentV3_1_0)
+		require.NoError(t, err)
+		assert.Contains(t, actual.Args, "--mysql.ssl-skip-verify")
+	})
+}
+
 func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 	node := &models.Node{
 		Address: "1.2.3.4",

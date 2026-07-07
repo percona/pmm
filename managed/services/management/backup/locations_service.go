@@ -17,9 +17,9 @@ package backup
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/minio/minio-go/v7"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -31,11 +31,11 @@ import (
 
 // LocationsService represents backup locations API.
 type LocationsService struct {
+	backuppb.UnimplementedLocationsServiceServer
+
 	db *reform.DB
 	s3 awsS3
 	l  *logrus.Entry
-
-	backuppb.UnimplementedLocationsServiceServer
 }
 
 // NewLocationsService creates new backup locations API service.
@@ -267,7 +267,7 @@ func convertLocation(locationModel *models.BackupLocation) (*backuppb.Location, 
 			},
 		}
 	default:
-		return nil, errors.Errorf("unknown backup location type %s", locationModel.Type)
+		return nil, fmt.Errorf("unknown backup location type %s", locationModel.Type)
 	}
 	return loc, nil
 }

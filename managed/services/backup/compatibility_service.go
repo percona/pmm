@@ -17,9 +17,10 @@ package backup
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/hashicorp/go-version"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -67,7 +68,7 @@ func (s *CompatibilityService) checkCompatibility(serviceModel *models.Service, 
 	for i, software := range softwareList {
 		name := software.Name()
 		if svs[i].Error != "" {
-			return "", errors.Wrapf(ErrComparisonImpossible, "failed to get software %s version: %s", name, svs[i].Error)
+			return "", fmt.Errorf("failed to get software %s version: %s: %w", name, svs[i].Error, ErrComparisonImpossible)
 		}
 
 		svm[name] = svs[i].Version
@@ -149,7 +150,7 @@ func (s *CompatibilityService) CheckSoftwareCompatibilityForService(ctx context.
 			return err
 		}
 		if len(pmmAgents) == 0 {
-			return errors.Errorf("pmmAgent not found for service %q", serviceID)
+			return fmt.Errorf("pmmAgent not found for service %q", serviceID)
 		}
 		agentModel = pmmAgents[0]
 		return nil
@@ -260,7 +261,7 @@ func (s *CompatibilityService) artifactCompatibility(artifactModel *models.Artif
 		default:
 			return nil
 		}
-		return errors.Wrapf(err, "backup artifact db version %q does not match the target db version %q", artifactModel.DBVersion, targetDBVersion)
+		return fmt.Errorf("backup artifact db version %q does not match the target db version %q: %w", artifactModel.DBVersion, targetDBVersion, err)
 	}
 
 	return nil

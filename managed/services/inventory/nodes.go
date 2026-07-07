@@ -17,9 +17,9 @@ package inventory
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -126,7 +126,7 @@ func (s *NodesService) AddNode(ctx context.Context, req *inventoryv1.AddNodeRequ
 		}
 		res.Node = &inventoryv1.AddNodeResponse_RemoteAzureDatabase{RemoteAzureDatabase: node}
 	default:
-		return nil, errors.Errorf("invalid request %v", req.GetNode())
+		return nil, fmt.Errorf("invalid request %v", req.GetNode())
 	}
 
 	return res, nil
@@ -313,7 +313,7 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) error 
 
 			agents, err := models.FindPMMAgentsRunningOnNode(tx.Querier, id)
 			if err != nil {
-				return errors.WithStack(err)
+				return fmt.Errorf("failed to get pmm-agents running on node %s: %w", id, err)
 			}
 			for _, a := range agents {
 				idsToKick[a.AgentID] = struct{}{}
@@ -321,7 +321,7 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) error 
 
 			agents, err = models.FindAgents(tx.Querier, models.AgentFilters{NodeID: id})
 			if err != nil {
-				return errors.WithStack(err)
+				return fmt.Errorf("failed to get agents on node %s: %w", id, err)
 			}
 			for _, a := range agents {
 				if a.PMMAgentID != nil {
@@ -331,7 +331,7 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) error 
 
 			agents, err = models.FindPMMAgentsForServicesOnNode(tx.Querier, id)
 			if err != nil {
-				return errors.WithStack(err)
+				return fmt.Errorf("failed to get pmm-agents for services on node %s: %w", id, err)
 			}
 			for _, a := range agents {
 				idsToSetState[a.AgentID] = struct{}{}

@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -112,7 +111,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		// nothing yet
 
 	default:
-		return errors.Errorf("unhandled Service type %s", service.ServiceType)
+		return fmt.Errorf("unhandled Service type %s", service.ServiceType)
 	}
 
 	msg := resp.(*agentv1.CheckConnectionResponse).Error //nolint:forcetypeassert
@@ -229,7 +228,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 			},
 		}
 	default:
-		return nil, errors.Errorf("unhandled Service type %s", service.ServiceType)
+		return nil, fmt.Errorf("unhandled Service type %s", service.ServiceType)
 	}
 	return request, nil
 }

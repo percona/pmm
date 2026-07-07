@@ -1,7 +1,5 @@
 bin_dir=$(cd $(dirname $0); pwd -P)
-# TODO: refactor to pass ${WORKSPACE} as ROOT_DIR from either Jenkins or, if relevant, from GH actions
-# NOTE: in most cases, this evaluates to Jenkins ${WORKSPACE} directory when called from pipelines
-# Example: /home/ec2-user/workspace/ol9-build-server/, see how it's used in ol9-build-server.groovy
+# NOTE: in most cases, `root_dir` evaluates to Jenkins ${WORKSPACE} directory when called from pipelines
 root_dir_tmp=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
 root_dir=${ROOT_DIR:-$root_dir_tmp}
 tmp_dir=${root_dir}/tmp
@@ -22,11 +20,7 @@ full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git rev-parse --short HEAD)
 # Replace '/' with '-' to prevent sed from failing on dependabot-authored PRs
 full_pmm_version=${full_pmm_version//\//-}
 
-# TODO Maybe it makes sense to use variable from job here
-if [[ ${pmm_branch} =~ release-* || \
-      ${pmm_branch} =~ pmm-3.* || \
-      ${pmm_branch} == v3 || \
-      ${pmm_branch} == "main" ]]; then
+if [[ ${pmm_branch} =~ pmm-3.* || ${pmm_branch} == "main" ]]; then
     full_pmm_version=${pmm_base_version}
 fi
 

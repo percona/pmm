@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httputil"
@@ -31,7 +32,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/reform.v1"
@@ -46,6 +46,10 @@ const (
 )
 
 // rules maps original URL prefix to minimal required role.
+// In case of multiple matches, the longest prefix wins. The prefix is matched
+// against the original URL path, not the cleaned one. The prefix must end with a slash,
+// dot, or colon, so that "/v1/inventory" does not match "/v1/inventoryX".
+// If several methods share the same path, they must be distinguished by methodRules.
 var rules = map[string]role{
 	// TODO https://jira.percona.com/browse/PMM-4420
 	connectionEndpointV2: admin, // compatibility for v2 agents
@@ -64,6 +68,7 @@ var rules = map[string]role{
 	"/qan.v1.QANService.":                       viewer,
 
 	"/v1/alerting":                    viewer,
+	"/v1/alerting/rules":              editor,
 	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
 	"/v1/advisors/failedServices":     editor,
@@ -124,6 +129,16 @@ var rules = map[string]role{
 	// "/auth_request"  has auth_request disabled in nginx config
 
 	// "/" is a special case in this code
+}
+
+// methodRules maps "METHOD url-prefix" to the minimal role. Entries take precedence
+// over rules, letting operations on a shared path differ by HTTP method.
+var methodRules = map[string]role{
+	// Template writes need editor; they share paths with the viewer-readable
+	// list (POST) or sit under it (PUT/DELETE), so they're qualified by method.
+	http.MethodPost + " /v1/alerting/templates":    editor,
+	http.MethodPut + " /v1/alerting/templates/":    editor,
+	http.MethodDelete + " /v1/alerting/templates/": editor,
 }
 
 var lbacPrefixes = []string{
@@ -254,7 +269,7 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			"error":   authErr.message,
 			"message": authErr.message, //nolint:goconst
 		}
-		s.returnError(rw, m, l)
+		s.returnError(rw, httpStatusForAuthError(authErr.code), m, l)
 		return
 	}
 
@@ -273,18 +288,27 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		}
 		l.Errorf("Failed to add VMProxy filters: %s", errF)
 
-		s.returnError(rw, m, l)
+		s.returnError(rw, authenticationErrorCode, m, l)
 		return
 	}
 }
 
-func (s *AuthServer) returnError(rw http.ResponseWriter, msg map[string]any, l *logrus.Entry) {
-	// nginx completely ignores auth_request subrequest response body.
-	// We respond with 401 (authenticationErrorCode); our nginx configuration then sends
-	// the same request as a normal request to the same location and returns response body to the client.
+// httpStatusForAuthError maps an authError code to the HTTP status nginx receives.
+// PermissionDenied uses 403 so nginx denies outright; the 401 re-run is a GET and would
+// wrongly pass method-specific rules. Authentication and internal errors stay 401.
+func httpStatusForAuthError(code codes.Code) int {
+	if code == codes.PermissionDenied {
+		return http.StatusForbidden
+	}
+	return authenticationErrorCode
+}
+
+func (s *AuthServer) returnError(rw http.ResponseWriter, status int, msg map[string]any, l *logrus.Entry) {
+	// nginx ignores the auth_request subrequest body: on 401 it re-runs the request to
+	// /auth_request to fetch this body; on 403 it serves a static body via error_page 403.
 	rw.Header().Set("Content-Type", "application/json")
 
-	rw.WriteHeader(authenticationErrorCode)
+	rw.WriteHeader(status)
 	err := json.NewEncoder(rw).Encode(msg)
 	if err != nil {
 		l.Warnf("%s", err)
@@ -331,7 +355,7 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 
 	jsonFilters, err := json.Marshal(filters)
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("failed to marshal LBAC filters: %w", err)
 	}
 
 	rw.Header().Set(lbacHeaderName, base64.StdEncoding.EncodeToString(jsonFilters))
@@ -417,10 +441,10 @@ func extractOriginalRequest(req *http.Request) error {
 		return errors.New("empty X-Original-Uri")
 	}
 	if origURI[0] != '/' {
-		return errors.Errorf("unexpected X-Original-Uri: %q", origURI)
+		return fmt.Errorf("unexpected X-Original-Uri: %s", origURI)
 	}
 	if !utf8.ValidString(origURI) {
-		return errors.Errorf("invalid X-Original-Uri: %q", origURI)
+		return fmt.Errorf("invalid X-Original-Uri: %s", origURI)
 	}
 
 	req.Method = origMethod
@@ -454,6 +478,27 @@ func nextPrefix(path string) string {
 	return path[:i+1]
 }
 
+// resolveRule returns the minimal role for the given method and path, plus the matched
+// prefix. It walks prefixes longest-to-shortest; a method-specific rule ("METHOD prefix")
+// beats a path-only rule at the same prefix, so read and write on a shared path can differ.
+// With no match it logs a warning and falls back to grafanaAdmin.
+func resolveRule(method, cleanedPath string, l *logrus.Entry) (role, string) {
+	prefix := cleanedPath
+	for {
+		if r, ok := methodRules[method+" "+prefix]; ok {
+			return r, prefix
+		}
+		if r, ok := rules[prefix]; ok {
+			return r, prefix
+		}
+		if prefix == "/" {
+			l.Warn("No explicit rule, falling back to Grafana admin.")
+			return grafanaAdmin, prefix
+		}
+		prefix = nextPrefix(prefix)
+	}
+}
+
 func isLocalAgentConnection(req *http.Request) bool {
 	ip := strings.Split(req.RemoteAddr, ":")[0]
 	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
@@ -482,26 +527,11 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 		}
 	}
 
-	// find the longest prefix present in rules
-	prefix := cleanedPath
-	for prefix != "/" {
-		if _, ok := rules[prefix]; ok {
-			break
-		}
-		prefix = nextPrefix(prefix)
-	}
-
-	// fallback to Grafana admin if there is no explicit rule
-	minRole, ok := rules[prefix]
-	if ok {
-		l = l.WithField("prefix", prefix)
-	} else {
-		l.Warn("No explicit rule, falling back to Grafana admin.")
-		minRole = grafanaAdmin
-	}
+	minRole, prefix := resolveRule(req.Method, cleanedPath, l)
+	l = l.WithField("prefix", prefix)
 
 	if minRole == none {
-		l.Debugf("Minimal required role is %q, granting access without checking Grafana.", minRole)
+		l.Debugf("Minimal required role is %s, granting access without checking Grafana.", minRole)
 		return nil, nil
 	}
 
@@ -529,17 +559,17 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	l = l.WithField("role", user.role.String())
 
 	if user.role == grafanaAdmin {
-		l.Debugf("Grafana admin, allowing access.")
+		l.Debugf("Grafana admin, granting access.")
 		return user, nil
 	}
 
 	if minRole <= user.role {
-		l.Debugf("Minimal required role is %q, granting access.", minRole)
+		l.Debugf("Minimal required role is %s, granting access.", minRole)
 		return user, nil
 	}
 
-	l.Warnf("Minimal required role is %q.", minRole)
-	return nil, &authError{code: codes.PermissionDenied, message: "Access denied."}
+	l.Warnf("Minimal required role is %s, denying access.", minRole)
+	return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
 }
 
 func cleanPath(p string) (string, error) {
@@ -596,7 +626,8 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
 	if err != nil {
 		l.Warnf("%s", err)
-		if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
+		cErr, ok := errors.AsType[*clientError](err)
+		if ok {
 			code := codes.Internal
 			if cErr.Code == 401 || cErr.Code == 403 {
 				code = codes.Unauthenticated

@@ -458,40 +458,26 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	return results, err
 }
 
+// queryDimension lists every value of a dimension in the period (so the filter panel
+// can show values that currently match no active filter) together with the main metric
+// summed only over rows matching the other selected dimensions. A single scan with
+// sumIf replaces the previous filtered + "enumerate with 0" UNION ALL (two scans).
 const queryDimension = `
 SELECT
-    key,
-    value,
-    sum(main_metric_sum) AS main_metric_sum
-FROM
-(
-    SELECT
-        '{{ .DimensionName }}' AS key,
-        {{ .DimensionName }} AS value,
-        SUM({{ .MainMetric }}) AS main_metric_sum
-    FROM metrics
-    WHERE (period_start >= ?) AND (period_start <= ?)
-    {{range $key, $vals := .Dimensions }} AND ({{ $key }} IN ('{{ StringsJoin $vals "', '" }}')){{ end }}
-    {{ if .LbacFilter }}
-      AND ({{ .LbacFilter }})
-    {{ end }}
-    GROUP BY {{ .DimensionName }}
-    UNION ALL
-    SELECT
-        '{{ .DimensionName }}' AS key,
-        {{ .DimensionName }} AS value,
-        0 AS main_metric_sum
-    FROM metrics
-    WHERE (period_start >= ?) AND (period_start <= ?)
-    {{ if .LbacFilter }}
-      AND ({{ .LbacFilter }})
-    {{ end }}
-    GROUP BY {{ .DimensionName }}
-)
-GROUP BY
-    key,
-    value
-    WITH TOTALS
+    '{{ .DimensionName }}' AS key,
+    {{ .DimensionName }} AS value,
+    sumIf({{ .MainMetric }},
+        {{ if .Dimensions }}{{ $i := 0 }}
+        {{ range $key, $vals := .Dimensions }}{{ $i = inc $i }}{{ if gt $i 1 }} AND {{ end }}{{ $key }} IN ('{{ StringsJoin $vals "', '" }}'){{ end }}
+        {{ else }}1{{ end }}
+    ) AS main_metric_sum
+FROM metrics
+WHERE (period_start >= ?) AND (period_start <= ?)
+{{ if .LbacFilter }}
+  AND ({{ .LbacFilter }})
+{{ end }}
+GROUP BY {{ .DimensionName }}
+WITH TOTALS
 ORDER BY
     main_metric_sum DESC,
     value ASC
@@ -622,7 +608,7 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 		return nil, 0, fmt.Errorf("cannot execute tmplQueryFilter %s: %w", queryBuffer.String(), err)
 	}
 
-	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec, periodStartFromSec, periodStartToSec)
+	rows, err := r.db.QueryContext(ctx, queryBuffer.String(), periodStartFromSec, periodStartToSec)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to select for QueryFilter %s: %w", queryBuffer.String(), err)
 	}

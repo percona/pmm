@@ -19,10 +19,10 @@ package telemetry
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"net/url"
 
 	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -62,7 +62,7 @@ func openQANDBConnection(dsn string, enabled bool, l *logrus.Entry) (*sql.DB, er
 
 	db, err := sql.Open("clickhouse", dsn)
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to open connection to QAN DB")
+		return nil, fmt.Errorf("failed to open connection to QAN DB: %w", err)
 	}
 	err = db.Ping() //nolint:noctx
 	if err != nil {
@@ -79,10 +79,10 @@ func (d *dsQanDBSelect) FetchMetrics(ctx context.Context, config Config) ([]*tel
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
 
-func (d *dsQanDBSelect) Init(ctx context.Context) error { //nolint:revive
+func (d *dsQanDBSelect) Init(context.Context) error {
 	return nil
 }
 
-func (d *dsQanDBSelect) Dispose(ctx context.Context) error { //nolint:revive
+func (d *dsQanDBSelect) Dispose(context.Context) error {
 	return nil
 }
