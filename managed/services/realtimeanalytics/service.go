@@ -48,13 +48,13 @@ import (
 
 // Service provides API for managing Real-Time Analytics.
 type Service struct {
+	rtav1.UnimplementedRealtimeAnalyticsServiceServer
+	rtav1.UnimplementedCollectorServiceServer
+
 	db           *reform.DB
 	registry     agentsRegistry
 	stateUpdater agentsStateUpdater
 	store        *Store
-
-	rtav1.UnimplementedRealtimeAnalyticsServiceServer
-	rtav1.UnimplementedCollectorServiceServer
 }
 
 // NewService creates a new Real-Time Analytics service.

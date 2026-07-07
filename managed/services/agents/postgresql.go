@@ -16,7 +16,6 @@
 package agents
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -103,7 +102,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 	if autoDiscovery {
 		args = append(args,
 			"--auto-discover-databases",
-			fmt.Sprintf("--exclude-databases=%s", strings.Join(postgresExcludedDatabases(), ",")))
+			"--exclude-databases="+strings.Join(postgresExcludedDatabases(), ","))
 	}
 
 	if !pmmAgentVersion.Less(postgresMaxExporterConnsVersion) &&
@@ -144,7 +143,7 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, dsnParams, nil, pmmAgentVersion)),
+			"DATA_SOURCE_NAME=" + exporter.DSN(service, dsnParams, nil, pmmAgentVersion),
 		},
 		TextFiles: exporter.Files(),
 	}
@@ -153,7 +152,8 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		res.RedactWords = redactWords(exporter)
 	}
 
-	if err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion, false); err != nil {
+	err := ensureAuthParams(exporter, res, pmmAgentVersion, postgresExporterWebConfigVersion, false)
+	if err != nil {
 		return nil, err
 	}
 

@@ -19,12 +19,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
@@ -54,7 +53,7 @@ func NewMongoDBQueryAdmincommandAction(
 	tmpDir := filepath.Join(tempDir, mongoDBQueryAdminCommandActionType, id)
 	dsn, err := templates.RenderDSN(dsn, files, tmpDir)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &mongodbQueryAdmincommandAction{
@@ -90,14 +89,14 @@ func (a *mongodbQueryAdmincommandAction) DSN() string {
 // Run runs an action and returns output and error.
 func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error) {
 	defer templates.CleanupTempDir(a.tmpDir, logrus.WithField("component", mongoDBQueryAdminCommandActionType))
-	opts, err := mongo_fix.ClientOptionsForDSN(a.dsn)
+	opts, err := mongofix.ClientOptionsForDSN(a.dsn)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	defer client.Disconnect(ctx) //nolint:errcheck
 
@@ -105,8 +104,9 @@ func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error
 	res := client.Database("admin").RunCommand(ctx, runCommand)
 
 	var doc map[string]any
-	if err = res.Decode(&doc); err != nil {
-		return nil, errors.WithStack(err)
+	err = res.Decode(&doc)
+	if err != nil {
+		return nil, err
 	}
 
 	data := []map[string]any{doc}

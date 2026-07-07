@@ -27,7 +27,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -67,7 +66,8 @@ func getHandler(cfg Config) http.HandlerFunc {
 
 func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName string) bool {
 	if filters := req.Header.Get(headerName); filters != "" {
-		if _, err := parseFilters(filters); err != nil {
+		_, err := parseFilters(filters)
+		if err != nil {
 			rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 			rw.WriteHeader(http.StatusPreconditionFailed)
 			io.WriteString(rw, fmt.Sprintf("Failed to parse %s header", headerName)) //nolint:errcheck
@@ -141,11 +141,12 @@ func parseFilters(filters string) ([]string, error) {
 
 	decoded, err := base64.StdEncoding.DecodeString(filters)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not decode filters header")
+		return nil, fmt.Errorf("could not decode filters header: %w", err)
 	}
 
-	if err := json.Unmarshal(decoded, &parsed); err != nil {
-		return nil, errors.Wrapf(err, "could not parse filters JSON")
+	err = json.Unmarshal(decoded, &parsed)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse filters JSON: %w", err)
 	}
 
 	return parsed, nil

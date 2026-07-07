@@ -15,7 +15,8 @@
 package management
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
+
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/agentlocal"
@@ -130,5 +131,5 @@ func nodeIDFromNodeName(nodeName string) (string, error) {
 			return node.NodeID, nil
 		}
 	}
-	return "", errors.Errorf("node %s is not found", nodeName)
+	return "", fmt.Errorf("node %s is not found", nodeName)
 }

@@ -111,9 +111,9 @@ func updateToSelect(matches []string) string {
 
 func deleteToSelect(matches []string) string {
 	if strings.Contains(matches[2], "join") {
-		return fmt.Sprintf("SELECT 1 FROM %s", matches[2])
+		return "SELECT 1 FROM " + matches[2]
 	}
-	return fmt.Sprintf("SELECT * FROM %s", matches[2])
+	return "SELECT * FROM " + matches[2] //nolint:unqueryvet
 }
 
 func insertToSelect(matches []string) string {

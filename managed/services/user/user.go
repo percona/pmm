@@ -18,9 +18,9 @@ package user
 
 import (
 	"context"
+	"errors"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -33,11 +33,11 @@ import (
 
 // Service is responsible for user related APIs.
 type Service struct {
+	userv1.UnimplementedUserServiceServer
+
 	db *reform.DB
 	l  *logrus.Entry
 	c  grafanaClient
-
-	userv1.UnimplementedUserServiceServer
 }
 
 type grafanaClient interface {

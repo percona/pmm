@@ -45,10 +45,13 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	check.NoError(err)
 
+	chParams, err := models.NewClickHouseParams("127.0.0.1:9000", "pmm", "default", "clickhouse")
+	check.NoError(err)
+
 	mockHaService := newMockHaService(t)
 	mockHaService.On("Params").Return(&models.HAParams{Enabled: false, NodeID: "pmm-ha-service-0"}).Maybe()
 	mockHaService.On("IsLeader").Return(true).Maybe()
-	svc, err := NewVictoriaMetrics(configPath, db, vmParams, mockHaService)
+	svc, err := NewVictoriaMetrics(configPath, db, vmParams, chParams, mockHaService)
 	check.NoError(err)
 
 	original, err := os.ReadFile(configPath)
@@ -990,4 +993,67 @@ scrape_configs:
 	newcfg, err := svc.marshalConfig(svc.loadBaseConfig())
 	require.NoError(t, err)
 	assert.Equal(t, expected, string(newcfg), "actual:\n%s", newcfg)
+}
+
+func TestVMConfig_OmitsClickhouseScrape(t *testing.T) {
+	newSvc := func(t *testing.T, chParams *models.ClickHouseParams, vmURL string) (*reform.DB, *Service) {
+		t.Helper()
+		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, vmURL)
+		require.NoError(t, err)
+
+		mockHaService := newMockHaService(t)
+		mockHaService.On("Params").Return(&models.HAParams{Enabled: false, NodeID: "pmm-ha-service-0"}).Maybe()
+		mockHaService.On("IsLeader").Return(true).Maybe()
+
+		svc, err := NewVictoriaMetrics(configPath, db, vmParams, chParams, mockHaService)
+		require.NoError(t, err)
+		require.NoError(t, svc.IsReady(t.Context()))
+		t.Cleanup(func() { _ = db.DBInterface().(*sql.DB).Close() })
+		return db, svc
+	}
+
+	newCHParams := func(t *testing.T, addr string) *models.ClickHouseParams {
+		t.Helper()
+		chp, err := models.NewClickHouseParams(addr, "pmm", "default", "clickhouse")
+		require.NoError(t, err)
+		return chp
+	}
+
+	cases := []struct {
+		name           string
+		addr           string
+		wantClickhouse bool
+	}{
+		{"internal enabled positive control", "127.0.0.1:9000", true},
+		{"external addr skips scrape", "ch.external:9000", false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			_, svc := newSvc(t, newCHParams(t, tc.addr), models.VMBaseURL)
+			cfg, err := svc.marshalConfig(svc.loadBaseConfig())
+			require.NoError(t, err)
+			assert.Contains(t, string(cfg), "job_name: grafana")
+			assert.Contains(t, string(cfg), "job_name: pmm-managed")
+			assert.Contains(t, string(cfg), "job_name: qan-api2")
+			if tc.wantClickhouse {
+				assert.Contains(t, string(cfg), "127.0.0.1:9363")
+				assert.Contains(t, string(cfg), "job_name: clickhouse")
+			} else {
+				assert.NotContains(t, string(cfg), "127.0.0.1:9363")
+				assert.NotContains(t, string(cfg), "job_name: clickhouse")
+			}
+		})
+	}
+}
+
+func TestNewVictoriaMetrics_NilClickHouseParams(t *testing.T) {
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+
+	svc, err := NewVictoriaMetrics(configPath, nil, vmParams, nil, newMockHaService(t))
+	require.Error(t, err)
+	assert.Nil(t, svc)
+	assert.Contains(t, err.Error(), "ClickHouse params is required")
 }

@@ -17,7 +17,6 @@ package fingerprinter
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"testing"
 	"time"
@@ -32,7 +31,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 )
 
 const (
@@ -66,7 +65,7 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutDialInfo)
 	defer cancel()
 
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongofix.ClientOptionsForDSN(dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +74,7 @@ func createSession(dsn string, agentID string) (*mongo.Client, error) {
 		SetDirect(true).
 		SetReadPreference(readpref.Nearest()).
 		SetSocketTimeout(mgoTimeoutSessionSocket).
-		SetAppName(fmt.Sprintf("QAN-mongodb-profiler-%s", agentID))
+		SetAppName("QAN-mongodb-profiler-" + agentID)
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {

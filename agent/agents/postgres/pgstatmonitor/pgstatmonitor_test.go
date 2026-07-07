@@ -38,7 +38,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
-func setup(t *testing.T, db *reform.DB, disableCommentsParsing, disableQueryExamples bool) *PGStatMonitorQAN { //nolint:unparam
+func setup(t *testing.T, db *reform.DB, disableCommentsParsing, disableQueryExamples bool) *PGStatMonitorQAN {
 	t.Helper()
 
 	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)
@@ -491,7 +491,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		)`, tableName))
 		require.NoError(t, err)
 		t.Cleanup(func() {
-			_, err := db.Exec(fmt.Sprintf(`DROP TABLE %s`, tableName))
+			_, err := db.Exec("DROP TABLE " + tableName)
 			require.NoError(t, err)
 		})
 		m := setup(t, db, false, false)
@@ -548,7 +548,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MQueryTimeCnt:       float32(n),
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 				// FIXME: Why tables is empty here? this will error.
-				Tables: []string{fmt.Sprintf("public.%s", tableName)},
+				Tables: []string{"public." + tableName},
 			},
 			Postgresql: &agentv1.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt:       float32(n),

@@ -16,6 +16,7 @@ package channel
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net"
 	"strings"
@@ -24,7 +25,6 @@ import (
 	"time"
 
 	"github.com/percona/exporter_shared/helpers"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,8 +39,9 @@ import (
 )
 
 type testServer struct {
-	connectFunc func(server agentv1.AgentService_ConnectServer) error
 	agentv1.UnimplementedAgentServiceServer
+
+	connectFunc func(server agentv1.AgentService_ConnectServer) error
 }
 
 func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {

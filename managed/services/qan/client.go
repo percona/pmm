@@ -19,6 +19,7 @@ package qan
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"maps"
 	"strings"
@@ -122,7 +123,7 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 		return err
 	}
 	if !resp.Exists {
-		return fmt.Errorf("given query is not valid")
+		return errors.New("given query is not valid")
 	}
 
 	return nil

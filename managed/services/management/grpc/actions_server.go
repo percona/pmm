@@ -18,9 +18,9 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -34,11 +34,11 @@ import (
 )
 
 type actionsServer struct {
+	actionsv1.UnimplementedActionsServiceServer
+
 	a  *agents.ActionsService
 	db *reform.DB
 	l  *logrus.Entry
-
-	actionsv1.UnimplementedActionsServiceServer
 }
 
 var (
@@ -53,8 +53,8 @@ func NewActionsServer(a *agents.ActionsService, db *reform.DB) actionsv1.Actions
 }
 
 // GetAction gets an action result.
-func (s *actionsServer) GetAction(ctx context.Context, req *actionsv1.GetActionRequest) (*actionsv1.GetActionResponse, error) { //nolint:revive
-	res, err := models.FindActionResultByID(s.db.Querier, req.ActionId)
+func (s *actionsServer) GetAction(ctx context.Context, req *actionsv1.GetActionRequest) (*actionsv1.GetActionResponse, error) {
+	res, err := models.FindActionResultByID(s.db.WithContext(ctx), req.ActionId)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (s *actionsServer) StartServiceAction(ctx context.Context, req *actionsv1.S
 	case *actionsv1.StartServiceActionRequest_PtPostgresSummary:
 		return s.StartPTPgSummaryAction(ctx, req.GetPtPostgresSummary())
 	default:
-		return nil, errors.Errorf("invalid request %v", req.GetAction())
+		return nil, fmt.Errorf("invalid request %v", req.GetAction())
 	}
 }
 
@@ -685,11 +685,13 @@ func (s *actionsServer) prepareServiceAction(serviceID, pmmAgentID, database str
 			return err
 		}
 
-		if pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(pmmAgentID, agents); err != nil {
+		pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(pmmAgentID, agents)
+		if err != nil {
 			return err
 		}
 
-		if dsn, _, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database); err != nil {
+		dsn, _, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database)
+		if err != nil {
 			return err
 		}
 
@@ -720,12 +722,14 @@ func (s *actionsServer) prepareServiceActionWithFiles(
 			return err
 		}
 
-		if pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(pmmAgentID, pmmAgents); err != nil {
+		pmmAgentID, err = models.FindPmmAgentIDToRunActionOrJob(pmmAgentID, pmmAgents)
+		if err != nil {
 			return err
 		}
 
 		var agent *models.Agent
-		if dsn, agent, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database); err != nil {
+		dsn, agent, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database)
+		if err != nil {
 			return err
 		}
 

@@ -87,11 +87,13 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 		}
 
 		if !req.SkipConnectionCheck {
-			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 

@@ -12,11 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package aggregator provides functionality to aggregate MongoDB profiling data.
+// It collects system.profile documents, calculates query performance statistics
+// over fixed time intervals, and transforms them into Query Analytics (QAN) reports
+// containing query fingerprints and metric buckets.
 package aggregator
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"runtime/pprof"
 	"strings"
 	"sync"
@@ -92,7 +96,7 @@ func (a *Aggregator) Add(ctx context.Context, doc proto.SystemProfile) error {
 	a.m.Lock()
 	defer a.m.Unlock()
 	if !a.running {
-		return fmt.Errorf("aggregator is not running")
+		return errors.New("aggregator is not running")
 	}
 
 	ts := doc.Ts.UTC()
