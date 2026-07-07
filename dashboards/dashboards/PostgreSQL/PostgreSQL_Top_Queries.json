@@ -1079,7 +1079,7 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "PDEE91DDB90597936"
             },
-            "description": "Queries spilling sort/hash work to disk (temp blocks, 8 KB each). Disk spills are ~100x slower than memory — increase work_mem, add indexes to avoid large sorts, or reduce intermediate result sizes. Available with standard pg_stat_statements.",
+            "description": "Queries spilling sort/hash work to disk (temp blocks, 8 KB each). Disk spills are ~100x slower than memory — increase work_mem, add indexes to avoid large sorts, or reduce intermediate result sizes. Available with pg_stat_statements or pg_stat_monitor.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1210,7 +1210,7 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "PDEE91DDB90597936"
             },
-            "description": "Most time waiting on block I/O (ms). High read wait signals sequential scans — add indexes. High write wait may need checkpoint tuning. I/O-bound queries hold locks longer, increasing contention. Requires track_io_timing = on in postgresql.conf.",
+            "description": "Most time waiting on block I/O (ms). High read wait signals sequential scans — add indexes. High write wait may need checkpoint tuning. I/O-bound queries hold locks longer, increasing contention. Available with pg_stat_statements or pg_stat_monitor. Requires track_io_timing = on in postgresql.conf.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1341,7 +1341,7 @@
                 "type": "grafana-clickhouse-datasource",
                 "uid": "PDEE91DDB90597936"
             },
-            "description": "SELECT queries reading the most shared blocks per execution on average. A high ratio signals a likely sequential scan — use QAN EXPLAIN to confirm, then index the most selective filter columns.",
+            "description": "SELECT queries reading the most shared blocks per execution on average. A high ratio signals a likely sequential scan — use QAN EXPLAIN to confirm, then index the most selective filter columns. Available with pg_stat_statements or pg_stat_monitor.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
