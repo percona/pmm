@@ -172,20 +172,12 @@ nav:
                       - install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.md
                       - install-pmm/install-pmm-server/deployment-options/podman/restore_container_podman.md
                       - install-pmm/install-pmm-server/deployment-options/podman/remove_container_podman.md
-              - Install on virtual machines:
-                  - Install on Virtual Appliance:
-                        - Overview: install-pmm/install-pmm-server/deployment-options/virtual/index.md
-                        - Download OVA: install-pmm/install-pmm-server/deployment-options/virtual/download_ova.md
-                        - Deploy on VirtualBox: install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.md
-                  - Install on AWS Marketplace:
+              - Install on AWS Marketplace:
                         - Planning: install-pmm/install-pmm-server/deployment-options/aws/plan_aws.md
                         - Deployment: install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md
                         - Initial setup: install-pmm/install-pmm-server/deployment-options/aws/configure_aws.md
-                  - VM configuration: 
-                        - Configure environment variables: install-pmm/install-pmm-server/deployment-options/virtual/env_var.md
-                        - Access PMM UI: install-pmm/install-pmm-server/deployment-options/virtual/login_UI.md
-                        - Remove VM: install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.md     
-                        - SSH key: install-pmm/install-pmm-server/deployment-options/virtual/ssh.md
+                        - Configure environment variables: install-pmm/install-pmm-server/deployment-options/aws/env_var.md
+                        - SSH key: install-pmm/install-pmm-server/deployment-options/aws/ssh.md
               - Install on Kubernetes:
                   - install-pmm/install-pmm-server/deployment-options/helm/index.md
                   - Backup & maintenance:
@@ -418,8 +410,6 @@ nav:
       - configure-pmm/configure.md
       - configure-pmm/metrics_res.md
       - configure-pmm/advanced_settings.md
-      - install-pmm/install-pmm-server/deployment-options/virtual/ssh.md
-
       - Security in PMM:
           - admin/security/index.md
           - admin/security/ssl_encryption.md
