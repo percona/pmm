@@ -17,6 +17,36 @@ export {
   type UseDetailsPaneNavigationResult,
 } from './useDetailsPaneNavigation';
 
+export {
+  default as usePerconaTableUrlState,
+  type UsePerconaTableUrlStateOptions,
+  type UsePerconaTableUrlStateResult,
+} from './usePerconaTableUrlState';
+
+export {
+  parseTableUrlState,
+  serializeTableUrlState,
+  buildTableUrlParamKeys,
+  hasActiveColumnFilters,
+  type TableUrlStateOptions,
+  type TableUrlSyncKey,
+} from './tableUrlState.utils';
+
+export {
+  DEFAULT_TABLE_STATE,
+  type TableControlledState,
+  type TableStateValues,
+  type NavigableTableState,
+} from './tableState.types';
+
+export {
+  resolveUpdater,
+  mergePerconaTableState,
+  stableDependencyKey,
+  isSameTableState,
+  cloneColumnFilters,
+} from './tableState.utils';
+
 // Re-export common Material React Table types so consumers don't have to
 // reach into the transitive dependency directly. Keep this list
 // conservative and additive — adding new symbols is safe, removing is not.
