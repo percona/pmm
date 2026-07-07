@@ -91,6 +91,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 
 		assert.Equal(t, models.CheckResultOK, rec.Status)
 		assert.Equal(t, "Check title", rec.Summary)
+		assert.Equal(t, "Check passed", rec.Outcome)
 		assert.Equal(t, models.CheckSeverityInfo, rec.Severity)
 
 		labels, err := rec.GetLabels()

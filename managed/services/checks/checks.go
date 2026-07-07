@@ -805,6 +805,7 @@ func newCheckResultRecord(
 	switch status {
 	case models.CheckResultOK:
 		r.Severity = models.CheckSeverityInfo
+		r.Outcome = "Check passed"
 	case models.CheckResultError:
 		// the check could not be executed, which is a diagnostic concern, not a database issue
 		r.Severity = models.CheckSeverityDebug

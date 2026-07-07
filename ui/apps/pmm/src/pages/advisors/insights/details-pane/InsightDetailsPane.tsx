@@ -150,7 +150,7 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
               rowGap: 3,
             }}
           >
-            <Field label={m.insight}>
+            <Field label={m.summary}>
               <Typography variant="body1">{insight.summary}</Typography>
             </Field>
             <Field label={m.severity}>
@@ -181,12 +181,6 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
               </Typography>
             </Field>
 
-            <Field label={m.outcome} span={4}>
-              <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-                {insight.outcome || EM_DASH}
-              </Typography>
-            </Field>
-
             <Field label={m.readMore} span={4}>
               {insight.readMoreUrl ? (
                 <Link
@@ -202,6 +196,17 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
               )}
             </Field>
 
+            <Field label={m.outcome} span={4}>
+              <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                {insight.outcome || EM_DASH}
+              </Typography>
+            </Field>
+
+            <Field label={m.category}>
+              <Typography variant="body1">
+                {capitalize(insight.category)}
+              </Typography>
+            </Field>
             <Field label={m.service}>
               <Stack direction="row" alignItems="center" gap={0.5}>
                 <Typography variant="body1">{insight.serviceName}</Typography>
@@ -214,26 +219,36 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
                 <CopyToClipboardButton textToCopy={insight.nodeId} />
               </Stack>
             </Field>
-            <Field label={m.category}>
-              <Typography variant="body1">
-                {capitalize(insight.category)}
-              </Typography>
-            </Field>
             <Field label={m.environment}>
-              <Typography variant="body1">
-                {insight.environment || EM_DASH}
-              </Typography>
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <Typography variant="body1">
+                  {insight.environment || EM_DASH}
+                </Typography>
+                {insight.environment && (
+                  <CopyToClipboardButton textToCopy={insight.environment} />
+                )}
+              </Stack>
             </Field>
 
             <Field label={m.cluster}>
-              <Typography variant="body1">
-                {insight.cluster || EM_DASH}
-              </Typography>
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <Typography variant="body1">
+                  {insight.cluster || EM_DASH}
+                </Typography>
+                {insight.cluster && (
+                  <CopyToClipboardButton textToCopy={insight.cluster} />
+                )}
+              </Stack>
             </Field>
             <Field label={m.replicationSet}>
-              <Typography variant="body1">
-                {insight.replicationSet || EM_DASH}
-              </Typography>
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <Typography variant="body1">
+                  {insight.replicationSet || EM_DASH}
+                </Typography>
+                {insight.replicationSet && (
+                  <CopyToClipboardButton textToCopy={insight.replicationSet} />
+                )}
+              </Stack>
             </Field>
             <Field label={m.region}>
               <Typography variant="body1">{EM_DASH}</Typography>
@@ -254,15 +269,16 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
                 {ADVISOR_INTERVAL[insight.interval]}
               </Typography>
             </Field>
-            <Field label={m.firstDetected}>
-              <Typography variant="body1">{EM_DASH}</Typography>
+            <Field label={m.checkId}>
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <Typography variant="body1" noWrap>
+                  {insight.id}
+                </Typography>
+                <CopyToClipboardButton textToCopy={insight.id} />
+              </Stack>
             </Field>
             <Field label={m.checkName}>
-              <Typography variant="body1">
-                {insight.advisorName
-                  ? `${insight.advisorName}/${insight.checkName}`
-                  : insight.checkName}
-              </Typography>
+              <Typography variant="body1">{insight.checkName}</Typography>
             </Field>
           </Box>
 

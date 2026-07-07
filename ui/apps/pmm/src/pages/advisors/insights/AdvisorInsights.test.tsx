@@ -371,7 +371,9 @@ describe('AdvisorInsights', () => {
       within(pane).getByText('Newer version of MySQL is available')
     ).toBeInTheDocument();
     expect(
-      within(pane).getByText('MySQL Version/mysql_version_check')
+      within(
+        screen.getByTestId('details-field-check-name')
+      ).getByText('mysql_version_check')
     ).toBeInTheDocument();
     // the underlying check is enabled in the advisors fixture
     expect(
@@ -386,8 +388,14 @@ describe('AdvisorInsights', () => {
     expect(
       within(pane).getByText('Installed version: 5.7.30')
     ).toBeInTheDocument();
-    // not-yet-populated fields (Region, AZ, First detected) render an em-dash
-    expect(within(pane).getAllByText('—').length).toBeGreaterThanOrEqual(3);
+    // not-yet-populated fields (Region, AZ) render an em-dash
+    expect(within(pane).getAllByText('—').length).toBeGreaterThanOrEqual(2);
+    // the history record ID is shown as Check ID
+    expect(
+      within(screen.getByTestId('details-field-check-id')).getByText(
+        'result-1'
+      )
+    ).toBeInTheDocument();
     // no labels on this insight, so no labels section
     expect(
       within(pane).queryByText(Messages.details.otherLabels)
@@ -413,10 +421,11 @@ describe('AdvisorInsights', () => {
     const checkedAt = format(new Date(TEST_ITEM.checkedAt), TIME_FORMAT);
     const expected =
       `The Advisor Check "MySQL is outdated" completed at ${checkedAt} ` +
-      'with status "Failed" and severity "Warning".\n' +
+      'with status "Failed".\n' +
       '\n' +
       'Check Details:\n' +
       '  ID: result-1\n' +
+      '  Check Run ID: run-1\n' +
       '  Check Name: mysql_version_check\n' +
       '  Advisor: MySQL Version\n' +
       '  Category: Version_configuration\n' +
@@ -428,10 +437,11 @@ describe('AdvisorInsights', () => {
       '  Replication Set: rs1\n' +
       '  Interval: Standard\n' +
       '  Triggered By: User\n' +
-      '  Check Run ID: run-1\n' +
       '  Read: Read\n' +
+      '  Summary: MySQL is outdated\n' +
       '  Description: Newer version of MySQL is available\n' +
       '  Outcome: Installed version: 5.7.30\n' +
+      '  Severity: Warning\n' +
       '  Read More: https://percona.com';
 
     await waitFor(() =>

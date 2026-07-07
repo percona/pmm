@@ -28,6 +28,7 @@ export const insightToText = (item: CheckResultHistoryItem): string => {
 
   const details: Array<[string, string]> = [
     ['ID', item.id],
+    ['Check Run ID', item.runId],
     ['Check Name', item.checkName],
     ['Advisor', item.advisorName],
     ['Category', capitalize(item.category)],
@@ -39,10 +40,11 @@ export const insightToText = (item: CheckResultHistoryItem): string => {
     ['Replication Set', item.replicationSet],
     ['Interval', ADVISOR_INTERVAL[item.interval]],
     ['Triggered By', TRIGGERED_BY_LABEL[item.triggeredBy]],
-    ['Check Run ID', item.runId],
     ['Read', item.isRead ? 'Read' : 'Unread'],
+    ['Summary', item.summary],
     ['Description', item.description],
     ['Outcome', item.outcome],
+    ['Severity', SEVERITY[item.severity]],
     ['Read More', item.readMoreUrl],
     ['Labels', labels],
   ];
@@ -54,7 +56,7 @@ export const insightToText = (item: CheckResultHistoryItem): string => {
 
   return (
     `The Advisor Check "${item.summary}" completed at ${checkedAt} ` +
-    `with status "${ADVISOR_RESULT_STATUS[item.status]}" and severity "${SEVERITY[item.severity]}".\n` +
+    `with status "${ADVISOR_RESULT_STATUS[item.status]}".\n` +
     `\n` +
     `Check Details:\n` +
     detailLines
