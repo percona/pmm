@@ -78,5 +78,5 @@ Replace the user name `ec2-user` with `admin`. You can also add SSH keys later t
 With your PMM Server deployed and accessible:
 
 - [Configure PMM Server](../aws/configure_aws.md) for security and authentication
-- [Configure environment variables](../virtual/env_var.md) to customize PMM Server behavior
+- [Configure environment variables](../aws/env_var.md) to customize PMM Server behavior
 - [Configure PMM Clients](../../../install-pmm-client/index.md) to start monitoring your infrastructure
