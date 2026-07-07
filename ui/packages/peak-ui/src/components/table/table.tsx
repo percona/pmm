@@ -396,7 +396,9 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
               }),
               '@media (hover: none)': { opacity: 0.5 },
             },
-            '& .MuiTableCell-head:hover .MuiTableSortLabel-root, & .MuiTableCell-head:focus-within .MuiTableSortLabel-root, & .MuiTableCell-head:hover .Mui-TableHeadCell-Content-Actions .MuiIconButton-root, & .MuiTableCell-head:focus-within .Mui-TableHeadCell-Content-Actions .MuiIconButton-root':
+            // :has(:focus-visible), not :focus-within: reveal for keyboard focus only,
+            // so mouse-clicking sort doesn't pin the controls via lingering focus
+            '& .MuiTableCell-head:is(:hover, :focus-visible, :has(:focus-visible)) .MuiTableSortLabel-root, & .MuiTableCell-head:is(:hover, :focus-visible, :has(:focus-visible)) .Mui-TableHeadCell-Content-Actions .MuiIconButton-root':
               {
                 opacity: 0.5,
               },
