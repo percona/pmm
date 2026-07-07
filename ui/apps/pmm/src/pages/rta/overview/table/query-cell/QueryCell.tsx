@@ -1,4 +1,4 @@
-import { CodeBlock } from 'components/code-block';
+import { CodeBlock } from '@percona/percona-ui';
 import { FC } from 'react';
 
 export interface Props {
@@ -7,17 +7,12 @@ export interface Props {
 
 const QueryCell: FC<Props> = ({ query }) => (
   <CodeBlock
-    code={query
+    content={query
       .replace(/[\n\r\t]/g, '')
       .replace(/\s{2,}/g, ' ')
       .trim()}
-    containerProps={{
-      sx: {
-        width: '100%',
-        maxHeight: '50px',
-      },
-    }}
-    language="mongodb"
+    language="javascript"
+    sx={{ width: '100%' }}
   />
 );
 

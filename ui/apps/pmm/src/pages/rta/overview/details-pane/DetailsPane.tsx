@@ -14,7 +14,7 @@ import { QueryData } from 'types/rta.types';
 import { useEscapeKey } from 'utils/keys.utils';
 import { Messages } from './DetailsPane.messages';
 import QueryAndDetails from './QueryAndDetails';
-import { SyntaxHighlighter } from 'components/syntax-highlighter';
+import { CodeBlock } from '@percona/percona-ui';
 
 interface Props {
   query?: QueryData;
@@ -124,12 +124,12 @@ const DetailsPane: FC<Props> = ({
           >
             {tab === 'details' && <QueryAndDetails queryData={query} />}
             {tab === 'raw-data' && (
-              <SyntaxHighlighter
+              <CodeBlock
                 language="json"
                 content={query.queryRawJson}
-                showCopyButton
-                showLineNumbers
-                maxHeight="80vh"
+                copyable
+                wrap
+                sx={{ maxHeight: '80vh', overflow: 'auto' }}
                 data-testid="query-raw-data"
               />
             )}
