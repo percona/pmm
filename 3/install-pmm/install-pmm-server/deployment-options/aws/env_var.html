@@ -7,19 +7,19 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Download the Virtual Appliance (OVA) file to deploy PMM Server as a virtual machine.">
+        <meta name="description" content="Set up environment variables in the systemd environment file to customize performance, storage, features, and other settings without modifying the container directly.">
       
       
         <meta name="author" content="Percona LLC">
       
       
-        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/virtual/download_ova.html">
+        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/aws/env_var.html">
       
       
-        <link rel="prev" href="index.html">
+        <link rel="prev" href="configure_aws.html">
       
       
-        <link rel="next" href="virtualbox.html">
+        <link rel="next" href="ssh.html">
       
       
         
@@ -30,7 +30,7 @@
     
     
       
-        <title>Download OVA - Percona Monitoring and Management</title>
+        <title>Configure environment variables - Percona Monitoring and Management</title>
       
     
     
@@ -96,7 +96,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Download OVA" />
+                 <meta property="og:title" content="Percona Monitoring and Management - Configure environment variables" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -119,7 +119,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#download-and-verify-ova-file" class="md-skip">
+        <a href="#configure-environment-variables-for-pmm-server-on-aws" class="md-skip">
           Skip to content
         </a>
       
@@ -226,7 +226,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Download OVA
+              Configure environment variables
             
           </span>
         </div>
@@ -1725,7 +1725,7 @@
   <span class="md-ellipsis">
     
   
-    Install on virtual machines
+    Install on AWS Marketplace
   
 
     
@@ -1741,56 +1741,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Install on virtual machines
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_1" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_5_3_3_3_1" id="__nav_5_3_3_3_1_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Install on Virtual Appliance
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_1_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_3_3_3_1">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Install on Virtual Appliance
+    Install on AWS Marketplace
   
 
           </label>
@@ -1803,14 +1754,70 @@
   
   
     <li class="md-nav__item">
-      <a href="index.html" class="md-nav__link">
+      <a href="plan_aws.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Overview
+    Planning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="deploy_aws.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="configure_aws.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Initial setup
   
 
     
@@ -1847,7 +1854,7 @@
   <span class="md-ellipsis">
     
   
-    Download OVA
+    Configure environment variables
   
 
     
@@ -1858,14 +1865,14 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="download_ova.html" class="md-nav__link md-nav__link--active">
+      <a href="env_var.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    Download OVA
+    Configure environment variables
   
 
     
@@ -1891,10 +1898,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#supported-platforms" class="md-nav__link">
+  <a href="#configure-environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supported platforms
+        Configure environment variables
       
     </span>
   </a>
@@ -1902,35 +1909,41 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#download-options" class="md-nav__link">
+  <a href="#available-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Download options
+        Available variables
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Available variables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-examples-for-aws-ami" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common examples for AWS AMI
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#verify-ova-integrity" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#victoriametrics-performance-tuning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Verify OVA integrity
+        VictoriaMetrics performance tuning
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next steps
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1938,312 +1951,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="virtualbox.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Deploy on VirtualBox
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_3_3_3_2" id="__nav_5_3_3_3_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Install on AWS Marketplace
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_3_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Install on AWS Marketplace
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../aws/plan_aws.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Planning
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../aws/deploy_aws.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Deployment
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../aws/configure_aws.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Initial setup
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_3_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_3_3_3_3" id="__nav_5_3_3_3_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    VM configuration
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3_3_3_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    VM configuration
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="env_var.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Configure environment variables
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="login_UI.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Access PMM UI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="remove_virtual_machine.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Remove VM
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -2272,14 +1979,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -10020,34 +9719,6 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="ssh.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    SSH key
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
     
     
     
@@ -10057,10 +9728,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_4" >
         
           
-          <label class="md-nav__link" for="__nav_7_5" id="__nav_7_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_7_4" id="__nav_7_4_label" tabindex="0">
             
   
   
@@ -10078,8 +9749,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7_5">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -16133,7 +15804,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
                       <div data-banner="data-banner" class="edit-contrib-banner">
   <div class="banner-content">
     <!-- Edit link centered -->
-    <a href="https://github.com/percona/pmm/edit/main/documentation/docs/install-pmm/install-pmm-server/deployment-options/virtual/download_ova.md" title="Edit this page on GitHub" class="edit-page-link">
+    <a href="https://github.com/percona/pmm/edit/main/documentation/docs/install-pmm/install-pmm-server/deployment-options/aws/env_var.md" title="Edit this page on GitHub" class="edit-page-link">
       <span class="edit-page-icon">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
@@ -16184,10 +15855,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#supported-platforms" class="md-nav__link">
+  <a href="#configure-environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supported platforms
+        Configure environment variables
       
     </span>
   </a>
@@ -16195,35 +15866,41 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#download-options" class="md-nav__link">
+  <a href="#available-variables" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Download options
+        Available variables
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Available variables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-examples-for-aws-ami" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common examples for AWS AMI
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#verify-ova-integrity" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#victoriametrics-performance-tuning" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Verify OVA integrity
+        VictoriaMetrics performance tuning
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Next steps
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -16248,60 +15925,120 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     
       
     
-    <a href="https://github.com/percona/pmm/raw/main/documentation/docs/install-pmm/install-pmm-server/deployment-options/virtual/download_ova.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/main/documentation/docs/install-pmm/install-pmm-server/deployment-options/aws/env_var.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="download-and-verify-ova-file">Download and verify OVA file<a class="headerlink" href="#download-and-verify-ova-file" title="Permanent link">&para;</a></h1>
-<div class="admonition warning">
-<p class="admonition-title">OVF support ending in PMM 3.9.0</p>
-<p>OVF/OVA distribution is deprecated starting with PMM 3.7.0 and will be removed in PMM 3.9.0 (expected July 2026). No new OVA images will be published after that release. Migrate to <a href="../docker/index.html">Docker</a> or another supported deployment method before PMM 3.9.0.</p>
-</div>
-<p>Download the Virtual Appliance (OVA) file to deploy PMM Server as a virtual machine.</p>
-<h2 id="supported-platforms">Supported platforms<a class="headerlink" href="#supported-platforms" title="Permanent link">&para;</a></h2>
-<p>The PMM Server OVA works with:</p>
-<ul>
-<li>Oracle VirtualBox</li>
-<li>Other OVF-compatible virtualization platforms</li>
-</ul>
-<h2 id="download-options">Download options<a class="headerlink" href="#download-options" title="Permanent link">&para;</a></h2>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Download from the UI</label><label for="__tabbed_1_2">Download with CLI</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p class="power-number">To download an OVA file from the UI:</p>
+<h1 id="configure-environment-variables-for-pmm-server-on-aws">Configure environment variables for PMM Server on AWS<a class="headerlink" href="#configure-environment-variables-for-pmm-server-on-aws" title="Permanent link">&para;</a></h1>
+<p>Set up environment variables in the <code>systemd</code> environment file to customize performance, storage, features, and other settings without modifying the container directly.</p>
+<p>Your PMM Server on AWS runs as a <code>systemd</code> user service that launches a Podman container, with environment variables configured through a dedicated environment file.</p>
+<h2 id="configure-environment-variables">Configure environment variables<a class="headerlink" href="#configure-environment-variables" title="Permanent link">&para;</a></h2>
+<p class="power-number">To set environment variables for PMM Server on AWS:</p>
 <ol>
-<li>Visit the <a href="https://www.percona.com/downloads">Percona Downloads page</a> from a web browser.</li>
-<li>Make sure PMM 3 is selected, then choose a PMM version and select <strong>SERVER - VIRTUAL APPLIANCE OVF</strong>.</li>
-<li>Click the <strong>DOWNLOAD</strong> link for <code>pmm-server-3.8.1.ova</code> and note where your browser saves it.</li>
-<li>Right-click the link for <code>pmm-server-3.8.1.sha256sum</code> and save it in the same place as the <code>.ova</code> file.</li>
+<li>
+<p>Connect to your PMM Server instance via SSH using the <code>admin</code> user:
+    <div class="highlight"><pre><span></span><code>ssh<span class="w"> </span>-i<span class="w"> </span>your-key.pem<span class="w"> </span>admin@&lt;pmm-server-ip&gt;
+</code></pre></div></p>
+</li>
+<li>
+<p>Open <code>/home/admin/.config/systemd/user/pmm-server.env</code> and edit the environment variables file. This file is automatically loaded by the <code>systemd</code> service:</p>
+<div class="highlight"><pre><span></span><code>nano<span class="w"> </span>~/.config/systemd/user/pmm-server.env
+</code></pre></div>
+</li>
+<li>
+<p>Add your desired environment variables in <code>KEY=VALUE</code> format:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">PMM_DEBUG</span><span class="o">=</span><span class="nb">true</span>
+<span class="nv">PMM_ENABLE_ACCESS_CONTROL</span><span class="o">=</span><span class="nb">true</span>
+</code></pre></div>
+</li>
+<li>
+<p>Restart the PMM Server service to apply the changes:</p>
+<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>--user<span class="w"> </span>restart<span class="w"> </span>pmm-server
+</code></pre></div>
+</li>
+<li>
+<p>Verify the service is running with the new configuration:</p>
+<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>--user<span class="w"> </span>status<span class="w"> </span>pmm-server
+</code></pre></div>
+</li>
 </ol>
-</div>
-<div class="tabbed-block">
-<p>Download the latest PMM Server OVA and checksum files:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Download the OVA file (replace X.Y.Z with the desired version)</span>
-wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm/X.Y.Z/ova/PMM-Server-X.Y.Z.ova
+<h2 id="available-variables">Available variables<a class="headerlink" href="#available-variables" title="Permanent link">&para;</a></h2>
+<p>Unlike Docker deployments that use <code>-e</code> flags, AWS AMI instances configure PMM Server using the systemd environment file instructions above. However, PMM uses the same <a href="../docker/env_var.html">list of environment variables</a> across all deployment methods.</p>
+<h3 id="common-examples-for-aws-ami">Common examples for AWS AMI<a class="headerlink" href="#common-examples-for-aws-ami" title="Permanent link">&para;</a></h3>
+<p>These variables are particularly useful for AWS AMI deployments:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PMM_DATA_RETENTION</code></td>
+<td><code>30d</code></td>
+<td>Duration to retain metrics data</td>
+</tr>
+<tr>
+<td><code>PMM_ENABLE_UPDATES</code></td>
+<td><code>true</code></td>
+<td>Allow version checks and updates</td>
+</tr>
+<tr>
+<td><code>PMM_ENABLE_ACCESS_CONTROL</code></td>
+<td><code>true</code></td>
+<td>Enable label-based access control (LBAC)</td>
+</tr>
+<tr>
+<td><code>PMM_PUBLIC_ADDRESS</code></td>
+<td>Auto-detected</td>
+<td>External DNS/IP for PMM Server</td>
+</tr>
+<tr>
+<td><code>PMM_DEBUG</code></td>
+<td><code>true</code></td>
+<td>Enable verbose logging</td>
+</tr>
+<tr>
+<td><code>PMM_METRICS_RESOLUTION</code></td>
+<td><code>1s</code></td>
+<td>Base metrics collection interval</td>
+</tr>
+</tbody>
+</table>
+<h3 id="victoriametrics-performance-tuning">VictoriaMetrics performance tuning<a class="headerlink" href="#victoriametrics-performance-tuning" title="Permanent link">&para;</a></h3>
+<p class="power-number">PMM Server uses VictoriaMetrics as its metrics storage engine. For high-volume environments or extended retention periods, you may need to tune VictoriaMetrics settings to optimize performance and resource usage. To do this:</p>
+<ol>
+<li>
+<p>Add the following variables to your <code>pmm-server.env</code> file:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Configure disk space limit per client during network outages</span>
+<span class="nv">VMAGENT_remoteWrite_maxDiskUsagePerURL</span><span class="o">=</span><span class="m">52428800</span>
 
-<span class="c1"># Download the checksum file</span>
-wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm/X.Y.Z/ova/PMM-Server-X.Y.Z.ova.sha256sum
-</code></pre></div>
-</div>
-</div>
-</div>
-<h2 id="verify-ova-integrity">Verify OVA integrity<a class="headerlink" href="#verify-ova-integrity" title="Permanent link">&para;</a></h2>
-<p>After downloading, verify the file integrity to ensure it hasn&rsquo;t been corrupted:</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># Navigate to the download location</span>
-<span class="nb">cd</span><span class="w"> </span>/path/to/download
+<span class="c1"># Configure temporary data storage path</span>
+<span class="nv">VMAGENT_remoteWrite_tmpDataPath</span><span class="o">=</span>/tmp/custom-vmagent
 
-<span class="c1"># Verify the checksum</span>
-sha256sum<span class="w"> </span>-c<span class="w"> </span>PMM-Server-X.Y.Z.ova.sha256sum
+<span class="c1"># Configure logging verbosity level</span>
+<span class="nv">VMAGENT_loggerLevel</span><span class="o">=</span>DEBUG
+
+<span class="c1"># Configure maximum scrape size per target</span>
+<span class="nv">VMAGENT_promscrape_maxScrapeSize</span><span class="o">=</span>128MiB
 </code></pre></div>
-<p>You should see output confirming the file is OK:
-<code>PMM-Server-X.Y.Z.ova: OK</code></p>
-<h2 id="next-steps">Next steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
-<p>After downloading the OVA file, <a href="virtualbox.html">Deploy on VirtualBox</a>.</p>
+</li>
+<li>
+<p>Restart the PMM Server service after changing environment variables for VictoriaMetrics and monitor disk space when extending retention periods.</p>
+</li>
+</ol>
+<p>When to configure these settings:</p>
+<ul>
+<li>Large deployments (&gt;100 monitored nodes): increase query timeout and adjust memory limits</li>
+<li>Extended retention (&gt;30 days): Set <code>VM_retentionPeriod</code> independently from <code>PMM_DATA_RETENTION</code> for finer control</li>
+<li>Memory-constrained environments: reduce <code>VM_memory.allowedPercent</code> to prevent OOM issues</li>
+<li>High write volume: add merge speed optimization for better ingestion performance</li>
+</ul>
 
 
 
@@ -16334,7 +16071,7 @@ sha256sum<span class="w"> </span>-c<span class="w"> </span>PMM-Server-X.Y.Z.ova.
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 3, 2025 11:58:31 UTC">November 3, 2025</span>
   </span>
 
     
