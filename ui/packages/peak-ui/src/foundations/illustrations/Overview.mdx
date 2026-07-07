@@ -1,0 +1,57 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as IllustrationsStories from './Illustrations.stories';
+
+<Meta title="Foundations/Illustrations/Overview" />
+
+# Illustrations
+
+Illustrations are larger, expressive pieces of artwork **unique to Peak Design**. Unlike icons, which label actions and objects at small sizes, illustrations carry a moment in the UX: an empty result, an error, a feature that is switched off, a background process at work.
+
+## How they behave
+
+Each illustration is a React component that wraps MUI's `SvgIcon`, drawn on a `64px` wide square canvas.
+
+- **Sizing** — like an icon, the size follows `fontSize` (defaulting to `64px`). Resize with the `fontSize` prop or `sx`.
+- **Default color** — every artwork layer inherits `currentColor`, so by default the whole illustration is drawn in the **text color** and adapts to light/dark themes automatically. Never hardcode a color when the default will do.
+
+```tsx
+import { NothingFoundIllustration } from '@percona/percona-ui';
+
+<NothingFoundIllustration sx={{ fontSize: 96 }} />;
+```
+
+## Customizing colors per layer
+
+Every illustration is composed of named **layers** (groups of paths). Consumers can recolor any individual layer through the `layerColors` prop — any layer you don't set stays on `currentColor`.
+
+The cleanest source of color values is the design system's **primitive tokens**, which are exported alongside the components:
+
+```tsx
+import { NothingFoundIllustration, primitives } from '@percona/percona-ui';
+
+<NothingFoundIllustration
+  sx={{ fontSize: 120 }}
+  layerColors={{
+    glass: primitives.tech.postgresql[700],
+    questionMark: primitives.tech.mysql[600],
+    // swooshArrays omitted → stays currentColor
+  }}
+/>;
+```
+
+<Canvas of={IllustrationsStories.LayerColoringNothingFound} sourceState="none" />
+
+The same applies to any illustration — here the **Unknown error** face is tinted with `tech.redis` while the window chrome stays neutral:
+
+<Canvas of={IllustrationsStories.LayerColoringUnknownError} sourceState="none" />
+
+The available layer keys are listed under each illustration in the **Illustrations** page and are fully typed per component, so your editor will autocomplete them.
+
+> `layerColors` takes concrete color values (hex, `rgb()`, CSS variables). Primitive tokens are already concrete values, so they work directly. For semantic theme tokens, resolve them first (e.g. `theme.palette.error.main`) and pass the value.
+
+## Adding a new illustration
+
+1. **Design in Figma** — keep the artwork on a `64px` square frame and split it [into clearly named layers here in the main Figma file](https://www.figma.com/design/08jGF3GZAUGmazlQtk0UQk/Peak-Design-Kit?node-id=4341-8314).
+2. **Add to Peak Design** — translate each layer into a `<g>` whose fill defaults to `currentColor`, inside a `SvgIcon`-based component in `src/components/illustrations/`.
+3. **Export from `@percona/percona-ui`** — so any consumer can import it by name.
+4. **List it on the Illustrations page** — so it's discoverable and searchable alongside the rest.
