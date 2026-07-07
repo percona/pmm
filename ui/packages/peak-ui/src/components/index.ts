@@ -12,6 +12,8 @@ export { default as ToggleRegularButton } from './buttons/toggle-regular-button'
 
 export * from './icons';
 
+export * from './illustrations';
+
 export * from './stepper';
 export { default as Stepper } from './stepper';
 
