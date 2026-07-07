@@ -351,6 +351,21 @@ export interface PluginEntitySchema {
   detail_highlights?: Partial<Record<string, 'sql' | 'json' | 'bash'>>;
 }
 
+// ── Related apps (sibling tabs) ─────────────────────────────────────────
+
+/**
+ * A separately registered app the parent plugin surfaces as a sibling tab
+ * (for example `mysql_backups/restore` nested under MySQL Backups).
+ */
+export interface RelatedApp {
+  /** Scoped registry key (for example `mysql_backups/restore`). */
+  app_key: string;
+  /** Tab label shown in the React shell (for example `Restore`). */
+  label: string;
+  /** Sub-path segment under the parent's `route_base` (for example `restores`). */
+  route_segment: string;
+}
+
 // ── Top-level schema ────────────────────────────────────────────────────
 
 export interface PluginSchema {
@@ -370,4 +385,6 @@ export interface PluginSchema {
   cardinality_rules?: CardinalityRule[];
   /** Schema-wide predicate-only invariants (task-style plugins). */
   fail_when?: FailRule[];
+  /** Separately registered apps rendered as sibling tabs in the React shell. */
+  related_apps?: RelatedApp[];
 }

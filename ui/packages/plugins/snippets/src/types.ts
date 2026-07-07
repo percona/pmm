@@ -31,6 +31,7 @@ export interface SnippetResponse {
   filename: string;
   title: string;
   description: string;
+  service_type: string | null;
   size: number;
   md5_digest: string;
   is_approved: boolean;

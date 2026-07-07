@@ -15,6 +15,7 @@ import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { SnippetsPlugin } from '@sep/plugins-snippets';
 import { SchemaDrivenPlugin } from '@sep/framework';
+import { SepPage } from './sep/SepPage';
 
 const router = createBrowserRouter(
   [
@@ -73,11 +74,19 @@ const router = createBrowserRouter(
               path: 'sep/snippets/*',
               // isAdmin hardcoded true while auth is stubbed (interim Option D);
               // real value comes from the token role claim once Option B lands.
-              element: <SnippetsPlugin isAdmin />,
+              element: (
+                <SepPage>
+                  <SnippetsPlugin isAdmin />
+                </SepPage>
+              ),
             },
             {
               path: 'sep/mysql-backups/*',
-              element: <SchemaDrivenPlugin pluginName="mysql_backups" />,
+              element: (
+                <SepPage>
+                  <SchemaDrivenPlugin pluginName="mysql_backups" />
+                </SepPage>
+              ),
             },
             // Fallback
             {

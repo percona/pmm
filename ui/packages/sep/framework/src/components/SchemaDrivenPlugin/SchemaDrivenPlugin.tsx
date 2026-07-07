@@ -20,6 +20,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
   useNavigate,
   useParams,
 } from 'react-router-dom';
@@ -53,6 +54,11 @@ import { PluginCreatePage } from './PluginCreatePage';
 import { PluginTaskEditPage } from './PluginTaskEditPage';
 import { PluginDetailPage, type TaskExecuteAction } from './PluginDetailPage';
 import { PluginSchedulePage } from './PluginSchedulePage';
+import {
+  RelatedAppTabBar,
+  resolveRelatedAppActiveSegment,
+} from './RelatedAppTabBar';
+import { resolvePluginRouteBase } from './routeBase';
 import type { RenderFormSlot } from './types';
 import type { RenderListColumnOverride } from '../SchemaListView';
 
@@ -77,7 +83,7 @@ interface SchemaDrivenPluginProps {
   getTaskExecuteActions?: (
     task: Record<string, unknown>
   ) => TaskExecuteAction[] | undefined;
-  /** Task names whose execution history should appear on the Logs tab. */
+  /** Task names whose execution history should appear on the Execution History tab. */
   getTaskHistoryNames?: (task: Record<string, unknown>) => string[] | undefined;
   /** Extra overview content on single-task detail pages. */
   renderTaskDetailChildren?: (args: {
@@ -271,6 +277,7 @@ export function SchemaDrivenPlugin({
   renderEditForm,
   renderListColumn,
 }: SchemaDrivenPluginProps) {
+  const { pathname } = useLocation();
   const {
     data: schema,
     isLoading,
@@ -278,6 +285,12 @@ export function SchemaDrivenPlugin({
   } = usePluginSchema(pluginName, mockSchema);
   const showMutationRoutes = !listOnly && !browseOnly;
   const showDetailRoutes = !listOnly;
+  const resolvedRouteBase = resolvePluginRouteBase(
+    pluginName,
+    routeBase
+  ).replace(/\/+$/, '');
+  const relatedApps = schema?.related_apps ?? [];
+  const hasRelatedApps = relatedApps.length > 0;
 
   if (isLoading && !schema) {
     return (
@@ -369,7 +382,25 @@ export function SchemaDrivenPlugin({
     );
   }
 
-  return (
+  const nestedPluginProps = {
+    mockTasks,
+    mockEntityItems,
+    listOnly,
+    browseOnly,
+    suppressDetailKeys,
+    getTaskExecuteActions,
+    getTaskHistoryNames,
+    renderTaskDetailChildren,
+    hideEntityTabs,
+    allowListEntityDelete,
+    renderEntityDetailChildren,
+    renderField,
+    renderCreateForm,
+    renderEditForm,
+    renderListColumn,
+  };
+
+  const singleTaskRoutes = (
     <Routes>
       <Route
         index
@@ -443,6 +474,40 @@ export function SchemaDrivenPlugin({
           }
         />
       )}
+      {hasRelatedApps &&
+        relatedApps.map((related) => (
+          <Route
+            key={related.app_key}
+            path={`${related.route_segment}/*`}
+            element={
+              <SchemaDrivenPlugin
+                pluginName={related.app_key}
+                routeBase={`${resolvedRouteBase}/${related.route_segment}`}
+                {...nestedPluginProps}
+              />
+            }
+          />
+        ))}
     </Routes>
   );
+
+  if (hasRelatedApps) {
+    return (
+      <Box>
+        <RelatedAppTabBar
+          parentLabel={schema.display_name}
+          routeBase={resolvedRouteBase}
+          relatedApps={relatedApps}
+          activeSegment={resolveRelatedAppActiveSegment(
+            pathname,
+            resolvedRouteBase,
+            relatedApps
+          )}
+        />
+        {singleTaskRoutes}
+      </Box>
+    );
+  }
+
+  return singleTaskRoutes;
 }

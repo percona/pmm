@@ -55,6 +55,7 @@ import {
   type DetailSection,
   type PluginEntitySchema,
   type PluginSchema,
+  type SepComponents,
 } from '@sep/api';
 import { resolvePath } from '../../utils/resolvePath';
 import { TaskHistoryTable, type TaskHistoryEntry } from '../TaskHistoryTable';
@@ -103,7 +104,7 @@ export interface PluginDetailPageProps {
   getTaskExecuteActions?: (
     task: Record<string, unknown>
   ) => TaskExecuteAction[] | undefined;
-  /** Task names whose execution history should appear on the Logs tab. */
+  /** Task names whose execution history should appear on the Execution History tab. */
   getTaskHistoryNames?: (task: Record<string, unknown>) => string[] | undefined;
   /** Extra content below the overview cards on single-task detail pages. */
   renderTaskDetailChildren?: (args: {
@@ -351,6 +352,59 @@ function DetailViewSectionCard({
   );
 }
 
+/**
+ * Render the post-creation connectivity-check warning, with an optional link
+ * to the run-script log when the check produced a task history. The link is
+ * omitted when no `task_history_id` is present (e.g. the Tasks API was
+ * unreachable, so no task ran).
+ */
+function ConnectivityWarningAlert({
+  warning,
+}: {
+  warning: SepComponents['schemas']['ConnectivityWarning'];
+}) {
+  const [logOpen, setLogOpen] = useState(false);
+  const message =
+    warning.message || 'Connectivity check returned a warning for this task.';
+  const taskHistoryId = warning.task_history_id ?? null;
+
+  return (
+    <>
+      <Alert
+        severity="warning"
+        sx={{ mb: 3, whiteSpace: 'pre-wrap' }}
+        action={
+          taskHistoryId !== null ? (
+            <Button
+              color="inherit"
+              size="small"
+              data-testid="connectivity-log-button"
+              onClick={() => setLogOpen(true)}
+            >
+              View log
+            </Button>
+          ) : undefined
+        }
+      >
+        {message}
+      </Alert>
+      {taskHistoryId !== null && (
+        <Dialog
+          open={logOpen}
+          onClose={() => setLogOpen(false)}
+          fullWidth
+          maxWidth="lg"
+        >
+          <DialogTitle>Connectivity check log — #{taskHistoryId}</DialogTitle>
+          <DialogContent dividers sx={{ p: 0 }}>
+            <TaskLogViewer taskHistoryId={taskHistoryId} height={520} />
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
+  );
+}
+
 function OverviewTab({
   schema,
   task,
@@ -359,7 +413,15 @@ function OverviewTab({
   scheduleHref,
   children,
 }: OverviewTabProps) {
-  const connectivityWarning = task.connectivity_warning;
+  // The detail/list response model omits `connectivity_warning`; it rides only
+  // the create response. PluginCreatePage carries it here via navigation state
+  // so the warning surfaces once after a failing post-create check.
+  const location = useLocation();
+  const navState = (location.state ?? null) as {
+    connectivityWarning?: unknown;
+  } | null;
+  const connectivityWarning =
+    task.connectivity_warning ?? navState?.connectivityWarning;
   const taskName =
     typeof task.name === 'string' && task.name.trim()
       ? task.name.trim()
@@ -389,12 +451,11 @@ function OverviewTab({
       {connectivityWarning !== null &&
         connectivityWarning !== undefined &&
         typeof connectivityWarning === 'object' && (
-          <Alert severity="warning" sx={{ mb: 3 }}>
-            {('message' in connectivityWarning &&
-              typeof connectivityWarning.message === 'string' &&
-              connectivityWarning.message) ||
-              'Connectivity check returned a warning for this task.'}
-          </Alert>
+          <ConnectivityWarningAlert
+            warning={
+              connectivityWarning as SepComponents['schemas']['ConnectivityWarning']
+            }
+          />
         )}
 
       <SectionCard title="Task information">
@@ -603,7 +664,7 @@ function ActionBar({
         variant: 'success',
       });
       // Anchor to the plugin root explicitly. Relative `..` chains depend
-      // on which tab the user is on (Overview vs. Logs renders a deeper
+      // on which tab the user is on (Overview vs. Execution History renders a deeper
       // sub-route via nested `<Routes>`), so use an absolute path.
       navigate(routeBase);
     } catch (e) {
@@ -1088,7 +1149,7 @@ export function PluginDetailPage({
           replace
         />
         <Tab
-          label="Logs"
+          label="Execution History"
           value="logs"
           component={Link}
           to={`${detailBase}/logs`}

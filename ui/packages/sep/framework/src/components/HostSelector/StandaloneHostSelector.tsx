@@ -36,7 +36,7 @@ export interface StandaloneHostSelectorProps {
 export function StandaloneHostSelector({
   value,
   onChange,
-  label = 'Executor Host',
+  label = 'Execution Host',
   disabled,
   sx,
 }: StandaloneHostSelectorProps) {

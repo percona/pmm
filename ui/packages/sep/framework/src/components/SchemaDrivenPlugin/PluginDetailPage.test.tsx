@@ -95,8 +95,9 @@ vi.mock('../../hooks', () => ({
   useStopTaskHistory: () => ({ mutate: stopMutate, isPending: false }),
 }));
 
-// Logs tab renders the real TaskHistoryTable; stub it to capture the wired
-// onStopTask handler (no other test exercises the Logs tab / this component).
+// Execution History tab renders the real TaskHistoryTable; stub it to capture
+// the wired onStopTask handler (no other test exercises the Execution History
+// tab / this component).
 vi.mock('../TaskHistoryTable', () => ({
   TaskHistoryTable: ({
     onStopTask,
@@ -605,6 +606,140 @@ describe('PluginDetailPage execute flow', () => {
   });
 });
 
+describe('PluginDetailPage — connectivity warning', () => {
+  it('renders the warning message', () => {
+    mockUsePluginTask.mockReturnValue({
+      data: {
+        id: 1,
+        name: 'FECHK',
+        status: 'completed',
+        connectivity_warning: {
+          target: 'node1',
+          service_type: 'mysql',
+          message: 'Connectivity check timed out after 30s',
+          task_history_id: 555,
+        },
+      },
+      isLoading: false,
+    });
+
+    renderWithSchema(makeSchema({}));
+
+    expect(
+      screen.getByText('Connectivity check timed out after 30s')
+    ).toBeInTheDocument();
+  });
+
+  it('offers a log affordance and opens the log viewer when task_history_id is present', async () => {
+    mockUsePluginTask.mockReturnValue({
+      data: {
+        id: 1,
+        name: 'FECHK',
+        status: 'completed',
+        connectivity_warning: {
+          target: 'node1',
+          service_type: 'mysql',
+          message: 'Connectivity check timed out after 30s',
+          task_history_id: 555,
+        },
+      },
+      isLoading: false,
+    });
+
+    renderWithSchema(makeSchema({}));
+
+    const logButton = screen.getByTestId('connectivity-log-button');
+    await userEvent.click(logButton);
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText(/555/)).toBeInTheDocument();
+  });
+
+  it('does not offer a log affordance when task_history_id is absent', () => {
+    mockUsePluginTask.mockReturnValue({
+      data: {
+        id: 1,
+        name: 'FECHK',
+        status: 'completed',
+        connectivity_warning: {
+          target: 'node1',
+          service_type: 'mysql',
+          message: 'Could not reach the Tasks API',
+        },
+      },
+      isLoading: false,
+    });
+
+    renderWithSchema(makeSchema({}));
+
+    expect(
+      screen.getByText('Could not reach the Tasks API')
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('connectivity-log-button')).toBeNull();
+  });
+
+  it('renders a warning carried via navigation state when the detail query omits it', async () => {
+    // detail/list response omits connectivity_warning; carried from create
+    // response via router location state.
+    mockUsePluginTask.mockReturnValue({
+      data: { id: 1, name: 'FECHK', status: 'completed' },
+      isLoading: false,
+    });
+    const warning = {
+      target: 'node1',
+      service_type: 'mysql',
+      message: 'Connectivity check timed out after 30s',
+      task_history_id: 777,
+    };
+
+    render(
+      <QueryClientProvider client={makeClient()}>
+        <SnackbarProvider>
+          <MemoryRouter
+            initialEntries={[
+              {
+                pathname: '/apps/checksums/task/FECHK',
+                state: { connectivityWarning: warning },
+              },
+            ]}
+          >
+            <Routes>
+              <Route
+                path="/apps/:plugin/task/:id/*"
+                element={
+                  <PluginDetailPage
+                    schema={makeSchema({})}
+                    pluginName="checksums"
+                  />
+                }
+              />
+              <Route path="/apps/:plugin" element={<div>list page</div>} />
+            </Routes>
+          </MemoryRouter>
+        </SnackbarProvider>
+      </QueryClientProvider>
+    );
+
+    expect(
+      screen.getByText('Connectivity check timed out after 30s')
+    ).toBeInTheDocument();
+    await userEvent.click(screen.getByTestId('connectivity-log-button'));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText(/777/)).toBeInTheDocument();
+  });
+
+  it('shows no warning when neither the detail query nor navigation state has one', () => {
+    mockUsePluginTask.mockReturnValue({
+      data: { id: 1, name: 'FECHK', status: 'completed' },
+      isLoading: false,
+    });
+
+    renderWithSchema(makeSchema({}));
+
+    expect(screen.queryByTestId('connectivity-log-button')).toBeNull();
+  });
+});
+
 function renderWithSchema(
   customSchema: PluginSchema,
   path = '/apps/checksums/task/FECHK'
@@ -796,12 +931,28 @@ describe('PluginDetailPage — StatsCard integration', () => {
   });
 });
 
-describe('PluginDetailPage — Logs tab stop wiring', () => {
+describe('PluginDetailPage — tabs', () => {
+  it('labels the history tab Execution History', () => {
+    mockUsePluginTask.mockReturnValue({
+      data: { id: 1, name: 'FECHK', status: 'completed' },
+      isLoading: false,
+    });
+
+    renderAt('/apps/checksums/task/FECHK');
+
+    expect(
+      screen.getByRole('tab', { name: 'Execution History' })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'Logs' })).toBeNull();
+  });
+});
+
+describe('PluginDetailPage — Execution History tab stop wiring', () => {
   beforeEach(() => {
     stopMutate.mockReset();
   });
 
-  it('wires the Logs-tab table Stop action to the stop-task mutation with the row id', async () => {
+  it('wires the Execution History tab table Stop action to the stop-task mutation with the row id', async () => {
     mockUsePluginTask.mockReturnValue({
       data: { id: 1, name: 'FECHK', status: 'running' },
       isLoading: false,

@@ -404,7 +404,7 @@ function SchemaFormBody({
         component="form"
         onSubmit={handleSubmitEvent}
         noValidate
-        sx={{ maxWidth: 640 }}
+        sx={{ maxWidth: 800 }}
       >
         {submitError && (
           <Alert severity="error" sx={{ mb: 2, whiteSpace: 'pre-line' }}>

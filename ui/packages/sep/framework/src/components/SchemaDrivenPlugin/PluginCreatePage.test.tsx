@@ -15,9 +15,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
 import type { PluginSchema } from '@sep/api';
@@ -25,6 +25,7 @@ import { PluginCreatePage } from './PluginCreatePage';
 import type { RenderFormSlot } from './types';
 
 const mockCreateTaskMutate = vi.fn();
+const mockNavigate = vi.fn();
 
 vi.mock('@sep/api', () => ({
   useCreatePluginTask: () => ({
@@ -33,6 +34,16 @@ vi.mock('@sep/api', () => ({
   }),
   useCreatePluginEntity: () => ({ mutate: vi.fn(), isPending: false }),
 }));
+
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>();
+  return { ...actual, useNavigate: () => mockNavigate };
+});
+
+beforeEach(() => {
+  mockCreateTaskMutate.mockReset();
+  mockNavigate.mockReset();
+});
 
 const schema: PluginSchema = {
   pluginName: 'checksums',
@@ -113,5 +124,48 @@ describe('PluginCreatePage — renderCreateForm slot', () => {
         onError: expect.any(Function),
       })
     );
+  });
+});
+
+describe('PluginCreatePage — post-create navigation', () => {
+  const submitSlot: RenderFormSlot = ({ onSubmit }) => (
+    <button type="button" onClick={() => onSubmit({ title: 'x' })}>
+      Submit slot
+    </button>
+  );
+
+  async function submitAndGetOnSuccess() {
+    const user = userEvent.setup();
+    renderPage({ renderCreateForm: submitSlot });
+    await user.click(screen.getByRole('button', { name: 'Submit slot' }));
+    await waitFor(() => expect(mockCreateTaskMutate).toHaveBeenCalledTimes(1));
+    return mockCreateTaskMutate.mock.calls[0][1].onSuccess as (
+      data: Record<string, unknown>
+    ) => void;
+  }
+
+  it('navigates to the new task detail with the warning in state when present', async () => {
+    const onSuccess = await submitAndGetOnSuccess();
+    const warning = {
+      target: 'node1',
+      service_type: 'mysql',
+      message: 'fail',
+      task_history_id: 7,
+    };
+
+    act(() => onSuccess({ name: 'my task', connectivity_warning: warning }));
+
+    expect(mockNavigate).toHaveBeenCalledWith('../task/my%20task', {
+      relative: 'path',
+      state: { connectivityWarning: warning },
+    });
+  });
+
+  it('navigates to the list (no state) when the create response carries no warning', async () => {
+    const onSuccess = await submitAndGetOnSuccess();
+
+    act(() => onSuccess({ name: 'my task' }));
+
+    expect(mockNavigate).toHaveBeenCalledWith('..', { relative: 'path' });
   });
 });

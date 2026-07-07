@@ -15,7 +15,13 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '@sep/api';
 import { SnippetsListPage } from './SnippetsListPage';
@@ -52,6 +58,7 @@ const unapprovedSnippet = {
   filename: 'check.sh',
   title: 'Check',
   description: 'A check script',
+  service_type: 'mysql',
   size: 100,
   md5_digest: 'abc123',
   is_approved: false,
@@ -526,5 +533,242 @@ describe('SnippetsListPage — RefreshButton', () => {
         screen.getByRole('checkbox', { name: /select check\.sh/i })
       ).not.toBeChecked();
     });
+  });
+
+  it('resets the service-type filter after a successful refresh', async () => {
+    mockUseSnippets.mockReturnValue({
+      data: [
+        { ...unapprovedSnippet, filename: 'mysql.sh', service_type: 'mysql' },
+      ],
+      isLoading: false,
+      error: null,
+    } as unknown as ReturnType<typeof useSnippets>);
+    mockUseSnippetsCapabilities.mockReturnValue({
+      data: { manual_sync_enabled: true },
+      isLoading: false,
+    } as unknown as ReturnType<typeof useSnippetsCapabilities>);
+    mockUseRefreshSnippets.mockReturnValue({
+      mutate: vi.fn((_, callbacks) => {
+        callbacks?.onSuccess?.({ refreshed_at: '2026-05-07T12:34:56Z' });
+      }),
+      isPending: false,
+    } as unknown as ReturnType<typeof useRefreshSnippets>);
+
+    render(<SnippetsListPage isAdmin />);
+
+    // Narrow to the mysql service type.
+    fireEvent.mouseDown(screen.getByLabelText('Filter by service type'));
+    fireEvent.click(screen.getByRole('option', { name: 'mysql' }));
+    expect(screen.getByLabelText('Filter by service type')).toHaveTextContent(
+      'mysql'
+    );
+
+    // Refresh resets the filter back to "All services".
+    fireEvent.click(screen.getByRole('button', { name: /refresh snippets/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^refresh$/i }));
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Filter by service type')).toHaveTextContent(
+        'All services'
+      );
+    });
+  });
+});
+
+describe('SnippetsListPage — filters', () => {
+  const mysqlUnapproved = {
+    ...unapprovedSnippet,
+    filename: 'mysql-log.sh',
+    title: 'MySQL log rotate',
+    description: 'rotates logs',
+    service_type: 'mysql',
+    is_approved: false,
+  };
+  const mongoApproved = {
+    ...unapprovedSnippet,
+    filename: 'mongo-status.sh',
+    title: 'Mongo status',
+    description: 'status check',
+    service_type: 'mongodb',
+    is_approved: true,
+  };
+  const mongoUnapproved = {
+    ...unapprovedSnippet,
+    filename: 'mongo-slow.sh',
+    title: 'Mongo slow query',
+    description: 'slow query log helper',
+    service_type: 'mongodb',
+    is_approved: false,
+  };
+  const uncategorized = {
+    ...unapprovedSnippet,
+    filename: 'misc.sh',
+    title: 'Miscellaneous',
+    description: 'no service type here',
+    service_type: null,
+    is_approved: false,
+  };
+
+  const allSnippets = [
+    mysqlUnapproved,
+    mongoApproved,
+    mongoUnapproved,
+    uncategorized,
+  ];
+
+  function bodyFilenames(): string[] {
+    const rows = screen.getAllByRole('row').slice(1); // drop header row
+    // Non-admin rows have no checkbox column, so the first cell is Filename.
+    return rows.map(
+      (row) => within(row).getAllByRole('cell')[0].textContent ?? ''
+    );
+  }
+
+  function selectOption(controlLabel: string, optionName: string) {
+    fireEvent.mouseDown(screen.getByLabelText(controlLabel));
+    fireEvent.click(screen.getByRole('option', { name: optionName }));
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseSnippets.mockReturnValue({
+      data: allSnippets,
+      isLoading: false,
+      error: null,
+    } as unknown as ReturnType<typeof useSnippets>);
+    mockUseApproveSnippet.mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    } as unknown as ReturnType<typeof useApproveSnippet>);
+    mockUseRemoveSnippetApproval.mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    } as unknown as ReturnType<typeof useRemoveSnippetApproval>);
+    mockUseBatchApproveSnippets.mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    } as unknown as ReturnType<typeof useBatchApproveSnippets>);
+    mockUseSnippetsCapabilities.mockReturnValue({
+      data: { manual_sync_enabled: false },
+      isLoading: false,
+    } as unknown as ReturnType<typeof useSnippetsCapabilities>);
+    mockUseRefreshSnippets.mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    } as unknown as ReturnType<typeof useRefreshSnippets>);
+  });
+
+  it('free-text search matches filename, title, and description (case-insensitive)', () => {
+    render(<SnippetsListPage />);
+
+    fireEvent.change(screen.getByLabelText('Search snippets'), {
+      target: { value: 'SLOW' },
+    });
+
+    expect(bodyFilenames()).toEqual(['mongo-slow.sh']);
+  });
+
+  it('approval filter narrows to not-approved snippets', () => {
+    render(<SnippetsListPage />);
+
+    selectOption('Filter by approval status', 'Not approved');
+
+    expect(bodyFilenames()).toEqual([
+      'mysql-log.sh',
+      'mongo-slow.sh',
+      'misc.sh',
+    ]);
+  });
+
+  it('service-type filter narrows to a single service', () => {
+    render(<SnippetsListPage />);
+
+    selectOption('Filter by service type', 'mongodb');
+
+    expect(bodyFilenames()).toEqual(['mongo-status.sh', 'mongo-slow.sh']);
+  });
+
+  it('Uncategorized option shows only snippets without a service type', () => {
+    render(<SnippetsListPage />);
+
+    selectOption('Filter by service type', 'Uncategorized');
+
+    expect(bodyFilenames()).toEqual(['misc.sh']);
+  });
+
+  it('combines filters with AND semantics', () => {
+    render(<SnippetsListPage />);
+
+    selectOption('Filter by approval status', 'Not approved');
+    selectOption('Filter by service type', 'mongodb');
+    fireEvent.change(screen.getByLabelText('Search snippets'), {
+      target: { value: 'log' },
+    });
+
+    expect(bodyFilenames()).toEqual(['mongo-slow.sh']);
+  });
+
+  it('shows an empty state when no snippet matches the active filters', () => {
+    render(<SnippetsListPage />);
+
+    fireEvent.change(screen.getByLabelText('Search snippets'), {
+      target: { value: 'no-such-snippet' },
+    });
+
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/no snippets match the current filters/i)
+    ).toBeInTheDocument();
+  });
+
+  it('keeps a snippet whose service_type equals the "all" sentinel selectable', () => {
+    const literalAll = {
+      ...unapprovedSnippet,
+      filename: 'literal-all.sh',
+      title: 'Literal all',
+      description: '',
+      service_type: 'all',
+      is_approved: false,
+    };
+    mockUseSnippets.mockReturnValue({
+      data: [literalAll, mongoUnapproved],
+      isLoading: false,
+      error: null,
+    } as unknown as ReturnType<typeof useSnippets>);
+
+    render(<SnippetsListPage />);
+
+    // The literal "all" service type gets its own option, distinct from the
+    // "All services" (no-filter) entry, and selecting it narrows to that row.
+    selectOption('Filter by service type', 'all');
+
+    expect(bodyFilenames()).toEqual(['literal-all.sh']);
+  });
+
+  it('drops selections for rows hidden by a filter from the batch payload', () => {
+    const batchMutate = vi.fn();
+    mockUseBatchApproveSnippets.mockReturnValue({
+      mutate: batchMutate,
+      isPending: false,
+    } as unknown as ReturnType<typeof useBatchApproveSnippets>);
+
+    render(<SnippetsListPage isAdmin />);
+
+    // Select an unapproved mysql snippet.
+    fireEvent.click(
+      screen.getByRole('checkbox', { name: /select mysql-log\.sh/i })
+    );
+    expect(
+      screen.getByRole('button', { name: /batch approve \(1\)/i })
+    ).toBeInTheDocument();
+
+    // Filter to mongodb — mysql-log.sh is now hidden, so the batch action
+    // (and its payload) must no longer include it.
+    selectOption('Filter by service type', 'mongodb');
+
+    expect(
+      screen.queryByRole('button', { name: /batch approve/i })
+    ).not.toBeInTheDocument();
+    expect(batchMutate).not.toHaveBeenCalled();
   });
 });

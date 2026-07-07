@@ -4758,6 +4758,8 @@ export interface components {
       service_type: string;
       /** Target */
       target: string;
+      /** Task History Id */
+      task_history_id?: number | null;
     };
     /**
      * DashboardStatsResponse

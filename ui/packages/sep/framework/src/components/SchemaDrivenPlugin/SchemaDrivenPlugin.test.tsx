@@ -18,7 +18,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
 import type { PluginSchema } from '@sep/api';
 import { SchemaDrivenPlugin } from './SchemaDrivenPlugin';
@@ -60,6 +60,37 @@ const taskSchema: PluginSchema = {
   list_view: { columns: [{ key: 'name', label: 'Name' }] },
 } as unknown as PluginSchema;
 
+const backupsSchema: PluginSchema = {
+  name: 'mysql_backups',
+  display_name: 'MySQL Backups',
+  forms: [
+    {
+      title: 'Main',
+      fields: [{ type: 'string', name: 'name', label: 'Name' }],
+    },
+  ],
+  list_view: { columns: [{ key: 'name', label: 'Name' }] },
+  related_apps: [
+    {
+      app_key: 'mysql_backups/restore',
+      label: 'Restore',
+      route_segment: 'restores',
+    },
+  ],
+} as unknown as PluginSchema;
+
+const restoreSchema: PluginSchema = {
+  name: 'mysql_backups_restore',
+  display_name: 'Restore',
+  forms: [
+    {
+      title: 'Main',
+      fields: [{ type: 'string', name: 'name', label: 'Name' }],
+    },
+  ],
+  list_view: { columns: [{ key: 'name', label: 'Name' }] },
+} as unknown as PluginSchema;
+
 const taskRecord = {
   id: 1,
   name: 'check1',
@@ -71,7 +102,11 @@ let activeSchema: PluginSchema = schema;
 
 // Stub sibling page modules so their @sep/api imports stay out of the graph;
 // this test exercises only the SchemaDrivenPlugin → edit-page threading.
-vi.mock('./PluginListPage', () => ({ PluginListPage: () => <div>list</div> }));
+vi.mock('./PluginListPage', () => ({
+  PluginListPage: ({ pluginName }: { pluginName: string }) => (
+    <div>list:{pluginName}</div>
+  ),
+}));
 vi.mock('./PluginDetailPage', () => ({
   PluginDetailPage: () => <div>detail</div>,
   pathToEntityList: () => '',
@@ -81,11 +116,12 @@ vi.mock('./PluginSchedulePage', () => ({
 }));
 
 vi.mock('@sep/api', () => ({
-  usePluginSchema: () => ({
-    data: activeSchema,
-    isLoading: false,
-    error: null,
-  }),
+  usePluginSchema: (pluginName: string) => {
+    if (pluginName === 'mysql_backups/restore') {
+      return { data: restoreSchema, isLoading: false, error: null };
+    }
+    return { data: activeSchema, isLoading: false, error: null };
+  },
   usePluginEntityDetail: () => ({
     data: { id: 5, label: 'n1' },
     isLoading: false,
@@ -170,5 +206,71 @@ describe('SchemaDrivenPlugin — single-entity task edit route', () => {
     expect(screen.getByLabelText('Title')).toHaveValue('hello');
     // task_name stays immutable: no editable name input is rendered.
     expect(screen.queryByLabelText('Task Name')).toBeNull();
+  });
+});
+
+describe('SchemaDrivenPlugin — related_apps routing', () => {
+  function renderBackupsPlugin(pathname: string) {
+    return render(
+      <SnackbarProvider>
+        <MemoryRouter initialEntries={[pathname]}>
+          <Routes>
+            <Route
+              path="/apps/mysql_backups/*"
+              element={
+                <SchemaDrivenPlugin
+                  pluginName="mysql_backups"
+                  routeBase="/apps/mysql_backups"
+                />
+              }
+            />
+          </Routes>
+        </MemoryRouter>
+      </SnackbarProvider>
+    );
+  }
+
+  it('does not render the related-app tab bar when related_apps is absent', () => {
+    activeSchema = taskSchema;
+    render(
+      <SnackbarProvider>
+        <MemoryRouter initialEntries={['/']}>
+          <SchemaDrivenPlugin
+            pluginName="checksums"
+            routeBase="/apps/checksums"
+          />
+        </MemoryRouter>
+      </SnackbarProvider>
+    );
+
+    expect(screen.getByText('list:checksums')).toBeInTheDocument();
+    expect(screen.queryByRole('tablist')).toBeNull();
+  });
+
+  it('renders the tab bar and parent list on the parent route', () => {
+    activeSchema = backupsSchema;
+    renderBackupsPlugin('/apps/mysql_backups');
+
+    expect(screen.getByRole('tab', { name: 'MySQL Backups' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    );
+    expect(screen.getByRole('tab', { name: 'Restore' })).toHaveAttribute(
+      'aria-selected',
+      'false'
+    );
+    expect(screen.getByText('list:mysql_backups')).toBeInTheDocument();
+  });
+
+  it('mounts a nested SchemaDrivenPlugin for a related route segment', () => {
+    activeSchema = backupsSchema;
+    renderBackupsPlugin('/apps/mysql_backups/restores');
+
+    expect(screen.getByRole('tab', { name: 'Restore' })).toHaveAttribute(
+      'aria-selected',
+      'true'
+    );
+    expect(screen.getByText('list:mysql_backups/restore')).toBeInTheDocument();
+    expect(screen.queryByText('list:mysql_backups')).toBeNull();
   });
 });
