@@ -166,7 +166,7 @@ Control how PMM Server presents itself on the network:
 
 | Variable | Description |
 |----------|-------------|
-| `PMM_PUBLIC_ADDRESS` | External DNS/IP for PMM server |
+| `PMM_PUBLIC_ADDRESS` | External DNS/IP for PMM Server. Also required for Nomad to start. Setting `PMM_ENABLE_NOMAD=1` without this variable has no effect. |
 | `PMM_INTERFACE_TO_BIND` | Network interface binding |
 
 ### Database connections
