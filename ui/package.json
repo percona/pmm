@@ -16,7 +16,8 @@
     "lint": "turbo run lint",
     "test": "turbo run test",
     "clean": "turbo run clean",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
