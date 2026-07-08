@@ -20,10 +20,10 @@ linters:
     - funcorder           # too many so far
     - gochecknoglobals    # mostly useless
     - gochecknoinits      # we use init functions
-    - gocyclo             # using cyclop with the max 30 instead
+    - gocyclo             # too noisy for the current codebase
     - goconst             # too annoying
     - gocognit            # often we use nested and long functions
-    - maintidx           # we have many files with more than 20 functions
+    - maintidx            # maintainability index too strict for the current codebase
     - godox               # we sometimes leave TODOS right in the code
     - gomoddirectives     # we use replace directives
     - gomodguard          # deprecated
