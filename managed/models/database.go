@@ -1223,10 +1223,11 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	}
 
 	db.SetConnMaxLifetime(0)
+	db.SetConnMaxIdleTime(5 * time.Minute) //nolint:mnd
 	// Sized to give DB-bound auth/role/settings paths enough headroom during
 	// a reconnect storm from a fleet of agents, while staying well within
 	// Postgres max_connections (set to 2000 by PMM Server).
-	db.SetMaxIdleConns(20) //nolint:mnd
+	db.SetMaxIdleConns(50) //nolint:mnd
 	db.SetMaxOpenConns(50) //nolint:mnd
 
 	return db, nil
