@@ -176,6 +176,8 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
       FilterListIcon: () => <FilterListIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
       ViewColumnIcon: () => <ViewColumnIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
       MoreVertIcon: () => <MoreVertIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
+      // row-actions button: vertical ellipsis per design, not MRT's horizontal one
+      MoreHorizIcon: () => <MoreVertIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
     },
     muiExpandAllButtonProps: { sx: { height: 40, width: 40 } },
     muiExpandButtonProps: { sx: { height: 40, width: 40 } },
@@ -447,6 +449,16 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
               {
                 backgroundColor: theme.palette.action.hover,
               },
+            // MRT's built-in row-actions button carries an inline 32px sx that beats the
+            // theme's sizeSmall override; restyle it to the medium 40px kebab
+            '& .MuiTableCell-body [aria-label="Row Actions"]': {
+              width: 40,
+              height: 40,
+              padding: '10px',
+              marginLeft: 0,
+              opacity: 1,
+              '& > .MuiSvgIcon-root': { width: 20, height: 20 },
+            },
           }),
           consumer?.sx
         ),
