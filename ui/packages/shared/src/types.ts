@@ -63,6 +63,7 @@ export type ChangeThemeMessage = Message<
 
 export type SettingsChangedMessage = Message<'SETTINGS_CHANGED'>;
 
-export type FrontendSettingsChangedMessage = Message<'FRONTEND_SETTINGS_CHANGED'>;
+export type FrontendSettingsChangedMessage =
+  Message<'FRONTEND_SETTINGS_CHANGED'>;
 
 export type ServiceAddedMessage = Message<'SERVICE_ADDED'>;
