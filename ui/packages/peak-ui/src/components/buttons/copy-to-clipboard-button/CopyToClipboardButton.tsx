@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Button, IconButton } from '@mui/material';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import { ContentCopyOutlined as ContentCopyOutlinedIcon } from '@mui/icons-material';
+import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import { CopyToClipboardButtonProps } from './CopyToClipboardButton.types';
 import { Messages } from './clipboard.messages';
+import { mergeSx } from '@/utils';
 
 const CopyToClipboardButton = ({
   textToCopy,
@@ -54,15 +56,10 @@ const CopyToClipboardButton = ({
         <span>
           <IconButton
             component="div"
-            sx={{
-              ...buttonProps?.sx,
-              '&.Mui-disabled': {
-                pointerEvents: 'auto',
-              },
-            }}
             onClick={handleClick}
             disabled={!clipboardAvailable}
             {...buttonProps}
+            sx={mergeSx({ '&.Mui-disabled': { pointerEvents: 'auto' } }, buttonProps?.sx)}
           >
             <ContentCopyOutlinedIcon sx={iconSx} />
           </IconButton>

@@ -1,15 +1,47 @@
 import { type Meta, type StoryObj } from '@storybook/react';
-import { Box, Button, ButtonProps } from '@mui/material';
 import * as DocBlock from '@storybook/addon-docs/blocks';
-import { ArrowBack, ArrowForward } from '@mui/icons-material';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import type { ButtonProps } from '@mui/material/Button';
+import AddOutlined from '@mui/icons-material/AddOutlined';
+import ArrowBackOutlined from '@mui/icons-material/ArrowBackOutlined';
+import ArrowForwardOutlined from '@mui/icons-material/ArrowForwardOutlined';
+import DeleteOutlineOutlined from '@mui/icons-material/DeleteOutlineOutlined';
+
+const VARIANTS = ['contained', 'outlined', 'text'] as const;
+const SIZES = ['large', 'medium', 'small'] as const;
 
 const meta = {
-  title: 'To be reviewed/Buttons/Button',
+  title: 'Inputs/Button',
   component: Button,
-  tags: ['autodocs', 'needs-review'],
+  tags: ['autodocs', 'stable'],
   parameters: {
     layout: 'centered',
     docs: {
+      description: {
+        component: [
+          'Buttons let users take actions and make choices with a single tap. They are typically placed in modal windows, forms, cards, and toolbars.',
+          '',
+          "All buttons come **fully themed** — pill shape, 2 px border, Poppins semibold label, per-theme state colors — by rendering MUI's `Button` inside `ThemeContextProvider`. There is no separate wrapper component: the theme *is* the design-system button.",
+          '',
+          '### Picking a variant (by emphasis)',
+          '',
+          '| Variant | Emphasis | Use for |',
+          '| --- | --- | --- |',
+          '| `contained` | High | The single primary action of a view. Distinguished by fill. |',
+          "| `outlined` | Medium | Important actions that aren't the primary one; a lower-emphasis alternative to contained, or a higher-emphasis alternative to text. |",
+          '| `text` | Low | Less-pronounced actions, e.g. in dialogs and cards, where emphasis should stay on the content. |',
+          '',
+          '### Keep it consistent — no stray buttons',
+          '',
+          "- **Do** import via `import Button from '@mui/material/Button'` (path import) and stick to the documented `variant`, `size`, `disabled`, `startIcon`/`endIcon`, and `fullWidth` props.",
+          "- **Don't** restyle buttons through `sx`/`styled` — colors, radius, borders, padding, typography, and text transform all come from the theme. Layout-only `sx` (margins, alignment, width) is fine.",
+          "- **Don't** pass palette `color`s. The design kit defines buttons in the primary (brand) color only; other colors are not part of the system.",
+          "- **Don't** use a button as a toggle to alter GUI state. Contained buttons have **no selected state by design** — use buttons to change the user-experience flow. Where the design kit shows selected text/outlined buttons, use the toggle components (`ToggleButtonGroupInputRegular`, `ToggleRegularButton`) — a plain `Button` implements no selected state.",
+          '- **Do** reach for the composed buttons before hand-rolling your own: [Icon Button](?path=/docs/inputs-icon-button--docs) for icon-only actions, [Copy to Clipboard](?path=/docs/inputs-copy-to-clipboard--docs), and `MenuButton` for a button that opens a dropdown.',
+        ].join('\n'),
+      },
       page: () => (
         <>
           <DocBlock.Title />
@@ -23,109 +55,183 @@ const meta = {
     },
   },
   args: {
-    size: 'large',
     variant: 'contained',
+    size: 'large',
+    children: 'Label',
   },
   argTypes: {
     variant: {
-      options: ['contained', 'text', 'outlined'],
+      options: VARIANTS,
       control: { type: 'inline-radio' },
+      description: 'Emphasis level: `contained` high, `outlined` medium, `text` low.',
+      table: { defaultValue: { summary: "'text'" } },
     },
     size: {
-      options: ['large', 'medium', 'small'],
+      options: SIZES,
       control: { type: 'inline-radio' },
+      description: 'Design-kit heights: large 40 px, medium 32 px, small 24 px.',
+      table: { defaultValue: { summary: "'medium'" } },
     },
-  },
-  render: function Render({ variant, size, ...args }) {
-    return (
-      <Box display="flex" alignItems="center" gap="10px">
-        <Button variant={variant} size={size} {...args}>
-          Large
-        </Button>
-      </Box>
-    );
+    disabled: {
+      control: 'boolean',
+      description: 'Disables the button and applies the muted palette.',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    children: {
+      control: 'text',
+      description: 'The button label.',
+    },
+    startIcon: { control: false, description: 'Icon rendered before the label.' },
+    endIcon: { control: false, description: 'Icon rendered after the label.' },
   },
 } satisfies Meta<ButtonProps>;
 
 export default meta;
 type Story = StoryObj<ButtonProps>;
 
-export const Contained: Story = {
-  args: {
-    variant: 'contained',
+export const Playground: Story = {};
+
+export const Variants: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The three approved variants, from high to low emphasis. A view should have at most one contained button; pair it with outlined or text buttons for secondary actions.',
+      },
+    },
   },
+  render: ({ size }) => (
+    <Stack direction="row" alignItems="center" gap={2}>
+      {VARIANTS.map((variant) => (
+        <Stack key={variant} alignItems="center" gap={1}>
+          <Button variant={variant} size={size}>
+            Label
+          </Button>
+          <Typography variant="caption" color="text.secondary">
+            {variant}
+          </Typography>
+        </Stack>
+      ))}
+    </Stack>
+  ),
 };
 
-export const Outlined: Story = {
-  args: {
-    variant: 'outlined',
+export const Sizes: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Each size steps the height down (40 → 32 → 24 px in the design kit) by reducing padding, and drops the label from 15 px (large) to 13 px (medium, small). Prefer `large` for page-level actions and `small` in dense surfaces like tables and cards.',
+      },
+    },
   },
-};
-
-export const Text: Story = {
-  args: {
-    variant: 'text',
-  },
+  render: () => (
+    <Stack gap={2}>
+      {SIZES.map((size) => (
+        <Stack key={size} direction="row" alignItems="center" gap={2}>
+          <Typography variant="caption" color="text.secondary" sx={{ width: 56 }}>
+            {size}
+          </Typography>
+          {VARIANTS.map((variant) => (
+            <Button key={variant} variant={variant} size={size}>
+              Label
+            </Button>
+          ))}
+        </Stack>
+      ))}
+    </Stack>
+  ),
 };
 
 export const Hovered: Story = {
   parameters: {
-    pseudo: {
-      hover: true,
+    pseudo: { hover: true },
+    docs: {
+      description: {
+        story:
+          "Hover feedback comes from the theme's action tokens — contained darkens its fill, outlined and text gain a subtle tinted background. Never hand-roll `&:hover` styles.",
+      },
     },
   },
-
-  render: function Render({ size }) {
-    return (
-      <Box display="flex" alignItems="center" gap="10px">
-        <Button variant="contained" size={size}>
-          Large
+  render: ({ size }) => (
+    <Stack direction="row" alignItems="center" gap={2}>
+      {VARIANTS.map((variant) => (
+        <Button key={variant} variant={variant} size={size}>
+          Label
         </Button>
-        <Button variant="outlined" size={size}>
-          Large
-        </Button>
-        <Button variant="text" size={size}>
-          Large
-        </Button>
-      </Box>
-    );
-  },
+      ))}
+    </Stack>
+  ),
 };
 
 export const Disabled: Story = {
-  render: function Render({ size }) {
-    return (
-      <Box display="flex" alignItems="center" gap="10px">
-        <Button variant="contained" size={size} disabled={true}>
-          Large
-        </Button>
-        <Button variant="outlined" size={size} disabled={true}>
-          Large
-        </Button>
-        <Button variant="text" size={size} disabled={true}>
-          Large
-        </Button>
-      </Box>
-    );
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Disabled buttons keep their shape, mute the label to `text.disabled`, and (for contained) fill with `action.disabled`. Set the `disabled` prop — don't fade buttons with opacity.",
+      },
+    },
   },
+  render: ({ size }) => (
+    <Stack direction="row" alignItems="center" gap={2}>
+      {VARIANTS.map((variant) => (
+        <Button key={variant} variant={variant} size={size} disabled>
+          Label
+        </Button>
+      ))}
+    </Stack>
+  ),
 };
 
 export const WithIcon: Story = {
-  args: {
-    variant: 'contained',
-    startIcon: <ArrowBack />,
-    endIcon: <ArrowForward />,
+  name: 'With icon',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Use `startIcon`/`endIcon` with outlined Material icons; the theme aligns and sizes them per button size. Icons support the label — for icon-only actions use [Icon Button](?path=/docs/inputs-icon-button--docs) instead.',
+      },
+    },
   },
-  render: function Render({ variant, size, startIcon, endIcon }) {
-    return (
-      <Box display="flex" alignItems="center" gap="10px">
-        <Button startIcon={startIcon} variant={variant} size={size}>
-          Large
-        </Button>
-        <Button endIcon={endIcon} variant={variant} size={size}>
-          Large
-        </Button>
-      </Box>
-    );
+  render: ({ variant, size }) => (
+    <Stack direction="row" alignItems="center" gap={2}>
+      <Button variant={variant} size={size} startIcon={<ArrowBackOutlined />}>
+        Back
+      </Button>
+      <Button variant={variant} size={size} endIcon={<ArrowForwardOutlined />}>
+        Next
+      </Button>
+      <Button variant={variant} size={size} startIcon={<AddOutlined />}>
+        Add new
+      </Button>
+    </Stack>
+  ),
+};
+
+export const ActionPairing: Story = {
+  name: 'Action pairing',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The canonical dialog/form footer: the primary action is contained, the dismissing action is text, and a destructive-but-secondary action sits apart as outlined. Emphasis — not color — communicates the hierarchy.',
+      },
+    },
   },
+  render: ({ size }) => (
+    <Stack direction="row" alignItems="center" gap={1} sx={{ width: 480 }}>
+      <Button variant="outlined" size={size} startIcon={<DeleteOutlineOutlined />}>
+        Delete
+      </Button>
+      <Stack direction="row" gap={1} sx={{ ml: 'auto' }}>
+        <Button variant="text" size={size}>
+          Cancel
+        </Button>
+        <Button variant="contained" size={size}>
+          Save changes
+        </Button>
+      </Stack>
+    </Stack>
+  ),
 };
