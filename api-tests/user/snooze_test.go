@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	gapi "github.com/grafana/grafana-api-golang-client"
+	"github.com/grafana/grafana-openapi-client-go/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -37,15 +37,16 @@ func TestUpdateSnoozing(t *testing.T) {
 
 	login := pmmapitests.TestString(t, "test-user")
 	password := pmmapitests.TestString(t, "test-password")
-	gUserID, err := gClient.CreateUser(gapi.User{
+	createdUser, err := gClient.AdminUsers.AdminCreateUser(&models.AdminCreateUserForm{
 		Name:     login,
 		Login:    login,
-		Password: password,
+		Password: models.Password(password),
 	})
 	require.NoError(t, err)
+	gUserID := createdUser.Payload.ID
 
 	t.Cleanup(func() {
-		_ = gClient.DeleteUser(gUserID)
+		_, _ = gClient.AdminUsers.AdminDeleteUser(gUserID)
 	})
 
 	userURL := *pmmapitests.BaseURL
