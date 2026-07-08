@@ -213,7 +213,7 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
       color: 'neutral',
       icon: false,
       sx: (theme: Theme) => ({
-        borderRadius: 1.25,
+        borderRadius: `${theme.shape.borderRadiusSm}px`,
         fontSize: theme.typography.body2.fontSize,
         padding: '4px 8px',
         '& .MuiAlert-message': { padding: 0 },

@@ -79,12 +79,12 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
           root: ({ theme }) => ({
             height: 10,
             borderStyle: 'solid',
-            borderRadius: 5,
+            borderRadius: theme.shape.borderRadiusSm,
             borderColor: theme.palette.divider,
             backgroundColor: theme.palette.background.default,
           }),
           bar: ({ theme }) => ({
-            borderRadius: 5,
+            borderRadius: theme.shape.borderRadiusSm,
             backgroundColor: theme.palette.primary.main,
           }),
         },
