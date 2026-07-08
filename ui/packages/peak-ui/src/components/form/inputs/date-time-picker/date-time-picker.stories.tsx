@@ -8,6 +8,7 @@ import DateTimePickerInput from './date-time-picker';
 const meta: Meta<typeof DateTimePickerInput> = {
   title: 'To be reviewed/DateTimePickerInput',
   component: DateTimePickerInput,
+  tags: ['needs-review'],
   parameters: {
     layout: 'centered',
     docs: {

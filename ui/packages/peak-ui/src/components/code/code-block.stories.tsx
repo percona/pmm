@@ -20,7 +20,7 @@ LIMIT 10;`;
 const meta: Meta<CodeBlockProps> = {
   title: 'Data display/Code Block',
   component: CodeBlockComp,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'stable'],
   parameters: {
     layout: 'centered',
     docs: {
