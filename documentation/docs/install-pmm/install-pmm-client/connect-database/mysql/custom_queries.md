@@ -9,11 +9,9 @@ To set up a custom query:
 
 1. Place your query file in one of the following directories. The MySQL exporter reads files from these directories automatically, and the subdirectory you choose sets the collection frequency. Since all queries in a directory run sequentially, keep them fast to avoid missing the collection window:                                                 
 
-    | Directory | Execution frequency |
-    |-----------|---------------------|
-    | `/usr/local/percona/pmm/collectors/custom-queries/mysql/high-resolution/`   | Every 5 seconds  |
-    | `/usr/local/percona/pmm/collectors/custom-queries/mysql/medium-resolution/` | Every 10 seconds |
-    | `/usr/local/percona/pmm/collectors/custom-queries/mysql/low-resolution/`    | Every 60 seconds |
+    - `/usr/local/percona/pmm/collectors/custom-queries/mysql/high-resolution/` — every 5 seconds
+    - `/usr/local/percona/pmm/collectors/custom-queries/mysql/medium-resolution/` — every 10 seconds
+    - `/usr/local/percona/pmm/collectors/custom-queries/mysql/low-resolution/` — every 60 seconds
 
 
 2. In the directory you chose, create a .yaml file to define the custom query the MySQL exporter will run. The file specifies the SQL query, a metric namespace to group the results under, and how each returned column maps to a metric. PMM builds the metric name by combining the namespace with the column name, for example `metric_namespace_col2`:
@@ -30,7 +28,7 @@ To set up a custom query:
             description: "Description of col2"
     ```
 
-    !!! example "Collecting InnoDB index statistics"
+    ??? example "Example: Collecting InnoDB index statistics"
         ```yaml
         mysql_innodb_index_stats:
           query: "SELECT database_name, table_name, index_name, stat_name, stat_value
