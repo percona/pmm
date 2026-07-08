@@ -13,4 +13,4 @@ This section provides the instructions to configure your PMM instance after you 
     * [Percona Alerting](../configure-pmm/advanced_settings.md#percona-alerting)    
     * [Advisors](advanced_settings.md#advisors)
     * [Microsoft Azure Monitoring](../configure-pmm/advanced_settings.md#microsoft-azure-monitoring)
-* [SSH key](../install-pmm/install-pmm-server/deployment-options/virtual/ssh.md)
+* [SSH key](../install-pmm/install-pmm-server/deployment-options/aws/ssh.md)

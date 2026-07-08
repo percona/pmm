@@ -213,6 +213,5 @@ After confirming your environment meets these prerequisites:
     - [Docker installation](../install-pmm-server/deployment-options/docker/index.md)
     - [Podman installation](../install-pmm-server/deployment-options/podman/index.md)
     - [Kubernetes/Helm installation](../install-pmm-server/deployment-options/helm/index.md)
-    - [Virtual Appliance deployment](../install-pmm-server/deployment-options/virtual/index.md)
 3. [Configure security settings](../../admin/security/index.md) for production use
 4. [Install PMM Clients](../install-pmm-client/index.md) on systems you want to monitor
