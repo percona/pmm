@@ -23,7 +23,7 @@ Before ou install PMM, ensure your environment is properly prepared:
 
 ### PMM Server deployment options
 
-Compare the available deployment methods to choose what works best for your setup. For a fast evaluation setup, Docker is the quickest option. For production environments, consider your existing infrastructure stack and operational preferences when choosing between Docker ot Kubernetes (Helm)deployments:
+Compare the available deployment methods to choose what works best for your setup. For a fast evaluation setup, Docker is the quickest option. For production environments, consider your existing infrastructure stack and operational preferences when choosing between Docker or Kubernetes (Helm) deployments:
 
 | Deployment method | Best for | Advantages | Considerations |
 |-------------------|----------|------------|----------------|
