@@ -21,7 +21,7 @@ import ShareOutlined from '@mui/icons-material/ShareOutlined';
 const meta = {
   title: 'Inputs/Icon Button',
   component: IconButton,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'stable'],
   parameters: {
     layout: 'centered',
     docs: {

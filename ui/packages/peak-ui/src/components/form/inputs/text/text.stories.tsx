@@ -25,7 +25,7 @@ type ExpandedTextInputProps = TextInputProps & {
 const meta = {
   title: 'To be reviewed/TextInput',
   component: TextInput,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'needs-review'],
   parameters: {
     layout: 'centered',
     docs: {
