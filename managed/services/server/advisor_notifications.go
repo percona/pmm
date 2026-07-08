@@ -115,7 +115,8 @@ func (s *Server) reconcileAdvisorNotifications(ctx context.Context, settings *mo
 		s.l.Debugf("Failed to delete existing advisor notifications rule group (ignored): %v", err)
 	}
 
-	datasourceUID, err := s.grafanaClient.GetDatasourceUIDByID(ctx, 1) // 1 is the Metrics datasource ID in PMM.
+	// "Metrics" is the VictoriaMetrics datasource provisioned by PMM.
+	datasourceUID, err := s.grafanaClient.GetDatasourceUIDByName(ctx, "Metrics")
 	if err != nil {
 		return fmt.Errorf("failed to get metrics datasource UID: %w", err)
 	}

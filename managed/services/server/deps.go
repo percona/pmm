@@ -35,7 +35,7 @@ type healthChecker interface { //nolint:iface
 // We use it instead of real type for testing and to avoid dependency cycle.
 type grafanaClient interface { //nolint:iface
 	healthChecker
-	GetDatasourceUIDByID(ctx context.Context, id int64) (string, error)
+	GetDatasourceUIDByName(ctx context.Context, name string) (string, error)
 	CreateFolderWithUID(ctx context.Context, title, uid string) error
 	CreateAlertRule(ctx context.Context, folderUID, groupName, interval string, rule *services.Rule) error
 	DeleteAlertRuleGroup(ctx context.Context, folderUID, groupName string) error

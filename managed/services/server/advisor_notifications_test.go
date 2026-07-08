@@ -78,7 +78,7 @@ func TestReconcileAdvisorNotifications(t *testing.T) {
 		s, gc := newServer(t)
 		gc.On("CreateFolderWithUID", mock.Anything, advisorNotificationsFolderTitle, advisorNotificationsFolderUID).Return(nil)
 		gc.On("DeleteAlertRuleGroup", mock.Anything, advisorNotificationsFolderUID, advisorNotificationsRuleGroup).Return(nil)
-		gc.On("GetDatasourceUIDByID", mock.Anything, int64(1)).Return("ds-uid", nil)
+		gc.On("GetDatasourceUIDByName", mock.Anything, "Metrics").Return("ds-uid", nil)
 		gc.On(
 			"CreateAlertRule", mock.Anything, advisorNotificationsFolderUID, advisorNotificationsRuleGroup, advisorNotificationsRuleInterval,
 			mock.MatchedBy(func(rule *services.Rule) bool {
@@ -109,7 +109,7 @@ func TestReconcileAdvisorNotifications(t *testing.T) {
 		s, gc := newServer(t)
 		gc.On("CreateFolderWithUID", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 		gc.On("DeleteAlertRuleGroup", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-		gc.On("GetDatasourceUIDByID", mock.Anything, int64(1)).Return("", errors.New("boom"))
+		gc.On("GetDatasourceUIDByName", mock.Anything, "Metrics").Return("", errors.New("boom"))
 
 		err := s.reconcileAdvisorNotifications(t.Context(), enabledSettings())
 		require.Error(t, err)

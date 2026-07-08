@@ -89,7 +89,7 @@ func TestServer(t *testing.T) {
 		mgrafana.On("IsReady", mock.Anything).Return(nil)
 		mgrafana.On("CreateFolderWithUID", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 		mgrafana.On("DeleteAlertRuleGroup", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-		mgrafana.On("GetDatasourceUIDByID", mock.Anything, mock.Anything).Return("ds-uid", nil)
+		mgrafana.On("GetDatasourceUIDByName", mock.Anything, mock.Anything).Return("ds-uid", nil)
 		mgrafana.On("CreateAlertRule", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 		s, err := NewServer(&Params{
