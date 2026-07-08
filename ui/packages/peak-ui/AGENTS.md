@@ -37,6 +37,14 @@ Pre-existing and cosmetic — do not treat as failures:
 - **ThemeContextProvider** wraps MUI's `ThemeProvider` with a light/dark toggle (`ColorModeContext`), persisting mode to localStorage.
 - **Components** — follow the existing folder layout for new ones: component file + `.types.ts` + `.stories.tsx` + `index.ts` barrel, with **both** named and default exports. Form inputs (`src/components/form/inputs/`) integrate with `react-hook-form`.
 
+## Storybook maturity tags
+
+Every documented story carries exactly **one** maturity status on its meta (default export) `tags`, appended to built-in tags (`autodocs`/`!dev`) — never overwriting them.
+
+- **One source of truth:** `.storybook/maturity-tags.ts` defines the closed set (`stable`, `experimental`, `needs-review`, `deprecated`), labels, descriptions, colors, and `badgeStyle`. To add or restyle a status, edit this file only — `main.ts` (filter registration), `manager.ts` (sidebar/toolbar badges via `storybook-addon-tag-badges`), and `src/Introduction.mdx` (homepage legend) all derive from it.
+- **MDX docs & folders:** tag a docs page with `<Meta tags={['stable']} />`. A folder's badge is the **intersection** of its children's tags, so every direct child must share a status for the folder to show it.
+- **Enforced:** `src/maturity-tags.spec.ts` fails if any `*.stories.{ts,tsx}` is missing a status or declares more than one.
+
 ## Tech Stack (beyond what package.json shows)
 
 React 18 + TypeScript strict (`react-jsx` transform). Rollup bundles to ESM with sourcemaps; peer deps (MUI, Emotion, React, `react-hook-form`) are externalized. Fonts via `@fontsource` (Poppins, Roboto, Roboto Mono).

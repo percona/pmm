@@ -31,7 +31,7 @@ const PLACEMENTS: TooltipPlacement[] = [
 const meta: Meta<typeof Tooltip> = {
   title: 'Data display/Tooltip',
   component: Tooltip,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'stable'],
   parameters: {
     layout: 'centered',
     docs: {
