@@ -6,7 +6,7 @@ import { ArrowBack, ArrowForward } from '@mui/icons-material';
 const meta = {
   title: 'To be reviewed/Buttons/Button',
   component: Button,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'needs-review'],
   parameters: {
     layout: 'centered',
     docs: {

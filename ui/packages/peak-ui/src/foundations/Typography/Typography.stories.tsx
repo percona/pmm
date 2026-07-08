@@ -3,6 +3,7 @@ import { Typography, type TypographyProps } from '@mui/material';
 
 const meta = {
   title: 'Foundations/Typography',
+  tags: ['stable'],
   parameters: {
     layout: 'padded',
   },

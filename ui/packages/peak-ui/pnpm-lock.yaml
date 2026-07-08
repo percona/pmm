@@ -141,6 +141,9 @@ importers:
       storybook-addon-pseudo-states:
         specifier: ^10.4.1
         version: 10.4.1(storybook@10.4.1(@testing-library/dom@10.4.0)(@types/react@18.3.27)(prettier@3.8.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      storybook-addon-tag-badges:
+        specifier: ^3.1.0
+        version: 3.1.0(storybook@10.4.1(@testing-library/dom@10.4.0)(@types/react@18.3.27)(prettier@3.8.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       tslib:
         specifier: ^2.8.1
         version: 2.8.1
@@ -2410,6 +2413,9 @@ packages:
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
+  map-or-similar@1.5.0:
+    resolution: {integrity: sha512-0aF7ZmVon1igznGI4VS30yugpduQW3y3GkcgGJOp7d8x8QrizhigUxjI/m2UojsXXto+jLAH3KSz+xOJTiORjg==}
+
   material-react-table@3.2.1:
     resolution: {integrity: sha512-sQtTf7bETpkPN2Hm5BVtz89wrfXCVQguz6XlwMChSnfKFO5QCKAJJC5aSIKnUc3S0AvTz/k/ILi00FnnY1Gixw==}
     engines: {node: '>=16'}
@@ -2431,6 +2437,9 @@ packages:
 
   mdn-data@2.27.1:
     resolution: {integrity: sha512-9Yubnt3e8A0OKwxYSXyhLymGW4sCufcLG6VdiDdUGVkPhpqLxlvP5vl1983gQjJl3tqbrM731mjaZaP68AgosQ==}
+
+  memoizerific@1.11.3:
+    resolution: {integrity: sha512-/EuHYwAPdLtXwAwSZkh/Gutery6pD2KYd44oQLhAvQp/50mpyduZh8Q7PYHXTCJ+wuXxt7oij2LXyIJOOYFPog==}
 
   min-indent@1.0.1:
     resolution: {integrity: sha512-I9jwMn07Sy/IwOj3zVkVik2JTvgpaykDZEigL6Rx6N9LbMywwUSMtxET+7lVoDLLd3O3IXwJwvuuns8UB/HeAg==}
@@ -3069,6 +3078,12 @@ packages:
     resolution: {integrity: sha512-RaJOJrLn6xn9tO+DAVJb4EdPonlIl07+hIUowma9XRa/pUNkUbsV5/1m8OgO6hw+7reW4vcYEAUwfTBbSEKQjQ==}
     peerDependencies:
       storybook: ^10.4.1
+
+  storybook-addon-tag-badges@3.1.0:
+    resolution: {integrity: sha512-sVWVyUT8woEmSKDsePJtSFCP9RFojrmsibD11dL0/+pkn7HrkhaJC96uz3mnqt78OuO7qflFMLF1Bqg3JwnrJA==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      storybook: ^10.0.0
 
   storybook@10.4.1:
     resolution: {integrity: sha512-V1Zd2e+gBFufqAQVZ1JR8KLqALsEZ3JYSBnWwQbKa6zCfWWanR6AFMyuOkLt2gZOgGp3h2Riuz88pGNVTQSG0A==}
@@ -5776,6 +5791,8 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  map-or-similar@1.5.0: {}
+
   material-react-table@3.2.1(e4b82a6124ac465604d84458e6a34870):
     dependencies:
       '@emotion/react': 11.14.0(@types/react@18.3.27)(react@18.3.1)
@@ -5795,6 +5812,10 @@ snapshots:
   mdn-data@2.0.14: {}
 
   mdn-data@2.27.1: {}
+
+  memoizerific@1.11.3:
+    dependencies:
+      map-or-similar: 1.5.0
 
   min-indent@1.0.1: {}
 
@@ -6533,6 +6554,11 @@ snapshots:
 
   storybook-addon-pseudo-states@10.4.1(storybook@10.4.1(@testing-library/dom@10.4.0)(@types/react@18.3.27)(prettier@3.8.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)):
     dependencies:
+      storybook: 10.4.1(@testing-library/dom@10.4.0)(@types/react@18.3.27)(prettier@3.8.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+
+  storybook-addon-tag-badges@3.1.0(storybook@10.4.1(@testing-library/dom@10.4.0)(@types/react@18.3.27)(prettier@3.8.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)):
+    dependencies:
+      memoizerific: 1.11.3
       storybook: 10.4.1(@testing-library/dom@10.4.0)(@types/react@18.3.27)(prettier@3.8.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
   storybook@10.4.1(@testing-library/dom@10.4.0)(@types/react@18.3.27)(prettier@3.8.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):

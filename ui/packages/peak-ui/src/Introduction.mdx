@@ -1,4 +1,5 @@
 import { Meta } from '@storybook/addon-docs/blocks';
+import { MATURITY_TAGS, badgeStyle } from '../.storybook/maturity-tags';
 
 <Meta title="Introduction" />
 
@@ -7,6 +8,19 @@ import { Meta } from '@storybook/addon-docs/blocks';
 Peak Design is Percona's design system and UI library containing the guidelines and assets that allow Perconians and the community to create functional, professional, and attractive GUIs for our software products.
 
 While our Figma kit represents our design intent, **this Storybook is our definitive coded source of truth**. What you see here is exactly what renders in the UI codebase and Percona products.
+
+## Maturity tags
+
+Every documented component carries a **maturity tag** so humans and agents can tell at a glance what's safe to build on and what needs care. You can also filter the sidebar by status. Exactly one status applies per documentation section or component, from this set:
+
+<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', margin: '1.25rem 0' }}>
+  {MATURITY_TAGS.map((tag) => (
+    <div key={tag.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+      <span style={badgeStyle(tag.colors, 'mdx')}>{tag.label}</span>
+      <span>{tag.description}</span>
+    </div>
+  ))}
+</div>
 
 ## Resources
 
