@@ -82,6 +82,7 @@ func azureDatabaseExporterConfig(
 	var config bytes.Buffer
 	options := struct {
 		models.AzureOptions
+
 		ResourceTypes string
 	}{exporter.AzureOptions, resourceTypes}
 
