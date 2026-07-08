@@ -58,6 +58,7 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
       {...tableProps}
       tableName="alert-status"
       initialState={{
+        expanded: true,
         pagination: {
           pageSize: 25,
           pageIndex: 0,
