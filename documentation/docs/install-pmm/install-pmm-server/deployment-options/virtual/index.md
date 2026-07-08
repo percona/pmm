@@ -10,7 +10,7 @@ Back up the PMM Server data from your OVF instance so you can restore it on the 
 
 1. SSH into the virtual machine.
 
-2. Stop PMM Server: `docker stop pmm-server`
+2. Stop PMM Server: `docker stop pmm-server`.
 
 3. Follow the [Back up PMM Server Docker container](../docker/backup_container.md) guide to create a backup archive of the `/srv` directory.
 
