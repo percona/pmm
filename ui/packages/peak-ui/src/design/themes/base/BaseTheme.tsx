@@ -1,4 +1,9 @@
-import { ComponentsOverrides, createTheme, PaletteMode, ThemeOptions } from '@mui/material';
+import {
+  createTheme,
+  type ComponentsOverrides,
+  type PaletteMode,
+  type ThemeOptions,
+} from '@mui/material/styles';
 import { DatePickerToolbarClassKey } from '@mui/x-date-pickers/DatePicker';
 import { MultiSectionDigitalClockClassKey } from '@mui/x-date-pickers';
 import { inputBaseClasses } from '@mui/material/InputBase';
