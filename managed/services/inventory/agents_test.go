@@ -16,6 +16,7 @@
 package inventory
 
 import (
+	"context"
 	"reflect"
 	"testing"
 	"time"
@@ -988,5 +989,115 @@ func TestChangeRTAMongoDBAgent(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.Equal(t, durationpb.New(5*time.Second), resp.GetRtaMongodbAgent().RtaOptions.CollectInterval)
+	})
+}
+
+func TestChangeAgentConnectionCheck(t *testing.T) {
+	// Adds a pmm-agent, a PostgreSQL service and a postgres_exporter (without connection check)
+	// and returns the exporter's agent ID. Expects stateUpdates calls to RequestStateUpdate:
+	// one is made here (AddPostgresExporter), plus one per successful change.
+	addPostgresExporter := func(t *testing.T, ss *ServicesService, as *AgentsService, ctx context.Context, stateUpdates int) string {
+		t.Helper()
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005").Times(stateUpdates)
+
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+
+		ps, err := ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-postgres",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(5432)),
+		})
+		require.NoError(t, err)
+
+		exporter, err := as.AddPostgresExporter(ctx, &inventoryv1.AddPostgresExporterParams{
+			PmmAgentId:          pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:           ps.ServiceId,
+			Username:            "username",
+			SkipConnectionCheck: true,
+		})
+		require.NoError(t, err)
+
+		return exporter.GetPostgresExporter().AgentId
+	}
+
+	connectionCheckCall := func(as *AgentsService, ctx context.Context) *mock.Call {
+		return as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
+			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name()))
+	}
+
+	t.Run("CheckRunsOnCredentialChange", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addPostgresExporter(t, ss, as, ctx, 2)
+
+		connectionCheckCall(as, ctx).Return(nil).Once()
+
+		resp, err := as.ChangePostgresExporter(ctx, agentID, &inventoryv1.ChangePostgresExporterParams{
+			Username: new("new-username"),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "new-username", resp.GetPostgresExporter().Username)
+	})
+
+	t.Run("RollbackOnFailedCheck", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addPostgresExporter(t, ss, as, ctx, 1)
+
+		checkErr := status.Error(codes.FailedPrecondition, "Connection check failed: FATAL: password authentication failed.")
+		connectionCheckCall(as, ctx).Return(checkErr).Once()
+
+		_, err := as.ChangePostgresExporter(ctx, agentID, &inventoryv1.ChangePostgresExporterParams{
+			Username: new("wrong-username"),
+			Password: new("wrong-password"),
+		})
+		tests.AssertGRPCError(t, status.Convert(checkErr), err)
+
+		// The change must be rolled back.
+		agent, err := as.Get(ctx, agentID)
+		require.NoError(t, err)
+		assert.Equal(t, "username", agent.(*inventoryv1.PostgresExporter).Username)
+	})
+
+	t.Run("NoCheckForUnrelatedChange", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addPostgresExporter(t, ss, as, ctx, 2)
+
+		// No CheckConnectionToService or GetInfoFromService expectations:
+		// changing only labels must not trigger a connection check.
+		resp, err := as.ChangePostgresExporter(ctx, agentID, &inventoryv1.ChangePostgresExporterParams{
+			CustomLabels: &common.StringMap{Values: map[string]string{"environment": "test"}},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{"environment": "test"}, resp.GetPostgresExporter().CustomLabels)
+	})
+
+	t.Run("SkipConnectionCheckHonored", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addPostgresExporter(t, ss, as, ctx, 2)
+
+		// No CheckConnectionToService or GetInfoFromService expectations:
+		// the explicit skip flag must bypass the check.
+		resp, err := as.ChangePostgresExporter(ctx, agentID, &inventoryv1.ChangePostgresExporterParams{
+			Username:            new("new-username"),
+			Password:            new("new-password"),
+			SkipConnectionCheck: new(true),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "new-username", resp.GetPostgresExporter().Username)
 	})
 }

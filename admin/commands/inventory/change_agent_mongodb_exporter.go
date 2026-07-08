@@ -95,6 +95,9 @@ type ChangeAgentMongodbExporterCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+
+	// Connection check
+	SkipConnectionCheck bool `help:"Skip connection check"`
 }
 
 // RunCmd executes the ChangeAgentMongodbExporterCommand and returns the result.
@@ -152,6 +155,7 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 		ExposeExporter:                cmd.ExposeExporter,
 		EnablePushMetrics:             cmd.PushMetrics,
 		LogLevel:                      convertLogLevelPtr(cmd.LogLevel),
+		SkipConnectionCheck:           &cmd.SkipConnectionCheck,
 	}
 
 	if customLabels != nil {

@@ -1108,6 +1108,49 @@ type ChangeAgentParams struct {
 	ListenPort    *uint32 // for external exporter
 }
 
+// AffectsConnection returns true if the change modifies parameters used to connect
+// to the service (credentials, TLS options, endpoint), i.e. changes that should be
+// validated with a connection check before they are applied.
+func (p *ChangeAgentParams) AffectsConnection() bool {
+	if p.Username != nil || p.Password != nil || p.TLS != nil || p.TLSSkipVerify != nil || p.ListenPort != nil {
+		return true
+	}
+
+	if o := p.MySQLOptions; o != nil {
+		if o.TLSCa != nil || o.TLSCert != nil || o.TLSKey != nil {
+			return true
+		}
+	}
+
+	if o := p.PostgreSQLOptions; o != nil {
+		if o.SSLCa != nil || o.SSLCert != nil || o.SSLKey != nil {
+			return true
+		}
+	}
+
+	if o := p.MongoDBOptions; o != nil {
+		if o.TLSCertificateKey != nil || o.TLSCertificateKeyFilePassword != nil || o.TLSCa != nil ||
+			o.AuthenticationMechanism != nil || o.AuthenticationDatabase != nil {
+			return true
+		}
+	}
+
+	if o := p.ValkeyOptions; o != nil {
+		if o.SSLCa != nil || o.SSLCert != nil || o.SSLKey != nil {
+			return true
+		}
+	}
+
+	if o := p.ExporterOptions; o != nil {
+		// Scheme and path define the external exporter's metrics endpoint.
+		if o.MetricsScheme != nil || o.MetricsPath != nil {
+			return true
+		}
+	}
+
+	return false
+}
+
 // ChangeAgent changes agent parameters based on agent type.
 func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,maintidx
 	row, err := FindAgentByID(q, agentID)

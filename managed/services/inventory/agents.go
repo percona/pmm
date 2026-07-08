@@ -215,7 +215,7 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, true)
 	if err != nil {
 		return nil, err
 	}
@@ -332,7 +332,7 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID strin
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
 	if err != nil {
 		return nil, err
 	}
@@ -451,7 +451,7 @@ func (as *AgentsService) ChangeMongoDBExporter(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
 	if err != nil {
 		return nil, err
 	}
@@ -561,7 +561,7 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, agen
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
 	if err != nil {
 		return nil, err
 	}
@@ -678,7 +678,7 @@ func (as *AgentsService) ChangeQANMySQLSlowlogAgent(ctx context.Context, agentID
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
 	if err != nil {
 		return nil, err
 	}
@@ -784,7 +784,7 @@ func (as *AgentsService) ChangePostgresExporter(ctx context.Context, agentID str
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
 	if err != nil {
 		return nil, err
 	}
@@ -890,7 +890,7 @@ func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID strin
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
 	if err != nil {
 		return nil, err
 	}
@@ -997,7 +997,7 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, agen
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
 	if err != nil {
 		return nil, err
 	}
@@ -1104,7 +1104,7 @@ func (as *AgentsService) ChangeQANMongoDBMongologAgent(ctx context.Context, agen
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
 	if err != nil {
 		return nil, err
 	}
@@ -1203,7 +1203,7 @@ func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, agentID str
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
 	if err != nil {
 		return nil, err
 	}
@@ -1306,7 +1306,7 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Contex
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
 	// Check if we're trying to modify the internal PostgreSQL QAN agent and if the environment variable is set
 	envVar, exists := os.LookupEnv(env.EnableInternalPgQAN)
 	if exists && envVar != "" {
@@ -1427,7 +1427,7 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Conte
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
 	if err != nil {
 		return nil, err
 	}
@@ -1516,7 +1516,7 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, 
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, true)
 	if err != nil {
 		return nil, err
 	}
@@ -1602,7 +1602,7 @@ func (as *AgentsService) ChangeExternalExporter(ctx context.Context, agentID str
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
 	if err != nil {
 		return nil, err
 	}
@@ -1690,7 +1690,7 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, params, true)
 	if err != nil {
 		return nil, err
 	}
@@ -1713,7 +1713,7 @@ func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, p
 		Enabled: params.Enable,
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, changeParams)
+	agent, err := as.executeAgentChange(ctx, agentID, changeParams, true)
 	if err != nil {
 		return nil, err
 	}
@@ -1828,7 +1828,7 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(ctx context.Context, agentID stri
 		changeParams.RTAOptions = models.RTAOptionsFromRequest(p.RtaOptions)
 	}
 
-	ag, err := as.executeAgentChange(ctx, agentID, changeParams)
+	ag, err := as.executeAgentChange(ctx, agentID, changeParams, p.GetSkipConnectionCheck())
 	if err != nil {
 		return nil, err
 	}
@@ -1922,16 +1922,27 @@ func convertMetricsResolutions(mrs *common.MetricsResolutions) *models.ChangeMet
 }
 
 // Helper function to execute agent change and build response.
-func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, params *models.ChangeAgentParams) (inventoryv1.Agent, error) { //nolint:ireturn
+func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, params *models.ChangeAgentParams, skipConnectionCheck bool) (inventoryv1.Agent, error) { //nolint:ireturn,lll
 	var agent inventoryv1.Agent
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		row, err := models.ChangeAgent(tx.Querier, agentID, params)
+		updatedAgent, err := models.ChangeAgent(tx.Querier, agentID, params)
 		if err != nil {
 			return err
 		}
 
-		agent, err = toInventoryAgent(tx.Querier, row, as.r)
+		if !skipConnectionCheck && params.AffectsConnection() && updatedAgent.ServiceID != nil {
+			service, err := models.FindServiceByID(tx.Querier, pointer.GetString(updatedAgent.ServiceID))
+			if err != nil {
+				return err
+			}
+
+			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, updatedAgent); err != nil {
+				return err
+			}
+		}
+
+		agent, err = toInventoryAgent(tx.Querier, updatedAgent, as.r)
 
 		return err
 	})

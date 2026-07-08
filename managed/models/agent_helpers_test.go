@@ -1617,3 +1617,63 @@ func TestAgentHelpers(t *testing.T) {
 		})
 	})
 }
+
+func TestChangeAgentParamsAffectsConnection(t *testing.T) {
+	for name, tc := range map[string]struct {
+		params   models.ChangeAgentParams
+		expected bool
+	}{
+		"empty":            {models.ChangeAgentParams{}, false},
+		"username":         {models.ChangeAgentParams{Username: new("user")}, true},
+		"password":         {models.ChangeAgentParams{Password: new("pass")}, true},
+		"tls":              {models.ChangeAgentParams{TLS: new(true)}, true},
+		"tls skip verify":  {models.ChangeAgentParams{TLSSkipVerify: new(false)}, true},
+		"listen port":      {models.ChangeAgentParams{ListenPort: new(uint32(9104))}, true},
+		"mysql tls ca":     {models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSCa: new("ca")}}, true},
+		"mysql tls cert":   {models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSCert: new("cert")}}, true},
+		"mysql tls key":    {models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSKey: new("key")}}, true},
+		"postgres ssl ca":  {models.ChangeAgentParams{PostgreSQLOptions: &models.ChangePostgreSQLOptions{SSLCa: new("ca")}}, true},
+		"postgres ssl key": {models.ChangeAgentParams{PostgreSQLOptions: &models.ChangePostgreSQLOptions{SSLKey: new("key")}}, true},
+		"mongodb cert key": {models.ChangeAgentParams{MongoDBOptions: &models.ChangeMongoDBOptions{TLSCertificateKey: new("key")}}, true},
+		"mongodb auth mechanism": {
+			models.ChangeAgentParams{MongoDBOptions: &models.ChangeMongoDBOptions{AuthenticationMechanism: new("SCRAM-SHA-256")}},
+			true,
+		},
+		"mongodb auth database": {
+			models.ChangeAgentParams{MongoDBOptions: &models.ChangeMongoDBOptions{AuthenticationDatabase: new("admin")}},
+			true,
+		},
+		"valkey ssl cert": {models.ChangeAgentParams{ValkeyOptions: &models.ChangeValkeyOptions{SSLCert: new("cert")}}, true},
+		"metrics scheme":  {models.ChangeAgentParams{ExporterOptions: &models.ChangeExporterOptions{MetricsScheme: new("https")}}, true},
+		"metrics path":    {models.ChangeAgentParams{ExporterOptions: &models.ChangeExporterOptions{MetricsPath: new("/metrics")}}, true},
+
+		"enabled":        {models.ChangeAgentParams{Enabled: new(false)}, false},
+		"custom labels":  {models.ChangeAgentParams{CustomLabels: &map[string]string{"env": "test"}}, false},
+		"log level":      {models.ChangeAgentParams{LogLevel: new("debug")}, false},
+		"agent password": {models.ChangeAgentParams{AgentPassword: new("pass")}, false},
+		"empty option structs": {
+			models.ChangeAgentParams{
+				MySQLOptions:      &models.ChangeMySQLOptions{},
+				PostgreSQLOptions: &models.ChangePostgreSQLOptions{},
+				MongoDBOptions:    &models.ChangeMongoDBOptions{},
+				ValkeyOptions:     &models.ChangeValkeyOptions{},
+				ExporterOptions:   &models.ChangeExporterOptions{},
+			},
+			false,
+		},
+		"push metrics": {models.ChangeAgentParams{ExporterOptions: &models.ChangeExporterOptions{PushMetrics: new(true)}}, false},
+		"mysql table count limit": {
+			models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TableCountTablestatsGroupLimit: new(int32(1000))}},
+			false,
+		},
+		"mongodb collectors": {
+			models.ChangeAgentParams{MongoDBOptions: &models.ChangeMongoDBOptions{EnableAllCollectors: new(true)}},
+			false,
+		},
+		"qan options": {models.ChangeAgentParams{QANOptions: &models.ChangeQANOptions{MaxQueryLength: new(int32(1024))}}, false},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, tc.params.AffectsConnection())
+		})
+	}
+}

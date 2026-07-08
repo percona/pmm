@@ -10200,6 +10200,10 @@ func (m *ChangeProxySQLExporterParams) validate(all bool) error {
 		// no validation rules for ExposeExporter
 	}
 
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeProxySQLExporterParamsMultiError(errors)
 	}
@@ -11349,6 +11353,10 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 		// no validation rules for LogLevel
 	}
 
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANMongoDBProfilerAgentParamsMultiError(errors)
 	}
@@ -11719,6 +11727,10 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 
 	if m.LogLevel != nil {
 		// no validation rules for LogLevel
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {
@@ -12096,6 +12108,10 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentParams) validate(all bool) error {
 
 	if m.LogLevel != nil {
 		// no validation rules for LogLevel
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {
@@ -12479,6 +12495,10 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentParams) validate(all bool) error {
 
 	if m.LogLevel != nil {
 		// no validation rules for LogLevel
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {
@@ -13141,6 +13161,10 @@ func (m *ChangeExternalExporterParams) validate(all bool) error {
 
 	if m.ListenPort != nil {
 		// no validation rules for ListenPort
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {
@@ -13993,6 +14017,10 @@ func (m *ChangeValkeyExporterParams) validate(all bool) error {
 		// no validation rules for LogLevel
 	}
 
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
+	}
+
 	if len(errors) > 0 {
 		return ChangeValkeyExporterParamsMultiError(errors)
 	}
@@ -14372,6 +14400,10 @@ func (m *ChangeRTAMongoDBAgentParams) validate(all bool) error {
 				}
 			}
 		}
+	}
+
+	if m.SkipConnectionCheck != nil {
+		// no validation rules for SkipConnectionCheck
 	}
 
 	if len(errors) > 0 {
