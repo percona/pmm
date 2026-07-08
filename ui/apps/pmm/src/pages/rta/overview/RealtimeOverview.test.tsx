@@ -383,7 +383,9 @@ describe('RealtimeOverview', () => {
     fireEvent.click(screen.getByTestId('overview-table-pause-button'));
 
     await waitFor(() =>
-      expect(screen.getByTestId('overview-table-export-button')).not.toBeDisabled()
+      expect(
+        screen.getByTestId('overview-table-export-button')
+      ).not.toBeDisabled()
     );
   });
 

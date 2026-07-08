@@ -37,6 +37,7 @@ describe('exportRtaQueriesToCsv', () => {
   it('formats elapsed exec time as seconds', () => {
     expect(formatElapsedExecTimeSec(10)).toBe(10);
     expect(formatElapsedExecTimeSec(null)).toBe('');
+    expect(formatElapsedExecTimeSec(undefined)).toBe('');
   });
 
   it('sanitizes values that could be interpreted as spreadsheet formulas', () => {
@@ -86,9 +87,9 @@ describe('exportRtaQueriesToCsv', () => {
   });
 
   it('builds the required filename template', () => {
-    expect(buildRtaExportFilename(new Date('2026-06-25T14:30:22.000Z'))).toMatch(
-      /^mongodb_rta_export_\d{8}_\d{6}$/
-    );
+    expect(
+      buildRtaExportFilename(new Date('2026-06-25T14:30:22.000Z'))
+    ).toMatch(/^mongodb_rta_export_\d{8}_\d{6}$/);
   });
 
   it('exports filtered query rows to csv', () => {

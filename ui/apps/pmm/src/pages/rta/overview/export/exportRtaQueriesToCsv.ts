@@ -13,13 +13,16 @@ export const sanitizeCsvCell = (value: string): string => {
 };
 
 export const formatElapsedExecTimeSec = (
-  queryExecutionDurationMs?: number | null
+  queryExecutionDurationSec?: number | null
 ): number | '' => {
-  if (queryExecutionDurationMs == null) {
+  if (
+    queryExecutionDurationSec === null ||
+    queryExecutionDurationSec === undefined
+  ) {
     return '';
   }
 
-  return queryExecutionDurationMs;
+  return queryExecutionDurationSec;
 };
 
 export const mapQueryToCsvRow = (query: QueryData) => {
@@ -28,6 +31,7 @@ export const mapQueryToCsvRow = (query: QueryData) => {
   return {
     operation_id: sanitizeCsvCell(query.queryId),
     elapsed_exec_time_sec: formatElapsedExecTimeSec(
+      // QueryData stores seconds here despite the Ms suffix in the field name.
       query.queryExecutionDurationMs
     ),
     db_instance_address: sanitizeCsvCell(mongoDbPayload.dbInstanceAddress),
