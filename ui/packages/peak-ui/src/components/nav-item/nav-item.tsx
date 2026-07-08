@@ -22,7 +22,7 @@ const NavItem = forwardRef<HTMLDivElement, NavItemProps>(
           px: 2,
           py: 0.75,
           minHeight: 44,
-          borderRadius: 5.5,
+          borderRadius: `${theme.shape.borderRadiusXl}px`,
           fontFamily: theme.typography.menuText.fontFamily,
 
           [`.${listItemTextClasses.primary}`]: {

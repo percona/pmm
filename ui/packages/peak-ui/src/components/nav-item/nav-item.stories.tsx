@@ -11,7 +11,7 @@ import NavItem from './nav-item';
 const meta: Meta<typeof NavItem> = {
   title: 'Navigation/Navigation Item',
   component: NavItem,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'stable'],
   parameters: {
     layout: 'centered',
     docs: {

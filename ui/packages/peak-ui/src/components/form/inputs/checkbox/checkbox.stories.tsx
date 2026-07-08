@@ -14,7 +14,7 @@ type CustomArgs = {
 
 const meta = {
   title: 'To be reviewed/Checkbox',
-  tags: ['autodocs'],
+  tags: ['autodocs', 'needs-review'],
   argTypes: {
     label: {
       defaultValue: '',

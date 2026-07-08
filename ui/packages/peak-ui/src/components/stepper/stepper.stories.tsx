@@ -10,7 +10,7 @@ const steps = ['Step 1', 'Step 2', 'Step 3', 'Step 4'];
 const meta = {
   title: 'To be reviewed/Stepper',
   component: Stepper,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'needs-review'],
   parameters: {
     layout: 'centered',
     docs: {

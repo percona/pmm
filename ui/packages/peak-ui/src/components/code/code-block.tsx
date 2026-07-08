@@ -30,7 +30,7 @@ const CodeBlock = forwardRef<HTMLPreElement, CodeBlockProps>(
         sx={{
           position: 'absolute',
           display: 'flex',
-          borderRadius: showCopyButtonText ? 1.5 : '50%',
+          borderRadius: showCopyButtonText ? `${theme.shape.borderRadiusSm}px` : '50%',
           backgroundColor: prismTheme.plain.backgroundColor,
           ...(showCopyButtonText
             ? { top: 12, right: 12 } // labeled

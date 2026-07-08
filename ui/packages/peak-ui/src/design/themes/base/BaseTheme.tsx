@@ -94,6 +94,24 @@ declare module '@mui/material/styles' {
       styleOverrides?: ComponentsOverrides<Theme>['MuiMultiSectionDigitalClock'];
     };
   }
+
+  interface Shape {
+    borderRadiusXs: number;
+    borderRadiusSm: number;
+    borderRadiusMd: number;
+    borderRadiusLg: number;
+    borderRadiusXl: number;
+    borderRadiusFull: number;
+  }
+
+  interface ShapeOptions {
+    borderRadiusXs?: number;
+    borderRadiusSm?: number;
+    borderRadiusMd?: number;
+    borderRadiusLg?: number;
+    borderRadiusXl?: number;
+    borderRadiusFull?: number;
+  }
 }
 
 declare module '@mui/material/Typography' {
@@ -469,6 +487,18 @@ export const defaultPrimaryDark = {
 export type SemanticTokens = typeof semanticTokensLight;
 export type PrimaryTokens = typeof defaultPrimaryLight;
 
+// Border radius scale shared across all themes. borderRadiusSm is the theme-wide default.
+export const shape = {
+  borderRadiusXs: 3,
+  borderRadiusSm: 5,
+  borderRadiusMd: 8,
+  borderRadiusLg: 13,
+  borderRadiusXl: 21,
+  borderRadiusFull: 999,
+} as const;
+
+export type ShapeTokens = typeof shape;
+
 const BaseTheme = createTheme();
 
 const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
@@ -742,6 +772,10 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         xl: 1536,
       },
     },
+    shape: {
+      ...shape,
+      borderRadius: shape.borderRadiusSm,
+    },
     components: {
       MuiCssBaseline: {
         styleOverrides: {
@@ -751,7 +785,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             color: tokens.text.secondary,
             backgroundColor: tokens.action.hover,
             border: `1px solid ${tokens.lines.contour}`,
-            borderRadius: '3px',
+            borderRadius: `${shape.borderRadiusXs}px`,
             padding: '0 0.125em 0.0625em',
             whiteSpace: 'break-spaces' as const,
             wordBreak: 'break-word' as const,
@@ -858,7 +892,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         },
         styleOverrides: {
           root: ({ ownerState, theme }) => ({
-            borderRadius: 128,
+            borderRadius: theme.shape.borderRadiusFull,
             borderWidth: 2,
 
             '.MuiButton-startIcon': {
@@ -936,7 +970,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
       MuiButtonGroup: {
         styleOverrides: {
           root: {
-            borderRadius: '128px',
+            borderRadius: `${shape.borderRadiusFull}px`,
           },
           grouped: ({ ownerState }) => ({
             '&:not(:last-of-type)': {
@@ -981,7 +1015,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         styleOverrides: {
           root: ({ theme, ownerState }) => ({
             ...theme.typography.inputText,
-            borderRadius: 5,
+            borderRadius: theme.shape.borderRadiusSm,
             [`& .${outlinedInputClasses.notchedOutline}`]: {
               borderWidth: 2,
               borderColor: theme.palette.dividers?.divider,
@@ -1193,7 +1227,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             '&:focus-visible': {
               outline: `2px solid ${tokens.text.accent1}`,
               outlineOffset: '2px',
-              borderRadius: '2px',
+              borderRadius: `${shape.borderRadiusXs}px`,
             },
           },
         },
@@ -1204,7 +1238,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             borderWidth: '1px',
             borderStyle: 'solid',
             borderColor: 'rgba(44, 50, 62, 0.25)', // TODO move into pallet =#2C323E 25%
-            borderRadius: theme.spacing(1),
+            borderRadius: theme.shape.borderRadiusMd,
             backgroundColor: theme.palette.action.hover,
             boxShadow: 'none',
             '&:before': {
@@ -1311,7 +1345,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             return {
               ...theme.typography.body1,
               minHeight: 40,
-              borderRadius: 5,
+              borderRadius: theme.shape.borderRadiusSm,
               border: `1px solid ${theme.palette.dividers?.divider}`,
               ...bg,
               padding: '4px 8px',
