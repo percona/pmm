@@ -121,7 +121,7 @@ func SetPMMServerID(q reform.DBTX) error {
 }
 
 // UpdateSettings updates only non-zero, non-empty values.
-func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) { //nolint:gocognit,cyclop,unparam
+func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) { //nolint:unparam
 	err := ValidateSettings(params)
 	if err != nil {
 		return nil, NewInvalidArgumentError("%s", err.Error())

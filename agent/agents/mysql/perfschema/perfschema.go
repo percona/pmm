@@ -333,7 +333,7 @@ func (m *PerfSchema) refreshHistoryCache(ctx context.Context) error {
 	return nil
 }
 
-func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*agentv1.MetricsBucket, error) { //nolint:gocognit
+func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*agentv1.MetricsBucket, error) {
 	current, err := getSummaries(m.q)
 	if err != nil {
 		return nil, err

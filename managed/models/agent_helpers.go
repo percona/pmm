@@ -1128,7 +1128,7 @@ type ChangeAgentParams struct {
 }
 
 // ChangeAgent changes agent parameters based on agent type.
-func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,maintidx
+func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) {
 	row, err := FindAgentByID(q, agentID)
 	if err != nil {
 		return nil, err

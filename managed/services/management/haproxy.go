@@ -29,7 +29,7 @@ import (
 )
 
 // AddHAProxy adds an HAProxy service based on the provided request.
-func (s *ManagementService) addHAProxy(ctx context.Context, req *managementv1.AddHAProxyServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
+func (s *ManagementService) addHAProxy(ctx context.Context, req *managementv1.AddHAProxyServiceParams) (*managementv1.AddServiceResponse, error) {
 	var pmmAgentID *string
 	haproxy := &managementv1.HAProxyServiceResult{}
 

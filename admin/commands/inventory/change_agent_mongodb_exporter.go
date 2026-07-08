@@ -100,7 +100,7 @@ type ChangeAgentMongodbExporterCommand struct {
 }
 
 // RunCmd executes the ChangeAgentMongodbExporterCommand and returns the result.
-func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) { //nolint:cyclop
+func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 	var changes []string
 
 	// Parse custom labels if provided

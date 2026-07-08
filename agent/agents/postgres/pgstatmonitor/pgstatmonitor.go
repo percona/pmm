@@ -189,7 +189,7 @@ func getPGVersion(q *reform.Querier) (pgVersion, error) {
 	return pgVersion(parsed), err
 }
 
-//nolint:mnd,cyclop
+//nolint:mnd
 func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitorPrerelease, error) {
 	var result string
 	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ pg_stat_monitor_version()", queryTag)).Scan(&result)
@@ -561,7 +561,7 @@ func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs u
 
 // makeBuckets uses current state of pg_stat_monitor table and accumulated previous state
 // to make metrics buckets.
-func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*pgStatMonitorExtended) []*agentv1.MetricsBucket { //nolint:gocognit
+func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*pgStatMonitorExtended) []*agentv1.MetricsBucket {
 	res := make([]*agentv1.MetricsBucket, 0, len(current))
 
 	for bucketStartTime, bucket := range current {

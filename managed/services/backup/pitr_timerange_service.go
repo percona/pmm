@@ -268,7 +268,7 @@ func getTimelines(slices []*OplogChunk) []Timeline {
 
 // mergeTimelines merges overlapping sets on timelines
 // it presumes timelines are sorted and don't start from 0.
-func mergeTimelines(timelines ...[]Timeline) []Timeline { //nolint:gocognit
+func mergeTimelines(timelines ...[]Timeline) []Timeline {
 	// fast paths
 	if len(timelines) == 0 {
 		return nil

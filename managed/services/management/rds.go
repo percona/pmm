@@ -141,7 +141,7 @@ func listRegions(partitions []string) []string {
 }
 
 // DiscoverRDS discovers RDS instances.
-func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.DiscoverRDSRequest) (*managementv1.DiscoverRDSResponse, error) { //nolint:gocognit
+func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.DiscoverRDSRequest) (*managementv1.DiscoverRDSResponse, error) {
 	l := logger.Get(ctx).WithField("component", "discover/rds")
 
 	settings, err := models.GetSettings(s.db.Querier)
@@ -259,8 +259,6 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 }
 
 // AddRDS adds RDS instance.
-//
-//nolint:gocognit,cyclop,maintidx
 func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDSServiceParams) (*managementv1.AddServiceResponse, error) {
 	rds := &managementv1.RDSServiceResult{}
 

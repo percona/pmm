@@ -63,8 +63,6 @@ func newStatMonitorCache(l *logrus.Entry) *statMonitorCache {
 
 // getStatMonitorExtended returns the current state of pg_stat_monitor table with extended information (database, username)
 // and the previous cashed state grouped by bucket start time.
-//
-//nolint:gocognit
 func (ssc *statMonitorCache) getStatMonitorExtended(
 	ctx context.Context,
 	q *reform.Querier,

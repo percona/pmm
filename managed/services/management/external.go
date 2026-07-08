@@ -29,7 +29,7 @@ import (
 )
 
 // AddExternal adds an external service based on the provided request.
-func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.AddExternalServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
+func (s *ManagementService) addExternal(ctx context.Context, req *managementv1.AddExternalServiceParams) (*managementv1.AddServiceResponse, error) {
 	external := &managementv1.ExternalServiceResult{}
 	var pmmAgentID *string
 
