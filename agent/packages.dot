@@ -27,6 +27,7 @@ digraph packages {
 	"/agents/supervisor" -> "/agents";
 	"/agents/supervisor" -> "/agents/mongodb/mongolog";
 	"/agents/supervisor" -> "/agents/mongodb/profiler";
+	"/agents/supervisor" -> "/agents/mongodb/realtimeanalytics";
 	"/agents/supervisor" -> "/agents/mysql/perfschema";
 	"/agents/supervisor" -> "/agents/mysql/slowlog";
 	"/agents/supervisor" -> "/agents/noop";

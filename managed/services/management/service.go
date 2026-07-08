@@ -17,10 +17,10 @@ package management
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -36,6 +36,8 @@ import (
 
 // ManagementService allows to interact with services.
 type ManagementService struct { //nolint:revive
+	managementv1.UnimplementedManagementServiceServer
+
 	db            *reform.DB
 	r             agentsRegistry
 	state         agentsStateUpdater
@@ -46,8 +48,6 @@ type ManagementService struct { //nolint:revive
 	grafanaClient grafanaClient
 	vmClient      victoriaMetricsClient
 	l             *logrus.Entry
-
-	managementv1.UnimplementedManagementServiceServer
 }
 
 type statusMetrics struct {
@@ -136,7 +136,7 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 	`
 	result, _, err := s.vmClient.Query(ctx, query, time.Now())
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to execute an instant VM query")
+		return nil, fmt.Errorf("failed to execute an instant VM query: %w", err)
 	}
 
 	metrics := make(map[string]statusMetrics, len(result.(model.Vector))) //nolint:forcetypeassert
@@ -330,7 +330,8 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 			}
 
 			if len(pmmAgentIDs) <= 1 {
-				if err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade); err != nil {
+				err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
+				if err != nil {
 					return err
 				}
 			}

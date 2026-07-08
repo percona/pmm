@@ -32,7 +32,9 @@ func TestMySQLQuerySelect(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	db := tests.OpenTestMySQL(t)
-	t.Cleanup(func() { db.Close() }) //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, db.Close())
+	})
 
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
@@ -75,7 +77,7 @@ func TestMySQLQuerySelect(t *testing.T) {
 		require.NoError(t, err)
 		t.Log(spew.Sdump(data))
 		assert.InDelta(t, 1, len(data), 0)
-		expected := map[string]interface{}{
+		expected := map[string]any{
 			"bytes": "\x00\x01\xfe\xff",
 		}
 		assert.Equal(t, expected, data[0])

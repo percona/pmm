@@ -16,6 +16,7 @@ package management
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -53,6 +54,10 @@ func (res *addMongoDBResult) String() string {
 //
 //nolint:lll
 type AddMongoDBCommand struct {
+	AddCommonFlags
+	flags.MetricsModeFlags
+	flags.LogLevelFatalFlags
+
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-mongodb" help:"Service name (autodetected default: ${hostname}-mongodb)"`
 	Address           string `arg:"" optional:"" help:"MongoDB address and port (default: 127.0.0.1:27017)"`
 	Socket            string `help:"Path to socket"`
@@ -83,10 +88,7 @@ type AddMongoDBCommand struct {
 	CollectionsLimit              int32             `name:"max-collections-limit" default:"-1" help:"Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, which let PMM automatically set this value"`
 	ExposeExporter                bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 	AgentEnvVars                  []string          `name:"agent-env-vars" help:"Comma-separated list of environment variable names to pass to the exporter (values are read from the current environment), e.g. 'VAR1,VAR2'"`
-
-	AddCommonFlags
-	flags.MetricsModeFlags
-	flags.LogLevelFatalFlags
+	ConnectionTimeout             *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 }
 
 // GetServiceName returns the service name for AddMongoDBCommand.
@@ -159,7 +161,8 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
+		err := cmd.GetCredentials()
+		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
 	}
@@ -196,13 +199,14 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				AuthenticationMechanism:       cmd.AuthenticationMechanism,
 				AuthenticationDatabase:        cmd.AuthenticationDatabase,
 
-				MetricsMode: cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				MetricsMode: cmd.MetricsMode.EnumValue(),
 
 				EnableAllCollectors: cmd.EnableAllCollectors,
 				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 				StatsCollections:    commands.ParseDisableCollectors(cmd.StatsCollections),
 				CollectionsLimit:    cmd.CollectionsLimit,
-				LogLevel:            cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				LogLevel:            cmd.LogLevel.EnumValue(),
+				ConnectionTimeout:   commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

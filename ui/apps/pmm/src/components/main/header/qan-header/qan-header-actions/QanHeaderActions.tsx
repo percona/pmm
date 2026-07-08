@@ -12,7 +12,10 @@ export const QanHeaderActions: FC = () => {
 
   const handleCopy = async () => {
     try {
-      const path = constructUrl(location).replace(/\/pmm-ui\/(next\/)?graph\//, '');
+      const path = constructUrl(location).replace(
+        /\/pmm-ui\/(next\/)?graph\//,
+        ''
+      );
       const res = location.pathname.includes('/graph')
         ? await createShortUrl(path)
         : { url: window.location.href };

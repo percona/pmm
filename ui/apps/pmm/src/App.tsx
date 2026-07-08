@@ -18,14 +18,12 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false,
+      retry: false,
     },
   },
 });
 
-
-
 const App = () => {
-  
   useEffect(() => {
     addApiErrorInterceptor();
     return () => {
@@ -43,13 +41,10 @@ const App = () => {
           // NOTE: using custom components disables notistack's custom actions, as per docs: https://notistack.com/features/basic#actions
           // If we need actions, we can add them to our custom component via useSnackbar(): https://notistack.com/features/customization#custom-component
           Components={{
-            success:
-              NotistackMuiSnackbar as ComponentType<CustomContentProps>,
-            error:
-              NotistackMuiSnackbar as ComponentType<CustomContentProps>,
+            success: NotistackMuiSnackbar as ComponentType<CustomContentProps>,
+            error: NotistackMuiSnackbar as ComponentType<CustomContentProps>,
             info: NotistackMuiSnackbar as ComponentType<CustomContentProps>,
-            warning:
-              NotistackMuiSnackbar as ComponentType<CustomContentProps>,
+            warning: NotistackMuiSnackbar as ComponentType<CustomContentProps>,
           }}
           // Render the snackbar on the right side of the screen to not interfere with navigation
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}

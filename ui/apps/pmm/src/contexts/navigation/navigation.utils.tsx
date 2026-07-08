@@ -1,7 +1,6 @@
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
 import { User, UserPreferences } from 'types/user.types';
-import { FrontendSettings } from 'types/settings.types';
 import { Advisor } from 'types/advisors.types';
 import { groupAdvisorsIntoCategories } from 'utils/advisors.utils';
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
@@ -158,10 +157,10 @@ export const addAlerting = (enabled = false, user?: User): NavItem => {
   return { ...NAV_ALERTS, children };
 };
 
-export const addExplore = (frontendSettings: FrontendSettings): NavItem => {
+export const addExplore = (exploreMetricsEnabled: boolean): NavItem => {
   const children: NavItem[] = [NAV_EXPLORE_BUILDER];
 
-  if (frontendSettings.featureToggles.exploreMetrics) {
+  if (exploreMetricsEnabled) {
     children.push(NAV_EXPLORE_METRICS);
   }
 

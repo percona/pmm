@@ -1,7 +1,7 @@
 import Grid from '@mui/material/Grid';
 import { FC } from 'react';
 import { format, formatDuration } from 'date-fns';
-import { tz } from "@date-fns/tz";
+import { tz } from '@date-fns/tz';
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { QueryData } from 'types/rta.types';
 import DetailsMetric from './DetailsMetric';
@@ -45,13 +45,13 @@ const QueryAndDetails: FC<Props> = ({
 
   const formattedQueryExecutionDuration = queryExecutionDurationMs
     ? formatDuration(
-      {
-        seconds: queryExecutionDurationMs,
-      },
-      {
-        format: ['seconds'],
-      }
-    )
+        {
+          seconds: queryExecutionDurationMs,
+        },
+        {
+          format: ['seconds'],
+        }
+      )
     : '';
 
   const formattedQueryExecutionDurationParts = formattedQueryExecutionDuration
@@ -63,7 +63,10 @@ const QueryAndDetails: FC<Props> = ({
       <Grid size={{ xs: 12, md: 6 }}>
         <Grid container spacing={3}>
           <GridItem>
-            <DetailsMetric title={Messages.titles.operationId} tooltip={Messages.tooltips.operationId}>
+            <DetailsMetric
+              title={Messages.titles.operationId}
+              tooltip={Messages.tooltips.operationId}
+            >
               <BigNumberMetric
                 mainText={queryId}
                 dataTestId="operation-id-value"
@@ -71,7 +74,10 @@ const QueryAndDetails: FC<Props> = ({
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.elapsedExecTime} tooltip={Messages.tooltips.elapsedExecTime}>
+            <DetailsMetric
+              title={Messages.titles.elapsedExecTime}
+              tooltip={Messages.tooltips.elapsedExecTime}
+            >
               <BigNumberMetric
                 mainText={
                   formattedQueryExecutionDurationParts.length > 1
@@ -88,7 +94,10 @@ const QueryAndDetails: FC<Props> = ({
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.dbInstanceAddress} tooltip={Messages.tooltips.dbInstanceAddress}>
+            <DetailsMetric
+              title={Messages.titles.dbInstanceAddress}
+              tooltip={Messages.tooltips.dbInstanceAddress}
+            >
               <BigNumberMetric
                 mainText={dbInstanceAddress}
                 size="small"
@@ -97,7 +106,10 @@ const QueryAndDetails: FC<Props> = ({
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.clientAddress} tooltip={Messages.tooltips.clientAddress}>
+            <DetailsMetric
+              title={Messages.titles.clientAddress}
+              tooltip={Messages.tooltips.clientAddress}
+            >
               <BigNumberMetric
                 mainText={clientAddress}
                 size="small"
@@ -106,7 +118,10 @@ const QueryAndDetails: FC<Props> = ({
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.databaseName} tooltip={Messages.tooltips.databaseName}>
+            <DetailsMetric
+              title={Messages.titles.databaseName}
+              tooltip={Messages.tooltips.databaseName}
+            >
               <BigNumberMetric
                 mainText={databaseName}
                 size="small"
@@ -115,7 +130,10 @@ const QueryAndDetails: FC<Props> = ({
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.service} tooltip={Messages.tooltips.service}>
+            <DetailsMetric
+              title={Messages.titles.service}
+              tooltip={Messages.tooltips.service}
+            >
               <BigNumberMetric
                 mainText={serviceName}
                 size="small"
@@ -124,7 +142,10 @@ const QueryAndDetails: FC<Props> = ({
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.username} tooltip={Messages.tooltips.username}>
+            <DetailsMetric
+              title={Messages.titles.username}
+              tooltip={Messages.tooltips.username}
+            >
               <BigNumberMetric
                 mainText={username}
                 size="small"
@@ -133,7 +154,10 @@ const QueryAndDetails: FC<Props> = ({
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.collection} tooltip={Messages.tooltips.collection}>
+            <DetailsMetric
+              title={Messages.titles.collection}
+              tooltip={Messages.tooltips.collection}
+            >
               <BigNumberMetric
                 mainText={collection}
                 size="small"
@@ -142,7 +166,10 @@ const QueryAndDetails: FC<Props> = ({
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.operation} tooltip={Messages.tooltips.operation}>
+            <DetailsMetric
+              title={Messages.titles.operation}
+              tooltip={Messages.tooltips.operation}
+            >
               <BigNumberMetric
                 mainText={operation}
                 size="small"
@@ -151,7 +178,10 @@ const QueryAndDetails: FC<Props> = ({
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.planSummary} tooltip={Messages.tooltips.planSummary}>
+            <DetailsMetric
+              title={Messages.titles.planSummary}
+              tooltip={Messages.tooltips.planSummary}
+            >
               <BigNumberMetric
                 mainText={planSummary.replace(/,/g, ',\n')}
                 props={{
@@ -167,7 +197,10 @@ const QueryAndDetails: FC<Props> = ({
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.clientAppName} tooltip={Messages.tooltips.clientAppName}>
+            <DetailsMetric
+              title={Messages.titles.clientAppName}
+              tooltip={Messages.tooltips.clientAppName}
+            >
               <BigNumberMetric
                 mainText={clientAppName}
                 size="small"
@@ -176,20 +209,28 @@ const QueryAndDetails: FC<Props> = ({
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.operationStartTime} tooltip={Messages.tooltips.operationStartTime}>
+            <DetailsMetric
+              title={Messages.titles.operationStartTime}
+              tooltip={Messages.tooltips.operationStartTime}
+            >
               <BigNumberMetric
-                mainText={
-                  format((new Date(operationStartTime)), TIME_FORMAT, { in: tz(timezone) })
-                }
+                mainText={format(new Date(operationStartTime), TIME_FORMAT, {
+                  in: tz(timezone),
+                })}
                 size="small"
                 dataTestId="operation-start-time-value"
               />
             </DetailsMetric>
           </GridItem>
           <GridItem>
-            <DetailsMetric title={Messages.titles.dataCaptureTime} tooltip={Messages.tooltips.dataCaptureTime}>
+            <DetailsMetric
+              title={Messages.titles.dataCaptureTime}
+              tooltip={Messages.tooltips.dataCaptureTime}
+            >
               <BigNumberMetric
-                mainText={format(new Date(queryCollectTime), TIME_FORMAT, { in: tz(timezone) })}
+                mainText={format(new Date(queryCollectTime), TIME_FORMAT, {
+                  in: tz(timezone),
+                })}
                 size="small"
                 dataTestId="data-capture-time-value"
               />

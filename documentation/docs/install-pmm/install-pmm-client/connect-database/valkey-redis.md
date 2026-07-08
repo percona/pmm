@@ -46,7 +46,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
     To add the service from the user interface:
     {.power-number}
     
-    1. Go to **PMM Configuration > PMM Inventory > Services > Add Service**.
+    1. Go to **Inventory > Services > Add Service**.
     
     2. Select **Valkey/Redis** service type.
     
@@ -57,6 +57,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         - **Agents**: Select the PMM agent that should monitor this instance.
         - **Hostname/Port**: The address and port (default: `6379`) of your instance.
         - **Username/Password**: Authentication credentials (if ACL is enabled).
+        - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 3s.
 
     4. Configure **Labels** (optional): Add descriptive tags. For clustered/replicated setups, ensure you set the `role` label here (e.g., `role:primary`).
         
@@ -208,8 +209,7 @@ After adding your Valkey or Redis service to PMM, verify that it's properly conn
     To verify your service in the web interface:
     {.power-number}
 
-    1. Navigate to **PMM Configuration > PMM Inventory**.
-    2. In the **Services** tab, find your newly added Valkey/Redis service.
+    1. Navigate to **Inventory > Services > Valkey** service.
     3. Verify the **Service Name** and **Address** match your configuration.
     4. Check the **Status** column shows as *Active*.
     5. In the **Options** column, expand the **Details** section to confirm the correct agents are running.
@@ -263,7 +263,7 @@ If you need to remove a Valkey or Redis service from monitoring:
     To remove the service from the user interface:
     {.power-number}
     
-    1. Navigate to **PMM Configuration > PMM Inventory**.
+    1. Navigate to **Inventory > Services**.
     2. Find your Valkey/Redis service in the **Services** tab.
     3. Click the **Remove** button in the **Options** column.
     4. Confirm the removal when prompted.

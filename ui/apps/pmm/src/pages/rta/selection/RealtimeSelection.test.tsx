@@ -236,7 +236,7 @@ describe('RealtimeSelection', () => {
   describe('Loading States', () => {
     it('shows loading indicator while fetching services', () => {
       vi.mocked(realtimeApi.getAvailableServices).mockImplementation(
-        () => new Promise(() => { })
+        () => new Promise(() => {})
       );
 
       renderComponent();

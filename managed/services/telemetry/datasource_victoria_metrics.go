@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package telemetry provides telemetry functionality.
 package telemetry
 
 import (
@@ -99,10 +98,10 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 	return metrics, nil
 }
 
-func (d *dataSourceVictoriaMetrics) Init(ctx context.Context) error { //nolint:revive
+func (d *dataSourceVictoriaMetrics) Init(context.Context) error {
 	return nil
 }
 
-func (d *dataSourceVictoriaMetrics) Dispose(ctx context.Context) error { //nolint:revive
+func (d *dataSourceVictoriaMetrics) Dispose(context.Context) error {
 	return nil
 }

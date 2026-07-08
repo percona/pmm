@@ -74,7 +74,7 @@ func TestAddValkey(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Valkey: &services.GetServiceOKBodyValkey{
@@ -92,7 +92,7 @@ func TestAddValkey(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyValkeyExporterItems0{
 			{
 				AgentID:            listAgents.Payload.ValkeyExporter[0].AgentID,
@@ -148,7 +148,7 @@ func TestAddValkey(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Valkey: &services.GetServiceOKBodyValkey{
@@ -166,7 +166,7 @@ func TestAddValkey(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, listAgents)
 		require.Len(t, listAgents.Payload.ValkeyExporter, 1)
 		assert.Equal(t, []*agents.ListAgentsOKBodyValkeyExporterItems0{

@@ -90,18 +90,6 @@ func NewSlowLogParser(r filereader.Reader, opts log.Options) *SlowLogParser {
 	return p
 }
 
-// logf logs with configured logger.
-func (p *SlowLogParser) logf(format string, v ...interface{}) {
-	if !p.opts.Debug {
-		return
-	}
-	if p.opts.Debugf != nil {
-		p.opts.Debugf(format, v...)
-		return
-	}
-	stdlog.Printf(format, v...)
-}
-
 // Parse returns next parsed event, or nil, when parsing is done.
 func (p *SlowLogParser) Parse() *log.Event {
 	return <-p.eventChan
@@ -171,6 +159,18 @@ func (p *SlowLogParser) Run() {
 			p.logf("unhandled line: %q", line)
 		}
 	}
+}
+
+// logf logs with configured logger.
+func (p *SlowLogParser) logf(format string, v ...any) {
+	if !p.opts.Debug {
+		return
+	}
+	if p.opts.Debugf != nil {
+		p.opts.Debugf(format, v...)
+		return
+	}
+	stdlog.Printf(format, v...)
 }
 
 func (p *SlowLogParser) parseHeader(line string) {
@@ -249,8 +249,8 @@ func (p *SlowLogParser) parseMetrics(line string) {
 	}
 
 	// we need to skip redundant space to correct the split process
-	line = strings.Replace(line, ": ", ":", -1) //nolint:gocritic
-	for _, kv := range strings.Split(line, " ") {
+	line = strings.ReplaceAll(line, ": ", ":")
+	for kv := range strings.SplitSeq(line, " ") {
 		if len(kv) == 0 {
 			continue
 		}

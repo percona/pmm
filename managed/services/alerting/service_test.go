@@ -142,7 +142,7 @@ templates:
 			Yaml: templateWithMissingParam,
 		})
 		assert.Nil(t, resp)
-		assert.EqualError(t, err, "rpc error: code = InvalidArgument desc = failed to fill expression "+
+		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = failed to fill expression "+
 			"placeholders: template: :4:5: executing \"\" at <.threshold>: map has no entry for key \"threshold\".")
 	})
 
@@ -237,7 +237,7 @@ templates:
 			Yaml: templateWithMissingParam,
 		})
 		assert.Nil(t, resp)
-		assert.EqualError(t, err, "rpc error: code = InvalidArgument desc = failed to fill expression "+
+		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = failed to fill expression "+
 			"placeholders: template: :4:5: executing \"\" at <.threshold>: map has no entry for key \"threshold\".")
 	})
 }

@@ -50,7 +50,10 @@ describe('QueryAndDetails', () => {
     // 2021-01-01T00:00:00Z in America/New_York (EST, UTC-5) is 2020-12-31 19:00:00
     const userWithTimezone = {
       ...TEST_USER_ADMIN,
-      preferences: { ...TEST_USER_ADMIN.preferences, timezone: 'America/New_York' },
+      preferences: {
+        ...TEST_USER_ADMIN.preferences,
+        timezone: 'America/New_York',
+      },
     };
     renderComponent(userWithTimezone);
 

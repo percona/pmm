@@ -3,6 +3,7 @@ syntax = "proto3";
 package management.v1;
 
 import "extensions/v1/redact.proto";
+import "google/protobuf/duration.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/log_level.proto";
 import "inventory/v1/services.proto";
@@ -61,7 +62,7 @@ message AddMongoDBServiceParams {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 20;
   // Client certificate and key.
-  string tls_certificate_key = 21;
+  string tls_certificate_key = 21 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Password for decrypting tls_certificate_key.
   string tls_certificate_key_file_password = 22 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Certificate Authority certificate chain.
@@ -98,6 +99,10 @@ message AddMongoDBServiceParams {
   repeated string environment_variable_names = 36;
   // If true, adds Real-Time Analytics agent for the provided service.
   bool rta_mongodb_agent = 37;
+  // Connection timeout for exporter (if set).
+  google.protobuf.Duration connection_timeout = 38 [(validate.rules).duration = {
+    gte: {seconds: 0}
+  }];
 }
 
 message MongoDBServiceResult {

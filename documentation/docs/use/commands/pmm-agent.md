@@ -90,7 +90,7 @@ Since 2.23.0 this flag could be used for easier setup of PMM agent. With this fl
 - **Case 1:** There are no root permissions for `/usr/local/percona/pmm` folder or there is a need to change default folder for PMM files.
 Command:
 ````
-pmm-agent setup --paths-base=/home/user/custom/pmm --config-file=pmm-agent-dev.yaml --server-insecure-tls --server-address=127.0.0.1:443 --server-username=admin --server-password=admin
+pmm-agent setup --paths-base=/home/user/custom/pmm --config-file=pmm-agent.yaml --server-insecure-tls --server-address=127.0.0.1:443 --server-username=admin --server-password=admin
 ````
 Config output:
 ````
@@ -132,7 +132,7 @@ As could be seen above, base for all exporters and tools was changed only by set
 - **Case 2:** The older `--paths-exporters_base` flag could be passed along with the `--paths-base`
 Command:
 ````
-pmm-agent setup --paths-base=/home/user/custom/pmm --paths-exporters_base=/home/user/exporters --config-file=pmm-agent-dev.yaml --server-insecure-tls --server-address=127.0.0.1:443 --server-username=admin --server-password=admin
+pmm-agent setup --paths-base=/home/user/custom/pmm --paths-exporters_base=/home/user/exporters --config-file=pmm-agent.yaml --server-insecure-tls --server-address=127.0.0.1:443 --server-username=admin --server-password=admin
 ````
 Config output:
 ````

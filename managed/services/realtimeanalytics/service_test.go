@@ -781,7 +781,7 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 	return lis.Dial()
 }
 
-func getTestClient(t *testing.T) (rtav1.CollectorServiceClient, func()) {
+func getTestClient(t *testing.T) rtav1.CollectorServiceClient {
 	t.Helper()
 
 	conn, err := grpc.NewClient(
@@ -794,12 +794,18 @@ func getTestClient(t *testing.T) (rtav1.CollectorServiceClient, func()) {
 	}
 
 	client := rtav1.NewCollectorServiceClient(conn)
+	t.Cleanup(func() {
+		require.NoError(t, conn.Close())
+	})
 
-	return client, func() { _ = conn.Close() }
+	return client
 }
 
 func TestService_Collect(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	// Create test data
@@ -851,20 +857,21 @@ func TestService_Collect(t *testing.T) {
 	)
 	rtav1.RegisterCollectorServiceServer(s, svc)
 
+	serveError := make(chan error)
 	go func() {
-		err := s.Serve(lis)
-		if err != nil {
-			panic(err)
-		}
+		serveError <- s.Serve(lis)
 	}()
+	t.Cleanup(func() {
+		s.GracefulStop()
+		require.NoError(t, <-serveError)
+	})
 
 	time.Sleep(1 * time.Second) // Give server time to start
 
-	client, cleanup := getTestClient(t)
-	defer cleanup()
+	client := getTestClient(t)
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
-	defer cancel()
+	t.Cleanup(cancel)
 
 	streamCtx := agentv1.AddAgentConnectMetadata(ctx, &agentv1.AgentConnectMetadata{
 		ID:      pmmAgent.AgentID,

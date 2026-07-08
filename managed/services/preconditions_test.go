@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -252,17 +251,17 @@ func TestCheckArtifactOverlapping(t *testing.T) {
 	require.NoError(t, err)
 
 	err = CheckArtifactOverlapping(db.Querier, mongoSvc2.ServiceID, location.ID, folder1)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = CheckArtifactOverlapping(db.Querier, mongoSvc3.ServiceID, location.ID, folder1)
-	assert.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
+	require.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
 
 	err = CheckArtifactOverlapping(db.Querier, mysqlSvc1.ServiceID, location.ID, folder1)
-	assert.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
+	require.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
 
 	err = CheckArtifactOverlapping(db.Querier, mysqlSvc2.ServiceID, location.ID, folder2)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	err = CheckArtifactOverlapping(db.Querier, mongoSvc1.ServiceID, location.ID, folder2)
-	assert.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
+	require.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
 }

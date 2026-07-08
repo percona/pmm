@@ -81,10 +81,10 @@ func TestVersionCache(t *testing.T) {
 			require.NoError(t, db.Insert(str))
 		}
 		t.Cleanup(func() {
-			assert.NoError(t, db.Delete(&models.Agent{AgentID: agentID2}))
-			assert.NoError(t, db.Delete(&models.Agent{AgentID: agentID1}))
-			assert.NoError(t, db.Delete(&models.Service{ServiceID: serviceID1}))
-			assert.NoError(t, db.Delete(&models.Node{NodeID: nodeID1}))
+			require.NoError(t, db.Delete(&models.Agent{AgentID: agentID2}))
+			require.NoError(t, db.Delete(&models.Agent{AgentID: agentID1}))
+			require.NoError(t, db.Delete(&models.Service{ServiceID: serviceID1}))
+			require.NoError(t, db.Delete(&models.Node{NodeID: nodeID1}))
 		})
 
 		softwares := agents.GetRequiredBackupSoftwareList(models.MySQLServiceType)
@@ -210,16 +210,16 @@ func TestVersionCache(t *testing.T) {
 			require.NoError(t, db.Insert(str))
 		}
 		t.Cleanup(func() {
-			assert.NoError(t, db.Delete(&models.Agent{AgentID: agentID2}))
-			assert.NoError(t, db.Delete(&models.Agent{AgentID: agentID1}))
-			assert.NoError(t, db.Delete(&models.Service{ServiceID: serviceID1}))
-			assert.NoError(t, db.Delete(&models.Node{NodeID: nodeID1}))
+			require.NoError(t, db.Delete(&models.Agent{AgentID: agentID2}))
+			require.NoError(t, db.Delete(&models.Agent{AgentID: agentID1}))
+			require.NoError(t, db.Delete(&models.Service{ServiceID: serviceID1}))
+			require.NoError(t, db.Delete(&models.Node{NodeID: nodeID1}))
 		})
 
 		versionerMock := &MockVersioner{}
 		cache := New(db, versionerMock)
 		nextCheck, err := cache.updateVersionsForNextService()
-		assert.ErrorIs(t, err, ErrInvalidArgument)
+		require.ErrorIs(t, err, ErrInvalidArgument)
 		assert.Equal(t, minCheckInterval, nextCheck)
 
 		versionerMock.AssertNotCalled(t, "GetVersions")

@@ -2,7 +2,7 @@
 
 The **Inventory** dashboard is a high-level overview of all objects registered in PMM.
 
-To check your inventory list, go to :material-cog: **Configuration** > **Inventory**.
+To check your inventory list, go to **Inventory  > Services**.
 
 ![!image](../images/Inventory.png)
 
@@ -21,8 +21,6 @@ The **Services** tab displays the individual services, the nodes on which they r
 |  Port         | The port number on which the service is running. ||
 |  Options |* You can check **QAN** information and the **Dashboard** for each service by clicking on the ![](../images/dots-three-vertical.png) icon </br> </br> * You can also check additional information about the service, by clicking on the <span class="material-icons">expand_more</span> icon. This expands the service entry to show reference information like service labels and IDs.|
 
-
-![!PMM Inventory Service Selection](../images/PMM_Inventory_Service_Selection.png)
 
 #### Attributes
 
@@ -95,7 +93,7 @@ Understanding the relationship between nodes and services is key to gaining insi
 To edit the labels:
 {.power-number}
 
-1. From the **Main** menu, go to **PMM Configuration > PMM Inventory > Services**.
+1. From the **Main** menu, go to **Inventory > Services**.
 
 2. Click on the three dots next to the service you want to edit labels for.
 
@@ -170,7 +168,7 @@ To see agent details:
 To remove items from the inventory:
 {.power-number}
 
-1. Go to  **PMM Configuration > PMM Inventory**.
+1. Go to  **Inventory > Services**.
 
 2. In the first column, select the items to be removed.
         

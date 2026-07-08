@@ -44,6 +44,7 @@
       "type": "dashboard",
       "name": "Home Dashboard",
       "path": "dashboards/Insight/Home_Dashboard.json",
+      "uid": "pmm-home",
       "addToNav": false,
       "defaultNav": true
     },
@@ -289,18 +290,18 @@
     },
     {
       "type": "dashboard",
-      "name": "Environment Summary",
-      "path": "dashboards/Experimental/Environment_Summary.json"
+      "name": "Environments Overview",
+      "path": "dashboards/PMM Health/Environments_Overview.json"
     },
     {
       "type": "dashboard",
-      "name": "Environment Overview",
-      "path": "dashboards/Experimental/Environments_Overview.json"
+      "name": "PMM Health",
+      "path": "dashboards/PMM Health/PMM_Health.json"
     },
     {
       "type": "dashboard",
-      "name": "MongoDB PBM Details",
-      "path": "dashboards/MongoDB/MongoDB_PBM_Details.json"
+      "name": "PMM HA Health Overview",
+      "path": "dashboards/PMM Health/PMM_HA_Health_Overview.json"
     },
     {
       "type": "dashboard",
@@ -315,7 +316,7 @@
     {
       "type": "dashboard",
       "name": "PostgreSQL Checkpoints, Buffers and WAL Usage",
-      "path": "dashboards/MongoDB/PostgreSQL_Checkpoints_Buffers_WAL_Usage.json"
+      "path": "dashboards/PostgreSQL/PostgreSQL_Checkpoints_Buffers_WAL_Usage.json"
     },
     {
       "type": "dashboard",

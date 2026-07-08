@@ -71,7 +71,7 @@ func TestAddExternal(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			External: &services.GetServiceOKBodyExternal{
@@ -90,7 +90,7 @@ func TestAddExternal(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyExternalExporterItems0{
 			{
 				AgentID:      listAgents.Payload.ExternalExporter[0].AgentID,
@@ -149,7 +149,7 @@ func TestAddExternal(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			External: &services.GetServiceOKBodyExternal{
@@ -213,7 +213,7 @@ func TestAddExternal(t *testing.T) {
 			NodeID:  nodeID,
 			Context: pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, node)
 		assert.Equal(t, nodes.GetNodeOKBody{
 			Remote: &nodes.GetNodeOKBodyRemote{
@@ -230,7 +230,7 @@ func TestAddExternal(t *testing.T) {
 			ServiceID: serviceID,
 			Context:   pmmapitests.Context,
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			External: &services.GetServiceOKBodyExternal{
@@ -249,7 +249,7 @@ func TestAddExternal(t *testing.T) {
 			Context:   pmmapitests.Context,
 			ServiceID: new(serviceID),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, []*agents.ListAgentsOKBodyExternalExporterItems0{
 			{
 				AgentID:      listAgents.Payload.ExternalExporter[0].AgentID,
@@ -438,10 +438,10 @@ func TestAddExternal(t *testing.T) {
 func TestRemoveExternal(t *testing.T) {
 	t.Parallel()
 
-	addExternal := func(t *testing.T, serviceName, nodeName string) (nodeID string, serviceID string) {
+	addExternal := func(t *testing.T, serviceName, nodeName string) (serviceID string) {
 		t.Helper()
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
-		nodeID = genericNode.NodeID
+		nodeID := genericNode.NodeID
 
 		params := &mservice.AddServiceParams{
 			Context: pmmapitests.Context,
@@ -467,7 +467,7 @@ func TestRemoveExternal(t *testing.T) {
 		t.Cleanup(func() {
 			pmmapitests.RemoveServices(t, serviceID)
 		})
-		return nodeID, serviceID
+		return serviceID
 	}
 
 	t.Run("By name", func(t *testing.T) {
@@ -475,7 +475,7 @@ func TestRemoveExternal(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-remove-by-name")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-name")
-		_, serviceID := addExternal(t, serviceName, nodeName)
+		serviceID := addExternal(t, serviceName, nodeName)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceName,
@@ -499,7 +499,7 @@ func TestRemoveExternal(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-remove-by-id")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-id")
-		_, serviceID := addExternal(t, serviceName, nodeName)
+		serviceID := addExternal(t, serviceName, nodeName)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceID,
@@ -523,7 +523,7 @@ func TestRemoveExternal(t *testing.T) {
 
 		serviceName := pmmapitests.TestString(t, "service-remove-wrong-type")
 		nodeName := pmmapitests.TestString(t, "node-remove-wrong-type")
-		_, serviceID := addExternal(t, serviceName, nodeName)
+		serviceID := addExternal(t, serviceName, nodeName)
 
 		removeServiceOK, err := client.Default.ManagementService.RemoveService(&mservice.RemoveServiceParams{
 			ServiceID:   serviceID,

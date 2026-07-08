@@ -6633,9 +6633,9 @@ var File_agent_v1_agent_proto protoreflect.FileDescriptor
 
 const file_agent_v1_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x14agent/v1/agent.proto\x12\bagent.v1\x1a\x18agent/v1/collector.proto\x1a\x16backup/v1/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17google/rpc/status.proto\x1a\x1finventory/v1/agent_status.proto\x1a\x19inventory/v1/agents.proto\x1a\x1binventory/v1/services.proto\"\xdd\x01\n" +
-	"\tTextFiles\x124\n" +
-	"\x05files\x18\x01 \x03(\v2\x1e.agent.v1.TextFiles.FilesEntryR\x05files\x12.\n" +
+	"\x14agent/v1/agent.proto\x12\bagent.v1\x1a\x18agent/v1/collector.proto\x1a\x16backup/v1/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x17google/rpc/status.proto\x1a\x1finventory/v1/agent_status.proto\x1a\x19inventory/v1/agents.proto\x1a\x1binventory/v1/services.proto\"\xe3\x01\n" +
+	"\tTextFiles\x12:\n" +
+	"\x05files\x18\x01 \x03(\v2\x1e.agent.v1.TextFiles.FilesEntryB\x04\x88\xb5\x18\x02R\x05files\x12.\n" +
 	"\x13template_left_delim\x18\x02 \x01(\tR\x11templateLeftDelim\x120\n" +
 	"\x14template_right_delim\x18\x03 \x01(\tR\x12templateRightDelim\x1a8\n" +
 	"\n" +
@@ -6655,19 +6655,19 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"listenPort\x12*\n" +
 	"\x11process_exec_path\x18\x04 \x01(\tR\x0fprocessExecPath\x12\x18\n" +
 	"\aversion\x18\x05 \x01(\tR\aversion\"\x16\n" +
-	"\x14StateChangedResponse\"\xcd\v\n" +
+	"\x14StateChangedResponse\"\xd9\v\n" +
 	"\x0fSetStateRequest\x12V\n" +
 	"\x0fagent_processes\x18\x01 \x03(\v2-.agent.v1.SetStateRequest.AgentProcessesEntryR\x0eagentProcesses\x12S\n" +
-	"\x0ebuiltin_agents\x18\x02 \x03(\v2,.agent.v1.SetStateRequest.BuiltinAgentsEntryR\rbuiltinAgents\x1a\xae\x03\n" +
+	"\x0ebuiltin_agents\x18\x02 \x03(\v2,.agent.v1.SetStateRequest.BuiltinAgentsEntryR\rbuiltinAgents\x1a\xba\x03\n" +
 	"\fAgentProcess\x12+\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x17.inventory.v1.AgentTypeR\x04type\x12.\n" +
 	"\x13template_left_delim\x18\x02 \x01(\tR\x11templateLeftDelim\x120\n" +
 	"\x14template_right_delim\x18\x03 \x01(\tR\x12templateRightDelim\x12\x12\n" +
 	"\x04args\x18\x04 \x03(\tR\x04args\x12\x16\n" +
-	"\x03env\x18\x05 \x03(\tB\x04\x88\xb5\x18\x03R\x03env\x12T\n" +
+	"\x03env\x18\x05 \x03(\tB\x04\x88\xb5\x18\x03R\x03env\x12Z\n" +
 	"\n" +
-	"text_files\x18\x06 \x03(\v25.agent.v1.SetStateRequest.AgentProcess.TextFilesEntryR\ttextFiles\x12!\n" +
-	"\fredact_words\x18\a \x03(\tR\vredactWords\x12,\n" +
+	"text_files\x18\x06 \x03(\v25.agent.v1.SetStateRequest.AgentProcess.TextFilesEntryB\x04\x88\xb5\x18\x02R\ttextFiles\x12'\n" +
+	"\fredact_words\x18\a \x03(\tB\x04\x88\xb5\x18\x01R\vredactWords\x12,\n" +
 	"\x12env_variable_names\x18\b \x03(\tR\x10envVariableNames\x1a<\n" +
 	"\x0eTextFilesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
@@ -6726,7 +6726,7 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x11QueryActionResult\x12\x18\n" +
 	"\acolumns\x18\x01 \x03(\tR\acolumns\x12.\n" +
 	"\x04rows\x18\x02 \x03(\v2\x1a.agent.v1.QueryActionSliceR\x04rows\x12,\n" +
-	"\x04docs\x18\x03 \x03(\v2\x18.agent.v1.QueryActionMapR\x04docs\"\x8a-\n" +
+	"\x04docs\x18\x03 \x03(\v2\x18.agent.v1.QueryActionMapR\x04docs\"\x9d-\n" +
 	"\x12StartActionRequest\x12\x1b\n" +
 	"\taction_id\x18\x01 \x01(\tR\bactionId\x123\n" +
 	"\atimeout\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x12c\n" +
@@ -6790,22 +6790,22 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x05query\x18\x02 \x01(\tR\x05query\x122\n" +
 	"\n" +
 	"text_files\x18\x03 \x01(\v2\x13.agent.v1.TextFilesR\ttextFiles\x1a\x11\n" +
-	"\x0fPTSummaryParams\x1ay\n" +
+	"\x0fPTSummaryParams\x1a\x7f\n" +
 	"\x11PTPgSummaryParams\x12\x12\n" +
 	"\x04host\x18\x01 \x01(\tR\x04host\x12\x12\n" +
-	"\x04port\x18\x02 \x01(\rR\x04port\x12\x1a\n" +
-	"\busername\x18\x03 \x01(\tR\busername\x12 \n" +
-	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x1a~\n" +
+	"\x04port\x18\x02 \x01(\rR\x04port\x12 \n" +
+	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x1a\x84\x01\n" +
 	"\x16PTMongoDBSummaryParams\x12\x12\n" +
 	"\x04host\x18\x01 \x01(\tR\x04host\x12\x12\n" +
-	"\x04port\x18\x02 \x01(\rR\x04port\x12\x1a\n" +
-	"\busername\x18\x03 \x01(\tR\busername\x12 \n" +
-	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x1a\x94\x01\n" +
+	"\x04port\x18\x02 \x01(\rR\x04port\x12 \n" +
+	"\busername\x18\x03 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
+	"\bpassword\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x1a\x9a\x01\n" +
 	"\x14PTMySQLSummaryParams\x12\x12\n" +
 	"\x04host\x18\x01 \x01(\tR\x04host\x12\x12\n" +
 	"\x04port\x18\x02 \x01(\rR\x04port\x12\x16\n" +
-	"\x06socket\x18\x03 \x01(\tR\x06socket\x12\x1a\n" +
-	"\busername\x18\x04 \x01(\tR\busername\x12 \n" +
+	"\x06socket\x18\x03 \x01(\tR\x06socket\x12 \n" +
+	"\busername\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12 \n" +
 	"\bpassword\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\bpassword\x1a\x9e\x01\n" +
 	"\x14MySQLQueryShowParams\x12\x16\n" +
 	"\x03dsn\x18\x01 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x12\x14\n" +

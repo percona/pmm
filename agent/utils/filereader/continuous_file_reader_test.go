@@ -24,26 +24,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func cleanup(t *testing.T, files []string) {
-	t.Helper()
-	for _, f := range files {
-		assert.NoError(t, os.Remove(f))
-	}
-}
-
 func TestContinuousFileReader(t *testing.T) {
 	t.Parallel()
 	t.Run("Normal", func(t *testing.T) {
 		t.Parallel()
 
-		var files []string
-		defer func() {
-			cleanup(t, files)
-		}()
-
-		f, err := os.CreateTemp("", "pmm-agent-test-reader-normal")
+		f, err := os.CreateTemp(t.TempDir(), "pmm-agent-test-reader-normal")
 		require.NoError(t, err)
-		files = append(files, f.Name())
 
 		_, err = f.WriteString("0\n")
 		require.NoError(t, err)
@@ -85,7 +72,6 @@ func TestContinuousFileReader(t *testing.T) {
 		// test rotation with rename
 		newName := f.Name() + "-1"
 		require.NoError(t, os.Rename(f.Name(), newName))
-		files = append(files, newName)
 		f, err = os.Create(f.Name())
 		require.NoError(t, err)
 		_, err = f.WriteString("\n4\n5")
@@ -108,7 +94,7 @@ func TestContinuousFileReader(t *testing.T) {
 		// test close
 		_, err = f.WriteString("7\n8")
 		require.NoError(t, err)
-		assert.NoError(t, r.Close())
+		require.NoError(t, r.Close())
 		l, ok := <-lines
 		assert.False(t, ok, "line = %q", l)
 		assert.Nil(t, r.Metrics())
@@ -117,20 +103,13 @@ func TestContinuousFileReader(t *testing.T) {
 	t.Run("Symlink", func(t *testing.T) {
 		t.Parallel()
 
-		var files []string
-		defer func() {
-			cleanup(t, files)
-		}()
-
-		f, err := os.CreateTemp("", "pmm-agent-test-reader-symlink-file1")
+		f, err := os.CreateTemp(t.TempDir(), "pmm-agent-test-reader-symlink-file1")
 		require.NoError(t, err)
-		files = append(files, f.Name())
 
-		symlink, err := os.CreateTemp("", "pmm-agent-test-reader-symlink")
+		symlink, err := os.CreateTemp(t.TempDir(), "pmm-agent-test-reader-symlink")
 		require.NoError(t, err)
 		require.NoError(t, symlink.Close())
 		symlinkName := symlink.Name()
-		files = append(files, symlinkName)
 		require.NoError(t, os.Remove(symlinkName))
 		require.NoError(t, os.Symlink(f.Name(), symlinkName))
 
@@ -174,7 +153,6 @@ func TestContinuousFileReader(t *testing.T) {
 		// test rotation with rename
 		newName := f.Name() + "-1"
 		require.NoError(t, os.Rename(f.Name(), newName))
-		files = append(files, newName)
 		f, err = os.Create(f.Name())
 		require.NoError(t, err)
 		_, err = f.WriteString("\n4\n5")
@@ -195,9 +173,8 @@ func TestContinuousFileReader(t *testing.T) {
 		assert.Equal(t, &ReaderMetrics{InputSize: 3, InputPos: 3}, r.Metrics())
 
 		// test symlink change
-		f, err = os.CreateTemp("", "pmm-agent-test-reader-symlink-file2")
+		f, err = os.CreateTemp(t.TempDir(), "pmm-agent-test-reader-symlink-file2")
 		require.NoError(t, err)
-		files = append(files, f.Name())
 		require.NoError(t, os.Remove(symlinkName))
 		require.NoError(t, os.Symlink(f.Name(), symlinkName))
 		_, err = f.WriteString("7\n8\n9")
@@ -210,7 +187,7 @@ func TestContinuousFileReader(t *testing.T) {
 		// test close
 		_, err = f.WriteString("\n10\n")
 		require.NoError(t, err)
-		assert.NoError(t, r.Close())
+		require.NoError(t, r.Close())
 		l, ok := <-lines
 		assert.False(t, ok, "line = %q", l)
 		assert.Nil(t, r.Metrics())

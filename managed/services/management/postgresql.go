@@ -25,6 +25,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 )
 
 // AddPostgreSQL adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
@@ -76,6 +77,7 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 				ExposeExporter:     req.ExposeExporter,
 				PushMetrics:        isPushMode(req.MetricsMode),
 				DisabledCollectors: req.DisableCollectors,
+				ConnectionTimeout:  duration.OptionalFromProto(req.ConnectionTimeout),
 			},
 			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
 			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
@@ -85,11 +87,13 @@ func (s *ManagementService) addPostgreSQL(ctx context.Context, req *managementv1
 		}
 
 		if !req.SkipConnectionCheck {
-			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 

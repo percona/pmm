@@ -16,7 +16,8 @@
     "lint": "turbo run lint",
     "test": "turbo run test",
     "clean": "turbo run clean",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
@@ -42,7 +43,6 @@
     "lodash": "^4.18.0",
     "immutable": "^5.1.5",
     "dompurify": "^3.2.7",
-    "minimatch": "^9.0.6",
     "serialize-javascript": "^7.0.3",
     "picomatch": "^4.0.4"
   },

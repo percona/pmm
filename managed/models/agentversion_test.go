@@ -75,7 +75,7 @@ func TestPMMAgentSupported(t *testing.T) {
 			}
 			err := models.IsAgentSupported(&agentModel, prefix, minVersion)
 			if test.errString == "" {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			} else {
 				assert.Contains(t, err.Error(), test.errString)
 			}
@@ -158,16 +158,15 @@ func TestIsPostgreSQLSSLSniSupported(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.pmmAgentID, func(t *testing.T) {
 			actual, err := models.IsPostgreSQLSSLSniSupported(q, tt.pmmAgentID)
 			assert.Equal(t, tt.expected, actual)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 		})
 	}
 
 	t.Run("Non-existing ID", func(t *testing.T) {
 		_, err := models.IsPostgreSQLSSLSniSupported(q, "Not exist")
-		assert.Error(t, err)
+		require.Error(t, err)
 	})
 }

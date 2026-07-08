@@ -201,7 +201,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 
 		dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(q, "S1", "PA1", "test")
 		require.NoError(t, err)
-		expected := "unix(/var/run/mysqld/mysqld.sock)/test?timeout=1s"
+		expected := "unix(/var/run/mysqld/mysqld.sock)/test?timeout=2s"
 		assert.Equal(t, expected, dsn)
 		assert.NotNil(t, agent)
 	})
@@ -212,9 +212,9 @@ func TestFindDSNByServiceID(t *testing.T) {
 
 		dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(q, "S4", "PA2", "test")
 		require.NoError(t, err)
-		expected := "mongodb://pmm-user%7B%7B@127.0.0.1:27017/test?connectTimeoutMS=1000" +
+		expected := "mongodb://pmm-user%7B%7B@127.0.0.1:27017/test?connectTimeoutMS=2000" +
 			"&directConnection=true" +
-			"&serverSelectionTimeoutMS=1000&ssl=true" +
+			"&serverSelectionTimeoutMS=2000&ssl=true" +
 			"&tlsCaFile=[[.TextFiles.caFilePlaceholder]]" +
 			"&tlsCertificateKeyFile=[[.TextFiles.certificateKeyFilePlaceholder]]" +
 			"&tlsCertificateKeyFilePassword=passwordoftls"

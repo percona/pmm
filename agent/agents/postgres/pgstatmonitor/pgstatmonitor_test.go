@@ -38,7 +38,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
-func setup(t *testing.T, db *reform.DB, disableCommentsParsing, disableQueryExamples bool) *PGStatMonitorQAN { //nolint:unparam
+func setup(t *testing.T, db *reform.DB, disableCommentsParsing, disableQueryExamples bool) *PGStatMonitorQAN {
 	t.Helper()
 
 	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)
@@ -98,7 +98,9 @@ func TestVersion(t *testing.T) {
 func TestPGStatMonitorSchema(t *testing.T) {
 	t.Skip("Skip it until the sandbox supports pg_stat_monitor by default. The current PostgreSQL image is the official, not the one from PerconaLab")
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	majorVersion, _ := tests.PostgreSQLVersion(t, sqlDB)
@@ -107,18 +109,18 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	}
 
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_monitor SCHEMA public")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	defer func() {
 		_, err = db.Exec("DROP EXTENSION pg_stat_monitor")
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	}()
 
 	vPG, err := getPGVersion(db.Querier)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	vPGSM, _, err := getPGMonitorVersion(db.Querier)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	_, view := newPgStatMonitorStructs(vPGSM, vPG)
 	structs, err := db.SelectAllFrom(view, "")
@@ -181,7 +183,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	var selectCMDType, insertCMDType string
 	var mPlansCallsCnt, mPlansTimeCnt float32
 	pgsmVersion, _, err := getPGMonitorVersion(db.Querier)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	switch pgsmVersion {
 	case pgStatMonitorVersion06:
 	case pgStatMonitorVersion08:
@@ -224,7 +226,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		actual := buckets[0]
 		actual.Common.Username = strings.ReplaceAll(actual.Common.Username, `"`, "")
 		assert.InDelta(t, 0, actual.Common.MQueryTimeSum, 0.09)
-		assert.InEpsilon(t, float32(5), actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
+		assert.InDelta(t, float32(5), actual.Postgresql.MSharedBlksHitSum+actual.Postgresql.MSharedBlksReadSum, 0.0001)
 		assert.InDelta(t, 1.5, actual.Postgresql.MSharedBlksHitCnt+actual.Postgresql.MSharedBlksReadCnt, 0.5)
 		example := ""
 
@@ -343,8 +345,8 @@ func TestPGStatMonitorSchema(t *testing.T) {
 
 		const n = 500
 		placeholders := db.Placeholders(1, n)
-		args := make([]interface{}, n)
-		for i := 0; i < n; i++ {
+		args := make([]any, n)
+		for i := range n {
 			args[i] = i
 		}
 		q := fmt.Sprintf("SELECT /* AllCountriesTruncated:PGStatMonitor controller='test' */ * FROM country WHERE capital IN (%s)", strings.Join(placeholders, ", "))
@@ -489,22 +491,20 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		)`, tableName))
 		require.NoError(t, err)
 		t.Cleanup(func() {
-			_, err := db.Exec(fmt.Sprintf(`DROP TABLE %s`, tableName))
+			_, err := db.Exec("DROP TABLE " + tableName)
 			require.NoError(t, err)
 		})
 		m := setup(t, db, false, false)
 
 		var waitGroup sync.WaitGroup
 		n := 1000
-		for i := 0; i < n; i++ {
+		for i := range n {
 			id := i
 			query := fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id)
-			waitGroup.Add(1)
-			go func() {
-				defer waitGroup.Done()
+			waitGroup.Go(func() {
 				_, err := db.Exec(query)
 				require.NoError(t, err)
-			}()
+			})
 		}
 		waitGroup.Wait()
 
@@ -514,7 +514,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		require.NoError(t, err)
 
 		var buckets []*agentv1.MetricsBucket
-		for i := 0; i < 100; i++ {
+		for range 100 {
 			buckets, err = m.getNewBuckets(context.Background(), 60, normalizedQuery)
 			require.NoError(t, err)
 			buckets = filter(buckets)
@@ -548,7 +548,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MQueryTimeCnt:       float32(n),
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 				// FIXME: Why tables is empty here? this will error.
-				Tables: []string{fmt.Sprintf("public.%s", tableName)},
+				Tables: []string{"public." + tableName},
 			},
 			Postgresql: &agentv1.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt:       float32(n),

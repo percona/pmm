@@ -57,8 +57,8 @@ If you configured PMM to use SMTP settings via environment variables, you do not
 After configuring the SMTP settings, specify email delivery options for an Email contact point:
 {.power-number}
 
-1. Go to **Alerting > Contact points**.
-2. Click the edit button next to the **grafana-default-email** to update PMM's default Email contact point, or click **Add contact point** to create a custom one.
+1. Go to **Alerts > Contact points**.
+2. Click the edit button next to the **grafana-default-email** to update PMM's default Email contact point, or click **Create contact point** to create a custom one.
 3. Enter a contact point name, and add the email addresses for the recipients of the email notifications.
 4. Expand **Optional Email settings** and fill in any other relevant settings:
     - Enable the **Single email** option to send a single email to the recipients containing alerts that are firing. For example, if an alert fires for three nodes, this would send only one email listing all three alerts.
@@ -90,7 +90,7 @@ Percona Alerting comes pre-configured with a Notification Root Policy, which is 
 
 ### How matching works
 
-Policies can have one or more child policies. An alert matches if the alert’s labels match all the **Matching Labels** specified on the policy.
+Policies can have one or more child policies. An alert matches if the alert’s labels match all the **Matching Labels** specified on the policy. For a list of available labels, see [Labels reference](../reference/labels-reference.md).
 
 Alerts that don't match any specific policies are handled by the root policy. The root policy also handles any alert rules for which the assigned custom notification policy has been deleted, to ensure notifications for existing alerts continue to be delivered.
 
@@ -99,7 +99,7 @@ Alerts that don't match any specific policies are handled by the root policy. Th
 To edit the root notification policy:
 {.power-number}
 
-1. Go to <i class="uil uil-bell"></i> **Alerting > Notification policies** tab.
+1. Go to <i class="uil uil-bell"></i> **Alerts > Notification policies** tab.
 2. Click the ellipsis button next to the root policy box and select the **Edit** option.
 3. Choose whether to keep the default Email contact point, select a new available contact point or create a new one.
 4. In the **Group by** field, specify how alert rules should be processed into notifications. If multiple alerts are matched for this policy, they will be grouped based on the labels you specify, and a notification will be sent per group.

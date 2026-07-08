@@ -2,7 +2,7 @@
 
 > **Parent guide**: [AGENTS.md](../AGENTS.md) — product overview, architecture, domain model, global conventions
 
-The `/build` directory contains everything needed to build, package, and distribute PMM Server and PMM Client as Docker images, RPM/DEB packages, and cloud machine images (AMI, OVA).
+The `/build` directory contains everything needed to build, package, and distribute PMM Server and PMM Client as Docker images, RPM/DEB packages, and cloud machine images (AMI).
 
 ## Architecture
 
@@ -16,7 +16,6 @@ The `/build` directory contains everything needed to build, package, and distrib
 | PMM Client RPM | RPM (EL9) | `packages/rpm/client/pmm-client.spec` |
 | PMM Client DEB | DEB | `packages/deb/` |
 | PMM Server AMI | AWS AMI | `packer/pmm.json` |
-| PMM Server OVA | VirtualBox OVF | `packer/pmm.json` |
 
 ### Build Pipeline
 
@@ -50,21 +49,19 @@ Source code (Go, TypeScript)
 | `cloud-node` | Cloud VM preparation |
 | `lvm-init` | LVM storage setup for persistent data |
 | `init-admin-password-ami` | Set admin password from EC2 instance ID |
-| `ami-ovf` | AMI/OVF-specific customization |
+| `ami` | AMI-specific customization |
 
 ## Packer Templates
 
 ### PMM Server Images (`packer/pmm.json`)
 
-Builds machine images for multiple platforms:
+Builds machine images:
 - **amazon-ebs** — AWS AMI
-- **virtualbox-ovf** — OVA for on-premises
 
 ### Make Targets
 
 ```bash
 make pmm-ami              # Build AWS AMI
-make pmm-ovf              # Build VirtualBox OVA
 make rpmbuild-el9         # Build RPM build environment image
 ```
 

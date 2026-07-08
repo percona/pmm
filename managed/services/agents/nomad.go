@@ -17,10 +17,9 @@ package agents
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"text/template"
-
-	"github.com/pkg/errors"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -124,15 +123,15 @@ func nomadClientConfig(n nomad, node *models.Node, exporter *models.Agent) (*age
 
 	caCert, err := n.GetCACert()
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to read CA certificate")
+		return nil, fmt.Errorf("failed to read CA certificate: %w", err)
 	}
 	certFile, err := n.GetClientCert()
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to read client certificate")
+		return nil, fmt.Errorf("failed to read client certificate: %w", err)
 	}
 	keyFile, err := n.GetClientKey()
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to read client key")
+		return nil, fmt.Errorf("failed to read client key: %w", err)
 	}
 	params := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT,
@@ -157,10 +156,10 @@ func generateNomadAgentConfig(node *models.Node, exporter *models.Agent, tdp mod
 	}
 	labels, err := models.MergeLabels(node, nil, exporter)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to get unified labels")
+		return "", fmt.Errorf("failed to get unified labels: %w", err)
 	}
 
-	nomadConfigParams := map[string]interface{}{
+	nomadConfigParams := map[string]any{
 		"NodeName":              node.NodeName,
 		"NodeID":                node.NodeID,
 		"Labels":                labels,
@@ -182,12 +181,12 @@ func generateNomadAgentConfig(node *models.Node, exporter *models.Agent, tdp mod
 	var configBuffer bytes.Buffer
 	tmpl, err := template.New("nomadConfig").Parse(nomadConfigTemplate)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to parse nomad config template")
+		return "", fmt.Errorf("failed to parse nomad config template: %w", err)
 	}
 
 	err = tmpl.Execute(&configBuffer, nomadConfigParams)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to execute nomad config template")
+		return "", fmt.Errorf("failed to execute nomad config template: %w", err)
 	}
 	return configBuffer.String(), nil
 }

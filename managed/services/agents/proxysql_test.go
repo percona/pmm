@@ -58,7 +58,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 			"-web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s",
+			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=2s",
 			"HTTP_AUTH=pmm:agent-password",
 		},
 		RedactWords: []string{"s3cur3 p@$$w0r4.", "agent-password"},
@@ -70,13 +70,13 @@ func TestProxySQLExporterConfig(t *testing.T) {
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
 		actual := proxysqlExporterConfig(node, proxysql, exporter, exposeSecrets, pmmAgentVersion)
-		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?timeout=2s", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
 		actual := proxysqlExporterConfig(node, proxysql, exporter, exposeSecrets, pmmAgentVersion)
-		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=2s", actual.Env[0])
 	})
 
 	t.Run("DisabledCollector", func(t *testing.T) {
@@ -124,7 +124,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 				"-web.listen-address=0.0.0.0:{{ .listen_port }}",
 			},
 			Env: []string{
-				"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s",
+				"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=2s",
 				"HTTP_AUTH=pmm:agent-id",
 			},
 			RedactWords: []string{"s3cur3 p@$$w0r4."},
@@ -166,7 +166,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 				"-web.listen-address=0.0.0.0:{{ .listen_port }}",
 			},
 			Env: []string{
-				"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s",
+				"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=2s",
 				"HTTP_AUTH=pmm:agent-id",
 			},
 			RedactWords: []string{"s3cur3 p@$$w0r4."},

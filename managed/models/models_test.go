@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -33,10 +34,10 @@ func TestLabels(t *testing.T) {
 
 		var b []byte
 		err := setLabels(map[string]string{"_1foo": "bar", "baz": "  "}, &b)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.JSONEq(t, `{"_1foo":"bar","baz":""}`, string(b))
 		m, err := getLabels(b)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Equal(t, map[string]string{"_1foo": "bar", "baz": ""}, m)
 	})
 
@@ -45,10 +46,10 @@ func TestLabels(t *testing.T) {
 
 		var b []byte
 		err := setLabels(make(map[string]string), &b)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Nil(t, b)
 		m, err := getLabels(b)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.Nil(t, m)
 	})
 

@@ -40,7 +40,7 @@ import (
 
 func TestServiceService(t *testing.T) {
 	t.Run("Remove", func(t *testing.T) {
-		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
+		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
 			t.Helper()
 
 			ctx := logger.Set(t.Context(), t.Name())
@@ -90,10 +90,10 @@ func TestServiceService(t *testing.T) {
 
 			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
 
-			return ctx, s, teardown, vmdb
+			return ctx, s, teardown
 		}
 		t.Run("No params", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{})
@@ -102,7 +102,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Not found", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: "some-service-name"})
@@ -111,7 +111,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Wrong service type", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
@@ -128,7 +128,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Basic", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
@@ -154,7 +154,7 @@ func TestServiceService(t *testing.T) {
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
 			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
 			assert.NotNil(t, response)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			agent, err := models.FindAgentByID(s.db.Querier, mysqldExporter.AgentID)
 			assert.Nil(t, agent)
@@ -166,7 +166,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("RDS", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
@@ -204,7 +204,7 @@ func TestServiceService(t *testing.T) {
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
 			_, err = s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, service.ServiceID)), err)
@@ -220,7 +220,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Azure", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
@@ -258,7 +258,7 @@ func TestServiceService(t *testing.T) {
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
 			_, err = s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Service with ID "%s" not found.`, service.ServiceID)), err)

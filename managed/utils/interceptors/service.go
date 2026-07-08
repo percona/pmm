@@ -32,7 +32,7 @@ type serviceEnabled interface {
 //
 // Request on disabled service will be rejected with `FailedPrecondition` before reaching any userspace handlers.
 func UnaryServiceEnabledInterceptor() grpc.UnaryServerInterceptor {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		if svc, ok := info.Server.(serviceEnabled); ok && !svc.Enabled() {
 			return nil, status.Errorf(codes.FailedPrecondition, "Service %s is disabled.", extractServiceName(info.FullMethod))
 		}
@@ -42,7 +42,7 @@ func UnaryServiceEnabledInterceptor() grpc.UnaryServerInterceptor {
 
 // StreamServiceEnabledInterceptor returns a new stream server interceptor that checks if service is enabled.
 func StreamServiceEnabledInterceptor() grpc.StreamServerInterceptor {
-	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	return func(srv any, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		if svc, ok := srv.(serviceEnabled); ok && !svc.Enabled() {
 			return status.Errorf(codes.FailedPrecondition, "Service %s is disabled.", extractServiceName(info.FullMethod))
 		}

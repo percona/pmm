@@ -26,7 +26,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	gapi "github.com/grafana/grafana-api-golang-client"
+	"github.com/grafana/grafana-openapi-client-go/client/folders"
+	"github.com/grafana/grafana-openapi-client-go/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -46,10 +47,11 @@ func TestRulesAPI(t *testing.T) {
 
 	// Create grafana folder for test alert rules
 	gClient := pmmapitests.GetGrafanaClient(t)
-	folder, err := gClient.NewFolder(pmmapitests.TestString(t, "test-folder"))
+	createdFolder, err := gClient.Folders.CreateFolder(&models.CreateFolderCommand{Title: pmmapitests.TestString(t, "test-folder")})
 	require.NoError(t, err)
+	folder := createdFolder.Payload
 	t.Cleanup(func() {
-		_ = gClient.DeleteFolder(folder.UID, gapi.ForceDeleteFolderRules())
+		_, _ = gClient.Folders.DeleteFolder(folders.NewDeleteFolderParams().WithFolderUID(folder.UID).WithForceDeleteRules(new(true)))
 	})
 
 	dummyFilter := &alerting.CreateRuleParamsBodyFiltersItems0{
@@ -569,14 +571,14 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 				require.NotNil(t, param.Float)
 				value, err := expectedParam.GetValueForFloat()
 				require.NoError(t, err)
-				assert.Equal(t, value, *param.Float.Default) //nolint:testifylint
+				assert.InDelta(t, value, *param.Float.Default, 0.0001)
 			}
 
 			if len(expectedParam.Range) != 0 {
-				min, max, err := expectedParam.GetRangeForFloat()
+				minR, maxR, err := expectedParam.GetRangeForFloat()
 				require.NoError(t, err)
-				assert.Equal(t, min, *param.Float.Min) //nolint:testifylint
-				assert.Equal(t, max, *param.Float.Max) //nolint:testifylint
+				assert.InDelta(t, minR, *param.Float.Min, 0.0001)
+				assert.InDelta(t, maxR, *param.Float.Max, 0.0001)
 			}
 
 			assert.Nil(t, param.Bool)

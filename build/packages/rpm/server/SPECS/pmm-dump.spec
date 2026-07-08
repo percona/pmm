@@ -2,14 +2,14 @@
 
 %global repo            pmm-dump
 %global provider        github.com/percona/%{repo}
-%global commit          4c38e9442fb2f6b0146cd5a581f18db4ebb034f7
+%global commit          8353b46afd09746c07a6d1c001dd1ef72e6c4761
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
 %define release         1
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
 Name:		pmm-dump
-Version:	0.7.1-ga
+Version:	0.8.0-ga
 Release:	%{rpm_release}
 Summary:	Percona PMM Dump allows to export and import monitoring metrics and query analytics.
 
@@ -37,6 +37,9 @@ install -p -m 0755 pmm-dump %{buildroot}%{_sbindir}/pmm-dump
 
 
 %changelog
+* Wed Apr 22 2026 Maxim Kondratenko <maxim.kondratenko@percona.com> - 3.7.1
+- PMM-14441 Upgrade pmm-dump to support encryption
+
 * Wed Sep 24 2025 Michael Okoko <michael.okoko@percona.com> - 3.4.1
 - PMM-14349 Update pmm-dump sources.
 

@@ -275,7 +275,7 @@ func TestRestoreHistoryValidation(t *testing.T) {
 
 			c, err := models.CreateRestoreHistoryItem(nil, test.params)
 			if test.errorMsg != "" {
-				assert.EqualError(t, err, test.errorMsg)
+				require.EqualError(t, err, test.errorMsg)
 				assert.Nil(t, c)
 				return
 			}

@@ -30,12 +30,20 @@ services:
       # CH
       - ${PMM_PORT_CH_TCP:-9000}:9000
       - ${PMM_PORT_CH_HTTP:-8123}:8123
+      # Vite HMR
+      - ${PMM_PORT_VITE:-5173}:5173
+      # pmm-compat plugin livereload
+      - 35729:35729
+      # QAN UI livereload
+      - 35730:35730
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
+      - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro
       - ./managed/testdata/updater/:/home/pmm/.config/systemd/user/
       # clickhouse config for backup/restore
       - ./dev/clickhouse-config.xml:/etc/clickhouse-server/config.xml:ro
       # caching
+      - node-modules:/root/go/src/github.com/percona/pmm/ui/node_modules
       - go-modules:/root/go/pkg/mod
       - go-cache:/root/.cache
       - pmm-data:/srv
@@ -45,7 +53,13 @@ services:
       - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
       # nginx config overrides
       - ./build/ansible/roles/nginx/files/conf.d/pmm.conf:/etc/nginx/conf.d/pmm.conf:ro
+      # percona-ui
+      # - ../percona-ui:/root/go/src/github.com/percona/percona-ui
+      # grafana
+      # - ../grafana:/root/go/src/github.com/percona/grafana
+      # - ../grafana/public:/usr/share/grafana/public
 
+  
   mail-server:
     profiles:
       - mail-server
@@ -88,3 +102,5 @@ volumes:
     name: go-cache
   pmm-data:
     name: pmm-data
+  node-modules:
+    name: node-modules

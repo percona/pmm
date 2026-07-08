@@ -206,6 +206,12 @@ type StartDumpBody struct {
 
 	// ignore load
 	IgnoreLoad bool `json:"ignore_load,omitempty"`
+
+	// If true, the dump will be encrypted. Note that enabling encryption may increase the time required to create the dump.
+	EnableEncryption bool `json:"enable_encryption,omitempty"`
+
+	// The password used for encryption. It must be at least 8 characters long. This field is required if enable_encryption is true.
+	EncryptionPassword string `json:"encryption_password,omitempty"`
 }
 
 // Validate validates this start dump body

@@ -92,6 +92,14 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 		if len(fexp) == 1 {
 			agent := fexp[0]
 			pmmAgentVersion := ExtractPmmAgentVersionFromAgent(q, agent)
+
+			// Only the exporter agent types searched above use custom dial timeout here.
+			switch agent.AgentType {
+			case MySQLdExporterType, MongoDBExporterType, PostgresExporterType:
+				dsnParams.DialTimeout = agent.EffectiveDialTimeout()
+			default:
+			}
+
 			return agent.DSN(svc, dsnParams, nil, pmmAgentVersion), agent, nil
 		}
 		if len(fexp) > 1 {

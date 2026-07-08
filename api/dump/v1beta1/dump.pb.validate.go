@@ -147,6 +147,8 @@ func (m *Dump) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Encrypted
+
 	if len(errors) > 0 {
 		return DumpMultiError(errors)
 	}
@@ -308,6 +310,10 @@ func (m *StartDumpRequest) validate(all bool) error {
 	// no validation rules for ExportQan
 
 	// no validation rules for IgnoreLoad
+
+	// no validation rules for EnableEncryption
+
+	// no validation rules for EncryptionPassword
 
 	if len(errors) > 0 {
 		return StartDumpRequestMultiError(errors)

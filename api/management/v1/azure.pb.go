@@ -14,6 +14,7 @@ import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 
 	_ "github.com/percona/pmm/api/extensions/v1"
 )
@@ -377,9 +378,11 @@ type AddAzureDatabaseRequest struct {
 	// Use negative value to disable them.
 	TablestatsGroupTableLimit int32 `protobuf:"varint,24,opt,name=tablestats_group_table_limit,json=tablestatsGroupTableLimit,proto3" json:"tablestats_group_table_limit,omitempty"`
 	// Azure database resource type (mysql, maria, postgres)
-	Type          DiscoverAzureDatabaseType `protobuf:"varint,25,opt,name=type,proto3,enum=management.v1.DiscoverAzureDatabaseType" json:"type,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Type DiscoverAzureDatabaseType `protobuf:"varint,25,opt,name=type,proto3,enum=management.v1.DiscoverAzureDatabaseType" json:"type,omitempty"`
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,26,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddAzureDatabaseRequest) Reset() {
@@ -587,6 +590,13 @@ func (x *AddAzureDatabaseRequest) GetType() DiscoverAzureDatabaseType {
 	return DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED
 }
 
+func (x *AddAzureDatabaseRequest) GetConnectionTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.ConnectionTimeout
+	}
+	return nil
+}
+
 type AddAzureDatabaseResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -627,18 +637,18 @@ var File_management_v1_azure_proto protoreflect.FileDescriptor
 
 const file_management_v1_azure_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/azure.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x17validate/validate.proto\"\xfe\x01\n" +
+	"\x19management/v1/azure.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x17validate/validate.proto\"\xfe\x01\n" +
 	"\x1cDiscoverAzureDatabaseRequest\x123\n" +
 	"\x0fazure_client_id\x18\x01 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\razureClientId\x12;\n" +
 	"\x13azure_client_secret\x18\x02 \x01(\tB\v\xfaB\x04r\x02\x10\x01\x88\xb5\x18\x01R\x11azureClientSecret\x12/\n" +
 	"\x0fazure_tenant_id\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\razureTenantId\x12;\n" +
-	"\x15azure_subscription_id\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x13azureSubscriptionId\"\xf2\x02\n" +
+	"\x15azure_subscription_id\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x13azureSubscriptionId\"\xf8\x02\n" +
 	"\x1dDiscoverAzureDatabaseInstance\x12\x1f\n" +
 	"\vinstance_id\x18\x01 \x01(\tR\n" +
 	"instanceId\x12\x16\n" +
 	"\x06region\x18\x02 \x01(\tR\x06region\x12!\n" +
-	"\fservice_name\x18\x03 \x01(\tR\vserviceName\x12\x1a\n" +
-	"\busername\x18\x04 \x01(\tR\busername\x12\x18\n" +
+	"\fservice_name\x18\x03 \x01(\tR\vserviceName\x12 \n" +
+	"\busername\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x18\n" +
 	"\aaddress\x18\x05 \x01(\tR\aaddress\x120\n" +
 	"\x14azure_resource_group\x18\x06 \x01(\tR\x12azureResourceGroup\x12 \n" +
 	"\venvironment\x18\a \x01(\tR\venvironment\x12<\n" +
@@ -648,7 +658,7 @@ const file_management_v1_azure_proto_rawDesc = "" +
 	"node_model\x18\n" +
 	" \x01(\tR\tnodeModel\"\x85\x01\n" +
 	"\x1dDiscoverAzureDatabaseResponse\x12d\n" +
-	"\x17azure_database_instance\x18\x01 \x03(\v2,.management.v1.DiscoverAzureDatabaseInstanceR\x15azureDatabaseInstance\"\xa8\t\n" +
+	"\x17azure_database_instance\x18\x01 \x03(\v2,.management.v1.DiscoverAzureDatabaseInstanceR\x15azureDatabaseInstance\"\xfc\t\n" +
 	"\x17AddAzureDatabaseRequest\x12\x1f\n" +
 	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12(\n" +
@@ -677,7 +687,8 @@ const file_management_v1_azure_proto_rawDesc = "" +
 	"\x0ftls_skip_verify\x18\x16 \x01(\bR\rtlsSkipVerify\x124\n" +
 	"\x16disable_query_examples\x18\x17 \x01(\bR\x14disableQueryExamples\x12?\n" +
 	"\x1ctablestats_group_table_limit\x18\x18 \x01(\x05R\x19tablestatsGroupTableLimit\x12<\n" +
-	"\x04type\x18\x19 \x01(\x0e2(.management.v1.DiscoverAzureDatabaseTypeR\x04type\x1a?\n" +
+	"\x04type\x18\x19 \x01(\x0e2(.management.v1.DiscoverAzureDatabaseTypeR\x04type\x12R\n" +
+	"\x12connection_timeout\x18\x1a \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x1a\n" +
@@ -712,6 +723,7 @@ var (
 		(*AddAzureDatabaseRequest)(nil),       // 4: management.v1.AddAzureDatabaseRequest
 		(*AddAzureDatabaseResponse)(nil),      // 5: management.v1.AddAzureDatabaseResponse
 		nil,                                   // 6: management.v1.AddAzureDatabaseRequest.CustomLabelsEntry
+		(*durationpb.Duration)(nil),           // 7: google.protobuf.Duration
 	}
 )
 
@@ -720,11 +732,12 @@ var file_management_v1_azure_proto_depIdxs = []int32{
 	2, // 1: management.v1.DiscoverAzureDatabaseResponse.azure_database_instance:type_name -> management.v1.DiscoverAzureDatabaseInstance
 	6, // 2: management.v1.AddAzureDatabaseRequest.custom_labels:type_name -> management.v1.AddAzureDatabaseRequest.CustomLabelsEntry
 	0, // 3: management.v1.AddAzureDatabaseRequest.type:type_name -> management.v1.DiscoverAzureDatabaseType
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	7, // 4: management.v1.AddAzureDatabaseRequest.connection_timeout:type_name -> google.protobuf.Duration
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_azure_proto_init() }

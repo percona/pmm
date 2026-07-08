@@ -407,7 +407,7 @@ After configuring your database server, add a MongoDB service using either the u
     To add a service with the UI:
     {.power-number}
 
-    1. Select **PMM Configuration > Add Service > MongoDB**.
+    1. Select **Inventory > Add service > MongoDB**.
 
     2. Fill in the required fields.
 
@@ -454,7 +454,7 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
         To check the service from the UI:
         {.power-number}
 
-        1. Select **PMM Configuration > Inventory > Services**. 
+        1. Select **Inventory > Services**. 
         2. Find your MongoDB service in the list and verify it shows **Active** status.
         3. Verify the **Service name**, **Addresses**, and other connection details are correct.
         4. In the **Options** column, expand the **Details** section to check that agents are properly connected.
@@ -486,7 +486,7 @@ If you need to remove MongoDB service from PMM, follow these steps:
     To remove the services through the PMM interface:
     {.power-number}
 
-    1. Go to **PMM Configuration > Inventory > Services**.
+    1. Go to **Inventory > Services**.
     2. In the **Status** column, check the box for the service you want to remove and click **Delete**.
     3. On the confirmation pop-up, click **Delete service** and select **Force mode** if you want to also delete associated Clients.
 

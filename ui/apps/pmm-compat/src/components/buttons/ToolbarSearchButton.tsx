@@ -6,6 +6,7 @@ import { triggerShortcut } from 'lib/utils';
 const ToolbarSearchButton = () => (
   <ThemeProvider>
     <ToolbarButton
+      aria-label="Search"
       iconOnly
       icon="search"
       onClick={() => triggerShortcut('search')}

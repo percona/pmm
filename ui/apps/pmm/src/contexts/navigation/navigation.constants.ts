@@ -616,8 +616,10 @@ export const NAV_CONFIGURATION: NavItem = {
   id: 'configuration',
   icon: 'configuration',
   text: 'Configuration',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/settings`,
+  url: `${PMM_NEW_NAV_PATH}/settings`,
   matches: [
+    `${PMM_NEW_NAV_PATH}/settings`,
+    `${PMM_NEW_NAV_PATH}/settings/*`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/plugins`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/admin`,
     `${PMM_NEW_NAV_GRAFANA_PATH}/admin/general`,
@@ -630,8 +632,11 @@ export const NAV_CONFIGURATION: NavItem = {
     {
       id: 'configuration-settings',
       text: 'Settings',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/settings/advanced-settings`,
-      matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/settings/*`],
+      url: `${PMM_NEW_NAV_PATH}/settings`,
+      matches: [
+        `${PMM_NEW_NAV_PATH}/settings`,
+        `${PMM_NEW_NAV_PATH}/settings/*`,
+      ],
     },
     {
       id: 'updates',
