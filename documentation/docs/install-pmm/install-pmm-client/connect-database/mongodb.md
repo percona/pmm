@@ -353,30 +353,14 @@ After configuring your database server, add a MongoDB service using either the u
         --enable-all-collectors        
         ```
 
-    === "Ignoring insecure server certificate"
+    === "Arbiter"
         ```sh
-        pmm-admin add mongodb \
-        --username=pmm \
-        --password=your_secure_password \
+        pmm-admin add mongodb \        
         --host=127.0.0.1 \
         --port=27017 \        
-        --cluster=my_cluster_or_rs_name \
-        --enable-all-collectors \      
-        --tls-skip-verify        
+        --cluster=my_cluster_or_rs_name 
         ```     
         
-    === "With mongolog query source"
-        ```sh
-        pmm-admin add mongodb \
-        --username=pmm \
-        --password=your_secure_password \
-        --host=127.0.0.1 \
-        --port=27017 \        
-        --cluster=my_cluster_or_rs_name \
-        --enable-all-collectors \      
-        --query-source=mongolog         
-        ```        
-
     === "SSL/TLS secured MongoDB"
         ```sh
         pmm-admin add mongodb \
