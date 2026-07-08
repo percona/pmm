@@ -11,9 +11,7 @@ export const UpdateInfo: FC = () => (
   >
     <Stack spacing={1}>
       <Typography variant="h5">{Messages.title}</Typography>
-      <Typography>
-        {Messages.updateFirst}
-      </Typography>
+      <Typography>{Messages.updateFirst}</Typography>
     </Stack>
   </Stack>
 );

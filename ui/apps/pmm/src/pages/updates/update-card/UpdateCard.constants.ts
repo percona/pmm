@@ -1,1 +1,2 @@
-export const UPGRADE_DOCS_HREF = 'https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/index.html';
+export const UPGRADE_DOCS_HREF =
+  'https://docs.percona.com/percona-monitoring-and-management/3/pmm-upgrade/index.html';

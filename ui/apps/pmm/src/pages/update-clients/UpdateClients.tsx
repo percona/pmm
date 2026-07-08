@@ -109,7 +109,7 @@ export const UpdateClients: FC = () => {
               alignItems="center"
             >
               <Stack direction="row" spacing={1} alignItems="center">
-              <Button
+                <Button
                   startIcon={<FetchingIcon isFetching={isRefetching} />}
                   variant="contained"
                   onClick={() => refetch()}
@@ -124,7 +124,7 @@ export const UpdateClients: FC = () => {
                     href={PMM_DOCS_UPDATE_CLIENT_URL}
                     data-testid="how-to-update-clients-link"
                   >
-                    <Button variant='text' endIcon={<ArrowOutwardIcon />}>
+                    <Button variant="text" endIcon={<ArrowOutwardIcon />}>
                       {Messages.howToUpdate}
                     </Button>
                   </Link>

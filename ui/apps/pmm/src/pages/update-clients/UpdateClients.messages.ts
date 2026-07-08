@@ -9,7 +9,7 @@ export const Messages = {
   inProgress: 'In progress',
   step: 'Step 2 of 2: Update PMM Client instances',
   stepDescription:
-    "PMM server is now updated. You must update your PMM Client instances as well to ensure compatibility and access the latest features. Track their update status in the table below.",
+    'PMM server is now updated. You must update your PMM Client instances as well to ensure compatibility and access the latest features. Track their update status in the table below.',
   howToUpdate: 'How to update docs',
   refreshList: 'Refresh list',
   refreshing: 'Refreshing...',

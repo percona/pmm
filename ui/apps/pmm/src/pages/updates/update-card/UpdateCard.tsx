@@ -77,7 +77,9 @@ export const UpdateCard: FC = () => {
             <Stack spacing={1}>
               <Typography fontWeight="bold" component="strong">
                 {Messages.newVersion}
-                <Typography component="span">{data?.latest && formatVersion(data.latest)}</Typography>
+                <Typography component="span">
+                  {data?.latest && formatVersion(data.latest)}
+                </Typography>
               </Typography>
               <Typography>{Messages.deprecationWarning}</Typography>
             </Stack>
