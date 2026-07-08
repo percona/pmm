@@ -1410,21 +1410,6 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
         },
       },
-
-      MuiTableBody: {
-        styleOverrides: {
-          root: ({ theme }) => ({
-            '#empty-state-icon': {
-              path: {
-                // complex selector we need in order to provide dark theme style for this icon, instead of having a separate one
-                '&:not(:nth-child(n+8)), &:last-child': {
-                  stroke: theme.palette.text.primary,
-                },
-              },
-            },
-          }),
-        },
-      },
     },
   };
 };
