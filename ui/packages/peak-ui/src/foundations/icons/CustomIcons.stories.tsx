@@ -207,6 +207,7 @@ const CustomIconsGallery = () => {
 
 const meta = {
   title: 'Foundations/Icons/Custom Icons',
+  tags: ['stable'],
   parameters: {
     layout: 'padded',
   },

@@ -101,7 +101,7 @@ describe('useNavigableRows', () => {
           <button
             type="button"
             data-testid="apply-filter"
-            onClick={() => tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])}
+            onClick={() => tableProps.onColumnFiltersChange?.([{ id: 'group', value: 'edge' }])}
           >
             Filter
           </button>
@@ -140,7 +140,7 @@ describe('useNavigableRows', () => {
           <button
             type="button"
             data-testid="apply-sort"
-            onClick={() => tableProps.onSortingChange([{ id: 'name', desc: true }])}
+            onClick={() => tableProps.onSortingChange?.([{ id: 'name', desc: true }])}
           >
             Sort
           </button>
@@ -164,6 +164,57 @@ describe('useNavigableRows', () => {
     });
   });
 
+  it('updates current-page navigable rows when pagination changes', async () => {
+    const PaginationHarness = () => {
+      const { navigableRows, tableProps } = useNavigableRows({
+        data: TEST_DATA,
+        scope: 'currentPage',
+      });
+
+      return (
+        <>
+          <Table
+            {...tableProps}
+            tableName="navigable-rows-pagination-test"
+            columns={columns}
+            data={TEST_DATA}
+          />
+          <button
+            type="button"
+            data-testid="next-page"
+            onClick={() =>
+              tableProps.onPaginationChange?.((prev) => ({
+                ...prev,
+                pageIndex: prev.pageIndex + 1,
+              }))
+            }
+          >
+            Next
+          </button>
+          <div data-testid="navigable-ids">{navigableRows.map((row) => row.id).join(',')}</div>
+        </>
+      );
+    };
+
+    render(
+      <ThemeContextProvider themeOptions={baseThemeOptions}>
+        <PaginationHarness />
+      </ThemeContextProvider>
+    );
+
+    await waitFor(() => {
+      expect(getNavigableIds()).toBe('01,02,03,04,05,06,07,08,09,10');
+    });
+
+    await act(async () => {
+      screen.getByTestId('next-page').click();
+    });
+
+    await waitFor(() => {
+      expect(getNavigableIds()).toBe('11,12');
+    });
+  });
+
   it('calls onChange when filter changes', async () => {
     const onChange = vi.fn();
     const FilterHarness = () => {
@@ -184,7 +235,7 @@ describe('useNavigableRows', () => {
           <button
             type="button"
             data-testid="apply-filter"
-            onClick={() => tableProps.onColumnFiltersChange([{ id: 'group', value: 'edge' }])}
+            onClick={() => tableProps.onColumnFiltersChange?.([{ id: 'group', value: 'edge' }])}
           >
             Filter
           </button>
