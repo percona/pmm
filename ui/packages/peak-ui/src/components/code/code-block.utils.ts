@@ -12,7 +12,7 @@ export const preSx =
     fontSize: '0.875rem',
     lineHeight: 1.5,
     border: `1px solid ${theme.palette.dividers?.contour ?? theme.palette.divider}`,
-    borderRadius: '5px',
+    borderRadius: `${theme.shape.borderRadiusSm}px`,
     padding: theme.spacing(1.25, 1.5),
     ...(wrap ? { whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' } : { overflowX: 'auto' }),
   });
