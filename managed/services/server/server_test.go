@@ -18,6 +18,7 @@ package server
 import (
 	"context"
 	"errors"
+	"math"
 	"testing"
 	"time"
 
@@ -280,4 +281,44 @@ func TestServer(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, s)
 	})
+}
+
+func TestConvertDefaultRoleID(t *testing.T) {
+	tests := []struct {
+		name   string
+		roleID int
+		want   uint32
+	}{
+		{
+			name:   "positive",
+			roleID: 1,
+			want:   1,
+		},
+		{
+			name:   "zero",
+			roleID: 0,
+			want:   0,
+		},
+		{
+			name:   "negative",
+			roleID: -1,
+			want:   0,
+		},
+		{
+			name:   "max uint32",
+			roleID: math.MaxUint32,
+			want:   math.MaxUint32,
+		},
+		{
+			name:   "greater than max uint32",
+			roleID: math.MaxUint32 + 1,
+			want:   0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, convertDefaultRoleID(tt.roleID))
+		})
+	}
 }

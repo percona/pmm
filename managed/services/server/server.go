@@ -20,6 +20,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"os/user"
 	"path"
@@ -360,10 +361,18 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
 
 		EnableAccessControl: settings.IsAccessControlEnabled(),
-		DefaultRoleId:       uint32(settings.DefaultRoleID),
+		DefaultRoleId:       convertDefaultRoleID(settings.DefaultRoleID),
 	}
 
 	return res
+}
+
+func convertDefaultRoleID(roleID int) uint32 {
+	if roleID < 0 || int64(roleID) > math.MaxUint32 {
+		return 0
+	}
+
+	return uint32(roleID)
 }
 
 // convertReadOnlySettings creates a subset of database settings for non-admin roles.
