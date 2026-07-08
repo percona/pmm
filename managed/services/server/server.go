@@ -818,7 +818,7 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 		return fmt.Errorf("failed to get settings: %w", err)
 	}
 
-	err = s.nomad.UpdateConfiguration(settings)
+	err = s.nomad.UpdateConfiguration(ctx, settings)
 	if err != nil {
 		return fmt.Errorf("failed to update nomad configuration: %w", err)
 	}

@@ -30,7 +30,7 @@ func waitForTestDataLoad(tb testing.TB, db *sql.DB) {
 	var count int
 	var err error
 	for range 30 {
-		err = db.QueryRow("SELECT /* pmm-agent-tests:waitForTestDataLoad */ COUNT(*) FROM city").Scan(&count) //nolint:noctx
+		err = db.QueryRowContext(tb.Context(), "SELECT /* pmm-agent-tests:waitForTestDataLoad */ COUNT(*) FROM city").Scan(&count)
 		if err == nil {
 			return
 		}

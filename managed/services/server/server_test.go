@@ -75,7 +75,7 @@ func TestServer(t *testing.T) {
 
 		var nomad mockNomadService
 		nomad.Test(t)
-		nomad.On("UpdateConfiguration", mock.Anything).Return(nil)
+		nomad.On("UpdateConfiguration", mock.Anything, mock.Anything).Return(nil)
 
 		var ha mockHaService
 		ha.Test(t)

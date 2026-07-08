@@ -183,7 +183,7 @@ func (up *Updater) StartUpdate(ctx context.Context, newImageName string) error {
 		return errors.New("newImageName is empty")
 	}
 
-	err = up.checkWatchtowerHost()
+	err = up.checkWatchtowerHost(ctx)
 	if err != nil {
 		up.running = false
 		up.l.WithError(err).Error("Failed to check watchtower host")
@@ -527,12 +527,12 @@ func (up *Updater) check(ctx context.Context) error {
 	return nil
 }
 
-func (up *Updater) checkWatchtowerHost() error {
+func (up *Updater) checkWatchtowerHost(ctx context.Context) error {
 	// Check if watchtower host is available
 	if up.watchtowerHost == nil {
 		return errors.New("watchtower host is not set")
 	}
-	if !isHostAvailable(up.watchtowerHost.Hostname(), up.watchtowerHost.Port(), updateDefaultTimeout) {
+	if !isHostAvailable(ctx, up.watchtowerHost.Hostname(), up.watchtowerHost.Port(), updateDefaultTimeout) {
 		return errors.New("watchtower host is not available")
 	}
 	return nil
@@ -559,8 +559,9 @@ func (up *Updater) updatePodmanEnvironmentVariables(filename string, key string,
 	return nil
 }
 
-func isHostAvailable(host string, port string, timeout time.Duration) bool {
-	conn, err := net.DialTimeout("tcp", net.JoinHostPort(host, port), timeout)
+func isHostAvailable(ctx context.Context, host string, port string, timeout time.Duration) bool {
+	d := net.Dialer{Timeout: timeout}
+	conn, err := d.DialContext(ctx, "tcp", net.JoinHostPort(host, port))
 	if err != nil {
 		return false
 	}

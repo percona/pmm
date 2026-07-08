@@ -132,7 +132,10 @@ func (p *Process) toStarting() {
 	p.l.Tracef("Process: starting.")
 	p.changes <- inventoryv1.AgentStatus_AGENT_STATUS_STARTING
 
-	p.cmd = exec.Command(p.params.Path, p.params.Args...) //nolint:gosec
+	// Do not pass context to exec.Command,
+	// because it will kill the process when context is canceled,
+	// but we want to gracefully stop it manually.
+	p.cmd = exec.Command(p.params.Path, p.params.Args...) //nolint:gosec,noctx
 	p.cmd.Stdout = p.pl
 	p.cmd.Stderr = p.pl
 

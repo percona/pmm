@@ -82,7 +82,7 @@ func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy re
 		}
 		var exitCode int
 		l.Infof("Starting 'pmm-agent %s'...", strings.Join(commandLineArgs, " "))
-		cmd := commandPmmAgent(commandLineArgs)
+		cmd := commandPmmAgent(ctx, commandLineArgs)
 		err := cmd.Start()
 		if err != nil {
 			l.Errorf("Can't run: '%s', Error: %s", commandLineArgs, err)
@@ -111,9 +111,9 @@ func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy re
 	}
 }
 
-func commandPmmAgent(args []string) *exec.Cmd {
+func commandPmmAgent(ctx context.Context, args []string) *exec.Cmd {
 	const pmmAgentCommandName = "pmm-agent"
-	command := exec.Command(pmmAgentCommandName, args...)
+	command := exec.CommandContext(ctx, pmmAgentCommandName, args...) //nolint:gosec
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	return command
@@ -173,7 +173,7 @@ func main() { //nolint:gocognit
 
 	if len(os.Args) > 1 {
 		l.Info(helpText)
-		exec.CommandContext(ctx, "pmm-agent", "setup", "--help")
+		_ = exec.CommandContext(ctx, "pmm-agent", "setup", "--help").Run()
 		os.Exit(1)
 	}
 
@@ -189,7 +189,7 @@ func main() { //nolint:gocognit
 		if *pmmAgentSidecar {
 			restartPolicy = restartOnFail
 			l.Info("Starting pmm-agent for liveness probe...")
-			agent = commandPmmAgent([]string{"run"})
+			agent = commandPmmAgent(ctx, []string{"run"})
 			err := agent.Start()
 			if err != nil {
 				l.Fatalf("Can't run pmm-agent: %s", err)
@@ -211,7 +211,7 @@ func main() { //nolint:gocognit
 	status = 0
 	if *pmmAgentPrerunFile != "" || *pmmAgentPrerunScript != "" { //nolint:nestif
 		l.Info("Starting pmm-agent for prerun...")
-		agent := commandPmmAgent([]string{"run"})
+		agent := commandPmmAgent(ctx, []string{"run"})
 		err := agent.Start()
 		if err != nil {
 			l.Errorf("Failed to run pmm-agent run command: %s", err)

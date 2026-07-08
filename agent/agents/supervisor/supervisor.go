@@ -310,7 +310,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 		agent.cancel()
 		<-agent.done
 
-		err := s.portsRegistry.Release(agent.listenPort)
+		err := s.portsRegistry.Release(s.ctx, agent.listenPort)
 		if err != nil {
 			s.l.Errorf("Failed to release port: %s.", err)
 		}
@@ -453,7 +453,7 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 	var err error
 	for range processRetryCount {
 		if port == 0 {
-			_port, err := s.portsRegistry.Reserve()
+			_port, err := s.portsRegistry.Reserve(s.ctx)
 			if err != nil {
 				s.l.Errorf("Failed to reserve port: %s.", err)
 				continue

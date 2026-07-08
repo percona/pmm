@@ -1277,7 +1277,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		if params.HANodeID != "" {
 			return nil, fmt.Errorf("cannot auto-provision database in HA mode: %w", errCV)
 		}
-		err := initWithRoot(params)
+		err := initWithRoot(ctx, params)
 		if err != nil {
 			return nil, err
 		}
@@ -1288,7 +1288,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	err := migrateDB(db, params)
+	err := migrateDB(ctx, db, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1381,7 +1381,7 @@ func checkVersion(ctx context.Context, db reform.DBTXContext) error {
 }
 
 // initWithRoot tries to create the user and the database.
-func initWithRoot(params SetupDBParams) error {
+func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	if params.Logf != nil {
 		params.Logf("Creating database %s and role %s", params.Name, params.Username)
 	}
@@ -1401,31 +1401,31 @@ func initWithRoot(params SetupDBParams) error {
 	defer db.Close() //nolint:errcheck
 
 	var countDatabases int
-	err = db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
+	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
 	if err != nil {
 		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
 	if countDatabases == 0 {
-		_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, params.Name))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE DATABASE "%s"`, params.Name))
 		if err != nil {
 			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
 		}
 	}
 
 	var countRoles int
-	err = db.QueryRow(`SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&countRoles)
+	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&countRoles)
 	if err != nil {
 		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
 	if countRoles == 0 {
-		_, err = db.Exec(fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
 		if err != nil {
 			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
 		}
 
-		_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
+		_, err = db.ExecContext(ctx, `GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
 		if err != nil {
 			return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
 		}
@@ -1434,7 +1434,7 @@ func initWithRoot(params SetupDBParams) error {
 		// scram-sha-256 during an upgrade, leaving the role with no usable password hash).
 		// initWithRoot is only ever called after a 28000/28P01 auth error, so resetting the
 		// password to the currently configured value is OK.
-		_, err = db.Exec(fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
 		if err != nil {
 			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
 		}
@@ -1443,9 +1443,9 @@ func initWithRoot(params SetupDBParams) error {
 }
 
 // migrateDB runs PostgreSQL database migrations.
-func migrateDB(db *reform.DB, params SetupDBParams) error {
+func migrateDB(ctx context.Context, db *reform.DB, params SetupDBParams) error {
 	var currentVersion int
-	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
+	errDB := db.QueryRowContext(ctx, "SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
 	var pErr *pq.Error
 	if errors.As(errDB, &pErr) && pErr.Code == "42P01" {
@@ -1464,7 +1464,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	}
 
 	// rollback all migrations if one of them fails; PostgreSQL supports DDL transactions
-	return db.InTransaction(func(tx *reform.TX) error {
+	return db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		for version := currentVersion + 1; version <= latestVersion; version++ {
 			if params.Logf != nil {
 				params.Logf("Migrating database to schema version %d ...", version)
@@ -1501,7 +1501,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 		}
 
 		if params.HANodeID != "" {
-			err = setupPMMServerHAAgents(tx.Querier, params)
+			err = setupPMMServerHAAgents(tx.Context(), tx.Querier, params)
 		} else {
 			err = setupPMMServerAgents(tx.Querier, params)
 		}
@@ -1517,7 +1517,7 @@ type agentConfig struct {
 	ID string `yaml:"id"`
 }
 
-func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
+func setupPMMServerHAAgents(ctx context.Context, q *reform.Querier, params SetupDBParams) error {
 	agentID := uuid.New().String()
 	nodeID := uuid.New().String()
 
@@ -1561,7 +1561,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		"--skip-registration",
 		"--server-insecure-tls",
 	}
-	cmd := exec.Command("pmm-agent", args...) //nolint:gosec
+	cmd := exec.CommandContext(ctx, "pmm-agent", args...) //nolint:gosec
 	logrus.Debugf("Running: pmm-agent %s", strings.Join(cmd.Args, " "))
 	output, err := cmd.CombinedOutput()
 	if err != nil {

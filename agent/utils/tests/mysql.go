@@ -66,7 +66,7 @@ func OpenTestMySQL(tb testing.TB) *sql.DB {
 	waitForTestDataLoad(tb, db)
 
 	// to make Actions tests more stable
-	_, err = db.Exec(`ANALYZE /* pmm-agent-tests:OpenTestMySQL */ TABLE city`)
+	_, err = db.ExecContext(tb.Context(), `ANALYZE /* pmm-agent-tests:OpenTestMySQL */ TABLE city`)
 	require.NoError(tb, err)
 
 	return db

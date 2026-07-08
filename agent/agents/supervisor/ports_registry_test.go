@@ -31,10 +31,10 @@ func TestRegistry(t *testing.T) {
 		_ = l1.Close()
 	})
 
-	p, err := r.Reserve()
+	p, err := r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65002, p)
-	_, err = r.Reserve()
+	_, err = r.Reserve(t.Context())
 	assert.Equal(t, errNoFreePort, err)
 
 	l2, err := net.Listen("tcp", "127.0.0.1:65002")
@@ -43,54 +43,54 @@ func TestRegistry(t *testing.T) {
 		_ = l2.Close()
 	})
 
-	err = r.Release(65000)
+	err = r.Release(t.Context(), 65000)
 	require.NoError(t, err)
-	err = r.Release(65001)
+	err = r.Release(t.Context(), 65001)
 	assert.Equal(t, errPortNotReserved, err)
-	err = r.Release(65002)
+	err = r.Release(t.Context(), 65002)
 	assert.Equal(t, errPortBusy, err)
 
 	require.NoError(t, l1.Close())
 	require.NoError(t, l2.Close())
 
-	p, err = r.Reserve()
+	p, err = r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
-	p, err = r.Reserve()
+	p, err = r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65001, p)
-	_, err = r.Reserve()
+	_, err = r.Reserve(t.Context())
 	assert.Equal(t, errNoFreePort, err)
 
-	err = r.Release(65002)
+	err = r.Release(t.Context(), 65002)
 	require.NoError(t, err)
 
-	p, err = r.Reserve()
+	p, err = r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65002, p)
-	_, err = r.Reserve()
+	_, err = r.Reserve(t.Context())
 	assert.Equal(t, errNoFreePort, err)
 }
 
 func TestPreferNewPort(t *testing.T) {
 	r := newPortsRegistry(65000, 65002, nil)
 
-	p, err := r.Reserve()
+	p, err := r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 
-	err = r.Release(p)
+	err = r.Release(t.Context(), p)
 	require.NoError(t, err)
 
-	p, err = r.Reserve()
+	p, err = r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65001, p)
 
-	p, err = r.Reserve()
+	p, err = r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65002, p)
 
-	p, err = r.Reserve()
+	p, err = r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 }
@@ -98,17 +98,17 @@ func TestPreferNewPort(t *testing.T) {
 func TestSinglePort(t *testing.T) {
 	r := newPortsRegistry(65000, 65000, nil)
 
-	p, err := r.Reserve()
+	p, err := r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 
-	_, err = r.Reserve()
+	_, err = r.Reserve(t.Context())
 	assert.Equal(t, errNoFreePort, err)
 
-	err = r.Release(p)
+	err = r.Release(t.Context(), p)
 	require.NoError(t, err)
 
-	p, err = r.Reserve()
+	p, err = r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 }

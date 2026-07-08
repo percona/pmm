@@ -15,6 +15,7 @@
 package supervisor
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -57,7 +58,7 @@ func newPortsRegistry(minPort, maxPort uint16, reserved []uint16) *portsRegistry
 // Reserve reserves next free port.
 // It tries to reuse ports as little as possible to avoid erroneous Prometheus scrapes
 // to the different exporter type when Prometheus configuration is being reloaded.
-func (r *portsRegistry) Reserve() (uint16, error) {
+func (r *portsRegistry) Reserve(ctx context.Context) (uint16, error) {
 	r.m.Lock()
 	defer r.m.Unlock()
 
@@ -68,12 +69,16 @@ func (r *portsRegistry) Reserve() (uint16, error) {
 			continue
 		}
 
-		l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
+		lc := net.ListenConfig{}
+		l, err := lc.Listen(ctx, "tcp", fmt.Sprintf("127.0.0.1:%d", port))
+		if err != nil {
+			if ctx.Err() != nil {
+				return 0, ctx.Err()
+			}
+			continue
+		}
 		if l != nil {
 			_ = l.Close()
-		}
-		if err != nil {
-			continue
 		}
 
 		r.reserved[port] = struct{}{}
@@ -85,7 +90,7 @@ func (r *portsRegistry) Reserve() (uint16, error) {
 }
 
 // Release releases port.
-func (r *portsRegistry) Release(port uint16) error {
+func (r *portsRegistry) Release(ctx context.Context, port uint16) error {
 	r.m.Lock()
 	defer r.m.Unlock()
 
@@ -93,12 +98,16 @@ func (r *portsRegistry) Release(port uint16) error {
 		return errPortNotReserved
 	}
 
-	l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
+	lc := net.ListenConfig{}
+	l, err := lc.Listen(ctx, "tcp", fmt.Sprintf("127.0.0.1:%d", port))
+	if err != nil {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+		return errPortBusy
+	}
 	if l != nil {
 		_ = l.Close()
-	}
-	if err != nil {
-		return errPortBusy
 	}
 
 	delete(r.reserved, port)

@@ -17,6 +17,7 @@
 package nomad
 
 import (
+	"context"
 	_ "embed" // embed is used to embed server.hcl file.
 	"fmt"
 	"os"
@@ -74,7 +75,7 @@ func New(db *reform.DB, clientConfig *models.NomadClient) (*Nomad, error) {
 }
 
 // UpdateConfiguration retrieves and applies updated settings for Nomad, regenerates certificates, and updates server config.
-func (c *Nomad) UpdateConfiguration(settings *models.Settings) error {
+func (c *Nomad) UpdateConfiguration(ctx context.Context, settings *models.Settings) error {
 	c.m.Lock()
 	defer c.m.Unlock()
 	if !settings.IsNomadEnabled() {
@@ -88,15 +89,15 @@ func (c *Nomad) UpdateConfiguration(settings *models.Settings) error {
 	}
 	c.cachedPMMAddress = address
 	var err error
-	err = c.generateCACert()
+	err = c.generateCACert(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to generate CA certificate: %w", err)
 	}
-	err = c.generateServerCert(address)
+	err = c.generateServerCert(ctx, address)
 	if err != nil {
 		return fmt.Errorf("failed to generate server certificate: %w", err)
 	}
-	err = c.generateClientCert()
+	err = c.generateClientCert(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to generate client certificate: %w", err)
 	}
@@ -129,7 +130,7 @@ func (c *Nomad) generateServerConfig(publicAddress string) error {
 }
 
 // generateCACert generates a new CA certificate.
-func (c *Nomad) generateCACert() error {
+func (c *Nomad) generateCACert(ctx context.Context) error {
 	filePaths := []string{
 		c.pathToCA(),
 		c.pathToCAKey(),
@@ -146,7 +147,7 @@ func (c *Nomad) generateCACert() error {
 		}
 	}
 
-	command := exec.Command(pathToNomad, "tls", "ca", "create", "-days", "10000")
+	command := exec.CommandContext(ctx, pathToNomad, "tls", "ca", "create", "-days", "10000")
 	command.Dir = pathToCerts
 	command.Stderr = c.l.WriterLevel(logrus.ErrorLevel)
 	err := command.Run()
@@ -156,7 +157,7 @@ func (c *Nomad) generateCACert() error {
 	return nil
 }
 
-func (c *Nomad) generateServerCert(domain string) error {
+func (c *Nomad) generateServerCert(ctx context.Context, domain string) error {
 	filePaths := []string{
 		path.Join(pathToCerts, region+"-server-"+domain+".pem"),
 		path.Join(pathToCerts, region+"-server-"+domain+"-key.pem"),
@@ -170,7 +171,7 @@ func (c *Nomad) generateServerCert(domain string) error {
 			}
 		}
 	}
-	command := exec.Command(pathToNomad, //nolint:gosec
+	command := exec.CommandContext(ctx, pathToNomad, //nolint:gosec
 		"tls",
 		"cert",
 		"create",
@@ -190,7 +191,7 @@ func (c *Nomad) generateServerCert(domain string) error {
 	return nil
 }
 
-func (c *Nomad) generateClientCert() error {
+func (c *Nomad) generateClientCert(ctx context.Context) error {
 	filePaths := []string{
 		c.pathToClientCert(),
 		c.pathToClientKey(),
@@ -206,7 +207,7 @@ func (c *Nomad) generateClientCert() error {
 			}
 		}
 	}
-	command := exec.Command(pathToNomad, //nolint:gosec
+	command := exec.CommandContext(ctx, pathToNomad, //nolint:gosec
 		"tls",
 		"cert",
 		"create",
