@@ -39,6 +39,7 @@ For information on PMM's architecture, see [PMM architecture](../../reference/in
 | [**:material-docker: Docker**](../install-pmm-server/deployment-options/docker/index.md) | Development, testing & production | ✔  Quick setup<br>✔  Simple upgrades<br>✔  Works in various environments | ⚠ Requires Docker knowledge<br>⚠ May need additional configuration for production |
 | [**:material-shield-lock: Podman**](../install-pmm-server/deployment-options/podman/index.md) | Security-focused setups | ✔ Rootless containers<br> ✔  Enhanced security<br> ✔  OCI-compatible | ⚠ Requires Podman installation & knowledge |
 | [**:material-kubernetes: Helm**](../install-pmm-server/deployment-options/helm/index.md) | Cloud-native environments | ✔  Scalable & high availability<br> ✔  Kubernetes-native | ⚠ Requires existing Kubernetes cluster<br>⚠ More complex setup |
+| [**:material-server: Virtual Appliance**](../install-pmm-server/deployment-options/virtual/index.md) *(deprecated)* | Traditional environments | ✔  Pre-configured with all dependencies<br>✔  Dedicated resources | ⚠ Deprecated in PMM 3.7.0, will be removed in PMM 3.9.0<br>⚠ Migrate to Docker or another supported distribution |
 | [**:material-aws: Amazon AWS**](../install-pmm-server/deployment-options/aws/deploy_aws.md) | AWS-based environments | Seamless AWS integration, easy provisioning | Monthly subscription costs, AWS infrastructure costs |
 
 ## PMM Client deployment options
@@ -59,6 +60,7 @@ Based on the scale and environment of your monitoring needs, we recommend differ
     - **PMM Client**: Package Manager
     - **Implementation tips**:
         - for Docker, use the easy install script for quick setup
+        - for Virtual Appliance, use the pre-configured OVA file
         - consider backup options early, even for small deployments
     - **Ideal for**: Small businesses, development environments, initial deployments
 
@@ -118,5 +120,4 @@ Review this checklist to help you plan and size your monitoring environment and 
 ## Next step
 
 [Hardware and system requirements](../plan-pmm-installation/hardware_and_system.md){.md-button} 
-
 

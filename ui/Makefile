@@ -1,10 +1,13 @@
 dev:
 	yarn dev
 
-ci: setup lint test build
+ci: setup format-check lint test build
 
 format: setup
 	yarn format
+
+format-check: setup
+	yarn format:check
 
 lint: setup
 	yarn lint
