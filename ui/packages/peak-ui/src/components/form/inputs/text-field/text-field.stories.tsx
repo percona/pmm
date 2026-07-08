@@ -166,7 +166,7 @@ const buildPlaygroundSource = (args: PlaygroundArgs): string => {
 const meta = {
   title: 'Inputs/Text Field',
   component: TextField,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'stable'],
   parameters: {
     layout: 'centered',
     docs: {
