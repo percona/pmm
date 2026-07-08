@@ -5,10 +5,12 @@ export const Messages = {
     `New update available: PMM ${version}`,
   runningVersion: 'Running version:',
   newVersion: 'New version:',
+  deprecationWarning: 'Note: The in-app update button has been deprecated. All updates are now securely managed via the CLI.',
   lastChecked: 'Last checked:',
   home: 'PMM home',
   checkNow: 'Check updates now',
   checking: 'Checking',
+  howTo: 'How to',
   howToUpdateDocs: 'How to update docs',
   error: 'There was a problem during the update',
 

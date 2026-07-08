@@ -61,7 +61,7 @@ export const UpdateCard: FC = () => {
             {Messages.upToDate}
           </Alert>
         )}
-        <Stack spacing={1}>
+        <Stack spacing={1.5}>
           {data.updateAvailable && data?.latest?.version && (
             <Typography variant="h4">
               {Messages.newUpdateAvailable(data.latest.version)}
@@ -74,28 +74,34 @@ export const UpdateCard: FC = () => {
             {data?.installed && formatVersion(data.installed)}
           </Typography>
           {data.updateAvailable && data.latest && (
-            <Typography>
+            <Stack spacing={1}>
               <Typography fontWeight="bold" component="strong">
                 {Messages.newVersion}
+                <Typography component="span">{data?.latest && formatVersion(data.latest)}</Typography>
               </Typography>
-              {data?.latest && formatVersion(data.latest)}
-            </Typography>
+              <Typography>{Messages.deprecationWarning}</Typography>
+            </Stack>
           )}
         </Stack>
-        {data.updateAvailable && <UpdateInfo />}
+        {data.updateAvailable && (
+          <Stack spacing={1.5} mt={3}>
+            <Typography variant="h4">{Messages.howTo}</Typography>
+            <UpdateInfo />
+          </Stack>
+        )}
       </CardContent>
       {data.updateAvailable ? (
-          <CardActions>
-            <Button
-              endIcon={<CallMadeIcon />}
-              variant="contained"
-              href={UPGRADE_DOCS_HREF}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {Messages.howToUpdateDocs}
-            </Button>
-          </CardActions>
+        <CardActions>
+          <Button
+            endIcon={<CallMadeIcon />}
+            variant="contained"
+            href={UPGRADE_DOCS_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {Messages.howToUpdateDocs}
+          </Button>
+        </CardActions>
       ) : (
         <CardActions>
           <Button

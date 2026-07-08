@@ -1,8 +1,5 @@
 export const Messages = {
   title: 'Step 1 of 2: Update PMM Server',
-  upgrading:
-    'Upgrading will pause, update, and subsequently restart PMM. While this occurs, data observation will be temporarily halted but will promptly resume, ensuring all pending data from PMM Clients is recovered.',
-  whatsNext: "What's next",
-  afterCompleting:
-    'After completing the full update of the PMM Server to the latest version, the next step is to manually update all PMM Client instances.',
+  updateFirst:
+    'Update PMM Server first. During this process, data collection will temporarily pause but recover once PMM Server restarts. In step 2 of 2, you must update all your PMM Client instances.',
 };

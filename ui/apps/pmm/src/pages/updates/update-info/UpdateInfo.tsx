@@ -12,14 +12,8 @@ export const UpdateInfo: FC = () => (
     <Stack spacing={1}>
       <Typography variant="h5">{Messages.title}</Typography>
       <Typography>
-        {Messages.upgrading}
+        {Messages.updateFirst}
       </Typography>
-    </Stack>
-    <Stack spacing={1}>
-      <Typography variant="sectionHeading" textTransform="uppercase">
-        {Messages.whatsNext}
-      </Typography>
-      <Typography>{Messages.afterCompleting}</Typography>
     </Stack>
   </Stack>
 );
