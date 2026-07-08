@@ -16,8 +16,7 @@ export const getSyntaxHighlighterStyle = (
   const tokens = {
     fontFamily: 'Roboto Mono, monospace',
     background: 'transparent',
-    base:
-      language === 'text' ? theme.palette.text.primary : accents.accent1,
+    base: language === 'text' ? theme.palette.text.primary : accents.accent1,
     attrValue: accents.accent3,
     string: accents.accent3,
     number: theme.palette.text.primary,
