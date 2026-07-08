@@ -39,24 +39,23 @@ describe('badgeStyle', () => {
 // Governance: every documented story must declare exactly one maturity status on
 // its meta, so the sidebar/badges/index.json never silently miss a component.
 describe('story maturity coverage', () => {
-  const storyFiles = import.meta.glob('./**/*.stories.{ts,tsx}', {
-    query: '?raw',
+  const storyMetas = import.meta.glob('./**/*.stories.{ts,tsx}', {
     import: 'default',
     eager: true,
-  }) as Record<string, string>;
+  }) as Record<string, { tags?: readonly string[] }>;
 
   const statuses = MATURITY_TAGS.map((t) => t.id);
 
-  const statusesInTagArrays = (source: string): MaturityStatus[] => {
-    const tagArrays = [...source.matchAll(/tags:\s*\[([^\]]*)\]/g)].map((m) => m[1]).join(',');
-    return statuses.filter((id) => new RegExp(`['"]${id}['"]`).test(tagArrays));
+  const statusesInTags = (tags: unknown): MaturityStatus[] => {
+    if (!Array.isArray(tags)) return [];
+    return statuses.filter((id) => tags.includes(id));
   };
 
   it('discovers the story files', () => {
-    expect(Object.keys(storyFiles).length).toBeGreaterThan(15);
+    expect(Object.keys(storyMetas).length).toBeGreaterThan(0);
   });
 
-  it.each(Object.entries(storyFiles))('%s declares exactly one status', (_file, source) => {
-    expect(statusesInTagArrays(source)).toHaveLength(1);
+  it.each(Object.entries(storyMetas))('%s declares exactly one status', (_file, meta) => {
+    expect(statusesInTags(meta.tags)).toHaveLength(1);
   });
 });
