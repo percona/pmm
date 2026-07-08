@@ -113,7 +113,7 @@ func (s *Store) getShard(serviceID string) *shard {
 	// Uses prime multiplier (31) for good distribution
 	hash := uint32(0)
 	for i := range len(serviceID) {
-		hash = hash*31 + uint32(serviceID[i]) //nolint:mnd
+		hash = hash*31 + uint32(serviceID[i])
 	}
 
 	return s.shards[hash%numShards]

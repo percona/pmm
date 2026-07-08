@@ -269,7 +269,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 
 // AddInternalServicesToScrape adds internal services metrics to scrape targets.
 func addInternalServicesToScrape(s models.MetricsResolutions, svc *Service, pmmServerNodeName string) []*config.ScrapeConfig {
-	cfg := make([]*config.ScrapeConfig, 0, 4) //nolint:mnd
+	cfg := make([]*config.ScrapeConfig, 0, 4)
 	cfg = append(
 		cfg,
 		scrapeConfigForGrafana(s.MR, pmmServerNodeName),

@@ -89,7 +89,7 @@ func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, 
 		// Uncomment to see all setup queries:
 		// Logf: tb.Logf,
 		Address:          models.DefaultPostgreSQLAddr,
-		Name:             newName(11), //nolint:mnd
+		Name:             newName(11),
 		Username:         username,
 		Password:         postgresPassword(),
 		SetupFixtures:    setupFixtures,

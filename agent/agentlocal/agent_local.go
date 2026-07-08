@@ -114,15 +114,13 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 	// l is closed by runGRPCServer
 
 	var wg sync.WaitGroup
-	wg.Add(2) //nolint:mnd
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		s.runGRPCServer(serverCtx, l)
-	}()
-	go func() {
+	})
+	wg.Go(func() {
 		defer wg.Done()
 		s.runJSONServer(serverCtx, l.Addr().String())
-	}()
+	})
 
 	select {
 	case <-s.reload:

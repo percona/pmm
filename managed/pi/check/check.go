@@ -38,8 +38,8 @@ var nameRE = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 // Verify checks signature of passed data with provided public key and
 // returns error in case of any problem.
 func Verify(data []byte, publicKey, sig string) error {
-	lines := strings.SplitN(sig, "\n", 4) //nolint:mnd
-	if len(lines) < 4 {                   //nolint:mnd
+	lines := strings.SplitN(sig, "\n", 4)
+	if len(lines) < 4 {
 		return errors.New("incomplete signature")
 	}
 
@@ -71,7 +71,7 @@ func Verify(data []byte, publicKey, sig string) error {
 	}
 
 	// For pre-hashed signature get data hash.
-	if sAlg[1] == 0x44 { //nolint:mnd
+	if sAlg[1] == 0x44 {
 		h, _ := blake2b.New512(nil)
 		h.Write(data)
 		data = h.Sum(nil)
@@ -298,7 +298,7 @@ func (c *Check) GetFamily() Family {
 		case MetricsInstant, MetricsRange, ClickHouseSelect:
 			return "" // Unsupported query types for V1, check is invalid
 		}
-	case 2: //nolint:mnd
+	case 2:
 		return c.Family
 	}
 
@@ -342,7 +342,7 @@ func (c *Check) Validate() error {
 	switch c.Version {
 	case 1:
 		return c.validateV1()
-	case 2: //nolint:mnd
+	case 2:
 		return c.validateV2()
 	default:
 		return fmt.Errorf("unexpected version %d", c.Version)

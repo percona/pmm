@@ -171,7 +171,7 @@ func (p *Parameter) validateRange() error {
 		return nil
 
 	case Float:
-		if len(p.Range) != 2 { //nolint:mnd
+		if len(p.Range) != 2 {
 			return fmt.Errorf("range should be empty or have two elements, but it has %d elements", len(p.Range))
 		}
 

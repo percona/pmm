@@ -132,7 +132,7 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 			}
 		}
 
-		collstatsLimit := int32(200) //nolint:mnd // default limit
+		collstatsLimit := int32(200) // default limit
 		if exporter.MongoDBOptions.CollectionsLimit != -1 {
 			collstatsLimit = exporter.MongoDBOptions.CollectionsLimit
 		}

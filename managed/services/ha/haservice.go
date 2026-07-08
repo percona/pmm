@@ -138,7 +138,7 @@ func (w *memberlistLogWriter) Write(p []byte) (int, error) {
 
 	// Parse memberlist log format: "2025/12/22 21:43:27 [DEBUG|INFO|WARN|ERR] message"
 	matches := w.logRegex.FindStringSubmatch(msg)
-	if len(matches) == 3 { //nolint:mnd
+	if len(matches) == 3 {
 		level := strings.ToLower(matches[1])
 		message := matches[2]
 

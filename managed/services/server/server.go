@@ -304,13 +304,13 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 
 	if v.Installed.BuildTime != nil {
 		// return only date
-		t := v.Installed.BuildTime.UTC().Truncate(24 * time.Hour) //nolint:mnd
+		t := v.Installed.BuildTime.UTC().Truncate(24 * time.Hour)
 		res.Installed.Timestamp = timestamppb.New(t)
 	}
 
 	if v.Latest.DockerImage != "" {
 		// return only date
-		t := v.Latest.BuildTime.UTC().Truncate(24 * time.Hour) //nolint:mnd
+		t := v.Latest.BuildTime.UTC().Truncate(24 * time.Hour)
 		res.Latest.Timestamp = timestamppb.New(t)
 	}
 
@@ -407,7 +407,7 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusReq
 	// wait up to 30 seconds for new log lines
 	var lines []string
 	var newOffset uint32
-	ctx, cancel := context.WithTimeout(ctx, 30*time.Second) //nolint:mnd
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 	for ctx.Err() == nil {
 		if !s.updater.IsRunning() {
@@ -424,7 +424,7 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusReq
 			break
 		}
 
-		time.Sleep(200 * time.Millisecond) //nolint:mnd
+		time.Sleep(200 * time.Millisecond)
 	}
 
 	return &serverv1.UpdateStatusResponse{
@@ -445,7 +445,7 @@ func (s *Server) writeUpdateAuthToken(token string) error {
 	a := &pmmUpdateAuth{
 		AuthToken: token,
 	}
-	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600|os.ModeExclusive) //nolint:mnd
+	f, err := os.OpenFile(s.pmmUpdateAuthFile, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0o600|os.ModeExclusive)
 	if err != nil {
 		return fmt.Errorf("failed to write auth token to file %s: %w", s.pmmUpdateAuthFile, err)
 	}
@@ -860,13 +860,13 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return fmt.Errorf("failed to lookup OS user %s: %w", username, err)
 	}
 	sshDirPath := path.Join(usr.HomeDir, ".ssh")
-	err = os.MkdirAll(sshDirPath, 0o700) //nolint:mnd
+	err = os.MkdirAll(sshDirPath, 0o700)
 	if err != nil {
 		return fmt.Errorf("failed to create SSH dir %s: %w", sshDirPath, err)
 	}
 
 	keysPath := path.Join(sshDirPath, "authorized_keys")
-	err = os.WriteFile(keysPath, []byte(sshKey), 0o600) //nolint:mnd
+	err = os.WriteFile(keysPath, []byte(sshKey), 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to write SSH keys to %s: %w", keysPath, err)
 	}

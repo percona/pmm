@@ -121,7 +121,7 @@ func (l *Mongolog) Start(ctx context.Context) error {
 	// start a goroutine and Add() it to WaitGroup
 	// so we could later Wait() for it to finish
 	l.wg = &sync.WaitGroup{}
-	l.wg.Add(2) //nolint:mnd
+	l.wg.Add(2)
 
 	// create ready sync.Cond so we could know when goroutine actually started getting data from db
 	ready := sync.NewCond(&sync.Mutex{})

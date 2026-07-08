@@ -83,7 +83,7 @@ func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 		return fmt.Errorf("cannot find pmmAgentsIDs for AgentsState update: %w", err)
 	}
 	var wg sync.WaitGroup
-	limiter := make(chan struct{}, 10) //nolint:mnd
+	limiter := make(chan struct{}, 10)
 	for _, pmmAgentID := range pmmAgents {
 		wg.Add(1)
 		limiter <- struct{}{}

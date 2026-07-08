@@ -138,14 +138,14 @@ func NewRegistry(db *reform.DB, vmParams victoriaMetricsParams, ha haService) *R
 			Subsystem:  prometheusSubsystem,
 			Name:       "round_trip_seconds",
 			Help:       "Round-trip time.",
-			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001}, //nolint:mnd
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 		}),
 		mClockDrift: prom.NewSummary(prom.SummaryOpts{
 			Namespace:  prometheusNamespace,
 			Subsystem:  prometheusSubsystem,
 			Name:       "clock_drift_seconds",
 			Help:       "Clock drift.",
-			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001}, //nolint:mnd
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 		}),
 
 		isExternalVM: vmParams.ExternalVM(),
@@ -432,7 +432,7 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	}
 	roundtrip := time.Since(start)
 	agentTime := resp.(*agentv1.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
-	clockDrift := agentTime.Sub(start) - roundtrip/2       //nolint:mnd
+	clockDrift := agentTime.Sub(start) - roundtrip/2
 	if clockDrift < 0 {
 		clockDrift = -clockDrift
 	}

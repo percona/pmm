@@ -189,7 +189,7 @@ func (m *MongoDBRTA) collectCurrentOps(ctx context.Context) ([]*rtav1.QueryData,
 
 	// Buffered channel to store results from goroutines(parsers)
 	// and avoid blocking when sending results to the channel.
-	resultsChan := make(chan *rtav1.QueryData, 10) //nolint:mnd
+	resultsChan := make(chan *rtav1.QueryData, 10)
 
 	for cur.Next(ctx) {
 		// check if the context is done to avoid unnecessary processing
@@ -295,7 +295,7 @@ func buildCurrentOpsPipeline() mongo.Pipeline {
 					// Get operations/commands that are active.
 					bson.D{{Key: "active", Value: true}},
 					// Get operations/commands that have execution duration => 0.01s.
-					bson.D{{Key: "microsecs_running", Value: bson.D{{Key: "$gte", Value: 10_000}}}}, //nolint:mnd
+					bson.D{{Key: "microsecs_running", Value: bson.D{{Key: "$gte", Value: 10_000}}}},
 					// Exclude operations from internal MongoDB tools.
 					bson.D{{Key: "desc", Value: bson.D{{Key: "$nin", Value: bson.A{"Checkpointer", "JournalFlusher"}}}}},
 					// Exclude operations from RTA agent itself.

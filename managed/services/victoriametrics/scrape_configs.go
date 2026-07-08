@@ -43,7 +43,7 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	case interval <= 2*time.Second:
 		return config.Duration(time.Second)
 	default:
-		return config.Duration(float64(interval) * 0.9) //nolint:mnd
+		return config.Duration(float64(interval) * 0.9)
 	}
 }
 
@@ -550,7 +550,7 @@ func scrapeConfigsForRDSExporter(params []*scrapeConfigParams) []*config.ScrapeC
 	}
 	sort.Strings(hostports)
 
-	r := make([]*config.ScrapeConfig, 0, len(hostports)*2) //nolint:mnd
+	r := make([]*config.ScrapeConfig, 0, len(hostports)*2)
 	for _, hostport := range hostports {
 		metricsResolutions := hostportMap[hostport]
 		mr := scrapeConfigForRDSExporter("mr", metricsResolutions.MR, hostport, "/enhanced")

@@ -1223,8 +1223,8 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	}
 
 	db.SetConnMaxLifetime(0)
-	db.SetMaxIdleConns(5)  //nolint:mnd
-	db.SetMaxOpenConns(10) //nolint:mnd
+	db.SetMaxIdleConns(5)
+	db.SetMaxOpenConns(10)
 
 	return db, nil
 }
@@ -1704,7 +1704,7 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 // parsePGAddress parses PostgreSQL address into address:port; if no port specified returns default port number.
 func parsePGAddress(address string) (string, uint16, error) {
 	if !strings.Contains(address, ":") {
-		return address, 5432, nil //nolint:mnd
+		return address, 5432, nil
 	}
 	address, portStr, err := net.SplitHostPort(address)
 	if err != nil {

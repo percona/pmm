@@ -706,7 +706,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 					RefID:         "A",
 					DatasourceUID: metricsDatasourceUID,
 					// TODO: https://community.grafana.com/t/grafana-requires-time-range-for-alert-rule-creation-with-instant-promql-quieriy/70919
-					RelativeTimeRange: services.RelativeTimeRange{From: 600, To: 0}, //nolint:mnd
+					RelativeTimeRange: services.RelativeTimeRange{From: 600, To: 0},
 					Model: services.Model{
 						Expr:    expr,
 						RefID:   "A",

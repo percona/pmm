@@ -293,7 +293,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 		return err
 	}
 
-	args := make([]string, 0, 4) //nolint:mnd
+	args := make([]string, 0, 4)
 	args = append(args, "-promscrape.config.dryRun=true", "-promscrape.config", f.Name())
 	cmd := exec.CommandContext(ctx, "victoriametrics", args...) //nolint:gosec
 	pdeathsig.Set(cmd, unix.SIGKILL)
@@ -302,7 +302,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	if err != nil {
 		svc.l.Errorf("%s", b)
 		s := string(b)
-		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 { //nolint:mnd
+		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 {
 			return status.Error(codes.Aborted, m[1])
 		}
 
@@ -317,7 +317,7 @@ func (svc *Service) validateConfig(ctx context.Context, cfg []byte) error {
 	b, err = cmd.CombinedOutput()
 	if err != nil {
 		s := string(b)
-		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 { //nolint:mnd
+		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 {
 			svc.l.Warnf("VictoriaMetrics scrape configuration contains unsupported params: %s", m[1])
 		} else {
 			svc.l.Warnf("VictoriaMetrics scrape configuration contains unsupported params: %s", b)

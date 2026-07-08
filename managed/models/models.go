@@ -56,7 +56,7 @@ const (
 
 // MergeLabels merges unified labels of Node, Service, and Agent (each can be nil).
 func MergeLabels(node *Node, service *Service, agent *Agent) (map[string]string, error) {
-	res := make(map[string]string, 16) //nolint:mnd
+	res := make(map[string]string, 16)
 
 	if node != nil {
 		labels, err := node.UnifiedLabels()
