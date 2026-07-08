@@ -40,13 +40,12 @@ export const ADVISOR_INTERVAL: Record<AdvisorInterval, string> = {
   [AdvisorInterval.unspecified]: 'Unspecified',
 };
 
-export const ADVISOR_RESULT_STATUS: Record<AdvisorCheckResultStatus, string> =
-  {
-    [AdvisorCheckResultStatus.ok]: 'OK',
-    [AdvisorCheckResultStatus.failed]: 'Failed',
-    [AdvisorCheckResultStatus.error]: 'Error',
-    [AdvisorCheckResultStatus.unspecified]: 'Unspecified',
-  };
+export const ADVISOR_RESULT_STATUS: Record<AdvisorCheckResultStatus, string> = {
+  [AdvisorCheckResultStatus.ok]: 'OK',
+  [AdvisorCheckResultStatus.failed]: 'Failed',
+  [AdvisorCheckResultStatus.error]: 'Error',
+  [AdvisorCheckResultStatus.unspecified]: 'Unspecified',
+};
 
 export const SEVERITY: Record<Severity, string> = {
   [Severity.emergency]: 'Emergency',

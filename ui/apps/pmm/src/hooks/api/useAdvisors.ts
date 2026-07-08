@@ -51,9 +51,7 @@ export const useStartAdvisorChecks = (
 
 export const useCheckResultsHistory = (
   params: ListCheckResultsHistoryParams,
-  options?: Partial<
-    UseQueryOptions<PaginatedResponse<CheckResultHistoryItem>>
-  >
+  options?: Partial<UseQueryOptions<PaginatedResponse<CheckResultHistoryItem>>>
 ) =>
   useQuery({
     queryKey: [KEYS.HISTORY, params],
@@ -91,9 +89,7 @@ export const useMarkCheckResultsRead = (
 };
 
 export const useChangeAdvisorChecks = (
-  options?: Partial<
-    UseMutationOptions<void, Error, ChangeAdvisorCheckParams[]>
-  >
+  options?: Partial<UseMutationOptions<void, Error, ChangeAdvisorCheckParams[]>>
 ) => {
   const queryClient = useQueryClient();
 

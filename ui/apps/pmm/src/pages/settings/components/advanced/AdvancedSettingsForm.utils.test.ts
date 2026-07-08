@@ -56,8 +56,6 @@ describe('toPayload', () => {
 
     expect(payload.advisorHistoryRetention).toBe('1209600s');
     expect(payload.enableAdvisorNotifications).toBe(true);
-    expect(payload.advisorNotificationSeverityThreshold).toBe(
-      Severity.warning
-    );
+    expect(payload.advisorNotificationSeverityThreshold).toBe(Severity.warning);
   });
 });

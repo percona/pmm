@@ -157,9 +157,7 @@ const AdvisorInsights: FC = () => {
     [pagination, filters, runId]
   );
 
-  const [actionMenu, setActionMenu] = useState<RowActionMenuState | null>(
-    null
-  );
+  const [actionMenu, setActionMenu] = useState<RowActionMenuState | null>(null);
   const [detailsInsight, setDetailsInsight] =
     useState<CheckResultHistoryItem | null>(null);
 

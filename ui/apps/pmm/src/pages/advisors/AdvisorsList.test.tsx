@@ -15,11 +15,7 @@ import {
   wrapWithSnackbarProvider,
   wrapWithUserProvider,
 } from 'utils/testUtils';
-import {
-  Advisor,
-  AdvisorFamily,
-  AdvisorInterval,
-} from 'types/advisors.types';
+import { Advisor, AdvisorFamily, AdvisorInterval } from 'types/advisors.types';
 
 vi.mock('api/advisors');
 
@@ -82,7 +78,6 @@ const waitForRows = async () => {
     expect(screen.getByText('MySQL version check')).toBeInTheDocument()
   );
 };
-
 
 describe('AdvisorsList', () => {
   beforeEach(() => {

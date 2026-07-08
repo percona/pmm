@@ -32,8 +32,7 @@ const AdvisorsList: FC = () => {
   const rows = useMemo(() => flattenAdvisorChecks(advisors), [advisors]);
 
   const categories = useMemo(
-    () =>
-      [...new Set(rows.map((row) => capitalize(row.category)))].sort(),
+    () => [...new Set(rows.map((row) => capitalize(row.category)))].sort(),
     [rows]
   );
 

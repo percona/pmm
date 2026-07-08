@@ -264,8 +264,7 @@ describe('AdvisorInsights', () => {
 
     const historyCalls = vi.mocked(advisorsApi.listCheckResultsHistory).mock
       .calls.length;
-    const advisorsCalls = vi.mocked(advisorsApi.listAdvisors).mock.calls
-      .length;
+    const advisorsCalls = vi.mocked(advisorsApi.listAdvisors).mock.calls.length;
     const filterValuesCalls = vi.mocked(
       advisorsApi.listCheckResultsFilterValues
     ).mock.calls.length;
@@ -311,9 +310,7 @@ describe('AdvisorInsights', () => {
         name: new RegExp(name),
         hidden: true,
       });
-      expect(
-        header.querySelector('.MuiTableSortLabel-root')
-      ).not.toBeNull();
+      expect(header.querySelector('.MuiTableSortLabel-root')).not.toBeNull();
     }
   });
 
@@ -371,9 +368,9 @@ describe('AdvisorInsights', () => {
       within(pane).getByText('Newer version of MySQL is available')
     ).toBeInTheDocument();
     expect(
-      within(
-        screen.getByTestId('details-field-check-name')
-      ).getByText('mysql_version_check')
+      within(screen.getByTestId('details-field-check-name')).getByText(
+        'mysql_version_check'
+      )
     ).toBeInTheDocument();
     // the underlying check is enabled in the advisors fixture
     expect(
@@ -392,9 +389,7 @@ describe('AdvisorInsights', () => {
     expect(within(pane).getAllByText('—').length).toBeGreaterThanOrEqual(2);
     // the history record ID is shown as Check ID
     expect(
-      within(screen.getByTestId('details-field-check-id')).getByText(
-        'result-1'
-      )
+      within(screen.getByTestId('details-field-check-id')).getByText('result-1')
     ).toBeInTheDocument();
     // no labels on this insight, so no labels section
     expect(
@@ -478,8 +473,7 @@ describe('AdvisorInsights', () => {
     const item = await screen.findByTestId('action-disable-check');
     expect(item).toHaveTextContent(Messages.actions.disableCheck);
 
-    const advisorsCalls = vi.mocked(advisorsApi.listAdvisors).mock.calls
-      .length;
+    const advisorsCalls = vi.mocked(advisorsApi.listAdvisors).mock.calls.length;
     fireEvent.click(item);
 
     await waitFor(() =>

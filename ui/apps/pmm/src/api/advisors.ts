@@ -18,9 +18,7 @@ export const listAdvisors = async (): Promise<Advisor[]> => {
   return res.data.advisors;
 };
 
-export const startAdvisorChecks = async (
-  names: string[]
-): Promise<string> => {
+export const startAdvisorChecks = async (names: string[]): Promise<string> => {
   const payload: StartAdvisorChecksRequest = { names };
   const res = await api.post<StartAdvisorChecksResponse>(
     '/advisors/checks:start',
