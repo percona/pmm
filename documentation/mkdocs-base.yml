@@ -195,7 +195,9 @@ nav:
           - Configure monitoring:
               - Database monitoring:
                   - Overview: install-pmm/install-pmm-client/connect-database/index.md
-                  - MySQL: install-pmm/install-pmm-client/connect-database/mysql/mysql.md
+                  - MySQL:
+                      - Connect MySQL: install-pmm/install-pmm-client/connect-database/mysql/mysql.md
+                      - Running custom queries: install-pmm/install-pmm-client/connect-database/mysql/custom_queries.md
                   - MongoDB: install-pmm/install-pmm-client/connect-database/mongodb.md
                   - PostgreSQL: install-pmm/install-pmm-client/connect-database/postgresql.md
                   - Valkey/Redis: install-pmm/install-pmm-client/connect-database/valkey-redis.md
