@@ -8,7 +8,7 @@ import { TextField } from '@mui/material';
 const meta = {
   title: 'To be reviewed/ActionableLabeledContent',
   component: ActionableLabeledContent,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'needs-review'],
   parameters: {
     layout: 'padded',
     docs: {

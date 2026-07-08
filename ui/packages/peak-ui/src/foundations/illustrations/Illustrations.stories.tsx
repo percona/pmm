@@ -168,6 +168,7 @@ const IllustrationsGallery = () => {
 
 const meta = {
   title: 'Foundations/Illustrations/Illustrations',
+  tags: ['stable'],
   parameters: {
     layout: 'padded',
   },
