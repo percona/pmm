@@ -88,22 +88,23 @@ const preview: Preview = {
       storySort: {
         order: [
           'Introduction',
-          'Foundations', [
-            'Colors', [
-              'Primitives',
-              'Primary',
-              'Structural UI',
-              'Messaging',
-              'Charts'
-            ],
+          'Foundations',
+          [
+            'Colors',
+            ['Primitives', 'Primary', 'Structural UI', 'Messaging', 'Charts'],
             'Typography',
-            'Icons', ['Overview', 'Custom Icons']
+            'Icons',
+            ['Overview', 'Custom Icons'],
+            'Illustrations',
+            ['Overview', 'Illustrations'],
           ],
-          'Inputs', ['Icon Button', 'Text Field', 'Copy to Clipboard'],
-          'Data display', ['Chip', 'Code Block', 'Table', 'Tooltip'],
+          'Inputs',
+          ['Icon Button', 'Text Field', 'Copy to Clipboard'],
+          'Data display',
+          ['Chip', 'Code Block', 'Table', 'Tooltip'],
           'Navigation',
           'To be reviewed',
-          '*'
+          '*',
         ],
       },
     },
