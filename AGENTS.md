@@ -248,3 +248,29 @@ All long-running daemons expose on `127.0.0.1`:
 - `dev/docs/process/tech_stack.md` — technology choices and rationale
 - `dev/docs/process/best_practices.md` — coding best practices
 - `dev/docs/process/GIT_AND_GITHUB.md` — git workflow
+
+## Cursor Cloud specific instructions
+
+PMM development uses a **single "fat" Docker container** (`perconalab/pmm-server:3-dev-container`) that runs every server component (pmm-managed, grafana, victoriametrics, clickhouse, postgresql, qan-api2, vmproxy, pmm-agent, nginx, vmalert) under `supervisord`. The repo is bind-mounted into the container and Go/UI binaries are rebuilt on the host mount and hot-swapped into the running services. There is no host-level Go/Node build of the server; everything runs inside the container.
+
+### Starting the environment
+- Docker (with compose plugin) is required. If `docker info` fails, the daemon isn't running — start it with `sudo dockerd > /tmp/dockerd.log 2>&1 &` (this VM uses Docker 29, which requires `/etc/docker/daemon.json` to set `"storage-driver": "fuse-overlayfs"` and `"features": {"containerd-snapshotter": false}`; run `sudo chmod 666 /var/run/docker.sock` so `make`/`docker` work without sudo).
+- Use the **dev** env file, not the stable one: `cp .env.dev.example .env` (sets the `3-dev-container` image and `GO_VERSION`). `.env.example` points at the release image `percona/pmm-server:3`, which lacks the dev toolchain.
+- `make env-up` pulls the image and starts the container (`--wait` until healthy). The UI/API is then at `https://localhost` (self-signed cert; default login `admin`/`admin`). `make env-down` / `make env-remove` stop it.
+
+### Building/running server components (must run as ROOT in the container)
+- The `run-*` targets install to `/usr/sbin` and call `supervisorctl`, so they need root. Run them via `make env-root TARGET=<target>` from the host (the default `make env` runs as the `pmm` user and will fail: `/usr/sbin` is read-only for it and the root-owned Go module-cache volume is not writable). Example: `make env-root TARGET=run-managed-ci` rebuilds and restarts pmm-managed. Use the `-ci` variants in automation — the non-`-ci` targets (`run-managed`, `run-qan`, …) end with `tail -f` and never return.
+- Before the first build, fix git's bind-mount ownership complaint inside the container: `docker exec -u root pmm-server bash -lc "git config --global --add safe.directory '*'"`.
+- `go.mod` pins a newer Go (e.g. `go 1.26.4`) than the image ships (`GO_VERSION=1.25.x`); Go auto-downloads the newer toolchain into `/root/go` (works as root, fails as `pmm`).
+
+### Lint & tests
+- `golangci-lint` is not preinstalled: run `make env-root TARGET=init` once to install `bin/golangci-lint`, then `make env-root TARGET=check` (buf lint + golangci-lint + go-sumtype; only lints changes since `merge-base main HEAD`).
+- `make env-root TARGET=test-common` runs the shared unit tests (no external deps). `managed`/`api-tests` suites need the running server + internal PostgreSQL.
+
+### UI development (Node/Yarn gap)
+- Node and Yarn are **not** present in the `3-dev-container` image. Install them in the container before `make ... build-ui`/`run-ui`: `docker exec -u root pmm-server bash -lc 'curl -fsSL https://rpm.nodesource.com/setup_22.x | bash - && dnf install -y nodejs && npm i -g yarn@1.22.22'`. This does not survive container recreation, so reinstall after `make env-remove`.
+- `make env-root TARGET=build-ui` builds the UI (yarn) and deploys it into Grafana; `run-ui` starts the Vite HMR dev server (port 5173). The image already ships a pre-built UI, so `https://localhost` works even without rebuilding it.
+
+### Notes
+- The built-in `pmm-agent` already self-monitors the server node and internal PostgreSQL (`pmm-managed`/`pmm-managed`). You can add more monitored services from the UI (Inventory → Add Service) or with `pmm-admin add ...` inside the container.
+- Host ports mapped from the container: `443` (UI/API), `5432` (PG), `9090` (VictoriaMetrics), `8123`/`9000` (ClickHouse), `5173` (Vite), `2345` (Delve).
