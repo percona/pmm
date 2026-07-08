@@ -7,7 +7,8 @@ import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import { ContentCopy, Search } from '@mui/icons-material';
+import ContentCopy from '@mui/icons-material/ContentCopy';
+import Search from '@mui/icons-material/Search';
 import { type SvgIconProps } from '@mui/material/SvgIcon';
 import {
   NothingFoundIllustration,
@@ -121,7 +122,7 @@ const IllustrationsGallery = () => {
                 border: '1px solid',
                 borderColor: 'dividers.contour',
                 textAlign: 'center',
-                '&:hover .copy-button': { opacity: 1 },
+                '&:hover .copy-button, &:focus-within .copy-button': { opacity: 1 },
               }}
             >
               <Illustration sx={{ fontSize: 128, color: 'text.primary' }} />
@@ -140,7 +141,7 @@ const IllustrationsGallery = () => {
                   layers: {layers}
                 </Typography>
               </Box>
-              <Tooltip title="Copy import name">
+              <Tooltip title="Copy import statement">
                 <IconButton
                   className="copy-button"
                   size="medium"
