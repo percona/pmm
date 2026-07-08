@@ -30,7 +30,6 @@ Graphite, InfluxDB & OpenTSDB.
 %prep
 %setup -q -n grafana-%{commit}
 rm -rf Godeps
-#sed -i "s/unknown-dev/%{grafana_version}/" pkg/build/git.go
 sudo npm install -g grunt-cli
 
 %build
