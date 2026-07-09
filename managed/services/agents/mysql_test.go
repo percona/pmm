@@ -39,9 +39,9 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MySQLdExporterType,
-		Username:        new("username"),
-		Password:        new("s3cur3 p@$$w0r4."),
-		AgentPassword:   new("agent-password"),
+		Username:        new(models.EncryptedString("username")),
+		Password:        new(models.EncryptedString("s3cur3 p@$$w0r4.")),
+		AgentPassword:   new(models.EncryptedString("agent-password")),
 		ExporterOptions: models.ExporterOptions{},
 		MySQLOptions:    models.MySQLOptions{},
 	}
@@ -164,9 +164,9 @@ func TestMySQLdExporterConfigTLSSkipVerify(t *testing.T) {
 		return &models.Agent{
 			AgentID:         "agent-id",
 			AgentType:       models.MySQLdExporterType,
-			Username:        new("username"),
-			Password:        new("s3cur3 p@$$w0r4."),
-			AgentPassword:   new("agent-password"),
+			Username:        new(models.EncryptedString("username")),
+			Password:        new(models.EncryptedString("s3cur3 p@$$w0r4.")),
+			AgentPassword:   new(models.EncryptedString("agent-password")),
 			ExporterOptions: models.ExporterOptions{},
 			MySQLOptions:    models.MySQLOptions{},
 		}
@@ -221,8 +221,8 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MySQLdExporterType,
-		Username:        new("username"),
-		Password:        new("s3cur3 p@$$w0r4."),
+		Username:        new(models.EncryptedString("username")),
+		Password:        new(models.EncryptedString("s3cur3 p@$$w0r4.")),
 		TLS:             true,
 		ExporterOptions: models.ExporterOptions{},
 		MySQLOptions: models.MySQLOptions{
@@ -331,8 +331,8 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:   "agent-id",
 		AgentType: models.MySQLdExporterType,
-		Username:  new("username"),
-		Password:  new("s3cur3 p@$$w0r4."),
+		Username:  new(models.EncryptedString("username")),
+		Password:  new(models.EncryptedString("s3cur3 p@$$w0r4.")),
 		ExporterOptions: models.ExporterOptions{
 			DisabledCollectors: []string{"heartbeat", "info_schema.clientstats", "perf_schema.eventsstatements", "custom_query.hr"},
 		},
@@ -405,9 +405,9 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 	exporter := &models.Agent{
 		AgentID:         "agent-id",
 		AgentType:       models.MySQLdExporterType,
-		Username:        new("username"),
-		Password:        new("s3cur3 p@$$w0r4."),
-		AgentPassword:   new("agent-password"),
+		Username:        new(models.EncryptedString("username")),
+		Password:        new(models.EncryptedString("s3cur3 p@$$w0r4.")),
+		AgentPassword:   new(models.EncryptedString("agent-password")),
 		ExporterOptions: models.ExporterOptions{},
 	}
 	pmmAgentVersion := version.MustParse("3.2.0")
@@ -546,7 +546,7 @@ func TestMySQLdExporterConfigMySQL8Support(t *testing.T) {
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
-		exporter.Password = new("s3cur3 p@$$w0r4.")
+		exporter.Password = new(models.EncryptedString("s3cur3 p@$$w0r4."))
 		exporter.MySQLOptions = models.MySQLOptions{}
 		actual, err := mysqldExporterConfig(node, mysql, exporter, exposeSecrets, pmmAgentVersion)
 		expected := &agentv1.SetStateRequest_AgentProcess{
@@ -623,8 +623,8 @@ func TestMySQLdExporterConfigRoundsUpConnectionTimeout(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:       "agent-id",
 			AgentType:     models.MySQLdExporterType,
-			Username:      new("username"),
-			AgentPassword: new("agent-password"),
+			Username:      new(models.EncryptedString("username")),
+			AgentPassword: new(models.EncryptedString("agent-password")),
 			ExporterOptions: models.ExporterOptions{
 				ConnectionTimeout: new(1500 * time.Millisecond),
 			},
@@ -644,8 +644,8 @@ func TestMySQLdExporterConfigRoundsUpConnectionTimeout(t *testing.T) {
 		exporter := &models.Agent{
 			AgentID:       "agent-id",
 			AgentType:     models.MySQLdExporterType,
-			Username:      new("username"),
-			AgentPassword: new("agent-password"),
+			Username:      new(models.EncryptedString("username")),
+			AgentPassword: new(models.EncryptedString("agent-password")),
 			ExporterOptions: models.ExporterOptions{
 				ConnectionTimeout: new(1500 * time.Millisecond),
 			},

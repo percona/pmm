@@ -29,6 +29,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/version"
@@ -204,9 +205,6 @@ func TestAgentHelpers(t *testing.T) {
 				},
 			},
 		} {
-			if v, ok := str.(*models.Agent); ok {
-				str = new(models.EncryptAgent(*v))
-			}
 			require.NoError(t, q.Insert(str))
 		}
 
@@ -791,16 +789,16 @@ func TestAgentHelpers(t *testing.T) {
 				AgentPassword: new("agent_pass"),
 			})
 			require.NoError(t, err)
-			assert.Equal(t, "new_user", pointer.GetString(agent.Username))
-			assert.Equal(t, "new_password", pointer.GetString(agent.Password))
-			assert.Equal(t, "agent_pass", pointer.GetString(agent.AgentPassword))
+			assert.Equal(t, "new_user", agent.Username.Reveal())
+			assert.Equal(t, "new_password", agent.Password.Reveal())
+			assert.Equal(t, "agent_pass", agent.AgentPassword.Reveal())
 
 			// Verify persistence in database
 			persistedAgent, err := models.FindAgentByID(q, "A2")
 			require.NoError(t, err)
-			assert.Equal(t, "new_user", pointer.GetString(persistedAgent.Username))
-			assert.Equal(t, "new_password", pointer.GetString(persistedAgent.Password))
-			assert.Equal(t, "agent_pass", pointer.GetString(persistedAgent.AgentPassword))
+			assert.Equal(t, "new_user", persistedAgent.Username.Reveal())
+			assert.Equal(t, "new_password", persistedAgent.Password.Reveal())
+			assert.Equal(t, "agent_pass", persistedAgent.AgentPassword.Reveal())
 		})
 
 		t.Run("ChangePostgreSQLOptions", func(t *testing.T) {
@@ -1174,8 +1172,8 @@ func TestAgentHelpers(t *testing.T) {
 			require.NoError(t, err)
 
 			assert.True(t, agent.Disabled)
-			assert.Equal(t, "multi_user", pointer.GetString(agent.Username))
-			assert.Equal(t, "multi_pass", pointer.GetString(agent.Password))
+			assert.Equal(t, "multi_user", agent.Username.Reveal())
+			assert.Equal(t, "multi_pass", agent.Password.Reveal())
 			assert.True(t, agent.ExporterOptions.PushMetrics)
 
 			retrievedLabels, err := agent.GetCustomLabels()
@@ -1186,8 +1184,8 @@ func TestAgentHelpers(t *testing.T) {
 			persistedAgent, err := models.FindAgentByID(q, "A2")
 			require.NoError(t, err)
 			assert.True(t, persistedAgent.Disabled)
-			assert.Equal(t, "multi_user", pointer.GetString(persistedAgent.Username))
-			assert.Equal(t, "multi_pass", pointer.GetString(persistedAgent.Password))
+			assert.Equal(t, "multi_user", persistedAgent.Username.Reveal())
+			assert.Equal(t, "multi_pass", persistedAgent.Password.Reveal())
 			assert.True(t, persistedAgent.ExporterOptions.PushMetrics)
 
 			persistedLabels, err := persistedAgent.GetCustomLabels()
@@ -1220,8 +1218,8 @@ func TestAgentHelpers(t *testing.T) {
 			// Verify initial state
 			initialAgent, err := models.FindAgentByID(q, "A7")
 			require.NoError(t, err)
-			assert.Equal(t, "initial_user", pointer.GetString(initialAgent.Username))
-			assert.Equal(t, "initial_pass", pointer.GetString(initialAgent.Password))
+			assert.Equal(t, "initial_user", initialAgent.Username.Reveal())
+			assert.Equal(t, "initial_pass", initialAgent.Password.Reveal())
 			assert.Equal(t, "info", pointer.GetString(initialAgent.LogLevel))
 			assert.True(t, initialAgent.ExporterOptions.PushMetrics)
 			assert.True(t, initialAgent.ExporterOptions.ExposeExporter)
@@ -1239,9 +1237,9 @@ func TestAgentHelpers(t *testing.T) {
 			require.NoError(t, err)
 
 			// Verify that only username changed
-			assert.Equal(t, "changed_user", pointer.GetString(agent.Username))
+			assert.Equal(t, "changed_user", agent.Username.Reveal())
 			// All other fields should remain unchanged
-			assert.Equal(t, "initial_pass", pointer.GetString(agent.Password))
+			assert.Equal(t, "initial_pass", agent.Password.Reveal())
 			assert.Equal(t, "info", pointer.GetString(agent.LogLevel))
 			assert.True(t, agent.ExporterOptions.PushMetrics)
 			assert.True(t, agent.ExporterOptions.ExposeExporter)
@@ -1251,8 +1249,8 @@ func TestAgentHelpers(t *testing.T) {
 			// Verify persistence in database
 			persistedAgent, err := models.FindAgentByID(q, "A7")
 			require.NoError(t, err)
-			assert.Equal(t, "changed_user", pointer.GetString(persistedAgent.Username))
-			assert.Equal(t, "initial_pass", pointer.GetString(persistedAgent.Password))
+			assert.Equal(t, "changed_user", persistedAgent.Username.Reveal())
+			assert.Equal(t, "initial_pass", persistedAgent.Password.Reveal())
 			assert.Equal(t, "info", pointer.GetString(persistedAgent.LogLevel))
 			assert.True(t, persistedAgent.ExporterOptions.PushMetrics)
 			assert.True(t, persistedAgent.ExporterOptions.ExposeExporter)
@@ -1277,8 +1275,8 @@ func TestAgentHelpers(t *testing.T) {
 			assert.False(t, agent.ExporterOptions.PushMetrics)   // Changed
 			assert.True(t, agent.ExporterOptions.ExposeExporter) // Unchanged
 			// Other fields should still be unchanged
-			assert.Equal(t, "changed_user", pointer.GetString(agent.Username))
-			assert.Equal(t, "initial_pass", pointer.GetString(agent.Password))
+			assert.Equal(t, "changed_user", agent.Username.Reveal())
+			assert.Equal(t, "initial_pass", agent.Password.Reveal())
 			assert.Equal(t, "info", pointer.GetString(agent.LogLevel))
 
 			// Verify persistence in database
@@ -1286,8 +1284,8 @@ func TestAgentHelpers(t *testing.T) {
 			require.NoError(t, err)
 			assert.False(t, persistedAgent.ExporterOptions.PushMetrics)   // Changed
 			assert.True(t, persistedAgent.ExporterOptions.ExposeExporter) // Unchanged
-			assert.Equal(t, "changed_user", pointer.GetString(persistedAgent.Username))
-			assert.Equal(t, "initial_pass", pointer.GetString(persistedAgent.Password))
+			assert.Equal(t, "changed_user", persistedAgent.Username.Reveal())
+			assert.Equal(t, "initial_pass", persistedAgent.Password.Reveal())
 			assert.Equal(t, "info", pointer.GetString(persistedAgent.LogLevel))
 
 			// Test changing only PostgreSQL options - other fields should remain unchanged
@@ -1434,9 +1432,9 @@ func TestAgentHelpers(t *testing.T) {
 
 				// Fields that should be changed
 				Disabled:      true, // Enabled=false means Disabled=true
-				Username:      new("comprehensive_user"),
-				Password:      new("comprehensive_password"),
-				AgentPassword: new("comprehensive_agent_password"),
+				Username:      new(models.EncryptedString("comprehensive_user")),
+				Password:      new(models.EncryptedString("comprehensive_password")),
+				AgentPassword: new(models.EncryptedString("comprehensive_agent_password")),
 				LogLevel:      new("debug"),
 				TLS:           false,
 				TLSSkipVerify: false,
@@ -1578,8 +1576,8 @@ func TestAgentHelpers(t *testing.T) {
 			agent, err := models.FindAgentByID(q, "A2")
 			require.NoError(t, err)
 
-			agent.Username = new("user")
-			agent.Password = new("secret")
+			agent.Username = new(models.EncryptedString("user"))
+			agent.Password = new(models.EncryptedString("secret"))
 
 			err = models.UpdateAgent(q, agent)
 			require.NoError(t, err)
@@ -1587,14 +1585,15 @@ func TestAgentHelpers(t *testing.T) {
 			// Verify the decrypted view matches what we set.
 			updated, err := models.FindAgentByID(q, "A2")
 			require.NoError(t, err)
-			assert.Equal(t, new("user"), updated.Username)
-			assert.Equal(t, new("secret"), updated.Password)
+			assert.Equal(t, "user", updated.Username.Reveal())
+			assert.Equal(t, "secret", updated.Password.Reveal())
 
-			// Verify the raw row in the DB is NOT plain-text (i.e. it was encrypted).
-			raw := &models.Agent{AgentID: "A2"}
-			require.NoError(t, q.Reload(raw))
-			assert.NotEqual(t, "user", pointer.GetString(raw.Username))
-			assert.NotEqual(t, "secret", pointer.GetString(raw.Password))
+			// Verify the raw values stored in the DB are encrypted envelopes, not plaintext.
+			var storedUsername, storedPassword string
+			err = q.QueryRow("SELECT username, password FROM agents WHERE agent_id = $1", "A2").Scan(&storedUsername, &storedPassword)
+			require.NoError(t, err)
+			assert.True(t, encryption.IsEncrypted(storedUsername))
+			assert.True(t, encryption.IsEncrypted(storedPassword))
 		})
 
 		t.Run("PreservesNonSensitiveFields", func(t *testing.T) {

@@ -294,8 +294,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 
 	agents := make([]*Agent, len(structs))
 	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		agents[i] = &decryptedAgent
+		agents[i] = s.(*Agent) //nolint:forcetypeassert
 	}
 
 	return agents, nil
@@ -315,7 +314,7 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 		}
 		return nil, err
 	}
-	return new(DecryptAgent(*agent)), nil
+	return agent, nil
 }
 
 // FindAgentsByIDs finds Agents by IDs.
@@ -337,8 +336,7 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
+		res[i] = s.(*Agent) //nolint:forcetypeassert
 	}
 	return res, nil
 }
@@ -390,8 +388,7 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
+		res[i] = s.(*Agent) //nolint:forcetypeassert
 	}
 
 	if len(res) == 0 {
@@ -418,8 +415,7 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 
 	res := make([]*Agent, 0, len(structs))
 	for _, str := range structs {
-		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
-		res = append(res, &decryptedAgent)
+		res = append(res, str.(*Agent)) //nolint:forcetypeassert
 	}
 
 	return res, nil
@@ -463,8 +459,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	}
 	res := make([]*Agent, 0, len(pmmAgentRecords))
 	for _, str := range pmmAgentRecords {
-		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
-		res = append(res, &decryptedAgent)
+		res = append(res, str.(*Agent)) //nolint:forcetypeassert
 	}
 
 	return res, nil
@@ -545,8 +540,7 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 
 	res := make([]*Agent, len(allAgents))
 	for i, s := range allAgents {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
+		res[i] = s.(*Agent) //nolint:forcetypeassert
 	}
 	return res, nil
 }
@@ -590,7 +584,7 @@ func FindPmmAgentIDToRunActionOrJob(pmmAgentID string, agents []*Agent) (string,
 
 // UpdateAgent updates the Agent in the database.
 func UpdateAgent(q *reform.Querier, agent *Agent) error {
-	err := q.Update(new(EncryptAgent(*agent)))
+	err := q.Update(agent)
 	if err != nil {
 		return fmt.Errorf("failed to update Agent: %w", err)
 	}
@@ -691,7 +685,7 @@ func CreateNodeExporter(q *reform.Querier,
 		AgentType:     NodeExporterType,
 		PMMAgentID:    &pmmAgentID,
 		NodeID:        pmmAgent.RunsOnNodeID,
-		AgentPassword: agentPassword,
+		AgentPassword: EncryptedStringOrNil(pointer.GetString(agentPassword)),
 		ExporterOptions: ExporterOptions{
 			ExposeExporter:     exposeExporter,
 			PushMetrics:        pushMetrics,
@@ -704,12 +698,11 @@ func CreateNodeExporter(q *reform.Querier,
 		return nil, err
 	}
 
-	encryptedAgent := EncryptAgent(*row)
-	err = q.Insert(&encryptedAgent)
+	err = q.Insert(row)
 	if err != nil {
 		return nil, err
 	}
-	return new(DecryptAgent(encryptedAgent)), nil
+	return row, nil
 }
 
 // CreateExternalExporterParams params for add external exporter.
@@ -779,8 +772,8 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		AgentType:    ExternalExporterType,
 		RunsOnNodeID: runsOnNodeID,
 		ServiceID:    pointer.ToStringOrNil(params.ServiceID),
-		Username:     pointer.ToStringOrNil(params.Username),
-		Password:     pointer.ToStringOrNil(params.Password),
+		Username:     EncryptedStringOrNil(params.Username),
+		Password:     EncryptedStringOrNil(params.Password),
 		ListenPort:   new(uint16(params.ListenPort)),
 		ExporterOptions: ExporterOptions{
 			PushMetrics:   params.PushMetrics,
@@ -794,12 +787,11 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		return nil, err
 	}
 
-	encryptedAgent := EncryptAgent(*row)
-	err = q.Insert(&encryptedAgent)
+	err = q.Insert(row)
 	if err != nil {
 		return nil, err
 	}
-	return new(DecryptAgent(encryptedAgent)), nil
+	return row, nil
 }
 
 // CreateAgentParams params for add common exporter.
@@ -954,9 +946,9 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		PMMAgentID:        &params.PMMAgentID,
 		ServiceID:         pointer.ToStringOrNil(params.ServiceID),
 		NodeID:            pointer.ToStringOrNil(params.NodeID),
-		Username:          pointer.ToStringOrNil(params.Username),
-		Password:          pointer.ToStringOrNil(params.Password),
-		AgentPassword:     pointer.ToStringOrNil(params.AgentPassword),
+		Username:          EncryptedStringOrNil(params.Username),
+		Password:          EncryptedStringOrNil(params.Password),
+		AgentPassword:     EncryptedStringOrNil(params.AgentPassword),
 		TLS:               params.TLS,
 		TLSSkipVerify:     params.TLSSkipVerify,
 		ExporterOptions:   exporterOptions,
@@ -993,12 +985,12 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		// do nothing
 	}
 
-	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
-	err = q.Insert(&encryptedAgent)
+	trimmedAgent := trimUnicodeNilsInCertFiles(*row)
+	err = q.Insert(&trimmedAgent)
 	if err != nil {
 		return nil, err
 	}
-	return new(DecryptAgent(encryptedAgent)), nil
+	return &trimmedAgent, nil
 }
 
 func trimUnicodeNilsInCertFiles(agent Agent) Agent {
@@ -1207,13 +1199,13 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 
 	// Update database connection fields
 	if params.Username != nil {
-		row.Username = params.Username
+		row.Username = EncryptedStringOrNil(*params.Username)
 	}
 	if params.Password != nil {
-		row.Password = params.Password
+		row.Password = EncryptedStringOrNil(*params.Password)
 	}
 	if params.AgentPassword != nil {
-		row.AgentPassword = params.AgentPassword
+		row.AgentPassword = EncryptedStringOrNil(*params.AgentPassword)
 	}
 
 	// Update ValkeyOptions fields
@@ -1375,14 +1367,12 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	// RTA options
 	row.RTAOptions.Merge(params.RTAOptions)
 
-	// need to encrypt Agent's sensitive data before update
-	row = new(EncryptAgent(*row))
 	err = q.Update(row)
 	if err != nil {
 		return nil, err
 	}
 
-	return new(DecryptAgent(*row)), nil
+	return row, nil
 }
 
 // RemoveAgent removes Agent by ID.

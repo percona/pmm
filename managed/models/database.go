@@ -38,7 +38,6 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/env"
 )
 
@@ -63,24 +62,6 @@ const (
 	// DefaultSnoozeDuration represents duration for which an update is snoozed (default = 7 days).
 	DefaultSnoozeDuration time.Duration = 7 * 24 * time.Hour
 )
-
-// DefaultAgentEncryptionColumnsV3 since 3.0.0 contains all tables and it's columns to be encrypted in PMM Server DB.
-var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
-	{
-		Name:        "agents",
-		Identifiers: []string{"agent_id"},
-		Columns: []encryption.Column{
-			{Name: "username"},
-			{Name: "password"},
-			{Name: "agent_password"},
-			{Name: "aws_options", CustomHandler: EncryptAWSOptionsHandler},
-			{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
-			{Name: "mongo_options", CustomHandler: EncryptMongoDBOptionsHandler},
-			{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
-			{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
-		},
-	},
-}
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
 //
@@ -1288,83 +1269,17 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	err := migrateDB(db, params)
+	err := initDefaultCipher(ctx, sqlDB)
+	if err != nil {
+		return nil, err
+	}
+
+	err = migrateDB(db, params)
 	if err != nil {
 		return nil, err
 	}
 
 	return db, nil
-}
-
-// EncryptDB encrypts a set of columns in a specific database and table.
-func EncryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table) error {
-	return dbEncryption(tx, database, itemsToEncrypt, encryption.EncryptItems, true)
-}
-
-// DecryptDB decrypts a set of columns in a specific database and table.
-func DecryptDB(tx *reform.TX, database string, itemsToEncrypt []encryption.Table) error {
-	return dbEncryption(tx, database, itemsToEncrypt, encryption.DecryptItems, false)
-}
-
-func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
-	encryptionHandler func(tx *reform.TX, tables []encryption.Table) error,
-	expectedState bool,
-) error {
-	if len(items) == 0 {
-		return nil
-	}
-
-	settings, err := GetSettings(tx)
-	if err != nil {
-		return err
-	}
-	currentColumns := make(map[string]bool)
-	for _, v := range settings.EncryptedItems {
-		currentColumns[v] = true
-	}
-
-	tables := []encryption.Table{}
-	prepared := []string{}
-	for _, table := range items {
-		columns := []encryption.Column{}
-		for _, column := range table.Columns {
-			dbTableColumn := fmt.Sprintf("%s.%s.%s", database, table.Name, column.Name)
-			if currentColumns[dbTableColumn] == expectedState {
-				continue
-			}
-
-			columns = append(columns, column)
-			prepared = append(prepared, dbTableColumn)
-		}
-		if len(columns) == 0 {
-			continue
-		}
-
-		table.Columns = columns
-		tables = append(tables, table)
-	}
-	if len(tables) == 0 {
-		return nil
-	}
-
-	err = encryptionHandler(tx, tables)
-	if err != nil {
-		return err
-	}
-
-	encryptedItems := []string{}
-	if expectedState {
-		encryptedItems = prepared
-	}
-
-	_, err = UpdateSettings(tx, &ChangeSettingsParams{
-		EncryptedItems: encryptedItems,
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // checkVersion checks minimal required PostgreSQL server version.
@@ -1481,13 +1396,17 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			}
 		}
 
-		if params.SetupFixtures == SkipFixtures {
-			return nil
+		// data migration relies on the latest schema; skip it when an older
+		// schema version is explicitly requested (only done in tests)
+		if latestVersion == len(databaseSchema)-1 {
+			err := MigrateEncryption(tx.Querier)
+			if err != nil {
+				return err
+			}
 		}
 
-		err := EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
-		if err != nil {
-			return err
+		if params.SetupFixtures == SkipFixtures {
+			return nil
 		}
 
 		// fill settings with defaults

@@ -268,8 +268,8 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 		EnableClearTextPassword bool
 		MyCnfPath               string
 	}{
-		User:           pointer.GetString(agent.Username),
-		Password:       pointer.GetString(agent.Password),
+		User:           agent.Username.Reveal(),
+		Password:       agent.Password.Reveal(),
 		Host:           pointer.GetString(service.Address),
 		Port:           int(pointer.GetUint16(service.Port)),
 		ConnectTimeout: max(1, int(connectTimeout.Seconds())),

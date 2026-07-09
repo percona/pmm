@@ -1337,8 +1337,8 @@ func TestScrapeConfig(t *testing.T) {
 				AgentID:      "75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.ExternalExporterType,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
-				Username:     new("username"),
-				Password:     new("password"),
+				Username:     new(models.EncryptedString("username")),
+				Password:     new(models.EncryptedString("password")),
 				ListenPort:   new(uint16(12345)),
 				ExporterOptions: models.ExporterOptions{
 					MetricsPath:   "/some-metric-path",
