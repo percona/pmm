@@ -133,12 +133,10 @@ export const addDashboardItems = (
   return children;
 };
 
-export const addAlerting = (enabled = false, user?: User): NavItem => {
+export const addAlerting = (alertingEnabled = false, unifiedAlertingEnabled = false, user?: User): NavItem => {
+
   const children: NavItem[] = [];
 
-  if (enabled) {
-    children.push(NAV_ALERTS_FIRED);
-  }
 
   children.push(NAV_ALERTS_RULES);
   children.push(NAV_ALERTS_CONTACT_POINTS);
@@ -146,12 +144,18 @@ export const addAlerting = (enabled = false, user?: User): NavItem => {
   children.push(NAV_ALERTS_SILENCES);
   children.push(NAV_ALERTS_GROUPS);
 
-  if (user?.isPMMAdmin) {
-    children.push(NAV_ALERTS_SETTINGS);
-  }
+  if (unifiedAlertingEnabled) {
+    if (alertingEnabled) {
+      children.push(NAV_ALERTS_FIRED);
+    }
 
-  if (enabled && user?.isEditor) {
-    children.push(NAV_ALERTS_TEMPLATES);
+    if (user?.isPMMAdmin) {
+      children.push(NAV_ALERTS_SETTINGS);
+    }
+
+    if (alertingEnabled && user?.isEditor) {
+      children.push(NAV_ALERTS_TEMPLATES);
+    }
   }
 
   return { ...NAV_ALERTS, children };
