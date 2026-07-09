@@ -1407,7 +1407,7 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	}
 
 	if countDatabases == 0 {
-		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE DATABASE "%s"`, params.Name))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE DATABASE %s`, pq.QuoteIdentifier(params.Name)))
 		if err != nil {
 			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
 		}
