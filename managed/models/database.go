@@ -1420,7 +1420,7 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	}
 
 	if countRoles == 0 {
-		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE USER %s LOGIN PASSWORD %s`, pq.QuoteIdentifier(params.Username), pq.QuoteLiteral(params.Password)))
 		if err != nil {
 			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
 		}
