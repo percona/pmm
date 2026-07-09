@@ -1502,7 +1502,7 @@ func migrateDB(ctx context.Context, db *reform.DB, params SetupDBParams) error {
 		}
 
 		if params.HANodeID != "" {
-			err = setupPMMServerHAAgents(tx.Context(), tx.Querier, params)
+			err = setupPMMServerHAAgents(ctx, tx.Querier, params)
 		} else {
 			err = setupPMMServerAgents(tx.Querier, params)
 		}
