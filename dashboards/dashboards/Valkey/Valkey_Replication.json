@@ -323,7 +323,7 @@
                     "useBackend": false
                 }
             ],
-            "title": "$service_name - Replica vs Master Offsets",
+            "title": "$service_name - Replica vs Primary offsets",
             "type": "timeseries"
         },
         {

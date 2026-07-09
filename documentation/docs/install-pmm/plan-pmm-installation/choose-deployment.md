@@ -122,4 +122,3 @@ Review this checklist to help you plan and size your monitoring environment and 
 [Hardware and system requirements](../plan-pmm-installation/hardware_and_system.md){.md-button} 
 
 
-

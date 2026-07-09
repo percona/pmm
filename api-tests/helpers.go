@@ -21,14 +21,13 @@ import (
 	"fmt"
 	"math"
 	"math/big"
-	"net/http"
 	"reflect"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
-	gapi "github.com/grafana/grafana-api-golang-client"
+	grafanaclient "github.com/grafana/grafana-openapi-client-go/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -406,7 +405,7 @@ func AddService(t *testing.T, body services.AddServiceBody) *services.AddService
 }
 
 var (
-	gClient *gapi.Client
+	gClient *grafanaclient.GrafanaHTTPAPI
 	gOnce   sync.Once
 )
 
@@ -457,23 +456,13 @@ func backoff(attempt int) time.Duration {
 }
 
 // GetGrafanaClient creates and returns a Grafana client.
-func GetGrafanaClient(t *testing.T) *gapi.Client {
+func GetGrafanaClient(t *testing.T) *grafanaclient.GrafanaHTTPAPI {
 	t.Helper()
 
 	gOnce.Do(func() {
 		gURL := *BaseURL
-		gURL.Path = "/graph"
-		adminTransport, ok := Transport(&gURL, ServerInsecureTLS).Transport.(*http.Transport)
-		require.True(t, ok, "unexpected transport type: %T", Transport(&gURL, ServerInsecureTLS).Transport)
-
-		grafanaClient, err := gapi.New(gURL.String(), gapi.Config{
-			Client: &http.Client{
-				Transport: adminTransport,
-			},
-		})
-		require.NoError(t, err)
-
-		gClient = grafanaClient
+		gURL.Path = "/graph/api"
+		gClient = grafanaclient.New(Transport(&gURL, ServerInsecureTLS), grafanaclient.DefaultTransportConfig(), nil)
 	})
 	return gClient
 }
