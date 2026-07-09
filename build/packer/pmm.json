@@ -61,12 +61,12 @@
       "security_group_id": "sg-688c2b1c",
       "source_ami_filter": {
         "filters": {
-          "name": "AlmaLinux OS 9.*",
+          "name": "OL9*-aarch64-HVM-*",
           "architecture": "arm64",
           "root-device-type": "ebs",
           "virtualization-type": "hvm"
         },
-        "owners": ["764336703387"],
+        "owners": ["131827586825"],
         "most_recent": true
       },
       "ssh_pty": "true",
