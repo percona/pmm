@@ -70,7 +70,7 @@ func vmAgentConfigServerProxy(scrapeCfg string, dropInjectedAuth bool) *agentv1.
 	return buildVMAgentProcess(scrapeCfg, vmAgentSettings{
 		remoteWriteURL:   "{{.server_url}}/victoriametrics/api/v1/write",
 		dropInjectedAuth: dropInjectedAuth,
-		auth:             &basicAuth{username: "{{.server_username}}", password: "{{.server_password}}"},
+		auth:             &basicAuth{username: "{{.server_username}}", password: "{{.server_password}}"}, //nolint:gosec // template placeholder, not a secret
 	})
 }
 
