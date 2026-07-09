@@ -133,10 +133,12 @@ export const addDashboardItems = (
   return children;
 };
 
-export const addAlerting = (alertingEnabled = false, unifiedAlertingEnabled = false, user?: User): NavItem => {
-
+export const addAlerting = (
+  alertingEnabled = false,
+  unifiedAlertingEnabled = false,
+  user?: User
+): NavItem => {
   const children: NavItem[] = [];
-
 
   children.push(NAV_ALERTS_RULES);
   children.push(NAV_ALERTS_CONTACT_POINTS);

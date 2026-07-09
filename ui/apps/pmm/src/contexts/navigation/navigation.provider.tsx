@@ -78,7 +78,13 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         );
       }
 
-      items.push(addAlerting(settings?.alertingEnabled, settings?.frontend.unifiedAlertingEnabled, user));
+      items.push(
+        addAlerting(
+          settings?.alertingEnabled,
+          settings?.frontend.unifiedAlertingEnabled,
+          user
+        )
+      );
 
       if (user.isEditor && settings?.advisorEnabled) {
         items.push(addAdvisors(advisors || []));
@@ -114,7 +120,19 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     }
 
     return items;
-  }, [serviceTypes?.serviceTypes, user, haInfo, folders, settings, colorMode, toggleColorMode, advisors, status, versionInfo, isLoggedIn]);
+  }, [
+    serviceTypes?.serviceTypes,
+    user,
+    haInfo,
+    folders,
+    settings,
+    colorMode,
+    toggleColorMode,
+    advisors,
+    status,
+    versionInfo,
+    isLoggedIn,
+  ]);
 
   return (
     <NavigationContext.Provider
