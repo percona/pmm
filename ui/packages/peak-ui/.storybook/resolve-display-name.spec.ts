@@ -14,6 +14,10 @@ describe('resolveDisplayName', () => {
     expect(resolveDisplayName(asElement('div'))).toBe('div');
   });
 
+  it('returns React.Fragment for fragment elements', () => {
+    expect(resolveDisplayName(asElement(Symbol.for('react.fragment')))).toBe('React.Fragment');
+  });
+
   it('uses an explicit displayName on a forwardRef wrapper (design-system components)', () => {
     const Wrapped = forwardRef<HTMLDivElement>((_, ref) =>
       createElement('div', { ref })
