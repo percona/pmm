@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 
-// Package mongo_fix provides utilities for fixing MongoDB-related issues.
-package mongo_fix //nolint:revive
+// Package mongofix provides utilities for fixing MongoDB-related issues.
+package mongofix
 
 import (
 	"net/url"

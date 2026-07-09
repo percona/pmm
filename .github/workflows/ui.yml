@@ -2,16 +2,6 @@
 name: UI
 
 on:
-  push:
-    branches:
-      - main
-      - pmm-*
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-    paths-ignore:
-      - "documentation/**"
-      - "dashboards/**"
-
   pull_request:
     paths-ignore:
       - "admin/**"
@@ -47,6 +37,9 @@ jobs:
           node-version-file: ui/.nvmrc
           cache: yarn
           cache-dependency-path: ui/yarn.lock
+
+      - name: Check formatting
+        run: make format-check
 
       - name: Run lint
         run: make lint
