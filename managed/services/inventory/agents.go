@@ -2006,7 +2006,8 @@ func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string,
 				return err
 			}
 
-			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, updatedAgent); err != nil {
+			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, updatedAgent)
+			if err != nil {
 				return err
 			}
 		}

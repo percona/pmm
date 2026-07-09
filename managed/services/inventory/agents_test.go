@@ -1092,9 +1092,9 @@ func TestChangeAgentConnectionCheck(t *testing.T) {
 
 	connectionCheckCall := func(as *AgentsService, ctx context.Context) *mock.Call {
 		return as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name()))
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name()))
 	}
 
 	t.Run("CheckRunsOnCredentialChange", func(t *testing.T) {
