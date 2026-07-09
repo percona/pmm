@@ -338,8 +338,7 @@ After configuring your database server, add a MongoDB service using either the u
         --username=pmm \
         --password=your_secure_password \
         --host=127.0.0.1 \
-        --port=27017 \
-        --enable-all-collectors
+        --port=27017
         ```
 
     === "Replica Set or Sharded cluster component"
@@ -348,9 +347,8 @@ After configuring your database server, add a MongoDB service using either the u
         --username=pmm \
         --password=your_secure_password \
         --host=127.0.0.1 \
-        --port=27017 \        
-        --cluster=my_cluster_or_rs_name \
-        --enable-all-collectors        
+        --port=27017 \
+        --cluster=my_cluster_or_rs_name
         ```
 
     === "Ignoring insecure server certificate"
@@ -359,23 +357,20 @@ After configuring your database server, add a MongoDB service using either the u
         --username=pmm \
         --password=your_secure_password \
         --host=127.0.0.1 \
-        --port=27017 \        
+        --port=27017 \
         --cluster=my_cluster_or_rs_name \
-        --enable-all-collectors \      
-        --tls-skip-verify        
-        ```     
-        
+        --tls-skip-verify
+        ```
+
     === "With mongolog query source"
         ```sh
         pmm-admin add mongodb \
         --username=pmm \
         --password=your_secure_password \
+        --query-source=mongolog \
         --host=127.0.0.1 \
-        --port=27017 \        
-        --cluster=my_cluster_or_rs_name \
-        --enable-all-collectors \      
-        --query-source=mongolog         
-        ```        
+        --port=27017
+        ```
 
     === "SSL/TLS secured MongoDB"
         ```sh
@@ -383,15 +378,14 @@ After configuring your database server, add a MongoDB service using either the u
         --username=pmm \
         --password=your_secure_password \
         --host=fqdn_of_your_mongo_host \
-        --port=27017 \          
+        --port=27017 \
         --tls \
         --tls-certificate-key-file=/path/to/client.pem \
         --tls-certificate-key-file-password=cert_password \  # If needed
         --tls-ca-file=/path/to/ca.pem \
         --authentication-mechanism=MONGODB-X509 \
         --authentication-database=$external \
-        --cluster=my_cluster_or_rs_name \
-        --enable-all-collectors        
+        --cluster=my_cluster_or_rs_name
         ```
     
     When successful, PMM Client will print `MongoDB Service added` with the service's ID and name. Use the `--environment` and `--custom-labels` options to set tags for the service to help identify them.
@@ -425,8 +419,7 @@ After configuring your database server, add a MongoDB service using either the u
     --password=your_secure_password \
     --host=127.0.0.1 \
     --port=27017 \
-    --agent-env-vars="LOG_LEVEL,OTHER_VAR" \
-    --enable-all-collectors
+    --agent-env-vars="LOG_LEVEL,OTHER_VAR"
     ```
     
     Only variables already set in the `pmm-agent` environment will be passed to the exporter.
@@ -449,7 +442,7 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
         ```sh
         pmm-admin status
         ```
-        Look for `mongodb_mongolog_agent` - it should show the agent is running with mongolog as the query source.
+        Look for `mongodb_profiler_agent` - it should show the agent is running with the profiler as the query source.
 
     === "Via web UI"
         To check the service from the UI:
