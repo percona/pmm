@@ -1,30 +1,19 @@
 import { FC } from 'react';
 import { Box, Skeleton, Stack, Typography } from '@mui/material';
 import { Messages } from '../AlertDetailsTab.messages';
-import { AlertRow } from '../../../AlertsPage.types';
 import { useAlertValueThreshold } from 'hooks/api/useAlertValueThreshold';
 import UnavailableText from 'components/unavailable-text';
+import { PERCENT_OFF_SCALE } from './ValueThreshold.constants';
+import { formatNumber, toPercent } from './ValueThreshold.utils';
+import { GrafanaRulerLabels } from 'types/grafana-ruler.types';
 
 interface Props {
-  alert: AlertRow;
+  uid: string;
+  labels: GrafanaRulerLabels;
 }
 
-const clampFraction = (fraction: number): number =>
-  Math.min(Math.max(fraction, 0), 1);
-
-const toPercent = (fraction: number): string =>
-  `${clampFraction(fraction) * 100}%`;
-
-// Round to at most 2 decimals and drop trailing zeros (2.6490066 -> "2.65", 80 -> "80").
-const formatNumber = (value: number): string => `${Number(value.toFixed(2))}`;
-
-// Beyond ~10x over/under, the percentage stops conveying anything useful — e.g. a restart
-// detector (`mysql_global_status_uptime < bool 5`) reads as "94620% over". Past this point we
-// drop the percent and show only the direction word, so the value/threshold stays readable.
-const PERCENT_OFF_SCALE = 1000;
-
-const ValueThreshold: FC<Props> = ({ alert }) => {
-  const { data, isLoading } = useAlertValueThreshold(alert);
+const ValueThreshold: FC<Props> = ({ uid, labels }) => {
+  const { data, isLoading } = useAlertValueThreshold(uid, labels);
 
   if (isLoading) {
     return <Skeleton variant="rounded" width="100%" height={32} />;

@@ -11,11 +11,12 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import { Icon } from 'components/icon';
 import { useEscapeKey } from 'utils/keys.utils';
-import { AlertsTableRow } from '../AlertsPage.types';
+import { AlertRow, AlertsTableRow } from '../AlertsPage.types';
 import AlertDetailsTab from './details/AlertDetailsTab';
 import { Messages } from './AlertDetailsPane.messages';
 import { UseDetailsPaneNavigationResult } from '@percona/percona-ui';
 import RawDataTab from './raw-data/RawDataTab';
+import { useAlertDetailsPane } from './AlertDetailsPane.utils';
 
 interface Props extends UseDetailsPaneNavigationResult {
   alert?: AlertsTableRow;
@@ -31,6 +32,7 @@ const AlertDetailsPane: FC<Props> = ({
   previous,
 }) => {
   const [tab, setTab] = useState<'details' | 'raw-data'>('details');
+  const details = useAlertDetailsPane(alert as AlertRow);
 
   const handleClose = () => {
     onClose();
@@ -39,15 +41,15 @@ const AlertDetailsPane: FC<Props> = ({
 
   useEscapeKey(handleClose);
 
-  if (alert?.type === 'node') {
+  if (alert?.type === 'node' || !details) {
     return null;
   }
 
   return (
-    <Slide in={!!alert} direction="up">
+    <Slide in={!!details} direction="up">
       <Paper
         data-testid="alert-details-pane"
-        aria-hidden={alert ? 'false' : 'true'}
+        aria-hidden={details ? 'false' : 'true'}
         variant="outlined"
         sx={(theme) => ({
           pb: 1,
@@ -118,7 +120,7 @@ const AlertDetailsPane: FC<Props> = ({
             </Tooltip>
           </Stack>
         </Stack>
-        {alert ? (
+        {details ? (
           <CardContent
             sx={{
               p: 0,
@@ -129,8 +131,8 @@ const AlertDetailsPane: FC<Props> = ({
               overflowX: 'hidden',
             }}
           >
-            {tab === 'details' && <AlertDetailsTab alert={alert} />}
-            {tab === 'raw-data' && <RawDataTab alert={alert} />}
+            {tab === 'details' && <AlertDetailsTab details={details} />}
+            {tab === 'raw-data' && <RawDataTab details={details} />}
           </CardContent>
         ) : null}
       </Paper>
