@@ -16,8 +16,9 @@
 package agents
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/go-version"
-	"github.com/pkg/errors"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
@@ -175,7 +176,7 @@ func (s *VersionerService) GetVersions(pmmAgentID string, softwareList []Softwar
 
 	agent, err := s.r.get(pmmAgentID)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	softwareRequest := make([]*agentv1.GetVersionsRequest_Software, 0, len(softwareList))
@@ -186,12 +187,12 @@ func (s *VersionerService) GetVersions(pmmAgentID string, softwareList []Softwar
 	request := &agentv1.GetVersionsRequest{Softwares: softwareRequest}
 	response, err := agent.channel.SendAndWaitResponse(request)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	versionsResponse := response.(*agentv1.GetVersionsResponse).Versions //nolint:forcetypeassert
 	if len(versionsResponse) != len(softwareRequest) {
-		return nil, errors.Errorf("response and request slice length mismatch %d != %d",
+		return nil, fmt.Errorf("response and request slice length mismatch %d != %d",
 			len(versionsResponse), len(softwareRequest))
 	}
 

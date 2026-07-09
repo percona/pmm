@@ -16,10 +16,10 @@
 package agents
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
 	"gopkg.in/yaml.v3"
 
@@ -61,7 +61,7 @@ func mergeLabels(node *models.Node, agent *models.Agent) (model.LabelSet, error)
 
 	err = res.Validate()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to merge labels")
+		return nil, fmt.Errorf("failed to merge labels: %w", err)
 	}
 	return res, nil
 }
@@ -122,7 +122,7 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 
 	b, err := yaml.Marshal(config)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &agentv1.SetStateRequest_AgentProcess{

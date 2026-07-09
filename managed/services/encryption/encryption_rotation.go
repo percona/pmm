@@ -18,12 +18,12 @@ package encryption
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -145,7 +145,7 @@ func rotateEncryptionKey(db *reform.DB, dbName string) error {
 		if err != nil {
 			e := encryption.RestoreOldEncryptionKey()
 			if e != nil {
-				return errors.Wrap(err, e.Error())
+				return fmt.Errorf("%w: %w", e, err)
 			}
 			return err
 		}

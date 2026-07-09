@@ -17,9 +17,9 @@ package models
 
 import (
 	"database/sql/driver"
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/pi/common"
@@ -175,7 +175,7 @@ func (s *Severity) Scan(src any) error {
 		*s = Severity(cs)
 		return nil
 	default:
-		return errors.Errorf("expected string, got %T (%q)", src, src)
+		return fmt.Errorf("expected string, got %T (%q)", src, src)
 	}
 }
 

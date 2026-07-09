@@ -20,11 +20,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
 	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -42,7 +42,7 @@ type Client struct {
 }
 
 // NewClient creates new telemetry client.
-func NewClient(address string) (*Client, error) { //nolint:unparam
+func NewClient(address string) *Client {
 	l := logrus.WithField("component", "telemetry client")
 
 	tlsConfig := tlsconfig.Get()
@@ -60,7 +60,7 @@ func NewClient(address string) (*Client, error) { //nolint:unparam
 				Proxy: http.ProxyFromEnvironment,
 			},
 		},
-	}, nil
+	}
 }
 
 // SendTelemetry sends anonymous telemetry data to Percona Platform.
@@ -74,7 +74,7 @@ func (c *Client) SendTelemetry(ctx context.Context, report *telemetryv1.ReportRe
 
 	_, err = c.makeRequest(ctx, http.MethodPost, path, bytes.NewReader(body))
 	if err != nil {
-		return errors.Wrap(err, "failed to send telemetry data")
+		return fmt.Errorf("failed to send telemetry data: %w", err)
 	}
 
 	return nil

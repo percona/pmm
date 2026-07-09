@@ -17,11 +17,12 @@ package validators
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
@@ -45,14 +46,14 @@ func (e *InvalidAlertingRuleError) Error() string {
 func ValidateAlertingRules(ctx context.Context, rules string) error {
 	tempFile, err := os.CreateTemp("", "temp_rules_*.yml")
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("alerting rule validation failed: %w", err)
 	}
 	tempFile.Close()                 //nolint:errcheck
 	defer os.Remove(tempFile.Name()) //nolint:errcheck
 
 	err = os.WriteFile(tempFile.Name(), []byte(rules), 0o644) //nolint:gosec,mnd
 	if err != nil {
-		return errors.WithStack(err)
+		return fmt.Errorf("alerting rule validation failed: %w", err)
 	}
 
 	timeoutCtx, cancel := context.WithTimeout(ctx, 3*time.Second) //nolint:mnd
@@ -64,13 +65,13 @@ func ValidateAlertingRules(ctx context.Context, rules string) error {
 	b, err := cmd.CombinedOutput()
 	logrus.Debugf("ValidateAlertingRules: %v\n%s", err, b)
 	if err != nil {
-		var e *exec.ExitError
-		if errors.As(err, &e) && e.ExitCode() != 0 {
+		e, ok := errors.AsType[*exec.ExitError](err)
+		if ok && e.ExitCode() != 0 {
 			return &InvalidAlertingRuleError{
 				Msg: "Invalid alerting rules.",
 			}
 		}
-		return errors.WithStack(err)
+		return fmt.Errorf("alerting rule validation failed: %w", err)
 	}
 
 	return nil

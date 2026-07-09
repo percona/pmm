@@ -18,8 +18,9 @@ package common
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	backuppb "github.com/percona/pmm/api/backup/v1"
@@ -114,7 +115,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 
 	for _, artifact := range artifacts.Artifacts {
 		if _, ok := sMap[artifact.ServiceId]; ok && statusNotFinal(artifact.Status) {
-			return errors.Wrapf(ErrClusterLocked, "there is an unfinished backup job for service %s or other service in the same cluster", service.ServiceID)
+			return fmt.Errorf("there is an unfinished backup job for service %s or other service in the same cluster: %w", service.ServiceID, ErrClusterLocked)
 		}
 	}
 
@@ -126,7 +127,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 
 	for _, restoreItem := range restores.Items {
 		if _, ok := sMap[restoreItem.ServiceId]; ok && restoreItem.Status == backuppb.RestoreStatus_RESTORE_STATUS_IN_PROGRESS {
-			return errors.Wrapf(ErrClusterLocked, "there is an unfinished restore job for service %s or other service in the same cluster", service.ServiceID)
+			return fmt.Errorf("there is an unfinished restore job for service %s or other service in the same cluster: %w", service.ServiceID, ErrClusterLocked)
 		}
 	}
 

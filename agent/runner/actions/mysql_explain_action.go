@@ -19,13 +19,12 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
 	"text/tabwriter"
 	"time"
-
-	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
@@ -35,7 +34,7 @@ import (
 
 const (
 	errNoDatabaseSelectedCode    = "Error 1046 (3D000)"
-	errNoDatabaseSelectedMessage = "Database name is not included in this query. Explain could not be triggered without this info"
+	errNoDatabaseSelectedMessage = "database name is not included in this query. Explain could not be triggered without this info"
 )
 
 type mysqlExplainAction struct {
@@ -50,25 +49,30 @@ type explainResponse struct {
 	IsDMLQuery    bool   `json:"is_dml"`
 }
 
-// ErrCannotEncodeExplainResponse cannot JSON encode the explain response.
-var errCannotEncodeExplainResponse = errors.New("cannot JSON encode the explain response")
+// errCannotEncodeExplainResponse cannot JSON encode the explain response.
+var (
+	errCannotEncodeExplainResponse = errors.New("cannot JSON encode the explain response")
+	errEmptyQuery                  = errors.New("query to EXPLAIN is empty")
+	errExplainFailedMaxQueryLength = errors.New("query EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value")
+	errExplainFailedDMLOnly        = errors.New("query EXPLAIN functionality is supported only for DML queries - SELECT, INSERT, UPDATE, DELETE and REPLACE")
+)
 
 // NewMySQLExplainAction creates MySQL Explain Action.
 // This is an Action that can run `EXPLAIN` command on MySQL service with given DSN.
 func NewMySQLExplainAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_MySQLExplainParams) (Action, error) {
 	if params.Query == "" {
-		return nil, errors.New("Query to EXPLAIN is empty")
+		return nil, errEmptyQuery
 	}
 
 	// You cant run Explain on trimmed queries.
 	if strings.HasSuffix(params.Query, "...") {
-		return nil, errors.New("EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value.") //nolint:revive,lll // explain is a keyword
+		return nil, errExplainFailedMaxQueryLength
 	}
 
 	// Explain is supported only for DML queries.
 	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
 	if !isDMLQuery(params.Query) {
-		return nil, errors.New("EXPLAIN functionality is supported only for DML queries - SELECT, INSERT, UPDATE, DELETE and REPLACE.") //nolint:revive,lll // explain is a keyword
+		return nil, errExplainFailedDMLOnly
 	}
 
 	return &mysqlExplainAction{
@@ -140,7 +144,7 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	case agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON:
 		response.ExplainResult, err = a.explainTraditionalJSON(ctx, tx)
 	default:
-		return nil, errors.Errorf("unsupported output format %s", a.params.OutputFormat)
+		return nil, fmt.Errorf("unsupported output format %s", a.params.OutputFormat)
 	}
 
 	if err != nil {
@@ -170,7 +174,7 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 	rows, err := tx.QueryContext(ctx, "EXPLAIN /* pmm-agent */ "+a.params.Query, prepareValues(a.params.Values)...)
 	if err != nil {
 		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
-			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
+			return nil, fmt.Errorf(errNoDatabaseSelectedMessage+": %w", err)
 		}
 		return nil, err
 	}
@@ -226,7 +230,7 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	err := tx.QueryRowContext(ctx, "EXPLAIN /* pmm-agent */ FORMAT=JSON "+a.params.Query, prepareValues(a.params.Values)...).Scan(&b)
 	if err != nil {
 		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
-			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
+			return nil, fmt.Errorf(errNoDatabaseSelectedMessage+": %w", err)
 		}
 		return nil, err
 	}
@@ -271,7 +275,7 @@ func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql
 	rows, err := tx.QueryContext(ctx, "EXPLAIN /* pmm-agent */ "+a.params.Query, prepareValues(a.params.Values)...)
 	if err != nil {
 		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
-			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
+			return nil, fmt.Errorf(errNoDatabaseSelectedMessage+": %w", err)
 		}
 		return nil, err
 	}

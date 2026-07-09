@@ -19,13 +19,13 @@ package encryption
 import (
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"os"
 	"slices"
 	"strings"
 	"sync"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/tink-crypto/tink-go/aead"
 	"github.com/tink-crypto/tink-go/insecurecleartextkeyset"

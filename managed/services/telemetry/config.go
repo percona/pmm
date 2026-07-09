@@ -13,16 +13,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package telemetry provides telemetry functionality.
 package telemetry
 
 import (
 	_ "embed"
+	"fmt"
 	"os"
 	"strconv"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 
@@ -176,7 +175,7 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error {
 
 	telemetry, err := c.loadMetricsConfig(configFile)
 	if err != nil {
-		return errors.Wrap(err, "failed to load telemetry config")
+		return fmt.Errorf("failed to load telemetry config: %w", err)
 	}
 	c.telemetry = telemetry
 
@@ -195,7 +194,7 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error {
 		host, err := envvars.GetPlatformAddress()
 		c.SaasHostname = host
 		if err != nil {
-			return errors.Wrap(err, "failed to get SaaSHost")
+			return fmt.Errorf("failed to get SaaSHost: %w", err)
 		}
 	}
 
@@ -243,7 +242,7 @@ func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
 	}
 	err := yaml.Unmarshal(config, &fileCfg) //nolint:musttag
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot unmarshal default config")
+		return nil, fmt.Errorf("cannot unmarshal default config: %w", err)
 	}
 	fileConfigs = append(fileConfigs, fileCfg)
 
@@ -276,7 +275,7 @@ func (c *ServiceConfig) validateConfig(cfgs []FileConfig) error {
 		for _, each := range cfg.Telemetry {
 			_, exist := ids[each.ID]
 			if exist {
-				return errors.Errorf("telemetry config ID duplication: %s", each.ID)
+				return fmt.Errorf("telemetry config ID duplication: %s", each.ID)
 			}
 			ids[each.ID] = true
 		}

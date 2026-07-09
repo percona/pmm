@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package parser provides functionality to asynchronously process MongoDB profiling data.
+// It consumes raw system.profile documents from a channel, coordinates their
+// aggregation into performance metrics, and manages the lifecycle of the
+// background processing goroutine.
 package parser
 
 import (
@@ -99,6 +103,7 @@ func (p *Parser) Stop() {
 	p.wg.Wait()
 }
 
+// Name returns parser name.
 func (p *Parser) Name() string {
 	return "parser"
 }

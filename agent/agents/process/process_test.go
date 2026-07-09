@@ -44,7 +44,7 @@ func assertStates(t *testing.T, sa *Process, expected ...inventoryv1.AgentStatus
 }
 
 // builds helper app.
-func build(t *testing.T, tag string, fileName string, outputFile string) *exec.Cmd { //nolint:unparam
+func build(t *testing.T, tag string, fileName string, outputFile string) {
 	t.Helper()
 
 	t.Logf("building to %s", outputFile)
@@ -57,7 +57,6 @@ func build(t *testing.T, tag string, fileName string, outputFile string) *exec.C
 	cmd.Stdout = os.Stderr
 	cmd.Stderr = os.Stderr
 	require.NoError(t, cmd.Run(), "failed to build %s", fileName)
-	return cmd
 }
 
 func setup(t *testing.T) (context.Context, context.CancelFunc, *logrus.Entry) {

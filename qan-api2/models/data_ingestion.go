@@ -17,10 +17,10 @@ package models
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
@@ -593,6 +593,8 @@ const insertSQL = `
 
 // MetricsBucketExtended extends proto MetricsBucket to store converted data into db.
 type MetricsBucketExtended struct {
+	*qanpb.MetricsBucket
+
 	PeriodStart      time.Time `json:"period_start_ts"`
 	AgentType        string    `json:"agent_type_s"`
 	ExampleType      string    `json:"example_type_s"`
@@ -603,7 +605,6 @@ type MetricsBucketExtended struct {
 	ErrorsCode       []uint64  `json:"errors_code"`
 	ErrorsCount      []uint64  `json:"errors_count"`
 	IsQueryTruncated uint8     `json:"is_query_truncated"` // uint32 -> uint8
-	*qanpb.MetricsBucket
 }
 
 // MetricsBucket implements models to store metrics bucket.
@@ -729,13 +730,13 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 	var tx *sqlx.Tx
 	tx, err = mb.db.Beginx()
 	if err != nil {
-		return errors.Wrap(err, "failed to begin transaction")
+		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
 	defer func() {
 		if err == nil {
 			err = tx.Commit()
 			if err != nil {
-				err = errors.Wrap(err, "failed to commit transaction")
+				err = fmt.Errorf("failed to commit transaction: %w", err)
 			}
 		} else {
 			_ = tx.Rollback()
@@ -746,12 +747,12 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 	var stmt *sqlx.NamedStmt
 	stmt, err = tx.PrepareNamed(insertSQL)
 	if err != nil {
-		return errors.Wrap(err, "failed to prepare statement")
+		return fmt.Errorf("failed to prepare statement: %w", err)
 	}
 	defer func() {
 		e := stmt.Close()
 		if e != nil && err == nil {
-			err = errors.Wrap(e, "failed to close statement")
+			err = fmt.Errorf("failed to close statement: %w", e)
 		}
 	}()
 
@@ -779,22 +780,22 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 			}
 
 			q := MetricsBucketExtended{
-				time.Unix(int64(metricsBucket.GetPeriodStartUnixSecs()), 0).UTC(),
-				agentTypeToClickHouseEnum(metricsBucket.GetAgentType()),
-				exampleTypeToClickHouseEnum(metricsBucket.GetExampleType()),
-				lk,
-				lv,
-				wk,
-				wv,
-				ek,
-				ev,
-				truncated,
-				metricsBucket,
+				MetricsBucket:    metricsBucket,
+				PeriodStart:      time.Unix(int64(metricsBucket.GetPeriodStartUnixSecs()), 0).UTC(),
+				AgentType:        agentTypeToClickHouseEnum(metricsBucket.GetAgentType()),
+				ExampleType:      exampleTypeToClickHouseEnum(metricsBucket.GetExampleType()),
+				LabelsKey:        lk,
+				LabelsValues:     lv,
+				WarningsCode:     wk,
+				WarningsCount:    wv,
+				ErrorsCode:       ek,
+				ErrorsCount:      ev,
+				IsQueryTruncated: truncated,
 			}
 
 			_, err = stmt.Exec(q)
 			if err != nil {
-				return errors.Wrap(err, "failed to exec")
+				return fmt.Errorf("failed to exec: %w", err)
 			}
 		}
 
@@ -812,14 +813,13 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) error {
 }
 
 // Save store metrics bucket received from agent into db.
-func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error { //nolint:unparam
+func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) {
 	if len(agentMsg.MetricsBucket) == 0 {
 		mb.l.Warnf("Nothing to save - no metrics buckets.")
-		return nil
+		return
 	}
 
 	mb.requestsCh <- agentMsg
-	return nil
 }
 
 // mapToArrsStrStr converts map into two lists.

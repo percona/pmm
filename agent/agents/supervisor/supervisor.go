@@ -27,7 +27,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
@@ -318,7 +317,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 
 		delete(s.agentProcesses, agentID)
 
-		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
+		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, trimPrefix(agent.requestedState.Type.String()), agentID)
 		err = os.RemoveAll(agentTmp)
 		if err != nil {
 			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
@@ -376,7 +375,7 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetState
 
 		delete(s.builtinAgents, agentID)
 
-		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
+		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, trimPrefix(agent.requestedState.Type.String()), agentID)
 		err := os.RemoveAll(agentTmp)
 		if err != nil {
 			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
@@ -443,17 +442,16 @@ func filter(existing, ap map[string]agentv1.AgentParams) ([]string, []string, []
 	return toStart, toRestart, toStop
 }
 
-//nolint:revive
 const (
-	type_TEST_SLEEP       inventoryv1.AgentType = 998 // process
-	type_TEST_NOOP        inventoryv1.AgentType = 999 // built-in
-	process_Retry_Time    int                   = 3
-	start_Process_Waiting                       = 2 * time.Second
+	typeTestSleep       inventoryv1.AgentType = 998 // process
+	typeTestNoop        inventoryv1.AgentType = 999 // built-in
+	processRetryCount   int                   = 3
+	startProcessWaiting                       = 2 * time.Second
 )
 
 func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16) error {
 	var err error
-	for range process_Retry_Time {
+	for range processRetryCount {
 		if port == 0 {
 			_port, err := s.portsRegistry.Reserve()
 			if err != nil {
@@ -491,8 +489,8 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 	})
 	l.Debugf("Starting: %s.", processParams)
 
-	process := process.New(processParams, agentProcess.RedactWords, l)
-	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), process.Run)
+	processWrapper := process.New(processParams, agentProcess.RedactWords, l)
+	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), processWrapper.Run)
 
 	version, err := s.version(agentProcess.Type, processParams.Path)
 	if err != nil {
@@ -501,7 +499,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 
 	done := make(chan struct{})
 	go func() {
-		for status := range process.Changes() {
+		for status := range processWrapper.Changes() {
 			s.storeLastStatus(agentID, status)
 			l.Infof("Sending status: %s (port %d).", status, port)
 			s.changes <- &agentv1.StateChangedRequest{
@@ -524,10 +522,10 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		logStore:        logStore,
 	}
 
-	t := time.NewTimer(start_Process_Waiting)
+	t := time.NewTimer(startProcessWaiting)
 	defer t.Stop()
 	select {
-	case isInitialized := <-process.IsInitialized():
+	case isInitialized := <-processWrapper.IsInitialized():
 		if !isInitialized {
 			// TODO: handle initialization error for nomad agent
 			if agentProcess.Type == inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT {
@@ -535,7 +533,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 				return nil
 			}
 			defer cancel()
-			return process.GetError()
+			return processWrapper.GetError()
 		}
 	case <-t.C:
 	}
@@ -588,7 +586,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 
 	var dsn string
 	if builtinAgent.TextFiles != nil {
-		tempDir := filepath.Join(cfg.Paths.TempDir, strings.ToLower(builtinAgent.Type.String()), agentID)
+		tempDir := filepath.Join(cfg.Paths.TempDir, trimPrefix(builtinAgent.Type.String()), agentID)
 		dsn, err = templates.RenderDSN(builtinAgent.Dsn, builtinAgent.TextFiles, tempDir)
 		if err != nil {
 			cancel()
@@ -674,11 +672,11 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 		}
 		agent, err = mongorta.New(params, l)
 
-	case type_TEST_NOOP:
+	case typeTestNoop:
 		agent = noop.New()
 
 	default:
-		err = errors.Errorf("unhandled agent type %[1]s (%[1]d)", builtinAgent.Type)
+		err = fmt.Errorf("unhandled agent type %[1]s (%[1]d)", builtinAgent.Type)
 	}
 
 	if err != nil {
@@ -784,7 +782,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 	case inventoryv1.AgentType_AGENT_TYPE_VALKEY_EXPORTER:
 		templateParams["paths_base"] = cfg.Paths.PathsBase
 		processParams.Path = cfg.Paths.ValkeyExporter
-	case type_TEST_SLEEP:
+	case typeTestSleep:
 		processParams.Path = "sleep"
 	case inventoryv1.AgentType_AGENT_TYPE_VM_AGENT:
 		templateParams["server_insecure"] = cfg.Server.InsecureTLS
@@ -802,18 +800,18 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		processParams.Path = cfg.Paths.Nomad
 		processParams.Env = append(processParams.Env, os.Environ()...)
 	default:
-		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
+		return nil, fmt.Errorf("unhandled agent type %[1]s (%[1]d)", agentProcess.Type)
 	}
 
 	if processParams.Path == "" {
-		return nil, errors.Errorf("no path for agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
+		return nil, fmt.Errorf("no path for agent type %[1]s (%[1]d)", agentProcess.Type)
 	}
 
 	tr := &templates.TemplateRenderer{
 		TextFiles:          agentProcess.TextFiles,
 		TemplateLeftDelim:  agentProcess.TemplateLeftDelim,
 		TemplateRightDelim: agentProcess.TemplateRightDelim,
-		TempDir:            filepath.Join(cfg.Paths.TempDir, strings.ToLower(agentProcess.Type.String()), agentID),
+		TempDir:            filepath.Join(cfg.Paths.TempDir, trimPrefix(agentProcess.Type.String()), agentID),
 	}
 
 	processParams.TemplateRenderer = tr

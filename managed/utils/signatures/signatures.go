@@ -17,7 +17,8 @@
 package signatures
 
 import (
-	"github.com/pkg/errors"
+	"errors"
+
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/pi/check"
