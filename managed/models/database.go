@@ -1425,7 +1425,8 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
 		}
 
-		_, err = db.ExecContext(ctx, `GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
+		_, err = db.ExecContext(ctx, fmt.Sprintf("GRANT ALL PRIVILEGES ON DATABASE %s TO %s",
+			pq.QuoteIdentifier(params.Name), pq.QuoteIdentifier(params.Username)))
 		if err != nil {
 			return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
 		}

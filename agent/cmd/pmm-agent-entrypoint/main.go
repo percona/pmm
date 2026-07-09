@@ -173,7 +173,13 @@ func main() { //nolint:gocognit
 
 	if len(os.Args) > 1 {
 		l.Info(helpText)
-		_ = exec.CommandContext(ctx, "pmm-agent", "setup", "--help").Run()
+		cmd := exec.CommandContext(ctx, "pmm-agent", "setup", "--help")
+		b, err := cmd.CombinedOutput()
+		if err != nil {
+			l.Errorf("Failed to run 'pmm-agent setup --help': %s", err)
+			os.Exit(1)
+		}
+		l.Info(string(b))
 		os.Exit(1)
 	}
 
