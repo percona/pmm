@@ -1,5 +1,6 @@
 import { FC, useState } from 'react';
 import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import CardContent from '@mui/material/CardContent';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
@@ -7,7 +8,7 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
-import { Icon } from 'components/icon';
+import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 import Paper from '@mui/material/Paper';
 import Slide from '@mui/material/Slide';
 import { QueryData } from 'types/rta.types';
@@ -37,21 +38,32 @@ const DetailsPane: FC<Props> = ({
   const [tab, setTab] = useState<'details' | 'raw-data'>('details');
 
   return (
-    <Slide in={!!query} direction="up">
+    <Slide
+      in={!!query}
+      direction="up"
+      timeout={{ enter: 300, exit: 200 }}
+    >
       <Paper
         data-testid="query-details-pane"
         aria-hidden={query ? 'false' : 'true'}
         variant="outlined"
         sx={(theme) => ({
-          pb: 1,
-          px: 3,
+          px: 2,
           top: 0,
           left: 0,
           right: 0,
-          m: 2,
-          bottom: theme.spacing(-2),
+          bottom: 0,
+          mt: 2,
+          mx: 2,
+          borderTopLeftRadius: "8px",
+          borderTopRightRadius: "8px",
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
+          borderBottom: 'none',
           position: 'absolute',
-          overflow: 'scroll',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
           zIndex: theme.zIndex.modal,
         })}
       >
@@ -79,7 +91,7 @@ const DetailsPane: FC<Props> = ({
               label={Messages.tabs.rawData}
             />
           </Tabs>
-          <Stack gap={1} direction="row" alignItems="center">
+          <Stack direction="row" alignItems="center" sx={{ mr: -1.5 }}>
             <Tooltip title={Messages.tooltips.previous} arrow>
               <IconButton
                 data-testid="details-pane-prev-button"
@@ -106,7 +118,7 @@ const DetailsPane: FC<Props> = ({
                 aria-label={Messages.actions.close}
                 onClick={onClose}
               >
-                <Icon name="bottom-panel-close" />
+                <ClearOutlinedIcon />
               </IconButton>
             </Tooltip>
           </Stack>
@@ -114,24 +126,37 @@ const DetailsPane: FC<Props> = ({
         {query ? (
           <CardContent
             sx={{
-              p: 0,
-              pt: 3,
+              px: 0,
+              py: 2,
+              '&:last-child': { pb: 2 },
               flexGrow: 1,
-              minHeight: 300,
+              minHeight: 0,
+              display: 'flex',
+              flexDirection: 'column',
               overflowY: 'auto',
               overflowX: 'hidden',
             }}
           >
             {tab === 'details' && <QueryAndDetails queryData={query} />}
             {tab === 'raw-data' && (
-              <CodeBlock
-                language="json"
-                content={query.queryRawJson}
-                copyable
-                wrap
-                sx={{ maxHeight: '80vh', overflow: 'auto' }}
-                data-testid="query-raw-data"
-              />
+              <Box
+                sx={{
+                  flex: 1,
+                  minHeight: 0,
+                  minWidth: 0,
+                  display: 'grid',
+                  gridTemplateRows: '1fr',
+                }}
+              >
+                <CodeBlock
+                  language="json"
+                  content={query.queryRawJson}
+                  copyable
+                  wrap
+                  sx={{ position: 'absolute', inset: 0, overflowY: 'auto' }}
+                  data-testid="query-raw-data"
+                />
+              </Box>
             )}
           </CardContent>
         ) : null}

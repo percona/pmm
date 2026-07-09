@@ -180,19 +180,28 @@ const SessionsTable: FC = () => {
         }}
         muiTopToolbarProps={{
           sx: {
-            // vertically center the buttons
             [`& > .${boxClasses.root}`]: {
-              alignItems: 'center',
+              alignItems: 'flex-start',
               flexDirection: user?.isPMMAdmin ? 'row-reverse' : undefined,
             },
           },
         }}
         renderTopToolbarCustomActions={() =>
           user?.isPMMAdmin && (
-            <Stack direction="row" alignItems="center" gap={2}>
+            <Stack
+              direction="row"
+              flexWrap="wrap"
+              rowGap={1}
+              columnGap={4}
+              pt={1}
+            >
               {selectedSessions.length > 0 && (
-                <Stack direction="row" alignItems="center" gap={2}>
-                  <Typography variant="body2">
+                <Stack
+                  direction="row"
+                  flexWrap="wrap"
+                  alignItems="center"
+                >
+                  <Typography variant="body2" sx={{ mx: 1 }}>
                     {Messages.selected(selectedSessions.length)}
                   </Typography>
                   <Button
@@ -204,22 +213,29 @@ const SessionsTable: FC = () => {
                   </Button>
                 </Stack>
               )}
-              {!!sessions.length && (
-                <Button
-                  data-testid="open-stop-all-modal"
-                  startIcon={<StopCircleOutlinedIcon />}
-                  onClick={openStopAllModal}
-                >
-                  {Messages.stopAll}
-                </Button>
-              )}
-              <Button
-                data-testid="open-new-modal"
-                startIcon={<AddOutlinedIcon />}
-                onClick={openNewSessionModal}
+              <Stack
+                direction="row"
+                flexWrap="wrap"
+                alignItems="center"
+                gap={1}
               >
-                {Messages.newSession}
-              </Button>
+                {!!sessions.length && (
+                  <Button
+                    data-testid="open-stop-all-modal"
+                    startIcon={<StopCircleOutlinedIcon />}
+                    onClick={openStopAllModal}
+                  >
+                    {Messages.stopAll}
+                  </Button>
+                )}
+                <Button
+                  data-testid="open-new-modal"
+                  startIcon={<AddOutlinedIcon />}
+                  onClick={openNewSessionModal}
+                >
+                  {Messages.newSession}
+                </Button>
+              </Stack>
             </Stack>
           )
         }

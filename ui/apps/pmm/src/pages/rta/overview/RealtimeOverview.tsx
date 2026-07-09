@@ -100,7 +100,8 @@ const RealtimeOverviewPage: FC = () => {
             flexWrap="wrap"
             alignItems="flex-start"
             alignContent="flex-start"
-            gap={1}
+            rowGap={0}
+            columnGap={1}
             sx={{
               width: '100%',
               minWidth: 0

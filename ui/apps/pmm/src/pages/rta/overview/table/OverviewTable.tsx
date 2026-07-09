@@ -85,7 +85,7 @@ const OverviewTable: FC<Props> = ({
           sx: { py: 1, px: 1 },
         }}
         muiTableHeadCellProps={{
-          sx: { py: 1, px: 1 },
+          sx: { px: 1 },
         }}
       />
     </RealtimeTableWrapper>
