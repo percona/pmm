@@ -49,11 +49,9 @@ const pmmThemeOptions = (mode: PaletteMode): ThemeOptions => {
         styleOverrides: (theme) => ({
           html: {
             backgroundColor: theme.palette.background.default,
-            scrollbarColor: `${theme.palette.divider} ${theme.palette.background.paper}`,
           },
           body: {
             backgroundColor: theme.palette.background.default,
-            scrollbarColor: `${theme.palette.divider} ${theme.palette.background.paper}`,
           },
         }),
       },
