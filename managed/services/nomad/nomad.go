@@ -171,7 +171,7 @@ func (c *Nomad) generateServerCert(ctx context.Context, domain string) error {
 			}
 		}
 	}
-	command := exec.CommandContext(ctx, pathToNomad, //nolint:gosec
+	command := exec.CommandContext(context.WithoutCancel(ctx), pathToNomad, //nolint:gosec
 		"tls",
 		"cert",
 		"create",
