@@ -442,7 +442,7 @@ After adding MongoDB service to PMM, verify that it's properly configured and co
         ```sh
         pmm-admin status
         ```
-        Look for `mongodb_profiler_agent` in the output. The agent status should show it is running with the profiler as the query source.
+        Confirm that `mongodb_profiler_agent` appears in the output with status **Running** and query source `profiler`.
 
     === "Via web UI"
         To check the service from the UI:
