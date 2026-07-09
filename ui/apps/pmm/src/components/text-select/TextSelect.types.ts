@@ -13,5 +13,6 @@ export interface TextSelectProps<T> {
   disabled?: boolean;
   disabledValue?: string;
   startIcon?: ButtonProps['startIcon'];
+  buttonProps?: ButtonProps;
   'data-testid-button'?: string;
 }

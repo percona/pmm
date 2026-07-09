@@ -46,9 +46,10 @@ const OverviewTable: FC<Props> = ({
         noDataMessage={Messages.noData}
         muiTopToolbarProps={{
           sx: {
-            // vertically center the buttons
+            mb: 0.5,
             [`& > .${boxClasses.root}`]: {
-              alignItems: 'center',
+              alignItems: 'flex-start',
+              alignContent: 'flex-start',
               flexDirection: 'row-reverse',
             },
           },
@@ -80,6 +81,12 @@ const OverviewTable: FC<Props> = ({
           onMouseEnter: onRowHover,
           'data-testid': `query-${row.original.queryId}-row`,
         })}
+        muiTableBodyCellProps={{
+          sx: { py: 1, px: 1 },
+        }}
+        muiTableHeadCellProps={{
+          sx: { py: 1, px: 1 },
+        }}
       />
     </RealtimeTableWrapper>
   );

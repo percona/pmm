@@ -20,6 +20,7 @@ export const TextSelect = <T,>({
   disabled,
   disabledValue,
   startIcon,
+  buttonProps,
   'data-testid-button': dataTestIdButton,
 }: TextSelectProps<T>) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -49,6 +50,7 @@ export const TextSelect = <T,>({
         data-testid={dataTestIdButton || 'text-select-button'}
         disabled={disabled}
         startIcon={startIcon}
+        {...buttonProps}
       >
         {label || Messages.label}: {valueLabel || Messages.empty}
       </Button>
