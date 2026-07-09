@@ -566,7 +566,47 @@ func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Templ
 		return nil, err
 	}
 
+	if err := populateMultiExpressionFields(t, template.Yaml); err != nil {
+		return nil, err
+	}
+
 	return t, nil
+}
+
+// populateMultiExpressionFields fills the multi-query fields (queries/expressions/condition)
+func populateMultiExpressionFields(t *alerting.Template, yamlContent string) error {
+	if yamlContent == "" {
+		return nil
+	}
+
+	at, err := parseAlertTemplate(yamlContent)
+	if err != nil {
+		return fmt.Errorf("failed to parse YAML of template %q for query steps: %w", t.Name, err)
+	}
+
+	if !at.UsesMultipleExpressions() {
+		return nil
+	}
+
+	queries := make([]*alerting.TemplateQuery, 0, len(at.Queries))
+	for _, q := range at.Queries {
+		queries = append(queries, &alerting.TemplateQuery{RefId: q.RefID, Expr: q.Expr})
+	}
+
+	expressions := make([]*alerting.TemplateExpression, 0, len(at.Expressions))
+	for _, e := range at.Expressions {
+		expressions = append(expressions, &alerting.TemplateExpression{
+			RefId:      e.RefID,
+			Type:       e.Type,
+			Expression: e.Expression,
+		})
+	}
+
+	t.Queries = queries
+	t.Expressions = expressions
+	t.Condition = at.Condition
+
+	return nil
 }
 
 func convertParamDefinitions(l *logrus.Entry, params models.AlertExprParamsDefinitions) []*alerting.ParamDefinition {

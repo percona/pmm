@@ -16,8 +16,10 @@
 package alerting
 
 import (
+	"strings"
 	"testing"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -286,5 +288,131 @@ func TestQueryRefForRuleLabels(t *testing.T) {
 		assert.Equal(t, "Q1", queryRefForRuleLabels(&alert.Template{
 			Queries: []alert.TemplateQuery{{RefID: "Q1"}, {RefID: "Q2"}},
 		}))
+	})
+}
+
+func TestConvertTemplate(t *testing.T) {
+	t.Parallel()
+
+	parse := func(t *testing.T, y string) models.Template {
+		t.Helper()
+		templates, err := alert.Parse(strings.NewReader(y), &alert.ParseParams{
+			DisallowUnknownFields:    true,
+			DisallowInvalidTemplates: true,
+		})
+		require.NoError(t, err)
+		require.Len(t, templates, 1)
+		tm, err := models.ConvertTemplate(&templates[0], models.UserAPISource)
+		require.NoError(t, err)
+		return *tm
+	}
+
+	t.Run("exposes multi-query steps", func(t *testing.T) {
+		t.Parallel()
+
+		const multiYAML = `templates:
+  - name: pmm_node_high_cpu_load_test
+    version: 1
+    summary: Node high CPU load
+    queries:
+      - ref_id: A
+        expr: |-
+          (1 - avg by(node_name) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100
+      - ref_id: B
+        expr: |-
+          label_replace(vector(10), "node_name", "pmm-server", "", "") or (group by(node_name) (node_cpu_seconds_total) * 0 + [[ .threshold ]])
+    expressions:
+      - ref_id: C
+        type: math
+        expression: "$A > $B"
+    condition: C
+    params:
+      - name: threshold
+        summary: A percentage from configured maximum
+        unit: "%"
+        type: float
+        range: [0, 100]
+        value: 80
+    for: 5m
+    severity: warning
+    annotations:
+      summary: Node high CPU load ({{ $labels.node_name }})
+      description: '{{ $labels.node_name }} CPU load is more than [[ .threshold ]]%.'
+`
+
+		tm := parse(t, multiYAML)
+
+		dto, err := convertTemplate(logrus.WithField("test", t.Name()), tm)
+		require.NoError(t, err)
+
+		// expr keeps the first query (ref A) for backward compatibility.
+		assert.Equal(t, tm.Expr, dto.Expr)
+
+		require.Len(t, dto.Queries, 2)
+		assert.Equal(t, "A", dto.Queries[0].RefId)
+		assert.Equal(t, "B", dto.Queries[1].RefId)
+		assert.Contains(t, dto.Queries[1].Expr, "[[ .threshold ]]") // placeholders kept intact
+
+		require.Len(t, dto.Expressions, 1)
+		assert.Equal(t, "C", dto.Expressions[0].RefId)
+		assert.Equal(t, "math", dto.Expressions[0].Type)
+		assert.Equal(t, "$A > $B", dto.Expressions[0].Expression)
+
+		assert.Equal(t, "C", dto.Condition)
+	})
+
+	t.Run("leaves multi-query fields empty for single-expression templates", func(t *testing.T) {
+		t.Parallel()
+
+		const singleYAML = `templates:
+  - name: pmm_single_expr_test
+    version: 1
+    summary: Single expr
+    expr: node_cpu_seconds_total > [[ .threshold ]]
+    params:
+      - name: threshold
+        summary: threshold
+        unit: "%"
+        type: float
+        range: [0, 100]
+        value: 80
+    for: 5m
+    severity: warning
+    annotations:
+      summary: s
+      description: d
+`
+
+		tm := parse(t, singleYAML)
+
+		dto, err := convertTemplate(logrus.WithField("test", t.Name()), tm)
+		require.NoError(t, err)
+
+		assert.NotEmpty(t, dto.Expr)
+		assert.Empty(t, dto.Queries)
+		assert.Empty(t, dto.Expressions)
+		assert.Empty(t, dto.Condition)
+	})
+
+	t.Run("returns error for unparseable YAML", func(t *testing.T) {
+		t.Parallel()
+
+		// Start from a valid template (so labels/annotations/created_at are fine),
+		// then corrupt the stored YAML so the query-steps parse fails.
+		tm := parse(t, `templates:
+  - name: pmm_broken_yaml_test
+    version: 1
+    summary: Broken
+    expr: up == 0
+    for: 5m
+    severity: warning
+    annotations:
+      summary: s
+      description: d
+`)
+		tm.Yaml = "templates: [unclosed"
+
+		_, err := convertTemplate(logrus.WithField("test", t.Name()), tm)
+		require.Error(t, err)
 	})
 }
