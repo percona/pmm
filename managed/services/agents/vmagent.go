@@ -85,8 +85,9 @@ func vmAgentConfigExternalVM(scrapeCfg string, params victoriaMetricsParams) *ag
 		auth = &basicAuth{username: vmUsername, password: vmPassword}
 	}
 
+	remoteWriteURL, _ := url.JoinPath(vmURL, "api/v1/write")
 	return buildVMAgentProcess(scrapeCfg, vmAgentSettings{
-		remoteWriteURL: vmURL + "api/v1/write",
+		remoteWriteURL: remoteWriteURL,
 		auth:           auth,
 	})
 }
