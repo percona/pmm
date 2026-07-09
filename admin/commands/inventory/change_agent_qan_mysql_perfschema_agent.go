@@ -86,7 +86,7 @@ type ChangeAgentQANMySQLPerfSchemaAgentCommand struct {
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 
 	// Connection check
-	SkipConnectionCheck bool `help:"Skip connection check"`
+	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
 // RunCmd executes the ChangeAgentQANMySQLPerfSchemaAgentCommand and returns the result.
@@ -138,7 +138,7 @@ func (cmd *ChangeAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result,
 		DisableQueryExamples:   cmd.DisableQueryExamples,
 		DisableCommentsParsing: cmd.CommentsParsingDisabled(),
 		LogLevel:               convertLogLevelPtr(cmd.LogLevel),
-		SkipConnectionCheck:    &cmd.SkipConnectionCheck,
+		SkipConnectionCheck:    cmd.SkipConnectionCheck,
 	}
 
 	if customLabels != nil {

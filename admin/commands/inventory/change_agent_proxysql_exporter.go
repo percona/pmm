@@ -89,7 +89,7 @@ type ChangeAgentProxysqlExporterCommand struct {
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 
 	// Connection check
-	SkipConnectionCheck bool `help:"Skip connection check"`
+	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
 // RunCmd executes the ChangeAgentProxysqlExporterCommand and returns the result.
@@ -111,7 +111,7 @@ func (cmd *ChangeAgentProxysqlExporterCommand) RunCmd() (commands.Result, error)
 		EnablePushMetrics:   cmd.PushMetrics,
 		LogLevel:            convertLogLevelPtr(cmd.LogLevel),
 		ConnectionTimeout:   commands.DurationString(cmd.ConnectionTimeout),
-		SkipConnectionCheck: &cmd.SkipConnectionCheck,
+		SkipConnectionCheck: cmd.SkipConnectionCheck,
 	}
 
 	if customLabels != nil {

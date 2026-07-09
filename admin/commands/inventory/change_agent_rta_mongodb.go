@@ -88,7 +88,7 @@ type ChangeAgentRTAMongoDBAgentCommand struct {
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 
 	// Connection check
-	SkipConnectionCheck bool `help:"Skip connection check"`
+	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
 // RunCmd executes the ChangeAgentRTAMongoDBAgentCommand and returns the result.
@@ -130,7 +130,7 @@ func (cmd *ChangeAgentRTAMongoDBAgentCommand) RunCmd() (commands.Result, error) 
 		TLSCa:                         tlsCa,
 		AuthenticationMechanism:       cmd.AuthenticationMechanism,
 		LogLevel:                      convertLogLevelPtr(cmd.LogLevel),
-		SkipConnectionCheck:           &cmd.SkipConnectionCheck,
+		SkipConnectionCheck:           cmd.SkipConnectionCheck,
 	}
 
 	if customLabels != nil {

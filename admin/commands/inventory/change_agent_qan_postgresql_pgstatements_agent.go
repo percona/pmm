@@ -87,7 +87,7 @@ type ChangeAgentQANPostgreSQLPgStatementsAgentCommand struct {
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 
 	// Connection check
-	SkipConnectionCheck bool `help:"Skip connection check"`
+	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
 // RunCmd executes the ChangeAgentQANPostgreSQLPgStatementsAgentCommand and returns the result.
@@ -136,7 +136,7 @@ func (cmd *ChangeAgentQANPostgreSQLPgStatementsAgentCommand) RunCmd() (commands.
 		MaxQueryLength:         cmd.MaxQueryLength,
 		DisableCommentsParsing: cmd.CommentsParsingDisabled(),
 		LogLevel:               convertLogLevelPtr(cmd.LogLevel),
-		SkipConnectionCheck:    &cmd.SkipConnectionCheck,
+		SkipConnectionCheck:    cmd.SkipConnectionCheck,
 	}
 
 	if customLabels != nil {
