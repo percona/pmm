@@ -351,54 +351,6 @@ func (up *Updater) check(ctx context.Context) error {
 	return nil
 }
 
-<<<<<<< HEAD
-func (up *Updater) checkWatchtowerHost(ctx context.Context) error {
-	// Check if watchtower host is available
-	if up.watchtowerHost == nil {
-		return errors.New("watchtower host is not set")
-	}
-	if !isHostAvailable(ctx, up.watchtowerHost.Hostname(), up.watchtowerHost.Port(), updateDefaultTimeout) {
-		return errors.New("watchtower host is not available")
-	}
-	return nil
-}
-
-func (up *Updater) updatePodmanEnvironmentVariables(filename string, key string, imageName string) error {
-	if len(strings.Split(imageName, "/")) < 3 {
-		imageName = "docker.io/" + imageName
-	}
-	file, err := os.ReadFile(filename) //nolint:gosec
-	if err != nil {
-		return fmt.Errorf("failed to read file: %w", err)
-	}
-	lines := strings.Split(string(file), "\n")
-	for i, line := range lines {
-		if strings.Contains(line, key) {
-			lines[i] = fmt.Sprintf(key+"=%s", imageName)
-		}
-	}
-	err = os.WriteFile(filename, []byte(strings.Join(lines, "\n")), 0o644) //nolint:gosec
-	if err != nil {
-		return fmt.Errorf("failed to write file: %w", err)
-	}
-	return nil
-}
-
-func isHostAvailable(ctx context.Context, host string, port string, timeout time.Duration) bool {
-	d := net.Dialer{Timeout: timeout}
-	conn, err := d.DialContext(ctx, "tcp", net.JoinHostPort(host, port))
-	if err != nil {
-		return false
-	}
-	if conn != nil {
-		defer conn.Close() //nolint:errcheck
-		return true
-	}
-	return false
-}
-
-=======
->>>>>>> main
 // getReleaseNotesText is a placeholder for getting release notes in MarkDown format
 // until we finalize the implementation on version service.
 func (up *Updater) getReleaseNotesText(ctx context.Context, version version.Parsed) (string, error) {
