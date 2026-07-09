@@ -23,6 +23,7 @@ export interface GrafanaRulerAlertQuery {
   relativeTimeRange?: GrafanaRulerRelativeTimeRange;
   datasourceUid: string;
   // datasource/expression-specific query model; shape varies per datasource
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   model: Record<string, any>;
 }
 
