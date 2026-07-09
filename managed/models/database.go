@@ -1435,7 +1435,7 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 		// scram-sha-256 during an upgrade, leaving the role with no usable password hash).
 		// initWithRoot is only ever called after a 28000/28P01 auth error, so resetting the
 		// password to the currently configured value is OK.
-		_, err = db.ExecContext(ctx, fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`ALTER USER %s WITH PASSWORD %s`, pq.QuoteIdentifier(params.Username), pq.QuoteLiteral(params.Password)))
 		if err != nil {
 			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
 		}
