@@ -1058,6 +1058,38 @@ func TestChangeAgentConnectionCheck(t *testing.T) {
 		return exporter.GetPostgresExporter().AgentId
 	}
 
+	// Adds a pmm-agent, a MySQL service and a mysqld_exporter (without connection check) and returns the exporter's agent ID.
+	addMysqldExporter := func(t *testing.T, ss *ServicesService, as *AgentsService, ctx context.Context, stateUpdates int) string {
+		t.Helper()
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005").Times(stateUpdates)
+
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+
+		ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
+		ms, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
+		})
+		require.NoError(t, err)
+
+		exporter, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
+			PmmAgentId:          pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:           ms.ServiceId,
+			Username:            "username",
+			SkipConnectionCheck: true,
+		})
+		require.NoError(t, err)
+
+		return exporter.GetMysqldExporter().AgentId
+	}
+
 	connectionCheckCall := func(as *AgentsService, ctx context.Context) *mock.Call {
 		return as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
 			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
@@ -1131,5 +1163,38 @@ func TestChangeAgentConnectionCheck(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.Equal(t, "new-username", resp.GetPostgresExporter().Username)
+	})
+
+	t.Run("MysqldOmittedSkipRunsCheck", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMysqldExporter(t, ss, as, ctx, 2)
+
+		connectionCheckCall(as, ctx).Return(nil).Once()
+
+		// SkipConnectionCheck left nil (omitted) -> GetSkipConnectionCheck() == false -> check runs.
+		resp, err := as.ChangeMySQLdExporter(ctx, agentID, &inventoryv1.ChangeMySQLdExporterParams{
+			Username: new("new-username"), // AffectsConnection() == true
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "new-username", resp.GetMysqldExporter().Username)
+	})
+
+	t.Run("MysqldExplicitFalseSkipRunsCheck", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMysqldExporter(t, ss, as, ctx, 2)
+
+		connectionCheckCall(as, ctx).Return(nil).Once()
+
+		// Explicit false must behave identically to omitted: the check still runs.
+		resp, err := as.ChangeMySQLdExporter(ctx, agentID, &inventoryv1.ChangeMySQLdExporterParams{
+			Username:            new("new-username"),
+			SkipConnectionCheck: new(false),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "new-username", resp.GetMysqldExporter().Username)
 	})
 }
