@@ -6,6 +6,11 @@ export interface Props {
   query: string;
 }
 
+// Fade the clipped text out toward the right edge as a cut-off affordance.
+// Masking the content (not overlaying a gradient) keeps it independent of the
+// prism scheme's background color in either mode.
+const fadeMask = 'linear-gradient(to right, black calc(100% - 48px), transparent)';
+
 // Full-width container + hidden overflow so the block's frame and border
 // always render inside the cell instead of getting cut off by it
 const QueryCell: FC<Props> = ({ query }) => (
@@ -16,7 +21,14 @@ const QueryCell: FC<Props> = ({ query }) => (
         .replace(/\s{2,}/g, ' ')
         .trim()}
       language="javascript"
-      sx={{ overflow: 'hidden' }}
+      sx={{
+        overflow: 'hidden',
+        '& > code': {
+          display: 'block',
+          maskImage: fadeMask,
+          WebkitMaskImage: fadeMask,
+        },
+      }}
     />
   </Box>
 );
