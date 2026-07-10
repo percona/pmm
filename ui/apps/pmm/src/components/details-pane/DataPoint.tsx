@@ -11,38 +11,64 @@ import UnavailableText from 'components/unavailable-text';
 
 interface Props extends PropsWithChildren {
   title: string;
+  subtitle?: string;
   tooltip?: string;
+  // When set, the data point renders as a Grid item; otherwise as a plain Stack
+  // (for callers that do their own grid layout).
   size?: GridProps['size'];
 }
 
-const DataPoint: FC<Props> = ({ title, tooltip, children, size }) => (
-  <Grid
-    size={size}
-    sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-    }}
-  >
-    <Stack direction="row" alignItems="center">
-      <Typography variant="body1" fontFamily="Poppins" fontWeight="600">
-        {title}
-      </Typography>
-      {tooltip && (
-        <Tooltip title={tooltip} arrow>
-          <IconButton
-            size="small"
-            sx={{ color: 'text.secondary' }}
-            aria-label={tooltip}
+const DataPoint: FC<Props> = ({ title, subtitle, tooltip, size, children }) => {
+  const content = (
+    <>
+      <span>
+        <Stack direction="row" alignItems="center" gap={0.5}>
+          <Typography variant="body1" fontFamily="Poppins" fontWeight="600">
+            {title}
+          </Typography>
+          {tooltip && (
+            <Tooltip title={tooltip} arrow>
+              <IconButton
+                size="small"
+                sx={{ color: 'text.secondary' }}
+                aria-label={tooltip}
+              >
+                <InfoOutlinedIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Stack>
+        {subtitle && (
+          <Typography
+            variant="body2"
+            fontFamily="Roboto Mono, monospace"
+            fontWeight="400"
+            color="text.disabled"
+            ml={1}
           >
-            <InfoOutlinedIcon />
-          </IconButton>
-        </Tooltip>
-      )}
-    </Stack>
-    <Box py={1.5}>{children || <UnavailableText />}</Box>
-    <Divider />
-  </Grid>
-);
+            {subtitle}
+          </Typography>
+        )}
+      </span>
+      <Box py={1.5}>{children || <UnavailableText />}</Box>
+      <Divider sx={{ mt: 'auto' }} />
+    </>
+  );
+
+  return size !== undefined ? (
+    <Grid
+      size={size}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+      }}
+    >
+      {content}
+    </Grid>
+  ) : (
+    <Stack height="100%">{content}</Stack>
+  );
+};
 
 export default DataPoint;

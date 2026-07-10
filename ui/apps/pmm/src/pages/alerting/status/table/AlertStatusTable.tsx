@@ -29,25 +29,22 @@ import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOu
 import { Icon } from 'components/icon';
 import { Messages } from './AlertStatusTable.messages';
 import { useUser } from 'contexts/user';
-import { useTimezone } from 'hooks/utils/useTimezone';
 
 const AlertStatusTable: FC<AlertStatusTableProps> = ({
   rows,
   onOpenDetail,
   onNavigableRowsChange,
 }) => {
-  const timezone = useTimezone();
   const [groupByNodes, setGroupByNodes] = useState(false);
   const [selectedState, setSelectedState] = useState(ALL_STATES_FILTER);
   const tableRows = useMemo<AlertsTableRow[]>(
     () =>
       getTableRows({
         rows,
-        timezone,
         groupByNodes,
         selectedState,
       }),
-    [rows, timezone, groupByNodes, selectedState]
+    [rows, groupByNodes, selectedState]
   );
   const { tableProps } = useNavigableRows<AlertsTableRow>({
     data: tableRows,

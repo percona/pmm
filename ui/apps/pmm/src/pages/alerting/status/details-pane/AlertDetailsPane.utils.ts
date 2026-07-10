@@ -2,6 +2,29 @@ import { useGrafanaRulerRule } from 'hooks/api/useGrafanaRuler';
 import { AlertDetailsPane } from './AlertDetailsPane.types';
 import { AlertRow } from '../AlertsPage.types';
 
+// Pretty-printed rule + alert JSON for the raw-data tab. Built here for the single
+// selected alert instead of in flattenAlertRules, which runs for every alert on
+// every poll.
+const buildRawJson = (alert: AlertRow): string =>
+  JSON.stringify(
+    {
+      rule: alert.rule && {
+        name: alert.rule.name,
+        query: alert.rule.query,
+        duration: alert.rule.duration,
+        labels: alert.rule.labels,
+        annotations: alert.rule.annotations,
+        health: alert.rule.health,
+        lastError: alert.rule.lastError,
+        type: alert.rule.type,
+        state: alert.rule.state,
+      },
+      alert: alert.rawAlert,
+    },
+    null,
+    2
+  );
+
 export const useAlertDetailsPane = (
   alert?: AlertRow
 ): AlertDetailsPane | null => {
@@ -48,7 +71,7 @@ export const useAlertDetailsPane = (
     },
     rawData: {
       labels: alert.labels,
-      json: alert.rawJson,
+      json: buildRawJson(alert),
     },
   };
 };

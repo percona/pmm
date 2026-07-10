@@ -1,8 +1,8 @@
 import { Chip, MRT_ColumnDef } from '@percona/percona-ui';
 import { AlertsTableRow } from '../AlertsPage.types';
 import { Stack, Typography } from '@mui/material';
-import { formatTriggeredAt } from './AlertStatusTable.utils';
 import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../AlertsPage.constants';
+import TriggeredAtCell from './TriggeredAtCell';
 
 export const ALERT_STATUS_COLUMNS: MRT_ColumnDef<AlertsTableRow>[] = [
   {
@@ -45,8 +45,8 @@ export const ALERT_STATUS_COLUMNS: MRT_ColumnDef<AlertsTableRow>[] = [
     accessorKey: 'activeAt',
     header: 'Triggered at',
     Cell: ({ row: { original } }) =>
-      original.type === 'alert'
-        ? formatTriggeredAt(original.activeAt, original.timezone)
-        : null,
+      original.type === 'alert' ? (
+        <TriggeredAtCell activeAt={original.activeAt} />
+      ) : null,
   },
 ];

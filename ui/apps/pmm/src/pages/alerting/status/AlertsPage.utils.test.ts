@@ -1,19 +1,15 @@
 import { PrometheusAlertRulesResponse } from 'types/alerting.types';
-import {
-  findAlertTableRowById,
-  flattenAlertRules,
-  groupAlertsByNode,
-} from './AlertsPage.utils';
+import { flattenAlertRules, groupAlertsByNode } from './AlertsPage.utils';
 import { AlertRow } from './AlertsPage.types';
 
 const createAlertRow = (
-  row: Omit<AlertRow, 'labels' | 'annotations' | 'expression' | 'rawJson'> &
-    Partial<Pick<AlertRow, 'labels' | 'annotations' | 'expression' | 'rawJson'>>
+  row: Omit<AlertRow, 'labels' | 'annotations' | 'expression' | 'rawAlert'> &
+    Partial<Pick<AlertRow, 'labels' | 'annotations' | 'expression' | 'rawAlert'>>
 ): AlertRow => ({
   labels: {},
   annotations: {},
   expression: '',
-  rawJson: '{}',
+  rawAlert: { labels: {}, annotations: {} },
   ...row,
 });
 
@@ -174,7 +170,7 @@ describe('flattenAlertRules', () => {
     expect(rows[0].rule?.keepFiringFor).toBe(120);
     expect(rows[0].rule?.type).toBe('alerting');
     expect(rows[0].rule?.health).toBe('ok');
-    expect(rows[0].value).toBe('42');
+    expect(rows[0].rawAlert.value).toBe('42');
   });
 
   it('creates unique stable IDs from all alert labels', () => {
@@ -292,7 +288,6 @@ describe('flattenAlertRules', () => {
         nodeId: 'node-a',
         serviceName: 'svc-a',
         summary: 's1',
-        source: 'src',
         age: '1m',
       }),
       createAlertRow({
@@ -304,7 +299,6 @@ describe('flattenAlertRules', () => {
         nodeId: 'node-a',
         serviceName: 'svc-b',
         summary: 's2',
-        source: 'src',
         age: '2m',
       }),
       createAlertRow({
@@ -316,7 +310,6 @@ describe('flattenAlertRules', () => {
         nodeId: 'node-b',
         serviceName: 'svc-c',
         summary: 's3',
-        source: 'src',
         age: '3m',
       }),
     ];
@@ -330,6 +323,5 @@ describe('flattenAlertRules', () => {
     expect(grouped[0].state).toBe('Alerting');
     expect(grouped[0].alerts).toHaveLength(2);
     expect(grouped[0].alerts[0].type).toBe('alert');
-    expect(findAlertTableRowById(grouped, 'a2')?.id).toBe('a2');
   });
 });

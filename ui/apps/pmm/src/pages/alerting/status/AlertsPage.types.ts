@@ -1,5 +1,6 @@
 import {
   AlertStatus,
+  PrometheusAlertItem,
   PrometheusAlertRuleGroup,
   PrometheusAlertRuleItem,
 } from 'types/alerting.types';
@@ -12,18 +13,17 @@ export interface AlertRow {
   ruleGroupUid?: string;
   ruleGroup?: PrometheusAlertRuleGroup;
   rule?: PrometheusAlertRuleItem;
+  // The raw alert item as returned by the API, for the raw-data tab.
+  rawAlert: PrometheusAlertItem;
   state: AlertStatus;
   nodeId: string;
   serviceName: string;
   summary: string;
-  source: string;
   labels: Record<string, string>;
   annotations: Record<string, string>;
   expression: string;
-  value?: string;
   activeAt?: string;
   age: string;
-  rawJson: string;
 }
 
 export interface NodeGroupRow {
@@ -35,6 +35,4 @@ export interface NodeGroupRow {
   alerts: AlertRow[];
 }
 
-export type AlertsTableRow = (AlertRow | NodeGroupRow) & {
-  timezone?: string;
-};
+export type AlertsTableRow = AlertRow | NodeGroupRow;

@@ -15,42 +15,20 @@ export const STATUS_COLOR_MAP: Record<
   Error: 'error',
 };
 
+// Key order defines the state filter dropdown order.
 export const STATUS_LABEL_MAP: Record<AlertStatus, string> = {
-  Alerting: 'Firing',
-  Pending: 'Pending',
-  Recovering: 'Recovering',
   Normal: 'Normal',
+  Pending: 'Pending',
+  Alerting: 'Firing',
+  Recovering: 'Recovering',
   NoData: 'No Data',
   Error: 'Error',
 };
 
 export const STATE_OPTIONS: TextSelectOption<string>[] = [
-  {
-    label: 'All',
-    value: ALL_STATES_FILTER,
-  },
-  {
-    label: 'Normal',
-    value: 'Normal',
-  },
-  {
-    label: 'Pending',
-    value: 'Pending',
-  },
-  {
-    label: 'Firing',
-    value: 'Alerting',
-  },
-  {
-    label: 'Recovering',
-    value: 'Recovering',
-  },
-  {
-    label: 'No Data',
-    value: 'NoData',
-  },
-  {
-    label: 'Error',
-    value: 'Error',
-  },
+  { label: 'All', value: ALL_STATES_FILTER },
+  ...Object.entries(STATUS_LABEL_MAP).map(([value, label]) => ({
+    value,
+    label,
+  })),
 ];

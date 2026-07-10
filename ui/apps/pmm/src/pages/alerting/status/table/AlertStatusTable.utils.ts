@@ -10,20 +10,17 @@ export type GetFilteredDataParams = {
   rows: AlertRow[];
   groupByNodes: boolean;
   selectedState: string;
-  timezone?: string;
 };
 
 export const getTableRows = ({
   rows,
   groupByNodes,
   selectedState,
-  timezone,
 }: GetFilteredDataParams): AlertsTableRow[] => {
-  let result = rows.map((row) => ({ ...row, timezone }));
-
-  if (selectedState !== ALL_STATES_FILTER) {
-    result = result.filter((r) => r.state === selectedState);
-  }
+  const result =
+    selectedState === ALL_STATES_FILTER
+      ? rows
+      : rows.filter((row) => row.state === selectedState);
 
   return groupByNodes ? groupAlertsByNode(result) : result;
 };
