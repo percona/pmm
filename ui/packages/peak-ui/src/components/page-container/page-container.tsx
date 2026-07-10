@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import Stack from '@mui/material/Stack';
 import type { PageContainerProps } from './page-container.types';
 
-/** Default max content width in pixels. */
+/** Default max container width in pixels. */
 export const DEFAULT_PAGE_MAX_WIDTH = 1000;
 
 /**
