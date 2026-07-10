@@ -25,10 +25,11 @@ const meta: Meta<typeof PageContainer> = {
   },
   argTypes: {
     maxWidth: {
-      control: 'text',
-      description: "Pixel number, or 'full' for 100% width.",
+      control: { type: 'select' },
+      options: [1000, 600, 1400, 'full'],
+      description: "Pixel number (px), or 'full' for 100% width.",
     },
-  },
+  }
 };
 
 export default meta;
