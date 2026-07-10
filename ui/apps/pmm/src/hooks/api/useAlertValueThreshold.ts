@@ -1,6 +1,6 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { evalAlertQueries, getAlertRuleDefinition } from 'api/alerting';
-import { AlertRow } from 'pages/alerting/status/AlertsPage.types';
+import { GrafanaRulerLabels } from 'types/grafana-ruler.types';
 import {
   computeValueThreshold,
   pickSeriesValue,
@@ -15,9 +15,9 @@ export const ALERT_VALUE_THRESHOLD_QUERY_KEY = 'alerting:valueThreshold';
 // or when the Grafana provisioning/eval endpoints are unavailable, so the caller can
 // simply hide the field.
 const fetchValueThreshold = async (
-  alert: AlertRow
+  uid: string,
+  labels: GrafanaRulerLabels
 ): Promise<ValueThresholdResult | null> => {
-  const uid = alert.rule?.uid;
   if (!uid) {
     return null;
   }
@@ -38,10 +38,7 @@ const fetchValueThreshold = async (
 
     const { results } = await evalAlertQueries(plan.data);
 
-    const value = pickSeriesValue(
-      results[plan.valueRefId]?.frames,
-      alert.labels
-    );
+    const value = pickSeriesValue(results[plan.valueRefId]?.frames, labels);
     if (value === null) {
       return null;
     }
@@ -49,7 +46,7 @@ const fetchValueThreshold = async (
     const threshold =
       plan.thresholdConst ??
       (plan.thresholdRefId
-        ? pickSeriesValue(results[plan.thresholdRefId]?.frames, alert.labels)
+        ? pickSeriesValue(results[plan.thresholdRefId]?.frames, labels)
         : null);
     if (threshold === null || threshold === undefined) {
       return null;
@@ -63,13 +60,14 @@ const fetchValueThreshold = async (
 };
 
 export const useAlertValueThreshold = (
-  alert: AlertRow,
+  uid: string,
+  labels: GrafanaRulerLabels,
   options?: Partial<UseQueryOptions<ValueThresholdResult | null>>
 ) =>
   useQuery({
-    queryKey: [ALERT_VALUE_THRESHOLD_QUERY_KEY, alert.rule?.uid, alert.id],
-    queryFn: () => fetchValueThreshold(alert),
-    enabled: !!alert.rule?.uid,
+    queryKey: [ALERT_VALUE_THRESHOLD_QUERY_KEY, uid, labels],
+    queryFn: () => fetchValueThreshold(uid, labels),
+    enabled: !!uid,
     staleTime: 30_000,
     ...options,
   });
