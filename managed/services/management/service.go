@@ -63,8 +63,11 @@ var upMetricSelectors = []string{
 }
 
 // staleStatusWindow bounds how old an "up" sample may be to still derive a service status
-// when no fresh sample exists (e.g. vmagents replaying buffered data after a reconnect storm).
-const staleStatusWindow = "30m"
+// when no fresh sample exists. Vmagents replay buffered data oldest-first after an outage,
+// so the newest sample VM has can be as old as the outage plus the replay backlog; the window
+// must comfortably cover both. It only applies while the service's pmm-agent is connected,
+// so a wide window does not keep dead clients' statuses alive.
+const staleStatusWindow = "24h"
 
 // NewManagementService creates a ManagementService instance.
 func NewManagementService(
