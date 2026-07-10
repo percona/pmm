@@ -51,6 +51,8 @@ const DetailsPane: FC<Props> = ({
           bottom: 0,
           mt: 2,
           mx: 2,
+          // TODO: use theme.shape.borderRadiusMd (8px) once percona-ui
+          // publishes the Shape tokens (percona-ui#37, not in 1.0.23)
           borderTopLeftRadius: '8px',
           borderTopRightRadius: '8px',
           borderBottomLeftRadius: 0,
