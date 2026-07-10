@@ -93,3 +93,6 @@ export * from './tooltip';
 export { default as Tooltip } from './tooltip';
 
 export * from './code';
+
+export * from './page-container';
+export { default as PageContainer } from './page-container';
