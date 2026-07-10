@@ -39,7 +39,7 @@ const PageContainer = forwardRef<HTMLDivElement, PageContainerProps>(
           },
           // `sx` can be an object, array, or function — normalize to an array so
           // all SxProps shapes compose and consumer styles still win.
-          ...(Array.isArray(sx) ? sx : [sx]),
+          ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
         ]}
         {...rest}
       >
