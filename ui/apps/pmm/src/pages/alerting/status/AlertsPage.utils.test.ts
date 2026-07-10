@@ -1,15 +1,5 @@
 import { PrometheusAlertRulesResponse } from 'types/alerting.types';
-import {
-  ALL_SERVICES_FILTER,
-  ALL_NODES_FILTER,
-  filterAlertRulesByNode,
-  filterAlertRulesByService,
-  flattenAlertRules,
-  getServiceFilterOptionsForNode,
-  groupAlertsByNode,
-  getNodeFilterOptions,
-  getServiceFilterOptions,
-} from './AlertsPage.utils';
+import { flattenAlertRules, groupAlertsByNode } from './AlertsPage.utils';
 import { AlertRow } from './AlertsPage.types';
 
 const createAlertRow = (
@@ -212,84 +202,6 @@ describe('flattenAlertRules', () => {
     expect(rows).toHaveLength(1);
     expect(rows[0].nodeId).toBe('');
     expect(rows[0].serviceName).toBe('');
-  });
-
-  it('builds node/service options and filters by selected values', () => {
-    const rows = [
-      createAlertRow({
-        type: 'alert' as const,
-        id: 'r1',
-        alertName: 'alert-1',
-        ruleName: 'rule-1',
-        state: 'Alerting' as const,
-        nodeId: 'node-a',
-        serviceName: 'svc-a',
-        summary: 's1',
-        source: 'src',
-        age: '2m',
-      }),
-      createAlertRow({
-        type: 'alert' as const,
-        id: 'r2',
-        alertName: 'alert-2',
-        ruleName: 'rule-2',
-        state: 'Pending' as const,
-        nodeId: 'node-b',
-        serviceName: 'svc-b',
-        summary: 's2',
-        source: 'src',
-        age: '3m',
-      }),
-      createAlertRow({
-        type: 'alert' as const,
-        id: 'r3',
-        alertName: 'alert-3',
-        ruleName: 'rule-3',
-        state: 'Pending' as const,
-        nodeId: '',
-        serviceName: '',
-        summary: 's3',
-        source: 'src',
-        age: '4m',
-      }),
-    ];
-
-    const options = getNodeFilterOptions(rows);
-    expect(options.map((option) => option.value)).toEqual([
-      ALL_NODES_FILTER,
-      'node-a',
-      'node-b',
-    ]);
-
-    const allNodeRows = filterAlertRulesByNode(rows, ALL_NODES_FILTER);
-    expect(allNodeRows).toHaveLength(3);
-
-    const nodeBRows = filterAlertRulesByNode(rows, 'node-b');
-    expect(nodeBRows).toHaveLength(1);
-    expect(nodeBRows[0].id).toBe('r2');
-
-    const serviceOptions = getServiceFilterOptions(rows);
-    expect(serviceOptions.map((option) => option.value)).toEqual([
-      ALL_SERVICES_FILTER,
-      'svc-a',
-      'svc-b',
-    ]);
-
-    const allServicesRows = filterAlertRulesByService(
-      rows,
-      ALL_SERVICES_FILTER
-    );
-    expect(allServicesRows).toHaveLength(3);
-
-    const serviceBRows = filterAlertRulesByService(rows, 'svc-b');
-    expect(serviceBRows).toHaveLength(1);
-    expect(serviceBRows[0].id).toBe('r2');
-
-    const nodeBServiceOptions = getServiceFilterOptionsForNode(rows, 'node-b');
-    expect(nodeBServiceOptions.map((option) => option.value)).toEqual([
-      ALL_SERVICES_FILTER,
-      'svc-b',
-    ]);
   });
 
   it('groups alert rows by node and exposes child alert rows', () => {

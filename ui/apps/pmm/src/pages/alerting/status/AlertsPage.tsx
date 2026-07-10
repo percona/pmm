@@ -6,6 +6,7 @@ import { AlertStatusTable } from './table';
 import { useDetailsPaneNavigation } from '@percona/percona-ui';
 import { AlertsTableRow } from './AlertsPage.types';
 import { AlertDetailsPane } from './details-pane';
+import { Messages } from './AlertsPage.messages';
 
 const AlertsPage = () => {
   const { data } = usePrometheusAlertRules({
@@ -31,7 +32,7 @@ const AlertsPage = () => {
         mb: 0,
       }}
     >
-      <Typography variant="h3">Alerts</Typography>
+      <Typography variant="h3">{Messages.title}</Typography>
       <Stack flex="1" position="relative">
         <Stack
           sx={(theme) => ({

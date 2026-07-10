@@ -6,12 +6,10 @@ import {
   PrometheusAlertRulesResponse,
 } from 'types/alerting.types';
 import { AlertRow, NodeGroupRow } from './AlertsPage.types';
-import { TextSelectOption } from 'components/text-select/TextSelect.types';
+import { formatDurationSeconds } from 'utils/duration.utils';
 
 const NODE_NAME_LABEL = 'node_name';
 const UNKNOWN_NODE = 'unknown-node';
-export const ALL_NODES_FILTER = '__all_nodes__';
-export const ALL_SERVICES_FILTER = '__all_services__';
 
 const GROUP_STATE_PRIORITY: Record<AlertStatus, number> = {
   Alerting: 4,
@@ -72,25 +70,7 @@ const getAge = (activeAt?: string): string => {
   }
 
   const diffMs = Math.max(Date.now() - timestamp, 0);
-  const diffMinutes = Math.floor(diffMs / 60000);
-
-  if (diffMinutes < 1) {
-    return '<1m';
-  }
-
-  if (diffMinutes < 60) {
-    return `${diffMinutes}m`;
-  }
-
-  const diffHours = Math.floor(diffMinutes / 60);
-
-  if (diffHours < 24) {
-    return `${diffHours}h`;
-  }
-
-  const diffDays = Math.floor(diffHours / 24);
-
-  return `${diffDays}d`;
+  return formatDurationSeconds(diffMs / 1000);
 };
 
 const getSource = (labels: Record<string, string>) =>
@@ -211,58 +191,4 @@ export const groupAlertsByNode = (rows: AlertRow[]): NodeGroupRow[] => {
     .sort((a, b) => a.nodeId.localeCompare(b.nodeId));
 
   return groupedRows;
-};
-
-export const getNodeFilterOptions = (
-  rows: AlertRow[]
-): TextSelectOption<string>[] => {
-  const knownNodeIds = [
-    ...new Set(rows.map((row) => row.nodeId).filter(Boolean)),
-  ].sort();
-
-  return [
-    { value: ALL_NODES_FILTER, label: 'All nodes' },
-    ...knownNodeIds.map((nodeId) => ({ value: nodeId, label: nodeId })),
-  ];
-};
-
-export const filterAlertRulesByNode = (
-  rows: AlertRow[],
-  selectedNode: string
-): AlertRow[] => {
-  if (selectedNode === ALL_NODES_FILTER) {
-    return rows;
-  }
-
-  return rows.filter((row) => row.nodeId === selectedNode);
-};
-
-export const getServiceFilterOptions = (
-  rows: AlertRow[]
-): TextSelectOption<string>[] => {
-  const serviceNames = [
-    ...new Set(rows.map((row) => row.serviceName).filter(Boolean)),
-  ].sort();
-
-  return [
-    { value: ALL_SERVICES_FILTER, label: 'All' },
-    ...serviceNames.map((service) => ({ value: service, label: service })),
-  ];
-};
-
-export const getServiceFilterOptionsForNode = (
-  rows: AlertRow[],
-  selectedNode: string
-): TextSelectOption<string>[] =>
-  getServiceFilterOptions(filterAlertRulesByNode(rows, selectedNode));
-
-export const filterAlertRulesByService = (
-  rows: AlertRow[],
-  selectedService: string
-): AlertRow[] => {
-  if (selectedService === ALL_SERVICES_FILTER) {
-    return rows;
-  }
-
-  return rows.filter((row) => row.serviceName === selectedService);
 };
