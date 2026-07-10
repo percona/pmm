@@ -19,6 +19,7 @@ const Filler = ({ label }: { label: string }) => (
 const meta: Meta<typeof PageContainer> = {
   title: 'Layout/PageContainer',
   component: PageContainer,
+  tags: ['autodocs', 'needs-review'],
   parameters: {
     layout: 'fullscreen',
   },

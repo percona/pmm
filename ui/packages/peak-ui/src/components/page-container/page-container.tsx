@@ -22,21 +22,25 @@ const PageContainer = forwardRef<HTMLDivElement, PageContainerProps>(
     return (
       <Stack
         ref={ref}
-        sx={{
-          flex: 1,
-          width: '100%',
-          maxWidth: isFull ? '100%' : { lg: maxWidth },
-          p: {
-            xs: 2,
+        sx={[
+          {
+            flex: 1,
+            width: '100%',
+            maxWidth: isFull ? '100%' : { lg: maxWidth },
+            p: {
+              xs: 2,
+            },
+            px: {
+              md: isFull ? 4 : undefined,
+            },
+            mx: 'auto',
+            gap: 2,
+            mt: 1,
           },
-          px: {
-            md: isFull ? 4 : undefined,
-          },
-          mx: 'auto',
-          gap: 2,
-          mt: 1,
-          ...sx,
-        }}
+          // `sx` can be an object, array, or function — normalize to an array so
+          // all SxProps shapes compose and consumer styles still win.
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
         {...rest}
       >
         {children}
