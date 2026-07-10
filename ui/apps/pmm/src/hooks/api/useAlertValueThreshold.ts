@@ -35,15 +35,19 @@ const fetchValueThreshold = async (
     const threshold =
       plan.thresholdConst ??
       (plan.thresholdRefId
-        ? pickSeriesValue(results[plan.thresholdRefId]?.frames, labels)
+        ? pickSeriesValue(results[plan.thresholdRefId]?.frames, labels, {
+            allowSoleFrame: true,
+          })
         : null);
     if (threshold === null || threshold === undefined) {
       return null;
     }
 
     return computeValueThreshold(value, threshold, plan.operator);
-  } catch {
+  } catch (error) {
     // Missing permissions / network errors degrade to a hidden field.
+    // eslint-disable-next-line no-console
+    console.warn('Failed to evaluate alert value/threshold', error);
     return null;
   }
 };

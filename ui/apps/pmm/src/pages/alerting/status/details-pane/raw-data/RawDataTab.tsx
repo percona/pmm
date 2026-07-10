@@ -21,12 +21,7 @@ const RawDataTab: FC<Props> = ({ details }) => (
     spacing={2}
     sx={{
       '& > *': {
-        xs: {
-          width: '100%',
-        },
-        md: {
-          width: '50%',
-        },
+        width: { xs: '100%', md: '50%' },
       },
     }}
   >

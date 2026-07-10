@@ -17,7 +17,7 @@ export interface AlertDetailsPane {
   ruleConfiguration: {
     isLoading: boolean;
     definition?: GrafanaAlertRuleDefinition;
-    evaluate?: string;
+    evaluationIntervalSeconds?: number;
     lastEvaluation?: string;
     lastEvaluationDuration?: number;
     pendingPeriod?: number;

@@ -7,10 +7,10 @@ import {
   Typography,
 } from '@mui/material';
 import { usePrometheusAlertRules } from 'hooks/api/usePrometheusAlertRules';
-import { findAlertTableRowById, flattenAlertRules } from './AlertsPage.utils';
+import { flattenAlertRules } from './AlertsPage.utils';
 import { AlertStatusTable } from './table';
 import { useDetailsPaneNavigation } from '@percona/percona-ui';
-import { AlertsTableRow } from './AlertsPage.types';
+import { AlertRow, AlertsTableRow } from './AlertsPage.types';
 import { AlertDetailsPane } from './details-pane';
 import { Messages } from './AlertsPage.messages';
 
@@ -21,26 +21,28 @@ const AlertsPage = () => {
   const rows = useMemo(() => flattenAlertRules(data), [data]);
   const [navigableRows, setNavigableRows] = useState<AlertsTableRow[]>(rows);
   const [selectedRowId, setSelectedRowId] = useState<string>();
-  const selectedNavigableRow = useMemo(
-    () => findAlertTableRowById(navigableRows, selectedRowId),
-    [navigableRows, selectedRowId]
+  // Node group headers are not navigable — the details pane only shows alerts, so
+  // next/previous must step over them (and collapsed groups' hidden alerts drop out).
+  const navigableAlerts = useMemo(
+    () => navigableRows.filter((row): row is AlertRow => row.type === 'alert'),
+    [navigableRows]
   );
   const selectedRow = useMemo(
     () =>
-      selectedNavigableRow
+      navigableAlerts.some((row) => row.id === selectedRowId)
         ? rows.find((row) => row.id === selectedRowId)
         : undefined,
-    [rows, selectedNavigableRow, selectedRowId]
+    [rows, navigableAlerts, selectedRowId]
   );
 
   useEffect(() => {
-    if (selectedRowId && (!selectedNavigableRow || !selectedRow)) {
+    if (selectedRowId && !selectedRow) {
       setSelectedRowId(undefined);
     }
-  }, [selectedNavigableRow, selectedRow, selectedRowId]);
+  }, [selectedRow, selectedRowId]);
 
-  const detailsPaneProps = useDetailsPaneNavigation<AlertsTableRow>({
-    rows: navigableRows,
+  const detailsPaneProps = useDetailsPaneNavigation<AlertRow>({
+    rows: navigableAlerts,
     selected: selectedRow,
     getRowId: (row) => row.id,
     onSelect: (row) => setSelectedRowId(row?.id),

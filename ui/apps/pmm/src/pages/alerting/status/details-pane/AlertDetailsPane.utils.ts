@@ -30,7 +30,10 @@ export const useAlertDetailsPane = (
     ruleConfiguration: {
       isLoading,
       definition: grafanaRule?.grafana_alert,
-      evaluate: grafanaRule?.for,
+      // Evaluation interval in seconds. `grafanaRule.for` is the pending period,
+      // which is already shown separately as `pendingPeriod`.
+      evaluationIntervalSeconds:
+        grafanaRule?.grafana_alert.intervalSeconds ?? alert.ruleGroup?.interval,
       lastEvaluation: alert.ruleGroup?.lastEvaluation,
       lastEvaluationDuration: alert.ruleGroup?.evaluationTime,
       pendingPeriod: alert.rule?.duration,
