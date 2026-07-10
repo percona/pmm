@@ -14,7 +14,7 @@ You can use the PMM Server Settings API to retrieve and update your PMM Server c
 
 ```sh
 curl -X GET https://<pmm-server-address>/v1/server/settings \
-  -H "Authorization: Basic <base64-encoded-credentials>"
+  -H "Authorization: Bearer glsa_xxxxx"
 ```
 
 ## Change settings
