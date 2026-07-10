@@ -21,7 +21,7 @@ curl -X GET https://<pmm-server-address>/v1/server/settings \
 
 ```sh
 curl -X PUT https://<pmm-server-address>/v1/server/settings \
-  -H "Authorization: Basic <base64-encoded-credentials>" \
+  -H "Authorization: Bearer glsa_xxxxx" \
   -H "Content-Type: application/json" \
   -d '{"data_retention": "2592000s"}'
 ```
