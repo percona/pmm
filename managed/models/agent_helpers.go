@@ -1125,6 +1125,9 @@ type ChangeAgentParams struct {
 	TLS           *bool
 	TLSSkipVerify *bool
 	ListenPort    *uint32 // for external exporter
+
+	// SkipConnectionCheck is a request-scoped flag, not an agent attribute
+	SkipConnectionCheck bool
 }
 
 // AffectsConnection returns true if the change modifies parameters used to connect

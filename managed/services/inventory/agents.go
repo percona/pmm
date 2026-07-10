@@ -210,6 +210,8 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 		Enabled:      p.Enable,
 		CustomLabels: convertCustomLabels(p.CustomLabels),
 		LogLevel:     convertLogLevel(p.LogLevel),
+		// Always skip the connection check for node_exporter
+		SkipConnectionCheck: true,
 	}
 
 	// Set ExporterOptions
@@ -220,7 +222,7 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, true)
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -315,14 +317,15 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeMySQLdExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		AgentPassword: p.AgentPassword,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		AgentPassword:       p.AgentPassword,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set MySQLOptions
@@ -342,7 +345,7 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID strin
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -434,14 +437,15 @@ func (as *AgentsService) ChangeMongoDBExporter(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		AgentPassword: p.AgentPassword,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		AgentPassword:       p.AgentPassword,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set MongoDBOptions
@@ -465,7 +469,7 @@ func (as *AgentsService) ChangeMongoDBExporter(
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -551,13 +555,14 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set QANOptions
@@ -580,7 +585,7 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -668,13 +673,14 @@ func (as *AgentsService) ChangeQANMySQLSlowlogAgent(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set QANOptions
@@ -698,7 +704,7 @@ func (as *AgentsService) ChangeQANMySQLSlowlogAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -787,14 +793,15 @@ func (as *AgentsService) ChangePostgresExporter(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		AgentPassword: p.AgentPassword,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		AgentPassword:       p.AgentPassword,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set PostgreSQLOptions
@@ -812,7 +819,7 @@ func (as *AgentsService) ChangePostgresExporter(
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -897,14 +904,15 @@ func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.A
 func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeValkeyExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		AgentPassword: p.AgentPassword,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		AgentPassword:       p.AgentPassword,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set ValkeyOptions
@@ -923,7 +931,7 @@ func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID strin
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1005,13 +1013,14 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set QANOptions
@@ -1034,7 +1043,7 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1116,13 +1125,14 @@ func (as *AgentsService) ChangeQANMongoDBMongologAgent(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set QANOptions
@@ -1145,7 +1155,7 @@ func (as *AgentsService) ChangeQANMongoDBMongologAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1233,14 +1243,15 @@ func (as *AgentsService) ChangeProxySQLExporter(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		AgentPassword: p.AgentPassword,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		AgentPassword:       p.AgentPassword,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set ExporterOptions
@@ -1252,7 +1263,7 @@ func (as *AgentsService) ChangeProxySQLExporter(
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1334,13 +1345,14 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set QANOptions
@@ -1362,7 +1374,7 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	// Check if we're trying to modify the internal PostgreSQL QAN agent and if the environment variable is set
 	envVar, exists := os.LookupEnv(env.EnableInternalPgQAN)
 	if exists && envVar != "" {
@@ -1461,13 +1473,14 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:       p.Enable,
-		Username:      p.Username,
-		Password:      p.Password,
-		TLS:           p.Tls,
-		TLSSkipVerify: p.TlsSkipVerify,
-		CustomLabels:  convertCustomLabels(p.CustomLabels),
-		LogLevel:      convertLogLevel(p.LogLevel),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		Password:            p.Password,
+		TLS:                 p.Tls,
+		TLSSkipVerify:       p.TlsSkipVerify,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		LogLevel:            convertLogLevel(p.LogLevel),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set QANOptions
@@ -1490,7 +1503,7 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1563,6 +1576,8 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, 
 		Enabled:      p.Enable,
 		CustomLabels: convertCustomLabels(p.CustomLabels),
 		LogLevel:     convertLogLevel(p.LogLevel),
+		// Always skip the connection check for RDS
+		SkipConnectionCheck: true,
 	}
 
 	// Set AWSOptions
@@ -1579,7 +1594,7 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, 
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, true)
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1654,10 +1669,11 @@ func (as *AgentsService) ChangeExternalExporter(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:      p.Enable,
-		Username:     p.Username,
-		ListenPort:   p.ListenPort,
-		CustomLabels: convertCustomLabels(p.CustomLabels),
+		Enabled:             p.Enable,
+		Username:            p.Username,
+		ListenPort:          p.ListenPort,
+		CustomLabels:        convertCustomLabels(p.CustomLabels),
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set ExporterOptions
@@ -1668,7 +1684,7 @@ func (as *AgentsService) ChangeExternalExporter(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, p.GetSkipConnectionCheck())
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1739,6 +1755,8 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 		Enabled:      p.Enable,
 		CustomLabels: convertCustomLabels(p.CustomLabels),
 		LogLevel:     convertLogLevel(p.LogLevel),
+		// Always skip the connection check for Azure
+		SkipConnectionCheck: true,
 	}
 
 	// Set AzureOptions
@@ -1756,7 +1774,7 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params, true)
+	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1777,9 +1795,11 @@ func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, p
 	// Convert protobuf parameters to model parameters
 	changeParams := &models.ChangeAgentParams{
 		Enabled: params.Enable,
+		// Always skip the connection check for Nomad
+		SkipConnectionCheck: true,
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, changeParams, true)
+	agent, err := as.executeAgentChange(ctx, agentID, changeParams)
 	if err != nil {
 		return nil, err
 	}
@@ -1890,6 +1910,7 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(
 			TLSCa:                         p.TlsCa,
 			AuthenticationMechanism:       p.AuthenticationMechanism,
 		},
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set RTA options if provided
@@ -1897,7 +1918,7 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(
 		changeParams.RTAOptions = models.RTAOptionsFromRequest(p.RtaOptions)
 	}
 
-	ag, err := as.executeAgentChange(ctx, agentID, changeParams, p.GetSkipConnectionCheck())
+	ag, err := as.executeAgentChange(ctx, agentID, changeParams)
 	if err != nil {
 		return nil, err
 	}
@@ -1991,7 +2012,7 @@ func convertMetricsResolutions(mrs *common.MetricsResolutions) *models.ChangeMet
 }
 
 // Helper function to execute agent change and build response.
-func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, params *models.ChangeAgentParams, skipConnectionCheck bool) (inventoryv1.Agent, error) { //nolint:ireturn,lll
+func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, params *models.ChangeAgentParams) (inventoryv1.Agent, error) { //nolint:ireturn,lll
 	var agent inventoryv1.Agent
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -2000,7 +2021,7 @@ func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string,
 			return err
 		}
 
-		if !skipConnectionCheck && params.AffectsConnection() && updatedAgent.ServiceID != nil {
+		if !params.SkipConnectionCheck && params.AffectsConnection() && updatedAgent.ServiceID != nil {
 			service, err := models.FindServiceByID(tx.Querier, pointer.GetString(updatedAgent.ServiceID))
 			if err != nil {
 				return err
