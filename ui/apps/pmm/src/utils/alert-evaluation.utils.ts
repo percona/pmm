@@ -49,6 +49,11 @@ const LOGICAL_OPERATOR = /\s+(and|or|unless)\s+/i;
 // `$A > $B` style condition inside a Grafana math expression.
 const MATH_COMPARISON = /\$\{?(\w+)\}?\s*(>=|<=|==|!=|>|<)\s*\$\{?(\w+)\}?/;
 
+// `$A > 80` style condition — a $ref compared against a numeric literal. Anchored so
+// compound expressions (`$A > 80 || $B > 90`) don't latch onto one sub-comparison.
+const MATH_CONST_COMPARISON =
+  /^\s*\$\{?(\w+)\}?\s*(>=|<=|==|!=|>|<)\s*(-?\d+(?:\.\d+)?)\s*$/;
+
 const mapEvaluatorType = (type: string): ThresholdOperator | null => {
   switch (type) {
     case 'gt':
@@ -127,16 +132,30 @@ export const resolveEvalPlan = (
     const model = condition.model;
 
     if (model.type === 'math' && model.expression) {
-      const match = model.expression.match(MATH_COMPARISON);
-      if (!match) {
-        return null;
+      const refMatch = model.expression.match(MATH_COMPARISON);
+      if (refMatch) {
+        return {
+          data: def.data,
+          valueRefId: refMatch[1],
+          operator: refMatch[2] as ThresholdOperator,
+          thresholdRefId: refMatch[3],
+        };
       }
-      return {
-        data: def.data,
-        valueRefId: match[1],
-        operator: match[2] as ThresholdOperator,
-        thresholdRefId: match[3],
-      };
+
+      const constMatch = model.expression.match(MATH_CONST_COMPARISON);
+      if (constMatch) {
+        const threshold = parseFloat(constMatch[3]);
+        if (!Number.isNaN(threshold)) {
+          return {
+            data: def.data,
+            valueRefId: constMatch[1],
+            operator: constMatch[2] as ThresholdOperator,
+            thresholdConst: threshold,
+          };
+        }
+      }
+
+      return null;
     }
 
     if (
@@ -215,28 +234,31 @@ const frameLabels = (frame: AlertEvalFrame): Record<string, string> => {
   return frame.schema.fields[valueFieldIndex]?.labels ?? {};
 };
 
+// Reads the newest sample: range queries (classic conditions, math over range data)
+// return the whole window, and the last sample is the current value. The classic-condition
+// reducer (avg/max/...) is NOT applied — the gauge is a best-effort current-value display.
 const frameValue = (frame: AlertEvalFrame): number | null => {
   const valueFieldIndex = getValueFieldIndex(frame);
-  const value = frame.data.values?.[valueFieldIndex]?.[0];
+  const samples = frame.data.values?.[valueFieldIndex];
+  const value = samples?.length ? samples[samples.length - 1] : undefined;
   return typeof value === 'number' ? value : null;
 };
 
 /**
  * Picks the evaluated number for the series that matches the alert instance. Eval can
  * return one frame per series (multi-dimensional rules); the right frame is the one
- * whose labels are all present and equal in the alert's labels. Falls back to the sole
- * frame when there is only one (e.g. a constant threshold).
+ * whose labels are all present and equal in the alert's labels. Label-less frames
+ * (constants, expression results) match trivially. A sole frame with mismatched labels
+ * is rejected — it belongs to a different alert instance — unless `allowSoleFrame` is
+ * set, which threshold lookups use because thresholds are typically scalar.
  */
 export const pickSeriesValue = (
   frames: AlertEvalFrame[] | undefined,
-  alertLabels: Record<string, string>
+  alertLabels: Record<string, string>,
+  { allowSoleFrame = false }: { allowSoleFrame?: boolean } = {}
 ): number | null => {
   if (!frames?.length) {
     return null;
-  }
-
-  if (frames.length === 1) {
-    return frameValue(frames[0]);
   }
 
   const match = frames.find((frame) =>
@@ -245,7 +267,11 @@ export const pickSeriesValue = (
     )
   );
 
-  return match ? frameValue(match) : null;
+  if (match) {
+    return frameValue(match);
+  }
+
+  return allowSoleFrame && frames.length === 1 ? frameValue(frames[0]) : null;
 };
 
 // Whether the rule's operator holds at the current value (i.e. the rule is breaching).

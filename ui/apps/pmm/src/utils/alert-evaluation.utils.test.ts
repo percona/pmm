@@ -204,6 +204,65 @@ describe('resolveEvalPlan', () => {
       resolveEvalPlan({ uid: 'x', condition: 'Z', data: MATH_RULE.data })
     ).toBeNull();
   });
+
+  it('resolves a math rule with a constant threshold ($A > 80)', () => {
+    const rule: GrafanaAlertRuleDefinition = {
+      uid: 'math-const-rule',
+      condition: 'C',
+      data: [
+        MATH_RULE.data[0],
+        {
+          refId: 'C',
+          datasourceUid: '__expr__',
+          model: { refId: 'C', type: 'math', expression: '$A > 80' },
+        },
+      ],
+    };
+
+    expect(resolveEvalPlan(rule)).toMatchObject({
+      valueRefId: 'A',
+      operator: '>',
+      thresholdConst: 80,
+    });
+  });
+
+  it('resolves a ${A} style math constant comparison with a decimal', () => {
+    const rule: GrafanaAlertRuleDefinition = {
+      uid: 'math-const-decimal-rule',
+      condition: 'C',
+      data: [
+        MATH_RULE.data[0],
+        {
+          refId: 'C',
+          datasourceUid: '__expr__',
+          model: { refId: 'C', type: 'math', expression: '${A} >= 0.9' },
+        },
+      ],
+    };
+
+    expect(resolveEvalPlan(rule)).toMatchObject({
+      valueRefId: 'A',
+      operator: '>=',
+      thresholdConst: 0.9,
+    });
+  });
+
+  it('returns null for a compound math expression', () => {
+    const rule: GrafanaAlertRuleDefinition = {
+      uid: 'math-compound-rule',
+      condition: 'C',
+      data: [
+        MATH_RULE.data[0],
+        {
+          refId: 'C',
+          datasourceUid: '__expr__',
+          model: { refId: 'C', type: 'math', expression: '$A > 80 || $A < 10' },
+        },
+      ],
+    };
+
+    expect(resolveEvalPlan(rule)).toBeNull();
+  });
 });
 
 const frame = (
@@ -259,6 +318,42 @@ describe('pickSeriesValue', () => {
     expect(pickSeriesValue(frames, { service_id: 'c' })).toBeNull();
     expect(pickSeriesValue([], {})).toBeNull();
     expect(pickSeriesValue(undefined, {})).toBeNull();
+  });
+
+  it('rejects a sole frame belonging to a different alert instance', () => {
+    // A multi-dimensional rule whose only surviving series is another instance's
+    // must not be shown as the selected alert's value.
+    expect(
+      pickSeriesValue([frame(42, { service_id: 'b' })], { service_id: 'a' })
+    ).toBeNull();
+  });
+
+  it('accepts a mismatched sole frame when allowSoleFrame is set', () => {
+    // Threshold lookups accept the sole frame — thresholds are typically scalar.
+    expect(
+      pickSeriesValue([frame(42, { service_id: 'b' })], { service_id: 'a' }, {
+        allowSoleFrame: true,
+      })
+    ).toBe(42);
+  });
+
+  it('reads the newest sample from a range-query frame', () => {
+    const rangeFrame: AlertEvalFrame = {
+      schema: {
+        fields: [
+          { name: 'Time', type: 'time' },
+          { name: 'Value', type: 'number', labels: { service_id: 'a' } },
+        ],
+      },
+      data: {
+        values: [
+          [1_752_147_000_000, 1_752_147_100_000, 1_752_147_200_000],
+          [10, 20, 30],
+        ],
+      },
+    };
+
+    expect(pickSeriesValue([rangeFrame], { service_id: 'a' })).toBe(30);
   });
 });
 

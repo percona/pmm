@@ -72,7 +72,7 @@ const AlertDetailsTab: FC<Props> = ({
         </Typography>
         <Grid container spacing={3} columns={{ xs: 1, sm: 2, md: 4 }}>
           <DataPoint size={1} title={Messages.details.evaluate}>
-            {ruleConfiguration.evaluate}
+            {formatDurationSeconds(ruleConfiguration.evaluationIntervalSeconds)}
           </DataPoint>
           <DataPoint size={1} title={Messages.details.lastEvaluated}>
             {ruleConfiguration.lastEvaluation &&

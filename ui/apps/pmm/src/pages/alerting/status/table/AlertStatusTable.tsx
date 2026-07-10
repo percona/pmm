@@ -23,13 +23,13 @@ import {
   createSilenceUrl,
   getTableRows,
 } from './AlertStatusTable.utils';
-import { useTimezone } from 'hooks/utils/useTimezone';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOutlined';
 import { Icon } from 'components/icon';
 import { Messages } from './AlertStatusTable.messages';
 import { useUser } from 'contexts/user';
+import { useTimezone } from 'hooks/utils/useTimezone';
 
 const AlertStatusTable: FC<AlertStatusTableProps> = ({
   rows,
@@ -117,15 +117,18 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
         </Stack>
       )}
       renderRowActionMenuItems={({ row, closeMenu }) => {
-        if (row.original.type !== 'alert' || !row.original.ruleGroupUid) {
+        if (row.original.type !== 'alert') {
           return [];
         }
 
-        return [
+        const alert = row.original as AlertRow;
+        // View/Edit need the Grafana rule uid; the other actions work without it.
+        const { ruleGroupUid } = alert;
+        const items = [
           <MenuItem
             key="notification-details"
             onClick={() => {
-              onOpenDetail(row.original as AlertRow);
+              onOpenDetail(alert);
               closeMenu();
             }}
           >
@@ -134,42 +137,53 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
             </ListItemIcon>
             <ListItemText>{Messages.notificationDetails}</ListItemText>
           </MenuItem>,
-          <MenuItem
-            key="view"
-            component={RouterLink}
-            to={createAlertRuleViewUrl(row.original.ruleGroupUid)}
-            onClick={(event) => {
-              event.stopPropagation();
-              closeMenu();
-            }}
-          >
-            <ListItemIcon>
-              <VisibilityOutlinedIcon />
-            </ListItemIcon>
-            <ListItemText>{Messages.viewAlertRule}</ListItemText>
-          </MenuItem>,
-          user?.isEditor && (
+        ];
+
+        if (ruleGroupUid) {
+          items.push(
             <MenuItem
-              key="edit"
+              key="view"
               component={RouterLink}
-              to={createAlertRuleEditUrl(row.original.ruleGroupUid)}
+              to={createAlertRuleViewUrl(ruleGroupUid)}
               onClick={(event) => {
                 event.stopPropagation();
                 closeMenu();
               }}
             >
               <ListItemIcon>
-                <EditOutlinedIcon />
+                <VisibilityOutlinedIcon />
               </ListItemIcon>
-              <ListItemText>{Messages.editAlertRule}</ListItemText>
+              <ListItemText>{Messages.viewAlertRule}</ListItemText>
             </MenuItem>
-          ),
-          user?.isEditor && <Divider />,
-          user?.isEditor && (
+          );
+
+          if (user?.isEditor) {
+            items.push(
+              <MenuItem
+                key="edit"
+                component={RouterLink}
+                to={createAlertRuleEditUrl(ruleGroupUid)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  closeMenu();
+                }}
+              >
+                <ListItemIcon>
+                  <EditOutlinedIcon />
+                </ListItemIcon>
+                <ListItemText>{Messages.editAlertRule}</ListItemText>
+              </MenuItem>
+            );
+          }
+        }
+
+        if (user?.isEditor) {
+          items.push(
+            <Divider key="divider" />,
             <MenuItem
               key="silence"
               component={RouterLink}
-              to={createSilenceUrl(row.original.labels)}
+              to={createSilenceUrl(alert.labels)}
               onClick={(event) => {
                 event.stopPropagation();
                 closeMenu();
@@ -180,8 +194,10 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
               </ListItemIcon>
               <ListItemText>{Messages.silence}</ListItemText>
             </MenuItem>
-          ),
-        ];
+          );
+        }
+
+        return items;
       }}
     />
   );
