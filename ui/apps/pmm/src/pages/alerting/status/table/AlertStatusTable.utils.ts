@@ -1,4 +1,5 @@
 import { format } from 'date-fns/format';
+import { type MRT_Row } from 'material-react-table';
 import { ALL_STATES_FILTER } from '../AlertsPage.constants';
 import { AlertRow, AlertsTableRow } from '../AlertsPage.types';
 import { groupAlertsByNode } from '../AlertsPage.utils';
@@ -23,6 +24,38 @@ export const getTableRows = ({
       : rows.filter((row) => row.state === selectedState);
 
   return groupByNodes ? groupAlertsByNode(result) : result;
+};
+
+const toTimestamp = (bound: unknown): number | undefined => {
+  if (!(bound instanceof Date)) {
+    return undefined;
+  }
+
+  const timestamp = bound.getTime();
+  return Number.isNaN(timestamp) ? undefined : timestamp;
+};
+
+export const filterTriggeredAt = (
+  row: MRT_Row<AlertsTableRow>,
+  id: string,
+  filterValue: [unknown, unknown]
+) => {
+  const from = toTimestamp(filterValue[0]);
+  const to = toTimestamp(filterValue[1]);
+
+  if (from === undefined && to === undefined) {
+    return true;
+  }
+
+  const value = toTimestamp(row.getValue<Date | undefined>(id));
+
+  if (value === undefined) {
+    return false;
+  }
+
+  return (
+    (from === undefined || value >= from) && (to === undefined || value <= to)
+  );
 };
 
 export const formatTriggeredAt = (

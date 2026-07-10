@@ -1,4 +1,5 @@
 import { Table, useNavigableRows } from '@percona/percona-ui';
+import { type MRT_Row } from 'material-react-table';
 import { FC, useMemo, useState } from 'react';
 import { ALERT_STATUS_COLUMNS } from './AlertStatusTable.constants';
 import Switch from '@mui/material/Switch';
@@ -21,6 +22,7 @@ import {
   createAlertRuleEditUrl,
   createAlertRuleViewUrl,
   createSilenceUrl,
+  filterTriggeredAt,
   getTableRows,
 } from './AlertStatusTable.utils';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -72,6 +74,15 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
       enableRowActions
       enableHiding={false}
       enableGlobalFilter={false}
+      // Node group rows only carry nodeId/state, so filter on the alert rows
+      // and keep the groups that still have matching alerts.
+      filterFromLeafRows
+      filterFns={{
+        // MRT's 'betweenInclusive' compares values as lowercased strings,
+        // which breaks Date comparisons.
+        triggeredAtRangeFilterFn: (row, id, filterValue) =>
+          filterTriggeredAt(row as MRT_Row<AlertsTableRow>, id, filterValue),
+      }}
       enableRowHoverAction
       rowHoverAction={(row) => {
         if (row.original.type === 'alert') {
