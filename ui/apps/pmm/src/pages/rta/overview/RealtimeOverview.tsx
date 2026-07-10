@@ -104,7 +104,7 @@ const RealtimeOverviewPage: FC = () => {
             columnGap={1}
             sx={{
               width: '100%',
-              minWidth: 0
+              minWidth: 0,
             }}
           >
             <Box
@@ -125,7 +125,13 @@ const RealtimeOverviewPage: FC = () => {
                 }}
               />
             </Box>
-            <Stack direction="row" flexWrap="wrap" alignItems="center" gap={1} sx={{ mt: 1 }}>
+            <Stack
+              direction="row"
+              flexWrap="wrap"
+              alignItems="center"
+              gap={1}
+              sx={{ mt: 1 }}
+            >
               <AutoRefreshSelect
                 isFetching={fetching}
                 refreshInterval={refreshInterval}

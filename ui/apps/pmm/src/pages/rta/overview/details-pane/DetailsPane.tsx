@@ -38,11 +38,7 @@ const DetailsPane: FC<Props> = ({
   const [tab, setTab] = useState<'details' | 'raw-data'>('details');
 
   return (
-    <Slide
-      in={!!query}
-      direction="up"
-      timeout={{ enter: 300, exit: 200 }}
-    >
+    <Slide in={!!query} direction="up" timeout={{ enter: 300, exit: 200 }}>
       <Paper
         data-testid="query-details-pane"
         aria-hidden={query ? 'false' : 'true'}
@@ -55,8 +51,8 @@ const DetailsPane: FC<Props> = ({
           bottom: 0,
           mt: 2,
           mx: 2,
-          borderTopLeftRadius: "8px",
-          borderTopRightRadius: "8px",
+          borderTopLeftRadius: '8px',
+          borderTopRightRadius: '8px',
           borderBottomLeftRadius: 0,
           borderBottomRightRadius: 0,
           borderBottom: 'none',

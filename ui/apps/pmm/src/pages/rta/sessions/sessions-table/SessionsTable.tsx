@@ -196,11 +196,7 @@ const SessionsTable: FC = () => {
               pt={1}
             >
               {selectedSessions.length > 0 && (
-                <Stack
-                  direction="row"
-                  flexWrap="wrap"
-                  alignItems="center"
-                >
+                <Stack direction="row" flexWrap="wrap" alignItems="center">
                   <Typography variant="body2" sx={{ mx: 1 }}>
                     {Messages.selected(selectedSessions.length)}
                   </Typography>

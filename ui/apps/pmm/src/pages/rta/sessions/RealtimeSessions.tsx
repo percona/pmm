@@ -19,11 +19,7 @@ const RealtimeSessionsPage: FC = () => {
 
   return (
     <RealtimePage>
-      <Stack
-        direction="column"
-        gap={2}
-        sx={{ flexShrink: 0, pt: 1.5 }}
-      >
+      <Stack direction="column" gap={2} sx={{ flexShrink: 0, pt: 1.5 }}>
         {searchParams.get('fromOverview') && (
           <RouterLink to={createRealtimeOverviewUrl(serviceIds)}>
             <Button
@@ -37,16 +33,12 @@ const RealtimeSessionsPage: FC = () => {
             </Button>
           </RouterLink>
         )}
-        <Stack
-          direction="column"
-          gap={0.5}
-        >
+        <Stack direction="column" gap={0.5}>
           <Typography variant="h6">{Messages.pageTitle}</Typography>
           <Typography variant="body2">
             {user?.isPMMAdmin
               ? Messages.pageDescription
-              : Messages.pageDescriptionViewer}
-            {' '}
+              : Messages.pageDescriptionViewer}{' '}
             <Link
               href={DOCS_URLS.qan}
               rel="noopener noreferrer"

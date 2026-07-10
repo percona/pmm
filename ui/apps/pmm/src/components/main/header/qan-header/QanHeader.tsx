@@ -23,7 +23,9 @@ const QanHeader: FC = () => {
         ...(isRealtime && { borderBottom: 1, borderColor: 'divider' }),
       }}
     >
-      <Typography variant="h6" sx={{ my: 1 }}>{Messages.title}</Typography>
+      <Typography variant="h6" sx={{ my: 1 }}>
+        {Messages.title}
+      </Typography>
       <Stack
         sx={{
           // Wraps under the title as a unit when narrower than the basis,
