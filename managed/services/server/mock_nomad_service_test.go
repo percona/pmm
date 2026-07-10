@@ -3,8 +3,6 @@
 package server
 
 import (
-	context "context"
-
 	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/percona/pmm/managed/models"
@@ -15,17 +13,17 @@ type mockNomadService struct {
 	mock.Mock
 }
 
-// UpdateConfiguration provides a mock function with given fields: ctx, settings
-func (_m *mockNomadService) UpdateConfiguration(ctx context.Context, settings *models.Settings) error {
-	ret := _m.Called(ctx, settings)
+// UpdateConfiguration provides a mock function with given fields: settings
+func (_m *mockNomadService) UpdateConfiguration(settings *models.Settings) error {
+	ret := _m.Called(settings)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateConfiguration")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, *models.Settings) error); ok {
-		r0 = rf(ctx, settings)
+	if rf, ok := ret.Get(0).(func(*models.Settings) error); ok {
+		r0 = rf(settings)
 	} else {
 		r0 = ret.Error(0)
 	}

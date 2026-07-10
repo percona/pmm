@@ -1407,7 +1407,7 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	}
 
 	if countDatabases == 0 {
-		_, err = db.ExecContext(ctx, "CREATE DATABASE "+pq.QuoteIdentifier(params.Name))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE DATABASE "%s"`, params.Name))
 		if err != nil {
 			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
 		}
@@ -1420,13 +1420,12 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	}
 
 	if countRoles == 0 {
-		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE USER %s LOGIN PASSWORD %s`, pq.QuoteIdentifier(params.Username), pq.QuoteLiteral(params.Password)))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
 		if err != nil {
 			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
 		}
 
-		_, err = db.ExecContext(ctx, fmt.Sprintf("GRANT ALL PRIVILEGES ON DATABASE %s TO %s",
-			pq.QuoteIdentifier(params.Name), pq.QuoteIdentifier(params.Username)))
+		_, err = db.ExecContext(ctx, `GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
 		if err != nil {
 			return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
 		}
@@ -1435,7 +1434,7 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 		// scram-sha-256 during an upgrade, leaving the role with no usable password hash).
 		// initWithRoot is only ever called after a 28000/28P01 auth error, so resetting the
 		// password to the currently configured value is OK.
-		_, err = db.ExecContext(ctx, fmt.Sprintf(`ALTER USER %s WITH PASSWORD %s`, pq.QuoteIdentifier(params.Username), pq.QuoteLiteral(params.Password)))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
 		if err != nil {
 			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
 		}
