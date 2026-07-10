@@ -310,7 +310,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 		agent.cancel()
 		<-agent.done
 
-		err := s.portsRegistry.Release(s.ctx, agent.listenPort)
+		err := s.portsRegistry.Release(agent.listenPort)
 		if err != nil {
 			s.l.Errorf("Failed to release port: %s.", err)
 		}

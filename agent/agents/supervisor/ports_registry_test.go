@@ -43,11 +43,11 @@ func TestRegistry(t *testing.T) {
 		_ = l2.Close()
 	})
 
-	err = r.Release(t.Context(), 65000)
+	err = r.Release(65000)
 	require.NoError(t, err)
-	err = r.Release(t.Context(), 65001)
+	err = r.Release(65001)
 	assert.Equal(t, errPortNotReserved, err)
-	err = r.Release(t.Context(), 65002)
+	err = r.Release(65002)
 	assert.Equal(t, errPortBusy, err)
 
 	require.NoError(t, l1.Close())
@@ -62,7 +62,7 @@ func TestRegistry(t *testing.T) {
 	_, err = r.Reserve(t.Context())
 	assert.Equal(t, errNoFreePort, err)
 
-	err = r.Release(t.Context(), 65002)
+	err = r.Release(65002)
 	require.NoError(t, err)
 
 	p, err = r.Reserve(t.Context())
@@ -79,7 +79,7 @@ func TestPreferNewPort(t *testing.T) {
 	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 
-	err = r.Release(t.Context(), p)
+	err = r.Release(p)
 	require.NoError(t, err)
 
 	p, err = r.Reserve(t.Context())
@@ -105,7 +105,7 @@ func TestSinglePort(t *testing.T) {
 	_, err = r.Reserve(t.Context())
 	assert.Equal(t, errNoFreePort, err)
 
-	err = r.Release(t.Context(), p)
+	err = r.Release(p)
 	require.NoError(t, err)
 
 	p, err = r.Reserve(t.Context())

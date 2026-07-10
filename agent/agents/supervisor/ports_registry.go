@@ -59,7 +59,8 @@ func newPortsRegistry(minPort, maxPort uint16, reserved []uint16) *portsRegistry
 // It tries to reuse ports as little as possible to avoid erroneous Prometheus scrapes
 // to the different exporter type when Prometheus configuration is being reloaded.
 func (r *portsRegistry) Reserve(ctx context.Context) (uint16, error) {
-	if err := ctx.Err(); err != nil {
+	err := ctx.Err()
+	if err != nil {
 		return 0, err
 	}
 	r.m.Lock()
@@ -92,7 +93,7 @@ func (r *portsRegistry) Reserve(ctx context.Context) (uint16, error) {
 }
 
 // Release releases port.
-func (r *portsRegistry) Release(ctx context.Context, port uint16) error {
+func (r *portsRegistry) Release(port uint16) error {
 	r.m.Lock()
 	defer r.m.Unlock()
 
@@ -100,12 +101,18 @@ func (r *portsRegistry) Release(ctx context.Context, port uint16) error {
 		return errPortNotReserved
 	}
 
-	lc := net.ListenConfig{}
-	l, err := lc.Listen(ctx, "tcp", fmt.Sprintf("127.0.0.1:%d", port))
+	// FIXME: net.Listen shall be removed at all because it creates the following problems:
+	// 1. Port shall be cleaned up anyway after the process is terminated,
+	// otherwise it will be kept in memory forever.
+	// 2. It is possible that the port is already used by another process,
+	// but we still need to release it from the registry to avoid deadlock in the future.
+	// 3. Release() is called from the shutdown handler, which terminates the forked processes,
+	// but the OS may not release the port immediately,
+	// so we may get "port busy" error even though the process is already terminated.
+	// If port is really still busy or used by some another process,
+	// the next Reserve() will skip it and find another free port.
+	l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port)) //nolint:noctx
 	if err != nil {
-		if ctx.Err() != nil {
-			return ctx.Err()
-		}
 		return errPortBusy
 	}
 	if l != nil {
