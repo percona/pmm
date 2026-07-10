@@ -9,6 +9,7 @@ export const STATUS_COLOR_MAP: Record<
 > = {
   Alerting: 'error',
   Pending: 'warning',
+  Recovering: 'warning',
   Normal: 'success',
   NoData: 'default',
   Error: 'error',
@@ -17,6 +18,7 @@ export const STATUS_COLOR_MAP: Record<
 export const STATUS_LABEL_MAP: Record<AlertStatus, string> = {
   Alerting: 'Firing',
   Pending: 'Pending',
+  Recovering: 'Recovering',
   Normal: 'Normal',
   NoData: 'No Data',
   Error: 'Error',
@@ -38,5 +40,17 @@ export const STATE_OPTIONS: TextSelectOption<string>[] = [
   {
     label: 'Firing',
     value: 'Alerting',
+  },
+  {
+    label: 'Recovering',
+    value: 'Recovering',
+  },
+  {
+    label: 'No Data',
+    value: 'NoData',
+  },
+  {
+    label: 'Error',
+    value: 'Error',
   },
 ];

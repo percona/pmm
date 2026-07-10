@@ -1,8 +1,9 @@
 export const Messages = {
-  // todo add content
+  // todo: need Catalinas input here
   status: {
     title: 'Status',
-    description: '',
+    description:
+      'View the current state of alerts in your environment and their associated nodes',
   },
   firedAlerts: {
     title: 'Fired alerts',

@@ -1,5 +1,9 @@
 import { PrometheusAlertRulesResponse } from 'types/alerting.types';
-import { flattenAlertRules, groupAlertsByNode } from './AlertsPage.utils';
+import {
+  findAlertTableRowById,
+  flattenAlertRules,
+  groupAlertsByNode,
+} from './AlertsPage.utils';
 import { AlertRow } from './AlertsPage.types';
 
 const createAlertRow = (
@@ -173,6 +177,79 @@ describe('flattenAlertRules', () => {
     expect(rows[0].value).toBe('42');
   });
 
+  it('creates unique stable IDs from all alert labels', () => {
+    const payload: PrometheusAlertRulesResponse = {
+      data: {
+        groups: [
+          {
+            rules: [
+              {
+                uid: 'rule-uid-1',
+                name: 'mysql_connections',
+                alerts: [
+                  {
+                    labels: {
+                      node_name: 'node-a',
+                      service_name: 'mysql-service-a',
+                      database: 'database-a',
+                    },
+                    annotations: {},
+                  },
+                  {
+                    labels: {
+                      database: 'database-b',
+                      service_name: 'mysql-service-a',
+                      node_name: 'node-a',
+                    },
+                    annotations: {},
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    const rows = flattenAlertRules(payload);
+
+    expect(rows).toHaveLength(2);
+    expect(new Set(rows.map((row) => row.id))).toHaveLength(2);
+
+    const reorderedPayload = structuredClone(payload);
+    reorderedPayload.data.groups[0].rules[0].alerts[0].labels = {
+      database: 'database-a',
+      service_name: 'mysql-service-a',
+      node_name: 'node-a',
+    };
+    expect(flattenAlertRules(reorderedPayload)[0].id).toBe(rows[0].id);
+  });
+
+  it('maps recovering alert instances', () => {
+    const payload: PrometheusAlertRulesResponse = {
+      data: {
+        groups: [
+          {
+            rules: [
+              {
+                name: 'recovering-rule',
+                alerts: [
+                  {
+                    state: 'recovering',
+                    labels: { alertname: 'Recovering alert' },
+                    annotations: {},
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    expect(flattenAlertRules(payload)[0].state).toBe('Recovering');
+  });
+
   it('falls back to unknown-node when node_name label is absent', () => {
     const payload: PrometheusAlertRulesResponse = {
       data: {
@@ -253,5 +330,6 @@ describe('flattenAlertRules', () => {
     expect(grouped[0].state).toBe('Alerting');
     expect(grouped[0].alerts).toHaveLength(2);
     expect(grouped[0].alerts[0].type).toBe('alert');
+    expect(findAlertTableRowById(grouped, 'a2')?.id).toBe('a2');
   });
 });

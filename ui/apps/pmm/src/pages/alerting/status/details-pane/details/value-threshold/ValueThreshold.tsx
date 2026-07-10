@@ -6,16 +6,22 @@ import UnavailableText from 'components/unavailable-text';
 import { PERCENT_OFF_SCALE } from './ValueThreshold.constants';
 import { formatNumber, toPercent } from './ValueThreshold.utils';
 import { GrafanaRulerLabels } from 'types/ruler.types';
+import { GrafanaAlertRuleDefinition } from 'types/alerting.types';
 
 interface Props {
-  uid: string;
+  definition?: GrafanaAlertRuleDefinition;
+  isDefinitionLoading: boolean;
   labels: GrafanaRulerLabels;
 }
 
-const ValueThreshold: FC<Props> = ({ uid, labels }) => {
-  const { data, isLoading } = useAlertValueThreshold(uid, labels);
+const ValueThreshold: FC<Props> = ({
+  definition,
+  isDefinitionLoading,
+  labels,
+}) => {
+  const { data, isLoading } = useAlertValueThreshold(definition, labels);
 
-  if (isLoading) {
+  if (isDefinitionLoading || isLoading) {
     return <Skeleton variant="rounded" width="100%" height={32} />;
   }
 

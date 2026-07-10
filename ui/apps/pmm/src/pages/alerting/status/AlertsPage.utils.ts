@@ -1,19 +1,45 @@
 import {
   AlertStatus,
   PrometheusAlertItem,
+  PrometheusAlertRuleGroup,
   PrometheusAlertRuleItem,
   PrometheusAlertState,
   PrometheusAlertRulesResponse,
 } from 'types/alerting.types';
-import { AlertRow, NodeGroupRow } from './AlertsPage.types';
+import { AlertRow, AlertsTableRow, NodeGroupRow } from './AlertsPage.types';
 import { formatDurationSeconds } from 'utils/duration.utils';
 
 const NODE_NAME_LABEL = 'node_name';
 const UNKNOWN_NODE = 'unknown-node';
 
+export const findAlertTableRowById = (
+  rows: AlertsTableRow[],
+  id?: string
+): AlertsTableRow | undefined => {
+  if (!id) {
+    return undefined;
+  }
+
+  for (const row of rows) {
+    if (row.id === id) {
+      return row;
+    }
+
+    if (row.type === 'node') {
+      const alert = row.alerts.find((candidate) => candidate.id === id);
+      if (alert) {
+        return alert;
+      }
+    }
+  }
+
+  return undefined;
+};
+
 const GROUP_STATE_PRIORITY: Record<AlertStatus, number> = {
-  Alerting: 4,
-  Error: 3,
+  Alerting: 5,
+  Error: 4,
+  Recovering: 3,
   Pending: 2,
   NoData: 1,
   Normal: 0,
@@ -22,6 +48,7 @@ const GROUP_STATE_PRIORITY: Record<AlertStatus, number> = {
 const ALERT_STATUSES = new Set<AlertStatus>([
   'Alerting',
   'Error',
+  'Recovering',
   'Pending',
   'NoData',
   'Normal',
@@ -38,6 +65,8 @@ const mapRuleStateToAlertState = (
       return 'Alerting';
     case 'pending':
       return 'Pending';
+    case 'recovering':
+      return 'Recovering';
     case 'inactive':
       return 'Normal';
     default:
@@ -100,6 +129,21 @@ const getAlertServiceName = (alert: PrometheusAlertItem): string => {
   return serviceName === '-' ? '' : serviceName;
 };
 
+const getAlertId = (
+  group: PrometheusAlertRuleGroup,
+  rule: PrometheusAlertRuleItem,
+  labels: Record<string, string>
+): string => {
+  const sortedLabels = Object.entries(labels).sort(([a], [b]) =>
+    a.localeCompare(b)
+  );
+
+  const ruleId =
+    rule.uid || `${group.uid || group.name || 'group'}:${rule.name}`;
+
+  return `${ruleId}:${JSON.stringify(sortedLabels)}`;
+};
+
 export const flattenAlertRules = (
   data?: PrometheusAlertRulesResponse
 ): AlertRow[] => {
@@ -124,7 +168,7 @@ export const flattenAlertRules = (
 
         return {
           type: 'alert' as const,
-          id: `${rule.name}-${alert.labels.node_name}-${alert.labels.service_name}`,
+          id: getAlertId(group, rule, alert.labels),
           alertName: getAlertName(alert, rule),
           ruleName: rule.name || 'Unnamed rule',
           ruleGroupUid: rule.uid,

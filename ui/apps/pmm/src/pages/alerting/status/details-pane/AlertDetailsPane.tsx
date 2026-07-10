@@ -11,7 +11,7 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import { Icon } from 'components/icon';
 import { useEscapeKey } from 'utils/keys.utils';
-import { AlertRow, AlertsTableRow } from '../AlertsPage.types';
+import { AlertsTableRow } from '../AlertsPage.types';
 import AlertDetailsTab from './details/AlertDetailsTab';
 import { Messages } from './AlertDetailsPane.messages';
 import { UseDetailsPaneNavigationResult } from '@percona/percona-ui';
@@ -32,7 +32,9 @@ const AlertDetailsPane: FC<Props> = ({
   previous,
 }) => {
   const [tab, setTab] = useState<'details' | 'raw-data'>('details');
-  const details = useAlertDetailsPane(alert as AlertRow);
+  const details = useAlertDetailsPane(
+    alert?.type === 'alert' ? alert : undefined
+  );
 
   const handleClose = () => {
     onClose();
@@ -41,7 +43,7 @@ const AlertDetailsPane: FC<Props> = ({
 
   useEscapeKey(handleClose);
 
-  if (alert?.type === 'node' || !details) {
+  if (alert?.type === 'node') {
     return null;
   }
 

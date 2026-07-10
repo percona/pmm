@@ -10,7 +10,6 @@ import { formatTriggeredAt } from '../../table/AlertStatusTable.utils';
 import { useTimezone } from 'hooks/utils/useTimezone';
 import { formatDurationSeconds } from 'utils/duration.utils';
 import AlertSeverityDetail from './severity/AlertSeverityDetail';
-import { AlertSeverity } from 'types/alerting.types';
 import { AlertDetailsPane } from '../AlertDetailsPane.types';
 
 interface Props {
@@ -47,11 +46,12 @@ const AlertDetailsTab: FC<Props> = ({
           {formatTriggeredAt(summary.triggeredAt, timezone)}
         </DataPoint>
         <DataPoint size={1} title={Messages.details.severity}>
-          <AlertSeverityDetail severity={summary.severity as AlertSeverity} />
+          <AlertSeverityDetail severity={summary.severity} />
         </DataPoint>
         <DataPoint size={1} title={Messages.details.valueThreshold}>
           <ValueThreshold
-            uid={ruleConfiguration.ruleUid}
+            definition={ruleConfiguration.definition}
+            isDefinitionLoading={ruleConfiguration.isLoading}
             labels={rawData.labels}
           />
         </DataPoint>

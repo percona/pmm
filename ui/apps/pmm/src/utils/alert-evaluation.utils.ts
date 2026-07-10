@@ -192,11 +192,32 @@ export const resolveEvalPlan = (
   };
 };
 
-const frameLabels = (frame: AlertEvalFrame): Record<string, string> =>
-  frame.schema.fields.find((field) => field.labels)?.labels ?? {};
+const getValueFieldIndex = (frame: AlertEvalFrame): number => {
+  const numberFieldIndex = frame.schema.fields.findIndex(
+    (field) => field.type === 'number'
+  );
+  if (numberFieldIndex >= 0) {
+    return numberFieldIndex;
+  }
+
+  const labelledFieldIndex = frame.schema.fields.findIndex(
+    (field) => field.labels
+  );
+  if (labelledFieldIndex >= 0) {
+    return labelledFieldIndex;
+  }
+
+  return frame.schema.fields.length === 1 ? 0 : -1;
+};
+
+const frameLabels = (frame: AlertEvalFrame): Record<string, string> => {
+  const valueFieldIndex = getValueFieldIndex(frame);
+  return frame.schema.fields[valueFieldIndex]?.labels ?? {};
+};
 
 const frameValue = (frame: AlertEvalFrame): number | null => {
-  const value = frame.data.values?.[0]?.[0];
+  const valueFieldIndex = getValueFieldIndex(frame);
+  const value = frame.data.values?.[valueFieldIndex]?.[0];
   return typeof value === 'number' ? value : null;
 };
 
