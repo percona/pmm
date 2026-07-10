@@ -20,7 +20,6 @@ repo=${PMM_REPO:-percona/pmm-server}
 port=${PMM_PORT:-443}
 container_name=${CONTAINER_NAME:-pmm-server}
 docker_socket_path=${DOCKER_SOCKET_PATH:-/var/run/docker.sock}
-watchtower_token=${WATCHTOWER_TOKEN:-}
 volume_name=${VOLUME_NAME:-pmm-data}
 backup_data=0
 interactive=0
@@ -56,9 +55,6 @@ Available options:
 
 -b, --backup
       Backup data from existing PMM Server instance
-
--wt, --watchtower-token
-      Watchtower token to use for PMM Server updates
 
 -dsp, --docker-socket-path
       Path to docker socket (default: /var/run/docker.sock)
@@ -140,10 +136,6 @@ parse_params() {
       shift
       ;;
     -b | --backup) backup_data=1 ;;
-    -wt | --watchtower-token)
-      watchtower_token="${2-}"
-      shift
-      ;;
     -dsp | --docker-socket-path)
       docker_socket_path="${2-}"
       shift
@@ -262,46 +254,12 @@ run_docker() {
 }
 
 #######################################
-# Generates Watchtower token if needed, or reuses existing one.
-#######################################
-generate_watchtower_token() {
-  if [ !  "$watchtower_token" == "" ]; then
-    msg "Using provided Watchtower token"
-    return 0
-  fi
-  if run_docker "inspect watchtower 1> /dev/null 2> /dev/null"; then
-    watchtower_token=$(run_docker "inspect --format='{{range .Config.Env}}{{println .}}{{end}}' watchtower | grep WATCHTOWER_HTTP_API_TOKEN | cut -d'=' -f2")
-    msg "Found Watchtower Token: $watchtower_token"
-    return 0
-  fi
-  if run_docker "inspect pmm-server 1> /dev/null 2> /dev/null"; then
-    watchtower_token=$(run_docker "inspect --format='{{range .Config.Env}}{{println .}}{{end}}' pmm-server | grep PMM_WATCHTOWER_TOKEN | cut -d'=' -f2")
-    msg "Found Watchtower Token: $watchtower_token"
-    # we don't return here, as we want to generate a new token if it's not found
-  fi
-  if [ "$watchtower_token" == "" ]; then
-    watchtower_token=random-$(date "+%F-%H%M%S")
-    msg "Generated Watchtower Token: $watchtower_token"
-  fi
-}
-
-#######################################
 # Creates PMM Network if needed.
 #######################################
 create_pmm_network() {
   if ! run_docker "network inspect $network_name 1> /dev/null 2> /dev/null"; then
     run_docker "network create $network_name 1> /dev/null"
     msg "Created PMM Network: $network_name"
-  fi
-}
-
-#######################################
-# Starts Watchtower container if needed.
-#######################################
-start_watchtower() {
-  if ! run_docker "inspect watchtower 1> /dev/null 2> /dev/null"; then
-    run_docker "run -d --name watchtower --restart always --network $network_name -e WATCHTOWER_HTTP_API_TOKEN=$watchtower_token -e WATCHTOWER_HTTP_LISTEN_PORT=8080 -e WATCHTOWER_HTTP_API_UPDATE=1 -v $docker_socket_path:/var/run/docker.sock percona/watchtower --cleanup"
-    msg "Created Watchtower container"
   fi
 }
 
@@ -464,7 +422,7 @@ start_pmm() {
   msg "Pulling $repo:$tag"
   run_docker "pull $repo:$tag 1> /dev/null"
 
-  docker_env_flags="-e PMM_WATCHTOWER_HOST=http://watchtower:8080 -e PMM_WATCHTOWER_TOKEN=$watchtower_token "
+  docker_env_flags=""
   if run_docker "inspect $container_name 1> /dev/null 2> /dev/null"; then
     pmm_archive="$container_name-$(date "+%F-%H%M%S")"
     msg "\tExisting PMM Server found, renaming to $pmm_archive\n"
@@ -532,9 +490,7 @@ main() {
   msg "Gathering/downloading required components, this may take a moment\n"
   install_docker
   create_pmm_network
-  generate_watchtower_token
   start_pmm
-  start_watchtower
   show_message
 }
 
