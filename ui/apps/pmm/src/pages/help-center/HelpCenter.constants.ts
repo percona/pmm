@@ -1,4 +1,4 @@
-import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
+import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import { HelpCard } from './help-center-card/HelpCenterCard.types';
 
 export const CARD_IDS = {
@@ -74,7 +74,7 @@ export const getCardData = ({
     buttons: [
       {
         text: 'Manage datasets',
-        to: `${PMM_NEW_NAV_GRAFANA_PATH}/pmm-dump`,
+        to: `${PMM_NEW_NAV_PATH}/pmm-dump`,
       },
     ],
     adminOnly: true,

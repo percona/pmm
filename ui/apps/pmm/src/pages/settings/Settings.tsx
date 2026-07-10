@@ -40,12 +40,7 @@ export const Settings: FC = () => {
   const setTab = (value: TabValue) => navigate(`/settings/${value}`);
 
   return (
-    <Page
-      title={Messages.title}
-      fullWidth
-      surface="paper"
-      roles={[OrgRole.Admin]}
-    >
+    <Page title={Messages.title} surface="paper" roles={[OrgRole.Admin]}>
       <Stack gap={3} sx={{ flex: 1 }}>
         <Tabs
           data-testid="settings-tabs"

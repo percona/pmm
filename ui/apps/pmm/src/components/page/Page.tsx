@@ -50,13 +50,13 @@ export const Page: FC<PageProps> = ({
           flex: 1,
           width: '100%',
           maxWidth: {
-            lg: 1000,
+            lg: fullWidth ? undefined : 1000,
           },
           p: {
             xs: 2,
           },
           px: {
-            md: fullWidth ? 4 : undefined,
+            md: 4,
           },
           mx: 'auto',
           gap: 2,

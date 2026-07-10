@@ -13,6 +13,7 @@ import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import { DumpPage, ExportDataset } from 'pages/dump';
 
 const router = createBrowserRouter(
   [
@@ -39,6 +40,19 @@ const router = createBrowserRouter(
             {
               path: 'help',
               element: <HelpCenter />,
+            },
+            {
+              path: 'pmm-dump',
+              children: [
+                {
+                  path: '',
+                  element: <DumpPage />,
+                },
+                {
+                  path: 'new',
+                  element: <ExportDataset />,
+                },
+              ],
             },
             {
               path: 'settings/:tab?',

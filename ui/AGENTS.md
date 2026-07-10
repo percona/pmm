@@ -51,6 +51,8 @@ Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createB
 | `/updates`         | PMM Server updates              |
 | `/updates/clients` | Client updates                  |
 | `/help`            | Help center                     |
+| `/pmm-dump`        | PMM Dump datasets               |
+| `/pmm-dump/new`    | Create PMM Dump dataset         |
 | `/rta`             | Real-Time Analytics tab         |
 | `/rta/selection`   | RTA service selection           |
 | `/rta/sessions`    | RTA sessions list               |
