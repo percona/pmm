@@ -20,12 +20,11 @@ const createAlert = (uid?: string): AlertRow => ({
   nodeId: 'node-1',
   serviceName: 'service-1',
   summary: 'Alert summary',
-  source: 'service-1',
   labels: {},
   annotations: {},
   expression: 'up == 0',
   age: '1m',
-  rawJson: '{}',
+  rawAlert: { labels: {}, annotations: {} },
   rule: {
     uid,
     name: 'Rule one',

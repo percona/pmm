@@ -4,7 +4,7 @@ import { format, formatDuration } from 'date-fns';
 import { tz } from '@date-fns/tz';
 import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { QueryData } from 'types/rta.types';
-import DetailsMetric from './DetailsMetric';
+import DetailsMetric from 'components/details-pane/DataPoint';
 import BigNumberMetric from './BigNumberMetric';
 import { Messages } from './QueryAndDetails.messages';
 import { TIME_FORMAT } from 'lib/constants';

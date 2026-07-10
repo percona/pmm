@@ -6,35 +6,11 @@ import {
   PrometheusAlertState,
   PrometheusAlertRulesResponse,
 } from 'types/alerting.types';
-import { AlertRow, AlertsTableRow, NodeGroupRow } from './AlertsPage.types';
+import { AlertRow, NodeGroupRow } from './AlertsPage.types';
 import { formatDurationSeconds } from 'utils/duration.utils';
 
 const NODE_NAME_LABEL = 'node_name';
 const UNKNOWN_NODE = 'unknown-node';
-
-export const findAlertTableRowById = (
-  rows: AlertsTableRow[],
-  id?: string
-): AlertsTableRow | undefined => {
-  if (!id) {
-    return undefined;
-  }
-
-  for (const row of rows) {
-    if (row.id === id) {
-      return row;
-    }
-
-    if (row.type === 'node') {
-      const alert = row.alerts.find((candidate) => candidate.id === id);
-      if (alert) {
-        return alert;
-      }
-    }
-  }
-
-  return undefined;
-};
 
 const GROUP_STATE_PRIORITY: Record<AlertStatus, number> = {
   Alerting: 5,
@@ -102,9 +78,6 @@ const getAge = (activeAt?: string): string => {
   return formatDurationSeconds(diffMs / 1000);
 };
 
-const getSource = (labels: Record<string, string>) =>
-  labels.service_name || labels.service || labels.job || labels.instance || '-';
-
 const getServiceName = (labels: Record<string, string>) =>
   labels.service_name || labels.service || '-';
 
@@ -153,48 +126,25 @@ export const flattenAlertRules = (
 
   const rows = data.data.groups.flatMap((group) =>
     (group.rules || []).flatMap((rule) =>
-      (rule.alerts || []).map((alert) => {
-        const ruleDetails = {
-          name: rule.name,
-          query: rule.query,
-          duration: rule.duration,
-          labels: rule.labels,
-          annotations: rule.annotations,
-          health: rule.health,
-          lastError: rule.lastError,
-          type: rule.type,
-          state: rule.state,
-        };
-
-        return {
-          type: 'alert' as const,
-          id: getAlertId(group, rule, alert.labels),
-          alertName: getAlertName(alert, rule),
-          ruleName: rule.name || 'Unnamed rule',
-          ruleGroupUid: rule.uid,
-          ruleGroup: group,
-          rule,
-          state: resolveState(alert, rule),
-          nodeId: getAlertNodeId(alert),
-          serviceName: getAlertServiceName(alert),
-          summary: getSummary(alert),
-          source: getSource(alert.labels),
-          labels: alert.labels,
-          annotations: alert.annotations,
-          expression: rule.query || '',
-          value: alert.value,
-          activeAt: alert.activeAt,
-          age: getAge(alert.activeAt),
-          rawJson: JSON.stringify(
-            {
-              rule: ruleDetails,
-              alert,
-            },
-            null,
-            2
-          ),
-        };
-      })
+      (rule.alerts || []).map((alert) => ({
+        type: 'alert' as const,
+        id: getAlertId(group, rule, alert.labels),
+        alertName: getAlertName(alert, rule),
+        ruleName: rule.name || 'Unnamed rule',
+        ruleGroupUid: rule.uid,
+        ruleGroup: group,
+        rule,
+        rawAlert: alert,
+        state: resolveState(alert, rule),
+        nodeId: getAlertNodeId(alert),
+        serviceName: getAlertServiceName(alert),
+        summary: getSummary(alert),
+        labels: alert.labels,
+        annotations: alert.annotations,
+        expression: rule.query || '',
+        activeAt: alert.activeAt,
+        age: getAge(alert.activeAt),
+      }))
     )
   );
 

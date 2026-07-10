@@ -9,5 +9,8 @@ export const useGrafanaRulerRule = (
   useQuery({
     queryKey: ['grafana-ruler-rule', uid],
     queryFn: async () => getRulerRule(uid),
+    // Rule definitions change rarely; avoids a refetch per prev/next step
+    // through alerts of the same rule.
+    staleTime: 30_000,
     ...options,
   });

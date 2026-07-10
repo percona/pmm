@@ -84,7 +84,7 @@ export const Page: FC<PageProps> = ({
             </Card>
           )}
         </Box>
-        {footer !== null && <Divider />}
+        <Divider />
         {footer !== undefined ? footer : <Footer />}
       </Stack>
     </>
