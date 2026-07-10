@@ -1375,6 +1375,9 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
+	if err != nil {
+		return nil, err
+	}
 	// Check if we're trying to modify the internal PostgreSQL QAN agent and if the environment variable is set
 	envVar, exists := os.LookupEnv(env.EnableInternalPgQAN)
 	if exists && envVar != "" {
@@ -1389,10 +1392,6 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(
 				envVar,
 			)
 		}
-	}
-
-	if err != nil {
-		return nil, err
 	}
 
 	pgStatementsAgent := agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
