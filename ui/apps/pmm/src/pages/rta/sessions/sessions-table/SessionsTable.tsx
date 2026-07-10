@@ -173,7 +173,9 @@ const SessionsTable: FC = () => {
         muiTableContainerProps={{
           sx: {
             flex: 1,
-            borderRadius: 2,
+            // TODO: use theme.shape.borderRadiusMd (8px) once percona-ui
+            // publishes the Shape tokens (percona-ui#37, not in 1.0.23)
+            borderRadius: '8px',
             border: '1px solid',
             borderColor: 'divider',
           },
