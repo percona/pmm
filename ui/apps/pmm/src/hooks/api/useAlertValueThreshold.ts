@@ -1,6 +1,6 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { evalAlertQueries, getAlertRuleDefinition } from 'api/alerting';
-import { GrafanaRulerLabels } from 'types/grafana-ruler.types';
+import { GrafanaRulerLabels } from 'types/ruler.types';
 import {
   computeValueThreshold,
   pickSeriesValue,
@@ -23,13 +23,6 @@ const fetchValueThreshold = async (
   }
 
   try {
-    // TODO(PMM-14911): the provisioning API (getAlertRuleDefinition) is typically
-    // editor/admin-gated, so Viewer users get 401/403 and the field silently hides.
-    // If viewers need the value/threshold, switch to the `/rules`-string fallback:
-    // parse the value-expr + threshold from the already-fetched rule `query`
-    // (single-query: `<expr> <op> <thr>`, multi-expr: `<expr> | <thr>`) plus
-    // `queriedDatasourceUIDs`, then eval only the value-expr. Verify the required
-    // role on a Viewer account before relying on this path.
     const definition = await getAlertRuleDefinition(uid);
     const plan = resolveEvalPlan(definition);
     if (!plan) {

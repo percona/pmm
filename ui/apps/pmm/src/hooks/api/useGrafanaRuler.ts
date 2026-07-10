@@ -1,6 +1,6 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { getGrafanaRulerRule } from 'api/grafana-ruler';
-import { GrafanaRulerRuleDTO } from 'types/grafana-ruler.types';
+import { getRulerRule } from 'api/ruler';
+import { GrafanaRulerRuleDTO } from 'types/ruler.types';
 
 export const useGrafanaRulerRule = (
   uid: string,
@@ -8,6 +8,6 @@ export const useGrafanaRulerRule = (
 ) =>
   useQuery({
     queryKey: ['grafana-ruler-rule', uid],
-    queryFn: async () => getGrafanaRulerRule(uid),
+    queryFn: async () => getRulerRule(uid),
     ...options,
   });

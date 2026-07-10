@@ -24,11 +24,12 @@ import {
   getTableRows,
 } from './AlertStatusTable.utils';
 import { useTimezone } from 'hooks/utils/useTimezone';
-import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOutlined';
 import { Icon } from 'components/icon';
+import { Messages } from './AlertStatusTable.messages';
+import { useUser } from 'contexts/user';
 
 const AlertStatusTable: FC<AlertStatusTableProps> = ({
   rows,
@@ -52,6 +53,7 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
     data: tableRows,
     onChange: onNavigableRowsChange,
   });
+  const { user } = useUser();
 
   return (
     <Table
@@ -88,10 +90,10 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
           gap={2}
         >
           <FormControl sx={{ width: 200 }} size="small">
-            <InputLabel id="state">State</InputLabel>
+            <InputLabel id="state">{Messages.state}</InputLabel>
             <Select
               labelId="state"
-              label="State"
+              label={Messages.state}
               value={selectedState}
               onChange={(e) => setSelectedState(e.target.value)}
             >
@@ -103,7 +105,7 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
             </Select>
           </FormControl>
           <FormControlLabel
-            label="Group by node"
+            label={Messages.groupByNode}
             control={
               <Switch
                 size="small"
@@ -130,7 +132,7 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
             <ListItemIcon>
               <Icon name="bottom-panel-open" />
             </ListItemIcon>
-            <ListItemText>Notification details</ListItemText>
+            <ListItemText>{Messages.notificationDetails}</ListItemText>
           </MenuItem>,
           <MenuItem
             key="view"
@@ -144,43 +146,41 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
             <ListItemIcon>
               <VisibilityOutlinedIcon />
             </ListItemIcon>
-            <ListItemText>View alert rule</ListItemText>
+            <ListItemText>{Messages.viewAlertRule}</ListItemText>
           </MenuItem>,
-          <MenuItem
-            key="edit"
-            component={RouterLink}
-            to={createAlertRuleEditUrl(row.original.ruleGroupUid)}
-            onClick={(event) => {
-              event.stopPropagation();
-              closeMenu();
-            }}
-          >
-            <ListItemIcon>
-              <EditOutlinedIcon />
-            </ListItemIcon>
-            <ListItemText>Edit alert rule</ListItemText>
-          </MenuItem>,
-          <MenuItem key="copy-as-text">
-            <ListItemIcon>
-              <ContentCopyOutlinedIcon />
-            </ListItemIcon>
-            <ListItemText>Copy as text</ListItemText>
-          </MenuItem>,
-          <Divider />,
-          <MenuItem
-            key="silence"
-            component={RouterLink}
-            to={createSilenceUrl(row.original.labels)}
-            onClick={(event) => {
-              event.stopPropagation();
-              closeMenu();
-            }}
-          >
-            <ListItemIcon>
-              <NotificationsOffOutlinedIcon />
-            </ListItemIcon>
-            <ListItemText>Silence</ListItemText>
-          </MenuItem>,
+          user?.isEditor && (
+            <MenuItem
+              key="edit"
+              component={RouterLink}
+              to={createAlertRuleEditUrl(row.original.ruleGroupUid)}
+              onClick={(event) => {
+                event.stopPropagation();
+                closeMenu();
+              }}
+            >
+              <ListItemIcon>
+                <EditOutlinedIcon />
+              </ListItemIcon>
+              <ListItemText>{Messages.editAlertRule}</ListItemText>
+            </MenuItem>
+          ),
+          user?.isEditor && <Divider />,
+          user?.isEditor && (
+            <MenuItem
+              key="silence"
+              component={RouterLink}
+              to={createSilenceUrl(row.original.labels)}
+              onClick={(event) => {
+                event.stopPropagation();
+                closeMenu();
+              }}
+            >
+              <ListItemIcon>
+                <NotificationsOffOutlinedIcon />
+              </ListItemIcon>
+              <ListItemText>{Messages.silence}</ListItemText>
+            </MenuItem>
+          ),
         ];
       }}
     />

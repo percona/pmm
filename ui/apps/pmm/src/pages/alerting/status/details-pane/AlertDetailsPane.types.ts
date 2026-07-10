@@ -1,5 +1,5 @@
 import { AlertStatus } from 'types/alerting.types';
-import { GrafanaRulerLabels } from 'types/grafana-ruler.types';
+import { GrafanaRulerLabels } from 'types/ruler.types';
 
 export interface AlertDetailsPane {
   expression: string;
