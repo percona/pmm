@@ -118,7 +118,6 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 		s.runGRPCServer(serverCtx, l)
 	})
 	wg.Go(func() {
-		defer wg.Done()
 		s.runJSONServer(serverCtx, l.Addr().String())
 	})
 
