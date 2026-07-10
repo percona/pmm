@@ -1,6 +1,8 @@
 // Grafana Ruler API — GET /api/ruler/grafana/api/v1/rule/{uid}
 // Response type for a single Grafana-managed alert rule.
 
+import { GrafanaAlertQuery } from './alerting.types';
+
 export type GrafanaRulerLabels = Record<string, string>;
 export type GrafanaRulerAnnotations = Record<string, string>;
 
@@ -10,21 +12,6 @@ export enum GrafanaAlertStateDecision {
   KeepLast = 'KeepLast',
   OK = 'OK',
   Error = 'Error',
-}
-
-export interface GrafanaRulerRelativeTimeRange {
-  from: number;
-  to: number;
-}
-
-export interface GrafanaRulerAlertQuery {
-  refId: string;
-  queryType: string;
-  relativeTimeRange?: GrafanaRulerRelativeTimeRange;
-  datasourceUid: string;
-  // datasource/expression-specific query model; shape varies per datasource
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  model: Record<string, any>;
 }
 
 export interface GrafanaRulerNotificationSettings {
@@ -53,7 +40,7 @@ export interface GrafanaRulerRuleDefinition {
   condition: string;
   no_data_state?: GrafanaAlertStateDecision;
   exec_err_state?: GrafanaAlertStateDecision;
-  data: GrafanaRulerAlertQuery[];
+  data: GrafanaAlertQuery[];
   is_paused?: boolean;
   notification_settings?: GrafanaRulerNotificationSettings;
   metadata?: {

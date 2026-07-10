@@ -1,9 +1,14 @@
-export type PrometheusAlertState = 'firing' | 'pending' | 'inactive';
+export type PrometheusAlertState =
+  | 'firing'
+  | 'pending'
+  | 'recovering'
+  | 'inactive';
 
 export type AlertStatus =
   | 'Alerting'
   | 'Normal'
   | 'Pending'
+  | 'Recovering'
   | 'NoData'
   | 'Error';
 
@@ -89,9 +94,13 @@ export interface GrafanaAlertRuleDefinition {
 export interface AlertEvalFrame {
   schema: {
     refId?: string;
-    fields: { labels?: Record<string, string> }[];
+    fields: {
+      name?: string;
+      type?: 'time' | 'number' | 'string' | 'boolean' | string;
+      labels?: Record<string, string>;
+    }[];
   };
-  data: { values: number[][] };
+  data: { values: unknown[][] };
 }
 
 export interface AlertEvalResult {

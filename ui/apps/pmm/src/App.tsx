@@ -2,7 +2,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
-import createRouter from './router';
+import router from './router';
 import { SnackbarProvider, CustomContentProps } from 'notistack';
 import {
   ThemeContextProvider,
@@ -50,7 +50,7 @@ const App = () => {
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
         >
           <QueryClientProvider client={queryClient}>
-            <RouterProvider router={createRouter(queryClient)} />
+            <RouterProvider router={router} />
           </QueryClientProvider>
         </SnackbarProvider>
       </LocalizationProvider>

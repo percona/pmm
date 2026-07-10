@@ -1,5 +1,6 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { evalAlertQueries, getAlertRuleDefinition } from 'api/alerting';
+import { evalAlertQueries } from 'api/alerting';
+import { GrafanaAlertRuleDefinition } from 'types/alerting.types';
 import { GrafanaRulerLabels } from 'types/ruler.types';
 import {
   computeValueThreshold,
@@ -12,18 +13,13 @@ export const ALERT_VALUE_THRESHOLD_QUERY_KEY = 'alerting:valueThreshold';
 
 // Re-evaluates an alert's rule to derive the actual value/threshold pair shown in the
 // detail view. Returns `null` (rather than throwing) for rules with no value/threshold
-// or when the Grafana provisioning/eval endpoints are unavailable, so the caller can
-// simply hide the field.
+// or when Grafana's eval endpoint is unavailable, so the caller can simply hide the
+// field.
 const fetchValueThreshold = async (
-  uid: string,
+  definition: GrafanaAlertRuleDefinition,
   labels: GrafanaRulerLabels
 ): Promise<ValueThresholdResult | null> => {
-  if (!uid) {
-    return null;
-  }
-
   try {
-    const definition = await getAlertRuleDefinition(uid);
     const plan = resolveEvalPlan(definition);
     if (!plan) {
       return null;
@@ -53,14 +49,17 @@ const fetchValueThreshold = async (
 };
 
 export const useAlertValueThreshold = (
-  uid: string,
+  definition: GrafanaAlertRuleDefinition | undefined,
   labels: GrafanaRulerLabels,
   options?: Partial<UseQueryOptions<ValueThresholdResult | null>>
 ) =>
   useQuery({
-    queryKey: [ALERT_VALUE_THRESHOLD_QUERY_KEY, uid, labels],
-    queryFn: () => fetchValueThreshold(uid, labels),
-    enabled: !!uid,
+    queryKey: [ALERT_VALUE_THRESHOLD_QUERY_KEY, definition?.uid, labels],
+    queryFn: () =>
+      definition
+        ? fetchValueThreshold(definition, labels)
+        : Promise.resolve(null),
+    enabled: !!definition,
     staleTime: 30_000,
     ...options,
   });

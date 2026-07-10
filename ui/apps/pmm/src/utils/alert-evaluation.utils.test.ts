@@ -210,13 +210,31 @@ const frame = (
   value: number,
   labels: Record<string, string> = {}
 ): AlertEvalFrame => ({
-  schema: { fields: [{ labels }] },
+  schema: { fields: [{ name: 'Value', type: 'number', labels }] },
   data: { values: [[value]] },
 });
 
 describe('pickSeriesValue', () => {
   it('returns the sole frame value', () => {
     expect(pickSeriesValue([frame(0.25)], {})).toBe(0.25);
+  });
+
+  it('reads the numeric field instead of the time field', () => {
+    const dataFrame: AlertEvalFrame = {
+      schema: {
+        fields: [
+          { name: 'Time', type: 'time' },
+          {
+            name: 'Value',
+            type: 'number',
+            labels: { service_id: 'service-a' },
+          },
+        ],
+      },
+      data: { values: [[1_752_147_200_000], [42]] },
+    };
+
+    expect(pickSeriesValue([dataFrame], { service_id: 'service-a' })).toBe(42);
   });
 
   it('matches the frame by label subset', () => {

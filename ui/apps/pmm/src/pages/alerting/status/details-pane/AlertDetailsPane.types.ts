@@ -1,4 +1,4 @@
-import { AlertStatus } from 'types/alerting.types';
+import { AlertStatus, GrafanaAlertRuleDefinition } from 'types/alerting.types';
 import { GrafanaRulerLabels } from 'types/ruler.types';
 
 export interface AlertDetailsPane {
@@ -7,20 +7,22 @@ export interface AlertDetailsPane {
     alertName: string;
     state: AlertStatus;
     stateDuration: string;
-    nodeName: string;
-    serviceName: string;
+    nodeName?: string;
+    serviceName?: string;
     triggeredAt?: string;
-    severity: string;
+    severity?: string;
     summary: string;
-    description: string;
+    description?: string;
   };
   ruleConfiguration: {
+    isLoading: boolean;
+    definition?: GrafanaAlertRuleDefinition;
     evaluate?: string;
     lastEvaluation?: string;
     lastEvaluationDuration?: number;
     pendingPeriod?: number;
     keepFiringFor?: string;
-    ruleUid: string;
+    ruleUid?: string;
     ruleType?: string;
     lastUpdated?: string;
     lastUpdatedBy?: string;
