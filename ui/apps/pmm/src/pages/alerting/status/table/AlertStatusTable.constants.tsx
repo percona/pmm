@@ -8,6 +8,8 @@ export const ALERT_STATUS_COLUMNS: MRT_ColumnDef<AlertsTableRow>[] = [
   {
     accessorKey: 'state',
     header: 'State',
+    // State is filtered via the dropdown in the top toolbar.
+    enableColumnFilter: false,
     Cell: ({ row: { original } }) => {
       if (original.type === 'alert') {
         return (
@@ -42,8 +44,13 @@ export const ALERT_STATUS_COLUMNS: MRT_ColumnDef<AlertsTableRow>[] = [
     header: 'Service',
   },
   {
-    accessorKey: 'activeAt',
+    id: 'activeAt',
+    accessorFn: (row) =>
+      row.type === 'alert' && row.activeAt ? new Date(row.activeAt) : undefined,
     header: 'Triggered at',
+    filterVariant: 'datetime-range',
+    filterFn: 'triggeredAtRangeFilterFn',
+    sortingFn: 'datetime',
     Cell: ({ row: { original } }) =>
       original.type === 'alert' ? (
         <TriggeredAtCell activeAt={original.activeAt} />
