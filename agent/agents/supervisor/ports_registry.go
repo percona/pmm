@@ -59,9 +59,11 @@ func newPortsRegistry(minPort, maxPort uint16, reserved []uint16) *portsRegistry
 // It tries to reuse ports as little as possible to avoid erroneous Prometheus scrapes
 // to the different exporter type when Prometheus configuration is being reloaded.
 func (r *portsRegistry) Reserve(ctx context.Context) (uint16, error) {
+	if err := ctx.Err(); err != nil {
+		return 0, err
+	}
 	r.m.Lock()
 	defer r.m.Unlock()
-
 	size := r.max - r.min + 1
 	for i := uint16(1); i <= size; i++ {
 		port := r.min + (r.last-r.min+i)%size
