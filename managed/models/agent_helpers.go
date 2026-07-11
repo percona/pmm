@@ -1472,8 +1472,3 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 	}
 	return nil
 }
-
-// IsPushMetricsSupported return if PUSH mode is supported for pmm agent version.
-func IsPushMetricsSupported(pmmAgentVersion *string) bool {
-	return true
-}

@@ -154,8 +154,7 @@ func (e VersionInfoValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VersionInfoValidationError{}
@@ -257,8 +256,7 @@ func (e VersionRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VersionRequestValidationError{}
@@ -420,8 +418,7 @@ func (e VersionResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = VersionResponseValidationError{}
@@ -521,8 +518,7 @@ func (e ReadinessRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReadinessRequestValidationError{}
@@ -624,8 +620,7 @@ func (e ReadinessResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReadinessResponseValidationError{}
@@ -727,8 +722,7 @@ func (e LeaderHealthCheckRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = LeaderHealthCheckRequestValidationError{}
@@ -830,8 +824,7 @@ func (e LeaderHealthCheckResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = LeaderHealthCheckResponseValidationError{}
@@ -937,8 +930,7 @@ func (e CheckUpdatesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CheckUpdatesRequestValidationError{}
@@ -1077,8 +1069,7 @@ func (e DockerVersionInfoValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DockerVersionInfoValidationError{}
@@ -1271,8 +1262,7 @@ func (e CheckUpdatesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = CheckUpdatesResponseValidationError{}
@@ -1374,8 +1364,7 @@ func (e ListChangeLogsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListChangeLogsRequestValidationError{}
@@ -1540,8 +1529,7 @@ func (e ListChangeLogsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListChangeLogsResponseValidationError{}
@@ -1553,432 +1541,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListChangeLogsResponseValidationError{}
-
-// Validate checks the field values on StartUpdateRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *StartUpdateRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on StartUpdateRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// StartUpdateRequestMultiError, or nil if none found.
-func (m *StartUpdateRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *StartUpdateRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for NewImage
-
-	if len(errors) > 0 {
-		return StartUpdateRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// StartUpdateRequestMultiError is an error wrapping multiple validation errors
-// returned by StartUpdateRequest.ValidateAll() if the designated constraints
-// aren't met.
-type StartUpdateRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m StartUpdateRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m StartUpdateRequestMultiError) AllErrors() []error { return m }
-
-// StartUpdateRequestValidationError is the validation error returned by
-// StartUpdateRequest.Validate if the designated constraints aren't met.
-type StartUpdateRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e StartUpdateRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e StartUpdateRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e StartUpdateRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e StartUpdateRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e StartUpdateRequestValidationError) ErrorName() string {
-	return "StartUpdateRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e StartUpdateRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sStartUpdateRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause,
-	)
-}
-
-var _ error = StartUpdateRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = StartUpdateRequestValidationError{}
-
-// Validate checks the field values on StartUpdateResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *StartUpdateResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on StartUpdateResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// StartUpdateResponseMultiError, or nil if none found.
-func (m *StartUpdateResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *StartUpdateResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for AuthToken
-
-	// no validation rules for LogOffset
-
-	if len(errors) > 0 {
-		return StartUpdateResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// StartUpdateResponseMultiError is an error wrapping multiple validation
-// errors returned by StartUpdateResponse.ValidateAll() if the designated
-// constraints aren't met.
-type StartUpdateResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m StartUpdateResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m StartUpdateResponseMultiError) AllErrors() []error { return m }
-
-// StartUpdateResponseValidationError is the validation error returned by
-// StartUpdateResponse.Validate if the designated constraints aren't met.
-type StartUpdateResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e StartUpdateResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e StartUpdateResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e StartUpdateResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e StartUpdateResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e StartUpdateResponseValidationError) ErrorName() string {
-	return "StartUpdateResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e StartUpdateResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sStartUpdateResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause,
-	)
-}
-
-var _ error = StartUpdateResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = StartUpdateResponseValidationError{}
-
-// Validate checks the field values on UpdateStatusRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *UpdateStatusRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on UpdateStatusRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// UpdateStatusRequestMultiError, or nil if none found.
-func (m *UpdateStatusRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *UpdateStatusRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for AuthToken
-
-	// no validation rules for LogOffset
-
-	if len(errors) > 0 {
-		return UpdateStatusRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// UpdateStatusRequestMultiError is an error wrapping multiple validation
-// errors returned by UpdateStatusRequest.ValidateAll() if the designated
-// constraints aren't met.
-type UpdateStatusRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m UpdateStatusRequestMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m UpdateStatusRequestMultiError) AllErrors() []error { return m }
-
-// UpdateStatusRequestValidationError is the validation error returned by
-// UpdateStatusRequest.Validate if the designated constraints aren't met.
-type UpdateStatusRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e UpdateStatusRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e UpdateStatusRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e UpdateStatusRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e UpdateStatusRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e UpdateStatusRequestValidationError) ErrorName() string {
-	return "UpdateStatusRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e UpdateStatusRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sUpdateStatusRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause,
-	)
-}
-
-var _ error = UpdateStatusRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = UpdateStatusRequestValidationError{}
-
-// Validate checks the field values on UpdateStatusResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *UpdateStatusResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on UpdateStatusResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// UpdateStatusResponseMultiError, or nil if none found.
-func (m *UpdateStatusResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *UpdateStatusResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for LogOffset
-
-	// no validation rules for Done
-
-	if len(errors) > 0 {
-		return UpdateStatusResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// UpdateStatusResponseMultiError is an error wrapping multiple validation
-// errors returned by UpdateStatusResponse.ValidateAll() if the designated
-// constraints aren't met.
-type UpdateStatusResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m UpdateStatusResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m UpdateStatusResponseMultiError) AllErrors() []error { return m }
-
-// UpdateStatusResponseValidationError is the validation error returned by
-// UpdateStatusResponse.Validate if the designated constraints aren't met.
-type UpdateStatusResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e UpdateStatusResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e UpdateStatusResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e UpdateStatusResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e UpdateStatusResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e UpdateStatusResponseValidationError) ErrorName() string {
-	return "UpdateStatusResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e UpdateStatusResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sUpdateStatusResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause,
-	)
-}
-
-var _ error = UpdateStatusResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = UpdateStatusResponseValidationError{}
 
 // Validate checks the field values on MetricsResolutions with the rules
 // defined in the proto definition for this message. If any rules are
@@ -2156,8 +1718,7 @@ func (e MetricsResolutionsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = MetricsResolutionsValidationError{}
@@ -2346,8 +1907,7 @@ func (e AdvisorRunIntervalsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AdvisorRunIntervalsValidationError{}
@@ -2496,35 +2056,6 @@ func (m *Settings) validate(all bool) error {
 	// no validation rules for EnableInternalPgQan
 
 	if all {
-		switch v := interface{}(m.GetUpdateSnoozeDuration()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, SettingsValidationError{
-					field:  "UpdateSnoozeDuration",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, SettingsValidationError{
-					field:  "UpdateSnoozeDuration",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetUpdateSnoozeDuration()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SettingsValidationError{
-				field:  "UpdateSnoozeDuration",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
 		switch v := interface{}(m.GetOtel()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
@@ -2619,8 +2150,7 @@ func (e SettingsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SettingsValidationError{}
@@ -2727,8 +2257,7 @@ func (e OtelSettingsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = OtelSettingsValidationError{}
@@ -2846,8 +2375,7 @@ func (e ReadOnlySettingsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ReadOnlySettingsValidationError{}
@@ -2949,8 +2477,7 @@ func (e GetSettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetSettingsRequestValidationError{}
@@ -3052,8 +2579,7 @@ func (e GetReadOnlySettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetReadOnlySettingsRequestValidationError{}
@@ -3184,8 +2710,7 @@ func (e GetSettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetSettingsResponseValidationError{}
@@ -3317,8 +2842,7 @@ func (e GetReadOnlySettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetReadOnlySettingsResponseValidationError{}
@@ -3440,35 +2964,6 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 		}
 	}
 
-	if all {
-		switch v := interface{}(m.GetUpdateSnoozeDuration()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeSettingsRequestValidationError{
-					field:  "UpdateSnoozeDuration",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeSettingsRequestValidationError{
-					field:  "UpdateSnoozeDuration",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetUpdateSnoozeDuration()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeSettingsRequestValidationError{
-				field:  "UpdateSnoozeDuration",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	if m.EnableUpdates != nil {
 		// no validation rules for EnableUpdates
 	}
@@ -3482,6 +2977,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	}
 
 	if m.AwsPartitions != nil {
+
 		if all {
 			switch v := interface{}(m.GetAwsPartitions()).(type) {
 			case interface{ ValidateAll() error }:
@@ -3510,6 +3006,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnableAdvisor != nil {
@@ -3541,6 +3038,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	}
 
 	if m.Otel != nil {
+
 		if all {
 			switch v := interface{}(m.GetOtel()).(type) {
 			case interface{ ValidateAll() error }:
@@ -3569,6 +3067,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if m.EnableNativeQan != nil {
@@ -3642,8 +3141,7 @@ func (e ChangeSettingsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeSettingsRequestValidationError{}
@@ -3774,8 +3272,7 @@ func (e ChangeSettingsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeSettingsResponseValidationError{}
@@ -3945,8 +3442,7 @@ func (e LogParserPresetValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = LogParserPresetValidationError{}
@@ -4049,8 +3545,7 @@ func (e ListLogParserPresetsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListLogParserPresetsRequestValidationError{}
@@ -4187,8 +3682,7 @@ func (e ListLogParserPresetsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListLogParserPresetsResponseValidationError{}
@@ -4292,8 +3786,7 @@ func (e GetLogParserPresetRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetLogParserPresetRequestValidationError{}
@@ -4424,8 +3917,7 @@ func (e GetLogParserPresetResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetLogParserPresetResponseValidationError{}
@@ -4533,8 +4025,7 @@ func (e AddLogParserPresetRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddLogParserPresetRequestValidationError{}
@@ -4665,8 +4156,7 @@ func (e AddLogParserPresetResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = AddLogParserPresetResponseValidationError{}
@@ -4779,8 +4269,7 @@ func (e ChangeLogParserPresetRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeLogParserPresetRequestValidationError{}
@@ -4912,8 +4401,7 @@ func (e ChangeLogParserPresetResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ChangeLogParserPresetResponseValidationError{}
@@ -5018,8 +4506,7 @@ func (e RemoveLogParserPresetRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RemoveLogParserPresetRequestValidationError{}
@@ -5122,8 +4609,7 @@ func (e RemoveLogParserPresetResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = RemoveLogParserPresetResponseValidationError{}

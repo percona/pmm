@@ -9,7 +9,7 @@
 %define release         26
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
-%define clickhouse_datasource_version 4.17.0
+%define clickhouse_datasource_version 4.18.0
 %define polystat_panel_version        2.1.16
 
 %ifarch x86_64
@@ -68,6 +68,9 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 
 %changelog
+* Tue July 07 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-26
+- PMM-15099 Bump clickhouse datasource plugin to 4.18.0
+
 * Fri May 22 2026 Percona <info@percona.com> - 3.0.0-26
 - Bundle pmm-service-map-panel Grafana plugin in percona-dashboards RPM.
 

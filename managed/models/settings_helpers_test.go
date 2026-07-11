@@ -56,7 +56,6 @@ func TestSettings(t *testing.T) {
 			DefaultRoleID:  1,
 			EncryptedItems: actual.EncryptedItems,
 		}
-		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
 		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
 		expected.Otel.TracesRetentionDays = pointer.ToInt(models.OtelTracesRetentionDaysDefault)
 		expected.Otel.MetricsRetentionDays = pointer.ToInt(models.OtelClickHouseMetricsRetentionDaysDefault)
@@ -99,7 +98,6 @@ func TestSettings(t *testing.T) {
 				},
 			},
 		}
-		expected.Updates.SnoozeDuration = models.DefaultSnoozeDuration
 		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
 		expected.Otel.TracesRetentionDays = pointer.ToInt(models.OtelTracesRetentionDaysDefault)
 		expected.Otel.MetricsRetentionDays = pointer.ToInt(models.OtelClickHouseMetricsRetentionDaysDefault)
@@ -201,13 +199,6 @@ func TestSettings(t *testing.T) {
 
 			require.NoError(t, err)
 			assert.False(t, *ns.Updates.Enabled)
-
-			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				UpdateSnoozeDuration: time.Hour,
-			})
-
-			require.NoError(t, err)
-			assert.Equal(t, time.Hour, ns.Updates.SnoozeDuration)
 		})
 
 		t.Run("Telemetry and Advisors validation", func(t *testing.T) {

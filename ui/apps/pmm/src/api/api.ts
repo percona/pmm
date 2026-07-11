@@ -2,7 +2,6 @@ import axios, { AxiosError } from 'axios';
 import applyCaseMiddleware from 'axios-case-converter';
 import { enqueueSnackbar } from 'notistack';
 
-
 export const api = applyCaseMiddleware(
   axios.create({
     baseURL: '/v1/',
