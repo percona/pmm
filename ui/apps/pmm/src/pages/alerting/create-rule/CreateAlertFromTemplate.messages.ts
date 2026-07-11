@@ -1,0 +1,45 @@
+export const Messages = {
+  title: 'Create alert rule from template',
+  sections: {
+    template: 'Template',
+    params: 'Parameters',
+    details: 'Rule details',
+    location: 'Folder & evaluation',
+    filters: 'Filters',
+    advanced: 'Advanced (read-only)',
+  },
+  fields: {
+    template: 'Template',
+    name: 'Rule name',
+    severity: 'Severity',
+    duration: 'Duration (seconds)',
+    folder: 'Folder',
+    group: 'Group',
+    interval: 'Evaluation interval (seconds)',
+    expr: 'Expression',
+  },
+  filters: {
+    add: 'Add filter',
+    label: 'Label',
+    type: 'Operator',
+    regexp: 'Value / regexp',
+    remove: 'Remove filter',
+  },
+  filterTypes: {
+    match: 'Matches (=~)',
+    mismatch: 'Does not match (!~)',
+  },
+  cancel: 'Cancel',
+  submit: 'Create alert rule',
+  success: 'Alert rule created successfully',
+  error: 'Failed to create alert rule',
+  loadError: 'Failed to load alert templates',
+  validation: {
+    required: 'This field is required',
+    min: (min: number) => `Value must be at least ${min}`,
+    max: (max: number) => `Value must be at most ${max}`,
+    minDuration: 'Duration must be at least 1 second',
+  },
+  paramDescription: (summary: string, unit: string, range: string) =>
+    [summary, unit && `(${unit})`, range].filter(Boolean).join(' '),
+};
