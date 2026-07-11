@@ -552,7 +552,7 @@ func (h *Handlers) reloadHolmes(ctx context.Context) (reloadOutcome, string, boo
 
 	rctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), reloadTimeout)
 	defer cancel()
-	result, err := NewClientFromSettings(settings).Reload(rctx)
+	result, err := h.holmesClient(settings).Reload(rctx)
 	if err != nil {
 		if errors.Is(err, ErrReloadUnsupported) {
 			h.l.Warn("HolmesGPT hot-reload unavailable (admin API disabled or older Holmes build); restart required to apply")

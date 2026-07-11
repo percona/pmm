@@ -569,7 +569,7 @@ func (h *Handlers) GetModels(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	client := NewClientFromSettings(settings)
+	client := h.holmesClient(settings)
 	ctx, cancel := context.WithTimeout(r.Context(), h.reqTimeout)
 	defer cancel()
 	modelsList, err := client.Models(ctx)
@@ -756,7 +756,7 @@ func (h *Handlers) PostQanInsights(w http.ResponseWriter, r *http.Request) {
 		"time_from":   body.TimeFrom,
 		"time_to":     body.TimeTo,
 	}
-	client := NewClientFromSettings(settings)
+	client := h.holmesClient(settings)
 	ctx, cancel := context.WithTimeout(r.Context(), h.reqTimeout)
 	defer cancel()
 	qanModel := strings.TrimSpace(settings.Adre.QanInsightsModel)

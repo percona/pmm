@@ -425,7 +425,7 @@ export const NAV_RTA: NavItem = {
 export const NAV_ADRE: NavItem = {
   id: 'adre',
   icon: 'intelligence',
-  text: 'Autonomous Database Reliability Engineer',
+  text: 'AI Assistant',
   url: `${PMM_NEW_NAV_PATH}/adre`,
 };
 

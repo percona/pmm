@@ -429,7 +429,7 @@ func handleTurn(
 
 	slackEventsTotal.Inc()
 
-	client := adre.NewClientFromSettings(settings)
+	client := adre.NewClientFromSettings(settings, adre.ResolveHolmesAPIKey(db, log))
 
 	doChat := func(extra string) (*adre.ChatResponse, error) {
 		if err := acquireAdreChatSlot(ctx); err != nil { //nolint:noinlineerr

@@ -108,7 +108,7 @@ func (h *Handlers) PostInvestigationChat(w http.ResponseWriter, r *http.Request,
 	ctx, cancel := context.WithTimeout(r.Context(), investigationChatTimeout)
 	defer cancel()
 
-	client := adre.NewClientFromSettings(settings)
+	client := adre.NewClientFromSettings(settings, adre.ResolveHolmesAPIKey(h.db, h.l))
 	ctxStr := buildInvestigationContext(inv)
 	investigationPrompt := adre.ResolveChatSystemPrompt(settings, "investigation")
 	systemWithContext := investigationPrompt + "\n\nCurrent investigation context:\n" + ctxStr
@@ -275,7 +275,7 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 
 	ctxStr := buildInvestigationContext(inv)
 	invPrompt := adre.ResolveChatSystemPrompt(settings, "investigation")
-	client := adre.NewClientFromSettings(settings)
+	client := adre.NewClientFromSettings(settings, adre.ResolveHolmesAPIKey(h.db, h.l))
 	ask := "Generate the full investigation report for this incident.\n\nContext:\n" + ctxStr
 	chatReq := &adre.ChatRequest{
 		Ask:                    ask,

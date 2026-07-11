@@ -142,7 +142,7 @@ func TestClientFromSettings_TLSSkipVerify(t *testing.T) {
 	settings.Adre.URL = server.URL
 	settings.Adre.TLSSkipVerify = true
 
-	client := NewClientFromSettings(settings)
+	client := NewClientFromSettings(settings, "")
 	modelsList, err := client.Models(context.Background())
 	require.NoError(t, err)
 	assert.Equal(t, []string{"test"}, modelsList)

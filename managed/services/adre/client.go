@@ -33,6 +33,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
 )
@@ -51,6 +52,7 @@ const (
 type Client struct {
 	baseURL    string
 	authHeader string // "Authorization: Basic xxx" or "Authorization: Bearer xxx", empty if no auth
+	apiKey     string // HOLMES_API_KEY, sent as "X-API-Key"; Holmes enforces it when set. Empty = not sent.
 	httpClient *http.Client
 	l          *logrus.Entry
 }
@@ -62,18 +64,20 @@ var tlsSkipVerifyWarnOnce sync.Once
 // NewClient creates a new HolmesGPT API client with default TLS verification.
 // baseURL may include credentials for Basic Auth: http://user:password@host:port
 func NewClient(baseURL string) *Client {
-	return newClient(baseURL, false)
+	return newClient(baseURL, false, "")
 }
 
 // NewClientFromSettings creates a HolmesGPT client using ADRE URL and TLS settings from PMM settings.
-func NewClientFromSettings(settings *models.Settings) *Client {
+// apiKey is sent as X-API-Key; pass the provisioned HOLMES_API_KEY (see ResolveHolmesAPIKey) so a
+// Holmes that enforces the key accepts the request, or "" when no key is configured.
+func NewClientFromSettings(settings *models.Settings, apiKey string) *Client {
 	if settings == nil {
-		return newClient("", false)
+		return newClient("", false, apiKey)
 	}
-	return newClient(settings.GetAdreURL(), settings.Adre.TLSSkipVerify)
+	return newClient(settings.GetAdreURL(), settings.Adre.TLSSkipVerify, apiKey)
 }
 
-func newClient(baseURL string, tlsSkipVerify bool) *Client {
+func newClient(baseURL string, tlsSkipVerify bool, apiKey string) *Client {
 	baseURL = strings.TrimSuffix(baseURL, "/")
 	authHeader := ""
 	u, err := url.Parse(baseURL)
@@ -104,18 +108,43 @@ func newClient(baseURL string, tlsSkipVerify bool) *Client {
 	return &Client{
 		baseURL:    baseURL,
 		authHeader: authHeader,
+		apiKey:     apiKey,
 		httpClient: httpClient,
 		l:          l,
 	}
 }
 
-// setAuth adds Authorization header to the request if client has auth configured.
+// setAuth adds auth headers to the request when configured. HolmesGPT accepts the API key as
+// "X-API-Key" (or "Authorization: Bearer"); the Basic authHeader (from URL creds) is for a proxy in
+// front of Holmes. Both may be set — Holmes checks X-API-Key/Bearer and ignores Basic.
 //
 //nolint:funcorder // grouped with constructor; reads better than method-visibility ordering
 func (c *Client) setAuth(req *http.Request) {
+	if c.apiKey != "" {
+		req.Header.Set("X-API-Key", c.apiKey)
+	}
 	if c.authHeader != "" {
 		req.Header.Set("Authorization", c.authHeader)
 	}
+}
+
+// ResolveHolmesAPIKey returns the provisioned HOLMES_API_KEY to present to HolmesGPT (as X-API-Key),
+// or "" when provisioning is unset or unreadable. It logs a warning when the key could not be loaded
+// so a resulting 401 from a key-enforcing Holmes is diagnosable rather than silent. Exported so callers
+// outside this package (investigations, slackbot) key their clients the same way.
+func ResolveHolmesAPIKey(db reform.DBTX, l *logrus.Entry) string {
+	key, err := models.GetAdreHolmesAPIKey(db)
+	if err != nil {
+		l.Warnf("could not load HOLMES_API_KEY from provisioning; HolmesGPT requests will be unauthenticated and may 401: %v", err)
+		return ""
+	}
+	return key
+}
+
+// holmesClient builds a HolmesGPT client for the given settings with the provisioned HOLMES_API_KEY
+// wired in, so a Holmes that enforces the key accepts the request.
+func (h *Handlers) holmesClient(settings *models.Settings) *Client {
+	return NewClientFromSettings(settings, ResolveHolmesAPIKey(h.db, h.l))
 }
 
 // url joins baseURL with the given path.

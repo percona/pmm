@@ -284,6 +284,21 @@ func GetAdreProvisioning(q reform.DBTX) (*AdreProvisioning, error) {
 	return &p, nil
 }
 
+// GetAdreHolmesAPIKey returns just the provisioned HOLMES_API_KEY (decrypted), or "" when the row is
+// unset. It is a lightweight alternative to GetAdreProvisioning for the per-request Holmes path, which
+// only needs the Holmes key: it selects and decrypts one column instead of the seven other secrets.
+func GetAdreHolmesAPIKey(q reform.DBTX) (string, error) {
+	var enc string
+	err := q.QueryRow(`SELECT holmes_api_key FROM adre_provisioning WHERE id = TRUE`).Scan(&enc)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", nil
+	}
+	if err != nil {
+		return "", errors.Wrap(err, "failed to select adre_provisioning holmes_api_key")
+	}
+	return decryptField("holmes_api_key", enc), nil
+}
+
 // EnsureAlertWebhookSecret returns the alert-webhook shared secret, generating and persisting one
 // (encrypted) on first use. The secret authenticates Grafana's alert webhook to PMM.
 func EnsureAlertWebhookSecret(q reform.DBTX) (string, error) {
