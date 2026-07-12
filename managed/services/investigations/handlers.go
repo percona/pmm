@@ -39,8 +39,9 @@ type Handlers struct {
 }
 
 // ReportNotifier posts a finished investigation's outcome to Slack — in the alert's thread for alerts
-// scraped from Slack, a no-op otherwise. Implemented by slackbot.SlackNotifier and injected via
-// SetReportNotifier (kept as an interface so investigations does not import slackbot).
+// scraped from Slack, or to the configured auto-investigate output channels otherwise. Implemented by
+// slackbot.SlackNotifier and injected via SetReportNotifier (kept as an interface so investigations
+// does not import slackbot).
 type ReportNotifier interface {
 	PostInvestigationReport(ctx context.Context, inv *models.Investigation)
 }

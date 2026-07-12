@@ -37,7 +37,7 @@ import (
 )
 
 // AlertProcessor triggers auto-investigations from scraped Slack alert messages. *autoinvestigate.Service
-// implements it; it is the same entry point the webhook/poll fallback uses, so the scrape inherits the
+// implements it; it is the same entry point the reconciliation poll uses, so the scrape inherits the
 // selection guards, episode dedup, hourly cap and idempotent claim.
 type AlertProcessor interface {
 	ProcessAlerts(ctx context.Context, alerts []autoinvestigate.Alert)
@@ -172,7 +172,11 @@ func runSocketMode(ctx context.Context, db *reform.DB, processor AlertProcessor,
 		return
 	}
 	botUserID := auth.UserID
-	selfBotID := auth.BotID // this bot's own bot_id, used to skip scraping the bot's own posts
+	if botUserID == "" {
+		// The alert scrape keys off an @-mention of this id, so an empty id would silently drop every alert.
+		// Auto-investigate still runs via the reconciliation poll, but the Slack-threaded scrape is disabled.
+		log.Warn("Slack AuthTest returned an empty bot user id; alert scrape disabled (reconciliation poll still active)")
+	}
 
 	ts := NewThreadStore()
 
@@ -205,7 +209,7 @@ func runSocketMode(ctx context.Context, db *reform.DB, processor AlertProcessor,
 			// Handle in a goroutine so a long investigation does not block the event loop (which
 			// would freeze the bot for every channel). Per-thread serialization and the chat-slot
 			// semaphore in handleTurn keep concurrency safe.
-			go handleEventsAPI(ctx, db, api, ts, log, eventsAPI, botUserID, selfBotID, processor)
+			go handleEventsAPI(ctx, db, api, ts, log, eventsAPI, botUserID, processor)
 		}
 	}
 }
@@ -218,7 +222,6 @@ func handleEventsAPI(
 	log *logrus.Entry,
 	eventsAPI slackevents.EventsAPIEvent,
 	botUserID string,
-	selfBotID string,
 	processor AlertProcessor,
 ) {
 	switch ev := eventsAPI.InnerEvent.Data.(type) {
@@ -236,11 +239,12 @@ func handleEventsAPI(
 	case *slackevents.MessageEvent:
 		// Alert scrape: a Grafana alert message (a bot message in a configured alert channel) triggers a
 		// persisted, fingerprint-keyed auto-investigation posted back in this message's thread. Bot
-		// messages never fall through to human-chat handling. Skip our own posts (started/report notices
-		// land in the same alert channel) so the bot can never scrape itself into a loop.
+		// messages never fall through to human-chat handling. handleAlertScrape processes only bot
+		// messages that @-mention the PMM bot (Grafana's "Mention Users" is set to it); PMM's own
+		// notices/reports never @-mention the bot, so they are ignored and the bot never loops on itself.
 		if ev.BotID != "" {
-			if ev.BotID != selfBotID && slackBotMessageSubtypeOK(ev.SubType) {
-				handleAlertScrape(ctx, db, log, eventsAPI.TeamID, ev, processor)
+			if slackBotMessageSubtypeOK(ev.SubType) {
+				handleAlertScrape(ctx, db, log, eventsAPI.TeamID, botUserID, ev, processor)
 			}
 			return
 		}
@@ -262,11 +266,18 @@ func handleEventsAPI(
 	}
 }
 
-// handleAlertScrape parses a Grafana alert message and, when it comes from a configured alert channel
-// (and bot, if SlackAlertBotIDs is set), runs it through the persistent auto-investigate pipeline with a
-// Slack thread ref so the started notice and report post back as replies under this alert.
-func handleAlertScrape(ctx context.Context, db *reform.DB, log *logrus.Entry, teamID string, ev *slackevents.MessageEvent, processor AlertProcessor) {
+// handleAlertScrape runs a Grafana alert message through the persistent auto-investigate pipeline with a
+// Slack thread ref (so the started notice and report post as replies under the alert). It processes only
+// bot messages that @-mention the PMM bot (Grafana contact point "Mention Users" = the PMM bot) and come
+// from a configured alert channel — the mention is the loop-safe trigger, since PMM's own notices and
+// reports never @-mention the bot.
+func handleAlertScrape(ctx context.Context, db *reform.DB, log *logrus.Entry, teamID, botUserID string, ev *slackevents.MessageEvent, processor AlertProcessor) {
 	if processor == nil {
+		return
+	}
+	// The alert must @-mention us. This identifies a Grafana alert without inspecting every message, and
+	// it is the loop guard: PMM's own started/report posts never @-mention the bot, so they are skipped.
+	if !messageMentionsBot(ev, botUserID) {
 		return
 	}
 	settings, err := models.GetSettings(db)

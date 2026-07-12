@@ -16,9 +16,7 @@
 package models
 
 import (
-	"crypto/rand"
 	"database/sql"
-	"encoding/hex"
 	"time"
 
 	"github.com/pkg/errors" //nolint:depguard
@@ -297,36 +295,6 @@ func GetAdreHolmesAPIKey(q reform.DBTX) (string, error) {
 		return "", errors.Wrap(err, "failed to select adre_provisioning holmes_api_key")
 	}
 	return decryptField("holmes_api_key", enc), nil
-}
-
-// EnsureAlertWebhookSecret returns the alert-webhook shared secret, generating and persisting one
-// (encrypted) on first use. The secret authenticates Grafana's alert webhook to PMM.
-func EnsureAlertWebhookSecret(q reform.DBTX) (string, error) {
-	p, err := GetAdreProvisioning(q)
-	if err != nil {
-		return "", err
-	}
-	if p.AlertWebhookSecret != "" {
-		return p.AlertWebhookSecret, nil
-	}
-	secret, err := generateSecretHex(32)
-	if err != nil {
-		return "", err
-	}
-	p.AlertWebhookSecret = secret
-	if err := SaveAdreProvisioning(q, p); err != nil { //nolint:noinlineerr
-		return "", err
-	}
-	return secret, nil
-}
-
-// generateSecretHex returns a cryptographically random hex string of n bytes (2n hex chars).
-func generateSecretHex(n int) (string, error) {
-	b := make([]byte, n)
-	if _, err := rand.Read(b); err != nil { //nolint:noinlineerr
-		return "", errors.Wrap(err, "failed to generate random secret")
-	}
-	return hex.EncodeToString(b), nil
 }
 
 // SaveAdreProvisioning upserts the singleton provisioning row.

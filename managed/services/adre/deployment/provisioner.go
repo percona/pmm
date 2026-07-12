@@ -30,11 +30,9 @@ import (
 // holmesServiceAccountName is the Grafana service account PMM mints for HolmesGPT's PMM_API_TOKEN.
 const holmesServiceAccountName = "holmesgpt"
 
-// ServiceAccountCreator mints a Grafana service-account token and provisions the auto-investigate
-// alert webhook contact point. *grafana.Client satisfies it.
+// ServiceAccountCreator mints a Grafana service-account token. *grafana.Client satisfies it.
 type ServiceAccountCreator interface {
 	CreateServiceAccount(ctx context.Context, nodeName string, reregister bool) (int, string, error)
-	EnsureAlertWebhookContactPoint(ctx context.Context, webhookURL, secret string) error
 }
 
 // Provisioner ensures the PMM↔Holmes bootstrap secrets exist: a minted Grafana service-account
@@ -100,35 +98,10 @@ func (p *Provisioner) EnsureProvisioned(ctx context.Context, pmmURL string) (*mo
 		}
 	}
 
-	// Best-effort: provision the auto-investigate webhook contact point. Failures are non-fatal —
-	// auto-investigate still runs via the reconciliation poll.
-	if err := p.EnsureAlertWebhook(ctx); err != nil { //nolint:noinlineerr
-		p.l.Warnf("%v (auto-investigate still runs via the reconciliation poll)", err)
-	}
+	// Auto-investigate is driven by the Socket Mode Slack alert scrape (which threads the report on the
+	// alert message) plus the reconciliation poll — there is no Grafana webhook contact point to provision.
 
 	return prov, nil
-}
-
-// internalWebhookBaseURL is how Grafana (co-located with pmm-managed) reaches PMM's alert webhook. It
-// is loopback — the address PMM's default TLS cert is valid for — so Grafana's webhook sender passes
-// certificate verification. It is deliberately independent of the public/Holmes PMM URL, which may be
-// an external address the local cert does not cover (the cause of x509 "valid for 127.0.0.1, not <ip>").
-const internalWebhookBaseURL = "https://127.0.0.1"
-
-// EnsureAlertWebhook idempotently provisions the auto-investigate webhook secret plus the Grafana
-// contact point + catch-all route that deliver firing alerts to PMM's authenticated alert webhook.
-// Best-effort: callers log failures and continue (auto-investigate still runs via the reconciliation
-// poll). ctx must carry the admin auth headers — the Grafana provisioning API requires them.
-func (p *Provisioner) EnsureAlertWebhook(ctx context.Context) error {
-	secret, err := models.EnsureAlertWebhookSecret(p.db)
-	if err != nil {
-		return errors.Wrap(err, "ensure alert webhook secret")
-	}
-	if secret == "" {
-		return nil
-	}
-	webhookURL := internalWebhookBaseURL + "/v1/adre/alert-webhook"
-	return errors.Wrap(p.sa.EnsureAlertWebhookContactPoint(ctx, webhookURL, secret), "auto-provision alert webhook contact point")
 }
 
 // generateAPIKey returns a 256-bit base64 random key.

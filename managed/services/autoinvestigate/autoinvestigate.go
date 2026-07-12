@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-// Package autoinvestigate drives authoritative, idempotent auto-investigations from Grafana alert
-// data (webhook or reconciliation poll). It replaces the legacy Slack-message FIRING scraping: each
-// firing alert episode produces at most one investigation, run through the standard investigations
-// pipeline, with its summary posted to the configured Slack output channels.
+// Package autoinvestigate drives authoritative, idempotent auto-investigations from Grafana alerts,
+// delivered by the Slack alert scrape or the reconciliation poll: each firing alert episode produces at
+// most one investigation, run through the standard investigations pipeline, with its summary posted to
+// the alert's Slack thread (scrape) or the configured Slack output channels (poll).
 package autoinvestigate
 
 import (
@@ -33,15 +33,15 @@ import (
 )
 
 // SlackRef ties an alert to the Slack message it was scraped from, so the investigation's notices can
-// be posted back as replies in that alert's thread. Nil for webhook/poll alerts (no Slack origin).
+// be posted back as replies in that alert's thread. Nil for reconciliation-poll alerts (no Slack origin).
 type SlackRef struct {
 	TeamID   string
 	Channel  string
 	ThreadTS string
 }
 
-// Alert is an authoritative alert from a Grafana webhook, the Alertmanager poll, or a scraped Slack
-// alert message.
+// Alert is an authoritative alert from the Alertmanager reconciliation poll or a scraped Slack alert
+// message.
 type Alert struct {
 	Fingerprint string
 	Status      string // "firing" or "resolved"
@@ -70,7 +70,7 @@ type Notifier interface {
 var severityRank = map[string]int{"info": 1, "warning": 2, "critical": 3}
 
 // maxEpisodes bounds the in-memory episode map so it can't grow without limit (e.g. on an HA
-// follower that receives webhooks but never runs the pruning poll). Eviction only costs a redundant
+// follower that never runs the pruning poll). Eviction only costs a redundant
 // DB claim that the partial unique index rejects — the DB is the authoritative dedup, the map is an
 // optimization.
 const maxEpisodes = 10000

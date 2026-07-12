@@ -29,9 +29,9 @@ import (
 )
 
 var (
-	// fingerprintRE extracts the Alertmanager fingerprint from a Grafana Slack message. It is present
-	// only when the contact point's message template includes {{ .Fingerprint }} (see plan §1.8);
-	// parseSlackAlert falls back to a derived key otherwise.
+	// fingerprintRE extracts the Alertmanager fingerprint from a Grafana Slack message. Present only when
+	// the contact-point template includes {{ .Fingerprint }}; parseSlackAlert falls back to a derived
+	// key otherwise. (Loop safety is handled by the @-mention requirement in handleAlertScrape, not this.)
 	fingerprintRE = regexp.MustCompile(`(?i)fingerprint[:=]\s*([a-f0-9]{8,})`)
 	// labelLineRE matches Grafana's "Labels:" block lines, e.g. "- alertname = pmm_mysql_down".
 	labelLineRE = regexp.MustCompile(`(?m)^\s*-?\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.+?)\s*$`)
@@ -56,9 +56,24 @@ func slackMessagePlainBlob(ev *slackevents.MessageEvent) string {
 	return strings.Join(parts, "\n")
 }
 
-// parseSlackAlert extracts an alert from a Grafana Slack message. ok is false when the message is not a
-// parseable alert (no alertname). The fingerprint comes from the templated message when present, else a
-// stable key derived from alertname+labels so re-notifications of the same alert still coalesce.
+// messageMentionsBot reports whether a Slack message @-mentions the given bot user id (Slack renders a
+// mention as "<@Uxxxx>" or "<@Uxxxx|name>"). Alerts are identified by such a mention — the Grafana
+// contact point's "Mention Users" is set to the PMM bot — which is the loop-safe marker: PMM writes its
+// own notices/reports and never @-mentions itself, so its own posts are never scraped as alerts.
+func messageMentionsBot(ev *slackevents.MessageEvent, botUserID string) bool {
+	if botUserID == "" {
+		return false
+	}
+	// A mention is "<@ID>" or "<@ID|label>": require the closing ">" or "|" so the whole id token matches.
+	// A bare prefix check would let a mention of a different user whose id starts with ours — e.g.
+	// "<@U1234>" vs bot "U123" — false-match and trigger a spurious investigation.
+	blob := slackMessagePlainBlob(ev)
+	return strings.Contains(blob, "<@"+botUserID+">") || strings.Contains(blob, "<@"+botUserID+"|")
+}
+
+// parseSlackAlert extracts an alert from a Grafana Slack message. ok is false when the message has no
+// alertname. The fingerprint comes from the templated message when present, else a stable key derived
+// from alertname+labels so re-notifications of the same alert coalesce.
 func parseSlackAlert(ev *slackevents.MessageEvent) (autoinvestigate.Alert, bool) {
 	blob := slackMessagePlainBlob(ev)
 	if strings.TrimSpace(blob) == "" {
@@ -85,6 +100,10 @@ func parseSlackAlert(ev *slackevents.MessageEvent) (autoinvestigate.Alert, bool)
 		status = "resolved"
 	}
 
+	// Fingerprint from the templated message when present ({{ .Fingerprint }}), else a stable key
+	// derived from alertname+labels so re-notifications of the same alert coalesce. Loop safety comes
+	// from the @-mention requirement in handleAlertScrape (our own reports/notices never mention the
+	// bot), NOT from the fingerprint — so alerts whose template omits the fingerprint still investigate.
 	fingerprint := ""
 	if m := fingerprintRE.FindStringSubmatch(blob); m != nil {
 		fingerprint = strings.ToLower(m[1])

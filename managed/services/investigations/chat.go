@@ -445,8 +445,9 @@ func (h *Handlers) runInvestigationBackground(id string, _ *models.Investigation
 		InvestigationMessageID: &runMsgID,
 	})
 
-	// Post the completed report into the alert's Slack thread (no-op unless this investigation was
-	// scraped from a Slack alert). inv.Config still carries the slack thread ref merged above.
+	// Post the completed report to Slack: into the alert's thread when this investigation was scraped
+	// from a Slack alert (inv.Config carries the thread ref merged above), else to the configured
+	// auto-investigate output channels.
 	if h.reportNotifier != nil {
 		h.reportNotifier.PostInvestigationReport(ctx, inv)
 	}

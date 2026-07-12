@@ -72,12 +72,6 @@ const (
 	adreURLNotSetMsg = "HolmesGPT URL is not configured. Set it in Settings."
 )
 
-// AlertWebhookSink processes a Grafana alert-webhook payload (raw JSON body). Implemented by
-// autoinvestigate.Service; kept as a raw-bytes interface so adre needn't import that package.
-type AlertWebhookSink interface {
-	ProcessWebhook(ctx context.Context, raw []byte)
-}
-
 // Handlers provides HTTP handlers for the ADRE proxy API.
 type Handlers struct {
 	db            *reform.DB
@@ -89,13 +83,6 @@ type Handlers struct {
 	reqTimeout    time.Duration
 	streamTimeout time.Duration
 	l             *logrus.Entry
-	alertSink     AlertWebhookSink
-}
-
-// SetAlertSink injects the auto-investigate sink used by the alert webhook. Safe to leave unset (the
-// webhook then returns 503).
-func (h *Handlers) SetAlertSink(sink AlertWebhookSink) {
-	h.alertSink = sink
 }
 
 // NewHandlers creates new ADRE HTTP handlers.
@@ -490,14 +477,10 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		}
 	}
 	settings, _ := models.GetSettings(h.db)
-	// When auto-investigate is enabled, self-heal the Grafana alert-webhook contact point here so admins
-	// don't have to separately re-run deployment provisioning after toggling it on. Idempotent and
-	// best-effort: the auto-investigate reconciliation poll works even if this fails.
-	if settings != nil && settings.Adre.SlackAutoInvestigate {
-		if err := h.provisioner().EnsureAlertWebhook(incomingAuthContext(r)); err != nil {
-			h.l.Warnf("ensure auto-investigate webhook contact point after settings save: %v", err)
-		}
-	}
+	// Auto-investigate is driven by the Socket Mode alert scrape — so the report posts back in the alert's
+	// Slack thread — with the reconciliation poll as the fallback. There is deliberately no Grafana
+	// alert-webhook path: it would carry no Slack thread ref and, arriving ahead of the scrape, would
+	// strip threaded reports.
 	chatPromptDisplay := settings.Adre.ChatPrompt
 	if chatPromptDisplay == "" {
 		chatPromptDisplay = DefaultChatPrompt

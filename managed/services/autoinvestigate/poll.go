@@ -18,6 +18,7 @@ package autoinvestigate
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"time"
 )
 
@@ -37,7 +38,7 @@ type AlertFetcherFunc func(ctx context.Context) ([]Alert, error)
 func (f AlertFetcherFunc) FetchFiringAlerts(ctx context.Context) ([]Alert, error) { return f(ctx) }
 
 // RunPoll periodically reconciles the firing-alert set. It is the correctness safety-net behind the
-// (instant) webhook: it drives auto-investigations for firing alerts the webhook missed and re-arms
+// Slack alert scrape: it drives auto-investigations for firing alerts the scrape missed and re-arms
 // episodes for alerts that are no longer firing. It works without any Grafana provisioning. The loop
 // processes only while isLeader() reports true (nil ⇒ always). It returns when ctx is cancelled.
 func (s *Service) RunPoll(ctx context.Context, fetcher AlertFetcher, interval time.Duration, isLeader func() bool) {
@@ -66,7 +67,7 @@ func (s *Service) pollOnce(ctx context.Context, fetcher AlertFetcher) {
 		return
 	}
 	// Re-arm episodes whose alert is no longer firing: any fingerprint in the episode map but absent
-	// from the current firing set has resolved (covers RESOLVED webhooks that were missed).
+	// from the current firing set has resolved (covers alerts that resolved between polls).
 	firing := make(map[string]struct{}, len(alerts))
 	for _, a := range alerts {
 		if a.firing() {
@@ -112,49 +113,10 @@ func ParseAlertmanagerAlerts(raw []byte) []Alert {
 			continue
 		}
 		out = append(out, Alert{
-			Fingerprint: it.Fingerprint,
+			Fingerprint: strings.ToLower(it.Fingerprint),
 			Status:      "firing",
 			Labels:      it.Labels,
 			Annotations: it.Annotations,
-		})
-	}
-	return out
-}
-
-// ProcessWebhook parses a Grafana alerting webhook payload and processes its alerts. It is the
-// instant-path entry point (the reconciliation poll is the safety-net), and lets callers depend on a
-// raw-bytes interface rather than the Alert type.
-func (s *Service) ProcessWebhook(ctx context.Context, raw []byte) {
-	s.ProcessAlerts(ctx, ParseGrafanaWebhook(raw))
-}
-
-// ParseGrafanaWebhook converts a Grafana alerting webhook payload into Alerts (preserving each
-// alert's firing/resolved status so resolved alerts re-arm their episode).
-func ParseGrafanaWebhook(raw []byte) []Alert {
-	if len(raw) == 0 {
-		return nil
-	}
-	var payload struct {
-		Alerts []struct {
-			Status      string            `json:"status"`
-			Fingerprint string            `json:"fingerprint"`
-			Labels      map[string]string `json:"labels"`
-			Annotations map[string]string `json:"annotations"`
-		} `json:"alerts"`
-	}
-	if err := json.Unmarshal(raw, &payload); err != nil {
-		return nil
-	}
-	out := make([]Alert, 0, len(payload.Alerts))
-	for _, a := range payload.Alerts {
-		if a.Fingerprint == "" {
-			continue
-		}
-		out = append(out, Alert{
-			Fingerprint: a.Fingerprint,
-			Status:      a.Status,
-			Labels:      a.Labels,
-			Annotations: a.Annotations,
 		})
 	}
 	return out

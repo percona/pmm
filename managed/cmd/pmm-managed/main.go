@@ -204,7 +204,7 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	})
 }
 
-func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.GrafanaAuth, vm v1.API, ch adre.ClickHousePools, alertSink adre.AlertWebhookSink) {
+func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.GrafanaAuth, vm v1.API, ch adre.ClickHousePools) {
 	// Seed the shipped HolmesGPT config.yaml and skills on first run (idempotent: no-op once populated).
 	err := deployment.SeedDefaultConfig(db)
 	if err != nil {
@@ -215,7 +215,6 @@ func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.Grafa
 		logrus.Warnf("Failed to seed built-in ADRE skills: %v", err)
 	}
 	h := adre.NewHandlers(db, grafanaClient, vm, ch)
-	h.SetAlertSink(alertSink)
 	mux.HandleFunc("/v1/adre/settings", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -265,7 +264,6 @@ func addAdreHandlers(mux *http.ServeMux, db *reform.DB, grafanaClient adre.Grafa
 	mux.HandleFunc("/v1/adre/usage/", h.ServeUsageSubroutes)
 	mux.HandleFunc("/v1/adre/metrics/snapshot", h.PostMetricsSnapshot)
 	mux.HandleFunc("/v1/adre/clickhouse/query", h.PostClickHouseQuery)
-	mux.HandleFunc("/v1/adre/alert-webhook", h.PostAlertWebhook)
 }
 
 func addInvestigationsHandlers(mux *http.ServeMux, db *reform.DB) {
@@ -426,14 +424,13 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 }
 
 type http1ServerDeps struct {
-	logs                *server.Logs
-	authServer          *grafana.AuthServer
-	db                  *reform.DB
-	grafanaClient       *grafana.Client
-	vmClient            *metrics.Client
-	clickhouse          adre.ClickHousePools
-	currentUserHandler  http.Handler
-	autoInvestigateSink adre.AlertWebhookSink
+	logs               *server.Logs
+	authServer         *grafana.AuthServer
+	db                 *reform.DB
+	grafanaClient      *grafana.Client
+	vmClient           *metrics.Client
+	clickhouse         adre.ClickHousePools
+	currentUserHandler http.Handler
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -514,7 +511,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
-	addAdreHandlers(mux, deps.db, deps.grafanaClient, v1.NewAPI(*deps.vmClient), deps.clickhouse, deps.autoInvestigateSink)
+	addAdreHandlers(mux, deps.db, deps.grafanaClient, v1.NewAPI(*deps.vmClient), deps.clickhouse)
 	go adre.RunAdreChatRetentionLoop(ctx, deps.db, logrus.WithField("component", "adre-retention"), 24*time.Hour) //nolint:mnd
 	mux.Handle("/v1/grafana/render", grafana.NewLegacyGETRenderGoneHandler())
 	mux.Handle("/v1/grafana/render/resolve", grafana.NewResolveHandler(deps.grafanaClient))
@@ -1308,14 +1305,13 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
-			logs:                logs,
-			authServer:          authServer,
-			db:                  db,
-			grafanaClient:       grafanaClient,
-			vmClient:            &vmClient,
-			clickhouse:          adreClickHouse,
-			currentUserHandler:  user.NewCurrentHTTPHandler(grafanaClient),
-			autoInvestigateSink: autoInvestigateSvc,
+			logs:               logs,
+			authServer:         authServer,
+			db:                 db,
+			grafanaClient:      grafanaClient,
+			vmClient:           &vmClient,
+			clickhouse:         adreClickHouse,
+			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
 		})
 	})
 

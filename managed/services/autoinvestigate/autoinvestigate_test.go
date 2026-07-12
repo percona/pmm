@@ -91,18 +91,6 @@ func TestParseAlertmanagerAlerts(t *testing.T) {
 	}
 }
 
-func TestParseGrafanaWebhook(t *testing.T) {
-	t.Parallel()
-	raw := []byte(`{"alerts":[{"status":"firing","fingerprint":"fp1","labels":{"severity":"critical"}},{"status":"resolved","fingerprint":"fp2"}]}`)
-	got := ParseGrafanaWebhook(raw)
-	if len(got) != 2 {
-		t.Fatalf("expected 2 alerts, got %d", len(got))
-	}
-	if !got[0].firing() || !got[1].resolved() {
-		t.Errorf("status not preserved: %+v", got)
-	}
-}
-
 func TestBuildAlertInvestigation(t *testing.T) {
 	t.Parallel()
 	a := Alert{
