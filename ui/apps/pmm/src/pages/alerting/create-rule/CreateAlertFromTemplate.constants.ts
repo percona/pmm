@@ -4,6 +4,10 @@ import { Messages } from './CreateAlertFromTemplate.messages';
 export const DEFAULT_DURATION_SECONDS = 60;
 export const DEFAULT_INTERVAL_SECONDS = 60;
 
+// Sentinel value for the folder select's "create new folder" option; the new
+// folder is created on submit (not up front).
+export const CREATE_FOLDER_VALUE = '__create_folder__';
+
 export const SEVERITY_OPTIONS: { value: Severity; label: string }[] = [
   { value: Severity.EMERGENCY, label: 'Emergency' },
   { value: Severity.ALERT, label: 'Alert' },

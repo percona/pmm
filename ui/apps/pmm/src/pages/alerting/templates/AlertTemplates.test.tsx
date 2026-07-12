@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import * as templatesApi from 'api/alert-templates';
@@ -62,14 +62,28 @@ describe('AlertTemplates', () => {
     );
   });
 
-  it('enables edit/delete only for user-created templates', async () => {
+  it('offers edit/delete in the row menu only for user-created templates', async () => {
     renderPage();
     await waitFor(() =>
-      expect(screen.getAllByTestId('edit-alert-template')).toHaveLength(2)
+      expect(screen.getAllByTestId('template-actions-menu')).toHaveLength(2)
     );
-    const editButtons = screen.getAllByTestId('edit-alert-template');
-    // Row order matches data order: built-in first (disabled), user second.
-    expect(editButtons[0]).toBeDisabled();
-    expect(editButtons[1]).toBeEnabled();
+    // Row order matches data order: built-in first, user-created second.
+    const [builtInMenu, userMenu] = screen.getAllByTestId(
+      'template-actions-menu'
+    );
+
+    // Built-in: only "Create alert rule", no edit/delete.
+    fireEvent.click(builtInMenu);
+    await screen.findByTestId('create-alert-rule');
+    expect(screen.queryByTestId('edit-alert-template')).toBeNull();
+    expect(screen.queryByTestId('delete-alert-template')).toBeNull();
+    fireEvent.keyDown(screen.getByTestId('create-alert-rule'), {
+      key: 'Escape',
+    });
+
+    // User-created: edit and delete are available.
+    fireEvent.click(userMenu);
+    await screen.findByTestId('edit-alert-template');
+    expect(screen.getByTestId('delete-alert-template')).toBeInTheDocument();
   });
 });

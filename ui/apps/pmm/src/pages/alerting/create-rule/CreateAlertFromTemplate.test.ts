@@ -60,6 +60,7 @@ describe('CreateAlertFromTemplate utils', () => {
       severity: Severity.WARNING,
       duration: '120',
       folderUid: 'folder-1',
+      newFolderTitle: '',
       group: '  group-a  ',
       interval: '30',
       filters: [

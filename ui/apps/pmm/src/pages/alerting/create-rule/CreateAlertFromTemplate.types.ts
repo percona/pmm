@@ -16,6 +16,9 @@ export interface CreateRuleFormValues {
   // buildCreateRulePayload.
   duration: string;
   folderUid: string;
+  // Set when folderUid is the "create new folder" sentinel; the folder is
+  // created on submit.
+  newFolderTitle: string;
   group: string;
   interval: string;
   filters: RuleFilterFormValue[];

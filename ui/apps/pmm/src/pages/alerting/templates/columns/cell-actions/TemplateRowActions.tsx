@@ -1,8 +1,10 @@
-import { FC } from 'react';
-import Button from '@mui/material/Button';
+import { FC, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
-import Tooltip from '@mui/material/Tooltip';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
@@ -26,54 +28,69 @@ export const TemplateRowActions: FC<Props> = ({
   onDelete,
 }) => {
   const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const open = !!anchorEl;
   const editable = canManage && isTemplateEditable(template);
 
+  const close = () => setAnchorEl(null);
+
+  const run = (action: () => void) => () => {
+    close();
+    action();
+  };
+
   return (
-    <Stack direction="row" alignItems="center" gap={1}>
-      <Button
+    <>
+      <IconButton
         size="small"
-        color="primary"
-        startIcon={<AddOutlinedIcon />}
-        data-testid="create-alert-rule"
-        onClick={() =>
-          navigate(
-            `${PMM_ALERTING_NEW_FROM_TEMPLATE_PATH}?template=${encodeURIComponent(
-              template.name
-            )}`
-          )
-        }
+        aria-label={Messages.columns.actions}
+        data-testid="template-actions-menu"
+        aria-haspopup="true"
+        aria-expanded={open ? 'true' : undefined}
+        onClick={(event) => setAnchorEl(event.currentTarget)}
       >
-        {Messages.actions.createRule}
-      </Button>
-      {canManage && (
-        <>
-          <Tooltip title={Messages.actions.edit}>
-            <span>
-              <IconButton
-                size="small"
-                disabled={!editable}
-                data-testid="edit-alert-template"
-                onClick={() => onEdit(template)}
-              >
-                <EditOutlinedIcon fontSize="small" />
-              </IconButton>
-            </span>
-          </Tooltip>
-          <Tooltip title={Messages.actions.delete}>
-            <span>
-              <IconButton
-                size="small"
-                disabled={!editable}
-                data-testid="delete-alert-template"
-                onClick={() => onDelete(template)}
-              >
-                <DeleteOutlineIcon fontSize="small" />
-              </IconButton>
-            </span>
-          </Tooltip>
-        </>
-      )}
-    </Stack>
+        <MoreVertIcon fontSize="small" />
+      </IconButton>
+      <Menu anchorEl={anchorEl} open={open} onClose={close}>
+        <MenuItem
+          data-testid="create-alert-rule"
+          onClick={run(() =>
+            navigate(
+              `${PMM_ALERTING_NEW_FROM_TEMPLATE_PATH}?template=${encodeURIComponent(
+                template.name
+              )}`
+            )
+          )}
+        >
+          <ListItemIcon>
+            <AddOutlinedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{Messages.actions.createRule}</ListItemText>
+        </MenuItem>
+        {editable && (
+          <MenuItem
+            data-testid="edit-alert-template"
+            onClick={run(() => onEdit(template))}
+          >
+            <ListItemIcon>
+              <EditOutlinedIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>{Messages.actions.edit}</ListItemText>
+          </MenuItem>
+        )}
+        {editable && (
+          <MenuItem
+            data-testid="delete-alert-template"
+            onClick={run(() => onDelete(template))}
+          >
+            <ListItemIcon>
+              <DeleteOutlineIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>{Messages.actions.delete}</ListItemText>
+          </MenuItem>
+        )}
+      </Menu>
+    </>
   );
 };
 

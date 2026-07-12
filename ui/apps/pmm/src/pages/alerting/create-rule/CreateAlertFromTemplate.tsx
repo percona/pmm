@@ -8,11 +8,12 @@ import { enqueueSnackbar } from 'notistack';
 import { Page } from 'components/page';
 import { useAlertTemplates } from 'hooks/api/useAlertTemplates';
 import { useCreateRuleFromTemplate } from 'hooks/api/useAlertTemplates';
-import { useFolders } from 'hooks/api/useFolders';
+import { useCreateFolder, useFolders } from 'hooks/api/useFolders';
 import { Severity } from 'types/alert-templates.types';
 import { PMM_ALERTING_TEMPLATES_PATH } from 'lib/constants';
 import { Messages } from './CreateAlertFromTemplate.messages';
 import {
+  CREATE_FOLDER_VALUE,
   DEFAULT_DURATION_SECONDS,
   DEFAULT_INTERVAL_SECONDS,
 } from './CreateAlertFromTemplate.constants';
@@ -39,6 +40,8 @@ export const CreateAlertFromTemplate: FC = () => {
   const { data, isLoading } = useAlertTemplates({ reload: true });
   const { data: folders = [], isLoading: loadingFolders } = useFolders();
   const { mutateAsync: createRule, isPending } = useCreateRuleFromTemplate();
+  const { mutateAsync: createFolder, isPending: creatingFolder } =
+    useCreateFolder();
   const templates = data?.templates ?? [];
 
   const methods = useForm<CreateRuleFormValues>({
@@ -49,6 +52,7 @@ export const CreateAlertFromTemplate: FC = () => {
       severity: Severity.WARNING,
       duration: String(DEFAULT_DURATION_SECONDS),
       folderUid: '',
+      newFolderTitle: '',
       group: '',
       interval: String(DEFAULT_INTERVAL_SECONDS),
       filters: [],
@@ -78,17 +82,31 @@ export const CreateAlertFromTemplate: FC = () => {
     if (!selectedTemplate) {
       return;
     }
-    await createRule(buildCreateRulePayload(values, selectedTemplate), {
-      onSuccess: () => {
-        enqueueSnackbar(Messages.success, { variant: 'success' });
-        navigate(PMM_ALERTING_TEMPLATES_PATH);
-      },
-      onError: (error) =>
-        enqueueSnackbar(
-          error instanceof Error ? error.message : Messages.error,
-          { variant: 'error' }
-        ),
-    });
+    try {
+      const folderUid =
+        values.folderUid === CREATE_FOLDER_VALUE
+          ? (await createFolder({ title: values.newFolderTitle.trim() })).uid
+          : values.folderUid;
+
+      const payload = buildCreateRulePayload(values, selectedTemplate);
+      payload.folderUid = folderUid;
+
+      await createRule(payload, {
+        onSuccess: () => {
+          enqueueSnackbar(Messages.success, { variant: 'success' });
+          navigate(PMM_ALERTING_TEMPLATES_PATH);
+        },
+        onError: (error) =>
+          enqueueSnackbar(
+            error instanceof Error ? error.message : Messages.error,
+            { variant: 'error' }
+          ),
+      });
+    } catch (error) {
+      enqueueSnackbar(error instanceof Error ? error.message : Messages.error, {
+        variant: 'error',
+      });
+    }
   };
 
   return (
@@ -117,7 +135,9 @@ export const CreateAlertFromTemplate: FC = () => {
               type="submit"
               variant="contained"
               data-testid="create-rule-submit"
-              disabled={isPending || isLoading || !selectedTemplate}
+              disabled={
+                isPending || creatingFolder || isLoading || !selectedTemplate
+              }
             >
               {Messages.submit}
             </Button>
