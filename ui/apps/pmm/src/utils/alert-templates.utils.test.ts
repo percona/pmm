@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   beautifyUnit,
   durationToSeconds,
+  formatCreatedAt,
   isTemplateEditable,
   paramValueKey,
   secondsToDuration,
@@ -60,6 +61,21 @@ describe('alert-templates.utils', () => {
       expect(beautifyUnit(ParamUnit.PERCENTAGE)).toBe('%');
       expect(beautifyUnit(ParamUnit.SECONDS)).toBe('s');
       expect(beautifyUnit(ParamUnit.UNSPECIFIED)).toBe('');
+    });
+  });
+
+  describe('formatCreatedAt', () => {
+    it('returns a dash for empty, zero-time, or invalid values', () => {
+      expect(formatCreatedAt(undefined)).toBe('—');
+      expect(formatCreatedAt('')).toBe('—');
+      expect(formatCreatedAt('0001-01-01T00:00:00Z')).toBe('—');
+      expect(formatCreatedAt('not-a-date')).toBe('—');
+    });
+
+    it('formats a real timestamp with date and time', () => {
+      const result = formatCreatedAt('2026-06-30T14:25:00Z');
+      expect(result).not.toBe('—');
+      expect(result).toMatch(/2026/);
     });
   });
 

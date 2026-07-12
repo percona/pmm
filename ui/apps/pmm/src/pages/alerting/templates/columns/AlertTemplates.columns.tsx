@@ -1,6 +1,6 @@
 import { type MRT_ColumnDef } from '@percona/percona-ui';
 import { Template } from 'types/alert-templates.types';
-import { formatTimestampWithTime } from 'utils/datetime.utils';
+import { formatCreatedAt } from 'utils/alert-templates.utils';
 import { Messages } from '../AlertTemplates.messages';
 import { SourceCell } from './cell-source';
 import { TemplateRowActions } from './cell-actions';
@@ -29,10 +29,7 @@ export const getAlertTemplatesColumns = ({
   {
     accessorKey: 'createdAt',
     header: Messages.columns.createdAt,
-    Cell: ({ row }) =>
-      row.original.createdAt
-        ? formatTimestampWithTime(row.original.createdAt)
-        : '—',
+    Cell: ({ row }) => formatCreatedAt(row.original.createdAt),
   },
   {
     id: 'actions',
