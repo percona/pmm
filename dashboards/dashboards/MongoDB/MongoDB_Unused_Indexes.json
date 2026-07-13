@@ -65,7 +65,7 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 3,
+                "h": 5,
                 "w": 24,
                 "x": 0,
                 "y": 1
@@ -145,7 +145,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "avg(mongodb_instance_uptime_seconds{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", node_name=~\"$node_name\"}) / 86400",
+                    "expr": "min(mongodb_instance_uptime_seconds{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", node_name=~\"$node_name\"}) / 86400",
                     "instant": true,
                     "refId": "A"
                 }
@@ -221,7 +221,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "count(avg by (cluster, collection, database, key_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}) == 0)",
+                    "expr": "count(avg by (cluster, collection, database, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}) == 0)",
                     "instant": true,
                     "refId": "A"
                 }
@@ -290,7 +290,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "count(avg by (cluster, collection, database, key_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\"}))",
+                    "expr": "count(avg by (cluster, collection, database, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\"}))",
                     "instant": true,
                     "refId": "A"
                 }
@@ -587,9 +587,9 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "avg by (database, collection, key_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"})",
+                    "expr": "avg by (database, collection, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"})",
                     "interval": "$interval",
-                    "legendFormat": "{{database}}.{{collection}} | {{key_name}}",
+                    "legendFormat": "{{service_name}} | {{database}}.{{collection}} | {{key_name}}",
                     "range": true,
                     "refId": "A"
                 }
@@ -625,6 +625,18 @@
                     "unit": "short"
                 },
                 "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "service_name"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Service"
+                            }
+                        ]
+                    },
                     {
                         "matcher": {
                             "id": "byName",
@@ -706,7 +718,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "bottomk(20, avg by (database, collection, key_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}))",
+                    "expr": "bottomk(20, avg by (database, collection, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}))",
                     "format": "table",
                     "instant": true,
                     "refId": "A"
@@ -719,6 +731,7 @@
                     "options": {
                         "include": {
                             "names": [
+                                "service_name",
                                 "database",
                                 "collection",
                                 "key_name",
@@ -733,10 +746,11 @@
                         "excludeByName": {},
                         "includeByName": {},
                         "indexByName": {
-                            "Value": 3,
-                            "collection": 1,
-                            "database": 0,
-                            "key_name": 2
+                            "Value": 4,
+                            "collection": 2,
+                            "database": 1,
+                            "key_name": 3,
+                            "service_name": 0
                         },
                         "renameByName": {}
                     }

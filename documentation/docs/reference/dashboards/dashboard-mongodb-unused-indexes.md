@@ -36,11 +36,11 @@ Use this together with **Unused Indexes** to understand what share of monitored 
 
 Lists indexes with zero accesses since the last `mongod` restart. Columns include cluster, database, collection, index name, and service.
 
-This panel uses the same logic as the MongoDB Unused Indexes advisor check:
+This panel uses the same core metric and zero-access rule as the MongoDB Unused Indexes advisor check. The advisor evaluates each node separately; the dashboard groups by `service_name` so you can see per-node results when multiple replica set members are selected:
 
 ```promql
 avg by (cluster, collection, database, key_name, service_name) (
-  mongodb_indexstats_accesses_ops{...}
+  mongodb_indexstats_accesses_ops{service_name=~"$service_name", key_name!="_id_"}
 ) == 0
 ```
 
