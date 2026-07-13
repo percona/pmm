@@ -29,7 +29,7 @@ const meta: Meta<typeof PageContainer> = {
       options: [1000, 600, 1400, 'full'],
       description: "Pixel number (px), or 'full' for 100% width.",
     },
-  }
+  },
 };
 
 export default meta;
