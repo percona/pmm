@@ -34,7 +34,11 @@ export const useHaInfo = (
     refetchInterval: 15000,
   });
 
-  const health = getHAHealth(nodesQuery.data?.nodes || []);
+  const health = getHAHealth(
+    nodesQuery.data?.nodes || [],
+    nodesQuery.data?.expectedNodes || 0,
+    nodesQuery
+  );
   const enabled = statusQuery.data?.status === 'Enabled';
   const leader = nodesQuery.data?.nodes.find(
     (node) => node.role === NodeRole.leader
