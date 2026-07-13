@@ -143,6 +143,11 @@ export const addAlerting = (enabled = false, user?: User): NavItem => {
   }
 
   children.push(NAV_ALERTS_RULES);
+
+  if (enabled && user?.isEditor) {
+    children.push(NAV_ALERTS_TEMPLATES);
+  }
+
   children.push(NAV_ALERTS_CONTACT_POINTS);
   children.push(NAV_ALERTS_NOTIFICATION_POLICIES);
   children.push(NAV_ALERTS_SILENCES);
@@ -150,10 +155,6 @@ export const addAlerting = (enabled = false, user?: User): NavItem => {
 
   if (user?.isPMMAdmin) {
     children.push(NAV_ALERTS_SETTINGS);
-  }
-
-  if (enabled && user?.isEditor) {
-    children.push(NAV_ALERTS_TEMPLATES);
   }
 
   return { ...NAV_ALERTS, children };
