@@ -53,6 +53,7 @@ export const AlertTemplates: FC = () => {
         getRowId={(row) => row.name}
         noDataMessage={Messages.empty}
         enableGlobalFilter
+        enableHiding={false}
         positionToolbarAlertBanner="none"
         initialState={{ pagination: { pageSize: 25, pageIndex: 0 } }}
         renderTopToolbarCustomActions={() =>
