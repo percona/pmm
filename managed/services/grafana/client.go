@@ -102,10 +102,10 @@ func (c *Client) Collect(ch chan<- prom.Metric) {
 
 // clientError contains error response details.
 type clientError struct {
-	Method       string
-	URL          string
-	Code         int
-	Body         string
+	Method       string `json:"-"`
+	URL          string `json:"-"`
+	Code         int    `json:"-"`
+	Body         string `json:"-"`
 	ErrorMessage string `json:"message"` // from response JSON object, if any
 }
 
@@ -196,6 +196,48 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	return nil
 }
 
+// DoRaw performs an HTTP request and returns the response body and Content-Type.
+// It does not decode JSON; used for binary responses (e.g. image/png from render API).
+func (c *Client) DoRaw(ctx context.Context, method, path, rawQuery string, headers http.Header, body []byte) ([]byte, string, error) {
+	u := url.URL{
+		Scheme:   "http",
+		Host:     c.addr,
+		Path:     path,
+		RawQuery: rawQuery,
+	}
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), bytes.NewReader(body))
+	if err != nil {
+		return nil, "", err
+	}
+	if len(body) != 0 {
+		req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	}
+	for k := range headers {
+		req.Header.Set(k, headers.Get(k))
+	}
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return nil, "", err
+	}
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, "", err
+	}
+	if resp.StatusCode < 200 || resp.StatusCode > 202 {
+		cErr := &clientError{
+			Method: req.Method,
+			URL:    req.URL.String(),
+			Code:   resp.StatusCode,
+			Body:   string(b),
+		}
+		_ = json.Unmarshal(b, cErr)
+		return nil, "", cErr
+	}
+	contentType := resp.Header.Get("Content-Type")
+	return b, contentType, nil
+}
+
 type authUser struct {
 	role   role
 	userID int
@@ -274,6 +316,32 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 	}
 
 	return int(userID), nil
+}
+
+// GetCurrentUserLogin returns Grafana /api/user login (or uid:N fallback) for the given auth headers.
+func (c *Client) GetCurrentUserLogin(ctx context.Context, authHeaders http.Header) (string, error) {
+	var m map[string]any
+	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
+	if err != nil {
+		return "", err
+	}
+	if login, ok := m["login"].(string); ok && login != "" {
+		return login, nil
+	}
+	if id, ok := m["id"].(float64); ok {
+		return fmt.Sprintf("uid:%d", int(id)), nil
+	}
+	return "", errors.New("Grafana user login not available")
+}
+
+// IsCurrentUserAdmin reports whether the authenticated user is a PMM admin (org Admin or Grafana
+// super-admin) — the server-side equivalent of the UI's isPMMAdmin gate.
+func (c *Client) IsCurrentUserAdmin(ctx context.Context, authHeaders http.Header) (bool, error) {
+	u, err := c.getAuthUser(ctx, authHeaders, logrus.WithField("component", "grafana/admin-check"))
+	if err != nil {
+		return false, err
+	}
+	return u.role >= admin, nil
 }
 
 var emptyUser = authUser{
@@ -700,6 +768,17 @@ func (c *Client) DeleteServiceAccount(ctx context.Context, nodeName string, forc
 	}
 
 	return warning, err
+}
+
+// GetAlertmanagerAlerts fetches firing alerts from Grafana's Alertmanager API.
+// AuthHeaders should contain Authorization and/or Cookie from the incoming request to forward user auth.
+func (c *Client) GetAlertmanagerAlerts(ctx context.Context, authHeaders http.Header) ([]byte, error) {
+	var raw json.RawMessage
+	err := c.do(ctx, http.MethodGet, "/api/alertmanager/grafana/api/v2/alerts", "active=true", authHeaders, nil, &raw)
+	if err != nil {
+		return nil, err
+	}
+	return raw, nil
 }
 
 // CreateAlertRule creates Grafana alert rule.

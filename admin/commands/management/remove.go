@@ -38,6 +38,8 @@ func (res *removeServiceResult) String() string {
 }
 
 // RemoveCommand is used by Kong for CLI flags and commands.
+//
+// TODO(otel): `pmm-admin remove otel` is not implemented yet (planned soon); OTEL teardown today is via inventory.
 type RemoveCommand struct {
 	ServiceType string `arg:"" enum:"${serviceTypesEnum}" help:"Service type, one of: ${enum}"`
 	ServiceName string `arg:"" default:"" help:"Service name"`

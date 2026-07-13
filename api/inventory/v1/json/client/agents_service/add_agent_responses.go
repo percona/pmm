@@ -205,6 +205,9 @@ type AddAgentBody struct {
 	// node exporter
 	NodeExporter *AddAgentParamsBodyNodeExporter `json:"node_exporter,omitempty"`
 
+	// otel collector
+	OtelCollector *AddAgentParamsBodyOtelCollector `json:"otel_collector,omitempty"`
+
 	// pmm agent
 	PMMAgent *AddAgentParamsBodyPMMAgent `json:"pmm_agent,omitempty"`
 
@@ -263,6 +266,10 @@ func (o *AddAgentBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateNodeExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateOtelCollector(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -426,6 +433,29 @@ func (o *AddAgentBody) validateNodeExporter(formats strfmt.Registry) error {
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "node_exporter")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddAgentBody) validateOtelCollector(formats strfmt.Registry) error {
+	if swag.IsZero(o.OtelCollector) { // not required
+		return nil
+	}
+
+	if o.OtelCollector != nil {
+		if err := o.OtelCollector.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "otel_collector")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "otel_collector")
 			}
 
 			return err
@@ -735,6 +765,10 @@ func (o *AddAgentBody) ContextValidate(ctx context.Context, formats strfmt.Regis
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateOtelCollector(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidatePMMAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -900,6 +934,30 @@ func (o *AddAgentBody) contextValidateNodeExporter(ctx context.Context, formats 
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("body" + "." + "node_exporter")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddAgentBody) contextValidateOtelCollector(ctx context.Context, formats strfmt.Registry) error {
+	if o.OtelCollector != nil {
+
+		if swag.IsZero(o.OtelCollector) { // not required
+			return nil
+		}
+
+		if err := o.OtelCollector.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "otel_collector")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "otel_collector")
 			}
 
 			return err
@@ -1463,6 +1521,9 @@ type AddAgentOKBody struct {
 	// node exporter
 	NodeExporter *AddAgentOKBodyNodeExporter `json:"node_exporter,omitempty"`
 
+	// otel collector
+	OtelCollector *AddAgentOKBodyOtelCollector `json:"otel_collector,omitempty"`
+
 	// pmm agent
 	PMMAgent *AddAgentOKBodyPMMAgent `json:"pmm_agent,omitempty"`
 
@@ -1521,6 +1582,10 @@ func (o *AddAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateNodeExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateOtelCollector(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1684,6 +1749,29 @@ func (o *AddAgentOKBody) validateNodeExporter(formats strfmt.Registry) error {
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "node_exporter")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddAgentOKBody) validateOtelCollector(formats strfmt.Registry) error {
+	if swag.IsZero(o.OtelCollector) { // not required
+		return nil
+	}
+
+	if o.OtelCollector != nil {
+		if err := o.OtelCollector.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addAgentOk" + "." + "otel_collector")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addAgentOk" + "." + "otel_collector")
 			}
 
 			return err
@@ -1993,6 +2081,10 @@ func (o *AddAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := o.contextValidateOtelCollector(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidatePMMAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -2158,6 +2250,30 @@ func (o *AddAgentOKBody) contextValidateNodeExporter(ctx context.Context, format
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("addAgentOk" + "." + "node_exporter")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddAgentOKBody) contextValidateOtelCollector(ctx context.Context, formats strfmt.Registry) error {
+	if o.OtelCollector != nil {
+
+		if swag.IsZero(o.OtelCollector) { // not required
+			return nil
+		}
+
+		if err := o.OtelCollector.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("addAgentOk" + "." + "otel_collector")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("addAgentOk" + "." + "otel_collector")
 			}
 
 			return err
@@ -4040,6 +4156,136 @@ func (o *AddAgentOKBodyNodeExporterMetricsResolutions) MarshalBinary() ([]byte, 
 // UnmarshalBinary interface implementation
 func (o *AddAgentOKBodyNodeExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
 	var res AddAgentOKBodyNodeExporterMetricsResolutions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAgentOKBodyOtelCollector OtelCollector runs on the same node as pmm-agent and collects logs (and later traces, profiles) for OTEL.
+swagger:model AddAgentOKBodyOtelCollector
+*/
+type AddAgentOKBodyOtelCollector struct {
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
+
+	// pmm agent id
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
+
+	// custom labels
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// process exec path
+	ProcessExecPath string `json:"process_exec_path,omitempty"`
+}
+
+// Validate validates this add agent OK body otel collector
+func (o *AddAgentOKBodyOtelCollector) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addAgentOkBodyOtelCollectorTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addAgentOkBodyOtelCollectorTypeStatusPropEnum = append(addAgentOkBodyOtelCollectorTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddAgentOKBodyOtelCollectorStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddAgentOKBodyOtelCollectorStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// AddAgentOKBodyOtelCollectorStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddAgentOKBodyOtelCollectorStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// AddAgentOKBodyOtelCollectorStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	AddAgentOKBodyOtelCollectorStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// AddAgentOKBodyOtelCollectorStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddAgentOKBodyOtelCollectorStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// AddAgentOKBodyOtelCollectorStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddAgentOKBodyOtelCollectorStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// AddAgentOKBodyOtelCollectorStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddAgentOKBodyOtelCollectorStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// AddAgentOKBodyOtelCollectorStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddAgentOKBodyOtelCollectorStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// AddAgentOKBodyOtelCollectorStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddAgentOKBodyOtelCollectorStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *AddAgentOKBodyOtelCollector) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyOtelCollectorTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddAgentOKBodyOtelCollector) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addAgentOk"+"."+"otel_collector"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this add agent OK body otel collector based on context it is used
+func (o *AddAgentOKBodyOtelCollector) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentOKBodyOtelCollector) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentOKBodyOtelCollector) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyOtelCollector
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -7588,6 +7834,166 @@ func (o *AddAgentParamsBodyNodeExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddAgentParamsBodyNodeExporter) UnmarshalBinary(b []byte) error {
 	var res AddAgentParamsBodyNodeExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAgentParamsBodyOtelCollector add agent params body otel collector
+swagger:model AddAgentParamsBodyOtelCollector
+*/
+type AddAgentParamsBodyOtelCollector struct {
+	// pmm agent id
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// custom labels
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Deprecated: use log_sources for per-path preset. If log_sources is empty, these are used with preset "raw".
+	LogFilePaths []string `json:"log_file_paths"`
+
+	// log sources
+	LogSources []*AddAgentParamsBodyOtelCollectorLogSourcesItems0 `json:"log_sources"`
+}
+
+// Validate validates this add agent params body otel collector
+func (o *AddAgentParamsBodyOtelCollector) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogSources(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddAgentParamsBodyOtelCollector) validateLogSources(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogSources) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.LogSources); i++ {
+		if swag.IsZero(o.LogSources[i]) { // not required
+			continue
+		}
+
+		if o.LogSources[i] != nil {
+			if err := o.LogSources[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("body" + "." + "otel_collector" + "." + "log_sources" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("body" + "." + "otel_collector" + "." + "log_sources" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add agent params body otel collector based on the context it is used
+func (o *AddAgentParamsBodyOtelCollector) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateLogSources(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddAgentParamsBodyOtelCollector) contextValidateLogSources(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.LogSources); i++ {
+		if o.LogSources[i] != nil {
+
+			if swag.IsZero(o.LogSources[i]) { // not required
+				return nil
+			}
+
+			if err := o.LogSources[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("body" + "." + "otel_collector" + "." + "log_sources" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("body" + "." + "otel_collector" + "." + "log_sources" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentParamsBodyOtelCollector) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentParamsBodyOtelCollector) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyOtelCollector
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddAgentParamsBodyOtelCollectorLogSourcesItems0 LogSource binds a log file path to a parser preset (e.g. mysql_error or raw for no parsing).
+swagger:model AddAgentParamsBodyOtelCollectorLogSourcesItems0
+*/
+type AddAgentParamsBodyOtelCollectorLogSourcesItems0 struct {
+	// path
+	Path string `json:"path,omitempty"`
+
+	// Preset name from log_parser_presets table, or "raw" for no operators.
+	Preset string `json:"preset,omitempty"`
+}
+
+// Validate validates this add agent params body otel collector log sources items0
+func (o *AddAgentParamsBodyOtelCollectorLogSourcesItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add agent params body otel collector log sources items0 based on context it is used
+func (o *AddAgentParamsBodyOtelCollectorLogSourcesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddAgentParamsBodyOtelCollectorLogSourcesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddAgentParamsBodyOtelCollectorLogSourcesItems0) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyOtelCollectorLogSourcesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

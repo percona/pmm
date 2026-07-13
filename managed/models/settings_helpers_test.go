@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -55,6 +56,24 @@ func TestSettings(t *testing.T) {
 			DefaultRoleID:  1,
 			EncryptedItems: actual.EncryptedItems,
 		}
+		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
+		expected.Otel.TracesRetentionDays = pointer.ToInt(models.OtelTracesRetentionDaysDefault)
+		expected.Otel.MetricsRetentionDays = pointer.ToInt(models.OtelClickHouseMetricsRetentionDaysDefault)
+		expected.Adre.Enabled = pointer.ToBool(models.AdreEnabledDefault)
+		expected.Adre.DefaultChatMode = "investigation"
+		expected.Adre.AdreSchemaVersion = models.AdreSchemaVersionCurrent
+		expected.Adre.AdreMaxConversationMessages = 40
+		expected.Adre.AdreChatRetentionDays = pointer.ToInt(models.AdreChatRetentionDaysDefault)
+		expected.Adre.BehaviorControlsFast = map[string]bool{
+			"time_skills":            false,
+			"todowrite_instructions": false,
+			"todowrite_reminder":     false,
+		}
+		expected.Adre.BehaviorControlsFormatReport = map[string]bool{
+			"time_skills":            false,
+			"todowrite_instructions": false,
+			"todowrite_reminder":     false,
+		}
 		assert.Equal(t, expected, actual)
 	})
 
@@ -70,6 +89,7 @@ func TestSettings(t *testing.T) {
 			},
 			DataRetention: 30 * 24 * time.Hour,
 			AWSPartitions: []string{"aws"},
+			DefaultRoleID: 0,
 			SaaS: models.Advisors{
 				AdvisorRunIntervals: models.AdvisorsRunIntervals{
 					StandardInterval: 24 * time.Hour,
@@ -77,6 +97,24 @@ func TestSettings(t *testing.T) {
 					FrequentInterval: 4 * time.Hour,
 				},
 			},
+		}
+		expected.Otel.LogsRetentionDays = pointer.ToInt(models.OtelLogsRetentionDaysDefault)
+		expected.Otel.TracesRetentionDays = pointer.ToInt(models.OtelTracesRetentionDaysDefault)
+		expected.Otel.MetricsRetentionDays = pointer.ToInt(models.OtelClickHouseMetricsRetentionDaysDefault)
+		expected.Adre.Enabled = pointer.ToBool(models.AdreEnabledDefault)
+		expected.Adre.DefaultChatMode = "investigation"
+		expected.Adre.AdreSchemaVersion = models.AdreSchemaVersionCurrent
+		expected.Adre.AdreMaxConversationMessages = 40
+		expected.Adre.AdreChatRetentionDays = pointer.ToInt(models.AdreChatRetentionDaysDefault)
+		expected.Adre.BehaviorControlsFast = map[string]bool{
+			"time_skills":            false,
+			"todowrite_instructions": false,
+			"todowrite_reminder":     false,
+		}
+		expected.Adre.BehaviorControlsFormatReport = map[string]bool{
+			"time_skills":            false,
+			"todowrite_instructions": false,
+			"todowrite_reminder":     false,
 		}
 		assert.Equal(t, expected, s)
 	})
@@ -328,6 +366,35 @@ func TestSettings(t *testing.T) {
 				require.NotNil(t, settings)
 				assert.Equal(t, pmmServerID, settings.PMMServerID)
 			})
+		})
+
+		t.Run("ADRE per-mode models", func(t *testing.T) {
+			fastModel := "openai/gpt-4o-mini"
+			investigationModel := "anthropic/claude-opus-4-6"
+			qanInsightsModel := "openai/gpt-4.1"
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				AdreChatModel:          &fastModel,
+				AdreInvestigationModel: &investigationModel,
+				AdreQanInsightsModel:   &qanInsightsModel,
+			})
+			require.NoError(t, err)
+			assert.Equal(t, fastModel, ns.Adre.ChatModel)
+			assert.Equal(t, investigationModel, ns.Adre.InvestigationModel)
+			assert.Equal(t, qanInsightsModel, ns.Adre.QanInsightsModel)
+
+			invalid := "bad\nmodel"
+			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				AdreChatModel: &invalid,
+			})
+			var errInvalidArgument *models.InvalidArgumentError
+			assert.True(t, errors.As(err, &errInvalidArgument))
+			assert.Contains(t, err.Error(), "chat_model: contains invalid control characters")
+
+			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+				AdreQanInsightsModel: &invalid,
+			})
+			assert.True(t, errors.As(err, &errInvalidArgument))
+			assert.Contains(t, err.Error(), "qan_insights_model: contains invalid control characters")
 		})
 	})
 }

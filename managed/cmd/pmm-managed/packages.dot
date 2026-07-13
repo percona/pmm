@@ -13,6 +13,7 @@ digraph packages {
 	"/models_test" -> "/pi/alert";
 	"/models_test" -> "/pi/common";
 	"/services/agents" -> "/models";
+	"/services/agents" -> "/otel";
 	"/services/agents" -> "/services/agents/channel";
 	"/services/agents.test" -> "/services/agents";
 	"/services/agents/grpc" -> "/services/agents";

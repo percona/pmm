@@ -1,8 +1,20 @@
 # PMM Development Guide for AI Agents
 
+## How AI tools load this document
+
+This file is the **single authoritative entry point** for AI agents. Tools are wired to it as follows:
+
+| Tool | Entry file |
+|------|------------|
+| **Cursor** | `.cursor/rules/pmm-agents-entrypoint.mdc` (`alwaysApply: true`) → read this file |
+| **Claude Code** | [CLAUDE.md](CLAUDE.md) → read this file |
+| **GitHub Copilot** | [.github/copilot-instructions.md](.github/copilot-instructions.md) → read this file |
+
+Local-only AI skills under `.claude/` and other `.cursor/` paths remain gitignored for personal experimentation.
+
 ## Maintaining This Document
 
-This file is read by every AI agent at session start. **You are responsible for keeping it accurate.** After completing work, check whether any of these apply:
+**You are responsible for keeping this file accurate.** After completing work, check whether any of these apply:
 
 - Added, removed, or renamed a top-level directory or component
 - Added or removed a per-component `AGENTS.md`
@@ -18,7 +30,14 @@ Do **not** update this file for routine code changes (bug fixes, minor feature i
 
 ## How This Documentation Is Organized
 
-This file is the **single authoritative entry point** for AI agents working with PMM. It provides the product-wide overview, architecture, domain model, conventions, and cross-links to component-specific guides.
+This guide provides the product-wide overview, architecture, domain model, conventions, and cross-links to component-specific guides.
+
+| Audience | Location |
+|----------|----------|
+| Human contributors | [`CONTRIBUTING.md`](CONTRIBUTING.md), [`docs/process/`](docs/process/) |
+| AI agents | This file + component `AGENTS.md` guides |
+
+This file **summarizes and links** process docs; it does not replace them. Pull out operational rules here only when agents routinely get them wrong.
 
 ### Component Guides
 
@@ -37,6 +56,153 @@ Each PMM component has a dedicated guide with architecture, directory structure,
 | **QAN App** (Grafana plugin & QAN panel) | [dashboards/pmm-app/AGENTS.md](dashboards/pmm-app/AGENTS.md) | `dashboards/pmm-app/**` |
 | **API Tests** (integration tests) | [api-tests/AGENTS.md](api-tests/AGENTS.md) | `api-tests/**` |
 | **Build & Packaging** | [build/AGENTS.md](build/AGENTS.md) | `build/**` |
+
+---
+
+## How AI agents should work in this repo
+
+The **`AGENTS.md` hierarchy is the single source of truth** for agents. Read the matching component guide before editing.
+
+Follow the sections through [Git and pull request checklist](#git-and-pull-request-checklist) every time you change code. Skim [Product Overview](#product-overview) and below when you need context.
+
+### Workflow
+
+1. Identify which component your change touches (`managed`, `ui`, `api`, `agent`, …).
+2. Read that component's `AGENTS.md` before planning or editing.
+3. Prefer minimal, focused diffs; match surrounding style and patterns.
+4. After `.proto` or reform model changes: run `make gen` from the repo root.
+5. Run the **smallest test set** that covers your change (see [Testing decision tree](#testing-decision-tree)).
+6. Run the **matching linter** before calling work PR-ready (see [Linting decision tree](#linting-decision-tree)). For Go/API-only changes, step 7 covers this.
+7. For Go/API changes: run `make prepare-pr` (gen + license check + Go lint + format + `go mod tidy` — subsumes step 6 for Go).
+8. Update `AGENTS.md` (and the component guide) only if you changed structure, conventions, or workflows.
+
+### Don'ts
+
+- Don't edit generated files (`.pb.go`, `.pb.gw.go`, `*_reform.go`, `*.pb.validate.go`, swagger specs, `json/client/`).
+- Don't use `gorm` in pmm-managed — **reform only**.
+- Don't amend/squash commits locally to address review feedback; push **new commits** ([`docs/process/GIT_AND_GITHUB.md`](docs/process/GIT_AND_GITHUB.md)).
+- Don't force-push to `main`/`v3`.
+- Don't skip the Feature Build link in PR descriptions for user-facing changes ([`.github/pull_request_template.md`](.github/pull_request_template.md)).
+- Don't run the full repo linter on every tiny edit; do run the **targeted linter** for what you changed, and run `make prepare-pr` before declaring Go/API work PR-ready.
+- Don't write unit tests that call external services — use mocks or `/api-tests/` instead.
+
+---
+
+## PMM-specific choices (agents often get wrong)
+
+These differ from generic Go/React advice. Match **surrounding code** in the file you edit; when in doubt, follow the component guide.
+
+- **DB (managed):** reform only — never gorm or other ORMs ([`managed/AGENTS.md`](managed/AGENTS.md))
+- **Unit tests (managed):** `go-sqlmock` by default — use `testdb.Open` only when migrations or fixtures are what you're testing ([`managed/AGENTS.md`](managed/AGENTS.md))
+- **API errors (Go):** `status.Error()` with gRPC codes — not ad-hoc HTTP errors in service layers
+- **Logging (Go):** `logrus` with `*logrus.Entry` and structured fields — not `fmt.Printf`
+- **Mocks (Go):** small interfaces in `deps.go` + mockery — not hand-rolled fakes for every dependency
+- **UI server state:** TanStack Query hooks in `ui/apps/pmm/src/hooks/api/` — not `useEffect` + `fetch` in components ([`ui/AGENTS.md`](ui/AGENTS.md))
+- **UI client state:** React Context for auth/settings — not Redux or another global store
+- **UI components:** MUI + `@percona/percona-ui`, theme-aware `sx` — not ad-hoc CSS
+- **UI wire format:** camelCase in TypeScript; JSON on the wire is snake_case (`axios-case-converter` in `ui/apps/pmm/src/api/api.ts`)
+- **Generated code:** edit `.proto` / reform models / interfaces — run `make gen`; never hand-edit `*.pb.go`, `*_reform.go`, swagger clients
+
+Mechanical style (imports, formatting, ESLint rules) is enforced by `make check`, `cd ui && make lint`, and CI — see [Linting decision tree](#linting-decision-tree).
+
+---
+
+## Testing decision tree
+
+PMM has three test layers ([`CONTRIBUTING.md`](CONTRIBUTING.md)): unit, API integration, and e2e (in [pmm-qa](https://github.com/percona/pmm-qa)). Use the smallest scope that validates your change:
+
+| If you changed… | Run |
+|-----------------|-----|
+| Go unit logic in one package | `go test ./path/to/pkg/...` or `make test` in that component directory |
+| Shared/API packages (not managed/admin/agent) | `make test-common` from repo root |
+| `managed/models` or DB schema/migrations | Unit tests in `managed/`; use `testdb.Open` only when fixtures or migrations matter ([`managed/AGENTS.md`](managed/AGENTS.md)) |
+| `.proto` or gRPC/REST definitions | `make gen`, then `make check`; update handlers in `managed/` and UI hooks if user-facing |
+| REST behavior end-to-end | `make env-up`, then `make api-test` ([`api-tests/AGENTS.md`](api-tests/AGENTS.md)) |
+| UI (`ui/apps/pmm`) | `cd ui && make lint && make test` |
+| Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` (or run cleanup without `--check-only`); CI enforces this in `dashboards.yml` ([`dashboards/dashboards/AGENTS.md`](dashboards/dashboards/AGENTS.md)) |
+| User-visible feature / bugfix | Create or update a Feature Build; link it in the PR ([`CONTRIBUTING.md`](CONTRIBUTING.md#feature-build)) |
+
+---
+
+## Linting decision tree
+
+CI runs separate linters per area. `make prepare-pr` covers **Go only** — it does not lint UI or dashboards.
+
+| If you changed… | Run |
+|-----------------|-----|
+| Go backend (`managed/`, `agent/`, `admin/`, `qan-api2/`, `vmproxy/`, shared packages) | `make prepare-pr` from repo root (or `make check` after `make gen` for a quicker pass) |
+| `.proto` only | `make gen`, then `make check` (`buf lint`, `golangci-lint`, `go-sumtype`) |
+| UI (`ui/apps/pmm`, `ui/packages/shared`) | `cd ui && make lint` (ESLint; same as CI `ui.yml`) |
+| Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` before commit (CI `dashboards.yml`; no separate ESLint) |
+| Grafana plugin / QAN app (`dashboards/pmm-app`) | `cd dashboards/pmm-app && yarn lint:check` (and `yarn typecheck` if TypeScript changed) |
+| Before any PR | Run the row(s) that match **every** area you touched; fix errors, not just warnings, unless CI allows them |
+
+---
+
+## Change impact recipes
+
+Recurring tasks — follow in order before opening a PR.
+
+### Adding a REST API endpoint
+
+1. Edit `api/<domain>/v1/*.proto` (HTTP annotations, validation rules).
+2. Run `make gen`.
+3. Implement handler/service logic in `managed/services/<domain>/`.
+4. Add or extend tests in `api-tests/<domain>/`.
+5. If UI-facing: add API module in `ui/apps/pmm/src/api/` and TanStack Query hooks in `ui/apps/pmm/src/hooks/api/`.
+6. If public API docs change: update [`docs/api/`](docs/api/) (PR template checkbox).
+
+### Adding a DB table or migration
+
+1. Add a versioned migration in `managed/models/database.go`.
+2. Add or update the reform model; run `//go:generate` or `make gen`.
+3. Add CRUD helpers in `*_helpers.go` or `*_crud.go` as surrounding code does.
+4. Prefer `go-sqlmock` for unit tests; use `testdb.Open` when SQL/migration behavior must be verified.
+
+### Adding a UI page or settings section
+
+1. Read [`ui/AGENTS.md`](ui/AGENTS.md).
+2. Add route in `ui/apps/pmm/src/router.tsx` if needed.
+3. API functions in `ui/apps/pmm/src/api/`; TanStack Query hooks in `ui/apps/pmm/src/hooks/api/`.
+4. Co-locate Vitest tests (`*.test.ts` / `*.test.tsx`).
+5. Run `cd ui && make lint && make test` before opening a PR.
+6. JSON on the wire is **snake_case** (`axios-case-converter`); TypeScript uses **camelCase**.
+
+---
+
+## Git and pull request checklist
+
+Full rules: [`docs/process/GIT_AND_GITHUB.md`](docs/process/GIT_AND_GITHUB.md). For commits and PR titles, use **[Conventional Commits](https://www.conventionalcommits.org/)** (`type(scope): summary`) — not the `PMM-XXXX` title style from the process doc. When opening PRs to the upstream Percona repo, confirm with reviewers if they expect conventional titles or `PMM-XXXX` titles from the process doc.
+
+| Item | Rule |
+|------|------|
+| Branch name | `PMM-1234-short-description` (lowercase, dashes) |
+| Commit title | `type(scope): short imperative summary` — e.g. `feat(ui): add OTEL settings scroll`, `fix(managed): normalize log parser YAML` |
+| PR title | Same format as commit title (squash merge uses the PR title) |
+| Types | `feat` (feature), `fix` (bug), `chore` (deps, lint, tooling), `refactor`, `test`, `docs` |
+| Scope | Optional but preferred: `ui`, `managed`, `api`, `agent`, `adre`, `investigations`, `dashboards`, … |
+| Ticket | Put `PMM-XXXX` in the branch name and/or PR body — not required in the title |
+| Review fixes | New commit per round — do not amend and force-push |
+| Merge | Squash and merge on GitHub |
+| PR body | What/why, Feature Build link for features/fixes/improvements, link related PRs |
+| API changes | Check API docs updated if endpoints changed |
+| Before review | Tests and linters pass for every area touched (see [Linting decision tree](#linting-decision-tree); Go/API: `make prepare-pr`; UI: `cd ui && make lint`) |
+
+---
+
+## Feature areas
+
+Some areas span multiple directories. When working on them, read **both** the component guide and the paths below. These paths exist on branches that land the work (e.g. ADRE, OTEL); if a directory is missing on your branch, skip it.
+
+| Area | Backend | UI | Notes |
+|------|---------|-----|-------|
+| **ADRE / AI Assistant** | `managed/services/adre/` | `ui/apps/pmm/src/pages/adre/`, `components/adre/` | HolmesGPT integration, chat, usage |
+| **Investigations** | `managed/services/investigations/` | `ui/apps/pmm/src/pages/investigations/` | AI investigation workflows |
+| **Native QAN** | `qan-api2/` (existing `/v1/qan/*`) | `ui/apps/pmm/src/pages/qan/` | Native Query Analytics UI at `/pmm-ui/qan` (flag: `nativeQanEnabled`) |
+| **OTEL** | `managed/otel/`, `dev/otel/` | Settings → OTEL tab | Log collectors, parser presets |
+| **User docs** | — | — | [`documentation/`](documentation/) (MkDocs), not [`docs/process/`](docs/process/) |
+
+When these areas grow large enough to need their own conventions, extend [`managed/AGENTS.md`](managed/AGENTS.md) and [`ui/AGENTS.md`](ui/AGENTS.md) — do not duplicate architecture here.
 
 ---
 
@@ -100,21 +266,7 @@ Relationships:
 
 ## Repository Map
 
-### Core Components
-
-| Directory | Component | Purpose | Guide |
-|-----------|-----------|---------|-------|
-| `/managed` | pmm-managed | Server backend: inventory, APIs, VictoriaMetrics, Grafana, backup, alerting, HA | [managed/AGENTS.md](managed/AGENTS.md) |
-| `/agent` | pmm-agent | Client agent: exporters, QAN/RTA collectors, actions, backup/restore jobs | [agent/AGENTS.md](agent/AGENTS.md) |
-| `/admin` | pmm-admin | CLI for managing monitored services | [admin/AGENTS.md](admin/AGENTS.md) |
-| `/api` | APIs | Protobuf definitions and generated gRPC/REST/Swagger clients | [api/AGENTS.md](api/AGENTS.md) |
-| `/qan-api2` | qan-api2 | Query Analytics API: ClickHouse ingestion and analytics | [qan-api2/AGENTS.md](qan-api2/AGENTS.md) |
-| `/vmproxy` | vmproxy | VictoriaMetrics reverse proxy with LBAC filtering | [vmproxy/AGENTS.md](vmproxy/AGENTS.md) |
-| `/ui` | UI | React/TypeScript PMM frontend (Vite, MUI, TanStack Query) | [ui/AGENTS.md](ui/AGENTS.md) |
-| `/dashboards/dashboards` | Grafana Dashboards | Grafana dashboard JSON definitions for MySQL, MongoDB, PostgreSQL, OS, and more | [dashboards/dashboards/AGENTS.md](dashboards/dashboards/AGENTS.md) |
-| `/dashboards/pmm-app` | QAN App | Grafana application plugin bundling dashboards and the Query Analytics panel | [dashboards/pmm-app/AGENTS.md](dashboards/pmm-app/AGENTS.md) |
-| `/api-tests` | API Tests | Integration tests against live PMM Server | [api-tests/AGENTS.md](api-tests/AGENTS.md) |
-| `/build` | Build & Packaging | Docker, RPM/DEB, Packer, Ansible | [build/AGENTS.md](build/AGENTS.md) |
+Core components and per-area guides: see [Component Guides](#component-guides) above.
 
 ### Supporting Directories
 
@@ -230,12 +382,13 @@ All long-running daemons expose on `127.0.0.1`:
 | `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI |
 | `make run-qan-ui` | Inside devcontainer: webpack + livereload for the QAN Grafana plugin |
 | `make gen` | Generate all code (protobuf, reform, mocks, format) |
-| `make check` | Run linters (buf, golangci-lint, go-sumtype) |
+| `make check` | Run Go/API linters (buf, golangci-lint, go-sumtype) |
 | `make format` | Format code (gofumpt, goimports, gci) |
 | `make release` | Build all binaries (agent, admin, managed, qan-api2) |
 | `make test-common` | Run common unit tests |
 | `make api-test` | Run API integration tests |
-| `make prepare-pr` | Full pre-PR pipeline: gen + check-all + go mod tidy |
+| `make prepare-pr` | Go/API pre-PR pipeline: `gen` + `check-all` (license + linters) + `format` + `go mod tidy` |
+| `cd ui && make lint` | ESLint for PMM UI (required for UI changes; not part of `prepare-pr`) |
 
 ## Key Files to Reference
 

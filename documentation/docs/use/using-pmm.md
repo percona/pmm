@@ -7,6 +7,7 @@ After installing PMM, it provides a user-friendly web-based interface that enabl
 - **Query Analytics**: Query analytics facilitates the identification of slow queries, enabling you to optimize your database by pinpointing inefficient queries. 
 - **Alerting and notifications**: PMM enables you to set up alerts based on predefined thresholds. This way, you can be notified when specific metrics exceed specified limits, allowing you to address issues before they impact performance.
 - **Dashboards and reporting**: PMM provides customizable dashboards and reporting features to visualize the collected data and create comprehensive reports for in-depth performance analysis.
+- **AI features (ADRE)**: PMM can connect to HolmesGPT for **ADRE Chat**, **Investigations** (structured reports and PDF export), and **QAN AI Insights** (query optimisation). See [AI features overview](ai-features/index.md).
 
 
 

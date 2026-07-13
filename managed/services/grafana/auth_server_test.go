@@ -39,6 +39,12 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+func TestRulesObservabilityMapRequiresViewer(t *testing.T) {
+	role, ok := rules["/v1/grafana/observability-map"]
+	require.True(t, ok)
+	assert.Equal(t, viewer, role)
+}
+
 func TestNextPrefix(t *testing.T) {
 	for _, paths := range [][]string{
 		{"/inventory.Nodes/ListNodes", "/inventory.Nodes/", "/inventory.Nodes", "/inventory.", "/inventory", "/", "/"},

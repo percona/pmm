@@ -50,8 +50,10 @@ fuzzing/
 # QAN
 /qan-api2/logs/
 
-# Ignore AI-related files to support fast local experimentation
+# Ignore AI-related files to support fast local experimentation; team rules live in .cursor/rules/
 .claude/
-.cursor/
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 .cursorrules/
 CLAUDE.md

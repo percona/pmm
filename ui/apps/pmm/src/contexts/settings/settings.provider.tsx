@@ -3,10 +3,11 @@ import {
   useReadonlySettings,
   useSettings,
 } from 'hooks/api/useSettings';
-import { FC, PropsWithChildren, useMemo } from 'react';
+import { FC, PropsWithChildren, useEffect, useMemo } from 'react';
 import { SettingsContext } from './settings.context';
 import { CombinedSettings } from './settings.context.types';
 import { useUser } from 'contexts/user';
+import { setNativeQanEnabledSnapshot } from 'utils/pmmFeatureFlags';
 
 export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
@@ -41,6 +42,10 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
       newUIEnabled: frontendSettings.data.apps['pmm-compat-app']?.preload,
     };
   }, [user?.isPMMAdmin, settings, readonlySettings, frontendSettings]);
+
+  useEffect(() => {
+    setNativeQanEnabledSnapshot(!!combinedSettings?.nativeQanEnabled);
+  }, [combinedSettings?.nativeQanEnabled]);
 
   return (
     <SettingsContext.Provider

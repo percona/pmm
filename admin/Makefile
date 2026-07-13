@@ -30,13 +30,24 @@ gen: clean                      ## Generate files
 clean:                          ## Remove generated files
 	find . -name *_reform.go -delete
 
-release:                        ## Build pmm-admin release binary
+# Corrupted go-swagger output sometimes adds imports of .../json/models (no such package) and
+# same-package self-imports; that breaks `go build` with import cycles. Catch early.
+verify-swagger-client-imports: ## Fail if api json client *_parameters.go import bogus json/models
+	@bad=$$(find ../api -name '*_parameters.go' -exec grep -l 'github.com/percona/pmm/api/.*/json/models' {} + 2>/dev/null || true); \
+	if [ -n "$$bad" ]; then \
+		echo 'ERROR: These files import non-existent github.com/percona/pmm/api/.../json/models:'; \
+		for f in $$bad; do echo "  $$f"; done; \
+		echo 'Remove those imports (request/response types are in the same package, e.g. *_responses.go).'; \
+		exit 1; \
+	fi
+
+release: verify-swagger-client-imports ## Build pmm-admin release binary
 	CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin ./cmd/pmm-admin/
 
-install:                        ## Install pmm & pmm-admin binary
+install: verify-swagger-client-imports ## Install pmm & pmm-admin binary
 	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/
 
-install-race:                   ## Install pmm & pmm-admin binary with race detector
+install-race: verify-swagger-client-imports ## Install pmm & pmm-admin binary with race detector
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-admin ./cmd/pmm-admin/
 
 TEST_FLAGS ?= -timeout=20s

@@ -229,6 +229,11 @@ nav:
 
   - Use:
       - use/using-pmm.md
+      - AI features (ADRE):
+          - use/ai-features/index.md
+          - use/ai-features/adre-chat.md
+          - use/ai-features/investigations.md
+          - use/ai-features/qan-ai-insights.md
       - PMM user interface:
           - reference/ui/ui_components.md
           - reference/ui/log_in.md

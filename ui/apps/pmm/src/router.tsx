@@ -13,6 +13,14 @@ import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import AdrePage from 'pages/adre/AdrePage';
+import AdreUsagePage from 'pages/adre/AdreUsagePage';
+import AdreSettingsPage from 'pages/configuration/AdreSettingsPage';
+import AdreDeploymentPage from 'pages/configuration/AdreDeploymentPage';
+import InvestigationsListPage from 'pages/investigations/InvestigationsListPage';
+import InvestigationDetailPage from 'pages/investigations/InvestigationDetailPage';
+import QanPage from 'pages/qan/QanPage';
+import QanAiInsightsPage from 'pages/qan/QanAiInsightsPage';
 
 const router = createBrowserRouter(
   [
@@ -43,6 +51,38 @@ const router = createBrowserRouter(
             {
               path: 'settings/:tab?',
               element: <Settings />,
+            },
+            {
+              path: 'adre',
+              element: <AdrePage />,
+            },
+            {
+              path: 'adre/usage',
+              element: <AdreUsagePage />,
+            },
+            {
+              path: 'configuration/ai-assistant',
+              element: <AdreSettingsPage />,
+            },
+            {
+              path: 'configuration/ai-deployment',
+              element: <AdreDeploymentPage />,
+            },
+            {
+              path: 'investigations',
+              element: <InvestigationsListPage />,
+            },
+            {
+              path: 'investigations/:id',
+              element: <InvestigationDetailPage />,
+            },
+            {
+              path: 'qan',
+              element: <QanPage />,
+            },
+            {
+              path: 'qan/ai-insights',
+              element: <QanAiInsightsPage />,
             },
             {
               path: 'rta',

@@ -1,4 +1,4 @@
-import { GlobalStyles } from '@mui/material';
+import { Box, GlobalStyles } from '@mui/material';
 import { AuthProvider } from 'contexts/auth';
 import { GrafanaProvider } from 'contexts/grafana';
 import { NavigationProvider } from 'contexts/navigation';
@@ -27,17 +27,40 @@ const Providers: FC<PropsWithChildren> = () => (
                   <GlobalStyles
                     styles={{
                       html: {
+                        height: '100%',
                         scrollbarGutter: 'stable',
+                      },
+                      body: {
+                        margin: 0,
+                        height: '100%',
+                        minHeight: '100%',
                       },
                       'html, body, div#root': {
                         minHeight: '100vh',
                       },
                       'div#root': {
                         display: 'flex',
+                        flexDirection: 'column',
+                        height: '100%',
+                        minHeight: '100dvh',
+                        width: '100%',
                       },
                     }}
                   />
-                  <Outlet />
+                  <Box
+                    component="div"
+                    sx={{
+                      flex: 1,
+                      minHeight: 0,
+                      minWidth: 0,
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      width: '100%',
+                    }}
+                  >
+                    <Outlet />
+                  </Box>
                 </TourProvider>
               </NavigationProvider>
             </GrafanaProvider>

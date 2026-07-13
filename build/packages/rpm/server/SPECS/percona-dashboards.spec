@@ -51,9 +51,11 @@ make -C dashboards release
 
 %install
 install -d %{buildroot}%{_datadir}/%{name}/panels/pmm-app
+install -d %{buildroot}%{_datadir}/%{name}/panels/pmm-service-map-panel
 
 # cp -a ./dashboards/panels %{buildroot}%{_datadir}/%{name}
 cp -a ./dashboards/pmm-app/dist %{buildroot}%{_datadir}/%{name}/panels/pmm-app
+cp -a ./dashboards/pmm-service-map/dist %{buildroot}%{_datadir}/%{name}/panels/pmm-service-map-panel
 unzip -q %{SOURCE1} -d %{buildroot}%{_datadir}/%{name}/panels
 unzip -q %{SOURCE2} -d %{buildroot}%{_datadir}/%{name}/panels
 echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
@@ -68,6 +70,9 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 %changelog
 * Tue July 07 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-26
 - PMM-15099 Bump clickhouse datasource plugin to 4.18.0
+
+* Fri May 22 2026 Percona <info@percona.com> - 3.0.0-26
+- Bundle pmm-service-map-panel Grafana plugin in percona-dashboards RPM.
 
 * Mon May 11 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-25
 - PMM-15044 Bump clickhouse datasource plugin to 4.17.0

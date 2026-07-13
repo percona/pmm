@@ -78,7 +78,7 @@ declare DIST_FILE=/srv/pmm-distribution
 if [ ! -f "$DIST_FILE" ]; then
     echo -n "$PMM_DISTRIBUTION_METHOD" > "$DIST_FILE"
     echo "Initializing /srv..."
-    mkdir -p /srv/{backup,clickhouse,grafana/plugins,logs,nginx,prometheus/rules,victoriametrics}
+    mkdir -p /srv/{backup,clickhouse,grafana/plugins,logs,nginx,otelcol,prometheus/rules,victoriametrics}
 
     if is_enabled "$PMM_HA_ENABLE"; then
         echo "Skipping embedded PostgreSQL initialization in HA mode."

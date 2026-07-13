@@ -310,6 +310,7 @@ func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent
 	agentsList = append(agentsList, vmAgents(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, nomadAgents(agentsRes, pmmAgentIDs)...)
 	agentsList = append(agentsList, rtaMongodbAgents(agentsRes, pmmAgentIDs)...)
+	agentsList = append(agentsList, otelCollectors(agentsRes, pmmAgentIDs)...)
 
 	return agentsList
 }
@@ -619,5 +620,23 @@ func rtaMongodbAgents(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]str
 		}
 	}
 
+	return agentsList
+}
+
+func otelCollectors(agentsRes *agents.ListAgentsOK, pmmAgentIDs map[string]struct{}) []listResultAgent {
+	var agentsList []listResultAgent
+	for _, a := range agentsRes.Payload.OtelCollector {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agentsList = append(agentsList, listResultAgent{
+				AgentType:   types.AgentTypeOtelCollector,
+				AgentID:     a.AgentID,
+				ServiceID:   "",
+				Status:      getStatus(a.Status),
+				Disabled:    a.Disabled,
+				MetricsMode: "",
+				Port:        0,
+			})
+		}
+	}
 	return agentsList
 }

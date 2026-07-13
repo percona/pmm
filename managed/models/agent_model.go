@@ -82,6 +82,7 @@ const (
 	NomadAgentType                      AgentType = "nomad-agent"
 	ValkeyExporterType                  AgentType = "valkey_exporter"
 	RTAMongoDBAgentType                 AgentType = "rta-mongodb-agent"
+	OtelCollectorType                   AgentType = "otel-collector"
 )
 
 // GetRTAAgentTypes returns all Real-Time Analytics Agent types.
