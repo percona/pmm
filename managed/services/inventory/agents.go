@@ -74,7 +74,11 @@ func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegis
 	}
 
 	if row.AgentType == models.PMMAgentType {
-		agent.(*inventoryv1.PMMAgent).Connected = registry.IsConnected(row.AgentID) //nolint:forcetypeassert
+		pmmAgent, ok := agent.(*inventoryv1.PMMAgent)
+		if !ok {
+			return nil, unexpectedAgentTypeError(agent)
+		}
+		pmmAgent.Connected = registry.IsConnected(row.AgentID)
 	}
 	return agent, nil
 }
@@ -159,7 +163,11 @@ func (as *AgentsService) AddPMMAgent(ctx context.Context, p *inventoryv1.AddPMMA
 		if err != nil {
 			return err
 		}
-		agent = aa.(*inventoryv1.PMMAgent) //nolint:forcetypeassert
+		pmmAgent, ok := aa.(*inventoryv1.PMMAgent)
+		if !ok {
+			return unexpectedAgentTypeError(aa)
+		}
+		agent = pmmAgent
 		return nil
 	})
 
@@ -186,7 +194,11 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 		if err != nil {
 			return err
 		}
-		agent = aa.(*inventoryv1.NodeExporter) //nolint:forcetypeassert
+		nodeExporter, ok := aa.(*inventoryv1.NodeExporter)
+		if !ok {
+			return unexpectedAgentTypeError(aa)
+		}
+		agent = nodeExporter
 		return nil
 	})
 	if e != nil {
@@ -227,7 +239,10 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 		return nil, err
 	}
 
-	nodeExporter := agent.(*inventoryv1.NodeExporter) //nolint:forcetypeassert
+	nodeExporter, ok := agent.(*inventoryv1.NodeExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, nodeExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -272,7 +287,10 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, p *inventoryv1.A
 		return nil, err
 	}
 
-	mysqldExporter := agent.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
+	mysqldExporter, ok := agent.(*inventoryv1.MySQLdExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
@@ -321,7 +339,10 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID strin
 		return nil, err
 	}
 
-	mysqldExporter := agent.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
+	mysqldExporter, ok := agent.(*inventoryv1.MySQLdExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, mysqldExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -361,7 +382,10 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.
 		return nil, err
 	}
 
-	mongodbExporter := agent.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
+	mongodbExporter, ok := agent.(*inventoryv1.MongoDBExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
@@ -418,7 +442,10 @@ func (as *AgentsService) ChangeMongoDBExporter(
 		return nil, err
 	}
 
-	mongodbExporter := agent.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
+	mongodbExporter, ok := agent.(*inventoryv1.MongoDBExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, mongodbExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -460,7 +487,10 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inve
 		return nil, err
 	}
 
-	qanAgent := agent.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
+	qanAgent, ok := agent.(*inventoryv1.QANMySQLPerfSchemaAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
@@ -515,7 +545,10 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(
 		return nil, err
 	}
 
-	qanAgent := agent.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
+	qanAgent, ok := agent.(*inventoryv1.QANMySQLPerfSchemaAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, qanAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -560,7 +593,10 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *invento
 		return nil, err
 	}
 
-	qanAgent := agent.(*inventoryv1.QANMySQLSlowlogAgent) //nolint:forcetypeassert
+	qanAgent, ok := agent.(*inventoryv1.QANMySQLSlowlogAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
@@ -615,7 +651,10 @@ func (as *AgentsService) ChangeQANMySQLSlowlogAgent(
 		return nil, err
 	}
 
-	qanAgent := agent.(*inventoryv1.QANMySQLSlowlogAgent) //nolint:forcetypeassert
+	qanAgent, ok := agent.(*inventoryv1.QANMySQLSlowlogAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, qanAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -653,7 +692,10 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, p *inventoryv1
 		return nil, err
 	}
 
-	postgresExporter := agent.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
+	postgresExporter, ok := agent.(*inventoryv1.PostgresExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
@@ -703,7 +745,10 @@ func (as *AgentsService) ChangePostgresExporter(
 		return nil, err
 	}
 
-	postgresExporter := agent.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
+	postgresExporter, ok := agent.(*inventoryv1.PostgresExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, postgresExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -740,7 +785,10 @@ func (as *AgentsService) AddValkeyExporter(ctx context.Context, p *inventoryv1.A
 		return nil, err
 	}
 
-	valkeyExporter := agent.(*inventoryv1.ValkeyExporter) //nolint:forcetypeassert
+	valkeyExporter, ok := agent.(*inventoryv1.ValkeyExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
@@ -788,7 +836,10 @@ func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID strin
 		return nil, err
 	}
 
-	valkeyExporter := agent.(*inventoryv1.ValkeyExporter) //nolint:forcetypeassert
+	valkeyExporter, ok := agent.(*inventoryv1.ValkeyExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, valkeyExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -823,7 +874,10 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inve
 		return nil, err
 	}
 
-	qanAgent := agent.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
+	qanAgent, ok := agent.(*inventoryv1.QANMongoDBProfilerAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
@@ -879,7 +933,10 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(
 		return nil, err
 	}
 
-	mongodbProfilerAgent := agent.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
+	mongodbProfilerAgent, ok := agent.(*inventoryv1.QANMongoDBProfilerAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, mongodbProfilerAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -914,7 +971,10 @@ func (as *AgentsService) AddQANMongoDBMongologAgent(ctx context.Context, p *inve
 		return nil, err
 	}
 
-	qanAgent := agent.(*inventoryv1.QANMongoDBMongologAgent) //nolint:forcetypeassert
+	qanAgent, ok := agent.(*inventoryv1.QANMongoDBMongologAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
@@ -970,7 +1030,10 @@ func (as *AgentsService) ChangeQANMongoDBMongologAgent(
 		return nil, err
 	}
 
-	mongodbMongologAgent := agent.(*inventoryv1.QANMongoDBMongologAgent) //nolint:forcetypeassert
+	mongodbMongologAgent, ok := agent.(*inventoryv1.QANMongoDBMongologAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, mongodbMongologAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1007,7 +1070,10 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, p *inventoryv1
 		return nil, err
 	}
 
-	proxysqlExporter := agent.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
+	proxysqlExporter, ok := agent.(*inventoryv1.ProxySQLExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
@@ -1051,7 +1117,10 @@ func (as *AgentsService) ChangeProxySQLExporter(
 		return nil, err
 	}
 
-	proxysqlExporter := agent.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
+	proxysqlExporter, ok := agent.(*inventoryv1.ProxySQLExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, proxysqlExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1089,7 +1158,10 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(
 		return nil, err
 	}
 
-	qanAgent := agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
+	qanAgent, ok := agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
@@ -1157,7 +1229,10 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(
 		}
 	}
 
-	pgStatementsAgent := agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
+	pgStatementsAgent, ok := agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, pgStatementsAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1196,7 +1271,10 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(
 		return nil, err
 	}
 
-	qanAgent := agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
+	qanAgent, ok := agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
@@ -1250,7 +1328,10 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(
 		return nil, err
 	}
 
-	pgStatMonitorAgent := agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
+	pgStatMonitorAgent, ok := agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, pgStatMonitorAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1287,7 +1368,10 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, p *inventoryv1.AddR
 		return nil, err
 	}
 
-	rdsExporter := agent.(*inventoryv1.RDSExporter) //nolint:forcetypeassert
+	rdsExporter, ok := agent.(*inventoryv1.RDSExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
@@ -1329,7 +1413,10 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, 
 		return nil, err
 	}
 
-	rdsExporter := agent.(*inventoryv1.RDSExporter) //nolint:forcetypeassert
+	rdsExporter, ok := agent.(*inventoryv1.RDSExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, rdsExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1368,7 +1455,11 @@ func (as *AgentsService) AddExternalExporter(ctx context.Context, p *inventoryv1
 		if err != nil {
 			return err
 		}
-		agent = aa.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
+		externalExporter, ok := aa.(*inventoryv1.ExternalExporter)
+		if !ok {
+			return unexpectedAgentTypeError(aa)
+		}
+		agent = externalExporter
 		PMMAgentID = row.PMMAgentID
 		return nil
 	})
@@ -1422,7 +1513,10 @@ func (as *AgentsService) ChangeExternalExporter(
 	// It's required to regenerate victoriametrics config file.
 	as.vmdb.RequestConfigurationUpdate()
 
-	externalExporter := agent.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
+	externalExporter, ok := agent.(*inventoryv1.ExternalExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, externalExporter.RunsOnNodeId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1453,7 +1547,10 @@ func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, p *invent
 		return nil, err
 	}
 
-	azureDatabaseExporter := agent.(*inventoryv1.AzureDatabaseExporter) //nolint:forcetypeassert
+	azureDatabaseExporter, ok := agent.(*inventoryv1.AzureDatabaseExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
@@ -1500,7 +1597,10 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 		return nil, err
 	}
 
-	azureDatabaseExporter := agent.(*inventoryv1.AzureDatabaseExporter) //nolint:forcetypeassert
+	azureDatabaseExporter, ok := agent.(*inventoryv1.AzureDatabaseExporter)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, azureDatabaseExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1525,7 +1625,10 @@ func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, p
 		return nil, err
 	}
 
-	nomadAgent := agent.(*inventoryv1.NomadAgent) //nolint:forcetypeassert
+	nomadAgent, ok := agent.(*inventoryv1.NomadAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, nomadAgent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1566,7 +1669,10 @@ func (as *AgentsService) AddRTAMongoDBAgent(ctx context.Context, p *inventoryv1.
 		return nil, err
 	}
 
-	rtaMongoDBAgent := agent.(*inventoryv1.RTAMongoDBAgent) //nolint:forcetypeassert
+	rtaMongoDBAgent, ok := agent.(*inventoryv1.RTAMongoDBAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
@@ -1610,7 +1716,10 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.RTAMongoDBAgent) //nolint:forcetypeassert
+	agent, ok := ag.(*inventoryv1.RTAMongoDBAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(ag)
+	}
 	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{
@@ -1651,6 +1760,11 @@ func (as *AgentsService) Remove(ctx context.Context, id string, force bool) erro
 	}
 
 	return nil
+}
+
+// unexpectedAgentTypeError returns error for when a type assertion on the agent fails.
+func unexpectedAgentTypeError(agent inventoryv1.Agent) error {
+	return status.Errorf(codes.Internal, "unexpected agent type %T", agent)
 }
 
 // Helper function to convert custom labels from protobuf to model format.
