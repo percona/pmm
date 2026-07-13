@@ -87,6 +87,12 @@ const indent = (code: string, spaces: number): string =>
     .map((line) => (line.length ? ' '.repeat(spaces) + line : line))
     .join('\n');
 
+// Emit a valid JSX string attribute. Plain double quotes for simple values,
+// falling back to a JSON-escaped expression when the value contains characters
+// that would otherwise break the quoted attribute (quotes, backslashes, newlines).
+const stringAttr = (name: string, value: string): string =>
+  /["\\\n\r]/.test(value) ? `${name}={${JSON.stringify(value)}}` : `${name}="${value}"`;
+
 const adornmentSlot = (position: 'start' | 'end', code: string): string =>
   [
     `${position}Adornment: (`,
@@ -120,10 +126,10 @@ const buildPlaygroundSource = (args: PlaygroundArgs): string => {
 
   const props = ['variant="outlined"'];
   if (size) props.push(`size="${size}"`);
-  if (label) props.push(`label="${label}"`);
-  if (placeholder) props.push(`placeholder="${placeholder}"`);
-  if (defaultValue) props.push(`defaultValue="${defaultValue}"`);
-  if (helperText) props.push(`helperText="${helperText}"`);
+  if (label) props.push(stringAttr('label', String(label)));
+  if (placeholder) props.push(stringAttr('placeholder', String(placeholder)));
+  if (defaultValue) props.push(stringAttr('defaultValue', String(defaultValue)));
+  if (helperText) props.push(stringAttr('helperText', String(helperText)));
   if (type && type !== 'text') props.push(`type="${type}"`);
   if (select) props.push('select');
   if (!select && multiline) props.push('multiline', 'minRows={3}', 'maxRows={8}');
