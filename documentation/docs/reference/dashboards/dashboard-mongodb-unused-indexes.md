@@ -14,7 +14,7 @@ Explains how the dashboard interprets index usage and what to verify before drop
 
 ### Instance Uptime
 
-Shows how long the selected MongoDB service has been running since the last restart, in days.
+Shows the minimum uptime among the selected MongoDB node(s) since the last restart, in days.
 
 Use this to understand how long index usage has been tracked. A recently restarted instance may not have had enough time for indexes to be used yet.
 
