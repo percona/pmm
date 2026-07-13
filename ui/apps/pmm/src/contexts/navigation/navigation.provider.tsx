@@ -70,12 +70,6 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     items.push(NAV_QAN);
 
-    // SEP apps mounted as native routes (migration). Shown once the session is
-    // established; role/flag gating comes with real auth (Option B).
-    if (user) {
-      items.push(...addSepApps());
-    }
-
     if (user && settings) {
       if (settings.frontend.exploreEnabled && user.isEditor) {
         items.push(
@@ -95,6 +89,10 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         items.push(NAV_DIVIDERS.inventory);
 
         items.push(NAV_INVENTORY);
+
+        // SEP apps mounted as native routes (migration). Shown once the session
+        // is established; role/flag gating comes with real auth (Option B).
+        items.push(...addSepApps());
 
         if (settings.backupManagementEnabled) {
           items.push(NAV_BACKUPS);
