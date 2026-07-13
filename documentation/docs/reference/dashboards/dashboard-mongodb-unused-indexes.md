@@ -2,7 +2,7 @@
 
 This dashboard helps you find MongoDB indexes that have not been used since the last `mongod` service restart. These indexes are candidates for review and possible removal to reduce write overhead, disk usage, and memory pressure.
 
-Use the filters at the top to scope the view to a specific environment, cluster, replication set, MongoDB node, or database.
+Use the filters at the top to scope the view to a specific environment, cluster, replica set, MongoDB node, or database.
 
 **Requirements:** the `indexstats` collector must be enabled on the MongoDB exporter. Index usage is recorded only on the node that executes the query, so review all replica set members before dropping an index.
 
