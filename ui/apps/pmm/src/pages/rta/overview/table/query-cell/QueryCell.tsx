@@ -27,9 +27,12 @@ const QueryCell: FC<Props> = ({ query }) => (
         '& > code': {
           display: 'block',
           maskImage: fadeMask,
+          maskRepeat: 'no-repeat',
+          maskSize: '100% 100%',
           WebkitMaskImage: fadeMask,
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskSize: '100% 100%',
         },
-      }}
     />
   </Box>
 );
