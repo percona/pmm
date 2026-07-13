@@ -12,7 +12,7 @@ import { Page } from 'components/page';
  * plugins already render their own headings.
  */
 export const SepPage: FC<PropsWithChildren> = ({ children }) => (
-  <Page fullWidth>
+  <Page maxWidth="full">
     <Stack gap={3} sx={{ flex: 1 }}>
       <div>{children}</div>
     </Stack>

@@ -42,7 +42,6 @@ export const Settings: FC = () => {
   return (
     <Page
       title={Messages.title}
-      fullWidth
       surface="paper"
       roles={[OrgRole.Admin]}
     >
