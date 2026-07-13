@@ -40,7 +40,6 @@ func TestEnvVarValidator(t *testing.T) {
 			"PMM_DATA_RETENTION=72h",
 			"PMM_ADVISOR_HISTORY_RETENTION=48h",
 			"PMM_ENABLE_ADVISOR_NOTIFICATIONS=true",
-			"PMM_UPDATE_SNOOZE_DURATION=1h",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{
 			DataRetention:              72 * time.Hour,
@@ -54,7 +53,6 @@ func TestEnvVarValidator(t *testing.T) {
 				MR: 5 * time.Second,
 				LR: time.Hour,
 			},
-			UpdateSnoozeDuration: time.Hour,
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
@@ -154,7 +152,6 @@ func TestEnvVarValidator(t *testing.T) {
 			"PMM_METRICS_RESOLUTION_MR=s5",
 			"PMM_METRICS_RESOLUTION_LR=1hour",
 			"PMM_DATA_RETENTION=keep one week",
-			"PMM_UPDATE_SNOOZE_DURATION=one week",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
@@ -167,7 +164,6 @@ func TestEnvVarValidator(t *testing.T) {
 			errors.New(`environment variable "PMM_METRICS_RESOLUTION_MR=s5" has invalid duration s5`),
 			errors.New(`environment variable "PMM_METRICS_RESOLUTION_LR=1hour" has invalid duration 1hour`),
 			errors.New(`environment variable "PMM_DATA_RETENTION=keep one week" has invalid duration keep one week`),
-			errors.New(`environment variable "PMM_UPDATE_SNOOZE_DURATION=one week" has invalid duration one week`),
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)

@@ -17,6 +17,7 @@ package server
 
 import (
 	"errors"
+	"math"
 	"testing"
 	"time"
 
@@ -121,7 +122,6 @@ func TestServer(t *testing.T) {
 				"PMM_METRICS_RESOLUTION_LR=3s",
 				"PMM_DATA_RETENTION=240h",
 				"PMM_PUBLIC_ADDRESS=1.2.3.4:5678",
-				"PMM_UPDATE_SNOOZE_DURATION=24h",
 			})
 			require.Empty(t, errs)
 			assert.True(t, *s.envSettings.EnableUpdates)
@@ -131,7 +131,6 @@ func TestServer(t *testing.T) {
 			assert.Equal(t, 3*time.Second, s.envSettings.MetricsResolutions.LR)
 			assert.Equal(t, 10*24*time.Hour, s.envSettings.DataRetention)
 			assert.Equal(t, "1.2.3.4:5678", *s.envSettings.PMMPublicAddress)
-			assert.Equal(t, 24*time.Hour, s.envSettings.UpdateSnoozeDuration)
 		})
 
 		t.Run("Untypical", func(t *testing.T) {
@@ -226,15 +225,6 @@ func TestServer(t *testing.T) {
 		}))
 		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableUpdates: new(true),
-		}))
-
-		s.envSettings.UpdateSnoozeDuration = 24 * time.Hour
-		expected = status.New(codes.FailedPrecondition, "Update snooze duration is set via PMM_UPDATE_SNOOZE_DURATION environment variable.")
-		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			UpdateSnoozeDuration: durationpb.New(12 * time.Hour),
-		}))
-		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			UpdateSnoozeDuration: durationpb.New(24 * time.Hour),
 		}))
 
 		s.envSettings.EnableTelemetry = new(true)
@@ -332,4 +322,44 @@ func TestServer(t *testing.T) {
 		assert.Equal(t, managementv1.Severity_SEVERITY_WARNING, settings.Settings.AdvisorNotificationSeverityThreshold)
 		assert.Equal(t, durationpb.New(48*time.Hour), settings.Settings.AdvisorHistoryRetention)
 	})
+}
+
+func TestConvertDefaultRoleID(t *testing.T) {
+	tests := []struct {
+		name   string
+		roleID int
+		want   uint32
+	}{
+		{
+			name:   "positive",
+			roleID: 1,
+			want:   1,
+		},
+		{
+			name:   "zero",
+			roleID: 0,
+			want:   0,
+		},
+		{
+			name:   "negative",
+			roleID: -1,
+			want:   0,
+		},
+		{
+			name:   "max uint32",
+			roleID: math.MaxUint32,
+			want:   math.MaxUint32,
+		},
+		{
+			name:   "greater than max uint32",
+			roleID: math.MaxUint32 + 1,
+			want:   0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, convertDefaultRoleID(tt.roleID))
+		})
+	}
 }

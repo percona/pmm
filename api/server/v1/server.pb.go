@@ -19,7 +19,6 @@ import (
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 
 	common "github.com/percona/pmm/api/common"
-	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/management/v1"
 )
 
@@ -720,221 +719,6 @@ func (x *ListChangeLogsResponse) GetLastCheck() *timestamppb.Timestamp {
 	return nil
 }
 
-type StartUpdateRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	NewImage      string                 `protobuf:"bytes,1,opt,name=new_image,json=newImage,proto3" json:"new_image,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *StartUpdateRequest) Reset() {
-	*x = StartUpdateRequest{}
-	mi := &file_server_v1_server_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *StartUpdateRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*StartUpdateRequest) ProtoMessage() {}
-
-func (x *StartUpdateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use StartUpdateRequest.ProtoReflect.Descriptor instead.
-func (*StartUpdateRequest) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *StartUpdateRequest) GetNewImage() string {
-	if x != nil {
-		return x.NewImage
-	}
-	return ""
-}
-
-type StartUpdateResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Authentication token for getting update statuses.
-	AuthToken string `protobuf:"bytes,1,opt,name=auth_token,json=authToken,proto3" json:"auth_token,omitempty"`
-	// Progress log offset.
-	LogOffset     uint32 `protobuf:"varint,2,opt,name=log_offset,json=logOffset,proto3" json:"log_offset,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *StartUpdateResponse) Reset() {
-	*x = StartUpdateResponse{}
-	mi := &file_server_v1_server_proto_msgTypes[13]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *StartUpdateResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*StartUpdateResponse) ProtoMessage() {}
-
-func (x *StartUpdateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[13]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use StartUpdateResponse.ProtoReflect.Descriptor instead.
-func (*StartUpdateResponse) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *StartUpdateResponse) GetAuthToken() string {
-	if x != nil {
-		return x.AuthToken
-	}
-	return ""
-}
-
-func (x *StartUpdateResponse) GetLogOffset() uint32 {
-	if x != nil {
-		return x.LogOffset
-	}
-	return 0
-}
-
-type UpdateStatusRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Authentication token.
-	AuthToken string `protobuf:"bytes,1,opt,name=auth_token,json=authToken,proto3" json:"auth_token,omitempty"`
-	// Progress log offset.
-	LogOffset     uint32 `protobuf:"varint,2,opt,name=log_offset,json=logOffset,proto3" json:"log_offset,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateStatusRequest) Reset() {
-	*x = UpdateStatusRequest{}
-	mi := &file_server_v1_server_proto_msgTypes[14]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateStatusRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateStatusRequest) ProtoMessage() {}
-
-func (x *UpdateStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[14]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateStatusRequest.ProtoReflect.Descriptor instead.
-func (*UpdateStatusRequest) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *UpdateStatusRequest) GetAuthToken() string {
-	if x != nil {
-		return x.AuthToken
-	}
-	return ""
-}
-
-func (x *UpdateStatusRequest) GetLogOffset() uint32 {
-	if x != nil {
-		return x.LogOffset
-	}
-	return 0
-}
-
-type UpdateStatusResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Progress log lines.
-	LogLines []string `protobuf:"bytes,1,rep,name=log_lines,json=logLines,proto3" json:"log_lines,omitempty"`
-	// Progress log offset for the next request.
-	LogOffset uint32 `protobuf:"varint,2,opt,name=log_offset,json=logOffset,proto3" json:"log_offset,omitempty"`
-	// True when update is done.
-	Done          bool `protobuf:"varint,3,opt,name=done,proto3" json:"done,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpdateStatusResponse) Reset() {
-	*x = UpdateStatusResponse{}
-	mi := &file_server_v1_server_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpdateStatusResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpdateStatusResponse) ProtoMessage() {}
-
-func (x *UpdateStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpdateStatusResponse.ProtoReflect.Descriptor instead.
-func (*UpdateStatusResponse) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *UpdateStatusResponse) GetLogLines() []string {
-	if x != nil {
-		return x.LogLines
-	}
-	return nil
-}
-
-func (x *UpdateStatusResponse) GetLogOffset() uint32 {
-	if x != nil {
-		return x.LogOffset
-	}
-	return 0
-}
-
-func (x *UpdateStatusResponse) GetDone() bool {
-	if x != nil {
-		return x.Done
-	}
-	return false
-}
-
 // MetricsResolutions represents Prometheus exporters metrics resolutions.
 type MetricsResolutions struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -950,7 +734,7 @@ type MetricsResolutions struct {
 
 func (x *MetricsResolutions) Reset() {
 	*x = MetricsResolutions{}
-	mi := &file_server_v1_server_proto_msgTypes[16]
+	mi := &file_server_v1_server_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -962,7 +746,7 @@ func (x *MetricsResolutions) String() string {
 func (*MetricsResolutions) ProtoMessage() {}
 
 func (x *MetricsResolutions) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[16]
+	mi := &file_server_v1_server_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -975,7 +759,7 @@ func (x *MetricsResolutions) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricsResolutions.ProtoReflect.Descriptor instead.
 func (*MetricsResolutions) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{16}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *MetricsResolutions) GetHr() *durationpb.Duration {
@@ -1014,7 +798,7 @@ type AdvisorRunIntervals struct {
 
 func (x *AdvisorRunIntervals) Reset() {
 	*x = AdvisorRunIntervals{}
-	mi := &file_server_v1_server_proto_msgTypes[17]
+	mi := &file_server_v1_server_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1026,7 +810,7 @@ func (x *AdvisorRunIntervals) String() string {
 func (*AdvisorRunIntervals) ProtoMessage() {}
 
 func (x *AdvisorRunIntervals) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[17]
+	mi := &file_server_v1_server_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1039,7 +823,7 @@ func (x *AdvisorRunIntervals) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdvisorRunIntervals.ProtoReflect.Descriptor instead.
 func (*AdvisorRunIntervals) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{17}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *AdvisorRunIntervals) GetStandardInterval() *durationpb.Duration {
@@ -1106,15 +890,13 @@ type Settings struct {
 	DefaultRoleId uint32 `protobuf:"varint,18,opt,name=default_role_id,json=defaultRoleId,proto3" json:"default_role_id,omitempty"`
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQan bool `protobuf:"varint,19,opt,name=enable_internal_pg_qan,json=enableInternalPgQan,proto3" json:"enable_internal_pg_qan,omitempty"`
-	// Duration for which an update is snoozed
-	UpdateSnoozeDuration *durationpb.Duration `protobuf:"bytes,20,opt,name=update_snooze_duration,json=updateSnoozeDuration,proto3" json:"update_snooze_duration,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *Settings) Reset() {
 	*x = Settings{}
-	mi := &file_server_v1_server_proto_msgTypes[18]
+	mi := &file_server_v1_server_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1126,7 +908,7 @@ func (x *Settings) String() string {
 func (*Settings) ProtoMessage() {}
 
 func (x *Settings) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[18]
+	mi := &file_server_v1_server_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1139,7 +921,7 @@ func (x *Settings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Settings.ProtoReflect.Descriptor instead.
 func (*Settings) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{18}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *Settings) GetUpdatesEnabled() bool {
@@ -1291,13 +1073,6 @@ func (x *Settings) GetEnableInternalPgQan() bool {
 	return false
 }
 
-func (x *Settings) GetUpdateSnoozeDuration() *durationpb.Duration {
-	if x != nil {
-		return x.UpdateSnoozeDuration
-	}
-	return nil
-}
-
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
 type ReadOnlySettings struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1323,7 +1098,7 @@ type ReadOnlySettings struct {
 
 func (x *ReadOnlySettings) Reset() {
 	*x = ReadOnlySettings{}
-	mi := &file_server_v1_server_proto_msgTypes[19]
+	mi := &file_server_v1_server_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1335,7 +1110,7 @@ func (x *ReadOnlySettings) String() string {
 func (*ReadOnlySettings) ProtoMessage() {}
 
 func (x *ReadOnlySettings) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[19]
+	mi := &file_server_v1_server_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1348,7 +1123,7 @@ func (x *ReadOnlySettings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadOnlySettings.ProtoReflect.Descriptor instead.
 func (*ReadOnlySettings) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{19}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ReadOnlySettings) GetUpdatesEnabled() bool {
@@ -1415,7 +1190,7 @@ type GetSettingsRequest struct {
 
 func (x *GetSettingsRequest) Reset() {
 	*x = GetSettingsRequest{}
-	mi := &file_server_v1_server_proto_msgTypes[20]
+	mi := &file_server_v1_server_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1427,7 +1202,7 @@ func (x *GetSettingsRequest) String() string {
 func (*GetSettingsRequest) ProtoMessage() {}
 
 func (x *GetSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[20]
+	mi := &file_server_v1_server_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1440,7 +1215,7 @@ func (x *GetSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSettingsRequest.ProtoReflect.Descriptor instead.
 func (*GetSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{20}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{16}
 }
 
 type GetReadOnlySettingsRequest struct {
@@ -1451,7 +1226,7 @@ type GetReadOnlySettingsRequest struct {
 
 func (x *GetReadOnlySettingsRequest) Reset() {
 	*x = GetReadOnlySettingsRequest{}
-	mi := &file_server_v1_server_proto_msgTypes[21]
+	mi := &file_server_v1_server_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1463,7 +1238,7 @@ func (x *GetReadOnlySettingsRequest) String() string {
 func (*GetReadOnlySettingsRequest) ProtoMessage() {}
 
 func (x *GetReadOnlySettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[21]
+	mi := &file_server_v1_server_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1476,7 +1251,7 @@ func (x *GetReadOnlySettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReadOnlySettingsRequest.ProtoReflect.Descriptor instead.
 func (*GetReadOnlySettingsRequest) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{21}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{17}
 }
 
 type GetSettingsResponse struct {
@@ -1488,7 +1263,7 @@ type GetSettingsResponse struct {
 
 func (x *GetSettingsResponse) Reset() {
 	*x = GetSettingsResponse{}
-	mi := &file_server_v1_server_proto_msgTypes[22]
+	mi := &file_server_v1_server_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1500,7 +1275,7 @@ func (x *GetSettingsResponse) String() string {
 func (*GetSettingsResponse) ProtoMessage() {}
 
 func (x *GetSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[22]
+	mi := &file_server_v1_server_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1513,7 +1288,7 @@ func (x *GetSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSettingsResponse.ProtoReflect.Descriptor instead.
 func (*GetSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{22}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GetSettingsResponse) GetSettings() *Settings {
@@ -1532,7 +1307,7 @@ type GetReadOnlySettingsResponse struct {
 
 func (x *GetReadOnlySettingsResponse) Reset() {
 	*x = GetReadOnlySettingsResponse{}
-	mi := &file_server_v1_server_proto_msgTypes[23]
+	mi := &file_server_v1_server_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1544,7 +1319,7 @@ func (x *GetReadOnlySettingsResponse) String() string {
 func (*GetReadOnlySettingsResponse) ProtoMessage() {}
 
 func (x *GetReadOnlySettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[23]
+	mi := &file_server_v1_server_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1557,7 +1332,7 @@ func (x *GetReadOnlySettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReadOnlySettingsResponse.ProtoReflect.Descriptor instead.
 func (*GetReadOnlySettingsResponse) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{23}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetReadOnlySettingsResponse) GetSettings() *ReadOnlySettings {
@@ -1598,15 +1373,13 @@ type ChangeSettingsRequest struct {
 	EnableAccessControl *bool `protobuf:"varint,13,opt,name=enable_access_control,json=enableAccessControl,proto3,oneof" json:"enable_access_control,omitempty"`
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQan *bool `protobuf:"varint,14,opt,name=enable_internal_pg_qan,json=enableInternalPgQan,proto3,oneof" json:"enable_internal_pg_qan,omitempty"`
-	// A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
-	UpdateSnoozeDuration *durationpb.Duration `protobuf:"bytes,15,opt,name=update_snooze_duration,json=updateSnoozeDuration,proto3" json:"update_snooze_duration,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ChangeSettingsRequest) Reset() {
 	*x = ChangeSettingsRequest{}
-	mi := &file_server_v1_server_proto_msgTypes[24]
+	mi := &file_server_v1_server_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1618,7 +1391,7 @@ func (x *ChangeSettingsRequest) String() string {
 func (*ChangeSettingsRequest) ProtoMessage() {}
 
 func (x *ChangeSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[24]
+	mi := &file_server_v1_server_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1631,7 +1404,7 @@ func (x *ChangeSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeSettingsRequest.ProtoReflect.Descriptor instead.
 func (*ChangeSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{24}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ChangeSettingsRequest) GetEnableUpdates() bool {
@@ -1753,13 +1526,6 @@ func (x *ChangeSettingsRequest) GetEnableInternalPgQan() bool {
 	return false
 }
 
-func (x *ChangeSettingsRequest) GetUpdateSnoozeDuration() *durationpb.Duration {
-	if x != nil {
-		return x.UpdateSnoozeDuration
-	}
-	return nil
-}
-
 type ChangeSettingsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Settings      *Settings              `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
@@ -1769,7 +1535,7 @@ type ChangeSettingsResponse struct {
 
 func (x *ChangeSettingsResponse) Reset() {
 	*x = ChangeSettingsResponse{}
-	mi := &file_server_v1_server_proto_msgTypes[25]
+	mi := &file_server_v1_server_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1781,7 +1547,7 @@ func (x *ChangeSettingsResponse) String() string {
 func (*ChangeSettingsResponse) ProtoMessage() {}
 
 func (x *ChangeSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[25]
+	mi := &file_server_v1_server_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1794,7 +1560,7 @@ func (x *ChangeSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeSettingsResponse.ProtoReflect.Descriptor instead.
 func (*ChangeSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{25}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ChangeSettingsResponse) GetSettings() *Settings {
@@ -1808,7 +1574,7 @@ var File_server_v1_server_proto protoreflect.FileDescriptor
 
 const file_server_v1_server_proto_rawDesc = "" +
 	"\n" +
-	"\x16server/v1/server.proto\x12\tserver.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cmanagement/v1/severity.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x84\x01\n" +
+	"\x16server/v1/server.proto\x12\tserver.v1\x1a\x13common/common.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cmanagement/v1/severity.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\x84\x01\n" +
 	"\vVersionInfo\x12\x18\n" +
 	"\aversion\x18\x01 \x01(\tR\aversion\x12!\n" +
 	"\ffull_version\x18\x02 \x01(\tR\vfullVersion\x128\n" +
@@ -1844,24 +1610,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x16ListChangeLogsResponse\x126\n" +
 	"\aupdates\x18\x01 \x03(\v2\x1c.server.v1.DockerVersionInfoR\aupdates\x129\n" +
 	"\n" +
-	"last_check\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tlastCheck\"1\n" +
-	"\x12StartUpdateRequest\x12\x1b\n" +
-	"\tnew_image\x18\x01 \x01(\tR\bnewImage\"Y\n" +
-	"\x13StartUpdateResponse\x12#\n" +
-	"\n" +
-	"auth_token\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01R\tauthToken\x12\x1d\n" +
-	"\n" +
-	"log_offset\x18\x02 \x01(\rR\tlogOffset\"Y\n" +
-	"\x13UpdateStatusRequest\x12#\n" +
-	"\n" +
-	"auth_token\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01R\tauthToken\x12\x1d\n" +
-	"\n" +
-	"log_offset\x18\x02 \x01(\rR\tlogOffset\"f\n" +
-	"\x14UpdateStatusResponse\x12\x1b\n" +
-	"\tlog_lines\x18\x01 \x03(\tR\blogLines\x12\x1d\n" +
-	"\n" +
-	"log_offset\x18\x02 \x01(\rR\tlogOffset\x12\x12\n" +
-	"\x04done\x18\x03 \x01(\bR\x04done\"\x95\x01\n" +
+	"last_check\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tlastCheck\"\x95\x01\n" +
 	"\x12MetricsResolutions\x12)\n" +
 	"\x02hr\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x02hr\x12)\n" +
 	"\x02mr\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\x02mr\x12)\n" +
@@ -1869,7 +1618,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13AdvisorRunIntervals\x12F\n" +
 	"\x11standard_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x10standardInterval\x12>\n" +
 	"\rrare_interval\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\frareInterval\x12F\n" +
-	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xfa\t\n" +
+	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xc7\t\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12N\n" +
@@ -1892,8 +1641,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13telemetry_summaries\x18\x10 \x03(\tR\x12telemetrySummaries\x122\n" +
 	"\x15enable_access_control\x18\x11 \x01(\bR\x13enableAccessControl\x12&\n" +
 	"\x0fdefault_role_id\x18\x12 \x01(\rR\rdefaultRoleId\x123\n" +
-	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQan\x12O\n" +
-	"\x16update_snooze_duration\x18\x14 \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDuration\"\x8f\x03\n" +
+	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQanJ\x04\b\x14\x10\x15R\x16update_snooze_duration\"\x8f\x03\n" +
 	"\x10ReadOnlySettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12'\n" +
@@ -1908,7 +1656,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13GetSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"V\n" +
 	"\x1bGetReadOnlySettingsResponse\x127\n" +
-	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\x9f\v\n" +
+	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\xec\n" +
+	"\n" +
 	"\x15ChangeSettingsRequest\x12*\n" +
 	"\x0eenable_updates\x18\x01 \x01(\bH\x00R\renableUpdates\x88\x01\x01\x12.\n" +
 	"\x10enable_telemetry\x18\x02 \x01(\bH\x01R\x0fenableTelemetry\x88\x01\x01\x12N\n" +
@@ -1928,8 +1677,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x18enable_backup_management\x18\f \x01(\bH\tR\x16enableBackupManagement\x88\x01\x01\x127\n" +
 	"\x15enable_access_control\x18\r \x01(\bH\n" +
 	"R\x13enableAccessControl\x88\x01\x01\x128\n" +
-	"\x16enable_internal_pg_qan\x18\x0e \x01(\bH\vR\x13enableInternalPgQan\x88\x01\x01\x12O\n" +
-	"\x16update_snooze_duration\x18\x0f \x01(\v2\x19.google.protobuf.DurationR\x14updateSnoozeDurationB\x11\n" +
+	"\x16enable_internal_pg_qan\x18\x0e \x01(\bH\vR\x13enableInternalPgQan\x88\x01\x01B\x11\n" +
 	"\x0f_enable_updatesB\x13\n" +
 	"\x11_enable_telemetryB\x1f\n" +
 	"\x1d_enable_advisor_notificationsB\n" +
@@ -1942,7 +1690,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x15_enable_azurediscoverB\x1b\n" +
 	"\x19_enable_backup_managementB\x18\n" +
 	"\x16_enable_access_controlB\x19\n" +
-	"\x17_enable_internal_pg_qan\"I\n" +
+	"\x17_enable_internal_pg_qanJ\x04\b\x0f\x10\x10R\x16update_snooze_duration\"I\n" +
 	"\x16ChangeSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings*\xce\x01\n" +
 	"\x12DistributionMethod\x12#\n" +
@@ -1951,15 +1699,13 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x17DISTRIBUTION_METHOD_OVF\x10\x02\x12\x1b\n" +
 	"\x17DISTRIBUTION_METHOD_AMI\x10\x03\x12\x1d\n" +
 	"\x19DISTRIBUTION_METHOD_AZURE\x10\x04\x12\x1a\n" +
-	"\x16DISTRIBUTION_METHOD_DO\x10\x052\xd9\x0f\n" +
+	"\x16DISTRIBUTION_METHOD_DO\x10\x052\x89\r\n" +
 	"\rServerService\x12\x86\x01\n" +
 	"\aVersion\x12\x19.server.v1.VersionRequest\x1a\x1a.server.v1.VersionResponse\"D\x92A'\x12\aVersion\x1a\x1cReturns PMM Server versions.\x82\xd3\xe4\x93\x02\x14\x12\x12/v1/server/version\x12\xab\x02\n" +
 	"\tReadiness\x12\x1b.server.v1.ReadinessRequest\x1a\x1c.server.v1.ReadinessResponse\"\xe2\x01\x92A\xc5\x01\x12\x16Check server readiness\x1a\xaa\x01Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/server/readyz\x12\x81\x02\n" +
 	"\x11LeaderHealthCheck\x12#.server.v1.LeaderHealthCheckRequest\x1a$.server.v1.LeaderHealthCheckResponse\"\xa0\x01\x92Ay\x12\x10Check Leadership\x1aeChecks if the instance is the leader in a cluster. Returns an error if the instance isn't the leader.\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/server/leaderHealthCheck\x12\xa7\x01\n" +
 	"\fCheckUpdates\x12\x1e.server.v1.CheckUpdatesRequest\x1a\x1f.server.v1.CheckUpdatesResponse\"V\x92A9\x12\rCheck updates\x1a(Checks for available PMM Server updates.\x82\xd3\xe4\x93\x02\x14\x12\x12/v1/server/updates\x12\xe9\x01\n" +
-	"\x0eListChangeLogs\x12 .server.v1.ListChangeLogsRequest\x1a!.server.v1.ListChangeLogsResponse\"\x91\x01\x92Ai\x12\x11Get the changelog\x1aTDisplay a changelog comparing the installed version to the latest available version.\x82\xd3\xe4\x93\x02\x1f\x12\x1d/v1/server/updates/changelogs\x12\x9d\x01\n" +
-	"\vStartUpdate\x12\x1d.server.v1.StartUpdateRequest\x1a\x1e.server.v1.StartUpdateResponse\"O\x92A)\x12\fStart update\x1a\x19Starts PMM Server update.\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/server/updates:start\x12\xad\x01\n" +
-	"\fUpdateStatus\x12\x1e.server.v1.UpdateStatusRequest\x1a\x1f.server.v1.UpdateStatusResponse\"\\\x92A2\x12\rUpdate status\x1a!Returns PMM Server update status.\x82\xd3\xe4\x93\x02!:\x01*\"\x1c/v1/server/updates:getStatus\x12\xa0\x01\n" +
+	"\x0eListChangeLogs\x12 .server.v1.ListChangeLogsRequest\x1a!.server.v1.ListChangeLogsResponse\"\x91\x01\x92Ai\x12\x11Get the changelog\x1aTDisplay a changelog comparing the installed version to the latest available version.\x82\xd3\xe4\x93\x02\x1f\x12\x1d/v1/server/updates/changelogs\x12\xa0\x01\n" +
 	"\vGetSettings\x12\x1d.server.v1.GetSettingsRequest\x1a\x1e.server.v1.GetSettingsResponse\"R\x92A4\x12\fGet settings\x1a$Returns current PMM Server settings.\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/server/settings\x12\xd9\x01\n" +
 	"\x13GetReadOnlySettings\x12%.server.v1.GetReadOnlySettingsRequest\x1a&.server.v1.GetReadOnlySettingsResponse\"s\x92AL\x12\x16Get read-only settings\x1a2Returns a stripped version of PMM Server settings.\x82\xd3\xe4\x93\x02\x1e\x12\x1c/v1/server/settings/readonly\x12\xa7\x01\n" +
 	"\x0eChangeSettings\x12 .server.v1.ChangeSettingsRequest\x1a!.server.v1.ChangeSettingsResponse\"P\x92A/\x12\x0fChange settings\x1a\x1cChanges PMM Server settings.\x82\xd3\xe4\x93\x02\x18:\x01*\x1a\x13/v1/server/settingsB\x90\x01\n" +
@@ -1980,7 +1726,7 @@ func file_server_v1_server_proto_rawDescGZIP() []byte {
 
 var (
 	file_server_v1_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_server_v1_server_proto_msgTypes  = make([]protoimpl.MessageInfo, 26)
+	file_server_v1_server_proto_msgTypes  = make([]protoimpl.MessageInfo, 22)
 	file_server_v1_server_proto_goTypes   = []any{
 		DistributionMethod(0),               // 0: server.v1.DistributionMethod
 		(*VersionInfo)(nil),                 // 1: server.v1.VersionInfo
@@ -1995,85 +1741,75 @@ var (
 		(*CheckUpdatesResponse)(nil),        // 10: server.v1.CheckUpdatesResponse
 		(*ListChangeLogsRequest)(nil),       // 11: server.v1.ListChangeLogsRequest
 		(*ListChangeLogsResponse)(nil),      // 12: server.v1.ListChangeLogsResponse
-		(*StartUpdateRequest)(nil),          // 13: server.v1.StartUpdateRequest
-		(*StartUpdateResponse)(nil),         // 14: server.v1.StartUpdateResponse
-		(*UpdateStatusRequest)(nil),         // 15: server.v1.UpdateStatusRequest
-		(*UpdateStatusResponse)(nil),        // 16: server.v1.UpdateStatusResponse
-		(*MetricsResolutions)(nil),          // 17: server.v1.MetricsResolutions
-		(*AdvisorRunIntervals)(nil),         // 18: server.v1.AdvisorRunIntervals
-		(*Settings)(nil),                    // 19: server.v1.Settings
-		(*ReadOnlySettings)(nil),            // 20: server.v1.ReadOnlySettings
-		(*GetSettingsRequest)(nil),          // 21: server.v1.GetSettingsRequest
-		(*GetReadOnlySettingsRequest)(nil),  // 22: server.v1.GetReadOnlySettingsRequest
-		(*GetSettingsResponse)(nil),         // 23: server.v1.GetSettingsResponse
-		(*GetReadOnlySettingsResponse)(nil), // 24: server.v1.GetReadOnlySettingsResponse
-		(*ChangeSettingsRequest)(nil),       // 25: server.v1.ChangeSettingsRequest
-		(*ChangeSettingsResponse)(nil),      // 26: server.v1.ChangeSettingsResponse
-		(*timestamppb.Timestamp)(nil),       // 27: google.protobuf.Timestamp
-		(*durationpb.Duration)(nil),         // 28: google.protobuf.Duration
-		v1.Severity(0),                      // 29: management.v1.Severity
-		(*common.StringArray)(nil),          // 30: common.StringArray
+		(*MetricsResolutions)(nil),          // 13: server.v1.MetricsResolutions
+		(*AdvisorRunIntervals)(nil),         // 14: server.v1.AdvisorRunIntervals
+		(*Settings)(nil),                    // 15: server.v1.Settings
+		(*ReadOnlySettings)(nil),            // 16: server.v1.ReadOnlySettings
+		(*GetSettingsRequest)(nil),          // 17: server.v1.GetSettingsRequest
+		(*GetReadOnlySettingsRequest)(nil),  // 18: server.v1.GetReadOnlySettingsRequest
+		(*GetSettingsResponse)(nil),         // 19: server.v1.GetSettingsResponse
+		(*GetReadOnlySettingsResponse)(nil), // 20: server.v1.GetReadOnlySettingsResponse
+		(*ChangeSettingsRequest)(nil),       // 21: server.v1.ChangeSettingsRequest
+		(*ChangeSettingsResponse)(nil),      // 22: server.v1.ChangeSettingsResponse
+		(*timestamppb.Timestamp)(nil),       // 23: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),         // 24: google.protobuf.Duration
+		v1.Severity(0),                      // 25: management.v1.Severity
+		(*common.StringArray)(nil),          // 26: common.StringArray
 	}
 )
 
 var file_server_v1_server_proto_depIdxs = []int32{
-	27, // 0: server.v1.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
+	23, // 0: server.v1.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
 	1,  // 1: server.v1.VersionResponse.server:type_name -> server.v1.VersionInfo
 	1,  // 2: server.v1.VersionResponse.managed:type_name -> server.v1.VersionInfo
 	0,  // 3: server.v1.VersionResponse.distribution_method:type_name -> server.v1.DistributionMethod
-	27, // 4: server.v1.DockerVersionInfo.timestamp:type_name -> google.protobuf.Timestamp
+	23, // 4: server.v1.DockerVersionInfo.timestamp:type_name -> google.protobuf.Timestamp
 	1,  // 5: server.v1.CheckUpdatesResponse.installed:type_name -> server.v1.VersionInfo
 	9,  // 6: server.v1.CheckUpdatesResponse.latest:type_name -> server.v1.DockerVersionInfo
-	27, // 7: server.v1.CheckUpdatesResponse.last_check:type_name -> google.protobuf.Timestamp
+	23, // 7: server.v1.CheckUpdatesResponse.last_check:type_name -> google.protobuf.Timestamp
 	9,  // 8: server.v1.ListChangeLogsResponse.updates:type_name -> server.v1.DockerVersionInfo
-	27, // 9: server.v1.ListChangeLogsResponse.last_check:type_name -> google.protobuf.Timestamp
-	28, // 10: server.v1.MetricsResolutions.hr:type_name -> google.protobuf.Duration
-	28, // 11: server.v1.MetricsResolutions.mr:type_name -> google.protobuf.Duration
-	28, // 12: server.v1.MetricsResolutions.lr:type_name -> google.protobuf.Duration
-	28, // 13: server.v1.AdvisorRunIntervals.standard_interval:type_name -> google.protobuf.Duration
-	28, // 14: server.v1.AdvisorRunIntervals.rare_interval:type_name -> google.protobuf.Duration
-	28, // 15: server.v1.AdvisorRunIntervals.frequent_interval:type_name -> google.protobuf.Duration
-	17, // 16: server.v1.Settings.metrics_resolutions:type_name -> server.v1.MetricsResolutions
-	28, // 17: server.v1.Settings.data_retention:type_name -> google.protobuf.Duration
-	28, // 18: server.v1.Settings.advisor_history_retention:type_name -> google.protobuf.Duration
-	29, // 19: server.v1.Settings.advisor_notification_severity_threshold:type_name -> management.v1.Severity
-	18, // 20: server.v1.Settings.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
-	28, // 21: server.v1.Settings.update_snooze_duration:type_name -> google.protobuf.Duration
-	19, // 22: server.v1.GetSettingsResponse.settings:type_name -> server.v1.Settings
-	20, // 23: server.v1.GetReadOnlySettingsResponse.settings:type_name -> server.v1.ReadOnlySettings
-	17, // 24: server.v1.ChangeSettingsRequest.metrics_resolutions:type_name -> server.v1.MetricsResolutions
-	28, // 25: server.v1.ChangeSettingsRequest.data_retention:type_name -> google.protobuf.Duration
-	28, // 26: server.v1.ChangeSettingsRequest.advisor_history_retention:type_name -> google.protobuf.Duration
-	29, // 27: server.v1.ChangeSettingsRequest.advisor_notification_severity_threshold:type_name -> management.v1.Severity
-	30, // 28: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
-	18, // 29: server.v1.ChangeSettingsRequest.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
-	28, // 30: server.v1.ChangeSettingsRequest.update_snooze_duration:type_name -> google.protobuf.Duration
-	19, // 31: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
-	2,  // 32: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest
-	4,  // 33: server.v1.ServerService.Readiness:input_type -> server.v1.ReadinessRequest
-	6,  // 34: server.v1.ServerService.LeaderHealthCheck:input_type -> server.v1.LeaderHealthCheckRequest
-	8,  // 35: server.v1.ServerService.CheckUpdates:input_type -> server.v1.CheckUpdatesRequest
-	11, // 36: server.v1.ServerService.ListChangeLogs:input_type -> server.v1.ListChangeLogsRequest
-	13, // 37: server.v1.ServerService.StartUpdate:input_type -> server.v1.StartUpdateRequest
-	15, // 38: server.v1.ServerService.UpdateStatus:input_type -> server.v1.UpdateStatusRequest
-	21, // 39: server.v1.ServerService.GetSettings:input_type -> server.v1.GetSettingsRequest
-	22, // 40: server.v1.ServerService.GetReadOnlySettings:input_type -> server.v1.GetReadOnlySettingsRequest
-	25, // 41: server.v1.ServerService.ChangeSettings:input_type -> server.v1.ChangeSettingsRequest
-	3,  // 42: server.v1.ServerService.Version:output_type -> server.v1.VersionResponse
-	5,  // 43: server.v1.ServerService.Readiness:output_type -> server.v1.ReadinessResponse
-	7,  // 44: server.v1.ServerService.LeaderHealthCheck:output_type -> server.v1.LeaderHealthCheckResponse
-	10, // 45: server.v1.ServerService.CheckUpdates:output_type -> server.v1.CheckUpdatesResponse
-	12, // 46: server.v1.ServerService.ListChangeLogs:output_type -> server.v1.ListChangeLogsResponse
-	14, // 47: server.v1.ServerService.StartUpdate:output_type -> server.v1.StartUpdateResponse
-	16, // 48: server.v1.ServerService.UpdateStatus:output_type -> server.v1.UpdateStatusResponse
-	23, // 49: server.v1.ServerService.GetSettings:output_type -> server.v1.GetSettingsResponse
-	24, // 50: server.v1.ServerService.GetReadOnlySettings:output_type -> server.v1.GetReadOnlySettingsResponse
-	26, // 51: server.v1.ServerService.ChangeSettings:output_type -> server.v1.ChangeSettingsResponse
-	42, // [42:52] is the sub-list for method output_type
-	32, // [32:42] is the sub-list for method input_type
-	32, // [32:32] is the sub-list for extension type_name
-	32, // [32:32] is the sub-list for extension extendee
-	0,  // [0:32] is the sub-list for field type_name
+	23, // 9: server.v1.ListChangeLogsResponse.last_check:type_name -> google.protobuf.Timestamp
+	24, // 10: server.v1.MetricsResolutions.hr:type_name -> google.protobuf.Duration
+	24, // 11: server.v1.MetricsResolutions.mr:type_name -> google.protobuf.Duration
+	24, // 12: server.v1.MetricsResolutions.lr:type_name -> google.protobuf.Duration
+	24, // 13: server.v1.AdvisorRunIntervals.standard_interval:type_name -> google.protobuf.Duration
+	24, // 14: server.v1.AdvisorRunIntervals.rare_interval:type_name -> google.protobuf.Duration
+	24, // 15: server.v1.AdvisorRunIntervals.frequent_interval:type_name -> google.protobuf.Duration
+	13, // 16: server.v1.Settings.metrics_resolutions:type_name -> server.v1.MetricsResolutions
+	24, // 17: server.v1.Settings.data_retention:type_name -> google.protobuf.Duration
+	24, // 18: server.v1.Settings.advisor_history_retention:type_name -> google.protobuf.Duration
+	25, // 19: server.v1.Settings.advisor_notification_severity_threshold:type_name -> management.v1.Severity
+	14, // 20: server.v1.Settings.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
+	15, // 21: server.v1.GetSettingsResponse.settings:type_name -> server.v1.Settings
+	16, // 22: server.v1.GetReadOnlySettingsResponse.settings:type_name -> server.v1.ReadOnlySettings
+	13, // 23: server.v1.ChangeSettingsRequest.metrics_resolutions:type_name -> server.v1.MetricsResolutions
+	24, // 24: server.v1.ChangeSettingsRequest.data_retention:type_name -> google.protobuf.Duration
+	24, // 25: server.v1.ChangeSettingsRequest.advisor_history_retention:type_name -> google.protobuf.Duration
+	25, // 26: server.v1.ChangeSettingsRequest.advisor_notification_severity_threshold:type_name -> management.v1.Severity
+	26, // 27: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
+	14, // 28: server.v1.ChangeSettingsRequest.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
+	15, // 29: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
+	2,  // 30: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest
+	4,  // 31: server.v1.ServerService.Readiness:input_type -> server.v1.ReadinessRequest
+	6,  // 32: server.v1.ServerService.LeaderHealthCheck:input_type -> server.v1.LeaderHealthCheckRequest
+	8,  // 33: server.v1.ServerService.CheckUpdates:input_type -> server.v1.CheckUpdatesRequest
+	11, // 34: server.v1.ServerService.ListChangeLogs:input_type -> server.v1.ListChangeLogsRequest
+	17, // 35: server.v1.ServerService.GetSettings:input_type -> server.v1.GetSettingsRequest
+	18, // 36: server.v1.ServerService.GetReadOnlySettings:input_type -> server.v1.GetReadOnlySettingsRequest
+	21, // 37: server.v1.ServerService.ChangeSettings:input_type -> server.v1.ChangeSettingsRequest
+	3,  // 38: server.v1.ServerService.Version:output_type -> server.v1.VersionResponse
+	5,  // 39: server.v1.ServerService.Readiness:output_type -> server.v1.ReadinessResponse
+	7,  // 40: server.v1.ServerService.LeaderHealthCheck:output_type -> server.v1.LeaderHealthCheckResponse
+	10, // 41: server.v1.ServerService.CheckUpdates:output_type -> server.v1.CheckUpdatesResponse
+	12, // 42: server.v1.ServerService.ListChangeLogs:output_type -> server.v1.ListChangeLogsResponse
+	19, // 43: server.v1.ServerService.GetSettings:output_type -> server.v1.GetSettingsResponse
+	20, // 44: server.v1.ServerService.GetReadOnlySettings:output_type -> server.v1.GetReadOnlySettingsResponse
+	22, // 45: server.v1.ServerService.ChangeSettings:output_type -> server.v1.ChangeSettingsResponse
+	38, // [38:46] is the sub-list for method output_type
+	30, // [30:38] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_server_v1_server_proto_init() }
@@ -2081,14 +1817,14 @@ func file_server_v1_server_proto_init() {
 	if File_server_v1_server_proto != nil {
 		return
 	}
-	file_server_v1_server_proto_msgTypes[24].OneofWrappers = []any{}
+	file_server_v1_server_proto_msgTypes[20].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_server_v1_server_proto_rawDesc), len(file_server_v1_server_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   26,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
