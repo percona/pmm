@@ -1,0 +1,60 @@
+# SUCCESS PATH — same topology (separate containers, shared bridge, NO shared
+# network namespace). The difference vs the fail file is a runtime edit applied
+# INSIDE pmm-server: listen_addresses='*' (in postgresql.conf) + a scram host
+# rule (in pg_hba.conf), then a PG restart. The client (a separate container)
+# then connects over the bridge.
+#
+# The edit must run inside pmm-server after PG init, so use the helper:
+#   ./run-success.sh
+# or do it manually:
+#   docker compose -f pg-share-success.compose.yml up -d pmm-server
+#   # wait until healthy, then:
+#   docker compose -f pg-share-success.compose.yml exec pmm-server bash -c \
+#     "echo \"listen_addresses = '*'\" >> /srv/postgres14/postgresql.conf; \
+#      echo 'host pmm-managed pmm-managed 0.0.0.0/0 scram-sha-256' >> /srv/postgres14/pg_hba.conf; \
+#      supervisorctl restart postgresql"
+#   docker compose -f pg-share-success.compose.yml --profile probe run --rm client
+# Cleanup:
+#   docker compose -f pg-share-success.compose.yml --profile probe down -v
+name: pmm-pg-success
+
+networks:
+  pmmnet:
+    driver: bridge
+
+volumes:
+  pmm-success-srv:
+
+services:
+  pmm-server:
+    image: percona/pmm-server:3.8.1
+    # no arm64 build yet
+    platform: linux/amd64
+    hostname: pmm-server
+    networks: [pmmnet]
+    volumes:
+      - pmm-success-srv:/srv
+    healthcheck:
+      test: ["CMD-SHELL", "/usr/bin/psql -U postgres -h /run/postgresql -d postgres -tAc 'select 1' >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 10s
+      retries: 60
+      start_period: 180s
+
+  # gated behind a profile so `up` starts only pmm-server; run explicitly after the edit
+  client:
+    image: postgres:16-alpine
+    networks: [pmmnet]
+    profiles: ["probe"]
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "=== SUCCESS CASE: PMM PG now listens on '*' ==="
+        echo "--- TCP reachability probe (pg_isready to pmm-server:5432) ---"
+        pg_isready -h pmm-server -p 5432; echo "pg_isready rc=$$?"
+        echo "--- Full authenticated query (psql over the bridge) ---"
+        psql "postgres://pmm-managed:pmm-managed@pmm-server:5432/pmm-managed?sslmode=disable" \
+          -tAc "select current_user, inet_server_addr() as connected_to_server_ip;"
+        echo "--- A few PMM tables, proving it's the real pmm-managed DB ---"
+        psql "postgres://pmm-managed:pmm-managed@pmm-server:5432/pmm-managed?sslmode=disable" -c '\dt' | head -n 15
+        echo "=== EXPECTED: accepting connections; query returns pmm-managed + the bridge IP ==="

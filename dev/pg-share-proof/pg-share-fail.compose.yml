@@ -1,0 +1,50 @@
+# FAIL PATH — PMM's built-in PostgreSQL is left UNCHANGED.
+# It binds 127.0.0.1 only (initdb default; PMM sets no listen_addresses).
+# A separate client container on the shared bridge hits pmm-server's eth0,
+# where nothing is listening -> "Connection refused".
+#
+# Run (turnkey, no exec needed):
+#   docker compose -f pg-share-fail.compose.yml up --abort-on-container-exit --exit-code-from client
+# Cleanup:
+#   docker compose -f pg-share-fail.compose.yml down -v
+name: pmm-pg-fail
+
+networks:
+  pmmnet:
+    driver: bridge
+
+volumes:
+  pmm-fail-srv:
+
+services:
+  pmm-server:
+    image: percona/pmm-server:3.8.1
+    # no arm64 build yet -> force amd64 (emulated on Apple Silicon)
+    platform: linux/amd64
+    hostname: pmm-server
+    networks: [pmmnet]
+    volumes:
+      - pmm-fail-srv:/srv
+    healthcheck:
+      # local socket is trust auth -> no password; gates until PG is initialized and up
+      test: ["CMD-SHELL", "/usr/bin/psql -U postgres -h /run/postgresql -d postgres -tAc 'select 1' >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 10s
+      retries: 60
+      start_period: 180s
+
+  client:
+    image: postgres:16-alpine
+    networks: [pmmnet]
+    depends_on:
+      pmm-server:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "=== FAIL CASE: PMM PG unchanged (binds 127.0.0.1 only) ==="
+        echo "--- TCP reachability probe (pg_isready to pmm-server:5432) ---"
+        pg_isready -h pmm-server -p 5432; echo "pg_isready rc=$$?"
+        echo "--- Full connect attempt (psql, same tool as success case) ---"
+        psql "postgres://pmm-managed:pmm-managed@pmm-server:5432/pmm-managed?sslmode=disable" -c '\dt' || echo "psql failed rc=$$?"
+        echo "=== EXPECTED: 'no response' / 'Connection refused' — PG is not listening on the bridge interface ==="
