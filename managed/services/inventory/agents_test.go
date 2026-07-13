@@ -1198,3 +1198,90 @@ func TestChangeAgentConnectionCheck(t *testing.T) {
 		assert.Equal(t, "new-username", resp.GetMysqldExporter().Username)
 	})
 }
+
+// TestAddAgentConnectionCheck locks in the Add-side connection-check behavior that
+// executeAgentAdd centralizes: exporters run the check AND fetch service info, while
+// QAN agents run only the check. The service-info broker is deliberately left
+// unregistered on the QAN path so an unexpected GetInfoFromService call would fail.
+func TestAddAgentConnectionCheck(t *testing.T) {
+	connectionCheckCall := func(as *AgentsService, ctx context.Context) *mock.Call {
+		return as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name()))
+	}
+
+	serviceInfoCall := func(as *AgentsService, ctx context.Context) *mock.Call {
+		return as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name()))
+	}
+
+	t.Run("QANRunsCheckWithoutServiceInfo", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005").Once()
+
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+
+		ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
+		ms, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
+		})
+		require.NoError(t, err)
+
+		// Only the connection check is expected. GetInfoFromService is intentionally not
+		// registered, so a call to it would panic as an unexpected mock invocation.
+		connectionCheckCall(as, ctx).Return(nil).Once()
+
+		_, err = as.AddQANMySQLPerfSchemaAgent(ctx, &inventoryv1.AddQANMySQLPerfSchemaAgentParams{
+			PmmAgentId: pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:  ms.ServiceId,
+			Username:   "username",
+		})
+		require.NoError(t, err)
+
+		as.sib.(*mockServiceInfoBroker).AssertNotCalled(t, "GetInfoFromService")
+	})
+
+	t.Run("ExporterRunsCheckWithServiceInfo", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005").Once()
+
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+
+		ps, err := ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-postgres",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(5432)),
+		})
+		require.NoError(t, err)
+
+		// Exporters trigger both the connection check and the service-info fetch.
+		connectionCheckCall(as, ctx).Return(nil).Once()
+		serviceInfoCall(as, ctx).Return(nil).Once()
+
+		_, err = as.AddPostgresExporter(ctx, &inventoryv1.AddPostgresExporterParams{
+			PmmAgentId: pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:  ps.ServiceId,
+			Username:   "username",
+		})
+		require.NoError(t, err)
+	})
+}

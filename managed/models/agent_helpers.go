@@ -825,6 +825,9 @@ type CreateAgentParams struct {
 	MySQLOptions             MySQLOptions
 	PostgreSQLOptions        PostgreSQLOptions
 	ValkeyOptions            ValkeyOptions
+
+	// SkipConnectionCheck is a request-scoped flag, not an agent attribute.
+	SkipConnectionCheck bool
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
