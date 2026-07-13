@@ -44,6 +44,9 @@ describe('HelpCenter', () => {
     expect(
       screen.queryByTestId(`help-card-${CARD_IDS.pmmLogs}`)
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Manage datasets' })
+    ).toHaveAttribute('href', '/pmm-dump');
     expect(screen.queryAllByTestId(/^help-card-/).length).toEqual(7);
   });
 

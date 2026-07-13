@@ -61,6 +61,11 @@ export default defineConfig({
         secure: false,
         changeOrigin: true,
       },
+      '/dump': {
+        target,
+        secure: false,
+        changeOrigin: true,
+      },
     },
     host: '0.0.0.0',
     port,
