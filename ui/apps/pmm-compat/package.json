@@ -10,7 +10,6 @@
     "lint": "eslint --cache --ignore-path ./.gitignore --ext .js,.jsx,.ts,.tsx .",
     "lint:fix": "yarn run lint --fix && prettier --write --list-different .",
     "e2e": "playwright test",
-    "server": "docker compose up --build",
     "sign": "npx --yes @grafana/sign-plugin@latest",
     "clean": "rm -rf dist"
   },

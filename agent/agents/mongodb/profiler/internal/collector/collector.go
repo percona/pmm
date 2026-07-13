@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package collector provides functionality to tail the MongoDB system.profile collection.
+// It manages a tailable cursor to extract raw profiling documents and stream them
+// through a channel for parsing and aggregation.
 package collector
 
 import (
@@ -121,6 +124,7 @@ func (c *Collector) Stop() {
 	close(c.docsChan) // we can now safely close channels goroutines write to as goroutine is stopped
 }
 
+// Name returns collector name.
 func (c *Collector) Name() string {
 	return "collector"
 }

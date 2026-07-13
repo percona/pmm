@@ -61,6 +61,18 @@ def install_go():
     ])
 
 
+def install_node():
+    """Installs Node.js 22 and Yarn."""
+
+    run_commands([
+        "dnf module enable -y nodejs:22",
+        "dnf install -y nodejs npm",
+        "npm install -g yarn@1.22.22",
+        "node --version",
+        "yarn --version",
+    ])
+
+
 def make_init():
     """Runs make init."""
 
@@ -88,6 +100,7 @@ def setup():
 def main():
     install_packages()
     install_go()
+    install_node()
     make_init()
 
     # do basic setup
