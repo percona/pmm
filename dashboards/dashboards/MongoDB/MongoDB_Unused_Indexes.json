@@ -289,10 +289,7 @@
             "pluginVersion": "11.6.4",
             "targets": [
                 {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "count(avg by (cluster, collection, database, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\"}))",
-                    "instant": true,
+                    "expr": "count(avg by (cluster, collection, database, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}))",
                     "refId": "A"
                 }
             ],
