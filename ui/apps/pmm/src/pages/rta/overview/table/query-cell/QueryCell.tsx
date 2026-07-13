@@ -33,6 +33,7 @@ const QueryCell: FC<Props> = ({ query }) => (
           WebkitMaskRepeat: 'no-repeat',
           WebkitMaskSize: '100% 100%',
         },
+      }}
     />
   </Box>
 );
