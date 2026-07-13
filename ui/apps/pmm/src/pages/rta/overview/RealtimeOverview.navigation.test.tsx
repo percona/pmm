@@ -13,7 +13,10 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FC, useEffect } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { wrapWithQueryProvider } from 'utils/testUtils';
-import { TEST_MONGO_DB_QUERY_DATA, TEST_REAL_TIME_SESSION } from 'utils/testStubs';
+import {
+  TEST_MONGO_DB_QUERY_DATA,
+  TEST_REAL_TIME_SESSION,
+} from 'utils/testStubs';
 import { QueryData } from 'types/rta.types';
 import RealtimeOverview from './RealtimeOverview';
 
@@ -34,20 +37,22 @@ const queryFilteredOut: QueryData = {
 
 const navigableQueries = [queryOne, queryTwo];
 
-const { searchQueries, getRunningSessions, mockNavigableQueries } = vi.hoisted(() => {
-  let navigable: QueryData[] = [];
+const { searchQueries, getRunningSessions, mockNavigableQueries } = vi.hoisted(
+  () => {
+    let navigable: QueryData[] = [];
 
-  return {
-    searchQueries: vi.fn(),
-    getRunningSessions: vi.fn(),
-    mockNavigableQueries: {
-      get: () => navigable,
-      set: (queries: QueryData[]) => {
-        navigable = queries;
+    return {
+      searchQueries: vi.fn(),
+      getRunningSessions: vi.fn(),
+      mockNavigableQueries: {
+        get: () => navigable,
+        set: (queries: QueryData[]) => {
+          navigable = queries;
+        },
       },
-    },
-  };
-});
+    };
+  }
+);
 
 vi.mock('api/rta', () => ({
   searchQueries,

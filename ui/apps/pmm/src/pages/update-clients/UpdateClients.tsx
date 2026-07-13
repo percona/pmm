@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import { FetchingIcon } from 'components/fetching-icon';
-import OpenInNew from '@mui/icons-material/OpenInNew';
+import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { Page } from 'components/page';
 import { useUpdates } from 'contexts/updates';
 import { FC, useMemo, useState } from 'react';
@@ -109,6 +109,14 @@ export const UpdateClients: FC = () => {
               alignItems="center"
             >
               <Stack direction="row" spacing={1} alignItems="center">
+                <Button
+                  startIcon={<FetchingIcon isFetching={isRefetching} />}
+                  variant="contained"
+                  onClick={() => refetch()}
+                  data-testid="refresh-list-button"
+                >
+                  {isRefetching ? Messages.refreshing : Messages.refreshList}
+                </Button>
                 {!isUpToDate && (
                   <Link
                     target="_blank"
@@ -116,20 +124,11 @@ export const UpdateClients: FC = () => {
                     href={PMM_DOCS_UPDATE_CLIENT_URL}
                     data-testid="how-to-update-clients-link"
                   >
-                    <Button variant="contained" endIcon={<OpenInNew />}>
+                    <Button variant="text" endIcon={<ArrowOutwardIcon />}>
                       {Messages.howToUpdate}
                     </Button>
                   </Link>
                 )}
-                <Button
-                  startIcon={<FetchingIcon isFetching={isRefetching} />}
-                  variant="outlined"
-                  onClick={() => refetch()}
-                  data-testid="refresh-list-button"
-                >
-                  {isRefetching ? Messages.refreshing : Messages.refreshList}
-                </Button>
-
                 {isUpToDate && (
                   <HomeLink data-testid="pmm-home-link">
                     <Button variant="contained">{Messages.home}</Button>
