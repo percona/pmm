@@ -12,8 +12,9 @@ import { getAlertTemplatesColumns } from './columns/AlertTemplates.columns';
 import { CreateTemplateModal } from './modal-create-template';
 import { EditTemplateModal } from './modal-edit-template';
 import { DeleteTemplateModal } from './modal-delete-template';
+import { ViewTemplateModal } from './modal-view-template';
 
-type ModalType = 'create' | 'edit' | 'delete' | null;
+type ModalType = 'create' | 'view' | 'edit' | 'delete' | null;
 
 export const AlertTemplates: FC = () => {
   const { user } = useUser();
@@ -31,6 +32,10 @@ export const AlertTemplates: FC = () => {
     () =>
       getAlertTemplatesColumns({
         canManage,
+        onView: (template) => {
+          setSelected(template);
+          setModal('view');
+        },
         onEdit: (template) => {
           setSelected(template);
           setModal('edit');
@@ -70,6 +75,11 @@ export const AlertTemplates: FC = () => {
         }
       />
       <CreateTemplateModal open={modal === 'create'} onClose={closeModal} />
+      <ViewTemplateModal
+        open={modal === 'view'}
+        template={selected}
+        onClose={closeModal}
+      />
       <EditTemplateModal
         open={modal === 'edit'}
         template={selected}

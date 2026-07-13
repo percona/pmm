@@ -7,12 +7,14 @@ import { TemplateRowActions } from './cell-actions';
 
 interface ColumnsOptions {
   canManage: boolean;
+  onView: (template: Template) => void;
   onEdit: (template: Template) => void;
   onDelete: (template: Template) => void;
 }
 
 export const getAlertTemplatesColumns = ({
   canManage,
+  onView,
   onEdit,
   onDelete,
 }: ColumnsOptions): MRT_ColumnDef<Template>[] => [
@@ -40,6 +42,7 @@ export const getAlertTemplatesColumns = ({
       <TemplateRowActions
         template={row.original}
         canManage={canManage}
+        onView={onView}
         onEdit={onEdit}
         onDelete={onDelete}
       />

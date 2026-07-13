@@ -10,6 +10,7 @@ export const Messages = {
   },
   actions: {
     createRule: 'Create alert rule',
+    view: 'View',
     edit: 'Edit',
     delete: 'Delete',
   },

@@ -27,7 +27,7 @@ const makeTemplate = (
   labels: {},
   annotations: {},
   source,
-  yaml: '',
+  yaml: `# ${name}\nexpr: up == 0\n`,
 });
 
 const renderPage = () =>
@@ -72,9 +72,10 @@ describe('AlertTemplates', () => {
       'template-actions-menu'
     );
 
-    // Built-in: only "Create alert rule", no edit/delete.
+    // Built-in: Create alert rule + View (ungated), no edit/delete.
     fireEvent.click(builtInMenu);
     await screen.findByTestId('create-alert-rule');
+    expect(screen.getByTestId('view-alert-template')).toBeInTheDocument();
     expect(screen.queryByTestId('edit-alert-template')).toBeNull();
     expect(screen.queryByTestId('delete-alert-template')).toBeNull();
     fireEvent.keyDown(screen.getByTestId('create-alert-rule'), {
@@ -85,5 +86,20 @@ describe('AlertTemplates', () => {
     fireEvent.click(userMenu);
     await screen.findByTestId('edit-alert-template');
     expect(screen.getByTestId('delete-alert-template')).toBeInTheDocument();
+  });
+
+  it('opens the view modal from the row menu', async () => {
+    renderPage();
+    await waitFor(() =>
+      expect(screen.getAllByTestId('template-actions-menu').length).toBe(2)
+    );
+    fireEvent.click(screen.getAllByTestId('template-actions-menu')[0]);
+    fireEvent.click(await screen.findByTestId('view-alert-template'));
+
+    const modal = await screen.findByTestId('view-template-modal');
+    expect(modal).toBeInTheDocument();
+    expect(screen.getByTestId('view-template-yaml')).toHaveValue(
+      '# builtin_one\nexpr: up == 0\n'
+    );
   });
 });

@@ -5,6 +5,7 @@ import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
@@ -17,6 +18,7 @@ import { Messages } from '../../AlertTemplates.messages';
 interface Props {
   template: Template;
   canManage: boolean;
+  onView: (template: Template) => void;
   onEdit: (template: Template) => void;
   onDelete: (template: Template) => void;
 }
@@ -24,6 +26,7 @@ interface Props {
 export const TemplateRowActions: FC<Props> = ({
   template,
   canManage,
+  onView,
   onEdit,
   onDelete,
 }) => {
@@ -66,6 +69,15 @@ export const TemplateRowActions: FC<Props> = ({
             <AddOutlinedIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>{Messages.actions.createRule}</ListItemText>
+        </MenuItem>
+        <MenuItem
+          data-testid="view-alert-template"
+          onClick={run(() => onView(template))}
+        >
+          <ListItemIcon>
+            <VisibilityOutlinedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{Messages.actions.view}</ListItemText>
         </MenuItem>
         {editable && (
           <MenuItem
