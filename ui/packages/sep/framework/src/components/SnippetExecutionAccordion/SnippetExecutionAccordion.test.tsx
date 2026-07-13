@@ -86,6 +86,36 @@ function makeSchema(extraFields: FormSection['fields'] = []): PluginSchema {
   };
 }
 
+/** Schema shaped like the backend's synthesised snippet schema: a dedicated
+ * collapsible "Script preview" section whose only field is the read-only
+ * `script_preview` ScriptPreviewField (see app/sep/apps/snippets/schema.py). */
+function makeSchemaWithPreview(): PluginSchema {
+  const base = makeSchema();
+  return {
+    ...base,
+    forms: [
+      ...(base.forms ?? []),
+      {
+        title: 'Script preview',
+        collapsible: true,
+        collapsed_by_default: false,
+        render_after_submit: true,
+        fields: [
+          {
+            type: 'script_preview',
+            name: 'script_preview',
+            label: 'Snippet file',
+            required: false,
+            endpoint_url:
+              '/apps/snippets/snippet/preview?snippet_filename=check.sh',
+            depends_on: [],
+          },
+        ],
+      },
+    ],
+  };
+}
+
 function renderWithProviders(ui: ReactNode) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
@@ -497,5 +527,41 @@ describe('SnippetExecutionAccordion', () => {
     // Verify sudo is NOT in args
     const callArgs = mockedApi.post.mock.calls[0][1];
     expect(callArgs.args).not.toHaveProperty('sudo');
+  });
+
+  // Regression: SEP-1555. The accordion previously stripped `script_preview`
+  // from every section, leaving the backend's "Script preview" collapsible
+  // (whose only field is that ScriptPreviewField) rendering an empty body.
+  it('renders the script preview field content inside the Script preview section', async () => {
+    mockedApi.get.mockImplementation((url: string) =>
+      Promise.resolve({
+        data: url.includes('/snippet/preview')
+          ? { content: 'echo hello', language: 'bash', is_truncated: false }
+          : makeSchemaWithPreview(),
+      })
+    );
+
+    renderWithProviders(
+      <SnippetExecutionAccordion
+        snippetFilename="check.sh"
+        executorHost="db1"
+        title="Check Script"
+        defaultExpanded
+      />
+    );
+
+    expect(await screen.findByText('Script preview')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockedApi.get).toHaveBeenCalledWith(
+        '/apps/snippets/snippet/preview?snippet_filename=check.sh',
+        expect.anything()
+      );
+    });
+    // SyntaxHighlighter tokenises the content into per-token spans, so assert on
+    // the rendered <pre>'s combined text rather than a single text node.
+    await waitFor(() => {
+      const pre = document.querySelector('pre[data-language="bash"]');
+      expect(pre?.textContent).toContain('echo hello');
+    });
   });
 });

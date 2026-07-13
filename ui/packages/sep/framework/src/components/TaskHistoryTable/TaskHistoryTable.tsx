@@ -340,12 +340,7 @@ function TaskHistoryTableView({
         </DialogContent>
         <DialogActions>
           <Button onClick={cancelStop}>Cancel</Button>
-          <Button
-            onClick={confirmStop}
-            color="warning"
-            variant="contained"
-            autoFocus
-          >
+          <Button onClick={confirmStop} variant="contained" autoFocus>
             Stop
           </Button>
         </DialogActions>

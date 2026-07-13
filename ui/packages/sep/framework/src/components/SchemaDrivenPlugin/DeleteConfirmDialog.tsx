@@ -76,7 +76,6 @@ export function DeleteConfirmDialog({
         </Button>
         <Button
           variant="contained"
-          color="error"
           onClick={onConfirm}
           disabled={confirmDisabled}
           autoFocus

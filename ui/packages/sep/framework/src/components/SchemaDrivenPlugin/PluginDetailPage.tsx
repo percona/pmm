@@ -738,7 +738,6 @@ function ActionBar({
 
         <Button
           variant="outlined"
-          color="error"
           startIcon={<DeleteIcon />}
           onClick={() => setConfirmOpen(true)}
           disabled={deleteTask.isPending}
@@ -796,7 +795,6 @@ function ActionBar({
           </Button>
           <Button
             onClick={handleDelete}
-            color="error"
             variant="contained"
             disabled={deleteTask.isPending}
           >
@@ -1009,7 +1007,6 @@ export function PluginDetailPage({
                   Edit
                 </Button>
                 <Button
-                  color="error"
                   variant="outlined"
                   size="small"
                   onClick={() => setEntityDeleteOpen(true)}
