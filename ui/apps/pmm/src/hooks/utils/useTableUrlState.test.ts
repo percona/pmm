@@ -19,7 +19,10 @@ const setup = (params: string) => {
   const searchParams = new URLSearchParams(params);
   const setSearchParams = vi.fn();
 
-  vi.spyOn(reactRouter, 'useSearchParams').mockReturnValue([searchParams, setSearchParams]);
+  vi.spyOn(reactRouter, 'useSearchParams').mockReturnValue([
+    searchParams,
+    setSearchParams,
+  ]);
   vi.mocked(usePerconaTableUrlState).mockReturnValue({
     tableState: {
       state: {

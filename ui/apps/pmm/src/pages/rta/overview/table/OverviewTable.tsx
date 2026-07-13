@@ -13,7 +13,7 @@ const OVERVIEW_TABLE_URL_STATE_OPTIONS = {
   paramPrefix: 'overview',
   defaults: {
     pagination: { pageIndex: 0, pageSize: 25 },
-  }
+  },
 };
 
 interface Props {
@@ -31,11 +31,14 @@ const OverviewTable: FC<Props> = ({
   actions,
   onRowHover,
 }) => {
-  const { tableProps: navigableTableProps, refresh } = useNavigableRows<QueryData>({
-    data: queries,
-    onChange: onNavigableQueriesChange,
-  });
-  const { tableProps: urlStateTableProps } = useTableUrlState(OVERVIEW_TABLE_URL_STATE_OPTIONS);
+  const { tableProps: navigableTableProps, refresh } =
+    useNavigableRows<QueryData>({
+      data: queries,
+      onChange: onNavigableQueriesChange,
+    });
+  const { tableProps: urlStateTableProps } = useTableUrlState(
+    OVERVIEW_TABLE_URL_STATE_OPTIONS
+  );
 
   return (
     <RealtimeTableWrapper>
