@@ -44,13 +44,13 @@ export const TextSelect = <T,>({
   return (
     <Stack>
       <Button
+        {...buttonProps}
         variant="text"
         onClick={handleOpen}
         endIcon={open ? <ArrowDropUp /> : <ArrowDropDown />}
         data-testid={dataTestIdButton || 'text-select-button'}
         disabled={disabled}
         startIcon={startIcon}
-        {...buttonProps}
       >
         {label || Messages.label}: {valueLabel || Messages.empty}
       </Button>

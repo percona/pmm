@@ -142,6 +142,7 @@ const DetailsPane: FC<Props> = ({
                   flex: 1,
                   minHeight: 0,
                   minWidth: 0,
+                  position: 'relative',
                   display: 'grid',
                   gridTemplateRows: '1fr',
                 }}
