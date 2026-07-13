@@ -14,7 +14,7 @@ export const CodeBlock: FC<Props> = ({ children, className }) => {
     return <code>{children}</code>;
   }
 
-  const language = /language-(\w+)/.exec(className ?? '')?.[1];
+  const language = /language-([^\s]+)/.exec(className ?? '')?.[1];
   const text = Array.isArray(children)
     ? children.join('')
     : String(children ?? '');
