@@ -6,7 +6,8 @@ import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { Table } from '@percona/percona-ui';
 import { boxClasses, Skeleton, Typography } from '@mui/material';
-import { SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants';
+import { SESSIONS_TABLE_URL_STATE_OPTIONS } from './SessionsTable.constants.ts';
+import { SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants.tsx';
 import { useRealtimeSessions, useStopSessions } from 'hooks/api/useRealtime';
 import {
   getAllSessions,
@@ -22,10 +23,6 @@ import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { useUser } from 'contexts/user';
 import { Navigate } from 'react-router-dom';
 import { useTableUrlState } from 'hooks/utils/useTableUrlState';
-
-const SESSIONS_TABLE_URL_STATE_OPTIONS = {
-  paramPrefix: 'sessions',
-};
 
 const SessionsTable: FC = () => {
   const { user } = useUser();
