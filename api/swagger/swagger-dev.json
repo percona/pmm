@@ -1830,8 +1830,8 @@
           },
           {
             "type": "string",
-            "description": "Filter by run ID.",
-            "name": "run_id",
+            "description": "Filter by batch ID.",
+            "name": "batch_id",
             "in": "query"
           },
           {
@@ -1877,8 +1877,8 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "run_id": {
-                        "description": "ID of the run this result belongs to; all results produced by one execution share it.",
+                      "batch_id": {
+                        "description": "ID of the batch this result belongs to; all results produced by one execution share it.",
                         "type": "string",
                         "x-order": 1
                       },
@@ -2337,8 +2337,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "run_id": {
-                  "description": "ID assigned to this run; all check results produced by it share this run_id.",
+                "batch_id": {
+                  "description": "ID assigned to this batch; all check results produced by it share this batch_id.",
                   "type": "string",
                   "x-order": 0
                 }

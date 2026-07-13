@@ -196,7 +196,7 @@ func (s *ChecksAPIService) ListCheckResultsHistory(
 		NodeName:    req.NodeName,
 		Category:    req.Category,
 		CheckName:   req.CheckName,
-		RunID:       req.RunId,
+		BatchID:     req.BatchId,
 		IsRead:      req.IsRead,
 	}
 	if req.Status != nil {
@@ -237,7 +237,7 @@ func (s *ChecksAPIService) ListCheckResultsHistory(
 		items = append(items, &advisorsv1.CheckResultHistoryItem{
 			Id:             r.ID,
 			CheckName:      r.CheckName,
-			RunId:          r.RunID,
+			BatchId:        r.BatchID,
 			AdvisorName:    r.AdvisorName,
 			Category:       r.Category,
 			Severity:       convertModelSeverity(r.Severity),
@@ -306,10 +306,10 @@ func (s *ChecksAPIService) MarkCheckResultsRead(
 	return &advisorsv1.MarkCheckResultsReadResponse{}, nil
 }
 
-// StartAdvisorChecks executes advisor checks and returns the ID assigned to this run.
+// StartAdvisorChecks executes advisor checks and returns the ID assigned to this batch.
 func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1.StartAdvisorChecksRequest) (*advisorsv1.StartAdvisorChecksResponse, error) {
 	// Start only specified checks from any group.
-	runID, err := s.checksService.StartChecks(req.Names)
+	batchID, err := s.checksService.StartChecks(req.Names)
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
@@ -318,7 +318,7 @@ func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1
 		return nil, fmt.Errorf("failed to start advisor checks: %w", err)
 	}
 
-	return &advisorsv1.StartAdvisorChecksResponse{RunId: runID}, nil
+	return &advisorsv1.StartAdvisorChecksResponse{BatchId: batchID}, nil
 }
 
 // ListAdvisorChecks returns a list of available advisor checks and their statuses.

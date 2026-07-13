@@ -24,7 +24,7 @@ export const startAdvisorChecks = async (names: string[]): Promise<string> => {
     '/advisors/checks:start',
     payload
   );
-  return res.data.runId;
+  return res.data.batchId;
 };
 
 export const changeAdvisorChecks = async (

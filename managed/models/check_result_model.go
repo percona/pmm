@@ -90,7 +90,7 @@ type CheckResult struct {
 	Labels         []byte            `reform:"labels"`
 	CheckedAt      time.Time         `reform:"checked_at"`
 	IsRead         bool              `reform:"is_read"`
-	RunID          string            `reform:"run_id"`
+	BatchID        string            `reform:"batch_id"`
 	TriggeredBy    CheckTriggeredBy  `reform:"triggered_by"`
 }
 

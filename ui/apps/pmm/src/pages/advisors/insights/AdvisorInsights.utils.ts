@@ -28,7 +28,7 @@ export const insightToText = (item: CheckResultHistoryItem): string => {
 
   const details: Array<[string, string]> = [
     ['ID', item.id],
-    ['Check Run ID', item.runId],
+    ['Batch ID', item.batchId],
     ['Check Name', item.checkName],
     ['Advisor', item.advisorName],
     ['Category', capitalize(item.category)],

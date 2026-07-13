@@ -10,7 +10,7 @@ export const Messages = {
     viewDetails: 'View details',
     toggleRead: 'Toggle read',
     rerunNow: 'Re-run now',
-    filterByRunId: 'Filter by run ID',
+    filterByBatchId: 'Filter by batch ID',
     copyAsText: 'Copy as text',
     disableCheck: 'Disable check',
     enableCheck: 'Enable check',
@@ -40,12 +40,12 @@ export const Messages = {
     checkInterval: 'Check interval',
     checkId: 'Check ID',
     checkName: 'Check name',
-    otherLabels: 'Other labels',
+    labels: 'Labels',
   },
   viewResults: 'View results',
   filters: {
     all: 'All',
-    run: (runId: string) => `Run: ${runId}…`,
+    batch: (batchId: string) => `Batch: ${batchId}…`,
     clear: 'Clear filters',
     refresh: 'Refresh',
     refreshTooltip:

@@ -64,7 +64,7 @@ export enum AdvisorCheckTriggeredBy {
 }
 
 export interface StartAdvisorChecksResponse {
-  runId: string;
+  batchId: string;
 }
 
 export interface CheckResultHistoryItem {
@@ -86,7 +86,7 @@ export interface CheckResultHistoryItem {
   labels: Record<string, string>;
   checkedAt: string;
   isRead: boolean;
-  runId: string;
+  batchId: string;
   triggeredBy: AdvisorCheckTriggeredBy;
   outcome: string;
   environment: string;
@@ -105,7 +105,7 @@ export interface ListCheckResultsHistoryParams {
   status?: AdvisorCheckResultStatus;
   severity?: Severity;
   isRead?: boolean;
-  runId?: string;
+  batchId?: string;
   triggeredBy?: AdvisorCheckTriggeredBy;
   from?: string;
   to?: string;

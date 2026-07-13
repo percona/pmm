@@ -282,16 +282,18 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
             </Field>
           </Box>
 
-          {labels.length > 0 && (
-            <Stack gap={1} sx={{ mt: 3 }}>
-              <Typography variant="h6">{m.otherLabels}</Typography>
+          <Stack gap={1} sx={{ mt: 3 }}>
+            <Typography variant="h6">{m.labels}</Typography>
+            {labels.length > 0 ? (
               <Stack direction="row" flexWrap="wrap" gap={1}>
                 {labels.map(([key, value]) => (
                   <Chip key={key} size="small" label={`${key}: ${value}`} />
                 ))}
               </Stack>
-            </Stack>
-          )}
+            ) : (
+              <Typography variant="body1">{EM_DASH}</Typography>
+            )}
+          </Stack>
         </Box>
       )}
     </Drawer>

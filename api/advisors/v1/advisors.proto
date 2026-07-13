@@ -141,8 +141,8 @@ message StartAdvisorChecksRequest {
 }
 
 message StartAdvisorChecksResponse {
-  // ID assigned to this run; all check results produced by it share this run_id.
-  string run_id = 1;
+  // ID assigned to this batch; all check results produced by it share this batch_id.
+  string batch_id = 1;
 }
 
 message ListAdvisorChecksRequest {}
@@ -191,8 +191,8 @@ message GetFailedChecksResponse {
 message CheckResultHistoryItem {
   // Unique identifier of the history record.
   string id = 1;
-  // ID of the run this result belongs to; all results produced by one execution share it.
-  string run_id = 2;
+  // ID of the batch this result belongs to; all results produced by one execution share it.
+  string batch_id = 2;
   // Name of the check that ran.
   string check_name = 3;
   // Name of the advisor the check belongs to.
@@ -264,8 +264,8 @@ message ListCheckResultsHistoryRequest {
   string check_name = 11;
   // Filter by severity.
   optional management.v1.Severity severity = 12;
-  // Filter by run ID.
-  string run_id = 13;
+  // Filter by batch ID.
+  string batch_id = 13;
   // Filter by the actor that initiated the run.
   optional AdvisorCheckTriggeredBy triggered_by = 14;
 }

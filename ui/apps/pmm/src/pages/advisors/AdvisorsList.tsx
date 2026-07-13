@@ -44,7 +44,7 @@ const AdvisorsList: FC = () => {
   const runChecks = useCallback(
     (names: string[], message: string) =>
       startChecks(names, {
-        onSuccess: (runId) =>
+        onSuccess: (batchId) =>
           enqueueSnackbar(message, {
             variant: 'success',
             action: (key) => (
@@ -53,7 +53,7 @@ const AdvisorsList: FC = () => {
                 size="small"
                 onClick={() => {
                   closeSnackbar(key);
-                  navigate(`/advisors/insights?runId=${runId}`);
+                  navigate(`/advisors/insights?batchId=${batchId}`);
                 }}
                 data-testid="view-run-results"
               >

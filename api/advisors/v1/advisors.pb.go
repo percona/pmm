@@ -858,8 +858,8 @@ func (x *StartAdvisorChecksRequest) GetNames() []string {
 
 type StartAdvisorChecksResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// ID assigned to this run; all check results produced by it share this run_id.
-	RunId         string `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	// ID assigned to this batch; all check results produced by it share this batch_id.
+	BatchId       string `protobuf:"bytes,1,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -894,9 +894,9 @@ func (*StartAdvisorChecksResponse) Descriptor() ([]byte, []int) {
 	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *StartAdvisorChecksResponse) GetRunId() string {
+func (x *StartAdvisorChecksResponse) GetBatchId() string {
 	if x != nil {
-		return x.RunId
+		return x.BatchId
 	}
 	return ""
 }
@@ -1352,8 +1352,8 @@ type CheckResultHistoryItem struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique identifier of the history record.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// ID of the run this result belongs to; all results produced by one execution share it.
-	RunId string `protobuf:"bytes,2,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	// ID of the batch this result belongs to; all results produced by one execution share it.
+	BatchId string `protobuf:"bytes,2,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
 	// Name of the check that ran.
 	CheckName string `protobuf:"bytes,3,opt,name=check_name,json=checkName,proto3" json:"check_name,omitempty"`
 	// Name of the advisor the check belongs to.
@@ -1439,9 +1439,9 @@ func (x *CheckResultHistoryItem) GetId() string {
 	return ""
 }
 
-func (x *CheckResultHistoryItem) GetRunId() string {
+func (x *CheckResultHistoryItem) GetBatchId() string {
 	if x != nil {
-		return x.RunId
+		return x.BatchId
 	}
 	return ""
 }
@@ -1626,8 +1626,8 @@ type ListCheckResultsHistoryRequest struct {
 	CheckName string `protobuf:"bytes,11,opt,name=check_name,json=checkName,proto3" json:"check_name,omitempty"`
 	// Filter by severity.
 	Severity *v1.Severity `protobuf:"varint,12,opt,name=severity,proto3,enum=management.v1.Severity,oneof" json:"severity,omitempty"`
-	// Filter by run ID.
-	RunId string `protobuf:"bytes,13,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	// Filter by batch ID.
+	BatchId string `protobuf:"bytes,13,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
 	// Filter by the actor that initiated the run.
 	TriggeredBy   *AdvisorCheckTriggeredBy `protobuf:"varint,14,opt,name=triggered_by,json=triggeredBy,proto3,enum=advisors.v1.AdvisorCheckTriggeredBy,oneof" json:"triggered_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1748,9 +1748,9 @@ func (x *ListCheckResultsHistoryRequest) GetSeverity() v1.Severity {
 	return v1.Severity(0)
 }
 
-func (x *ListCheckResultsHistoryRequest) GetRunId() string {
+func (x *ListCheckResultsHistoryRequest) GetBatchId() string {
 	if x != nil {
-		return x.RunId
+		return x.BatchId
 	}
 	return ""
 }
@@ -2073,9 +2073,9 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\binterval\x18\x04 \x01(\x0e2!.advisors.v1.AdvisorCheckIntervalR\bintervalB\t\n" +
 	"\a_enable\"1\n" +
 	"\x19StartAdvisorChecksRequest\x12\x14\n" +
-	"\x05names\x18\x01 \x03(\tR\x05names\"3\n" +
-	"\x1aStartAdvisorChecksResponse\x12\x15\n" +
-	"\x06run_id\x18\x01 \x01(\tR\x05runId\"\x1a\n" +
+	"\x05names\x18\x01 \x03(\tR\x05names\"7\n" +
+	"\x1aStartAdvisorChecksResponse\x12\x19\n" +
+	"\bbatch_id\x18\x01 \x01(\tR\abatchId\"\x1a\n" +
 	"\x18ListAdvisorChecksRequest\"N\n" +
 	"\x19ListAdvisorChecksResponse\x121\n" +
 	"\x06checks\x18\x01 \x03(\v2\x19.advisors.v1.AdvisorCheckR\x06checks\"\x15\n" +
@@ -2102,10 +2102,10 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"totalItems\x12\x1f\n" +
 	"\vtotal_pages\x18\x02 \x01(\x05R\n" +
 	"totalPages\x122\n" +
-	"\aresults\x18\x03 \x03(\v2\x18.advisors.v1.CheckResultR\aresults\"\xeb\a\n" +
+	"\aresults\x18\x03 \x03(\v2\x18.advisors.v1.CheckResultR\aresults\"\xef\a\n" +
 	"\x16CheckResultHistoryItem\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
-	"\x06run_id\x18\x02 \x01(\tR\x05runId\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
+	"\bbatch_id\x18\x02 \x01(\tR\abatchId\x12\x1d\n" +
 	"\n" +
 	"check_name\x18\x03 \x01(\tR\tcheckName\x12!\n" +
 	"\fadvisor_name\x18\x04 \x01(\tR\vadvisorName\x12\x1a\n" +
@@ -2134,7 +2134,7 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\ftriggered_by\x18\x18 \x01(\x0e2$.advisors.v1.AdvisorCheckTriggeredByR\vtriggeredBy\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc1\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc5\x05\n" +
 	"\x1eListCheckResultsHistoryRequest\x12)\n" +
 	"\tpage_size\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01H\x00R\bpageSize\x88\x01\x01\x12+\n" +
 	"\n" +
@@ -2151,8 +2151,8 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	" \x01(\tR\bcategory\x12\x1d\n" +
 	"\n" +
 	"check_name\x18\v \x01(\tR\tcheckName\x128\n" +
-	"\bseverity\x18\f \x01(\x0e2\x17.management.v1.SeverityH\x04R\bseverity\x88\x01\x01\x12\x15\n" +
-	"\x06run_id\x18\r \x01(\tR\x05runId\x12L\n" +
+	"\bseverity\x18\f \x01(\x0e2\x17.management.v1.SeverityH\x04R\bseverity\x88\x01\x01\x12\x19\n" +
+	"\bbatch_id\x18\r \x01(\tR\abatchId\x12L\n" +
 	"\ftriggered_by\x18\x0e \x01(\x0e2$.advisors.v1.AdvisorCheckTriggeredByH\x05R\vtriggeredBy\x88\x01\x01B\f\n" +
 	"\n" +
 	"_page_sizeB\r\n" +

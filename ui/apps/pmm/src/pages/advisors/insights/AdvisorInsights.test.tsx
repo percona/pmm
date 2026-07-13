@@ -76,7 +76,7 @@ const TEST_ITEM: CheckResultHistoryItem = {
   labels: {},
   checkedAt: '2026-07-05T10:00:00Z',
   isRead: true,
-  runId: 'run-1',
+  batchId: 'batch-1',
   triggeredBy: AdvisorCheckTriggeredBy.user,
   outcome: 'Installed version: 5.7.30',
   environment: 'prod',
@@ -94,8 +94,8 @@ const TEST_ITEM_UNREAD: CheckResultHistoryItem = {
   description: 'A user has the SUPER role',
   severity: Severity.error,
   isRead: false,
-  // recorded before run grouping existed
-  runId: '',
+  // recorded before batch grouping existed
+  batchId: '',
 };
 
 const renderComponent = (initialEntry = '/advisors/insights') =>
@@ -127,7 +127,7 @@ describe('AdvisorInsights', () => {
       results: [TEST_ITEM, TEST_ITEM_UNREAD],
     });
     vi.mocked(advisorsApi.markCheckResultsRead).mockResolvedValue();
-    vi.mocked(advisorsApi.startAdvisorChecks).mockResolvedValue('run-123');
+    vi.mocked(advisorsApi.startAdvisorChecks).mockResolvedValue('batch-123');
     vi.mocked(advisorsApi.changeAdvisorChecks).mockResolvedValue();
     vi.mocked(advisorsApi.listCheckResultsFilterValues).mockResolvedValue({
       serviceNames: ['mysql-prod', 'postgresql-prod'],
@@ -172,13 +172,13 @@ describe('AdvisorInsights', () => {
     );
   });
 
-  it('passes the runId deep link to the API', async () => {
-    renderComponent('/advisors/insights?runId=run-42');
+  it('passes the batchId deep link to the API', async () => {
+    renderComponent('/advisors/insights?batchId=batch-42');
 
     await waitForRows();
 
     expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
-      expect.objectContaining({ runId: 'run-42' })
+      expect.objectContaining({ batchId: 'batch-42' })
     );
   });
 
@@ -391,10 +391,8 @@ describe('AdvisorInsights', () => {
     expect(
       within(screen.getByTestId('details-field-check-id')).getByText('result-1')
     ).toBeInTheDocument();
-    // no labels on this insight, so no labels section
-    expect(
-      within(pane).queryByText(Messages.details.otherLabels)
-    ).not.toBeInTheDocument();
+    // the labels section title is always shown, even without labels
+    expect(within(pane).getByText(Messages.details.labels)).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId('insight-details-close'));
 
@@ -420,7 +418,7 @@ describe('AdvisorInsights', () => {
       '\n' +
       'Check Details:\n' +
       '  ID: result-1\n' +
-      '  Check Run ID: run-1\n' +
+      '  Batch ID: batch-1\n' +
       '  Check Name: mysql_version_check\n' +
       '  Advisor: MySQL Version\n' +
       '  Category: Version_configuration\n' +
@@ -514,7 +512,7 @@ describe('AdvisorInsights', () => {
     );
   });
 
-  it('disables re-run for disabled checks and run filter for rows without run ID', async () => {
+  it('disables re-run for disabled checks and batch filter for rows without batch ID', async () => {
     renderComponent();
 
     await waitForRows();
@@ -526,37 +524,37 @@ describe('AdvisorInsights', () => {
       'aria-disabled',
       'true'
     );
-    expect(screen.getByTestId('action-filter-by-run-id')).toHaveAttribute(
+    expect(screen.getByTestId('action-filter-by-batch-id')).toHaveAttribute(
       'aria-disabled',
       'true'
     );
   });
 
-  it('filters by run ID from the row menu and clears via the chip', async () => {
+  it('filters by batch ID from the row menu and clears via the chip', async () => {
     renderComponent();
 
     await waitForRows();
 
     fireEvent.click(screen.getByTestId('insight-result-1-actions'));
-    fireEvent.click(await screen.findByTestId('action-filter-by-run-id'));
+    fireEvent.click(await screen.findByTestId('action-filter-by-batch-id'));
 
     await waitFor(() =>
       expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
-        expect.objectContaining({ runId: 'run-1', pageIndex: 0 })
+        expect.objectContaining({ batchId: 'batch-1', pageIndex: 0 })
       )
     );
 
-    const chip = await screen.findByTestId('run-id-filter-chip');
+    const chip = await screen.findByTestId('batch-id-filter-chip');
     fireEvent.click(within(chip).getByTestId('CancelIcon'));
 
     await waitFor(() =>
       expect(advisorsApi.listCheckResultsHistory).toHaveBeenLastCalledWith(
-        expect.objectContaining({ runId: undefined })
+        expect.objectContaining({ batchId: undefined })
       )
     );
   });
 
-  it('re-runs the check from the row menu and links to the new run', async () => {
+  it('re-runs the check from the row menu and links to the new batch', async () => {
     renderComponent();
 
     await waitForRows();
@@ -580,7 +578,7 @@ describe('AdvisorInsights', () => {
 
     await waitFor(() =>
       expect(advisorsApi.listCheckResultsHistory).toHaveBeenLastCalledWith(
-        expect.objectContaining({ runId: 'run-123' })
+        expect.objectContaining({ batchId: 'batch-123' })
       )
     );
   });

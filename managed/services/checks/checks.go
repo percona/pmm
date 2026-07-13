@@ -299,11 +299,11 @@ func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interv
 	}
 
 	s.UpdateAdvisorsList(ctx)
-	ri := runInfo{runID: uuid.NewString(), triggeredBy: models.CheckTriggeredByScheduler}
+	ri := runInfo{batchID: uuid.NewString(), triggeredBy: models.CheckTriggeredByScheduler}
 	return s.run(ctx, intervalGroup, nil, ri)
 }
 
-// StartChecks downloads and executes advisor checks in asynchronous way and returns the run ID.
+// StartChecks downloads and executes advisor checks in asynchronous way and returns the batch ID.
 // If checkNames specified then only matched checks will be executed.
 func (s *Service) StartChecks(checkNames []string) (string, error) {
 	settings, err := models.GetSettings(s.db)
@@ -315,7 +315,7 @@ func (s *Service) StartChecks(checkNames []string) (string, error) {
 		return "", services.ErrAdvisorsDisabled
 	}
 
-	ri := runInfo{runID: uuid.NewString(), triggeredBy: models.CheckTriggeredByUser}
+	ri := runInfo{batchID: uuid.NewString(), triggeredBy: models.CheckTriggeredByUser}
 
 	// Hand the request off to runChecksLoop, which owns the service lifecycle
 	// context. The loop only runs on the leader node, so a non-blocking send
@@ -326,12 +326,12 @@ func (s *Service) StartChecks(checkNames []string) (string, error) {
 		s.l.Warn("Advisor checks run is already pending, skipping the request.")
 	}
 
-	return ri.runID, nil
+	return ri.batchID, nil
 }
 
 // runInfo identifies a single Advisor checks execution batch.
 type runInfo struct {
-	runID       string
+	batchID     string
 	triggeredBy models.CheckTriggeredBy
 }
 
@@ -811,7 +811,7 @@ func newCheckResultRecord(
 		ReadMoreURL:    result.ReadMoreURL,
 		Severity:       convertCommonSeverity(result.Severity),
 		CheckedAt:      checkedAt,
-		RunID:          ri.runID,
+		BatchID:        ri.batchID,
 		TriggeredBy:    ri.triggeredBy,
 	}
 	// OK and error outcomes carry no finding; fall back to the check's own summary

@@ -42,7 +42,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 		ReplicationSet: "rs-1",
 	}
 	checkedAt := models.Now()
-	ri := runInfo{runID: "run-1", triggeredBy: models.CheckTriggeredByUser}
+	ri := runInfo{batchID: "batch-1", triggeredBy: models.CheckTriggeredByUser}
 
 	t.Run("failed finding maps all fields", func(t *testing.T) {
 		t.Parallel()
@@ -76,7 +76,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 		assert.Equal(t, "https://example.com", rec.ReadMoreURL)
 		assert.Equal(t, models.CheckSeverityError, rec.Severity)
 		assert.Equal(t, checkedAt, rec.CheckedAt)
-		assert.Equal(t, "run-1", rec.RunID)
+		assert.Equal(t, "batch-1", rec.BatchID)
 		assert.Equal(t, models.CheckTriggeredByUser, rec.TriggeredBy)
 
 		labels, err := rec.GetLabels()

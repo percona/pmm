@@ -118,8 +118,8 @@ const FilterSelect: FC<FilterSelectProps> = ({
 
 const AdvisorInsights: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  // deep link to the results of a concrete run, e.g. from the "View results" snackbar
-  const runId = searchParams.get('runId') || undefined;
+  // deep link to the results of a concrete batch, e.g. from the "View results" snackbar
+  const batchId = searchParams.get('batchId') || undefined;
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
     pageSize: 100,
@@ -132,11 +132,11 @@ const AdvisorInsights: FC = () => {
     setPagination((current) => ({ ...current, pageIndex: 0 }));
   };
 
-  const hasActiveFilters = Object.values(filters).some(Boolean) || !!runId;
+  const hasActiveFilters = Object.values(filters).some(Boolean) || !!batchId;
 
   const handleClearFilters = () => {
     setFilters(NO_FILTERS);
-    if (runId) {
+    if (batchId) {
       setSearchParams({});
     }
     setPagination((current) => ({ ...current, pageIndex: 0 }));
@@ -146,7 +146,7 @@ const AdvisorInsights: FC = () => {
     () => ({
       pageIndex: pagination.pageIndex,
       pageSize: pagination.pageSize,
-      runId,
+      batchId,
       serviceName: filters.serviceName || undefined,
       nodeName: filters.nodeName || undefined,
       category: filters.category || undefined,
@@ -154,7 +154,7 @@ const AdvisorInsights: FC = () => {
       status: (filters.status as AdvisorCheckResultStatus) || undefined,
       isRead: filters.isRead === '' ? undefined : filters.isRead === 'true',
     }),
-    [pagination, filters, runId]
+    [pagination, filters, batchId]
   );
 
   const [actionMenu, setActionMenu] = useState<RowActionMenuState | null>(null);
@@ -180,8 +180,8 @@ const AdvisorInsights: FC = () => {
     [advisors]
   );
 
-  const applyRunIdFilter = (newRunId: string) => {
-    setSearchParams(newRunId ? { runId: newRunId } : {});
+  const applyBatchIdFilter = (newBatchId: string) => {
+    setSearchParams(newBatchId ? { batchId: newBatchId } : {});
     setPagination((current) => ({ ...current, pageIndex: 0 }));
   };
 
@@ -189,7 +189,7 @@ const AdvisorInsights: FC = () => {
     const checkSummary =
       checksByName.get(insight.checkName)?.summary ?? insight.checkName;
     startChecks([insight.checkName], {
-      onSuccess: (newRunId) =>
+      onSuccess: (newBatchId) =>
         enqueueSnackbar(Messages.success.rerunStarted(checkSummary), {
           variant: 'success',
           action: (key) => (
@@ -198,7 +198,7 @@ const AdvisorInsights: FC = () => {
               size="small"
               onClick={() => {
                 closeSnackbar(key);
-                applyRunIdFilter(newRunId);
+                applyBatchIdFilter(newBatchId);
               }}
               data-testid="view-run-results"
             >
@@ -331,12 +331,12 @@ const AdvisorInsights: FC = () => {
             value={filters.isRead}
             onChange={(value) => updateFilter('isRead', value)}
           />
-          {runId && (
+          {batchId && (
             <Chip
-              label={Messages.filters.run(runId.slice(0, 8))}
-              onDelete={() => applyRunIdFilter('')}
+              label={Messages.filters.batch(batchId.slice(0, 8))}
+              onDelete={() => applyBatchIdFilter('')}
               sx={{ alignSelf: 'center' }}
-              data-testid="run-id-filter-chip"
+              data-testid="batch-id-filter-chip"
             />
           )}
           <Button
@@ -469,20 +469,20 @@ const AdvisorInsights: FC = () => {
             <ListItemText>{Messages.actions.rerunNow}</ListItemText>
           </MenuItem>
           <MenuItem
-            // rows recorded before run grouping have no run ID
-            disabled={!actionMenu?.insight.runId}
+            // rows recorded before batch grouping have no batch ID
+            disabled={!actionMenu?.insight.batchId}
             onClick={() => {
               if (actionMenu) {
-                applyRunIdFilter(actionMenu.insight.runId);
+                applyBatchIdFilter(actionMenu.insight.batchId);
               }
               setActionMenu(null);
             }}
-            data-testid="action-filter-by-run-id"
+            data-testid="action-filter-by-batch-id"
           >
             <ListItemIcon>
               <FilterAltOutlinedIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>{Messages.actions.filterByRunId}</ListItemText>
+            <ListItemText>{Messages.actions.filterByBatchId}</ListItemText>
           </MenuItem>
           <MenuItem
             onClick={() => {

@@ -58,6 +58,12 @@ ListCheckResultsHistoryParams contains all the parameters to send to the API end
 	Typically these are written to a http.Request.
 */
 type ListCheckResultsHistoryParams struct {
+	/* BatchID.
+
+	   Filter by batch ID.
+	*/
+	BatchID *string
+
 	/* Category.
 
 	   Filter by advisor category.
@@ -105,12 +111,6 @@ type ListCheckResultsHistoryParams struct {
 	   Format: int32
 	*/
 	PageSize *int32
-
-	/* RunID.
-
-	   Filter by run ID.
-	*/
-	RunID *string
 
 	/* ServiceID.
 
@@ -233,6 +233,17 @@ func (o *ListCheckResultsHistoryParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithBatchID adds the batchID to the list check results history params
+func (o *ListCheckResultsHistoryParams) WithBatchID(batchID *string) *ListCheckResultsHistoryParams {
+	o.SetBatchID(batchID)
+	return o
+}
+
+// SetBatchID adds the batchId to the list check results history params
+func (o *ListCheckResultsHistoryParams) SetBatchID(batchID *string) {
+	o.BatchID = batchID
+}
+
 // WithCategory adds the category to the list check results history params
 func (o *ListCheckResultsHistoryParams) WithCategory(category *string) *ListCheckResultsHistoryParams {
 	o.SetCategory(category)
@@ -310,17 +321,6 @@ func (o *ListCheckResultsHistoryParams) SetPageSize(pageSize *int32) {
 	o.PageSize = pageSize
 }
 
-// WithRunID adds the runID to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithRunID(runID *string) *ListCheckResultsHistoryParams {
-	o.SetRunID(runID)
-	return o
-}
-
-// SetRunID adds the runId to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetRunID(runID *string) {
-	o.RunID = runID
-}
-
 // WithServiceID adds the serviceID to the list check results history params
 func (o *ListCheckResultsHistoryParams) WithServiceID(serviceID *string) *ListCheckResultsHistoryParams {
 	o.SetServiceID(serviceID)
@@ -393,6 +393,22 @@ func (o *ListCheckResultsHistoryParams) WriteToRequest(r runtime.ClientRequest, 
 		return err
 	}
 	var res []error
+
+	if o.BatchID != nil {
+
+		// query param batch_id
+		var qrBatchID string
+
+		if o.BatchID != nil {
+			qrBatchID = *o.BatchID
+		}
+		qBatchID := qrBatchID
+		if qBatchID != "" {
+			if err := r.SetQueryParam("batch_id", qBatchID); err != nil {
+				return err
+			}
+		}
+	}
 
 	if o.Category != nil {
 
@@ -501,22 +517,6 @@ func (o *ListCheckResultsHistoryParams) WriteToRequest(r runtime.ClientRequest, 
 		qPageSize := swag.FormatInt32(qrPageSize)
 		if qPageSize != "" {
 			if err := r.SetQueryParam("page_size", qPageSize); err != nil {
-				return err
-			}
-		}
-	}
-
-	if o.RunID != nil {
-
-		// query param run_id
-		var qrRunID string
-
-		if o.RunID != nil {
-			qrRunID = *o.RunID
-		}
-		qRunID := qrRunID
-		if qRunID != "" {
-			if err := r.SetQueryParam("run_id", qRunID); err != nil {
 				return err
 			}
 		}

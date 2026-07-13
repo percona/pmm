@@ -42,7 +42,7 @@ type CheckResultFilters struct {
 	NodeName    string
 	Category    string
 	CheckName   string
-	RunID       string
+	BatchID     string
 	TriggeredBy *CheckTriggeredBy
 	Severity    *CheckSeverity
 	Status      *CheckResultStatus
@@ -76,9 +76,9 @@ func checkResultConditions(q *reform.Querier, filters CheckResultFilters) (strin
 		conditions = append(conditions, "check_name = "+q.Placeholder(len(args)+1))
 		args = append(args, filters.CheckName)
 	}
-	if filters.RunID != "" {
-		conditions = append(conditions, "run_id = "+q.Placeholder(len(args)+1))
-		args = append(args, filters.RunID)
+	if filters.BatchID != "" {
+		conditions = append(conditions, "batch_id = "+q.Placeholder(len(args)+1))
+		args = append(args, filters.BatchID)
 	}
 	if filters.TriggeredBy != nil {
 		conditions = append(conditions, "triggered_by = "+q.Placeholder(len(args)+1))

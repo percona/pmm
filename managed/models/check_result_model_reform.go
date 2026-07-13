@@ -50,7 +50,7 @@ func (v *checkResultTableType) Columns() []string {
 		"labels",
 		"checked_at",
 		"is_read",
-		"run_id",
+		"batch_id",
 		"triggered_by",
 	}
 }
@@ -98,7 +98,7 @@ var CheckResultTable = &checkResultTableType{
 			{Name: "Labels", Type: "[]uint8", Column: "labels"},
 			{Name: "CheckedAt", Type: "time.Time", Column: "checked_at"},
 			{Name: "IsRead", Type: "bool", Column: "is_read"},
-			{Name: "RunID", Type: "string", Column: "run_id"},
+			{Name: "BatchID", Type: "string", Column: "batch_id"},
 			{Name: "TriggeredBy", Type: "CheckTriggeredBy", Column: "triggered_by"},
 		},
 		PKFieldIndex: 0,
@@ -131,7 +131,7 @@ func (s CheckResult) String() string {
 	res[19] = "Labels: " + reform.Inspect(s.Labels, true)
 	res[20] = "CheckedAt: " + reform.Inspect(s.CheckedAt, true)
 	res[21] = "IsRead: " + reform.Inspect(s.IsRead, true)
-	res[22] = "RunID: " + reform.Inspect(s.RunID, true)
+	res[22] = "BatchID: " + reform.Inspect(s.BatchID, true)
 	res[23] = "TriggeredBy: " + reform.Inspect(s.TriggeredBy, true)
 	return strings.Join(res, ", ")
 }
@@ -162,7 +162,7 @@ func (s *CheckResult) Values() []interface{} {
 		s.Labels,
 		s.CheckedAt,
 		s.IsRead,
-		s.RunID,
+		s.BatchID,
 		s.TriggeredBy,
 	}
 }
@@ -193,7 +193,7 @@ func (s *CheckResult) Pointers() []interface{} {
 		&s.Labels,
 		&s.CheckedAt,
 		&s.IsRead,
-		&s.RunID,
+		&s.BatchID,
 		&s.TriggeredBy,
 	}
 }
