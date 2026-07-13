@@ -85,7 +85,7 @@
             "type": "text"
         },
         {
-            "description": "Time since the selected MongoDB service was last restarted.",
+            "description": "Minimum uptime across the selected MongoDB node(s) (time since the most recent restart).", 
             "fieldConfig": {
                 "defaults": {
                     "color": {
