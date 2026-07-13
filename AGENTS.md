@@ -313,7 +313,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 | **Kong** | CLI framework for pmm-admin |
 | **Docker Compose** | Development environment |
 | **Ansible** | Server provisioning and configuration |
-| **Packer** | Machine image builds (AMI, OVA, Azure, DigitalOcean) |
+| **Packer** | Machine image builds (AMI) |
 
 ## Global Development Conventions
 
@@ -331,7 +331,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Use `status.Error()` with proper gRPC codes for API errors
 - Wrap errors with context: `fmt.Errorf("descriptive context: %w", err)`
 - Return early on errors to avoid deep nesting
-- Use `errors.Is()` and `errors.As()` for type checking
+- Use `errors.Is()`, `errors.As()` or `errors.AsType()` for error inspection
 - Use standard `errors` package, not `github.com/pkg/errors`
 - Check `reform.ErrNoRows` for "not found" scenarios in pmm-managed
 
@@ -378,6 +378,8 @@ All long-running daemons expose on `127.0.0.1`:
 |--------|---------|
 | `make env-up` | Start development container (PMM Server) |
 | `make env-up-rebuild` | Rebuild development container from scratch |
+| `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI |
+| `make run-qan-ui` | Inside devcontainer: webpack + livereload for the QAN Grafana plugin |
 | `make gen` | Generate all code (protobuf, reform, mocks, format) |
 | `make check` | Run Go/API linters (buf, golangci-lint, go-sumtype) |
 | `make format` | Format code (gofumpt, goimports, gci) |
@@ -390,11 +392,11 @@ All long-running daemons expose on `127.0.0.1`:
 ## Key Files to Reference
 
 - `Makefile`, `Makefile.include` — build and development targets
-- `docker-compose.dev.yml` — development environment (PMM Server, renderer, watchtower)
+- `docker-compose.dev.yml` — development environment (PMM Server, renderer)
 - `docker-compose.yml` — community/quickstart compose (stable image, minimal config)
 - `go.mod` — Go module definition
 - `.golangci.yml` — linter configuration
 - `.mockery.yaml` — mock generation configuration
-- `docs/process/tech_stack.md` — technology choices and rationale
-- `docs/process/best_practices.md` — coding best practices
-- `docs/process/GIT_AND_GITHUB.md` — git workflow
+- `dev/docs/process/tech_stack.md` — technology choices and rationale
+- `dev/docs/process/best_practices.md` — coding best practices
+- `dev/docs/process/GIT_AND_GITHUB.md` — git workflow

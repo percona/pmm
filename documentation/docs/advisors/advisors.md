@@ -19,7 +19,7 @@ Check results *always* remain on the PMM Server. They are never sent as part of 
 ## Configure execution intervals
 To control when and how often advisor checks run:
 
-- for all checks: Navigate to **PMM Configuration > Settings > Execution Intervals** to set global default intervals.
+- for all checks: Navigate to **Configuration > Settings > Advanced settings** and use the **Rare**, **Standard**, and **Frequent** interval fields in the **Advisors** section to set global default intervals.
 - for individual checks: Navigate to the specific advisor category (such as **Advisors > Security Advisors**, **Configuration Advisors**, **Query Advisors**, or **Performance Advisors**), then click the Edit icon in the **Actions** column to override the global setting for specific checks.
 
 ### Change run interval for automatic advisors

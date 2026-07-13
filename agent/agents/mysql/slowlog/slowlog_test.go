@@ -117,7 +117,9 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 func TestSlowLog(t *testing.T) {
 	t.Parallel()
 	sqlDB := tests.OpenTestMySQL(t)
-	t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 
 	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
 	ctx := context.Background()

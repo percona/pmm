@@ -35,7 +35,9 @@ func TestMySQLShowIndex(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	sqlDB := tests.OpenTestMySQL(t)
-	t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 
 	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
 	ctx := context.Background()

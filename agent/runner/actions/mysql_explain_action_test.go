@@ -38,7 +38,9 @@ func TestMySQLExplain(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	sqlDB := tests.OpenTestMySQL(t)
-	t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 
 	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
 	ctx := context.Background()
@@ -196,7 +198,7 @@ func TestMySQLExplain(t *testing.T) {
 			OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a, err := NewMySQLExplainAction("", time.Second, params)
-		require.ErrorContains(t, err, `Query to EXPLAIN is empty`)
+		require.ErrorIs(t, err, errEmptyQuery)
 		assert.Nil(t, a)
 	})
 
@@ -232,7 +234,7 @@ func TestMySQLExplain(t *testing.T) {
 			OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a, err := NewMySQLExplainAction("", time.Second, params)
-		require.ErrorContains(t, err, "EXPLAIN failed because the query exceeded max length and got trimmed. Set max-query-length to a larger value.")
+		require.ErrorIs(t, err, errExplainFailedMaxQueryLength)
 		assert.Nil(t, a)
 	})
 
@@ -303,11 +305,13 @@ func TestMySQLExplain(t *testing.T) {
 			// setup
 			func(t *testing.T) {
 				t.Helper()
-				ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+				ctx, cancel := context.WithTimeout(t.Context(), time.Second*2)
 				defer cancel()
 				conn, err := sqlDB.Conn(ctx)
 				require.NoError(t, err)
-				defer conn.Close() //nolint:errcheck
+				t.Cleanup(func() {
+					assert.NoError(t, conn.Close())
+				})
 
 				_, err = conn.ExecContext(ctx, "DROP TABLE IF EXISTS test_explain_table")
 				require.NoError(t, err)

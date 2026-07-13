@@ -17,10 +17,10 @@ package agentv1
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 	"time"
 
-	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -126,7 +126,7 @@ func makeValue(value any) (*QueryActionValue, error) { //nolint:cyclop
 
 	case reflect.Map:
 		if v.Type().Key().Kind() != reflect.String {
-			return nil, errors.Errorf("makeValue: unhandled map key type for %[1]v (%[1]T)", value)
+			return nil, fmt.Errorf("makeValue: unhandled map key type for %[1]v (%[1]T)", value)
 		}
 
 		iter := v.MapRange()
@@ -140,7 +140,7 @@ func makeValue(value any) (*QueryActionValue, error) { //nolint:cyclop
 		return &QueryActionValue{Kind: &QueryActionValue_Map{Map: &QueryActionMap{Map: m}}}, nil
 
 	default:
-		return nil, errors.Errorf("unhandled %[1]v (%[1]T)", value)
+		return nil, fmt.Errorf("unhandled %[1]v (%[1]T)", value)
 	}
 }
 
@@ -165,7 +165,7 @@ func MarshalActionQuerySQLResult(columns []string, rows [][]any) ([]byte, error)
 	var err error
 	for i, row := range rows {
 		if len(columns) != len(row) {
-			return nil, errors.Errorf("invalid result: expected %d columns in row %d, got %d", len(columns), i, len(row))
+			return nil, fmt.Errorf("invalid result: expected %d columns in row %d, got %d", len(columns), i, len(row))
 		}
 
 		s := QueryActionSlice{
@@ -238,7 +238,8 @@ func makeInterface(value *QueryActionValue) (any, error) {
 		// See https://jira.percona.com/browse/SAAS-107.
 		return string(v.Bytes), nil
 	case *QueryActionValue_Timestamp:
-		if err := v.Timestamp.CheckValid(); err != nil {
+		err := v.Timestamp.CheckValid()
+		if err != nil {
 			return nil, err
 		}
 		return v.Timestamp.AsTime(), nil
@@ -269,7 +270,7 @@ func makeInterface(value *QueryActionValue) (any, error) {
 		})
 
 	default:
-		return nil, errors.Errorf("unhandled %[1]v (%[1]T)", value)
+		return nil, fmt.Errorf("unhandled %[1]v (%[1]T)", value)
 	}
 }
 
@@ -279,7 +280,7 @@ func unmarshalActionQuerySQLResult(columns []string, rows []*QueryActionSlice) (
 	var err error
 	for i, s := range rows {
 		if len(columns) != len(s.Slice) {
-			return nil, errors.Errorf("invalid result: expected %d columns in row %d, got %d", len(columns), i, len(s.Slice))
+			return nil, fmt.Errorf("invalid result: expected %d columns in row %d, got %d", len(columns), i, len(s.Slice))
 		}
 
 		row := make(map[string]any, len(s.Slice))
@@ -320,7 +321,8 @@ func unmarshalActionQueryDocsResult(docs []*QueryActionMap) ([]map[string]any, e
 // UnmarshalActionQueryResult returns deserialized form of query Action result, both SQL and documents.
 func UnmarshalActionQueryResult(b []byte) ([]map[string]any, error) {
 	var res QueryActionResult
-	if err := proto.Unmarshal(b, &res); err != nil {
+	err := proto.Unmarshal(b, &res)
+	if err != nil {
 		return nil, err
 	}
 
@@ -328,7 +330,7 @@ func UnmarshalActionQueryResult(b []byte) ([]map[string]any, error) {
 	lenRows := len(res.Rows)
 	lenDocs := len(res.Docs)
 	if (lenColumns != 0 || lenRows != 0) && lenDocs != 0 {
-		return nil, errors.Errorf("invalid result: %d columns, %d rows, %d docs", lenColumns, lenRows, lenDocs)
+		return nil, fmt.Errorf("invalid result: %d columns, %d rows, %d docs", lenColumns, lenRows, lenDocs)
 	}
 
 	if lenColumns > 0 {

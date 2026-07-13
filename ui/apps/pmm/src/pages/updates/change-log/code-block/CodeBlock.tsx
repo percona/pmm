@@ -12,6 +12,7 @@ export const CodeBlock: FC<PropsWithChildren> = ({ children }) => {
           color: (theme) => theme.palette.action.hover,
           fontFamily: 'Roboto Mono, monospace',
           whiteSpace: 'pre',
+          overflowX: 'auto',
         },
         (theme) =>
           isSingleLine

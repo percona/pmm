@@ -51,7 +51,11 @@ func (res *addAgentMongodbExporterResult) String() string {
 }
 
 // AddAgentMongodbExporterCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type AddAgentMongodbExporterCommand struct {
+	flags.LogLevelFatalFlags
+
 	PMMAgentID                    string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID                     string            `arg:"" help:"Service identifier"`
 	Username                      string            `arg:"" optional:"" help:"MongoDB username for scraping metrics"`
@@ -68,10 +72,8 @@ type AddAgentMongodbExporterCommand struct {
 	PushMetrics                   bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	DisableCollectors             []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	StatsCollections              []string          `help:"Collections for collstats & indexstats"`
-	CollectionsLimit              int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"` //nolint:lll
+	CollectionsLimit              int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"`
 	ConnectionTimeout             *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
-
-	flags.LogLevelFatalFlags
 }
 
 // RunCmd executes the AddAgentMongodbExporterCommand and returns the result.

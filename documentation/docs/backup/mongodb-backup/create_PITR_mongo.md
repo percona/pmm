@@ -24,8 +24,8 @@ You can use the available oplog slices in your storage to restore a backup to an
 Before creating a backup, make sure to check the [MongoDB backup prerequisites](mongo_prerequisites.md).
 {.power-number}
 
-1. Go to <i class="uil uil-history"></i> **Backup > All Backups**.
-2. Click <i class="uil uil-plus-square"></i> **Create Backup**.
+1. Go to <i class="uil uil-history"></i> **Backup > All backups**.
+2. Click <i class="uil uil-plus-square"></i> **Create backup**.
 3. Select the **Schedule Backup** option in the **Create Scheduled backup** window.
 4. Enter a unique name for this backup.
 5. Choose the service to back up from the **Service name** drop-down menu. This automatically populates the **DB Technology** field.

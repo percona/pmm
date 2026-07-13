@@ -32,7 +32,7 @@ import (
 func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.AddMongoDBServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
 	mongodb := &managementv1.MongoDBServiceResult{}
 
-	if e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err
@@ -86,11 +86,13 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 		}
 
 		if !req.SkipConnectionCheck {
-			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
+			err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 
-			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row)
+			if err != nil {
 				return err
 			}
 		}
@@ -178,7 +180,8 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 			mongodb.RtaMongodbAgent = agent.(*inventoryv1.RTAMongoDBAgent) //nolint:forcetypeassert
 		}
 		return nil
-	}); e != nil {
+	})
+	if e != nil {
 		return nil, e
 	}
 

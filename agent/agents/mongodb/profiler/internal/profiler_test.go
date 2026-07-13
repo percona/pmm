@@ -37,27 +37,12 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
-type MongoVersion struct {
-	VersionString string `bson:"version"`
-	PSMDBVersion  string `bson:"psmdbVersion"`
-	Version       []int  `bson:"versionArray"`
-}
-
-func GetMongoVersion(ctx context.Context, client *mongo.Client) (string, error) {
-	var ver MongoVersion
-	err := client.Database("admin").RunCommand(ctx, bson.D{{"buildInfo", 1}}).Decode(&ver)
-	if err != nil {
-		return "", nil
-	}
-
-	version := fmt.Sprintf("%d.%d", ver.Version[0], ver.Version[1])
-	return version, err
-}
-
 func TestProfiler(t *testing.T) {
 	defaultInterval := aggregator.DefaultInterval
 	aggregator.DefaultInterval = time.Second
-	defer func() { aggregator.DefaultInterval = defaultInterval }()
+	t.Cleanup(func() {
+		aggregator.DefaultInterval = defaultInterval
+	})
 
 	sslDSNTemplate, files := tests.GetTestMongoDBWithSSLDSN(t, "../../../../")
 	tempDir := t.TempDir()
@@ -77,7 +62,13 @@ func testProfiler(t *testing.T, url string) {
 	sess, err := createSession(url, "pmm-agent")
 	require.NoError(t, err)
 
-	cleanUpDBs(t, sess) // Just in case there are old dbs with matching names
+	// Just in case there are old dbs with matching names
+	require.NoError(t, cleanUpDBs(t.Context(), t, sess))
+	t.Cleanup(func() {
+		cleanupCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		assert.NoError(t, cleanUpDBs(cleanupCtx, t, sess))
+	})
 
 	dbsCount := 10
 	docsCount := float32(10)
@@ -90,7 +81,7 @@ func testProfiler(t *testing.T, url string) {
 		doc := bson.M{"id": i}
 		dbName := fmt.Sprintf("test_%02d", i)
 		logrus.Traceln("create db", dbName)
-		_, err := sess.Database(dbName).Collection("test").InsertOne(context.TODO(), doc)
+		_, err = sess.Database(dbName).Collection("test").InsertOne(t.Context(), doc)
 		require.NoError(t, err)
 		i++
 	}
@@ -102,8 +93,10 @@ func testProfiler(t *testing.T, url string) {
 	}
 	prof := New(url, logrus.WithField("component", "profiler-test"), ms, "test-id", truncate.GetMongoDBDefaultMaxQueryLength())
 	err = prof.Start()
-	defer prof.Stop()
 	require.NoError(t, err)
+	t.Cleanup(func() {
+		assert.NoError(t, prof.Stop())
+	})
 	<-time.After(aggregator.DefaultInterval * 2) // give it some time to start profiler
 
 	i = 0
@@ -117,20 +110,22 @@ func testProfiler(t *testing.T, url string) {
 		}
 		dbName := fmt.Sprintf("test_%02d", dbNumber)
 		logrus.Tracef("inserting value %d to %s", i, dbName)
-		_, err := sess.Database(dbName).Collection("people").InsertOne(context.TODO(), doc)
+		_, err = sess.Database(dbName).Collection("people").InsertOne(t.Context(), doc)
 		require.NoError(t, err)
 		i++
 	}
-	cursor, err := sess.Database("test_00").Collection("people").Find(context.TODO(), bson.M{"name_00\xff": "value_00\xff"})
+	cursor, err := sess.Database("test_00").Collection("people").Find(t.Context(), bson.M{"name_00\xff": "value_00\xff"})
 	require.NoError(t, err)
-	defer cursor.Close(context.TODO())
+	t.Cleanup(func() {
+		cursorCtx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+		assert.NoError(t, cursor.Close(cursorCtx))
+	})
 
 	<-time.After(aggregator.DefaultInterval * 6) // give it some time to catch all metrics
 
 	err = prof.Stop()
 	require.NoError(t, err)
-
-	defer cleanUpDBs(t, sess)
 
 	require.GreaterOrEqual(t, len(ms.reports), 1)
 
@@ -161,7 +156,7 @@ func testProfiler(t *testing.T, url string) {
 	responseLength := float32(45)
 
 	assert.Len(t, bucketsMap, dbsCount) // 300 sample docs / 10 = different database names
-	var buckets []*agentv1.MetricsBucket
+	buckets := make([]*agentv1.MetricsBucket, 0, len(bucketsMap))
 	for _, bucket := range bucketsMap {
 		buckets = append(buckets, bucket)
 	}
@@ -196,14 +191,22 @@ func testProfiler(t *testing.T, url string) {
 	assert.InDelta(t, docsCount, findBucket.Mongodb.MDocsReturnedSum, 0.0001)
 }
 
-func cleanUpDBs(t *testing.T, sess *mongo.Client) {
-	dbs, err := sess.ListDatabaseNames(context.TODO(), bson.M{})
+func cleanUpDBs(ctx context.Context, t *testing.T, sess *mongo.Client) error {
+	t.Helper()
+	dbs, err := sess.ListDatabaseNames(ctx, bson.M{})
+	if err != nil {
+		return err
+	}
 	for _, dbname := range dbs {
 		if strings.HasPrefix(dbname, "test_") {
-			err = sess.Database(dbname).Drop(context.TODO())
-			require.NoError(t, err)
+			err = sess.Database(dbname).Drop(ctx)
+			if err != nil {
+				t.Logf("failed to drop database %q: %v", dbname, err)
+				continue
+			}
 		}
 	}
+	return nil
 }
 
 type testWriter struct {

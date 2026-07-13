@@ -21,7 +21,6 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
@@ -511,7 +510,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		if agent.RunsOnNodeID == nil && agent.PMMAgentID != nil {
 			pmmAgent, err := models.FindAgentByID(q, *agent.PMMAgentID)
 			if err != nil {
-				return nil, errors.Wrapf(err, "cannot find pmm_agent by id: %s, for external_exporter id: %s without node_id", *agent.PMMAgentID, agent.AgentID)
+				return nil, fmt.Errorf("cannot find pmm_agent by id %s, for external_exporter id %s without node_id: %w", *agent.PMMAgentID, agent.AgentID, err)
 			}
 			agent.RunsOnNodeID = pmmAgent.RunsOnNodeID
 		}

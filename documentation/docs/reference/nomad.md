@@ -12,7 +12,7 @@ Nomad is **disabled by default** in PMM and has no impact on system performance 
 
 ## Prerequisites
 
-Before enabling Nomad, check that PMM Server has a public address configured under **PMM Configuration > Advanced Settings**. This is required for Nomad to function properly and enable communication between Nomad components.
+Before enabling Nomad, check that PMM Server has a public address configured under **Configuration > Settings > Advanced settings**. This is required for Nomad to function properly and enable communication between Nomad components.
 
 ### Enable Nomad
 

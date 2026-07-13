@@ -266,7 +266,9 @@ func prepareDBCopy(t *testing.T, db *reform.DB) {
 
 func TestPerfSchema(t *testing.T) {
 	sqlDB := tests.OpenTestMySQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	updateQuery := fmt.Sprintf("UPDATE /* %s */ ", queryTag)
@@ -538,10 +540,8 @@ func TestPerfSchema(t *testing.T) {
 
 		require.NoError(t, m.refreshHistoryCache(t.Context()))
 		var example string
-		isTruncated := true
-		if mySQLVendor != version.MariaDBVendor && mySQLVersion.Float() >= 8.0 {
-			isTruncated = false
-		}
+		isTruncated := !(mySQLVendor != version.MariaDBVendor && mySQLVersion.Float() >= 8.0)
+
 		switch {
 		// Perf schema truncates queries with non-utf8 characters.
 		case (mySQLVendor == version.PerconaVendor || mySQLVendor == version.OracleVendor) && mySQLVersion.Float() >= 8.0:

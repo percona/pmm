@@ -8,7 +8,7 @@
 The Microsoft Azure feature is turned off by default. To turn it on:
 {.power-number}
 
-1. Go to  **PMM Configuration > Settings > Advanced Settings**.
+1. Go to **Configuration > Settings > Advanced Settings**.
 
 2. Click the <i class="uil uil-toggle-off"></i> toggle in the **Technical preview features** section of the page.
 
@@ -105,8 +105,7 @@ To get the tenant ID, client ID and the client secret:
 ![!](../../../images/azure_app_secret_02.png)
 ![!](../../../images/azure_app_secret_03.png)
 
-5. Copy the **value** of the application secret. Once you leave this page you won't be able to see the secret again and you will have to generate a new
-   one.
+5. Copy the **value** of the application secret. Once you leave this page you won't be able to see the secret again and you will have to generate a new one.
 ![!](../../../images/azure_app_secret_04.png)
 
 
@@ -121,7 +120,7 @@ To get the tenant ID, client ID and the client secret:
 ![!](../../../images/azure_app_permissions_03.png)
 ![!](../../../images/azure_app_permissions_04.png)
 
-When you fill in all fields press the *Discover* button and you will see a list of available databases for monitoring.
+When you fill in all fields press the **Discover** button and you will see a list of available databases for monitoring.
 
 ![!](../../../images/PMM_Add_Instance_Azure_2.png)
 
@@ -140,13 +139,13 @@ You can find more details on how to create DB on Azure at:
 - <https://docs.microsoft.com/en-us/azure/mysql/>
 
 !!! hint alert alert-success "Tip"
-    You must set `pg_stat_statements.track = all` in your PostgreSQL Server settings to use PMM Query Analytics. [Read more](../connect-database/postgresql.md#configure-monitoring-extension.
+    You must set `pg_stat_statements.track = all` in your PostgreSQL Server settings to use PMM Query Analytics. [Read more](../connect-database/postgresql.md#configure-monitoring-extension).
 
 ![!](../../../images/PMM_Add_Instance_Azure_3.png)
 
-In the list of databases on the Discovery page click **Start Monitoring** to add the selected Azure Database to PMM.
+In the list of databases on the **Discovery** page click **Start Monitoring** to add the selected Azure Database to PMM.
 
-Fill in all required fields and click **Add service**.
+Fill in all required fields. To set how long PMM waits when connecting, enter a value in **Connection timeout**. Leave it empty to use the default of 2s. Click **Add service**.
 
 PMM can use 3 exporters to collect metrics:
 

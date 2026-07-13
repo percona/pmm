@@ -18,13 +18,13 @@ package main
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.starlark.net/resolve"
 	"golang.org/x/sys/unix"
@@ -111,12 +111,12 @@ func main() {
 func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result, error) {
 	funcs, err := checks.GetFuncsForVersion(data.Version)
 	if err != nil {
-		return nil, errors.Wrap(err, "error getting funcs")
+		return nil, fmt.Errorf("error getting funcs: %w", err)
 	}
 
 	env, err := starlark.NewEnv(data.Name, data.Script, funcs)
 	if err != nil {
-		return nil, errors.Wrap(err, "error initializing starlark env")
+		return nil, fmt.Errorf("error initializing starlark env: %w", err)
 	}
 
 	res := make([]any, len(data.QueriesResults))
@@ -127,19 +127,21 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 			for dbName, dbQr := range qr {
 				s, ok := dbQr.(string)
 				if !ok {
-					return nil, errors.Errorf("unexpected query result type: %T", dbQr)
+					return nil, fmt.Errorf("unexpected query result type: %T", dbQr)
 				}
-				if dbRes[dbName], err = unmarshalQueryResult(s); err != nil {
+				dbRes[dbName], err = unmarshalQueryResult(s)
+				if err != nil {
 					return nil, err
 				}
 			}
 			res[i] = dbRes
 		case string: // used for all other databases
-			if res[i], err = unmarshalQueryResult(qr); err != nil {
+			res[i], err = unmarshalQueryResult(qr)
+			if err != nil {
 				return nil, err
 			}
 		default:
-			return nil, errors.Errorf("unknown query result type %T", qr)
+			return nil, fmt.Errorf("unknown query result type %T", qr)
 		}
 	}
 
@@ -152,7 +154,7 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 		results, err = env.Run(data.Name, res, contextFuncs, l.Debugln)
 	}
 	if err != nil {
-		return nil, errors.Wrap(err, "error running starlark env")
+		return nil, fmt.Errorf("error running starlark env: %w", err)
 	}
 
 	return results, nil
@@ -161,12 +163,12 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 func unmarshalQueryResult(qr string) ([]map[string]any, error) {
 	b, err := base64.StdEncoding.DecodeString(qr)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to decode base64 encoded query result")
+		return nil, fmt.Errorf("failed to decode base64 encoded query result: %w", err)
 	}
 
 	res, err := agentv1.UnmarshalActionQueryResult(b)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal query result")
+		return nil, fmt.Errorf("failed to unmarshal query result: %w", err)
 	}
 
 	return res, nil
