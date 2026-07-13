@@ -24,7 +24,7 @@ const cleanName = (name: unknown): string | undefined => {
 const resolveType = (type: unknown): string | undefined => {
   if (type == null) return undefined;
   if (typeof type === 'string') return type;
-  if (typeof type === 'symbol') return undefined;
+  if (typeof type === 'symbol') return type === FRAGMENT_TYPE ? 'React.Fragment' : undefined;
 
   const candidate = type as {
     $$typeof?: symbol;
@@ -34,7 +34,8 @@ const resolveType = (type: unknown): string | undefined => {
     type?: unknown;
   };
 
-  if (cleanName(candidate.displayName)) return candidate.displayName;
+  const cleanedDisplayName = cleanName(candidate.displayName);
+  if (cleanedDisplayName) return cleanedDisplayName;
 
   switch (candidate.$$typeof) {
     case MEMO_TYPE:

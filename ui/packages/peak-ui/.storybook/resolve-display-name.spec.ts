@@ -78,4 +78,10 @@ describe('resolveDisplayName', () => {
     });
     expect(resolveDisplayName(asElement(Wrapped))).toBe('Grid2');
   });
+
+  it('strips a bundler dedupe suffix that comes from an explicit displayName', () => {
+    const Wrapped = forwardRef<HTMLDivElement>((_, ref) => createElement('div', { ref }));
+    Wrapped.displayName = 'IconButton2';
+    expect(resolveDisplayName(asElement(Wrapped))).toBe('IconButton');
+  });
 });
