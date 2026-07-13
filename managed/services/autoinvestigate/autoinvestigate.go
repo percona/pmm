@@ -13,10 +13,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-// Package autoinvestigate drives authoritative, idempotent auto-investigations from Grafana alerts,
-// delivered by the Slack alert scrape or the reconciliation poll: each firing alert episode produces at
-// most one investigation, run through the standard investigations pipeline, with its summary posted to
-// the alert's Slack thread (scrape) or the configured Slack output channels (poll).
+// Package autoinvestigate drives authoritative, idempotent auto-investigations from Grafana alert
+// messages scraped out of Slack: each firing alert episode produces at most one investigation, run
+// through the standard investigations pipeline, with its summary posted back as a reply in the alert's
+// Slack thread.
 package autoinvestigate
 
 import (
@@ -33,20 +33,18 @@ import (
 )
 
 // SlackRef ties an alert to the Slack message it was scraped from, so the investigation's notices can
-// be posted back as replies in that alert's thread. Nil for reconciliation-poll alerts (no Slack origin).
+// be posted back as replies in that alert's thread.
 type SlackRef struct {
 	TeamID   string
 	Channel  string
 	ThreadTS string
 }
 
-// Alert is an authoritative alert from the Alertmanager reconciliation poll or a scraped Slack alert
-// message.
+// Alert is an authoritative alert scraped from a Grafana alert message in Slack.
 type Alert struct {
 	Fingerprint string
 	Status      string // "firing" or "resolved"
 	Labels      map[string]string
-	Annotations map[string]string
 	// Slack is set only for alerts scraped from a Slack message; it carries the thread to post into.
 	Slack *SlackRef
 }
@@ -69,8 +67,7 @@ type Notifier interface {
 // rank 0 (treated as below any configured floor).
 var severityRank = map[string]int{"info": 1, "warning": 2, "critical": 3}
 
-// maxEpisodes bounds the in-memory episode map so it can't grow without limit (e.g. on an HA
-// follower that never runs the pruning poll). Eviction only costs a redundant
+// maxEpisodes bounds the in-memory episode map so it can't grow without limit. Eviction only costs a redundant
 // DB claim that the partial unique index rejects — the DB is the authoritative dedup, the map is an
 // optimization.
 const maxEpisodes = 10000
@@ -256,7 +253,6 @@ func passesLabelMatchers(matchers []string, labels map[string]string) bool {
 // alertSnapshotEntry mirrors the alert shape Holmes/investigation context expects in config.alert_snapshot.
 type alertSnapshotEntry struct {
 	Labels      map[string]string `json:"labels"`
-	Annotations map[string]string `json:"annotations"`
 	Fingerprint string            `json:"fingerprint"`
 	Status      string            `json:"status"`
 }
@@ -281,7 +277,6 @@ func buildAlertInvestigation(a Alert) *models.Investigation {
 	}
 	snapshot, _ := json.Marshal([]alertSnapshotEntry{{
 		Labels:      a.Labels,
-		Annotations: a.Annotations,
 		Fingerprint: a.Fingerprint,
 		Status:      a.Status,
 	}})

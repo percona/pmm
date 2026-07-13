@@ -98,8 +98,8 @@ func (p *Provisioner) EnsureProvisioned(ctx context.Context, pmmURL string) (*mo
 		}
 	}
 
-	// Auto-investigate is driven by the Socket Mode Slack alert scrape (which threads the report on the
-	// alert message) plus the reconciliation poll — there is no Grafana webhook contact point to provision.
+	// Auto-investigate is driven solely by the Socket Mode Slack alert scrape (which threads the report on
+	// the alert message) — there is no Grafana webhook contact point to provision.
 
 	return prov, nil
 }

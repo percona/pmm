@@ -79,18 +79,6 @@ func TestPassesSelection(t *testing.T) {
 	}
 }
 
-func TestParseAlertmanagerAlerts(t *testing.T) {
-	t.Parallel()
-	raw := []byte(`[{"fingerprint":"fp1","labels":{"alertname":"X","severity":"critical"},"annotations":{"summary":"s"}},{"labels":{}}]`)
-	got := ParseAlertmanagerAlerts(raw)
-	if len(got) != 1 {
-		t.Fatalf("expected 1 alert (the one without a fingerprint is dropped), got %d", len(got))
-	}
-	if got[0].Fingerprint != "fp1" || !got[0].firing() {
-		t.Errorf("unexpected alert: %+v", got[0])
-	}
-}
-
 func TestBuildAlertInvestigation(t *testing.T) {
 	t.Parallel()
 	a := Alert{

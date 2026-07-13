@@ -15,8 +15,8 @@
 
 // Package slackbot implements PMM's Slack integration: a Socket Mode bot that proxies authorized
 // human messages into the ADRE chat backend and posts answers back into Slack threads, plus a
-// notifier that posts auto-investigation output (driven by Grafana Alertmanager via
-// services/autoinvestigate, not by scraping Slack messages) to configured channels.
+// notifier that posts auto-investigation output (driven by the Slack alert scrape via
+// services/autoinvestigate) back into the alert's thread or to configured channels.
 package slackbot
 
 import (
@@ -34,7 +34,7 @@ import (
 )
 
 // SlackNotifier posts auto-investigate output to Slack. It is invoked by the autoinvestigate service
-// (scrape / reconciliation poll) independently of the Socket Mode session, so it builds its
+// (the Slack alert scrape) independently of the Socket Mode session, so it builds its
 // own Slack client from the stored bot token. It satisfies autoinvestigate.Notifier and
 // investigations' report-notifier interface.
 type SlackNotifier struct {
@@ -48,7 +48,7 @@ func NewSlackNotifier(db *reform.DB, l *logrus.Entry) *SlackNotifier {
 }
 
 // slackThreadRef returns the (channel, thread_ts) an investigation was scraped from, or empties when it
-// did not originate from a Slack message (reconciliation poll path). buildAlertInvestigation stores these in
+// did not originate from a Slack alert message (e.g. an investigation started from the UI). buildAlertInvestigation stores these in
 // the investigation's Config JSON.
 func slackThreadRef(inv *models.Investigation) (string, string) {
 	if inv == nil || len(inv.Config) == 0 {
@@ -74,9 +74,10 @@ func (n *SlackNotifier) investigationLink(inv *models.Investigation) string {
 	return ""
 }
 
-// PostAutoInvestigateStarted posts a short "started" notice with a link to the investigation. For an
-// alert scraped from Slack it replies in that alert's thread; otherwise (reconciliation poll) it posts to the
-// configured output channels. No-op when there is nowhere to post or the bot token is unavailable.
+// PostAutoInvestigateStarted posts a short "started" notice with a link to the investigation. Its only
+// caller is the scrape path, whose investigations always carry a Slack thread ref, so it replies in that
+// alert's thread; the channel-list branch is a defensive fallback. No-op when there is nowhere to post or
+// the bot token is unavailable.
 func (n *SlackNotifier) PostAutoInvestigateStarted(ctx context.Context, channels []string, inv *models.Investigation) {
 	if inv == nil {
 		return
@@ -118,10 +119,9 @@ func (n *SlackNotifier) PostAutoInvestigateStarted(ctx context.Context, channels
 }
 
 // PostInvestigationReport posts the completed investigation's summary to Slack. When the investigation
-// was scraped from a Slack alert message it replies in that alert's thread; otherwise (Grafana
-// Alertmanager poll, which carries no thread ref) it posts to the configured auto-investigate
-// output channels — matching the "started" notice and the "post a summary to the output channels"
-// behaviour shown in the UI, so the result reaches Slack rather than the UI only. It satisfies the
+// was scraped from a Slack alert message it replies in that alert's thread; otherwise (an investigation
+// with no Slack origin, e.g. started from the UI, which carries no thread ref) it posts to the configured
+// auto-investigate output channels, so the result reaches Slack rather than the UI only. It satisfies the
 // investigations report-notifier interface.
 func (n *SlackNotifier) PostInvestigationReport(ctx context.Context, inv *models.Investigation) {
 	if inv == nil {
@@ -158,7 +158,7 @@ func (n *SlackNotifier) PostInvestigationReport(ctx context.Context, inv *models
 		return
 	}
 
-	// No thread ref (Alertmanager poll path) → post to the configured output channels, so the
+	// No thread ref (investigation not started from a Slack alert) → post to the configured output channels, so the
 	// summary reaches Slack instead of silently living in the UI only.
 	settings, err := models.GetSettings(n.db)
 	if err != nil {

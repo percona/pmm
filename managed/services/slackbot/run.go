@@ -37,8 +37,7 @@ import (
 )
 
 // AlertProcessor triggers auto-investigations from scraped Slack alert messages. *autoinvestigate.Service
-// implements it; it is the same entry point the reconciliation poll uses, so the scrape inherits the
-// selection guards, episode dedup, hourly cap and idempotent claim.
+// implements it, applying the selection guards, episode dedup, hourly cap and idempotent claim.
 type AlertProcessor interface {
 	ProcessAlerts(ctx context.Context, alerts []autoinvestigate.Alert)
 }
@@ -173,9 +172,9 @@ func runSocketMode(ctx context.Context, db *reform.DB, processor AlertProcessor,
 	}
 	botUserID := auth.UserID
 	if botUserID == "" {
-		// The alert scrape keys off an @-mention of this id, so an empty id would silently drop every alert.
-		// Auto-investigate still runs via the reconciliation poll, but the Slack-threaded scrape is disabled.
-		log.Warn("Slack AuthTest returned an empty bot user id; alert scrape disabled (reconciliation poll still active)")
+		// The alert scrape keys off an @-mention of this id, so an empty id silently drops every alert — and
+		// the scrape is the only auto-investigate trigger, so auto-investigations stop entirely.
+		log.Warn("Slack AuthTest returned an empty bot user id; alert scrape disabled — auto-investigations will not run")
 	}
 
 	ts := NewThreadStore()
@@ -248,7 +247,7 @@ func handleEventsAPI(
 			}
 			return
 		}
-		// Human thread reply. (Auto-investigate is driven by the scrape above / Grafana Alertmanager.)
+		// Human thread reply. (Auto-investigate is driven by the alert scrape above.)
 		if ev.ThreadTimeStamp == "" {
 			return
 		}

@@ -477,10 +477,9 @@ func (h *Handlers) PostSettings(w http.ResponseWriter, r *http.Request) { //noli
 		}
 	}
 	settings, _ := models.GetSettings(h.db)
-	// Auto-investigate is driven by the Socket Mode alert scrape — so the report posts back in the alert's
-	// Slack thread — with the reconciliation poll as the fallback. There is deliberately no Grafana
-	// alert-webhook path: it would carry no Slack thread ref and, arriving ahead of the scrape, would
-	// strip threaded reports.
+	// Auto-investigate is driven solely by the Socket Mode alert scrape, so the report posts back in the
+	// alert's Slack thread. There is deliberately no Grafana alert-webhook path: it would carry no Slack
+	// thread ref and, arriving ahead of the scrape, would strip threaded reports.
 	chatPromptDisplay := settings.Adre.ChatPrompt
 	if chatPromptDisplay == "" {
 		chatPromptDisplay = DefaultChatPrompt

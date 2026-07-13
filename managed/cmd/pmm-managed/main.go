@@ -1293,9 +1293,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			})
 	})
 
-	// Auto-investigate: authoritative, idempotent investigations driven by Grafana Alertmanager
-	// (reconciliation poll + optional instant webhook). One shared Service so the webhook and poll
-	// share episode-dedup state; the poll is leader-only, the webhook is gated by a shared secret.
+	// Auto-investigate: authoritative, idempotent investigations driven solely by the Slack alert scrape.
+	// The Service holds the episode dedup state and runs inside the leader-only adre-slack service below.
 	adreAutoL := logrus.WithField("component", "adre-auto-investigate")
 	adreSlackNotifier := slackbot.NewSlackNotifier(db, adreAutoL)
 	adreInvRunner := investigations.NewHandlers(db)
@@ -1327,28 +1326,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	adreSlackL := logrus.WithField("component", "adre-slack")
 	haService.AddLeaderService(ha.NewContextService("adre-slack", func(ctx context.Context) error {
 		return slackbot.Run(ctx, db, autoInvestigateSvc, adreSlackL)
-	}))
-
-	// The reconciliation poll (leader-only) reuses the existing Alertmanager API with the admin SA
-	// token; it is the safety-net behind the instant webhook and works without any provisioning.
-	autoInvestigateFetcher := autoinvestigate.AlertFetcherFunc(func(ctx context.Context) ([]autoinvestigate.Alert, error) {
-		prov, err := models.GetAdreProvisioning(db)
-		if err != nil {
-			return nil, err
-		}
-		headers := http.Header{}
-		if prov.PMMSAToken != "" {
-			headers.Set("Authorization", "Bearer "+prov.PMMSAToken)
-		}
-		raw, err := grafanaClient.GetAlertmanagerAlerts(ctx, headers)
-		if err != nil {
-			return nil, err
-		}
-		return autoinvestigate.ParseAlertmanagerAlerts(raw), nil
-	})
-	haService.AddLeaderService(ha.NewContextService("adre-auto-investigate", func(ctx context.Context) error {
-		autoInvestigateSvc.RunPoll(ctx, autoInvestigateFetcher, 0, nil)
-		return nil
 	}))
 
 	wg.Go(func() {
