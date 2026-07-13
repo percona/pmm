@@ -86,7 +86,7 @@
             "type": "text"
         },
         {
-            "description": "Minimum uptime across the selected MongoDB node(s) (time since the most recent restart).", 
+            "description": "Minimum uptime across the selected MongoDB node(s) (time since the most recent restart).",
             "fieldConfig": {
                 "defaults": {
                     "color": {
