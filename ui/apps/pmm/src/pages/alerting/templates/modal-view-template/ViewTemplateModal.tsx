@@ -3,8 +3,12 @@ import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import TextField from '@mui/material/TextField';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { Dialog, DialogTitle } from '@percona/percona-ui';
+import { enqueueSnackbar } from 'notistack';
+import { copyToClipboard } from 'utils/clipboard.utils';
 import { Messages } from './ViewTemplateModal.messages';
+import { Messages as ListMessages } from '../AlertTemplates.messages';
 import { ViewTemplateModalProps } from './ViewTemplateModal.types';
 
 export const ViewTemplateModal: FC<ViewTemplateModalProps> = ({
@@ -15,6 +19,14 @@ export const ViewTemplateModal: FC<ViewTemplateModalProps> = ({
   if (!template) {
     return null;
   }
+
+  const handleCopy = async () => {
+    const copied = await copyToClipboard(template.yaml);
+    enqueueSnackbar(
+      copied ? ListMessages.copy.success : ListMessages.copy.error,
+      { variant: copied ? 'success' : 'error' }
+    );
+  };
 
   return (
     <Dialog
@@ -48,6 +60,14 @@ export const ViewTemplateModal: FC<ViewTemplateModalProps> = ({
           onClick={onClose}
         >
           {Messages.close}
+        </Button>
+        <Button
+          variant="contained"
+          startIcon={<ContentCopyIcon />}
+          data-testid="view-template-copy"
+          onClick={handleCopy}
+        >
+          {ListMessages.actions.copy}
         </Button>
       </DialogActions>
     </Dialog>

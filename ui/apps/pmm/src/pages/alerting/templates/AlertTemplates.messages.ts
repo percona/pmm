@@ -11,8 +11,13 @@ export const Messages = {
   actions: {
     createRule: 'Create alert rule',
     view: 'View',
+    copy: 'Copy to clipboard',
     edit: 'Edit',
     delete: 'Delete',
+  },
+  copy: {
+    success: 'Template YAML copied to clipboard',
+    error: 'Failed to copy to clipboard',
   },
   source: {
     builtIn: 'Built-in',

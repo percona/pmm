@@ -6,12 +6,15 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { useNavigate } from 'react-router-dom';
+import { enqueueSnackbar } from 'notistack';
 import { Template } from 'types/alert-templates.types';
 import { isTemplateEditable } from 'utils/alert-templates.utils';
+import { copyToClipboard } from 'utils/clipboard.utils';
 import { PMM_ALERTING_NEW_FROM_TEMPLATE_PATH } from 'lib/constants';
 import { Messages } from '../../AlertTemplates.messages';
 
@@ -40,6 +43,13 @@ export const TemplateRowActions: FC<Props> = ({
   const run = (action: () => void) => () => {
     close();
     action();
+  };
+
+  const handleCopy = async () => {
+    const copied = await copyToClipboard(template.yaml);
+    enqueueSnackbar(copied ? Messages.copy.success : Messages.copy.error, {
+      variant: copied ? 'success' : 'error',
+    });
   };
 
   return (
@@ -78,6 +88,12 @@ export const TemplateRowActions: FC<Props> = ({
             <VisibilityOutlinedIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText>{Messages.actions.view}</ListItemText>
+        </MenuItem>
+        <MenuItem data-testid="copy-alert-template" onClick={run(handleCopy)}>
+          <ListItemIcon>
+            <ContentCopyIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{Messages.actions.copy}</ListItemText>
         </MenuItem>
         {editable && (
           <MenuItem

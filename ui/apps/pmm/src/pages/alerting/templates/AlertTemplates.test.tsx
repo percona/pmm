@@ -1,6 +1,9 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TestWrapper } from 'utils/testWrapper';
-import { wrapWithQueryProvider } from 'utils/testUtils';
+import {
+  wrapWithQueryProvider,
+  wrapWithSnackbarProvider,
+} from 'utils/testUtils';
 import * as templatesApi from 'api/alert-templates';
 import {
   Severity,
@@ -32,7 +35,9 @@ const makeTemplate = (
 
 const renderPage = () =>
   render(
-    <TestWrapper>{wrapWithQueryProvider(<AlertTemplates />)}</TestWrapper>
+    <TestWrapper>
+      {wrapWithQueryProvider(wrapWithSnackbarProvider(<AlertTemplates />))}
+    </TestWrapper>
   );
 
 describe('AlertTemplates', () => {
@@ -100,6 +105,21 @@ describe('AlertTemplates', () => {
     expect(modal).toBeInTheDocument();
     expect(screen.getByTestId('view-template-yaml')).toHaveValue(
       '# builtin_one\nexpr: up == 0\n'
+    );
+  });
+
+  it('copies the template YAML from the row menu', async () => {
+    renderPage();
+    await waitFor(() =>
+      expect(screen.getAllByTestId('template-actions-menu').length).toBe(2)
+    );
+    fireEvent.click(screen.getAllByTestId('template-actions-menu')[0]);
+    fireEvent.click(await screen.findByTestId('copy-alert-template'));
+
+    await waitFor(() =>
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+        '# builtin_one\nexpr: up == 0\n'
+      )
     );
   });
 });
