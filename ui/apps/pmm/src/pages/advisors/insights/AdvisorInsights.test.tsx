@@ -361,6 +361,10 @@ describe('AdvisorInsights', () => {
     expect(pane).toBeInTheDocument();
     expect(screen.getByText(Messages.details.title)).toBeInTheDocument();
     expect(screen.getByTestId('insight-details-maximize')).toBeInTheDocument();
+    // opened from the menu, the pane starts at the default (non-maximized) height
+    expect(
+      within(pane).getByTestId('OpenInFullOutlinedIcon')
+    ).toBeInTheDocument();
 
     // content from the selected insight
     expect(within(pane).getByText('MySQL is outdated')).toBeInTheDocument();
@@ -401,6 +405,21 @@ describe('AdvisorInsights', () => {
         screen.queryByTestId('insight-details-pane')
       ).not.toBeInTheDocument()
     );
+  });
+
+  it('opens the details overlay maximized on row double-click', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.dblClick(screen.getByTestId('insight-row-result-1'));
+
+    const pane = await screen.findByTestId('insight-details-pane');
+    expect(within(pane).getByText('MySQL is outdated')).toBeInTheDocument();
+    // a maximized pane shows the "collapse" toggle icon
+    expect(
+      within(pane).getByTestId('CloseFullscreenOutlinedIcon')
+    ).toBeInTheDocument();
   });
 
   it('copies the insight as a narrative text', async () => {
@@ -530,7 +549,7 @@ describe('AdvisorInsights', () => {
     );
   });
 
-  it('filters by batch ID from the row menu and clears via the chip', async () => {
+  it('filters by batch ID from the row menu, populates the input, then clears', async () => {
     renderComponent();
 
     await waitForRows();
@@ -544,12 +563,38 @@ describe('AdvisorInsights', () => {
       )
     );
 
-    const chip = await screen.findByTestId('batch-id-filter-chip');
-    fireEvent.click(within(chip).getByTestId('CancelIcon'));
+    // the batch-id input reflects the applied filter
+    const input = within(screen.getByTestId('batch-id-filter')).getByRole(
+      'textbox',
+      { hidden: true }
+    );
+    expect(input).toHaveValue('batch-1');
+
+    fireEvent.click(screen.getByTestId('clear-filters'));
 
     await waitFor(() =>
       expect(advisorsApi.listCheckResultsHistory).toHaveBeenLastCalledWith(
         expect.objectContaining({ batchId: undefined })
+      )
+    );
+    expect(input).toHaveValue('');
+  });
+
+  it('filters by a batch ID typed into the input and committed with Enter', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    const input = within(screen.getByTestId('batch-id-filter')).getByRole(
+      'textbox',
+      { hidden: true }
+    );
+    fireEvent.change(input, { target: { value: 'batch-77' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    await waitFor(() =>
+      expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+        expect.objectContaining({ batchId: 'batch-77', pageIndex: 0 })
       )
     );
   });

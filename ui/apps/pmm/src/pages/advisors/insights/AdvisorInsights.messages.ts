@@ -45,7 +45,7 @@ export const Messages = {
   viewResults: 'View results',
   filters: {
     all: 'All',
-    batch: (batchId: string) => `Batch: ${batchId}…`,
+    batchId: 'Batch ID',
     clear: 'Clear filters',
     refresh: 'Refresh',
     refreshTooltip:

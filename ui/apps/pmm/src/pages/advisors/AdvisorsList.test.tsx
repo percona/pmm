@@ -79,6 +79,17 @@ const waitForRows = async () => {
   );
 };
 
+const selectFilterOption = async (filterTestId: string, option: string) => {
+  fireEvent.mouseDown(
+    within(screen.getByTestId(filterTestId)).getByRole('combobox')
+  );
+
+  // 'hidden' skips the visibility computation, which crashes in jsdom:
+  // nwsapi expands ':scope' with the listbox's unescaped React useId
+  const listbox = await screen.findByRole('listbox', { hidden: true });
+  fireEvent.click(within(listbox).getByText(option));
+};
+
 describe('AdvisorsList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -115,6 +126,23 @@ describe('AdvisorsList', () => {
     });
 
     // the matched text gets split by search-highlight marks, so assert via testids
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('check-mysql_version_check-run')
+      ).not.toBeInTheDocument()
+    );
+    expect(
+      screen.getByTestId('check-postgresql_super_role-run')
+    ).toBeInTheDocument();
+  });
+
+  it('filters checks by the vendor dropdown', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    await selectFilterOption('vendor-filter', 'PostgreSQL');
+
     await waitFor(() =>
       expect(
         screen.queryByTestId('check-mysql_version_check-run')

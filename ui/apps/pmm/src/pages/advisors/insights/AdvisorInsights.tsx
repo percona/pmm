@@ -1,5 +1,4 @@
 import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
 import BlockOutlinedIcon from '@mui/icons-material/BlockOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
@@ -10,11 +9,13 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
 import ReplayOutlinedIcon from '@mui/icons-material/ReplayOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import { paperClasses } from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
@@ -31,7 +32,7 @@ import {
 } from 'hooks/api/useAdvisors';
 import { type MRT_PaginationState } from 'material-react-table';
 import { closeSnackbar, enqueueSnackbar } from 'notistack';
-import { FC, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   AdvisorCheckResultStatus,
@@ -125,6 +126,15 @@ const AdvisorInsights: FC = () => {
     pageSize: 100,
   });
   const [filters, setFilters] = useState<InsightFilters>(NO_FILTERS);
+  // local mirror of the batch-id URL param, committed on blur/Enter so typing
+  // does not refetch (and spam history) on every keystroke
+  const [batchIdInput, setBatchIdInput] = useState(batchId ?? '');
+
+  // keep the input in sync when the param changes elsewhere (row action,
+  // "View results" deep link, "Clear filters")
+  useEffect(() => {
+    setBatchIdInput(batchId ?? '');
+  }, [batchId]);
 
   const updateFilter = (name: keyof InsightFilters, value: string) => {
     setFilters((current) => ({ ...current, [name]: value }));
@@ -160,6 +170,12 @@ const AdvisorInsights: FC = () => {
   const [actionMenu, setActionMenu] = useState<RowActionMenuState | null>(null);
   const [detailsInsight, setDetailsInsight] =
     useState<CheckResultHistoryItem | null>(null);
+  const [detailsMaximized, setDetailsMaximized] = useState(false);
+
+  const openDetails = (insight: CheckResultHistoryItem, maximized = false) => {
+    setDetailsMaximized(maximized);
+    setDetailsInsight(insight);
+  };
 
   const { data, isLoading, isFetching, refetch } =
     useCheckResultsHistory(params);
@@ -183,6 +199,13 @@ const AdvisorInsights: FC = () => {
   const applyBatchIdFilter = (newBatchId: string) => {
     setSearchParams(newBatchId ? { batchId: newBatchId } : {});
     setPagination((current) => ({ ...current, pageIndex: 0 }));
+  };
+
+  const commitBatchIdInput = () => {
+    const trimmed = batchIdInput.trim();
+    if (trimmed !== (batchId ?? '')) {
+      applyBatchIdFilter(trimmed);
+    }
   };
 
   const handleRerun = (insight: CheckResultHistoryItem) => {
@@ -284,9 +307,25 @@ const AdvisorInsights: FC = () => {
       title={Messages.title}
       fullWidth
       wide
+      fillViewport
       roles={[OrgRole.Editor, OrgRole.Admin]}
     >
-      <Stack gap={2} sx={{ flex: 1 }}>
+      <Stack
+        gap={2}
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          // let the table fill the remaining height and scroll internally
+          // (mirrors RealtimeTableWrapper), so the page itself does not scroll
+          [`& > .${paperClasses.root}`]: {
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 0,
+            overflow: 'hidden',
+          },
+        }}
+      >
         <Typography variant="body2">{Messages.description}</Typography>
         <Stack direction="row" flexWrap="wrap" gap={2}>
           <FilterSelect
@@ -331,30 +370,43 @@ const AdvisorInsights: FC = () => {
             value={filters.isRead}
             onChange={(value) => updateFilter('isRead', value)}
           />
-          {batchId && (
-            <Chip
-              label={Messages.filters.batch(batchId.slice(0, 8))}
-              onDelete={() => applyBatchIdFilter('')}
-              sx={{ alignSelf: 'center' }}
-              data-testid="batch-id-filter-chip"
-            />
-          )}
-          <Button
-            startIcon={<FilterAltOffOutlinedIcon />}
-            disabled={!hasActiveFilters}
-            onClick={handleClearFilters}
-            data-testid="clear-filters"
-          >
-            {Messages.filters.clear}
-          </Button>
+          <TextField
+            size="small"
+            // deterministic id: React's useId default breaks jsdom selector matching
+            id="batchId-filter-input"
+            label={Messages.filters.batchId}
+            value={batchIdInput}
+            onChange={(e) => setBatchIdInput(e.target.value)}
+            onBlur={commitBatchIdInput}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                commitBatchIdInput();
+              }
+            }}
+            sx={{ minWidth: 260 }}
+            data-testid="batch-id-filter"
+          />
+          <Tooltip title={Messages.filters.clear} arrow>
+            <Box component="span" sx={{ alignSelf: 'center' }}>
+              <IconButton
+                disabled={!hasActiveFilters}
+                onClick={handleClearFilters}
+                aria-label={Messages.filters.clear}
+                data-testid="clear-filters"
+              >
+                <FilterAltOffOutlinedIcon />
+              </IconButton>
+            </Box>
+          </Tooltip>
           <Tooltip title={Messages.filters.refreshTooltip} arrow>
-            <Button
-              startIcon={<RefreshOutlinedIcon />}
+            <IconButton
               onClick={handleRefresh}
+              aria-label={Messages.filters.refresh}
               data-testid="refresh-insights"
+              sx={{ alignSelf: 'center' }}
             >
-              {Messages.filters.refresh}
-            </Button>
+              <RefreshOutlinedIcon />
+            </IconButton>
           </Tooltip>
         </Stack>
         <Table
@@ -402,6 +454,8 @@ const AdvisorInsights: FC = () => {
             return {
               'data-testid': `insight-row-${row.original.id}`,
               'data-check-disabled': checkDisabled ? 'true' : undefined,
+              // double-click opens the details overlay maximized
+              onDoubleClick: () => openDetails(row.original, true),
               sx: checkDisabled ? { opacity: 0.5 } : undefined,
             };
           }}
@@ -422,7 +476,7 @@ const AdvisorInsights: FC = () => {
           <MenuItem
             onClick={() => {
               if (actionMenu) {
-                setDetailsInsight(actionMenu.insight);
+                openDetails(actionMenu.insight);
               }
               setActionMenu(null);
             }}
@@ -532,6 +586,7 @@ const AdvisorInsights: FC = () => {
         </Menu>
         <InsightDetailsPane
           insight={detailsInsight}
+          initialMaximized={detailsMaximized}
           checkEnabled={
             detailsInsight
               ? checksByName.get(detailsInsight.checkName)?.enabled

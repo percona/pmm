@@ -145,7 +145,7 @@ Every advisor consists of one or more advisor checks. Here is the full list of c
 | :--------- | :---------- | :--- |
 |Connection configuration| postgresql\_max\_connections_1 | Notifies if the *max_connections* configuration option is set to a high value (above 300). PostgreSQL doesn't cope well with having many connections even if they are idle. The recommended value is below 300. |
 | Generic configuration | postgresql\_archiver\_failing_1 | Verifies if the archiver has failed. |
-| Generic configuration | postgresql\_fsync\_1 | Returns an error if the *fsync* configuration option is set to OFF, as this can lead to database corruptions. |
+| Generic configuration | postgresql\_fsync\_1 | Returns an error if the *fsync* configuration option is OFF, as this can lead to database corruption. |
 | Generic configuration | postgresql\_log\_checkpoints_1 | Notifies if the *log_checkpoints* configuration option is not enabled. It is recommended to enable the logging of checkpoint information, as that provides a lot of useful information with almost no drawbacks. |
 | Generic configuration | postgresql\_logging\_recommendation_checks | Verifies whether the recommended minimum logging features are enabled.|
 | Generic configuration | postgresql\_wal\_retention_check | Checks if there are too many WAL files retained in the WAL directory. |

@@ -70,12 +70,15 @@ interface InsightDetailsPaneProps {
   insight: CheckResultHistoryItem | null;
   // enabled state of the underlying check; undefined when unknown
   checkEnabled?: boolean;
+  // open the pane already maximized (e.g. when triggered by a row double-click)
+  initialMaximized?: boolean;
   onClose: () => void;
 }
 
 export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
   insight,
   checkEnabled,
+  initialMaximized = false,
   onClose,
 }) => {
   const [maximized, setMaximized] = useState(false);
@@ -84,12 +87,10 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
   // the pane never covers the main navigation
   const sidebarWidth = navOpen ? DRAWER_WIDTH : DRAWER_CLOSED_WIDTH;
 
-  // start each viewing at the default height
+  // apply the requested height on each open, reset on close
   useEffect(() => {
-    if (!open) {
-      setMaximized(false);
-    }
-  }, [open]);
+    setMaximized(open ? initialMaximized : false);
+  }, [open, initialMaximized]);
 
   const m = Messages.details;
   const labels = Object.entries(insight?.labels ?? {});
