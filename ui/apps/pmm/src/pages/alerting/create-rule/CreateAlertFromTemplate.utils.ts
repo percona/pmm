@@ -10,10 +10,30 @@ import {
   secondsToDuration,
 } from 'utils/alert-templates.utils';
 import { CreateRuleFormValues } from './CreateAlertFromTemplate.types';
+import { Messages } from './CreateAlertFromTemplate.messages';
 import {
   DEFAULT_DURATION_SECONDS,
   DEFAULT_INTERVAL,
+  INTERVAL_STEP_SECONDS,
+  MIN_INTERVAL_SECONDS,
 } from './CreateAlertFromTemplate.constants';
+
+// Grafana's evaluation-interval validation: a valid Prometheus duration
+// string, >= 10s, and a multiple of 10s. Returns an error message or
+// undefined. Shared by the form schema and the new-group modal.
+export const getIntervalError = (value: string): string | undefined => {
+  const seconds = durationToSeconds(value);
+  if (!value || Number.isNaN(seconds) || seconds <= 0) {
+    return Messages.validation.invalidInterval;
+  }
+  if (seconds < MIN_INTERVAL_SECONDS) {
+    return Messages.validation.intervalMin;
+  }
+  if (seconds % INTERVAL_STEP_SECONDS !== 0) {
+    return Messages.validation.intervalMultiple;
+  }
+  return undefined;
+};
 
 export const getParamDefault = (
   param: Template['params'][number]

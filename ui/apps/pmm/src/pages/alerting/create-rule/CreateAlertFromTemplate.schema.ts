@@ -1,39 +1,20 @@
 import { z } from 'zod';
 import { FilterType, Severity } from 'types/alert-templates.types';
-import { durationToSeconds } from 'utils/alert-templates.utils';
 import { Messages } from './CreateAlertFromTemplate.messages';
-import {
-  CREATE_FOLDER_VALUE,
-  INTERVAL_STEP_SECONDS,
-  MIN_INTERVAL_SECONDS,
-} from './CreateAlertFromTemplate.constants';
+import { getIntervalError } from './CreateAlertFromTemplate.utils';
+import { CREATE_FOLDER_VALUE } from './CreateAlertFromTemplate.constants';
 
-const {
-  required,
-  minDuration,
-  invalidInterval,
-  intervalMin,
-  intervalMultiple,
-} = Messages.validation;
+const { required, minDuration } = Messages.validation;
 
 const positiveSeconds = z
   .string()
   .refine((value) => Number(value) >= 1, { message: minDuration });
 
-// Mirrors Grafana's evaluation-interval validation: a valid Prometheus
-// duration string, >= 10s, and a multiple of 10s.
+// Mirrors Grafana's evaluation-interval validation (see getIntervalError).
 const evaluationInterval = z.string().superRefine((value, ctx) => {
-  const seconds = durationToSeconds(value);
-  if (!value || Number.isNaN(seconds) || seconds <= 0) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: invalidInterval });
-    return;
-  }
-  if (seconds < MIN_INTERVAL_SECONDS) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: intervalMin });
-    return;
-  }
-  if (seconds % INTERVAL_STEP_SECONDS !== 0) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: intervalMultiple });
+  const error = getIntervalError(value);
+  if (error) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: error });
   }
 });
 

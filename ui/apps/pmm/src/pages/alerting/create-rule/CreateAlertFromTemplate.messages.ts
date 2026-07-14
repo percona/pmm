@@ -22,6 +22,30 @@ export const Messages = {
   },
   intervalHelper:
     'How often the rule is evaluated, e.g. 1m, 30s (min 10s, multiple of 10s).',
+  group: {
+    label: 'Evaluation group and interval',
+    labelNoFolder:
+      'Select a folder before setting evaluation group and interval',
+    placeholder: 'Select an evaluation group...',
+    loading: 'Loading groups...',
+    or: 'or',
+    newGroup: 'New evaluation group',
+    evaluatedEvery: (interval: string) =>
+      `All rules in the selected group are evaluated every ${interval}.`,
+  },
+  newGroupModal: {
+    title: 'New evaluation group',
+    subtitle: 'Create a new evaluation group to use for this alert rule.',
+    nameLabel: 'Evaluation group name',
+    nameDescription:
+      'A group evaluates all its rules over the same evaluation interval.',
+    namePlaceholder: 'Enter a name',
+    nameRequired: 'Required.',
+    intervalLabel: 'Evaluation interval',
+    intervalDescription: 'How often all rules in the group are evaluated.',
+    cancel: 'Cancel',
+    create: 'Create',
+  },
   filters: {
     add: 'Add filter',
     label: 'Label',

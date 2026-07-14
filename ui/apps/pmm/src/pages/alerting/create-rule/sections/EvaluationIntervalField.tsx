@@ -3,12 +3,14 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { TextInput } from '@percona/percona-ui';
 import { useFormContext } from 'react-hook-form';
-import { CreateRuleFormValues } from '../CreateAlertFromTemplate.types';
 import { EVALUATION_INTERVAL_OPTIONS } from '../CreateAlertFromTemplate.constants';
 import { Messages } from '../CreateAlertFromTemplate.messages';
 
+// Used inside the new-evaluation-group modal (and reusable in any form that
+// has an `interval` string field). Reads/writes the `interval` field via
+// form context.
 export const EvaluationIntervalField: FC = () => {
-  const { watch, setValue } = useFormContext<CreateRuleFormValues>();
+  const { watch, setValue } = useFormContext();
   const current = watch('interval');
 
   return (
