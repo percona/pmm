@@ -31,8 +31,11 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/utils/auth"
 )
+
+// nodeRollbackTimeout bounds the best-effort node rollback when service-account
+// creation fails, on a context detached from the (possibly canceled) request.
+const nodeRollbackTimeout = 10 * time.Second
 
 // RegisterNode performs the registration of a new node.
 func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) { //nolint:gocognit
@@ -123,18 +126,53 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 		return nil, e
 	}
 
-	authHeaders, _ := auth.GetHeadersFromContext(ctx)
-	token := auth.GetTokenFromHeaders(authHeaders)
-	if token != "" {
-		res.Token = token
-	} else {
-		_, res.Token, e = s.grafanaClient.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
-		if e != nil {
-			return nil, e
+	// Always mint a dedicated Grafana service-account token for this node rather than
+	// handing the caller's incoming token back to the agent. The caller's token may be
+	// short-lived (the one-step UI install token has a 15-minute TTL); if the agent
+	// adopted it as its standing credential it would stop working once it expired, and
+	// later `pmm-admin add`/inventory calls would fail with a Grafana
+	// "Auth method is not service account token" 401. The node service-account token
+	// created here has no TTL, so the agent keeps a durable credential.
+	// CreateServiceAccount authenticates to Grafana with the caller's auth headers,
+	// which the /management. auth rule already requires to have the Admin role.
+	_, res.Token, e = s.grafanaClient.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
+	if e != nil {
+		// The node, pmm-agent and node-exporter rows were already committed above, but
+		// minting the token (an external Grafana call we deliberately keep outside the
+		// DB transaction) failed. Roll the node back so the operator can simply retry
+		// instead of being blocked by a half-registered node with no usable token, which
+		// would otherwise require --force (and wipe any sibling services) to clear.
+		nodeID := registeredNodeID(res)
+		if nodeID != "" {
+			// Use a detached context: CreateServiceAccount often fails precisely because
+			// the request ctx was canceled/timed out, and reusing it here would make the
+			// rollback a no-op and leave the orphan behind.
+			rbCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), nodeRollbackTimeout)
+			rbErr := s.db.InTransactionContext(rbCtx, nil, func(tx *reform.TX) error {
+				return models.RemoveNode(tx.Querier, nodeID, models.RemoveCascade)
+			})
+			cancel()
+			if rbErr != nil {
+				s.l.WithField("node_id", nodeID).WithError(rbErr).Warn("Failed to roll back node after service-account creation failed")
+			}
 		}
+		return nil, e
 	}
 
 	return res, nil
+}
+
+// registeredNodeID returns the node ID just written into the registration response,
+// regardless of node type.
+func registeredNodeID(res *managementv1.RegisterNodeResponse) string {
+	switch {
+	case res.GenericNode != nil:
+		return res.GenericNode.NodeId
+	case res.ContainerNode != nil:
+		return res.ContainerNode.NodeId
+	default:
+		return ""
+	}
 }
 
 // UnregisterNode unregisters the node.
