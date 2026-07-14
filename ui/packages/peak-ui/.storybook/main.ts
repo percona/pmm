@@ -37,6 +37,16 @@ const config: StorybookConfig = {
 
     return mergeConfig(config, {
       plugins: [tsconfigPaths()],
+      // Keep fn/class names through minification so Storybook shows real component names.
+      esbuild: { keepNames: true },
+      optimizeDeps: { esbuildOptions: { keepNames: true } },
+      build: {
+        minify: "terser",
+        terserOptions: {
+          keep_classnames: true,
+          keep_fnames: true,
+        },
+      },
       resolve: {
         dedupe: ["react", "react-dom", "react-is", "prop-types"],
         alias: {
