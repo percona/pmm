@@ -2,7 +2,22 @@ import { FilterType, Severity } from 'types/alert-templates.types';
 import { Messages } from './CreateAlertFromTemplate.messages';
 
 export const DEFAULT_DURATION_SECONDS = 60;
-export const DEFAULT_INTERVAL_SECONDS = 60;
+
+// Evaluation interval mirrors Grafana: a Prometheus duration string with
+// quick-pick presets, validated as >= 10s and a multiple of 10s.
+export const DEFAULT_INTERVAL = '1m';
+export const MIN_INTERVAL_SECONDS = 10;
+export const INTERVAL_STEP_SECONDS = 10;
+export const EVALUATION_INTERVAL_OPTIONS = [
+  '10s',
+  '30s',
+  '1m',
+  '5m',
+  '10m',
+  '15m',
+  '30m',
+  '1h',
+];
 
 // Sentinel value for the folder select's "create new folder" option; the new
 // folder is created on submit (not up front).

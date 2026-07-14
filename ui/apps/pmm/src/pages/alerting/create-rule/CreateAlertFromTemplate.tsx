@@ -15,7 +15,7 @@ import { Messages } from './CreateAlertFromTemplate.messages';
 import {
   CREATE_FOLDER_VALUE,
   DEFAULT_DURATION_SECONDS,
-  DEFAULT_INTERVAL_SECONDS,
+  DEFAULT_INTERVAL,
 } from './CreateAlertFromTemplate.constants';
 import { CreateRuleFormValues } from './CreateAlertFromTemplate.types';
 import { createRuleSchema } from './CreateAlertFromTemplate.schema';
@@ -54,7 +54,7 @@ export const CreateAlertFromTemplate: FC = () => {
       folderUid: '',
       newFolderTitle: '',
       group: '',
-      interval: String(DEFAULT_INTERVAL_SECONDS),
+      interval: DEFAULT_INTERVAL,
       filters: [],
       params: {},
     },

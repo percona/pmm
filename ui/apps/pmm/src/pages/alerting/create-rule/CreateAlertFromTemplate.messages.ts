@@ -17,9 +17,11 @@ export const Messages = {
     newFolder: '+ Create new folder…',
     newFolderTitle: 'New folder name',
     group: 'Evaluation group',
-    interval: 'Evaluation interval (seconds)',
+    interval: 'Evaluation interval',
     expr: 'Expression',
   },
+  intervalHelper:
+    'How often the rule is evaluated, e.g. 1m, 30s (min 10s, multiple of 10s).',
   filters: {
     add: 'Add filter',
     label: 'Label',
@@ -41,6 +43,9 @@ export const Messages = {
     min: (min: number) => `Value must be at least ${min}`,
     max: (max: number) => `Value must be at most ${max}`,
     minDuration: 'Duration must be at least 1 second',
+    invalidInterval: 'Must be a valid duration, e.g. 1m or 30s',
+    intervalMin: 'Cannot be less than 10 seconds',
+    intervalMultiple: 'Must be a multiple of 10 seconds',
   },
   paramDescription: (summary: string, unit: string, range: string) =>
     [summary, unit && `(${unit})`, range].filter(Boolean).join(' '),

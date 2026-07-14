@@ -4,6 +4,7 @@ import {
   getTemplateDefaults,
 } from './CreateAlertFromTemplate.utils';
 import { CreateRuleFormValues } from './CreateAlertFromTemplate.types';
+import { createRuleSchema } from './CreateAlertFromTemplate.schema';
 import {
   FilterType,
   ParamType,
@@ -49,6 +50,7 @@ describe('CreateAlertFromTemplate utils', () => {
       expect(defaults.name).toBe('MySQL down alerting rule');
       expect(defaults.severity).toBe(Severity.CRITICAL);
       expect(defaults.duration).toBe('300');
+      expect(defaults.interval).toBe('1m');
       expect(defaults.params).toEqual({ threshold: 80, enabled: true });
     });
   });
@@ -62,7 +64,7 @@ describe('CreateAlertFromTemplate utils', () => {
       folderUid: 'folder-1',
       newFolderTitle: '',
       group: '  group-a  ',
-      interval: '30',
+      interval: '5m',
       filters: [
         { type: FilterType.MATCH, label: 'env', regexp: 'prod' },
         { type: FilterType.MISMATCH, label: '', regexp: 'skip-me' },
@@ -77,7 +79,8 @@ describe('CreateAlertFromTemplate utils', () => {
       expect(payload.group).toBe('group-a');
       expect(payload.folderUid).toBe('folder-1');
       expect(payload.for).toBe('120s');
-      expect(payload.interval).toBe('30s');
+      // Grafana-style duration string is normalized to "<seconds>s".
+      expect(payload.interval).toBe('300s');
       expect(payload.params).toEqual([
         { name: 'threshold', type: ParamType.FLOAT, float: 95 },
         { name: 'enabled', type: ParamType.BOOL, bool: false },
@@ -89,6 +92,43 @@ describe('CreateAlertFromTemplate utils', () => {
       expect(payload.filters).toEqual([
         { type: FilterType.MATCH, label: 'env', regexp: 'prod' },
       ]);
+    });
+  });
+
+  describe('evaluation interval validation (mirrors Grafana)', () => {
+    const baseValues: CreateRuleFormValues = {
+      template: 'pmm_mysql_down',
+      name: 'My rule',
+      severity: Severity.WARNING,
+      duration: '60',
+      folderUid: 'folder-1',
+      newFolderTitle: '',
+      group: 'group-a',
+      interval: '1m',
+      filters: [],
+      params: { threshold: 80, enabled: true },
+    };
+
+    const intervalError = (interval: string) => {
+      const result = createRuleSchema.safeParse({ ...baseValues, interval });
+      if (result.success) {
+        return undefined;
+      }
+      return result.error.issues.find((issue) =>
+        issue.path.includes('interval')
+      )?.message;
+    };
+
+    it('accepts valid duration strings that are multiples of 10s', () => {
+      expect(intervalError('1m')).toBeUndefined();
+      expect(intervalError('30s')).toBeUndefined();
+      expect(intervalError('1h')).toBeUndefined();
+    });
+
+    it('rejects invalid, sub-10s, and non-multiple-of-10 intervals', () => {
+      expect(intervalError('abc')).toBeDefined();
+      expect(intervalError('5s')).toBeDefined();
+      expect(intervalError('15s')).toBeDefined();
     });
   });
 });

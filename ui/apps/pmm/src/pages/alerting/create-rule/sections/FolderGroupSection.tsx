@@ -9,6 +9,7 @@ import { DashboardFolder } from 'types/folders.types';
 import { CreateRuleFormValues } from '../CreateAlertFromTemplate.types';
 import { CREATE_FOLDER_VALUE } from '../CreateAlertFromTemplate.constants';
 import { Messages } from '../CreateAlertFromTemplate.messages';
+import { EvaluationIntervalField } from './EvaluationIntervalField';
 
 interface Props {
   folders: DashboardFolder[];
@@ -46,12 +47,7 @@ export const FolderGroupSection: FC<Props> = ({ folders, loadingFolders }) => {
         />
       )}
       <TextInput name="group" label={Messages.fields.group} isRequired />
-      <TextInput
-        name="interval"
-        label={Messages.fields.interval}
-        isRequired
-        textFieldProps={{ type: 'number' }}
-      />
+      <EvaluationIntervalField />
     </Stack>
   );
 };

@@ -12,7 +12,7 @@ import {
 import { CreateRuleFormValues } from './CreateAlertFromTemplate.types';
 import {
   DEFAULT_DURATION_SECONDS,
-  DEFAULT_INTERVAL_SECONDS,
+  DEFAULT_INTERVAL,
 } from './CreateAlertFromTemplate.constants';
 
 export const getParamDefault = (
@@ -41,7 +41,7 @@ export const getTemplateDefaults = (
       ? durationToSeconds(template.for) || DEFAULT_DURATION_SECONDS
       : DEFAULT_DURATION_SECONDS
   ),
-  interval: String(DEFAULT_INTERVAL_SECONDS),
+  interval: DEFAULT_INTERVAL,
   params: template.params.reduce<Record<string, number | boolean | string>>(
     (acc, param) => {
       acc[param.name] = getParamDefault(param);
@@ -81,7 +81,7 @@ export const buildCreateRulePayload = (
   folderUid: values.folderUid,
   severity: values.severity,
   for: secondsToDuration(Number(values.duration)),
-  interval: secondsToDuration(Number(values.interval)),
+  interval: secondsToDuration(durationToSeconds(values.interval)),
   params: template.params.map<ParamValue>((param) => ({
     name: param.name,
     type: param.type,
