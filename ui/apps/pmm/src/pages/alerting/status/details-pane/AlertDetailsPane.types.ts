@@ -1,5 +1,8 @@
-import { AlertStatus, GrafanaAlertRuleDefinition } from 'types/alerting.types';
-import { GrafanaRulerLabels } from 'types/ruler.types';
+import {
+  AlertStatus,
+  GrafanaAlertRuleDefinition,
+  GrafanaRulerLabels,
+} from 'types/alerting.types';
 
 export interface AlertDetailsPane {
   expression: string;
