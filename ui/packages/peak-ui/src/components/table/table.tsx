@@ -250,7 +250,23 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
         ...consumerRest,
         slotProps: {
           ...consumerSlotProps,
-          input: managesEndAdornment ? { ...consumerInputProps, endAdornment } : consumerInputProps,
+          input: !managesEndAdornment
+            ? consumerSlotProps?.input
+            : typeof consumerSlotProps?.input === 'function'
+              ? (ownerState: any) => {
+                  const resolved = (consumerSlotProps?.input as any)?.(ownerState) ?? {};
+                  const consumerEndAdornment = resolved.endAdornment;
+                  return {
+                    ...resolved,
+                    endAdornment: consumerEndAdornment || clearAdornment ? (
+                      <>
+                        {consumerEndAdornment}
+                        {clearAdornment}
+                      </>
+                    ) : undefined,
+                  };
+                }
+              : { ...(consumerInputProps ?? {}), endAdornment },
         },
         sx: mergeSx({ minWidth: 0, width: '100%', mx: 0 }, consumer?.sx),
       };
