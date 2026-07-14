@@ -331,9 +331,13 @@ describe('pickSeriesValue', () => {
   it('accepts a mismatched sole frame when allowSoleFrame is set', () => {
     // Threshold lookups accept the sole frame — thresholds are typically scalar.
     expect(
-      pickSeriesValue([frame(42, { service_id: 'b' })], { service_id: 'a' }, {
-        allowSoleFrame: true,
-      })
+      pickSeriesValue(
+        [frame(42, { service_id: 'b' })],
+        { service_id: 'a' },
+        {
+          allowSoleFrame: true,
+        }
+      )
     ).toBe(42);
   });
 

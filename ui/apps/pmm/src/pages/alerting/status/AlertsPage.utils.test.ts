@@ -4,7 +4,9 @@ import { AlertRow } from './AlertsPage.types';
 
 const createAlertRow = (
   row: Omit<AlertRow, 'labels' | 'annotations' | 'expression' | 'rawAlert'> &
-    Partial<Pick<AlertRow, 'labels' | 'annotations' | 'expression' | 'rawAlert'>>
+    Partial<
+      Pick<AlertRow, 'labels' | 'annotations' | 'expression' | 'rawAlert'>
+    >
 ): AlertRow => ({
   labels: {},
   annotations: {},

@@ -76,8 +76,8 @@ describe('filterTriggeredAt', () => {
   });
 
   it('treats invalid dates as unset bounds', () => {
-    expect(
-      filterTriggeredAt(row, 'activeAt', [new Date('invalid'), ''])
-    ).toBe(true);
+    expect(filterTriggeredAt(row, 'activeAt', [new Date('invalid'), ''])).toBe(
+      true
+    );
   });
 });
