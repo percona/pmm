@@ -4,6 +4,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { getThemeOptions } from '../src/design';
 import peakDesign from './peak-design';
+import { resolveDisplayName } from './resolve-display-name';
 
 const preview: Preview = {
   decorators: [
@@ -66,6 +67,9 @@ const preview: Preview = {
     },
   },
   parameters: {
+    jsx: {
+      displayName: resolveDisplayName,
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,
