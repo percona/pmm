@@ -195,7 +195,7 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	defer func() {
 		err := m.dbCloser.Close()
 		if err != nil {
-			m.l.Error("Failed to close database connection: %v", err)
+			m.l.WithError(err).Error("Failed to close database connection")
 		}
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
