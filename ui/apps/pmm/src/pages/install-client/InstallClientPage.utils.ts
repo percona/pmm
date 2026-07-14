@@ -7,12 +7,13 @@ export type CredentialsMode = 'prompt' | 'env' | 'flags';
 /** MySQL QAN sources — keep in sync with pmm-admin add mysql --query-source. */
 export type MySQLQuerySource = '' | 'slowlog' | 'perfschema' | 'none';
 
-export const MYSQL_QUERY_SOURCES: { value: MySQLQuerySource; label: string }[] = [
-  { value: '', label: 'Default (slowlog)' },
-  { value: 'slowlog', label: 'Slow log' },
-  { value: 'perfschema', label: 'Performance Schema' },
-  { value: 'none', label: 'None (metrics only)' },
-];
+export const MYSQL_QUERY_SOURCES: { value: MySQLQuerySource; label: string }[] =
+  [
+    { value: '', label: 'Default (slowlog)' },
+    { value: 'slowlog', label: 'Slow log' },
+    { value: 'perfschema', label: 'Performance Schema' },
+    { value: 'none', label: 'None (metrics only)' },
+  ];
 
 /** Default listen ports — keep in sync with install-pmm-client.sh add_* defaults. */
 export const DEFAULT_DB_PORTS: Record<Technology, number> = {
@@ -28,7 +29,7 @@ export const DEFAULT_DB_PORTS: Record<Technology, number> = {
 export function suggestDbServiceName(
   technology: Technology,
   dbPort: string,
-  nodeName = '',
+  nodeName = ''
 ): string {
   const hostLabel = nodeName.trim() || '<hostname>';
   const base = `${hostLabel}-${technology}`;
@@ -51,7 +52,9 @@ export function suggestDbServiceName(
 export const formatExpiresIn = (secondsLeft: number): string => {
   // Guard against NaN/Infinity (e.g. an Invalid Date upstream) so the chip never
   // renders "NaN:NaN" and stays stuck; treat anything non-finite as expired.
-  const safe = Number.isFinite(secondsLeft) ? Math.max(0, Math.floor(secondsLeft)) : 0;
+  const safe = Number.isFinite(secondsLeft)
+    ? Math.max(0, Math.floor(secondsLeft))
+    : 0;
   const minutes = Math.floor(safe / 60);
   const seconds = safe % 60;
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;

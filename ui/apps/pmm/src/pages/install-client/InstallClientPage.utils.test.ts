@@ -63,9 +63,9 @@ describe('buildPmmServerURL', () => {
   });
 
   test('strips path and query from pasted URLs', () => {
-    expect(buildPmmServerURL('https://pmm.example.com/graph/d/foo', 'tok')).toBe(
-      'https://service_token:tok@pmm.example.com'
-    );
+    expect(
+      buildPmmServerURL('https://pmm.example.com/graph/d/foo', 'tok')
+    ).toBe('https://service_token:tok@pmm.example.com');
     expect(buildPmmServerURL('pmm.example.com:443/pmm-ui', 'tok')).toBe(
       'https://service_token:tok@pmm.example.com:443'
     );
@@ -85,7 +85,9 @@ describe('buildInstallCommand', () => {
   test('env mode renders curl|bash with PMM_SERVER_URL and TECH', () => {
     const cmd = buildInstallCommand(baseOptions);
     expect(cmd).toContain("TECH='mysql'");
-    expect(cmd).toContain("PMM_SERVER_URL='https://service_token:GLSA@pmm.example.com:443'");
+    expect(cmd).toContain(
+      "PMM_SERVER_URL='https://service_token:GLSA@pmm.example.com:443'"
+    );
     expect(cmd).toContain('sudo -E env');
     expect(cmd).toContain('curl -fsSLk');
     expect(cmd).toContain('bash -s --');
@@ -145,7 +147,9 @@ describe('buildInstallCommand', () => {
     });
     expect(cmd).toContain('sudo -E bash -s --');
     expect(cmd).toContain('curl -fsSLk');
-    expect(cmd).toContain("--pmm-server-url 'https://service_token:GLSA@pmm.example.com:443'");
+    expect(cmd).toContain(
+      "--pmm-server-url 'https://service_token:GLSA@pmm.example.com:443'"
+    );
     expect(cmd).toContain("--tech 'postgresql'");
     expect(cmd).toContain("--db-password 'secret'");
     expect(cmd).toContain("--db-name 'postgres'");
@@ -219,7 +223,9 @@ describe('buildInstallCommand prompt mode', () => {
     expect(lines[0]).toContain(
       "curl -fsSLk -o '/tmp/install-pmm-client.sh' 'https://pmm.example.com/pmm-static/install-pmm-client.sh'"
     );
-    expect(lines[1]).toMatch(/^sudo -E bash '\/tmp\/install-pmm-client\.sh' \\$/);
+    expect(lines[1]).toMatch(
+      /^sudo -E bash '\/tmp\/install-pmm-client\.sh' \\$/
+    );
     expect(cmd).not.toContain('curl |');
     expect(cmd).not.toContain('bash -s --');
     expect(cmd).not.toContain('sudo -E env');
@@ -330,7 +336,9 @@ describe('buildInstallCommand prompt mode', () => {
 describe('suggestDbServiceName', () => {
   test('uses hostname placeholder and tech label without port', () => {
     expect(suggestDbServiceName('mysql', '', '')).toBe('<hostname>-mysql');
-    expect(suggestDbServiceName('postgresql', '', 'db1')).toBe('db1-postgresql');
+    expect(suggestDbServiceName('postgresql', '', 'db1')).toBe(
+      'db1-postgresql'
+    );
   });
 
   test('appends port suffix when db port is set', () => {

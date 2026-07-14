@@ -17,10 +17,7 @@ const MAX_ERROR_MESSAGE_LENGTH = 120;
 let apiErrorInterceptor: number | null = null;
 
 const onApiError = (error: AxiosError<{ message?: string }>) => {
-  if (
-    error.response &&
-    error.response.status >= 400
-  ) {
+  if (error.response && error.response.status >= 400) {
     let message = error.response.data?.message ?? DEFAULT_ERROR_MESSAGE;
     let notificationsDisabled =
       error.config?.disableNotifications ?? error.response.status === 429;
@@ -76,7 +73,6 @@ export const addApiErrorInterceptor = () => {
       }
     );
   }
-
 };
 
 export const removeApiErrorInterceptor = () => {
@@ -84,5 +80,4 @@ export const removeApiErrorInterceptor = () => {
     api.interceptors.response.eject(apiErrorInterceptor);
     apiErrorInterceptor = null;
   }
-
 };

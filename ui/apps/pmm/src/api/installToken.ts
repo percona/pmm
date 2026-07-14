@@ -67,7 +67,7 @@ const randomTokenSuffix = (): string => {
   // Unlikely: both APIs are unavailable outside a secure context. Collision
   // resistance only needs to be good enough for Grafana token-name uniqueness.
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
-}
+};
 
 /**
  * Mints a short-lived Grafana service-account token for a PMM Client install command.
@@ -78,7 +78,7 @@ const randomTokenSuffix = (): string => {
  * (verified against `/graph/api/serviceaccounts/search` and `POST /graph/api/serviceaccounts`).
  */
 export async function createNodeInstallToken(
-  technology: string,
+  technology: string
 ): Promise<CreateNodeInstallTokenResponse> {
   if (!SUPPORTED_TECHNOLOGIES.has(technology)) {
     throw new Error(`unsupported technology "${technology}"`);
@@ -104,7 +104,9 @@ export async function createNodeInstallToken(
   };
 }
 
-async function findServiceAccountIdByName(name: string): Promise<number | null> {
+async function findServiceAccountIdByName(
+  name: string
+): Promise<number | null> {
   // perpage keeps the exact-name match from falling off the first page when many
   // similarly-prefixed service accounts exist (Grafana's search is a substring match).
   const res = await grafanaApi.get<GrafanaServiceAccountSearch>(
@@ -161,11 +163,14 @@ async function deleteExpiredTokens(serviceAccountId: number): Promise<void> {
 async function createServiceAccount(name: string): Promise<number> {
   // Admin role is required for `pmm-admin config`/inventory writes in real PMM setups.
   try {
-    const res = await grafanaApi.post<GrafanaServiceAccount>('/serviceaccounts', {
-      name,
-      role: 'Admin',
-      isDisabled: false,
-    });
+    const res = await grafanaApi.post<GrafanaServiceAccount>(
+      '/serviceaccounts',
+      {
+        name,
+        role: 'Admin',
+        isDisabled: false,
+      }
+    );
     return res.data.id;
   } catch (error) {
     // A concurrent "Generate token" (or double-click) may have created the SA first;

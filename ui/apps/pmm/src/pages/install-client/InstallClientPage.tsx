@@ -63,8 +63,9 @@ const describeTokenError = (error: unknown): string => {
     if (error.response?.status === 403) {
       return 'Generating an install command requires PMM Admin privileges.';
     }
-    const apiMessage = (error.response?.data as { message?: string } | undefined)
-      ?.message;
+    const apiMessage = (
+      error.response?.data as { message?: string } | undefined
+    )?.message;
     return apiMessage || error.message;
   }
   return error instanceof Error ? error.message : 'Failed to create token';
@@ -72,7 +73,8 @@ const describeTokenError = (error: unknown): string => {
 
 export const InstallClientPage = () => {
   const [technology, setTechnology] = useState<Technology>('mysql');
-  const [credentialsMode, setCredentialsMode] = useState<CredentialsMode>('prompt');
+  const [credentialsMode, setCredentialsMode] =
+    useState<CredentialsMode>('prompt');
   const [automationMode, setAutomationMode] = useState(false);
   const [learnMoreOpen, setLearnMoreOpen] = useState(false);
   const [token, setToken] = useState('');
@@ -88,7 +90,8 @@ export const InstallClientPage = () => {
   const [dbName, setDbName] = useState('');
   const [dbAuthDB, setDbAuthDB] = useState('');
   const [dbServiceName, setDbServiceName] = useState('');
-  const [mysqlQuerySource, setMysqlQuerySource] = useState<MySQLQuerySource>('');
+  const [mysqlQuerySource, setMysqlQuerySource] =
+    useState<MySQLQuerySource>('');
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
   const [genLoading, setGenLoading] = useState(false);
@@ -179,7 +182,10 @@ export const InstallClientPage = () => {
     []
   );
 
-  const serverURL = useMemo(() => buildPmmServerURL(pmmHost, token), [pmmHost, token]);
+  const serverURL = useMemo(
+    () => buildPmmServerURL(pmmHost, token),
+    [pmmHost, token]
+  );
   const clipboardAvailable = useMemo(
     () =>
       typeof window !== 'undefined' &&
@@ -277,7 +283,8 @@ export const InstallClientPage = () => {
   }, [refreshNow, technology]);
 
   const handleTechnologyChange = useCallback(
-    (e: SelectChangeEvent<Technology>) => setTechnology(e.target.value as Technology),
+    (e: SelectChangeEvent<Technology>) =>
+      setTechnology(e.target.value as Technology),
     []
   );
 
@@ -383,13 +390,14 @@ export const InstallClientPage = () => {
           <Stack spacing={2}>
             <Alert severity="info">
               <Typography variant="body2">
-                Pick your database type, generate a short-lived token, then copy and run the
-                command on your database server with <code>sudo</code>. The script installs the
-                PMM client and adds one monitored service.
+                Pick your database type, generate a short-lived token, then copy
+                and run the command on your database server with{' '}
+                <code>sudo</code>. The script installs the PMM client and adds
+                one monitored service.
               </Typography>
               <Typography variant="body2" sx={{ mt: 1 }}>
-                DB credentials are requested on the server by default — they are not embedded in
-                the command.{' '}
+                DB credentials are requested on the server by default — they are
+                not embedded in the command.{' '}
                 <Link
                   component="button"
                   variant="body2"
@@ -402,26 +410,37 @@ export const InstallClientPage = () => {
               <Collapse in={learnMoreOpen}>
                 <Stack spacing={1} sx={{ mt: 1.5 }}>
                   <Typography variant="body2">
-                    Generated tokens expire in <strong>{DEFAULT_TTL_MINUTES} minutes</strong> and grant
-                    Admin-level access — treat the command like a password. Run the command before it
-                    expires; otherwise click <strong>Regenerate</strong> for a fresh one.
+                    Generated tokens expire in{' '}
+                    <strong>{DEFAULT_TTL_MINUTES} minutes</strong> and grant
+                    Admin-level access — treat the command like a password. Run
+                    the command before it expires; otherwise click{' '}
+                    <strong>Regenerate</strong> for a fresh one.
                   </Typography>
                   <Typography variant="body2">
-                    <strong>Multiple instances on one node:</strong> run the command again with a
-                    different port. The script skips node registration after the first run, so your
-                    other monitored services stay intact.
+                    <strong>Multiple instances on one node:</strong> run the
+                    command again with a different port. The script skips node
+                    registration after the first run, so your other monitored
+                    services stay intact.
                   </Typography>
                   <Typography variant="body2">
-                    <strong>Re-adding a service later?</strong> If the command now fails with an
-                    authentication error, the earlier token has expired — regenerate the command here
-                    and re-run it. The script refreshes the token without removing existing services
-                    (do not use <code>--force</code>, which removes the node and all its services).
+                    <strong>Re-adding a service later?</strong> If the command
+                    now fails with an authentication error, the earlier token
+                    has expired — regenerate the command here and re-run it. The
+                    script refreshes the token without removing existing
+                    services (do not use <code>--force</code>, which removes the
+                    node and all its services).
                   </Typography>
                   <Typography variant="body2">
-                    Enable <strong>Running in CI/automation?</strong> below to embed credentials in
-                    the command (env or flags). For interactive installs, leave it off.
+                    Enable <strong>Running in CI/automation?</strong> below to
+                    embed credentials in the command (env or flags). For
+                    interactive installs, leave it off.
                   </Typography>
-                  <Link href={INSTALL_DOCS_URL} target="_blank" rel="noopener noreferrer" variant="body2">
+                  <Link
+                    href={INSTALL_DOCS_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    variant="body2"
+                  >
                     Full documentation
                   </Link>
                 </Stack>
@@ -468,8 +487,8 @@ export const InstallClientPage = () => {
 
             {user && !isPmmAdmin && (
               <Alert severity="warning">
-                Generating an install command requires PMM Admin privileges. Ask an
-                administrator to generate the command for this node.
+                Generating an install command requires PMM Admin privileges. Ask
+                an administrator to generate the command for this node.
               </Alert>
             )}
 
@@ -511,14 +530,17 @@ export const InstallClientPage = () => {
 
             {!automationMode && (
               <Typography variant="body2" color="text.secondary">
-                When you run the command on the node, the script will prompt for the DB user and
-                password.
+                When you run the command on the node, the script will prompt for
+                the DB user and password.
               </Typography>
             )}
 
             <FormControlLabel
               control={
-                <Switch checked={automationMode} onChange={handleAutomationModeChange} />
+                <Switch
+                  checked={automationMode}
+                  onChange={handleAutomationModeChange}
+                />
               }
               label="Running in CI/automation?"
             />
@@ -526,7 +548,9 @@ export const InstallClientPage = () => {
             {automationMode && (
               <Stack spacing={2}>
                 <FormControl fullWidth>
-                  <InputLabel id="credentials-mode-label">Credentials mode</InputLabel>
+                  <InputLabel id="credentials-mode-label">
+                    Credentials mode
+                  </InputLabel>
                   <Select
                     labelId="credentials-mode-label"
                     value={credentialsMode}
@@ -539,8 +563,9 @@ export const InstallClientPage = () => {
                     <MenuItem value="flags">Pass as script flags</MenuItem>
                   </Select>
                   <FormHelperText>
-                    Both modes embed credentials in the command — use only in trusted
-                    automation. (To be prompted on the node instead, turn off automation.)
+                    Both modes embed credentials in the command — use only in
+                    trusted automation. (To be prompted on the node instead,
+                    turn off automation.)
                   </FormHelperText>
                 </FormControl>
                 {credentialsMode !== 'prompt' && (
@@ -563,15 +588,19 @@ export const InstallClientPage = () => {
                 {automationCredsMissing && (
                   <Alert severity="warning">
                     Enter the DB{' '}
-                    {technology === 'valkey' ? 'password' : 'user and password'} above —
-                    this command is non-interactive, so without credentials the install
-                    will fail on the node.
+                    {technology === 'valkey' ? 'password' : 'user and password'}{' '}
+                    above — this command is non-interactive, so without
+                    credentials the install will fail on the node.
                   </Alert>
                 )}
               </Stack>
             )}
 
-            <Accordion disableGutters elevation={0} sx={{ '&:before': { display: 'none' } }}>
+            <Accordion
+              disableGutters
+              elevation={0}
+              sx={{ '&:before': { display: 'none' } }}
+            >
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="subtitle1">Advanced options</Typography>
               </AccordionSummary>
@@ -625,7 +654,9 @@ export const InstallClientPage = () => {
 
                   {technology === 'mysql' && (
                     <FormControl fullWidth>
-                      <InputLabel id="mysql-query-source-label">MySQL query source (QAN)</InputLabel>
+                      <InputLabel id="mysql-query-source-label">
+                        MySQL query source (QAN)
+                      </InputLabel>
                       <Select
                         labelId="mysql-query-source-label"
                         value={mysqlQuerySource}
@@ -633,14 +664,17 @@ export const InstallClientPage = () => {
                         onChange={handleMysqlQuerySourceChange}
                       >
                         {MYSQL_QUERY_SOURCES.map((item) => (
-                          <MenuItem key={item.value || 'default'} value={item.value}>
+                          <MenuItem
+                            key={item.value || 'default'}
+                            value={item.value}
+                          >
                             {item.label}
                           </MenuItem>
                         ))}
                       </Select>
                       <FormHelperText>
-                        Slow log vs Performance Schema — see MySQL connect docs for required
-                        grants.
+                        Slow log vs Performance Schema — see MySQL connect docs
+                        for required grants.
                       </FormHelperText>
                     </FormControl>
                   )}
@@ -664,7 +698,10 @@ export const InstallClientPage = () => {
 
                   <FormControlLabel
                     control={
-                      <Switch checked={insecureTLS} onChange={handleInsecureTLSChange} />
+                      <Switch
+                        checked={insecureTLS}
+                        onChange={handleInsecureTLSChange}
+                      />
                     }
                     label="Use insecure TLS"
                   />
@@ -696,9 +733,11 @@ export const InstallClientPage = () => {
                             color="text.secondary"
                             sx={{ mt: 0.5 }}
                           >
-                            Removes the existing node and <strong>all its services</strong> on PMM
-                            Server, then registers again. Use only to recover from a failed first
-                            install — not when adding another database instance.
+                            Removes the existing node and{' '}
+                            <strong>all its services</strong> on PMM Server,
+                            then registers again. Use only to recover from a
+                            failed first install — not when adding another
+                            database instance.
                           </Typography>
                         </Box>
                       }
@@ -744,8 +783,8 @@ export const InstallClientPage = () => {
             {copied && <Alert severity="success">Command copied.</Alert>}
             {copyFailed && (
               <Alert severity="error">
-                Couldn&apos;t copy to the clipboard. Select the command above and copy it
-                manually.
+                Couldn&apos;t copy to the clipboard. Select the command above
+                and copy it manually.
               </Alert>
             )}
           </Stack>
