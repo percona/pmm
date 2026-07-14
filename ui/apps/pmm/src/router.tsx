@@ -82,9 +82,17 @@ const router = createBrowserRouter(
             },
             {
               path: 'sep/mysql-backups/*',
+              // routeBase must match the mount path (basename-stripped) so the
+              // plugin's absolute nav — detail back/edit/schedule links and the
+              // related-app (Restore) tab bar — resolves under /sep, not the
+              // SEP-default /apps/{name}. PMM_NEW_NAV_PATH is '' so this is the
+              // full path below the /pmm-ui basename.
               element: (
                 <SepPage>
-                  <SchemaDrivenPlugin pluginName="mysql_backups" />
+                  <SchemaDrivenPlugin
+                    pluginName="mysql_backups"
+                    routeBase="/sep/mysql-backups"
+                  />
                 </SepPage>
               ),
             },
