@@ -705,9 +705,16 @@ func writePBMConfigFile(conf *PBMConfig) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to create pbm configuration file: %w", err)
 	}
+	removeConfFunc := func() {
+		remErr := os.Remove(tmp.Name())
+		if remErr != nil {
+			logrus.Errorf("Failed to remove pbm config file %s: %v", tmp.Name(), remErr)
+		}
+	}
 
 	bytes, err := yaml.Marshal(&conf)
 	if err != nil {
+		defer removeConfFunc()
 		err = fmt.Errorf("failed to marshal pbm configuration: %w", err)
 		closeErr := tmp.Close()
 		if closeErr != nil {
@@ -718,6 +725,7 @@ func writePBMConfigFile(conf *PBMConfig) (string, error) {
 
 	_, err = tmp.Write(bytes)
 	if err != nil {
+		defer removeConfFunc()
 		err = fmt.Errorf("failed to write pbm configuration file: %w", err)
 		closeErr := tmp.Close()
 		if closeErr != nil {

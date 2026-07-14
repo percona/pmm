@@ -120,15 +120,15 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	}
 
 	confFile, err := writePBMConfigFile(conf)
+	if err != nil {
+		return fmt.Errorf("failed to write to PBM config: %w", err)
+	}
 	defer func(name string) {
 		remErr := os.Remove(name)
 		if remErr != nil {
 			j.l.Errorf("Failed to remove pbm config file %s: %v", name, remErr)
 		}
 	}(confFile)
-	if err != nil {
-		return fmt.Errorf("failed to write to PBM config: %w", err)
-	}
 
 	configParams := pbmConfigParams{
 		configFilePath: confFile,
