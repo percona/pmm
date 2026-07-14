@@ -214,8 +214,8 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
         : filterValue !== undefined && filterValue !== null && filterValue !== '';
 
       const { slotProps: consumerSlotProps, ...consumerRest } = consumer ?? {};
-      const consumerInputProps =
-        typeof consumerSlotProps?.input === 'function' ? undefined : consumerSlotProps?.input;
+      const consumerInput = consumerSlotProps?.input;
+      const consumerInputProps = typeof consumerInput === 'function' ? undefined : consumerInput;
 
       const clearLabel = table.options.localization.clearFilter;
       const clearAdornment =
@@ -251,19 +251,20 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
         slotProps: {
           ...consumerSlotProps,
           input: !managesEndAdornment
-            ? consumerSlotProps?.input
-            : typeof consumerSlotProps?.input === 'function'
-              ? (ownerState: any) => {
-                  const resolved = (consumerSlotProps?.input as any)?.(ownerState) ?? {};
+            ? consumerInput
+            : typeof consumerInput === 'function'
+              ? (ownerState) => {
+                  const resolved = consumerInput(ownerState) ?? {};
                   const consumerEndAdornment = resolved.endAdornment;
                   return {
                     ...resolved,
-                    endAdornment: consumerEndAdornment || clearAdornment ? (
-                      <>
-                        {consumerEndAdornment}
-                        {clearAdornment}
-                      </>
-                    ) : undefined,
+                    endAdornment:
+                      consumerEndAdornment || clearAdornment ? (
+                        <>
+                          {consumerEndAdornment}
+                          {clearAdornment}
+                        </>
+                      ) : undefined,
                   };
                 }
               : { ...(consumerInputProps ?? {}), endAdornment },
