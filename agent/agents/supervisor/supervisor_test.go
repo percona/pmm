@@ -62,10 +62,10 @@ func TestSupervisor(t *testing.T) {
 
 		s.SetState(&agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
-				"sleep1": {Type: type_TEST_SLEEP, Args: []string{"10"}},
+				"sleep1": {Type: typeTestSleep, Args: []string{"10"}},
 			},
 			BuiltinAgents: map[string]*agentv1.SetStateRequest_BuiltinAgent{
-				"noop3": {Type: type_TEST_NOOP, Dsn: "30"},
+				"noop3": {Type: typeTestNoop, Dsn: "30"},
 			},
 		})
 
@@ -77,8 +77,8 @@ func TestSupervisor(t *testing.T) {
 		)
 
 		expectedList := []*agentlocal.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: typeTestNoop, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING},
+			{AgentType: typeTestSleep, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
 		}
 		assert.ElementsMatch(t, expectedList, s.AgentsList())
 
@@ -88,26 +88,26 @@ func TestSupervisor(t *testing.T) {
 		)
 
 		expectedList = []*agentlocal.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: typeTestNoop, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			{AgentType: typeTestSleep, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
 		}
 		assert.ElementsMatch(t, expectedList, s.AgentsList())
 	})
 
 	t.Run("Restart1Start2", func(t *testing.T) {
 		expectedList := []*agentlocal.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: typeTestNoop, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			{AgentType: typeTestSleep, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
 		}
 		require.ElementsMatch(t, expectedList, s.AgentsList())
 
 		s.SetState(&agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
-				"sleep1": {Type: type_TEST_SLEEP, Args: []string{"20"}},
-				"sleep2": {Type: type_TEST_SLEEP, Args: []string{"10"}},
+				"sleep1": {Type: typeTestSleep, Args: []string{"20"}},
+				"sleep2": {Type: typeTestSleep, Args: []string{"10"}},
 			},
 			BuiltinAgents: map[string]*agentv1.SetStateRequest_BuiltinAgent{
-				"noop3": {Type: type_TEST_NOOP, Dsn: "30"},
+				"noop3": {Type: typeTestNoop, Dsn: "30"},
 			},
 		})
 
@@ -126,29 +126,29 @@ func TestSupervisor(t *testing.T) {
 		)
 
 		expectedList = []*agentlocal.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: typeTestNoop, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			{AgentType: typeTestSleep, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: typeTestSleep, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		assert.ElementsMatch(t, expectedList, s.AgentsList())
 	})
 
 	t.Run("Restart3Start4", func(t *testing.T) {
 		expectedList := []*agentlocal.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: typeTestNoop, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			{AgentType: typeTestSleep, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: typeTestSleep, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		require.ElementsMatch(t, expectedList, s.AgentsList())
 
 		s.SetState(&agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
-				"sleep1": {Type: type_TEST_SLEEP, Args: []string{"20"}},
-				"sleep2": {Type: type_TEST_SLEEP, Args: []string{"10"}},
+				"sleep1": {Type: typeTestSleep, Args: []string{"20"}},
+				"sleep2": {Type: typeTestSleep, Args: []string{"10"}},
 			},
 			BuiltinAgents: map[string]*agentv1.SetStateRequest_BuiltinAgent{
-				"noop3": {Type: type_TEST_NOOP, Dsn: "20"},
-				"noop4": {Type: type_TEST_NOOP, Dsn: "10"},
+				"noop3": {Type: typeTestNoop, Dsn: "20"},
+				"noop4": {Type: typeTestNoop, Dsn: "10"},
 			},
 		})
 
@@ -168,30 +168,30 @@ func TestSupervisor(t *testing.T) {
 		)
 
 		expectedList = []*agentlocal.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: typeTestNoop, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			{AgentType: typeTestNoop, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			{AgentType: typeTestSleep, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: typeTestSleep, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		assert.ElementsMatch(t, expectedList, s.AgentsList())
 	})
 
 	t.Run("Stop1", func(t *testing.T) {
 		expectedList := []*agentlocal.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: typeTestNoop, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			{AgentType: typeTestNoop, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			{AgentType: typeTestSleep, AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65000, ProcessExecPath: "sleep"},
+			{AgentType: typeTestSleep, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		require.ElementsMatch(t, expectedList, s.AgentsList())
 
 		s.SetState(&agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
-				"sleep2": {Type: type_TEST_SLEEP, Args: []string{"10"}},
+				"sleep2": {Type: typeTestSleep, Args: []string{"10"}},
 			},
 			BuiltinAgents: map[string]*agentv1.SetStateRequest_BuiltinAgent{
-				"noop3": {Type: type_TEST_NOOP, Dsn: "20"},
-				"noop4": {Type: type_TEST_NOOP, Dsn: "10"},
+				"noop3": {Type: typeTestNoop, Dsn: "20"},
+				"noop4": {Type: typeTestNoop, Dsn: "10"},
 			},
 		})
 
@@ -202,27 +202,27 @@ func TestSupervisor(t *testing.T) {
 			&agentv1.StateChangedRequest{AgentId: "sleep1", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE, ListenPort: 65000, ProcessExecPath: "sleep"},
 		)
 		expectedList = []*agentlocal.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: typeTestNoop, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			{AgentType: typeTestNoop, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			{AgentType: typeTestSleep, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		require.ElementsMatch(t, expectedList, s.AgentsList())
 	})
 
 	t.Run("Stop3", func(t *testing.T) {
 		expectedList := []*agentlocal.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: typeTestNoop, AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			{AgentType: typeTestNoop, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			{AgentType: typeTestSleep, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		require.ElementsMatch(t, expectedList, s.AgentsList())
 
 		s.SetState(&agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
-				"sleep2": {Type: type_TEST_SLEEP, Args: []string{"10"}},
+				"sleep2": {Type: typeTestSleep, Args: []string{"10"}},
 			},
 			BuiltinAgents: map[string]*agentv1.SetStateRequest_BuiltinAgent{
-				"noop4": {Type: type_TEST_NOOP, Dsn: "10"},
+				"noop4": {Type: typeTestNoop, Dsn: "10"},
 			},
 		})
 
@@ -233,16 +233,16 @@ func TestSupervisor(t *testing.T) {
 			&agentv1.StateChangedRequest{AgentId: "noop3", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE},
 		)
 		expectedList = []*agentlocal.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: typeTestNoop, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			{AgentType: typeTestSleep, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		require.ElementsMatch(t, expectedList, s.AgentsList())
 	})
 
 	t.Run("Exit", func(t *testing.T) {
 		expectedList := []*agentlocal.AgentInfo{
-			{AgentType: type_TEST_NOOP, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
-			{AgentType: type_TEST_SLEEP, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
+			{AgentType: typeTestNoop, AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING},
+			{AgentType: typeTestSleep, AgentId: "sleep2", Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, ListenPort: 65001, ProcessExecPath: "sleep"},
 		}
 		require.ElementsMatch(t, expectedList, s.AgentsList())
 
@@ -279,7 +279,7 @@ func TestStartProcessFail(t *testing.T) {
 
 		s.SetState(&agentv1.SetStateRequest{
 			AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
-				"sleep1": {Type: type_TEST_SLEEP, Args: []string{"wrong format"}},
+				"sleep1": {Type: typeTestSleep, Args: []string{"wrong format"}},
 			},
 		})
 

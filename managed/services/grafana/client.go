@@ -29,7 +29,9 @@ import (
 	"strings"
 	"time"
 
-	gapi "github.com/grafana/grafana-api-golang-client"
+	"github.com/grafana/grafana-openapi-client-go/client"
+	"github.com/grafana/grafana-openapi-client-go/client/folders"
+	"github.com/grafana/grafana-openapi-client-go/models"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -777,33 +779,33 @@ func validateDurations(intervalD, forD string) error {
 	return nil
 }
 
-// GetDatasourceUIDByID returns grafana datasource UID.
-func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, error) {
+// GetDatasourceUIDByName returns grafana datasource UID.
+func (c *Client) GetDatasourceUIDByName(ctx context.Context, name string) (string, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)
 	if err != nil {
 		return "", fmt.Errorf("failed to create grafana client: %w", err)
 	}
 
-	ds, err := grafanaClient.DataSource(id)
+	resp, err := grafanaClient.Datasources.GetDataSourceByName(name)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get datasource %s: %w", name, err)
 	}
-	return ds.UID, nil
+	return resp.Payload.UID, nil
 }
 
 // CreateFolder creates grafana folder.
-func (c *Client) CreateFolder(ctx context.Context, title string) (*gapi.Folder, error) {
+func (c *Client) CreateFolder(ctx context.Context, title string) (*models.Folder, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create grafana client: %w", err)
 	}
 
-	folder, err := grafanaClient.NewFolder(title)
+	resp, err := grafanaClient.Folders.CreateFolder(&models.CreateFolderCommand{Title: title})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create folder: %w", err)
 	}
 
-	return &folder, nil
+	return resp.Payload, nil
 }
 
 // DeleteFolder deletes grafana folder.
@@ -813,12 +815,9 @@ func (c *Client) DeleteFolder(ctx context.Context, id string, force bool) error 
 		return fmt.Errorf("failed to create grafana client: %w", err)
 	}
 
-	params := make(url.Values)
-	if force {
-		params.Add("forceDeleteRules", "true")
-	}
+	params := folders.NewDeleteFolderParams().WithFolderUID(id).WithForceDeleteRules(&force)
 
-	err = grafanaClient.DeleteFolder(id, params)
+	_, err = grafanaClient.Folders.DeleteFolder(params)
 	if err != nil {
 		return fmt.Errorf("failed to delete folder: %w", err)
 	}
@@ -827,21 +826,21 @@ func (c *Client) DeleteFolder(ctx context.Context, id string, force bool) error 
 }
 
 // GetFolderByUID returns folder with given UID.
-func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, error) {
+func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*models.Folder, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create grafana client: %w", err)
 	}
 
-	folder, err := grafanaClient.FolderByUID(uid)
+	resp, err := grafanaClient.Folders.GetFolderByUID(uid)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find folder: %w", err)
 	}
 
-	return folder, nil
+	return resp.Payload, nil
 }
 
-func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) {
+func (c *Client) createGrafanaClient(ctx context.Context) (*client.GrafanaHTTPAPI, error) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get auth headers from incoming context: %w", err)
@@ -852,12 +851,12 @@ func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) 
 		headers[k] = authHeaders.Get(k)
 	}
 
-	grafanaClient, err := gapi.New("http://"+c.addr, gapi.Config{HTTPHeaders: headers})
-	if err != nil {
-		return nil, fmt.Errorf("failed to create a new grafana client: %w", err)
-	}
+	cfg := client.DefaultTransportConfig()
+	cfg.Host = c.addr
+	cfg.Schemes = []string{"http"}
+	cfg.HTTPHeaders = headers
 
-	return grafanaClient, nil
+	return client.NewHTTPClientWithConfig(nil, cfg), nil
 }
 
 type serviceAccount struct {

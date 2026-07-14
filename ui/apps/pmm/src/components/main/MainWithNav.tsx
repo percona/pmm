@@ -5,6 +5,7 @@ import { useBootstrap } from 'hooks/utils/useBootstrap';
 import { Sidebar } from 'components/sidebar';
 import { GrafanaPage } from 'pages/grafana';
 import { useGrafana } from 'contexts/grafana';
+import { useUser } from 'contexts/user';
 import { UpdateModal } from 'components/main/update-modal';
 import { DelayedRender } from 'components/delayed-render';
 import { SHOW_UPDATE_INFO_DELAY_MS } from 'lib/constants';
@@ -13,9 +14,12 @@ import Header from './header/Header';
 
 const useMainNavVisible = () => {
   const { isLoggedIn } = useAuth();
+  const { user } = useUser();
   const { isFullScreen } = useGrafana();
 
-  return isLoggedIn && !isFullScreen && !isRenderingServer();
+  return (
+    (isLoggedIn || user?.isAnonymous) && !isFullScreen && !isRenderingServer()
+  );
 };
 
 export const MainWithNav = () => {
