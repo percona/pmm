@@ -1,5 +1,5 @@
 export const clampFraction = (fraction: number): number =>
-  Math.min(Math.max(fraction, 0), 1);
+  Number.isFinite(fraction) ? Math.min(Math.max(fraction, 0), 1) : 0;
 
 export const toPercent = (fraction: number): string =>
   `${clampFraction(fraction) * 100}%`;

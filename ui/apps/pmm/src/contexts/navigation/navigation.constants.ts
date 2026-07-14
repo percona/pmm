@@ -536,7 +536,7 @@ export const NAV_ALERTS: NavItem = {
   id: 'alerts',
   icon: 'alerts',
   text: 'Alerts',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/status`,
+  url: `${PMM_NEW_NAV_PATH}/alerting/status`,
 };
 
 export const NAV_ADVISORS: NavItem = {
