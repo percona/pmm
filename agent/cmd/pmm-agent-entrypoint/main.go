@@ -113,8 +113,8 @@ func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy re
 
 func commandPmmAgent(args []string) *exec.Cmd {
 	const pmmAgentCommandName = "pmm-agent"
-	// The command name pmmAgentCommandName is defined as a constant "pmm-agent",
-	// so the executable itself cannot be swapped maliciously.
+	// Gosec G204 warns about launching subprocesses with variable arguments.
+	// Here the binary name is constant and args are passed directly (no shell).
 	command := exec.Command(pmmAgentCommandName, args...) //nolint:gosec
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
