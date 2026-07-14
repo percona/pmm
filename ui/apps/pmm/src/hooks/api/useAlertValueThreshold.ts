@@ -1,7 +1,9 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { evalAlertQueries } from 'api/alerting';
-import { GrafanaAlertRuleDefinition } from 'types/alerting.types';
-import { GrafanaRulerLabels } from 'types/ruler.types';
+import {
+  GrafanaAlertRuleDefinition,
+  GrafanaRulerLabels,
+} from 'types/alerting.types';
 import {
   computeValueThreshold,
   pickSeriesValue,

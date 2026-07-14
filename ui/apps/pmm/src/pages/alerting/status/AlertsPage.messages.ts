@@ -1,6 +1,6 @@
 export const Messages = {
-  title: 'Alerts',
+  title: 'Alert status',
   loading: 'Loading alerts',
-  fetchError: 'Unable to load alerts. Try refreshing the page.',
+  fetchError: 'Unable to load alerts.',
   empty: 'No alerts found.',
 };

@@ -80,7 +80,10 @@ describe('AlertStatusTable column filters', () => {
     // before 'High CPU' (14:00Z).
     fireEvent.change(screen.getByPlaceholderText('Min'), {
       target: {
-        value: format(new Date('2026-04-15T12:00:00.000Z'), 'MM/dd/yyyy hh:mm a'),
+        value: format(
+          new Date('2026-04-15T12:00:00.000Z'),
+          'MM/dd/yyyy hh:mm a'
+        ),
       },
     });
 

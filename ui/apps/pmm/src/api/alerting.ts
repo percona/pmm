@@ -1,6 +1,7 @@
 import {
   AlertEvalResponse,
   GrafanaAlertQuery,
+  GrafanaRulerRuleDTO,
   PrometheusAlertRulesResponse,
 } from 'types/alerting.types';
 import { grafanaApi } from './api';
@@ -17,4 +18,11 @@ export const evalAlertQueries = async (data: GrafanaAlertQuery[]) => {
     data,
   });
   return response.data;
+};
+
+export const getRulerRule = async (uid: string) => {
+  const res = await grafanaApi.get<GrafanaRulerRuleDTO>(
+    `/ruler/grafana/api/v1/rule/${uid}`
+  );
+  return res.data;
 };

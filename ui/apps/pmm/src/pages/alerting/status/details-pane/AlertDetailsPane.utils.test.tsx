@@ -7,7 +7,8 @@ const { getRulerRule } = vi.hoisted(() => ({
   getRulerRule: vi.fn(),
 }));
 
-vi.mock('api/ruler', () => ({
+vi.mock('api/alerting', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('api/alerting')>()),
   getRulerRule,
 }));
 

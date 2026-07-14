@@ -5,8 +5,10 @@ import { useAlertValueThreshold } from 'hooks/api/useAlertValueThreshold';
 import UnavailableText from 'components/unavailable-text';
 import { PERCENT_OFF_SCALE } from './ValueThreshold.constants';
 import { formatNumber, toPercent } from './ValueThreshold.utils';
-import { GrafanaRulerLabels } from 'types/ruler.types';
-import { GrafanaAlertRuleDefinition } from 'types/alerting.types';
+import {
+  GrafanaAlertRuleDefinition,
+  GrafanaRulerLabels,
+} from 'types/alerting.types';
 
 interface Props {
   definition?: GrafanaAlertRuleDefinition;
