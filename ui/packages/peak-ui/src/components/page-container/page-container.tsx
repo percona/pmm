@@ -16,12 +16,13 @@ export const DEFAULT_PAGE_MAX_WIDTH = 1000;
  * padding), or a pixel number to cap it.
  */
 const PageContainer = forwardRef<HTMLDivElement, PageContainerProps>(
-  ({ maxWidth = DEFAULT_PAGE_MAX_WIDTH, sx, children, ...rest }, ref) => {
+  ({ maxWidth = DEFAULT_PAGE_MAX_WIDTH, spacing = 2, sx, children, ...rest }, ref) => {
     const isFull = maxWidth === 'full';
 
     return (
       <Stack
         ref={ref}
+        spacing={spacing}
         sx={[
           {
             flex: 1,
@@ -34,7 +35,6 @@ const PageContainer = forwardRef<HTMLDivElement, PageContainerProps>(
               md: isFull ? 4 : undefined,
             },
             mx: 'auto',
-            gap: 2,
             mt: 1,
           },
           // `sx` can be an object, array, or function — normalize to an array so
