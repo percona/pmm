@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -48,6 +48,7 @@ func NewExternalService(db *reform.DB, vmdb prometheusService, state agentsState
 	}
 }
 
+// AddExternal adds an external service based on the provided request.
 func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.AddExternalRequest) (*managementpb.AddExternalResponse, error) {
 	res := &managementpb.AddExternalResponse{}
 	var pmmAgentID *string

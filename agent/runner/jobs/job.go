@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,6 +44,8 @@ type Job interface {
 	Type() JobType
 	// Timeout returns Job timeout.
 	Timeout() time.Duration
+	// DSN returns Data Source Name required for the Action.
+	DSN() string
 	// Run starts Job execution.
 	Run(ctx context.Context, send Send) error
 }

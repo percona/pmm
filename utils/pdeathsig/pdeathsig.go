@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,6 @@ import (
 )
 
 // Set works only on Linux.
-func Set(cmd *exec.Cmd, s unix.Signal) {
+func Set(_ *exec.Cmd, _ unix.Signal) {
 	// nothing, see pdeathsig_linux.go
 }

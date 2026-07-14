@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -140,4 +140,16 @@ func ensureAuthParams(exporter *models.Agent, params *agentpb.SetStateRequest_Ag
 	}
 
 	return nil
+}
+
+// getExporterListenAddress returns the appropriate listen address to use for a given exporter.
+func getExporterListenAddress(_ *models.Node, exporter *models.Agent) string {
+	switch {
+	case exporter.ExposeExporter:
+		return "0.0.0.0"
+	case exporter.PushMetrics:
+		return "127.0.0.1"
+	default:
+		return "0.0.0.0"
+	}
 }

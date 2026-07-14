@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package sqlrows provides helper methods for *sql.Rows
+// Package sqlrows provides helper methods for *sql.Rows.
 package sqlrows
 
 import "database/sql"

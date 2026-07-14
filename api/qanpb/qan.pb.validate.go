@@ -166,6 +166,14 @@ func (m *Point) validate(all bool) error {
 
 	// no validation rules for MBlkWriteTimeSumPerSec
 
+	// no validation rules for MSharedBlkReadTimeSumPerSec
+
+	// no validation rules for MSharedBlkWriteTimeSumPerSec
+
+	// no validation rules for MLocalBlkReadTimeSumPerSec
+
+	// no validation rules for MLocalBlkWriteTimeSumPerSec
+
 	// no validation rules for MCpuUserTimeSumPerSec
 
 	// no validation rules for MCpuSysTimeSumPerSec
@@ -193,7 +201,7 @@ type PointMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PointMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -295,7 +303,7 @@ type MapFieldEntryMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MapFieldEntryMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

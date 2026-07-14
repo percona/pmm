@@ -77,6 +77,8 @@ func (m *MySQLService) validate(all bool) error {
 
 	// no validation rules for CustomLabels
 
+	// no validation rules for Version
+
 	if len(errors) > 0 {
 		return MySQLServiceMultiError(errors)
 	}
@@ -90,7 +92,7 @@ type MySQLServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MySQLServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -196,6 +198,8 @@ func (m *MongoDBService) validate(all bool) error {
 
 	// no validation rules for CustomLabels
 
+	// no validation rules for Version
+
 	if len(errors) > 0 {
 		return MongoDBServiceMultiError(errors)
 	}
@@ -210,7 +214,7 @@ type MongoDBServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MongoDBServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -318,6 +322,10 @@ func (m *PostgreSQLService) validate(all bool) error {
 
 	// no validation rules for CustomLabels
 
+	// no validation rules for Version
+
+	// no validation rules for AutoDiscoveryLimit
+
 	if len(errors) > 0 {
 		return PostgreSQLServiceMultiError(errors)
 	}
@@ -332,7 +340,7 @@ type PostgreSQLServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PostgreSQLServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -440,6 +448,8 @@ func (m *ProxySQLService) validate(all bool) error {
 
 	// no validation rules for CustomLabels
 
+	// no validation rules for Version
+
 	if len(errors) > 0 {
 		return ProxySQLServiceMultiError(errors)
 	}
@@ -454,7 +464,7 @@ type ProxySQLServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ProxySQLServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -568,7 +578,7 @@ type HAProxyServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HAProxyServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -684,7 +694,7 @@ type ExternalServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ExternalServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -790,7 +800,7 @@ type ListServicesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListServicesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1096,7 +1106,7 @@ type ListServicesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListServicesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1198,7 +1208,7 @@ type ListActiveServiceTypesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListActiveServiceTypesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1301,7 +1311,7 @@ type ListActiveServiceTypesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListActiveServiceTypesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1415,7 +1425,7 @@ type GetServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1768,7 +1778,7 @@ type GetServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1906,7 +1916,7 @@ type AddMySQLServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMySQLServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2037,7 +2047,7 @@ type AddMySQLServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMySQLServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2175,7 +2185,7 @@ type AddMongoDBServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMongoDBServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2306,7 +2316,7 @@ type AddMongoDBServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMongoDBServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2430,6 +2440,8 @@ func (m *AddPostgreSQLServiceRequest) validate(all bool) error {
 
 	// no validation rules for CustomLabels
 
+	// no validation rules for AutoDiscoveryLimit
+
 	if len(errors) > 0 {
 		return AddPostgreSQLServiceRequestMultiError(errors)
 	}
@@ -2444,7 +2456,7 @@ type AddPostgreSQLServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddPostgreSQLServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2576,7 +2588,7 @@ type AddPostgreSQLServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddPostgreSQLServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2715,7 +2727,7 @@ type AddProxySQLServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddProxySQLServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2846,7 +2858,7 @@ type AddProxySQLServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddProxySQLServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2978,7 +2990,7 @@ type AddHAProxyServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddHAProxyServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3109,7 +3121,7 @@ type AddHAProxyServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddHAProxyServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3243,7 +3255,7 @@ type AddExternalServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddExternalServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3374,7 +3386,7 @@ type AddExternalServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddExternalServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3489,7 +3501,7 @@ type RemoveServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3591,7 +3603,7 @@ type RemoveServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3706,7 +3718,7 @@ type AddCustomLabelsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddCustomLabelsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3808,7 +3820,7 @@ type AddCustomLabelsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddCustomLabelsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3921,7 +3933,7 @@ type RemoveCustomLabelsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveCustomLabelsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4023,7 +4035,7 @@ type RemoveCustomLabelsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveCustomLabelsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4088,3 +4100,234 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RemoveCustomLabelsResponseValidationError{}
+
+// Validate checks the field values on ChangeServiceRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeServiceRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeServiceRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeServiceRequestMultiError, or nil if none found.
+func (m *ChangeServiceRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeServiceRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := ChangeServiceRequestValidationError{
+			field:  "ServiceId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.Environment != nil {
+		// no validation rules for Environment
+	}
+
+	if m.Cluster != nil {
+		// no validation rules for Cluster
+	}
+
+	if m.ReplicationSet != nil {
+		// no validation rules for ReplicationSet
+	}
+
+	if m.ExternalGroup != nil {
+		// no validation rules for ExternalGroup
+	}
+
+	if len(errors) > 0 {
+		return ChangeServiceRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeServiceRequestMultiError is an error wrapping multiple validation
+// errors returned by ChangeServiceRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ChangeServiceRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeServiceRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeServiceRequestMultiError) AllErrors() []error { return m }
+
+// ChangeServiceRequestValidationError is the validation error returned by
+// ChangeServiceRequest.Validate if the designated constraints aren't met.
+type ChangeServiceRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeServiceRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeServiceRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeServiceRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeServiceRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeServiceRequestValidationError) ErrorName() string {
+	return "ChangeServiceRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeServiceRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeServiceRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeServiceRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeServiceRequestValidationError{}
+
+// Validate checks the field values on ChangeServiceResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeServiceResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeServiceResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeServiceResponseMultiError, or nil if none found.
+func (m *ChangeServiceResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeServiceResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ChangeServiceResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeServiceResponseMultiError is an error wrapping multiple validation
+// errors returned by ChangeServiceResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ChangeServiceResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeServiceResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeServiceResponseMultiError) AllErrors() []error { return m }
+
+// ChangeServiceResponseValidationError is the validation error returned by
+// ChangeServiceResponse.Validate if the designated constraints aren't met.
+type ChangeServiceResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeServiceResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeServiceResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeServiceResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeServiceResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeServiceResponseValidationError) ErrorName() string {
+	return "ChangeServiceResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeServiceResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeServiceResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeServiceResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeServiceResponseValidationError{}

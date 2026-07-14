@@ -473,12 +473,13 @@ type ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -493,6 +494,9 @@ type ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change azure database exporter OK body azure database exporter
@@ -507,6 +511,10 @@ func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) Validate(format
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -517,7 +525,7 @@ var changeAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeStatusPropEnum []i
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -532,6 +540,9 @@ const (
 
 	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusSTARTING captures enum value "STARTING"
 	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusSTARTING string = "STARTING"
+
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusRUNNING captures enum value "RUNNING"
 	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusRUNNING string = "RUNNING"
@@ -624,8 +635,51 @@ func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) validateLogLeve
 	return nil
 }
 
-// ContextValidate validates this change azure database exporter OK body azure database exporter based on context it is used
+func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAzureDatabaseExporterOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAzureDatabaseExporterOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change azure database exporter OK body azure database exporter based on the context it is used
 func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAzureDatabaseExporterOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("changeAzureDatabaseExporterOk" + "." + "azure_database_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -640,6 +694,49 @@ func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) MarshalBinary()
 // UnmarshalBinary interface implementation
 func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) UnmarshalBinary(b []byte) error {
 	var res ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterMetricsResolutions
+*/
+type ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change azure database exporter OK body azure database exporter metrics resolutions
+func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change azure database exporter OK body azure database exporter metrics resolutions based on context it is used
+func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -670,15 +767,70 @@ type ChangeAzureDatabaseExporterParamsBodyCommon struct {
 
 	// Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
 	DisablePushMetrics bool `json:"disable_push_metrics,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *ChangeAzureDatabaseExporterParamsBodyCommonMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this change azure database exporter params body common
 func (o *ChangeAzureDatabaseExporterParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this change azure database exporter params body common based on context it is used
+func (o *ChangeAzureDatabaseExporterParamsBodyCommon) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change azure database exporter params body common based on the context it is used
 func (o *ChangeAzureDatabaseExporterParamsBodyCommon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAzureDatabaseExporterParamsBodyCommon) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "common" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -693,6 +845,49 @@ func (o *ChangeAzureDatabaseExporterParamsBodyCommon) MarshalBinary() ([]byte, e
 // UnmarshalBinary interface implementation
 func (o *ChangeAzureDatabaseExporterParamsBodyCommon) UnmarshalBinary(b []byte) error {
 	var res ChangeAzureDatabaseExporterParamsBodyCommon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAzureDatabaseExporterParamsBodyCommonMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeAzureDatabaseExporterParamsBodyCommonMetricsResolutions
+*/
+type ChangeAzureDatabaseExporterParamsBodyCommonMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this change azure database exporter params body common metrics resolutions
+func (o *ChangeAzureDatabaseExporterParamsBodyCommonMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change azure database exporter params body common metrics resolutions based on context it is used
+func (o *ChangeAzureDatabaseExporterParamsBodyCommonMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAzureDatabaseExporterParamsBodyCommonMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAzureDatabaseExporterParamsBodyCommonMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeAzureDatabaseExporterParamsBodyCommonMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

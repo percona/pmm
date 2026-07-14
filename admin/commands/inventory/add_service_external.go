@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ type AddServiceExternalCommand struct {
 	Group          string            `help:"Group name of external service"`
 }
 
+// RunCmd executes the AddServiceExternalCommand and returns the result.
 func (cmd *AddServiceExternalCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 

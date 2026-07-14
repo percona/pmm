@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -229,4 +229,14 @@ const (
 	Float  = ParamType("float")
 	Bool   = ParamType("bool")
 	String = ParamType("string")
+)
+
+// ParamUnit represents the unit of a parameter.
+type ParamUnit string
+
+const (
+	// Percent represents a parameter unit for percentage values.
+	Percent = ParamUnit("%")
+	// Seconds represents a parameter unit for time values in seconds.
+	Seconds = ParamUnit("s")
 )

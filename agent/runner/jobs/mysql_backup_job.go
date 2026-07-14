@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -74,6 +74,11 @@ func (j *MySQLBackupJob) Type() JobType {
 // Timeout returns Job timeout.
 func (j *MySQLBackupJob) Timeout() time.Duration {
 	return j.timeout
+}
+
+// DSN returns DSN for the Job.
+func (j *MySQLBackupJob) DSN() string {
+	return j.connConf.createDBURL().String()
 }
 
 // Run starts Job execution.

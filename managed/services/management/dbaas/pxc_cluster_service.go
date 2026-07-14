@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -58,7 +58,7 @@ type PXCClustersService struct {
 }
 
 // NewPXCClusterService creates PXC Service.
-func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient, componentsService componentsService,
+func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient, componentsService componentsService, //nolint:ireturn
 	versionServiceURL string,
 ) dbaasv1beta1.PXCClustersServer {
 	l := logrus.WithField("component", "pxc_cluster")
@@ -178,7 +178,6 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		}
 	}
 	err = kubeClient.CreateDatabaseCluster(dbCluster)
-
 	if err != nil {
 		if apiKeyID != 0 {
 			e := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID)
@@ -358,7 +357,6 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	}
 
 	err = kubeClient.PatchDatabaseCluster(dbCluster)
-
 	if err != nil {
 		return nil, err
 	}

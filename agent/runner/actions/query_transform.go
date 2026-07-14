@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import (
 //nolint:lll
 var (
 	dmlVerbs         = []string{"select", "insert", "update", "delete", "replace"}
+	commentsRe       = regexp.MustCompile(`(?s)\/\*(.*?)\*\/`)
 	selectRe         = regexp.MustCompile(`(?i)^select\s+(.*?)\bfrom\s+(.*?)$`)
 	updateRe         = regexp.MustCompile(`(?i)^update\s+(?:low_priority|ignore)?\s*(.*?)\s+set\s+(.*?)(?:\s+where\s+(.*?))?(?:\s+limit\s*[0-9]+(?:\s*,\s*[0-9]+)?)?$`)
 	deleteRe         = regexp.MustCompile(`(?i)^delete\s+(.*?)\bfrom\s+(.*?)$`)
@@ -31,8 +32,16 @@ var (
 	insertSetRe      = regexp.MustCompile(`(?i)(?:insert(?:\s+ignore)?|replace)\s+(?:.*?\binto)\s+(.*?)\s*set\s+(.*?)\s*(?:\blimit\b|on\s+duplicate\s+key.*)?\s*$`)
 )
 
+func prepareQuery(query string) string {
+	query = commentsRe.ReplaceAllString(query, "")
+	query = strings.ReplaceAll(query, "\t", " ")
+	query = strings.ReplaceAll(query, "\n", " ")
+	query = strings.TrimRight(query, ";")
+	return strings.TrimLeft(query, " ")
+}
+
 func isDMLQuery(query string) bool {
-	query = strings.ToLower(strings.TrimSpace(query))
+	query = strings.ToLower(prepareQuery(query))
 	for _, verb := range dmlVerbs {
 		if strings.HasPrefix(query, verb) {
 			return true
@@ -48,9 +57,10 @@ are needed and the pmm user is a not privileged user.
 This function converts DML queries to the equivalent SELECT to make
 it able to explain DML queries on older MySQL versions and for unprivileged users.
 */
+
 // dmlToSelect returns query converted to select and boolean, if conversion were needed.
 func dmlToSelect(query string) (string, bool) {
-	query = strings.ReplaceAll(query, "\n", " ")
+	query = prepareQuery(query)
 
 	m := selectRe.FindStringSubmatch(query)
 	if len(m) > 1 {

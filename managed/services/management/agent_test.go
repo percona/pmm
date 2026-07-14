@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -32,9 +32,9 @@ import (
 
 	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 )
 
 var now time.Time
@@ -129,13 +129,12 @@ func TestAgentService(t *testing.T) {
 					UpdatedAt:   timestamppb.New(now),
 					Username:    "postgres",
 					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
-						SslCa:       "",
-						SslCert:     "",
 						IsSslKeySet: false,
 					},
-					ServiceId: "/service_id/00000000-0000-4000-8000-000000000002",
-					Status:    "UNKNOWN",
-					Tls:       true,
+					ServiceId:               "/service_id/00000000-0000-4000-8000-000000000002",
+					Status:                  "UNKNOWN",
+					Tls:                     true,
+					CommentsParsingDisabled: true,
 				},
 				{
 					AgentId:     pgStatStatementID,
@@ -146,13 +145,12 @@ func TestAgentService(t *testing.T) {
 					UpdatedAt:   timestamppb.New(now),
 					Username:    "postgres",
 					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
-						SslCa:       "",
-						SslCert:     "",
 						IsSslKeySet: false,
 					},
-					ServiceId: "/service_id/00000000-0000-4000-8000-000000000002",
-					Status:    "UNKNOWN",
-					Tls:       true,
+					ServiceId:               "/service_id/00000000-0000-4000-8000-000000000002",
+					Status:                  "UNKNOWN",
+					Tls:                     true,
+					CommentsParsingDisabled: true,
 				},
 				{
 					AgentId:      models.PMMServerAgentID,

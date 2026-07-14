@@ -80,7 +80,7 @@ type PMMAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PMMAgentMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -188,7 +188,7 @@ type VMAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m VMAgentMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -292,6 +292,37 @@ func (m *NodeExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, NodeExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, NodeExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return NodeExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return NodeExporterMultiError(errors)
 	}
@@ -305,7 +336,7 @@ type NodeExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m NodeExporterMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -427,6 +458,37 @@ func (m *MySQLdExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MySQLdExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MySQLdExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MySQLdExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return MySQLdExporterMultiError(errors)
 	}
@@ -441,7 +503,7 @@ type MySQLdExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MySQLdExporterMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -557,6 +619,37 @@ func (m *MongoDBExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MongoDBExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MongoDBExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MongoDBExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return MongoDBExporterMultiError(errors)
 	}
@@ -571,7 +664,7 @@ type MongoDBExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MongoDBExporterMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -683,6 +776,41 @@ func (m *PostgresExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for AutoDiscoveryLimit
+
+	// no validation rules for ExposeExporter
+
+	// no validation rules for MaxExporterConnections
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, PostgresExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, PostgresExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return PostgresExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return PostgresExporterMultiError(errors)
 	}
@@ -697,7 +825,7 @@ type PostgresExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PostgresExporterMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -809,6 +937,37 @@ func (m *ProxySQLExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ProxySQLExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ProxySQLExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ProxySQLExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return ProxySQLExporterMultiError(errors)
 	}
@@ -823,7 +982,7 @@ type ProxySQLExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ProxySQLExporterMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -929,6 +1088,8 @@ func (m *QANMySQLPerfSchemaAgent) validate(all bool) error {
 
 	// no validation rules for TlsKey
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for MaxQueryLength
 
 	// no validation rules for QueryExamplesDisabled
@@ -955,7 +1116,7 @@ type QANMySQLPerfSchemaAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QANMySQLPerfSchemaAgentMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1063,6 +1224,8 @@ func (m *QANMySQLSlowlogAgent) validate(all bool) error {
 
 	// no validation rules for TlsKey
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for MaxQueryLength
 
 	// no validation rules for QueryExamplesDisabled
@@ -1091,7 +1254,7 @@ type QANMySQLSlowlogAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QANMySQLSlowlogAgentMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1217,7 +1380,7 @@ type QANMongoDBProfilerAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QANMongoDBProfilerAgentMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1315,6 +1478,8 @@ func (m *QANPostgreSQLPgStatementsAgent) validate(all bool) error {
 
 	// no validation rules for Username
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for MaxQueryLength
 
 	// no validation rules for Tls
@@ -1343,7 +1508,7 @@ type QANPostgreSQLPgStatementsAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QANPostgreSQLPgStatementsAgentMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1446,6 +1611,8 @@ func (m *QANPostgreSQLPgStatMonitorAgent) validate(all bool) error {
 
 	// no validation rules for TlsSkipVerify
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for MaxQueryLength
 
 	// no validation rules for QueryExamplesDisabled
@@ -1472,7 +1639,7 @@ type QANPostgreSQLPgStatMonitorAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QANPostgreSQLPgStatMonitorAgentMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1587,6 +1754,37 @@ func (m *RDSExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for AutoDiscoveryLimit
+
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RDSExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RDSExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RDSExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return RDSExporterMultiError(errors)
 	}
@@ -1600,7 +1798,7 @@ type RDSExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RDSExporterMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1708,6 +1906,35 @@ func (m *ExternalExporter) validate(all bool) error {
 
 	// no validation rules for ProcessExecPath
 
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ExternalExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ExternalExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ExternalExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return ExternalExporterMultiError(errors)
 	}
@@ -1722,7 +1949,7 @@ type ExternalExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ExternalExporterMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1832,6 +2059,35 @@ func (m *AzureDatabaseExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, AzureDatabaseExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, AzureDatabaseExporterValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return AzureDatabaseExporterValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return AzureDatabaseExporterMultiError(errors)
 	}
@@ -1846,7 +2102,7 @@ type AzureDatabaseExporterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AzureDatabaseExporterMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1946,6 +2202,35 @@ func (m *ChangeCommonAgentParams) validate(all bool) error {
 
 	// no validation rules for DisablePushMetrics
 
+	if all {
+		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangeCommonAgentParamsValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangeCommonAgentParamsValidationError{
+					field:  "MetricsResolutions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangeCommonAgentParamsValidationError{
+				field:  "MetricsResolutions",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return ChangeCommonAgentParamsMultiError(errors)
 	}
@@ -1960,7 +2245,7 @@ type ChangeCommonAgentParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeCommonAgentParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2070,7 +2355,7 @@ type ListAgentsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2682,7 +2967,7 @@ type ListAgentsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2795,7 +3080,7 @@ type GetAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3515,7 +3800,7 @@ type GetAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3628,7 +3913,7 @@ type GetAgentLogsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetAgentLogsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3732,7 +4017,7 @@ type GetAgentLogsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetAgentLogsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3847,7 +4132,7 @@ type AddPMMAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddPMMAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3978,7 +4263,7 @@ type AddPMMAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddPMMAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4083,6 +4368,8 @@ func (m *AddNodeExporterRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
 	if len(errors) > 0 {
 		return AddNodeExporterRequestMultiError(errors)
 	}
@@ -4097,7 +4384,7 @@ type AddNodeExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddNodeExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4228,7 +4515,7 @@ type AddNodeExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddNodeExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4370,7 +4657,7 @@ type ChangeNodeExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeNodeExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4501,7 +4788,7 @@ type ChangeNodeExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeNodeExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4646,6 +4933,8 @@ func (m *AddMySQLdExporterRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
 	if len(errors) > 0 {
 		return AddMySQLdExporterRequestMultiError(errors)
 	}
@@ -4660,7 +4949,7 @@ type AddMySQLdExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMySQLdExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4793,7 +5082,7 @@ type AddMySQLdExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMySQLdExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -4935,7 +5224,7 @@ type ChangeMySQLdExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeMySQLdExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5067,7 +5356,7 @@ type ChangeMySQLdExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeMySQLdExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5208,6 +5497,8 @@ func (m *AddMongoDBExporterRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
 	if len(errors) > 0 {
 		return AddMongoDBExporterRequestMultiError(errors)
 	}
@@ -5222,7 +5513,7 @@ type AddMongoDBExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMongoDBExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5353,7 +5644,7 @@ type AddMongoDBExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMongoDBExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5495,7 +5786,7 @@ type ChangeMongoDBExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeMongoDBExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5627,7 +5918,7 @@ type ChangeMongoDBExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeMongoDBExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5771,6 +6062,12 @@ func (m *AddPostgresExporterRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for AutoDiscoveryLimit
+
+	// no validation rules for ExposeExporter
+
+	// no validation rules for MaxExporterConnections
+
 	if len(errors) > 0 {
 		return AddPostgresExporterRequestMultiError(errors)
 	}
@@ -5785,7 +6082,7 @@ type AddPostgresExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddPostgresExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -5916,7 +6213,7 @@ type AddPostgresExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddPostgresExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6059,7 +6356,7 @@ type ChangePostgresExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangePostgresExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6191,7 +6488,7 @@ type ChangePostgresExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangePostgresExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6329,6 +6626,8 @@ func (m *AddProxySQLExporterRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
 	if len(errors) > 0 {
 		return AddProxySQLExporterRequestMultiError(errors)
 	}
@@ -6343,7 +6642,7 @@ type AddProxySQLExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddProxySQLExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6474,7 +6773,7 @@ type AddProxySQLExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddProxySQLExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6617,7 +6916,7 @@ type ChangeProxySQLExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeProxySQLExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6749,7 +7048,7 @@ type ChangeProxySQLExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeProxySQLExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -6892,6 +7191,8 @@ func (m *AddQANMySQLPerfSchemaAgentRequest) validate(all bool) error {
 
 	// no validation rules for SkipConnectionCheck
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for LogLevel
 
 	if len(errors) > 0 {
@@ -6909,7 +7210,7 @@ type AddQANMySQLPerfSchemaAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANMySQLPerfSchemaAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7043,7 +7344,7 @@ type AddQANMySQLPerfSchemaAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANMySQLPerfSchemaAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7188,7 +7489,7 @@ type ChangeQANMySQLPerfSchemaAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANMySQLPerfSchemaAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7322,7 +7623,7 @@ type ChangeQANMySQLPerfSchemaAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANMySQLPerfSchemaAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7466,6 +7767,8 @@ func (m *AddQANMySQLSlowlogAgentRequest) validate(all bool) error {
 
 	// no validation rules for SkipConnectionCheck
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for LogLevel
 
 	if len(errors) > 0 {
@@ -7482,7 +7785,7 @@ type AddQANMySQLSlowlogAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANMySQLSlowlogAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7614,7 +7917,7 @@ type AddQANMySQLSlowlogAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANMySQLSlowlogAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7759,7 +8062,7 @@ type ChangeQANMySQLSlowlogAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANMySQLSlowlogAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -7893,7 +8196,7 @@ type ChangeQANMySQLSlowlogAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANMySQLSlowlogAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8046,7 +8349,7 @@ type AddQANMongoDBProfilerAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANMongoDBProfilerAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8180,7 +8483,7 @@ type AddQANMongoDBProfilerAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANMongoDBProfilerAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8325,7 +8628,7 @@ type ChangeQANMongoDBProfilerAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANMongoDBProfilerAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8459,7 +8762,7 @@ type ChangeQANMongoDBProfilerAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANMongoDBProfilerAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8593,6 +8896,8 @@ func (m *AddQANPostgreSQLPgStatementsAgentRequest) validate(all bool) error {
 
 	// no validation rules for SkipConnectionCheck
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for MaxQueryLength
 
 	// no validation rules for TlsCa
@@ -8618,7 +8923,7 @@ type AddQANPostgreSQLPgStatementsAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANPostgreSQLPgStatementsAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8753,7 +9058,7 @@ type AddQANPostgreSQLPgStatementsAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANPostgreSQLPgStatementsAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -8899,7 +9204,7 @@ type ChangeQANPostgreSQLPgStatementsAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANPostgreSQLPgStatementsAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9034,7 +9339,7 @@ type ChangeQANPostgreSQLPgStatementsAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANPostgreSQLPgStatementsAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9173,6 +9478,8 @@ func (m *AddQANPostgreSQLPgStatMonitorAgentRequest) validate(all bool) error {
 
 	// no validation rules for SkipConnectionCheck
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for TlsCa
 
 	// no validation rules for TlsCert
@@ -9196,7 +9503,7 @@ type AddQANPostgreSQLPgStatMonitorAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANPostgreSQLPgStatMonitorAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9331,7 +9638,7 @@ type AddQANPostgreSQLPgStatMonitorAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddQANPostgreSQLPgStatMonitorAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9477,7 +9784,7 @@ type ChangeQANPostgreSQLPgStatMonitorAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANPostgreSQLPgStatMonitorAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9613,7 +9920,7 @@ type ChangeQANPostgreSQLPgStatMonitorAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeQANPostgreSQLPgStatMonitorAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9757,7 +10064,7 @@ type AddRDSExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRDSExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -9888,7 +10195,7 @@ type AddRDSExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRDSExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10030,7 +10337,7 @@ type ChangeRDSExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeRDSExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10161,7 +10468,7 @@ type ChangeRDSExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeRDSExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10299,7 +10606,7 @@ type AddExternalExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddExternalExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10430,7 +10737,7 @@ type AddExternalExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddExternalExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10573,7 +10880,7 @@ type ChangeExternalExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeExternalExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10705,7 +11012,7 @@ type ChangeExternalExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeExternalExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10859,7 +11166,7 @@ type AddAzureDatabaseExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddAzureDatabaseExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -10993,7 +11300,7 @@ type AddAzureDatabaseExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddAzureDatabaseExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -11138,7 +11445,7 @@ type ChangeAzureDatabaseExporterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeAzureDatabaseExporterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -11272,7 +11579,7 @@ type ChangeAzureDatabaseExporterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeAzureDatabaseExporterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -11388,7 +11695,7 @@ type RemoveAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -11490,7 +11797,7 @@ type RemoveAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

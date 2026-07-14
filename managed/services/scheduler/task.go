@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -84,7 +84,7 @@ type mySQLBackupTask struct {
 }
 
 // NewMySQLBackupTask create new task for mysql backup.
-func NewMySQLBackupTask(params *BackupTaskParams) (Task, error) {
+func NewMySQLBackupTask(params *BackupTaskParams) (Task, error) { //nolint:ireturn
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}
@@ -147,7 +147,7 @@ type mongoDBBackupTask struct {
 }
 
 // NewMongoDBBackupTask create new task for mongo backup.
-func NewMongoDBBackupTask(params *BackupTaskParams) (Task, error) {
+func NewMongoDBBackupTask(params *BackupTaskParams) (Task, error) { //nolint:ireturn
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}

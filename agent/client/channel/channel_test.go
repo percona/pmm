@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,10 +49,12 @@ func (s *testServer) Connect(stream agentpb.Agent_ConnectServer) error {
 
 var _ agentpb.AgentServer = (*testServer)(nil)
 
-//nolint:nakedret
-func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expected ...error) (channel *Channel, cc *grpc.ClientConn, teardown func()) {
+func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expected ...error) (*Channel, *grpc.ClientConn, func()) {
 	t.Helper()
 
+	var channel *Channel
+	var cc *grpc.ClientConn
+	var teardown func()
 	// logrus.SetLevel(logrus.DebugLevel)
 
 	// start server with given connect handler
@@ -101,7 +103,7 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expect
 		require.NoError(t, <-serveError)
 	}
 
-	return
+	return channel, cc, teardown
 }
 
 func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {

@@ -218,7 +218,7 @@ type PXCClusterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PXCClusterParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -340,7 +340,7 @@ type GetPXCClusterCredentialsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetPXCClusterCredentialsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -451,7 +451,7 @@ type PXCClusterConnectionCredentialsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PXCClusterConnectionCredentialsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -585,7 +585,7 @@ type GetPXCClusterCredentialsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetPXCClusterCredentialsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -763,7 +763,7 @@ type CreatePXCClusterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CreatePXCClusterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -865,7 +865,7 @@ type CreatePXCClusterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CreatePXCClusterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1051,7 +1051,7 @@ type UpdatePXCClusterRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdatePXCClusterRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1153,7 +1153,7 @@ type UpdatePXCClusterResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdatePXCClusterResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1295,7 +1295,7 @@ type GetPXCClusterResourcesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetPXCClusterResourcesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1427,7 +1427,7 @@ type GetPXCClusterResourcesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetPXCClusterResourcesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1567,7 +1567,7 @@ type PXCClusterParams_PXCMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PXCClusterParams_PXCMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1702,7 +1702,7 @@ type PXCClusterParams_ProxySQLMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PXCClusterParams_ProxySQLMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1835,7 +1835,7 @@ type PXCClusterParams_HAProxyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m PXCClusterParams_HAProxyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2033,7 +2033,7 @@ type UpdatePXCClusterRequest_UpdatePXCClusterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdatePXCClusterRequest_UpdatePXCClusterParamsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2178,7 +2178,7 @@ type UpdatePXCClusterRequest_UpdatePXCClusterParams_PXCMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdatePXCClusterRequest_UpdatePXCClusterParams_PXCMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2321,7 +2321,7 @@ type UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQLMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQLMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2468,7 +2468,7 @@ type UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

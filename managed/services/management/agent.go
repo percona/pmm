@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -156,7 +156,9 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 		PmmAgentId:                     pointer.GetString(agent.PMMAgentID),
 		ProcessExecPath:                pointer.GetString(agent.ProcessExecPath),
 		PushMetrics:                    agent.PushMetrics,
+		ExposeExporter:                 agent.ExposeExporter,
 		QueryExamplesDisabled:          agent.QueryExamplesDisabled,
+		CommentsParsingDisabled:        agent.CommentsParsingDisabled,
 		RdsBasicMetricsDisabled:        agent.RDSBasicMetricsDisabled,
 		RdsEnhancedMetricsDisabled:     agent.RDSEnhancedMetricsDisabled,
 		RunsOnNodeId:                   pointer.GetString(agent.RunsOnNodeID),
@@ -184,16 +186,14 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 	if agent.MySQLOptions != nil {
 		ua.MysqlOptions = &agentv1beta1.UniversalAgent_MySQLOptions{
 			IsTlsKeySet: agent.MySQLOptions.TLSKey != "",
-			TlsCa:       agent.MySQLOptions.TLSCa,
-			TlsCert:     agent.MySQLOptions.TLSCert,
 		}
 	}
 
 	if agent.PostgreSQLOptions != nil {
 		ua.PostgresqlOptions = &agentv1beta1.UniversalAgent_PostgreSQLOptions{
-			IsSslKeySet: agent.PostgreSQLOptions.SSLKey != "",
-			SslCa:       agent.PostgreSQLOptions.SSLCa,
-			SslCert:     agent.PostgreSQLOptions.SSLCert,
+			IsSslKeySet:            agent.PostgreSQLOptions.SSLKey != "",
+			AutoDiscoveryLimit:     agent.PostgreSQLOptions.AutoDiscoveryLimit,
+			MaxExporterConnections: agent.PostgreSQLOptions.MaxExporterConnections,
 		}
 	}
 
@@ -206,7 +206,6 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 			StatsCollections:                   agent.MongoDBOptions.StatsCollections,
 			IsTlsCertificateKeySet:             agent.MongoDBOptions.TLSCertificateKey != "",
 			IsTlsCertificateKeyFilePasswordSet: agent.MongoDBOptions.TLSCertificateKeyFilePassword != "",
-			TlsCa:                              agent.MongoDBOptions.TLSCa,
 		}
 	}
 

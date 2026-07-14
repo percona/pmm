@@ -240,6 +240,8 @@ func (m *UniversalAgent) validate(all bool) error {
 
 	// no validation rules for QueryExamplesDisabled
 
+	// no validation rules for CommentsParsingDisabled
+
 	// no validation rules for RdsBasicMetricsDisabled
 
 	// no validation rules for RdsEnhancedMetricsDisabled
@@ -293,6 +295,8 @@ func (m *UniversalAgent) validate(all bool) error {
 
 	// no validation rules for IsConnected
 
+	// no validation rules for ExposeExporter
+
 	if len(errors) > 0 {
 		return UniversalAgentMultiError(errors)
 	}
@@ -307,7 +311,7 @@ type UniversalAgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgentMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -411,7 +415,7 @@ type ListAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -545,7 +549,7 @@ type ListAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListAgentResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -633,10 +637,6 @@ func (m *UniversalAgent_MySQLOptions) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for TlsCa
-
-	// no validation rules for TlsCert
-
 	// no validation rules for IsTlsKeySet
 
 	if len(errors) > 0 {
@@ -653,7 +653,7 @@ type UniversalAgent_MySQLOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_MySQLOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -766,7 +766,7 @@ type UniversalAgent_AzureOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_AzureOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -859,8 +859,6 @@ func (m *UniversalAgent_MongoDBOptions) validate(all bool) error {
 
 	// no validation rules for IsTlsCertificateKeyFilePasswordSet
 
-	// no validation rules for TlsCa
-
 	// no validation rules for AuthenticationMechanism
 
 	// no validation rules for AuthenticationDatabase
@@ -883,7 +881,7 @@ type UniversalAgent_MongoDBOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_MongoDBOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -973,11 +971,11 @@ func (m *UniversalAgent_PostgreSQLOptions) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for SslCa
-
-	// no validation rules for SslCert
-
 	// no validation rules for IsSslKeySet
+
+	// no validation rules for AutoDiscoveryLimit
+
+	// no validation rules for MaxExporterConnections
 
 	if len(errors) > 0 {
 		return UniversalAgent_PostgreSQLOptionsMultiError(errors)
@@ -994,7 +992,7 @@ type UniversalAgent_PostgreSQLOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalAgent_PostgreSQLOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

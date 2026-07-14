@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -42,24 +43,26 @@ import (
 const defaultWaitTime = 60 * time.Second
 
 // PGStatMonitorQAN QAN services connects to PostgreSQL and extracts stats.
-type PGStatMonitorQAN struct {
-	q                    *reform.Querier
-	dbCloser             io.Closer
-	agentID              string
-	l                    *logrus.Entry
-	changes              chan agents.Change
-	monitorCache         *statMonitorCache
-	maxQueryLength       int32
-	disableQueryExamples bool
+type PGStatMonitorQAN struct { //nolint:revive
+	q                      *reform.Querier
+	dbCloser               io.Closer
+	agentID                string
+	l                      *logrus.Entry
+	changes                chan agents.Change
+	monitorCache           *statMonitorCache
+	maxQueryLength         int32
+	disableQueryExamples   bool
+	disableCommentsParsing bool
 }
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN                  string
-	MaxQueryLength       int32
-	DisableQueryExamples bool
-	TextFiles            *agentpb.TextFiles
-	AgentID              string
+	DSN                    string
+	MaxQueryLength         int32
+	DisableQueryExamples   bool
+	DisableCommentsParsing bool
+	TextFiles              *agentpb.TextFiles
+	AgentID                string
 }
 
 type (
@@ -82,10 +85,17 @@ const (
 	pgStatMonitorVersion20PG13
 	pgStatMonitorVersion20PG14
 	pgStatMonitorVersion20PG15
+	pgStatMonitorVersion20PG16
+	pgStatMonitorVersion21PG12
+	pgStatMonitorVersion21PG13
+	pgStatMonitorVersion21PG14
+	pgStatMonitorVersion21PG15
+	pgStatMonitorVersion21PG16
+	pgStatMonitorVersion21PG17
 )
 
 const (
-	queryTag            = "pmm-agent:pgstatmonitor"
+	queryTag            = "agent='pgstatmonitor'"
 	pgsm20SettingsQuery = "SELECT name, setting FROM pg_settings WHERE name like 'pg_stat_monitor.%'"
 	// There is a feature in the FE that shows "n/a" for empty responses for dimensions.
 	commandTextNotAvailable = ""
@@ -120,7 +130,7 @@ func New(params *Params, l *logrus.Entry) (*PGStatMonitorQAN, error) {
 	// TODO register reformL metrics https://jira.percona.com/browse/PMM-4087
 	q := reform.NewDB(sqlDB, postgresql.Dialect, reformL).WithTag(queryTag)
 
-	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableQueryExamples, params.MaxQueryLength, l)
+	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableCommentsParsing, params.DisableQueryExamples, params.MaxQueryLength, l)
 }
 
 func areSettingsTextValues(q *reform.Querier) (bool, error) {
@@ -136,16 +146,17 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 	return false, nil
 }
 
-func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) { //nolint:lll
+func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableCommentsParsing, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) { //nolint:lll
 	return &PGStatMonitorQAN{
-		q:                    q,
-		dbCloser:             dbCloser,
-		agentID:              agentID,
-		l:                    l,
-		changes:              make(chan agents.Change, 10),
-		monitorCache:         newStatMonitorCache(l),
-		maxQueryLength:       maxQueryLength,
-		disableQueryExamples: disableQueryExamples,
+		q:                      q,
+		dbCloser:               dbCloser,
+		agentID:                agentID,
+		l:                      l,
+		changes:                make(chan agents.Change, 10),
+		monitorCache:           newStatMonitorCache(l),
+		maxQueryLength:         maxQueryLength,
+		disableQueryExamples:   disableQueryExamples,
+		disableCommentsParsing: disableCommentsParsing,
 	}, nil
 }
 
@@ -180,40 +191,54 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 
 	var version pgStatMonitorVersion
 	switch {
+	case vPGSM.Core().GreaterThanOrEqual(v21):
+		switch {
+		case vPG >= 17:
+			version = pgStatMonitorVersion21PG17
+		case vPG >= 16:
+			version = pgStatMonitorVersion21PG16
+		case vPG >= 15:
+			version = pgStatMonitorVersion21PG15
+		case vPG >= 14:
+			version = pgStatMonitorVersion21PG14
+		case vPG >= 13:
+			version = pgStatMonitorVersion21PG13
+		default:
+			version = pgStatMonitorVersion21PG12
+		}
 	case vPGSM.Core().GreaterThanOrEqual(v20):
-		if vPG >= 15 {
+		switch {
+		case vPG >= 16:
+			version = pgStatMonitorVersion20PG16
+		case vPG >= 15:
 			version = pgStatMonitorVersion20PG15
-			break
-		}
-		if vPG >= 14 {
+		case vPG >= 14:
 			version = pgStatMonitorVersion20PG14
-			break
-		}
-		if vPG >= 13 {
+		case vPG >= 13:
 			version = pgStatMonitorVersion20PG13
-			break
+		default:
+			version = pgStatMonitorVersion20PG12
 		}
-		version = pgStatMonitorVersion20PG12
 	case vPGSM.Core().GreaterThanOrEqual(v11):
-		if vPG >= 14 {
+		switch {
+		case vPG >= 14:
 			version = pgStatMonitorVersion11PG14
-			break
-		}
-		if vPG >= 13 {
+		case vPG >= 13:
 			version = pgStatMonitorVersion11PG13
-			break
+		default:
+			version = pgStatMonitorVersion11PG12
 		}
-		version = pgStatMonitorVersion11PG12
+
 	case vPGSM.Core().GreaterThanOrEqual(v10):
-		if vPG >= 14 {
+		switch {
+		case vPG >= 14:
 			version = pgStatMonitorVersion10PG14
-			break
-		}
-		if vPG >= 13 {
+		case vPG >= 13:
 			version = pgStatMonitorVersion10PG13
-			break
+		default:
+			version = pgStatMonitorVersion10PG12
 		}
-		version = pgStatMonitorVersion10PG12
+
 	case vPGSM.GreaterThanOrEqual(v09):
 		version = pgStatMonitorVersion09
 	case vPGSM.GreaterThanOrEqual(v08):
@@ -285,7 +310,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 
 			settings, err := m.getSettings()
 			if err != nil {
-				m.l.Errorf(err.Error())
+				m.l.Error(err)
 				running = false
 				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
 				m.resetWaitTime(t, waitTime)
@@ -293,7 +318,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			}
 			normalizedQuery, err := settings.getNormalizedQueryValue()
 			if err != nil {
-				m.l.Errorf(err.Error())
+				m.l.Error(err)
 				running = false
 				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
 				m.resetWaitTime(t, waitTime)
@@ -362,7 +387,7 @@ func getPGSM20Settings(q *reform.Querier) (settings, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	result := make(settings)
 	for rows.Next() {
@@ -554,21 +579,29 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 
 			histogram, err := parseHistogramFromRespCalls(currentPSM.RespCalls, prevPSM.RespCalls, vPGSM)
 			if err != nil {
-				m.l.Warnf(err.Error())
+				m.l.Warn(err)
 			} else {
 				mb.Postgresql.HistogramItems = histogram
 			}
 
-			if (currentPSM.PlanTotalTime - prevPSM.PlanTotalTime) != 0 {
-				mb.Postgresql.MPlanTimeSum = float32(currentPSM.PlanTotalTime-prevPSM.PlanTotalTime) / 1000
-				mb.Postgresql.MPlanTimeMin = float32(currentPSM.PlanMinTime) / 1000
-				mb.Postgresql.MPlanTimeMax = float32(currentPSM.PlanMaxTime) / 1000
+			if (currentPSM.TotalPlanTime - prevPSM.TotalPlanTime) != 0 {
+				mb.Postgresql.MPlanTimeSum = float32(currentPSM.TotalPlanTime-prevPSM.TotalPlanTime) / 1000
+				mb.Postgresql.MPlanTimeMin = float32(currentPSM.MinPlanTime) / 1000
+				mb.Postgresql.MPlanTimeMax = float32(currentPSM.MaxPlanTime) / 1000
 				mb.Postgresql.MPlanTimeCnt = count
 			}
 
 			if !m.disableQueryExamples && currentPSM.Example != "" {
 				mb.Common.Example = currentPSM.Example
 				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
+			}
+
+			if !m.disableCommentsParsing && currentPSM.Comments != nil {
+				comments, err := queryparser.PostgreSQLComments(*currentPSM.Comments)
+				if err != nil {
+					m.l.Errorf("failed to parse comments from: %s", *currentPSM.Comments)
+				}
+				mb.Common.Comments = comments
 			}
 
 			var cpuSysTime, cpuUserTime float64
@@ -606,9 +639,11 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				{float32(currentPSM.WalBytes - prevPSM.WalBytes), &mb.Postgresql.MWalBytesSum, &mb.Postgresql.MWalBytesCnt},
 
 				// convert milliseconds to seconds
-				{float32(currentPSM.TotalTime-prevPSM.TotalTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
-				{float32(currentPSM.BlkReadTime-prevPSM.BlkReadTime) / 1000, &mb.Postgresql.MBlkReadTimeSum, &mb.Postgresql.MBlkReadTimeCnt},
-				{float32(currentPSM.BlkWriteTime-prevPSM.BlkWriteTime) / 1000, &mb.Postgresql.MBlkWriteTimeSum, &mb.Postgresql.MBlkWriteTimeCnt},
+				{float32(currentPSM.TotalExecTime-prevPSM.TotalExecTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
+				{float32(currentPSM.SharedBlkReadTime-prevPSM.SharedBlkReadTime) / 1000, &mb.Postgresql.MSharedBlkReadTimeSum, &mb.Postgresql.MSharedBlkReadTimeCnt},
+				{float32(currentPSM.SharedBlkWriteTime-prevPSM.SharedBlkWriteTime) / 1000, &mb.Postgresql.MSharedBlkWriteTimeSum, &mb.Postgresql.MSharedBlkWriteTimeCnt},
+				{float32(currentPSM.LocalBlkReadTime-prevPSM.LocalBlkReadTime) / 1000, &mb.Postgresql.MLocalBlkReadTimeSum, &mb.Postgresql.MLocalBlkReadTimeCnt},
+				{float32(currentPSM.LocalBlkWriteTime-prevPSM.LocalBlkWriteTime) / 1000, &mb.Postgresql.MLocalBlkWriteTimeSum, &mb.Postgresql.MLocalBlkWriteTimeCnt},
 
 				// convert microseconds to seconds
 				{float32(cpuSysTime) / 1000000, &mb.Postgresql.MCpuSysTimeSum, &mb.Postgresql.MCpuSysTimeCnt},
@@ -703,14 +738,14 @@ func (m *PGStatMonitorQAN) Changes() <-chan agents.Change {
 }
 
 // Describe implements prometheus.Collector.
-func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) {
+func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) {
+func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
-// check interfaces
+// check interfaces.
 var _ prometheus.Collector = (*PGStatMonitorQAN)(nil)

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -54,7 +54,7 @@ type PSMDBClusterService struct {
 }
 
 // NewPSMDBClusterService creates PSMDB Service.
-func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient,
+func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient, //nolint:ireturn
 	componentsService componentsService, versionServiceURL string,
 ) dbaasv1beta1.PSMDBClustersServer {
 	l := logrus.WithField("component", "psmdb_cluster")
@@ -329,7 +329,7 @@ func (s PSMDBClusterService) getBackupLocation(req *dbaasv1beta1.CreatePSMDBClus
 }
 
 // GetPSMDBClusterResources returns expected resources to be consumed by the cluster.
-func (s PSMDBClusterService) GetPSMDBClusterResources(ctx context.Context, req *dbaasv1beta1.GetPSMDBClusterResourcesRequest) (*dbaasv1beta1.GetPSMDBClusterResourcesResponse, error) { //nolint:lll
+func (s PSMDBClusterService) GetPSMDBClusterResources(_ context.Context, req *dbaasv1beta1.GetPSMDBClusterResourcesRequest) (*dbaasv1beta1.GetPSMDBClusterResourcesResponse, error) { //nolint:lll
 	settings, err := models.GetSettings(s.db.Querier)
 	if err != nil {
 		return nil, err

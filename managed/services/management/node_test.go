@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -31,9 +32,9 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func TestNodeService(t *testing.T) {
@@ -53,8 +54,13 @@ func TestNodeService(t *testing.T) {
 
 				require.NoError(t, sqlDB.Close())
 			}
+			md := metadata.New(map[string]string{
+				"Authorization": "Basic username:password",
+			})
+			ctx = metadata.NewIncomingContext(ctx, md)
 			var apiKeyProvider mockApiKeyProvider
 			apiKeyProvider.Test(t)
+			apiKeyProvider.On("IsAPIKeyAuth", mock.Anything).Return(false)
 			apiKeyProvider.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
 			s = NewNodeService(db, &apiKeyProvider)
 

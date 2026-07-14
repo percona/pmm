@@ -1,5 +1,4 @@
-// pmm-agent
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package tailog help to store tail logs
+// Package tailog helps store tail logs.
 package tailog
 
 import (
@@ -22,7 +21,7 @@ import (
 	"sync"
 )
 
-// Store implement ring save logs.
+// Store implements ring save logs.
 type Store struct {
 	log      *ring.Ring
 	capacity uint
@@ -37,7 +36,7 @@ func NewStore(capacity uint) *Store {
 	}
 }
 
-// Write writes log for store.
+// Write writes log to the store.
 func (l *Store) Write(b []byte) (int, error) { //nolint:unparam
 	l.m.Lock()
 	defer l.m.Unlock()

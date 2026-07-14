@@ -45,10 +45,18 @@
     state: absent
   loop: "{{ plugin_list['files'] }}"
 
-- name: Synchronization plugin
+- name: Copy plugins to the plugin directory
   synchronize:
     src: /usr/share/percona-dashboards/panels/
     dest: /srv/grafana/plugins/
+
+- name: Set permissions for the plugin directory
+  file:
+    path: "/srv/grafana/plugins"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0775"
 
 - name: Check that the SQLite grafana database exists
   stat:
@@ -57,15 +65,6 @@
 
 - name: Remove old dashboards from SQLite
   block:
-    - name: Restart grafana before deleting data EL7
-      supervisorctl:
-        name: grafana
-        state: stopped
-        supervisorctl_path: supervisorctl
-      become: true
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      ignore_errors: true
-
     - name: Restart grafana before deleting data EL9
       supervisorctl:
         name: grafana
@@ -97,16 +96,9 @@
       changed_when: true
   when: sqlite_grafana.stat.exists
 
-- name: Restart grafana with new plugins EL7
-  supervisorctl:
-    name: grafana
-    state: restarted
-    supervisorctl_path: supervisorctl
-  become: true
-  ignore_errors: true
-  when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-  # TODO: fix the race condition.
-  # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
+- name: Remove the old clickhouse plugin
+  shell: grafana cli --pluginsDir /srv/grafana/plugins plugins remove vertamedia-clickhouse-datasource || true
+  when: not ansible_check_mode
 
 - name: Restart grafana with new plugins EL9
   supervisorctl:
@@ -118,9 +110,3 @@
   ignore_errors: true
   # TODO: fix the race condition.
   # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
-
-- name: Copy file with image version
-  copy:
-    src: /usr/share/percona-dashboards/VERSION
-    dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
-    remote_src: yes

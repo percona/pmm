@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ func TestPGStatMonitorStructs(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
-	m := setup(t, db, false)
+	m := setup(t, db, false, false)
 	settings, err := m.getSettings()
 	assert.NoError(t, err)
 	normalizedQuery, err := settings.getNormalizedQueryValue()

@@ -103,7 +103,7 @@ type VersionInfoMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m VersionInfoMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -205,7 +205,7 @@ type VersionRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m VersionRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -367,7 +367,7 @@ type VersionResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m VersionResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -467,7 +467,7 @@ type ReadinessRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ReadinessRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -567,7 +567,7 @@ type ReadinessResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ReadinessResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -633,6 +633,210 @@ var _ interface {
 	ErrorName() string
 } = ReadinessResponseValidationError{}
 
+// Validate checks the field values on LeaderHealthCheckRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *LeaderHealthCheckRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LeaderHealthCheckRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LeaderHealthCheckRequestMultiError, or nil if none found.
+func (m *LeaderHealthCheckRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LeaderHealthCheckRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return LeaderHealthCheckRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// LeaderHealthCheckRequestMultiError is an error wrapping multiple validation
+// errors returned by LeaderHealthCheckRequest.ValidateAll() if the designated
+// constraints aren't met.
+type LeaderHealthCheckRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LeaderHealthCheckRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LeaderHealthCheckRequestMultiError) AllErrors() []error { return m }
+
+// LeaderHealthCheckRequestValidationError is the validation error returned by
+// LeaderHealthCheckRequest.Validate if the designated constraints aren't met.
+type LeaderHealthCheckRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LeaderHealthCheckRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LeaderHealthCheckRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LeaderHealthCheckRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LeaderHealthCheckRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LeaderHealthCheckRequestValidationError) ErrorName() string {
+	return "LeaderHealthCheckRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e LeaderHealthCheckRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLeaderHealthCheckRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LeaderHealthCheckRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LeaderHealthCheckRequestValidationError{}
+
+// Validate checks the field values on LeaderHealthCheckResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *LeaderHealthCheckResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LeaderHealthCheckResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// LeaderHealthCheckResponseMultiError, or nil if none found.
+func (m *LeaderHealthCheckResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LeaderHealthCheckResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return LeaderHealthCheckResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// LeaderHealthCheckResponseMultiError is an error wrapping multiple validation
+// errors returned by LeaderHealthCheckResponse.ValidateAll() if the
+// designated constraints aren't met.
+type LeaderHealthCheckResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LeaderHealthCheckResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LeaderHealthCheckResponseMultiError) AllErrors() []error { return m }
+
+// LeaderHealthCheckResponseValidationError is the validation error returned by
+// LeaderHealthCheckResponse.Validate if the designated constraints aren't met.
+type LeaderHealthCheckResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LeaderHealthCheckResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LeaderHealthCheckResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LeaderHealthCheckResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LeaderHealthCheckResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LeaderHealthCheckResponseValidationError) ErrorName() string {
+	return "LeaderHealthCheckResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e LeaderHealthCheckResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLeaderHealthCheckResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LeaderHealthCheckResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LeaderHealthCheckResponseValidationError{}
+
 // Validate checks the field values on CheckUpdatesRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -673,7 +877,7 @@ type CheckUpdatesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CheckUpdatesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -866,7 +1070,7 @@ type CheckUpdatesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m CheckUpdatesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -968,7 +1172,7 @@ type StartUpdateRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartUpdateRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1074,7 +1278,7 @@ type StartUpdateResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m StartUpdateResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1180,7 +1384,7 @@ type UpdateStatusRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdateStatusRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1286,7 +1490,7 @@ type UpdateStatusResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpdateStatusResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1475,7 +1679,7 @@ type MetricsResolutionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricsResolutionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1611,7 +1815,7 @@ type EmailAlertingSettingsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m EmailAlertingSettingsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1724,7 +1928,7 @@ type SlackAlertingSettingsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SlackAlertingSettingsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1913,7 +2117,7 @@ type STTCheckIntervalsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m STTCheckIntervalsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2189,7 +2393,7 @@ type SettingsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m SettingsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2289,7 +2493,7 @@ type GetSettingsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetSettingsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2420,7 +2624,7 @@ type GetSettingsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetSettingsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2717,7 +2921,7 @@ type ChangeSettingsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeSettingsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2848,7 +3052,7 @@ type ChangeSettingsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ChangeSettingsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2983,7 +3187,7 @@ type TestEmailAlertingSettingsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m TestEmailAlertingSettingsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3088,7 +3292,7 @@ type TestEmailAlertingSettingsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m TestEmailAlertingSettingsResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3202,7 +3406,7 @@ type AWSInstanceCheckRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AWSInstanceCheckRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -3304,7 +3508,7 @@ type AWSInstanceCheckResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AWSInstanceCheckResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

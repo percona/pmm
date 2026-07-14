@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ type AddServiceHAProxyCommand struct {
 	CustomLabels   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 }
 
+// RunCmd executes the AddServiceHAProxyCommand and returns the result.
 func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {
 	isSupported, err := helpers.IsHAProxySupported()
 	if !isSupported {

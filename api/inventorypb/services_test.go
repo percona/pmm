@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ import (
 // names is up to date with the types defined in ServiceType_name by the proto definition
 // by calling the ServiceTypeName function using the values from protobuf and it expects the
 // result is a non-empty string, meaning that the ServiceTypeNames list matches the proto
-// definitions
+// definitions.
 func TestServiceTypes(t *testing.T) {
 	for _, val := range ServiceType_name {
 		if strings.HasSuffix(val, "INVALID") {

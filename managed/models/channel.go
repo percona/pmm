@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -117,10 +117,10 @@ func (c *SlackConfig) Scan(src interface{}) error { return jsonScan(c, src) }
 
 // WebHookConfig is webhook notification channel configuration.
 type WebHookConfig struct {
-	SendResolved bool        ` json:"send_resolved"`
-	URL          string      ` json:"url"`
-	HTTPConfig   *HTTPConfig ` json:"http_config,omitempty"`
-	MaxAlerts    int32       ` json:"max_alerts"`
+	SendResolved bool        `json:"send_resolved"`
+	URL          string      `json:"url"`
+	HTTPConfig   *HTTPConfig `json:"http_config,omitempty"`
+	MaxAlerts    int32       `json:"max_alerts"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.

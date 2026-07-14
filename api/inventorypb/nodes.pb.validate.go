@@ -88,7 +88,7 @@ type GenericNodeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GenericNodeMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -208,7 +208,7 @@ type ContainerNodeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ContainerNodeMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -321,7 +321,7 @@ type RemoteNodeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoteNodeMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -435,7 +435,7 @@ type RemoteRDSNodeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoteRDSNodeMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -549,7 +549,7 @@ type RemoteAzureDatabaseNodeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoteAzureDatabaseNodeMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -653,7 +653,7 @@ type ListNodesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListNodesRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -923,7 +923,7 @@ type ListNodesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListNodesResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1036,7 +1036,7 @@ type GetNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1346,7 +1346,7 @@ type GetNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1409,6 +1409,626 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetNodeResponseValidationError{}
+
+// Validate checks the field values on AddNodeRequest with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *AddNodeRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddNodeRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in AddNodeRequestMultiError,
+// or nil if none found.
+func (m *AddNodeRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddNodeRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Request.(type) {
+	case *AddNodeRequest_Generic:
+		if v == nil {
+			err := AddNodeRequestValidationError{
+				field:  "Request",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetGeneric()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddNodeRequestValidationError{
+						field:  "Generic",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddNodeRequestValidationError{
+						field:  "Generic",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetGeneric()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddNodeRequestValidationError{
+					field:  "Generic",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddNodeRequest_Container:
+		if v == nil {
+			err := AddNodeRequestValidationError{
+				field:  "Request",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetContainer()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddNodeRequestValidationError{
+						field:  "Container",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddNodeRequestValidationError{
+						field:  "Container",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetContainer()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddNodeRequestValidationError{
+					field:  "Container",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddNodeRequest_Remote:
+		if v == nil {
+			err := AddNodeRequestValidationError{
+				field:  "Request",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRemote()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddNodeRequestValidationError{
+						field:  "Remote",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddNodeRequestValidationError{
+						field:  "Remote",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRemote()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddNodeRequestValidationError{
+					field:  "Remote",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddNodeRequest_RemoteRds:
+		if v == nil {
+			err := AddNodeRequestValidationError{
+				field:  "Request",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRemoteRds()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddNodeRequestValidationError{
+						field:  "RemoteRds",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddNodeRequestValidationError{
+						field:  "RemoteRds",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRemoteRds()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddNodeRequestValidationError{
+					field:  "RemoteRds",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddNodeRequest_RemoteAzure:
+		if v == nil {
+			err := AddNodeRequestValidationError{
+				field:  "Request",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRemoteAzure()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddNodeRequestValidationError{
+						field:  "RemoteAzure",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddNodeRequestValidationError{
+						field:  "RemoteAzure",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRemoteAzure()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddNodeRequestValidationError{
+					field:  "RemoteAzure",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return AddNodeRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddNodeRequestMultiError is an error wrapping multiple validation errors
+// returned by AddNodeRequest.ValidateAll() if the designated constraints
+// aren't met.
+type AddNodeRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddNodeRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddNodeRequestMultiError) AllErrors() []error { return m }
+
+// AddNodeRequestValidationError is the validation error returned by
+// AddNodeRequest.Validate if the designated constraints aren't met.
+type AddNodeRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddNodeRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddNodeRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddNodeRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddNodeRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddNodeRequestValidationError) ErrorName() string { return "AddNodeRequestValidationError" }
+
+// Error satisfies the builtin error interface
+func (e AddNodeRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddNodeRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddNodeRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddNodeRequestValidationError{}
+
+// Validate checks the field values on AddNodeResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AddNodeResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddNodeResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddNodeResponseMultiError, or nil if none found.
+func (m *AddNodeResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddNodeResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Node.(type) {
+	case *AddNodeResponse_Generic:
+		if v == nil {
+			err := AddNodeResponseValidationError{
+				field:  "Node",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetGeneric()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddNodeResponseValidationError{
+						field:  "Generic",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddNodeResponseValidationError{
+						field:  "Generic",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetGeneric()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddNodeResponseValidationError{
+					field:  "Generic",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddNodeResponse_Container:
+		if v == nil {
+			err := AddNodeResponseValidationError{
+				field:  "Node",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetContainer()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddNodeResponseValidationError{
+						field:  "Container",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddNodeResponseValidationError{
+						field:  "Container",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetContainer()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddNodeResponseValidationError{
+					field:  "Container",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddNodeResponse_Remote:
+		if v == nil {
+			err := AddNodeResponseValidationError{
+				field:  "Node",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRemote()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddNodeResponseValidationError{
+						field:  "Remote",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddNodeResponseValidationError{
+						field:  "Remote",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRemote()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddNodeResponseValidationError{
+					field:  "Remote",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddNodeResponse_RemoteRds:
+		if v == nil {
+			err := AddNodeResponseValidationError{
+				field:  "Node",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRemoteRds()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddNodeResponseValidationError{
+						field:  "RemoteRds",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddNodeResponseValidationError{
+						field:  "RemoteRds",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRemoteRds()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddNodeResponseValidationError{
+					field:  "RemoteRds",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddNodeResponse_RemoteAzureDatabase:
+		if v == nil {
+			err := AddNodeResponseValidationError{
+				field:  "Node",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRemoteAzureDatabase()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddNodeResponseValidationError{
+						field:  "RemoteAzureDatabase",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddNodeResponseValidationError{
+						field:  "RemoteAzureDatabase",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRemoteAzureDatabase()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddNodeResponseValidationError{
+					field:  "RemoteAzureDatabase",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return AddNodeResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddNodeResponseMultiError is an error wrapping multiple validation errors
+// returned by AddNodeResponse.ValidateAll() if the designated constraints
+// aren't met.
+type AddNodeResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddNodeResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddNodeResponseMultiError) AllErrors() []error { return m }
+
+// AddNodeResponseValidationError is the validation error returned by
+// AddNodeResponse.Validate if the designated constraints aren't met.
+type AddNodeResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddNodeResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddNodeResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddNodeResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddNodeResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddNodeResponseValidationError) ErrorName() string { return "AddNodeResponseValidationError" }
+
+// Error satisfies the builtin error interface
+func (e AddNodeResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddNodeResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddNodeResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddNodeResponseValidationError{}
 
 // Validate checks the field values on AddGenericNodeRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -1480,7 +2100,7 @@ type AddGenericNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddGenericNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1611,7 +2231,7 @@ type AddGenericNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddGenericNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1749,7 +2369,7 @@ type AddContainerNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddContainerNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1880,7 +2500,7 @@ type AddContainerNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddContainerNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2012,7 +2632,7 @@ type AddRemoteNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRemoteNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2143,7 +2763,7 @@ type AddRemoteNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRemoteNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2284,7 +2904,7 @@ type AddRemoteRDSNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRemoteRDSNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2415,7 +3035,7 @@ type AddRemoteRDSNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRemoteRDSNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2558,7 +3178,7 @@ type AddRemoteAzureDatabaseNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRemoteAzureDatabaseNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2692,7 +3312,7 @@ type AddRemoteAzureDatabaseNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddRemoteAzureDatabaseNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2808,7 +3428,7 @@ type RemoveNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2910,7 +3530,7 @@ type RemoveNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RemoveNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

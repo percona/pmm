@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -35,9 +35,9 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func TestNextPrefix(t *testing.T) {
@@ -80,7 +80,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.True(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec
+			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 			assert.Equal(t, 401, resp.StatusCode)
 			assert.Equal(t, "1", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
@@ -97,7 +97,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.True(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec
+			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 			assert.Equal(t, 303, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "/setup", resp.Header.Get("Location"))
@@ -123,7 +123,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.False(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec
+			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 			assert.Equal(t, 200, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
@@ -148,7 +148,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.False(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec
+			defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 			assert.Equal(t, 200, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
@@ -294,16 +294,25 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	c := NewClient("127.0.0.1:3000")
 	s := NewAuthServer(c, &checker, db)
 
-	var roleA models.Role
-	roleA.Title = "Role A"
-	roleA.Filter = "filter A"
+	roleA := models.Role{
+		Title:  "Role A",
+		Filter: "filter A",
+	}
 	err := models.CreateRole(db.Querier, &roleA)
 	require.NoError(t, err)
 
-	var roleB models.Role
-	roleB.Title = "Role B"
-	roleB.Filter = "filter B"
+	roleB := models.Role{
+		Title:  "Role B",
+		Filter: "filter B",
+	}
 	err = models.CreateRole(db.Querier, &roleB)
+	require.NoError(t, err)
+
+	roleC := models.Role{
+		Title:  "Role C",
+		Filter: "",
+	}
+	err = models.CreateRole(db.Querier, &roleC)
 	require.NoError(t, err)
 
 	// Enable access control
@@ -315,6 +324,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	for userID, roleIDs := range map[int][]int{
 		1337: {int(roleA.ID)},
 		1338: {int(roleA.ID), int(roleB.ID)},
+		1339: {int(roleA.ID), int(roleC.ID)},
 		1:    {int(roleA.ID)},
 	} {
 		err := db.InTransaction(func(tx *reform.TX) error {
@@ -382,6 +392,19 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		require.Equal(t, parsed[0], "filter A")
 		require.Equal(t, parsed[1], "filter B")
 	})
+
+	//nolint:paralleltest
+	t.Run("shall not add any filters if at least one role has full access", func(t *testing.T) {
+		rw := httptest.NewRecorder()
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
+		require.NoError(t, err)
+
+		err = s.maybeAddVMProxyFilters(ctx, rw, req, 1339, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		headerString := rw.Header().Get(vmProxyHeaderName)
+		require.Equal(t, len(headerString), 0)
+	})
 }
 
 func Test_cleanPath(t *testing.T) {
@@ -399,6 +422,9 @@ func Test_cleanPath(t *testing.T) {
 		}, {
 			"/v1/AWSInstanceCheck/..%2f..%2f/logs.zip",
 			"/logs.zip",
+		}, {
+			"/graph/api/datasources/proxy/8/?query=WITH%20(%0A%20%20%20%20CASE%20%0A%20%20%20%20%20%20%20%20WHEN%20(3000%20%25%2060)%20%3D%200%20THEN%203000%0A%20%20%20%20ELSE%2060%20END%0A)%20AS%20scale%0ASELECT%0A%20%20%20%20(intDiv(toUInt32(timestamp)%2C%203000)%20*%203000)%20*%201000%20as%20t%2C%0A%20%20%20%20hostname%20h%2C%0A%20%20%20%20status%20s%2C%0A%20%20%20%20SUM(req_count)%20as%20req_count%0AFROM%20pinba.report_by_all%0AWHERE%0A%20%20%20%20timestamp%20%3E%3D%20toDateTime(1707139680)%20AND%20timestamp%20%3C%3D%20toDateTime(1707312480)%0A%20%20%20%20AND%20status%20%3E%3D%20400%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20schema%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20hostname%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20server_name%20%3D%20%27all%27%20ELSE%201%20END%0AGROUP%20BY%20t%2C%20h%2C%20s%0AORDER%20BY%20t%20FORMAT%20JSON",
+			"/graph/api/datasources/proxy/8/",
 		},
 	}
 	for _, tt := range tests {

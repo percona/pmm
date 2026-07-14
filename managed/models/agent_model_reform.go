@@ -54,6 +54,7 @@ func (v *agentTableType) Columns() []string {
 		"table_count_tablestats_group_limit",
 		"max_query_length",
 		"query_examples_disabled",
+		"comments_parsing_disabled",
 		"max_query_log_size",
 		"metrics_path",
 		"metrics_scheme",
@@ -61,10 +62,12 @@ func (v *agentTableType) Columns() []string {
 		"rds_enhanced_metrics_disabled",
 		"push_metrics",
 		"disabled_collectors",
+		"metrics_resolutions",
 		"mysql_options",
 		"mongo_db_tls_options",
 		"postgresql_options",
 		"log_level",
+		"expose_exporter",
 	}
 }
 
@@ -115,6 +118,7 @@ var AgentTable = &agentTableType{
 			{Name: "TableCountTablestatsGroupLimit", Type: "int32", Column: "table_count_tablestats_group_limit"},
 			{Name: "MaxQueryLength", Type: "int32", Column: "max_query_length"},
 			{Name: "QueryExamplesDisabled", Type: "bool", Column: "query_examples_disabled"},
+			{Name: "CommentsParsingDisabled", Type: "bool", Column: "comments_parsing_disabled"},
 			{Name: "MaxQueryLogSize", Type: "int64", Column: "max_query_log_size"},
 			{Name: "MetricsPath", Type: "*string", Column: "metrics_path"},
 			{Name: "MetricsScheme", Type: "*string", Column: "metrics_scheme"},
@@ -122,10 +126,12 @@ var AgentTable = &agentTableType{
 			{Name: "RDSEnhancedMetricsDisabled", Type: "bool", Column: "rds_enhanced_metrics_disabled"},
 			{Name: "PushMetrics", Type: "bool", Column: "push_metrics"},
 			{Name: "DisabledCollectors", Type: "pq.StringArray", Column: "disabled_collectors"},
+			{Name: "MetricsResolutions", Type: "*MetricsResolutions", Column: "metrics_resolutions"},
 			{Name: "MySQLOptions", Type: "*MySQLOptions", Column: "mysql_options"},
 			{Name: "MongoDBOptions", Type: "*MongoDBOptions", Column: "mongo_db_tls_options"},
 			{Name: "PostgreSQLOptions", Type: "*PostgreSQLOptions", Column: "postgresql_options"},
 			{Name: "LogLevel", Type: "*string", Column: "log_level"},
+			{Name: "ExposeExporter", Type: "bool", Column: "expose_exporter"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -134,7 +140,7 @@ var AgentTable = &agentTableType{
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 37)
+	res := make([]string, 40)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "AgentType: " + reform.Inspect(s.AgentType, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
@@ -161,17 +167,20 @@ func (s Agent) String() string {
 	res[23] = "TableCountTablestatsGroupLimit: " + reform.Inspect(s.TableCountTablestatsGroupLimit, true)
 	res[24] = "MaxQueryLength: " + reform.Inspect(s.MaxQueryLength, true)
 	res[25] = "QueryExamplesDisabled: " + reform.Inspect(s.QueryExamplesDisabled, true)
-	res[26] = "MaxQueryLogSize: " + reform.Inspect(s.MaxQueryLogSize, true)
-	res[27] = "MetricsPath: " + reform.Inspect(s.MetricsPath, true)
-	res[28] = "MetricsScheme: " + reform.Inspect(s.MetricsScheme, true)
-	res[29] = "RDSBasicMetricsDisabled: " + reform.Inspect(s.RDSBasicMetricsDisabled, true)
-	res[30] = "RDSEnhancedMetricsDisabled: " + reform.Inspect(s.RDSEnhancedMetricsDisabled, true)
-	res[31] = "PushMetrics: " + reform.Inspect(s.PushMetrics, true)
-	res[32] = "DisabledCollectors: " + reform.Inspect(s.DisabledCollectors, true)
-	res[33] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
-	res[34] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
-	res[35] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
-	res[36] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
+	res[26] = "CommentsParsingDisabled: " + reform.Inspect(s.CommentsParsingDisabled, true)
+	res[27] = "MaxQueryLogSize: " + reform.Inspect(s.MaxQueryLogSize, true)
+	res[28] = "MetricsPath: " + reform.Inspect(s.MetricsPath, true)
+	res[29] = "MetricsScheme: " + reform.Inspect(s.MetricsScheme, true)
+	res[30] = "RDSBasicMetricsDisabled: " + reform.Inspect(s.RDSBasicMetricsDisabled, true)
+	res[31] = "RDSEnhancedMetricsDisabled: " + reform.Inspect(s.RDSEnhancedMetricsDisabled, true)
+	res[32] = "PushMetrics: " + reform.Inspect(s.PushMetrics, true)
+	res[33] = "DisabledCollectors: " + reform.Inspect(s.DisabledCollectors, true)
+	res[34] = "MetricsResolutions: " + reform.Inspect(s.MetricsResolutions, true)
+	res[35] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
+	res[36] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
+	res[37] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
+	res[38] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
+	res[39] = "ExposeExporter: " + reform.Inspect(s.ExposeExporter, true)
 	return strings.Join(res, ", ")
 }
 
@@ -205,6 +214,7 @@ func (s *Agent) Values() []interface{} {
 		s.TableCountTablestatsGroupLimit,
 		s.MaxQueryLength,
 		s.QueryExamplesDisabled,
+		s.CommentsParsingDisabled,
 		s.MaxQueryLogSize,
 		s.MetricsPath,
 		s.MetricsScheme,
@@ -212,10 +222,12 @@ func (s *Agent) Values() []interface{} {
 		s.RDSEnhancedMetricsDisabled,
 		s.PushMetrics,
 		s.DisabledCollectors,
+		s.MetricsResolutions,
 		s.MySQLOptions,
 		s.MongoDBOptions,
 		s.PostgreSQLOptions,
 		s.LogLevel,
+		s.ExposeExporter,
 	}
 }
 
@@ -249,6 +261,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.TableCountTablestatsGroupLimit,
 		&s.MaxQueryLength,
 		&s.QueryExamplesDisabled,
+		&s.CommentsParsingDisabled,
 		&s.MaxQueryLogSize,
 		&s.MetricsPath,
 		&s.MetricsScheme,
@@ -256,10 +269,12 @@ func (s *Agent) Pointers() []interface{} {
 		&s.RDSEnhancedMetricsDisabled,
 		&s.PushMetrics,
 		&s.DisabledCollectors,
+		&s.MetricsResolutions,
 		&s.MySQLOptions,
 		&s.MongoDBOptions,
 		&s.PostgreSQLOptions,
 		&s.LogLevel,
+		&s.ExposeExporter,
 	}
 }
 

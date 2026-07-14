@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,9 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 			Dsn:   dsn,
 			Table: "city",
 		}
-		a := NewPostgreSQLShowIndexAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLShowIndexAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -68,7 +70,9 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 			Dsn:   dsn,
 			Table: "public.city",
 		}
-		a := NewPostgreSQLShowIndexAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLShowIndexAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 

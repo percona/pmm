@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -590,6 +590,19 @@ func TestSettings(t *testing.T) {
 				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
 					`invalid google.protobuf.Duration value "1"`)
 				assert.Empty(t, res)
+			})
+
+			t.Run("SetPMMPublicAddressWithoutScheme", func(t *testing.T) {
+				defer restoreSettingsDefaults(t)
+				publicAddress := "192.168.0.42:8443"
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						PMMPublicAddress: publicAddress,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				assert.Equal(t, publicAddress, res.Payload.Settings.PMMPublicAddress)
 			})
 
 			t.Run("STTCheckIntervalTooSmall", func(t *testing.T) {

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,13 +23,15 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
-//go:generate ../../bin/mockery -name=connectionChecker -case=snake -inpkg -testonly
-//go:generate ../../bin/mockery -name=supervisor -case=snake -inpkg -testonly
-
 // connectionChecker is a subset of methods of connectionchecker.ConnectionChecker used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type connectionChecker interface {
 	Check(ctx context.Context, req *agentpb.CheckConnectionRequest, id uint32) *agentpb.CheckConnectionResponse
+}
+
+// serviceInfoBroker is a subset of methods of serviceinfobroker.ServiceInfoBroker used by this package.
+type serviceInfoBroker interface {
+	GetInfoFromService(ctx context.Context, req *agentpb.ServiceInfoRequest, id uint32) *agentpb.ServiceInfoResponse
 }
 
 // softwareVersioner is a subset of methods of version.Versioner used by this package.

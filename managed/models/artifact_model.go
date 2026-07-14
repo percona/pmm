@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -142,6 +142,7 @@ type Metadata struct {
 	BackupToolData *BackupToolData `json:"backup_tool_data"`
 }
 
+// MetadataList is a list of metadata associated with artifacts.
 type MetadataList []Metadata
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.

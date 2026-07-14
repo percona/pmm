@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/cache"
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -47,30 +48,35 @@ const (
 	queryStatStatements     = time.Minute
 )
 
-var pgStatVer18 = semver.MustParse("1.8.0")
+var (
+	pgStatVer1_8  = semver.MustParse("1.8.0")
+	pgStatVer1_11 = semver.MustParse("1.11.0")
+)
 
 type statementsMap map[int64]*pgStatStatementsExtended
 
 // PGStatStatementsQAN QAN services connects to PostgreSQL and extracts stats.
-type PGStatStatementsQAN struct {
-	q               *reform.Querier
-	dbCloser        io.Closer
-	agentID         string
-	maxQueryLength  int32
-	l               *logrus.Entry
-	changes         chan agents.Change
-	statementsCache *statementsCache
+type PGStatStatementsQAN struct { //nolint:revive
+	q                      *reform.Querier
+	dbCloser               io.Closer
+	agentID                string
+	maxQueryLength         int32
+	disableCommentsParsing bool
+	l                      *logrus.Entry
+	changes                chan agents.Change
+	statementsCache        *statementsCache
 }
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN            string
-	AgentID        string
-	MaxQueryLength int32
-	TextFiles      *agentpb.TextFiles
+	DSN                    string
+	AgentID                string
+	MaxQueryLength         int32
+	DisableCommentsParsing bool
+	TextFiles              *agentpb.TextFiles
 }
 
-const queryTag = "pmm-agent:pgstatstatements"
+const queryTag = "agent='pgstatstatements'"
 
 // New creates new PGStatStatementsQAN QAN service.
 func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
@@ -85,23 +91,24 @@ func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	reformL := sqlmetrics.NewReform("postgres", params.AgentID, l.Tracef)
 	// TODO register reformL metrics https://jira.percona.com/browse/PMM-4087
 	q := reform.NewDB(sqlDB, postgresql.Dialect, reformL).WithTag(queryTag)
-	return newPgStatStatementsQAN(q, sqlDB, params.AgentID, params.MaxQueryLength, l)
+	return newPgStatStatementsQAN(q, sqlDB, params.AgentID, params.MaxQueryLength, params.DisableCommentsParsing, l)
 }
 
-func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int32, l *logrus.Entry) (*PGStatStatementsQAN, error) {
+func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int32, disableCommentsParsing bool, l *logrus.Entry) (*PGStatStatementsQAN, error) { //nolint:lll
 	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, statStatementsCacheSize, l)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}
 
 	return &PGStatStatementsQAN{
-		q:               q,
-		dbCloser:        dbCloser,
-		agentID:         agentID,
-		maxQueryLength:  maxQueryLength,
-		l:               l,
-		changes:         make(chan agents.Change, 10),
-		statementsCache: statementCache,
+		q:                      q,
+		dbCloser:               dbCloser,
+		agentID:                agentID,
+		maxQueryLength:         maxQueryLength,
+		disableCommentsParsing: disableCommentsParsing,
+		l:                      l,
+		changes:                make(chan agents.Change, 10),
+		statementsCache:        statementCache,
 	}, nil
 }
 
@@ -121,21 +128,6 @@ func getPgStatVersion(q *reform.Querier) (semver.Version, error) {
 	}
 
 	return semver.Parse(v)
-}
-
-func rowsByVersion(q *reform.Querier, tail string) (*sql.Rows, error) {
-	pgStatVersion, err := getPgStatVersion(q)
-	if err != nil {
-		return nil, err
-	}
-
-	columns := strings.Join(q.QualifiedColumns(pgStatStatementsView), ", ")
-	switch {
-	case pgStatVersion.GE(pgStatVer18):
-		columns = strings.Replace(columns, `"total_time"`, `"total_exec_time"`, 1)
-	}
-
-	return q.Query(fmt.Sprintf("SELECT /* %s */ %s FROM %s %s", queryTag, columns, q.QualifiedView(pgStatStatementsView), tail))
 }
 
 // Run extracts stats data and sends it to the channel until ctx is canceled.
@@ -233,16 +225,22 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	databases := queryDatabases(q)
 	usernames := queryUsernames(q)
 
-	rows, e := rowsByVersion(q, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
-	if e != nil {
-		err = e
+	pgStatVersion, err := getPgStatVersion(q)
+	if err != nil {
 		return nil, nil, err
+	}
+
+	row, view := newPgStatMonitorStructs(pgStatVersion)
+	columns := strings.Join(q.QualifiedColumns(view), ", ")
+
+	rows, err := q.Query(fmt.Sprintf("SELECT /* %s */ %s FROM %s %s", queryTag, columns, q.QualifiedView(view), "WHERE queryid IS NOT NULL AND query IS NOT NULL"))
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "couldn't get rows from pg_stat_statements")
 	}
 	defer rows.Close() //nolint:errcheck
 
 	for ctx.Err() == nil {
-		var row pgStatStatements
-		if err = q.NextRow(&row, rows); err != nil {
+		if err = q.NextRow(row, rows); err != nil {
 			if errors.Is(err, reform.ErrNoRows) {
 				err = nil
 			}
@@ -250,7 +248,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 		}
 		totalN++
 		c := &pgStatStatementsExtended{
-			pgStatStatements: row,
+			pgStatStatements: *row,
 			Database:         databases[row.DBID],
 			Username:         usernames[row.UserID],
 		}
@@ -285,7 +283,7 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 		return nil, err
 	}
 
-	buckets := makeBuckets(current, prev, m.l)
+	buckets := m.makeBuckets(current, prev)
 	startS := uint32(periodStart.Unix())
 	m.l.Debugf("Made %d buckets out of %d stat statements in %s+%d interval.",
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
@@ -309,11 +307,10 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 }
 
 // makeBuckets uses current state of pg_stat_statements table and accumulated previous state
-// to make metrics buckets.
-//
-// makeBuckets is a pure function for easier testing.
-func makeBuckets(current, prev statementsMap, l *logrus.Entry) []*agentpb.MetricsBucket {
+// to make metrics buckets. It's a pure function for easier testing.
+func (m *PGStatStatementsQAN) makeBuckets(current, prev statementsMap) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
+	l := m.l
 
 	for queryID, currentPSS := range current {
 		prevPSS := prev[queryID]
@@ -339,7 +336,15 @@ func makeBuckets(current, prev statementsMap, l *logrus.Entry) []*agentpb.Metric
 		}
 
 		if len(currentPSS.Tables) == 0 {
-			currentPSS.Tables = extractTables(currentPSS.Query, l)
+			currentPSS.Tables = extractTables(currentPSS.Query, m.maxQueryLength, l)
+		}
+
+		if !m.disableCommentsParsing {
+			comments, err := queryparser.PostgreSQLComments(currentPSS.Query)
+			if err != nil {
+				l.Errorf("failed to parse comments for query: %s", currentPSS.Query)
+			}
+			currentPSS.Comments = comments
 		}
 
 		mb := &agentpb.MetricsBucket{
@@ -348,6 +353,7 @@ func makeBuckets(current, prev statementsMap, l *logrus.Entry) []*agentpb.Metric
 				Tables:      currentPSS.Tables,
 				Username:    currentPSS.Username,
 				Queryid:     strconv.FormatInt(currentPSS.QueryID, 10),
+				Comments:    currentPSS.Comments,
 				Fingerprint: currentPSS.Query,
 				NumQueries:  count,
 				AgentType:   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
@@ -362,7 +368,7 @@ func makeBuckets(current, prev statementsMap, l *logrus.Entry) []*agentpb.Metric
 			cnt   *float32 // MetricsBucket.XXXCnt field to write count
 		}{
 			// convert milliseconds to seconds
-			{float32(currentPSS.TotalTime-prevPSS.TotalTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
+			{float32(currentPSS.TotalExecTime-prevPSS.TotalExecTime) / 1000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
 			{float32(currentPSS.Rows - prevPSS.Rows), &mb.Postgresql.MRowsSum, &mb.Postgresql.MRowsCnt},
 
 			{float32(currentPSS.SharedBlksHit - prevPSS.SharedBlksHit), &mb.Postgresql.MSharedBlksHitSum, &mb.Postgresql.MSharedBlksHitCnt},
@@ -379,8 +385,10 @@ func makeBuckets(current, prev statementsMap, l *logrus.Entry) []*agentpb.Metric
 			{float32(currentPSS.TempBlksWritten - prevPSS.TempBlksWritten), &mb.Postgresql.MTempBlksWrittenSum, &mb.Postgresql.MTempBlksWrittenCnt},
 
 			// convert milliseconds to seconds
-			{float32(currentPSS.BlkReadTime-prevPSS.BlkReadTime) / 1000, &mb.Postgresql.MBlkReadTimeSum, &mb.Postgresql.MBlkReadTimeCnt},
-			{float32(currentPSS.BlkWriteTime-prevPSS.BlkWriteTime) / 1000, &mb.Postgresql.MBlkWriteTimeSum, &mb.Postgresql.MBlkWriteTimeCnt},
+			{float32(currentPSS.SharedBlkReadTime-prevPSS.SharedBlkReadTime) / 1000, &mb.Postgresql.MSharedBlkReadTimeSum, &mb.Postgresql.MSharedBlkReadTimeCnt},
+			{float32(currentPSS.SharedBlkWriteTime-prevPSS.SharedBlkWriteTime) / 1000, &mb.Postgresql.MSharedBlkWriteTimeSum, &mb.Postgresql.MSharedBlkWriteTimeCnt},
+			{float32(currentPSS.LocalBlkReadTime-prevPSS.LocalBlkReadTime) / 1000, &mb.Postgresql.MLocalBlkReadTimeSum, &mb.Postgresql.MLocalBlkReadTimeCnt},
+			{float32(currentPSS.LocalBlkWriteTime-prevPSS.LocalBlkWriteTime) / 1000, &mb.Postgresql.MLocalBlkWriteTimeSum, &mb.Postgresql.MLocalBlkWriteTimeCnt},
 		} {
 			if p.value != 0 {
 				*p.sum = p.value
@@ -400,7 +408,7 @@ func (m *PGStatStatementsQAN) Changes() <-chan agents.Change {
 }
 
 // Describe implements prometheus.Collector.
-func (m *PGStatStatementsQAN) Describe(ch chan<- *prometheus.Desc) {
+func (m *PGStatStatementsQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
@@ -413,7 +421,7 @@ func (m *PGStatStatementsQAN) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*PGStatStatementsQAN)(nil)
 )

@@ -492,6 +492,10 @@ type ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 struct {
 	// SecurityCheckInterval represents possible execution interval values for checks.
 	// Enum: [SECURITY_CHECK_INTERVAL_INVALID STANDARD FREQUENT RARE]
 	Interval *string `json:"interval,omitempty"`
+
+	// family
+	// Enum: [ADVISOR_CHECK_FAMILY_INVALID ADVISOR_CHECK_FAMILY_MYSQL ADVISOR_CHECK_FAMILY_POSTGRESQL ADVISOR_CHECK_FAMILY_MONGODB]
+	Family *string `json:"family,omitempty"`
 }
 
 // Validate validates this list advisors OK body advisors items0 checks items0
@@ -499,6 +503,10 @@ func (o *ListAdvisorsOKBodyAdvisorsItems0ChecksItems0) Validate(formats strfmt.R
 	var res []error
 
 	if err := o.validateInterval(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateFamily(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -550,6 +558,54 @@ func (o *ListAdvisorsOKBodyAdvisorsItems0ChecksItems0) validateInterval(formats 
 
 	// value enum
 	if err := o.validateIntervalEnum("interval", "body", *o.Interval); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeFamilyPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_FAMILY_INVALID","ADVISOR_CHECK_FAMILY_MYSQL","ADVISOR_CHECK_FAMILY_POSTGRESQL","ADVISOR_CHECK_FAMILY_MONGODB"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeFamilyPropEnum = append(listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeFamilyPropEnum, v)
+	}
+}
+
+const (
+
+	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0FamilyADVISORCHECKFAMILYINVALID captures enum value "ADVISOR_CHECK_FAMILY_INVALID"
+	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0FamilyADVISORCHECKFAMILYINVALID string = "ADVISOR_CHECK_FAMILY_INVALID"
+
+	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0FamilyADVISORCHECKFAMILYMYSQL captures enum value "ADVISOR_CHECK_FAMILY_MYSQL"
+	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0FamilyADVISORCHECKFAMILYMYSQL string = "ADVISOR_CHECK_FAMILY_MYSQL"
+
+	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0FamilyADVISORCHECKFAMILYPOSTGRESQL captures enum value "ADVISOR_CHECK_FAMILY_POSTGRESQL"
+	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0FamilyADVISORCHECKFAMILYPOSTGRESQL string = "ADVISOR_CHECK_FAMILY_POSTGRESQL"
+
+	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0FamilyADVISORCHECKFAMILYMONGODB captures enum value "ADVISOR_CHECK_FAMILY_MONGODB"
+	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0FamilyADVISORCHECKFAMILYMONGODB string = "ADVISOR_CHECK_FAMILY_MONGODB"
+)
+
+// prop value enum
+func (o *ListAdvisorsOKBodyAdvisorsItems0ChecksItems0) validateFamilyEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeFamilyPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListAdvisorsOKBodyAdvisorsItems0ChecksItems0) validateFamily(formats strfmt.Registry) error {
+	if swag.IsZero(o.Family) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateFamilyEnum("family", "body", *o.Family); err != nil {
 		return err
 	}
 

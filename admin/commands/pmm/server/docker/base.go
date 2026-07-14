@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package docker holds the "pmm server install docker" command
+// Package docker holds the "pmm server install docker" command.
 package docker
 
 import (
@@ -35,7 +35,7 @@ type prepareOpts struct {
 	install bool
 }
 
-func prepareDocker(ctx context.Context, dockerFn Functions, opts prepareOpts) (Functions, error) {
+func prepareDocker(ctx context.Context, dockerFn Functions, opts prepareOpts) (Functions, error) { //nolint:ireturn
 	if dockerFn == nil {
 		d, err := docker.New(nil)
 		if err != nil {

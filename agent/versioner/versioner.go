@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,8 +51,6 @@ type CombinedOutputer interface {
 	CombinedOutput() ([]byte, error)
 }
 
-//go:generate ../../bin/mockery -name=ExecFunctions -case=snake -inpkg -testonly
-
 // ExecFunctions is an interface for the LookPath() and CommandContext() functions.
 type ExecFunctions interface {
 	LookPath(file string) (string, error)
@@ -68,7 +66,7 @@ func (RealExecFunctions) LookPath(file string) (string, error) {
 }
 
 // CommandContext calls Go's implementation of the CommandContext() function.
-func (RealExecFunctions) CommandContext(ctx context.Context, name string, arg ...string) CombinedOutputer {
+func (RealExecFunctions) CommandContext(ctx context.Context, name string, arg ...string) CombinedOutputer { //nolint:ireturn
 	return exec.CommandContext(ctx, name, arg...)
 }
 

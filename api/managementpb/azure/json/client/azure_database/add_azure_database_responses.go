@@ -293,9 +293,6 @@ AddAzureDatabaseDefaultBody add azure database default body
 swagger:model AddAzureDatabaseDefaultBody
 */
 type AddAzureDatabaseDefaultBody struct {
-	// error
-	Error string `json:"error,omitempty"`
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -400,12 +397,8 @@ AddAzureDatabaseDefaultBodyDetailsItems0 add azure database default body details
 swagger:model AddAzureDatabaseDefaultBodyDetailsItems0
 */
 type AddAzureDatabaseDefaultBodyDetailsItems0 struct {
-	// type url
-	TypeURL string `json:"type_url,omitempty"`
-
-	// value
-	// Format: byte
-	Value strfmt.Base64 `json:"value,omitempty"`
+	// at type
+	AtType string `json:"@type,omitempty"`
 }
 
 // Validate validates this add azure database default body details items0

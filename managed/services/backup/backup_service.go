@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,6 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/services/agents"
 )
 
 // Service represents core logic for db backup.
@@ -92,6 +91,10 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	for i := 1; ; i++ {
 		errTX = s.db.InTransactionContext(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 			var err error
+
+			if err = services.CheckArtifactOverlapping(tx.Querier, params.ServiceID, params.LocationID, params.Folder); err != nil {
+				return err
+			}
 
 			svc, err = models.FindServiceByID(tx.Querier, params.ServiceID)
 			if err != nil {
@@ -223,7 +226,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		err = status.Errorf(codes.Unknown, "Unknown service: %s", svc.ServiceType)
 	}
 	if err != nil {
-		var target *agents.AgentNotSupportedError
+		var target models.AgentNotSupportedError
 		if errors.As(err, &target) {
 			_, dbErr := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
 				Status: models.ErrorBackupStatus.Pointer(),
@@ -603,7 +606,7 @@ func checkArtifactMode(artifact *models.Artifact, pitrTimestamp time.Time) error
 	return nil
 }
 
-// inTimeSpan checks whether given time is in the given range
+// inTimeSpan checks whether given time is in the given range.
 func inTimeSpan(start, end, check time.Time) bool {
 	if start.Before(end) {
 		return !check.Before(start) && !check.After(end)

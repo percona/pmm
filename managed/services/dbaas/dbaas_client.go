@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -153,6 +153,7 @@ func (c *Client) StopMonitoring(ctx context.Context, in *controllerv1beta1.StopM
 	return c.kubernetesClient.StopMonitoring(ctx, in, opts...)
 }
 
+// GetKubeConfig returns Kubernetes config.
 func (c *Client) GetKubeConfig(ctx context.Context, _ *controllerv1beta1.GetKubeconfigRequest, _ ...grpc.CallOption) (*controllerv1beta1.GetKubeconfigResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()

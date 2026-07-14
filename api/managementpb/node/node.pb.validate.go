@@ -227,7 +227,7 @@ type UniversalNodeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalNodeMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -329,7 +329,7 @@ type ListNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -463,7 +463,7 @@ type ListNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -565,7 +565,7 @@ type GetNodeRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetNodeRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -694,7 +694,7 @@ type GetNodeResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetNodeResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -800,7 +800,7 @@ type UniversalNode_ServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalNode_ServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -910,7 +910,7 @@ type UniversalNode_AgentMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalNode_AgentMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

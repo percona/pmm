@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@ type AddNodeGenericCommand struct {
 	NodeModel    string            `help:"Node mddel"`
 }
 
+// RunCmd executes the AddNodeGenericCommand and returns the result.
 func (cmd *AddNodeGenericCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &nodes.AddGenericNodeParams{

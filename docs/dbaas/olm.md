@@ -1,5 +1,5 @@
 ---
-slug: 'dbaas'
+slug: dbaas
 ---
 
 ## How OLM (Operator Lifecycle Manager) works.

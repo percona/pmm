@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ type AddNodeRemoteCommand struct {
 	Az           string            `help:"Node availability zone"`
 }
 
+// RunCmd executes the AddNodeRemoteCommand and returns the result.
 func (cmd *AddNodeRemoteCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 	params := &nodes.AddRemoteNodeParams{

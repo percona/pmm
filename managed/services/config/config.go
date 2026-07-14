@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -73,7 +73,7 @@ func (s *Service) Load() error {
 	var cfg Config
 
 	if _, err := os.Stat(configPath); err == nil {
-		s.l.Trace("config exist, reading file")
+		s.l.Trace("config exists, reading file")
 		buf, err := os.ReadFile(configPath) //nolint:gosec
 		if err != nil {
 			return errors.Wrapf(err, "error while reading config [%s]", configPath)

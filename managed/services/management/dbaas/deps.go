@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -33,13 +33,6 @@ import (
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
-
-//go:generate ../../../../bin/mockery -name=dbaasClient -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=versionService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=componentsService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=kubernetesClient -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=kubeStorageManager -case=snake -inpkg -testonly
 
 type dbaasClient interface {
 	// Connect connects the client to dbaas-controller API.
@@ -97,7 +90,7 @@ type componentsService interface {
 	InstallOperator(context.Context, *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error)
 }
 
-type kubernetesClient interface {
+type kubernetesClient interface { //nolint:interfacebloat
 	SetKubeconfig(string) error
 	ListDatabaseClusters(context.Context) (*dbaasv1.DatabaseClusterList, error)
 	GetDatabaseCluster(context.Context, string) (*dbaasv1.DatabaseCluster, error)

@@ -1,7 +1,7 @@
 %undefine _missing_build_ids_terminate_build
 %define debug_package %{nil}
 
-%global commit_aws          d72e1b46444d0efcb995a28c3846223b39bc4964
+%global commit_aws          ea9bcaeb5e62c110fe326d1db58b03a782d4bdd6
 %global shortcommit_aws     %(c=%{commit_aws}; echo ${c:0:7})
 
 %global commit_k8s          ef70d260f3d036fc22b30538576bbf6b36329995
@@ -16,7 +16,7 @@
 %define rpm_release     %{release}.%{build_timestamp}%{?dist}
 
 Name:           dbaas-tools
-Version:        0.6.2
+Version:        0.6.10
 Release:        %{rpm_release}
 Summary:        A set of tools for Percona DBaaS
 License:        ASL 2.0
@@ -71,6 +71,9 @@ install -D -p -m 0775 _output/local/go/bin/kubectl %{buildroot}/opt/dbaas-tools/
 /opt/dbaas-tools/bin/kubectl-1.23
 
 %changelog
+
+* Mon Jun 12 2023 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 0.6.10-1
+- Update versions of aws-iam-authenticator
 
 * Mon Jun 05 2023 Andrew Minkin <andrew.minkin@percona.com> - 0.6.2-1
 - Update versions of kubectl and aws-iam-authenticator

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -48,6 +48,7 @@ func NewHAProxyService(db *reform.DB, vmdb prometheusService, state agentsStateU
 	}
 }
 
+// AddHAProxy adds an HAProxy service based on the provided request.
 func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAProxyRequest) (*managementpb.AddHAProxyResponse, error) {
 	res := &managementpb.AddHAProxyResponse{}
 	var pmmAgentID *string

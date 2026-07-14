@@ -30,11 +30,14 @@ gen: clean                      ## Generate files
 
 clean:                          ## Remove generated files
 	find . -name *_reform.go -delete
-	find . -name mock_*.go -delete
 
 release:                        ## Build pmm-managed release binaries
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 	$(PMM_RELEASE_PATH)/pmm-managed --version
+
+release-starlark:
+	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-managed-starlark/...
+	$(PMM_RELEASE_PATH)/pmm-managed-starlark --version
 
 ARCH=$(shell uname -m)
 release-dev:										## Build pmm-managed binaries for development

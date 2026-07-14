@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ func TestCreateDBURL(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, test.url, createDBURL(test.dbConfig).String())
+			assert.Equal(t, test.url, test.dbConfig.createDBURL().String())
 		})
 	}
 }
@@ -80,7 +80,6 @@ func TestCreateDBURL(t *testing.T) {
 func TestNewMongoDBBackupJob(t *testing.T) {
 	t.Parallel()
 	testJobDuration := 1 * time.Second
-	var dbConfig string
 
 	tests := []struct {
 		name      string
@@ -115,7 +114,7 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), &dbConfig, BackupLocationConfig{}, tc.pitr, tc.dataModel, "artifact_folder")
+			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), "", BackupLocationConfig{}, tc.pitr, tc.dataModel, "artifact_folder")
 			if tc.errMsg == "" {
 				assert.NoError(t, err)
 			} else {

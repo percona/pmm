@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@ package services
 
 import (
 	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -25,7 +26,8 @@ import (
 )
 
 // CheckMongoDBBackupPreconditions checks compatibility of different types of scheduled backups and on-demand backups for MongoDB.
-// WARNING: This function valid only when executed as part of transaction with serializable isolation level.
+//
+// WARNING: This function is valid only when executed as part of transaction with serializable isolation level.
 func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, clusterName, serviceID, scheduleID string) error {
 	filter := models.ScheduledTasksFilter{
 		Disabled:    pointer.ToBool(false),
@@ -83,6 +85,91 @@ func CheckMongoDBBackupPreconditions(q *reform.Querier, mode models.BackupMode, 
 
 	case models.Incremental:
 		return status.Error(codes.InvalidArgument, "Incremental backups unsupported for MongoDB")
+	}
+
+	return nil
+}
+
+// CheckArtifactOverlapping checks if there are other artifacts or scheduled tasks pointing to the same location and folder.
+// Placing MySQL and MongoDB artifacts in the same folder is not desirable, while placing MongoDB artifacts of different clusters
+// in the same folder may cause data inconsistency.
+//
+// WARNING: This function is valid only when executed as part of transaction with serializable isolation level.
+func CheckArtifactOverlapping(q *reform.Querier, serviceID, locationID, folder string) error {
+	// TODO This doesn't work for all cases. For example, there may exist more than one storage locations pointing to the same place.
+
+	const (
+		usedByArtifactMsg      = "Same location and folder already used for artifact %s of other service: %s"
+		usedByScheduledTaskMsg = "Same location and folder already used for scheduled task %s of other service: %s"
+	)
+
+	service, err := models.FindServiceByID(q, serviceID)
+	if err != nil {
+		return err
+	}
+
+	artifacts, err := models.FindArtifacts(q, models.ArtifactFilters{
+		LocationID: locationID,
+		Folder:     &folder,
+	})
+	if err != nil {
+		return err
+	}
+
+	for _, artifact := range artifacts {
+		// We skip artifacts made on services that are no longer exists in PMM. However, in future we can improve this function
+		// by storing required information right in artifact model.
+		if artifact.ServiceID != "" && artifact.ServiceID != serviceID {
+			svc, err := models.FindServiceByID(q, artifact.ServiceID)
+			if err != nil {
+				return err
+			}
+
+			if service.ServiceType == models.MySQLServiceType && svc.ServiceType == models.MySQLServiceType {
+				continue
+			}
+
+			if service.ServiceType == models.MongoDBServiceType && svc.ServiceType == models.MongoDBServiceType {
+				if svc.Cluster != service.Cluster {
+					return errors.Wrapf(ErrLocationFolderPairAlreadyUsed, usedByArtifactMsg, artifact.ID, serviceID)
+				}
+				continue
+			}
+
+			return errors.Wrapf(ErrLocationFolderPairAlreadyUsed, usedByArtifactMsg, artifact.ID, serviceID)
+		}
+	}
+
+	tasks, err := models.FindScheduledTasks(q, models.ScheduledTasksFilter{
+		LocationID: locationID,
+		Folder:     &folder,
+	})
+	if err != nil {
+		return err
+	}
+
+	var svcID string
+
+	for _, task := range tasks {
+		svcID, err = task.ServiceID()
+		if err != nil {
+			return err
+		}
+
+		if svcID != serviceID {
+			if service.ServiceType == models.MySQLServiceType && task.Type == models.ScheduledMySQLBackupTask {
+				continue
+			}
+
+			if service.ServiceType == models.MongoDBServiceType && task.Type == models.ScheduledMongoDBBackupTask {
+				if task.Data.MongoDBBackupTask.ClusterName != service.Cluster {
+					return errors.Wrapf(ErrLocationFolderPairAlreadyUsed, usedByScheduledTaskMsg, task.ID, serviceID)
+				}
+				continue
+			}
+
+			return errors.Wrapf(ErrLocationFolderPairAlreadyUsed, usedByScheduledTaskMsg, task.ID, serviceID)
+		}
 	}
 
 	return nil

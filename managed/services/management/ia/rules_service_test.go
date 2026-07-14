@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+/*
 // func TestCreateAlertRule(t *testing.T) {
 // 	ctx := context.Background()
 // 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
@@ -357,7 +358,8 @@ import (
 // 		_, err = os.Stat(filename)
 // 		assert.EqualError(t, err, fmt.Sprintf("stat %s: no such file or directory", filename))
 // 	})
-// }
+// }.
+*/
 
 func ruleFileName(testDir, ruleID string) string {
 	return testDir + "/" + strings.TrimPrefix(ruleID, "/rule_id/") + ".yml"

@@ -103,12 +103,11 @@ main() {
     gobuild_component "proxysql_exporter"
     gobuild_component "rds_exporter"
     gobuild_component "azure_metrics_exporter"
-    gobuild_component "clickhouse_exporter" "" "github.com/Percona-Lab/clickhouse_exporter"
 
     gobuild_component "pmm-admin" "pmm" "" "admin"
     gobuild_component "pmm-agent" "pmm" "" "agent"
 
-    echo ${version} > ${binary_dir}/VERSION
+    echo ${pmm_version} > ${binary_dir}/VERSION
 
     copy_component "pmm" "build/packages/rpm/client" "rpm"
     copy_component "pmm" "build/packages/config" "config"
@@ -119,7 +118,8 @@ main() {
     copy_component "mysqld_exporter" "queries-mysqld-group-replication.yml"
     copy_component "postgres_exporter" "example-queries-postgres.yml"
     copy_component "postgres_exporter" "queries-postgres-uptime.yml"
-    copy_component "postgres_exporter" "queries.yaml"
+    copy_component "postgres_exporter" "queries-mr.yaml"
+    copy_component "postgres_exporter" "queries-lr.yaml"
 
     copy_component "percona-toolkit" "bin/pt-summary"
     copy_component "percona-toolkit" "bin/pt-mysql-summary"

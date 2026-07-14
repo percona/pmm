@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,9 +55,14 @@ func (a *mysqlQuerySelectAction) Type() string {
 	return "mysql-query-select"
 }
 
+// DSN returns a DSN for the Action.
+func (a *mysqlQuerySelectAction) DSN() string {
+	return a.params.Dsn
+}
+
 // Run runs an Action and returns output and error.
 func (a *mysqlQuerySelectAction) Run(ctx context.Context) ([]byte, error) {
-	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles)
+	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles, a.params.TlsSkipVerify)
 	if err != nil {
 		return nil, err
 	}

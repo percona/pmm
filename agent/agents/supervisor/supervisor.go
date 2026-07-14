@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -112,7 +113,7 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 	}
 }
 
-// Run waits for context and stop all agents when it's done
+// Run waits for context and stop all agents when it's done.
 func (s *Supervisor) Run(ctx context.Context) {
 	<-ctx.Done()
 	s.stopAll() //nolint:contextcheck
@@ -188,7 +189,7 @@ func (s *Supervisor) AgentLogByID(id string) ([]string, uint) {
 	return nil, 0
 }
 
-// ClearChangesChannel drains state change channel
+// ClearChangesChannel drains state change channel.
 func (s *Supervisor) ClearChangesChannel() {
 	for {
 		select {
@@ -237,7 +238,7 @@ func (s *Supervisor) RestartAgents() {
 		agent.cancel()
 		<-agent.done
 
-		if err := s.startProcess(id, agent.requestedState, agent.listenPort); err != nil {
+		if err := s.tryStartProcess(id, agent.requestedState, agent.listenPort); err != nil {
 			s.l.Errorf("Failed to restart Agent: %s.", err)
 		}
 	}
@@ -310,7 +311,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 		agent.cancel()
 		<-agent.done
 
-		if err := s.startProcess(agentID, agentProcesses[agentID], agent.listenPort); err != nil {
+		if err := s.tryStartProcess(agentID, agentProcesses[agentID], agent.listenPort); err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
 		}
@@ -318,14 +319,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 
 	// start new agents
 	for _, agentID := range toStart {
-		port, err := s.portsRegistry.Reserve()
-		if err != nil {
-			s.l.Errorf("Failed to reserve port: %s.", err)
-			// TODO report that error to server
-			continue
-		}
-
-		if err := s.startProcess(agentID, agentProcesses[agentID], port); err != nil {
+		if err := s.tryStartProcess(agentID, agentProcesses[agentID], 0); err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
 		}
@@ -359,6 +353,12 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentpb.SetState
 		<-agent.done
 
 		delete(s.builtinAgents, agentID)
+
+		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
+		err := os.RemoveAll(agentTmp)
+		if err != nil {
+			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
+		}
 	}
 
 	// restart
@@ -419,11 +419,34 @@ func filter(existing, ap map[string]agentpb.AgentParams) ([]string, []string, []
 	return toStart, toRestart, toStop
 }
 
-//nolint:golint,stylecheck
+//nolint:golint,stylecheck,revive
 const (
-	type_TEST_SLEEP inventorypb.AgentType = 998 // process
-	type_TEST_NOOP  inventorypb.AgentType = 999 // built-in
+	type_TEST_SLEEP       inventorypb.AgentType = 998 // process
+	type_TEST_NOOP        inventorypb.AgentType = 999 // built-in
+	process_Retry_Time    int                   = 3
+	start_Process_Waiting                       = 2 * time.Second
 )
+
+func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentpb.SetStateRequest_AgentProcess, port uint16) error {
+	var err error
+	for i := 0; i < process_Retry_Time; i++ {
+		if port == 0 {
+			_port, err := s.portsRegistry.Reserve()
+			if err != nil {
+				s.l.Errorf("Failed to reserve port: %s.", err)
+				continue
+			}
+			port = _port
+		}
+
+		if err = s.startProcess(agentID, agentProcess, port); err == nil {
+			return nil
+		}
+
+		port = 0
+	}
+	return err
+}
 
 // startProcess starts Agent's process.
 // Must be called with s.rw held for writing.
@@ -466,6 +489,17 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		}
 		close(done)
 	}()
+
+	t := time.NewTimer(start_Process_Waiting)
+	defer t.Stop()
+	select {
+	case isInitialized := <-process.IsInitialized():
+		if !isInitialized {
+			defer cancel()
+			return process.GetError()
+		}
+	case <-t.C:
+	}
 
 	//nolint:forcetypeassert
 	s.agentProcesses[agentID] = &agentProcessInfo{
@@ -512,12 +546,13 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	switch builtinAgent.Type {
 	case inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:
 		params := &perfschema.Params{
-			DSN:                  dsn,
-			AgentID:              agentID,
-			MaxQueryLength:       builtinAgent.MaxQueryLength,
-			DisableQueryExamples: builtinAgent.DisableQueryExamples,
-			TextFiles:            builtinAgent.GetTextFiles(),
-			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
+			DSN:                    dsn,
+			AgentID:                agentID,
+			MaxQueryLength:         builtinAgent.MaxQueryLength,
+			DisableCommentsParsing: builtinAgent.DisableCommentsParsing,
+			DisableQueryExamples:   builtinAgent.DisableQueryExamples,
+			TextFiles:              builtinAgent.GetTextFiles(),
+			TLSSkipVerify:          builtinAgent.TlsSkipVerify,
 		}
 		agent, err = perfschema.New(params, l)
 
@@ -531,34 +566,37 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	case inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:
 		params := &slowlog.Params{
-			DSN:                  dsn,
-			AgentID:              agentID,
-			SlowLogFilePrefix:    cfg.Paths.SlowLogFilePrefix,
-			MaxQueryLength:       builtinAgent.MaxQueryLength,
-			DisableQueryExamples: builtinAgent.DisableQueryExamples,
-			MaxSlowlogFileSize:   builtinAgent.MaxQueryLogSize,
-			TextFiles:            builtinAgent.GetTextFiles(),
-			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
-			TLS:                  false,
+			DSN:                    dsn,
+			AgentID:                agentID,
+			SlowLogFilePrefix:      cfg.Paths.SlowLogFilePrefix,
+			MaxQueryLength:         builtinAgent.MaxQueryLength,
+			DisableCommentsParsing: builtinAgent.DisableCommentsParsing,
+			DisableQueryExamples:   builtinAgent.DisableQueryExamples,
+			MaxSlowlogFileSize:     builtinAgent.MaxQueryLogSize,
+			TextFiles:              builtinAgent.GetTextFiles(),
+			TLSSkipVerify:          builtinAgent.TlsSkipVerify,
+			TLS:                    false,
 		}
 		agent, err = slowlog.New(params, l)
 
 	case inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:
 		params := &pgstatstatements.Params{
-			DSN:            dsn,
-			AgentID:        agentID,
-			MaxQueryLength: builtinAgent.MaxQueryLength,
-			TextFiles:      builtinAgent.GetTextFiles(),
+			DSN:                    dsn,
+			AgentID:                agentID,
+			MaxQueryLength:         builtinAgent.MaxQueryLength,
+			DisableCommentsParsing: builtinAgent.DisableCommentsParsing,
+			TextFiles:              builtinAgent.GetTextFiles(),
 		}
 		agent, err = pgstatstatements.New(params, l)
 
 	case inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT:
 		params := &pgstatmonitor.Params{
-			DSN:                  dsn,
-			AgentID:              agentID,
-			MaxQueryLength:       builtinAgent.MaxQueryLength,
-			TextFiles:            builtinAgent.GetTextFiles(),
-			DisableQueryExamples: builtinAgent.DisableQueryExamples,
+			DSN:                    dsn,
+			AgentID:                agentID,
+			MaxQueryLength:         builtinAgent.MaxQueryLength,
+			TextFiles:              builtinAgent.GetTextFiles(),
+			DisableCommentsParsing: builtinAgent.DisableCommentsParsing,
+			DisableQueryExamples:   builtinAgent.DisableQueryExamples,
 		}
 		agent, err = pgstatmonitor.New(params, l)
 
@@ -608,7 +646,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	return nil
 }
 
-// agentLogger write logs to Store so can get last N
+// agentLogger write logs to Store so can get last N.
 func (s *Supervisor) agentLogger(logStore *tailog.Store) *logrus.Logger {
 	return &logrus.Logger{
 		Out:          io.MultiWriter(os.Stderr, logStore),
@@ -661,11 +699,11 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 		templateParams["tmp_dir"] = cfg.Paths.TempDir
 		processParams.Path = cfg.Paths.VMAgent
 	default:
-		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type)
+		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
 	}
 
 	if processParams.Path == "" {
-		return nil, errors.Errorf("no path for agent type %[1]s (%[1]d).", agentProcess.Type)
+		return nil, errors.Errorf("no path for agent type %[1]s (%[1]d).", agentProcess.Type) //nolint:revive
 	}
 
 	tr := &templates.TemplateRenderer{
@@ -758,7 +796,7 @@ func (s *Supervisor) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*Supervisor)(nil)
 )

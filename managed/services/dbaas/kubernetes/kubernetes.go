@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -51,13 +51,14 @@ import (
 	"github.com/percona/pmm/managed/services/dbaas/utils/convertors"
 )
 
+// ClusterType is used by Kubernetes.
 type ClusterType string
 
 const (
-	ClusterTypeUnknown         ClusterType = "unknown"
-	ClusterTypeMinikube        ClusterType = "minikube"
-	ClusterTypeEKS             ClusterType = "eks"
-	ClusterTypeGeneric         ClusterType = "generic"
+	ClusterTypeUnknown         ClusterType = "unknown"  //nolint:revive
+	ClusterTypeMinikube        ClusterType = "minikube" //nolint:revive
+	ClusterTypeEKS             ClusterType = "eks"      //nolint:revive
+	ClusterTypeGeneric         ClusterType = "generic"  //nolint:revive
 	pxcDeploymentName                      = "percona-xtradb-cluster-operator"
 	psmdbDeploymentName                    = "percona-server-mongodb-operator"
 	dbaasDeploymentName                    = "dbaas-operator-controller-manager"
@@ -185,7 +186,7 @@ func NewEmpty() *Kubernetes {
 	}
 }
 
-// SetKubeconfig changes kubeconfig for active client
+// SetKubeconfig changes kubeconfig for active client.
 func (k *Kubernetes) SetKubeconfig(kubeconfig string) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
@@ -231,7 +232,7 @@ func (k *Kubernetes) GetDatabaseCluster(ctx context.Context, name string) (*dbaa
 	return k.client.GetDatabaseCluster(ctx, name)
 }
 
-// RestartDatabaseCluster restarts database cluster
+// RestartDatabaseCluster restarts database cluster.
 func (k *Kubernetes) RestartDatabaseCluster(ctx context.Context, name string) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
@@ -255,7 +256,7 @@ func (k *Kubernetes) PatchDatabaseCluster(cluster *dbaasv1.DatabaseCluster) erro
 	return k.client.ApplyObject(cluster)
 }
 
-// CreateDatabaseCluster creates database cluster
+// CreateDatabaseCluster creates database cluster.
 func (k *Kubernetes) CreateDatabaseCluster(cluster *dbaasv1.DatabaseCluster) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
@@ -266,7 +267,7 @@ func (k *Kubernetes) CreateDatabaseCluster(cluster *dbaasv1.DatabaseCluster) err
 	return k.client.ApplyObject(cluster)
 }
 
-// DeleteDatabaseCluster deletes database cluster
+// DeleteDatabaseCluster deletes database cluster.
 func (k *Kubernetes) DeleteDatabaseCluster(ctx context.Context, name string) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
@@ -279,7 +280,7 @@ func (k *Kubernetes) DeleteDatabaseCluster(ctx context.Context, name string) err
 	return k.client.DeleteObject(cluster)
 }
 
-// GetDefaultStorageClassName returns first storageClassName from kubernetes cluster
+// GetDefaultStorageClassName returns first storageClassName from kubernetes cluster.
 func (k *Kubernetes) GetDefaultStorageClassName(ctx context.Context) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
@@ -293,7 +294,7 @@ func (k *Kubernetes) GetDefaultStorageClassName(ctx context.Context) (string, er
 	return "", errors.New("no storage classes available")
 }
 
-// GetClusterType tries to guess the underlying kubernetes cluster based on storage class
+// GetClusterType tries to guess the underlying kubernetes cluster based on storage class.
 func (k *Kubernetes) GetClusterType(ctx context.Context) (ClusterType, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
@@ -314,7 +315,7 @@ func (k *Kubernetes) GetClusterType(ctx context.Context) (ClusterType, error) {
 	return ClusterTypeGeneric, nil
 }
 
-// getOperatorVersion parses operator version from operator deployment
+// getOperatorVersion parses operator version from operator deployment.
 func (k *Kubernetes) getOperatorVersion(ctx context.Context, deploymentName, containerName string) (string, error) {
 	deployment, err := k.client.GetDeployment(ctx, deploymentName)
 	if err != nil {
@@ -328,35 +329,35 @@ func (k *Kubernetes) getOperatorVersion(ctx context.Context, deploymentName, con
 	return "", errors.New("unknown version of operator")
 }
 
-// GetPSMDBOperatorVersion parses PSMDB operator version from operator deployment
+// GetPSMDBOperatorVersion parses PSMDB operator version from operator deployment.
 func (k *Kubernetes) GetPSMDBOperatorVersion(ctx context.Context) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 	return k.getOperatorVersion(ctx, psmdbDeploymentName, psmdbOperatorContainerName)
 }
 
-// GetPXCOperatorVersion parses PXC operator version from operator deployment
+// GetPXCOperatorVersion parses PXC operator version from operator deployment.
 func (k *Kubernetes) GetPXCOperatorVersion(ctx context.Context) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 	return k.getOperatorVersion(ctx, pxcDeploymentName, pxcOperatorContainerName)
 }
 
-// GetDBaaSOperatorVersion parses DBaaS operator version from operator deployment
+// GetDBaaSOperatorVersion parses DBaaS operator version from operator deployment.
 func (k *Kubernetes) GetDBaaSOperatorVersion(ctx context.Context) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 	return k.getOperatorVersion(ctx, dbaasDeploymentName, dbaasOperatorContainerName)
 }
 
-// GetSecret returns secret by name
+// GetSecret returns secret by name.
 func (k *Kubernetes) GetSecret(ctx context.Context, name string) (*corev1.Secret, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
 	return k.client.GetSecret(ctx, name)
 }
 
-// ListSecrets returns secret by name
+// ListSecrets returns secret by name.
 func (k *Kubernetes) ListSecrets(ctx context.Context) (*corev1.SecretList, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
@@ -381,6 +382,7 @@ func (k *Kubernetes) CreatePMMSecret(secretName string, secrets map[string][]byt
 	return k.client.ApplyObject(secret)
 }
 
+// CreateRestore will apply restore.
 func (k *Kubernetes) CreateRestore(restore *dbaasv1.DatabaseClusterRestore) error {
 	k.lock.Lock()
 	defer k.lock.Unlock()
@@ -742,7 +744,7 @@ func (k *Kubernetes) InstallOLMOperator(ctx context.Context) error {
 		return errors.Wrap(err, "cannot decode olm resources")
 	}
 
-	resources := append(crdResources, olmResources...)
+	resources := append(crdResources, olmResources...) //nolint:gocritic
 
 	subscriptions := filterResources(resources, func(r unstructured.Unstructured) bool {
 		return r.GroupVersionKind() == schema.GroupVersionKind{
@@ -826,7 +828,7 @@ func (k *Kubernetes) InstallOperator(ctx context.Context, req InstallOperatorReq
 		return errors.Wrap(err, "cannot create a susbcription to install the operator")
 	}
 
-	err = wait.Poll(pollInterval, pollDuration, func() (bool, error) {
+	err = wait.PollUntilContextTimeout(ctx, pollInterval, pollDuration, false, func(context.Context) (bool, error) {
 		k.lock.Lock()
 		defer k.lock.Unlock()
 
@@ -837,7 +839,6 @@ func (k *Kubernetes) InstallOperator(ctx context.Context, req InstallOperatorReq
 
 		return true, nil
 	})
-
 	if err != nil {
 		return err
 	}
@@ -877,7 +878,7 @@ func (k *Kubernetes) UpgradeOperator(ctx context.Context, namespace, name string
 	var subs *v1alpha1.Subscription
 
 	// If the subscription was recently created, the install plan might not be ready yet.
-	err := wait.Poll(pollInterval, pollDuration, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(ctx, pollInterval, pollDuration, false, func(context.Context) (bool, error) {
 		var err error
 		subs, err = k.client.GetSubscription(ctx, namespace, name)
 		if err != nil {
@@ -912,7 +913,7 @@ func (k *Kubernetes) UpgradeOperator(ctx context.Context, namespace, name string
 	return err
 }
 
-// GetServerVersion returns server version
+// GetServerVersion returns server version.
 func (k *Kubernetes) GetServerVersion() (*version.Info, error) {
 	return k.client.GetServerVersion()
 }

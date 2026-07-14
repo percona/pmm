@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -114,7 +114,8 @@ func TestCreatePBMConfig(t *testing.T) {
 		},
 	} {
 		t.Run(test.name, func(t *testing.T) {
-			res, err := createPBMConfig(&test.inputLocation, "test_prefix", test.inputPitr)
+			inputLocation := test.inputLocation
+			res, err := createPBMConfig(&inputLocation, "test_prefix", test.inputPitr)
 			if test.errString != "" {
 				assert.ErrorContains(t, err, test.errString)
 				assert.Nil(t, res)

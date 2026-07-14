@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -85,6 +85,7 @@ func NewCollector(driver, dbName string, db *sql.DB) *Collector {
 	}
 }
 
+//nolint:revive
 func (c *Collector) Describe(ch chan<- *prom.Desc) {
 	ch <- c.maxOpenConnections
 
@@ -98,6 +99,7 @@ func (c *Collector) Describe(ch chan<- *prom.Desc) {
 	ch <- c.maxLifetimeClosed
 }
 
+//nolint:revive
 func (c *Collector) Collect(ch chan<- prom.Metric) {
 	stats := c.db.Stats()
 
@@ -137,7 +139,7 @@ func (c *Collector) Collect(ch chan<- prom.Metric) {
 		float64(stats.MaxLifetimeClosed))
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prom.Collector = (*Collector)(nil)
 )

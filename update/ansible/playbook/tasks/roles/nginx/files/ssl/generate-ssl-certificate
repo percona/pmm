@@ -4,6 +4,40 @@ set -o errexit
 
 mkdir -p /srv/nginx
 
+# Check if /srv/nginx is writable
+# if not, check if the user provided the certificate files and use them.
+if [ ! -w "/srv/nginx" ]; then
+    echo "Directory /srv/nginx is not writable";
+    error=false
+    if [ ! -e /srv/nginx/certificate.key ]; then
+        echo "The file /srv/nginx/certificate.key does not exist." >&2
+        error=true
+    fi
+
+    if [ ! -e /srv/nginx/certificate.crt ]; then
+        echo "The file /srv/nginx/certificate.crt does not exist." >&2
+        error=true
+    fi
+
+    if [ ! -e /srv/nginx/ca-certs.pem ]; then
+        echo "The file /srv/nginx/ca-certs.pem does not exist." >&2
+        error=true
+    fi
+
+    if [ ! -e /srv/nginx/dhparam.pem ]; then
+        echo "The file /srv/nginx/dhparam.pem does not exist." >&2
+        error=true
+    fi
+
+    if [ "$error" = true ]; then
+        echo "Exiting due to missing file(s)." >&2
+        exit 1;
+    fi
+
+    echo "Using user provided certificate.";
+    exit 0;
+fi
+
 if [ ! -e /srv/nginx/dhparam.pem ]; then
     cp /etc/nginx/ssl/dhparam.pem /srv/nginx/dhparam.pem
 fi
@@ -17,8 +51,8 @@ if [ ! -e /srv/nginx/certificate.conf ]; then
     cp  /etc/nginx/ssl/certificate.conf /srv/nginx/certificate.conf
 fi
 
-if [ ! -e /srv/nginx/certificate.key -o ! -e /srv/nginx/certificate.crt ]; then
-    if [ ! -e /etc/nginx/ssl/certificate.key -o ! -e /etc/nginx/ssl/certificate.crt ]; then
+if [ ! -e /srv/nginx/certificate.key ] || [ ! -e /srv/nginx/certificate.crt ]; then
+    if [ ! -e /etc/nginx/ssl/certificate.key ] || [ ! -e /etc/nginx/ssl/certificate.crt ]; then
         openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
             -keyout /etc/nginx/ssl/certificate.key \
             -out    /etc/nginx/ssl/certificate.crt \

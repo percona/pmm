@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -71,7 +71,7 @@ func Time() (time.Time, error) {
 	return time.Unix(sec, 0).UTC(), nil
 }
 
-// timestampFormatted returns timestamp in format "YYYY-MM-DD HH:mm:ss (UTC)"
+// timestampFormatted returns timestamp in format "YYYY-MM-DD HH:mm:ss (UTC)".
 func timestampFormatted() string {
 	timestamp := Timestamp
 	if t, err := Time(); err == nil {

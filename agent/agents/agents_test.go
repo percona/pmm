@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ package agents
 
 import "testing"
 
-func TestAgents(t *testing.T) {
+// TestAgents is a test function for the Agents module.
+func TestAgents(t *testing.T) { //nolint:revive
 	// we need at least one test per package to correctly calculate coverage
 }

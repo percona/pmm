@@ -63,6 +63,8 @@ message UniversalService {
   repeated agent.v1beta1.UniversalAgent agents = 17;
   // The health status of the service.
   Status status = 18;
+  // The service/database version.
+  string version = 19;
 }
 
 message ListServiceRequest {

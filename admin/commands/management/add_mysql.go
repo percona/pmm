@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ func (res *addMySQLResult) TablestatStatus() string {
 	s := "Table statistics collection " + status
 
 	switch {
-	case res.MysqldExporter.TablestatsGroupTableLimit == 0: // no limit
+	case res.MysqldExporter.TablestatsGroupTableLimit == 0: // server defined
 		s += " (the table count limit is not set)."
 	case res.MysqldExporter.TablestatsGroupTableLimit < 0: // always disabled
 		s += " (always)."
@@ -111,6 +111,7 @@ type AddMySQLCommand struct {
 	ReplicationSet         string            `help:"Replication set name"`
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
+	CommentsParsing        string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
 	TLS                    bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify          bool              `help:"Skip TLS certificates validation"`
 	TLSCaFile              string            `name:"tls-ca" help:"Path to certificate authority certificate file"`
@@ -119,33 +120,39 @@ type AddMySQLCommand struct {
 	CreateUser             bool              `hidden:"" help:"Create pmm user"`
 	MetricsMode            string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 
 	AddCommonFlags
 	AddLogLevelNoFatalFlags
 }
 
+// GetServiceName returns the service name for AddMySQLCommand.
 func (cmd *AddMySQLCommand) GetServiceName() string {
 	return cmd.ServiceName
 }
 
+// GetAddress returns the address for AddMySQLCommand.
 func (cmd *AddMySQLCommand) GetAddress() string {
 	return cmd.Address
 }
 
+// GetDefaultAddress returns the default address for AddMySQLCommand.
 func (cmd *AddMySQLCommand) GetDefaultAddress() string {
 	return "127.0.0.1:3306"
 }
 
+// GetSocket returns the socket for AddMySQLCommand.
 func (cmd *AddMySQLCommand) GetSocket() string {
 	return cmd.Socket
 }
 
+// RunCmd runs the command for AddMySQLCommand.
 func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
 	if cmd.CreateUser {
 		return nil, errors.New("Unrecognized option. To create a user, see " +
-			"'https://www.percona.com/doc/percona-monitoring-and-management/2.x/concepts/services-mysql.html#pmm-conf-mysql-user-account-creating'")
+			"'https://docs.percona.com/percona-monitoring-and-management/setting-up/client/mysql.html#create-a-database-account-for-pmm'")
 	}
 
 	var (
@@ -167,6 +174,11 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	disableCommentsParsing := true
+	if cmd.CommentsParsing == "on" {
+		disableCommentsParsing = false
 	}
 
 	if cmd.PMMAgentID == "" || cmd.NodeID == "" {
@@ -203,6 +215,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 			Address:        host,
 			Socket:         socket,
 			Port:           int64(port),
+			ExposeExporter: cmd.ExposeExporter,
 			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,
@@ -215,9 +228,11 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 			QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
 			QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,
 
-			SkipConnectionCheck:       cmd.SkipConnectionCheck,
-			MaxQueryLength:            cmd.MaxQueryLength,
-			DisableQueryExamples:      cmd.DisableQueryExamples,
+			SkipConnectionCheck:    cmd.SkipConnectionCheck,
+			DisableCommentsParsing: disableCommentsParsing,
+			MaxQueryLength:         cmd.MaxQueryLength,
+			DisableQueryExamples:   cmd.DisableQueryExamples,
+
 			MaxSlowlogFileSize:        strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
 			TLS:                       cmd.TLS,
 			TLSSkipVerify:             cmd.TLSSkipVerify,

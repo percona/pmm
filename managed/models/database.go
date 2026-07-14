@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -12,7 +12,11 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+// Package models provides the data models for the managed package.
+//
 
+// Package models provides functionality for handling database models and related tasks.
+//
 //nolint:lll
 package models
 
@@ -37,20 +41,20 @@ import (
 const (
 	// PMMServerPostgreSQLServiceName is a special Service Name representing PMM Server's PostgreSQL Service.
 	PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
-	// minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
+	// - minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
 	minPGVersion float64 = 14
 	// DefaultPostgreSQLAddr represent default local PostgreSQL database server address.
 	DefaultPostgreSQLAddr = "127.0.0.1:5432"
 	// PMMServerPostgreSQLNodeName is a special Node Name representing PMM Server's External PostgreSQL Node.
 	PMMServerPostgreSQLNodeName = "pmm-server-db"
 
-	// DisableSSLMode represent disable PostgreSQL ssl mode
+	// DisableSSLMode represent disable PostgreSQL ssl mode.
 	DisableSSLMode string = "disable"
-	// RequireSSLMode represent require PostgreSQL ssl mode
+	// RequireSSLMode represent require PostgreSQL ssl mode.
 	RequireSSLMode string = "require"
-	// VerifyCaSSLMode represent verify-ca PostgreSQL ssl mode
+	// VerifyCaSSLMode represent verify-ca PostgreSQL ssl mode.
 	VerifyCaSSLMode string = "verify-ca"
-	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode
+	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode.
 	VerifyFullSSLMode string = "verify-full"
 )
 
@@ -908,13 +912,57 @@ var databaseSchema = [][]string{
 		`DROP TABLE IF EXISTS onboarding_system_tips`,
 		`DROP TABLE IF EXISTS onboarding_user_tips`,
 	},
+	84: {
+		`ALTER TABLE agents 
+		ADD COLUMN comments_parsing_disabled BOOLEAN NOT NULL DEFAULT TRUE`,
+
+		`ALTER TABLE agents
+		ALTER COLUMN comments_parsing_disabled DROP DEFAULT`,
+	},
+	85: {
+		`ALTER TABLE services ADD COLUMN version VARCHAR`,
+	},
+	86: {
+		`ALTER TABLE agents
+		ADD COLUMN expose_exporter BOOLEAN NOT NULL DEFAULT TRUE;`,
+
+		`ALTER TABLE agents
+		ALTER COLUMN expose_exporter DROP DEFAULT`,
+	},
+	87: {
+		`CREATE TABLE dumps (
+			id VARCHAR NOT NULL,
+			status VARCHAR NOT NULL CHECK (status <> ''),
+			service_names VARCHAR[],
+			start_time TIMESTAMP,
+			end_time TIMESTAMP,
+			export_qan BOOLEAN NOT NULL,
+			ignore_load BOOLEAN NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+			)`,
+
+		`CREATE TABLE dump_logs (
+			dump_id VARCHAR NOT NULL,
+			chunk_id INTEGER NOT NULL,
+			data TEXT NOT NULL,
+			last_chunk BOOLEAN NOT NULL,
+			FOREIGN KEY (dump_id) REFERENCES dumps (id) ON DELETE CASCADE,
+			PRIMARY KEY (dump_id, chunk_id)
+		)`,
+	},
+	88: {
+		`ALTER TABLE agents ADD COLUMN metrics_resolutions JSONB`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
 // aleksi: Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
 
 // OpenDB returns configured connection pool for PostgreSQL.
-// OpenDB just validate its arguments without creating a connection to the database.
+// OpenDB just validates its arguments without creating a connection to the database.
 func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	q := make(url.Values)
 	if params.SSLMode == "" {
@@ -1115,9 +1163,6 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 		if err = setupFixture1(tx.Querier, params); err != nil {
 			return err
 		}
-		if err = setupFixture2(tx.Querier, params.Username, params.Password); err != nil {
-			return err
-		}
 		return nil
 	})
 }
@@ -1138,7 +1183,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
 		return err
 	}
-	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, []string{}, nil, ""); err != nil {
+	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
 		return err
 	}
 	address, port, err := parsePGAddress(params.Address)
@@ -1169,12 +1214,13 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	ap := &CreateAgentParams{
-		PMMAgentID:    PMMServerAgentID,
-		ServiceID:     service.ServiceID,
-		TLS:           params.SSLMode != DisableSSLMode,
-		TLSSkipVerify: params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
-		Username:      params.Username,
-		Password:      params.Password,
+		PMMAgentID:              PMMServerAgentID,
+		ServiceID:               service.ServiceID,
+		TLS:                     params.SSLMode != DisableSSLMode,
+		TLSSkipVerify:           params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
+		CommentsParsingDisabled: true,
+		Username:                params.Username,
+		Password:                params.Password,
 	}
 	if ap.TLS {
 		ap.PostgreSQLOptions = &PostgreSQLOptions{}
@@ -1201,12 +1247,6 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	if err != nil {
 		return err
 	}
-	return nil
-}
-
-func setupFixture2(q *reform.Querier, username, password string) error {
-	// TODO add clickhouse_exporter
-
 	return nil
 }
 

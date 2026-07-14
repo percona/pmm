@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,9 +18,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-type test struct {
+type testCase struct {
 	Query                     string
 	DigestText                string
 	ExpectedFingerprint       string
@@ -28,7 +29,7 @@ type test struct {
 }
 
 func TestMySQL(t *testing.T) {
-	sqls := []test{
+	sqls := []testCase{
 		{
 			Query:                     "SELECT /* Sleep */ sleep(0.1)",
 			DigestText:                "SELECT `sleep` (?)",
@@ -77,5 +78,118 @@ func TestMySQL(t *testing.T) {
 		query, placeholdersCount := GetMySQLFingerprintPlaceholders(sql.Query, sql.DigestText)
 		assert.Equal(t, sql.ExpectedFingerprint, query)
 		assert.Equal(t, sql.ExpectedPlaceHoldersCount, placeholdersCount)
+	}
+}
+
+type testCaseComments struct {
+	Name     string
+	Query    string
+	Comments map[string]string
+}
+
+func TestMySQLComments(t *testing.T) {
+	testCases := []testCaseComments{
+		{
+			Name: "No comment",
+			Query: `SELECT * FROM people WHERE name = 'John'
+				 AND name != 'Doe'`,
+			Comments: make(map[string]string),
+		},
+		{
+			Name:  "Dash comment",
+			Query: `SELECT * FROM people -- web-framework='Django', controller='unknown'`,
+			Comments: map[string]string{
+				"web-framework": "Django",
+				"controller":    "unknown",
+			},
+		},
+		{
+			Name: "Hash comment",
+			Query: `SELECT * FROM people # framework='Django'
+			WHERE name = 'John'
+			`,
+			Comments: map[string]string{
+				"framework": "Django",
+			},
+		},
+		{
+			Name: "Multiline comment with new line",
+			Query: `SELECT * FROM people /* Huh framework='Django', 
+			controller='unknown' */`,
+			Comments: map[string]string{
+				"framework":  "Django",
+				"controller": "unknown",
+			},
+		},
+		{
+			Name: "Multicomment case with new line",
+			Query: `SELECT * FROM people /*
+				framework='Django',
+				controller='unknown'
+				 */ WHERE name = 'John' # os='unix'
+				 AND name != 'Doe'`,
+			Comments: map[string]string{
+				"framework":  "Django",
+				"controller": "unknown",
+				"os":         "unix",
+			},
+		},
+	}
+
+	for _, c := range testCases {
+		t.Run(c.Name, func(t *testing.T) {
+			comments, err := MySQLComments(c.Query)
+			require.NoError(t, err)
+			require.Equal(t, c.Comments, comments)
+		})
+	}
+}
+
+func TestPostgreSQLComments(t *testing.T) {
+	testCases := []testCaseComments{
+		{
+			Name: "No comment",
+			Query: `SELECT * FROM people WHERE name = 'John'
+				 AND name != 'Doe'`,
+			Comments: make(map[string]string),
+		},
+		{
+			Name:  "Dash comment",
+			Query: `SELECT * FROM people -- framework='Django', controller='unknown'`,
+			Comments: map[string]string{
+				"framework":  "Django",
+				"controller": "unknown",
+			},
+		},
+		{
+			Name: "Multiline comment with new line",
+			Query: `SELECT * FROM people /* framework='Django', 
+			controller='unknown' */`,
+			Comments: map[string]string{
+				"framework":  "Django",
+				"controller": "unknown",
+			},
+		},
+		{
+			Name: "Multicomment case with new line",
+			Query: `SELECT * FROM people /*
+				framework='Django',
+				controller='unknown'
+				 */ WHERE name = 'John' -- os='unix'
+				 AND name != 'Doe'`,
+			Comments: map[string]string{
+				"framework":  "Django",
+				"controller": "unknown",
+				"os":         "unix",
+			},
+		},
+	}
+
+	for _, c := range testCases {
+		t.Run(c.Name, func(t *testing.T) {
+			comments, err := PostgreSQLComments(c.Query)
+			require.NoError(t, err)
+			require.Equal(t, c.Comments, comments)
+		})
 	}
 }

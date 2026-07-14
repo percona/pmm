@@ -1,4 +1,5 @@
-// Copyright (C) 2019 Percona LLC
+// Package inventorypb ...
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -12,7 +13,6 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-
 package inventorypb
 
 //go-sumtype:decl Agent
@@ -22,7 +22,7 @@ type Agent interface {
 	sealedAgent()
 }
 
-// in order of AgentType enum
+// Ordered the same as AgentType enum.
 
 func (*PMMAgent) sealedAgent()                        {}
 func (*VMAgent) sealedAgent()                         {}

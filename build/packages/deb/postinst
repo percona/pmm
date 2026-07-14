@@ -7,11 +7,6 @@ if [ -f /usr/share/debconf/confmodule ]; then
     . /usr/share/debconf/confmodule
 fi
 
-for file in pmm-admin pmm-agent
-do
-    ln -s -f /usr/local/percona/pmm2/bin/$file /usr/bin/$file
-    ln -s -f /usr/local/percona/pmm2/bin/$file /usr/sbin/$file
-done
 case "$1" in
     configure)
       chown -R pmm-agent:pmm-agent /usr/local/percona/pmm2
@@ -25,7 +20,7 @@ case "$1" in
     ;;
 
     *)
-        echo "postinst called with unknown argument \`$1'" >&2
+        echo "postinst called with unknown argument '$1'" >&2
         exit 1
     ;;
 esac

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -68,6 +68,7 @@ type Client struct {
 	supervisor        supervisor
 	connectionChecker connectionChecker
 	softwareVersioner softwareVersioner
+	serviceInfoBroker serviceInfoBroker
 
 	l       *logrus.Entry
 	backoff *backoff.Backoff
@@ -89,12 +90,13 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg configGetter, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
+func New(cfg configGetter, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, sib serviceInfoBroker, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
 	return &Client{
 		cfg:               cfg,
 		supervisor:        supervisor,
 		connectionChecker: connectionChecker,
 		softwareVersioner: sv,
+		serviceInfoBroker: sib,
 		l:                 logrus.WithField("component", "client"),
 		backoff:           backoff.New(backoffMinDelay, backoffMaxDelay),
 		dialTimeout:       dialTimeout,
@@ -232,7 +234,7 @@ func (c *Client) Run(ctx context.Context) error {
 	return nil
 }
 
-// SendActualStatuses sends status of running agents to server
+// SendActualStatuses sends status of running agents to server.
 func (c *Client) SendActualStatuses() {
 	for _, agent := range c.supervisor.AgentsList() {
 		c.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
@@ -262,6 +264,9 @@ func (c *Client) processActionResults(ctx context.Context) {
 	for {
 		select {
 		case result := <-c.runner.ActionsResults():
+			if result == nil {
+				continue
+			}
 			resp, err := c.channel.SendAndWaitResponse(result)
 			if err != nil {
 				c.l.Error(err)
@@ -281,6 +286,9 @@ func (c *Client) processJobsResults(ctx context.Context) {
 	for {
 		select {
 		case message := <-c.runner.JobsMessages():
+			if message == nil {
+				continue
+			}
 			c.channel.Send(&channel.AgentResponse{
 				ID:      0, // Jobs send messages that don't require any responses, so we can leave message ID blank.
 				Payload: message,
@@ -302,6 +310,9 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 		for {
 			select {
 			case state := <-c.supervisor.Changes():
+				if state == nil {
+					continue
+				}
 				resp, err := c.channel.SendAndWaitResponse(state)
 				if err != nil {
 					c.l.Error(err)
@@ -324,6 +335,9 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 		for {
 			select {
 			case collect := <-c.supervisor.QANRequests():
+				if collect == nil {
+					continue
+				}
 				resp, err := c.channel.SendAndWaitResponse(collect)
 				if err != nil {
 					c.l.Error(err)
@@ -343,12 +357,12 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 }
 
 func (c *Client) processChannelRequests(ctx context.Context) {
-loop:
+LOOP:
 	for {
 		select {
 		case req, more := <-c.channel.Requests():
 			if !more {
-				break loop
+				break LOOP
 			}
 			var responsePayload agentpb.AgentResponsePayload
 			var status *grpcstatus.Status
@@ -375,6 +389,9 @@ loop:
 
 			case *agentpb.CheckConnectionRequest:
 				responsePayload = c.connectionChecker.Check(ctx, p, req.ID)
+
+			case *agentpb.ServiceInfoRequest:
+				responsePayload = c.serviceInfoBroker.GetInfoFromService(ctx, p, req.ID)
 
 			case *agentpb.StartJobRequest:
 				var resp agentpb.StartJobResponse
@@ -419,7 +436,7 @@ loop:
 			}
 			c.channel.Send(response)
 		case <-ctx.Done():
-			break loop
+			break LOOP
 		}
 	}
 	if err := c.channel.Wait(); err != nil {
@@ -437,9 +454,10 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 
 	cfg := c.cfg.Get()
 	var action actions.Action
+	var err error
 	switch params := p.Params.(type) {
 	case *agentpb.StartActionRequest_MysqlExplainParams:
-		action = actions.NewMySQLExplainAction(p.ActionId, timeout, params.MysqlExplainParams)
+		action, err = actions.NewMySQLExplainAction(p.ActionId, timeout, params.MysqlExplainParams)
 
 	case *agentpb.StartActionRequest_MysqlShowCreateTableParams:
 		action = actions.NewMySQLShowCreateTableAction(p.ActionId, timeout, params.MysqlShowCreateTableParams)
@@ -451,13 +469,13 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 		action = actions.NewMySQLShowIndexAction(p.ActionId, timeout, params.MysqlShowIndexParams)
 
 	case *agentpb.StartActionRequest_PostgresqlShowCreateTableParams:
-		action = actions.NewPostgreSQLShowCreateTableAction(p.ActionId, timeout, params.PostgresqlShowCreateTableParams, cfg.Paths.TempDir)
+		action, err = actions.NewPostgreSQLShowCreateTableAction(p.ActionId, timeout, params.PostgresqlShowCreateTableParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_PostgresqlShowIndexParams:
-		action = actions.NewPostgreSQLShowIndexAction(p.ActionId, timeout, params.PostgresqlShowIndexParams, cfg.Paths.TempDir)
+		action, err = actions.NewPostgreSQLShowIndexAction(p.ActionId, timeout, params.PostgresqlShowIndexParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbExplainParams:
-		action = actions.NewMongoDBExplainAction(p.ActionId, timeout, params.MongodbExplainParams, cfg.Paths.TempDir)
+		action, err = actions.NewMongoDBExplainAction(p.ActionId, timeout, params.MongodbExplainParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MysqlQueryShowParams:
 		action = actions.NewMySQLQueryShowAction(p.ActionId, timeout, params.MysqlQueryShowParams)
@@ -466,13 +484,13 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 		action = actions.NewMySQLQuerySelectAction(p.ActionId, timeout, params.MysqlQuerySelectParams)
 
 	case *agentpb.StartActionRequest_PostgresqlQueryShowParams:
-		action = actions.NewPostgreSQLQueryShowAction(p.ActionId, timeout, params.PostgresqlQueryShowParams, cfg.Paths.TempDir)
+		action, err = actions.NewPostgreSQLQueryShowAction(p.ActionId, timeout, params.PostgresqlQueryShowParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_PostgresqlQuerySelectParams:
-		action = actions.NewPostgreSQLQuerySelectAction(p.ActionId, timeout, params.PostgresqlQuerySelectParams, cfg.Paths.TempDir)
+		action, err = actions.NewPostgreSQLQuerySelectAction(p.ActionId, timeout, params.PostgresqlQuerySelectParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryGetparameterParams:
-		action = actions.NewMongoDBQueryAdmincommandAction(
+		action, err = actions.NewMongoDBQueryAdmincommandAction(
 			p.ActionId,
 			timeout,
 			params.MongodbQueryGetparameterParams.Dsn,
@@ -482,7 +500,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryBuildinfoParams:
-		action = actions.NewMongoDBQueryAdmincommandAction(
+		action, err = actions.NewMongoDBQueryAdmincommandAction(
 			p.ActionId,
 			timeout,
 			params.MongodbQueryBuildinfoParams.Dsn,
@@ -492,7 +510,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryGetcmdlineoptsParams:
-		action = actions.NewMongoDBQueryAdmincommandAction(
+		action, err = actions.NewMongoDBQueryAdmincommandAction(
 			p.ActionId,
 			timeout,
 			params.MongodbQueryGetcmdlineoptsParams.Dsn,
@@ -502,7 +520,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryReplsetgetstatusParams:
-		action = actions.NewMongoDBQueryAdmincommandAction(
+		action, err = actions.NewMongoDBQueryAdmincommandAction(
 			p.ActionId,
 			timeout,
 			params.MongodbQueryReplsetgetstatusParams.Dsn,
@@ -512,7 +530,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryGetdiagnosticdataParams:
-		action = actions.NewMongoDBQueryAdmincommandAction(
+		action, err = actions.NewMongoDBQueryAdmincommandAction(
 			p.ActionId,
 			timeout,
 			params.MongodbQueryGetdiagnosticdataParams.Dsn,
@@ -546,6 +564,10 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 
 	default:
 		return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid action type request: %T", params)
+	}
+
+	if err != nil {
+		return errors.Wrap(err, "failed to create action")
 	}
 
 	return c.runner.StartAction(action)
@@ -628,7 +650,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			return errors.WithStack(err)
 		}
 
-		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, &dsn, locationConfig,
+		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dsn, locationConfig,
 			j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel, j.MongodbBackup.Folder)
 		if err != nil {
 			return err
@@ -661,7 +683,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 		}
 
 		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name,
-			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), &dsn, locationConfig,
+			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dsn, locationConfig,
 			c.supervisor, j.MongodbRestoreBackup.Folder, j.MongodbRestoreBackup.PbmMetadata.Name)
 	default:
 		return errors.Errorf("unknown job type: %T", j)
@@ -671,7 +693,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 }
 
 func (c *Client) getMongoDSN(dsn string, files *agentpb.TextFiles, jobID string) (string, error) {
-	tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.Replace(jobID, "/", "_", -1))
+	tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.Replace(jobID, "/", "_", -1)) //nolint:gocritic
 	res, err := templates.RenderDSN(dsn, files, tempDir)
 	if err != nil {
 		return "", errors.WithStack(err)
@@ -878,7 +900,7 @@ func (c *Client) GetServerConnectMetadata() *agentpb.ServerConnectMetadata {
 	return md
 }
 
-// GetConnectionUpTime returns connection uptime between agent and server in percentage (from 0 to 100)
+// GetConnectionUpTime returns connection uptime between agent and server in percentage (from 0 to 100).
 func (c *Client) GetConnectionUpTime() float32 {
 	return c.cus.GetConnectedUpTimeUntil(time.Now())
 }
@@ -906,7 +928,7 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	c.supervisor.Collect(ch)
 }
 
-// argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry
+// argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry.
 func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) []string {
 	var args []string
 
@@ -930,7 +952,7 @@ func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) 
 	return args
 }
 
-// argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry
+// argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry.
 func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSummaryParams) []string {
 	var args []string
 
@@ -972,7 +994,7 @@ func convertAgentErrorToGrpcStatus(agentErr error) *grpcstatus.Status {
 	return status
 }
 
-// check interface
+// check interface.
 var (
 	_ prometheus.Collector = (*Client)(nil)
 )

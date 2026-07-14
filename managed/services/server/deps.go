@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -23,18 +23,6 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
-
-//go:generate ../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=prometheusService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=alertmanagerService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=checksService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=vmAlertExternalRules -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=supervisordService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=telemetryService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=agentsStateUpdater -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=rulesService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=emailer -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=templatesService -case=snake -inpkg -testonly
 
 // healthChecker interface wraps all services that implements the IsReady method to report the
 // service health for the Readiness check.
@@ -127,8 +115,14 @@ type emailer interface {
 	Send(ctx context.Context, settings *models.EmailAlertingSettings, emailTo string) error
 }
 
-// rulesService is a subset of methods of ia.TemplatesService used by this package.
+// templatesService is a subset of methods of ia.TemplatesService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type templatesService interface {
 	CollectTemplates(ctx context.Context)
+}
+
+// haService is a subset of methods of ha.Service used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type haService interface {
+	IsLeader() bool
 }

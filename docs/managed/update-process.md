@@ -21,7 +21,7 @@ When making changes to `pmm-update`, you can test if they work in the following 
     2. Enabling experimental repo which already has an RC build available. Run these commands in the docker container:
         ```sh
         sed -i -e 's^/release/^/experimental/^' /etc/yum.repos.d/pmm2-server.repo
-        percona-release enable percona experimental
+        percona-release enable pmm2-client experimental
         yum makecache
         ```
 2. Create a new rpm package with the updated `pmm-update`. Refer to [Building RPM package](#building-rpm-package) section below.

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -55,7 +55,11 @@ type DBClusterService struct {
 }
 
 // NewDBClusterService creates DB Clusters Service.
-func NewDBClusterService(db *reform.DB, grafanaClient grafanaClient, versionServiceClient *VersionServiceClient) dbaasv1beta1.DBClustersServer {
+func NewDBClusterService( //nolint:ireturn,nolintlint
+	db *reform.DB,
+	grafanaClient grafanaClient,
+	versionServiceClient *VersionServiceClient,
+) dbaasv1beta1.DBClustersServer {
 	l := logrus.WithField("component", "dbaas_db_cluster")
 	return &DBClusterService{
 		db:                   db,
@@ -314,6 +318,7 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 	return c, nil
 }
 
+// GetDBCluster returns info about PXC and PSMDB clusters.
 func (s DBClusterService) GetDBCluster(ctx context.Context, req *dbaasv1beta1.GetDBClusterRequest) (*dbaasv1beta1.GetDBClusterResponse, error) {
 	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
@@ -394,8 +399,8 @@ func (s DBClusterService) DeleteDBCluster(ctx context.Context, req *dbaasv1beta1
 	return &dbaasv1beta1.DeleteDBClusterResponse{}, nil
 }
 
-// ListS3Backups returns list of backup artifacts stored on s3
-func (s DBClusterService) ListS3Backups(ctx context.Context, req *dbaasv1beta1.ListS3BackupsRequest) (*dbaasv1beta1.ListS3BackupsResponse, error) {
+// ListS3Backups returns list of backup artifacts stored on s3.
+func (s DBClusterService) ListS3Backups(_ context.Context, req *dbaasv1beta1.ListS3BackupsRequest) (*dbaasv1beta1.ListS3BackupsResponse, error) {
 	if req == nil || (req != nil && req.LocationId == "") {
 		return nil, errors.New("location_id cannot be empty")
 	}
@@ -449,7 +454,7 @@ func (s DBClusterService) ListS3Backups(ctx context.Context, req *dbaasv1beta1.L
 	return &dbaasv1beta1.ListS3BackupsResponse{Backups: items}, nil
 }
 
-// ListSecrets returns list of secret names to the end user
+// ListSecrets returns list of secret names to the end user.
 func (s DBClusterService) ListSecrets(ctx context.Context, req *dbaasv1beta1.ListSecretsRequest) (*dbaasv1beta1.ListSecretsResponse, error) {
 	kubeClient, err := s.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {

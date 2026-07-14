@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -76,7 +76,7 @@ func (r *SimpleFileReader) Metrics() *ReaderMetrics {
 	return &m
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ Reader = (*SimpleFileReader)(nil)
 )

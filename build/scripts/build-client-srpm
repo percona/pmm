@@ -20,6 +20,7 @@ main() {
             export sudo_path=\$(ls /usr/bin/sudo)
         fi
         [[ ${IMAGE} = ${rpmbuild_docker_image} ]] || \$sudo_path yum -y install git rpm-build
+
         mkdir -p /tmp/pmm
         pushd /home/builder/results
             /home/builder/bin/build-client-packages \

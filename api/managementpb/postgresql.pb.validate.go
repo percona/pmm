@@ -155,6 +155,8 @@ func (m *AddPostgreSQLRequest) validate(all bool) error {
 
 	// no validation rules for SkipConnectionCheck
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for Tls
 
 	// no validation rules for TlsSkipVerify
@@ -171,6 +173,12 @@ func (m *AddPostgreSQLRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for AutoDiscoveryLimit
+
+	// no validation rules for ExposeExporter
+
+	// no validation rules for MaxExporterConnections
+
 	if len(errors) > 0 {
 		return AddPostgreSQLRequestMultiError(errors)
 	}
@@ -185,7 +193,7 @@ type AddPostgreSQLRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddPostgreSQLRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -389,6 +397,8 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for Warning
+
 	if len(errors) > 0 {
 		return AddPostgreSQLResponseMultiError(errors)
 	}
@@ -403,7 +413,7 @@ type AddPostgreSQLResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddPostgreSQLResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

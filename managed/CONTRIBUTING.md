@@ -24,7 +24,7 @@ Please use `make <target>` where <target> is one of:
 
 ```
 $ make env TARGET=help
-docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server make help
+docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-server make help
 Please use `make <target>` where <target> is one of:
   gen                       Generate files.
   install                   Install pmm-managed binary.
@@ -39,9 +39,9 @@ Alternatively, it is possible to run `make env` to get inside the devcontainer a
 
 ```
 $ make env
-docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-managed-server make _bash
+docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-server make _bash
 /bin/bash
-[root@pmm-managed-server pmm-managed]# make test
+[root@pmm-server pmm-managed]# make test
 make[1]: Entering directory `/root/go/src/github.com/percona/pmm-managed'
 go test -timeout=30s -p 1 ./...
 ...

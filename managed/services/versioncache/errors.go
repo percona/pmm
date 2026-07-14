@@ -14,7 +14,6 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package versioncache provides service software version cache functionality.
-
 package versioncache
 
 import "github.com/pkg/errors"

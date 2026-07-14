@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ type agentServer struct {
 }
 
 // NewAgentServer creates new agent server.
-func NewAgentServer(r *agents.Handler) agentpb.AgentServer {
+func NewAgentServer(r *agents.Handler) agentpb.AgentServer { //nolint:ireturn
 	return &agentServer{
 		handler: r,
 	}
@@ -40,7 +40,7 @@ func (s *agentServer) Connect(stream agentpb.Agent_ConnectServer) error {
 	return s.handler.Run(stream)
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ agentpb.AgentServer = (*agentServer)(nil)
 )

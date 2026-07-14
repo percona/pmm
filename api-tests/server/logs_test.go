@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -44,10 +44,8 @@ func TestDownloadLogs(t *testing.T) {
 	assert.NoError(t, err)
 
 	expected := []string{
-		"alertmanager.base.yml",
 		"alertmanager.ini",
 		"alertmanager.log",
-		"alertmanager.yml",
 		"clickhouse-server.log",
 		"client/list.txt",
 		"client/pmm-admin-version.txt",

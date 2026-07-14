@@ -1,5 +1,4 @@
-// qan-api2
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -80,8 +79,10 @@ var sparklinePointAllFields = []string{
 	"m_local_blks_written_sum_per_sec",
 	"m_temp_blks_read_sum_per_sec",
 	"m_temp_blks_written_sum_per_sec",
-	"m_blk_read_time_sum_per_sec",
-	"m_blk_write_time_sum_per_sec",
+	"m_shared_blk_read_time_sum_per_sec",
+	"m_shared_blk_write_time_sum_per_sec",
+	"m_local_blk_read_time_sum_per_sec",
+	"m_local_blk_write_time_sum_per_sec",
 	"m_cpu_user_time_sum_per_sec",
 	"m_cpu_sys_time_sum_per_sec",
 	"m_plans_calls_sum_per_sec",
@@ -146,8 +147,10 @@ func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
 		"m_local_blks_written_sum_per_sec":     &point.MLocalBlksWrittenSumPerSec,
 		"m_temp_blks_read_sum_per_sec":         &point.MTempBlksReadSumPerSec,
 		"m_temp_blks_written_sum_per_sec":      &point.MTempBlksWrittenSumPerSec,
-		"m_blk_read_time_sum_per_sec":          &point.MBlkReadTimeSumPerSec,
-		"m_blk_write_time_sum_per_sec":         &point.MBlkWriteTimeSumPerSec,
+		"m_shared_blk_read_time_sum_per_sec":   &point.MSharedBlkReadTimeSumPerSec,
+		"m_shared_blk_write_time_sum_per_sec":  &point.MSharedBlkWriteTimeSumPerSec,
+		"m_local_blk_read_time_sum_per_sec":    &point.MLocalBlkReadTimeSumPerSec,
+		"m_local_blk_write_time_sum_per_sec":   &point.MLocalBlkWriteTimeSumPerSec,
 		"m_cpu_user_time_sum_per_sec":          &point.MCpuUserTimeSumPerSec,
 		"m_cpu_sys_time_sum_per_sec":           &point.MCpuSysTimeSumPerSec,
 		"m_plans_calls_sum_per_sec":            &point.MPlansCallsSumPerSec,
@@ -326,10 +329,14 @@ func isValidMetricColumn(name string) bool {
 		"m_temp_blks_read_sum":         {},
 		"m_temp_blks_written_cnt":      {},
 		"m_temp_blks_written_sum":      {},
-		"m_blk_read_time_cnt":          {},
-		"m_blk_read_time_sum":          {},
-		"m_blk_write_time_cnt":         {},
-		"m_blk_write_time_sum":         {},
+		"m_shared_blk_read_time_cnt":   {},
+		"m_shared_blk_read_time_sum":   {},
+		"m_shared_blk_write_time_cnt":  {},
+		"m_shared_blk_write_time_sum":  {},
+		"m_local_blk_read_time_cnt":    {},
+		"m_local_blk_read_time_sum":    {},
+		"m_local_blk_write_time_cnt":   {},
+		"m_local_blk_write_time_sum":   {},
 		"m_cpu_user_time_cnt":          {},
 		"m_cpu_sys_time_cnt":           {},
 		"m_cpu_user_time_sum":          {},

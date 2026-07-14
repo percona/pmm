@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package dump.v1beta1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "api/managementpb/dump;dumpv1beta1";
+
+enum DumpStatus {
+  DUMP_STATUS_INVALID = 0;
+  DUMP_STATUS_IN_PROGRESS = 1;
+  DUMP_STATUS_SUCCESS = 2;
+  DUMP_STATUS_ERROR = 3;
+}
+
+message Dump {
+  string dump_id = 1;
+  DumpStatus status = 2;
+  repeated string service_names = 3;
+  google.protobuf.Timestamp start_time = 4;
+  google.protobuf.Timestamp end_time = 5;
+  google.protobuf.Timestamp created_at = 7;
+}
+
+message StartDumpRequest {
+  repeated string service_names = 1;
+  google.protobuf.Timestamp start_time = 2;
+  google.protobuf.Timestamp end_time = 3;
+  bool export_qan = 4;
+  bool ignore_load = 5;
+}
+
+message StartDumpResponse {
+  string dump_id = 1;
+}
+
+message ListDumpsRequest {}
+
+message ListDumpsResponse {
+  repeated Dump dumps = 1;
+}
+
+message DeleteDumpRequest {
+  repeated string dump_ids = 1 [(validate.rules).repeated = {
+    min_items: 1
+    unique: true
+  }];
+}
+
+message DeleteDumpResponse {}
+
+message GetLogsRequest {
+  string dump_id = 1 [(validate.rules).string.min_len = 1];
+  uint32 offset = 2;
+  uint32 limit = 3;
+}
+
+message GetLogsResponse {
+  repeated LogChunk logs = 1;
+  bool end = 2;
+}
+
+// LogChunk represent one chunk of logs.
+message LogChunk {
+  uint32 chunk_id = 1;
+  string data = 2;
+}
+
+message SFTPParameters {
+  string address = 1 [(validate.rules).string.min_len = 1];
+  string user = 2 [(validate.rules).string.min_len = 1];
+  string password = 3 [(validate.rules).string.min_len = 1];
+  string directory = 4;
+}
+
+message UploadDumpRequest {
+  repeated string dump_ids = 1 [(validate.rules).repeated = {
+    min_items: 1
+    unique: true
+  }];
+
+  // SFTP upload parameters.
+  SFTPParameters sftp_parameters = 2 [(validate.rules).message.required = true];
+}
+
+message UploadDumpResponse {}
+
+service Dumps {
+  // StartDump request creates pmm dump.
+  rpc StartDump(StartDumpRequest) returns (StartDumpResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/dump/Dumps/Start"
+      body: "*"
+    };
+  }
+  // ListDumps returns a list of all pmm dumps.
+  rpc ListDumps(ListDumpsRequest) returns (ListDumpsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/dump/Dumps/List"
+      body: "*"
+    };
+  }
+  // DeleteDump deletes specified pmm dump.
+  rpc DeleteDump(DeleteDumpRequest) returns (DeleteDumpResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/dump/Dumps/Delete"
+      body: "*"
+    };
+  }
+  // GetLogs returns logs from pmm-dump tool.
+  rpc GetDumpLogs(GetLogsRequest) returns (GetLogsResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/dump/Dumps/GetLogs"
+      body: "*"
+    };
+  }
+  // UploadDump uploads selected dumps to remote server.
+  rpc UploadDump(UploadDumpRequest) returns (UploadDumpResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/dump/Dumps/Upload"
+      body: "*"
+    };
+  }
+}

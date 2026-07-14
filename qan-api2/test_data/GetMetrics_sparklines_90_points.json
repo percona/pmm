@@ -6,6 +6,18 @@
 		"blk_write_time": {
 
 		},
+		"shared_blk_read_time": {
+
+		},
+		"shared_blk_write_time": {
+
+		},
+		"local_blk_read_time": {
+
+		},
+		"local_blk_write_time": {
+
+		},
 		"bytes_sent": {
 			"rate": 2.7203703,
 			"cnt": 13,
@@ -255,6 +267,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -309,6 +325,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -463,6 +483,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -547,6 +571,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -616,6 +644,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -670,6 +702,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -769,6 +805,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -823,6 +863,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -897,6 +941,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -961,6 +1009,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -1020,6 +1072,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -1114,6 +1170,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -1203,6 +1263,10 @@
 			"mTempBlksWrittenSumPerSec": "NaN",
 			"mBlkReadTimeSumPerSec": "NaN",
 			"mBlkWriteTimeSumPerSec": "NaN",
+			"mSharedBlkReadTimeSumPerSec": "NaN",
+			"mSharedBlkWriteTimeSumPerSec": "NaN",
+			"mLocalBlkReadTimeSumPerSec": "NaN",
+			"mLocalBlkWriteTimeSumPerSec": "NaN",
 			"mCpuUserTimeSumPerSec": "NaN",
 			"mCpuSysTimeSumPerSec": "NaN",
 			"mPlansCallsSumPerSec": "NaN",
@@ -1227,6 +1291,18 @@
 
 		},
 		"blk_write_time": {
+
+		},
+		"shared_blk_read_time": {
+
+		},
+		"shared_blk_write_time": {
+
+		},
+		"local_blk_read_time": {
+
+		},
+		"local_blk_write_time": {
 
 		},
 		"bytes_sent": {
@@ -1437,15 +1513,13 @@
 	},
 	"fingerprint": "select @@global.slow_query_log_file",
 	"metadata": {
-		"serviceName": "server2",
-		"schema": "schema81",
-		"username": "user38",
+		"serviceName": "server2, server3, server4, server5, server6, server7, server8, server9",
+		"schema": "schema10, schema13, schema3, schema33, schema35, schema40, schema44, schema52, schema59, schema61, schema72, schema81, schema96",
+		"username": "user1, user26, user27, user28, user31, user38, user64, user82, user95, user96, user97, user98",
 		"replicationSet": "replication_set1",
 		"cluster": "cluster1",
 		"serviceType": "service_type1",
-		"serviceId": "service_id1",
 		"environment": "environment1",
-		"nodeId": "node_id1",
 		"nodeName": "node_name1",
 		"nodeType": "node_type1"
 	}

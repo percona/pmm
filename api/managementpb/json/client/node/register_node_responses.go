@@ -172,6 +172,9 @@ type RegisterNodeBody struct {
 
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this register node body
@@ -462,6 +465,9 @@ swagger:model RegisterNodeOKBody
 type RegisterNodeOKBody struct {
 	// Token represents token for vmagent auth config.
 	Token string `json:"token,omitempty"`
+
+	// Warning message.
+	Warning string `json:"warning,omitempty"`
 
 	// container node
 	ContainerNode *RegisterNodeOKBodyContainerNode `json:"container_node,omitempty"`

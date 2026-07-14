@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,6 +57,11 @@ func (a *processAction) Timeout() time.Duration {
 // Type returns an Action type.
 func (a *processAction) Type() string {
 	return a.command
+}
+
+// DSN returns a DSN for the Action.
+func (a *processAction) DSN() string {
+	return "" // no DSN for process action
 }
 
 // Run runs an Action and returns output and error.

@@ -216,6 +216,18 @@ type AddRDSBody struct {
 
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
+
+	// Database name.
+	Database string `json:"database,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
+
+	// Maximum number of exporter connections to PostgreSQL instance.
+	MaxPostgresqlExporterConnections int32 `json:"max_postgresql_exporter_connections,omitempty"`
 }
 
 // Validate validates this add RDS body
@@ -934,6 +946,9 @@ type AddRDSOKBodyMysql struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// MySQL version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this add RDS OK body mysql
@@ -1018,12 +1033,13 @@ type AddRDSOKBodyMysqldExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1038,6 +1054,12 @@ type AddRDSOKBodyMysqldExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddRDSOKBodyMysqldExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add RDS OK body mysqld exporter
@@ -1052,6 +1074,10 @@ func (o *AddRDSOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -1062,7 +1088,7 @@ var addRdsOkBodyMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1077,6 +1103,9 @@ const (
 
 	// AddRDSOKBodyMysqldExporterStatusSTARTING captures enum value "STARTING"
 	AddRDSOKBodyMysqldExporterStatusSTARTING string = "STARTING"
+
+	// AddRDSOKBodyMysqldExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddRDSOKBodyMysqldExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddRDSOKBodyMysqldExporterStatusRUNNING captures enum value "RUNNING"
 	AddRDSOKBodyMysqldExporterStatusRUNNING string = "RUNNING"
@@ -1169,8 +1198,51 @@ func (o *AddRDSOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) e
 	return nil
 }
 
-// ContextValidate validates this add RDS OK body mysqld exporter based on context it is used
+func (o *AddRDSOKBodyMysqldExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add RDS OK body mysqld exporter based on the context it is used
 func (o *AddRDSOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyMysqldExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "mysqld_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1185,6 +1257,49 @@ func (o *AddRDSOKBodyMysqldExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRDSOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	var res AddRDSOKBodyMysqldExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddRDSOKBodyMysqldExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model AddRDSOKBodyMysqldExporterMetricsResolutions
+*/
+type AddRDSOKBodyMysqldExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this add RDS OK body mysqld exporter metrics resolutions
+func (o *AddRDSOKBodyMysqldExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add RDS OK body mysqld exporter metrics resolutions based on context it is used
+func (o *AddRDSOKBodyMysqldExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRDSOKBodyMysqldExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRDSOKBodyMysqldExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res AddRDSOKBodyMysqldExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1216,10 +1331,6 @@ type AddRDSOKBodyNode struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// TODO https://jira.percona.com/browse/PMM-4314
-	//  string az = 8;
-	//  string node_model = 9;
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
@@ -1291,6 +1402,12 @@ type AddRDSOKBodyPostgresql struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// PostgreSQL version.
+	Version string `json:"version,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this add RDS OK body postgresql
@@ -1359,12 +1476,13 @@ type AddRDSOKBodyPostgresqlExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1376,6 +1494,18 @@ type AddRDSOKBodyPostgresqlExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
+	// Maximum number of connections that exporter can open to the database instance.
+	MaxExporterConnections int32 `json:"max_exporter_connections,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddRDSOKBodyPostgresqlExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add RDS OK body postgresql exporter
@@ -1390,6 +1520,10 @@ func (o *AddRDSOKBodyPostgresqlExporter) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -1400,7 +1534,7 @@ var addRdsOkBodyPostgresqlExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1415,6 +1549,9 @@ const (
 
 	// AddRDSOKBodyPostgresqlExporterStatusSTARTING captures enum value "STARTING"
 	AddRDSOKBodyPostgresqlExporterStatusSTARTING string = "STARTING"
+
+	// AddRDSOKBodyPostgresqlExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddRDSOKBodyPostgresqlExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddRDSOKBodyPostgresqlExporterStatusRUNNING captures enum value "RUNNING"
 	AddRDSOKBodyPostgresqlExporterStatusRUNNING string = "RUNNING"
@@ -1507,8 +1644,51 @@ func (o *AddRDSOKBodyPostgresqlExporter) validateLogLevel(formats strfmt.Registr
 	return nil
 }
 
-// ContextValidate validates this add RDS OK body postgresql exporter based on context it is used
+func (o *AddRDSOKBodyPostgresqlExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add RDS OK body postgresql exporter based on the context it is used
 func (o *AddRDSOKBodyPostgresqlExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyPostgresqlExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "postgresql_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1523,6 +1703,49 @@ func (o *AddRDSOKBodyPostgresqlExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRDSOKBodyPostgresqlExporter) UnmarshalBinary(b []byte) error {
 	var res AddRDSOKBodyPostgresqlExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddRDSOKBodyPostgresqlExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model AddRDSOKBodyPostgresqlExporterMetricsResolutions
+*/
+type AddRDSOKBodyPostgresqlExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this add RDS OK body postgresql exporter metrics resolutions
+func (o *AddRDSOKBodyPostgresqlExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add RDS OK body postgresql exporter metrics resolutions based on context it is used
+func (o *AddRDSOKBodyPostgresqlExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRDSOKBodyPostgresqlExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRDSOKBodyPostgresqlExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res AddRDSOKBodyPostgresqlExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1565,6 +1788,9 @@ type AddRDSOKBodyQANMysqlPerfschema struct {
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
 
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
+
 	// Limit query length in QAN (default: server-defined; -1: no limit).
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
@@ -1579,12 +1805,13 @@ type AddRDSOKBodyQANMysqlPerfschema struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -1617,7 +1844,7 @@ var addRdsOkBodyQanMysqlPerfschemaTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1632,6 +1859,9 @@ const (
 
 	// AddRDSOKBodyQANMysqlPerfschemaStatusSTARTING captures enum value "STARTING"
 	AddRDSOKBodyQANMysqlPerfschemaStatusSTARTING string = "STARTING"
+
+	// AddRDSOKBodyQANMysqlPerfschemaStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddRDSOKBodyQANMysqlPerfschemaStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddRDSOKBodyQANMysqlPerfschemaStatusRUNNING captures enum value "RUNNING"
 	AddRDSOKBodyQANMysqlPerfschemaStatusRUNNING string = "RUNNING"
@@ -1767,6 +1997,9 @@ type AddRDSOKBodyQANPostgresqlPgstatements struct {
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
 
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
+
 	// Limit query length in QAN (default: server-defined; -1: no limit).
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
@@ -1784,12 +2017,13 @@ type AddRDSOKBodyQANPostgresqlPgstatements struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -1822,7 +2056,7 @@ var addRdsOkBodyQanPostgresqlPgstatementsTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1837,6 +2071,9 @@ const (
 
 	// AddRDSOKBodyQANPostgresqlPgstatementsStatusSTARTING captures enum value "STARTING"
 	AddRDSOKBodyQANPostgresqlPgstatementsStatusSTARTING string = "STARTING"
+
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddRDSOKBodyQANPostgresqlPgstatementsStatusRUNNING captures enum value "RUNNING"
 	AddRDSOKBodyQANPostgresqlPgstatementsStatusRUNNING string = "RUNNING"
@@ -1980,12 +2217,13 @@ type AddRDSOKBodyRDSExporter struct {
 	// AgentStatus represents actual Agent status.
 	//
 	//  - STARTING: Agent is starting.
+	//  - INITIALIZATION_ERROR: Agent encountered error when starting.
 	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - WAITING: Agent encountered error when running and will be restarted automatically soon.
 	//  - STOPPING: Agent is stopping.
 	//  - DONE: Agent finished.
 	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	// Enum: [AGENT_STATUS_INVALID STARTING INITIALIZATION_ERROR RUNNING WAITING STOPPING DONE UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -2008,6 +2246,12 @@ type AddRDSOKBodyRDSExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// metrics resolutions
+	MetricsResolutions *AddRDSOKBodyRDSExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
 
 // Validate validates this add RDS OK body RDS exporter
@@ -2022,6 +2266,10 @@ func (o *AddRDSOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := o.validateMetricsResolutions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -2032,7 +2280,7 @@ var addRdsOkBodyRdsExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","INITIALIZATION_ERROR","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2047,6 +2295,9 @@ const (
 
 	// AddRDSOKBodyRDSExporterStatusSTARTING captures enum value "STARTING"
 	AddRDSOKBodyRDSExporterStatusSTARTING string = "STARTING"
+
+	// AddRDSOKBodyRDSExporterStatusINITIALIZATIONERROR captures enum value "INITIALIZATION_ERROR"
+	AddRDSOKBodyRDSExporterStatusINITIALIZATIONERROR string = "INITIALIZATION_ERROR"
 
 	// AddRDSOKBodyRDSExporterStatusRUNNING captures enum value "RUNNING"
 	AddRDSOKBodyRDSExporterStatusRUNNING string = "RUNNING"
@@ -2139,8 +2390,51 @@ func (o *AddRDSOKBodyRDSExporter) validateLogLevel(formats strfmt.Registry) erro
 	return nil
 }
 
-// ContextValidate validates this add RDS OK body RDS exporter based on context it is used
+func (o *AddRDSOKBodyRDSExporter) validateMetricsResolutions(formats strfmt.Registry) error {
+	if swag.IsZero(o.MetricsResolutions) { // not required
+		return nil
+	}
+
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this add RDS OK body RDS exporter based on the context it is used
 func (o *AddRDSOKBodyRDSExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddRDSOKBodyRDSExporter) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+	if o.MetricsResolutions != nil {
+		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addRdsOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("addRdsOk" + "." + "rds_exporter" + "." + "metrics_resolutions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -2155,6 +2449,49 @@ func (o *AddRDSOKBodyRDSExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRDSOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 	var res AddRDSOKBodyRDSExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddRDSOKBodyRDSExporterMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model AddRDSOKBodyRDSExporterMetricsResolutions
+*/
+type AddRDSOKBodyRDSExporterMetricsResolutions struct {
+	// High resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Hr string `json:"hr,omitempty"`
+
+	// Medium resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Mr string `json:"mr,omitempty"`
+
+	// Low resolution. In JSON should be represented as a string with number of seconds with `s` suffix.
+	Lr string `json:"lr,omitempty"`
+}
+
+// Validate validates this add RDS OK body RDS exporter metrics resolutions
+func (o *AddRDSOKBodyRDSExporterMetricsResolutions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add RDS OK body RDS exporter metrics resolutions based on context it is used
+func (o *AddRDSOKBodyRDSExporterMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRDSOKBodyRDSExporterMetricsResolutions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRDSOKBodyRDSExporterMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res AddRDSOKBodyRDSExporterMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

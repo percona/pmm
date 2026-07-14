@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -12,7 +12,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-
+// Package main provides the entry point for the update application.
 package main
 
 import (
@@ -49,6 +49,7 @@ import (
 	"golang.org/x/sync/semaphore"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/grpclog"
@@ -66,6 +67,7 @@ import (
 	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	dumpv1beta1 "github.com/percona/pmm/api/managementpb/dump"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
@@ -80,15 +82,19 @@ import (
 	"github.com/percona/pmm/managed/services/alertmanager"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/checks"
-	"github.com/percona/pmm/managed/services/config"
+	"github.com/percona/pmm/managed/services/config" //nolint:staticcheck
 	"github.com/percona/pmm/managed/services/dbaas"
+	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/grafana"
+	"github.com/percona/pmm/managed/services/ha"
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
 	"github.com/percona/pmm/managed/services/management"
 	"github.com/percona/pmm/managed/services/management/alerting"
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
+	"github.com/percona/pmm/managed/services/management/common"
 	managementdbaas "github.com/percona/pmm/managed/services/management/dbaas"
+	managementdump "github.com/percona/pmm/managed/services/management/dump"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/management/ia"
 	"github.com/percona/pmm/managed/services/minio"
@@ -106,9 +112,9 @@ import (
 	"github.com/percona/pmm/managed/utils/clean"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
-	"github.com/percona/pmm/managed/utils/logger"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
 	pmmerrors "github.com/percona/pmm/utils/errors"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
 )
@@ -141,6 +147,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 	l := logrus.WithField("component", "logs.zip")
 
 	mux.HandleFunc("/logs.zip", func(rw http.ResponseWriter, req *http.Request) {
+		var lineCount int64
 		contextTimeout := defaultContextTimeout
 		// increase context timeout if pprof query parameter exist in request
 		pprofQueryParameter, err := strconv.ParseBool(req.FormValue("pprof"))
@@ -165,6 +172,17 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 				TraceDuration:   pProfTraceDuration,
 			}
 		}
+
+		lc := req.FormValue("line-count")
+		if lc != "" {
+			lineCount, err = strconv.ParseInt(lc, 10, 32)
+			if err != nil {
+				l.Error(err)
+				http.Error(rw, fmt.Sprintf("Unable to parse line-count parameter: %s", err), http.StatusBadRequest)
+				return
+			}
+		}
+
 		// fail-safe
 		ctx, cancel := context.WithTimeout(req.Context(), contextTimeout)
 		defer cancel()
@@ -175,7 +193,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 		rw.Header().Set(`Content-Disposition`, `attachment; filename="`+filename+`"`)
 
 		ctx = logger.Set(ctx, "logs")
-		if err := logs.Zip(ctx, rw, pprofConfig); err != nil {
+		if err := logs.Zip(ctx, rw, pprofConfig, int(lineCount)); err != nil {
 			l.Errorf("%+v", err)
 		}
 	})
@@ -183,6 +201,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 
 type gRPCServerDeps struct {
 	db                   *reform.DB
+	ha                   *ha.Service
 	vmdb                 *victoriametrics.Service
 	platformClient       *platformClient.Client
 	server               *server.Server
@@ -191,6 +210,7 @@ type gRPCServerDeps struct {
 	actions              *agents.ActionsService
 	agentsStateUpdater   *agents.StateUpdater
 	connectionCheck      *agents.ConnectionChecker
+	serviceInfoBroker    *agents.ServiceInfoBroker
 	grafanaClient        *grafana.Client
 	checksService        *checks.Service
 	dbaasClient          *dbaas.Client
@@ -204,6 +224,7 @@ type gRPCServerDeps struct {
 	versionServiceClient *managementdbaas.VersionServiceClient
 	schedulerService     *scheduler.Service
 	backupService        *backup.Service
+	dumpService          *dump.Service
 	compatibilityService *backup.CompatibilityService
 	backupRemovalService *backup.RemovalService
 	pbmPITRService       *backup.PBMPITRService
@@ -257,19 +278,24 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache)
 	agentsSvc := inventory.NewAgentsService(
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
-		deps.vmdb, deps.connectionCheck, deps.agentService)
+		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService)
+
+	mgmtBackupsService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService)
+	mgmtArtifactsService := managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService)
+	mgmtRestoreHistoryService := managementbackup.NewRestoreHistoryService(deps.db)
+	mgmtServices := common.MgmtServices{BackupsService: mgmtBackupsService, ArtifactsService: mgmtArtifactsService, RestoreHistoryService: mgmtRestoreHistoryService}
 
 	inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
-	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
+	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
 	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
 	agentSvc := management.NewAgentService(deps.db, deps.agentsRegistry)
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
-	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
-	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
-	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
-	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
+	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.versionCache)
+	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.versionCache)
+	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker)
+	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker)
 
 	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
 	agentv1beta1.RegisterAgentServer(gRPCServer, agentSvc)
@@ -281,8 +307,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterPostgreSQLServer(gRPCServer, managementgrpc.NewManagementPostgreSQLServer(postgresqlSvc))
 	managementpb.RegisterProxySQLServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
 	managementpb.RegisterActionsServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
-	managementpb.RegisterRDSServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsStateUpdater, deps.connectionCheck))
-	azurev1beta1.RegisterAzureDatabaseServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck))
+	managementpb.RegisterRDSServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
+	azurev1beta1.RegisterAzureDatabaseServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
 	managementpb.RegisterHAProxyServer(gRPCServer, management.NewHAProxyService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
@@ -295,13 +321,19 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
 	alertingpb.RegisterAlertingServer(gRPCServer, deps.templatesService)
 
-	backuppb.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService))
+	backuppb.RegisterBackupsServer(gRPCServer, mgmtBackupsService)
 	backuppb.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
-	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService))
-	backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
+	backuppb.RegisterArtifactsServer(gRPCServer, mgmtArtifactsService)
+	backuppb.RegisterRestoreHistoryServer(gRPCServer, mgmtRestoreHistoryService)
+
+	dumpv1beta1.RegisterDumpsServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
 
 	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
-	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
+
+	deps.ha.AddLeaderService(ha.NewContextService("dbaas-register", func(ctx context.Context) error {
+		deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
+		return nil
+	}))
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
 	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.grafanaClient, deps.versionServiceClient))
 	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
@@ -421,6 +453,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		backuppb.RegisterArtifactsHandlerFromEndpoint,
 		backuppb.RegisterRestoreHistoryHandlerFromEndpoint,
 
+		dumpv1beta1.RegisterDumpsHandlerFromEndpoint,
+
 		dbaasv1beta1.RegisterKubernetesHandlerFromEndpoint,
 		dbaasv1beta1.RegisterDBClustersHandlerFromEndpoint,
 		dbaasv1beta1.RegisterPXCClustersHandlerFromEndpoint,
@@ -527,6 +561,7 @@ func runDebugServer(ctx context.Context) {
 
 type setupDeps struct {
 	sqlDB        *sql.DB
+	ha           *ha.Service
 	supervisord  *supervisord.Service
 	vmdb         *victoriametrics.Service
 	vmalert      *vmalert.Service
@@ -558,15 +593,15 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	deps.l.Infof("Updating supervisord configuration...")
 	settings, err := models.GetSettings(db.Querier)
 	if err != nil {
-		deps.l.Warnf("Failed to get settings: %+v.", err)
+		deps.l.Warnf("Failed to get settings: %s.", err)
 		return false
 	}
 	ssoDetails, err := models.GetPerconaSSODetails(ctx, db.Querier)
-	if err != nil {
-		deps.l.Warnf("Failed to get Percona SSO Details: %+v.", err)
+	if err != nil && !errors.Is(err, models.ErrNotConnectedToPortal) {
+		deps.l.Warnf("Failed to get Percona SSO Details: %s.", err)
 	}
 	if err = deps.supervisord.UpdateConfiguration(settings, ssoDetails); err != nil {
-		deps.l.Warnf("Failed to update supervisord configuration: %+v.", err)
+		deps.l.Warnf("Failed to update supervisord configuration: %s.", err)
 		return false
 	}
 
@@ -596,9 +631,14 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 }
 
 func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string) *qan.Client {
+	bc := backoff.DefaultConfig
+	bc.MaxDelay = time.Second
+
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBackoffMaxDelay(time.Second), //nolint:staticcheck
+		grpc.WithConnectParams(grpc.ConnectParams{
+			Backoff: bc,
+		}),
 		grpc.WithUserAgent("pmm-managed/" + version.Version),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(gRPCMessageMaxSize)),
 	}
@@ -656,7 +696,7 @@ func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error
 	return db, nil
 }
 
-func main() { //nolint:cyclop
+func main() { //nolint:cyclop,maintidx
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
 		panic("pmm-managed version is not set during build.")
@@ -668,9 +708,9 @@ func main() { //nolint:cyclop
 	kingpin.Version(version.FullInfo())
 	kingpin.HelpFlag.Short('h')
 
-	victoriaMetricsURLF := kingpin.Flag("victoriametrics-url", "VictoriaMetrics base URL").
-		Default("http://127.0.0.1:9090/prometheus/").String()
-	victoriaMetricsVMAlertURLF := kingpin.Flag("victoriametrics-vmalert-url", "VictoriaMetrics VMAlert base URL").
+	victoriaMetricsURLF := kingpin.Flag("victoriametrics-url", "VictoriaMetrics base URL").Envar("PMM_VM_URL").
+		Default(models.VMBaseURL).String()
+	victoriaMetricsVMAlertURLF := kingpin.Flag("victoriametrics-vmalert-url", "VictoriaMetrics VMAlert base URL").Envar("PMM_VM_ALERT_URL").
 		Default("http://127.0.0.1:8880/").String()
 	victoriaMetricsConfigF := kingpin.Flag("victoriametrics-config", "VictoriaMetrics scrape configuration file path").
 		Default("/etc/victoriametrics-promscrape.yml").String()
@@ -712,6 +752,34 @@ func main() { //nolint:cyclop
 		Envar("PERCONA_TEST_POSTGRES_SSL_CERT_PATH").
 		String()
 
+	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
+		Envar("PMM_TEST_HA_ENABLE").
+		Bool()
+	haBootstrap := kingpin.Flag("ha-bootstrap", "Bootstrap HA cluster").
+		Envar("PMM_TEST_HA_BOOTSTRAP").
+		Bool()
+	haNodeID := kingpin.Flag("ha-node-id", "HA Node ID").
+		Envar("PMM_TEST_HA_NODE_ID").
+		String()
+	haAdvertiseAddress := kingpin.Flag("ha-advertise-address", "HA Advertise address").
+		Envar("PMM_TEST_HA_ADVERTISE_ADDRESS").
+		String()
+	haPeers := kingpin.Flag("ha-peers", "HA Peers").
+		Envar("PMM_TEST_HA_PEERS").
+		String()
+	haRaftPort := kingpin.Flag("ha-raft-port", "HA raft port").
+		Envar("PMM_TEST_HA_RAFT_PORT").
+		Default("9760").
+		Int()
+	haGossipPort := kingpin.Flag("ha-gossip-port", "HA gossip port").
+		Envar("PMM_TEST_HA_GOSSIP_PORT").
+		Default("9761").
+		Int()
+	haGrafanaGossipPort := kingpin.Flag("ha-grafana-gossip-port", "HA Grafana gossip port").
+		Envar("PMM_TEST_HA_GRAFANA_GOSSIP_PORT").
+		Default("9762").
+		Int()
+
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
 
 	logLevelF := kingpin.Flag("log-level", "Set logging level").Envar("PMM_LOG_LEVEL").Default("info").Enum("trace", "debug", "info", "warn", "error", "fatal")
@@ -741,6 +809,22 @@ func main() { //nolint:cyclop
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
+	var nodes []string
+	if *haPeers != "" {
+		nodes = strings.Split(*haPeers, ",")
+	}
+	haParams := &models.HAParams{
+		Enabled:           *haEnabled,
+		Bootstrap:         *haBootstrap,
+		NodeID:            *haNodeID,
+		AdvertiseAddress:  *haAdvertiseAddress,
+		Nodes:             nodes,
+		RaftPort:          *haRaftPort,
+		GossipPort:        *haGossipPort,
+		GrafanaGossipPort: *haGrafanaGossipPort,
+	}
+	haService := ha.New(haParams)
+
 	cfg := config.NewService()
 	if err := cfg.Load(); err != nil {
 		l.Panicf("Failed to load config: %+v", err)
@@ -750,6 +834,7 @@ func main() { //nolint:cyclop
 		*postgresSSLModeF = models.VerifyCaSSLMode
 	}
 	ds := cfg.Config.Services.Telemetry.DataSources
+
 	pmmdb := ds.PmmDBSelect
 	pmmdb.Credentials.Username = *postgresDBUsernameF
 	pmmdb.Credentials.Password = *postgresDBPasswordF
@@ -765,10 +850,25 @@ func main() { //nolint:cyclop
 	}
 	pmmdb.DSN.Params = q.Encode()
 
+	grafanadb := ds.GrafanaDBSelect
+	grafanadb.DSN.Scheme = "postgres"
+	grafanadb.DSN.Host = *postgresAddrF
+	grafanadb.DSN.DB = "grafana"
+	grafanadb.DSN.Params = q.Encode()
+
 	clickhouseDSN := "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
 
 	qanDB := ds.QanDBSelect
 	qanDB.DSN = clickhouseDSN
+
+	ds.VM.Address = *victoriaMetricsURLF
+
+	vmParams, err := models.NewVictoriaMetricsParams(
+		models.BasePrometheusConfigPath,
+		*victoriaMetricsURLF)
+	if err != nil {
+		l.Panicf("cannot load victoriametrics params problem: %+v", err)
+	}
 
 	setupParams := models.SetupDBParams{
 		Address:     *postgresAddrF,
@@ -787,27 +887,26 @@ func main() { //nolint:cyclop
 	}
 	defer sqlDB.Close() //nolint:errcheck
 
-	migrateDB(ctx, sqlDB, setupParams)
+	if haService.Bootstrap() {
+		migrateDB(ctx, sqlDB, setupParams)
+	}
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
-	// Generate unique PMM Server ID if it's not already set.
-	err = models.SetPMMServerID(db)
-	if err != nil {
-		l.Panicf("failed to set PMM Server ID")
+	if haService.Bootstrap() {
+		// Generate unique PMM Server ID if it's not already set.
+		err = models.SetPMMServerID(db)
+		if err != nil {
+			l.Panicf("failed to set PMM Server ID")
+		}
 	}
 
 	cleaner := clean.New(db)
 	externalRules := vmalert.NewExternalRules()
-
-	vmParams, err := models.NewVictoriaMetricsParams(victoriametrics.BasePrometheusConfigPath)
-	if err != nil {
-		l.Panicf("cannot load victoriametrics params problem: %+v", err)
-	}
-	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, *victoriaMetricsURLF, vmParams)
+	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
@@ -821,7 +920,13 @@ func main() { //nolint:cyclop
 
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
-	agentsRegistry := agents.NewRegistry(db)
+	agentsRegistry := agents.NewRegistry(db, vmParams)
+
+	// TODO remove once PMM cluster will be Active-Active
+	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(ctx context.Context) error { return nil }, func() {
+		agentsRegistry.KickAll(ctx)
+	}))
+
 	pbmPITRService := backup.NewPBMPITRService()
 	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
@@ -832,6 +937,7 @@ func main() { //nolint:cyclop
 	prom.MustRegister(inventoryMetricsCollector)
 
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
+	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
 	alertManager := alertmanager.New(db)
 	// Alertmanager is special due to being added to PMM with invalid /etc/alertmanager.yml.
@@ -840,23 +946,35 @@ func main() { //nolint:cyclop
 
 	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
 
-	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck)
+	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck, vmParams)
 
 	supervisord := supervisord.New(
 		*supervisordConfigDirF,
 		pmmUpdateCheck,
-		vmParams,
-		models.PGParams{
-			Addr:        *postgresAddrF,
-			DBName:      *postgresDBNameF,
-			DBUsername:  *postgresDBUsernameF,
-			DBPassword:  *postgresDBPasswordF,
-			SSLMode:     *postgresSSLModeF,
-			SSLCAPath:   *postgresSSLCAPathF,
-			SSLKeyPath:  *postgresSSLKeyPathF,
-			SSLCertPath: *postgresSSLCertPathF,
+		&models.Params{
+			VMParams: vmParams,
+			PGParams: &models.PGParams{
+				Addr:        *postgresAddrF,
+				DBName:      *postgresDBNameF,
+				DBUsername:  *postgresDBUsernameF,
+				DBPassword:  *postgresDBPasswordF,
+				SSLMode:     *postgresSSLModeF,
+				SSLCAPath:   *postgresSSLCAPathF,
+				SSLKeyPath:  *postgresSSLKeyPathF,
+				SSLCertPath: *postgresSSLCertPathF,
+			},
+			HAParams: haParams,
 		},
 		gRPCMessageMaxSize)
+
+	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(ctx context.Context) error {
+		return supervisord.StartSupervisedService("pmm-agent")
+	}, func() {
+		err := supervisord.StopSupervisedService("pmm-agent")
+		if err != nil {
+			l.Warnf("couldn't stop pmm-agent: %q", err)
+		}
+	}))
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {
@@ -885,7 +1003,7 @@ func main() { //nolint:cyclop
 	prom.MustRegister(grafanaClient)
 
 	jobsService := agents.NewJobsService(db, agentsRegistry, backupRetentionService)
-	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb)
+	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams)
 	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
@@ -900,8 +1018,7 @@ func main() { //nolint:cyclop
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}
 
-	checksService := checks.New(db, platformClient, actionsService, alertManager, v1.NewAPI(vmClient), clickhouseClient)
-
+	checksService := checks.New(db, platformClient, actionsService, v1.NewAPI(vmClient), clickhouseClient)
 	prom.MustRegister(checksService)
 
 	// Integrated alerts services
@@ -910,7 +1027,9 @@ func main() { //nolint:cyclop
 		l.Fatalf("Could not create templates service: %s", err)
 	}
 	// We should collect templates before rules service created, because it will regenerate rule files on startup.
-	templatesService.CollectTemplates(ctx)
+	if haService.Bootstrap() {
+		templatesService.CollectTemplates(ctx)
+	}
 	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertManager)
 	alertsService := ia.NewAlertsService(db, alertManager, templatesService)
 
@@ -921,9 +1040,14 @@ func main() { //nolint:cyclop
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
 	compatibilityService := backup.NewCompatibilityService(db, versioner)
 	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pbmPITRService)
+	backupMetricsCollector := backup.NewMetricsCollector(db)
+	prom.MustRegister(backupMetricsCollector)
+
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
+
+	dumpService := dump.New(db)
 
 	kubeStorage := managementdbaas.NewKubeStorage(db)
 
@@ -947,6 +1071,7 @@ func main() { //nolint:cyclop
 		RulesService:         rulesService,
 		DBaaSInitializer:     dbaasInitializer,
 		Emailer:              emailer,
+		HAService:            haService,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -982,6 +1107,7 @@ func main() { //nolint:cyclop
 	// try synchronously once, then retry in the background
 	deps := &setupDeps{
 		sqlDB:        sqlDB,
+		ha:           haService,
 		supervisord:  supervisord,
 		vmdb:         vmdb,
 		vmalert:      vmalert,
@@ -1007,13 +1133,6 @@ func main() { //nolint:cyclop
 				}
 			}
 		}()
-	}
-
-	// Set all agents status to unknown at startup. The ones that are alive
-	// will get their status updated after they connect to the pmm-managed.
-	err = agentsHandler.SetAllAgentsStatusUnknown(ctx)
-	if err != nil {
-		l.Errorf("Failed to set status of all agents to invalid at startup: %s", err)
 	}
 
 	settings, err := models.GetSettings(sqlDB)
@@ -1049,11 +1168,10 @@ func main() { //nolint:cyclop
 		alertManager.Run(ctx)
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	haService.AddLeaderService(ha.NewContextService("checks", func(ctx context.Context) error {
 		checksService.Run(ctx)
-	}()
+		return nil
+	}))
 
 	wg.Add(1)
 	go func() {
@@ -1062,63 +1180,65 @@ func main() { //nolint:cyclop
 	}()
 
 	wg.Add(1)
-	go func() {
+	haService.AddLeaderService(ha.NewContextService("telemetry", func(ctx context.Context) error {
 		defer wg.Done()
 		telemetry.Run(ctx)
-	}()
+		return nil
+	}))
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	haService.AddLeaderService(ha.NewContextService("scheduler", func(ctx context.Context) error {
 		schedulerService.Run(ctx)
-	}()
+		return nil
+	}))
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	haService.AddLeaderService(ha.NewContextService("versionCache", func(ctx context.Context) error {
 		versionCache.Run(ctx)
-	}()
+		return nil
+	}))
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
-				db:                   db,
-				vmdb:                 vmdb,
-				platformClient:       platformClient,
-				server:               server,
-				agentsRegistry:       agentsRegistry,
-				handler:              agentsHandler,
 				actions:              actionsService,
-				agentsStateUpdater:   agentsStateUpdater,
-				connectionCheck:      connectionCheck,
-				grafanaClient:        grafanaClient,
-				checksService:        checksService,
-				dbaasClient:          dbaasClient,
-				alertmanager:         alertManager,
-				vmalert:              vmalert,
-				settings:             settings,
-				alertsService:        alertsService,
-				templatesService:     templatesService,
-				rulesService:         rulesService,
-				jobsService:          jobsService,
-				versionServiceClient: versionService,
-				schedulerService:     schedulerService,
-				backupService:        backupService,
-				compatibilityService: compatibilityService,
-				backupRemovalService: backupRemovalService,
-				pbmPITRService:       pbmPITRService,
-				minioClient:          minioClient,
-				versionCache:         versionCache,
-				supervisord:          supervisord,
-				config:               &cfg.Config,
-				componentsService:    componentsService,
-				dbaasInitializer:     dbaasInitializer,
 				agentService:         agentService,
+				agentsRegistry:       agentsRegistry,
+				agentsStateUpdater:   agentsStateUpdater,
+				alertmanager:         alertManager,
+				alertsService:        alertsService,
+				backupRemovalService: backupRemovalService,
+				backupService:        backupService,
+				checksService:        checksService,
+				compatibilityService: compatibilityService,
+				componentsService:    componentsService,
+				config:               &cfg.Config,
+				connectionCheck:      connectionCheck,
+				db:                   db,
+				dbaasClient:          dbaasClient,
+				dbaasInitializer:     dbaasInitializer,
+				dumpService:          dumpService,
+				grafanaClient:        grafanaClient,
+				handler:              agentsHandler,
+				ha:                   haService,
+				jobsService:          jobsService,
 				kubeStorage:          kubeStorage,
+				minioClient:          minioClient,
+				pbmPITRService:       pbmPITRService,
+				platformClient:       platformClient,
+				rulesService:         rulesService,
+				schedulerService:     schedulerService,
+				server:               server,
+				serviceInfoBroker:    serviceInfoBroker,
+				settings:             settings,
+				supervisord:          supervisord,
+				templatesService:     templatesService,
 				uieventsService:      uieventsService,
+				versionCache:         versionCache,
+				versionServiceClient: versionService,
 				vmClient:             &vmClient,
+				vmalert:              vmalert,
+				vmdb:                 vmdb,
 			})
 	}()
 
@@ -1137,11 +1257,10 @@ func main() { //nolint:cyclop
 		runDebugServer(ctx)
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	haService.AddLeaderService(ha.NewContextService("cleaner", func(ctx context.Context) error {
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
-	}()
+		return nil
+	}))
 	if settings.DBaaS.Enabled {
 		err = supervisord.RestartSupervisedService("dbaas-controller")
 		if err != nil {
@@ -1160,6 +1279,15 @@ func main() { //nolint:cyclop
 			}()
 		}
 	}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err := haService.Run(ctx)
+		if err != nil {
+			l.Panicf("cannot start high availability service: %+v", err)
+		}
+	}()
 
 	wg.Wait()
 }

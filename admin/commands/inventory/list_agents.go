@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -101,6 +101,7 @@ type ListAgentsCommand struct {
 	AgentType  string `help:"Filter by Agent type"`
 }
 
+// RunCmd executes the ListAgentsCommand and returns the result.
 func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 	agentType, err := formatTypeValue(acceptableAgentTypes, cmd.AgentType)
 	if err != nil {

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -45,8 +45,8 @@ func CreateDataDir(path, username, groupname string, perm os.FileMode) error {
 	return storedErr
 }
 
-// FindFilesWithExtensions read path directory and returns all files satisfying provided extensions.
-// file name is joined with provided path.
+// FindFilesWithExtensions reads path directory and returns all files satisfying provided extensions.
+// File name is joined with provided path.
 func FindFilesWithExtensions(path string, extensions ...string) ([]string, error) {
 	var paths []string
 	match := func(ext string) bool {

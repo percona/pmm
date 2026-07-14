@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ type RemoveCommand struct {
 	ServiceID   string `help:"Service ID"`
 }
 
+// RunCmd runs the command for RemoveCommand.
 func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 	if cmd.ServiceID == "" && cmd.ServiceName == "" {
 		// Automatic service lookup during removal

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// Initializer initializes dbaas feature
+// Initializer initializes dbaas feature.
 type Initializer struct {
 	db *reform.DB
 	l  *logrus.Entry
@@ -51,7 +51,7 @@ const (
 
 var errClusterExists = errors.New("cluster already exists")
 
-// NewInitializer returns initialized Initializer structure
+// NewInitializer returns initialized Initializer structure.
 func NewInitializer(db *reform.DB, client dbaasClient) *Initializer {
 	l := logrus.WithField("component", "dbaas_initializer")
 	return &Initializer{
@@ -66,7 +66,7 @@ func (in *Initializer) RegisterKubernetesServer(k dbaasv1beta1.KubernetesServer)
 	in.kubernetesServer = k
 }
 
-// Update updates current dbaas settings
+// Update updates current dbaas settings.
 func (in *Initializer) Update(ctx context.Context) error {
 	settings, err := models.GetSettings(in.db)
 	if err != nil {
@@ -79,7 +79,7 @@ func (in *Initializer) Update(ctx context.Context) error {
 	return in.Disable(ctx)
 }
 
-// Enable enables dbaas feature and connects to dbaas-controller
+// Enable enables dbaas feature and connects to dbaas-controller.
 func (in *Initializer) Enable(ctx context.Context) error {
 	in.m.Lock()
 	defer in.m.Unlock()
@@ -98,11 +98,11 @@ func (in *Initializer) Enable(ctx context.Context) error {
 	return in.registerInCluster(ctx)
 }
 
-// registerIncluster automatically adds k8s cluster to dbaas when PMM is running inside k8s cluster
+// registerIncluster automatically adds k8s cluster to dbaas when PMM is running inside k8s cluster.
 func (in *Initializer) registerInCluster(ctx context.Context) error {
 	kubeConfig, err := in.dbaasClient.GetKubeConfig(ctx, &dbaascontrollerv1beta1.GetKubeconfigRequest{})
-	//nolint:nestif
-	if err == nil {
+	switch {
+	case err == nil:
 		// If err is not equal to nil, dont' register cluster and fail silently
 		err := in.db.InTransaction(func(t *reform.TX) error {
 			cluster, err := models.FindKubernetesClusterByName(t.Querier, defaultClusterName)
@@ -134,15 +134,15 @@ func (in *Initializer) registerInCluster(ctx context.Context) error {
 			}
 			in.l.Info("Cluster is successfully initialized")
 		}
-	} else if errors.Is(err, rest.ErrNotInCluster) {
+	case errors.Is(err, rest.ErrNotInCluster):
 		in.l.Info("PMM is running outside a kubernetes cluster")
-	} else {
+	default:
 		in.l.Errorf("failed getting kubeconfig inside cluster: %v", err)
 	}
 	return nil
 }
 
-// Disable disconnects from dbaas-controller and disabled dbaas feature
+// Disable disconnects from dbaas-controller and disabled dbaas feature.
 func (in *Initializer) Disable(_ context.Context) error {
 	in.m.Lock()
 	defer in.m.Unlock()

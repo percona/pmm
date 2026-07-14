@@ -60,6 +60,13 @@ service ObjectDetails {
       body: "*"
     };
   }
+  // SchemaByQueryID returns schema for given queryID and serviceID.
+  rpc SchemaByQueryID(SchemaByQueryIDRequest) returns (SchemaByQueryIDReply) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/SchemaByQueryID"
+      body: "*"
+    };
+  }
 }
 
 // MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
@@ -193,6 +200,17 @@ message HistogramItem {
 message QueryExistsRequest {
   string serviceid = 1;
   string query = 2;
+}
+
+// SchemaByQueryIDRequest returns schema for given query ID and service ID.
+message SchemaByQueryIDRequest {
+  string service_id = 1;
+  string query_id = 2;
+}
+
+// SchemaByQueryIDReply is schema for given query ID and service ID.
+message SchemaByQueryIDReply {
+  string schema = 1;
 }
 
 // ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.

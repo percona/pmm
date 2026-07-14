@@ -6,25 +6,29 @@ on:
       - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
+    paths-ignore:
+      - 'documentation/**'
 
   pull_request:
     paths-ignore:
-      - "admin/**"
-      - "agent/**"
-      - "api-tests/**"
-      - "cli-tests/**"
-      - "docs/**"
-      - "qan-api2/**"
-      - "update/**"
-      - "vmproxy/**"
+      - 'admin/**'
+      - 'agent/**'
+      - 'api-tests/**'
+      - 'cli-tests/**'
+      - 'docs/**'
+      - 'documentation/**'
+      - 'qan-api2/**'
+      - 'update/**'
+      - 'vmproxy/**'
+
+permissions:
+  contents: read
 
 jobs:
   test:
     name: Tests
     runs-on: ubuntu-22.04
     timeout-minutes: 30
-    strategy:
-      fail-fast: false
 
     env:
       PMM_SERVER_IMAGE: perconalab/pmm-server:dev-latest
@@ -32,81 +36,47 @@ jobs:
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       OAUTH_PMM_CLIENT_ID: ${{ secrets.OAUTH_PMM_CLIENT_ID }}
       OAUTH_PMM_CLIENT_SECRET: ${{ secrets.OAUTH_PMM_CLIENT_SECRET }}
-      DEVCONTAINER_CACHE_ENABLED: false
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
 
-      - name: Enable Go build cache
-        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
-          restore-keys: |
-            ${{ runner.os }}-go-build-${{ github.ref }}-
-            ${{ runner.os }}-go-build-
-
-      - name: Enable Go modules cache
-        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-modules-
-
-      - name: Download tools
-        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
+      - name: Clean up disk space
         run: |
-          pushd tools && go mod download -x
-          popd        && go mod download -x
+          sudo rm -rf /usr/local/lib/android/
+          sudo rm -rf /usr/share/dotnet/
+          sudo rm -rf /usr/local/share/chromium/
 
       - name: Initialize CI environment
-        run: make env-compose-up
+        run: make env-compose-up # the container workdir is /root/go/src/github.com/percona/pmm
 
-      - name: Restore Go build cache
-        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        continue-on-error: true
-        run: docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
-
-      - name: Restore Go modules cache
-        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        continue-on-error: true
-        run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
+      - name: Mark the root directory of pmm as safe
+        run: docker exec -i pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
 
       - name: Update binaries
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make run-managed-ci run-agent run-vmproxy
+        run: docker exec -i pmm-server make run-managed-ci run-agent run-vmproxy
+
+      - name: Refresh yum cache for tests
+        run: docker exec -i pmm-server yum --verbose info updates pmm-managed || echo '1'
 
       - name: Run tests
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-cover
+        run: docker exec -i pmm-server make -C managed test-cover
 
       - name: Run PMM server update test
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-update
+        run: docker exec -i pmm-server make -C managed test-update
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
-          file: managed/cover.out
+          files: managed/cover.out
           flags: managed
           env_vars: PMM_SERVER_IMAGE
           fail_ci_if_error: false
-
-      - name: Cache
-        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
-        run: |
-          docker exec pmm-managed-server go clean -testcache
-          docker exec --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server find . -type d -name fuzzdata -exec rm -r {} +
-          rm -fr ~/.cache/go-build
-          mkdir -p ~/.cache
-          docker cp pmm-managed-server:/root/.cache/go-build ~/.cache/go-build
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
-          env
-          go version
-          go env
-          pwd
+          env | sort
+          go env | sort
           git status
-          kubectl version

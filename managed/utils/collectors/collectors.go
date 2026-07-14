@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -24,8 +24,8 @@ import (
 // FilterOutCollectors removes from exporter's flags disabled collectors.
 // DisableCollector values should  match collector flag till end of string or till `=` sign.
 // Examples:
-// 1. if we pass `meminfo` then only "--collector.meminfo" but not "--collector.meminfo_numa"
-// 2. if we pass `netstat.field` then "--collector.netstat.fields=^(.*_(InErrors|InErrs|InCsumErrors)..." should be disabled.
+// 1. If we pass `meminfo` then only "--collector.meminfo" but not "--collector.meminfo_numa".
+// 2. If we pass `netstat.field` then "--collector.netstat.fields=^(.*_(InErrors|InErrs|InCsumErrors)..." should be disabled.
 // 3. To disable "--collect.custom_query.hr" with directory ""--collect.custom_query.lr.directory" user should pass both names.
 func FilterOutCollectors(prefix string, args, disabledCollectors []string) []string {
 	disabledCollectorsMap := make(map[string]struct{})
@@ -41,4 +41,21 @@ func FilterOutCollectors(prefix string, args, disabledCollectors []string) []str
 		}
 	}
 	return enabledArgs
+}
+
+// DisableDefaultEnabledCollectors returns CLI arguments to disable default enabled collectors based on input.
+// DefaultCollectors and disabledCollectors should be collector names without prefix.
+// Result will be returned with prefix.
+func DisableDefaultEnabledCollectors(prefix string, defaultCollectors []string, disabledCollectors []string) []string {
+	defaultCollectorsMap := make(map[string]struct{})
+	for _, defaultCollector := range defaultCollectors {
+		defaultCollectorsMap[defaultCollector] = struct{}{}
+	}
+	args := []string{}
+	for _, collector := range disabledCollectors {
+		if _, ok := defaultCollectorsMap[collector]; ok {
+			args = append(args, fmt.Sprintf("%s%s", prefix, collector))
+		}
+	}
+	return args
 }

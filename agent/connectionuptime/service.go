@@ -1,5 +1,4 @@
-// pmm-agent
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +26,7 @@ import (
 const periodForRunningDeletingOldEvents = time.Minute
 
 // Service calculates connection uptime between agent and server
-// based on the connection events
+// based on the connection events.
 type Service struct {
 	mx           sync.Mutex
 	events       []connectionEvent
@@ -40,7 +39,7 @@ type connectionEvent struct {
 	Connected bool
 }
 
-// NewService creates new instance of Service
+// NewService creates new instance of Service.
 func NewService(windowPeriod time.Duration) *Service {
 	return &Service{
 		windowPeriod: windowPeriod,
@@ -48,7 +47,7 @@ func NewService(windowPeriod time.Duration) *Service {
 	}
 }
 
-// SetWindowPeriod updates window period
+// SetWindowPeriod updates window period.
 func (c *Service) SetWindowPeriod(windowPeriod time.Duration) {
 	c.mx.Lock()
 	defer c.mx.Unlock()
@@ -56,7 +55,7 @@ func (c *Service) SetWindowPeriod(windowPeriod time.Duration) {
 	c.windowPeriod = windowPeriod
 }
 
-// RegisterConnectionStatus adds connection event
+// RegisterConnectionStatus adds connection event.
 func (c *Service) RegisterConnectionStatus(timestamp time.Time, connected bool) {
 	c.mx.Lock()
 	defer c.mx.Unlock()

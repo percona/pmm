@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -35,16 +35,16 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func TestMgmtNodeService(t *testing.T) {
 	t.Run("ListNodes", func(t *testing.T) {
 		now = models.Now()
 
-		setup := func(t *testing.T) (ctx context.Context, s *MgmtNodeService, teardown func(t *testing.T)) {
+		setup := func(t *testing.T) (context.Context, *MgmtNodeService, func(t *testing.T)) {
 			t.Helper()
 
 			origNowF := models.Now
@@ -52,7 +52,7 @@ func TestMgmtNodeService(t *testing.T) {
 				return now
 			}
 
-			ctx = logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(context.Background(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -64,9 +64,9 @@ func TestMgmtNodeService(t *testing.T) {
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
 
-			s = NewMgmtNodeService(db, ar, vmClient)
+			s := NewMgmtNodeService(db, ar, vmClient)
 
-			teardown = func(t *testing.T) {
+			teardown := func(t *testing.T) {
 				t.Helper()
 				models.Now = origNowF
 				uuid.SetRand(nil)
@@ -75,7 +75,7 @@ func TestMgmtNodeService(t *testing.T) {
 				ar.AssertExpectations(t)
 			}
 
-			return
+			return ctx, s, teardown
 		}
 
 		const (
@@ -239,14 +239,14 @@ func TestMgmtNodeService(t *testing.T) {
 	t.Run("GetNode", func(t *testing.T) {
 		now := models.Now()
 
-		setup := func(t *testing.T) (ctx context.Context, s *MgmtNodeService, teardown func(t *testing.T)) {
+		setup := func(t *testing.T) (context.Context, *MgmtNodeService, func(t *testing.T)) {
 			t.Helper()
 
 			origNowF := models.Now
 			models.Now = func() time.Time {
 				return now
 			}
-			ctx = logger.Set(context.Background(), t.Name())
+			ctx := logger.Set(context.Background(), t.Name())
 			uuid.SetRand(&tests.IDReader{})
 
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
@@ -258,9 +258,9 @@ func TestMgmtNodeService(t *testing.T) {
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
 
-			s = NewMgmtNodeService(db, ar, vmClient)
+			s := NewMgmtNodeService(db, ar, vmClient)
 
-			teardown = func(t *testing.T) {
+			teardown := func(t *testing.T) {
 				t.Helper()
 				models.Now = origNowF
 				uuid.SetRand(nil)
@@ -269,7 +269,7 @@ func TestMgmtNodeService(t *testing.T) {
 				ar.AssertExpectations(t)
 			}
 
-			return
+			return ctx, s, teardown
 		}
 
 		t.Run("should query the node by its id", func(t *testing.T) {

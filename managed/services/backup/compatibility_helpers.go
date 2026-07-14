@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -221,10 +221,7 @@ func mongoDBBackupSoftwareInstalledAndCompatible(svm map[models.SoftwareName]str
 }
 
 // isOnlySameService checks if restore is only available to the same service.
-func isOnlySameService(artifactDBVersion string, serviceType models.ServiceType) bool {
-	// allow restore to the same service if db version is unknown or service type is MongoDB.
-	if artifactDBVersion == "" || serviceType == models.MongoDBServiceType {
-		return true
-	}
-	return false
+func isOnlySameService(artifactDBVersion string) bool {
+	// allow restore only to the same service if db version is unknown.
+	return artifactDBVersion == ""
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	goversion "github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
@@ -118,6 +118,7 @@ func (c ComponentsService) GetPSMDBComponents(ctx context.Context, req *dbaasv1b
 	return &dbaasv1beta1.GetPSMDBComponentsResponse{Versions: versions}, nil
 }
 
+// GetPXCComponents returns versions details.
 func (c ComponentsService) GetPXCComponents(ctx context.Context, req *dbaasv1beta1.GetPXCComponentsRequest) (*dbaasv1beta1.GetPXCComponentsResponse, error) {
 	var kubernetesCluster *models.KubernetesCluster
 	params := componentsParams{
@@ -149,6 +150,7 @@ func (c ComponentsService) GetPXCComponents(ctx context.Context, req *dbaasv1bet
 	return &dbaasv1beta1.GetPXCComponentsResponse{Versions: versions}, nil
 }
 
+// ChangePSMDBComponents will apply changes on cluster.
 func (c ComponentsService) ChangePSMDBComponents(_ context.Context, req *dbaasv1beta1.ChangePSMDBComponentsRequest) (*dbaasv1beta1.ChangePSMDBComponentsResponse, error) {
 	err := c.db.InTransaction(func(tx *reform.TX) error {
 		kubernetesCluster, e := models.FindKubernetesClusterByName(tx.Querier, req.KubernetesClusterName)
@@ -160,7 +162,7 @@ func (c ComponentsService) ChangePSMDBComponents(_ context.Context, req *dbaasv1
 			kubernetesCluster.Mongod, e = setComponent(kubernetesCluster.Mongod, req.Mongod)
 			if e != nil {
 				message := fmt.Sprintf("%s, cluster: %s, component: mongod", e.Error(), kubernetesCluster.KubernetesClusterName)
-				return status.Errorf(codes.InvalidArgument, message)
+				return status.Error(codes.InvalidArgument, message)
 			}
 		}
 
@@ -178,7 +180,8 @@ func (c ComponentsService) ChangePSMDBComponents(_ context.Context, req *dbaasv1
 	return &dbaasv1beta1.ChangePSMDBComponentsResponse{}, nil
 }
 
-func (c ComponentsService) ChangePXCComponents(ctx context.Context, req *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error) {
+// ChangePXCComponents apply new values on PXC components.
+func (c ComponentsService) ChangePXCComponents(_ context.Context, req *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error) {
 	err := c.db.InTransaction(func(tx *reform.TX) error {
 		kubernetesCluster, e := models.FindKubernetesClusterByName(tx.Querier, req.KubernetesClusterName)
 		if e != nil {
@@ -189,7 +192,7 @@ func (c ComponentsService) ChangePXCComponents(ctx context.Context, req *dbaasv1
 			kubernetesCluster.PXC, e = setComponent(kubernetesCluster.PXC, req.Pxc)
 			if e != nil {
 				message := fmt.Sprintf("%s, cluster: %s, component: pxc", e.Error(), kubernetesCluster.KubernetesClusterName)
-				return status.Errorf(codes.InvalidArgument, message)
+				return status.Error(codes.InvalidArgument, message)
 			}
 		}
 
@@ -197,7 +200,7 @@ func (c ComponentsService) ChangePXCComponents(ctx context.Context, req *dbaasv1
 			kubernetesCluster.ProxySQL, e = setComponent(kubernetesCluster.ProxySQL, req.Proxysql)
 			if e != nil {
 				message := fmt.Sprintf("%s, cluster: %s, component: proxySQL", e.Error(), kubernetesCluster.KubernetesClusterName)
-				return status.Errorf(codes.InvalidArgument, message)
+				return status.Error(codes.InvalidArgument, message)
 			}
 		}
 
@@ -205,7 +208,7 @@ func (c ComponentsService) ChangePXCComponents(ctx context.Context, req *dbaasv1
 			kubernetesCluster.HAProxy, e = setComponent(kubernetesCluster.HAProxy, req.Haproxy)
 			if e != nil {
 				message := fmt.Sprintf("%s, cluster: %s, component: HAProxy", e.Error(), kubernetesCluster.KubernetesClusterName)
-				return status.Errorf(codes.InvalidArgument, message)
+				return status.Error(codes.InvalidArgument, message)
 			}
 		}
 		e = tx.Save(kubernetesCluster)
@@ -248,6 +251,7 @@ func (c ComponentsService) installedOperatorsVersion(ctx context.Context, wg *sy
 	}
 }
 
+// CheckForOperatorUpdate check if update for operator is available.
 func (c ComponentsService) CheckForOperatorUpdate(ctx context.Context, _ *dbaasv1beta1.CheckForOperatorUpdateRequest) (*dbaasv1beta1.CheckForOperatorUpdateResponse, error) { //nolint:lll
 	if pmmversion.PMMVersion == "" {
 		return nil, status.Error(codes.Internal, "failed to get current PMM version")
@@ -429,6 +433,7 @@ func setComponent(kc *models.Component, rc *dbaasv1beta1.ChangeComponent) (*mode
 	return kc, nil
 }
 
+// InstallOperator upgrade current operator.
 func (c ComponentsService) InstallOperator(ctx context.Context, req *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error) {
 	kubernetesCluster, err := models.FindKubernetesClusterByName(c.db.Querier, req.KubernetesClusterName)
 	if err != nil {
@@ -532,14 +537,14 @@ func getPMMClientImage() string {
 	return pmmClientImage
 }
 
-func imageExists(ctx context.Context, image string) (bool, error) {
+func imageExists(ctx context.Context, name string) (bool, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		panic(err)
 	}
-	defer cli.Close()
+	defer cli.Close() //nolint:errcheck
 
-	reader, err := cli.ImagePull(ctx, image, types.ImagePullOptions{})
+	reader, err := cli.ImagePull(ctx, name, image.PullOptions{})
 	if err != nil {
 		if client.IsErrNotFound(err) {
 			return false, nil
@@ -548,7 +553,7 @@ func imageExists(ctx context.Context, image string) (bool, error) {
 		return false, err
 	}
 
-	reader.Close()
+	reader.Close() //nolint:errcheck
 
 	return true, nil
 }

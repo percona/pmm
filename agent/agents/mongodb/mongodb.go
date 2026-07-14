@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -104,22 +104,22 @@ func (m *MongoDB) Write(r *report.Report) error {
 	return nil
 }
 
-type Profiler interface {
+type Profiler interface { //nolint:revive
 	Start() error
 	Stop() error
 }
 
 // Describe implements prometheus.Collector.
-func (m *MongoDB) Describe(ch chan<- *prometheus.Desc) {
+func (m *MongoDB) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (m *MongoDB) Collect(ch chan<- prometheus.Metric) {
+func (m *MongoDB) Collect(ch chan<- prometheus.Metric) { //nolint:revive
 	// This method is needed to satisfy interface.
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*MongoDB)(nil)
 )

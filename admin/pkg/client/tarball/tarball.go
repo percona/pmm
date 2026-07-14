@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package tarball holds logic for pmm-client tarball specific operations
+// Package tarball holds logic for pmm-client tarball specific operations.
 package tarball
 
 import (
@@ -113,7 +113,7 @@ func (b *Base) downloadTarball(ctx context.Context, link string) (string, error)
 		return "", err
 	}
 
-	defer f.Close() //nolint:gosec,errcheck
+	defer f.Close() //nolint:gosec,errcheck,nolintlint
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, link, nil)
 	if err != nil {
@@ -125,7 +125,7 @@ func (b *Base) downloadTarball(ctx context.Context, link string) (string, error)
 		return "", err
 	}
 
-	defer res.Body.Close() //nolint:errcheck,gosec
+	defer res.Body.Close() //nolint:errcheck,gosec,nolintlint
 	if res.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("%w: cannot download installation tarball (http %d)", ErrHTTPStatusNotOk, res.StatusCode)
 	}
@@ -157,7 +157,7 @@ func (b *Base) checksumTarball(ctx context.Context, link string, path string) er
 		return err
 	}
 
-	defer res.Body.Close() //nolint:gosec
+	defer res.Body.Close() //nolint:gosec,errcheck,nolintlint
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf("%w: cannot download tarball's sha256sum (http %d)", ErrHTTPStatusNotOk, res.StatusCode)
 	}
@@ -179,7 +179,7 @@ func (b *Base) checksumTarball(ctx context.Context, link string, path string) er
 		return err
 	}
 
-	defer f.Close() //nolint:errcheck,gosec
+	defer f.Close() //nolint:errcheck,gosec,nolintlint
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {

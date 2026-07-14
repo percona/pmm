@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -36,6 +36,8 @@ type ArtifactFilters struct {
 	ScheduleID string
 	// Return only artifacts by specified status.
 	Status BackupStatus
+	// Filters by folder.
+	Folder *string
 }
 
 // FindArtifacts returns artifact list sorted by creation time in DESCENDING order.
@@ -67,6 +69,13 @@ func FindArtifacts(q *reform.Querier, filters ArtifactFilters) ([]*Artifact, err
 	if filters.Status != "" {
 		conditions = append(conditions, fmt.Sprintf("status = %s", q.Placeholder(idx)))
 		args = append(args, filters.Status)
+		idx++
+	}
+
+	if filters.Folder != nil {
+		conditions = append(conditions, fmt.Sprintf("folder = %s", q.Placeholder(idx)))
+		args = append(args, *filters.Folder)
+		// idx++
 	}
 
 	var whereClause string
@@ -139,7 +148,7 @@ func FindArtifactByName(q *reform.Querier, name string) (*Artifact, error) {
 	err := q.FindOneTo(artifact, "name", name)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, errors.Wrapf(ErrNotFound, "backup artifact with name %q not found.", name)
+			return nil, errors.Wrapf(ErrNotFound, "backup artifact with name %q not found.", name) //nolint:revive
 		}
 		return nil, errors.WithStack(err)
 	}

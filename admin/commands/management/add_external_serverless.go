@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -88,6 +88,7 @@ or even you can specify --address instead of host and port as individual paramet
 `
 }
 
+// GetCredentials returns the credentials for AddExternalServerlessCommand.
 func (cmd *AddExternalServerlessCommand) GetCredentials() error {
 	creds, err := commands.ReadFromSource(cmd.CredentialsSource)
 	if err != nil {
@@ -100,6 +101,7 @@ func (cmd *AddExternalServerlessCommand) GetCredentials() error {
 	return nil
 }
 
+// RunCmd runs the command for AddExternalServerlessCommand.
 func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 

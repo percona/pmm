@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import (
 	"github.com/percona/pmm/agent/utils/truncate"
 )
 
-// statementsCache is a wrapper for cache.Cache to use only with statementsMap type
+// statementsCache is a wrapper for cache.Cache to use only with statementsMap type.
 type statementsCache struct {
 	cache *cache.Cache
 }
@@ -72,9 +72,9 @@ func queryUsernames(q *reform.Querier) map[int64]string {
 	return res
 }
 
-func extractTables(query string, l *logrus.Entry) []string {
+func extractTables(query string, maxQueryLength int32, l *logrus.Entry) []string {
 	start := time.Now()
-	t, _ := truncate.Query(query, truncate.GetDefaultMaxQueryLength())
+	t, _ := truncate.Query(query, maxQueryLength)
 	tables, err := parser.ExtractTables(query)
 	if err != nil {
 		// log full query and error stack on debug level or more

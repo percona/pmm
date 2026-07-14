@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -222,7 +222,9 @@ func testProfiler(t *testing.T, url string) {
 			Query: findBucket.Common.Example,
 		}
 
-		ex := actions.NewMongoDBExplainAction(id, 5*time.Second, params, os.TempDir())
+		ex, err := actions.NewMongoDBExplainAction(id, 5*time.Second, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), ex.Timeout())
 		defer cancel()
 		res, err := ex.Run(ctx)

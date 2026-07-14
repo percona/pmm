@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -157,7 +157,7 @@ func TestReadFile(t *testing.T) {
 			err = os.Remove(cert.Name())
 			assert.NoError(t, err)
 		}()
-		_, err = cert.Write([]byte("cert"))
+		_, err = cert.WriteString("cert")
 		require.NoError(t, err)
 
 		certificate, err := ReadFile(cert.Name())

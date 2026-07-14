@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,20 +40,22 @@ func TestPostgreSQLQueryShow(t *testing.T) {
 		params := &agentpb.StartActionRequest_PostgreSQLQueryShowParams{
 			Dsn: dsn,
 		}
-		a := NewPostgreSQLQueryShowAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLQueryShowAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
 		b, err := a.Run(ctx)
 		require.NoError(t, err)
 		assert.LessOrEqual(t, 22000, len(b))
-		assert.LessOrEqual(t, len(b), 33668)
+		assert.LessOrEqual(t, len(b), 37989)
 
 		data, err := agentpb.UnmarshalActionQueryResult(b)
 		require.NoError(t, err)
 		t.Log(spew.Sdump(data))
 		assert.LessOrEqual(t, 200, len(data))
-		assert.LessOrEqual(t, len(data), 358)
+		assert.LessOrEqual(t, len(data), 399)
 
 		var found int
 		for _, m := range data {

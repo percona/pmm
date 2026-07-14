@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ type ListNodesCommand struct {
 	NodeType string `help:"Filter by Node type"`
 }
 
+// RunCmd executes the ListNodesCommand and returns the result.
 func (cmd *ListNodesCommand) RunCmd() (commands.Result, error) {
 	nodeType, err := formatTypeValue(acceptableNodeTypes, cmd.NodeType)
 	if err != nil {

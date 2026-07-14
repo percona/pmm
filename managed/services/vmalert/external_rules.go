@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -44,7 +44,7 @@ func NewExternalRules() *ExternalRules {
 func (s *ExternalRules) ValidateRules(ctx context.Context, rules string) error {
 	err := validators.ValidateAlertingRules(ctx, rules)
 	if e, ok := err.(*validators.InvalidAlertingRuleError); ok { //nolint:errorlint
-		return status.Errorf(codes.InvalidArgument, e.Msg)
+		return status.Error(codes.InvalidArgument, e.Msg)
 	}
 	return err
 }

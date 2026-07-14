@@ -1,0 +1,132 @@
+# This is the top-level configuration file for mockery.
+disable-version-string: True
+with-expecter: False
+inpackage: True
+dir: "{{.InterfaceDir}}"
+filename: "mock_{{ .InterfaceName | snakecase }}_test.go"
+mockname: "mock{{ .InterfaceName | camelcase }}"
+packages:
+  # managed
+  github.com/percona/pmm/managed/services/backup:
+    interfaces:
+      agentService:
+      compatibilityService:
+      jobsService:
+      pbmPITRService:
+      removalService:
+      Storage:
+        config:
+          mockname: "Mock{{ .InterfaceName | camelcase }}"
+      versioner:
+  github.com/percona/pmm/managed/services/checks:
+    interfaces:
+      agentsRegistry:
+  github.com/percona/pmm/managed/services/dbaas/kubernetes/client:
+    interfaces:
+      KubeClientConnector:
+        config:
+          mockname: "Mock{{ .InterfaceName | camelcase }}"
+          filename: "mock_{{ .InterfaceName | snakecase }}.go"          
+  github.com/percona/pmm/managed/services/grafana:
+    interfaces:
+      awsInstanceChecker:
+  github.com/percona/pmm/managed/services/inventory:
+    interfaces:
+      agentService:
+      agentsRegistry:
+      agentsStateUpdater:
+      connectionChecker:
+      inventoryMetrics:
+      prometheusService:
+      serviceInfoBroker:
+      versionCache:
+  github.com/percona/pmm/managed/services/management:
+    interfaces:
+      agentsRegistry:
+      agentsStateUpdater:
+      apiKeyProvider:
+      checksService:
+      connectionChecker:
+      grafanaClient:
+      jobsService:
+      prometheusService:
+      serviceInfoBroker:
+      versionCache:
+      victoriaMetricsClient:
+  github.com/percona/pmm/managed/services/management/alerting:
+    interfaces:
+      grafanaClient:
+  github.com/percona/pmm/managed/services/management/dbaas:
+    interfaces:
+      dbaasClient:
+      versionService:
+      grafanaClient:
+      componentsService:
+      kubernetesClient:
+      kubeStorageManager:
+  github.com/percona/pmm/managed/services/management/dump:
+    interfaces:
+      dumpService:
+  github.com/percona/pmm/managed/services/management/ia:
+    interfaces:
+      alertManager:
+      vmAlert:
+      templatesService:
+  github.com/percona/pmm/managed/services/management/backup:
+    interfaces:
+      awsS3:
+      backupService:
+      scheduleService:
+      removalService:
+      pbmPITRService:
+  github.com/percona/pmm/managed/services/qan:
+    interfaces:
+      qanCollectorClient:
+  github.com/percona/pmm/managed/services/scheduler:
+    interfaces:
+      backupService:
+  github.com/percona/pmm/managed/services/server:
+    interfaces:
+      agentsStateUpdater:
+      alertmanagerService:
+      checksService:
+      emailer:
+      grafanaClient:
+      prometheusService:
+      rulesService:
+      supervisordService:
+      telemetryService:
+      templatesService:
+      vmAlertExternalRules:
+  github.com/percona/pmm/managed/services/versioncache:
+    interfaces:
+      Versioner:
+        config:
+          mockname: "Mock{{ .InterfaceName | camelcase }}"
+  github.com/percona/pmm/managed/services/telemetry:
+    interfaces:
+      DataSource:
+      DataSourceLocator:
+      distributionUtilService:
+      sender:
+  # admin
+  github.com/percona/pmm/admin/commands/pmm/server/docker:
+    interfaces:
+      Functions:
+        config:
+          mockname: "Mock{{ .InterfaceName | camelcase }}"
+  # agent
+  github.com/percona/pmm/agent/agentlocal:
+    interfaces:
+      client:
+      supervisor:
+  github.com/percona/pmm/agent/client:
+    interfaces:
+      connectionChecker:
+      serviceInfoBroker:
+      supervisor:
+  github.com/percona/pmm/agent/versioner:
+    interfaces:
+      ExecFunctions:
+        config:
+          mockname: "Mock{{ .InterfaceName | camelcase }}"

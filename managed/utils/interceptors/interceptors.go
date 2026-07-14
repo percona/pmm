@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
@@ -79,6 +79,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 	return //nolint:nakedret
 }
 
+// UnaryInterceptorType represents the type of a unary gRPC interceptor.
 type UnaryInterceptorType = func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
 
 // Unary adds context logger and Prometheus metrics to unary server RPC.
@@ -142,7 +143,7 @@ func Stream(interceptor grpc.StreamServerInterceptor) func(srv interface{}, ss g
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ grpc.UnaryServerInterceptor  = Unary(nil)
 	_ grpc.StreamServerInterceptor = Stream(nil)

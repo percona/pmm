@@ -169,7 +169,7 @@ type MetricsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -427,7 +427,7 @@ type MetricsReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricsReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -542,7 +542,7 @@ type MetricValuesMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetricValuesMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -640,7 +640,7 @@ type LabelsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m LabelsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -838,7 +838,7 @@ type QueryExampleRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryExampleRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -974,7 +974,7 @@ type QueryExampleReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryExampleReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1097,7 +1097,7 @@ type QueryExampleMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryExampleMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1259,7 +1259,7 @@ type ObjectDetailsLabelsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ObjectDetailsLabelsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1407,7 +1407,7 @@ type ObjectDetailsLabelsReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ObjectDetailsLabelsReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1509,7 +1509,7 @@ type ListLabelValuesMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListLabelValuesMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1611,7 +1611,7 @@ type QueryPlanRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryPlanRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1715,7 +1715,7 @@ type QueryPlanReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryPlanReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -1909,7 +1909,7 @@ type HistogramRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HistogramRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2043,7 +2043,7 @@ type HistogramReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HistogramReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2147,7 +2147,7 @@ type HistogramItemMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m HistogramItemMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2251,7 +2251,7 @@ type QueryExistsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m QueryExistsRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2317,6 +2317,216 @@ var _ interface {
 	ErrorName() string
 } = QueryExistsRequestValidationError{}
 
+// Validate checks the field values on SchemaByQueryIDRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SchemaByQueryIDRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SchemaByQueryIDRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SchemaByQueryIDRequestMultiError, or nil if none found.
+func (m *SchemaByQueryIDRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SchemaByQueryIDRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ServiceId
+
+	// no validation rules for QueryId
+
+	if len(errors) > 0 {
+		return SchemaByQueryIDRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// SchemaByQueryIDRequestMultiError is an error wrapping multiple validation
+// errors returned by SchemaByQueryIDRequest.ValidateAll() if the designated
+// constraints aren't met.
+type SchemaByQueryIDRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SchemaByQueryIDRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SchemaByQueryIDRequestMultiError) AllErrors() []error { return m }
+
+// SchemaByQueryIDRequestValidationError is the validation error returned by
+// SchemaByQueryIDRequest.Validate if the designated constraints aren't met.
+type SchemaByQueryIDRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SchemaByQueryIDRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SchemaByQueryIDRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SchemaByQueryIDRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SchemaByQueryIDRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SchemaByQueryIDRequestValidationError) ErrorName() string {
+	return "SchemaByQueryIDRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SchemaByQueryIDRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSchemaByQueryIDRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SchemaByQueryIDRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SchemaByQueryIDRequestValidationError{}
+
+// Validate checks the field values on SchemaByQueryIDReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SchemaByQueryIDReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SchemaByQueryIDReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SchemaByQueryIDReplyMultiError, or nil if none found.
+func (m *SchemaByQueryIDReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SchemaByQueryIDReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Schema
+
+	if len(errors) > 0 {
+		return SchemaByQueryIDReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// SchemaByQueryIDReplyMultiError is an error wrapping multiple validation
+// errors returned by SchemaByQueryIDReply.ValidateAll() if the designated
+// constraints aren't met.
+type SchemaByQueryIDReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SchemaByQueryIDReplyMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SchemaByQueryIDReplyMultiError) AllErrors() []error { return m }
+
+// SchemaByQueryIDReplyValidationError is the validation error returned by
+// SchemaByQueryIDReply.Validate if the designated constraints aren't met.
+type SchemaByQueryIDReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SchemaByQueryIDReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SchemaByQueryIDReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SchemaByQueryIDReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SchemaByQueryIDReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SchemaByQueryIDReplyValidationError) ErrorName() string {
+	return "SchemaByQueryIDReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SchemaByQueryIDReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSchemaByQueryIDReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SchemaByQueryIDReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SchemaByQueryIDReplyValidationError{}
+
 // Validate checks the field values on ExplainFingerprintByQueryIDRequest with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the first error encountered is returned, or nil if there are
@@ -2359,7 +2569,7 @@ type ExplainFingerprintByQueryIDRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ExplainFingerprintByQueryIDRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2468,7 +2678,7 @@ type ExplainFingerprintByQueryIDReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ExplainFingerprintByQueryIDReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -2595,7 +2805,7 @@ type GetSelectedQueryMetadataReplyMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GetSelectedQueryMetadataReplyMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

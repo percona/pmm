@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@ package agents
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/sirupsen/logrus"
 
@@ -39,6 +40,7 @@ type qanClient interface {
 	Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error
 	QueryExists(ctx context.Context, serviceID, query string) error
 	ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error)
+	SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDReply, error)
 }
 
 // retentionService is a subset of methods of backup.Client used by this package.
@@ -52,4 +54,12 @@ type retentionService interface {
 type jobsService interface {
 	handleJobResult(ctx context.Context, l *logrus.Entry, result *agentpb.JobResult)
 	handleJobProgress(ctx context.Context, progress *agentpb.JobProgress)
+}
+
+// victoriaMetricsParams is a subset of methods of models.VMParams used by this package.
+// We use it instead of real type to avoid dependency cycle.
+type victoriaMetricsParams interface {
+	ExternalVM() bool
+	URLFor(path string) (*url.URL, error)
+	URL() string
 }

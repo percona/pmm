@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -39,11 +39,11 @@ import (
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 const (
-	// maximum time for AWS discover APIs calls
+	// Maximum time for AWS discover APIs calls.
 	awsDiscoverTimeout = 7 * time.Second
 )
 
@@ -52,21 +52,23 @@ type RDSService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
+	sib   serviceInfoBroker
 
 	managementpb.UnimplementedRDSServer
 }
 
 // NewRDSService creates new instance discovery service.
-func NewRDSService(db *reform.DB, state agentsStateUpdater, cc connectionChecker) *RDSService {
+func NewRDSService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker) *RDSService {
 	return &RDSService{
 		db:    db,
 		state: state,
 		cc:    cc,
+		sib:   sib,
 	}
 }
 
 var (
-	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field
+	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field.
 
 	rdsEngines = map[string]managementpb.DiscoverRDSEngine{
 		"aurora-mysql": managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // MySQL 5.7-compatible Aurora
@@ -240,7 +242,7 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 }
 
 // AddRDS adds RDS instance.
-func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest) (*managementpb.AddRDSResponse, error) { //nolint:cyclop
+func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest) (*managementpb.AddRDSResponse, error) { //nolint:cyclop,maintidx
 	res := &managementpb.AddRDSResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
@@ -349,20 +351,24 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, mysqldExporter); err != nil {
 					return err
 				}
-				// CheckConnectionToService updates the table count in row so, let's also update the response
+				if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, mysqldExporter); err != nil {
+					return err
+				}
+				// GetInfoFromService gets additional info in row, let's also update the response
 				res.TableCount = *mysqldExporter.TableCount
 			}
 
 			// add MySQL PerfSchema QAN Agent
 			if req.QanMysqlPerfschema {
 				qanAgent, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
-					PMMAgentID:            models.PMMServerAgentID,
-					ServiceID:             service.ServiceID,
-					Username:              req.Username,
-					Password:              req.Password,
-					TLS:                   req.Tls,
-					TLSSkipVerify:         req.TlsSkipVerify,
-					QueryExamplesDisabled: req.DisableQueryExamples,
+					PMMAgentID:              models.PMMServerAgentID,
+					ServiceID:               service.ServiceID,
+					Username:                req.Username,
+					Password:                req.Password,
+					TLS:                     req.Tls,
+					TLSSkipVerify:           req.TlsSkipVerify,
+					QueryExamplesDisabled:   req.DisableQueryExamples,
+					CommentsParsingDisabled: req.DisableCommentsParsing,
 				})
 				if err != nil {
 					return err
@@ -387,6 +393,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				CustomLabels:   req.CustomLabels,
 				Address:        &req.Address,
 				Port:           pointer.ToUint16(uint16(req.Port)),
+				Database:       req.Database,
 			})
 			if err != nil {
 				return err
@@ -411,6 +418,10 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				TLS:                            req.Tls,
 				TLSSkipVerify:                  req.TlsSkipVerify,
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+				PostgreSQLOptions: &models.PostgreSQLOptions{
+					AutoDiscoveryLimit:     req.AutoDiscoveryLimit,
+					MaxExporterConnections: req.MaxPostgresqlExporterConnections,
+				},
 			})
 			if err != nil {
 				return err
@@ -425,18 +436,22 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, postgresExporter); err != nil {
 					return err
 				}
+				if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, postgresExporter); err != nil {
+					return err
+				}
 			}
 
-			// add MySQL PerfSchema QAN Agent
+			// add PostgreSQL Pgstatements QAN Agent
 			if req.QanPostgresqlPgstatements {
 				qanAgent, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.CreateAgentParams{
-					PMMAgentID:            models.PMMServerAgentID,
-					ServiceID:             service.ServiceID,
-					Username:              req.Username,
-					Password:              req.Password,
-					TLS:                   req.Tls,
-					TLSSkipVerify:         req.TlsSkipVerify,
-					QueryExamplesDisabled: req.DisableQueryExamples,
+					PMMAgentID:              models.PMMServerAgentID,
+					ServiceID:               service.ServiceID,
+					Username:                req.Username,
+					Password:                req.Password,
+					TLS:                     req.Tls,
+					TLSSkipVerify:           req.TlsSkipVerify,
+					QueryExamplesDisabled:   req.DisableQueryExamples,
+					CommentsParsingDisabled: req.DisableCommentsParsing,
 				})
 				if err != nil {
 					return err

@@ -121,7 +121,7 @@ CreateTemplateBody create template body
 swagger:model CreateTemplateBody
 */
 type CreateTemplateBody struct {
-	// YAML (or JSON) template file content.
+	// YAML template file content.
 	Yaml string `json:"yaml,omitempty"`
 }
 

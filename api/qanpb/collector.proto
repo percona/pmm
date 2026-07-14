@@ -333,18 +333,31 @@ message MetricsBucket {
   float m_temp_blks_written_cnt = 218;
   // Total number of temp blocks written by the statement.
   float m_temp_blks_written_sum = 219;
-  float m_blk_read_time_cnt = 220;
+  float m_blk_read_time_cnt = 220 [deprecated = true];
   // Total time the statement spent reading blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-  float m_blk_read_time_sum = 221;
-  float m_blk_write_time_cnt = 222;
+  float m_blk_read_time_sum = 221 [deprecated = true];
+  float m_blk_write_time_cnt = 222 [deprecated = true];
   // Total time the statement spent writing blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
-  float m_blk_write_time_sum = 223;
+  float m_blk_write_time_sum = 223 [deprecated = true];
+  float m_shared_blk_read_time_cnt = 255;
+  // Total time the statement spent reading shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_shared_blk_read_time_sum = 256;
+  float m_shared_blk_write_time_cnt = 257;
+  // Total time the statement spent writing shared blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_shared_blk_write_time_sum = 258;
+  float m_local_blk_read_time_cnt = 259;
+  // Total time the statement spent reading local blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_local_blk_read_time_sum = 260;
+  float m_local_blk_write_time_cnt = 261;
+  // Total time the statement spent writing local blocks, in milliseconds (if track_io_timing is enabled, otherwise zero).
+  float m_local_blk_write_time_sum = 262;
   float m_cpu_user_time_cnt = 230;
   // Total time user spent in query.
   float m_cpu_user_time_sum = 231;
   float m_cpu_sys_time_cnt = 232;
   // Total time system spent in query.
   float m_cpu_sys_time_sum = 233;
+
   // Type of SQL command.
   string cmd_type = 246;
   //

@@ -7,18 +7,6 @@
 - name: Packages                   | Clean up yum metadata
   command: yum clean metadata
 
-- name: Packages                   | Add PMM2 Server release repository for EL7
-  when:
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_major_version == '7'
-  yum_repository:
-    name: pmm2-server
-    description: PMM Server YUM repository - x86_64
-    baseurl: https://repo.percona.com/pmm2-components/yum/release/7/RPMS/x86_64/
-    gpgcheck: yes
-    enabled: yes
-    gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
-
 - name: Packages                   | Add PMM2 Server release repository for EL9
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
@@ -31,12 +19,22 @@
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-- name: Disable SELinux
+- name: Disable SELinux            | EL9
+  when:
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.9
   selinux:
     policy: targeted
     state: permissive
 
-- name: PMM                        | Add firewalld rule
+- name: Add firewalld rule        | EL9
+  when:
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.9
   firewalld: port={{ item }} permanent=true state=enabled immediate=yes
   with_items:
     - 80/tcp
@@ -48,11 +46,16 @@
     dest: /var/lib/cloud/scripts/per-boot/show-pmm-url
     mode: 0755
 
-- name: PMM                        | Delete centos EL7
-  shell: cd /tmp; nohup sh -c "trap 'userdel -r centos' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
+# PMM-12248 - Add /usr/local/bin to secure_path in /etc/sudoers so
+# that we can use supervisorctl command without the absolute path
+- name: PMM                        | Update secure_path in /etc/sudoers EL9
+  replace:
+    dest: /etc/sudoers
+    regexp: "Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin"
+    replace: "Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin"
   when:
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_major_version == '7'
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
 
 - name: PMM                        | Delete ec2-user EL9
   shell: cd /tmp; nohup sh -c "trap 'userdel -r ec2-user' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
@@ -65,3 +68,37 @@
 
 - name: PMM                        | Delete Azure user
   shell: cd /tmp; nohup sh -c "trap '/usr/sbin/waagent -force -deprovision+user && sync' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
+
+- name: Lock vagrant user
+  ansible.builtin.user:
+    name: vagrant
+    password_lock: true
+  when: ansible_virtualization_type == "virtualbox"
+
+- name: Configure systemd service to remove vagrant user
+  block:
+    - name: Create systemd service file
+      copy:
+        dest: /etc/systemd/system/remove-vagrant.service
+        content: |
+          [Unit]
+          Description=Remove vagrant user on first boot
+          After=multi-user.target
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/sbin/userdel -r vagrant
+          ExecStartPost=/usr/bin/touch /etc/remove-vagrant-done
+
+          [Install]
+          WantedBy=multi-user.target
+          ConditionPathExists=!/etc/remove-vagrant-done
+
+    - name: Reload systemd to recognize the new service
+      command: systemctl daemon-reload
+
+    - name: Enable the remove-vagrant service
+      systemd:
+        name: remove-vagrant
+        enabled: true
+  when: ansible_virtualization_type == "virtualbox"

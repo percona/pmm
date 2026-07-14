@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import (
 	"github.com/percona/pmm/managed/services/management"
 )
 
-// TODO merge into ../postgresql.go
+// TODO merge into ../postgresql.go.
 type postgreSQLServer struct {
 	svc *management.PostgreSQLService
 
@@ -30,7 +30,7 @@ type postgreSQLServer struct {
 }
 
 // NewManagementPostgreSQLServer creates Management PostgreSQL Server.
-func NewManagementPostgreSQLServer(s *management.PostgreSQLService) managementpb.PostgreSQLServer {
+func NewManagementPostgreSQLServer(s *management.PostgreSQLService) managementpb.PostgreSQLServer { //nolint:ireturn
 	return &postgreSQLServer{svc: s}
 }
 

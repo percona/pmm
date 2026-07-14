@@ -680,6 +680,11 @@
                         "description": "Access unix socket.\nAddress (and port) or socket is required.",
                         "type": "string",
                         "x-order": 5
+                      },
+                      "version": {
+                        "description": "MongoDB version.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },
@@ -744,6 +749,11 @@
                         "description": "Access unix socket.\nAddress (and port) or socket is required.",
                         "type": "string",
                         "x-order": 5
+                      },
+                      "version": {
+                        "description": "MySQL version.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },

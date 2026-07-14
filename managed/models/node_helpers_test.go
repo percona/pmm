@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -43,12 +43,12 @@ func TestNodeHelpers(t *testing.T) {
 		require.NoError(t, sqlDB.Close())
 	}()
 
-	setup := func(t *testing.T) (q *reform.Querier, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (*reform.Querier, func(t *testing.T)) {
 		t.Helper()
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
-		q = tx.Querier
+		q := tx.Querier
 
 		for _, str := range []reform.Struct{
 			&models.Node{
@@ -111,11 +111,11 @@ func TestNodeHelpers(t *testing.T) {
 			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
 		}
 
-		teardown = func(t *testing.T) {
+		teardown := func(t *testing.T) {
 			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
-		return
+		return q, teardown
 	}
 
 	t.Run("CreateNode", func(t *testing.T) {
@@ -132,7 +132,7 @@ func TestNodeHelpers(t *testing.T) {
 			})
 			assert.NoError(t, err)
 
-			structs, err := q.SelectAllFrom(models.NodeTable, "WHERE machine_id = $1 ORDER BY node_id DESC", machineID)
+			structs, err := q.SelectAllFrom(models.NodeTable, "WHERE machine_id = $1 ORDER BY node_id", machineID)
 			require.NoError(t, err)
 			require.Len(t, structs, 2)
 			expected := &models.Node{

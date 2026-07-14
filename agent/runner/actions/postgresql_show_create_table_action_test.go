@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,7 +40,9 @@ func TestPostgreSQLShowCreateTable(t *testing.T) {
 			Dsn:   dsn,
 			Table: "public.country",
 		}
-		a := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -83,7 +85,9 @@ Referenced by:
 			Dsn:   dsn,
 			Table: "city",
 		}
-		a := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -112,7 +116,9 @@ Referenced by:
 			Dsn:   dsn,
 			Table: "countrylanguage",
 		}
-		a := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
@@ -140,11 +146,13 @@ Foreign-key constraints:
 			Dsn:   dsn,
 			Table: `city; DROP TABLE city; --`,
 		}
-		a := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		a, err := NewPostgreSQLShowCreateTableAction("", 0, params, os.TempDir())
+		require.NoError(t, err)
+
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
-		_, err := a.Run(ctx)
+		_, err = a.Run(ctx)
 		expected := "Table not found: sql: no rows in result set"
 		assert.EqualError(t, err, expected)
 

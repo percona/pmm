@@ -183,6 +183,8 @@ func (m *UniversalService) validate(all bool) error {
 
 	// no validation rules for Status
 
+	// no validation rules for Version
+
 	if len(errors) > 0 {
 		return UniversalServiceMultiError(errors)
 	}
@@ -197,7 +199,7 @@ type UniversalServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UniversalServiceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -303,7 +305,7 @@ type ListServiceRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListServiceRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -439,7 +441,7 @@ type ListServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListServiceResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

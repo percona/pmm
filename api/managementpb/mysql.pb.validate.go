@@ -149,6 +149,8 @@ func (m *AddMySQLRequest) validate(all bool) error {
 
 	// no validation rules for SkipConnectionCheck
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for MaxQueryLength
 
 	// no validation rules for DisableQueryExamples
@@ -173,6 +175,8 @@ func (m *AddMySQLRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
 	if len(errors) > 0 {
 		return AddMySQLRequestMultiError(errors)
 	}
@@ -187,7 +191,7 @@ type AddMySQLRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMySQLRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -405,7 +409,7 @@ type AddMySQLResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m AddMySQLResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

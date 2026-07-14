@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -23,12 +23,6 @@ import (
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/scheduler"
 )
-
-//go:generate ../../../../bin/mockery -name=awsS3 -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=backupService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=scheduleService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=removalService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=pbmPITRService -case=snake -inpkg -testonly
 
 type awsS3 interface {
 	GetBucketLocation(ctx context.Context, host string, accessKey, secretKey, name string) (string, error)
@@ -60,7 +54,7 @@ type removalService interface {
 	DeleteArtifact(storage backup.Storage, artifactID string, removeFiles bool) error
 }
 
-// pbmPITRService provides methods that help us inspect PITR artifacts
+// pbmPITRService provides methods that help us inspect PITR artifacts.
 type pbmPITRService interface {
 	// ListPITRTimeranges returns the available PITR timeranges for the given artifact in the provided location.
 	ListPITRTimeranges(ctx context.Context, locationClient backup.Storage, location *models.BackupLocation, artifact *models.Artifact) ([]backup.Timeline, error)

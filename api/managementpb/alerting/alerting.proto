@@ -98,7 +98,7 @@ message Template {
   TemplateSource source = 9;
   // Template creation time. Empty for built-in and SaaS templates.
   google.protobuf.Timestamp created_at = 10;
-  // YAML (or JSON) template file content. Empty for built-in and SaaS templates.
+  // YAML template file content. Empty for built-in and SaaS templates.
   string yaml = 11;
 }
 
@@ -116,7 +116,7 @@ message ListTemplatesResponse {
 }
 
 message CreateTemplateRequest {
-  // YAML (or JSON) template file content.
+  // YAML template file content.
   string yaml = 1 [(validate.rules).string.min_len = 1];
 }
 
@@ -125,7 +125,7 @@ message CreateTemplateResponse {}
 message UpdateTemplateRequest {
   // Machine-readable name (ID).
   string name = 1 [(validate.rules).string.min_len = 1];
-  // YAML (or JSON) template file content.
+  // YAML template file content.
   string yaml = 2 [(validate.rules).string.min_len = 1];
 }
 

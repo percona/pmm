@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -165,7 +165,7 @@ func (c *Channel) Send(resp *AgentResponse) {
 // If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancelation.
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) {
+func (c *Channel) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) { //nolint:ireturn
 	id := atomic.AddUint32(&c.lastSentRequestID, 1)
 	ch := c.subscribe(id)
 
@@ -207,7 +207,7 @@ func (c *Channel) send(msg *agentpb.AgentMessage) {
 	c.mSend.Inc()
 }
 
-// runReader receives messages from server
+// runReader receives messages from server.
 func (c *Channel) runReceiver() {
 	defer func() {
 		close(c.requests)
@@ -290,6 +290,11 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.AgentLogs,
 			}
+		case *agentpb.ServerMessage_ServiceInfo:
+			c.requests <- &ServerRequest{
+				ID:      msg.Id,
+				Payload: p.ServiceInfo,
+			}
 
 		// responses
 		case *agentpb.ServerMessage_Pong:
@@ -311,7 +316,7 @@ func (c *Channel) runReceiver() {
 			}
 			c.Send(&AgentResponse{
 				ID:     msg.Id,
-				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type send, it is not implemented"),
+				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type sent, it is not implemented"),
 			})
 		}
 	}
@@ -384,7 +389,7 @@ func (c *Channel) Collect(ch chan<- prometheus.Metric) {
 	c.mSend.Collect(ch)
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*Channel)(nil)
 )

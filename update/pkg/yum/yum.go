@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -84,6 +84,8 @@ func getReleaseTime(ctx context.Context, repo string) (string, error) {
 // Check returns up-to-date versions information for a package with given name.
 // It runs slowly.
 func Check(ctx context.Context, name string) (*version.UpdateCheckResult, error) {
+	repoPropName := "Repository" // default value for RHEL9
+
 	installed, err := Installed(ctx, name)
 	if err != nil {
 		return nil, err
@@ -108,14 +110,25 @@ func Check(ctx context.Context, name string) (*version.UpdateCheckResult, error)
 	if err != nil {
 		return nil, err
 	}
+
+	v, err := getRHELVersion()
+	if err == nil && v == "7" {
+		// change the prop name for EL7
+		repoPropName = "Repo"
+	}
+	repo, ok := info[repoPropName]
+	if !ok {
+		return nil, errors.New("Repository field is not found in yum info")
+	}
+
 	res.Latest = version.PackageInfo{
 		Version:     niceVersion(info),
 		FullVersion: fullVersion(info),
-		Repo:        info["Repo"],
+		Repo:        repo,
 	}
 
 	// replace Buildtime with repo release time to show time of release.
-	repoUpdated, err := getReleaseTime(ctx, info["Repo"])
+	repoUpdated, err := getReleaseTime(ctx, repo)
 	if err != nil {
 		return nil, err
 	}

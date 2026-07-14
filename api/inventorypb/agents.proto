@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package inventory;
 
+import "common/metrics_resolutions.proto";
 import "google/api/annotations.proto";
 import "inventorypb/agent_status.proto";
 import "inventorypb/log_level.proto";
@@ -94,6 +95,11 @@ message NodeExporter {
   string process_exec_path = 9;
   // Log level for exporter.
   LogLevel log_level = 10;
+
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 11;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 12;
 }
 
 // MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
@@ -142,6 +148,10 @@ message MySQLdExporter {
   string process_exec_path = 18;
   // Log level for exporter.
   LogLevel log_level = 19;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 20;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 21;
 }
 
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
@@ -185,6 +195,10 @@ message MongoDBExporter {
   string process_exec_path = 16;
   // Log level for exporter.
   LogLevel log_level = 17;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 18;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 19;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -217,6 +231,14 @@ message PostgresExporter {
   string process_exec_path = 13;
   // Log level for exporter.
   LogLevel log_level = 14;
+  // Limit of databases for auto-discovery.
+  int32 auto_discovery_limit = 15;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 16;
+  // Maximum number of connections that exporter can open to the database instance.
+  int32 max_exporter_connections = 17;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 18;
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
@@ -253,6 +275,10 @@ message ProxySQLExporter {
   string process_exec_path = 13;
   // Log level for exporter.
   LogLevel log_level = 14;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 15;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 16;
 }
 
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -277,6 +303,8 @@ message QANMySQLPerfSchemaAgent {
   string tls_cert = 12;
   // Password for decrypting tls_cert.
   string tls_key = 13;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 18;
   // Limit query length in QAN (default: server-defined; -1: no limit).
   int32 max_query_length = 16;
   // True if query examples are disabled.
@@ -317,6 +345,8 @@ message QANMySQLSlowlogAgent {
   string tls_cert = 13;
   // Password for decrypting tls_cert.
   string tls_key = 14;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 18;
   // Limit query length in QAN (default: server-defined; -1: no limit)
   int32 max_query_length = 17;
   // True if query examples are disabled.
@@ -384,6 +414,8 @@ message QANPostgreSQLPgStatementsAgent {
   string service_id = 4;
   // PostgreSQL username for getting pg stat statements data.
   string username = 5;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 13;
   // Limit query length in QAN (default: server-defined; -1: no limit).
   int32 max_query_length = 12;
   // Use TLS for database connections.
@@ -420,6 +452,8 @@ message QANPostgreSQLPgStatMonitorAgent {
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 14;
   // Limit query length in QAN (default: server-defined; -1: no limit).
   int32 max_query_length = 13;
   // True if query examples are disabled.
@@ -474,6 +508,10 @@ message RDSExporter {
   string process_exec_path = 12;
   // Log level for exporter.
   LogLevel log_level = 13;
+  // Limit of databases for auto-discovery.
+  int32 auto_discovery_limit = 14;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 15;
 }
 
 // ExternalExporter runs on any Node type, including Remote Node.
@@ -500,6 +538,8 @@ message ExternalExporter {
   bool push_metrics_enabled = 11;
   // Path to exec process.
   string process_exec_path = 12;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 13;
 }
 
 // AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
@@ -532,6 +572,8 @@ message AzureDatabaseExporter {
   string process_exec_path = 11;
   // Log level for exporter.
   LogLevel log_level = 12;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 13;
 }
 
 // ChangeCommonAgentParams contains parameters that can be changed for all Agents.
@@ -549,6 +591,8 @@ message ChangeCommonAgentParams {
   bool enable_push_metrics = 5;
   // Disables push metrics, pmm-server starts to pull it, can't be used with enable_push_metrics.
   bool disable_push_metrics = 6;
+  // Metrics resolution for this agent.
+  common.MetricsResolutions metrics_resolutions = 7;
 }
 
 // List
@@ -658,6 +702,8 @@ message AddNodeExporterRequest {
   repeated string disable_collectors = 4;
   // Log level for exporter.
   LogLevel log_level = 5;
+  // Expose the node_exporter process on all public interfaces
+  bool expose_exporter = 6;
 }
 
 message AddNodeExporterResponse {
@@ -710,6 +756,8 @@ message AddMySQLdExporterRequest {
   string agent_password = 15;
   // Log level for exporter.
   LogLevel log_level = 16;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 17;
 }
 
 message AddMySQLdExporterResponse {
@@ -771,6 +819,8 @@ message AddMongoDBExporterRequest {
   int32 collections_limit = 18;
   // Log level for exporter.
   LogLevel log_level = 19;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 20;
 }
 
 message AddMongoDBExporterResponse {
@@ -819,6 +869,12 @@ message AddPostgresExporterRequest {
   string agent_password = 14;
   // Log level for exporter.
   LogLevel log_level = 15;
+  // Limit of databases for auto-discovery.
+  int32 auto_discovery_limit = 16;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 17;
+  // Maximum number of connections that exporter can open to the database instance.
+  int32 max_exporter_connections = 18;
 }
 
 message AddPostgresExporterResponse {
@@ -861,6 +917,8 @@ message AddProxySQLExporterRequest {
   string agent_password = 11;
   // Log level for exporter.
   LogLevel log_level = 12;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 13;
 }
 
 message AddProxySQLExporterResponse {
@@ -905,6 +963,8 @@ message AddQANMySQLPerfSchemaAgentRequest {
   map<string, string> custom_labels = 8;
   // Skip connection check.
   bool skip_connection_check = 9;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 15;
   // Log level for exporter.
   LogLevel log_level = 13;
 }
@@ -954,6 +1014,8 @@ message AddQANMySQLSlowlogAgentRequest {
   map<string, string> custom_labels = 9;
   // Skip connection check.
   bool skip_connection_check = 10;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 16;
   // Log level for exporter.
   LogLevel log_level = 14;
 }
@@ -1040,6 +1102,8 @@ message AddQANPostgreSQLPgStatementsAgentRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 14;
   // Limit query length in QAN (default: server-defined; -1: no limit).
   int32 max_query_length = 13;
   // TLS CA certificate.
@@ -1088,6 +1152,8 @@ message AddQANPostgreSQLPgStatMonitorAgentRequest {
   map<string, string> custom_labels = 8;
   // Skip connection check.
   bool skip_connection_check = 9;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 15;
   // TLS CA certificate.
   string tls_ca = 10;
   // TLS Certifcate.
@@ -1166,7 +1232,7 @@ message AddExternalExporterRequest {
   string metrics_path = 7;
   // Listen port for scraping metrics.
   uint32 listen_port = 8 [(validate.rules).uint32 = {
-    gt: 0,
+    gt: 0
     lt: 65536
   }];
   // Custom user-assigned labels.

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ type basicAuth struct {
 }
 
 // GetRequestMetadata implements credentials.PerRPCCredentials interface.
-func (b *basicAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
+func (b *basicAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) { //nolint:revive
 	auth := b.username + ":" + b.password
 	enc := base64.StdEncoding.EncodeToString([]byte(auth))
 	return map[string]string{
@@ -40,7 +40,7 @@ func (*basicAuth) RequireTransportSecurity() bool {
 	return false
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ credentials.PerRPCCredentials = (*basicAuth)(nil)
 )

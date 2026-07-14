@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 // Handler handles agent requests.
@@ -90,7 +90,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 			}
 
 		// see unregister and Kick methods
-		case <-agent.kick:
+		case <-agent.kickChan:
 			// already unregistered, no need to call unregister method
 			l.Warn("Kicked.")
 			disconnectReason = "kicked"
@@ -105,7 +105,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 				if err != nil {
 					l.Error(errors.WithStack(err))
 				}
-				return h.updateAgentStatusForChildren(ctx, agent.id, inventorypb.AgentStatus_DONE)
+				return nil
 			}
 
 			switch p := req.Payload.(type) {
@@ -204,8 +204,7 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentpb.StateChangedReq
 				req.Status,
 				req.ListenPort,
 				pointer.ToStringOrNil(req.ProcessExecPath),
-				pointer.ToStringOrNil(req.Version),
-			)
+				pointer.ToStringOrNil(req.Version))
 			if err != nil {
 				return err
 			}

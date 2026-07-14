@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ type RemoveAgentCommand struct {
 	Force   bool   `help:"Remove agent with all dependencies"`
 }
 
+// RunCmd executes the RemoveAgentCommand and returns the result.
 func (cmd *RemoveAgentCommand) RunCmd() (commands.Result, error) {
 	params := &agents.RemoveAgentParams{
 		Body: agents.RemoveAgentBody{

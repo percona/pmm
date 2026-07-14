@@ -178,7 +178,7 @@ type RestoreHistoryItemMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m RestoreHistoryItemMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -280,7 +280,7 @@ type ListRestoreHistoryRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListRestoreHistoryRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -416,7 +416,7 @@ type ListRestoreHistoryResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ListRestoreHistoryResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
