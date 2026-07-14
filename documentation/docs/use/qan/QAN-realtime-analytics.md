@@ -65,9 +65,10 @@ The **Export** button is hidden while auto-refresh is active and only appears on
 To export data:
 {.power-number}
 
-1. Click **Pause** to freeze the live feed.
-2. Apply any filters or sort order you want reflected in the export.
-3. Click **Export** to download the file.
+1. Go to **Query Analytics > Real-time**.
+2. Click **Pause** to freeze the live feed.
+3. Apply any filters or sort order you want reflected in the export.
+4. Click **Export** to download the file.
 
 The export includes all records across all pages, respects active filters and sort order, and is saved as `mongodb_rta_export_{timestamp}.csv`.
 
