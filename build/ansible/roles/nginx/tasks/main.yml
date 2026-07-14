@@ -92,3 +92,13 @@
     group: root
     owner: pmm
     mode: 0644
+
+- name: Copy one-step PMM client installer script
+  copy:
+    src: install-pmm-client.sh
+    dest: /usr/share/pmm-server/static/install-pmm-client.sh
+    group: root
+    owner: pmm
+    # 0644: nginx serves it as a static blob and the UI runs it via `curl -o … ; bash …`,
+    # so the served file never needs the executable bit (matches the other static files).
+    mode: 0644
