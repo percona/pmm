@@ -540,8 +540,8 @@ export const NAV_ADVISORS: NavItem = {
   url: `${PMM_NEW_NAV_PATH}/advisors`,
 };
 
-// the sidebar links a parent item to its first child's url,
-// so the checks list must be an explicit (and first) child
+// the sidebar links a parent item to its first child's url, so the Advisors
+// children are listed explicitly (Insights is first, see addAdvisors)
 export const NAV_ADVISORS_CHECKS: NavItem = {
   id: 'advisors-checks',
   text: 'Advisor checks',

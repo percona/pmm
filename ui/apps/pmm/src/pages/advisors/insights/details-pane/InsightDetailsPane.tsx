@@ -151,8 +151,39 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
               rowGap: 3,
             }}
           >
-            <Field label={m.summary}>
-              <Typography variant="body1">{insight.summary}</Typography>
+            <Field label={m.checkName}>
+              <Typography variant="body1">{insight.checkName}</Typography>
+            </Field>
+            <Field label={m.checkId}>
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <Typography variant="body1" noWrap>
+                  {insight.id}
+                </Typography>
+                <CopyToClipboardButton textToCopy={insight.id} />
+              </Stack>
+            </Field>
+            <Field label={m.checkInterval}>
+              <Typography variant="body1">
+                {ADVISOR_INTERVAL[insight.interval]}
+              </Typography>
+            </Field>
+            <Field label={m.checkedAt}>
+              <Typography variant="body1">
+                {insight.checkedAt
+                  ? format(new Date(insight.checkedAt), TIME_FORMAT)
+                  : EM_DASH}
+              </Typography>
+            </Field>
+
+            <Field label={m.batchId}>
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <Typography variant="body1" noWrap>
+                  {insight.batchId || EM_DASH}
+                </Typography>
+                {insight.batchId && (
+                  <CopyToClipboardButton textToCopy={insight.batchId} />
+                )}
+              </Stack>
             </Field>
             <Field label={m.severity}>
               <Chip
@@ -174,6 +205,10 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
                     ? m.enabled
                     : m.disabled}
               </Typography>
+            </Field>
+
+            <Field label={m.summary} span={4}>
+              <Typography variant="body1">{insight.summary}</Typography>
             </Field>
 
             <Field label={m.description} span={4}>
@@ -211,7 +246,7 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
             <Field label={m.service}>
               <Stack direction="row" alignItems="center" gap={0.5}>
                 <Typography variant="body1">{insight.serviceName}</Typography>
-                <CopyToClipboardButton textToCopy={insight.serviceId} />
+                <CopyToClipboardButton textToCopy={insight.serviceName} />
               </Stack>
             </Field>
             <Field label={m.node}>
@@ -256,30 +291,6 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
             </Field>
             <Field label={m.az}>
               <Typography variant="body1">{EM_DASH}</Typography>
-            </Field>
-
-            <Field label={m.checkedAt}>
-              <Typography variant="body1">
-                {insight.checkedAt
-                  ? format(new Date(insight.checkedAt), TIME_FORMAT)
-                  : EM_DASH}
-              </Typography>
-            </Field>
-            <Field label={m.checkInterval}>
-              <Typography variant="body1">
-                {ADVISOR_INTERVAL[insight.interval]}
-              </Typography>
-            </Field>
-            <Field label={m.checkId}>
-              <Stack direction="row" alignItems="center" gap={0.5}>
-                <Typography variant="body1" noWrap>
-                  {insight.id}
-                </Typography>
-                <CopyToClipboardButton textToCopy={insight.id} />
-              </Stack>
-            </Field>
-            <Field label={m.checkName}>
-              <Typography variant="body1">{insight.checkName}</Typography>
             </Field>
           </Box>
 

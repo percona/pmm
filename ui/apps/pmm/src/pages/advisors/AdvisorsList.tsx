@@ -9,6 +9,7 @@ import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import FilterAltOffOutlinedIcon from '@mui/icons-material/FilterAltOffOutlined';
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 import PlaylistAddCheckOutlinedIcon from '@mui/icons-material/PlaylistAddCheckOutlined';
 import { Table } from '@percona/percona-ui';
@@ -96,6 +97,11 @@ const AdvisorsList: FC = () => {
 
   const updateFilter = (name: keyof CheckFilters, value: string) =>
     setFilters((current) => ({ ...current, [name]: value }));
+
+  const handleClearFilters = () => {
+    setSearch('');
+    setFilters(NO_FILTERS);
+  };
 
   const rows = useMemo(() => flattenAdvisorChecks(advisors), [advisors]);
 
@@ -240,6 +246,7 @@ const AdvisorsList: FC = () => {
       fullWidth
       wide
       fillViewport
+      footer={null}
       roles={[OrgRole.Editor, OrgRole.Admin]}
     >
       <Stack
@@ -296,6 +303,18 @@ const AdvisorsList: FC = () => {
             value={filters.status}
             onChange={(value) => updateFilter('status', value)}
           />
+          <Tooltip title={Messages.filters.clear} arrow>
+            <Box component="span">
+              <IconButton
+                disabled={!hasActiveFilters}
+                onClick={handleClearFilters}
+                aria-label={Messages.filters.clear}
+                data-testid="clear-filters"
+              >
+                <FilterAltOffOutlinedIcon />
+              </IconButton>
+            </Box>
+          </Tooltip>
           <Box sx={{ flex: 1 }} />
           <Tooltip title={Messages.runAll} arrow>
             <Box component="span">
@@ -345,6 +364,7 @@ const AdvisorsList: FC = () => {
             },
           }}
           enableStickyHeader
+          enablePagination
           enableTopToolbar={false}
           enableGlobalFilter={false}
           enableColumnFilters={false}

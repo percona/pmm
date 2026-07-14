@@ -153,6 +153,32 @@ describe('AdvisorsList', () => {
     ).toBeInTheDocument();
   });
 
+  it('clears an active filter via the clear-filters button', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    expect(screen.getByTestId('clear-filters')).toBeDisabled();
+
+    await selectFilterOption('vendor-filter', 'PostgreSQL');
+
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('check-mysql_version_check-run')
+      ).not.toBeInTheDocument()
+    );
+    expect(screen.getByTestId('clear-filters')).not.toBeDisabled();
+
+    fireEvent.click(screen.getByTestId('clear-filters'));
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('check-mysql_version_check-run')
+      ).toBeInTheDocument()
+    );
+    expect(screen.getByTestId('clear-filters')).toBeDisabled();
+  });
+
   it('runs all checks', async () => {
     renderComponent();
 

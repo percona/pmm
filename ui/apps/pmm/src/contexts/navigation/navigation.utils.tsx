@@ -167,7 +167,7 @@ export const addExplore = (exploreMetricsEnabled: boolean): NavItem => {
 
 export const addAdvisors = (): NavItem => ({
   ...NAV_ADVISORS,
-  children: [NAV_ADVISORS_CHECKS, NAV_ADVISORS_INSIGHTS],
+  children: [NAV_ADVISORS_INSIGHTS, NAV_ADVISORS_CHECKS],
 });
 
 export const addAccount = (

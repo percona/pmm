@@ -22,6 +22,7 @@ export const Messages = {
     vendor: 'Vendor',
     interval: 'Interval',
     status: 'Status',
+    clear: 'Clear filters',
   },
   runAll: 'Run all',
   runSelected: 'Run selected',

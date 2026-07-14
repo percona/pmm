@@ -308,6 +308,7 @@ const AdvisorInsights: FC = () => {
       fullWidth
       wide
       fillViewport
+      footer={null}
       roles={[OrgRole.Editor, OrgRole.Admin]}
     >
       <Stack

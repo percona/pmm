@@ -101,7 +101,8 @@ export const Page: FC<PageProps> = ({
             </Card>
           )}
         </Box>
-        <Divider />
+        {/* footer === null explicitly opts out of the divider + footer */}
+        {footer !== null && <Divider />}
         {footer !== undefined ? footer : <Footer />}
       </Stack>
     </>

@@ -40,6 +40,7 @@ export const Messages = {
     checkInterval: 'Check interval',
     checkId: 'Check ID',
     checkName: 'Check name',
+    batchId: 'Batch ID',
     labels: 'Labels',
   },
   viewResults: 'View results',
