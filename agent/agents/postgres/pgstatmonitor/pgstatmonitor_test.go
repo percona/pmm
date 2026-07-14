@@ -26,7 +26,6 @@ import (
 
 	ver "github.com/hashicorp/go-version"
 	"github.com/lib/pq"
-	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
