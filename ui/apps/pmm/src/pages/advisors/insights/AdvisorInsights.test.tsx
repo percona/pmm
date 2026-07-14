@@ -182,6 +182,23 @@ describe('AdvisorInsights', () => {
     );
   });
 
+  it('reads filters and pagination from the URL (deep link)', async () => {
+    renderComponent(
+      '/advisors/insights?category=version_configuration&service=mysql-prod&page=2&pageSize=50'
+    );
+
+    await waitForRows();
+
+    expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+      expect.objectContaining({
+        category: 'version_configuration',
+        serviceName: 'mysql-prod',
+        pageIndex: 1,
+        pageSize: 50,
+      })
+    );
+  });
+
   it('requests the next page on pagination change', async () => {
     renderComponent();
 
@@ -618,6 +635,7 @@ describe('AdvisorInsights', () => {
         Messages.success.rerunStarted('MySQL version check')
       )
     ).toBeInTheDocument();
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('batch-123');
 
     fireEvent.click(screen.getByTestId('view-run-results'));
 

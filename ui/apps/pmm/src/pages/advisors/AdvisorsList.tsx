@@ -1,4 +1,4 @@
-import { FC, useCallback, useMemo, useState } from 'react';
+import { FC, useCallback, useMemo } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
@@ -13,8 +13,12 @@ import FilterAltOffOutlinedIcon from '@mui/icons-material/FilterAltOffOutlined';
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 import PlaylistAddCheckOutlinedIcon from '@mui/icons-material/PlaylistAddCheckOutlined';
 import { Table } from '@percona/percona-ui';
+import {
+  type MRT_PaginationState,
+  type MRT_Updater,
+} from 'material-react-table';
 import { closeSnackbar, enqueueSnackbar } from 'notistack';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Page } from 'components/page';
 import {
   useAdvisors,
@@ -36,12 +40,7 @@ interface CheckFilters {
   status: string;
 }
 
-const NO_FILTERS: CheckFilters = {
-  category: '',
-  vendor: '',
-  interval: '',
-  status: '',
-};
+const DEFAULT_PAGE_SIZE = 50;
 
 interface FilterOption {
   label: string;
@@ -92,15 +91,78 @@ const AdvisorsList: FC = () => {
     useStartAdvisorChecks();
   const { mutate: changeChecks } = useChangeAdvisorChecks();
 
-  const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState<CheckFilters>(NO_FILTERS);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // the URL query string is the single source of truth for filters +
+  // pagination, so a shared link reproduces the exact same view
+  const search = searchParams.get('search') || '';
+  const filters = useMemo<CheckFilters>(
+    () => ({
+      category: searchParams.get('category') || '',
+      vendor: searchParams.get('vendor') || '',
+      interval: searchParams.get('interval') || '',
+      status: searchParams.get('status') || '',
+    }),
+    [searchParams]
+  );
+  const pagination: MRT_PaginationState = {
+    pageIndex: Math.max(0, (Number(searchParams.get('page')) || 1) - 1),
+    pageSize: Number(searchParams.get('pageSize')) || DEFAULT_PAGE_SIZE,
+  };
+
+  // apply query-string changes; filter/search changes reset to the first page
+  const patchParams = (
+    mutate: (params: URLSearchParams) => void,
+    { resetPage = true }: { resetPage?: boolean } = {}
+  ) => {
+    const next = new URLSearchParams(searchParams);
+    mutate(next);
+    if (resetPage) {
+      next.delete('page');
+    }
+    setSearchParams(next, { replace: true });
+  };
+
+  const setSearch = (value: string) =>
+    patchParams((p) => {
+      if (value) {
+        p.set('search', value);
+      } else {
+        p.delete('search');
+      }
+    });
 
   const updateFilter = (name: keyof CheckFilters, value: string) =>
-    setFilters((current) => ({ ...current, [name]: value }));
+    patchParams((p) => {
+      if (value) {
+        p.set(name, value);
+      } else {
+        p.delete(name);
+      }
+    });
 
   const handleClearFilters = () => {
-    setSearch('');
-    setFilters(NO_FILTERS);
+    // keep the chosen page size; drop every filter, search and the page
+    const next = new URLSearchParams();
+    const pageSize = searchParams.get('pageSize');
+    if (pageSize) {
+      next.set('pageSize', pageSize);
+    }
+    setSearchParams(next, { replace: true });
+  };
+
+  const handlePaginationChange = (
+    updater: MRT_Updater<MRT_PaginationState>
+  ) => {
+    const nextPagination =
+      typeof updater === 'function' ? updater(pagination) : updater;
+    patchParams(
+      (p) => {
+        p.set('page', String(nextPagination.pageIndex + 1));
+        p.set('pageSize', String(nextPagination.pageSize));
+      },
+      { resetPage: false }
+    );
   };
 
   const rows = useMemo(() => flattenAdvisorChecks(advisors), [advisors]);
@@ -181,7 +243,8 @@ const AdvisorsList: FC = () => {
   const runChecks = useCallback(
     (names: string[], message: string) =>
       startChecks(names, {
-        onSuccess: (batchId) =>
+        onSuccess: (batchId) => {
+          void navigator.clipboard.writeText(batchId);
           enqueueSnackbar(message, {
             variant: 'success',
             action: (key) => (
@@ -197,7 +260,8 @@ const AdvisorsList: FC = () => {
                 {Messages.viewResults}
               </Button>
             ),
-          }),
+          });
+        },
       }),
     [startChecks, navigate]
   );
@@ -356,13 +420,8 @@ const AdvisorsList: FC = () => {
           columns={columns}
           data={filteredRows}
           noDataMessage={Messages.noData}
-          state={{ isLoading }}
-          initialState={{
-            pagination: {
-              pageSize: 50,
-              pageIndex: 0,
-            },
-          }}
+          state={{ isLoading, pagination }}
+          onPaginationChange={handlePaginationChange}
           enableStickyHeader
           enablePagination
           enableTopToolbar={false}

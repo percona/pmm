@@ -30,7 +30,10 @@ import {
   useMarkCheckResultsRead,
   useStartAdvisorChecks,
 } from 'hooks/api/useAdvisors';
-import { type MRT_PaginationState } from 'material-react-table';
+import {
+  type MRT_PaginationState,
+  type MRT_Updater,
+} from 'material-react-table';
 import { closeSnackbar, enqueueSnackbar } from 'notistack';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
@@ -61,14 +64,17 @@ interface InsightFilters {
   isRead: string;
 }
 
-const NO_FILTERS: InsightFilters = {
-  serviceName: '',
-  nodeName: '',
-  category: '',
-  severity: '',
-  status: '',
-  isRead: '',
+// URL query-string key for each filter field (deep-linkable filters)
+const FILTER_PARAM: Record<keyof InsightFilters, string> = {
+  serviceName: 'service',
+  nodeName: 'node',
+  category: 'category',
+  severity: 'severity',
+  status: 'status',
+  isRead: 'read',
 };
+
+const DEFAULT_PAGE_SIZE = 100;
 
 interface FilterOption {
   label: string;
@@ -119,53 +125,75 @@ const FilterSelect: FC<FilterSelectProps> = ({
 
 const AdvisorInsights: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  // deep link to the results of a concrete batch, e.g. from the "View results" snackbar
+
+  // the URL query string is the single source of truth for filters +
+  // pagination, so a shared link reproduces the exact same view
   const batchId = searchParams.get('batchId') || undefined;
-  const [pagination, setPagination] = useState<MRT_PaginationState>({
-    pageIndex: 0,
-    pageSize: 100,
-  });
-  const [filters, setFilters] = useState<InsightFilters>(NO_FILTERS);
+  const filters: InsightFilters = {
+    serviceName: searchParams.get(FILTER_PARAM.serviceName) || '',
+    nodeName: searchParams.get(FILTER_PARAM.nodeName) || '',
+    category: searchParams.get(FILTER_PARAM.category) || '',
+    severity: searchParams.get(FILTER_PARAM.severity) || '',
+    status: searchParams.get(FILTER_PARAM.status) || '',
+    isRead: searchParams.get(FILTER_PARAM.isRead) || '',
+  };
+  const pagination: MRT_PaginationState = {
+    pageIndex: Math.max(0, (Number(searchParams.get('page')) || 1) - 1),
+    pageSize: Number(searchParams.get('pageSize')) || DEFAULT_PAGE_SIZE,
+  };
+
   // local mirror of the batch-id URL param, committed on blur/Enter so typing
   // does not refetch (and spam history) on every keystroke
   const [batchIdInput, setBatchIdInput] = useState(batchId ?? '');
-
-  // keep the input in sync when the param changes elsewhere (row action,
-  // "View results" deep link, "Clear filters")
   useEffect(() => {
     setBatchIdInput(batchId ?? '');
   }, [batchId]);
 
-  const updateFilter = (name: keyof InsightFilters, value: string) => {
-    setFilters((current) => ({ ...current, [name]: value }));
-    // filters change the result set, so start from the first page
-    setPagination((current) => ({ ...current, pageIndex: 0 }));
+  // apply query-string changes; filter changes reset back to the first page
+  const patchParams = (
+    mutate: (params: URLSearchParams) => void,
+    { resetPage = true }: { resetPage?: boolean } = {}
+  ) => {
+    const next = new URLSearchParams(searchParams);
+    mutate(next);
+    if (resetPage) {
+      next.delete('page');
+    }
+    setSearchParams(next, { replace: true });
   };
+
+  const updateFilter = (name: keyof InsightFilters, value: string) =>
+    patchParams((p) => {
+      if (value) {
+        p.set(FILTER_PARAM[name], value);
+      } else {
+        p.delete(FILTER_PARAM[name]);
+      }
+    });
 
   const hasActiveFilters = Object.values(filters).some(Boolean) || !!batchId;
 
   const handleClearFilters = () => {
-    setFilters(NO_FILTERS);
-    if (batchId) {
-      setSearchParams({});
+    // keep the chosen page size; drop every filter, the batch and the page
+    const next = new URLSearchParams();
+    const pageSize = searchParams.get('pageSize');
+    if (pageSize) {
+      next.set('pageSize', pageSize);
     }
-    setPagination((current) => ({ ...current, pageIndex: 0 }));
+    setSearchParams(next, { replace: true });
   };
 
-  const params = useMemo<ListCheckResultsHistoryParams>(
-    () => ({
-      pageIndex: pagination.pageIndex,
-      pageSize: pagination.pageSize,
-      batchId,
-      serviceName: filters.serviceName || undefined,
-      nodeName: filters.nodeName || undefined,
-      category: filters.category || undefined,
-      severity: (filters.severity as Severity) || undefined,
-      status: (filters.status as AdvisorCheckResultStatus) || undefined,
-      isRead: filters.isRead === '' ? undefined : filters.isRead === 'true',
-    }),
-    [pagination, filters, batchId]
-  );
+  const params: ListCheckResultsHistoryParams = {
+    pageIndex: pagination.pageIndex,
+    pageSize: pagination.pageSize,
+    batchId,
+    serviceName: filters.serviceName || undefined,
+    nodeName: filters.nodeName || undefined,
+    category: filters.category || undefined,
+    severity: (filters.severity as Severity) || undefined,
+    status: (filters.status as AdvisorCheckResultStatus) || undefined,
+    isRead: filters.isRead === '' ? undefined : filters.isRead === 'true',
+  };
 
   const [actionMenu, setActionMenu] = useState<RowActionMenuState | null>(null);
   const [detailsInsight, setDetailsInsight] =
@@ -196,9 +224,27 @@ const AdvisorInsights: FC = () => {
     [advisors]
   );
 
-  const applyBatchIdFilter = (newBatchId: string) => {
-    setSearchParams(newBatchId ? { batchId: newBatchId } : {});
-    setPagination((current) => ({ ...current, pageIndex: 0 }));
+  const applyBatchIdFilter = (newBatchId: string) =>
+    patchParams((p) => {
+      if (newBatchId) {
+        p.set('batchId', newBatchId);
+      } else {
+        p.delete('batchId');
+      }
+    });
+
+  const handlePaginationChange = (
+    updater: MRT_Updater<MRT_PaginationState>
+  ) => {
+    const nextPagination =
+      typeof updater === 'function' ? updater(pagination) : updater;
+    patchParams(
+      (p) => {
+        p.set('page', String(nextPagination.pageIndex + 1));
+        p.set('pageSize', String(nextPagination.pageSize));
+      },
+      { resetPage: false }
+    );
   };
 
   const commitBatchIdInput = () => {
@@ -212,7 +258,8 @@ const AdvisorInsights: FC = () => {
     const checkSummary =
       checksByName.get(insight.checkName)?.summary ?? insight.checkName;
     startChecks([insight.checkName], {
-      onSuccess: (newBatchId) =>
+      onSuccess: (newBatchId) => {
+        void navigator.clipboard.writeText(newBatchId);
         enqueueSnackbar(Messages.success.rerunStarted(checkSummary), {
           variant: 'success',
           action: (key) => (
@@ -228,7 +275,8 @@ const AdvisorInsights: FC = () => {
               {Messages.viewResults}
             </Button>
           ),
-        }),
+        });
+      },
     });
   };
 
@@ -429,7 +477,7 @@ const AdvisorInsights: FC = () => {
             isLoading,
             showProgressBars: isFetching && !isLoading,
           }}
-          onPaginationChange={setPagination}
+          onPaginationChange={handlePaginationChange}
           enableRowActions
           positionActionsColumn="last"
           renderRowActions={({ row }) => (

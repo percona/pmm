@@ -69,7 +69,7 @@ export const Messages = {
   },
   success: {
     rerunStarted: (check: string) =>
-      `Check "${check}" started. The results will be available shortly.`,
+      `Check "${check}" started, batch ID copied to clipboard.`,
     checkEnabled: (check: string) => `Check "${check}" enabled`,
     checkDisabled: (check: string) => `Check "${check}" disabled`,
     copied: 'Insight copied to clipboard',

@@ -64,11 +64,13 @@ const TEST_ADVISORS: Advisor[] = [
   },
 ];
 
-const renderComponent = () =>
+const renderComponent = (initialEntry = '/advisors') =>
   render(
     wrapWithQueryProvider(
       wrapWithSnackbarProvider(
-        wrapWithUserProvider(wrapWithRouter(<AdvisorsList />))
+        wrapWithUserProvider(
+          wrapWithRouter(<AdvisorsList />, { initialEntries: [initialEntry] })
+        )
       )
     )
   );
@@ -153,6 +155,18 @@ describe('AdvisorsList', () => {
     ).toBeInTheDocument();
   });
 
+  it('reads the vendor filter from the URL (deep link)', async () => {
+    renderComponent('/advisors?vendor=PostgreSQL');
+
+    await waitFor(() =>
+      expect(screen.getByText('PostgreSQL super role')).toBeInTheDocument()
+    );
+
+    expect(
+      screen.queryByTestId('check-mysql_version_check-run')
+    ).not.toBeInTheDocument();
+  });
+
   it('clears an active filter via the clear-filters button', async () => {
     renderComponent();
 
@@ -196,6 +210,7 @@ describe('AdvisorsList', () => {
       screen.getByText(Messages.success.checksStarted)
     ).toBeInTheDocument();
     expect(screen.getByTestId('view-run-results')).toBeInTheDocument();
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('run-123');
   });
 
   it('runs checks matching the global search', async () => {
