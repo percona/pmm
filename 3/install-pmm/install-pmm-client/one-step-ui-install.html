@@ -7,19 +7,19 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="This method allows you to install PMM Client using pre-compiled binary packages on a wide range of Linux distributions, for both x86_64 and ARM64 architectures.">
+        <meta name="description" content="Use the Install PMM Client wizard to generate a single command that installs pmm-client, registers the node with PMM Server, and adds one monitored service.">
       
       
         <meta name="author" content="Percona LLC">
       
       
-        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/binary_package.html">
+        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/one-step-ui-install.html">
       
       
-        <link rel="prev" href="package_manager.html">
+        <link rel="prev" href="prerequisites.html">
       
       
-        <link rel="next" href="docker.html">
+        <link rel="next" href="package_manager.html">
       
       
         
@@ -30,7 +30,7 @@
     
     
       
-        <title>Install from binaries - Percona Monitoring and Management</title>
+        <title>One-step install from UI - Percona Monitoring and Management</title>
       
     
     
@@ -96,7 +96,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Install from binaries" />
+                 <meta property="og:title" content="Percona Monitoring and Management - One-step install from UI" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -119,7 +119,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#install-pmm-client-manually-using-binaries" class="md-skip">
+        <a href="#one-step-pmm-client-install-from-ui" class="md-skip">
           Skip to content
         </a>
       
@@ -226,7 +226,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Install from binaries
+              One-step install from UI
             
           </span>
         </div>
@@ -2513,10 +2513,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="one-step-ui-install.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    One-step install from UI
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="one-step-ui-install.html" class="md-nav__link md-nav__link--active">
         
   
   
@@ -2532,6 +2559,92 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generate-the-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate the command
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-script-does" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the script does
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-database-instances-on-one-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple database instances on one node
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -2541,20 +2654,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4" >
         
           
           <label class="md-nav__link" for="__nav_5_4_4" id="__nav_5_4_4_label" tabindex="0">
@@ -2575,7 +2686,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_4_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2618,37 +2729,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Install from binaries
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="binary_package.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="binary_package.html" class="md-nav__link">
         
   
   
@@ -2664,98 +2748,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Prerequisites
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#installation-and-setup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Installation and setup
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Installation and setup">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#install-pmm-client" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Install PMM Client
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#register-the-node" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Register the node
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#verify-the-connection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Verify the connection
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-topics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Related topics
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -16185,7 +16177,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
                       <div data-banner="data-banner" class="edit-contrib-banner">
   <div class="banner-content">
     <!-- Edit link centered -->
-    <a href="https://github.com/percona/pmm/edit/main/documentation/docs/install-pmm/install-pmm-client/binary_package.md" title="Edit this page on GitHub" class="edit-page-link">
+    <a href="https://github.com/percona/pmm/edit/main/documentation/docs/install-pmm/install-pmm-client/one-step-ui-install.md" title="Edit this page on GitHub" class="edit-page-link">
       <span class="edit-page-icon">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
@@ -16236,10 +16228,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#prerequisites" class="md-nav__link">
+  <a href="#before-you-start" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Prerequisites
+        Before you start
       
     </span>
   </a>
@@ -16247,49 +16239,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#installation-and-setup" class="md-nav__link">
+  <a href="#generate-the-command" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Installation and setup
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Installation and setup">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#install-pmm-client" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Install PMM Client
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#register-the-node" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Register the node
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#verify-the-connection" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Verify the connection
+        Generate the command
       
     </span>
   </a>
@@ -16297,10 +16250,43 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#related-topics" class="md-nav__link">
+  <a href="#what-the-script-does" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Related topics
+        What the script does
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-database-instances-on-one-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple database instances on one node
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
       
     </span>
   </a>
@@ -16328,342 +16314,115 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     
       
     
-    <a href="https://github.com/percona/pmm/raw/main/documentation/docs/install-pmm/install-pmm-client/binary_package.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/main/documentation/docs/install-pmm/install-pmm-client/one-step-ui-install.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="install-pmm-client-manually-using-binaries">Install PMM Client manually using binaries<a class="headerlink" href="#install-pmm-client-manually-using-binaries" title="Permanent link">&para;</a></h1>
-<p>This method allows you to install PMM Client using pre-compiled binary packages on a wide range of Linux distributions, for both x86_64 and ARM64 architectures.</p>
-<p>Installing from binaries offers these advantages:</p>
+<h1 id="one-step-pmm-client-install-from-ui">One-step PMM Client install from UI<a class="headerlink" href="#one-step-pmm-client-install-from-ui" title="Permanent link">&para;</a></h1>
+<p>Use the <strong>Install PMM Client</strong> wizard to generate a single command that installs <code>pmm-client</code>, registers the node with PMM Server, and adds one monitored service.</p>
+<h2 id="before-you-start">Before you start<a class="headerlink" href="#before-you-start" title="Permanent link">&para;</a></h2>
 <ul>
-<li>supports Linux distributions not covered by package managers</li>
-<li>doesn&rsquo;t require package managers</li>
-<li>allows installation without root permissions (unique to this method)</li>
-<li>provides complete control over the installation location</li>
+<li>PMM Server must be reachable from the target node (default port <code>443</code>; whatever you set in <strong>PMM host</strong> is used in <code>PMM_SERVER_URL</code>).</li>
+<li>The node user running the command needs <code>sudo</code> access (or run it as <code>root</code>, e.g. inside a container).</li>
+<li>A short-lived service token is minted from the UI on demand — you do not need to provision one beforehand. The Grafana <strong>Install PMM Client</strong> service account is <strong>Admin</strong> org role and <strong>expires 15 minutes after generation</strong>; treat the URL like a password.</li>
 </ul>
-<div class="admonition hint alert alert-success">
-<p class="admonition-title">Tip for quick installation</p>
-<p>For a quick installation:</p>
+<h2 id="generate-the-command">Generate the command<a class="headerlink" href="#generate-the-command" title="Permanent link">&para;</a></h2>
+<ol>
+<li>In PMM UI, open <strong>Inventory → Install PMM Client</strong>.</li>
+<li>Choose <strong>Technology</strong>: <code>MySQL</code>, <code>PostgreSQL</code>, <code>MongoDB</code>, or <code>Valkey</code>.</li>
+<li>Click <strong>Generate short-lived token</strong>. The countdown chip shows the remaining lifetime.</li>
+<li>Copy the <strong>Generated command</strong> and run it on your database server with <code>sudo</code> before the token expires. By default the command uses <strong>prompt on node</strong> mode: the script downloads to <code>/tmp/install-pmm-client.sh</code>, then asks for the DB user and password on the server (they are not embedded in the command).</li>
+<li>Optional — open <strong>Advanced options</strong> for node name/address, DB host/port, service name, MySQL query source (QAN), PostgreSQL database, MongoDB auth DB, or <strong>Use insecure TLS</strong>.</li>
+<li>Optional — enable <strong>Running in CI/automation?</strong> if you need credentials embedded in the command instead of prompted on the node:</li>
+<li><strong>Include env variables</strong> (recommended for <code>curl | bash</code>): credentials in the environment of the spawned shell.</li>
+<li><strong>Pass as script flags</strong>: credentials as <code>--db-user</code> / <code>--db-password</code> script arguments.</li>
+<li><strong>Prompt on node</strong> remains available here for automation that still allocates a TTY.</li>
+</ol>
+<p><strong>Advanced options</strong> also contains <strong>Force re-register node</strong> — use only to recover from a broken first install (it removes the existing node and all its services on PMM Server). Do not enable it when adding another database instance on the same host.</p>
+<p>Example (env mode, MySQL with Performance Schema QAN):</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-fsSLk<span class="w"> </span><span class="s1">&#39;https://&lt;pmm-host&gt;/pmm-static/install-pmm-client.sh&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>-E<span class="w"> </span>env<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">PMM_SERVER_URL</span><span class="o">=</span><span class="s1">&#39;https://service_token:&lt;TOKEN&gt;@&lt;pmm-host&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">TECH</span><span class="o">=</span><span class="s1">&#39;mysql&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">DB_USER</span><span class="o">=</span><span class="s1">&#39;pmm&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">DB_PASSWORD</span><span class="o">=</span><span class="s1">&#39;secret&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">DB_QUERY_SOURCE</span><span class="o">=</span><span class="s1">&#39;perfschema&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>bash<span class="w"> </span>-s<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--pmm-server-insecure-tls
+</code></pre></div>
+<p>Example (env mode, matches what the wizard renders):</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-fsSLk<span class="w"> </span><span class="s1">&#39;https://&lt;pmm-host&gt;/pmm-static/install-pmm-client.sh&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>-E<span class="w"> </span>env<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">PMM_SERVER_URL</span><span class="o">=</span><span class="s1">&#39;https://service_token:&lt;TOKEN&gt;@&lt;pmm-host&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">TECH</span><span class="o">=</span><span class="s1">&#39;mysql&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">DB_USER</span><span class="o">=</span><span class="s1">&#39;pmm&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">DB_PASSWORD</span><span class="o">=</span><span class="s1">&#39;secret&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>bash<span class="w"> </span>-s<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--pmm-server-insecure-tls
+</code></pre></div>
+<p>Example (prompt mode — credentials never appear in the rendered command):</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-fsSLk<span class="w"> </span>-o<span class="w"> </span><span class="s1">&#39;/tmp/install-pmm-client.sh&#39;</span><span class="w"> </span><span class="s1">&#39;https://&lt;pmm-host&gt;/pmm-static/install-pmm-client.sh&#39;</span>
+sudo<span class="w"> </span>-E<span class="w"> </span>bash<span class="w"> </span><span class="s1">&#39;/tmp/install-pmm-client.sh&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--pmm-server-url<span class="w"> </span><span class="s1">&#39;https://service_token:&lt;TOKEN&gt;@&lt;pmm-host&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--tech<span class="w"> </span><span class="s1">&#39;mysql&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--pmm-server-insecure-tls
+</code></pre></div>
+<p>The second line runs <code>bash</code> against a file (not against a pipe), so <code>sudo</code> keeps stdin connected to your terminal. The script then asks twice — once for the DB user, once for the DB password (silent input) — before running <code>pmm-admin add</code>. Fields you set under <strong>Advanced options</strong> (host, port, service name, MySQL query source, MongoDB auth DB, PostgreSQL database) are passed as <code>--db-*</code> flags so you only have to type two things on the node.</p>
+<p>Notes on the rendered command:</p>
 <ul>
-<li>Download the PMM Client tar.gz file</li>
-<li>Extract it</li>
-<li>Run <code>./install_tarball</code> (or with <code>-u</code> flag to preserve existing config during upgrades)</li>
+<li><code>curl -fsSLk</code> (with <code>-k</code>) is emitted only when <strong>Use insecure TLS</strong> is on; with a properly signed PMM Server certificate the wizard drops the <code>-k</code>.</li>
+<li>TLS-skip on the PMM Server side is controlled by the <code>--pmm-server-insecure-tls</code> script flag (passed after <code>bash -s --</code>, or as an argument to <code>bash &lt;path&gt;</code> in prompt mode). The script also accepts <code>PMM_SERVER_INSECURE_TLS=1</code> as an env var if you build the command by hand.</li>
+<li><code>sudo -E env VAR=... bash -s --</code> is the standard shape for env/flags modes; <code>-E</code> preserves your shell&rsquo;s exports while the explicit <code>VAR=...</code> list gets handed to <code>bash</code>&rsquo;s environment (and therefore to the script).</li>
+<li>Prompt mode uses <code>sudo -E bash &lt;path&gt; ...</code> instead of <code>sudo -E env … bash -s --</code>: there is no inline env block in the copied command, but <code>-E</code> still forwards your shell exports (e.g. <code>DB_USER</code> / <code>DB_PASSWORD</code>) so credentials can be supplied without prompts or appearing in the command string. Stdin stays on your TTY the same way as plain <code>sudo bash</code>.</li>
 </ul>
-</div>
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<p class="power-number">Complete these essential steps before installation:</p>
+<h2 id="what-the-script-does">What the script does<a class="headerlink" href="#what-the-script-does" title="Permanent link">&para;</a></h2>
+<p>The script available at <code>/pmm-static/install-pmm-client.sh</code> performs:</p>
 <ol>
-<li>
-<p>Check <a href="prerequisites.html">system requirements</a> to ensure your environment meets the minimum criteria.</p>
-</li>
-<li>
-<p><a href="../install-pmm-server/index.html">Install and configure PMM Server</a> as you&rsquo;ll its IP address or hostname to configure the Client.</p>
-</li>
-<li>
-<p><a href="../plan-pmm-installation/network_and_firewall.html">Set up firewall rules</a> to allow communication between PMM Client and PMM Server.</p>
-</li>
-<li>
-<p><a href="prerequisites.html#database-monitoring-requirements">Create database monitoring users</a> with appropriate permissions for the databases you plan to monitor.</p>
-</li>
+<li>Installs <code>pmm-client</code> using the OS package manager (RHEL-compatible or Debian-compatible hosts).</li>
+<li>Ensures <code>pmm-agent</code> is running (starts it via <code>systemd</code> when available, otherwise <code>nohup</code> in the background).</li>
+<li>Runs <code>pmm-admin config</code> against your PMM server to register the node and persist the agent identity — <strong>skipped automatically</strong> when <code>pmm-agent</code> is already set up on the node (use <strong>Force re-register node</strong> / <code>--force</code> only when you need to replace the existing registration).</li>
+<li>Runs <code>pmm-admin add &lt;technology&gt;</code> using your selected options.</li>
 </ol>
-<div class="admonition note">
-<p class="admonition-title">Version information</p>
-<p>The commands below are for the latest PMM release. If you want to install a different release, make sure to update the commands with your required version number.</p>
-</div>
-<h2 id="installation-and-setup">Installation and setup<a class="headerlink" href="#installation-and-setup" title="Permanent link">&para;</a></h2>
-<p>Binary installation adapts to your environment&rsquo;s permission model. Complete the installation first, then register your node for monitoring.</p>
-<h3 id="install-pmm-client">Install PMM Client<a class="headerlink" href="#install-pmm-client" title="Permanent link">&para;</a></h3>
-<p>Select the appropriate instructions based on your access level:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">With root permissions</label><label for="__tabbed_1_2">Without root permissions</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p class="power-number">To install with root/administrator privileges:</p>
+<p>When <strong>Service name</strong> is left empty in the wizard, the script picks <code>&lt;hostname&gt;-&lt;tech&gt;</code> (for example <code>db1-mysql</code>). If you set <strong>DB port</strong> (or the effective port is not the technology default), the script appends <code>-&lt;port&gt;</code> (for example <code>db1-mysql-3307</code>) so multiple instances on one node get distinct names.</p>
+<p>For <strong>MySQL</strong>, set <strong>Query source (QAN)</strong> to <code>slowlog</code>, <code>perfschema</code>, or <code>none</code>. The script passes it to <code>pmm-admin add mysql</code> as <code>--query-source</code>. When omitted, <code>pmm-admin</code> uses its default (<code>slowlog</code>). See <a href="connect-database/mysql/mysql.html#quick-setup">Connect MySQL databases to PMM</a> for permission requirements per source.</p>
+<h2 id="multiple-database-instances-on-one-node">Multiple database instances on one node<a class="headerlink" href="#multiple-database-instances-on-one-node" title="Permanent link">&para;</a></h2>
+<p>Use the wizard <strong>once per instance</strong> on the same host:</p>
 <ol>
-<li>
-<p>Download the PMM Client package for your architecture:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">For x86_64 (AMD64)</label><label for="__tabbed_2_2">For ARM64 (aarch64)</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm3/3.8.1/binary/tarball/pmm-client-3.8.1-x86_64.tar.gz
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm3/3.8.1/binary/tarball/pmm-client-3.8.1-aarch64.tar.gz
-</code></pre></div>
-</div>
-</div>
-</div>
-</li>
-<li>
-<p>Download the corresponding checksum file to verify integrity:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">For x86_64 (AMD64)</label><label for="__tabbed_3_2">For ARM64 (aarch64)</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm3/3.8.1/binary/tarball/pmm-client-3.8.1-x86_64.tar.gz.sha256sum
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm3/3.8.1/binary/tarball/pmm-client-3.8.1-aarch64.tar.gz.sha256sum
-</code></pre></div>
-</div>
-</div>
-</div>
-</li>
-<li>
-<p>Verify the download:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">For x86_64 (AMD64)</label><label for="__tabbed_4_2">For ARM64 (aarch64)</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>sha256sum<span class="w"> </span>-c<span class="w"> </span>pmm-client-3.8.1-x86_64.tar.gz.sha256sum
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>sha256sum<span class="w"> </span>-c<span class="w"> </span>pmm-client-3.8.1-aarch64.tar.gz.sha256sum
-</code></pre></div>
-</div>
-</div>
-</div>
-</li>
-<li>
-<p>Unpack the package and move into the directory:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="5:2"><input checked="checked" id="__tabbed_5_1" name="__tabbed_5" type="radio" /><input id="__tabbed_5_2" name="__tabbed_5" type="radio" /><div class="tabbed-labels"><label for="__tabbed_5_1">For x86_64 (AMD64)</label><label for="__tabbed_5_2">For ARM64 (aarch64)</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>tar<span class="w"> </span>xfz<span class="w"> </span>pmm-client-3.8.1-x86_64.tar.gz<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>pmm-client-3.8.1
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>tar<span class="w"> </span>xfz<span class="w"> </span>pmm-client-3.8.1-aarch64.tar.gz<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>pmm-client-3.8.1
-</code></pre></div>
-</div>
-</div>
-</div>
-</li>
-<li>
-<p>Set the installation directory:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">PMM_DIR</span><span class="o">=</span>/usr/local/percona/pmm
-</code></pre></div>
-</li>
-<li>
-<p>Run the installer:</p>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>./install_tarball
-</code></pre></div>
-</li>
-<li>
-<p>Update your PATH:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$PMM_DIR</span>/bin
-</code></pre></div>
-</li>
-<li>
-<p>Create symbolic links to make PMM commands available system-wide:</p>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>/usr/local/percona/pmm/bin/pmm-agent<span class="w"> </span>/usr/local/bin/pmm-agent
-sudo<span class="w"> </span>ln<span class="w"> </span>-s<span class="w"> </span>/usr/local/percona/pmm/bin/pmm-admin<span class="w"> </span>/usr/local/bin/pmm-admin
-</code></pre></div>
-</li>
-<li>
-<p>Set up the agent:</p>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>pmm-agent<span class="w"> </span>setup<span class="w"> </span>--config-file<span class="o">=</span>/usr/local/percona/pmm/config/pmm-agent.yaml<span class="w"> </span>--server-address<span class="o">=</span><span class="m">192</span>.168.1.123<span class="w"> </span>--server-insecure-tls<span class="w"> </span>--server-username<span class="o">=</span>admin<span class="w"> </span>--server-password<span class="o">=</span>admin
-</code></pre></div>
-</li>
-<li>
-<p>Run the agent:</p>
-<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>pmm-agent<span class="w"> </span>--config-file<span class="o">=</span><span class="si">${</span><span class="nv">PMM_DIR</span><span class="si">}</span>/config/pmm-agent.yaml
-</code></pre></div>
-</li>
+<li><strong>First instance</strong> — generate a token and run the full command (install, register node, add service). Include <strong>PMM host</strong>, token, and credentials as usual.</li>
+<li><strong>Additional instances</strong> — generate a new token, set a different <strong>DB port</strong> (and credentials if they differ), and run the command again on the same node. You do <strong>not</strong> need <strong>Force re-register node</strong>; the script detects an already-configured <code>pmm-agent</code> and skips <code>pmm-admin config</code>, then runs only <code>pmm-admin add</code>.</li>
+<li>Leave <strong>Service name</strong> empty unless you want a custom name — the script suffixes the port when needed to avoid name clashes.</li>
 </ol>
-</div>
-<div class="tabbed-block">
-<p class="power-number">Follow these steps for environments where you don&rsquo;t have root access:</p>
-<ol>
-<li>
-<p>Download the PMM Client package for your architecture:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="6:2"><input checked="checked" id="__tabbed_6_1" name="__tabbed_6" type="radio" /><input id="__tabbed_6_2" name="__tabbed_6" type="radio" /><div class="tabbed-labels"><label for="__tabbed_6_1">For x86_64 (AMD64)</label><label for="__tabbed_6_2">For ARM64 (aarch64)</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm3/3.8.1/binary/tarball/pmm-client-3.8.1-x86_64.tar.gz
+<p>Example — second MySQL on port <code>3307</code> (prompt mode; DB credentials are prompted on the node):</p>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-fsSLk<span class="w"> </span>-o<span class="w"> </span><span class="s1">&#39;/tmp/install-pmm-client.sh&#39;</span><span class="w"> </span><span class="s1">&#39;https://&lt;pmm-host&gt;/pmm-static/install-pmm-client.sh&#39;</span>
+sudo<span class="w"> </span>-E<span class="w"> </span>bash<span class="w"> </span><span class="s1">&#39;/tmp/install-pmm-client.sh&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--pmm-server-url<span class="w"> </span><span class="s1">&#39;https://service_token:&lt;TOKEN&gt;@&lt;pmm-host&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--tech<span class="w"> </span><span class="s1">&#39;mysql&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--db-port<span class="w"> </span><span class="s1">&#39;3307&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--pmm-server-insecure-tls
 </code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm3/3.8.1/binary/tarball/pmm-client-3.8.1-aarch64.tar.gz
-</code></pre></div>
-</div>
-</div>
-</div>
-</li>
-<li>
-<p>Download the corresponding checksum file to verify integrity:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="7:2"><input checked="checked" id="__tabbed_7_1" name="__tabbed_7" type="radio" /><input id="__tabbed_7_2" name="__tabbed_7" type="radio" /><div class="tabbed-labels"><label for="__tabbed_7_1">For x86_64 (AMD64)</label><label for="__tabbed_7_2">For ARM64 (aarch64)</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm3/3.8.1/binary/tarball/pmm-client-3.8.1-x86_64.tar.gz.sha256sum
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>wget<span class="w"> </span>https://downloads.percona.com/downloads/pmm3/3.8.1/binary/tarball/pmm-client-3.8.1-aarch64.tar.gz.sha256sum
-</code></pre></div>
-</div>
-</div>
-</div>
-</li>
-<li>
-<p>Verify the download:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="8:2"><input checked="checked" id="__tabbed_8_1" name="__tabbed_8" type="radio" /><input id="__tabbed_8_2" name="__tabbed_8" type="radio" /><div class="tabbed-labels"><label for="__tabbed_8_1">For x86_64 (AMD64)</label><label for="__tabbed_8_2">For ARM64 (aarch64)</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>sha256sum<span class="w"> </span>-c<span class="w"> </span>pmm-client-3.8.1-x86_64.tar.gz.sha256sum
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>sha256sum<span class="w"> </span>-c<span class="w"> </span>pmm-client-3.8.1-aarch64.tar.gz.sha256sum
-</code></pre></div>
-</div>
-</div>
-</div>
-</li>
-<li>
-<p>Unpack the package and move into the directory:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="9:2"><input checked="checked" id="__tabbed_9_1" name="__tabbed_9" type="radio" /><input id="__tabbed_9_2" name="__tabbed_9" type="radio" /><div class="tabbed-labels"><label for="__tabbed_9_1">For x86_64 (AMD64)</label><label for="__tabbed_9_2">For ARM64 (aarch64)</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>tar<span class="w"> </span>xfz<span class="w"> </span>pmm-client-3.8.1-x86_64.tar.gz<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>pmm-client-3.8.1
-</code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>tar<span class="w"> </span>xfz<span class="w"> </span>pmm-client-3.8.1-aarch64.tar.gz<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>pmm-client-3.8.1
-</code></pre></div>
-</div>
-</div>
-</div>
-</li>
-<li>
-<p>Set the installation directory:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">PMM_DIR</span><span class="o">=</span>YOURPATH
-</code></pre></div>
-<p>Replace YOURPATH with a path where you have required access.</p>
-</li>
-<li>
-<p>Run the installer:</p>
-<div class="highlight"><pre><span></span><code>./install_tarball
-</code></pre></div>
-</li>
-<li>
-<p>Update your PATH:</p>
-<div class="highlight"><pre><span></span><code><span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$PMM_DIR</span>/bin
-</code></pre></div>
-</li>
-<li>
-<p>Set up the agent:</p>
-<div class="highlight"><pre><span></span><code>pmm-agent<span class="w"> </span>setup<span class="w"> </span>--config-file<span class="o">=</span><span class="si">${</span><span class="nv">PMM_DIR</span><span class="si">}</span>/config/pmm-agent.yaml<span class="w"> </span>--server-address<span class="o">=</span><span class="m">192</span>.168.1.123<span class="w"> </span>--server-insecure-tls<span class="w"> </span>--server-username<span class="o">=</span>admin<span class="w"> </span>--server-password<span class="o">=</span>admin<span class="w"> </span>--paths-tempdir<span class="o">=</span><span class="si">${</span><span class="nv">PMM_DIR</span><span class="si">}</span>/tmp<span class="w"> </span>--paths-base<span class="o">=</span><span class="si">${</span><span class="nv">PMM_DIR</span><span class="si">}</span>
-</code></pre></div>
-</li>
-<li>
-<p>Run the agent:</p>
-<div class="highlight"><pre><span></span><code>pmm-agent<span class="w"> </span>--config-file<span class="o">=</span><span class="si">${</span><span class="nv">PMM_DIR</span><span class="si">}</span>/config/pmm-agent.yaml
-</code></pre></div>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<h3 id="register-the-node">Register the node<a class="headerlink" href="#register-the-node" title="Permanent link">&para;</a></h3>
-<p>After installing PMM Client, register your node with PMM Server to begin monitoring. This enables PMM Server to collect metrics and provide monitoring dashboards for your database infrastructure.</p>
-<p>Registration requires authentication to verify that your PMM Client has permission to connect and send data to the PMM Server. PMM supports two authentication methods for registering the node: secure service account tokens and standard username/password credentials.</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="10:2"><input checked="checked" id="__tabbed_10_1" name="__tabbed_10" type="radio" /><input id="__tabbed_10_2" name="__tabbed_10" type="radio" /><div class="tabbed-labels"><label for="__tabbed_10_1">Using Service accounts (Recommended)</label><label for="__tabbed_10_2">Standard authentication (Not recommended)</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<p><a href="../../api/authentication.html">Service accounts</a> provide secure, token-based authentication for registering nodes with PMM Server. Unlike standard user credentials, service account tokens can be easily rotated, revoked, or scoped to specific permissions without affecting user access to PMM.</p>
-<p class="power-number">To register with service accounts, create a service account then generate an authentication token that you can use to register the PMM Client:</p>
-<ol>
-<li>Log into PMM web interface.</li>
-<li>Navigate to <strong>Users and access &gt; Service accounts</strong>.</li>
-<li>Click <strong>Add service account</strong>.</li>
-<li>Enter a descriptive name (e.g.: <code>pmm-client-prod-db01</code>). Keep in mind that PMM automatically shortens names exceeding 200 characters using a <code>{prefix}_{hash}</code> pattern.</li>
-<li>Select the <strong>Admin</strong> role from the drop-down. For detailed information about what each role can do, see <a href="../../admin/roles/index.html">Role types in PMM</a>.</li>
-<li>Click <strong>Create &gt; Add service account token</strong>.</li>
-<li>(Optional) Name your token or leave blank for auto-generated name.</li>
-<li>(Optional) Set expiration date for enhanced security. Expired tokens require manual rotation. Permanent tokens remain valid until revoked.</li>
-<li>Click <strong>Generate Token</strong>.</li>
-<li><strong>Save your token immediately</strong>. It starts with <code>glsa_</code> and won&rsquo;t be shown again!</li>
-<li>
-<p>Register using the token:</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--server-url<span class="o">=</span>https://service_token:YOUR_GLSA_TOKEN@YOUR_PMM_SERVER:443<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span><span class="o">[</span>NODE_ADDRESS<span class="o">]</span><span class="w"> </span><span class="o">[</span>NODE_TYPE<span class="o">]</span><span class="w"> </span><span class="o">[</span>NODE_NAME<span class="o">]</span>
-</code></pre></div>
-<p><strong>Parameters explained:</strong></p>
+<p>After the first run, <code>pmm-admin config</code> is skipped even though the command still includes <code>--pmm-server-url</code> (required for the first run and harmless on later runs). For additional instances you may omit <code>--pmm-server-url</code> if you build the command by hand.</p>
+<p><strong>Warning:</strong> <strong>Force re-register node</strong> (<code>--force</code>) removes the existing node <strong>and all services</strong> on PMM Server before registering again. Use it only to recover from a broken first registration — not when adding another database instance.</p>
+<h2 id="security-notes">Security notes<a class="headerlink" href="#security-notes" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>--server-insecure-tls</code> - Skip certificate validation (remove for production with valid certificates)</li>
-<li><code>YOUR_PMM_SERVER</code> - Your PMM Server&rsquo;s IP address or hostname</li>
-<li><code>service_token</code> - Use this exact string as the username (not a placeholder!)</li>
-<li><code>YOUR_GLSA_TOKEN</code> - The token you copied (starts with <code>glsa_</code>)</li>
-<li><code>[NODE_ADDRESS]</code> - (Optional) IP address of the node being registered</li>
-<li><code>[NODE_TYPE]</code> - (Optional) Node type: <code>generic</code>, <code>container</code>, etc.</li>
-<li><code>[NODE_NAME]</code> - (Optional) Descriptive name for the node.</li>
+<li>Generated tokens are tied to Grafana service accounts minted as <strong>Admin</strong> org role and live for <strong>15 minutes</strong> — generate, run, done. There is no way to extend the lifetime from the UI.</li>
+<li>The default <strong>prompt on node</strong> flow keeps DB credentials off the clipboard. Enable <strong>Running in CI/automation?</strong> only when you need env/flags mode; credentials may then appear in the command line or process environment briefly on the target node.</li>
+<li>Avoid copy-pasting the command into chat/issue trackers; the embedded service token is a credential. (In prompt mode the DB credentials are not in the command, but the PMM service token still is.)</li>
 </ul>
-<details class="example">
-<summary>Full example with node details</summary>
-<p><div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--server-url<span class="o">=</span>https://service_token:glsa_aBc123XyZ456...@192.168.33.14:443<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span><span class="m">192</span>.168.33.23<span class="w"> </span>generic<span class="w"> </span>prod-db01
-</code></pre></div>
-This registers node <code>192.168.33.23</code> with type <code>generic</code> and name <code>prod-db01</code>.</p>
-</details>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p><strong>curl / browser returns <code>404</code></strong> on URLs like <code>/graph/…</code> — PMM Web UI lives under <strong><code>/pmm-ui/</code></strong>. Use paths such as <code>/pmm-ui/graph/inventory/nodes</code>, not <code>/graph/inventory/nodes</code>. This matches what the browser loads (see address bar vs. truncated copy-pastes).</p>
 </li>
-</ol>
-</div>
-<div class="tabbed-block">
-<p>This method exposes credentials in command history, process lists, and logs. Use only for testing or migration scenarios.</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
---server-url<span class="o">=</span>https://admin:admin@YOUR_PMM_SERVER:443
-</code></pre></div>
-<p><strong>Parameters explained:</strong></p>
-<ul>
-<li><code>YOUR_PMM_SERVER</code>- Your PMM Server&rsquo;s IP address or hostname</li>
-<li><code>443</code> - Default HTTPS port</li>
-<li><code>admin</code>/<code>admin</code> - Default PMM username and password (change this immediately after first login)</li>
-</ul>
-<details class="example">
-<summary>Registration with node details</summary>
-<p>Register a node with IP address <code>192.168.33.23</code>, type <code>generic</code>, and name <code>mynode</code>:</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>config<span class="w"> </span>--server-insecure-tls<span class="w"> </span><span class="se">\</span>
---server-url<span class="o">=</span>https://admin:admin@192.168.33.14:443<span class="w"> </span><span class="se">\</span>
-<span class="m">192</span>.168.33.23<span class="w"> </span>generic<span class="w"> </span>mynode
-</code></pre></div>
-</details>
-<p class="power-number">To migrate to <a href="../../api/authentication.html">service accounts</a>:</p>
-<ol>
-<li>Create service accounts while still using standard authentication.</li>
-<li>Test service account tokens on non-critical nodes.</li>
-<li>Gradually migrate all nodes to token authentication.</li>
-<li>Change the admin password from default.</li>
-<li>Consider restricting or disabling direct admin account usage for node registration.</li>
-</ol>
-<div class="admonition info">
-<p class="admonition-title">HTTPS requirement</p>
-<p>PMM requires HTTPS connections (port <code>443</code> by default). HTTP URLs automatically redirect to HTTPS. For connection errors, verify:</p>
-<ul>
-<li>Port <code>443</code> is accessible</li>
-<li>Firewall rules allow HTTPS traffic</li>
-<li>TLS certificates are valid (or use <code>--server-insecure-tls</code>)</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-<h2 id="verify-the-connection">Verify the connection<a class="headerlink" href="#verify-the-connection" title="Permanent link">&para;</a></h2>
-<p>Check that PMM Client is properly connected and registered:</p>
-<div class="highlight"><pre><span></span><code>pmm-admin<span class="w"> </span>status
-</code></pre></div>
-<h2 id="related-topics">Related topics<a class="headerlink" href="#related-topics" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="prerequisites.html">Prerequisites for PMM Client</a></li>
-<li><a href="connect-database/index.html">Connect databases for monitoring</a></li>
-<li><a href="../../uninstall-pmm/unregister_client.html">Uninstall PMM Client</a></li>
-<li><a href="docker.html">Docker installation option</a> </li>
-<li><a href="package_manager.html">Package manager installation</a> </li>
+<li>
+<p><strong>TLS handshake errors against PMM Server</strong> — turn on <strong>Use insecure TLS</strong> in the wizard (sets the <code>--pmm-server-insecure-tls</code> script flag). The wizard also adds <code>-k</code> to <code>curl</code> so the script download itself succeeds.</p>
+</li>
+<li><strong>Package install fails</strong> — verify outbound access to the Percona repositories (<code>repo.percona.com</code>).</li>
+<li><strong><code>pmm-admin add</code> fails (auth, name conflict, etc.)</strong> — on the <strong>first</strong> run, the node was already registered by <code>pmm-admin config</code>. Re-run with <strong>Force re-register node</strong> enabled (this passes <code>--force</code> to <code>pmm-admin config</code>, which removes the previous node and its services on the server before re-registering). You may also have to fix the database credentials before retrying. On <strong>additional instances</strong> on an already-registered node, a name conflict usually means the service name collides — set a unique <strong>Service name</strong> or a distinct <strong>DB port</strong> so the script default includes a port suffix.</li>
+<li><strong><code>pmm-agent is not running</code></strong> — happens in containers without <code>systemd</code>. The script auto-starts it via <code>nohup</code> and writes logs to <code>/var/log/pmm-agent.log</code>; check there.</li>
+<li><strong><code>hostname: command not found</code></strong> — only on extremely minimal images; the script falls back to <code>$HOSTNAME</code>/<code>uname -n</code>/<code>/etc/hostname</code> and finally <code>node</code>.</li>
+<li><strong>Prompt mode does not actually prompt</strong> — the script&rsquo;s noninteractive guard fires when stdin is not a TTY, e.g. when the prompt-mode command is invoked through <code>ssh host '&lt;paste&gt;'</code> (no allocated TTY) or through automation. Run it from an interactive shell on the node, or enable <strong>Running in CI/automation?</strong> and use <strong>Include env variables</strong> / <strong>Pass as script flags</strong> instead.</li>
+<li><strong>Cleanup after prompt mode</strong> — the downloaded script lives at <code>/tmp/install-pmm-client.sh</code> after a successful install. It is harmless (no embedded secrets), but if you want it gone: <code>rm -f /tmp/install-pmm-client.sh</code>.</li>
 </ul>
 
 
@@ -16687,7 +16446,7 @@ This registers node <code>192.168.33.23</code> with type <code>generic</code> an
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 14, 2026 12:45:19 UTC">July 14, 2026</span>
   </span>
 
     
@@ -16697,7 +16456,7 @@ This registers node <code>192.168.33.23</code> with type <code>generic</code> an
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 14, 2026 12:45:19 UTC">July 14, 2026</span>
   </span>
 
     
