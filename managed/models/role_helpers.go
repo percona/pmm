@@ -53,11 +53,11 @@ func AssignRoles(tx *reform.TX, userID int, roleIDs []int) error {
 		}
 
 		if roleID < 0 || roleID > math.MaxUint32 {
-			logrus.Warnf("Role ID %d is out of range for uint32", roleID)
+			return fmt.Errorf("role ID %d is out of range for uint32", roleID)
 		}
 		var userRole UserRoles
 		userRole.UserID = userID
-		userRole.RoleID = uint32(roleID) //nolint:gosec // role ID is not expected to overflow uint32
+		userRole.RoleID = uint32(roleID)
 		s = append(s, &userRole)
 	}
 

@@ -267,7 +267,7 @@ func TestListTemplatesOverflow(t *testing.T) {
 		resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{})
 		assert.Nil(t, resp)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "alerting template severity 2147483648 is out of range for int32")
+		assert.Contains(t, err.Error(), "alerting template (name=overflow) severity 2147483648 is out of range for int32")
 	})
 
 	t.Run("SeverityUnderflow", func(t *testing.T) {
@@ -283,7 +283,7 @@ func TestListTemplatesOverflow(t *testing.T) {
 		resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{})
 		assert.Nil(t, resp)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "alerting template severity -2147483649 is out of range for int32")
+		assert.Contains(t, err.Error(), "alerting template (name=underflow) severity -2147483649 is out of range for int32")
 	})
 }
 
@@ -306,6 +306,30 @@ func TestListTemplatesPagination(t *testing.T) {
 	}
 	svc.rw.Unlock()
 
+	t.Run("NegativePagination", func(t *testing.T) {
+		_, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{
+			PageIndex: new(int32(-1)),
+		})
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "page index must be non-negative")
+
+		_, err = svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{
+			PageSize: new(int32(-1)),
+		})
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "page size must be non-negative")
+	})
+
+	t.Run("PageSizeZero", func(t *testing.T) {
+		// PageSize 0 is handled as "return all" in the service logic
+		resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{
+			PageSize: new(int32(0)),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, int32(3), resp.TotalItems)
+		assert.Len(t, resp.Templates, 3)
+	})
+
 	t.Run("FullPage", func(t *testing.T) {
 		resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{
 			PageSize: new(int32(2)),
@@ -325,5 +349,15 @@ func TestListTemplatesPagination(t *testing.T) {
 		assert.Equal(t, int32(2), resp.TotalPages)
 		assert.Len(t, resp.Templates, 1)
 		assert.Equal(t, "t3", resp.Templates[0].Name)
+	})
+
+	t.Run("PageIndexOutOfRange", func(t *testing.T) {
+		resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{
+			PageIndex: new(int32(10)),
+			PageSize:  new(int32(2)),
+		})
+		require.NoError(t, err)
+		assert.Empty(t, resp.Templates)
+		assert.Equal(t, int32(3), resp.TotalItems)
 	})
 }

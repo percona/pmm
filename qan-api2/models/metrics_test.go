@@ -293,16 +293,16 @@ func TestMetrics_SelectSparklines(t *testing.T) {
 	t.Run("Invalid time range", func(t *testing.T) {
 		t.Parallel()
 		res, err := m.SelectSparklines(ctx, periodTo, periodFrom, "B305F6354FA21F2A", "queryid", nil, nil)
-		assert.ErrorIs(t, err, errMetricsPeriodStartToLessStartFrom)
-		assert.Nil(t, res)
+		require.ErrorIs(t, err, errMetricsPeriodStartToLessStartFrom)
+		require.Nil(t, res)
 	})
 
 	t.Run("Very small time range", func(t *testing.T) {
 		t.Parallel()
 		ts := int64(1600000000)
 		res, err := m.SelectSparklines(ctx, ts, ts+1, "B305F6354FA21F2A", "queryid", nil, nil)
-		assert.NoError(t, err)
-		assert.NotNil(t, res)
+		require.NoError(t, err)
+		require.NotNil(t, res)
 	})
 
 	t.Run("Timeframe overflow", func(t *testing.T) {
@@ -312,15 +312,15 @@ func TestMetrics_SelectSparklines(t *testing.T) {
 		// To trigger > MaxUint32 (4294967295), difference must be > 515,396,075,400.
 		to := int64(600_000_000_000)
 		res, err := m.SelectSparklines(ctx, from, to, "B305F6354FA21F2A", "queryid", nil, nil)
-		assert.ErrorContains(t, err, "exceeds uint32 max value")
-		assert.Nil(t, res)
+		require.ErrorContains(t, err, "exceeds uint32 max value")
+		require.Nil(t, res)
 	})
 
 	t.Run("Happy path", func(t *testing.T) {
 		t.Parallel()
 		res, err := m.SelectSparklines(ctx, periodFrom, periodTo, "B305F6354FA21F2A", "queryid", nil, nil)
-		assert.NoError(t, err)
-		assert.NotNil(t, res)
+		require.NoError(t, err)
+		require.NotNil(t, res)
 		assert.NotEmpty(t, res)
 	})
 }

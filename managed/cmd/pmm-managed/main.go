@@ -134,9 +134,9 @@ const (
 	// a connection and send headers extremely slowly (or not at all),
 	// keeping the connection open indefinitely. This "Slowloris" attack can eventually
 	// exhaust the server's connection pool, leading to a Denial of Service (DoS).
-	readHeaderTimeout     = 10 * time.Second
-	pProfProfileDuration  = 30 * time.Second
-	pProfTraceDuration    = 10 * time.Second
+	readHeaderTimeout    = 10 * time.Second
+	pProfProfileDuration = 30 * time.Second
+	pProfTraceDuration   = 10 * time.Second
 
 	clickhouseMaxIdleConns = 5
 	clickhouseMaxOpenConns = 10

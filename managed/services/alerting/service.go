@@ -18,6 +18,7 @@ package alerting
 
 import (
 	"bytes"
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
@@ -25,7 +26,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -340,13 +341,18 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 		return nil, services.ErrAlertingDisabled
 	}
 
-	var pageIndex int
-	var pageSize int
+	var pageIndex, pageSize int
 	if req.PageIndex != nil {
 		pageIndex = int(*req.PageIndex)
+		if pageIndex < 0 {
+			return nil, errors.New("page index must be non-negative")
+		}
 	}
 	if req.PageSize != nil {
 		pageSize = int(*req.PageSize)
+		if pageSize < 0 {
+			return nil, errors.New("page size must be non-negative")
+		}
 	}
 
 	if req.Reload {
@@ -373,30 +379,27 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 		}
 	}
 
+	// Sort templates by Name directly using modern Go iterators (Go 1.23+)
+	// This avoids manual key collection and redundant map lookups.
+	sorted := slices.SortedFunc(maps.Values(templates), func(a, b models.Template) int {
+		return cmp.Compare(a.Name, b.Name)
+	})
+
+	from := min(pageIndex*pageSize, totalItems)
+	to := totalItems
+	if pageSize > 0 {
+		to = min(from+pageSize, totalItems)
+	}
+
+	// allocate slice with the exact size (to-from) but not the whole capacity (len(names))
+	// to avoid unnecessary memory usage
 	res := &alerting.ListTemplatesResponse{
-		Templates:  make([]*alerting.Template, 0, totalItems),
+		Templates:  make([]*alerting.Template, 0, to-from),
 		TotalItems: int32(totalItems),
 		TotalPages: int32(totalPages),
 	}
-
-
-	names := make([]string, 0, len(templates))
-	for name := range templates {
-		names = append(names, name)
-	}
-	sort.Strings(names)
-
-	from, to := pageIndex*pageSize, (pageIndex+1)*pageSize
-	if to > len(names) || to == 0 {
-		to = len(names)
-	}
-
-	if from > len(names) {
-		from = len(names)
-	}
-
-	for _, name := range names[from:to] {
-		t, err := convertTemplate(s.l, templates[name])
+	for _, tmpl := range sorted[from:to] {
+		t, err := convertTemplate(s.l, tmpl)
 		if err != nil {
 			return nil, err
 		}
@@ -548,7 +551,8 @@ func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Templ
 	}
 
 	if template.Severity < math.MinInt32 || template.Severity > math.MaxInt32 {
-		l.Warnf("Alerting template severity %d is out of range for int32", template.Severity)
+		return nil, fmt.Errorf("alerting template (name=%s) severity %d is out of range for int32",
+			template.Name, template.Severity)
 	}
 
 	t := &alerting.Template{
@@ -557,7 +561,7 @@ func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Templ
 		Expr:        template.Expr,
 		Params:      convertParamDefinitions(l, template.Params),
 		For:         durationpb.New(template.For),
-		Severity:    managementv1.Severity(template.Severity), //nolint:gosec
+		Severity:    managementv1.Severity(template.Severity),
 		Labels:      labels,
 		Annotations: annotations,
 		Source:      convertSource(template.Source),

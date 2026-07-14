@@ -497,7 +497,7 @@ GROUP BY point
 `
 
 var (
-	tmplMetricsSparklines = template.Must(template.New("queryMetricsSparklines").Funcs(funcMap).Parse(queryMetricsSparklinesTmpl))
+	tmplMetricsSparklines                = template.Must(template.New("queryMetricsSparklines").Funcs(funcMap).Parse(queryMetricsSparklinesTmpl))
 	errMetricsPeriodStartToLessStartFrom = errors.New("periodStartToSec must be greater than periodStartFromSec")
 )
 

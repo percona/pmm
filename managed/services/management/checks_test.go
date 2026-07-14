@@ -315,6 +315,70 @@ func TestGetFailedChecks(t *testing.T) {
 		assert.Empty(t, resp.Results)
 	})
 
+	t.Run("get failed checks with negative page index", func(t *testing.T) {
+		t.Parallel()
+
+		checkResult := []services.CheckResult{
+			{CheckName: "check1", Target: services.Target{ServiceName: "svc", ServiceID: "test_svc"}},
+		}
+		var checksService mockChecksService
+		checksService.On("GetChecksResults", mock.Anything, "test_svc").Return(checkResult, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		// Negative page index/size should be clamped to 0. PageSize 0 means return "all".
+		resp, err := s.GetFailedChecks(t.Context(), &advisorsv1.GetFailedChecksRequest{
+			ServiceId: "test_svc",
+			PageIndex: new(int32(-1)),
+			PageSize:  new(int32(10)),
+		})
+		require.ErrorContains(t, err, "page index must be non-negative")
+		require.Nil(t, resp)
+	})
+
+	t.Run("get failed checks with negative page size", func(t *testing.T) {
+		t.Parallel()
+
+		checkResult := []services.CheckResult{
+			{CheckName: "check1", Target: services.Target{ServiceName: "svc", ServiceID: "test_svc"}},
+		}
+		var checksService mockChecksService
+		checksService.On("GetChecksResults", mock.Anything, "test_svc").Return(checkResult, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		// Negative page index/size should be clamped to 0. PageSize 0 means return "all".
+		resp, err := s.GetFailedChecks(t.Context(), &advisorsv1.GetFailedChecksRequest{
+			ServiceId: "test_svc",
+			PageIndex: new(int32(1)),
+			PageSize:  new(int32(-10)),
+		})
+		require.ErrorContains(t, err, "page size must be non-negative")
+		require.Nil(t, resp)
+	})
+
+	t.Run("get failed checks with pagination overflow", func(t *testing.T) {
+		t.Parallel()
+
+		checkResult := []services.CheckResult{
+			{CheckName: "check1", Target: services.Target{ServiceName: "svc", ServiceID: "test_svc"}},
+		}
+		var checksService mockChecksService
+		checksService.On("GetChecksResults", mock.Anything, "test_svc").Return(checkResult, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		// Extremely large values should not cause a panic and should be handled by wider integer math.
+		resp, err := s.GetFailedChecks(t.Context(), &advisorsv1.GetFailedChecksRequest{
+			ServiceId: "test_svc",
+			PageIndex: new(int32(math.MaxInt32)),
+			PageSize:  new(int32(math.MaxInt32)),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, int32(1), resp.TotalItems)
+		assert.Empty(t, resp.Results)
+	})
+
 	t.Run("get failed checks with severity overflow", func(t *testing.T) {
 		t.Parallel()
 
@@ -339,8 +403,8 @@ func TestGetFailedChecks(t *testing.T) {
 		resp, err := s.GetFailedChecks(t.Context(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
 		})
-		require.NoError(t, err)
-		assert.Equal(t, managementv1.Severity_SEVERITY_UNSPECIFIED, resp.Results[0].Severity)
+		require.Nil(t, resp)
+		require.ErrorContains(t, err, "check result severity 2147483648 is out of range for int32")
 	})
 }
 
@@ -442,11 +506,11 @@ func TestListAdvisorChecks(t *testing.T) {
 		checksService.On("GetDisabledChecks", mock.Anything).Return([]string{"two"}, nil)
 		checksService.On("GetChecks", mock.Anything).
 			Return(map[string]check.Check{
-			"one":   {Version: 1, Name: "one", Interval: check.Standard, Type: check.MySQLShow},
-			"two":   {Version: 2, Name: "two", Interval: check.Frequent, Family: check.PostgreSQL},
-			"three": {Version: 2, Name: "three", Interval: check.Rare, Family: check.MongoDB},
-			// Version 1 check with a type that maps to MongoDB
-			"four": {Version: 1, Name: "four", Interval: "", Type: check.MongoDBBuildInfo},
+				"one":   {Version: 1, Name: "one", Interval: check.Standard, Type: check.MySQLShow},
+				"two":   {Version: 2, Name: "two", Interval: check.Frequent, Family: check.PostgreSQL},
+				"three": {Version: 2, Name: "three", Interval: check.Rare, Family: check.MongoDB},
+				// Version 1 check with a type that maps to MongoDB
+				"four": {Version: 1, Name: "four", Interval: "", Type: check.MongoDBBuildInfo},
 			}, nil)
 
 		s := NewChecksAPIService(&checksService)

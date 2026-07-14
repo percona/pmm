@@ -235,9 +235,9 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 		l.Panic(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
-		_, err = rw.Write(buf.Bytes())
-		if err != nil {
-			l.Errorf("Failed to write response: %v", err)
+		_, wErr := rw.Write(buf.Bytes())
+		if wErr != nil {
+			l.WithError(wErr).Error("Failed to write response")
 		}
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugBindF, strings.Join(handlers, "\n\t"))

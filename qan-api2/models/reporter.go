@@ -315,6 +315,7 @@ var (
 	tmplQueryReportSparklines             = template.Must(template.New("queryReportSparklines").Funcs(funcMap).Parse(queryReportSparklinesTmpl))
 	errReporterPeriodStartToLessStartFrom = errors.New("periodStartToSec must be greater than periodStartFromSec")
 )
+
 // SelectSparklines selects datapoint for sparklines.
 func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	periodStartFromSec, periodStartToSec int64,

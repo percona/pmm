@@ -215,13 +215,7 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		}
 		agent.PostgreSQLOptions.PGSMVersion = sInfo.PgsmVersion
 
-		dbCount := databaseCount - excludedDatabaseCount
-		if dbCount < 0 {
-			dbCount = 0
-		}
-		if dbCount > math.MaxInt32 {
-			dbCount = math.MaxInt32
-		}
+		dbCount := min(max(databaseCount-excludedDatabaseCount, 0), math.MaxInt32)
 		agent.PostgreSQLOptions.DatabaseCount = int32(dbCount)
 
 		l.Debugf("Updating PostgreSQL options, database count: %d.", agent.PostgreSQLOptions.DatabaseCount)

@@ -19,6 +19,7 @@ package user
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math"
 	"time"
 
@@ -132,23 +133,19 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 	}
 
 	if userInfo.ID < 0 || userInfo.ID > math.MaxUint32 {
-		s.l.WithFields(logrus.Fields{
-			"user_id": userInfo.ID,
-		}).Warn("User ID is out of uint32 range")
+		return nil, status.Errorf(codes.Internal, "%s", fmt.Sprintf("User ID %d is out of uint32 range", userInfo.ID))
 	}
+
 	if userInfo.SnoozeCount < 0 || userInfo.SnoozeCount > math.MaxUint32 {
-		s.l.WithFields(logrus.Fields{
-			"user_id":     userInfo.ID,
-			"snooze_count": userInfo.SnoozeCount,
-		}).Warn("Snooze count is out of uint32 range")
+		return nil, status.Errorf(codes.Internal, "%s", fmt.Sprintf("Snooze count %d is out of uint32 range", userInfo.SnoozeCount))
 	}
 
 	resp := &userv1.UpdateUserResponse{
-		UserId:                uint32(userInfo.ID), //nolint:gosec
+		UserId:                uint32(userInfo.ID),
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
 		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
-		SnoozeCount:           uint32(userInfo.SnoozeCount), //nolint:gosec
+		SnoozeCount:           uint32(userInfo.SnoozeCount),
 	}
 
 	if userInfo.SnoozedAt != nil {

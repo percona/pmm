@@ -520,9 +520,9 @@ func TestGetLogs(t *testing.T) {
 
 		// Create logs with IDs that should be skipped and IDs that are valid.
 		testChunks := []int{
-			-1,                 // Invalid: negative
-			0,                  // Valid: lower bound
-			math.MaxInt32,      // Valid: upper bound for PostgreSQL integer type
+			-1,            // Invalid: negative
+			0,             // Valid: lower bound
+			math.MaxInt32, // Valid: upper bound for PostgreSQL integer type
 		}
 
 		for _, chunkID := range testChunks {
