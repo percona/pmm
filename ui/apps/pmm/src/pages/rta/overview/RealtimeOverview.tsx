@@ -19,6 +19,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
 import { AutoRefreshSelect } from './auto-refresh-select';
+import { exportRtaQueriesToCsv } from './export/exportRtaQueriesToCsv';
 
 const EMPTY_QUERIES: QueryData[] = [];
 
@@ -93,7 +94,7 @@ const RealtimeOverviewPage: FC = () => {
         queries={tableQueries}
         onQuerySelected={handleQuerySelected}
         onNavigableQueriesChange={setNavigableQueries}
-        actions={() => (
+        actions={({ table }) => (
           <Stack
             flex={1}
             direction="row"
@@ -170,6 +171,33 @@ const RealtimeOverviewPage: FC = () => {
                   disableElevation
                 >
                   {Messages.refresh}
+                </Button>
+              )}
+              {!fetching && (
+                <Button
+                  data-testid="overview-table-export-button"
+                  size="small"
+                  variant="text"
+                  startIcon={<Icon name="file-download" />}
+                  disabled={
+                    serviceIds.length === 0 ||
+                    table.getPrePaginationRowModel().rows.length === 0
+                  }
+                  onClick={() =>
+                    exportRtaQueriesToCsv(
+                      table
+                        .getPrePaginationRowModel()
+                        .rows.map((row) => row.original)
+                    )
+                  }
+                  color="inherit"
+                  disableElevation
+                  sx={{
+                    width: 100,
+                    height: 36,
+                  }}
+                >
+                  {Messages.export}
                 </Button>
               )}
             </Stack>
