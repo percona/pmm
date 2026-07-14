@@ -16,7 +16,7 @@ export const Messages = {
     enableCheck: 'Enable check',
   },
   details: {
-    title: 'Details',
+    title: 'Advisor insight details',
     maximize: 'Maximize',
     close: 'Close',
     summary: 'Summary',

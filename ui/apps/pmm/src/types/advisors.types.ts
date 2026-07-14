@@ -36,6 +36,10 @@ export interface ListAdvisorsResponse {
   advisors: Advisor[];
 }
 
+export interface GetAdvisorCheckScriptResponse {
+  script: string;
+}
+
 export interface StartAdvisorChecksRequest {
   names: string[];
 }

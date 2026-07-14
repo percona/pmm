@@ -1,4 +1,4 @@
-import { FC, useCallback, useMemo } from 'react';
+import { FC, useCallback, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
@@ -32,6 +32,7 @@ import { capitalize } from 'utils/text.utils';
 import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
 import { Messages } from './AdvisorsList.messages';
 import { getAdvisorsColumns, INTERVAL_OPTIONS } from './AdvisorsList.constants';
+import { AdvisorCheckDetailsPane } from './details-pane';
 
 interface CheckFilters {
   category: string;
@@ -90,6 +91,16 @@ const AdvisorsList: FC = () => {
   const { mutate: startChecks, isPending: isStarting } =
     useStartAdvisorChecks();
   const { mutate: changeChecks } = useChangeAdvisorChecks();
+
+  const [detailsCheck, setDetailsCheck] = useState<AdvisorCheckRow | null>(
+    null
+  );
+  const [detailsMaximized, setDetailsMaximized] = useState(false);
+
+  const openDetails = (check: AdvisorCheckRow, maximized = false) => {
+    setDetailsMaximized(maximized);
+    setDetailsCheck(check);
+  };
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -447,6 +458,11 @@ const AdvisorsList: FC = () => {
               {Messages.run}
             </Button>
           )}
+          muiTableBodyRowProps={({ row }) => ({
+            'data-testid': `advisor-row-${row.original.checkName}`,
+            // double-click opens the check details overlay maximized
+            onDoubleClick: () => openDetails(row.original, true),
+          })}
           muiTableContainerProps={{
             sx: {
               flex: 1,
@@ -455,6 +471,11 @@ const AdvisorsList: FC = () => {
               borderColor: 'divider',
             },
           }}
+        />
+        <AdvisorCheckDetailsPane
+          check={detailsCheck}
+          initialMaximized={detailsMaximized}
+          onClose={() => setDetailsCheck(null)}
         />
       </Stack>
     </Page>

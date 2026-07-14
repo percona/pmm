@@ -3,6 +3,7 @@ import {
   ChangeAdvisorCheckParams,
   ChangeAdvisorChecksRequest,
   CheckResultHistoryItem,
+  GetAdvisorCheckScriptResponse,
   ListAdvisorsResponse,
   ListCheckResultsFilterValuesResponse,
   ListCheckResultsHistoryParams,
@@ -16,6 +17,13 @@ import { api } from './api';
 export const listAdvisors = async (): Promise<Advisor[]> => {
   const res = await api.get<ListAdvisorsResponse>('/advisors');
   return res.data.advisors;
+};
+
+export const getAdvisorCheckScript = async (name: string): Promise<string> => {
+  const res = await api.get<GetAdvisorCheckScriptResponse>(
+    `/advisors/checks/${encodeURIComponent(name)}/script`
+  );
+  return res.data.script;
 };
 
 export const startAdvisorChecks = async (names: string[]): Promise<string> => {

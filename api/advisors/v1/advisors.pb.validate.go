@@ -1209,6 +1209,218 @@ var _ interface {
 	ErrorName() string
 } = ListAdvisorChecksResponseValidationError{}
 
+// Validate checks the field values on GetAdvisorCheckScriptRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetAdvisorCheckScriptRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetAdvisorCheckScriptRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetAdvisorCheckScriptRequestMultiError, or nil if none found.
+func (m *GetAdvisorCheckScriptRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetAdvisorCheckScriptRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Name
+
+	if len(errors) > 0 {
+		return GetAdvisorCheckScriptRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetAdvisorCheckScriptRequestMultiError is an error wrapping multiple
+// validation errors returned by GetAdvisorCheckScriptRequest.ValidateAll() if
+// the designated constraints aren't met.
+type GetAdvisorCheckScriptRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetAdvisorCheckScriptRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetAdvisorCheckScriptRequestMultiError) AllErrors() []error { return m }
+
+// GetAdvisorCheckScriptRequestValidationError is the validation error returned
+// by GetAdvisorCheckScriptRequest.Validate if the designated constraints
+// aren't met.
+type GetAdvisorCheckScriptRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetAdvisorCheckScriptRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetAdvisorCheckScriptRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetAdvisorCheckScriptRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetAdvisorCheckScriptRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetAdvisorCheckScriptRequestValidationError) ErrorName() string {
+	return "GetAdvisorCheckScriptRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetAdvisorCheckScriptRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetAdvisorCheckScriptRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = GetAdvisorCheckScriptRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetAdvisorCheckScriptRequestValidationError{}
+
+// Validate checks the field values on GetAdvisorCheckScriptResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetAdvisorCheckScriptResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetAdvisorCheckScriptResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// GetAdvisorCheckScriptResponseMultiError, or nil if none found.
+func (m *GetAdvisorCheckScriptResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetAdvisorCheckScriptResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Script
+
+	if len(errors) > 0 {
+		return GetAdvisorCheckScriptResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetAdvisorCheckScriptResponseMultiError is an error wrapping multiple
+// validation errors returned by GetAdvisorCheckScriptResponse.ValidateAll()
+// if the designated constraints aren't met.
+type GetAdvisorCheckScriptResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetAdvisorCheckScriptResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetAdvisorCheckScriptResponseMultiError) AllErrors() []error { return m }
+
+// GetAdvisorCheckScriptResponseValidationError is the validation error
+// returned by GetAdvisorCheckScriptResponse.Validate if the designated
+// constraints aren't met.
+type GetAdvisorCheckScriptResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetAdvisorCheckScriptResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetAdvisorCheckScriptResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetAdvisorCheckScriptResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetAdvisorCheckScriptResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetAdvisorCheckScriptResponseValidationError) ErrorName() string {
+	return "GetAdvisorCheckScriptResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetAdvisorCheckScriptResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetAdvisorCheckScriptResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = GetAdvisorCheckScriptResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetAdvisorCheckScriptResponseValidationError{}
+
 // Validate checks the field values on ListAdvisorsRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

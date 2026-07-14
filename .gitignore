@@ -11,10 +11,9 @@ bin/
 
 # System Files
 .DS_Store
-
+  
 # Temporary (build, config, etc)
 /tmp/
-
 .env
 .netrc
 .modules
@@ -22,7 +21,7 @@ build.log
 build/.cache/
 packer.log
 ci.yml
-
+Makefile.local
 
 # PMM specific
 /dev/clickhouse-backups/

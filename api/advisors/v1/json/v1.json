@@ -897,6 +897,71 @@
         }
       }
     },
+    "/v1/advisors/checks/{name}/script": {
+      "get": {
+        "description": "Returns the source script of a single advisor check by name.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Get Advisor Check Script",
+        "operationId": "GetAdvisorCheckScript",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Machine-readable name (ID) of the check.",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "script": {
+                  "description": "Source script (Starlark) of the check.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/advisors/checks:batchChange": {
       "post": {
         "description": "Enables/disables advisor checks or changes their exec interval.",

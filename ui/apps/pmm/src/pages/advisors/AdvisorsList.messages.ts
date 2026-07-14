@@ -29,9 +29,26 @@ export const Messages = {
   addAdvisor: 'Add advisor',
   viewResults: 'View results',
   run: 'Run',
+  details: {
+    title: 'Advisor check details',
+    maximize: 'Maximize',
+    close: 'Close',
+    checkName: 'Check name',
+    advisor: 'Advisor',
+    category: 'Category',
+    vendor: 'Vendor',
+    interval: 'Interval',
+    status: 'Status',
+    summary: 'Summary',
+    description: 'Description',
+    code: 'Code',
+    copyCode: 'Copy',
+    codeCopied: 'Check code copied to clipboard',
+    codeError: 'Unable to load the check code',
+    noCode: 'No code available',
+  },
   success: {
-    checksStarted:
-      'Advisor checks started, batch ID copied to clipboard',
+    checksStarted: 'Advisor checks started, batch ID copied to clipboard',
     checkStarted: (summary: string) =>
       `Check "${summary}" started, batch ID copied to clipboard`,
     checkEnabled: (summary: string) => `Check "${summary}" enabled`,

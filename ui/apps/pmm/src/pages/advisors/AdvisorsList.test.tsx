@@ -98,6 +98,40 @@ describe('AdvisorsList', () => {
     vi.mocked(advisorsApi.listAdvisors).mockResolvedValue(TEST_ADVISORS);
     vi.mocked(advisorsApi.startAdvisorChecks).mockResolvedValue('run-123');
     vi.mocked(advisorsApi.changeAdvisorChecks).mockResolvedValue();
+    vi.mocked(advisorsApi.getAdvisorCheckScript).mockResolvedValue(
+      'print("hi")'
+    );
+  });
+
+  it('opens the check details overlay on row double-click and shows the code', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.dblClick(screen.getByTestId('advisor-row-mysql_version_check'));
+
+    const pane = await screen.findByTestId('check-details-pane');
+    // the check's fields are shown
+    expect(
+      within(screen.getByTestId('check-details-field-check-name')).getByText(
+        'mysql_version_check'
+      )
+    ).toBeInTheDocument();
+    // double-click opens the pane maximized
+    expect(
+      within(pane).getByTestId('CloseFullscreenOutlinedIcon')
+    ).toBeInTheDocument();
+
+    // the code is fetched lazily and shown in the text area
+    await screen.findByTestId('check-code');
+    expect(advisorsApi.getAdvisorCheckScript).toHaveBeenCalledWith(
+      'mysql_version_check'
+    );
+    expect(screen.getByTestId('check-code')).toHaveValue('print("hi")');
+
+    // Copy button copies the code
+    fireEvent.click(within(pane).getByTestId('check-code-copy'));
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('print("hi")');
   });
 
   it('renders all checks', async () => {

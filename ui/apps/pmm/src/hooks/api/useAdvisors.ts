@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-query';
 import {
   changeAdvisorChecks,
+  getAdvisorCheckScript,
   listAdvisors,
   listCheckResultsFilterValues,
   listCheckResultsHistory,
@@ -26,6 +27,7 @@ import { PaginatedResponse } from 'types/util.types';
 
 const KEYS = {
   LIST: 'advisors:list',
+  CHECK_SCRIPT: 'advisors:check-script',
   START_CHECKS: 'advisors:start-checks',
   CHANGE_CHECKS: 'advisors:change-checks',
   HISTORY: 'advisors:history',
@@ -37,6 +39,18 @@ export const useAdvisors = (options?: Partial<UseQueryOptions<Advisor[]>>) =>
   useQuery({
     queryKey: [KEYS.LIST],
     queryFn: () => listAdvisors(),
+    ...options,
+  });
+
+export const useAdvisorCheckScript = (
+  name?: string,
+  options?: Partial<UseQueryOptions<string>>
+) =>
+  useQuery({
+    queryKey: [KEYS.CHECK_SCRIPT, name],
+    queryFn: () => getAdvisorCheckScript(name!),
+    // only fetch once a check is selected (lazy, on overlay open)
+    enabled: !!name,
     ...options,
   });
 

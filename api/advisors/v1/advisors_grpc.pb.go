@@ -27,6 +27,7 @@ const (
 	AdvisorService_MarkCheckResultsRead_FullMethodName         = "/advisors.v1.AdvisorService/MarkCheckResultsRead"
 	AdvisorService_StartAdvisorChecks_FullMethodName           = "/advisors.v1.AdvisorService/StartAdvisorChecks"
 	AdvisorService_ListAdvisorChecks_FullMethodName            = "/advisors.v1.AdvisorService/ListAdvisorChecks"
+	AdvisorService_GetAdvisorCheckScript_FullMethodName        = "/advisors.v1.AdvisorService/GetAdvisorCheckScript"
 	AdvisorService_ListAdvisors_FullMethodName                 = "/advisors.v1.AdvisorService/ListAdvisors"
 	AdvisorService_ChangeAdvisorChecks_FullMethodName          = "/advisors.v1.AdvisorService/ChangeAdvisorChecks"
 )
@@ -51,6 +52,8 @@ type AdvisorServiceClient interface {
 	StartAdvisorChecks(ctx context.Context, in *StartAdvisorChecksRequest, opts ...grpc.CallOption) (*StartAdvisorChecksResponse, error)
 	// ListAdvisorChecks returns a list of advisor checks available to the user..
 	ListAdvisorChecks(ctx context.Context, in *ListAdvisorChecksRequest, opts ...grpc.CallOption) (*ListAdvisorChecksResponse, error)
+	// GetAdvisorCheckScript returns the source script of a single advisor check.
+	GetAdvisorCheckScript(ctx context.Context, in *GetAdvisorCheckScriptRequest, opts ...grpc.CallOption) (*GetAdvisorCheckScriptResponse, error)
 	// ListAdvisors returns a list of advisors available for the user.
 	ListAdvisors(ctx context.Context, in *ListAdvisorsRequest, opts ...grpc.CallOption) (*ListAdvisorsResponse, error)
 	// ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
@@ -135,6 +138,16 @@ func (c *advisorServiceClient) ListAdvisorChecks(ctx context.Context, in *ListAd
 	return out, nil
 }
 
+func (c *advisorServiceClient) GetAdvisorCheckScript(ctx context.Context, in *GetAdvisorCheckScriptRequest, opts ...grpc.CallOption) (*GetAdvisorCheckScriptResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAdvisorCheckScriptResponse)
+	err := c.cc.Invoke(ctx, AdvisorService_GetAdvisorCheckScript_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *advisorServiceClient) ListAdvisors(ctx context.Context, in *ListAdvisorsRequest, opts ...grpc.CallOption) (*ListAdvisorsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ListAdvisorsResponse)
@@ -175,6 +188,8 @@ type AdvisorServiceServer interface {
 	StartAdvisorChecks(context.Context, *StartAdvisorChecksRequest) (*StartAdvisorChecksResponse, error)
 	// ListAdvisorChecks returns a list of advisor checks available to the user..
 	ListAdvisorChecks(context.Context, *ListAdvisorChecksRequest) (*ListAdvisorChecksResponse, error)
+	// GetAdvisorCheckScript returns the source script of a single advisor check.
+	GetAdvisorCheckScript(context.Context, *GetAdvisorCheckScriptRequest) (*GetAdvisorCheckScriptResponse, error)
 	// ListAdvisors returns a list of advisors available for the user.
 	ListAdvisors(context.Context, *ListAdvisorsRequest) (*ListAdvisorsResponse, error)
 	// ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
@@ -215,6 +230,10 @@ func (UnimplementedAdvisorServiceServer) StartAdvisorChecks(context.Context, *St
 
 func (UnimplementedAdvisorServiceServer) ListAdvisorChecks(context.Context, *ListAdvisorChecksRequest) (*ListAdvisorChecksResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListAdvisorChecks not implemented")
+}
+
+func (UnimplementedAdvisorServiceServer) GetAdvisorCheckScript(context.Context, *GetAdvisorCheckScriptRequest) (*GetAdvisorCheckScriptResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetAdvisorCheckScript not implemented")
 }
 
 func (UnimplementedAdvisorServiceServer) ListAdvisors(context.Context, *ListAdvisorsRequest) (*ListAdvisorsResponse, error) {
@@ -371,6 +390,24 @@ func _AdvisorService_ListAdvisorChecks_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdvisorService_GetAdvisorCheckScript_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAdvisorCheckScriptRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdvisorServiceServer).GetAdvisorCheckScript(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdvisorService_GetAdvisorCheckScript_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdvisorServiceServer).GetAdvisorCheckScript(ctx, req.(*GetAdvisorCheckScriptRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AdvisorService_ListAdvisors_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListAdvisorsRequest)
 	if err := dec(in); err != nil {
@@ -441,6 +478,10 @@ var AdvisorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListAdvisorChecks",
 			Handler:    _AdvisorService_ListAdvisorChecks_Handler,
+		},
+		{
+			MethodName: "GetAdvisorCheckScript",
+			Handler:    _AdvisorService_GetAdvisorCheckScript_Handler,
 		},
 		{
 			MethodName: "ListAdvisors",

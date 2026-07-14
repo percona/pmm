@@ -1,0 +1,255 @@
+import { FC, ReactNode, useEffect, useState } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import CloseFullscreenOutlinedIcon from '@mui/icons-material/CloseFullscreenOutlined';
+import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
+import OpenInFullOutlinedIcon from '@mui/icons-material/OpenInFullOutlined';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
+import Divider from '@mui/material/Divider';
+import Drawer from '@mui/material/Drawer';
+import IconButton from '@mui/material/IconButton';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import { enqueueSnackbar } from 'notistack';
+import {
+  DRAWER_CLOSED_WIDTH,
+  DRAWER_WIDTH,
+} from 'components/sidebar/drawer/Drawer.constants';
+import { useNavigation } from 'contexts/navigation/navigation.hooks';
+import { useAdvisorCheckScript } from 'hooks/api/useAdvisors';
+import { AdvisorCheckRow } from 'types/advisors.types';
+import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
+import { capitalize } from 'utils/text.utils';
+import { Messages } from '../AdvisorsList.messages';
+
+const EM_DASH = '—';
+
+interface FieldProps {
+  label: string;
+  children: ReactNode;
+  // grid columns to span (out of 4)
+  span?: number;
+}
+
+const Field: FC<FieldProps> = ({ label, children, span = 1 }) => (
+  <Stack
+    gap={0.5}
+    sx={{ gridColumn: { xs: 'span 4', md: `span ${span}` } }}
+    data-testid={`check-details-field-${label.toLowerCase().replace(/[^a-z]+/g, '-')}`}
+  >
+    <Typography variant="caption" color="text.secondary">
+      {label}
+    </Typography>
+    <Box sx={{ flex: 1 }}>{children}</Box>
+    <Divider />
+  </Stack>
+);
+
+interface AdvisorCheckDetailsPaneProps {
+  check: AdvisorCheckRow | null;
+  // open the pane already maximized (e.g. triggered by a row double-click)
+  initialMaximized?: boolean;
+  onClose: () => void;
+}
+
+export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
+  check,
+  initialMaximized = false,
+  onClose,
+}) => {
+  const [maximized, setMaximized] = useState(false);
+  const { navOpen } = useNavigation();
+  const open = !!check;
+  // the pane never covers the main navigation
+  const sidebarWidth = navOpen ? DRAWER_WIDTH : DRAWER_CLOSED_WIDTH;
+
+  const {
+    data: script,
+    isLoading: isScriptLoading,
+    isError: isScriptError,
+  } = useAdvisorCheckScript(check?.checkName);
+
+  // apply the requested height on each open, reset on close
+  useEffect(() => {
+    setMaximized(open ? initialMaximized : false);
+  }, [open, initialMaximized]);
+
+  const m = Messages.details;
+
+  const handleCopyCode = () => {
+    if (!script) {
+      return;
+    }
+    void navigator.clipboard.writeText(script);
+    enqueueSnackbar(m.codeCopied, { variant: 'success' });
+  };
+
+  return (
+    <Drawer
+      anchor="bottom"
+      open={open}
+      onClose={onClose}
+      slotProps={{
+        paper: {
+          // @ts-expect-error data-testid is passed through to the DOM
+          'data-testid': 'check-details-pane',
+          sx: {
+            height: maximized ? '100vh' : '60vh',
+            left: { xs: 0, md: sidebarWidth },
+            p: 2,
+            // column layout so the code area can flex-fill and scroll internally
+            display: 'flex',
+            flexDirection: 'column',
+            transition: (theme) =>
+              theme.transitions.create(['height', 'left'], {
+                duration: theme.transitions.duration.short,
+              }),
+          },
+        },
+      }}
+    >
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <Typography variant="h6">{m.title}</Typography>
+        <Stack direction="row" gap={1}>
+          <IconButton
+            size="small"
+            aria-label={m.maximize}
+            onClick={() => setMaximized((current) => !current)}
+            data-testid="check-details-maximize"
+          >
+            {maximized ? (
+              <CloseFullscreenOutlinedIcon fontSize="small" />
+            ) : (
+              <OpenInFullOutlinedIcon fontSize="small" />
+            )}
+          </IconButton>
+          <IconButton
+            size="small"
+            aria-label={m.close}
+            onClick={onClose}
+            data-testid="check-details-close"
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Stack>
+      </Stack>
+      {check && (
+        <Box
+          sx={{
+            flex: 1,
+            minHeight: 0,
+            mt: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 3,
+            overflow: 'auto',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(4, 1fr)',
+              columnGap: 4,
+              rowGap: 3,
+            }}
+          >
+            <Field label={m.checkName}>
+              <Typography variant="body1">{check.checkName}</Typography>
+            </Field>
+            <Field label={m.advisor}>
+              <Typography variant="body1">{check.advisorName}</Typography>
+            </Field>
+            <Field label={m.category}>
+              <Typography variant="body1">
+                {capitalize(check.category)}
+              </Typography>
+            </Field>
+            <Field label={m.vendor}>
+              <Typography variant="body1">
+                {ADVISOR_FAMILY[check.family]}
+              </Typography>
+            </Field>
+            <Field label={m.interval}>
+              <Typography variant="body1">
+                {ADVISOR_INTERVAL[check.interval]}
+              </Typography>
+            </Field>
+            <Field label={m.status}>
+              <Typography variant="body1">
+                {check.enabled
+                  ? Messages.status.enabled
+                  : Messages.status.disabled}
+              </Typography>
+            </Field>
+
+            <Field label={m.summary} span={4}>
+              <Typography variant="body1">
+                {check.summary || EM_DASH}
+              </Typography>
+            </Field>
+            <Field label={m.description} span={4}>
+              <Typography variant="body1">
+                {check.description || EM_DASH}
+              </Typography>
+            </Field>
+          </Box>
+
+          <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Typography variant="h6">{m.code}</Typography>
+              <Button
+                size="small"
+                startIcon={<ContentCopyOutlinedIcon fontSize="small" />}
+                onClick={handleCopyCode}
+                disabled={!script}
+                data-testid="check-code-copy"
+              >
+                {m.copyCode}
+              </Button>
+            </Stack>
+            {isScriptLoading ? (
+              <CircularProgress size={24} data-testid="check-code-loading" />
+            ) : isScriptError ? (
+              <Typography variant="body2" color="error">
+                {m.codeError}
+              </Typography>
+            ) : script ? (
+              // fills the remaining height and scrolls internally, so the pane
+              // itself never scrolls
+              <Box
+                component="textarea"
+                readOnly
+                value={script}
+                data-testid="check-code"
+                sx={{
+                  flex: 1,
+                  minHeight: 120,
+                  width: '100%',
+                  resize: 'none',
+                  boxSizing: 'border-box',
+                  p: 1.5,
+                  borderRadius: 1,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  bgcolor: 'transparent',
+                  color: 'text.primary',
+                  fontFamily: 'monospace',
+                  fontSize: 13,
+                }}
+              />
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                {m.noCode}
+              </Typography>
+            )}
+          </Stack>
+        </Box>
+      )}
+    </Drawer>
+  );
+};

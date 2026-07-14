@@ -42,14 +42,6 @@ pi-validate:              ## Validate Percona Intelligence advisors and checks
 release:                        ## Build pmm-managed release binaries
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 
-release2:                        ## Build pmm-managed release binaries
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v $(PMM_LD_FLAGS) -trimpath -o $(PMM_RELEASE_PATH)/ ./cmd/...
-	docker cp $(PMM_RELEASE_PATH)/pmm-managed pmm-server:/tmp/pmm-managed
-	docker exec -it -u root pmm-server chown 0:0 /tmp/pmm-managed
-	docker exec -it pmm-server /tmp/pmm-managed --version
-	docker exec -it pmm-server supervisorctl stop pmm-managed
-	docker exec -it -u root pmm-server mv /tmp/pmm-managed /usr/sbin/pmm-managed
-	docker exec -it pmm-server supervisorctl start pmm-managed
 
 release-encryption-rotation:                        ## Build PMM encryption rotation tool
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-encryption-rotation/...

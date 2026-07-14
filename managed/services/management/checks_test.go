@@ -61,6 +61,32 @@ func TestStartAdvisorChecks(t *testing.T) {
 	})
 }
 
+func TestGetAdvisorCheckScript(t *testing.T) {
+	t.Run("returns the check script", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("GetChecks").Return(map[string]check.Check{
+			"mysql_version": {Name: "mysql_version", Script: "print('hi')"},
+		}, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetAdvisorCheckScript(t.Context(), &advisorsv1.GetAdvisorCheckScriptRequest{Name: "mysql_version"})
+		require.NoError(t, err)
+		assert.Equal(t, "print('hi')", resp.Script)
+	})
+
+	t.Run("check not found", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("GetChecks").Return(map[string]check.Check{}, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.GetAdvisorCheckScript(t.Context(), &advisorsv1.GetAdvisorCheckScriptRequest{Name: "missing"})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Advisor check "missing" not found.`), err)
+		assert.Nil(t, resp)
+	})
+}
+
 func TestGetFailedChecks(t *testing.T) {
 	t.Parallel()
 
