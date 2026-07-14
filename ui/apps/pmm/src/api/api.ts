@@ -46,31 +46,7 @@ export const addApiErrorInterceptor = () => {
   if (apiErrorInterceptor === null) {
     apiErrorInterceptor = api.interceptors.response.use(
       (response) => response,
-      (error: AxiosError<{ message?: string }>) => {
-        if (error.response && error.response.status >= 400) {
-          let message = error.response.data?.message ?? DEFAULT_ERROR_MESSAGE;
-          let notificationsDisabled =
-            error.config?.disableNotifications ?? error.response.status === 429;
-
-          if (typeof notificationsDisabled === 'function') {
-            notificationsDisabled = notificationsDisabled(error);
-          }
-
-          if (!notificationsDisabled) {
-            message = message.trim();
-            if (message.length > MAX_ERROR_MESSAGE_LENGTH) {
-              message = `${message.substring(0, MAX_ERROR_MESSAGE_LENGTH)}...`;
-            }
-
-            enqueueSnackbar(message, {
-              variant: 'error',
-              preventDuplicate: true,
-            });
-          }
-        }
-
-        return Promise.reject(error);
-      }
+      onApiError
     );
   }
 };
