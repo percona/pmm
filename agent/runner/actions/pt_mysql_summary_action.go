@@ -97,7 +97,10 @@ func (a *ptMySQLSummaryAction) Run(ctx context.Context) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to write to temporary file: %w", err)
 	}
-	tmpFile.Close() //nolint:errcheck
+	err = tmpFile.Close()
+	if err != nil {
+		return nil, fmt.Errorf("failed to close temporary file: %w", err)
+	}
 
 	cmd := exec.CommandContext(ctx, a.command, "--defaults-file="+tmpFile.Name()) //nolint:gosec
 	cmd.Env = []string{"PATH=" + os.Getenv("PATH")}

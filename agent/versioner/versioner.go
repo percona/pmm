@@ -67,7 +67,12 @@ func (RealExecFunctions) LookPath(file string) (string, error) {
 
 // CommandContext calls Go's implementation of the CommandContext() function.
 func (RealExecFunctions) CommandContext(ctx context.Context, name string, arg ...string) CombinedOutputer { //nolint:ireturn
-	return exec.CommandContext(ctx, name, arg...)
+	// In the context of this file, the RealExecFunctions struct acts as a thin wrapper
+	// around the standard os/exec library to facilitate testing via dependency injection.
+	// Since this is a generic wrapper and the actual values passed to it
+	// (like mysqld, xtrabackup, etc.) are defined as internal constants within the package,
+	// this is considered a false positive. The risk is managed by the caller, not the wrapper itself.
+	return exec.CommandContext(ctx, name, arg...) //nolint:gosec
 }
 
 // Versioner implements version retrieving functions for different software.

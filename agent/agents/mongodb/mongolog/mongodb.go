@@ -74,7 +74,10 @@ func (m *MongoDB) Run(ctx context.Context) {
 	var log Mongolog
 
 	defer func() {
-		log.Stop() //nolint:errcheck
+		err := log.Stop()
+		if err != nil {
+			m.l.Errorf("Can't stop mongolog, reason: %v", err)
+		}
 		log = nil
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)

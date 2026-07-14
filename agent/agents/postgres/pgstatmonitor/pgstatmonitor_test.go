@@ -25,6 +25,7 @@ import (
 	"time"
 
 	ver "github.com/hashicorp/go-version"
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -592,5 +593,78 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		tests.AssertBucketsEqual(t, expected, actual)
 		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 		assert.Regexp(t, `\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}`, actual.Common.ClientHost)
+	})
+}
+
+func TestParseHistogramFromRespCalls(t *testing.T) {
+	t.Parallel()
+
+	vPGSM := pgStatMonitorVersion20PG12 // This version expects 22 histogram buckets
+
+	t.Run("Normal", func(t *testing.T) {
+		current := pq.StringArray{"10", "20", "30"}
+		prev := pq.StringArray{"5", "10", "15"}
+		res, err := parseHistogramFromRespCalls(current, prev, vPGSM)
+		require.NoError(t, err)
+		require.NotNil(t, res)
+		assert.Equal(t, uint32(5), res[0].Frequency)
+		assert.Equal(t, uint32(10), res[1].Frequency)
+		assert.Equal(t, uint32(15), res[2].Frequency)
+	})
+
+	t.Run("MoreBucketsThanExpected", func(t *testing.T) {
+		// Create more items than the internal getHistogramRangesArray provides
+		largeResp := make(pq.StringArray, 50)
+		for i := range largeResp {
+			largeResp[i] = "1"
+		}
+		res, err := parseHistogramFromRespCalls(largeResp, nil, vPGSM)
+		require.NoError(t, err)
+		// Should not panic and should cap at the length of our static ranges
+		expectedLen := len(getHistogramRangesArray(vPGSM))
+		assert.Len(t, res, expectedLen)
+	})
+
+	t.Run("CounterReset", func(t *testing.T) {
+		// Previous values higher than current (e.g. pg_stat_monitor_reset called)
+		current := pq.StringArray{"10"}
+		prev := pq.StringArray{"20"}
+		res, err := parseHistogramFromRespCalls(current, prev, vPGSM)
+		require.NoError(t, err)
+		// Should be 0, not a huge wrapped-around uint32
+		assert.Equal(t, uint32(0), res[0].Frequency)
+	})
+
+	t.Run("InvalidData", func(t *testing.T) {
+		current := pq.StringArray{"not-a-number"}
+		res, err := parseHistogramFromRespCalls(current, nil, vPGSM)
+		assert.Error(t, err)
+		assert.Nil(t, res)
+	})
+
+	t.Run("NegativeValues", func(t *testing.T) {
+		// ParseUint should fail on negative numbers
+		current := pq.StringArray{"-1"}
+		res, err := parseHistogramFromRespCalls(current, nil, vPGSM)
+		assert.Error(t, err)
+		assert.Nil(t, res)
+	})
+}
+
+func TestGetHistogramRangesArray(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Version20Plus", func(t *testing.T) {
+		res := getHistogramRangesArray(pgStatMonitorVersion20PG12)
+		assert.Len(t, res, 22)
+		assert.Equal(t, "(0 - 1)", res[0].Range)
+		assert.Equal(t, "(100000 - ...)", res[21].Range)
+	})
+
+	t.Run("OldVersion", func(t *testing.T) {
+		res := getHistogramRangesArray(pgStatMonitorVersion09)
+		assert.Len(t, res, 10)
+		assert.Equal(t, "(0 - 3)", res[0].Range)
+		assert.Equal(t, "(31622 - 100000)", res[9].Range)
 	})
 }

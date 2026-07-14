@@ -63,7 +63,7 @@ type Collector struct {
 }
 
 // Start starts but doesn't wait until it exits.
-func (c *Collector) Start(context.Context) (<-chan proto.SystemProfile, error) {
+func (c *Collector) Start(ctx context.Context) (<-chan proto.SystemProfile, error) {
 	c.m.Lock()
 	defer c.m.Unlock()
 	if c.running {
@@ -86,7 +86,6 @@ func (c *Collector) Start(context.Context) (<-chan proto.SystemProfile, error) {
 	ready.L.Lock()
 	defer ready.L.Unlock()
 
-	ctx := context.Background()
 	labels := pprof.Labels("component", "mongodb.aggregator")
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
 		start(
@@ -175,14 +174,14 @@ func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName
 	logger.Traceln("connect and collect is called")
 	query := createQuery(dbName, startTime)
 
-	timeoutCtx, cancel := context.WithTimeout(context.TODO(), cursorTimeout)
+	timeoutCtx, cancel := context.WithTimeout(ctx, cursorTimeout)
 	defer cancel()
 	cursor, err := createIterator(timeoutCtx, collection, query)
 	if err != nil {
 		logger.Errorf("couldn't create system.profile iterator, reason: %v", err)
 		return
 	}
-	// do not cancel cursor closing when ctx is canceled
+	// Ensure cursor is closed even if parent context is canceled to prevent resource leaks.
 	defer cursor.Close(context.Background()) //nolint:errcheck
 
 	// we got iterator, we are ready
@@ -204,7 +203,7 @@ func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName
 	}()
 
 	for {
-		for cursor.TryNext(context.TODO()) {
+		for cursor.TryNext(ctx) {
 			doc := proto.SystemProfile{}
 			e := cursor.Decode(&doc)
 			if e != nil {

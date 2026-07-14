@@ -72,7 +72,10 @@ func (m *MongoDB) Run(ctx context.Context) {
 	var prof Profiler
 
 	defer func() {
-		prof.Stop() //nolint:errcheck
+		err := prof.Stop()
+		if err != nil {
+			m.l.Errorf("Can't stop profiler, reason: %v", err)
+		}
 		prof = nil
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)

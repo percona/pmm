@@ -145,7 +145,10 @@ func (p *Profiler) Stop() error {
 	p.sender.Stop()
 
 	// close the session; do it after goroutine is closed
-	p.client.Disconnect(context.TODO()) //nolint:errcheck
+	err := p.client.Disconnect(context.TODO())
+	if err != nil {
+		p.logger.Errorf("Failed to disconnect client from MongoDB, reason: %v", err)
+	}
 
 	// set state to "not running"
 	p.running = false

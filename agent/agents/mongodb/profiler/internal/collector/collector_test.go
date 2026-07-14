@@ -178,6 +178,45 @@ func TestCollector(t *testing.T) {
 	assert.Len(t, profiles, maxDocs*maxLoops)
 }
 
+func TestCollectorContextCancel(t *testing.T) {
+	url := "mongodb://root:root-password@127.0.0.1:27017"
+	client, err := createSession(url, "pmm-agent-test")
+	require.NoError(t, err)
+
+	// Create a sub-context specifically for this test to trigger cancellation.
+	ctx, cancel := context.WithCancel(t.Context())
+
+	ctr := New(client, "test_context_cancel", logrus.WithField("component", "collector-test"))
+
+	docsChan, err := ctr.Start(ctx)
+	require.NoError(t, err)
+
+	// Verify the collector is running.
+	assert.Equal(t, "collector", ctr.Name())
+
+	// Cancel the context to signal the internal goroutine to exit.
+	cancel()
+
+	// Use Stop() as a synchronization point. It waits for the internal WaitGroup,
+	// which confirms that the start() and connectAndCollect() goroutines have exited.
+	stopDone := make(chan struct{})
+	go func() {
+		ctr.Stop()
+		close(stopDone)
+	}()
+
+	select {
+	case <-stopDone:
+		// Success: Internal goroutines shut down gracefully.
+	case <-time.After(5 * time.Second):
+		t.Fatal("Collector did not stop via context cancellation within timeout")
+	}
+
+	// Verify that the data channel was closed.
+	_, ok := <-docsChan
+	assert.False(t, ok, "docsChan should be closed after collector stops")
+}
+
 func genData(ctx context.Context, client *mongo.Client, maxLoops, maxDocs int) {
 	interval := time.Millisecond
 

@@ -81,6 +81,38 @@ func TestParserStartStop(t *testing.T) {
 	parser1.Stop()
 }
 
+func TestParserContextCancel(t *testing.T) {
+	docsChan := make(chan pm.SystemProfile)
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength())
+
+	ctx, cancel := context.WithCancel(context.Background())
+	parser := New(docsChan, a, logrus.WithField("component", "test-parser"))
+
+	err := parser.Start(ctx)
+	require.NoError(t, err)
+
+	// Verify parser reported as running
+	assert.True(t, parser.Name() == "parser")
+
+	// Cancel the context to trigger the new shutdown path in start()
+	cancel()
+
+	// We use Stop() as a synchronization point because it waits for the internal WaitGroup.
+	// If the context cancellation logic is correct, Stop() should return immediately.
+	done := make(chan struct{})
+	go func() {
+		parser.Stop()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		// Success: the parser stopped correctly via context cancellation
+	case <-time.After(1 * time.Second):
+		t.Fatal("Parser did not stop after context cancellation within timeout")
+	}
+}
+
 func TestParserRunning(t *testing.T) {
 	oldInterval := aggregator.DefaultInterval
 	aggregator.DefaultInterval = 10 * time.Second

@@ -113,7 +113,9 @@ func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy re
 
 func commandPmmAgent(args []string) *exec.Cmd {
 	const pmmAgentCommandName = "pmm-agent"
-	command := exec.Command(pmmAgentCommandName, args...)
+	// The command name pmmAgentCommandName is defined as a constant "pmm-agent",
+	// so the executable itself cannot be swapped maliciously.
+	command := exec.Command(pmmAgentCommandName, args...) //nolint:gosec
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	return command

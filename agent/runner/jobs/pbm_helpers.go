@@ -182,7 +182,11 @@ func execPBMCommand(ctx context.Context, dsn string, to any, args ...string) err
 	defer cancel()
 
 	args = append(args, "--out=json", "--mongodb-uri="+dsn)
-	cmd := exec.CommandContext(nCtx, pbmBin, args...)
+	// In this case the arguments are constructed internally within the agent's job runner.
+	// Since the execution is controlled and the binary name is a known internal variable,
+	// this is considered a false positive. Other instances of command execution
+	// in this file already use the //nolint:gosec directive for the same reason.
+	cmd := exec.CommandContext(nCtx, pbmBin, args...) //nolint:gosec
 
 	b, err := cmd.Output()
 	if err != nil {
@@ -449,14 +453,22 @@ func writePBMConfigFile(conf *PBMConfig) (string, error) {
 
 	bytes, err := yaml.Marshal(&conf)
 	if err != nil {
-		tmp.Close() //nolint:errcheck
-		return "", fmt.Errorf("failed to marshal pbm configuration: %w", err)
+		err = fmt.Errorf("failed to marshal pbm configuration: %w", err)
+		closeErr := tmp.Close()
+		if closeErr != nil {
+			return "", errors.Join(err, fmt.Errorf("failed to close pbm configuration file: %w", closeErr))
+		}
+		return "", err
 	}
 
 	_, err = tmp.Write(bytes)
 	if err != nil {
-		tmp.Close() //nolint:errcheck
-		return "", fmt.Errorf("failed to write pbm configuration file: %w", err)
+		err = fmt.Errorf("failed to write pbm configuration file: %w", err)
+		closeErr := tmp.Close()
+		if closeErr != nil {
+			return "", errors.Join(err, fmt.Errorf("failed to close pbm configuration file: %w", closeErr))
+		}
+		return "", err
 	}
 
 	return tmp.Name(), tmp.Close()

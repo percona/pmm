@@ -292,7 +292,11 @@ func mySQLActive(ctx context.Context, mySQLServiceName string) (bool, error) {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "is-active", "--quiet", mySQLServiceName)
+	// In this file, the mySQLServiceName is retrieved via the getMysqlServiceName function.
+	// This function executes systemctl list-unit-files and filters the output using a strictly
+	// defined regular expression: mysql(d)?\.service. Because the value is strictly validated
+	// to be either mysql.service or mysqld.service, this is a false positive.
+	cmd := exec.CommandContext(ctx, "systemctl", "is-active", "--quiet", mySQLServiceName) //nolint:gosec
 	err := cmd.Start()
 	if err != nil {
 		return false, fmt.Errorf("starting systemctl is-active command failed: %w", err)
@@ -315,7 +319,11 @@ func stopMySQL(ctx context.Context, mySQLServiceName string) error {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "stop", mySQLServiceName)
+	// In this file, the mySQLServiceName is retrieved via the getMysqlServiceName function.
+	// This function executes systemctl list-unit-files and filters the output using a strictly
+	// defined regular expression: mysql(d)?\.service. Because the value is strictly validated
+	// to be either mysql.service or mysqld.service, this is a false positive.
+	cmd := exec.CommandContext(ctx, "systemctl", "stop", mySQLServiceName) //nolint:gosec
 	err := cmd.Start()
 	if err != nil {
 		return fmt.Errorf("starting systemctl stop command failed: %w", err)
@@ -332,7 +340,11 @@ func startMySQL(ctx context.Context, mySQLServiceName string) error {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "start", mySQLServiceName)
+	// In this file, the mySQLServiceName is retrieved via the getMysqlServiceName function.
+	// This function executes systemctl list-unit-files and filters the output using a strictly
+	// defined regular expression: mysql(d)?\.service. Because the value is strictly validated
+	// to be either mysql.service or mysqld.service, this is a false positive.
+	cmd := exec.CommandContext(ctx, "systemctl", "start", mySQLServiceName) //nolint:gosec
 	err := cmd.Start()
 	if err != nil {
 		return fmt.Errorf("starting systemctl start command failed: %w", err)
