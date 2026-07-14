@@ -50,6 +50,8 @@ const router = createBrowserRouter(
                   element: <AlertsPage />,
                 },
               ],
+            },
+            {
               path: 'install-client',
               element: <InstallClientPage />,
             },
