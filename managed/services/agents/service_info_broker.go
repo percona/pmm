@@ -216,6 +216,9 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		agent.PostgreSQLOptions.PGSMVersion = sInfo.PgsmVersion
 
 		dbCount := databaseCount - excludedDatabaseCount
+		if dbCount < 0 {
+			dbCount = 0
+		}
 		if dbCount > math.MaxInt32 {
 			dbCount = math.MaxInt32
 		}
