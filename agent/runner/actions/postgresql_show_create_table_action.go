@@ -66,7 +66,7 @@ type indexInfo struct {
 }
 
 type postgresqlShowCreateTableAction struct {
-	l *logrus.Entry
+	l       *logrus.Entry
 	id      string
 	timeout time.Duration
 	params  *agentv1.StartActionRequest_PostgreSQLShowCreateTableParams
@@ -89,7 +89,7 @@ func NewPostgreSQLShowCreateTableAction(
 	}
 
 	return &postgresqlShowCreateTableAction{
-		l: logrus.WithField("component", postgreSQLShowCreateTableActionType),
+		l:       logrus.WithField("component", postgreSQLShowCreateTableActionType),
 		id:      id,
 		timeout: timeout,
 		params:  params,

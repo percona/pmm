@@ -120,10 +120,15 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 	}
 
 	confFile, err := writePBMConfigFile(conf)
+	defer func(name string) {
+		remErr := os.Remove(name)
+		if remErr != nil {
+			j.l.Errorf("Failed to remove pbm config file %s: %v", name, remErr)
+		}
+	}(confFile)
 	if err != nil {
 		return err
 	}
-	defer os.Remove(confFile) //nolint:errcheck
 
 	configParams := pbmConfigParams{
 		configFilePath: confFile,
