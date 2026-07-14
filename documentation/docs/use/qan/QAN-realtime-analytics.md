@@ -54,7 +54,7 @@ While paused, the display stops updating but the RTA agent continues collecting 
 
 Pausing also makes the **Export** button available, so you can export data as a snapshot of the current operations to CSV.
 
-### Export data
+### Export RTA data
 
 You can export a snapshot of the current RTA view to a CSV file. This is useful for capturing query data that is still in progress and may never appear in QAN. 
 
