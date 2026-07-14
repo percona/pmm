@@ -26,6 +26,7 @@ import (
 
 	alerting "github.com/percona/pmm/api/alerting/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -266,8 +267,7 @@ func TestListTemplatesOverflow(t *testing.T) {
 
 		resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{})
 		assert.Nil(t, resp)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "alerting template (name=overflow) severity 2147483648 is out of range for int32")
+		require.ErrorContains(t, err, "alerting template (name=overflow) severity 2147483648 is out of range for int32")
 	})
 
 	t.Run("SeverityUnderflow", func(t *testing.T) {
@@ -359,5 +359,45 @@ func TestListTemplatesPagination(t *testing.T) {
 		require.NoError(t, err)
 		assert.Empty(t, resp.Templates)
 		assert.Equal(t, int32(3), resp.TotalItems)
+	})
+}
+
+func TestListTemplatesSettings(t *testing.T) {
+	ctx := t.Context()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	svc, err := NewService(db, nil)
+	require.NoError(t, err)
+
+	// The settings table has only one column `settings` containing a JSON blob.
+	_, err = db.Exec(`INSERT INTO settings (settings) VALUES ('{"alerting": {"enabled": true}}')`)
+	require.NoError(t, err)
+
+	t.Run("Disabled", func(t *testing.T) {
+		_, err := db.Exec(`UPDATE settings SET settings = '{"alerting": {"enabled": false}}'`)
+		require.NoError(t, err)
+
+		resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{})
+		assert.Nil(t, resp)
+		assert.ErrorIs(t, err, services.ErrAlertingDisabled)
+	})
+
+	t.Run("Enabled", func(t *testing.T) {
+		_, err := db.Exec(`UPDATE settings SET settings = '{"alerting": {"enabled": true}}'`)
+		require.NoError(t, err)
+
+		// Inject a template to confirm it returns data when enabled
+		svc.rw.Lock()
+		svc.templates = map[string]models.Template{"t1": {Name: "t1"}}
+		svc.rw.Unlock()
+
+		resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{})
+		require.NoError(t, err)
+		assert.NotNil(t, resp)
+		assert.Equal(t, int32(1), resp.TotalItems)
 	})
 }

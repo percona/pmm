@@ -332,12 +332,7 @@ func convertParamType(t models.ParamType) alerting.ParamType {
 
 // ListTemplates returns a list of all collected Alert Rule Templates.
 func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplatesRequest) (*alerting.ListTemplatesResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IsAlertingEnabled() {
+	if !s.Enabled() {
 		return nil, services.ErrAlertingDisabled
 	}
 
