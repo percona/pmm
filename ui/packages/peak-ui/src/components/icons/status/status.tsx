@@ -392,7 +392,7 @@ export const WarningIcon = (props: StatusIconProps) => (
   />
 );
 
-/** @deprecated Not part of the Status Icon component. */
+/** @deprecated No `StatusIcon` equivalent; keep using this icon until a replacement is provided. */
 export const PendingIcon = (props: StatusIconProps) => (
   <StatusIconProvider
     LightIconGeneral={PendingIconLight}
@@ -419,7 +419,7 @@ export const UnknownIcon = (props: StatusIconProps) => (
   />
 );
 
-/** @deprecated Not part of the Status Icon component. */
+/** @deprecated No `StatusIcon` equivalent; keep using this icon until a replacement is provided. */
 export const PausedIcon = (props: StatusIconProps) => (
   <StatusIconProvider
     LightIconGeneral={PausedIconLight}

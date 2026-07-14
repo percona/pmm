@@ -12,20 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import { useTheme } from '@mui/material/styles';
-import Box, { type BoxProps } from '@mui/material/Box';
-
-export type StatusIconSeverity = 'success' | 'info' | 'indeterminate' | 'warning' | 'error';
-
-export type StatusIconSize = 'medium' | 'small';
-
-export interface StatusIconProps extends Omit<BoxProps, 'color' | 'children'> {
-  /** Semantic status. Determines both the color and the (locked) glyph. */
-  severity: StatusIconSeverity;
-  /** medium = 32px (symbol inside a tinted circular wrapper), small = 22px (bare symbol). */
-  size?: StatusIconSize;
-  /** Elevation surface the icon sits on; backs the small mask and medium base so translucent surfaces composite. Defaults to theme paper. */
-  surfaceColor?: string;
-}
+import Box from '@mui/material/Box';
+import { type StatusIconProps, type StatusIconSeverity } from './status-icon.types';
 
 type PaletteKey = 'success' | 'info' | 'warning' | 'error' | 'neutral';
 
@@ -93,7 +81,14 @@ const SYMBOLS: Record<StatusIconSeverity, SymbolSpec> = {
   },
 };
 
-const StatusIcon = ({ severity, size = 'medium', surfaceColor, sx, ...props }: StatusIconProps) => {
+const StatusIcon = ({
+  severity,
+  size = 'medium',
+  surfaceColor,
+  titleAccess,
+  sx,
+  ...props
+}: StatusIconProps) => {
   const theme = useTheme();
   const spec = SYMBOLS[severity];
   const palette = theme.palette[spec.paletteKey] as {
@@ -116,6 +111,10 @@ const StatusIcon = ({ severity, size = 'medium', surfaceColor, sx, ...props }: S
     <Box
       component="svg"
       viewBox={spec.viewBox}
+      role={titleAccess ? 'img' : undefined}
+      aria-label={titleAccess || undefined}
+      aria-hidden={titleAccess ? undefined : true}
+      focusable={false}
       sx={{
         position: 'relative',
         top: box.offsetY,
@@ -125,6 +124,7 @@ const StatusIcon = ({ severity, size = 'medium', surfaceColor, sx, ...props }: S
         overflow: 'visible',
       }}
     >
+      {titleAccess ? <title>{titleAccess}</title> : null}
       {isSmall && (
         <path
           d={spec.maskPath}
