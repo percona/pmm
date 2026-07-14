@@ -374,11 +374,11 @@ func TestReporter_SelectSparklines_Validation(t *testing.T) {
 		t.Parallel()
 		// periodTo <= periodFrom should return (nil, error) early
 		res, err := r.SelectSparklines(context.Background(), "val", 1000, 1000, nil, nil, "group", "col", false)
-		require.Error(t, err, errReporterPeriodStartToLessStartFrom)
+		require.ErrorIs(t, err, errReporterPeriodStartToLessStartFrom)
 		require.Nil(t, res)
 
 		res, err = r.SelectSparklines(context.Background(), "val", 2000, 1000, nil, nil, "group", "col", false)
-		require.Error(t, err, errReporterPeriodStartToLessStartFrom)
+		require.ErrorIs(t, err, errReporterPeriodStartToLessStartFrom)
 		require.Nil(t, res)
 	})
 
