@@ -737,7 +737,7 @@ func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.Stri
 			return nil, fmt.Errorf("failed to parse histogram: %w", err)
 		}
 
-		histogram[k].Frequency = uint32(val) //nolint:gosec // bitSize 32 is used in ParseUint
+		histogram[k].Frequency = uint32(val)
 	}
 
 	for k, v := range prevRespCalls {
@@ -749,7 +749,7 @@ func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.Stri
 			return nil, fmt.Errorf("failed to parse histogram: %w", err)
 		}
 
-		uVal := uint32(val) //nolint:gosec // bitSize 32 is used in ParseUint
+		uVal := uint32(val)
 		if histogram[k].Frequency >= uVal {
 			histogram[k].Frequency -= uVal
 		} else {

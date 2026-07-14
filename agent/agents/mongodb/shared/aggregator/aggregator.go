@@ -282,7 +282,7 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 				AgentId:             a.agentID,
 				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 				PeriodStartUnixSecs: uint32(a.timeStart.Truncate(1 * time.Minute).Unix()), //nolint:gosec // Unix timestamp fits in uint32 until 2106
-				PeriodLengthSecs:    uint32(a.d.Seconds()),                                //nolint:gosec // Interval duration fits in uint32
+				PeriodLengthSecs:    uint32(a.d.Seconds()),
 				Example:             query,
 				ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 				NumQueries:          float32(v.Count),

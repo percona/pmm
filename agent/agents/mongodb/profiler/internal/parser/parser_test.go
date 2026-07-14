@@ -92,7 +92,7 @@ func TestParserContextCancel(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify parser reported as running
-	assert.True(t, parser.Name() == "parser")
+	assert.Equal(t, "parser", parser.Name())
 
 	// Cancel the context to trigger the new shutdown path in start()
 	cancel()

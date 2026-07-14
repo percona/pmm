@@ -602,6 +602,7 @@ func TestParseHistogramFromRespCalls(t *testing.T) {
 	vPGSM := pgStatMonitorVersion20PG12 // This version expects 22 histogram buckets
 
 	t.Run("Normal", func(t *testing.T) {
+		t.Parallel()
 		current := pq.StringArray{"10", "20", "30"}
 		prev := pq.StringArray{"5", "10", "15"}
 		res, err := parseHistogramFromRespCalls(current, prev, vPGSM)
@@ -613,6 +614,7 @@ func TestParseHistogramFromRespCalls(t *testing.T) {
 	})
 
 	t.Run("MoreBucketsThanExpected", func(t *testing.T) {
+		t.Parallel()
 		// Create more items than the internal getHistogramRangesArray provides
 		largeResp := make(pq.StringArray, 50)
 		for i := range largeResp {
@@ -626,6 +628,7 @@ func TestParseHistogramFromRespCalls(t *testing.T) {
 	})
 
 	t.Run("CounterReset", func(t *testing.T) {
+		t.Parallel()
 		// Previous values higher than current (e.g. pg_stat_monitor_reset called)
 		current := pq.StringArray{"10"}
 		prev := pq.StringArray{"20"}
@@ -636,17 +639,19 @@ func TestParseHistogramFromRespCalls(t *testing.T) {
 	})
 
 	t.Run("InvalidData", func(t *testing.T) {
+		t.Parallel()
 		current := pq.StringArray{"not-a-number"}
 		res, err := parseHistogramFromRespCalls(current, nil, vPGSM)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, res)
 	})
 
 	t.Run("NegativeValues", func(t *testing.T) {
+		t.Parallel()
 		// ParseUint should fail on negative numbers
 		current := pq.StringArray{"-1"}
 		res, err := parseHistogramFromRespCalls(current, nil, vPGSM)
-		assert.Error(t, err)
+		require.Error(t, err)
 		assert.Nil(t, res)
 	})
 }
@@ -655,6 +660,7 @@ func TestGetHistogramRangesArray(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Version20Plus", func(t *testing.T) {
+		t.Parallel()
 		res := getHistogramRangesArray(pgStatMonitorVersion20PG12)
 		assert.Len(t, res, 22)
 		assert.Equal(t, "(0 - 1)", res[0].Range)
@@ -662,6 +668,7 @@ func TestGetHistogramRangesArray(t *testing.T) {
 	})
 
 	t.Run("OldVersion", func(t *testing.T) {
+		t.Parallel()
 		res := getHistogramRangesArray(pgStatMonitorVersion09)
 		assert.Len(t, res, 10)
 		assert.Equal(t, "(0 - 3)", res[0].Range)
