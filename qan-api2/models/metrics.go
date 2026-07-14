@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math"
 	"sort"
 	"strings"
 	"text/template"
@@ -495,7 +496,10 @@ GROUP BY point
 	ORDER BY point ASC;
 `
 
-var tmplMetricsSparklines = template.Must(template.New("queryMetricsSparklines").Funcs(funcMap).Parse(queryMetricsSparklinesTmpl))
+var (
+	tmplMetricsSparklines = template.Must(template.New("queryMetricsSparklines").Funcs(funcMap).Parse(queryMetricsSparklinesTmpl))
+	errMetricsPeriodStartToLessStartFrom = errors.New("periodStartToSec must be greater than periodStartFromSec")
+)
 
 // SelectSparklines selects datapoint for sparklines.
 func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, periodStartToSec int64,
@@ -509,18 +513,32 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	// Otherwise amount of sparklines points is equal to minutes in time range to not mess up calculation.
 	amountOfPoints := int64(optimalAmountOfPoint)
 	timePeriod := periodStartToSec - periodStartFromSec
+	if timePeriod < 0 {
+		return nil, errMetricsPeriodStartToLessStartFrom
+	}
 	// reduce amount of point if period less then 2h.
 	if timePeriod < int64(minFullTimeFrame.Seconds()) {
 		// minimum point is 1 minute
 		amountOfPoints = timePeriod / secondsPerMinute
 	}
 
+	if amountOfPoints <= 0 {
+		amountOfPoints = 1
+	}
+
 	// how many full minutes we can fit into given amount of points.
 	minutesInPoint := (periodStartToSec - periodStartFromSec) / secondsPerMinute / amountOfPoints
+	if minutesInPoint == 0 {
+		minutesInPoint = 1
+	}
 	// we need aditional point to show this minutes
 	remainder := ((periodStartToSec - periodStartFromSec) / secondsPerMinute) % amountOfPoints
 	amountOfPoints += remainder / minutesInPoint
 	timeFrame := minutesInPoint * secondsPerMinute
+
+	if timeFrame > math.MaxUint32 {
+		return nil, fmt.Errorf("timeFrame %d exceeds uint32 max value", timeFrame)
+	}
 
 	arg := map[string]any{
 		"period_start_from": periodStartFromSec,

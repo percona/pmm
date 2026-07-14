@@ -19,6 +19,7 @@ package user
 import (
 	"context"
 	"errors"
+	"math"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -130,12 +131,24 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 		return nil, e
 	}
 
+	if userInfo.ID < 0 || userInfo.ID > math.MaxUint32 {
+		s.l.WithFields(logrus.Fields{
+			"user_id": userInfo.ID,
+		}).Warn("User ID is out of uint32 range")
+	}
+	if userInfo.SnoozeCount < 0 || userInfo.SnoozeCount > math.MaxUint32 {
+		s.l.WithFields(logrus.Fields{
+			"user_id":     userInfo.ID,
+			"snooze_count": userInfo.SnoozeCount,
+		}).Warn("Snooze count is out of uint32 range")
+	}
+
 	resp := &userv1.UpdateUserResponse{
-		UserId:                uint32(userInfo.ID), //nolint:gosec // user ID is not expected to overflow uint32
+		UserId:                uint32(userInfo.ID), //nolint:gosec
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
 		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
-		SnoozeCount:           uint32(userInfo.SnoozeCount),
+		SnoozeCount:           uint32(userInfo.SnoozeCount), //nolint:gosec
 	}
 
 	if userInfo.SnoozedAt != nil {
@@ -157,7 +170,7 @@ func (s *Service) ListUsers(_ context.Context, _ *userv1.ListUsersRequest) (*use
 	}
 	for userID, roleIDs := range userRoles {
 		resp.Users = append(resp.Users, &userv1.ListUsersResponse_UserDetail{
-			UserId:  uint32(userID),
+			UserId:  uint32(userID), //nolint:gosec // user ID is not expected to overflow uint32
 			RoleIds: roleIDs,
 		})
 	}

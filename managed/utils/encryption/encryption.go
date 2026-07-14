@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"sync"
@@ -108,8 +109,9 @@ func New() *Encryption {
 			e.Path = DefaultEncryptionKeyPath
 		}
 	}
+	e.Path = filepath.Clean(e.Path)
 
-	bytes, err := os.ReadFile(e.Path)
+	data, err := os.ReadFile(e.Path) //nolint:gosec // path is controlled by admin via environment variable
 	switch {
 	case os.IsNotExist(err):
 		err = e.generateAndPersistKey()
@@ -119,7 +121,7 @@ func New() *Encryption {
 	case err != nil:
 		logrus.Panicf("Encryption: %v", err)
 	default:
-		e.Key = string(bytes)
+		e.Key = string(data)
 	}
 
 	primitive, err := e.getPrimitive()

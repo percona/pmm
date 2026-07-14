@@ -18,6 +18,7 @@ package agents
 import (
 	"context"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -213,7 +214,12 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 			}
 		}
 		agent.PostgreSQLOptions.PGSMVersion = sInfo.PgsmVersion
-		agent.PostgreSQLOptions.DatabaseCount = int32(databaseCount - excludedDatabaseCount)
+
+		dbCount := databaseCount - excludedDatabaseCount
+		if dbCount > math.MaxInt32 {
+			dbCount = math.MaxInt32
+		}
+		agent.PostgreSQLOptions.DatabaseCount = int32(dbCount)
 
 		l.Debugf("Updating PostgreSQL options, database count: %d.", agent.PostgreSQLOptions.DatabaseCount)
 		err = q.Update(new(models.EncryptAgent(*agent)))

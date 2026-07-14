@@ -130,6 +130,11 @@ const (
 	cleanOlderThan = 30 * time.Minute
 
 	defaultContextTimeout = 10 * time.Second
+	// When ReadHeaderTimeout is not configured, a malicious client can open
+	// a connection and send headers extremely slowly (or not at all),
+	// keeping the connection open indefinitely. This "Slowloris" attack can eventually
+	// exhaust the server's connection pool, leading to a Denial of Service (DoS).
+	readHeaderTimeout     = 10 * time.Second
 	pProfProfileDuration  = 30 * time.Second
 	pProfTraceDuration    = 10 * time.Second
 
@@ -439,10 +444,11 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux.Handle("/v1/users/current", deps.currentUserHandler)
 	mux.Handle("/", proxyMux)
 
-	server := &http.Server{ //nolint:gosec
-		Addr:     http1Addr,
-		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
-		Handler:  mux,
+	server := &http.Server{
+		Addr:              http1Addr,
+		ErrorLog:          log.New(os.Stderr, "runJSONServer: ", 0),
+		Handler:           mux,
+		ReadHeaderTimeout: readHeaderTimeout,
 	}
 	go func() {
 		err := server.ListenAndServe()
@@ -499,13 +505,17 @@ func runDebugServer(ctx context.Context) {
 		l.Fatal(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
-		rw.Write(buf.Bytes()) //nolint:errcheck
+		_, wErr := rw.Write(buf.Bytes())
+		if wErr != nil {
+			l.Errorf("Failed to write debug page: %v", wErr)
+		}
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugAddr, strings.Join(handlers, "\n\t"))
 
-	server := &http.Server{ //nolint:gosec
-		Addr:     debugAddr,
-		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
+	server := &http.Server{
+		Addr:              debugAddr,
+		ErrorLog:          log.New(os.Stderr, "runDebugServer: ", 0),
+		ReadHeaderTimeout: readHeaderTimeout,
 	}
 	go func() {
 		err := server.ListenAndServe()

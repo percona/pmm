@@ -16,6 +16,7 @@
 package alerting
 
 import (
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -152,7 +153,7 @@ templates:
 		const validTemplate = `
 ---
 templates: 
-  - name: valid_template_1
+  - name: valid_template_11
     version: 1
     summary: Valid template 1
     expr: |-
@@ -239,5 +240,90 @@ templates:
 		assert.Nil(t, resp)
 		require.EqualError(t, err, "rpc error: code = InvalidArgument desc = failed to fill expression "+
 			"placeholders: template: :4:5: executing \"\" at <.threshold>: map has no entry for key \"threshold\".")
+	})
+}
+
+func TestListTemplatesOverflow(t *testing.T) {
+	ctx := t.Context()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	svc, err := NewService(db, nil)
+	require.NoError(t, err)
+
+	t.Run("SeverityOverflow", func(t *testing.T) {
+		svc.rw.Lock()
+		svc.templates = map[string]models.Template{
+			"overflow": {
+				Name:     "overflow",
+				Severity: math.MaxInt32 + 1,
+			},
+		}
+		svc.rw.Unlock()
+
+		resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{})
+		assert.Nil(t, resp)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "alerting template severity 2147483648 is out of range for int32")
+	})
+
+	t.Run("SeverityUnderflow", func(t *testing.T) {
+		svc.rw.Lock()
+		svc.templates = map[string]models.Template{
+			"underflow": {
+				Name:     "underflow",
+				Severity: math.MinInt32 - 1,
+			},
+		}
+		svc.rw.Unlock()
+
+		resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{})
+		assert.Nil(t, resp)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "alerting template severity -2147483649 is out of range for int32")
+	})
+}
+
+func TestListTemplatesPagination(t *testing.T) {
+	ctx := t.Context()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	svc, err := NewService(db, nil)
+	require.NoError(t, err)
+
+	svc.rw.Lock()
+	svc.templates = map[string]models.Template{
+		"t1": {Name: "t1"},
+		"t2": {Name: "t2"},
+		"t3": {Name: "t3"},
+	}
+	svc.rw.Unlock()
+
+	t.Run("FullPage", func(t *testing.T) {
+		resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{
+			PageSize: new(int32(2)),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, int32(2), resp.TotalPages)
+		assert.Equal(t, int32(3), resp.TotalItems)
+		assert.Len(t, resp.Templates, 2)
+	})
+
+	t.Run("LastPage", func(t *testing.T) {
+		resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{
+			PageSize:  new(int32(2)),
+			PageIndex: new(int32(1)),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, int32(2), resp.TotalPages)
+		assert.Len(t, resp.Templates, 1)
+		assert.Equal(t, "t3", resp.Templates[0].Name)
 	})
 }

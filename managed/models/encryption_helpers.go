@@ -158,7 +158,10 @@ func awsOptionsHandler(val any, handler func(string) (string, error)) (any, erro
 		return nil, err
 	}
 
-	res, err := json.Marshal(o)
+	// The gosec G117 warning is triggered when sensitive fields (like ClientSecret, AWSSecretKey, or TLSKey)
+	// are part of a structure being marshaled to JSON.
+	// In the context of this file, these operations are intentional.
+	res, err := json.Marshal(o) //nolint:gosec
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +208,10 @@ func azureOptionsHandler(val any, handler func(string) (string, error)) (any, er
 		return nil, err
 	}
 
-	res, err := json.Marshal(o)
+	// The gosec G117 warning is triggered when sensitive fields (like ClientSecret, AWSSecretKey, or TLSKey)
+	// are part of a structure being marshaled to JSON.
+	// In the context of this file, these operations are intentional.
+	res, err := json.Marshal(o) //nolint:gosec
 	if err != nil {
 		return nil, err
 	}
@@ -244,7 +250,10 @@ func mongoDBOptionsHandler(val any, handler func(string) (string, error)) (any, 
 		return nil, err
 	}
 
-	res, err := json.Marshal(o)
+	// The gosec G117 warning is triggered when sensitive fields (like ClientSecret, AWSSecretKey, or TLSKey)
+	// are part of a structure being marshaled to JSON.
+	// In the context of this file, these operations are intentional.
+	res, err := json.Marshal(o) //nolint:gosec
 	if err != nil {
 		return nil, err
 	}
@@ -283,7 +292,10 @@ func mySQLOptionsHandler(val any, handler func(string) (string, error)) (any, er
 		return nil, err
 	}
 
-	res, err := json.Marshal(o)
+	// The gosec G117 warning is triggered when sensitive fields (like ClientSecret, AWSSecretKey, or TLSKey)
+	// are part of a structure being marshaled to JSON.
+	// In the context of this file, these operations are intentional.
+	res, err := json.Marshal(o) //nolint:gosec
 	if err != nil {
 		return nil, err
 	}
@@ -322,7 +334,10 @@ func postgreSQLOptionsHandler(val any, handler func(string) (string, error)) (an
 		return nil, err
 	}
 
-	res, err := json.Marshal(o)
+	// The gosec G117 warning is triggered when sensitive fields (like ClientSecret, AWSSecretKey, or TLSKey)
+	// are part of a structure being marshaled to JSON.
+	// In the context of this file, these operations are intentional.
+	res, err := json.Marshal(o) //nolint:gosec
 	if err != nil {
 		return nil, err
 	}

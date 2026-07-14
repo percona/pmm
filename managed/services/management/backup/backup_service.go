@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -466,6 +467,15 @@ func (s *BackupService) GetLogs(_ context.Context, req *backupv1.GetLogsRequest)
 			res.End = true
 			break
 		}
+
+		if log.ChunkID < 0 || log.ChunkID > math.MaxUint32 {
+			s.l.WithFields(logrus.Fields{
+				"chunk_id": log.ChunkID,
+				"job_id":   jobs[0].ID,
+			}).Warn("Chunk ID is out of uint32 range, skipping record")
+			continue
+		}
+
 		res.Logs = append(res.Logs, &backupv1.LogChunk{
 			ChunkId: uint32(log.ChunkID),
 			Data:    log.Data,

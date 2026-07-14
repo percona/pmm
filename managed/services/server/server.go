@@ -165,11 +165,11 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 			}
 
 		case strings.HasPrefix(req.Dummy, "grpccode-"):
-			code, err := strconv.Atoi(strings.TrimPrefix(req.Dummy, "grpccode-"))
+			code, err := strconv.ParseUint(strings.TrimPrefix(req.Dummy, "grpccode-"), 10, 32)
 			if err != nil {
-				return nil, err
+				return nil, status.Errorf(codes.InvalidArgument, "invalid gRPC code: %v", err)
 			}
-			grpcCode := codes.Code(code)
+			grpcCode := codes.Code(uint32(code))
 			return nil, status.Errorf(grpcCode, "gRPC code %d (%s)", grpcCode, grpcCode)
 		}
 	}

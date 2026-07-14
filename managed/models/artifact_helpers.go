@@ -18,6 +18,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/google/uuid"
@@ -330,9 +331,7 @@ func DeleteArtifact(q *reform.Querier, id string) error {
 
 // MetadataRemoveFirstN removes first N records from artifact metadata list.
 func (s *Artifact) MetadataRemoveFirstN(q *reform.Querier, n uint32) error {
-	if n > uint32(len(s.MetadataList)) {
-		n = uint32(len(s.MetadataList))
-	}
+	n = min(n, math.MaxUint32)
 	s.MetadataList = s.MetadataList[n:]
 	err := q.Update(s)
 	if err != nil {

@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"math"
 	"os"
 	"path/filepath"
 	"sort"
@@ -353,18 +354,31 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 	}
 
 	templates := s.GetTemplates()
-	res := &alerting.ListTemplatesResponse{
-		Templates:  make([]*alerting.Template, 0, len(templates)),
-		TotalItems: int32(len(templates)),
-		TotalPages: 1,
+	totalItems := len(templates)
+	// return value type is int32, so we need to limit it to max int32 value
+	if totalItems > math.MaxInt32 {
+		s.l.Warnf("Total templates count %d is greater than max int32 value, limiting to %d.", totalItems, math.MaxInt32)
+		totalItems = math.MaxInt32
 	}
 
+	totalPages := 1
 	if pageSize > 0 {
-		res.TotalPages = int32(len(templates) / pageSize)
-		if len(templates)%pageSize > 0 {
-			res.TotalPages++
+		totalPages = totalItems / pageSize
+		if totalItems%pageSize > 0 {
+			totalPages++
+		}
+		// return value type is int32, so we need to limit it to max int32 value
+		if totalPages > math.MaxInt32 {
+			totalPages = math.MaxInt32
 		}
 	}
+
+	res := &alerting.ListTemplatesResponse{
+		Templates:  make([]*alerting.Template, 0, totalItems),
+		TotalItems: int32(totalItems),
+		TotalPages: int32(totalPages),
+	}
+
 
 	names := make([]string, 0, len(templates))
 	for name := range templates {
@@ -533,13 +547,17 @@ func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Templ
 		return nil, err
 	}
 
+	if template.Severity < math.MinInt32 || template.Severity > math.MaxInt32 {
+		l.Warnf("Alerting template severity %d is out of range for int32", template.Severity)
+	}
+
 	t := &alerting.Template{
 		Name:        template.Name,
 		Summary:     template.Summary,
 		Expr:        template.Expr,
 		Params:      convertParamDefinitions(l, template.Params),
 		For:         durationpb.New(template.For),
-		Severity:    managementv1.Severity(template.Severity),
+		Severity:    managementv1.Severity(template.Severity), //nolint:gosec
 		Labels:      labels,
 		Annotations: annotations,
 		Source:      convertSource(template.Source),

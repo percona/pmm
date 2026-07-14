@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"slices"
 	"strings"
 	"sync"
@@ -310,8 +311,10 @@ GROUP BY point
 ORDER BY point ASC;
 `
 
-var tmplQueryReportSparklines = template.Must(template.New("queryReportSparklines").Funcs(funcMap).Parse(queryReportSparklinesTmpl))
-
+var (
+	tmplQueryReportSparklines             = template.Must(template.New("queryReportSparklines").Funcs(funcMap).Parse(queryReportSparklinesTmpl))
+	errReporterPeriodStartToLessStartFrom = errors.New("periodStartToSec must be greater than periodStartFromSec")
+)
 // SelectSparklines selects datapoint for sparklines.
 func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	periodStartFromSec, periodStartToSec int64,
@@ -321,6 +324,10 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	// Align to minutes
 	periodStartToSec = periodStartToSec / 60 * 60     //nolint:mnd
 	periodStartFromSec = periodStartFromSec / 60 * 60 //nolint:mnd
+
+	if periodStartToSec <= periodStartFromSec {
+		return nil, errReporterPeriodStartToLessStartFrom
+	}
 
 	// If time range is bigger then two hour - amount of sparklines points = 120 to avoid huge data in response.
 	// Otherwise amount of sparklines points is equal to minutes in time range to not mess up calculation.
@@ -332,12 +339,25 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		amountOfPoints = timePeriod / 60 //nolint:mnd
 	}
 
+	if amountOfPoints <= 0 {
+		amountOfPoints = 1
+	}
+
 	// how many full minutes we can fit into given amount of points.
 	minutesInPoint := (periodStartToSec - periodStartFromSec) / 60 / amountOfPoints //nolint:mnd
+	if minutesInPoint <= 0 {
+		minutesInPoint = 1
+	}
+
 	// we need aditional point to show this minutes
 	remainder := ((periodStartToSec - periodStartFromSec) / 60) % amountOfPoints //nolint:mnd
 	amountOfPoints += remainder / minutesInPoint
 	timeFrame := minutesInPoint * 60 //nolint:mnd
+
+	if timeFrame > math.MaxUint32 {
+		return nil, fmt.Errorf("calculated timeframe %d exceeds uint32 capacity", timeFrame)
+	}
+	tfUint32 := uint32(timeFrame)
 
 	arg := map[string]any{
 		"dimension_val":     dimensionVal,
@@ -447,8 +467,8 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		if !ok {
 			p = &qanpbv1.Point{}
 			p.Point = pointN
-			p.TimeFrame = uint32(timeFrame)
-			timeShift := timeFrame * int64(pointN)
+			p.TimeFrame = tfUint32
+			timeShift := int64(tfUint32) * int64(pointN)
 			ts := periodStartToSec - timeShift
 			p.Timestamp = time.Unix(ts, 0).UTC().Format(time.RFC3339)
 		}

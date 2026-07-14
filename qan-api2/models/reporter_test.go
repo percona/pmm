@@ -363,3 +363,37 @@ func TestQueryDimensionTemplate(t *testing.T) {
 		})
 	}
 }
+
+func TestReporter_SelectSparklines_Validation(t *testing.T) {
+	t.Parallel()
+	// We use a nil DB reporter because we are testing validation logic
+	// that returns before any database interaction occurs.
+	r := &Reporter{}
+
+	t.Run("EmptyRange", func(t *testing.T) {
+		t.Parallel()
+		// periodTo <= periodFrom should return (nil, error) early
+		res, err := r.SelectSparklines(context.Background(), "val", 1000, 1000, nil, nil, "group", "col", false)
+		require.Error(t, err, errReporterPeriodStartToLessStartFrom)
+		require.Nil(t, res)
+
+		res, err = r.SelectSparklines(context.Background(), "val", 2000, 1000, nil, nil, "group", "col", false)
+		require.Error(t, err, errReporterPeriodStartToLessStartFrom)
+		require.Nil(t, res)
+	})
+
+	t.Run("TimeFrameOverflow", func(t *testing.T) {
+		t.Parallel()
+		// We need to trigger timeFrame > math.MaxUint32.
+		// timeFrame = minutesInPoint * 60.
+		// minutesInPoint = duration / 60 / 120 (for large durations).
+		// So we need (duration / 7200) * 60 > MaxUint32.
+		// duration / 120 > MaxUint32.
+		from := int64(0)
+		to := int64(600_000_000_000) // ~19,000 years
+		res, err := r.SelectSparklines(context.Background(), "val", from, to, nil, nil, "group", "col", false)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "exceeds uint32 capacity")
+		require.Nil(t, res)
+	})
+}

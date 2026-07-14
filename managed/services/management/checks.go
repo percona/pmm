@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"math"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -130,48 +131,56 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.
 		maps.Copy(labels, result.Result.Labels)
 		maps.Copy(labels, result.Target.Labels)
 
+		if result.Result.Severity < math.MinInt32 || result.Result.Severity > math.MaxInt32 {
+			s.l.Warnf("Check result severity %d is out of range for int32", result.Result.Severity)
+		}
+
 		failedChecks = append(failedChecks, &advisorsv1.CheckResult{
 			Summary:     result.Result.Summary,
 			CheckName:   result.CheckName,
 			Description: result.Result.Description,
 			ReadMoreUrl: result.Result.ReadMoreURL,
-			Severity:    managementv1.Severity(result.Result.Severity),
+			Severity:    managementv1.Severity(result.Result.Severity), //nolint:gosec
 			Labels:      labels,
 			ServiceName: result.Target.ServiceName,
 			ServiceId:   result.Target.ServiceID,
 		})
 	}
 
-	var pageIndex, pageSize int
-	totalPages := int32(1)
-	totalItems := int32(len(failedChecks))
+	totalItems := len(failedChecks)
+	pageIndex := int(pointer.GetInt32(req.PageIndex))
+	pageSize := int(pointer.GetInt32(req.PageSize))
 
-	if req.PageIndex != nil {
-		pageIndex = int(pointer.GetInt32(req.PageIndex))
+	from := pageIndex * pageSize
+	to := from + pageSize
+	if to > totalItems || pageSize == 0 {
+		to = totalItems
 	}
-	if req.PageSize != nil {
-		pageSize = int(pointer.GetInt32(req.PageSize))
-	}
+	from = min(from, totalItems)
 
-	from, to := pageIndex*pageSize, (pageIndex+1)*pageSize
-	if to > len(failedChecks) || to == 0 {
-		to = len(failedChecks)
-	}
-	if from > len(failedChecks) {
-		from = len(failedChecks)
-	}
-
+	totalPages := 1
 	if pageSize > 0 {
-		totalPages = int32(len(failedChecks) / pageSize)
-		if len(failedChecks)%pageSize > 0 {
+		totalPages = totalItems / pageSize
+		if totalItems%pageSize > 0 {
 			totalPages++
 		}
+		// return value type is int32, so we need to limit it to max int32 value
+		if totalPages > math.MaxInt32 {
+			s.l.Warnf("Total pages %d is out of range for int32, assigning %d", totalPages, math.MaxInt32)
+			totalPages = math.MaxInt32
+		}
+	}
+
+	// return value type is int32, so we need to limit it to max int32 value
+	if totalItems > math.MaxInt32 {
+		s.l.Warnf("Total items %d is out of range for int32, assigning %d", totalItems, math.MaxInt32)
+		totalItems = math.MaxInt32
 	}
 
 	return &advisorsv1.GetFailedChecksResponse{
 		Results:    failedChecks[from:to],
-		TotalItems: totalItems,
-		TotalPages: totalPages,
+		TotalItems: int32(totalItems),
+		TotalPages: int32(totalPages),
 	}, nil
 }
 

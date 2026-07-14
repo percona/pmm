@@ -17,6 +17,7 @@ package backup
 
 import (
 	"fmt"
+	"math"
 	"testing"
 	"time"
 
@@ -429,7 +430,7 @@ func TestScheduledBackups(t *testing.T) {
 func TestGetLogs(t *testing.T) {
 	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 	backupService := &mockBackupService{}
 	schedulerService := &mockScheduleService{}
 	mockedPbmPITRService := &mockPbmPITRService{}
@@ -501,6 +502,47 @@ func TestGetLogs(t *testing.T) {
 			}
 			assert.Equal(t, tc.expect, chunkIDs)
 		}
+	})
+
+	t.Run("skip out of range chunk IDs", func(t *testing.T) {
+		artifactID := uuid.New().String()
+		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
+			PMMAgentID: "agent",
+			Type:       models.MongoDBBackupJob,
+			Data: &models.JobData{
+				MongoDBBackup: &models.MongoDBBackupJobData{
+					ServiceID:  "svc",
+					ArtifactID: artifactID,
+				},
+			},
+		})
+		require.NoError(t, err)
+
+		// Create logs with IDs that should be skipped and IDs that are valid.
+		testChunks := []int{
+			-1,                 // Invalid: negative
+			0,                  // Valid: lower bound
+			math.MaxInt32,      // Valid: upper bound for PostgreSQL integer type
+		}
+
+		for _, chunkID := range testChunks {
+			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
+				JobID:   job.ID,
+				ChunkID: chunkID,
+				Data:    fmt.Sprintf("data for %d", chunkID),
+			})
+			require.NoError(t, err)
+		}
+
+		logs, err := backupSvc.GetLogs(ctx, &backupv1.GetLogsRequest{ArtifactId: artifactID})
+		require.NoError(t, err)
+
+		expectedIDs := []uint32{0, math.MaxInt32}
+		actualIDs := make([]uint32, 0, len(logs.Logs))
+		for _, log := range logs.Logs {
+			actualIDs = append(actualIDs, log.ChunkId)
+		}
+		assert.Equal(t, expectedIDs, actualIDs, "Only valid uint32 ChunkIDs should be returned")
 	})
 }
 

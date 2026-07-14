@@ -48,8 +48,16 @@ func ValidateAlertingRules(ctx context.Context, rules string) error {
 	if err != nil {
 		return fmt.Errorf("alerting rule validation failed: %w", err)
 	}
-	tempFile.Close()                 //nolint:errcheck
-	defer os.Remove(tempFile.Name()) //nolint:errcheck
+	err = tempFile.Close()
+	if err != nil {
+		return fmt.Errorf("alerting rule validation failed: %w", err)
+	}
+	defer func() {
+		remErr := os.Remove(tempFile.Name())
+		if remErr != nil {
+			logrus.Errorf("failed to remove temporary file %s: %v", tempFile.Name(), remErr)
+		}
+	}()
 
 	err = os.WriteFile(tempFile.Name(), []byte(rules), 0o644) //nolint:gosec,mnd
 	if err != nil {
