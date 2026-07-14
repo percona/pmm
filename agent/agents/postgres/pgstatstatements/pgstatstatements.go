@@ -157,7 +157,7 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	defer func() {
 		err := m.dbCloser.Close()
 		if err != nil {
-			m.l.Error("Failed to close db connection: %v", err)
+			m.l.WithError(err).Error("Failed to close DB connection")
 		}
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
