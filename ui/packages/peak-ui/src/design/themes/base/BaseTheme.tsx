@@ -340,11 +340,11 @@ export const semanticTokensLight = {
     surface: primitives.tech.mongodb[50],
   },
   informative: {
-    dark: primitives.tech.postgresql[900],
-    main: primitives.tech.postgresql[700],
-    light: primitives.tech.postgresql[500],
-    contrastText: primitives.tech.postgresql[900],
-    surface: primitives.tech.postgresql[50],
+    dark: primitives.tech.kubernetes[900],
+    main: primitives.tech.kubernetes[700],
+    light: primitives.tech.kubernetes[500],
+    contrastText: primitives.tech.kubernetes[900],
+    surface: primitives.tech.kubernetes[50],
   },
   warning: {
     dark: primitives.extra.gold[800],
@@ -421,11 +421,11 @@ export const semanticTokensDark = {
     surface: primitives.tech.mongodb[800],
   },
   informative: {
-    dark: primitives.tech.postgresql[700],
-    main: primitives.tech.postgresql[500],
-    light: primitives.tech.postgresql[300],
+    dark: primitives.tech.kubernetes[700],
+    main: primitives.tech.kubernetes[500],
+    light: primitives.tech.kubernetes[300],
     contrastText: primitives.pure.white,
-    surface: primitives.tech.postgresql[700],
+    surface: primitives.tech.kubernetes[700],
   },
   warning: {
     dark: primitives.extra.gold[600],
