@@ -701,7 +701,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 
 	alertTemplate, err := parseAlertTemplate(sourceTemplate.Yaml)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "Invalid template %s: %v.", req.TemplateName, err)
+		return nil, status.Errorf(codes.Internal, "Invalid template %s: %v.", req.TemplateName, err)
 	}
 
 	ruleData, condition, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, paramsValues.AsStringMap(), req.Filters)
