@@ -13536,6 +13536,12 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 12
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 13
                     }
                   },
                   "x-order": 4
@@ -13616,6 +13622,12 @@
                       "format": "int64",
                       "x-nullable": true,
                       "x-order": 7
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 8
                     }
                   },
                   "x-order": 5
@@ -14227,6 +14239,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 10
@@ -14359,6 +14377,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 11
@@ -14485,6 +14509,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 13
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 14
                     }
                   },
                   "x-order": 12
@@ -14617,6 +14647,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 13
@@ -14767,6 +14803,12 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 15
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 16
                     }
                   },
                   "x-order": 15
@@ -14871,6 +14913,12 @@
                       },
                       "x-nullable": true,
                       "x-order": 11
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 12
                     }
                   },
                   "x-order": 16
