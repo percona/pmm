@@ -589,6 +589,8 @@ func TestCreateRuleMultiExpression(t *testing.T) {
 // query or an expression.
 // Not t.Parallel: see TestCreateRuleMultiExpression. The subtests reuse the single db opened
 // here, so they stay parallel without contending on testdb's shared database.
+//
+//nolint:tparallel // parent must stay serial.
 func TestMultiExpressionTemplateParamValidation(t *testing.T) {
 	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)

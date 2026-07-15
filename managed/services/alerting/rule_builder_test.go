@@ -125,8 +125,8 @@ func TestBuildGrafanaRuleDataModelContract(t *testing.T) {
 	require.Len(t, data, 3)
 
 	// Query node (leg A): instant query over the last queryRelativeFromSeconds seconds.
-	assert.EqualValues(t, queryRelativeFromSeconds, data[0].RelativeTimeRange.From)
-	assert.EqualValues(t, 0, data[0].RelativeTimeRange.To)
+	assert.Equal(t, queryRelativeFromSeconds, data[0].RelativeTimeRange.From)
+	assert.Equal(t, 0, data[0].RelativeTimeRange.To)
 	var queryModel promQueryModel
 	require.NoError(t, json.Unmarshal(data[0].Model, &queryModel))
 	assert.True(t, queryModel.Instant)
@@ -135,8 +135,8 @@ func TestBuildGrafanaRuleDataModelContract(t *testing.T) {
 	assert.Equal(t, maxDataPoints, queryModel.MaxDataPoints)
 
 	// Math node (leg C): server-side expression, no time range, __expr__ datasource.
-	assert.EqualValues(t, 0, data[2].RelativeTimeRange.From)
-	assert.EqualValues(t, 0, data[2].RelativeTimeRange.To)
+	assert.Equal(t, 0, data[2].RelativeTimeRange.From)
+	assert.Equal(t, 0, data[2].RelativeTimeRange.To)
 	var mathModel mathExpressionModel
 	require.NoError(t, json.Unmarshal(data[2].Model, &mathModel))
 	assert.False(t, mathModel.Hide)

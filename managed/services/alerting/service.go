@@ -566,14 +566,15 @@ func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Templ
 		return nil, err
 	}
 
-	if err := populateMultiExpressionFields(t, template.Yaml); err != nil {
+	err = populateMultiExpressionFields(t, template.Yaml)
+	if err != nil {
 		return nil, err
 	}
 
 	return t, nil
 }
 
-// populateMultiExpressionFields fills the multi-query fields (queries/expressions/condition)
+// populateMultiExpressionFields fills the multi-query fields (queries/expressions/condition).
 func populateMultiExpressionFields(t *alerting.Template, yamlContent string) error {
 	if yamlContent == "" {
 		return nil

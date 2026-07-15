@@ -144,7 +144,7 @@ func TestMultiExpressionFilterDoesNotEmptyConstantQuery(t *testing.T) {
 			if q.RefID != "B" {
 				continue
 			}
-			model, ok := q.Model.(map[string]interface{})
+			model, ok := q.Model.(map[string]any)
 			require.Truef(t, ok, "query B model is not an object: %T", q.Model)
 			exprB, _ = model["expr"].(string)
 		}
