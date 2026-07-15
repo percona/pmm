@@ -169,7 +169,7 @@ func TestMultiExpressionFilterDoesNotEmptyConstantQuery(t *testing.T) {
 	require.NoError(t, err)
 	promClient := promapi.NewAPI(promHTTP)
 
-	result, _, err := promClient.Query(context.Background(), exprB, time.Now())
+	result, _, err := promClient.Query(t.Context(), exprB, time.Now())
 	require.NoError(t, err)
 	vec, ok := result.(prommodel.Vector)
 	require.Truef(t, ok, "expected a vector result, got %s", result.Type())
