@@ -578,7 +578,7 @@ func TestClient(t *testing.T) {
 					require.NoError(t, err)
 				}()
 
-				serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, true, authHeaders)
+				serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
 				require.NoError(t, err)
 				require.NotZero(t, serviceTokenID)
 				require.NotEmpty(t, serviceToken)
@@ -659,4 +659,63 @@ func TestClient(t *testing.T) {
 		err := c.IsReady(ctx)
 		require.NoError(t, err)
 	})
+}
+
+func TestIsServiceAccountExistsError(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name string
+		err  error
+		want bool
+	}{
+		{
+			name: "grafana fork 400 already-exists (messageId in body)",
+			err: &clientError{
+				Code: http.StatusBadRequest,
+				Body: `{"messageId":"serviceaccounts.ErrAlreadyExists","message":"service account already exists"}`,
+			},
+			want: true,
+		},
+		{
+			name: "400 already-exists by message only",
+			err:  &clientError{Code: http.StatusBadRequest, ErrorMessage: "service account already exists"},
+			want: true,
+		},
+		{
+			name: "409 conflict (defensive)",
+			err:  &clientError{Code: http.StatusConflict},
+			want: true,
+		},
+		{
+			name: "wrapped already-exists error still matches via errors.As",
+			err:  fmt.Errorf("create service account: %w", &clientError{Code: http.StatusConflict}),
+			want: true,
+		},
+		{
+			name: "400 unrelated validation error",
+			err:  &clientError{Code: http.StatusBadRequest, Body: `{"message":"name is required"}`},
+			want: false,
+		},
+		{
+			name: "500 server error",
+			err:  &clientError{Code: http.StatusInternalServerError, Body: "already exists"},
+			want: false,
+		},
+		{
+			name: "non-client error",
+			err:  errors.New("dial tcp: connection refused"),
+			want: false,
+		},
+		{
+			name: "nil error",
+			err:  nil,
+			want: false,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, isServiceAccountExistsError(tc.err))
+		})
+	}
 }
