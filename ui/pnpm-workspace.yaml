@@ -52,3 +52,6 @@ overrides:
   dompurify: ^3.2.7
   serialize-javascript: ^7.0.3
   picomatch: ^4.0.4
+
+minimumReleaseAgeExclude:
+  - '@percona/percona-ui@1.0.24'
