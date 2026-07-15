@@ -58,7 +58,7 @@ func (s *ChecksAPIService) ListFailedServices(ctx context.Context, _ *advisorsv1
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
-		return nil, fmt.Errorf("failed to get check results: %w", err)
+		return nil, status.Errorf(codes.Internal, "Failed to get check results: %v", err)
 	}
 
 	summaries := make(map[string]*services.CheckResultSummary)

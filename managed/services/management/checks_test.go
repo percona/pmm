@@ -45,6 +45,7 @@ func TestStartAdvisorChecks(t *testing.T) {
 		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{})
 		require.EqualError(t, err, "failed to start advisor checks: random error")
 		assert.Nil(t, resp)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("Advisors disabled error", func(t *testing.T) {
@@ -56,6 +57,7 @@ func TestStartAdvisorChecks(t *testing.T) {
 		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "advisor checks are disabled."), err)
 		assert.Nil(t, resp)
+		checksService.AssertExpectations(t)
 	})
 }
 
@@ -76,6 +78,7 @@ func TestGetFailedChecks(t *testing.T) {
 		})
 		require.EqualError(t, err, fmt.Sprintf("failed to get check results for service '%s': random error", serviceID))
 		assert.Nil(t, resp)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("Advisors disabled error", func(t *testing.T) {
@@ -91,6 +94,7 @@ func TestGetFailedChecks(t *testing.T) {
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "advisor checks are disabled."), err)
 		assert.Nil(t, resp)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("get failed checks for requested service", func(t *testing.T) {
@@ -135,6 +139,7 @@ func TestGetFailedChecks(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.Equal(t, response, resp)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("get failed checks with pagination", func(t *testing.T) {
@@ -203,6 +208,7 @@ func TestGetFailedChecks(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.Equal(t, response, resp)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("get failed checks pagination calculations", func(t *testing.T) {
@@ -230,6 +236,7 @@ func TestGetFailedChecks(t *testing.T) {
 		assert.Equal(t, int32(3), resp.TotalPages)
 		assert.Len(t, resp.Results, 1) // Only one item left for the last page
 		assert.Equal(t, "check_4", resp.Results[0].CheckName)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("get failed checks with zero items", func(t *testing.T) {
@@ -249,6 +256,7 @@ func TestGetFailedChecks(t *testing.T) {
 		// When pageSize is provided, totalPages is calculated from results (0/10 = 0)
 		assert.Equal(t, int32(0), resp.TotalPages)
 		assert.Empty(t, resp.Results)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("get failed checks with nil pagination", func(t *testing.T) {
@@ -272,6 +280,7 @@ func TestGetFailedChecks(t *testing.T) {
 		assert.Equal(t, int32(2), resp.TotalItems)
 		assert.Equal(t, int32(1), resp.TotalPages)
 		assert.Len(t, resp.Results, 2)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("get failed checks with zero page size", func(t *testing.T) {
@@ -292,6 +301,7 @@ func TestGetFailedChecks(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, int32(1), resp.TotalItems)
 		assert.Len(t, resp.Results, 1)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("get failed checks with page index out of bounds", func(t *testing.T) {
@@ -313,6 +323,7 @@ func TestGetFailedChecks(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, int32(1), resp.TotalItems)
 		assert.Empty(t, resp.Results)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("get failed checks with negative page index", func(t *testing.T) {
@@ -334,6 +345,7 @@ func TestGetFailedChecks(t *testing.T) {
 		})
 		require.ErrorContains(t, err, "page index must be non-negative")
 		require.Nil(t, resp)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("get failed checks with negative page size", func(t *testing.T) {
@@ -355,6 +367,7 @@ func TestGetFailedChecks(t *testing.T) {
 		})
 		require.ErrorContains(t, err, "page size must be non-negative")
 		require.Nil(t, resp)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("get failed checks with pagination overflow", func(t *testing.T) {
@@ -377,6 +390,7 @@ func TestGetFailedChecks(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, int32(1), resp.TotalItems)
 		assert.Empty(t, resp.Results)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("get failed checks with severity overflow", func(t *testing.T) {
@@ -405,6 +419,7 @@ func TestGetFailedChecks(t *testing.T) {
 		})
 		require.Nil(t, resp)
 		require.ErrorContains(t, err, "check result severity 2147483648 is out of range for int32")
+		checksService.AssertExpectations(t)
 	})
 }
 
@@ -422,6 +437,8 @@ func TestListFailedServices(t *testing.T) {
 		resp, err := s.ListFailedServices(t.Context(), &advisorsv1.ListFailedServicesRequest{})
 		require.EqualError(t, err, "failed to get check results: random error")
 		assert.Nil(t, resp)
+
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("list services with failed checks", func(t *testing.T) {
@@ -497,6 +514,7 @@ func TestListFailedServices(t *testing.T) {
 		resp, err := s.ListFailedServices(t.Context(), &advisorsv1.ListFailedServicesRequest{})
 		require.NoError(t, err)
 		assert.ElementsMatch(t, resp.Result, response.Result)
+		checksService.AssertExpectations(t)
 	})
 }
 
@@ -548,6 +566,7 @@ func TestListAdvisorChecks(t *testing.T) {
 				},
 			},
 		)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("get disabled checks error", func(t *testing.T) {
@@ -559,6 +578,7 @@ func TestListAdvisorChecks(t *testing.T) {
 		resp, err := s.ListAdvisorChecks(t.Context(), nil)
 		require.EqualError(t, err, "failed to get disabled checks list: random error")
 		assert.Nil(t, resp)
+		checksService.AssertExpectations(t)
 	})
 }
 
@@ -598,6 +618,7 @@ func TestListAdvisors(t *testing.T) {
 		assert.Equal(t, advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MYSQL, adv.Checks[0].Family)
 		// Verify the comment generation logic is called
 		assert.Equal(t, "Partial support (MySQL)", adv.Comment)
+		checksService.AssertExpectations(t)
 	})
 }
 
@@ -611,6 +632,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{})
 		require.EqualError(t, err, "failed to enable disabled advisor checks: random error")
 		assert.Nil(t, resp)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("disable advisor checks error", func(t *testing.T) {
@@ -623,6 +645,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{})
 		require.EqualError(t, err, "failed to disable advisor checks: random error")
 		assert.Nil(t, resp)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("change interval error", func(t *testing.T) {
@@ -639,6 +662,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 		})
 		require.EqualError(t, err, "failed to change advisor check interval: random error")
 		assert.Nil(t, resp)
+		checksService.AssertExpectations(t)
 	})
 
 	t.Run("ChangeInterval success", func(t *testing.T) {
@@ -657,6 +681,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.Equal(t, &advisorsv1.ChangeAdvisorChecksResponse{}, resp)
+		checksService.AssertExpectations(t)
 	})
 }
 

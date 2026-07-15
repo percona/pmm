@@ -333,20 +333,20 @@ func convertParamType(t models.ParamType) alerting.ParamType {
 // ListTemplates returns a list of all collected Alert Rule Templates.
 func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplatesRequest) (*alerting.ListTemplatesResponse, error) {
 	if !s.Enabled() {
-		return nil, services.ErrAlertingDisabled
+		return nil, status.Error(codes.FailedPrecondition, services.ErrAlertingDisabled.Error())
 	}
 
 	var pageIndex, pageSize int
 	if req.PageIndex != nil {
 		pageIndex = int(*req.PageIndex)
 		if pageIndex < 0 {
-			return nil, errors.New("page index must be non-negative")
+			return nil, status.Errorf(codes.InvalidArgument, "Page index must be non-negative")
 		}
 	}
 	if req.PageSize != nil {
 		pageSize = int(*req.PageSize)
 		if pageSize < 0 {
-			return nil, errors.New("page size must be non-negative")
+			return nil, status.Errorf(codes.InvalidArgument, "Page size must be non-negative")
 		}
 	}
 
@@ -396,7 +396,8 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 	for _, tmpl := range sorted[from:to] {
 		t, err := convertTemplate(s.l, tmpl)
 		if err != nil {
-			return nil, err
+			s.l.WithError(err).Errorf("Failed to convert rule template %s.", tmpl.Name)
+			return nil, status.Error(codes.Internal, err.Error())
 		}
 
 		res.Templates = append(res.Templates, t)
@@ -407,13 +408,8 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 
 // CreateTemplate creates a new template.
 func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTemplateRequest) (*alerting.CreateTemplateResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IsAlertingEnabled() {
-		return nil, services.ErrAlertingDisabled
+	if !s.Enabled() {
+		return nil, status.Error(codes.FailedPrecondition, services.ErrAlertingDisabled.Error())
 	}
 
 	pParams := &alert.ParseParams{
@@ -424,7 +420,7 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 	templates, err := alert.Parse(strings.NewReader(req.Yaml), pParams)
 	if err != nil {
 		s.l.Errorf("failed to parse rule template form request: %+v", err)
-		return nil, status.Errorf(codes.InvalidArgument, "Failed to parse rule template: %v.", err)
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	uniqueNames := make(map[string]struct{}, len(templates))
@@ -435,7 +431,7 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 		uniqueNames[t.Name] = struct{}{}
 		err = validateUserTemplate(&t)
 		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
+			return nil, status.Error(codes.InvalidArgument, err.Error())
 		}
 	}
 
@@ -452,6 +448,8 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 		return nil
 	})
 	if errTx != nil {
+		s.l.WithError(errTx).Errorf("Failed to create rule template")
+		// errTx is already wrapped with status.Error in models.CreateTemplate, so we can return it directly
 		return nil, errTx
 	}
 
@@ -462,13 +460,8 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 
 // UpdateTemplate updates existing template, previously created via API.
 func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTemplateRequest) (*alerting.UpdateTemplateResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IsAlertingEnabled() {
-		return nil, services.ErrAlertingDisabled
+	if !s.Enabled() {
+		return nil, status.Error(codes.FailedPrecondition, services.ErrAlertingDisabled.Error())
 	}
 
 	parseParams := &alert.ParseParams{
@@ -479,11 +472,11 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 	templates, err := alert.Parse(strings.NewReader(req.Yaml), parseParams)
 	if err != nil {
 		s.l.Errorf("failed to parse rule template form request: %+v", err)
-		return nil, status.Error(codes.InvalidArgument, "Failed to parse rule template.")
+		return nil, status.Error(codes.InvalidArgument, "Failed to parse rule template")
 	}
 
 	if len(templates) != 1 {
-		return nil, status.Error(codes.InvalidArgument, "Request should contain exactly one rule template.")
+		return nil, status.Error(codes.InvalidArgument, "Request should contain exactly one rule template")
 	}
 
 	tmpl := templates[0]
@@ -504,6 +497,8 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 		return err
 	})
 	if e != nil {
+		s.l.WithError(e).Errorf("Failed to update rule template %s", req.Name)
+		// e is already wrapped with status.Error in models.ChangeTemplate, so we can return it directly
 		return nil, e
 	}
 
@@ -514,19 +509,16 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 
 // DeleteTemplate deletes existing, previously created via API.
 func (s *Service) DeleteTemplate(ctx context.Context, req *alerting.DeleteTemplateRequest) (*alerting.DeleteTemplateResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IsAlertingEnabled() {
-		return nil, services.ErrAlertingDisabled
+	if !s.Enabled() {
+		return nil, status.Error(codes.FailedPrecondition, services.ErrAlertingDisabled.Error())
 	}
 
 	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		return models.RemoveTemplate(tx.Querier, req.Name)
 	})
 	if e != nil {
+		s.l.WithError(e).Errorf("Failed to delete rule template %s", req.Name)
+		// e is already wrapped with status.Error in models.RemoveTemplate, so we can return it directly
 		return nil, e
 	}
 
@@ -614,45 +606,45 @@ func convertParamDefinitions(l *logrus.Entry, params models.AlertExprParamsDefin
 
 // CreateRule creates alert rule from the given template.
 func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleRequest) (*alerting.CreateRuleResponse, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IsAlertingEnabled() {
-		return nil, services.ErrAlertingDisabled
+	if !s.Enabled() {
+		return nil, status.Error(codes.FailedPrecondition, services.ErrAlertingDisabled.Error())
 	}
 
 	if req.TemplateName == "" {
-		return nil, status.Error(codes.InvalidArgument, "Template name should be specified.")
+		return nil, status.Error(codes.InvalidArgument, "Template name should be specified")
 	}
 
 	if req.FolderUid == "" {
-		return nil, status.Error(codes.InvalidArgument, "Folder UID should be specified.")
+		return nil, status.Error(codes.InvalidArgument, "Folder UID should be specified")
 	}
 
 	if req.Group == "" {
-		return nil, status.Error(codes.InvalidArgument, "Rule group name should be specified.")
+		return nil, status.Error(codes.InvalidArgument, "Rule group name should be specified")
 	}
 
 	// The datasource name is defined in `build/ansible/roles/grafana/files/datasources.yml`
 	metricsDatasourceUID, err := s.grafanaClient.GetDatasourceUIDByName(ctx, "Metrics")
 	if err != nil {
-		return nil, err
+		s.l.WithError(err).Error("Failed to get Metrics datasource UID.")
+		return nil, status.Error(codes.Internal, "Failed to get Metrics datasource UID")
 	}
 
-	sourceTemplate, ok := s.GetTemplates()[req.TemplateName]
-	if !ok {
-		return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)
+	sourceTemplate, err := models.FindTemplateByName(s.db.WithContext(ctx), req.TemplateName)
+	if err != nil {
+		// err is already wrapped with status.Error in models.FindTemplateByName, so we can return it directly
+		return nil, err
 	}
 
 	paramsValues, err := convertParamsValuesToModel(req.Params)
 	if err != nil {
-		return nil, err
+		s.l.WithError(err).Error("Failed to convert rule parameters values.")
+		return nil, status.Error(codes.InvalidArgument, "Failed to convert rule parameters values")
 	}
 
 	err = validateParameters(sourceTemplate.Params, paramsValues)
 	if err != nil {
+		s.l.WithError(err).Error("Failed to validate rule parameters values.")
+		// err is already wrapped with status.Error in validateParameters, so we can return it directly
 		return nil, err
 	}
 
@@ -663,7 +655,8 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 
 	expr, err := fillExprWithParams(sourceTemplate.Expr, paramsValues.AsStringMap())
 	if err != nil {
-		return nil, fmt.Errorf("failed to fill rule expression with parameters: %w", err)
+		s.l.WithError(err).Error("Failed to fill rule expression with parameters.")
+		return nil, status.Error(codes.InvalidArgument, "Failed to fill rule expression with parameters")
 	}
 
 	for _, filter := range req.Filters {
@@ -673,38 +666,43 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		case alerting.FilterType_FILTER_TYPE_MISMATCH:
 			expr = fmt.Sprintf(`label_mismatch(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
 		default:
-			return nil, fmt.Errorf("unknown filter type: %T", filter)
+			return nil, status.Errorf(codes.InvalidArgument, "Unknown filter type %s.", filter.Type)
 		}
 	}
 
 	ta, err := sourceTemplate.GetAnnotations()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get template annotations: %w", err)
+		s.l.WithError(err).Error("Failed to get template annotations.")
+		return nil, status.Error(codes.Internal, "Failed to get template annotations")
 	}
 
 	// Copy annotations form template
 	annotations := make(map[string]string)
 	err = transformMaps(ta, annotations, paramsValues.AsStringMap())
 	if err != nil {
-		return nil, fmt.Errorf("failed to fill template annotations placeholders: %w", err)
+		s.l.WithError(err).Error("Failed to fill template annotations placeholders.")
+		return nil, status.Error(codes.Internal, "Failed to fill template annotations placeholders")
 	}
 
 	labels := make(map[string]string)
 	// Copy labels form template
 	err = transformMaps(req.CustomLabels, labels, paramsValues.AsStringMap())
 	if err != nil {
-		return nil, fmt.Errorf("failed to fill rule labels placeholders: %w", err)
+		s.l.WithError(err).Error("Failed to fill rule labels placeholders.")
+		return nil, status.Error(codes.Internal, "Failed to fill rule labels placeholders")
 	}
 
 	tl, err := sourceTemplate.GetLabels()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get template labels: %w", err)
+		s.l.WithError(err).Error("Failed to get template labels.")
+		return nil, status.Error(codes.Internal, "Failed to get template labels")
 	}
 
 	// Add rule labels
 	err = transformMaps(tl, labels, paramsValues.AsStringMap())
 	if err != nil {
-		return nil, fmt.Errorf("failed to fill template labels placeholders: %w", err)
+		s.l.WithError(err).Error("Failed to fill template labels placeholders.")
+		return nil, status.Error(codes.Internal, "Failed to fill template labels placeholders")
 	}
 
 	// Do not add volatile values like `{{ $value }}` to labels as it will break alerts identity.
@@ -745,7 +743,8 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 
 	err = s.grafanaClient.CreateAlertRule(ctx, req.FolderUid, req.Group, interval, &rule)
 	if err != nil {
-		return nil, err
+		s.l.WithError(err).Error("Failed to create alert rule in Grafana.")
+		return nil, status.Error(codes.Internal, "Failed to create alert rule in Grafana")
 	}
 
 	return &alerting.CreateRuleResponse{}, nil
@@ -766,7 +765,7 @@ func convertParamsValuesToModel(params []*alerting.ParamValue) (AlertExprParamsV
 			p.Type = models.Float
 			p.FloatValue = param.GetFloat()
 		case alerting.ParamType_PARAM_TYPE_STRING:
-			p.Type = models.Float
+			p.Type = models.String
 			p.StringValue = param.GetString_()
 		default:
 			return nil, errors.New("invalid model rule param value type")
