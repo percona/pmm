@@ -1,0 +1,78 @@
+# PMM + HolmesGPT (ADRE) — single-host deployment. Driven by ./install.sh (one command).
+#
+#   cp .env.example .env      # set PMM_IMAGE, HOLMES_IMAGE, MODEL_NAME, LITELLM_MODEL, LLM_API_KEY
+#   ./install.sh
+#
+# install.sh generates the TLS cert (openssl on the host) into $HOLMES_CONFIG_DIR/certs, brings up
+# pmm-server, provisions ADRE via the PMM API (adds your model, enables it, mints PMM_API_TOKEN +
+# HOLMES_API_KEY, renders .env + config), then brings up holmesgpt. No throwaway init containers.
+#
+# REQUIRED: PMM_IMAGE must be an ADRE-capable PMM Server image (built from the `tibi-holmes` fork);
+# the official percona/pmm-server:3 does NOT contain ADRE.
+
+services:
+  pmm-server:
+    image: ${PMM_IMAGE:?set PMM_IMAGE to an ADRE-capable PMM Server image (tibi-holmes build)}
+    container_name: pmm-server
+    restart: always
+    networks: [pmm]
+    ports:
+      - "443:8443"
+    environment:
+      - ADRE_CONFIG_DIR=/holmes-config          # PMM renders the Holmes config into the shared bind dir
+      - GF_SECURITY_ADMIN_PASSWORD=${PMM_ADMIN_PASSWORD:-admin}
+      # Grafana Image Renderer (the grafana-image-renderer service below) — enables panel/dashboard PNG
+      # rendering (reports, alert images, shared panels). PMM's Grafana serves from /graph on :3000, so the
+      # renderer calls back over plain HTTP on the pmm network (no self-signed-cert workaround needed).
+      - GF_RENDERING_SERVER_URL=http://grafana-image-renderer:8081/render
+      - GF_RENDERING_CALLBACK_URL=http://pmm-server:3000/graph/
+    volumes:
+      - pmm-data:/srv                            # PMM data (Postgres/ClickHouse/VM/Grafana) — private
+      - ${HOLMES_CONFIG_DIR:-./holmes-config}:/holmes-config   # shared ONLY for the Holmes config + certs
+
+  holmesgpt:
+    image: ${HOLMES_IMAGE}
+    container_name: holmesgpt
+    restart: always
+    networks: [pmm]
+    ports:
+      - "127.0.0.1:5050:5050"                    # host-local debug only; PMM reaches it via the network
+    environment:
+      - HOLMES_CONFIGPATH_DIR=/config             # Holmes loads <dir>/config.yaml
+      - MODEL_LIST_FILE_LOCATION=/config/model_list.yaml
+      - CUSTOM_SKILL_PATHS=/config/skills
+      # Do NOT set TOOL_SCHEMA_NO_PARAM_OBJECT_IF_NO_PARAMS: it's a Gemini-only workaround that strips the
+      # `parameters` object from param-less tools (e.g. grafana_get_dashboard_tags) while OpenAI strict mode
+      # keeps `strict:true` — OpenAI then 400s "additionalProperties is required". Holmes already emits a
+      # valid strict schema ({properties:{},additionalProperties:false}) for OpenAI, so leave it unset.
+      - ENABLE_ADMIN_API=true                     # PMM hot-reloads config on save via POST /api/admin/reload
+      # Native HTTPS (Holmes 0.36.0+): both cert+key set → serves HTTPS on 5050. Remove both for HTTP.
+      - HOLMES_SSL_CERTFILE=/config/certs/tls.crt
+      - HOLMES_SSL_KEYFILE=/config/certs/tls.key
+      # Optional mTLS — do NOT enable: PMM's ADRE client does not present a client cert yet.
+      # - HOLMES_SSL_CA_CERTS=/config/certs/ca.crt
+    volumes:
+      - ${HOLMES_CONFIG_DIR:-./holmes-config}:/config          # same shared bind dir (config + certs + .env)
+    # Source the PMM-rendered bootstrap .env (PMM_URL / PMM_API_TOKEN / HOLMES_API_KEY) at start.
+    # PMM mints + renders HOLMES_API_KEY and its ADRE client sends it as "X-API-Key" (adre/client.go
+    # holmesClient), so Holmes enforces the key and PMM's calls authenticate. Requires a PMM_IMAGE that
+    # contains the X-API-Key change (>= PR-4259-ecd69d7).
+    entrypoint: ["/bin/sh", "-c", "set -a; [ -f /config/.env ] && . /config/.env; set +a; exec python3 server.py"]
+
+  # Grafana Image Renderer — remote rendering service PMM's Grafana calls to turn panels/dashboards into
+  # PNGs. Internal only (no published port): reached at grafana-image-renderer:8081 over the pmm network.
+  grafana-image-renderer:
+    image: grafana/grafana-image-renderer:latest
+    container_name: grafana-image-renderer
+    restart: always
+    networks: [pmm]
+    environment:
+      - HTTP_HOST=0.0.0.0
+      - HTTP_PORT=8081
+
+volumes:
+  pmm-data:
+
+networks:
+  pmm:
+    name: pmm
