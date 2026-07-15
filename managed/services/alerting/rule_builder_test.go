@@ -109,3 +109,105 @@ func TestBuildGrafanaRuleDataMultiExpressionWithParamsAndFilters(t *testing.T) {
 	// alternative "(db.*)|" ensures the filter preserves it instead of emptying it.
 	assert.Equal(t, `label_match(vector(80), "node_name", "(db.*)|")`, queryModelB.Expr)
 }
+
+func TestBuildGrafanaRuleDataModelContract(t *testing.T) {
+	t.Parallel()
+
+	data, _, err := buildGrafanaRuleData(&alert.Template{
+		Queries: []alert.TemplateQuery{
+			{RefID: "A", Expr: "cpu"},
+			{RefID: "B", Expr: "vector(80)"},
+		},
+		Expressions: []alert.TemplateExpression{{RefID: "C", Type: "math", Expression: "$A > $B"}},
+		Condition:   "C",
+	}, "metrics-uid", map[string]string{}, nil)
+	require.NoError(t, err)
+	require.Len(t, data, 3)
+
+	// Query node (leg A): instant query over the last queryRelativeFromSeconds seconds.
+	assert.EqualValues(t, queryRelativeFromSeconds, data[0].RelativeTimeRange.From)
+	assert.EqualValues(t, 0, data[0].RelativeTimeRange.To)
+	var queryModel promQueryModel
+	require.NoError(t, json.Unmarshal(data[0].Model, &queryModel))
+	assert.True(t, queryModel.Instant)
+	assert.False(t, queryModel.Hide)
+	assert.Equal(t, queryIntervalMs, queryModel.IntervalMs)
+	assert.Equal(t, maxDataPoints, queryModel.MaxDataPoints)
+
+	// Math node (leg C): server-side expression, no time range, __expr__ datasource.
+	assert.EqualValues(t, 0, data[2].RelativeTimeRange.From)
+	assert.EqualValues(t, 0, data[2].RelativeTimeRange.To)
+	var mathModel mathExpressionModel
+	require.NoError(t, json.Unmarshal(data[2].Model, &mathModel))
+	assert.False(t, mathModel.Hide)
+	assert.Equal(t, queryIntervalMs, mathModel.IntervalMs)
+	assert.Equal(t, maxDataPoints, mathModel.MaxDataPoints)
+	assert.Equal(t, map[string]string{"type": grafanaExprDatasourceUID, "uid": grafanaExprDatasourceUID}, mathModel.Datasource)
+}
+
+func TestBuildGrafanaRuleDataMismatchFilter(t *testing.T) {
+	t.Parallel()
+
+	data, _, err := buildGrafanaRuleData(&alert.Template{
+		Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "up"}},
+		Expressions: []alert.TemplateExpression{{RefID: "C", Type: "math", Expression: "$A > 0"}},
+		Condition:   "C",
+	}, "metrics-uid", map[string]string{}, []*alertingv1.Filter{{
+		Type:   alertingv1.FilterType_FILTER_TYPE_MISMATCH,
+		Label:  "node_name",
+		Regexp: "staging.*",
+	}})
+	require.NoError(t, err)
+
+	var queryModel promQueryModel
+	require.NoError(t, json.Unmarshal(data[0].Model, &queryModel))
+	assert.Equal(t, `label_mismatch(up, "node_name", "staging.*")`, queryModel.Expr)
+}
+
+func TestBuildGrafanaRuleDataMultiExpressionErrors(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name    string
+		tmpl    *alert.Template
+		filters []*alertingv1.Filter
+		wantErr string
+	}{
+		{
+			name: "unfillable query param",
+			tmpl: &alert.Template{
+				Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "up > [[ .missing ]]"}},
+				Expressions: []alert.TemplateExpression{{RefID: "C", Type: "math", Expression: "$A > 0"}},
+				Condition:   "C",
+			},
+			wantErr: "failed to fill query A",
+		},
+		{
+			name: "unfillable expression param",
+			tmpl: &alert.Template{
+				Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "up"}},
+				Expressions: []alert.TemplateExpression{{RefID: "C", Type: "math", Expression: "$A > [[ .missing ]]"}},
+				Condition:   "C",
+			},
+			wantErr: "failed to fill expression C",
+		},
+		{
+			name: "unknown filter type",
+			tmpl: &alert.Template{
+				Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "up"}},
+				Expressions: []alert.TemplateExpression{{RefID: "C", Type: "math", Expression: "$A > 0"}},
+				Condition:   "C",
+			},
+			filters: []*alertingv1.Filter{{Type: alertingv1.FilterType(999), Label: "l", Regexp: "r"}},
+			wantErr: "unknown filter type",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			_, _, err := buildGrafanaRuleData(tc.tmpl, "metrics-uid", map[string]string{}, tc.filters)
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), tc.wantErr)
+		})
+	}
+}
