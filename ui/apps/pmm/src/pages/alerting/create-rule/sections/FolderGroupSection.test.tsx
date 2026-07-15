@@ -50,7 +50,6 @@ const renderSection = (folderUid?: string, group?: string) =>
 
 describe('FolderGroupSection', () => {
   beforeEach(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     useFolderRuleGroupsMock.mockReturnValue({
       data: [
         { name: 'group-a', interval: '5m' },
