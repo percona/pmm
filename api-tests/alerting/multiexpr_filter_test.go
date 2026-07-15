@@ -16,7 +16,6 @@
 package alerting
 
 import (
-	"context"
 	"crypto/tls"
 	"fmt"
 	"net/http"
