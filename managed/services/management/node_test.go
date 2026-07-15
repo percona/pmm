@@ -18,6 +18,7 @@ package management
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -450,6 +451,62 @@ func TestNodeService(t *testing.T) {
 
 			assert.Equal(t, expected, res)
 		})
+
+		t.Run("should fall back to last-known status when the agent is connected", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			t.Cleanup(func() { teardown(t) })
+
+			staleMetric := model.Vector{
+				&model.Sample{
+					Metric: model.Metric{
+						"__name__": "up",
+						"node_id":  "pmm-server",
+					},
+					Timestamp: 1,
+					Value:     1,
+				},
+			}
+			isStaleQuery := func(q string) bool { return strings.Contains(q, "last_over_time") }
+			vmClient := s.vmClient.(*mockVictoriaMetricsClient)
+			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleMetric, nil, nil).Once()
+			// convertAgentToProto + connectivity gate for the stale-status fallback
+			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Twice()
+			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
+
+			res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{})
+			require.NoError(t, err)
+			require.Len(t, res.Nodes, 1)
+			assert.Equal(t, managementv1.UniversalNode_STATUS_UP, res.Nodes[0].Status)
+		})
+
+		t.Run("should stay unknown without fresh samples when the agent is disconnected", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			t.Cleanup(func() { teardown(t) })
+
+			staleMetric := model.Vector{
+				&model.Sample{
+					Metric: model.Metric{
+						"__name__": "up",
+						"node_id":  "pmm-server",
+					},
+					Timestamp: 1,
+					Value:     1,
+				},
+			}
+			isStaleQuery := func(q string) bool { return strings.Contains(q, "last_over_time") }
+			vmClient := s.vmClient.(*mockVictoriaMetricsClient)
+			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleMetric, nil, nil).Once()
+			// convertAgentToProto + connectivity gate for the stale-status fallback
+			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(false).Twice()
+			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(false).Once()
+
+			res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{})
+			require.NoError(t, err)
+			require.Len(t, res.Nodes, 1)
+			assert.Equal(t, managementv1.UniversalNode_STATUS_UNKNOWN, res.Nodes[0].Status)
+		})
 	})
 
 	t.Run("GetNode", func(t *testing.T) {
@@ -557,6 +614,35 @@ func TestNodeService(t *testing.T) {
 
 			require.NoError(t, err)
 			assert.Equal(t, expected, node)
+		})
+
+		t.Run("should fall back to last-known status when the agent is connected", func(t *testing.T) {
+			ctx, s, teardown := setup(t)
+			t.Cleanup(func() { teardown(t) })
+
+			staleMetric := model.Vector{
+				&model.Sample{
+					Metric: model.Metric{
+						"__name__": "up",
+						"node_id":  "pmm-server",
+					},
+					Timestamp: 1,
+					Value:     1,
+				},
+			}
+			isStaleQuery := func(q string) bool { return strings.Contains(q, "last_over_time") }
+			vmClient := s.vmClient.(*mockVictoriaMetricsClient)
+			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleMetric, nil, nil).Once()
+			// connectivity gate for the stale-status fallback
+			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
+
+			node, err := s.GetNode(ctx, &managementv1.GetNodeRequest{
+				NodeId: models.PMMServerNodeID,
+			})
+
+			require.NoError(t, err)
+			assert.Equal(t, managementv1.UniversalNode_STATUS_UP, node.Node.Status)
 		})
 
 		t.Run("should return an error if such node_id doesn't exist", func(t *testing.T) {
