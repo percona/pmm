@@ -103,7 +103,7 @@ export const FolderGroupSection: FC<Props> = ({ folders, loadingFolders }) => {
             label={Messages.fields.folder}
             isRequired
             loading={loadingFolders}
-            formControlProps={{ fullWidth: true }}
+            formControlProps={{ fullWidth: true, sx: { mt: 0 } }}
           >
             {allFolders.map((folder) => (
               <MenuItem key={folder.uid} value={folder.uid}>
@@ -112,6 +112,9 @@ export const FolderGroupSection: FC<Props> = ({ folders, loadingFolders }) => {
             ))}
           </SelectInput>
         </Box>
+        <Typography variant="body2" color="text.secondary">
+          {Messages.group.or}
+        </Typography>
         <Button
           type="button"
           variant="text"
@@ -132,7 +135,7 @@ export const FolderGroupSection: FC<Props> = ({ folders, loadingFolders }) => {
             }
             isRequired
             loading={loadingGroups}
-            formControlProps={{ fullWidth: true }}
+            formControlProps={{ fullWidth: true, sx: { mt: 0 } }}
             selectFieldProps={{ disabled: !canSetGroup }}
           >
             {groups.map((g) => (

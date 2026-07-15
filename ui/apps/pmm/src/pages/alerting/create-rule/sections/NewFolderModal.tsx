@@ -58,7 +58,7 @@ export const NewFolderModal: FC<Props> = ({ open, onClose, onCreated }) => {
       data-testid="new-folder-modal"
       open={open}
       onClose={onClose}
-      maxWidth="xs"
+      maxWidth="sm"
       fullWidth
       loading={isPending}
     >
@@ -73,7 +73,9 @@ export const NewFolderModal: FC<Props> = ({ open, onClose, onCreated }) => {
               label={Messages.newFolderModal.nameLabel}
               isRequired
               textFieldProps={{
+                fullWidth: true,
                 placeholder: Messages.newFolderModal.namePlaceholder,
+                sx: { mt: 0 },
                 slotProps: {
                   htmlInput: { 'data-testid': 'new-folder-name' },
                 },
