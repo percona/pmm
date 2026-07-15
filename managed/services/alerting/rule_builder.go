@@ -123,7 +123,8 @@ func fillAndFilterExpr(expr string, params map[string]string, filters []*alertin
 	for _, filter := range filters {
 		switch filter.Type {
 		case alertingv1.FilterType_FILTER_TYPE_MATCH:
-			filledExpr = fmt.Sprintf(`label_match(%s, "%s", "%s")`, filledExpr, filter.Label, filter.Regexp)
+			// Preserve series that don't carry the label (e.g. constant/threshold queries)
+			filledExpr = fmt.Sprintf(`label_match(%s, "%s", "(%s)|")`, filledExpr, filter.Label, filter.Regexp)
 		case alertingv1.FilterType_FILTER_TYPE_MISMATCH:
 			filledExpr = fmt.Sprintf(`label_mismatch(%s, "%s", "%s")`, filledExpr, filter.Label, filter.Regexp)
 		default:

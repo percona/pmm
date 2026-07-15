@@ -100,10 +100,12 @@ func TestBuildGrafanaRuleDataMultiExpressionWithParamsAndFilters(t *testing.T) {
 	var queryModelA promQueryModel
 	err = json.Unmarshal(data[0].Model, &queryModelA)
 	require.NoError(t, err)
-	assert.Equal(t, `label_match(rate(node_cpu_seconds_total{mode="idle"}[5m]), "node_name", "db.*")`, queryModelA.Expr)
+	assert.Equal(t, `label_match(rate(node_cpu_seconds_total{mode="idle"}[5m]), "node_name", "(db.*)|")`, queryModelA.Expr)
 
 	var queryModelB promQueryModel
 	err = json.Unmarshal(data[1].Model, &queryModelB)
 	require.NoError(t, err)
-	assert.Equal(t, `label_match(vector(80), "node_name", "db.*")`, queryModelB.Expr)
+	// Query B is a bare constant (vector(80)) with no node_name label. The trailing empty
+	// alternative "(db.*)|" ensures the filter preserves it instead of emptying it.
+	assert.Equal(t, `label_match(vector(80), "node_name", "(db.*)|")`, queryModelB.Expr)
 }
