@@ -15,6 +15,7 @@ import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertTemplates } from 'pages/alerting/templates';
 import { CreateAlertFromTemplate } from 'pages/alerting/create-rule';
+import { InstallClientPage } from 'pages/install-client';
 
 const router = createBrowserRouter(
   [
@@ -41,6 +42,10 @@ const router = createBrowserRouter(
             {
               path: 'help',
               element: <HelpCenter />,
+            },
+            {
+              path: 'install-client',
+              element: <InstallClientPage />,
             },
             {
               path: 'settings/:tab?',
