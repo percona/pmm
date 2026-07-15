@@ -6177,6 +6177,22 @@
             "id": 391,
             "panels": [
                 {
+                    "gridPos": {
+                        "h": 1,
+                        "w": 24,
+                        "x": 0,
+                        "y": 29
+                    },
+                    "id": 9001,
+                    "options": {
+                        "content": "ℹ️ **Query Cache was removed from MySQL 8.0. Empty Query Cache charts are expected for MySQL 8.0 and newer.**",
+                        "mode": "markdown"
+                    },
+                    "pluginVersion": "8.3.5",
+                    "transparent": true,
+                    "type": "text"
+                },
+                {
                     "aliasColors": {},
                     "bars": true,
                     "dashLength": 10,

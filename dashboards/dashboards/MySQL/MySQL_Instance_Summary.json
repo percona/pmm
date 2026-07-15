@@ -2989,6 +2989,22 @@
             "type": "row"
         },
         {
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 118
+            },
+            "id": 9002,
+            "options": {
+                "content": "ℹ️ **Query Cache was removed from MySQL 8.0. Empty Query Cache charts are expected for MySQL 8.0 and newer.**",
+                "mode": "markdown"
+            },
+            "pluginVersion": "8.3.5",
+            "transparent": true,
+            "type": "text"
+        },
+        {
             "aliasColors": {},
             "bars": false,
             "dashLength": 10,
@@ -3007,10 +3023,10 @@
             "fillGradient": 0,
             "grid": {},
             "gridPos": {
-                "h": 8,
+                "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 118
+                "y": 119
             },
             "hiddenSeries": false,
             "id": 46,
@@ -3125,10 +3141,10 @@
             "fillGradient": 0,
             "grid": {},
             "gridPos": {
-                "h": 8,
+                "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 118
+                "y": 119
             },
             "height": "",
             "hiddenSeries": false,

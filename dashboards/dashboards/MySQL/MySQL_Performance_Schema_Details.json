@@ -423,7 +423,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "increase(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[$interval])> 0 or increase(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[5m]) > 0",
+                    "expr": "increase(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[$interval]) or increase(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[5m])",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,

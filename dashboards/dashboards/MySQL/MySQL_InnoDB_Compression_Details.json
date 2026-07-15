@@ -809,7 +809,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "avg by (service_name) ((sum(rate(mysql_info_schema_innodb_cmp_compress_time_seconds_total{service_name=~\"$service_name\"}[$interval])) by (service_name) or\nsum(irate(mysql_info_schema_innodb_cmp_compress_time_seconds_total{service_name=~\"$service_name\"}[5m])) by (service_name))) /\nsum(count(node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}) by (node_name)) *100",
+                    "expr": "avg by (service_name) ((sum by (service_name, node_name) (rate(mysql_info_schema_innodb_cmp_compress_time_seconds_total{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name, node_name) (irate(mysql_info_schema_innodb_cmp_compress_time_seconds_total{service_name=~\"$service_name\"}[5m]))) /\non (node_name) count by (node_name) (node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}) * 100)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "1h",
@@ -918,7 +918,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "avg by (node_name) ((sum(rate(mysql_info_schema_innodb_cmp_uncompress_time_seconds_total{service=~\"$service_name\"}[$interval])) by (service_name) or\nsum(irate(mysql_info_schema_innodb_cmp_uncompress_time_seconds_total{instance=~\"$service_name\"}[5m])) by (service_name))) /\nsum(count(node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}) by (node_name)) * 100",
+                    "expr": "avg by (service_name) ((sum by (service_name, node_name) (rate(mysql_info_schema_innodb_cmp_uncompress_time_seconds_total{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name, node_name) (irate(mysql_info_schema_innodb_cmp_uncompress_time_seconds_total{service_name=~\"$service_name\"}[5m]))) /\non (node_name) count by (node_name) (node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}) * 100)",
                     "format": "time_series",
                     "interval": "1h",
                     "intervalFactor": 1,
@@ -1563,7 +1563,7 @@
                     "pluginVersion": "8.3.5",
                     "targets": [
                         {
-                            "expr": "avg by (node_name) ((mysql_global_variables_innodb_buffer_pool_size{service_name=~\"$service_name\"} * 100)) /\non (node_name) (max by () (container_spec_memory_limit_bytes{node_name=~\"$node_name\",id=~\"/kubepods.*\",container!~\"POD|pmm-client|\"}) or \nmax by () (node_memory_MemTotal_bytes{node_name=~\"$node_name\"}))",
+                            "expr": "avg by (node_name) ((mysql_global_variables_innodb_buffer_pool_size{service_name=~\"$service_name\"} * 100)) /\non (node_name) (max by (node_name) (container_spec_memory_limit_bytes{node_name=~\"$node_name\",id=~\"/kubepods.*\",container!~\"POD|pmm-client|\"}) or \nmax by (node_name) (node_memory_MemTotal_bytes{node_name=~\"$node_name\"}))",
                             "refId": "A"
                         }
                     ],
