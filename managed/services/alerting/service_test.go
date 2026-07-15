@@ -454,6 +454,8 @@ const multiExpressionWiringYAML = `templates:
 
 // Not t.Parallel: testdb.Open DROP/CREATEs a single shared database, so running this
 // concurrently with other DB-backed tests would deadlock on the open connection.
+//
+//nolint:tparallel // parent must stay serial.
 func TestCreateRuleMultiExpression(t *testing.T) {
 	ctx := t.Context()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
