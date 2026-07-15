@@ -4801,7 +4801,7 @@
                     ]
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=\"$service_name\"},user)",
+                "definition": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=~\"$service_name\"},user)",
                 "hide": 2,
                 "includeAll": true,
                 "label": "Username",
@@ -4809,7 +4809,7 @@
                 "name": "username",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=\"$service_name\"},user)",
+                    "query": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=~\"$service_name\"},user)",
                     "refId": "Metrics-username-Variable-Query"
                 },
                 "refresh": 1,
