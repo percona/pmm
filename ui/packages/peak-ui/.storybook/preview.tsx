@@ -99,6 +99,8 @@ const preview: Preview = {
           ['Icon Button', 'Text Field', 'Copy to Clipboard'],
           'Data display',
           ['Chip', 'Code Block', 'Table', 'Tooltip'],
+          'Feedback',
+          ['Status Icon'],
           'Navigation',
           'To be reviewed',
           '*',
