@@ -64,6 +64,111 @@ const endAdornmentMap: Record<EndAdornmentChoice, ReactNode> = {
   ),
 };
 
+const startAdornmentCode: Record<StartAdornmentChoice, string | null> = {
+  none: null,
+  search: '<SearchOutlined fontSize="large" />',
+  currency: '<AttachMoneyOutlined fontSize="medium" />',
+  at: '<AlternateEmailOutlined fontSize="small" />',
+  info: '<InfoOutlined />',
+};
+
+const endAdornmentCode: Record<EndAdornmentChoice, string | null> = {
+  none: null,
+  clear:
+    '<Tooltip title="Clear">\n  <IconButton size="small">\n    <CloseOutlined />\n  </IconButton>\n</Tooltip>',
+  visibility:
+    '<Tooltip title="Toggle visibility">\n  <IconButton size="large">\n    <VisibilityOutlined />\n  </IconButton>\n</Tooltip>',
+  info: '<Tooltip title="More info">\n  <IconButton size="medium">\n    <InfoOutlined />\n  </IconButton>\n</Tooltip>',
+};
+
+const indent = (code: string, spaces: number): string =>
+  code
+    .split('\n')
+    .map((line) => (line.length ? ' '.repeat(spaces) + line : line))
+    .join('\n');
+
+// Emit a valid JSX string attribute. Plain double quotes for simple values,
+// falling back to a JSON-escaped expression when the value contains characters
+// that would otherwise break the quoted attribute (quotes, backslashes, newlines).
+const stringAttr = (name: string, value: string): string =>
+  /["\\\n\r]/.test(value) ? `${name}={${JSON.stringify(value)}}` : `${name}="${value}"`;
+
+const adornmentSlot = (position: 'start' | 'end', code: string): string =>
+  [
+    `${position}Adornment: (`,
+    `  <InputAdornment position="${position}">`,
+    indent(code, 4),
+    `  </InputAdornment>`,
+    `),`,
+  ].join('\n');
+
+// Rebuilds a clean, copy-pasteable snippet from the live args so the code panel
+// tracks the controls (the raw dynamic output is noisy because of the layout
+// Box wrapper and the abstracted adornment/select controls).
+const buildPlaygroundSource = (args: PlaygroundArgs): string => {
+  const {
+    size,
+    label,
+    placeholder,
+    defaultValue,
+    helperText,
+    type,
+    select,
+    startAdornment = 'none',
+    endAdornment = 'none',
+    multiline,
+    fullWidth,
+    focused,
+    error,
+    disabled,
+    required,
+  } = args;
+
+  const props = ['variant="outlined"'];
+  if (size) props.push(`size="${size}"`);
+  if (label) props.push(stringAttr('label', String(label)));
+  if (placeholder) props.push(stringAttr('placeholder', String(placeholder)));
+  if (defaultValue) props.push(stringAttr('defaultValue', String(defaultValue)));
+  if (helperText) props.push(stringAttr('helperText', String(helperText)));
+  if (type && type !== 'text') props.push(`type="${type}"`);
+  if (select) props.push('select');
+  if (!select && multiline) props.push('multiline', 'minRows={3}', 'maxRows={8}');
+  if (fullWidth) props.push('fullWidth');
+  if (focused) props.push('focused');
+  if (error) props.push('error');
+  if (disabled) props.push('disabled');
+  if (required) props.push('required');
+
+  const startCode = startAdornmentCode[startAdornment];
+  const endCode = endAdornmentCode[endAdornment];
+  const slots = [
+    startCode && adornmentSlot('start', startCode),
+    endCode && adornmentSlot('end', endCode),
+  ].filter((slot): slot is string => Boolean(slot));
+
+  if (slots.length) {
+    props.push(
+      ['slotProps={{', '  input: {', indent(slots.join('\n'), 4), '  },', '}}'].join('\n')
+    );
+  }
+
+  const openTag = `<TextField\n${indent(props.join('\n'), 2)}`;
+
+  if (select) {
+    return [
+      `${openTag}\n>`,
+      '  {options.map((option) => (',
+      '    <MenuItem key={option.value} value={option.value}>',
+      '      {option.label}',
+      '    </MenuItem>',
+      '  ))}',
+      '</TextField>',
+    ].join('\n');
+  }
+
+  return `${openTag}\n/>`;
+};
+
 const meta = {
   title: 'Inputs/Text Field',
   component: TextField,
@@ -184,7 +289,8 @@ export const Playground: Story = {
   parameters: {
     docs: {
       source: {
-        code: '// See the named stories below (With start/end adornment, Password with toggle, Multiline, etc.) for concrete usage patterns.',
+        transform: (_code: string, ctx: { args: PlaygroundArgs }) =>
+          buildPlaygroundSource(ctx.args),
       },
     },
   },
