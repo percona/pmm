@@ -223,7 +223,7 @@ func TestBasicAuthPermissions(t *testing.T) {
 			{userType: "admin", login: admin, statusCode: 200},
 		}},
 		{name: "grafana serviceaccounts search", url: "/graph/api/serviceaccounts/search?query=pmm-install", method: "GET", userCase: []userCase{
-			{userType: "default", login: none, statusCode: 401},
+			{userType: "default", login: none, statusCode: 403},
 			{userType: "viewer", login: viewer, statusCode: 403},
 			{userType: "editor", login: editor, statusCode: 403},
 			{userType: "admin", login: admin, statusCode: 200},
