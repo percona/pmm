@@ -103,6 +103,7 @@ export const FolderGroupSection: FC<Props> = ({ folders, loadingFolders }) => {
             label={Messages.fields.folder}
             isRequired
             loading={loadingFolders}
+            formControlProps={{ fullWidth: true }}
           >
             {allFolders.map((folder) => (
               <MenuItem key={folder.uid} value={folder.uid}>
@@ -131,6 +132,7 @@ export const FolderGroupSection: FC<Props> = ({ folders, loadingFolders }) => {
             }
             isRequired
             loading={loadingGroups}
+            formControlProps={{ fullWidth: true }}
             selectFieldProps={{ disabled: !canSetGroup }}
           >
             {groups.map((g) => (
