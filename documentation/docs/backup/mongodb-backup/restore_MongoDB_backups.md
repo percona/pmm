@@ -1,13 +1,13 @@
 # Restore a MongoDB backup
 
-MongoDB backups can only be restored to the same service they were created from.
+MongoDB backups can only be restored to the same service they were created from. The target MongoDB version must match the version recorded in the backup artifact.
 
 To restore a backup:
 {.power-number}
 
 1. Go to <i class="uil uil-history"></i> **Backup > All backups** and find the backup that you want to restore.
 2. Click the arrow in the **Actions** column to check all the information for the backup, then click ![](../../images/dots-three-vertical.png) **Restore from backup**.
-This opens the **Restore from backup** dialog, with the **Same service** option automatically preselected. This is because, currently, MongoDB backups can only be restored to a service with identical properties.
+This opens the **Restore from backup** dialog, with the **Same service** option automatically preselected. This is because MongoDB backups can only be restored to the originating service, and only if its MongoDB version has not changed since the backup was created.
 3. If you are restoring a PITR backup, select the point for the date and time that you want to restore the database to.
 4. Click **Restore** then go to the **Restores** tab to check the status of the restored backup.
 
@@ -20,7 +20,7 @@ This opens the **Restore from backup** dialog, with the **Same service** option 
 To restore to a new cluster manually:
 {.power-number}
 
-1. Install MongoDB and Percona Backup for MongoDB. Pay attention to the versions. To minimize potential incompatibility, use the same versions that were used for taking backups.
+1. Install MongoDB and Percona Backup for MongoDB 2.0.1 or later. Pay attention to the versions. To minimize potential incompatibility, use the same versions that were used for taking backups.
    For instructions, see the [PBM install documentation](https://docs.percona.com/percona-backup-mongodb/installation.html).
 2. Configure your environment:
      - to restore to a new environment with the same replica set name, make sure that the replica set name in your new destination cluster use the same name as that in the cluster that was backed up.<br/>
@@ -108,7 +108,7 @@ To restore to a new cluster manually:
           ```
     b) provide the timestamp from one of the PITR ranges to the `pbm` command:
 
-          `pbm restore --time="2022-11-23T19:40:26`
+          `pbm restore --time="2022-11-23T19:40:26"`
         
       For more information, see the [Point-in-time Recovery topic in the PBM documentation](https://docs.percona.com/percona-backup-mongodb/features/point-in-time-recovery.html?h=point).
 
