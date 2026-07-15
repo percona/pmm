@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { TestWrapper } from 'utils/testWrapper';
+import { wrapWithQueryProvider } from 'utils/testUtils';
 import { Severity } from 'types/alert-templates.types';
 import { DashboardFolder } from 'types/folders.types';
 import * as groupsHook from 'hooks/api/useFolderRuleGroups';
@@ -27,7 +28,6 @@ const Harness: FC<{ folderUid?: string; group?: string }> = ({
       severity: Severity.WARNING,
       duration: '60',
       folderUid,
-      newFolderTitle: '',
       group,
       interval: '1m',
       filters: [],
@@ -44,7 +44,7 @@ const Harness: FC<{ folderUid?: string; group?: string }> = ({
 const renderSection = (folderUid?: string, group?: string) =>
   render(
     <TestWrapper>
-      <Harness folderUid={folderUid} group={group} />
+      {wrapWithQueryProvider(<Harness folderUid={folderUid} group={group} />)}
     </TestWrapper>
   );
 

@@ -19,10 +19,6 @@ export const EVALUATION_INTERVAL_OPTIONS = [
   '1h',
 ];
 
-// Sentinel value for the folder select's "create new folder" option; the new
-// folder is created on submit (not up front).
-export const CREATE_FOLDER_VALUE = '__create_folder__';
-
 export const SEVERITY_OPTIONS: { value: Severity; label: string }[] = [
   { value: Severity.EMERGENCY, label: 'Emergency' },
   { value: Severity.ALERT, label: 'Alert' },

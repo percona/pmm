@@ -4,5 +4,6 @@ export * from './DetailsSection';
 export * from './FolderGroupSection';
 export * from './EvaluationIntervalField';
 export * from './NewEvaluationGroupModal';
+export * from './NewFolderModal';
 export * from './FiltersSection';
 export * from './AdvancedSection';
