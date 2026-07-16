@@ -10,15 +10,6 @@
 - name: List installed gpg keys
   command: ls -la /etc/pki/rpm-gpg
 
-# Local yum repo for building pmm server docker image in autobuild jobs
-- name: Add a local YUM repository
-  yum_repository:
-    name: local
-    description: Local YUM repository - x86_64
-    baseurl: file:///tmp/RPMS
-    gpgcheck: no
-    enabled: no
-
 - name: Update OS packages
   dnf:
     name: "*"
@@ -96,18 +87,38 @@
     - /var/lib/cloud/scripts/per-once
     - /var/lib/cloud/scripts/per-boot
 
+# The binaries are pre-built by the build-server-binaries script and laid out
+# as a tree rooted at /, see the /tmp/binaries mount in Dockerfile.el9.
 - name: Install PMM Server components
-  dnf:
-    name:
-      - percona-grafana
-      - percona-victoriametrics
-      - percona-qan-api2
-      - percona-dashboards
-      - pmm-managed
-      - pmm-dump
-      - vmproxy
-    state: installed
-    enablerepo: local
+  shell: cp -a --no-preserve=ownership /tmp/binaries/. /
+
+- name: Set ownership on PMM Server component directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: pmm
+    group: root
+    recurse: yes
+  loop:
+    - /usr/share/pmm-ui
+    - /usr/share/percona-dashboards
+    - /usr/share/grafana
+    - /etc/grafana
+    - /var/lib/grafana
+    - /usr/local/percona/advisors
+    - /usr/local/percona/checks
+    - /usr/local/percona/alerting-templates
+
+- name: Set ownership on Grafana binaries
+  file:
+    path: "{{ item }}"
+    owner: pmm
+    group: root
+    mode: 0755
+  loop:
+    - /usr/sbin/grafana
+    - /usr/sbin/grafana-server
+    - /usr/bin/grafana-cli
 
 - name: Configure grafana
   include_role:

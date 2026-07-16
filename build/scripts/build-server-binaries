@@ -1,0 +1,305 @@
+#!/bin/bash
+
+# Builds PMM Server components as plain binaries and static assets instead of
+# RPM packages (PMM-14804). Each component is staged into a directory tree
+# rooted at /, cached in S3 as a tarball, and unpacked into ${binaries_dir},
+# which is layered into the server docker image by build-server-docker.
+#
+# Usage:
+#   build-server-binaries                       # build all components
+#   build-server-binaries grafana pmm-managed   # build selected components
+
+set -o errexit
+set -o xtrace
+
+. $(dirname $0)/vars
+
+arch=$(uname -m)
+cache_dir=${root_dir}/tmp/pmm-server-cache
+downloads_dir=${cache_dir}/downloads
+rootfs=/home/builder/rootfs
+
+case ${arch} in
+    x86_64)  plugin_platform=linux_amd64 ;;
+    aarch64) plugin_platform=linux_arm64 ;;
+    *)       echo "Unsupported architecture: ${arch}" >&2; exit 1 ;;
+esac
+
+get_git_dir() {
+    dirname $(find "${root_dir}/sources/$1" -name .git | head -1)
+}
+
+get_src_rel() {
+    local git_dir=$(get_git_dir $1)
+    echo ${git_dir#${root_dir}/sources/}
+}
+
+get_commit() {
+    git -C "$(get_git_dir $1)" rev-parse HEAD
+}
+
+get_shortcommit() {
+    get_commit $1 | cut -c1-7
+}
+
+download() {
+    local url=$1
+    local file=${downloads_dir}/$2
+
+    if [ -f "${file}" ]; then
+        echo "${file} already exists, skipping download"
+    else
+        mkdir -p ${downloads_dir}
+        curl -fsSL -o "${file}" "${url}"
+    fi
+}
+
+s3_scope() {
+    # PR_BUILD is set for Feature Builds, see the pmm3-submodules pipeline.
+    # FB artifacts embed a feature-branch version string, so they are cached
+    # separately from the release ones.
+    if [ -n "${PR_BUILD}" ]; then
+        echo PR-BUILDS
+    else
+        echo RELEASE
+    fi
+}
+
+# Runs a component build inside the build container. The build script comes
+# from stdin; the component's staging directory is mounted at ${rootfs} and is
+# laid out as if it were the target /.
+run_in_container() {
+    local stage_dir=$1
+    local src_repo=$2
+
+    local chown_dirs="${rootfs} /home/builder/downloads"
+    if [ -n "${src_repo}" ]; then
+        chown_dirs+=" /home/builder/sources/$(get_src_rel ${src_repo})"
+    fi
+
+    mkdir -p ${downloads_dir}
+    docker run -i --rm \
+        -v ${root_dir}/sources:/home/builder/sources \
+        -v ${stage_dir}:${rootfs} \
+        -v ${downloads_dir}:/home/builder/downloads \
+        -v pmm-dnf:/var/cache/dnf \
+        -v pmm-yarn:/home/builder/.cache/yarn \
+        -v pmm-gomod:/home/builder/go/pkg/mod \
+        -v pmm-gobuild:/home/builder/.cache/go-build \
+        ${rpmbuild_docker_image} sh -c "
+            set -o errexit
+
+            sudo chown -R builder:builder ${chown_dirs}
+            bash -o errexit -o xtrace /dev/stdin
+            sudo chown -R $(id -u):$(id -g) ${chown_dirs}
+        "
+}
+
+# Fetches the component tarball from the S3 build cache, or builds it if the
+# cache has no artifact for the current sources. Either way, the tarball is
+# unpacked into ${binaries_dir}.
+cached_build() {
+    local component=$1
+    local key=$2
+
+    local tarball=${cache_dir}/${component}-${key}.${arch}.tar.gz
+    local s3_url=s3://pmm-build-cache/$(s3_scope)/server-binaries/${tarball##*/}
+
+    if [ -n "${FORCE_REBUILD}" ]; then
+        rm -f ${tarball}
+    elif [ ! -f "${tarball}" ]; then
+        aws s3 cp --region us-east-2 --no-sign-request ${s3_url} ${tarball} || :
+    fi
+
+    if [ ! -f "${tarball}" ]; then
+        local stage_dir=${cache_dir}/build/${component}
+        rm -rf ${stage_dir}
+        mkdir -p ${stage_dir}
+
+        build_${component//-/_} ${stage_dir}
+
+        tar -C ${stage_dir} -zcpf ${tarball} .
+        aws s3 cp --region us-east-2 ${tarball} ${s3_url} || :
+    fi
+
+    tar -C ${binaries_dir} -zxpf ${tarball}
+}
+
+build_pmm_managed() {
+    run_in_container $1 pmm <<EOF
+export PMM_RELEASE_VERSION=${full_pmm_version}
+export PMM_RELEASE_FULLCOMMIT=$(get_commit pmm)
+export PMM_RELEASE_BRANCH=""
+
+cd /home/builder/sources/$(get_src_rel pmm)
+make -C managed release
+make -C ui release
+
+install -d ${rootfs}/usr/sbin
+install -p -m 0755 bin/pmm-managed ${rootfs}/usr/sbin/pmm-managed
+install -p -m 0755 bin/pmm-encryption-rotation ${rootfs}/usr/sbin/pmm-encryption-rotation
+install -p -m 0755 bin/pmm-managed-init ${rootfs}/usr/sbin/pmm-managed-init
+install -p -m 0755 bin/pmm-managed-starlark ${rootfs}/usr/sbin/pmm-managed-starlark
+
+install -d ${rootfs}/usr/share/pmm-managed
+cp -pa api/swagger ${rootfs}/usr/share/pmm-managed/
+
+install -d ${rootfs}/usr/share/pmm-ui
+cp -pa ui/apps/pmm/dist/. ${rootfs}/usr/share/pmm-ui/
+
+install -d ${rootfs}/usr/share/percona-dashboards/panels/pmm-compat-app
+cp -pa ui/apps/pmm-compat/dist/. ${rootfs}/usr/share/percona-dashboards/panels/pmm-compat-app/
+
+install -d ${rootfs}/usr/local/percona/advisors ${rootfs}/usr/local/percona/checks ${rootfs}/usr/local/percona/alerting-templates
+install -p -m 0644 managed/data/advisors/*.yml ${rootfs}/usr/local/percona/advisors/
+install -p -m 0644 managed/data/checks/*.yml ${rootfs}/usr/local/percona/checks/
+install -p -m 0644 managed/data/alerting-templates/*.yml ${rootfs}/usr/local/percona/alerting-templates/
+EOF
+}
+
+build_percona_qan_api2() {
+    run_in_container $1 pmm <<EOF
+export PMM_RELEASE_VERSION=${full_pmm_version}
+export PMM_RELEASE_FULLCOMMIT=$(get_commit pmm)
+export PMM_RELEASE_BRANCH=""
+
+cd /home/builder/sources/$(get_src_rel pmm)
+make -C qan-api2 release
+
+install -d ${rootfs}/usr/sbin
+install -p -m 0755 bin/qan-api2 ${rootfs}/usr/sbin/percona-qan-api2
+EOF
+}
+
+build_vmproxy() {
+    run_in_container $1 pmm <<EOF
+export PMM_RELEASE_VERSION=${full_pmm_version}
+export PMM_RELEASE_FULLCOMMIT=$(get_commit pmm)
+export PMM_RELEASE_BRANCH=""
+
+cd /home/builder/sources/$(get_src_rel pmm)
+make -C vmproxy release
+
+install -d ${rootfs}/usr/sbin
+install -p -m 0755 bin/vmproxy ${rootfs}/usr/sbin/vmproxy
+EOF
+}
+
+build_pmm_dump() {
+    run_in_container $1 pmm-dump <<EOF
+cd /home/builder/sources/$(get_src_rel pmm-dump)
+make build BRANCH="main" COMMIT="$(get_shortcommit pmm-dump)" VERSION="${pmm_version}"
+
+install -d ${rootfs}/usr/sbin
+install -p -m 0755 pmm-dump ${rootfs}/usr/sbin/pmm-dump
+EOF
+}
+
+build_victoriametrics() {
+    download \
+        https://github.com/VictoriaMetrics/VictoriaMetrics/archive/${victoriametrics_tag}.tar.gz \
+        victoriametrics-${victoriametrics_tag}.tar.gz
+
+    run_in_container $1 "" <<EOF
+mkdir -p /home/builder/victoriametrics
+tar -C /home/builder/victoriametrics --strip-components=1 -zxpf /home/builder/downloads/victoriametrics-${victoriametrics_tag}.tar.gz
+cd /home/builder/victoriametrics
+
+export PKG_TAG=${victoriametrics_tag}
+export BUILDINFO_TAG=${victoriametrics_tag}
+export USER=builder
+make victoria-metrics-pure vmalert-pure
+
+install -D -p -m 0755 bin/victoria-metrics-pure ${rootfs}/usr/sbin/victoriametrics
+install -D -p -m 0755 bin/vmalert-pure ${rootfs}/usr/sbin/vmalert
+EOF
+}
+
+build_grafana() {
+    run_in_container $1 grafana <<EOF
+cd /home/builder/sources/$(get_src_rel grafana)
+
+grafana_version=\$(node -p "require('./package.json').version")
+rm -rf Godeps
+sed -i "s/unknown-dev/\${grafana_version}/" pkg/build/git.go
+sudo npm install -g grunt-cli
+sudo dnf install -y fontconfig
+
+make build-go
+make deps-js
+make build-js
+
+install -d ${rootfs}/usr/share/grafana
+cp -rpa conf public tools ${rootfs}/usr/share/grafana/
+
+install -d ${rootfs}/usr/sbin ${rootfs}/usr/bin
+install -p -m 0755 bin/linux/amd64/grafana ${rootfs}/usr/sbin/grafana
+install -p -m 0755 bin/linux/amd64/grafana-server ${rootfs}/usr/sbin/grafana-server
+install -p -m 0755 bin/linux/amd64/grafana-cli ${rootfs}/usr/bin/grafana-cli
+
+install -d ${rootfs}/etc/grafana
+cp -p conf/sample.ini ${rootfs}/etc/grafana/grafana.ini
+cp -p conf/ldap.toml ${rootfs}/etc/grafana/ldap.toml
+
+install -d ${rootfs}/var/lib/grafana
+EOF
+}
+
+build_percona_dashboards() {
+    download \
+        https://github.com/grafana/clickhouse-datasource/releases/download/v${clickhouse_datasource_version}/grafana-clickhouse-datasource-${clickhouse_datasource_version}.${plugin_platform}.zip \
+        grafana-clickhouse-datasource-${clickhouse_datasource_version}.${plugin_platform}.zip
+    download \
+        https://github.com/grafana/grafana-polystat-panel/releases/download/v${polystat_panel_version}/grafana-polystat-panel-${polystat_panel_version}.zip \
+        grafana-polystat-panel-${polystat_panel_version}.zip
+
+    run_in_container $1 pmm <<EOF
+sudo dnf install -y unzip
+
+cd /home/builder/sources/$(get_src_rel pmm)
+node -v
+npm version
+make -C dashboards release
+
+install -d ${rootfs}/usr/share/percona-dashboards/panels/pmm-app
+cp -pa dashboards/pmm-app/dist ${rootfs}/usr/share/percona-dashboards/panels/pmm-app/
+unzip -q /home/builder/downloads/grafana-clickhouse-datasource-${clickhouse_datasource_version}.${plugin_platform}.zip -d ${rootfs}/usr/share/percona-dashboards/panels
+unzip -q /home/builder/downloads/grafana-polystat-panel-${polystat_panel_version}.zip -d ${rootfs}/usr/share/percona-dashboards/panels
+echo ${pmm_version} > ${rootfs}/usr/share/percona-dashboards/VERSION
+EOF
+}
+
+main() {
+    local components="$@"
+
+    if [ $# -eq 0 ]; then
+        components="percona-dashboards pmm-managed percona-qan-api2 pmm-dump vmproxy victoriametrics grafana"
+        rm -rf ${binaries_dir}
+    fi
+    mkdir -p ${binaries_dir}
+
+    for component in ${components}; do
+        case ${component} in
+            pmm-managed | percona-qan-api2 | vmproxy | percona-dashboards)
+                cached_build ${component} ${pmm_version}-$(get_shortcommit pmm)
+                ;;
+            pmm-dump)
+                cached_build ${component} ${pmm_version}-$(get_shortcommit pmm-dump)
+                ;;
+            victoriametrics)
+                cached_build ${component} ${victoriametrics_tag}
+                ;;
+            grafana)
+                cached_build ${component} $(get_shortcommit grafana)
+                ;;
+            *)
+                echo "Unknown component: ${component}" >&2
+                exit 1
+                ;;
+        esac
+    done
+}
+
+main "$@"
+
+# vim: expandtab shiftwidth=4 tabstop=4
