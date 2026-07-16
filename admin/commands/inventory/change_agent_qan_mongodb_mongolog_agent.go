@@ -86,6 +86,9 @@ type ChangeAgentQANMongoDBMongologAgentCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+
+	// Connection check
+	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
 // RunCmd executes the ChangeAgentQANMongoDBMongologAgentCommand and returns the result.
@@ -126,6 +129,7 @@ func (cmd *ChangeAgentQANMongoDBMongologAgentCommand) RunCmd() (commands.Result,
 		AuthenticationMechanism:       cmd.AuthenticationMechanism,
 		AuthenticationDatabase:        cmd.AuthenticationDatabase,
 		LogLevel:                      convertLogLevelPtr(cmd.LogLevel),
+		SkipConnectionCheck:           cmd.SkipConnectionCheck,
 	}
 
 	// Parse custom labels if provided
