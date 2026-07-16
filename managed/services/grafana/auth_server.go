@@ -221,7 +221,7 @@ type AuthServer struct {
 	// Prometheus metrics for the AuthServer.
 	// mAuthRequestsDesc is the descriptor for the total number of authentication requests.
 	mAuthRequestsDesc *prom.Desc
-	// mAuthRequests stores total auth requests counters (map[authRequestKey]*uint64).
+	// mAuthRequests stores total auth requests counters (map[authRequestKey]*atomic.Uint64).
 	mAuthRequests sync.Map
 	// mGrafanaAuthRequestsDesc is the descriptor for the total number of auth requests to Grafana.
 	mGrafanaAuthRequestsDesc *prom.Desc
