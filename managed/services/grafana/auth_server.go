@@ -208,7 +208,7 @@ type AuthServer struct {
 	l *logrus.Entry
 
 	// cache stores authentication responses to reduce Grafana API calls.
-	// Stores positive responsesonly.
+	// Stores positive responses only.
 	cache map[string]cacheItem
 	// rw protects the cache for concurrent access.
 	rw sync.RWMutex
