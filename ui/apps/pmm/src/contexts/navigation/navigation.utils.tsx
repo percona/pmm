@@ -1,4 +1,4 @@
-import CodeIcon from '@mui/icons-material/Code';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import { MySqlIcon } from '@percona/percona-ui';
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
@@ -298,11 +298,11 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
 // Role/flag gating arrives with real auth (Option B).
 export const addSepApps = (): NavItem[] => [
   {
-    id: 'sep-snippets',
-    text: 'Snippets',
-    icon: CodeIcon,
-    url: '/sep/snippets',
-    matches: ['/sep/snippets'],
+    id: 'sep-dipper',
+    text: 'Collect Diagnostic Data',
+    icon: MonitorHeartIcon,
+    url: '/sep/dipper',
+    matches: ['/sep/dipper'],
   },
   {
     id: 'sep-mysql-backups',

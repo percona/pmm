@@ -89,9 +89,9 @@ importers:
       '@sep/framework':
         specifier: workspace:*
         version: link:../../packages/sep/framework
-      '@sep/plugins-snippets':
+      '@sep/plugins-dipper':
         specifier: workspace:*
-        version: link:../../packages/plugins/snippets
+        version: link:../../packages/plugins/dipper
       '@tanstack/react-query':
         specifier: ^5.100.7
         version: 5.101.2(react@19.2.7)
@@ -326,7 +326,7 @@ importers:
         specifier: ^0.6.2
         version: 0.6.2
 
-  packages/plugins/snippets:
+  packages/plugins/dipper:
     dependencies:
       '@sep/api':
         specifier: workspace:*
@@ -368,6 +368,9 @@ importers:
       jsdom:
         specifier: ^29.1.1
         version: 29.1.1
+      notistack:
+        specifier: ^3.0.0
+        version: 3.0.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react:
         specifier: ^19.1.0
         version: 19.2.7
@@ -377,9 +380,6 @@ importers:
       react-hook-form:
         specifier: ^7.71.2
         version: 7.80.0(react@19.2.7)
-      react-router-dom:
-        specifier: ^7.14.0
-        version: 7.18.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       typescript:
         specifier: ~6.0.3
         version: 6.0.3
@@ -6327,7 +6327,7 @@ packages:
       react-dom: ^0.14.0 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
 
   react-data-grid@https://codeload.github.com/grafana/react-data-grid/tar.gz/a10c748f40edc538425b458af4e471a8262ec4ed:
-    resolution: {gitHosted: true, integrity: sha512-WfvUEM3IuguDT2CERTgn1sOekLbWZbR+BSHLrE0h4sqdjiraMDgcKMVRXHR4eqXyQKrnsrihwiQIWnHgGr7Ewg==, tarball: https://codeload.github.com/grafana/react-data-grid/tar.gz/a10c748f40edc538425b458af4e471a8262ec4ed}
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/grafana/react-data-grid/tar.gz/a10c748f40edc538425b458af4e471a8262ec4ed}
     version: 7.0.0-beta.56
     peerDependencies:
       react: ^18.0 || ^19.0
