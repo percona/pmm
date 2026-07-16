@@ -1118,6 +1118,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 
 	authServer := grafana.NewAuthServer(grafanaClient, db)
+	prom.MustRegister(authServer)
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup

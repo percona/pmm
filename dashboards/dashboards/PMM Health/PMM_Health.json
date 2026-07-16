@@ -52,7 +52,8 @@
       }
     ]
   },
-  "editable": false,
+  "description": "",
+  "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
   "links": [],
@@ -72,7 +73,7 @@
     },
     {
       "datasource": "Metrics",
-      "description": "Is the PMM Core component up and running?",
+      "description": "Is the PMM Core element up and running?",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -132,9 +133,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -214,9 +212,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -296,9 +291,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -378,9 +370,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -460,9 +449,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -542,9 +528,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -553,7 +536,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "min by(node_name) (up{node_name=\"pmm-server\"})",
+          "expr": "min by(node_name) (up{ node_name=\"pmm-server\"})",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -624,9 +607,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -666,24 +646,12 @@
             "mode": "thresholds"
           },
           "decimals": 2,
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "color": "text",
-                  "index": 0,
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "rgba(245, 54, 54, 0.9)",
                 "value": 0
               },
               {
@@ -2239,9 +2207,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -2305,9 +2270,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -2372,7 +2334,7 @@
         },
         "showPercentChange": false,
         "text": {
-          "valueSize": 24
+          "titleSize": 2
         },
         "textMode": "auto",
         "wideLayout": true
@@ -2438,9 +2400,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -2505,9 +2464,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -2999,9 +2955,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -3017,6 +2970,7 @@
         }
       ],
       "title": "ManageD Status",
+      "transparent": true,
       "type": "stat"
     },
     {
@@ -3027,7 +2981,23 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 1,
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -3065,10 +3035,7 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
-        "textMode": "value",
+        "textMode": "auto",
         "wideLayout": true
       },
       "pluginVersion": "12.4.3",
@@ -3076,13 +3043,14 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "sum(pmm_managed_advisor_checks_available{job=\"pmm-managed\"} or 0)",
+          "expr": "sum(pmm_managed_advisor_checks_available{job=\"pmm-managed\"})",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
       "title": "Advisors checks",
+      "transparent": true,
       "type": "stat"
     },
     {
@@ -3132,7 +3100,7 @@
         },
         "showPercentChange": false,
         "text": {
-          "valueSize": 24
+          "titleSize": 2
         },
         "textMode": "auto",
         "wideLayout": true
@@ -3149,6 +3117,7 @@
         }
       ],
       "title": "Connected PMM Agents",
+      "transparent": true,
       "type": "stat"
     },
     {
@@ -3198,7 +3167,7 @@
         },
         "showPercentChange": false,
         "text": {
-          "valueSize": 24
+          "titleSize": 2
         },
         "textMode": "auto",
         "wideLayout": true
@@ -3215,6 +3184,7 @@
         }
       ],
       "title": "Connected Agents",
+      "transparent": true,
       "type": "stat"
     },
     {
@@ -3264,7 +3234,7 @@
         },
         "showPercentChange": false,
         "text": {
-          "valueSize": 24
+          "titleSize": 2
         },
         "textMode": "auto",
         "wideLayout": true
@@ -3281,6 +3251,7 @@
         }
       ],
       "title": "Monitored Services",
+      "transparent": true,
       "type": "stat"
     },
     {
@@ -3330,7 +3301,7 @@
         },
         "showPercentChange": false,
         "text": {
-          "valueSize": 24
+          "titleSize": 2
         },
         "textMode": "auto",
         "wideLayout": true
@@ -3347,6 +3318,172 @@
         }
       ],
       "title": "Monitored Nodes",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "The current runtime.GOMAXPROCS setting, or the number of operating system threads that can execute user-level Go code simultaneously.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 1,
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 48
+      },
+      "id": 1120,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "go_sched_gomaxprocs_threads{job=\"pmm-managed\"}",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "GOMAXPROCS",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "Go runtime memory limit configured by the user, otherwise math.MaxInt64. This value is set by the GOMEMLIMIT environment variable.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "red",
+                  "index": 1,
+                  "text": "DOWN"
+                },
+                "1": {
+                  "color": "green",
+                  "index": 0,
+                  "text": "UP"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 12,
+        "y": 48
+      },
+      "id": 1121,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "go_gc_gomemlimit_bytes{job=\"pmm-managed\"}",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "GOMEMLIMIT",
+      "transparent": true,
       "type": "stat"
     },
     {
@@ -3413,7 +3550,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 48
+        "y": 51
       },
       "id": 1057,
       "options": {
@@ -3448,6 +3585,7 @@
         }
       ],
       "title": "Average CPU Usage",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -3514,7 +3652,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 48
+        "y": 51
       },
       "id": 1073,
       "options": {
@@ -3559,6 +3697,7 @@
         }
       ],
       "title": "Average Memory Usage",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -3626,7 +3765,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 56
+        "y": 59
       },
       "id": 1068,
       "options": {
@@ -3654,6 +3793,7 @@
         }
       ],
       "title": "Clock drift",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -3721,7 +3861,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 56
+        "y": 59
       },
       "id": 1066,
       "options": {
@@ -3749,6 +3889,1471 @@
         }
       ],
       "title": "Round-trip time",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "If this number stays high and matches the latency spikes, the server is \"clogged.\" This usually happens when the upstream Grafana stops responding quickly, causing a backup of goroutines.\nIf type=\"db\" is high, PostgreSQL is slow (likely LBAC query contention).\nIf type=\"total\" is high but the others are low, the overhead is in the AuthServer logic or context switching.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 67
+      },
+      "id": 1116,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "pmm_managed_auth_inflight_requests",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "auth in-flight requests",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Auth In-Flight Requests",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "If type=\"grafana\" is high, Grafana is slow.\n\nIf type=\"db\" is high, DB is slow(check connection pool as well).\n\nIf type=\"total\" is high but the others are low, the overhead is in the AuthServer logic or context switching.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 67
+      },
+      "id": 1114,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum(rate(pmm_managed_auth_duration_seconds_bucket[$__interval])) by (le, type))",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "{{type}} latency",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Auth Latency (95 percentile)",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "Percentage of successful authentications.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 75
+      },
+      "id": 1126,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(pmm_managed_auth_requests_total{status_code=\"200\"}[1m])) / sum(rate(pmm_managed_auth_requests_total[1m]))",
+          "format": "time_series",
+          "instant": false,
+          "intervalFactor": 2,
+          "legendFormat": "{{ status_code }}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Auth Success Rate",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "Grafana AuthUser response rate",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 75
+      },
+      "id": 1125,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sort_desc(sum by (status_code) (rate(pmm_managed_auth_grafana_requests_total[$__interval])))",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "{{ code }}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Grafana Auth Response Rate",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "/auth_request http response status",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "left",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "footer": {
+              "reducers": []
+            },
+            "inspect": false,
+            "wrapHeaderText": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "route"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 851
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "method"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 95
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 212
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "status_code"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 132
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "none"
+              },
+              {
+                "id": "min",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 83
+      },
+      "id": 1117,
+      "options": {
+        "cellHeight": "sm",
+        "showHeader": true
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sort_desc(sum by (method, route, status_code) (pmm_managed_auth_requests_total))",
+          "format": "table",
+          "instant": true,
+          "intervalFactor": 2,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Total Auth Response per URI",
+      "transparent": true,
+      "type": "table"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "/auth_request http response status",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 91
+      },
+      "id": 1108,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sort_desc(sum by (status_code) (rate(pmm_managed_auth_requests_total[$__interval])))",
+          "format": "time_series",
+          "instant": false,
+          "intervalFactor": 2,
+          "legendFormat": "{{ status_code }}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Auth Response Statuses Rate",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "go_sql_connections_max_open - Maximum number of open connections to the database.\n\ngo_sql_connections_in_use - The number of connections currently in use.\n\nWait rate.\n\ngo_sql_connections_wait_duration_seconds - The total time blocked waiting for a new connection. If the result is 1.0, it means that at any given moment, exactly one goroutine is completely blocked waiting for a DB connection. If it spikes to 5.0, five goroutines are perpetually blocked. It should be 0 ideally.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "series",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "wait rate"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "min",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 91
+      },
+      "id": 1123,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "go_sql_connections_max_open{job=\"pmm-managed\"}",
+          "legendFormat": "max",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PA58DA793C7250F1B"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "go_sql_connections_in_use{job=\"pmm-managed\"}",
+          "instant": false,
+          "legendFormat": "in-use",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PA58DA793C7250F1B"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "rate(go_sql_connections_wait_duration_seconds{db=\"pmm-managed\", driver=\"postgres\"}[$__interval])",
+          "instant": false,
+          "legendFormat": "wait rate",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "SQL connections pool",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "If this ratio drops, the server will melt because it's forced to make expensive Grafana calls for every request.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 99
+      },
+      "id": 1109,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "sum(rate(pmm_managed_auth_cache_hits_total[1m])) / (sum(rate(pmm_managed_auth_cache_hits_total[1m])) + sum(rate(pmm_managed_auth_cache_misses_total[1m])))",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "Auth cache hit ratio",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Auth cache hit rate",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "If the cache is actually growing or if the invalidator is purging items too aggressively.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "fieldMinMax": false,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 99
+      },
+      "id": 1115,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "pmm_managed_auth_cache_size",
+          "format": "time_series",
+          "intervalFactor": 2,
+          "legendFormat": "Auth cache size",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Auth cache size",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "Heap and sys allocations.\n\ngo_memstats_heap_alloc_bytes - Number of heap bytes allocated and currently in use.\n\ngo_memstats_heap_sys_bytes - Number of heap bytes obtained from system.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "series",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "decbytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Heap Sys"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "decbytes"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 107
+      },
+      "id": 1122,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "go_memstats_heap_alloc_bytes{job=\"pmm-managed\"}",
+          "legendFormat": "Heap Alloc",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PA58DA793C7250F1B"
+          },
+          "editorMode": "code",
+          "expr": "go_memstats_heap_sys_bytes{job=\"pmm-managed\"}",
+          "legendFormat": "Heap Sys",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Memory",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "Heap and allocation throughput.\n\ngo_memstats_mallocs_total - Total number of heap objects allocated, both live and gc-ed.\n\ngo_memstats_frees_total - Total number of heap objects frees.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "series",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "decbytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Mallocs/s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "pps"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "left"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Frees/s"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "pps"
+              },
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 107
+      },
+      "id": 1113,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "rate(go_memstats_mallocs_total{job=\"pmm-managed\"}[$__interval])",
+          "legendFormat": "Mallocs/s",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "editorMode": "code",
+          "expr": "rate(go_memstats_frees_total{job=\"pmm-managed\"}[$__interval])",
+          "legendFormat": "Frees/s",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Heap Allocations",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "GC STW.\nLong pauses lead to API degradation and increased latency.\n\nGC Run Rate.\nIf GC is running hundreds of times per second, it means that the program is creating too many short-lived objects (garbage), and the processor is spending time cleaning them up instead of doing useful work.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "series",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "GC run rate (cycles/s)"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "unit",
+                "value": "ops"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 115
+      },
+      "id": 1118,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "editorMode": "code",
+          "expr": "go_gc_duration_seconds{job=\"pmm-managed\", quantile=\"1\"}[$__interval]",
+          "legendFormat": "GC run duration",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PA58DA793C7250F1B"
+          },
+          "editorMode": "code",
+          "expr": "rate(go_gc_duration_seconds_count{job=\"pmm-managed\"}[$__interval])",
+          "legendFormat": "GC run rate (cycles/s)",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Garbage Collector",
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Metrics",
+      "description": "If this 'Deriv' value is consistently greater than 0 over a long period of time, the number of goroutines is growing steadily that is a sign of goroutine leak.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "series",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Deriv"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 115
+      },
+      "id": 1111,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.4.3",
+      "targets": [
+        {
+          "expr": "go_goroutines{job=\"pmm-managed\"}",
+          "legendFormat": "Total",
+          "refId": "A"
+        },
+        {
+          "editorMode": "code",
+          "expr": "deriv(go_goroutines{job=\"pmm-managed\"}[30m])",
+          "legendFormat": "Deriv",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Goroutines",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -3757,7 +5362,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 64
+        "y": 123
       },
       "id": 1033,
       "panels": [],
@@ -3809,7 +5414,7 @@
         "h": 3,
         "w": 6,
         "x": 0,
-        "y": 65
+        "y": 124
       },
       "id": 1059,
       "options": {
@@ -3826,9 +5431,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -3875,7 +5477,7 @@
         "h": 3,
         "w": 6,
         "x": 6,
-        "y": 65
+        "y": 124
       },
       "id": 1047,
       "options": {
@@ -3892,9 +5494,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -3939,7 +5538,7 @@
         "h": 3,
         "w": 3,
         "x": 12,
-        "y": 65
+        "y": 124
       },
       "id": 1049,
       "maxDataPoints": 100,
@@ -3957,9 +5556,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -3986,7 +5582,17 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -4008,7 +5614,7 @@
         "h": 3,
         "w": 3,
         "x": 15,
-        "y": 65
+        "y": 124
       },
       "id": 1029,
       "maxDataPoints": 100,
@@ -4026,9 +5632,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -4055,7 +5658,17 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -4077,7 +5690,7 @@
         "h": 3,
         "w": 3,
         "x": 18,
-        "y": 65
+        "y": 124
       },
       "id": 1051,
       "maxDataPoints": 100,
@@ -4095,9 +5708,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -4113,7 +5723,7 @@
           "refId": "A"
         }
       ],
-      "title": "Folder Count",
+      "title": "Folders Count",
       "type": "stat"
     },
     {
@@ -4124,13 +5734,27 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
               }
             ]
           },
@@ -4142,7 +5766,7 @@
         "h": 3,
         "w": 3,
         "x": 21,
-        "y": 65
+        "y": 124
       },
       "id": 1031,
       "maxDataPoints": 100,
@@ -4160,9 +5784,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -4245,7 +5866,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 68
+        "y": 127
       },
       "id": 1039,
       "options": {
@@ -4346,7 +5967,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 68
+        "y": 127
       },
       "id": 1037,
       "options": {
@@ -4457,7 +6078,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 76
+        "y": 135
       },
       "id": 1041,
       "options": {
@@ -4578,7 +6199,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 76
+        "y": 135
       },
       "id": 1043,
       "options": {
@@ -4591,9 +6212,7 @@
           ],
           "displayMode": "table",
           "placement": "bottom",
-          "showLegend": true,
-          "sortBy": "Name",
-          "sortDesc": true
+          "showLegend": true
         },
         "tooltip": {
           "hideZeros": false,
@@ -4633,7 +6252,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 84
+        "y": 143
       },
       "id": 1009,
       "panels": [],
@@ -4685,7 +6304,7 @@
         "h": 3,
         "w": 5,
         "x": 0,
-        "y": 85
+        "y": 144
       },
       "id": 1011,
       "maxDataPoints": 100,
@@ -4770,7 +6389,7 @@
         "h": 3,
         "w": 5,
         "x": 5,
-        "y": 85
+        "y": 144
       },
       "id": 1013,
       "maxDataPoints": 100,
@@ -4863,7 +6482,7 @@
         "h": 3,
         "w": 5,
         "x": 10,
-        "y": 85
+        "y": 144
       },
       "id": 1015,
       "maxDataPoints": 100,
@@ -4945,7 +6564,7 @@
         "h": 3,
         "w": 4,
         "x": 15,
-        "y": 85
+        "y": 144
       },
       "id": 1017,
       "maxDataPoints": 100,
@@ -5027,7 +6646,7 @@
         "h": 3,
         "w": 5,
         "x": 19,
-        "y": 85
+        "y": 144
       },
       "id": 1019,
       "maxDataPoints": 100,
@@ -5133,7 +6752,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 88
+        "y": 147
       },
       "id": 1021,
       "options": {
@@ -5233,7 +6852,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 88
+        "y": 147
       },
       "id": 1023,
       "options": {
@@ -5333,7 +6952,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 96
+        "y": 155
       },
       "id": 1025,
       "options": {
@@ -5434,7 +7053,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 96
+        "y": 155
       },
       "id": 1027,
       "links": [
@@ -5490,7 +7109,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 103
+        "y": 162
       },
       "id": 1084,
       "panels": [],
@@ -5542,7 +7161,7 @@
         "h": 3,
         "w": 4,
         "x": 0,
-        "y": 104
+        "y": 163
       },
       "id": 1094,
       "options": {
@@ -5559,9 +7178,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -5624,7 +7240,7 @@
         "h": 3,
         "w": 4,
         "x": 4,
-        "y": 104
+        "y": 163
       },
       "id": 1095,
       "options": {
@@ -5641,9 +7257,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -5706,7 +7319,7 @@
         "h": 3,
         "w": 4,
         "x": 8,
-        "y": 104
+        "y": 163
       },
       "id": 1096,
       "options": {
@@ -5723,9 +7336,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -5789,7 +7399,7 @@
         "h": 3,
         "w": 4,
         "x": 12,
-        "y": 104
+        "y": 163
       },
       "id": 1099,
       "options": {
@@ -5806,9 +7416,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -5872,7 +7479,7 @@
         "h": 3,
         "w": 4,
         "x": 16,
-        "y": 104
+        "y": 163
       },
       "id": 1098,
       "options": {
@@ -5889,9 +7496,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -5955,7 +7559,7 @@
         "h": 3,
         "w": 4,
         "x": 20,
-        "y": 104
+        "y": 163
       },
       "id": 1097,
       "options": {
@@ -5972,9 +7576,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -6009,7 +7610,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 10,
+            "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -6018,9 +7619,6 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineStyle": {
-              "fill": "solid"
-            },
             "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
@@ -6059,7 +7657,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 107
+        "y": 166
       },
       "id": 1101,
       "maxDataPoints": 200,
@@ -6090,6 +7688,7 @@
         }
       ],
       "title": "Memory",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -6109,7 +7708,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 10,
+            "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -6156,7 +7755,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 107
+        "y": 166
       },
       "id": 1103,
       "maxDataPoints": 200,
@@ -6197,6 +7796,7 @@
         }
       ],
       "title": "Connections",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -6216,7 +7816,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 10,
+            "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -6263,7 +7863,7 @@
         "h": 5,
         "w": 12,
         "x": 0,
-        "y": 112
+        "y": 171
       },
       "id": 1105,
       "maxDataPoints": 200,
@@ -6286,6 +7886,17 @@
           "datasource": "Metrics",
           "editorMode": "code",
           "exemplar": false,
+          "expr": "max_over_time( (irate(ClickHouseProfileEvents_ReadBackoff{instance=~\"$instance\"}[2m]))[$__interval] ) * $peaks",
+          "hide": true,
+          "interval": "",
+          "legendFormat": "peaks - {{instance}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "exemplar": false,
           "expr": "rate(ClickHouseProfileEvents_ReadBackoff{job=\"clickhouse\"}[$__interval]) ",
           "interval": "",
           "legendFormat": "__auto",
@@ -6294,6 +7905,7 @@
         }
       ],
       "title": "Read backoff",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -6313,7 +7925,7 @@
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 10,
+            "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -6360,7 +7972,7 @@
         "h": 5,
         "w": 12,
         "x": 12,
-        "y": 112
+        "y": 171
       },
       "id": 1107,
       "maxDataPoints": 200,
@@ -6391,6 +8003,7 @@
         }
       ],
       "title": "Slow reads",
+      "transparent": true,
       "type": "timeseries"
     },
     {
@@ -6399,7 +8012,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 117
+        "y": 176
       },
       "id": 1007,
       "panels": [],
@@ -6461,7 +8074,7 @@
         "h": 3,
         "w": 4,
         "x": 0,
-        "y": 118
+        "y": 177
       },
       "id": 63,
       "maxDataPoints": 100,
@@ -6509,7 +8122,7 @@
         "h": 3,
         "w": 5,
         "x": 4,
-        "y": 118
+        "y": 177
       },
       "id": 1001,
       "options": {
@@ -6533,19 +8146,7 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "color": "text",
-                  "index": 0,
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
+          "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -6562,7 +8163,7 @@
         "h": 3,
         "w": 5,
         "x": 9,
-        "y": 118
+        "y": 177
       },
       "id": 65,
       "options": {
@@ -6579,9 +8180,6 @@
           "values": false
         },
         "showPercentChange": false,
-        "text": {
-          "valueSize": 24
-        },
         "textMode": "auto",
         "wideLayout": true
       },
@@ -6641,7 +8239,7 @@
         "h": 3,
         "w": 5,
         "x": 14,
-        "y": 118
+        "y": 177
       },
       "id": 67,
       "links": [
@@ -6728,7 +8326,7 @@
         "h": 3,
         "w": 5,
         "x": 19,
-        "y": 118
+        "y": 177
       },
       "id": 69,
       "links": [
@@ -6828,7 +8426,7 @@
         "h": 3,
         "w": 4,
         "x": 0,
-        "y": 121
+        "y": 180
       },
       "id": 85,
       "links": [
@@ -6917,7 +8515,7 @@
         "h": 3,
         "w": 5,
         "x": 4,
-        "y": 121
+        "y": 180
       },
       "id": 86,
       "maxDataPoints": 100,
@@ -7000,7 +8598,7 @@
         "h": 3,
         "w": 5,
         "x": 9,
-        "y": 121
+        "y": 180
       },
       "id": 1005,
       "links": [
@@ -7088,7 +8686,7 @@
         "h": 3,
         "w": 5,
         "x": 14,
-        "y": 121
+        "y": 180
       },
       "id": 70,
       "links": [
@@ -7176,7 +8774,7 @@
         "h": 3,
         "w": 5,
         "x": 19,
-        "y": 121
+        "y": 180
       },
       "id": 68,
       "links": [
@@ -7333,7 +8931,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 124
+        "y": 183
       },
       "id": 23,
       "options": {
@@ -7489,7 +9087,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 124
+        "y": 183
       },
       "id": 34,
       "options": {
@@ -7599,7 +9197,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 132
+        "y": 191
       },
       "id": 36,
       "options": {
@@ -7736,7 +9334,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 132
+        "y": 191
       },
       "id": 26,
       "options": {
@@ -7786,10 +9384,11 @@
     }
   ],
   "preload": false,
-  "refresh": false,
+  "refresh": "",
   "schemaVersion": 42,
   "tags": [
-    "Percona"
+    "Percona",
+    "experimental"
   ],
   "templating": {
     "list": [
@@ -7920,10 +9519,9 @@
     "to": "now"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "browser",
   "title": "PMM Health",
   "uid": "pmm-health",
-  "version": 1,
+  "version": 6,
   "weekStart": ""
 }
-
