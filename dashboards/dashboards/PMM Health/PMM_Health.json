@@ -3678,7 +3678,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "avg(rate(process_resident_memory_bytes{job=\"pmm-managed\"}[$__interval]))",
+          "expr": "avg_over_time(process_resident_memory_bytes{job=\"pmm-managed\"}[$__interval])",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "Resident Mem",
