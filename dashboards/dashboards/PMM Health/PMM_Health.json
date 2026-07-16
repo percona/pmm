@@ -3688,7 +3688,7 @@
         {
           "datasource": "Metrics",
           "editorMode": "code",
-          "expr": "avg(rate(process_virtual_memory_bytes{job=\"pmm-managed\"}[5m]))",
+          "expr": "avg_over_time(process_virtual_memory_bytes{job=\"pmm-managed\"}[$__interval])",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "Virtual Mem",
