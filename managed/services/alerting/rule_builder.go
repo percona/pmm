@@ -26,6 +26,9 @@ import (
 )
 
 const (
+	// grafanaExprDatasourceUID is the sentinel UID/type of Grafana's built-in
+	// server-side expression datasource. For expression queries Grafana requires
+	// both the datasource "type" and "uid" to be this literal "__expr__" value.
 	grafanaExprDatasourceUID = "__expr__"
 	queryRelativeFromSeconds = 600
 	expressionTypeMath       = "math"
@@ -164,6 +167,8 @@ func newMathExpressionData(refID, expression string) (services.Data, error) {
 		Type:       expressionTypeMath,
 		Expression: expression,
 		RefID:      refID,
+		// Grafana's expression datasource identifies itself by the same sentinel
+		// for both type and uid.
 		Datasource: map[string]string{
 			"type": grafanaExprDatasourceUID,
 			"uid":  grafanaExprDatasourceUID,
