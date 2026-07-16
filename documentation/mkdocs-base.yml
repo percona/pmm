@@ -195,6 +195,7 @@ nav:
       - Install PMM Client:
           - Client installation overview: install-pmm/install-pmm-client/index.md
           - install-pmm/install-pmm-client/prerequisites.md
+          - One-step install from UI: install-pmm/install-pmm-client/one-step-ui-install.md
           - Deployment options:
               - Install with Package Manager: install-pmm/install-pmm-client/package_manager.md
               - Install from binaries: install-pmm/install-pmm-client/binary_package.md

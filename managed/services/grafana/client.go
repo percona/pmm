@@ -29,7 +29,9 @@ import (
 	"strings"
 	"time"
 
-	gapi "github.com/grafana/grafana-api-golang-client"
+	"github.com/grafana/grafana-openapi-client-go/client"
+	"github.com/grafana/grafana-openapi-client-go/client/folders"
+	"github.com/grafana/grafana-openapi-client-go/models"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -52,7 +54,12 @@ const (
 	defaultKeepAliveTimeout      = 30 * time.Second
 	defaultIdleConnTimeout       = 90 * time.Second
 	defaultExpectContinueTimeout = 1 * time.Second
-	defaultMaxIdleConns          = 50
+	// pmm-managed talks to a single Grafana host, so MaxIdleConnsPerHost is what actually
+	// bounds the idle pool. Both match Grafana's max_open_conn = 100 (see
+	// build/ansible/roles/grafana/files/grafana.ini): that DB pool caps how many authUser
+	// lookups Grafana can process in parallel, so a larger client-side pool would never drain.
+	defaultMaxIdleConns        = 100
+	defaultMaxIdleConnsPerHost = 100
 )
 
 // Client represents a client for Grafana API.
@@ -70,6 +77,7 @@ func NewClient(addr string) *Client {
 			KeepAlive: defaultKeepAliveTimeout,
 		}).DialContext,
 		MaxIdleConns:          defaultMaxIdleConns,
+		MaxIdleConnsPerHost:   defaultMaxIdleConnsPerHost,
 		IdleConnTimeout:       defaultIdleConnTimeout,
 		ExpectContinueTimeout: defaultExpectContinueTimeout,
 	}
@@ -661,7 +669,7 @@ func (c *Client) CreateServiceAccount(ctx context.Context, nodeName string, rere
 		return 0, "", err
 	}
 
-	_, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, reregister, authHeaders)
+	_, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
 	if err != nil {
 		return 0, "", err
 	}
@@ -777,33 +785,33 @@ func validateDurations(intervalD, forD string) error {
 	return nil
 }
 
-// GetDatasourceUIDByID returns grafana datasource UID.
-func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, error) {
+// GetDatasourceUIDByName returns grafana datasource UID.
+func (c *Client) GetDatasourceUIDByName(ctx context.Context, name string) (string, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)
 	if err != nil {
 		return "", fmt.Errorf("failed to create grafana client: %w", err)
 	}
 
-	ds, err := grafanaClient.DataSource(id)
+	resp, err := grafanaClient.Datasources.GetDataSourceByName(name)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get datasource %s: %w", name, err)
 	}
-	return ds.UID, nil
+	return resp.Payload.UID, nil
 }
 
 // CreateFolder creates grafana folder.
-func (c *Client) CreateFolder(ctx context.Context, title string) (*gapi.Folder, error) {
+func (c *Client) CreateFolder(ctx context.Context, title string) (*models.Folder, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create grafana client: %w", err)
 	}
 
-	folder, err := grafanaClient.NewFolder(title)
+	resp, err := grafanaClient.Folders.CreateFolder(&models.CreateFolderCommand{Title: title})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create folder: %w", err)
 	}
 
-	return &folder, nil
+	return resp.Payload, nil
 }
 
 // DeleteFolder deletes grafana folder.
@@ -813,12 +821,9 @@ func (c *Client) DeleteFolder(ctx context.Context, id string, force bool) error 
 		return fmt.Errorf("failed to create grafana client: %w", err)
 	}
 
-	params := make(url.Values)
-	if force {
-		params.Add("forceDeleteRules", "true")
-	}
+	params := folders.NewDeleteFolderParams().WithFolderUID(id).WithForceDeleteRules(&force)
 
-	err = grafanaClient.DeleteFolder(id, params)
+	_, err = grafanaClient.Folders.DeleteFolder(params)
 	if err != nil {
 		return fmt.Errorf("failed to delete folder: %w", err)
 	}
@@ -827,21 +832,21 @@ func (c *Client) DeleteFolder(ctx context.Context, id string, force bool) error 
 }
 
 // GetFolderByUID returns folder with given UID.
-func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, error) {
+func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*models.Folder, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create grafana client: %w", err)
 	}
 
-	folder, err := grafanaClient.FolderByUID(uid)
+	resp, err := grafanaClient.Folders.GetFolderByUID(uid)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find folder: %w", err)
 	}
 
-	return folder, nil
+	return resp.Payload, nil
 }
 
-func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) {
+func (c *Client) createGrafanaClient(ctx context.Context) (*client.GrafanaHTTPAPI, error) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get auth headers from incoming context: %w", err)
@@ -852,12 +857,12 @@ func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) 
 		headers[k] = authHeaders.Get(k)
 	}
 
-	grafanaClient, err := gapi.New("http://"+c.addr, gapi.Config{HTTPHeaders: headers})
-	if err != nil {
-		return nil, fmt.Errorf("failed to create a new grafana client: %w", err)
-	}
+	cfg := client.DefaultTransportConfig()
+	cfg.Host = c.addr
+	cfg.Schemes = []string{"http"}
+	cfg.HTTPHeaders = headers
 
-	return grafanaClient, nil
+	return client.NewHTTPClientWithConfig(nil, cfg), nil
 }
 
 type serviceAccount struct {
@@ -885,14 +890,28 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 
 	var m map[string]any
 	err = c.do(ctx, "POST", "/api/serviceaccounts", "", authHeaders, b, &m)
-	if err != nil {
+
+	var serviceAccountID int
+	switch {
+	case err == nil:
+		serviceAccountID = int(m["id"].(float64)) //nolint:forcetypeassert
+	case !reregister && isServiceAccountExistsError(err):
+		// A concurrent non-force registration, or an orphan SA left behind when the node
+		// was removed from PMM's DB but its Grafana SA was retained, makes the create
+		// fail because the name already exists. Reuse the existing account so registration
+		// is idempotent. Gated on the specific already-exists error so transient/5xx/auth
+		// errors still surface instead of being masked by a lookup that finds some account.
+		existingID, lookupErr := c.getServiceAccountIDFromName(ctx, nodeName, authHeaders)
+		if lookupErr != nil {
+			return 0, err
+		}
+		serviceAccountID = existingID
+	default:
 		return 0, err
 	}
 
-	serviceAccountID := int(m["id"].(float64)) //nolint:forcetypeassert
-
-	// orgId is ignored during creating service account and default is -1
-	// orgId should be set to 1
+	// orgId is ignored during creating service account and default is -1, so set it to 1.
+	// Done for the reuse path too: a pre-existing SA may never have had its orgId fixed.
 	err = c.do(ctx, "PATCH", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, []byte("{\"orgId\": 1}"), &m)
 	if err != nil {
 		return 0, err
@@ -901,13 +920,37 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 	return serviceAccountID, nil
 }
 
-func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, nodeName string, reregister bool, authHeaders http.Header) (int, string, error) {
+// isServiceAccountExistsError reports whether err is Grafana's "service account already
+// exists" response for a create. Grafana's fork returns this as errutil.BadRequest
+// (HTTP 400) with messageId "serviceaccounts.ErrAlreadyExists" / message "service account
+// already exists" — NOT 409 — so matching only on Conflict would never fire. 409 is still
+// accepted defensively in case a Grafana version maps it that way.
+func isServiceAccountExistsError(err error) bool {
+	var clientErr *clientError
+	if !errors.As(err, &clientErr) {
+		return false
+	}
+	if clientErr.Code == http.StatusConflict {
+		return true
+	}
+	return clientErr.Code == http.StatusBadRequest &&
+		(strings.Contains(clientErr.Body, "ErrAlreadyExists") ||
+			strings.Contains(strings.ToLower(clientErr.ErrorMessage), "already exists"))
+}
+
+func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, nodeName string, authHeaders http.Header) (int, string, error) {
 	serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	exists, err := c.serviceTokenExists(ctx, serviceAccountID, nodeName, authHeaders)
 	if err != nil {
 		return 0, "", err
 	}
-	if exists && reregister {
+	// Delete any existing pmm-agent token before minting a new one. Grafana enforces a
+	// unique token name per service account, so POSTing the same name again would 409.
+	// A pre-existing token here is always stale — either a force re-registration, or a
+	// fresh registration that reused an orphan service account (see createServiceAccount);
+	// the agent is about to receive the new token regardless, so dropping the old one is
+	// safe and keeps registration from failing on the duplicate name.
+	if exists {
 		err := c.deletePMMAgentServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
 		if err != nil {
 			return 0, "", err
