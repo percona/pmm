@@ -18,6 +18,7 @@ arch=$(uname -m)
 cache_dir=${root_dir}/tmp/pmm-server-cache
 downloads_dir=${cache_dir}/downloads
 rootfs=/home/builder/rootfs
+build_dir=/home/builder/build
 
 case ${arch} in
     x86_64)  plugin_platform=linux_amd64 ;;
@@ -67,19 +68,21 @@ s3_scope() {
 
 # Runs a component build inside the build container. The build script comes
 # from stdin; the component's staging directory is mounted at ${rootfs} and is
-# laid out as if it were the target /.
+# laid out as if it were the target /. The sources are mounted read-only and
+# copied without .git into ${build_dir} (submodule .git files point outside
+# the mount, breaking git; the old rpmbuild flow built from tarballs too).
 run_in_container() {
     local stage_dir=$1
     local src_repo=$2
 
-    local chown_dirs="${rootfs} /home/builder/downloads"
+    local copy_src=""
     if [ -n "${src_repo}" ]; then
-        chown_dirs+=" /home/builder/sources/$(get_src_rel ${src_repo})"
+        copy_src="tar -C /home/builder/sources/$(get_src_rel ${src_repo}) --exclude=.git -cf - . | tar -C ${build_dir} -xf -"
     fi
 
     mkdir -p ${downloads_dir}
     docker run -i --rm \
-        -v ${root_dir}/sources:/home/builder/sources \
+        -v ${root_dir}/sources:/home/builder/sources:ro \
         -v ${stage_dir}:${rootfs} \
         -v ${downloads_dir}:/home/builder/downloads \
         -v pmm-dnf:/var/cache/dnf \
@@ -89,9 +92,11 @@ run_in_container() {
         ${rpmbuild_docker_image} sh -c "
             set -o errexit
 
-            sudo chown -R builder:builder ${chown_dirs}
+            sudo chown -R builder:builder ${rootfs}
+            mkdir -p ${build_dir}
+            ${copy_src}
             bash -o errexit -o xtrace /dev/stdin
-            sudo chown -R $(id -u):$(id -g) ${chown_dirs}
+            sudo chown -R $(id -u):$(id -g) ${rootfs}
         "
 }
 
@@ -131,7 +136,7 @@ export PMM_RELEASE_VERSION=${full_pmm_version}
 export PMM_RELEASE_FULLCOMMIT=$(get_commit pmm)
 export PMM_RELEASE_BRANCH=""
 
-cd /home/builder/sources/$(get_src_rel pmm)
+cd ${build_dir}
 make -C managed release
 make -C ui release
 
@@ -163,7 +168,7 @@ export PMM_RELEASE_VERSION=${full_pmm_version}
 export PMM_RELEASE_FULLCOMMIT=$(get_commit pmm)
 export PMM_RELEASE_BRANCH=""
 
-cd /home/builder/sources/$(get_src_rel pmm)
+cd ${build_dir}
 make -C qan-api2 release
 
 install -d ${rootfs}/usr/sbin
@@ -177,7 +182,7 @@ export PMM_RELEASE_VERSION=${full_pmm_version}
 export PMM_RELEASE_FULLCOMMIT=$(get_commit pmm)
 export PMM_RELEASE_BRANCH=""
 
-cd /home/builder/sources/$(get_src_rel pmm)
+cd ${build_dir}
 make -C vmproxy release
 
 install -d ${rootfs}/usr/sbin
@@ -187,7 +192,7 @@ EOF
 
 build_pmm_dump() {
     run_in_container $1 pmm-dump <<EOF
-cd /home/builder/sources/$(get_src_rel pmm-dump)
+cd ${build_dir}
 make build BRANCH="main" COMMIT="$(get_shortcommit pmm-dump)" VERSION="${pmm_version}"
 
 install -d ${rootfs}/usr/sbin
@@ -217,7 +222,7 @@ EOF
 
 build_grafana() {
     run_in_container $1 grafana <<EOF
-cd /home/builder/sources/$(get_src_rel grafana)
+cd ${build_dir}
 
 grafana_version=\$(node -p "require('./package.json').version")
 rm -rf Godeps
@@ -256,7 +261,7 @@ build_percona_dashboards() {
     run_in_container $1 pmm <<EOF
 sudo dnf install -y unzip
 
-cd /home/builder/sources/$(get_src_rel pmm)
+cd ${build_dir}
 node -v
 npm version
 make -C dashboards release
