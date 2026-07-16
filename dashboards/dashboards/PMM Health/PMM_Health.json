@@ -5223,7 +5223,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "go_gc_duration_seconds{job=\"pmm-managed\", quantile=\"1\"}[$__interval]",
+          "expr": "go_gc_duration_seconds{job=\"pmm-managed\", quantile=\"1\"}",
           "legendFormat": "GC run duration",
           "range": true,
           "refId": "A"
