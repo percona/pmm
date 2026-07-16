@@ -66,9 +66,9 @@ nomad_commit_hash=26ed559e8bc8c1776fab706c17bd6ba259f87ae8
 binaries_dir=${root_dir}/tmp/pmm-server/binaries
 docker_tag_file=${root_dir}/results/docker/TAG
 docker_tarball=${root_dir}/results/docker/pmm-server-${pmm_version}.docker
-# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.145.0
-victoriametrics_tag=pmm-6401-v1.145.0
-# https://github.com/grafana/clickhouse-datasource/releases/tag/v4.17.0
-clickhouse_datasource_version=4.17.0
+# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.147.0
+victoriametrics_tag=pmm-6401-v1.147.0
+# https://github.com/grafana/clickhouse-datasource/releases/tag/v4.19.0
+clickhouse_datasource_version=4.19.0
 # https://github.com/grafana/grafana-polystat-panel/releases/tag/v2.1.16
 polystat_panel_version=2.1.16

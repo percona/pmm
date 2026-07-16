@@ -224,9 +224,7 @@ build_grafana() {
     run_in_container $1 grafana <<EOF
 cd ${build_dir}
 
-grafana_version=\$(node -p "require('./package.json').version")
 rm -rf Godeps
-sed -i "s/unknown-dev/\${grafana_version}/" pkg/build/git.go
 sudo npm install -g grunt-cli
 sudo dnf install -y fontconfig
 
