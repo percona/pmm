@@ -67,4 +67,6 @@ export const VIEWBOX_MAP: Partial<
   'pmm-titled': '0 0 141 48',
   'pmm-titled-outlined': '0 0 252 113',
   'real-time-database-off': '0 0 192 192',
+  'electric-bolt': '0 0 20 20',
+  'electric-bolt-off': '0 0 20 20',
 };
