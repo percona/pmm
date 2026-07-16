@@ -448,7 +448,7 @@
             "id": 44,
             "links": [],
             "options": {
-                "content": "The next two graphs are available only for [Percona Server](https://per.co.na/5_6_diagnostics_user_stat) and [MariaDB](https://mariadb.com/kb/en/mariadb/user-statistics/) and require `userstat` variable turned on.",
+                "content": "Table activity uses `INFORMATION_SCHEMA.TABLE_STATISTICS` on [Percona Server](https://per.co.na/5_6_diagnostics_user_stat) and [MariaDB](https://mariadb.com/kb/en/mariadb/user-statistics/) when `userstat` is enabled. On Oracle MySQL, including MySQL 9.7, it uses `performance_schema.table_io_waits_summary_by_table`.",
                 "mode": "markdown"
             },
             "pluginVersion": "8.3.5",
@@ -530,7 +530,7 @@
                     "calculatedInterval": "2m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "topk(5, avg by (service_name,schema,table) (rate(mysql_info_schema_table_statistics_rows_read_total{service_name=~\"$service_name\"}[$interval]))>0) or \ntopk(5, avg by (service_name,schema,table) (irate(mysql_info_schema_table_statistics_rows_read_total{service_name=~\"$service_name\"}[5m]))>0)",
+                    "expr": "topk(5, (avg by (service_name, schema, table) (rate(mysql_info_schema_table_statistics_rows_read_total{service_name=~\"$service_name\"}[$interval])) or avg by (service_name, schema, table) (label_replace(rate(mysql_perf_schema_table_io_waits_total{service_name=~\"$service_name\", operation=\"fetch\"}[$interval]), \"table\", \"$1\", \"name\", \"(.*)\"))) > 0) or topk(5, (avg by (service_name, schema, table) (irate(mysql_info_schema_table_statistics_rows_read_total{service_name=~\"$service_name\"}[5m])) or avg by (service_name, schema, table) (label_replace(irate(mysql_perf_schema_table_io_waits_total{service_name=~\"$service_name\", operation=\"fetch\"}[5m]), \"table\", \"$1\", \"name\", \"(.*)\"))) > 0)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -650,7 +650,7 @@
                     "calculatedInterval": "2m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "topk(5, avg by (service_name,schema,table) (rate(mysql_info_schema_table_statistics_rows_changed_total{service_name=~\"$service_name\"}[$interval])>0)) or topk(5, avg by (service_name,schema,table) (irate(mysql_info_schema_table_statistics_rows_changed_total{service_name=~\"$service_name\"}[5m]))>0)",
+                    "expr": "topk(5, (avg by (service_name, schema, table) (rate(mysql_info_schema_table_statistics_rows_changed_total{service_name=~\"$service_name\"}[$interval])) or sum by (service_name, schema, table) (label_replace(rate(mysql_perf_schema_table_io_waits_total{service_name=~\"$service_name\", operation=~\"insert|update|delete\"}[$interval]), \"table\", \"$1\", \"name\", \"(.*)\"))) > 0) or topk(5, (avg by (service_name, schema, table) (irate(mysql_info_schema_table_statistics_rows_changed_total{service_name=~\"$service_name\"}[5m])) or sum by (service_name, schema, table) (label_replace(irate(mysql_perf_schema_table_io_waits_total{service_name=~\"$service_name\", operation=~\"insert|update|delete\"}[5m]), \"table\", \"$1\", \"name\", \"(.*)\"))) > 0)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
