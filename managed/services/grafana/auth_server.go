@@ -816,9 +816,10 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 		l.Warnf("%s", err)
 		cErr, ok := errors.AsType[*clientError](err)
 		if ok {
+			s.incGrafanaAuthRequests(cErr.Code)
+
 			code := codes.Internal
-			if cErr.Code == 401 || cErr.Code == 403 {
-				s.incGrafanaAuthRequests(cErr.Code)
+			if cErr.Code == http.StatusUnauthorized || cErr.Code == http.StatusForbidden {
 				code = codes.Unauthenticated
 			}
 			return nil, &authError{code: code, message: cErr.ErrorMessage}
