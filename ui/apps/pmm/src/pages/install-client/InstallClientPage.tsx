@@ -111,7 +111,7 @@ export const InstallClientPage = () => {
   // after unmount or after a newer generation superseded it does not write stale state.
   const isMountedRef = useRef(true);
   const generationRef = useRef(0);
-  const copyTimeoutRef = useRef<number>();
+  const copyTimeoutRef = useRef<number | undefined>(undefined);
   useEffect(() => {
     // Re-arm on mount: StrictMode (and any remount) runs the cleanup, which would
     // otherwise leave isMountedRef stuck false and make every generation a no-op.
