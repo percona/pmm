@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	// grafanaExprDatasourceUID is the sentinel UID/type of Grafana's built-in
+	// The grafanaExprDatasourceUID sentinel is the UID/type of Grafana's built-in
 	// server-side expression datasource. For expression queries Grafana requires
 	// both the datasource "type" and "uid" to be this literal "__expr__" value.
 	grafanaExprDatasourceUID = "__expr__"
