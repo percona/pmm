@@ -42,6 +42,9 @@ RUN dnf update -y && \
     dnf install -y --enablerepo=crb glibc-static && \
     dnf clean all && rm -rf /var/cache/dnf
 
+# UI build uses pnpm (packageManager in ui/package.json); nodesource nodejs ships npm/yarn only.
+RUN npm install -g pnpm@11.1.3
+
 # Configure EPEL to use European mirror
 RUN sed -i 's|metalink=|#metalink=|g' /etc/yum.repos.d/epel*.repo && \
     sed -i 's|#baseurl=.*|baseurl=https://ftp.fau.de/epel/9/Everything/$basearch/|g' /etc/yum.repos.d/epel.repo || true

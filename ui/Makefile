@@ -16,7 +16,11 @@ test: setup
 	pnpm test
 
 setup:
-	corepack enable pnpm || sudo corepack enable pnpm
+	# Prefer corepack (honors packageManager pin). Fall back to a global npm
+	# install so feature builds work against the current rpmbuild image, which
+	# ships nodejs+yarn but not pnpm until rpmbuild:3 is republished.
+	corepack enable pnpm || sudo corepack enable pnpm || true
+	command -v pnpm >/dev/null 2>&1 || sudo npm install -g pnpm@11.1.3
 	pnpm install
 
 build: setup
