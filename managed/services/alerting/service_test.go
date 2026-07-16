@@ -17,7 +17,10 @@ package alerting
 
 import (
 	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -26,6 +29,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -348,7 +352,10 @@ func TestConvertTemplate(t *testing.T) {
 
 		tm := parse(t, multiYAML)
 
-		dto, err := convertTemplate(logrus.WithField("test", t.Name()), tm)
+		at, err := parseAlertTemplate(tm.Yaml)
+		require.NoError(t, err)
+
+		dto, err := convertTemplate(logrus.WithField("test", t.Name()), tm, at)
 		require.NoError(t, err)
 
 		// expr keeps the first query (ref A) for backward compatibility.
@@ -391,7 +398,12 @@ func TestConvertTemplate(t *testing.T) {
 
 		tm := parse(t, singleYAML)
 
-		dto, err := convertTemplate(logrus.WithField("test", t.Name()), tm)
+		at, err := parseAlertTemplate(tm.Yaml)
+		require.NoError(t, err)
+
+		// A single-expression template is cached too, but applyMultiExpressionFields
+		// leaves the multi-query fields empty for it.
+		dto, err := convertTemplate(logrus.WithField("test", t.Name()), tm, at)
 		require.NoError(t, err)
 
 		assert.NotEmpty(t, dto.Expr)
@@ -400,25 +412,14 @@ func TestConvertTemplate(t *testing.T) {
 		assert.Empty(t, dto.Condition)
 	})
 
-	t.Run("returns error for unparseable YAML", func(t *testing.T) {
+	t.Run("rejects unparseable YAML at parse time", func(t *testing.T) {
 		t.Parallel()
 
-		// Start from a valid template (so labels/annotations/created_at are fine),
-		// then corrupt the stored YAML so the query-steps parse fails.
-		tm := parse(t, `templates:
-  - name: pmm_broken_yaml_test
-    version: 1
-    summary: Broken
-    expr: up == 0
-    for: 5m
-    severity: warning
-    annotations:
-      summary: s
-      description: d
-`)
-		tm.Yaml = "templates: [unclosed"
-
-		_, err := convertTemplate(logrus.WithField("test", t.Name()), tm)
+		// Parsing moved to collect time: CollectTemplates calls parseAlertTemplate
+		// once per template and logs-and-skips on failure (so one bad template no
+		// longer fails the whole list). This asserts that parse gate rejects
+		// malformed YAML; the single/multi cases above cover the convertTemplate seam.
+		_, err := parseAlertTemplate("templates: [unclosed")
 		require.Error(t, err)
 	})
 }
@@ -651,4 +652,175 @@ func TestMultiExpressionTemplateParamValidation(t *testing.T) {
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		assert.Contains(t, err.Error(), `map has no entry for key "missing"`)
 	})
+}
+
+// TestListTemplatesUsesCache exercises the full path:
+// CollectTemplates parses and converts each template once and caches the finished
+// proto, and ListTemplates serves it straight from that cache (no per-request
+// parsing or conversion). It covers both a multi-expression template
+// (query/expression/condition populated) and a single-expression one (those fields
+// empty) through the real service flow.
+func TestListTemplatesUsesCache(t *testing.T) {
+	ctx := t.Context()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	enabled := true
+	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{EnableAlerting: &enabled})
+	require.NoError(t, err)
+
+	const singleExpressionYAML = `templates:
+  - name: test_single_expression_list
+    version: 1
+    summary: Single expression
+    expr: up == 0
+    for: 5m
+    severity: warning
+    annotations:
+      summary: s
+      description: d
+`
+
+	dir := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "multi.yml"), []byte(multiExpressionWiringYAML), 0o600))
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "single.yml"), []byte(singleExpressionYAML), 0o600))
+
+	svc, err := NewService(db, nil)
+	require.NoError(t, err)
+	svc.userTemplatesPath = dir
+	svc.CollectTemplates(ctx)
+
+	resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{})
+	require.NoError(t, err)
+
+	got := make(map[string]*alerting.Template, len(resp.Templates))
+	for _, tmpl := range resp.Templates {
+		got[tmpl.Name] = tmpl
+	}
+
+	// Multi-expression template: fields populated from the collect-time cache.
+	multi := got["test_multi_expression_wiring"]
+	require.NotNil(t, multi)
+	require.Len(t, multi.Queries, 2)
+	assert.Equal(t, "A", multi.Queries[0].RefId)
+	assert.Equal(t, "B", multi.Queries[1].RefId)
+	require.Len(t, multi.Expressions, 1)
+	assert.Equal(t, "C", multi.Expressions[0].RefId)
+	assert.Equal(t, "C", multi.Condition)
+
+	// Single-expression template: no multi-expression fields.
+	single := got["test_single_expression_list"]
+	require.NotNil(t, single)
+	assert.NotEmpty(t, single.Expr)
+	assert.Empty(t, single.Queries)
+	assert.Empty(t, single.Expressions)
+	assert.Empty(t, single.Condition)
+}
+
+// TestListTemplatesSkipsUnparseableTemplate covers the log-and-skip branch of
+// CollectTemplates. Collected YAML is always machine-generated by alert.ToYAML,
+// so a re-parse failure is effectively unreachable in practice; we simulate the
+// broken round-trip by corrupting the stored yaml column of a valid template.
+// The template must still be listed (from its other columns) but without its
+// multi-expression fields, its cached converted proto must likewise carry no
+// multi-expression fields, and the rest of the collect (builtin templates) must survive.
+func TestListTemplatesSkipsUnparseableTemplate(t *testing.T) {
+	ctx := t.Context()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	enabled := true
+	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{EnableAlerting: &enabled})
+	require.NoError(t, err)
+
+	svc, err := NewService(db, nil)
+	require.NoError(t, err)
+
+	// Create a valid multi-expression template, then corrupt only its stored YAML
+	// so it survives loadTemplatesFromDB but fails parseAlertTemplate at collect time.
+	_, err = svc.CreateTemplate(ctx, &alerting.CreateTemplateRequest{Yaml: multiExpressionWiringYAML})
+	require.NoError(t, err)
+
+	_, err = sqlDB.Exec("UPDATE alert_rule_templates SET yaml = $1 WHERE name = $2",
+		"templates: [unclosed", "test_multi_expression_wiring")
+	require.NoError(t, err)
+
+	svc.CollectTemplates(ctx)
+
+	resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{})
+	require.NoError(t, err)
+
+	var broken *alerting.Template
+	for _, tmpl := range resp.Templates {
+		if tmpl.Name == "test_multi_expression_wiring" {
+			broken = tmpl
+		}
+	}
+
+	// Still listed (from its non-YAML columns), but with no multi-expression fields.
+	require.NotNil(t, broken, "template with unparseable YAML should still be listed")
+	assert.Empty(t, broken.Queries)
+	assert.Empty(t, broken.Expressions)
+	assert.Empty(t, broken.Condition)
+
+	// The broken template is cached in its converted form (that is how it stays
+	// listed), but with no multi-expression fields because its YAML failed to parse.
+	cached, ok := svc.convertedTemplates["test_multi_expression_wiring"]
+	require.True(t, ok, "broken template must still be cached in converted form")
+	assert.Empty(t, cached.Queries)
+	assert.Empty(t, cached.Expressions)
+	assert.Empty(t, cached.Condition)
+
+	// The collect continued rather than aborting: builtin templates are still present.
+	assert.Greater(t, len(resp.Templates), 1, "one bad template must not empty the whole list")
+}
+
+// TestListTemplatesConcurrentSharedProto guards the core assumption of the converted-proto
+// cache: ListTemplates hands the SAME *alerting.Template pointers to every caller, so many
+// concurrent requests marshal one shared, unmodified message. The protobuf runtime makes
+// concurrent Marshal of an unmodified message safe; run this under -race to catch any
+// accidental mutation of a cached proto that would break that guarantee.
+func TestListTemplatesConcurrentSharedProto(t *testing.T) {
+	ctx := t.Context()
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	enabled := true
+	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{EnableAlerting: &enabled})
+	require.NoError(t, err)
+
+	dir := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "multi.yml"), []byte(multiExpressionWiringYAML), 0o600))
+
+	svc, err := NewService(db, nil)
+	require.NoError(t, err)
+	svc.userTemplatesPath = dir
+	svc.CollectTemplates(ctx)
+
+	// Sanity check that the same pointer is served across calls (the shared-cache contract).
+	first, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{})
+	require.NoError(t, err)
+	second, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{})
+	require.NoError(t, err)
+	require.NotEmpty(t, first.Templates)
+	require.Same(t, first.Templates[0], second.Templates[0], "ListTemplates should serve shared cached protos")
+
+	const goroutines = 16
+	var wg sync.WaitGroup
+	wg.Add(goroutines)
+	for range goroutines {
+		go func() {
+			defer wg.Done()
+			resp, err := svc.ListTemplates(ctx, &alerting.ListTemplatesRequest{})
+			assert.NoError(t, err)
+			for _, tmpl := range resp.Templates {
+				_, err := proto.Marshal(tmpl)
+				assert.NoError(t, err)
+			}
+		}()
+	}
+	wg.Wait()
 }
