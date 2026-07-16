@@ -4341,7 +4341,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 550
+                                "value": 1049
                             }
                         ]
                     },
@@ -4394,6 +4394,10 @@
                             {
                                 "id": "min",
                                 "value": 0
+                            },
+                            {
+                                "id": "custom.width",
+                                "value": 133
                             }
                         ]
                     }
@@ -4419,7 +4423,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sort_desc(sum by (method, route, status_code) (pmm_managed_auth_requests_total))",
+                    "expr": "sort_desc(sum by (method, route) (pmm_managed_auth_requests_total))",
                     "format": "table",
                     "instant": true,
                     "intervalFactor": 2,
@@ -9672,6 +9676,6 @@
     "timezone": "",
     "title": "PMM Health",
     "uid": "pmm-health",
-    "version": 7,
+    "version": 8,
     "weekStart": ""
 }
