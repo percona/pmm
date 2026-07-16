@@ -66,10 +66,10 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 
 %changelog
-* Wed July 15 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-27
+* Wed Jul 15 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-27
 - PMM-15099 Bump clickhouse datasource plugin to 4.19.0
 
-* Tue July 07 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-26
+* Tue Jul 07 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-26
 - PMM-15099 Bump clickhouse datasource plugin to 4.18.0
 
 * Mon May 11 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-25
