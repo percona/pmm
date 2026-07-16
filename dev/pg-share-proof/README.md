@@ -37,6 +37,30 @@ directive — `EXPOSE`/`expose:` is metadata only, and even `ports:` DNATs to th
 bridge IP (its `eth0`), which a `127.0.0.1`-bound PG still refuses. Reachability is decided by
 where the *process* binds, i.e. `listen_addresses`.
 
+## Why `network_mode: "service:pmm"` (shared namespace) is the wrong fix — and a security issue
+A tempting shortcut is to put the side container in PMM's network namespace
+(`network_mode: "service:pmm"`, i.e. the Compose form of `--network container:pmm-server`).
+It "works" on `127.0.0.1:5432` with **zero** PMM changes — but only because it doesn't grant
+access to Postgres, it moves the client *inside* PMM's trust boundary. That's a security
+problem, not a solution:
+
+- **It exposes everything PMM keeps private, not just Postgres.** PMM binds its internal
+  services to `127.0.0.1` precisely so nothing else can reach them (ClickHouse, VictoriaMetrics,
+  internal HTTP endpoints, …). Sharing the namespace gives the sidecar loopback-level access to
+  *all* of them — including services that trust localhost implicitly and have no auth. The
+  localhost bind **is** the security boundary; a shared namespace collapses it wholesale, with no
+  way to scope access to only the DB.
+- **No isolation or auditability.** The sidecar has no network identity of its own, so this
+  access is invisible to any network policy, firewall, or segmentation — it can't be limited to a
+  subnet/user or observed as a real endpoint connection.
+- **It couples the two containers** (shared port space → collisions on 8080/8443/5432/9090/…;
+  the sidecar's networking is tied to PMM's lifecycle) and **doesn't generalize** beyond a single
+  Docker host (a separate pod/host/network needs a real endpoint anyway).
+
+The supported, least-privilege alternative is the "success path" above: keep the containers
+independently networked, bind PG to a reachable interface (`listen_addresses`), and authorize
+**only** the intended client subnet/user (`pg_hba`). Everything else stays private.
+
 ## Notes / caveats
 - Separate named volumes + project names per file, so the fail case is genuinely unconfigured.
 - `0.0.0.0/0` in the pg_hba rule is demo-only; scope to the bridge subnet
