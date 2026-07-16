@@ -12,7 +12,7 @@ checks:
       - type: POSTGRESQL_SELECT
         query: " * FROM (SELECT c.relname, pg_catalog.array_to_string(c.reloptions || array(select 'toast.' || x from pg_catalog.unnest(tc.reloptions) x), ', ')  as opts FROM pg_catalog.pg_class c LEFT JOIN pg_catalog.pg_class tc ON (c.reltoastrelid = tc.oid) ) AS tabopts WHERE opts like '%vacuum%'"
     script: |
-      read_url = "https://docs.percona.com/percona-platform/advisors/checks/{}.html"
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       # pg_advisor
       # thresholds
