@@ -4284,7 +4284,7 @@
           "expr": "sort_desc(sum by (status_code) (rate(pmm_managed_auth_grafana_requests_total[$__interval])))",
           "format": "time_series",
           "intervalFactor": 2,
-          "legendFormat": "{{ code }}",
+          "legendFormat": "{{ status_code }}",
           "range": true,
           "refId": "A"
         }
