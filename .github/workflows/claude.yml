@@ -23,6 +23,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # Bound hung or runaway runs to cap API cost.
+    timeout-minutes: 30
+
     permissions:
       contents: write
       pull-requests: write
