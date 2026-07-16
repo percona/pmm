@@ -15,6 +15,7 @@ import { Icon } from 'components/icon';
 import { Messages } from './RealtimeOverview.messages';
 import { createRealtimeSessionsUrl } from 'utils/link.utils';
 import Stack from '@mui/material/Stack';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
 import { AutoRefreshSelect } from './auto-refresh-select';
@@ -95,26 +96,43 @@ const RealtimeOverviewPage: FC = () => {
         onNavigableQueriesChange={setNavigableQueries}
         actions={({ table }) => (
           <Stack
+            flex={1}
             direction="row"
-            alignItems="center"
-            justifyContent="space-between"
+            flexWrap="wrap"
+            alignItems="flex-start"
+            alignContent="flex-start"
+            rowGap={0}
+            columnGap={1}
             sx={{
-              pl: 2,
-              flex: 1,
+              width: '100%',
+              minWidth: 0,
             }}
           >
-            <Stack gap={2} direction="row" alignItems="center">
-              <Stack sx={{ minWidth: 360 }}>
-                <ServicesAutocompleteInput
-                  data-testid="overview-table-services-autocomplete-input"
-                  sessions={sessions}
-                  serviceIds={serviceIds}
-                  onServiceIdsChange={handleServiceIdsChange}
-                  inputProps={{
-                    size: 'small',
-                  }}
-                />
-              </Stack>
+            <Box
+              sx={{
+                flex: '1 1 320px',
+                minWidth: 200,
+                maxWidth: { xs: '100%', md: 320 },
+                pr: { md: 1 },
+              }}
+            >
+              <ServicesAutocompleteInput
+                data-testid="overview-table-services-autocomplete-input"
+                sessions={sessions}
+                serviceIds={serviceIds}
+                onServiceIdsChange={handleServiceIdsChange}
+                inputProps={{
+                  size: 'small',
+                }}
+              />
+            </Box>
+            <Stack
+              direction="row"
+              flexWrap="wrap"
+              alignItems="center"
+              gap={1}
+              sx={{ mt: 1 }}
+            >
               <AutoRefreshSelect
                 isFetching={fetching}
                 refreshInterval={refreshInterval}
@@ -126,34 +144,31 @@ const RealtimeOverviewPage: FC = () => {
                     ? 'overview-table-pause-button'
                     : 'overview-table-resume-button'
                 }
-                size="small"
+                size="medium"
                 startIcon={
                   fetching ? <Icon name="pause" /> : <Icon name="play-arrow" />
                 }
                 disabled={serviceIds.length === 0}
-                color={fetching ? 'inherit' : undefined}
-                variant={fetching ? 'text' : 'contained'}
+                color="inherit"
+                variant="text"
                 onClick={() => setFetching(!fetching)}
                 disableElevation
-                sx={{
-                  width: 100,
-                  height: 32,
-                }}
+                sx={
+                  !fetching && serviceIds.length > 0
+                    ? { backgroundColor: 'action.selected' }
+                    : undefined
+                }
               >
                 {fetching ? Messages.pause : Messages.resume}
               </Button>
               {!fetching && serviceIds.length !== 0 && (
                 <Button
                   data-testid="overview-table-refresh-button"
-                  size="small"
+                  size="medium"
                   startIcon={<Icon name="refresh" />}
                   onClick={() => refetch()}
                   color="inherit"
                   disableElevation
-                  sx={{
-                    width: 100,
-                    height: 36,
-                  }}
                 >
                   {Messages.refresh}
                 </Button>
@@ -186,15 +201,18 @@ const RealtimeOverviewPage: FC = () => {
                 </Button>
               )}
             </Stack>
-            <Button
-              color="inherit"
-              data-testid="overview-table-all-sessions-button"
-              startIcon={<Icon name="dynamic-feed" />}
-              component={RouterLink}
-              to={createRealtimeSessionsUrl(serviceIds)}
-            >
-              {Messages.allSessions}
-            </Button>
+            <Box sx={{ flex: '0 0 auto', ml: { md: 'auto' }, my: 1 }}>
+              <Button
+                color="inherit"
+                data-testid="overview-table-all-sessions-button"
+                startIcon={<Icon name="dynamic-feed" />}
+                component={RouterLink}
+                size="medium"
+                to={createRealtimeSessionsUrl(serviceIds)}
+              >
+                {Messages.allSessions}
+              </Button>
+            </Box>
           </Stack>
         )}
       />
