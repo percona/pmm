@@ -225,7 +225,7 @@ type AuthServer struct {
 	mAuthRequests sync.Map
 	// mGrafanaAuthRequestsDesc is the descriptor for the total number of auth requests to Grafana.
 	mGrafanaAuthRequestsDesc *prom.Desc
-	// mGrafanaAuthRequests stores Grafana auth requests counters (map[code]*uint64).
+	// mGrafanaAuthRequests stores Grafana auth requests counters (map[code]*atomic.Uint64).
 	mGrafanaAuthRequests sync.Map
 
 	// mCacheHitDesc is the descriptor for authentication cache hits.
