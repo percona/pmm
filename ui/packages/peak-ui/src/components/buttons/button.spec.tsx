@@ -21,15 +21,18 @@ const rootStyle = (theme: Theme, ownerState: ButtonProps): Record<string, never>
   return (root as RootStyleFn)({ ownerState, theme });
 };
 
-// The design-kit contract: pill shape, 2px border, per-variant/size padding,
-// 15/13px labels, action-token state colors. A theme change that breaks any of
-// these silently changes every button in every consuming product.
+const ELEVATION_2 =
+  '0px 0px 1px 0px rgba(0,0,0,0.24), 0px 2px 2px 0px rgba(0,0,0,0.2), 0px 2px 4px 0px rgba(0,0,0,0.24)';
+const ELEVATION_4 =
+  '0px 0px 1px 0px rgba(0,0,0,0.2), 0px 4px 2px 0px rgba(0,0,0,0.16), 0px 4px 8px 0px rgba(0,0,0,0.22)';
+
 const PADDING: Record<(typeof VARIANTS)[number], Record<(typeof SIZES)[number], string>> = {
-  contained: { large: '12px 24px', medium: '11px 16px', small: '8px 12px' },
-  outlined: { large: '12px 22px', medium: '11px 16px', small: '8px 10px' },
-  text: { large: '8px 11px', medium: '6px 8px', small: '4px 5px' },
+  contained: { large: '4px 24px', medium: '5px 18px', small: '4px 9px' },
+  outlined: { large: '4px 24px', medium: '5px 18px', small: '4px 9px' },
+  text: { large: '0px 8px', medium: '0px 7px', small: '0px 4px' },
 };
 
+const MIN_HEIGHT: Record<(typeof SIZES)[number], number> = { large: 40, medium: 32, small: 24 };
 const FONT_SIZE: Record<(typeof SIZES)[number], number> = { large: 15, medium: 13, small: 13 };
 
 describe.each(THEMES)('MuiButton design contract — %s theme', (themeName) => {
@@ -42,24 +45,75 @@ describe.each(THEMES)('MuiButton design contract — %s theme', (themeName) => {
         const style = rootStyle(theme, { variant, size });
 
         expect(style.borderRadius).toBe(theme.shape.borderRadiusFull);
-        expect(style.borderWidth).toBe(2);
         expect(style.padding).toBe(PADDING[variant][size]);
+        expect(style.minHeight).toBe(MIN_HEIGHT[size]);
         expect(style.fontSize).toBe(FONT_SIZE[size]);
+        expect(style.lineHeight).toBe(1.063);
 
         const hover = style['&:hover'] as Record<string, unknown>;
-        expect(hover.borderWidth).toBe('2px');
-        if (variant !== 'contained') {
-          expect(style.borderColor).toBe(theme.palette.primary.main);
-          expect(hover.backgroundColor).toBe(theme.palette.action.focus);
+        const disabled = style['&:disabled'] as Record<string, unknown>;
+
+        if (variant === 'contained') {
+          expect(style.boxShadow).toBe(ELEVATION_2);
+          expect(style.border).toBe('2px solid transparent');
+          expect(hover.backgroundColor).toBe(theme.palette.primary.dark);
+          expect(hover.boxShadow).toBe(ELEVATION_4);
+          expect(disabled.backgroundColor).toBe(theme.palette.action.disabled);
+          expect(disabled.boxShadow).toBe('none');
         }
 
-        const disabled = style['&:disabled'] as Record<string, unknown>;
-        expect(disabled.color).toBe(theme.palette.text.disabled);
-        if (variant === 'contained') {
-          expect(disabled.backgroundColor).toBe(theme.palette.action.disabled);
+        if (variant === 'outlined') {
+          expect(style.borderWidth).toBe(2);
+          expect(style.borderColor).toBe(theme.palette.primary.main);
+          expect(hover.backgroundColor).toBe(theme.palette.primary.hover);
+          expect(hover.borderColor).toBe(theme.palette.primary.light);
+          expect(hover.color).toBe(theme.palette.primary.light);
+          expect(hover.borderWidth).toBe(2);
         }
+
+        if (variant === 'text') {
+          expect(style.border).toBe('none');
+          expect(hover.backgroundColor).toBe(theme.palette.primary.hover);
+          expect(hover.color).toBe(theme.palette.primary.light);
+        }
+
+        expect(disabled.color).toBe(theme.palette.text.disabled);
       }
     );
+
+    it.each(SIZES)('sizes and positions icons per the design kit at size %s', (size) => {
+      const iconSlot = 12;
+      const iconSize = size === 'large' ? 24 : size === 'medium' ? 20 : 16;
+      const edgePull = iconSize - iconSlot;
+
+      for (const variant of VARIANTS) {
+        const style = rootStyle(theme, { variant, size });
+        const iconChild = (
+          style['.MuiButton-startIcon, .MuiButton-endIcon'] as Record<
+            string,
+            Record<string, unknown>
+          >
+        )['& > *:nth-of-type(1)'];
+        const startIcon = style['.MuiButton-startIcon'] as Record<string, unknown>;
+        const endIcon = style['.MuiButton-endIcon'] as Record<string, unknown>;
+
+        expect(iconChild.fontSize).toBe(iconSize);
+        expect(iconChild.width).toBe(iconSize);
+        expect(iconChild.height).toBe(iconSize);
+
+        if (variant === 'text') {
+          expect(startIcon.marginLeft).toBe(0);
+          expect(startIcon.marginRight).toBe(4);
+          expect(endIcon.marginLeft).toBe(4);
+          expect(endIcon.marginRight).toBe(0);
+        } else {
+          expect(startIcon.marginLeft).toBe(-edgePull);
+          expect(startIcon.marginRight).toBe(4);
+          expect(endIcon.marginLeft).toBe(4);
+          expect(endIcon.marginRight).toBe(-edgePull);
+        }
+      }
+    });
 
     it('uses the design-kit button typography', () => {
       expect(theme.typography.button.fontWeight).toBe(600);
