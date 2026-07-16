@@ -849,6 +849,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           root: ({ theme, ownerState }) => ({
             ...((!ownerState.color || ownerState.color === 'default') && {
               color: theme.palette.text.primary,
+              '--IconButton-hoverBg': theme.palette.primary.hover,
             }),
             '&.Mui-disabled': {
               color: theme.palette.text.disabled,
@@ -856,7 +857,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           }),
           colorSecondary: ({ theme }) => ({
             color: theme.palette.text.secondary,
-            '--IconButton-hoverBg': theme.palette.action.hover,
+            '--IconButton-hoverBg': theme.palette.primary.hover,
           }),
           sizeSmall: {
             width: 40,
@@ -883,80 +884,100 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           disableTouchRipple: true,
         },
         styleOverrides: {
-          root: ({ ownerState, theme }) => ({
-            borderRadius: theme.shape.borderRadiusFull,
-            borderWidth: 2,
+          root: ({ ownerState, theme }) => {
+            // Figma shadow/elevation2 & elevation4
+            const elevation2 =
+              '0px 0px 1px 0px rgba(0,0,0,0.24), 0px 2px 2px 0px rgba(0,0,0,0.2), 0px 2px 4px 0px rgba(0,0,0,0.24)';
+            const elevation4 =
+              '0px 0px 1px 0px rgba(0,0,0,0.2), 0px 4px 2px 0px rgba(0,0,0,0.16), 0px 4px 8px 0px rgba(0,0,0,0.22)';
 
-            '.MuiButton-startIcon': {
-              height: 0,
-              alignItems: 'center',
-            },
+            const size = ownerState.size ?? 'medium';
+            const variant = ownerState.variant ?? 'text';
 
-            ...(ownerState.variant === 'contained' && {
-              ...(ownerState.size === 'large' && {
-                padding: '12px 24px',
-              }),
-              ...(ownerState.size === 'medium' && {
-                padding: '11px 16px',
-              }),
-              ...(ownerState.size === 'small' && {
-                padding: '8px 12px',
-              }),
-            }),
+            // Contained/outlined: 12px layout slot; icon overflows toward the edge.
+            // Sizes match Icon Button / Peak library (24 / 20 / 16). Text: no edge pull.
+            const iconSlot = 12;
+            const iconSize = size === 'large' ? 24 : size === 'medium' ? 20 : 16;
+            const iconEdgePull = variant === 'text' ? 0 : iconSize - iconSlot;
 
-            ...(ownerState.variant === 'outlined' && {
-              ...(ownerState.size === 'large' && {
-                padding: '12px 22px',
-              }),
-              ...(ownerState.size === 'medium' && {
-                padding: '11px 16px',
-              }),
-              ...(ownerState.size === 'small' && {
-                padding: '8px 10px',
-              }),
-              borderColor: theme.palette.primary.main,
-            }),
+            const padding = {
+              contained: { large: '4px 24px', medium: '5px 18px', small: '4px 9px' },
+              outlined: { large: '4px 24px', medium: '5px 18px', small: '4px 9px' },
+              text: { large: '0px 8px', medium: '0px 7px', small: '0px 4px' },
+            }[variant][size];
 
-            ...(ownerState.variant === 'text' && {
-              ...(ownerState.size === 'large' && {
-                padding: '8px 11px',
-              }),
-              ...(ownerState.size === 'medium' && {
-                padding: '6px 8px',
-              }),
-              ...(ownerState.size === 'small' && {
-                padding: '4px 5px',
-              }),
-              borderColor: theme.palette.primary.main,
-            }),
+            const minHeight = { large: 40, medium: 32, small: 24 }[size];
+            const fontSize = { large: 15, medium: 13, small: 13 }[size];
 
-            ...(ownerState.size === 'large' && {
-              fontSize: 15,
-            }),
-            ...(ownerState.size === 'medium' && {
-              fontSize: 13,
-            }),
-            ...(ownerState.size === 'small' && {
-              fontSize: 13,
-            }),
+            return {
+              borderRadius: theme.shape.borderRadiusFull,
+              minHeight,
+              fontSize,
+              padding,
+              lineHeight: 1.063,
 
-            '&:hover': {
-              borderWidth: '2px',
-              ...(ownerState.variant === 'outlined' && {
-                backgroundColor: theme.palette.action.focus,
+              '.MuiButton-startIcon, .MuiButton-endIcon': {
+                height: 0,
+                alignItems: 'center',
+                '& > *:nth-of-type(1)': {
+                  fontSize: iconSize,
+                  width: iconSize,
+                  height: iconSize,
+                },
+              },
+              '.MuiButton-startIcon': {
+                marginLeft: iconEdgePull ? -iconEdgePull : 0,
+                marginRight: 4,
+              },
+              '.MuiButton-endIcon': {
+                marginLeft: 4,
+                marginRight: iconEdgePull ? -iconEdgePull : 0,
+              },
+
+              ...(variant === 'contained' && {
+                border: '2px solid transparent',
+                boxShadow: elevation2,
+                '&:hover': {
+                  backgroundColor: theme.palette.primary.dark,
+                  border: '2px solid transparent',
+                  boxShadow: elevation4,
+                },
+                '&:disabled': {
+                  backgroundColor: theme.palette.action.disabled,
+                  color: theme.palette.text.disabled,
+                  border: '2px solid transparent',
+                  boxShadow: 'none',
+                },
               }),
-              ...(ownerState.variant === 'text' && {
-                backgroundColor: theme.palette.action.focus,
+
+              ...(variant === 'outlined' && {
+                borderWidth: 2,
+                borderStyle: 'solid',
+                borderColor: theme.palette.primary.main,
+                '&:hover': {
+                  borderWidth: 2,
+                  backgroundColor: theme.palette.primary.hover,
+                  borderColor: theme.palette.primary.light,
+                  color: theme.palette.primary.light,
+                },
+                '&:disabled': {
+                  borderWidth: 2,
+                  color: theme.palette.text.disabled,
+                },
               }),
-            },
-            '&:disabled': {
-              borderWidth: '2px',
-              ...(ownerState.variant === 'contained' && {
-                backgroundColor: theme.palette.action.disabled,
+
+              ...(variant === 'text' && {
+                border: 'none',
+                '&:hover': {
+                  backgroundColor: theme.palette.primary.hover,
+                  color: theme.palette.primary.light,
+                },
+                '&:disabled': {
+                  color: theme.palette.text.disabled,
+                },
               }),
-              color: theme.palette.text.disabled,
-            },
-          }),
+            };
+          },
         },
       },
       MuiButtonGroup: {
