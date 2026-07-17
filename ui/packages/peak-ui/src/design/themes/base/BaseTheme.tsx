@@ -900,11 +900,12 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
             const iconSize = size === 'large' ? 24 : size === 'medium' ? 20 : 16;
             const iconEdgePull = variant === 'text' ? 0 : iconSize - iconSlot;
 
-            const padding = {
+            const paddingByVariant = {
               contained: { large: '4px 24px', medium: '5px 18px', small: '4px 9px' },
               outlined: { large: '4px 24px', medium: '5px 18px', small: '4px 9px' },
               text: { large: '0px 8px', medium: '0px 7px', small: '0px 4px' },
-            }[variant][size];
+            };
+            const padding = (paddingByVariant[variant] ?? paddingByVariant.text)[size];
 
             const minHeight = { large: 40, medium: 32, small: 24 }[size];
             const fontSize = { large: 15, medium: 13, small: 13 }[size];
@@ -942,7 +943,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
                   border: '2px solid transparent',
                   boxShadow: elevation4,
                 },
-                '&:disabled': {
+                '&.Mui-disabled': {
                   backgroundColor: theme.palette.action.disabled,
                   color: theme.palette.text.disabled,
                   border: '2px solid transparent',
@@ -960,7 +961,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
                   borderColor: theme.palette.primary.light,
                   color: theme.palette.primary.light,
                 },
-                '&:disabled': {
+                '&.Mui-disabled': {
                   borderWidth: 2,
                   color: theme.palette.text.disabled,
                 },
@@ -972,7 +973,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
                   backgroundColor: theme.palette.primary.hover,
                   color: theme.palette.primary.light,
                 },
-                '&:disabled': {
+                '&.Mui-disabled': {
                   color: theme.palette.text.disabled,
                 },
               }),
