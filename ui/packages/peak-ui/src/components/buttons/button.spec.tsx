@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import type { Theme, PaletteMode } from '@mui/material';
+import type { Theme, PaletteMode } from '@mui/material/styles';
 import type { ButtonProps } from '@mui/material/Button';
 import Button from '@mui/material/Button';
 import { getThemeOptions } from '../../design';
@@ -13,9 +13,9 @@ const SIZES = ['large', 'medium', 'small'] as const;
 
 const buildTheme = (name: string, mode: PaletteMode) => createTheme(getThemeOptions(name)(mode));
 
-type RootStyleFn = (props: { ownerState: ButtonProps; theme: Theme }) => Record<string, never>;
+type RootStyleFn = (props: { ownerState: ButtonProps; theme: Theme }) => Record<string, unknown>;
 
-const rootStyle = (theme: Theme, ownerState: ButtonProps): Record<string, never> => {
+const rootStyle = (theme: Theme, ownerState: ButtonProps): Record<string, unknown> => {
   const root = theme.components?.MuiButton?.styleOverrides?.root;
   expect(typeof root).toBe('function');
   return (root as RootStyleFn)({ ownerState, theme });
@@ -51,7 +51,7 @@ describe.each(THEMES)('MuiButton design contract — %s theme', (themeName) => {
         expect(style.lineHeight).toBe(1.063);
 
         const hover = style['&:hover'] as Record<string, unknown>;
-        const disabled = style['&:disabled'] as Record<string, unknown>;
+        const disabled = style['&.Mui-disabled'] as Record<string, unknown>;
 
         if (variant === 'contained') {
           expect(style.boxShadow).toBe(ELEVATION_2);

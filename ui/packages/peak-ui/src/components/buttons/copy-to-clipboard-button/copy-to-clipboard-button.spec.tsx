@@ -38,6 +38,18 @@ describe('CopyToClipboardButton', () => {
     expect(button).toHaveStyle({ marginTop: '7px' });
   });
 
+  it('keeps the disabled button hoverable even when consumer sx targets the same selector', () => {
+    const { container } = render(
+      <CopyToClipboardButton
+        textToCopy="text"
+        buttonProps={{ sx: { '&.Mui-disabled': { color: 'rgb(255, 0, 0)' } } }}
+      />
+    );
+    const button = container.querySelector('.MuiIconButton-root') as HTMLElement;
+
+    expect(button).toHaveStyle({ pointerEvents: 'auto' });
+  });
+
   it('copies the text and confirms with a tooltip', () => {
     const writeText = mockClipboard();
     const { container } = render(<CopyToClipboardButton textToCopy="pnpm build" />);
