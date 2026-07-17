@@ -71,7 +71,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Setup Go release
-        uses: .github/actions/setup-go-release
+        uses: .github/actions/setup-go
 
       - name: Build and install
         run: make install
@@ -144,7 +144,7 @@ jobs:
           sudo apt-get install -y libkrb5-dev
 
       - name: Setup Go release
-        uses: .github/actions/setup-go-release
+        uses: .github/actions/setup-go
 
       - name: Build PMM Agent
         run: make release-gssapi
