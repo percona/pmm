@@ -180,7 +180,8 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
-					Password: new("new-rotated-postgres-monitor-password"),
+					SkipConnectionCheck: new(true),
+					Password:            new("new-rotated-postgres-monitor-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -194,8 +195,9 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
-					Username: new("new-postgres-monitor-user"),
-					Password: new("another-new-postgres-monitor-password"),
+					SkipConnectionCheck: new(true),
+					Username:            new("new-postgres-monitor-user"),
+					Password:            new("another-new-postgres-monitor-password"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -255,7 +257,8 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
-					Username: new("updated-pgstatmonitor-user"),
+					SkipConnectionCheck: new(true),
+					Username:            new("updated-pgstatmonitor-user"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -327,6 +330,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				QANPostgresqlPgstatmonitorAgent: &agents.ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent{
+					SkipConnectionCheck:  new(true),
 					Username:             new("changed-pgstatmonitor-user"),
 					Password:             new("changed-pgstatmonitor-password"),
 					MaxQueryLength:       new(int32(4096)),

@@ -55,6 +55,7 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   'play-arrow': () => import('icons/play-arrow.svg?react'),
   pause: () => import('icons/pause.svg?react'),
   refresh: () => import('icons/refresh.svg?react'),
+  'file-download': () => import('icons/file-download.svg?react'),
 };
 
 export const VIEWBOX_MAP: Partial<
@@ -66,4 +67,6 @@ export const VIEWBOX_MAP: Partial<
   'pmm-titled': '0 0 141 48',
   'pmm-titled-outlined': '0 0 252 113',
   'real-time-database-off': '0 0 192 192',
+  'electric-bolt': '0 0 20 20',
+  'electric-bolt-off': '0 0 20 20',
 };
