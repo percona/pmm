@@ -1,5 +1,4 @@
 import Stack from '@mui/material/Stack';
-import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import { FC } from 'react';
 import Table from '@mui/material/Table';
 import TableContainer from '@mui/material/TableContainer';
@@ -10,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import { Messages } from './RawDataTab.messages';
 import TableBody from '@mui/material/TableBody';
 import { AlertDetailsPane } from '../AlertDetailsPane.types';
+import { CodeBlock } from '@percona/percona-ui';
 
 interface Props {
   details: AlertDetailsPane;
@@ -55,10 +55,10 @@ const RawDataTab: FC<Props> = ({ details }) => (
     </Stack>
     <Stack spacing={2}>
       <Typography variant="h6">{Messages.json.title}</Typography>
-      <SyntaxHighlighter
+      <CodeBlock
         language="json"
         content={details.rawData.json}
-        showCopyButton
+        copyable
         showLineNumbers
         maxHeight="80vh"
         data-testid="alert-raw-data"
