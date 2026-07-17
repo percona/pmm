@@ -1,17 +1,19 @@
 # Get started with PMM
 
-To get up and running with Percona Monitoring and Management (PMM) in no time, install PMM on Bare Metal using the Easy-install script for Docker.
+Get a full PMM setup running with a database under monitoring using just two commands: one to install PMM Server, one to install PMM Client and connect your first database.
 
-This is the simplest and most efficient way to install PMM with Docker.
+The steps below use the PMM Server easy-install script and the Quick-Install PMM Client feature (Technical Preview).
 
 ??? info "Alternative installation options"
-     For alternative setups or if you're not using Docker, explore the additional installation options detailed in the **Setting up** chapter:
+    For more control over your setup (different deployment methods, non-Docker environments, or production configurations), see [Install PMM Server](../install-pmm/install-pmm-server/index.md) and [Install PMM Client](../install-pmm/install-pmm-client/index.md).
 
-    - [Deploy on Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md)
-    - [Deploy based on a Docker image](../install-pmm/install-pmm-server/deployment-options/docker/index.md)
-    - [Deploy on Virtual Appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)
-    - [Deploy on Kubernetes/OpenShift via Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md)
-    - [Run a PMM instance hosted at AWS Marketplace](../install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md)
+    If you're not using Docker, you can also deploy PMM Server on:
+
+    - [Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md)
+    - [Docker (manual setup)](../install-pmm/install-pmm-server/deployment-options/docker/index.md)
+    - [Virtual Appliance](../install-pmm/install-pmm-server/deployment-options/virtual/index.md)
+    - [Kubernetes/OpenShift via Helm](../install-pmm/install-pmm-server/deployment-options/helm/index.md)
+    - [AWS Marketplace](../install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.md)
 
 #### Prerequisites
 
@@ -22,9 +24,9 @@ Before you start installing PMM, verify that your system meets the compatibility
     - Network: Internet connectivity to download PMM components
     - Ports: Your system's firewall should allow TCP traffic on port `443`
 
-## Install PMM
+## Step 1: Install PMM Server
 
-The Easy-install script only runs on Linux-compatible systems. To use it, run the command with `sudo` privileges or as `root`:
+The easy-install script only runs on Linux-compatible systems. To use it, run the command with `sudo` privileges or as `root`:
 { .power-number }
 
 1. Download and install PMM using `cURL` or `wget`:
@@ -50,21 +52,20 @@ The Easy-install script only runs on Linux-compatible systems. To use it, run th
      * Stops and renames any currently running PMM Docker container from `pmm-server` to `pmm-server-{timestamp}`. This old `pmm-server` container is not a recoverable backup.
      * Pulls and runs the latest PMM Docker image.
 
-## Install PMM Client
+## Step 2: Install PMM Client
 
-Once PMM Server is running, install PMM Client on your database host and connect your first database using the **Install PMM Client (One-step)** page in the PMM UI.
-
+Once PMM Server is running, install PMM Client on your database host and connect your first database using the **Quick-Install PMM Client** page in the PMM UI.
 {.power-number}
 
 1. In the PMM sidebar, under **Inventory**, click **Install PMM Client**.
 
 2. Select your database technology: **MySQL**, **PostgreSQL**, **MongoDB**, or **Valkey**.
 
-3. Click **Generate short-lived token**.
+3. Click **Generate token**.
 
-4. Copy the generated command and run it on your database host with `sudo`. The script installs PMM Client, registers the node with PMM Server, and adds the first monitored service in one step.
+4. Copy the generated command and run it on your database host with `sudo`. PMM Client is installed, the node registered, and your database added for monitoring in one step.
 
-For full details, including credential options and advanced settings, see [Install PMM Client (One-step)](../install-pmm/install-pmm-client/one-click-install.md).
+For full details, including credential options and advanced settings, see [Quick-Install PMM Client](../install-pmm/install-pmm-client/one-click-install.md).
 
 For all other installation methods or to connect additional database types, see [PMM Client installation overview](../install-pmm/install-pmm-client/index.md).
 
