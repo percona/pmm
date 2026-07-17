@@ -227,21 +227,16 @@ type AuthServer struct {
 	mGrafanaAuthRequestsDesc *prom.Desc
 	// mGrafanaAuthRequests stores Grafana auth requests counters (map[code]*atomic.Uint64).
 	mGrafanaAuthRequests sync.Map
-
 	// mCacheHitDesc is the descriptor for authentication cache hits.
 	mCacheHitDesc *prom.Desc
 	// mCacheMissDesc is the descriptor for authentication cache misses.
 	mCacheMissDesc *prom.Desc
-	// mInFlightDesc is the descriptor for current in-flight authentication requests.
-	mInFlightDesc *prom.Desc
 	// mCacheSizeDesc is the descriptor for the number of items in the auth cache.
 	mCacheSizeDesc *prom.Desc
 	// mCacheHits is the atomic counter for total cache hits.
 	mCacheHits atomic.Uint64
 	// mCacheMisses is the atomic counter for total cache misses.
 	mCacheMisses atomic.Uint64
-	// mInFlight is the atomic gauge for current in-flight requests.
-	mInFlight atomic.Int64
 	// mDurations tracks latency of auth operations (labels: total, grafana, db).
 	mDurations *prom.HistogramVec
 }
@@ -286,12 +281,6 @@ func NewAuthServer(c clientInterface, db *reform.DB) *AuthServer {
 			nil,
 			nil,
 		),
-		mInFlightDesc: prom.NewDesc(
-			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "inflight_requests"),
-			"Current number of in-flight authentication requests.",
-			nil,
-			nil,
-		),
 		mDurations: prom.NewHistogramVec(prom.HistogramOpts{ // labels: total, grafana, db
 			Name:    prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "duration_seconds"),
 			Help:    "Latency of authentication operations in seconds.",
@@ -307,7 +296,6 @@ func (s *AuthServer) Describe(ch chan<- *prom.Desc) {
 	ch <- s.mGrafanaAuthRequestsDesc
 	ch <- s.mCacheHitDesc
 	ch <- s.mCacheMissDesc
-	ch <- s.mInFlightDesc
 	ch <- s.mCacheSizeDesc
 	s.mDurations.Describe(ch)
 }
@@ -340,7 +328,6 @@ func (s *AuthServer) Collect(ch chan<- prom.Metric) {
 
 	ch <- prom.MustNewConstMetric(s.mCacheHitDesc, prom.CounterValue, float64(s.mCacheHits.Load()))
 	ch <- prom.MustNewConstMetric(s.mCacheMissDesc, prom.CounterValue, float64(s.mCacheMisses.Load()))
-	ch <- prom.MustNewConstMetric(s.mInFlightDesc, prom.GaugeValue, float64(s.mInFlight.Load()))
 
 	s.rw.RLock()
 	cacheSize := len(s.cache)
@@ -399,11 +386,9 @@ func (s *AuthServer) Run(ctx context.Context) {
 // ServeHTTP serves internal location /auth_request for both authentication subrequests
 // and subsequent normal requests.
 func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	s.mInFlight.Add(1)
 	start := time.Now()
 	defer func() {
 		s.mDurations.WithLabelValues("total").Observe(time.Since(start).Seconds())
-		s.mInFlight.Add(-1)
 	}()
 
 	if s.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
