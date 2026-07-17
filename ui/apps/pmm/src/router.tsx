@@ -85,6 +85,10 @@ const router = createBrowserRouter(
               path: 'graph/settings/:tab?',
               element: <SettingsRedirect />,
             },
+            {
+              path: 'graph/alerting/alerts',
+              element: <Navigate to="/alerting/status" replace />,
+            },
             // Grafana routes are handled at the Main component level
             {
               path: 'graph/*',
