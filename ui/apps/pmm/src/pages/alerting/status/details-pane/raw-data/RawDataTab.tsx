@@ -59,7 +59,8 @@ const RawDataTab: FC<Props> = ({ details }) => (
         language="json"
         content={details.rawData.json}
         copyable
-        showLineNumbers
+        // TODO: extend CodeBlock with line numbers support
+        // showLineNumbers
         maxHeight="80vh"
         data-testid="alert-raw-data"
       />
