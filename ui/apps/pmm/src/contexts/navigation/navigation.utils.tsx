@@ -12,7 +12,6 @@ import {
   NAV_ALERTS_RULES,
   NAV_ALERTS,
   NAV_ALERTS_CONTACT_POINTS,
-  NAV_ALERTS_FIRED,
   NAV_ALERTS_NOTIFICATION_POLICIES,
   NAV_ALERTS_SETTINGS,
   NAV_ALERTS_TEMPLATES,
@@ -139,7 +138,6 @@ export const addAlerting = (enabled = false, user?: User): NavItem => {
 
   if (enabled) {
     children.push(NAV_ALERTS_STATUS);
-    children.push(NAV_ALERTS_FIRED);
   }
 
   children.push(NAV_ALERTS_RULES);

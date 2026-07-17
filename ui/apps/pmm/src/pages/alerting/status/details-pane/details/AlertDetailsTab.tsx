@@ -1,10 +1,9 @@
 import { FC } from 'react';
 import { Grid, Stack, Typography } from '@mui/material';
 import { Messages } from './AlertDetailsTab.messages';
-import { SyntaxHighlighter } from 'components/syntax-highlighter';
 import DataPoint from 'components/details-pane/DataPoint';
 import ValueThreshold from './value-threshold/ValueThreshold';
-import { Chip } from '@percona/percona-ui';
+import { Chip, CodeBlock } from '@percona/percona-ui';
 import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../../AlertsPage.constants';
 import { formatTriggeredAt } from '../../table/AlertStatusTable.utils';
 import { useTimezone } from 'hooks/utils/useTimezone';
@@ -64,7 +63,7 @@ const AlertDetailsTab: FC<Props> = ({
       </Grid>
       <Stack spacing={2}>
         <Typography variant="h6">{Messages.details.expression}</Typography>
-        <SyntaxHighlighter language="promql" content={expression} />
+        <CodeBlock language="promql" content={expression} />
       </Stack>
       <Stack spacing={2}>
         <Typography variant="h6">

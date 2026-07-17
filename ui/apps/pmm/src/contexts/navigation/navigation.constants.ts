@@ -477,13 +477,6 @@ export const NAV_ALERTS_TEMPLATES: NavItem = {
   matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/alerting/new-from-template/*`],
 };
 
-export const NAV_ALERTS_FIRED: NavItem = {
-  id: 'alerts-fired',
-  text: 'Fired alerts',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alerts`,
-  matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/alerting/:datasource/:id/view`],
-};
-
 export const NAV_ALERTS_RULES: NavItem = {
   id: 'alerts-rules',
   text: 'Alert rules',

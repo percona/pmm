@@ -26,9 +26,6 @@ const Providers: FC<PropsWithChildren> = () => (
                 <TourProvider>
                   <GlobalStyles
                     styles={{
-                      html: {
-                        scrollbarGutter: 'stable',
-                      },
                       'html, body, div#root': {
                         minHeight: '100vh',
                       },
