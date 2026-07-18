@@ -464,6 +464,7 @@ const AdvisorInsights: FC = () => {
           data={data?.results ?? []}
           rowCount={data?.totalItems ?? 0}
           noDataMessage={Messages.noData}
+          noDataAlertProps={{ sx: { justifyContent: 'center' } }}
           manualPagination
           enablePagination
           enableTopToolbar={false}

@@ -22,7 +22,6 @@ import (
 
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/services"
 )
 
 // healthChecker interface wraps all services that implements the IsReady method to report the
@@ -35,10 +34,7 @@ type healthChecker interface { //nolint:iface
 // We use it instead of real type for testing and to avoid dependency cycle.
 type grafanaClient interface { //nolint:iface
 	healthChecker
-	GetDatasourceUIDByName(ctx context.Context, name string) (string, error)
-	CreateFolderWithUID(ctx context.Context, title, uid string) error
-	CreateAlertRule(ctx context.Context, folderUID, groupName, interval string, rule *services.Rule) error
-	DeleteAlertRuleGroup(ctx context.Context, folderUID, groupName string) error
+	GetEmailContactPoint(ctx context.Context, name string) ([]string, error)
 }
 
 // prometheusService is a subset of methods of victoriametrics.Service used by this package.

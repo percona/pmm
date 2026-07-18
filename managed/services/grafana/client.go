@@ -767,14 +767,48 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 	return nil
 }
 
-// DeleteAlertRuleGroup deletes a Grafana-managed alert rule group from the given folder.
-func (c *Client) DeleteAlertRuleGroup(ctx context.Context, folderUID, groupName string) error {
+// GetEmailContactPoint returns the recipient addresses of the Grafana email contact point with the
+// given name. It returns nil when no contact point with that name exists or it is not an email type.
+func (c *Client) GetEmailContactPoint(ctx context.Context, name string) ([]string, error) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return c.do(ctx, http.MethodDelete, fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s/%s", folderUID, groupName), "", authHeaders, nil, nil)
+	var contactPoints []struct {
+		Name     string         `json:"name"`
+		Type     string         `json:"type"`
+		Settings map[string]any `json:"settings"`
+	}
+	err = c.do(ctx, http.MethodGet, "/api/v1/provisioning/contact-points", "", authHeaders, nil, &contactPoints)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, cp := range contactPoints {
+		if cp.Name != name || cp.Type != "email" {
+			continue
+		}
+		addresses, _ := cp.Settings["addresses"].(string)
+		return splitEmailAddresses(addresses), nil
+	}
+
+	return nil, nil
+}
+
+// splitEmailAddresses splits a Grafana email contact point address string, whose entries may be
+// separated by ';', ',', whitespace, or newlines.
+func splitEmailAddresses(s string) []string {
+	fields := strings.FieldsFunc(s, func(r rune) bool {
+		return r == ';' || r == ',' || r == '\n' || r == ' ' || r == '\t'
+	})
+	addresses := make([]string, 0, len(fields))
+	for _, f := range fields {
+		if f != "" {
+			addresses = append(addresses, f)
+		}
+	}
+	return addresses
 }
 
 func validateDurations(intervalD, forD string) error {
@@ -822,24 +856,6 @@ func (c *Client) CreateFolder(ctx context.Context, title string) (*models.Folder
 	}
 
 	return resp.Payload, nil
-}
-
-// CreateFolderWithUID creates a grafana folder with a specific UID.
-func (c *Client) CreateFolderWithUID(ctx context.Context, title, uid string) error {
-	authHeaders, err := auth.GetHeadersFromContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	body, err := json.Marshal(struct {
-		UID   string `json:"uid"`
-		Title string `json:"title"`
-	}{UID: uid, Title: title})
-	if err != nil {
-		return err
-	}
-
-	return c.do(ctx, http.MethodPost, "/api/folders", "", authHeaders, body, nil)
 }
 
 // DeleteFolder deletes grafana folder.

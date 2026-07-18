@@ -629,15 +629,10 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 	}
 
-	// When Advisor notification settings change, reconcile the Grafana alert rule that drives them.
-	// This runs in the request context, which carries the Grafana credentials needed to manage rules.
-	if oldSettings.IsAdvisorNotificationsEnabled() != newSettings.IsAdvisorNotificationsEnabled() ||
-		oldSettings.AdvisorNotifications.SeverityThreshold != newSettings.AdvisorNotifications.SeverityThreshold {
-		err := s.reconcileAdvisorNotifications(ctx, newSettings)
-		if err != nil {
-			s.l.Errorf("Failed to reconcile Advisor notifications: %v", err)
-		}
-	}
+	// Resolve and cache the Advisor contact point while notifications are enabled (so the background
+	// batch-completion path can deliver without Grafana credentials), and clear it on disable. This
+	// runs in the request context, which carries the Grafana credentials needed to reach Grafana.
+	s.syncAdvisorContactPoint(ctx, oldSettings, newSettings)
 
 	return &serverv1.ChangeSettingsResponse{
 		Settings: s.convertSettings(newSettings, disableInternalPgQan),

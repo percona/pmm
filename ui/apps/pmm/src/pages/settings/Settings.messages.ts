@@ -43,7 +43,7 @@ export const Messages = {
       'How long PMM keeps Advisor check results history. Older results are automatically deleted.',
     advisorNotificationsLabel: 'Advisor notifications',
     advisorNotificationsTooltip:
-      'Send email notifications when Advisor checks detect issues.',
+      'Email a summary of completed Advisor checks to a Grafana email contact point named "PMM Advisor Insights".',
     advisorSeverityThresholdLabel: 'Notification severity threshold',
     advisorSeverityThresholdTooltip:
       'Least-severe level that triggers a notification.',

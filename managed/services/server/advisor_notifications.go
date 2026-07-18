@@ -18,114 +18,70 @@ package server
 import (
 	"context"
 	"fmt"
-	"strings"
+
+	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/pi/common"
-	"github.com/percona/pmm/managed/services"
 )
 
-const (
-	advisorNotificationsFolderUID    = "pmm-advisor-notifications"
-	advisorNotificationsFolderTitle  = "PMM Advisor Notifications"
-	advisorNotificationsRuleGroup    = "pmm_advisor_notifications"
-	advisorNotificationsRuleTitle    = "Advisor check failing"
-	advisorNotificationsRuleInterval = "1m"
-	advisorNotificationsRuleFor      = "5m"
-	advisorInsightsMetric            = "pmm_managed_advisor_check_insights"
-	// Look-back window (seconds) for the instant query.
-	advisorNotificationsQueryRangeSeconds = 600
-	// Added to fired alerts so operators can route them via a Grafana notification policy.
-	advisorNotificationLabel = "advisor_notification"
-)
+// advisorContactPointName is the fixed-convention Grafana email contact point that PMM delivers
+// Advisor batch summaries to. The user creates and configures it in Grafana.
+const advisorContactPointName = "PMM Advisor Insights"
 
-// advisorNotificationSeverityRegex builds a label-value regex matching every severity at least as
-// severe as the given threshold (e.g. Error -> "emergency|alert|critical|error").
-func advisorNotificationSeverityRegex(threshold common.Severity) string {
-	if threshold == common.Unknown {
-		threshold = common.Error
+// syncAdvisorContactPoint resolves the Advisor email contact point and caches its recipients in
+// settings when the notification enablement changes or notifications are enabled (to pick up
+// changes). Failures are logged and swallowed - they must not fail the settings change.
+func (s *Server) syncAdvisorContactPoint(ctx context.Context, oldSettings, newSettings *models.Settings) {
+	enabledNow := newSettings.IsAdvisorNotificationsEnabled()
+	if !enabledNow && oldSettings.IsAdvisorNotificationsEnabled() == enabledNow {
+		return
 	}
 
-	var names []string
-	for s := common.Emergency; s <= threshold; s++ {
-		names = append(names, s.String())
+	addresses, err := s.reconcileAdvisorContactPoint(ctx, newSettings)
+	if err != nil {
+		s.l.Errorf("Failed to reconcile Advisor contact point: %v", err)
+		return
 	}
-	return strings.Join(names, "|")
-}
 
-// buildAdvisorNotificationRule builds the Grafana alert rule that fires for advisor insights at or
-// above the configured severity threshold.
-func buildAdvisorNotificationRule(datasourceUID string, threshold common.Severity) *services.Rule {
-	expr := fmt.Sprintf(`%s{severity=~"%s"} > 0`, advisorInsightsMetric, advisorNotificationSeverityRegex(threshold))
-
-	return &services.Rule{
-		GrafanaAlert: services.GrafanaAlert{
-			Title:        advisorNotificationsRuleTitle,
-			Condition:    "A",
-			NoDataState:  "OK",
-			ExecErrState: "Alerting",
-			Data: []services.Data{
-				{
-					RefID:             "A",
-					DatasourceUID:     datasourceUID,
-					RelativeTimeRange: services.RelativeTimeRange{From: advisorNotificationsQueryRangeSeconds, To: 0},
-					Model: services.Model{
-						RefID:   "A",
-						Expr:    expr,
-						Instant: true,
-					},
-				},
-			},
-		},
-		For: advisorNotificationsRuleFor,
-		Annotations: map[string]string{
-			"summary":     "Advisor check {{ $labels.check_name }} is failing on service {{ $labels.service_name }}",
-			"description": "Advisor {{ $labels.advisor }} check {{ $labels.check_name }} reported a {{ $labels.severity }} issue on service {{ $labels.service_name }}.",
-		},
-		Labels: map[string]string{
-			advisorNotificationLabel: "1",
-		},
+	err = s.saveAdvisorContactPointCache(ctx, addresses)
+	if err != nil {
+		s.l.Errorf("Failed to cache Advisor contact point: %v", err)
 	}
 }
 
-// reconcileAdvisorNotifications creates or removes the Grafana alert rule that drives advisor email
-// notifications, based on the current settings.
+// reconcileAdvisorContactPoint resolves the Advisor email contact point's recipients from Grafana
+// when notifications are enabled, returning them for the caller to cache in settings.
 //
 // It talks to Grafana on the caller's behalf, so it must be called within an authenticated request
 // context (e.g. ChangeSettings) - background contexts have no Grafana credentials.
-func (s *Server) reconcileAdvisorNotifications(ctx context.Context, settings *models.Settings) error {
+func (s *Server) reconcileAdvisorContactPoint(ctx context.Context, settings *models.Settings) ([]string, error) {
 	if !settings.IsAdvisorNotificationsEnabled() {
-		err := s.grafanaClient.DeleteAlertRuleGroup(ctx, advisorNotificationsFolderUID, advisorNotificationsRuleGroup)
+		return nil, nil
+	}
+
+	addresses, err := s.grafanaClient.GetEmailContactPoint(ctx, advisorContactPointName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read advisor contact point: %w", err)
+	}
+	if len(addresses) == 0 {
+		s.l.Warnf("Advisor notifications are enabled but no email contact point named %q was found in "+
+			"Grafana. Create one to start sending batch summaries.", advisorContactPointName)
+	}
+
+	return addresses, nil
+}
+
+// saveAdvisorContactPointCache persists the resolved recipient addresses into settings so the
+// background batch-completion path (which cannot reach Grafana) can email without further Grafana calls.
+func (s *Server) saveAdvisorContactPointCache(ctx context.Context, addresses []string) error {
+	return s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		settings, err := models.GetSettings(tx)
 		if err != nil {
-			s.l.Debugf("Failed to delete advisor notifications rule group (ignored): %v", err)
+			return err
 		}
-		return nil
-	}
 
-	// Best-effort folder creation; an error here usually means the folder already exists. A genuine
-	// problem (auth, connectivity) surfaces below when creating the rule.
-	err := s.grafanaClient.CreateFolderWithUID(ctx, advisorNotificationsFolderTitle, advisorNotificationsFolderUID)
-	if err != nil {
-		s.l.Debugf("Failed to create advisor notifications folder (ignored, may already exist): %v", err)
-	}
+		settings.AdvisorNotifications.EmailAddresses = addresses
 
-	// Remove any existing rule so we always reflect the latest settings (idempotent replace).
-	err = s.grafanaClient.DeleteAlertRuleGroup(ctx, advisorNotificationsFolderUID, advisorNotificationsRuleGroup)
-	if err != nil {
-		s.l.Debugf("Failed to delete existing advisor notifications rule group (ignored): %v", err)
-	}
-
-	// "Metrics" is the VictoriaMetrics datasource provisioned by PMM.
-	datasourceUID, err := s.grafanaClient.GetDatasourceUIDByName(ctx, "Metrics")
-	if err != nil {
-		return fmt.Errorf("failed to get metrics datasource UID: %w", err)
-	}
-
-	rule := buildAdvisorNotificationRule(datasourceUID, settings.AdvisorNotifications.SeverityThreshold)
-	err = s.grafanaClient.CreateAlertRule(ctx, advisorNotificationsFolderUID, advisorNotificationsRuleGroup, advisorNotificationsRuleInterval, rule)
-	if err != nil {
-		return fmt.Errorf("failed to create advisor notifications rule: %w", err)
-	}
-
-	return nil
+		return models.SaveSettings(tx, settings)
+	})
 }

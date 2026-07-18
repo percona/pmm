@@ -88,10 +88,7 @@ func TestServer(t *testing.T) {
 		var mgrafana mockGrafanaClient
 		mgrafana.Test(t)
 		mgrafana.On("IsReady", mock.Anything).Return(nil)
-		mgrafana.On("CreateFolderWithUID", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-		mgrafana.On("DeleteAlertRuleGroup", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-		mgrafana.On("GetDatasourceUIDByName", mock.Anything, mock.Anything).Return("ds-uid", nil)
-		mgrafana.On("CreateAlertRule", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+		mgrafana.On("GetEmailContactPoint", mock.Anything, mock.Anything).Return([]string(nil), nil)
 
 		s, err := NewServer(&Params{
 			DB:                   reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),

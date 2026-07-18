@@ -20,39 +20,13 @@ import (
 	"testing"
 
 	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/pi/common"
-	"github.com/percona/pmm/managed/services"
 )
 
-func TestAdvisorNotificationSeverityRegex(t *testing.T) {
-	t.Parallel()
-
-	assert.Equal(t, "emergency", advisorNotificationSeverityRegex(common.Emergency))
-	assert.Equal(t, "emergency|alert|critical|error", advisorNotificationSeverityRegex(common.Error))
-	assert.Equal(t, "emergency|alert|critical|error|warning|notice|info|debug", advisorNotificationSeverityRegex(common.Debug))
-	// Unknown falls back to the Error threshold.
-	assert.Equal(t, "emergency|alert|critical|error", advisorNotificationSeverityRegex(common.Unknown))
-}
-
-func TestBuildAdvisorNotificationRule(t *testing.T) {
-	t.Parallel()
-
-	rule := buildAdvisorNotificationRule("ds-uid", common.Error)
-
-	require.Len(t, rule.GrafanaAlert.Data, 1)
-	assert.Equal(t, advisorNotificationsRuleTitle, rule.GrafanaAlert.Title)
-	assert.Equal(t, "ds-uid", rule.GrafanaAlert.Data[0].DatasourceUID)
-	assert.Equal(t, `pmm_managed_advisor_check_insights{severity=~"emergency|alert|critical|error"} > 0`, rule.GrafanaAlert.Data[0].Model.Expr)
-	assert.True(t, rule.GrafanaAlert.Data[0].Model.Instant)
-	assert.Equal(t, "1", rule.Labels[advisorNotificationLabel])
-}
-
-func TestReconcileAdvisorNotifications(t *testing.T) {
+func TestReconcileAdvisorContactPoint(t *testing.T) {
 	t.Parallel()
 
 	newServer := func(t *testing.T) (*Server, *mockGrafanaClient) {
@@ -66,53 +40,55 @@ func TestReconcileAdvisorNotifications(t *testing.T) {
 	}
 
 	enabledSettings := func() *models.Settings {
+		enabled := true
 		s := &models.Settings{}
-		s.AdvisorNotifications.Enabled = new(true)
-		s.AdvisorNotifications.SeverityThreshold = common.Error
+		s.AdvisorNotifications.Enabled = &enabled
 		return s
 	}
 
-	t.Run("enabled creates folder and rule", func(t *testing.T) {
+	t.Run("enabled resolves the email contact point recipients", func(t *testing.T) {
 		t.Parallel()
 
 		s, gc := newServer(t)
-		gc.On("CreateFolderWithUID", mock.Anything, advisorNotificationsFolderTitle, advisorNotificationsFolderUID).Return(nil)
-		gc.On("DeleteAlertRuleGroup", mock.Anything, advisorNotificationsFolderUID, advisorNotificationsRuleGroup).Return(nil)
-		gc.On("GetDatasourceUIDByName", mock.Anything, "Metrics").Return("ds-uid", nil)
-		gc.On(
-			"CreateAlertRule", mock.Anything, advisorNotificationsFolderUID, advisorNotificationsRuleGroup, advisorNotificationsRuleInterval,
-			mock.MatchedBy(func(rule *services.Rule) bool {
-				return rule.GrafanaAlert.Data[0].Model.Expr == `pmm_managed_advisor_check_insights{severity=~"emergency|alert|critical|error"} > 0` &&
-					rule.Labels[advisorNotificationLabel] == "1"
-			}),
-		).Return(nil)
+		gc.On("GetEmailContactPoint", mock.Anything, advisorContactPointName).
+			Return([]string{"a@example.com", "b@example.com"}, nil)
 
-		err := s.reconcileAdvisorNotifications(t.Context(), enabledSettings())
+		addresses, err := s.reconcileAdvisorContactPoint(t.Context(), enabledSettings())
 		require.NoError(t, err)
+		require.Equal(t, []string{"a@example.com", "b@example.com"}, addresses)
 	})
 
-	t.Run("disabled deletes rule group only", func(t *testing.T) {
+	t.Run("disabled returns nil without calling Grafana", func(t *testing.T) {
 		t.Parallel()
 
 		s, gc := newServer(t)
-		gc.On("DeleteAlertRuleGroup", mock.Anything, advisorNotificationsFolderUID, advisorNotificationsRuleGroup).Return(nil)
 
-		err := s.reconcileAdvisorNotifications(t.Context(), &models.Settings{})
+		addresses, err := s.reconcileAdvisorContactPoint(t.Context(), &models.Settings{})
 		require.NoError(t, err)
-		gc.AssertNotCalled(t, "CreateFolderWithUID")
-		gc.AssertNotCalled(t, "CreateAlertRule")
+		require.Nil(t, addresses)
+		gc.AssertNotCalled(t, "GetEmailContactPoint")
 	})
 
-	t.Run("enabled returns error when datasource lookup fails", func(t *testing.T) {
+	t.Run("enabled with no matching contact point returns nil", func(t *testing.T) {
 		t.Parallel()
 
 		s, gc := newServer(t)
-		gc.On("CreateFolderWithUID", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-		gc.On("DeleteAlertRuleGroup", mock.Anything, mock.Anything, mock.Anything).Return(nil)
-		gc.On("GetDatasourceUIDByName", mock.Anything, "Metrics").Return("", errors.New("boom"))
+		gc.On("GetEmailContactPoint", mock.Anything, advisorContactPointName).
+			Return([]string(nil), nil)
 
-		err := s.reconcileAdvisorNotifications(t.Context(), enabledSettings())
+		addresses, err := s.reconcileAdvisorContactPoint(t.Context(), enabledSettings())
+		require.NoError(t, err)
+		require.Empty(t, addresses)
+	})
+
+	t.Run("enabled propagates a Grafana error", func(t *testing.T) {
+		t.Parallel()
+
+		s, gc := newServer(t)
+		gc.On("GetEmailContactPoint", mock.Anything, advisorContactPointName).
+			Return([]string(nil), errors.New("boom"))
+
+		_, err := s.reconcileAdvisorContactPoint(t.Context(), enabledSettings())
 		require.Error(t, err)
-		gc.AssertNotCalled(t, "CreateAlertRule")
 	})
 }

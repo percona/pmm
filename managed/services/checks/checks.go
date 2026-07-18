@@ -366,6 +366,9 @@ func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNa
 
 	s.alertsRegistry.set(res)
 
+	// Best-effort: email the completed batch to the configured Advisor contact point.
+	s.maybeSendAdvisorNotification(ctx, ri.batchID, ri.triggeredBy)
+
 	return nil
 }
 
