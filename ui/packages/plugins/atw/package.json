@@ -1,5 +1,5 @@
 {
-  "name": "@sep/plugins-dipper",
+  "name": "@sep/plugins-atw",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -20,7 +20,6 @@
   "devDependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
-    "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@tanstack/react-query": "^5.100.7",
     "@testing-library/jest-dom": "^6.6.3",
@@ -32,18 +31,15 @@
     "notistack": "^3.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-hook-form": "^7.71.2",
     "typescript": "~6.0.3",
     "vitest": "^4.0.0"
   },
   "peerDependencies": {
     "@emotion/react": "^11.0.0",
     "@emotion/styled": "^11.0.0",
-    "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@tanstack/react-query": "^5.75.0",
     "notistack": "^3.0.0",
-    "react": "^19.0.0",
-    "react-hook-form": "^7.71.0"
+    "react": "^19.0.0"
   }
 }

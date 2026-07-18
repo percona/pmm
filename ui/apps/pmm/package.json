@@ -32,7 +32,7 @@
     "@reactour/tour": "^3.8.0",
     "@sep/api": "workspace:*",
     "@sep/framework": "workspace:*",
-    "@sep/plugins-dipper": "workspace:*",
+    "@sep/plugins-atw": "workspace:*",
     "@tanstack/react-query": "^5.100.7",
     "axios": "^1.13.5",
     "axios-case-converter": "^1.1.1",

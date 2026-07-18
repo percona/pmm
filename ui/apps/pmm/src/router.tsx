@@ -14,7 +14,7 @@ import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { InstallClientPage } from 'pages/install-client';
-import { DipperApp } from '@sep/plugins-dipper';
+import { AtwApp } from '@sep/plugins-atw';
 import { SchemaDrivenPlugin } from '@sep/framework';
 import { SepPage } from './sep/SepPage';
 
@@ -76,12 +76,13 @@ const router = createBrowserRouter(
             // SEP apps mounted as native routes. Both plugins compose their own
             // <Routes>, so the paths are splats.
             {
-              // Dipper is a single-view app (no internal <Routes>), so this is a
-              // plain path rather than a splat. Backend API calls hit /apps/dipper.
-              path: 'sep/dipper',
+              // ATW ("Collect Diagnostic Data") is a single-view app (no internal
+              // <Routes>), so this is a plain path rather than a splat. Backend
+              // API calls hit /apps/atw and the snippet-execution endpoints.
+              path: 'sep/atw',
               element: (
                 <SepPage>
-                  <DipperApp />
+                  <AtwApp />
                 </SepPage>
               ),
             },

@@ -298,11 +298,11 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
 // Role/flag gating arrives with real auth (Option B).
 export const addSepApps = (): NavItem[] => [
   {
-    id: 'sep-dipper',
+    id: 'sep-atw',
     text: 'Collect Diagnostic Data',
     icon: MonitorHeartIcon,
-    url: '/sep/dipper',
-    matches: ['/sep/dipper'],
+    url: '/sep/atw',
+    matches: ['/sep/atw'],
   },
   {
     id: 'sep-mysql-backups',

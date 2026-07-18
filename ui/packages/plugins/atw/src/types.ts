@@ -15,20 +15,19 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-export type DipperCollectorType = 'environment' | 'pmm';
-
-export interface DipperExecutionWrite {
-  service_id: number;
-  collector_type: DipperCollectorType;
-  executor_host: string;
-  sudo: boolean;
-  args: Record<string, unknown>;
+export interface AtwSnippetSummary {
+  /** Snippet filename; use with snippets app API path helpers. */
+  name: string;
+  title: string;
+  description: string;
 }
 
-export interface DipperExecutionResponse {
-  task_id: number | null;
-  task_name: string;
-  snippet_filename: string;
-  service_id: number;
-  collector_type: DipperCollectorType;
+export interface AtwCategoryListing {
+  category_root: string;
+  parent_category: string;
+  parent_category_label: string;
+  category: string;
+  category_label: string;
+  snippet_count: number;
+  snippets: AtwSnippetSummary[];
 }

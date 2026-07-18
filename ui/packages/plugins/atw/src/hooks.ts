@@ -15,15 +15,21 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-export { DipperApp } from './DipperApp';
-export {
-  useDipperAppSchema,
-  useDipperFormSchema,
-  useDipperHistory,
-  useDipperExecution,
-} from './hooks';
-export type {
-  DipperCollectorType,
-  DipperExecutionResponse,
-  DipperExecutionWrite,
-} from './types';
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '@sep/api';
+import type { AtwCategoryListing } from './types';
+
+const ATW_BASE = '/apps/atw';
+
+const ATW_STALE_TIME_MS = 5 * 60 * 1000;
+
+export function useAtwCategories() {
+  return useQuery<AtwCategoryListing[]>({
+    queryKey: ['atw', 'categories'],
+    queryFn: async () => {
+      const { data } = await apiClient.get<AtwCategoryListing[]>(`${ATW_BASE}/`);
+      return data;
+    },
+    staleTime: ATW_STALE_TIME_MS,
+  });
+}
