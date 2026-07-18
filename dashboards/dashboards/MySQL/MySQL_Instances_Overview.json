@@ -5701,6 +5701,7 @@
                 "y": 24
             },
             "id": 469,
+            "description": "Query Cache was removed from MySQL 8.0. No data is expected for Oracle MySQL 8.0 and newer.",
             "interval": "",
             "links": [],
             "maxDataPoints": 100,
@@ -6178,7 +6179,7 @@
             "panels": [
                 {
                     "gridPos": {
-                        "h": 1,
+                        "h": 3,
                         "w": 24,
                         "x": 0,
                         "y": 29
@@ -6214,7 +6215,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 30
+                        "y": 32
                     },
                     "hiddenSeries": false,
                     "id": 46,
@@ -6340,7 +6341,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 30
+                        "y": 32
                     },
                     "id": 421,
                     "links": [],

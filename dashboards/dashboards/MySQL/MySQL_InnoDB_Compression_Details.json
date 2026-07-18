@@ -812,7 +812,6 @@
                     "expr": "avg by (service_name) ((sum by (service_name, node_name) (rate(mysql_info_schema_innodb_cmp_compress_time_seconds_total{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name, node_name) (irate(mysql_info_schema_innodb_cmp_compress_time_seconds_total{service_name=~\"$service_name\"}[5m]))) /\non (node_name) count by (node_name) (node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}) * 100)",
                     "format": "time_series",
                     "hide": false,
-                    "interval": "1h",
                     "intervalFactor": 1,
                     "legendFormat": "{{service_name}}",
                     "refId": "C"
@@ -920,7 +919,6 @@
                 {
                     "expr": "avg by (service_name) ((sum by (service_name, node_name) (rate(mysql_info_schema_innodb_cmp_uncompress_time_seconds_total{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name, node_name) (irate(mysql_info_schema_innodb_cmp_uncompress_time_seconds_total{service_name=~\"$service_name\"}[5m]))) /\non (node_name) count by (node_name) (node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}) * 100)",
                     "format": "time_series",
-                    "interval": "1h",
                     "intervalFactor": 1,
                     "legendFormat": "{{service_name}}",
                     "refId": "B"
