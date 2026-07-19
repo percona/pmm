@@ -579,13 +579,13 @@
                         "type": "string",
                         "x-order": 2
                       },
-                      "subcategory": {
-                        "description": "Subcategory the check belongs to (second-level grouping within a category).",
+                      "category": {
+                        "description": "Category the check belongs to (top-level grouping).",
                         "type": "string",
                         "x-order": 3
                       },
-                      "category": {
-                        "description": "Category the check belongs to (top-level grouping).",
+                      "subcategory": {
+                        "description": "Subcategory the check belongs to (second-level grouping within a category).",
                         "type": "string",
                         "x-order": 4
                       },

@@ -207,10 +207,10 @@ message CheckResultHistoryItem {
   string batch_id = 2;
   // Name of the check that ran.
   string check_name = 3;
-  // Subcategory the check belongs to (second-level grouping within a category).
-  string subcategory = 4;
   // Category the check belongs to (top-level grouping).
-  string category = 5;
+  string category = 4;
+  // Subcategory the check belongs to (second-level grouping within a category).
+  string subcategory = 5;
   // Check execution interval.
   AdvisorCheckInterval interval = 6;
   // ID of the monitored service on which the check ran.

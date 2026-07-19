@@ -1467,10 +1467,10 @@ type CheckResultHistoryItem struct {
 	BatchId string `protobuf:"bytes,2,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
 	// Name of the check that ran.
 	CheckName string `protobuf:"bytes,3,opt,name=check_name,json=checkName,proto3" json:"check_name,omitempty"`
-	// Subcategory the check belongs to (second-level grouping within a category).
-	Subcategory string `protobuf:"bytes,4,opt,name=subcategory,proto3" json:"subcategory,omitempty"`
 	// Category the check belongs to (top-level grouping).
-	Category string `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
+	Category string `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`
+	// Subcategory the check belongs to (second-level grouping within a category).
+	Subcategory string `protobuf:"bytes,5,opt,name=subcategory,proto3" json:"subcategory,omitempty"`
 	// Check execution interval.
 	Interval AdvisorCheckInterval `protobuf:"varint,6,opt,name=interval,proto3,enum=advisors.v1.AdvisorCheckInterval" json:"interval,omitempty"`
 	// ID of the monitored service on which the check ran.
@@ -1564,16 +1564,16 @@ func (x *CheckResultHistoryItem) GetCheckName() string {
 	return ""
 }
 
-func (x *CheckResultHistoryItem) GetSubcategory() string {
+func (x *CheckResultHistoryItem) GetCategory() string {
 	if x != nil {
-		return x.Subcategory
+		return x.Category
 	}
 	return ""
 }
 
-func (x *CheckResultHistoryItem) GetCategory() string {
+func (x *CheckResultHistoryItem) GetSubcategory() string {
 	if x != nil {
-		return x.Category
+		return x.Subcategory
 	}
 	return ""
 }
@@ -2223,9 +2223,9 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\bbatch_id\x18\x02 \x01(\tR\abatchId\x12\x1d\n" +
 	"\n" +
-	"check_name\x18\x03 \x01(\tR\tcheckName\x12 \n" +
-	"\vsubcategory\x18\x04 \x01(\tR\vsubcategory\x12\x1a\n" +
-	"\bcategory\x18\x05 \x01(\tR\bcategory\x12=\n" +
+	"check_name\x18\x03 \x01(\tR\tcheckName\x12\x1a\n" +
+	"\bcategory\x18\x04 \x01(\tR\bcategory\x12 \n" +
+	"\vsubcategory\x18\x05 \x01(\tR\vsubcategory\x12=\n" +
 	"\binterval\x18\x06 \x01(\x0e2!.advisors.v1.AdvisorCheckIntervalR\binterval\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\a \x01(\tR\tserviceId\x12!\n" +

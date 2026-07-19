@@ -61,7 +61,6 @@ cd src/github.com/percona/pmm
 cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
 cp -pa ./ui/apps/pmm/dist/. %{buildroot}%{_datadir}/pmm-ui
 cp -pa ./ui/apps/pmm-compat/dist/. %{buildroot}%{_datadir}/percona-dashboards/panels/pmm-compat-app
-cp -pa ./managed/data/advisors/*.yml %{buildroot}/usr/local/percona/advisors/
 cp -pa ./managed/data/checks/*.yml %{buildroot}/usr/local/percona/checks/
 cp -pa ./managed/data/alerting-templates/*.yml %{buildroot}/usr/local/percona/alerting-templates/
 
