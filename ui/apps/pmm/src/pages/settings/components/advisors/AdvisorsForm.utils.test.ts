@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { Settings } from 'types/settings.types';
 import { Severity } from 'types/severity.types';
-import { toFormValues, toPayload } from './AdvancedSettingsForm.utils';
+import { toFormValues, toPayload } from './AdvisorsForm.utils';
 
 const TEST_SETTINGS: Settings = {
   updatesEnabled: true,

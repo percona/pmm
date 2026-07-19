@@ -4,13 +4,13 @@ export const Messages = {
     ssh: 'SSH key',
     metrics: 'Metrics resolution',
     advanced: 'Advanced settings',
+    advisors: 'Advisors',
   },
   advanced: {
     validation: {
       required: 'Required field',
       retentionRange: (min: number, max: number) =>
         `Value should be in the range from ${min} to ${max}`,
-      intervalMin: (min: number) => `Min ${min}`,
     },
     retentionLabel: 'Data retention',
     retentionTooltip:
@@ -28,25 +28,6 @@ export const Messages = {
     updatesLink: 'https://per.co.na/updates',
     updatesTooltip:
       'Option to check new versions and ability to update PMM from UI.',
-    advisorsLabel: 'Advisors',
-    sttRareIntervalLabel: 'Rare',
-    sttStandardIntervalLabel: 'Standard',
-    sttFrequentIntervalLabel: 'Frequent',
-    sttCheckIntervalLabel: 'Check run interval',
-    sttCheckIntervalTooltip:
-      'How often Advisor checks run. Lower values catch issues faster but increase resource usage.',
-    advisorsLink: 'https://per.co.na/advisors',
-    advisorsTooltip:
-      'Run automated checks to identify potential database performance and configuration issues.',
-    advisorRetentionLabel: 'Advisor history retention',
-    advisorRetentionTooltip:
-      'How long PMM keeps Advisor check results history. Older results are automatically deleted.',
-    advisorNotificationsLabel: 'Advisor notifications',
-    advisorNotificationsTooltip:
-      'Email a summary of completed Advisor checks to a Grafana email contact point named "PMM Advisor Insights".',
-    advisorSeverityThresholdLabel: 'Notification severity threshold',
-    advisorSeverityThresholdTooltip:
-      'Least-severe level that triggers a notification.',
     azureDiscoverLabel: 'Microsoft Azure monitoring',
     azureDiscoverTooltip:
       'Option to enable/disable Microsoft Azure DB instances discovery and monitoring',
@@ -80,6 +61,34 @@ export const Messages = {
     technicalPreviewDescriptionSuffix:
       ' to be used in production environments. Read more about feature status',
     technicalPreviewLinkText: 'here.',
+  },
+  advisors: {
+    validation: {
+      required: 'Required field',
+      retentionRange: (min: number, max: number) =>
+        `Value should be in the range from ${min} to ${max}`,
+      intervalMin: (min: number) => `Min ${min}`,
+    },
+    advisorsLabel: 'Advisors',
+    advisorsLink: 'https://per.co.na/advisors',
+    advisorsTooltip:
+      'Run automated checks to identify potential database performance and configuration issues.',
+    rareIntervalLabel: 'Rare',
+    standardIntervalLabel: 'Standard',
+    frequentIntervalLabel: 'Frequent',
+    checkIntervalLabel: 'Check run interval',
+    checkIntervalTooltip:
+      'How often Advisor checks run. Lower values catch issues faster but increase resource usage.',
+    advisorRetentionLabel: 'Advisor history retention',
+    advisorRetentionTooltip:
+      'How long PMM keeps Advisor check results history. Older results are automatically deleted.',
+    retentionUnits: 'days',
+    advisorNotificationsLabel: 'Advisor notifications',
+    advisorNotificationsTooltip:
+      'Email a summary of completed Advisor checks to a Grafana email contact point named "PMM Advisor Insights".',
+    advisorSeverityThresholdLabel: 'Notification severity threshold',
+    advisorSeverityThresholdTooltip:
+      'Least-severe level that triggers a notification.',
   },
   metrics: {
     label: 'Metrics resolution',

@@ -12,9 +12,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WarningIcon from '@mui/icons-material/Warning';
-import MenuItem from '@mui/material/MenuItem';
-import { TextInput, SwitchInput, SelectInput } from '@percona/percona-ui';
-import { SEVERITY } from 'lib/constants';
+import { TextInput, SwitchInput } from '@percona/percona-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FC, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -22,12 +20,9 @@ import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
 import { Messages } from '../../Settings.messages';
 import {
-  ADVISOR_SEVERITY_OPTIONS,
   FEATURE_MANAGEMENT_SETTINGS,
   MAX_DAYS,
   MIN_DAYS,
-  MIN_STT_CHECK_INTERVAL,
-  STT_CHECK_INTERVALS,
   TECHNICAL_PREVIEW_DOC_URL,
 } from './Advanced.constants';
 import { AdvancedSettingsFormProps } from './AdvancedSettingsForm.types';
@@ -53,10 +48,8 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
     mode: 'onChange',
   });
 
-  const { handleSubmit, reset, watch, setValue } = methods;
+  const { handleSubmit, reset, setValue } = methods;
 
-  const sttEnabled = watch('stt');
-  const advisorNotificationsEnabled = watch('advisorNotifications');
   const [telemetryDialogOpen, setTelemetryDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -271,117 +264,6 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               )
             )}
           </Stack>
-        </Stack>
-
-        <Stack gap={1} data-testid="advanced-advisors">
-          <SettingsFieldLabel
-            label={m.advisorsLabel}
-            description={m.advisorsTooltip}
-            readMoreLink={m.advisorsLink}
-            data-testid="advanced-advisors-label"
-          />
-          <Stack gap={1}>
-            <SwitchInput name="stt" label={m.advisorsLabel} />
-          </Stack>
-          {sttEnabled && (
-            <Stack gap={2}>
-              <SettingsFieldLabel
-                label={m.sttCheckIntervalLabel}
-                description={m.sttCheckIntervalTooltip}
-                data-testid="check-intervals-label"
-              />
-              <Stack direction="row" columnGap={2} rowGap={3} flexWrap="wrap">
-                {STT_CHECK_INTERVALS.map(({ name, label }) => (
-                  <TextInput
-                    key={name}
-                    name={name}
-                    label={label}
-                    textFieldProps={{
-                      type: 'number',
-                      slotProps: {
-                        htmlInput: {
-                          min: MIN_STT_CHECK_INTERVAL,
-                          step: 0.1,
-                          'data-testid': `${name}-number-input`,
-                        },
-                      },
-                      size: 'small',
-                      sx: { minWidth: 80, maxWidth: 120 },
-                    }}
-                    formHelperTextProps={helperTextTestId(
-                      `${name}-field-error-message`
-                    )}
-                  />
-                ))}
-              </Stack>
-
-              <Stack gap={1} data-testid="advanced-advisor-retention">
-                <SettingsFieldLabel
-                  label={m.advisorRetentionLabel}
-                  description={m.advisorRetentionTooltip}
-                  data-testid="advisor-retention-label"
-                />
-                <Stack direction="row" alignItems="baseline" gap={1}>
-                  <TextInput
-                    name="advisorRetention"
-                    textFieldProps={{
-                      type: 'number',
-                      slotProps: {
-                        htmlInput: {
-                          min: MIN_DAYS,
-                          max: MAX_DAYS,
-                          step: 1,
-                          'data-testid': 'advisorRetention-number-input',
-                        },
-                      },
-                      sx: { minWidth: 120, maxWidth: 240 },
-                      size: 'small',
-                    }}
-                    formHelperTextProps={helperTextTestId(
-                      'advisorRetention-field-error-message'
-                    )}
-                  />
-                  <Typography variant="body1" color="text.secondary">
-                    {m.retentionUnits}
-                  </Typography>
-                </Stack>
-              </Stack>
-
-              <Stack gap={1} data-testid="advanced-advisor-notifications">
-                <SettingsFieldLabel
-                  label={m.advisorNotificationsLabel}
-                  description={m.advisorNotificationsTooltip}
-                  data-testid="advisor-notifications-label"
-                />
-                <SwitchInput
-                  name="advisorNotifications"
-                  label={m.advisorNotificationsLabel}
-                  formControlLabelProps={{ sx: { mr: 0 } }}
-                />
-                {advisorNotificationsEnabled && (
-                  <SelectInput
-                    name="advisorSeverityThreshold"
-                    label={m.advisorSeverityThresholdLabel}
-                    helperText={m.advisorSeverityThresholdTooltip}
-                    formControlProps={{
-                      sx: { minWidth: 240, maxWidth: 320 },
-                      size: 'small',
-                    }}
-                    selectFieldProps={{
-                      // @ts-expect-error data-testid is passed through to the DOM
-                      'data-testid': 'advisorSeverityThreshold-select-input',
-                    }}
-                  >
-                    {ADVISOR_SEVERITY_OPTIONS.map((severity) => (
-                      <MenuItem key={severity} value={severity}>
-                        {SEVERITY[severity]}
-                      </MenuItem>
-                    ))}
-                  </SelectInput>
-                )}
-              </Stack>
-            </Stack>
-          )}
         </Stack>
 
         <Stack gap={2}>
