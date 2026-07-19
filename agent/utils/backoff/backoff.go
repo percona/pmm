@@ -21,8 +21,8 @@ import (
 )
 
 const (
-	delayIncrease = 0.5  // +50%
-	delayJitter   = 0.25 // ±25%
+	delayIncrease = 0.5 // +50%
+	delayJitter   = 0.5 // ±50%
 )
 
 // Backoff encapsulates delay manipulation.

@@ -770,7 +770,8 @@ func TestMySQLdExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
-					Password: new("rotated-password-456"),
+					SkipConnectionCheck: new(true),
+					Password:            new("rotated-password-456"),
 				},
 			},
 			Context: pmmapitests.Context,
@@ -798,8 +799,9 @@ func TestMySQLdExporter(t *testing.T) {
 			AgentID: agentID,
 			Body: agents.ChangeAgentBody{
 				MysqldExporter: &agents.ChangeAgentParamsBodyMysqldExporter{
-					Username: new("new-mysql-user"),
-					Password: new("final-password-789"),
+					SkipConnectionCheck: new(true),
+					Username:            new("new-mysql-user"),
+					Password:            new("final-password-789"),
 				},
 			},
 			Context: pmmapitests.Context,

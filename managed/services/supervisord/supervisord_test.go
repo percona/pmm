@@ -97,6 +97,7 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 	t.Setenv("VM_search_logSlowQueryDuration", "300s")
 	t.Setenv("VM_search_maxQueryDuration", "9s")
 	t.Setenv("VM_promscrape_streamParse", "false")
+	t.Setenv("VM_maxIngestionRate", "5000000")
 
 	for _, tmpl := range templates.Templates() {
 		n := tmpl.Name()
