@@ -23,14 +23,16 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Advisor represents group of checks with the common idea.
+// Advisor represents a group of checks with a common idea.
+// Checks is populated at load time by linking checks via Check.Advisor;
+// it is not authored in advisor files.
 type Advisor struct {
 	Version     uint32  `yaml:"version"`
 	Name        string  `yaml:"name"`
 	Summary     string  `yaml:"summary"`
 	Description string  `yaml:"description"`
 	Category    string  `yaml:"category"`
-	Checks      []Check `yaml:"checks"`
+	Checks      []Check `yaml:"-"`
 }
 
 // ParseAdvisors returns a slice of validated advisors parsed from YAML passed via a reader.
@@ -53,7 +55,7 @@ func ParseAdvisors(reader io.Reader, params *ParseParams) ([]Advisor, error) {
 	for {
 		var c advisors
 
-		err := d.Decode(&c) //nolint:musttag
+		err := d.Decode(&c)
 		if err != nil {
 			if errors.Is(err, io.EOF) {
 				return res, nil
@@ -97,25 +99,6 @@ func (a *Advisor) Validate() error {
 
 	if a.Category == "" {
 		return errors.New("category is empty")
-	}
-
-	checkNames := make(map[string]struct{}, len(a.Checks))
-	for _, check := range a.Checks {
-		err := check.Validate()
-		if err != nil {
-			return err
-		}
-
-		if check.Advisor != a.Name {
-			return fmt.Errorf("advisor name '%s' doesn't match name '%s' specified in corresponding check '%s'",
-				a.Name, check.Advisor, check.Name)
-		}
-
-		if _, ok := checkNames[check.Name]; ok {
-			return fmt.Errorf("check name collision `%s` detected in '%s' advisor", check.Name, a.Name)
-		}
-
-		checkNames[check.Name] = struct{}{}
 	}
 
 	return nil

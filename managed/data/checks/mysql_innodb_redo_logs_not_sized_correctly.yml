@@ -5,7 +5,6 @@ checks:
     summary: Checks if InnoDB redo log size is not configured correctly.
     description: This check reviews InnoDB redo log size and suggests if it is configured too low.
     family: MYSQL
-    category: performance
     #subcategory: configuration
     #author: Kedar Vaijanapurkar
     advisor: configuration_innodb

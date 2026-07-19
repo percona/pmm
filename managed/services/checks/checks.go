@@ -69,8 +69,6 @@ const (
 
 	prometheusNamespace = "pmm_managed"
 	prometheusSubsystem = "advisor"
-
-	maxSupportedVersion = 2
 )
 
 // pmm-agent versions with known changes in Query Actions.
@@ -565,22 +563,15 @@ func (s *Service) waitForResult(ctx context.Context, resultID string) ([]byte, e
 }
 
 func (s *Service) minPMMAgentVersion(c check.Check) *version.Parsed {
-	switch c.Version {
-	case 1:
-		return s.minPMMAgentVersionForType(c.Type)
-	case 2:
-		res := pmmAgent2_6_0 // minimum version that can be used with advisors
-		for _, query := range c.Queries {
-			v := s.minPMMAgentVersionForType(query.Type)
-			if v != nil && res.Less(v) {
-				res = v
-			}
+	res := pmmAgent2_6_0 // minimum version that can be used with advisors
+	for _, query := range c.Queries {
+		v := s.minPMMAgentVersionForType(query.Type)
+		if v != nil && res.Less(v) {
+			res = v
 		}
-
-		return res
-	default:
-		return pmmAgentInvalid
 	}
+
+	return res
 }
 
 // minPMMAgentVersion returns the minimal version of pmm-agent that can handle the given check type.
@@ -731,8 +722,8 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 		pmmAgentVersion := s.minPMMAgentVersion(c)
 		targets, err := s.findTargets(serviceType, pmmAgentVersion)
 		if err != nil {
-			s.l.Warnf("Failed to find proper agents and services for check type: %s and "+
-				"min version: %s, reason: %s.", c.Type, pmmAgentVersion, err)
+			s.l.Warnf("Failed to find proper agents and services for check family: %s and "+
+				"min version: %s, reason: %s.", c.Family, pmmAgentVersion, err)
 			continue
 		}
 
@@ -743,7 +734,7 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 			// stamp each (check, target) outcome with its actual completion time
 			checkedAt := models.Now()
 			if err != nil {
-				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
+				s.l.Warnf("Failed to execute check %s of family %s on target %s: %+v", c.Name, c.Family, target.AgentID, err)
 				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "error").Inc()
 				history = append(history, newCheckResultRecord(c, target, category, models.CheckResultError, check.Result{Description: err.Error()}, checkedAt, ri))
 				continue
@@ -888,10 +879,11 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 		s.mChecksExecutionTime.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name).Observe(time.Since(t).Seconds())
 	}(time.Now())
 
-	queries := c.Queries
-	if c.Version == 1 {
+	if c.Version < check.MinSupportedVersion || c.Version > check.MaxSupportedVersion {
 		return nil, fmt.Errorf("check %s has unsupported version %d", c.Name, c.Version)
 	}
+
+	queries := c.Queries
 
 	eg, gCtx := errgroup.WithContext(ctx)
 	resData := make([]any, len(queries))
@@ -1769,23 +1761,15 @@ func (s *Service) filterSupportedChecks(advisors []check.Advisor) []check.Adviso
 
 	LOOP:
 		for _, c := range advisor.Checks {
-			if c.Version > maxSupportedVersion {
-				s.l.Warnf("Unsupported checks version: %d, max supported version: %d.", c.Version, maxSupportedVersion)
+			if c.Version > check.MaxSupportedVersion {
+				s.l.Warnf("Unsupported checks version: %d, max supported version: %d.", c.Version, check.MaxSupportedVersion)
 				continue LOOP
 			}
 
-			switch c.Version {
-			case 1:
-				if ok := isQueryTypeSupported(c.Type); !ok {
-					s.l.Warnf("Unsupported check type: %s.", c.Type)
+			for _, query := range c.Queries {
+				if ok := isQueryTypeSupported(query.Type); !ok {
+					s.l.Warnf("Unsupported query type: %s.", query.Type)
 					continue LOOP
-				}
-			case 2:
-				for _, query := range c.Queries {
-					if ok := isQueryTypeSupported(query.Type); !ok {
-						s.l.Warnf("Unsupported query type: %s.", query.Type)
-						continue LOOP
-					}
 				}
 			}
 
@@ -1898,7 +1882,7 @@ func groupChecksByDB(l *logrus.Entry, checks map[string]check.Check) (mySQLCheck
 	postgreSQLChecks = make(map[string]check.Check)
 	mongoDBChecks = make(map[string]check.Check)
 	for _, c := range checks {
-		switch c.GetFamily() {
+		switch c.Family {
 		case check.MySQL:
 			mySQLChecks[c.Name] = c
 		case check.PostgreSQL:

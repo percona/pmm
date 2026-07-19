@@ -364,8 +364,6 @@ func TestFilterChecks(t *testing.T) {
 			Description: "Test mySQL advisor",
 			Category:    "test",
 			Checks: []check.Check{
-				{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
-				{Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
 				{Name: "MySQL check V2", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}},
 			},
 		},
@@ -375,8 +373,6 @@ func TestFilterChecks(t *testing.T) {
 			Description: "Test postgreSQL advisor",
 			Category:    "test",
 			Checks: []check.Check{
-				{Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
-				{Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
 				{Name: "PostgreSQL check V2", Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}},
 			},
 		},
@@ -386,11 +382,6 @@ func TestFilterChecks(t *testing.T) {
 			Description: "Test mongoDB advisor",
 			Category:    "test",
 			Checks: []check.Check{
-				{Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
-				{Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
-				{Name: "MongoDBGetCmdLineOpts", Version: 1, Type: check.MongoDBGetCmdLineOpts},
-				{Name: "MongoDBReplSetGetStatus", Version: 1, Type: check.MongoDBReplSetGetStatus},
-				{Name: "MongoDBGetDiagnosticData", Version: 1, Type: check.MongoDBGetDiagnosticData},
 				{Name: "MongoDB check V2", Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}},
 			},
 		},
@@ -403,8 +394,8 @@ func TestFilterChecks(t *testing.T) {
 			Description: "Test advisor that contains only unsupported checks",
 			Category:    "test",
 			Checks: []check.Check{
-				{Name: "unsupported version", Version: maxSupportedVersion + 1, Type: check.MySQLShow},
-				{Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
+				{Name: "unsupported version", Version: check.MaxSupportedVersion + 1, Queries: []check.Query{{Type: check.MySQLShow}}},
+				{Name: "unsupported type", Version: 2, Queries: []check.Query{{Type: check.Type("RedisInfo")}}},
 			},
 		},
 		{
@@ -413,8 +404,8 @@ func TestFilterChecks(t *testing.T) {
 			Description: "Test advisor that contains some unsupported checks",
 			Category:    "test",
 			Checks: []check.Check{
-				{Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
-				{Name: "missing type", Version: 1},
+				{Name: "MySQLShow", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}}},
+				{Name: "unsupported type", Version: 2, Queries: []check.Query{{Type: check.Type("RedisInfo")}}},
 			},
 		},
 	}
@@ -438,13 +429,13 @@ func TestMinPMMAgents(t *testing.T) {
 		check      check.Check
 		minVersion *version.Parsed
 	}{
-		{name: "MySQLShow", minVersion: pmmAgent2_6_0, check: check.Check{Version: 1, Type: check.MySQLShow}},
-		{name: "MySQLSelect", minVersion: pmmAgent2_6_0, check: check.Check{Version: 1, Type: check.MySQLSelect}},
-		{name: "PostgreSQLShow", minVersion: pmmAgent2_6_0, check: check.Check{Version: 1, Type: check.PostgreSQLShow}},
-		{name: "PostgreSQLSelect", minVersion: pmmAgent2_6_0, check: check.Check{Version: 1, Type: check.PostgreSQLSelect}},
-		{name: "MongoDBGetParameter", minVersion: pmmAgent2_6_0, check: check.Check{Version: 1, Type: check.MongoDBGetParameter}},
-		{name: "MongoDBBuildInfo", minVersion: pmmAgent2_6_0, check: check.Check{Version: 1, Type: check.MongoDBBuildInfo}},
-		{name: "MongoDBGetCmdLineOpts", minVersion: pmmAgent2_7_0, check: check.Check{Version: 1, Type: check.MongoDBGetCmdLineOpts}},
+		{name: "MySQLShow", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLShow}}}},
+		{name: "MySQLSelect", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLSelect}}}},
+		{name: "PostgreSQLShow", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}}}},
+		{name: "PostgreSQLSelect", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLSelect}}}},
+		{name: "MongoDBGetParameter", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBGetParameter}}}},
+		{name: "MongoDBBuildInfo", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}}}},
+		{name: "MongoDBGetCmdLineOpts", minVersion: pmmAgent2_7_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBGetCmdLineOpts}}}},
 		{name: "MySQL Family", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}}},
 		{name: "MongoDB Family", minVersion: pmmAgent2_7_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}}},
 		{name: "PostgreSQL Family", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}}},
@@ -829,45 +820,31 @@ func TestGroupChecksByDB(t *testing.T) {
 	t.Parallel()
 
 	checks := map[string]check.Check{
-		"MySQLShow":                {Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
-		"MySQLSelect":              {Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
-		"PostgreSQLShow":           {Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
-		"PostgreSQLSelect":         {Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
-		"MongoDBGetParameter":      {Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
-		"MongoDBBuildInfo":         {Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
-		"MongoDBGetCmdLineOpts":    {Name: "MongoDBGetCmdLineOpts", Version: 1, Type: check.MongoDBGetCmdLineOpts},
-		"MongoDBReplSetGetStatus":  {Name: "MongoDBReplSetGetStatus", Version: 1, Type: check.MongoDBReplSetGetStatus},
-		"MongoDBGetDiagnosticData": {Name: "MongoDBGetDiagnosticData", Version: 1, Type: check.MongoDBGetDiagnosticData},
-		"unsupported type":         {Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
-		"missing type":             {Name: "missing type", Version: 1},
-		"MySQL family V2":          {Name: "MySQL family V2", Version: 2, Family: check.MySQL},
-		"PostgreSQL family V2":     {Name: "PostgreSQL family V2", Version: 2, Family: check.PostgreSQL},
-		"MongoDB family V2":        {Name: "MongoDB family V2", Version: 2, Family: check.MongoDB},
-		"missing family":           {Name: "missing family", Version: 2},
+		"mysql_1":        {Name: "mysql_1", Version: 2, Family: check.MySQL},
+		"mysql_2":        {Name: "mysql_2", Version: 2, Family: check.MySQL},
+		"mysql_3":        {Name: "mysql_3", Version: 2, Family: check.MySQL},
+		"postgresql_1":   {Name: "postgresql_1", Version: 2, Family: check.PostgreSQL},
+		"postgresql_2":   {Name: "postgresql_2", Version: 2, Family: check.PostgreSQL},
+		"postgresql_3":   {Name: "postgresql_3", Version: 2, Family: check.PostgreSQL},
+		"mongodb_1":      {Name: "mongodb_1", Version: 2, Family: check.MongoDB},
+		"mongodb_2":      {Name: "mongodb_2", Version: 2, Family: check.MongoDB},
+		"mongodb_3":      {Name: "mongodb_3", Version: 2, Family: check.MongoDB},
+		"mongodb_4":      {Name: "mongodb_4", Version: 2, Family: check.MongoDB},
+		"mongodb_5":      {Name: "mongodb_5", Version: 2, Family: check.MongoDB},
+		"mongodb_6":      {Name: "mongodb_6", Version: 2, Family: check.MongoDB},
+		"missing family": {Name: "missing family", Version: 2},
+		"unknown family": {Name: "unknown family", Version: 2, Family: check.Family("RedisFamily")},
 	}
 
 	l := logrus.WithField("component", "tests")
 	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(l, checks)
 
+	// checks with a missing or unknown family are skipped
 	require.Len(t, mySQLChecks, 3)
 	require.Len(t, postgreSQLChecks, 3)
 	require.Len(t, mongoDBChecks, 6)
 
-	// V1 checks
-	assert.Equal(t, check.MySQLShow, mySQLChecks["MySQLShow"].Type)
-	assert.Equal(t, check.MySQLSelect, mySQLChecks["MySQLSelect"].Type)
-
-	assert.Equal(t, check.PostgreSQLShow, postgreSQLChecks["PostgreSQLShow"].Type)
-	assert.Equal(t, check.PostgreSQLSelect, postgreSQLChecks["PostgreSQLSelect"].Type)
-
-	assert.Equal(t, check.MongoDBGetParameter, mongoDBChecks["MongoDBGetParameter"].Type)
-	assert.Equal(t, check.MongoDBBuildInfo, mongoDBChecks["MongoDBBuildInfo"].Type)
-	assert.Equal(t, check.MongoDBGetCmdLineOpts, mongoDBChecks["MongoDBGetCmdLineOpts"].Type)
-	assert.Equal(t, check.MongoDBReplSetGetStatus, mongoDBChecks["MongoDBReplSetGetStatus"].Type)
-	assert.Equal(t, check.MongoDBGetDiagnosticData, mongoDBChecks["MongoDBGetDiagnosticData"].Type)
-
-	// V2 checks
-	assert.Equal(t, check.MySQL, mySQLChecks["MySQL family V2"].Family)
-	assert.Equal(t, check.PostgreSQL, postgreSQLChecks["PostgreSQL family V2"].Family)
-	assert.Equal(t, check.MongoDB, mongoDBChecks["MongoDB family V2"].Family)
+	assert.Equal(t, check.MySQL, mySQLChecks["mysql_1"].Family)
+	assert.Equal(t, check.PostgreSQL, postgreSQLChecks["postgresql_1"].Family)
+	assert.Equal(t, check.MongoDB, mongoDBChecks["mongodb_1"].Family)
 }

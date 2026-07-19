@@ -594,8 +594,8 @@ func TestCreateComment(t *testing.T) {
 			Name:    "all technologies",
 			Comment: "All technologies supported",
 			Checks: []check.Check{
-				{Version: 1, Name: "a", Type: check.MySQLShow},
-				{Version: 1, Name: "b", Type: check.PostgreSQLSelect},
+				{Version: 2, Name: "a", Family: check.MySQL},
+				{Version: 2, Name: "b", Family: check.PostgreSQL},
 				{Version: 2, Name: "c", Family: check.MongoDB},
 			},
 		},
@@ -603,7 +603,7 @@ func TestCreateComment(t *testing.T) {
 			Name:    "partial support",
 			Comment: "Partial support (MySQL, MongoDB)",
 			Checks: []check.Check{
-				{Version: 1, Name: "a", Type: check.MySQLShow},
+				{Version: 2, Name: "a", Family: check.MySQL},
 				{Version: 2, Name: "b", Family: check.MongoDB},
 			},
 		},
@@ -611,7 +611,7 @@ func TestCreateComment(t *testing.T) {
 			Name:    "partial support",
 			Comment: "Partial support (MySQL)",
 			Checks: []check.Check{
-				{Version: 1, Name: "a", Type: check.MySQLShow},
+				{Version: 2, Name: "a", Family: check.MySQL},
 			},
 		},
 	}

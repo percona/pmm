@@ -9,7 +9,6 @@ checks:
     #subcategory: performance
     #author:Kedar Vaijanapurkar
     family: MYSQL
-    category: configuration
     queries:
       - type: MYSQL_SELECT
         query: "@@global.innodb_file_per_table as innodb_file_per_table, @@global.version as version, @@global.hostname as service"

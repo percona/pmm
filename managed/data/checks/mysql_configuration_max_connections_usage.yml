@@ -9,7 +9,6 @@ checks:
     #subcategory: connection
     #author:Kedar Vaijanapurkar
     family: MYSQL
-    category: configuration
     queries:
       - type: MYSQL_SELECT
         query: "@@global.max_connections as max_connections, @@global.version as version, @@global.hostname as service"

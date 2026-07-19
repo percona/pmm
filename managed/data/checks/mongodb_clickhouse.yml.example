@@ -7,7 +7,6 @@ checks:
     description: Sample Clickhouse advisor that checks if QAN is on a MongoDB instance
     interval: standard
     family: MONGODB
-    category: configuration
     queries:
       - type: CLICKHOUSE_SELECT
         query: service_id, service_name, COUNT(*) as count FROM metrics WHERE service_id='{{.ServiceID}}' GROUP BY (service_id,service_name);

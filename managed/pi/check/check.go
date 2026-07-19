@@ -179,16 +179,6 @@ func (t Type) Validate() error {
 	}
 }
 
-func isTypeSupportedByV1(t Type) bool {
-	switch t {
-	case MySQLShow, MySQLSelect, PostgreSQLShow, PostgreSQLSelect, MongoDBGetParameter,
-		MongoDBBuildInfo, MongoDBGetCmdLineOpts, MongoDBReplSetGetStatus, MongoDBGetDiagnosticData:
-		return true
-	default:
-		return false
-	}
-}
-
 // Supported DB families.
 const (
 	MySQL      = Family("MYSQL")
@@ -264,56 +254,44 @@ func (q Query) Validate() error {
 	return validateQueryParameters(q.Type, q.Parameters)
 }
 
-// Check represents advisor check structure. Fields marked with v1 should not be used for version 2, and vice versa.
+// Supported advisor check format versions. Version 1 is deprecated and rejected.
+const (
+	// MinSupportedVersion is the minimum supported advisor check format version.
+	MinSupportedVersion uint32 = 2
+	// MaxSupportedVersion is the maximum supported advisor check format version.
+	MaxSupportedVersion uint32 = 2
+)
+
+// Check represents an advisor check.
 type Check struct {
 	Version     uint32   `yaml:"version"`
 	Name        string   `yaml:"name"`
 	Summary     string   `yaml:"summary"`
 	Description string   `yaml:"description"`
 	Advisor     string   `yaml:"advisor"`
-	Category    string   `yaml:"category,omitempty"` // deprecated
-	Type        Type     `yaml:"type,omitempty"`     // for v1
-	Family      Family   `yaml:"family,omitempty"`   // for v2, emulated via GetFamily for v1
+	Family      Family   `yaml:"family"`
 	Interval    Interval `yaml:"interval,omitempty"`
-	Query       string   `yaml:"query,omitempty"`   // for v1
-	Queries     []Query  `yaml:"queries,omitempty"` // for v2
+	Queries     []Query  `yaml:"queries"`
 	Script      string   `yaml:"script"`
-}
-
-// GetFamily returns check family for both V1 and V2 check formats.
-func (c *Check) GetFamily() Family {
-	switch c.Version {
-	case 1:
-		switch c.Type {
-		case MySQLSelect, MySQLShow:
-			return MySQL
-
-		case PostgreSQLSelect, PostgreSQLShow:
-			return PostgreSQL
-
-		case MongoDBGetParameter, MongoDBBuildInfo, MongoDBGetCmdLineOpts,
-			MongoDBReplSetGetStatus, MongoDBGetDiagnosticData:
-			return MongoDB
-
-		case MetricsInstant, MetricsRange, ClickHouseSelect:
-			return "" // Unsupported query types for V1, check is invalid
-		}
-	case 2: //nolint:mnd
-		return c.Family
-	}
-
-	return ""
 }
 
 // Validate validates check for minimal correctness.
 func (c *Check) Validate() error {
-	var err error
-
 	if !nameRE.MatchString(c.Name) {
 		return errors.New("invalid check name")
 	}
 
-	err = c.Interval.Validate()
+	if c.Version < MinSupportedVersion {
+		return fmt.Errorf("check %s: format version %d is no longer supported, minimum supported version is %d",
+			c.Name, c.Version, MinSupportedVersion)
+	}
+
+	if c.Version > MaxSupportedVersion {
+		return fmt.Errorf("check %s: format version %d is not supported, maximum supported version is %d",
+			c.Name, c.Version, MaxSupportedVersion)
+	}
+
+	err := c.Interval.Validate()
 	if err != nil {
 		return err
 	}
@@ -339,66 +317,12 @@ func (c *Check) Validate() error {
 		return errors.New("advisor name is missing")
 	}
 
-	switch c.Version {
-	case 1:
-		return c.validateV1()
-	case 2: //nolint:mnd
-		return c.validateV2()
-	default:
-		return fmt.Errorf("unexpected version %d", c.Version)
-	}
-}
-
-func (c *Check) validateV1() error {
-	var err error
-
-	err = c.Type.Validate()
-	if err != nil {
-		return err
-	}
-
-	if !isTypeSupportedByV1(c.Type) {
-		return fmt.Errorf("check type '%s' is not supprted in V1", c.Type)
-	}
-
-	err = validateQuery(c.Type, c.Query)
-	if err != nil {
-		return err
-	}
-
-	if c.Family != "" {
-		return errors.New("field 'family' is part of check format version 2 and can't be used in version 1")
-	}
-
-	if len(c.Queries) != 0 {
-		return errors.New("field 'queries' is part of check format version 2 and can't be used in version 1")
-	}
-
-	return nil
-}
-
-func (c *Check) validateV2() error {
-	var err error
-
 	err = c.Family.Validate()
 	if err != nil {
 		return err
 	}
 
-	err = c.validateQueries()
-	if err != nil {
-		return err
-	}
-
-	if c.Type != "" {
-		return errors.New("field 'type' is part of check format version 1 and can't be used in version 2")
-	}
-
-	if c.Query != "" {
-		return errors.New("field 'query' is part of check format version 1 and can't be used in version 2")
-	}
-
-	return nil
+	return c.validateQueries()
 }
 
 func (c *Check) validateScript() error {

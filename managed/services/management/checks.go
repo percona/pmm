@@ -345,7 +345,7 @@ func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *advisorsv1.Li
 			Name:        c.Name,
 			Enabled:     !disabled,
 			Summary:     c.Summary,
-			Family:      convertFamily(c.GetFamily()),
+			Family:      convertFamily(c.Family),
 			Description: c.Description,
 			Interval:    convertInterval(c.Interval),
 		})
@@ -395,7 +395,7 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdv
 				Name:        c.Name,
 				Enabled:     !disabled,
 				Summary:     c.Summary,
-				Family:      convertFamily(c.GetFamily()),
+				Family:      convertFamily(c.Family),
 				Description: c.Description,
 				Interval:    convertInterval(c.Interval),
 			})
@@ -417,7 +417,7 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdv
 func createComment(checks []check.Check) string {
 	var mySQL, postgreSQL, mongoDB bool
 	for _, c := range checks {
-		switch c.GetFamily() {
+		switch c.Family {
 		case check.MySQL:
 			mySQL = true
 		case check.PostgreSQL:
