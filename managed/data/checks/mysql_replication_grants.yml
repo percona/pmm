@@ -5,7 +5,8 @@ checks:
     summary: MySQL security check for replication user
     description: This check if node has replication configured without a user grants
     interval: standard
-    advisor: security_replication
+    category: Security
+    subcategory: Replication
     #author: The Grinch
     family: MYSQL
     queries:

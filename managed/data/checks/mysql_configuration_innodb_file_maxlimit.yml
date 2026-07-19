@@ -5,7 +5,8 @@ checks:
     summary: InnoDB Tablespace size has a maximum limit.
     description: Check if InnoDB is configured with recommended auto-extend
     interval: standard
-    advisor: configuration_innodb
+    category: Configuration
+    subcategory: InnoDB
     #author: The Grinch
     family: MYSQL
     queries:

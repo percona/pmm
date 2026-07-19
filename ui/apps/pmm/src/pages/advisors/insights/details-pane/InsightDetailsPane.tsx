@@ -25,7 +25,6 @@ import {
   SEVERITY,
   TIME_FORMAT,
 } from 'lib/constants';
-import { capitalize } from 'utils/text.utils';
 import { Messages } from '../AdvisorInsights.messages';
 
 const EM_DASH = '—';
@@ -61,7 +60,21 @@ const Field: FC<FieldProps> = ({ label, children, span = 1 }) => (
     <Typography variant="caption" color="text.secondary">
       {label}
     </Typography>
-    <Box sx={{ flex: 1 }}>{children}</Box>
+    <Box
+      sx={{
+        flex: 1,
+        display: 'flex',
+        alignItems: 'flex-end',
+        // percona-ui's theme pins MuiIconButton to a fixed 40x40 (BaseTheme
+        // sizeMedium), which stretches the row and lifts the value off the
+        // underline. Shrink the copy button to its icon so it matches the
+        // plain fields. (Full `padding` property, not the `p` shorthand: MUI
+        // sx does not expand shorthands inside nested selector keys.)
+        '& .MuiIconButton-root': { width: 'auto', height: 'auto', padding: 0 },
+      }}
+    >
+      {children}
+    </Box>
     <Divider />
   </Stack>
 );
@@ -239,9 +252,10 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
             </Field>
 
             <Field label={m.category}>
-              <Typography variant="body1">
-                {capitalize(insight.category)}
-              </Typography>
+              <Typography variant="body1">{insight.category}</Typography>
+            </Field>
+            <Field label={m.subcategory}>
+              <Typography variant="body1">{insight.subcategory}</Typography>
             </Field>
             <Field label={m.service}>
               <Stack direction="row" alignItems="center" gap={0.5}>

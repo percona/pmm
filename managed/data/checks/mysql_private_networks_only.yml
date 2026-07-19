@@ -5,7 +5,8 @@ checks:
     summary: MySQL Users With Granted Public Networks Access
     description: Notifies about MySQL accounts currently allowed to connect from public networks.
     family: MYSQL
-    advisor: security_connection
+    category: Security
+    subcategory: Connection
     interval: standard
     queries:
       - type: MYSQL_SELECT

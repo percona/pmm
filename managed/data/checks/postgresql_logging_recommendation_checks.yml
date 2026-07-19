@@ -4,7 +4,8 @@ checks:
     name: postgresql_logging_recommendation_checks
     summary: Check for minimal logging
     description: Checks to see if recommended minimum logging features are enabled.
-    advisor: configuration_generic
+    category: Configuration
+    subcategory: Generic
     #Author: Jorge Torralba
     interval: standard
     family: POSTGRESQL

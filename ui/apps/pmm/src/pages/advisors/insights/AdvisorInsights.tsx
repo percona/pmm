@@ -44,7 +44,6 @@ import {
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { OrgRole } from 'types/user.types';
-import { capitalize } from 'utils/text.utils';
 import { getInsightsColumns } from './AdvisorInsights.constants';
 import { insightToText } from './AdvisorInsights.utils';
 import { InsightDetailsPane } from './details-pane';
@@ -196,17 +195,25 @@ const AdvisorInsights: FC = () => {
   };
 
   const [actionMenu, setActionMenu] = useState<RowActionMenuState | null>(null);
-  const [detailsInsight, setDetailsInsight] =
-    useState<CheckResultHistoryItem | null>(null);
   const [detailsMaximized, setDetailsMaximized] = useState(false);
 
   const openDetails = (insight: CheckResultHistoryItem, maximized = false) => {
     setDetailsMaximized(maximized);
-    setDetailsInsight(insight);
+    patchParams((p) => p.set('insight', insight.id), { resetPage: false });
   };
 
   const { data, isLoading, isFetching, refetch } =
     useCheckResultsHistory(params);
+
+  // the open details overlay is driven by the ?insight=<id> URL param (the
+  // result's Check ID), so the overlay is deep-linkable via a shared URL
+  const detailsInsight = useMemo(
+    () =>
+      (data?.results ?? []).find(
+        (item) => item.id === (searchParams.get('insight') || '')
+      ) ?? null,
+    [data, searchParams]
+  );
   const { data: advisors = [], refetch: refetchAdvisors } = useAdvisors();
   const { data: filterValues, refetch: refetchFilterValues } =
     useCheckResultsFilterValues();
@@ -312,7 +319,7 @@ const AdvisorInsights: FC = () => {
     () =>
       [...new Set(advisors.map((advisor) => advisor.category))]
         .sort()
-        .map((category) => ({ label: capitalize(category), value: category })),
+        .map((category) => ({ label: category, value: category })),
     [advisors]
   );
 
@@ -642,7 +649,9 @@ const AdvisorInsights: FC = () => {
               ? checksByName.get(detailsInsight.checkName)?.enabled
               : undefined
           }
-          onClose={() => setDetailsInsight(null)}
+          onClose={() =>
+            patchParams((p) => p.delete('insight'), { resetPage: false })
+          }
         />
       </Stack>
     </Page>

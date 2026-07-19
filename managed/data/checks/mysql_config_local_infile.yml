@@ -5,7 +5,8 @@ checks:
     summary: Load data in file active
     description: Identify if a load data in file is active.
     interval: standard
-    advisor: security_configuration
+    category: Security
+    subcategory: Configuration
     #subcategory: generic
     #author: The Grinch
     family: MYSQL

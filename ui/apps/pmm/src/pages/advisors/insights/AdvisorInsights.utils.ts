@@ -9,7 +9,6 @@ import {
   SEVERITY,
   TIME_FORMAT,
 } from 'lib/constants';
-import { capitalize } from 'utils/text.utils';
 
 const TRIGGERED_BY_LABEL: Record<AdvisorCheckTriggeredBy, string> = {
   [AdvisorCheckTriggeredBy.user]: 'User',
@@ -30,8 +29,8 @@ export const insightToText = (item: CheckResultHistoryItem): string => {
     ['ID', item.id],
     ['Batch ID', item.batchId],
     ['Check Name', item.checkName],
-    ['Advisor', item.advisorName],
-    ['Category', capitalize(item.category)],
+    ['Category', item.category],
+    ['Sub category', item.subcategory],
     ['Service Name', item.serviceName],
     ['Service Type', item.serviceType],
     ['Node Name', item.nodeName],

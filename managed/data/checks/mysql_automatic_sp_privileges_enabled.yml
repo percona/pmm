@@ -6,7 +6,8 @@ checks:
     description: This check reviews the automatic_sp_privileges configuration is ON.
     family: MYSQL
     #author: Kedar Vaijanapurkar
-    advisor: configuration_generic
+    category: Configuration
+    subcategory: Generic
     interval: standard
     queries:
       - type: MYSQL_SELECT

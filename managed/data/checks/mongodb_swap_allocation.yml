@@ -6,7 +6,8 @@ checks:
     description: This check returns a warning if there is no swap memory allocated to your instance.
     interval: standard
     family: MONGODB
-    advisor: configuration_resources
+    category: Configuration
+    subcategory: Resources
     #author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT

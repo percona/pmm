@@ -8,7 +8,8 @@ checks:
     # This dictionary is based on the CVE list on the postgresql.org security website https://www.postgresql.org/support/security/
     # The key is the CVE reference.
     # The values are a space separated list of postgresql versions where the CVE has been addressed
-    advisor: security_cve
+    category: Security
+    subcategory: Vulnerabilities
     interval: standard
     family: POSTGRESQL
     queries:

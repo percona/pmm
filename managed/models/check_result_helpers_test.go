@@ -50,8 +50,8 @@ func TestCheckResults(t *testing.T) {
 		labels := map[string]string{"k": "v"}
 		cr := &models.CheckResult{
 			CheckName:   "c1",
-			AdvisorName: "advisor",
 			Category:    "performance",
+			Subcategory: "advisor",
 			Interval:    models.Standard,
 			ServiceID:   svc,
 			ServiceName: "find-me",

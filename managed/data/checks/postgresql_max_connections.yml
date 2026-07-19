@@ -6,7 +6,8 @@ checks:
     description: This check returns a notice if the max_connections configuration option is set to a high value (above 300). PostgreSQL doesn't cope well with having many connections even if they are idle. Recommended value is below 300.
     family: POSTGRESQL
     #author: Sergey Kuzmichev
-    advisor: configuration_connection
+    category: Configuration
+    subcategory: Connection
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT

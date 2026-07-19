@@ -5,7 +5,8 @@ checks:
     summary: Binary Log is disabled
     description: Check if the binlog is enabled or disabled.
     interval: standard
-    advisor: configuration_generic
+    category: Configuration
+    subcategory: Generic
     #author: The Grinch
     family: MYSQL
     queries:

@@ -6,7 +6,8 @@ checks:
     description: This check returns those tables where autovacuum parameters are specified along with autovacuum settings specified
     family: POSTGRESQL
     #author: Jobin Augustine
-    advisor: configuration_vacuum
+    category: Configuration
+    subcategory: Vacuum
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT

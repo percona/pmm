@@ -262,13 +262,16 @@ const (
 	MaxSupportedVersion uint32 = 2
 )
 
-// Check represents an advisor check.
+// Check represents a self-contained advisor check. Category and Subcategory are
+// authored as exact display strings; the advisor "group" is the set of distinct
+// (Category, Subcategory) pairs across all loaded checks.
 type Check struct {
 	Version     uint32   `yaml:"version"`
 	Name        string   `yaml:"name"`
 	Summary     string   `yaml:"summary"`
 	Description string   `yaml:"description"`
-	Advisor     string   `yaml:"advisor"`
+	Category    string   `yaml:"category"`
+	Subcategory string   `yaml:"subcategory"`
 	Family      Family   `yaml:"family"`
 	Interval    Interval `yaml:"interval,omitempty"`
 	Queries     []Query  `yaml:"queries"`
@@ -313,8 +316,12 @@ func (c *Check) Validate() error {
 		return errors.New("description is empty")
 	}
 
-	if c.Advisor == "" {
-		return errors.New("advisor name is missing")
+	if c.Category == "" {
+		return errors.New("category is empty")
+	}
+
+	if c.Subcategory == "" {
+		return errors.New("subcategory is empty")
 	}
 
 	err = c.Family.Validate()

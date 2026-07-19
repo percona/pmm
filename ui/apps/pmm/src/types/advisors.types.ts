@@ -24,11 +24,8 @@ export interface AdvisorCheck {
 }
 
 export interface Advisor {
-  name: string;
-  description: string;
-  summary: string;
-  comment: string;
   category: string;
+  subcategory: string;
   checks: AdvisorCheck[];
 }
 
@@ -74,7 +71,7 @@ export interface StartAdvisorChecksResponse {
 export interface CheckResultHistoryItem {
   id: string;
   checkName: string;
-  advisorName: string;
+  subcategory: string;
   category: string;
   interval: AdvisorInterval;
   serviceId: string;
@@ -129,7 +126,7 @@ export interface AdvisorCheckRow {
   checkName: string;
   summary: string;
   description: string;
-  advisorName: string;
+  subcategory: string;
   category: string;
   family: AdvisorFamily;
   interval: AdvisorInterval;

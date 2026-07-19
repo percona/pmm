@@ -5,7 +5,8 @@ checks:
     summary: PostgreSQL Super Role
     description: This check returns a notice if there are users with superuser role.
     family: POSTGRESQL
-    advisor: security_authentication
+    category: Security
+    subcategory: Authentication
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT

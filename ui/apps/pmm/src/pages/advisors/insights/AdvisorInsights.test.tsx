@@ -31,11 +31,8 @@ vi.mock('api/advisors');
 
 const TEST_ADVISORS: Advisor[] = [
   {
-    name: 'test_advisor',
-    summary: 'Test advisor',
-    description: '',
-    comment: '',
-    category: 'configuration',
+    category: 'Configuration',
+    subcategory: 'Version',
     checks: [
       {
         name: 'mysql_version_check',
@@ -60,8 +57,8 @@ const TEST_ADVISORS: Advisor[] = [
 const TEST_ITEM: CheckResultHistoryItem = {
   id: 'result-1',
   checkName: 'mysql_version_check',
-  advisorName: 'MySQL Version',
-  category: 'version_configuration',
+  subcategory: 'Version',
+  category: 'Configuration',
   interval: AdvisorInterval.standard,
   serviceId: 'service-1',
   serviceName: 'mysql-prod',
@@ -456,8 +453,8 @@ describe('AdvisorInsights', () => {
       '  ID: result-1\n' +
       '  Batch ID: batch-1\n' +
       '  Check Name: mysql_version_check\n' +
-      '  Advisor: MySQL Version\n' +
-      '  Category: Version_configuration\n' +
+      '  Category: Configuration\n' +
+      '  Sub category: Version\n' +
       '  Service Name: mysql-prod\n' +
       '  Service Type: mysql\n' +
       '  Node Name: node-1\n' +

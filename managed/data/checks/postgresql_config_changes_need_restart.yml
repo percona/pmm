@@ -6,7 +6,8 @@ checks:
     description: This check returns a warning if there is any setting/configuration that was changed and needs a server restart/reload.
     family: POSTGRESQL
     #author: Charly Batista
-    advisor: performance_generic
+    category: Performance
+    subcategory: Generic
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT

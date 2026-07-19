@@ -6,7 +6,8 @@ checks:
     description: This check warns if the balancer process is disabled
     interval: standard
     family: MONGODB
-    advisor: performance_replication
+    category: Performance
+    subcategory: Replication
     #author: Parag bhayani
     queries:
       - type: METRICS_INSTANT

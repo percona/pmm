@@ -529,20 +529,23 @@ ListAdvisorsOKBodyAdvisorsItems0 list advisors OK body advisors items0
 swagger:model ListAdvisorsOKBodyAdvisorsItems0
 */
 type ListAdvisorsOKBodyAdvisorsItems0 struct {
-	// Machine-readable name (ID) that is used in expression.
+	// Deprecated: no longer populated; an advisor is identified by its category/subcategory pair.
 	Name string `json:"name,omitempty"`
 
-	// Long human-readable description.
+	// Deprecated: advisor descriptions were removed.
 	Description string `json:"description,omitempty"`
 
-	// Short human-readable summary.
+	// Deprecated: use subcategory instead.
 	Summary string `json:"summary,omitempty"`
 
-	// Comment.
+	// Deprecated: no longer populated.
 	Comment string `json:"comment,omitempty"`
 
-	// Category.
+	// Category (top-level grouping).
 	Category string `json:"category,omitempty"`
+
+	// Subcategory (second-level grouping within a category).
+	Subcategory string `json:"subcategory,omitempty"`
 
 	// Advisor checks.
 	Checks []*ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 `json:"checks"`

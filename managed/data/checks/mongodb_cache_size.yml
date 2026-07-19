@@ -6,7 +6,8 @@ checks:
     description: Mongo wiredtiger cache size is greater then default 50%
     interval: standard
     family: MONGODB
-    advisor: configuration_generic
+    category: Configuration
+    subcategory: Generic
     queries:
       - type: METRICS_INSTANT
         query: mongodb_sys_memory_MemTotal_kb{node_name="{{.NodeName}}"}

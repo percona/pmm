@@ -538,6 +538,8 @@ func (m *Advisor) validate(all bool) error {
 
 	// no validation rules for Category
 
+	// no validation rules for Subcategory
+
 	for idx, item := range m.GetChecks() {
 		_, _ = idx, item
 
@@ -2442,7 +2444,7 @@ func (m *CheckResultHistoryItem) validate(all bool) error {
 
 	// no validation rules for CheckName
 
-	// no validation rules for AdvisorName
+	// no validation rules for Subcategory
 
 	// no validation rules for Category
 

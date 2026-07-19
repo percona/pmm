@@ -30,8 +30,8 @@ func (v *checkResultTableType) Columns() []string {
 	return []string{
 		"id",
 		"check_name",
-		"advisor_name",
 		"category",
+		"subcategory",
 		"interval",
 		"service_id",
 		"service_name",
@@ -78,8 +78,8 @@ var CheckResultTable = &checkResultTableType{
 		Fields: []parse.FieldInfo{
 			{Name: "ID", Type: "string", Column: "id"},
 			{Name: "CheckName", Type: "string", Column: "check_name"},
-			{Name: "AdvisorName", Type: "string", Column: "advisor_name"},
 			{Name: "Category", Type: "string", Column: "category"},
+			{Name: "Subcategory", Type: "string", Column: "subcategory"},
 			{Name: "Interval", Type: "Interval", Column: "interval"},
 			{Name: "ServiceID", Type: "string", Column: "service_id"},
 			{Name: "ServiceName", Type: "string", Column: "service_name"},
@@ -111,8 +111,8 @@ func (s CheckResult) String() string {
 	res := make([]string, 24)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "CheckName: " + reform.Inspect(s.CheckName, true)
-	res[2] = "AdvisorName: " + reform.Inspect(s.AdvisorName, true)
-	res[3] = "Category: " + reform.Inspect(s.Category, true)
+	res[2] = "Category: " + reform.Inspect(s.Category, true)
+	res[3] = "Subcategory: " + reform.Inspect(s.Subcategory, true)
 	res[4] = "Interval: " + reform.Inspect(s.Interval, true)
 	res[5] = "ServiceID: " + reform.Inspect(s.ServiceID, true)
 	res[6] = "ServiceName: " + reform.Inspect(s.ServiceName, true)
@@ -142,8 +142,8 @@ func (s *CheckResult) Values() []interface{} {
 	return []interface{}{
 		s.ID,
 		s.CheckName,
-		s.AdvisorName,
 		s.Category,
+		s.Subcategory,
 		s.Interval,
 		s.ServiceID,
 		s.ServiceName,
@@ -173,8 +173,8 @@ func (s *CheckResult) Pointers() []interface{} {
 	return []interface{}{
 		&s.ID,
 		&s.CheckName,
-		&s.AdvisorName,
 		&s.Category,
+		&s.Subcategory,
 		&s.Interval,
 		&s.ServiceID,
 		&s.ServiceName,

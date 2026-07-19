@@ -5,7 +5,8 @@ checks:
     summary: Sync binlog is disabled
     description: Check if the binlog synchronized before transaction is committed.
     interval: standard
-    advisor: configuration_replication
+    category: Configuration
+    subcategory: Replication
     #author: The Grinch
     family: MYSQL
     queries:

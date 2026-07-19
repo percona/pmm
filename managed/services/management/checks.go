@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"maps"
-	"strings"
 
 	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
@@ -238,8 +237,8 @@ func (s *ChecksAPIService) ListCheckResultsHistory(
 			Id:             r.ID,
 			CheckName:      r.CheckName,
 			BatchId:        r.BatchID,
-			AdvisorName:    r.AdvisorName,
 			Category:       r.Category,
+			Subcategory:    r.Subcategory,
 			Severity:       convertModelSeverity(r.Severity),
 			Interval:       convertModelInterval(r.Interval),
 			ServiceId:      r.ServiceID,
@@ -402,47 +401,13 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdv
 		}
 
 		res = append(res, &advisorsv1.Advisor{
-			Name:        a.Name,
-			Description: a.Description,
-			Summary:     a.Summary,
-			Comment:     createComment(a.Checks),
 			Category:    a.Category,
+			Subcategory: a.Subcategory,
 			Checks:      checks,
 		})
 	}
 
 	return &advisorsv1.ListAdvisorsResponse{Advisors: res}, nil
-}
-
-func createComment(checks []check.Check) string {
-	var mySQL, postgreSQL, mongoDB bool
-	for _, c := range checks {
-		switch c.Family {
-		case check.MySQL:
-			mySQL = true
-		case check.PostgreSQL:
-			postgreSQL = true
-		case check.MongoDB:
-			mongoDB = true
-		}
-	}
-
-	b := make([]string, 0, 3)
-	if mySQL {
-		b = append(b, "MySQL")
-	}
-	if postgreSQL {
-		b = append(b, "PostgreSQL")
-	}
-	if mongoDB {
-		b = append(b, "MongoDB")
-	}
-
-	if len(b) == 3 {
-		return "All technologies supported"
-	}
-
-	return "Partial support (" + strings.Join(b, ", ") + ")"
 }
 
 // ChangeAdvisorChecks enables/disables advisor checks by names or changes its execution interval.

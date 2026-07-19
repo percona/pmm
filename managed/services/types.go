@@ -66,7 +66,7 @@ func (t *Target) Copy() Target {
 // CheckResult contains the output from the check file and other information.
 type CheckResult struct {
 	CheckName   string
-	AdvisorName string
+	Subcategory string
 	Interval    check.Interval
 	Target      Target
 	Result      check.Result

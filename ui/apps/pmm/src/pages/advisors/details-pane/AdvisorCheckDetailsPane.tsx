@@ -11,6 +11,7 @@ import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { CopyToClipboardButton } from '@percona/percona-ui';
 import { enqueueSnackbar } from 'notistack';
 import {
   DRAWER_CLOSED_WIDTH,
@@ -20,7 +21,6 @@ import { useNavigation } from 'contexts/navigation/navigation.hooks';
 import { useAdvisorCheckScript } from 'hooks/api/useAdvisors';
 import { AdvisorCheckRow } from 'types/advisors.types';
 import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
-import { capitalize } from 'utils/text.utils';
 import { Messages } from '../AdvisorsList.messages';
 
 const EM_DASH = '—';
@@ -41,7 +41,21 @@ const Field: FC<FieldProps> = ({ label, children, span = 1 }) => (
     <Typography variant="caption" color="text.secondary">
       {label}
     </Typography>
-    <Box sx={{ flex: 1 }}>{children}</Box>
+    <Box
+      sx={{
+        flex: 1,
+        display: 'flex',
+        alignItems: 'flex-end',
+        // percona-ui's theme pins MuiIconButton to a fixed 40x40 (BaseTheme
+        // sizeMedium), which stretches the row and lifts the value off the
+        // underline. Shrink the copy button to its icon so it matches the
+        // plain fields. (Full `padding` property, not the `p` shorthand: MUI
+        // sx does not expand shorthands inside nested selector keys.)
+        '& .MuiIconButton-root': { width: 'auto', height: 'auto', padding: 0 },
+      }}
+    >
+      {children}
+    </Box>
     <Divider />
   </Stack>
 );
@@ -155,15 +169,16 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
             }}
           >
             <Field label={m.checkName}>
-              <Typography variant="body1">{check.checkName}</Typography>
-            </Field>
-            <Field label={m.advisor}>
-              <Typography variant="body1">{check.advisorName}</Typography>
+              <Stack direction="row" alignItems="center" gap={0.5}>
+                <Typography variant="body1">{check.checkName}</Typography>
+                <CopyToClipboardButton textToCopy={check.checkName} />
+              </Stack>
             </Field>
             <Field label={m.category}>
-              <Typography variant="body1">
-                {capitalize(check.category)}
-              </Typography>
+              <Typography variant="body1">{check.category}</Typography>
+            </Field>
+            <Field label={m.subcategory}>
+              <Typography variant="body1">{check.subcategory}</Typography>
             </Field>
             <Field label={m.vendor}>
               <Typography variant="body1">

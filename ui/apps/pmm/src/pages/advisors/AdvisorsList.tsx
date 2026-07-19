@@ -28,7 +28,6 @@ import {
 import { AdvisorCheckRow, AdvisorInterval } from 'types/advisors.types';
 import { OrgRole } from 'types/user.types';
 import { flattenAdvisorChecks } from 'utils/advisors.utils';
-import { capitalize } from 'utils/text.utils';
 import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
 import { Messages } from './AdvisorsList.messages';
 import { getAdvisorsColumns, INTERVAL_OPTIONS } from './AdvisorsList.constants';
@@ -36,6 +35,7 @@ import { AdvisorCheckDetailsPane } from './details-pane';
 
 interface CheckFilters {
   category: string;
+  subcategory: string;
   vendor: string;
   interval: string;
   status: string;
@@ -92,15 +92,7 @@ const AdvisorsList: FC = () => {
     useStartAdvisorChecks();
   const { mutate: changeChecks } = useChangeAdvisorChecks();
 
-  const [detailsCheck, setDetailsCheck] = useState<AdvisorCheckRow | null>(
-    null
-  );
   const [detailsMaximized, setDetailsMaximized] = useState(false);
-
-  const openDetails = (check: AdvisorCheckRow, maximized = false) => {
-    setDetailsMaximized(maximized);
-    setDetailsCheck(check);
-  };
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -110,6 +102,7 @@ const AdvisorsList: FC = () => {
   const filters = useMemo<CheckFilters>(
     () => ({
       category: searchParams.get('category') || '',
+      subcategory: searchParams.get('subcategory') || '',
       vendor: searchParams.get('vendor') || '',
       interval: searchParams.get('interval') || '',
       status: searchParams.get('status') || '',
@@ -132,6 +125,11 @@ const AdvisorsList: FC = () => {
       next.delete('page');
     }
     setSearchParams(next, { replace: true });
+  };
+
+  const openDetails = (check: AdvisorCheckRow, maximized = false) => {
+    setDetailsMaximized(maximized);
+    patchParams((p) => p.set('details', check.checkName), { resetPage: false });
   };
 
   const setSearch = (value: string) =>
@@ -178,11 +176,29 @@ const AdvisorsList: FC = () => {
 
   const rows = useMemo(() => flattenAdvisorChecks(advisors), [advisors]);
 
+  // the open details overlay is driven by the ?details=<checkName> URL param,
+  // so the overlay is deep-linkable and reproduced by a shared URL
+  const detailsCheck = useMemo(
+    () =>
+      rows.find(
+        (row) => row.checkName === (searchParams.get('details') || '')
+      ) ?? null,
+    [rows, searchParams]
+  );
+
   const categoryOptions = useMemo<FilterOption[]>(
     () =>
-      [...new Set(rows.map((row) => capitalize(row.category)))]
+      [...new Set(rows.map((row) => row.category))]
         .sort()
         .map((category) => ({ label: category, value: category })),
+    [rows]
+  );
+
+  const subcategoryOptions = useMemo<FilterOption[]>(
+    () =>
+      [...new Set(rows.map((row) => row.subcategory))]
+        .sort()
+        .map((subcategory) => ({ label: subcategory, value: subcategory })),
     [rows]
   );
 
@@ -211,7 +227,10 @@ const AdvisorsList: FC = () => {
   const filteredRows = useMemo(() => {
     const term = search.trim().toLowerCase();
     return rows.filter((row) => {
-      if (filters.category && capitalize(row.category) !== filters.category) {
+      if (filters.category && row.category !== filters.category) {
+        return false;
+      }
+      if (filters.subcategory && row.subcategory !== filters.subcategory) {
         return false;
       }
       if (filters.vendor && ADVISOR_FAMILY[row.family] !== filters.vendor) {
@@ -233,7 +252,7 @@ const AdvisorsList: FC = () => {
       }
       if (term) {
         const haystack =
-          `${row.summary} ${row.description} ${capitalize(row.category)} ${ADVISOR_FAMILY[row.family]}`.toLowerCase();
+          `${row.summary} ${row.description} ${row.category} ${row.subcategory} ${ADVISOR_FAMILY[row.family]}`.toLowerCase();
         if (!haystack.includes(term)) {
           return false;
         }
@@ -358,6 +377,13 @@ const AdvisorsList: FC = () => {
             onChange={(value) => updateFilter('category', value)}
           />
           <FilterSelect
+            id="subcategory"
+            label={Messages.filters.subcategory}
+            options={subcategoryOptions}
+            value={filters.subcategory}
+            onChange={(value) => updateFilter('subcategory', value)}
+          />
+          <FilterSelect
             id="vendor"
             label={Messages.filters.vendor}
             options={vendorOptions}
@@ -390,7 +416,6 @@ const AdvisorsList: FC = () => {
               </IconButton>
             </Box>
           </Tooltip>
-          <Box sx={{ flex: 1 }} />
           <Tooltip title={Messages.runAll} arrow>
             <Box component="span">
               <IconButton
@@ -475,7 +500,9 @@ const AdvisorsList: FC = () => {
         <AdvisorCheckDetailsPane
           check={detailsCheck}
           initialMaximized={detailsMaximized}
-          onClose={() => setDetailsCheck(null)}
+          onClose={() =>
+            patchParams((p) => p.delete('details'), { resetPage: false })
+          }
         />
       </Stack>
     </Page>

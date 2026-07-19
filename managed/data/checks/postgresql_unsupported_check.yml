@@ -5,7 +5,8 @@ checks:
     summary: Check for unsupported PostgreSQL
     description: Checks to see if the currently installed version is supported by percona
     #author: Jorge Torralba
-    advisor: configuration_version
+    category: Configuration
+    subcategory: Version
     interval: standard
     family: POSTGRESQL
     queries:

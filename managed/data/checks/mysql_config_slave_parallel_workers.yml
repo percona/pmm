@@ -5,7 +5,8 @@ checks:
     summary: Replication is single threaded
     description: Identify if a replication is single threaded.
     interval: standard
-    advisor: configuration_replication
+    category: Configuration
+    subcategory: Replication
     #author: The Grinch
     family: MYSQL
     queries:

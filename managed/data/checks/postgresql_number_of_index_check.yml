@@ -6,7 +6,8 @@ checks:
     description: This check will list relations with more than 10 indexes
     interval: standard
     family: POSTGRESQL
-    advisor: query_index
+    category: Query
+    subcategory: Index
     queries:
       - type: POSTGRESQL_SELECT
         query: " current_database() AS datname, relname, count(*) AS idxcount FROM pg_stat_user_indexes GROUP BY 1,2 ORDER BY 3 DESC "

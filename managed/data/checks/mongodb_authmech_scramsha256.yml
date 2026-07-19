@@ -6,7 +6,8 @@ checks:
     description: This check returns warnings if MongoDB is not using the default SHA-256 hashing function as its SCRAM authentication method.
     family: MONGODB
     #author: Kimberly Wilkins
-    advisor: security_configuration
+    category: Security
+    subcategory: Configuration
     interval: standard
     queries:
       - type: MONGODB_GETPARAMETER

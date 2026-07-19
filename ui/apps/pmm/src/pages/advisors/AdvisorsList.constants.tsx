@@ -4,7 +4,6 @@ import MenuItem from '@mui/material/MenuItem';
 import Switch from '@mui/material/Switch';
 import { AdvisorCheckRow, AdvisorInterval } from 'types/advisors.types';
 import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
-import { capitalize } from 'utils/text.utils';
 import { Messages } from './AdvisorsList.messages';
 
 export const INTERVAL_OPTIONS = [
@@ -35,7 +34,13 @@ export const getAdvisorsColumns = ({
   {
     id: 'category',
     header: Messages.columns.category,
-    accessorFn: (row) => capitalize(row.category),
+    accessorFn: (row) => row.category,
+    size: 150,
+  },
+  {
+    id: 'subcategory',
+    header: Messages.columns.subcategory,
+    accessorFn: (row) => row.subcategory,
     size: 150,
   },
   {

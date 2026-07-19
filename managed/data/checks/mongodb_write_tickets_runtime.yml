@@ -7,7 +7,8 @@ checks:
     description: This check returns warnings if MongoDB is using more than 128 write tickets during runtime.
     family: MONGODB
     #author: Vinicius Grippa
-    advisor: configuration_generic
+    category: Configuration
+    subcategory: Generic
     interval: standard
     queries:
       - type: MONGODB_GETPARAMETER

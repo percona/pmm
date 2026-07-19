@@ -59,7 +59,6 @@ const (
 	// Environment variables that affect checks service; only for testing.
 	envCheckFile         = "PMM_DEV_ADVISOR_CHECKS_FILE"
 	envDisableStartDelay = "PMM_ADVISORS_CHECKS_DISABLE_START_DELAY"
-	builtinAdvisorsPath  = "/usr/local/percona/advisors"
 	builtinChecksPath    = "/usr/local/percona/checks"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
@@ -715,7 +714,6 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType models.ServiceType, checks map[string]check.Check, ri runInfo) []services.CheckResult {
 	var res []services.CheckResult
 	var history []*models.CheckResult
-	categories := s.advisorCategories()
 
 	for _, c := range checks {
 		s.l.Infof("Executing check: %s with interval: %s", c.Name, c.Interval)
@@ -727,30 +725,28 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 			continue
 		}
 
-		category := categories[c.Advisor]
-
 		for _, target := range targets {
 			results, err := s.executeCheck(ctx, target, c)
 			// stamp each (check, target) outcome with its actual completion time
 			checkedAt := models.Now()
 			if err != nil {
 				s.l.Warnf("Failed to execute check %s of family %s on target %s: %+v", c.Name, c.Family, target.AgentID, err)
-				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "error").Inc()
-				history = append(history, newCheckResultRecord(c, target, category, models.CheckResultError, check.Result{Description: err.Error()}, checkedAt, ri))
+				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Subcategory, c.Name, "error").Inc()
+				history = append(history, newCheckResultRecord(c, target, models.CheckResultError, check.Result{Description: err.Error()}, checkedAt, ri))
 				continue
 			}
 
 			res = append(res, results...)
 
-			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "ok").Inc()
+			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Subcategory, c.Name, "ok").Inc()
 
 			if len(results) == 0 {
-				history = append(history, newCheckResultRecord(c, target, category, models.CheckResultOK, check.Result{}, checkedAt, ri))
+				history = append(history, newCheckResultRecord(c, target, models.CheckResultOK, check.Result{}, checkedAt, ri))
 				continue
 			}
 
 			for _, finding := range results {
-				history = append(history, newCheckResultRecord(c, target, category, models.CheckResultFailed, finding.Result, checkedAt, ri))
+				history = append(history, newCheckResultRecord(c, target, models.CheckResultFailed, finding.Result, checkedAt, ri))
 			}
 		}
 	}
@@ -763,23 +759,10 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 	return res
 }
 
-// advisorCategories returns a map of advisor name to its category.
-func (s *Service) advisorCategories() map[string]string {
-	s.am.Lock()
-	defer s.am.Unlock()
-
-	categories := make(map[string]string, len(s.advisors))
-	for _, a := range s.advisors {
-		categories[a.Name] = a.Category
-	}
-	return categories
-}
-
 // newCheckResultRecord builds a history record for a single executed (check, target) outcome.
 func newCheckResultRecord(
 	c check.Check,
 	target services.Target,
-	category string,
 	status models.CheckResultStatus,
 	result check.Result,
 	checkedAt time.Time,
@@ -787,8 +770,8 @@ func newCheckResultRecord(
 ) *models.CheckResult {
 	r := &models.CheckResult{
 		CheckName:      c.Name,
-		AdvisorName:    c.Advisor,
-		Category:       category,
+		Category:       c.Category,
+		Subcategory:    c.Subcategory,
 		Interval:       models.Interval(c.Interval),
 		ServiceID:      target.ServiceID,
 		ServiceName:    target.ServiceName,
@@ -876,7 +859,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 	defer cancel()
 
 	defer func(t time.Time) {
-		s.mChecksExecutionTime.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name).Observe(time.Since(t).Seconds())
+		s.mChecksExecutionTime.WithLabelValues(string(target.ServiceType), c.Subcategory, c.Name).Observe(time.Since(t).Seconds())
 	}(time.Now())
 
 	if c.Version < check.MinSupportedVersion || c.Version > check.MaxSupportedVersion {
@@ -1524,7 +1507,7 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 	for i, result := range results {
 		checkResults[i] = services.CheckResult{
 			CheckName:   aCheck.Name,
-			AdvisorName: aCheck.Advisor,
+			Subcategory: aCheck.Subcategory,
 			Interval:    aCheck.Interval,
 			Target:      target,
 			Result:      result,
@@ -1604,54 +1587,32 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 	return targets, nil
 }
 
-// UpdateAdvisorsList loads advisors from built-in advisors directory or user-defined file, and stores versions supported by this pmm-managed version.
+// UpdateAdvisorsList loads built-in checks (plus an optional user-defined file),
+// groups them into advisors, and stores versions supported by this pmm-managed version.
 func (s *Service) UpdateAdvisorsList(ctx context.Context) {
-	var advisors []check.Advisor
-	var err error
-
 	defer s.refreshChecksInMemoryMetric()
 
-	s.l.Infof("Using builtin test checks file: %s", builtinAdvisorsPath)
-	advisors, err = s.loadBuiltinAdvisors(ctx)
+	checks, err := s.loadBuiltinChecks(ctx)
 	if err != nil {
-		s.l.Errorf("Failed to load built-in advisors: %s.", err)
+		s.l.Errorf("Failed to load built-in checks: %s.", err)
 		return // keep previously loaded advisors
 	}
-	// if custom check file is provided, load it and append to the list of advisors
+	// if custom check file is provided, load it and append to the list of checks
 	if s.customCheckFile != "" {
 		s.l.Infof("Using local test checks file: %s.", s.customCheckFile)
-		checks, err := s.loadChecksFromFiles([]string{s.customCheckFile})
+		devChecks, err := s.loadChecksFromFiles([]string{s.customCheckFile})
 		if err != nil {
 			s.l.Errorf("Failed to load local checks file: %s.", err)
 			return // keep previously loaded advisors
 		}
-
-		advisors = append(advisors, check.Advisor{
-			Version:     2,
-			Name:        "dev",
-			Summary:     "Dev Advisor",
-			Description: "Advisor used for developing checks",
-			Category:    "development",
-			Checks:      checks,
-		})
+		checks = append(checks, devChecks...)
 	}
 
-	s.updateAdvisors(s.filterSupportedChecks(advisors))
+	s.updateAdvisors(s.filterSupportedChecks(groupChecksIntoAdvisors(checks)))
 }
 
-// loadBuiltinAdvisors loads builtin advisors.
-func (s *Service) loadBuiltinAdvisors(_ context.Context) ([]check.Advisor, error) {
-	s.l.Infof("Loading advisors from dir=%s", builtinAdvisorsPath)
-	advisorFiles, err := filepath.Glob(filepath.Join(builtinAdvisorsPath, "*.yml"))
-	if err != nil {
-		return nil, fmt.Errorf("failed to find advisor files: %w", err)
-	}
-
-	advisors, err := s.loadAdvisorsFromFiles(advisorFiles)
-	if err != nil {
-		return nil, err
-	}
-
+// loadBuiltinChecks loads builtin checks from the checks directory.
+func (s *Service) loadBuiltinChecks(_ context.Context) ([]check.Check, error) {
 	s.l.Infof("Loading checks from dir=%s", builtinChecksPath)
 
 	checkFiles, err := filepath.Glob(filepath.Join(builtinChecksPath, "*.yml"))
@@ -1659,25 +1620,26 @@ func (s *Service) loadBuiltinAdvisors(_ context.Context) ([]check.Advisor, error
 		return nil, fmt.Errorf("failed to find check files: %w", err)
 	}
 
-	checks, err := s.loadChecksFromFiles(checkFiles)
-	if err != nil {
-		return nil, err
-	}
+	return s.loadChecksFromFiles(checkFiles)
+}
 
-	// Link checks to advisors
+// groupChecksIntoAdvisors groups checks into advisors by their (Category, Subcategory)
+// pair, preserving first-seen order.
+func groupChecksIntoAdvisors(checks []check.Check) []check.Advisor {
+	index := make(map[string]int, len(checks))
+	advisors := make([]check.Advisor, 0, len(checks))
 	for _, c := range checks {
-		a, ok := advisors[c.Advisor]
+		key := c.Category + "\x00" + c.Subcategory
+		i, ok := index[key]
 		if !ok {
-			return nil, fmt.Errorf("check '%s' refers to an unknown advisor '%s'", c.Name, c.Advisor)
+			i = len(advisors)
+			index[key] = i
+			advisors = append(advisors, check.Advisor{Category: c.Category, Subcategory: c.Subcategory})
 		}
-		a.Checks = append(a.Checks, c)
+		advisors[i].Checks = append(advisors[i].Checks, c)
 	}
 
-	advisorsSlice := make([]check.Advisor, 0, len(advisors))
-	for _, a := range advisors {
-		advisorsSlice = append(advisorsSlice, *a)
-	}
-	return advisorsSlice, nil
+	return advisors
 }
 
 // loadChecksFromFiles loads Advisor checks from a list of given files.
@@ -1715,43 +1677,6 @@ func (s *Service) loadChecksFromFiles(files []string) ([]check.Check, error) {
 }
 
 // loadAdvisorsFromFiles loads Advisors from a list of given files.
-func (s *Service) loadAdvisorsFromFiles(files []string) (map[string]*check.Advisor, error) {
-	res := make(map[string]*check.Advisor, len(files))
-	for _, file := range files {
-		s.l.Debugf("Loading advisor file=%s", file)
-
-		b, err := os.ReadFile(file) //nolint:gosec
-		if err != nil {
-			return nil, fmt.Errorf("failed to read advisor file %s: %w", file, err)
-		}
-		advisors, err := check.ParseAdvisors(bytes.NewReader(b), &check.ParseParams{
-			DisallowUnknownFields: true,
-			DisallowInvalidChecks: true,
-		})
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse advisor from file %s: %w", file, err)
-		}
-
-		if len(advisors) != 1 {
-			return nil, fmt.Errorf("expected exactly one advisor in %s", file)
-		}
-		a := advisors[0]
-
-		_, fileName := filepath.Split(file)
-		if a.Name != strings.TrimSuffix(fileName, ".yml") {
-			return nil, fmt.Errorf("advisor name does not match file name %s", file)
-		}
-
-		if _, ok := res[a.Name]; ok {
-			return nil, fmt.Errorf("advisor name collision detected: %s", a.Name)
-		}
-
-		res[a.Name] = &a
-	}
-
-	return res, nil
-}
-
 // filterSupportedChecks returns supported advisor checks and prints warning log messages about unsupported.
 func (s *Service) filterSupportedChecks(advisors []check.Advisor) []check.Advisor {
 	res := make([]check.Advisor, 0, len(advisors))
@@ -1872,7 +1797,7 @@ func (s *Service) refreshChecksInMemoryMetric() {
 
 func (s *Service) incChecksInMemoryMetric(serviceType models.ServiceType, checks map[string]check.Check) {
 	for _, c := range checks {
-		s.mChecksAvailable.WithLabelValues(string(serviceType), c.Advisor, c.Name).Inc()
+		s.mChecksAvailable.WithLabelValues(string(serviceType), c.Subcategory, c.Name).Inc()
 	}
 }
 

@@ -293,7 +293,7 @@ func TestListCheckResultsHistory(t *testing.T) {
 		record := &models.CheckResult{
 			ID:          "id1",
 			CheckName:   "test_check",
-			AdvisorName: "test_advisor",
+			Subcategory: "test_advisor",
 			Category:    "configuration",
 			Interval:    models.Standard,
 			ServiceID:   "test_svc",
@@ -328,7 +328,7 @@ func TestListCheckResultsHistory(t *testing.T) {
 				{
 					Id:          "id1",
 					CheckName:   "test_check",
-					AdvisorName: "test_advisor",
+					Subcategory: "test_advisor",
 					Category:    "configuration",
 					Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
 					ServiceId:   "test_svc",
@@ -580,45 +580,4 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, &advisorsv1.ChangeAdvisorChecksResponse{}, resp)
 	})
-}
-
-func TestCreateComment(t *testing.T) {
-	t.Parallel()
-
-	testCases := []struct {
-		Name    string
-		Comment string
-		Checks  []check.Check
-	}{
-		{
-			Name:    "all technologies",
-			Comment: "All technologies supported",
-			Checks: []check.Check{
-				{Version: 2, Name: "a", Family: check.MySQL},
-				{Version: 2, Name: "b", Family: check.PostgreSQL},
-				{Version: 2, Name: "c", Family: check.MongoDB},
-			},
-		},
-		{
-			Name:    "partial support",
-			Comment: "Partial support (MySQL, MongoDB)",
-			Checks: []check.Check{
-				{Version: 2, Name: "a", Family: check.MySQL},
-				{Version: 2, Name: "b", Family: check.MongoDB},
-			},
-		},
-		{
-			Name:    "partial support",
-			Comment: "Partial support (MySQL)",
-			Checks: []check.Check{
-				{Version: 2, Name: "a", Family: check.MySQL},
-			},
-		},
-	}
-	for _, tc := range testCases {
-		t.Run(tc.Name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tc.Comment, createComment(tc.Checks))
-		})
-	}
 }

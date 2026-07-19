@@ -6,7 +6,8 @@ checks:
     description: This check returns warnings if MongoDB localhost bypass is enabled.
     family: MONGODB
     #author: Divyanshu Soni
-    advisor: security_authentication
+    category: Security
+    subcategory: Authentication
     interval: standard
     queries:
       - type: MONGODB_GETCMDLINEOPTS

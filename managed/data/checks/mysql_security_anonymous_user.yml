@@ -5,7 +5,8 @@ checks:
     summary: Anonymous user (you must remove any anonymous user)
     description: Anonymous user should never be present, that is a security safe best practices.
     interval: standard
-    advisor: security_authentication
+    category: Security
+    subcategory: Authentication
     #author: The Grinch
     family: MYSQL
     queries:

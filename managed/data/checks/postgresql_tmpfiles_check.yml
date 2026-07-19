@@ -5,7 +5,8 @@ checks:
     summary: PostgreSQL temporary file statistics
     description: This check reports the number of temporary files and number of bytes written to disk since last stats reset.
     #author: Jorge Torralba
-    advisor: performance_generic
+    category: Performance
+    subcategory: Generic
     interval: standard
     family: POSTGRESQL
     queries:

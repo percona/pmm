@@ -3,7 +3,8 @@ checks:
   - version: 2
     name: mongodb_clickhouse
     summary: Sample Clickhouse advisor that checks if QAN is on a MongoDB instance
-    advisor: example
+    category: Security
+    subcategory: Example
     description: Sample Clickhouse advisor that checks if QAN is on a MongoDB instance
     interval: standard
     family: MONGODB

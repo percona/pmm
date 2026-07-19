@@ -5,7 +5,8 @@ checks:
     summary: MongoDB CVE Version
     description: This check returns errors if MongoDB or Percona Server for MongoDB version is less than the latest one with CVE fixes.
     family: MONGODB
-    advisor: security_cve
+    category: Security
+    subcategory: Vulnerabilities
     interval: standard
     queries:
       - type: MONGODB_BUILDINFO

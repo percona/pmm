@@ -5,7 +5,8 @@ checks:
     summary: MySQL Version
     description: This check returns warnings if MySQL, Percona Server for MySQL, or MariaDB version is not the latest one.
     family: MYSQL
-    advisor: configuration_version
+    category: Configuration
+    subcategory: Version
     interval: standard
     queries:
       - type: MYSQL_SHOW

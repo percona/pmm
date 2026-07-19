@@ -5,7 +5,8 @@ checks:
     summary: User(s) has/have Super privileges with remote and too open access
     description: User has Super privileges but is not connecting from local or the host is not fully restricted (ie 192.168.%).
     interval: standard
-    advisor: security_authentication
+    category: Security
+    subcategory: Authentication
     #author: The Grinch
     family: MYSQL
     queries:

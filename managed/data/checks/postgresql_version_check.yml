@@ -5,7 +5,8 @@ checks:
     summary: Check for newer version of PostgreSQL
     description: Checks to see if the currently installed version is outdated for it's release level
     #author: Jorge Torralba
-    advisor: configuration_version
+    category: Configuration
+    subcategory: Version
     interval: standard
     family: POSTGRESQL
     queries:

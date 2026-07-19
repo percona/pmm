@@ -120,7 +120,7 @@ func (r *registry) Collect(ch chan<- prom.Metric) {
 	r.mInsights.Reset()
 	res := r.getCheckResults("")
 	for _, re := range res {
-		r.mInsights.WithLabelValues(string(re.Target.ServiceType), re.Target.ServiceName, re.AdvisorName, re.CheckName, re.Result.Severity.String()).Inc()
+		r.mInsights.WithLabelValues(string(re.Target.ServiceType), re.Target.ServiceName, re.Subcategory, re.CheckName, re.Result.Severity.String()).Inc()
 	}
 	r.mInsights.Collect(ch)
 }

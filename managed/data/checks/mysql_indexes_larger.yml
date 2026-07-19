@@ -5,7 +5,8 @@ checks:
     summary: Are there tables with index sizes larger than data?
     description: Check all the tables to see if any have indexes larger than data.  This indicates sub-optimial schema and should be reviewed.
     interval: standard
-    advisor: query_schema_design
+    category: Query
+    subcategory: Schema
     family: MYSQL
     queries:
       - type: MYSQL_SELECT

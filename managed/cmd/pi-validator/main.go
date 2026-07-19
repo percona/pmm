@@ -33,8 +33,7 @@ import (
 )
 
 type advisorsCommand struct {
-	AdvisorsDir string `name:"advisors.dir" help:"Advisors directory" default:"data/advisors"`
-	ChecksDir   string `name:"checks.dir" help:"Checks directory" default:"data/checks"`
+	ChecksDir string `name:"checks.dir" help:"Checks directory" default:"data/checks"`
 }
 
 type templatesCommand struct {
@@ -42,7 +41,8 @@ type templatesCommand struct {
 }
 
 func (a *advisorsCommand) Run() error {
-	return validateAdvisorsAndChecks(a.AdvisorsDir, a.ChecksDir)
+	_, err := loadAndValidateChecks(a.ChecksDir)
+	return err
 }
 
 func (t *templatesCommand) Run() error {
@@ -58,95 +58,6 @@ func main() {
 	kongCtx := kong.Parse(&cli)
 	err := kongCtx.Run()
 	kongCtx.FatalIfErrorf(err)
-}
-
-func validateAdvisorsAndChecks(advisorsDir, checksDir string) error {
-	advisors, err := loadAndValidateAdvisors(advisorsDir)
-	if err != nil {
-		return err
-	}
-	checks, err := loadAndValidateChecks(checksDir)
-	if err != nil {
-		return err
-	}
-
-	for _, c := range checks {
-		a, ok := advisors[c.Advisor]
-		if !ok {
-			log.Fatalf("check '%s' refers unknown advisor '%s'", c.Name, c.Advisor)
-		}
-
-		a.Checks = append(a.Checks, c)
-	}
-	return nil
-}
-
-func loadAndValidateAdvisors(dir string) (map[string]*check.Advisor, error) {
-	patterns := []string{
-		filepath.Join(dir, "*.yml"),
-		filepath.Join(dir, "*.yml.example"),
-	}
-
-	var matches []string
-
-	for _, pattern := range patterns {
-		files, err := filepath.Glob(pattern)
-		if err != nil {
-			log.Printf("failed to find advisor files matching '%s': %+v", pattern, err)
-		}
-		matches = append(matches, files...)
-	}
-	if len(matches) == 0 {
-		return nil, fmt.Errorf("no advisor files found in %s", dir)
-	}
-
-	res := make(map[string]*check.Advisor, len(matches))
-	for _, file := range matches {
-		log.Printf("Loading advisor file: %s", file)
-		_, fileName := filepath.Split(file)
-
-		var validationErrors []error
-		b, err := os.ReadFile(file) //nolint:gosec
-		if err != nil {
-			validationErrors = append(validationErrors, fmt.Errorf("failed to read check file %s: %w", fileName, err))
-		}
-		body := strings.TrimSpace(string(b))
-		if !strings.HasPrefix(body, "---") {
-			validationErrors = append(validationErrors, fmt.Errorf("file %s should start with '---' separator", fileName))
-		}
-
-		if len(validationErrors) != 0 {
-			return nil, errors.Join(validationErrors...)
-		}
-		advisors, err := check.ParseAdvisors(strings.NewReader(body), &check.ParseParams{
-			DisallowUnknownFields: true,
-			DisallowInvalidChecks: true,
-		})
-		if err != nil {
-			validationErrors = append(validationErrors, fmt.Errorf("failed to parse advisors file %s: %w", fileName, err))
-		}
-
-		if len(advisors) != 1 {
-			validationErrors = append(validationErrors, fmt.Errorf("expected exactly one advisor in %s", fileName))
-		}
-		a := advisors[0]
-
-		if a.Name != strings.TrimSuffix(strings.TrimSuffix(fileName, ".example"), ".yml") {
-			validationErrors = append(validationErrors, fmt.Errorf("advisor name does not match file name %s", file))
-		}
-
-		if _, ok := res[a.Name]; ok {
-			validationErrors = append(validationErrors, fmt.Errorf("advisor name collision detected for: %s", a.Name))
-		}
-
-		res[a.Name] = &a
-
-		if len(validationErrors) != 0 {
-			return nil, errors.Join(validationErrors...)
-		}
-	}
-
-	return res, nil
 }
 
 func loadAndValidateChecks(dir string) (map[string]check.Check, error) {

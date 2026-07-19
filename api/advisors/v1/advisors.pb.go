@@ -660,18 +660,28 @@ func (x *AdvisorCheck) GetFamily() AdvisorCheckFamily {
 
 type Advisor struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Machine-readable name (ID) that is used in expression.
+	// Deprecated: no longer populated; an advisor is identified by its category/subcategory pair.
+	//
+	// Deprecated: Marked as deprecated in advisors/v1/advisors.proto.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Long human-readable description.
+	// Deprecated: advisor descriptions were removed.
+	//
+	// Deprecated: Marked as deprecated in advisors/v1/advisors.proto.
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	// Short human-readable summary.
+	// Deprecated: use subcategory instead.
+	//
+	// Deprecated: Marked as deprecated in advisors/v1/advisors.proto.
 	Summary string `protobuf:"bytes,3,opt,name=summary,proto3" json:"summary,omitempty"`
-	// Comment.
+	// Deprecated: no longer populated.
+	//
+	// Deprecated: Marked as deprecated in advisors/v1/advisors.proto.
 	Comment string `protobuf:"bytes,4,opt,name=comment,proto3" json:"comment,omitempty"`
-	// Category.
+	// Category (top-level grouping).
 	Category string `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
+	// Subcategory (second-level grouping within a category).
+	Subcategory string `protobuf:"bytes,6,opt,name=subcategory,proto3" json:"subcategory,omitempty"`
 	// Advisor checks.
-	Checks        []*AdvisorCheck `protobuf:"bytes,6,rep,name=checks,proto3" json:"checks,omitempty"`
+	Checks        []*AdvisorCheck `protobuf:"bytes,7,rep,name=checks,proto3" json:"checks,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -706,6 +716,7 @@ func (*Advisor) Descriptor() ([]byte, []int) {
 	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{4}
 }
 
+// Deprecated: Marked as deprecated in advisors/v1/advisors.proto.
 func (x *Advisor) GetName() string {
 	if x != nil {
 		return x.Name
@@ -713,6 +724,7 @@ func (x *Advisor) GetName() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in advisors/v1/advisors.proto.
 func (x *Advisor) GetDescription() string {
 	if x != nil {
 		return x.Description
@@ -720,6 +732,7 @@ func (x *Advisor) GetDescription() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in advisors/v1/advisors.proto.
 func (x *Advisor) GetSummary() string {
 	if x != nil {
 		return x.Summary
@@ -727,6 +740,7 @@ func (x *Advisor) GetSummary() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in advisors/v1/advisors.proto.
 func (x *Advisor) GetComment() string {
 	if x != nil {
 		return x.Comment
@@ -737,6 +751,13 @@ func (x *Advisor) GetComment() string {
 func (x *Advisor) GetCategory() string {
 	if x != nil {
 		return x.Category
+	}
+	return ""
+}
+
+func (x *Advisor) GetSubcategory() string {
+	if x != nil {
+		return x.Subcategory
 	}
 	return ""
 }
@@ -1446,9 +1467,9 @@ type CheckResultHistoryItem struct {
 	BatchId string `protobuf:"bytes,2,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
 	// Name of the check that ran.
 	CheckName string `protobuf:"bytes,3,opt,name=check_name,json=checkName,proto3" json:"check_name,omitempty"`
-	// Name of the advisor the check belongs to.
-	AdvisorName string `protobuf:"bytes,4,opt,name=advisor_name,json=advisorName,proto3" json:"advisor_name,omitempty"`
-	// Category of the advisor the check belongs to.
+	// Subcategory the check belongs to (second-level grouping within a category).
+	Subcategory string `protobuf:"bytes,4,opt,name=subcategory,proto3" json:"subcategory,omitempty"`
+	// Category the check belongs to (top-level grouping).
 	Category string `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
 	// Check execution interval.
 	Interval AdvisorCheckInterval `protobuf:"varint,6,opt,name=interval,proto3,enum=advisors.v1.AdvisorCheckInterval" json:"interval,omitempty"`
@@ -1543,9 +1564,9 @@ func (x *CheckResultHistoryItem) GetCheckName() string {
 	return ""
 }
 
-func (x *CheckResultHistoryItem) GetAdvisorName() string {
+func (x *CheckResultHistoryItem) GetSubcategory() string {
 	if x != nil {
-		return x.AdvisorName
+		return x.Subcategory
 	}
 	return ""
 }
@@ -2149,14 +2170,15 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x18\n" +
 	"\asummary\x18\x04 \x01(\tR\asummary\x12=\n" +
 	"\binterval\x18\x05 \x01(\x0e2!.advisors.v1.AdvisorCheckIntervalR\binterval\x127\n" +
-	"\x06family\x18\x06 \x01(\x0e2\x1f.advisors.v1.AdvisorCheckFamilyR\x06family\"\xc2\x01\n" +
-	"\aAdvisor\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
-	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x18\n" +
-	"\asummary\x18\x03 \x01(\tR\asummary\x12\x18\n" +
-	"\acomment\x18\x04 \x01(\tR\acomment\x12\x1a\n" +
-	"\bcategory\x18\x05 \x01(\tR\bcategory\x121\n" +
-	"\x06checks\x18\x06 \x03(\v2\x19.advisors.v1.AdvisorCheckR\x06checks\"\x95\x01\n" +
+	"\x06family\x18\x06 \x01(\x0e2\x1f.advisors.v1.AdvisorCheckFamilyR\x06family\"\xf4\x01\n" +
+	"\aAdvisor\x12\x16\n" +
+	"\x04name\x18\x01 \x01(\tB\x02\x18\x01R\x04name\x12$\n" +
+	"\vdescription\x18\x02 \x01(\tB\x02\x18\x01R\vdescription\x12\x1c\n" +
+	"\asummary\x18\x03 \x01(\tB\x02\x18\x01R\asummary\x12\x1c\n" +
+	"\acomment\x18\x04 \x01(\tB\x02\x18\x01R\acomment\x12\x1a\n" +
+	"\bcategory\x18\x05 \x01(\tR\bcategory\x12 \n" +
+	"\vsubcategory\x18\x06 \x01(\tR\vsubcategory\x121\n" +
+	"\x06checks\x18\a \x03(\v2\x19.advisors.v1.AdvisorCheckR\x06checks\"\x95\x01\n" +
 	"\x18ChangeAdvisorCheckParams\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
 	"\x06enable\x18\x02 \x01(\bH\x00R\x06enable\x88\x01\x01\x12=\n" +
@@ -2196,13 +2218,13 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"totalItems\x12\x1f\n" +
 	"\vtotal_pages\x18\x02 \x01(\x05R\n" +
 	"totalPages\x122\n" +
-	"\aresults\x18\x03 \x03(\v2\x18.advisors.v1.CheckResultR\aresults\"\xef\a\n" +
+	"\aresults\x18\x03 \x03(\v2\x18.advisors.v1.CheckResultR\aresults\"\xee\a\n" +
 	"\x16CheckResultHistoryItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\bbatch_id\x18\x02 \x01(\tR\abatchId\x12\x1d\n" +
 	"\n" +
-	"check_name\x18\x03 \x01(\tR\tcheckName\x12!\n" +
-	"\fadvisor_name\x18\x04 \x01(\tR\vadvisorName\x12\x1a\n" +
+	"check_name\x18\x03 \x01(\tR\tcheckName\x12 \n" +
+	"\vsubcategory\x18\x04 \x01(\tR\vsubcategory\x12\x1a\n" +
 	"\bcategory\x18\x05 \x01(\tR\bcategory\x12=\n" +
 	"\binterval\x18\x06 \x01(\x0e2!.advisors.v1.AdvisorCheckIntervalR\binterval\x12\x1d\n" +
 	"\n" +

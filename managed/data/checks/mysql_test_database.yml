@@ -5,7 +5,8 @@ checks:
     summary: MySQL test Database
     description: This check returns a notice if there are databases with name 'test' or 'test_%'.
     family: MYSQL
-    advisor: configuration_generic
+    category: Configuration
+    subcategory: Generic
     interval: standard
     queries:
       - type: MYSQL_SHOW

@@ -5,7 +5,8 @@ checks:
     summary: General Log is enabled
     description: Check if the general log is enabled.
     interval: standard
-    advisor: configuration_generic
+    category: Configuration
+    subcategory: Generic
     #subcategory: generic
     #author: The Grinch
     family: MYSQL

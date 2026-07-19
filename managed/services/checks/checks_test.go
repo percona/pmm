@@ -66,7 +66,7 @@ func TestLoadBuiltinAdvisors(t *testing.T) {
 		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 		defer cancel()
 
-		dChecks, err := s.loadBuiltinAdvisors(ctx)
+		dChecks, err := s.loadBuiltinChecks(ctx)
 		require.NoError(t, err)
 		assert.NotEmpty(t, dChecks)
 
@@ -86,7 +86,7 @@ func TestLoadBuiltinAdvisors(t *testing.T) {
 		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 		defer cancel()
 
-		dChecks, err := s.loadBuiltinAdvisors(ctx)
+		dChecks, err := s.loadBuiltinChecks(ctx)
 		require.NoError(t, err)
 		assert.NotEmpty(t, dChecks)
 
@@ -114,12 +114,11 @@ func TestUpdateAdvisorsList(t *testing.T) {
 		require.NoError(t, err)
 		require.GreaterOrEqual(t, len(advisors), 1)
 
-		// custom checks are loaded last, so we check the last advisor in the list.
+		// the custom check carries a unique (category, subcategory), so it forms
+		// its own advisor group loaded last.
 		advisor := advisors[len(advisors)-1]
-		require.Equal(t, "dev", advisor.Name)
-		require.Equal(t, "Dev Advisor", advisor.Summary)
-		require.Equal(t, "Advisor used for developing checks", advisor.Description)
-		require.Equal(t, "development", advisor.Category)
+		require.Equal(t, "Development", advisor.Category)
+		require.Equal(t, "Dev", advisor.Subcategory)
 		require.Len(t, advisor.Checks, 1)
 
 		checkNames := make([]string, 0, len(advisor.Checks))
@@ -359,28 +358,22 @@ func TestFilterChecks(t *testing.T) {
 
 	valid := []check.Advisor{
 		{
-			Name:        "mysql_advisor",
-			Summary:     "MySQL advisor",
-			Description: "Test mySQL advisor",
-			Category:    "test",
+			Category:    "Test",
+			Subcategory: "MySQL",
 			Checks: []check.Check{
 				{Name: "MySQL check V2", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}},
 			},
 		},
 		{
-			Name:        "postgresql_advisor",
-			Summary:     "PostgreSQL advisor",
-			Description: "Test postgreSQL advisor",
-			Category:    "test",
+			Category:    "Test",
+			Subcategory: "PostgreSQL",
 			Checks: []check.Check{
 				{Name: "PostgreSQL check V2", Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}},
 			},
 		},
 		{
-			Name:        "mongodb_advisor",
-			Summary:     "MongoDB advisor",
-			Description: "Test mongoDB advisor",
-			Category:    "test",
+			Category:    "Test",
+			Subcategory: "MongoDB",
 			Checks: []check.Check{
 				{Name: "MongoDB check V2", Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}},
 			},
@@ -389,20 +382,16 @@ func TestFilterChecks(t *testing.T) {
 
 	invalid := []check.Advisor{
 		{
-			Name:        "completely_invalid_advisor",
-			Summary:     "Completely invalid advisor",
-			Description: "Test advisor that contains only unsupported checks",
-			Category:    "test",
+			Category:    "Test",
+			Subcategory: "CompletelyInvalid",
 			Checks: []check.Check{
 				{Name: "unsupported version", Version: check.MaxSupportedVersion + 1, Queries: []check.Query{{Type: check.MySQLShow}}},
 				{Name: "unsupported type", Version: 2, Queries: []check.Query{{Type: check.Type("RedisInfo")}}},
 			},
 		},
 		{
-			Name:        "partially_invalid_advisor",
-			Summary:     "Partially invalid advisor",
-			Description: "Test advisor that contains some unsupported checks",
-			Category:    "test",
+			Category:    "Test",
+			Subcategory: "PartiallyInvalid",
 			Checks: []check.Check{
 				{Name: "MySQLShow", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}}},
 				{Name: "unsupported type", Version: 2, Queries: []check.Query{{Type: check.Type("RedisInfo")}}},

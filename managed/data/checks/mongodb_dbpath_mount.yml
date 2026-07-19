@@ -6,7 +6,8 @@ checks:
     description: This check returns a warning if dbpath does not have a dedicated mount point.
     interval: rare
     family: MONGODB
-    advisor: configuration_resources
+    category: Configuration
+    subcategory: Resources
     #author: Parag Bhayani
     queries:
       - type: MONGODB_GETCMDLINEOPTS

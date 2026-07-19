@@ -6,7 +6,8 @@ checks:
     description: This check returns errors if your current PSMDB or MongoDB version is not supported.
     interval: standard
     family: MONGODB
-    advisor: configuration_version
+    category: Configuration
+    subcategory: Version
     #category: configuration
     #subcategory: version configuration
     #author: Parag Bhayani

@@ -6,7 +6,8 @@ checks:
     description: This check verifies if the archiver has failed.
     family: POSTGRESQL
     #author: David Gonzales
-    advisor: configuration_generic
+    category: Configuration
+    subcategory: Generic
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT

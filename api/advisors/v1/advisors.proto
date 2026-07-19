@@ -112,18 +112,20 @@ message AdvisorCheck {
 }
 
 message Advisor {
-  // Machine-readable name (ID) that is used in expression.
-  string name = 1;
-  // Long human-readable description.
-  string description = 2;
-  // Short human-readable summary.
-  string summary = 3;
-  // Comment.
-  string comment = 4;
-  // Category.
+  // Deprecated: no longer populated; an advisor is identified by its category/subcategory pair.
+  string name = 1 [deprecated = true];
+  // Deprecated: advisor descriptions were removed.
+  string description = 2 [deprecated = true];
+  // Deprecated: use subcategory instead.
+  string summary = 3 [deprecated = true];
+  // Deprecated: no longer populated.
+  string comment = 4 [deprecated = true];
+  // Category (top-level grouping).
   string category = 5;
+  // Subcategory (second-level grouping within a category).
+  string subcategory = 6;
   // Advisor checks.
-  repeated AdvisorCheck checks = 6;
+  repeated AdvisorCheck checks = 7;
 }
 
 // ChangeAdvisorCheckParams specifies a single check parameters.
@@ -205,9 +207,9 @@ message CheckResultHistoryItem {
   string batch_id = 2;
   // Name of the check that ran.
   string check_name = 3;
-  // Name of the advisor the check belongs to.
-  string advisor_name = 4;
-  // Category of the advisor the check belongs to.
+  // Subcategory the check belongs to (second-level grouping within a category).
+  string subcategory = 4;
+  // Category the check belongs to (top-level grouping).
   string category = 5;
   // Check execution interval.
   AdvisorCheckInterval interval = 6;

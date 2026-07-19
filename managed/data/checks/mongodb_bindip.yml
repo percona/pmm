@@ -6,7 +6,8 @@ checks:
     description: This check returns warnings if the MongoDB network binding is not set as recommended.
     family: MONGODB
     #author: Divyanshu  Soni
-    advisor: security_connection
+    category: Security
+    subcategory: Connection
     interval: standard
     queries:
       - type: MONGODB_GETCMDLINEOPTS

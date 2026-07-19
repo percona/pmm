@@ -70,8 +70,8 @@ const (
 type CheckResult struct {
 	ID             string            `reform:"id,pk"`
 	CheckName      string            `reform:"check_name"`
-	AdvisorName    string            `reform:"advisor_name"`
 	Category       string            `reform:"category"`
+	Subcategory    string            `reform:"subcategory"`
 	Interval       Interval          `reform:"interval"`
 	ServiceID      string            `reform:"service_id"`
 	ServiceName    string            `reform:"service_name"`

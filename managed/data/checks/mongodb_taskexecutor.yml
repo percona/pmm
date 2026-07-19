@@ -7,7 +7,8 @@ checks:
     interval: standard
     family: MONGODB
     #author: Divyanshu Soni/Parag Bhayani
-    advisor: configuration_resources
+    category: Configuration
+    subcategory: Resources
     queries:
       - type: MONGODB_GETPARAMETER
       - type: METRICS_INSTANT

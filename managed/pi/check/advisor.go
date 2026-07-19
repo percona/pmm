@@ -15,91 +15,11 @@
 
 package check
 
-import (
-	"errors"
-	"fmt"
-	"io"
-
-	"gopkg.in/yaml.v3"
-)
-
-// Advisor represents a group of checks with a common idea.
-// Checks is populated at load time by linking checks via Check.Advisor;
-// it is not authored in advisor files.
+// Advisor is an in-memory grouping of checks that share the same
+// (Category, Subcategory) pair. It is synthesized at load time from the checks
+// themselves and is not authored anywhere.
 type Advisor struct {
-	Version     uint32  `yaml:"version"`
-	Name        string  `yaml:"name"`
-	Summary     string  `yaml:"summary"`
-	Description string  `yaml:"description"`
-	Category    string  `yaml:"category"`
-	Checks      []Check `yaml:"-"`
-}
-
-// ParseAdvisors returns a slice of validated advisors parsed from YAML passed via a reader.
-// It can handle multi-document YAMLs: parsing result will be a single slice
-// that contains advisors from every parsed document.
-func ParseAdvisors(reader io.Reader, params *ParseParams) ([]Advisor, error) {
-	if params == nil {
-		params = &ParseParams{}
-	}
-
-	d := yaml.NewDecoder(reader)
-	d.KnownFields(params.DisallowUnknownFields)
-
-	type advisors struct {
-		Advisors []Advisor `yaml:"advisors"`
-	}
-
-	var res []Advisor
-
-	for {
-		var c advisors
-
-		err := d.Decode(&c)
-		if err != nil {
-			if errors.Is(err, io.EOF) {
-				return res, nil
-			}
-
-			return nil, fmt.Errorf("failed to parse advisors: %w", err)
-		}
-
-		for _, advisor := range c.Advisors {
-			err := advisor.Validate()
-			if err != nil {
-				if params.DisallowInvalidChecks {
-					return nil, err
-				}
-
-				continue // skip invalid advisors
-			}
-
-			res = append(res, advisor)
-		}
-	}
-}
-
-// Validate validates an advisor.
-func (a *Advisor) Validate() error {
-	if a.Version != 1 {
-		return fmt.Errorf("unexpected version %d", a.Version)
-	}
-
-	if !nameRE.MatchString(a.Name) {
-		return errors.New("invalid advisor name")
-	}
-
-	if a.Summary == "" {
-		return errors.New("summary is empty")
-	}
-
-	if a.Description == "" {
-		return errors.New("description is empty")
-	}
-
-	if a.Category == "" {
-		return errors.New("category is empty")
-	}
-
-	return nil
+	Category    string
+	Subcategory string
+	Checks      []Check
 }

@@ -5,7 +5,8 @@ checks:
     summary: MongoDB authentication
     description: Warns if MongoDB authentication is disabled.
     family: MONGODB
-    advisor: security_authentication
+    category: Security
+    subcategory: Authentication
     interval: standard
     queries:
       - type: MONGODB_GETCMDLINEOPTS

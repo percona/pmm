@@ -6,7 +6,8 @@ checks:
     description: Checks if a replica is safely logging replicated transactions.
     interval: standard
     family: MYSQL
-    advisor: configuration_replication
+    category: Configuration
+    subcategory: Replication
     #author: tibi/the grinch
     queries:
       - type: MYSQL_SHOW

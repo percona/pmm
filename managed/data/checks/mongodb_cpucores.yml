@@ -6,7 +6,8 @@ checks:
     description: This check returns warnings if the number of CPU cores does not meet the minimum recommended requirements according to best practices.
     family: MONGODB
     #author: Parag Bhayani
-    advisor: configuration_resources
+    category: Configuration
+    subcategory: Resources
     interval: standard
     queries:
       - type: MONGODB_GETDIAGNOSTICDATA

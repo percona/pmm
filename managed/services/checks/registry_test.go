@@ -246,7 +246,7 @@ func TestRegistryInsightsMetric(t *testing.T) {
 	r.set([]services.CheckResult{
 		{
 			CheckName:   "mysql_version",
-			AdvisorName: "adv",
+			Subcategory: "adv",
 			Interval:    check.Standard,
 			Target: services.Target{
 				ServiceID:   "svc-id",

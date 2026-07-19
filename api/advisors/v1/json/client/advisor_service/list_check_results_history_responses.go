@@ -544,10 +544,10 @@ type ListCheckResultsHistoryOKBodyResultsItems0 struct {
 	// Name of the check that ran.
 	CheckName string `json:"check_name,omitempty"`
 
-	// Name of the advisor the check belongs to.
-	AdvisorName string `json:"advisor_name,omitempty"`
+	// Subcategory the check belongs to (second-level grouping within a category).
+	Subcategory string `json:"subcategory,omitempty"`
 
-	// Category of the advisor the check belongs to.
+	// Category the check belongs to (top-level grouping).
 	Category string `json:"category,omitempty"`
 
 	// AdvisorCheckInterval represents possible execution interval values for checks.

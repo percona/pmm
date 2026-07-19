@@ -5,7 +5,8 @@ checks:
     summary: User(s) not using secure SSL protocol to connect
     description: User(s) not using secure SSL protocol to connect.
     interval: standard
-    advisor: security_authentication
+    category: Security
+    subcategory: Authentication
     #author: The Grinch
     family: MYSQL
     queries:

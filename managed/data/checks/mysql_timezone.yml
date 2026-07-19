@@ -7,7 +7,8 @@ checks:
     interval: standard
     family: MYSQL
     #author:tibi/the grinch
-    advisor: configuration_generic
+    category: Configuration
+    subcategory: Generic
     queries:
       - type: MYSQL_SELECT
         query: count(*) as timezonecount from mysql.time_zone_name

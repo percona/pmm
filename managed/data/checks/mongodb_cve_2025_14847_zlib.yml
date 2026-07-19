@@ -9,7 +9,8 @@ checks:
       EOL (no fix): 3.6.x, 4.0.x, 4.2.x
     interval: frequent
     family: MONGODB
-    advisor: security_cve
+    category: Security
+    subcategory: Vulnerabilities
     queries:
       - type: MONGODB_BUILDINFO
       - type: METRICS_INSTANT

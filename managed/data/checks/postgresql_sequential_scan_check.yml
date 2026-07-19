@@ -6,7 +6,8 @@ checks:
     description: This check for tables with excessive sequential scans
     interval: standard
     family: POSTGRESQL
-    advisor: query_index
+    category: Query
+    subcategory: Index
     queries:
       - type: POSTGRESQL_SELECT
         query: " schemaname, relname, n_live_tup, seq_scan, COALESCE(idx_scan,0) AS idx_scan, ROUND(seq_scan / ( seq_scan + COALESCE(idx_scan,0))::numeric * 100)::int  AS percent_seq_scan  FROM pg_stat_user_tables WHERE seq_scan > 0 AND n_live_tup >= 50000"

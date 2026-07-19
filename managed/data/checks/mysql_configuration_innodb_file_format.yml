@@ -5,7 +5,8 @@ checks:
     summary: MySQL InnoDB file format
     description: Check if InnoDB is configured with recommended file format
     interval: standard
-    advisor: configuration_innodb
+    category: Configuration
+    subcategory: InnoDB
     #author: The Grinch
     family: MYSQL
     queries:

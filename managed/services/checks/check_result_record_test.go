@@ -30,7 +30,7 @@ import (
 func TestNewCheckResultRecord(t *testing.T) {
 	t.Parallel()
 
-	c := check.Check{Name: "chk", Summary: "Check title", Description: "Check description", Advisor: "adv", Interval: check.Standard}
+	c := check.Check{Name: "chk", Summary: "Check title", Description: "Check description", Category: "Performance", Subcategory: "Adv", Interval: check.Standard}
 	target := services.Target{
 		ServiceID:      "sid",
 		ServiceName:    "sname",
@@ -55,11 +55,11 @@ func TestNewCheckResultRecord(t *testing.T) {
 			Labels:      map[string]string{"k": "v"},
 		}
 
-		rec := newCheckResultRecord(c, target, "performance", models.CheckResultFailed, result, checkedAt, ri)
+		rec := newCheckResultRecord(c, target, models.CheckResultFailed, result, checkedAt, ri)
 
 		assert.Equal(t, "chk", rec.CheckName)
-		assert.Equal(t, "adv", rec.AdvisorName)
-		assert.Equal(t, "performance", rec.Category)
+		assert.Equal(t, "Performance", rec.Category)
+		assert.Equal(t, "Adv", rec.Subcategory)
 		assert.Equal(t, models.Interval(check.Standard), rec.Interval)
 		assert.Equal(t, "sid", rec.ServiceID)
 		assert.Equal(t, "sname", rec.ServiceName)
@@ -87,7 +87,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 	t.Run("ok outcome falls back to check summary and info severity", func(t *testing.T) {
 		t.Parallel()
 
-		rec := newCheckResultRecord(c, target, "performance", models.CheckResultOK, check.Result{}, checkedAt, ri)
+		rec := newCheckResultRecord(c, target, models.CheckResultOK, check.Result{}, checkedAt, ri)
 
 		assert.Equal(t, models.CheckResultOK, rec.Status)
 		assert.Equal(t, "Check title", rec.Summary)
@@ -104,7 +104,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 
 		result := check.Result{Description: "execution failed"}
 
-		rec := newCheckResultRecord(c, target, "performance", models.CheckResultError, result, checkedAt, ri)
+		rec := newCheckResultRecord(c, target, models.CheckResultError, result, checkedAt, ri)
 
 		assert.Equal(t, models.CheckResultError, rec.Status)
 		assert.Equal(t, "Check title", rec.Summary)

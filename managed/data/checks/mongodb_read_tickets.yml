@@ -6,7 +6,8 @@ checks:
     description: This check returns warnings if MongoDB is using more than 128 read tickets.
     interval: standard
     family: MONGODB
-    advisor: configuration_generic
+    category: Configuration
+    subcategory: Generic
     #author: Vinicius Grippa/Parag Bhayani
     queries:
       - type: MONGODB_GETCMDLINEOPTS

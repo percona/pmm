@@ -6,7 +6,8 @@ checks:
     description: This check returns a warning if there is a mismatch between the MongoDB version and the internal FCV parameter setting.
     interval: standard
     family: MONGODB
-    advisor: configuration_resources
+    category: Configuration
+    subcategory: Resources
     #category: configuration
     #author: Parag Bhayani
     queries:

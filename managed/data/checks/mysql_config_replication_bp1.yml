@@ -5,7 +5,8 @@ checks:
     summary: Checks for basic best practices when setting a replica node.
     description: Identify if a replica node is in read-only mode and if checksum.
     interval: standard
-    advisor: configuration_replication
+    category: Configuration
+    subcategory: Replication
     #author: The Grinch
     family: MYSQL
     queries:

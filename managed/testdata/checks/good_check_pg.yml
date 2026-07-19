@@ -4,7 +4,8 @@ checks:
     name: good_check_pg
     summary: Good Check PG
     description: Good check for PostgreSQL.
-    advisor: dev
+    category: Development
+    subcategory: Dev
     family: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT

@@ -21,11 +21,8 @@ vi.mock('api/advisors');
 
 const TEST_ADVISORS: Advisor[] = [
   {
-    name: 'mysql_version',
-    summary: 'MySQL Version',
-    description: 'Advisor for MySQL versions',
-    comment: '',
-    category: 'version_configuration',
+    category: 'Configuration',
+    subcategory: 'Version',
     checks: [
       {
         name: 'mysql_version_check',
@@ -38,11 +35,8 @@ const TEST_ADVISORS: Advisor[] = [
     ],
   },
   {
-    name: 'postgresql_security',
-    summary: 'PostgreSQL Security',
-    description: 'Advisor for PostgreSQL security',
-    comment: '',
-    category: 'security',
+    category: 'Security',
+    subcategory: 'Authentication',
     checks: [
       {
         name: 'postgresql_super_role',

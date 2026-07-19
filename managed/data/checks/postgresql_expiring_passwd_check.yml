@@ -5,8 +5,8 @@ checks:
     summary: Check for password expiration
     description: Check for passwords which are expiring and displays the time left before it expires
     #author: Jorge Torralba
-    #advisor: version_check
-    advisor: security_configuration
+    category: Security
+    subcategory: Configuration
     interval: standard
     family: POSTGRESQL
     queries:

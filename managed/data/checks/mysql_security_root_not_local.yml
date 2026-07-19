@@ -5,7 +5,8 @@ checks:
     summary: Root user can connect from non local location
     description: Root user has host definition that is not 127.0.0.1 or localhost.
     interval: standard
-    advisor: security_authentication
+    category: Security
+    subcategory: Authentication
     #author: The Grinch
     family: MYSQL
     queries:

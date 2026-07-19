@@ -5,7 +5,6 @@ import { format } from 'date-fns';
 import { CheckResultHistoryItem } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { ADVISOR_RESULT_STATUS, SEVERITY, TIME_FORMAT } from 'lib/constants';
-import { capitalize } from 'utils/text.utils';
 import { Messages } from './AdvisorInsights.messages';
 
 const SEVERITY_ORDER: Record<Severity, number> = {
@@ -55,7 +54,7 @@ export const getInsightsColumns =
     {
       id: 'category',
       header: Messages.columns.category,
-      accessorFn: (row) => capitalize(row.category),
+      accessorFn: (row) => row.category,
       size: 140,
     },
     {

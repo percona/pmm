@@ -6,7 +6,8 @@ checks:
     description: This check returns a notice if multiple mongod services are running in a single node.
     interval: standard
     family: MONGODB
-    advisor: performance_generic
+    category: Performance
+    subcategory: Generic
     #author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT

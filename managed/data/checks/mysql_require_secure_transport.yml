@@ -6,7 +6,8 @@ checks:
     description: Checks mysql_secure_transport_only.
     interval: standard
     family: MYSQL
-    advisor: security_configuration
+    category: Security
+    subcategory: Configuration
     #author:tibi/the grinch
     queries:
       - type: MYSQL_SHOW

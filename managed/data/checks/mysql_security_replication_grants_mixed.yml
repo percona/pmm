@@ -6,7 +6,8 @@ checks:
     description: Check if replication privileges is mixed with more elevated privileges
     interval: standard
     #author: The Grinch
-    advisor: security_replication
+    category: Security
+    subcategory: Replication
     family: MYSQL
     queries:
       - type: MYSQL_SELECT

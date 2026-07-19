@@ -5,7 +5,8 @@ checks:
     summary: User(s) has/have host definition '%' which is too open
     description: Host definition should never be '%' given it is too open .
     interval: standard
-    advisor: security_authentication
+    category: Security
+    subcategory: Authentication
     #author: The Grinch
     family: MYSQL
     queries:

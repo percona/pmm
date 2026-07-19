@@ -36,8 +36,8 @@ func TestInsightToText(t *testing.T) {
 			ID:             "insight-1",
 			BatchID:        "batch-1",
 			CheckName:      "mysql_version",
-			AdvisorName:    "version_advisor",
-			Category:       "performance",
+			Subcategory:    "version_advisor",
+			Category:       "Performance",
 			ServiceName:    "mysql-prod",
 			ServiceType:    "mysql",
 			NodeName:       "node-a",
@@ -63,8 +63,8 @@ Check Details:
   ID: insight-1
   Batch ID: batch-1
   Check Name: mysql_version
-  Advisor: version_advisor
   Category: Performance
+  Sub category: version_advisor
   Service Name: mysql-prod
   Service Type: mysql
   Node Name: node-a
