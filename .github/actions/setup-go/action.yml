@@ -8,6 +8,7 @@ runs:
   using: "composite"
   steps:
     - name: Setup Go
+      id: setup-go
       uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
       with:
         go-version-file: ${{ github.workspace }}/go.mod
@@ -17,17 +18,19 @@ runs:
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/.cache/go-build
-        key: ${{ runner.os }}-go-build-${{ hashFiles('go.mod', 'go.sum') }}
+        key: ${{ runner.os }}-${{ runner.arch }}-go-build-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('go.mod', 'go.sum') }}
         restore-keys: |
-          ${{ runner.os }}-go-build-
+          ${{ runner.os }}-${{ runner.arch }}-go-build-${{ steps.setup-go.outputs.go-version }}-
+          ${{ runner.os }}-${{ runner.arch }}-go-build-
 
     - name: Enable Go modules cache
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-modules-${{ hashFiles('go.mod', 'go.sum') }}
+        key: ${{ runner.os }}-${{ runner.arch }}-go-modules-${{ steps.setup-go.outputs.go-version }}-${{ hashFiles('go.mod', 'go.sum') }}
         restore-keys: |
-          ${{ runner.os }}-go-modules-
+          ${{ runner.os }}-${{ runner.arch }}-go-modules-${{ steps.setup-go.outputs.go-version }}-
+          ${{ runner.os }}-${{ runner.arch }}-go-modules-
 
     - name: Download Go modules
       shell: bash
