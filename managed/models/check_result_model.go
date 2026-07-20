@@ -36,23 +36,6 @@ const (
 	CheckResultError CheckResultStatus = "error"
 )
 
-// CheckSeverity represents the severity of an Advisor check result persisted to history.
-// The values match the lowercase names of management API severity levels.
-type CheckSeverity string
-
-// Available Advisor check result severities.
-const (
-	CheckSeverityUnknown   CheckSeverity = "unknown"
-	CheckSeverityEmergency CheckSeverity = "emergency"
-	CheckSeverityAlert     CheckSeverity = "alert"
-	CheckSeverityCritical  CheckSeverity = "critical"
-	CheckSeverityError     CheckSeverity = "error"
-	CheckSeverityWarning   CheckSeverity = "warning"
-	CheckSeverityNotice    CheckSeverity = "notice"
-	CheckSeverityInfo      CheckSeverity = "info"
-	CheckSeverityDebug     CheckSeverity = "debug"
-)
-
 // CheckTriggeredBy represents the actor that initiated an Advisor check run.
 type CheckTriggeredBy string
 
@@ -86,7 +69,7 @@ type CheckResult struct {
 	Description    string            `reform:"description"`
 	Outcome        string            `reform:"outcome"`
 	ReadMoreURL    string            `reform:"read_more_url"`
-	Severity       CheckSeverity     `reform:"severity"`
+	Severity       Severity          `reform:"severity"`
 	Labels         []byte            `reform:"labels"`
 	CheckedAt      time.Time         `reform:"checked_at"`
 	IsRead         bool              `reform:"is_read"`

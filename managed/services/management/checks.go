@@ -209,8 +209,8 @@ func (s *ChecksAPIService) ListCheckResultsHistory(
 			filters.TriggeredBy = &tb
 		}
 	}
-	if req.Severity != nil {
-		severity := convertAPISeverity(*req.Severity)
+	if req.Severity != nil && *req.Severity != managementv1.Severity_SEVERITY_UNSPECIFIED {
+		severity := models.Severity(*req.Severity)
 		filters.Severity = &severity
 	}
 	if req.From != nil {
@@ -240,7 +240,7 @@ func (s *ChecksAPIService) ListCheckResultsHistory(
 			BatchId:        r.BatchID,
 			Category:       r.Category,
 			Subcategory:    r.Subcategory,
-			Severity:       convertModelSeverity(r.Severity),
+			Severity:       managementv1.Severity(r.Severity), //nolint:gosec // severity is a bounded enum (0-8), no overflow
 			Interval:       convertModelInterval(r.Interval),
 			ServiceId:      r.ServiceID,
 			ServiceName:    r.ServiceName,
@@ -597,58 +597,6 @@ func convertAPIResultStatus(status advisorsv1.AdvisorCheckResultStatus) models.C
 		return models.CheckResultError
 	default:
 		return ""
-	}
-}
-
-// convertModelSeverity converts models.CheckSeverity to managementv1.Severity.
-func convertModelSeverity(severity models.CheckSeverity) managementv1.Severity {
-	switch severity {
-	case models.CheckSeverityEmergency:
-		return managementv1.Severity_SEVERITY_EMERGENCY
-	case models.CheckSeverityAlert:
-		return managementv1.Severity_SEVERITY_ALERT
-	case models.CheckSeverityCritical:
-		return managementv1.Severity_SEVERITY_CRITICAL
-	case models.CheckSeverityError:
-		return managementv1.Severity_SEVERITY_ERROR
-	case models.CheckSeverityWarning:
-		return managementv1.Severity_SEVERITY_WARNING
-	case models.CheckSeverityNotice:
-		return managementv1.Severity_SEVERITY_NOTICE
-	case models.CheckSeverityInfo:
-		return managementv1.Severity_SEVERITY_INFO
-	case models.CheckSeverityDebug:
-		return managementv1.Severity_SEVERITY_DEBUG
-	case models.CheckSeverityUnknown:
-		return managementv1.Severity_SEVERITY_UNSPECIFIED
-	default:
-		return managementv1.Severity_SEVERITY_UNSPECIFIED
-	}
-}
-
-// convertAPISeverity converts managementv1.Severity to models.CheckSeverity.
-func convertAPISeverity(severity managementv1.Severity) models.CheckSeverity {
-	switch severity {
-	case managementv1.Severity_SEVERITY_EMERGENCY:
-		return models.CheckSeverityEmergency
-	case managementv1.Severity_SEVERITY_ALERT:
-		return models.CheckSeverityAlert
-	case managementv1.Severity_SEVERITY_CRITICAL:
-		return models.CheckSeverityCritical
-	case managementv1.Severity_SEVERITY_ERROR:
-		return models.CheckSeverityError
-	case managementv1.Severity_SEVERITY_WARNING:
-		return models.CheckSeverityWarning
-	case managementv1.Severity_SEVERITY_NOTICE:
-		return models.CheckSeverityNotice
-	case managementv1.Severity_SEVERITY_INFO:
-		return models.CheckSeverityInfo
-	case managementv1.Severity_SEVERITY_DEBUG:
-		return models.CheckSeverityDebug
-	case managementv1.Severity_SEVERITY_UNSPECIFIED:
-		return models.CheckSeverityUnknown
-	default:
-		return models.CheckSeverityUnknown
 	}
 }
 

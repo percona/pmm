@@ -54,7 +54,7 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, batchID stri
 	counts := make(map[common.Severity]int)
 	texts := make([]string, 0, len(results))
 	for _, r := range results {
-		severity := common.ParseSeverity(string(r.Severity))
+		severity := common.Severity(r.Severity)
 		// Keep only insights at least as severe as the threshold (a smaller value is more severe).
 		if severity < common.Emergency || severity > threshold {
 			continue

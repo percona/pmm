@@ -94,7 +94,7 @@ var CheckResultTable = &checkResultTableType{
 			{Name: "Description", Type: "string", Column: "description"},
 			{Name: "Outcome", Type: "string", Column: "outcome"},
 			{Name: "ReadMoreURL", Type: "string", Column: "read_more_url"},
-			{Name: "Severity", Type: "CheckSeverity", Column: "severity"},
+			{Name: "Severity", Type: "Severity", Column: "severity"},
 			{Name: "Labels", Type: "[]uint8", Column: "labels"},
 			{Name: "CheckedAt", Type: "time.Time", Column: "checked_at"},
 			{Name: "IsRead", Type: "bool", Column: "is_read"},

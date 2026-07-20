@@ -22,6 +22,7 @@ import (
 	"unicode"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/common"
 )
 
 // insightTimeFormat mirrors TIME_FORMAT in ui/apps/pmm/src/lib/constants.ts.
@@ -36,15 +37,15 @@ var insightStatusText = map[models.CheckResultStatus]string{
 	models.CheckResultError:  "Error",
 }
 
-var insightSeverityText = map[models.CheckSeverity]string{
-	models.CheckSeverityEmergency: "Emergency",
-	models.CheckSeverityAlert:     "Alert",
-	models.CheckSeverityCritical:  "Critical",
-	models.CheckSeverityError:     "Error",
-	models.CheckSeverityWarning:   "Warning",
-	models.CheckSeverityNotice:    "Notice",
-	models.CheckSeverityInfo:      "Info",
-	models.CheckSeverityDebug:     "Debug",
+var insightSeverityText = map[models.Severity]string{
+	models.Severity(common.Emergency): "Emergency",
+	models.Severity(common.Alert):     "Alert",
+	models.Severity(common.Critical):  "Critical",
+	models.Severity(common.Error):     "Error",
+	models.Severity(common.Warning):   "Warning",
+	models.Severity(common.Notice):    "Notice",
+	models.Severity(common.Info):      "Info",
+	models.Severity(common.Debug):     "Debug",
 }
 
 var insightIntervalText = map[models.Interval]string{
@@ -138,7 +139,7 @@ func insightStatusLabel(status models.CheckResultStatus) string {
 	return "Unspecified"
 }
 
-func insightSeverityLabel(severity models.CheckSeverity) string {
+func insightSeverityLabel(severity models.Severity) string {
 	if label, ok := insightSeverityText[severity]; ok {
 		return label
 	}

@@ -22,6 +22,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/common"
 )
 
 // TestInsightToText locks the Go output to the UI's "Copy to text" format
@@ -50,7 +51,7 @@ func TestInsightToText(t *testing.T) {
 			Summary:        "Outdated MySQL version",
 			Description:    "The MySQL version is old",
 			Outcome:        "Upgrade recommended",
-			Severity:       models.CheckSeverityWarning,
+			Severity:       models.Severity(common.Warning),
 			ReadMoreURL:    "https://example.com/more",
 			Status:         models.CheckResultFailed,
 			CheckedAt:      time.Date(2026, 7, 16, 10, 30, 0, 0, time.UTC),
@@ -94,7 +95,7 @@ Check Details:
 			BatchID:     "batch-2",
 			CheckName:   "pg_check",
 			Summary:     "Issue found",
-			Severity:    models.CheckSeverityError,
+			Severity:    models.Severity(common.Error),
 			Status:      models.CheckResultFailed,
 			TriggeredBy: models.CheckTriggeredByUser,
 			IsRead:      true,

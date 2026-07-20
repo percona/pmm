@@ -27,6 +27,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -61,7 +62,7 @@ func TestCheckResults(t *testing.T) {
 			Status:      models.CheckResultFailed,
 			Summary:     "summary",
 			Description: "description",
-			Severity:    models.CheckSeverityError,
+			Severity:    models.Severity(common.Error),
 			CheckedAt:   models.Now(),
 		}
 		require.NoError(t, cr.SetLabels(labels))
@@ -73,7 +74,7 @@ func TestCheckResults(t *testing.T) {
 		require.Len(t, got, 1)
 		assert.Equal(t, cr.ID, got[0].ID)
 		assert.Equal(t, models.CheckResultFailed, got[0].Status)
-		assert.Equal(t, models.CheckSeverityError, got[0].Severity)
+		assert.Equal(t, models.Severity(common.Error), got[0].Severity)
 		assert.Equal(t, "node-find", got[0].NodeName)
 
 		gotLabels, err := got[0].GetLabels()
@@ -86,12 +87,12 @@ func TestCheckResults(t *testing.T) {
 		create(t, &models.CheckResult{
 			CheckName: "weak_pwd", Category: "security", ServiceID: svc, ServiceName: "ProdMySQL",
 			NodeName: "node-A", Status: models.CheckResultFailed, Summary: "s",
-			Severity: models.CheckSeverityCritical, CheckedAt: models.Now(),
+			Severity: models.Severity(common.Critical), CheckedAt: models.Now(),
 		})
 		create(t, &models.CheckResult{
 			CheckName: "old_ver", Category: "configuration", ServiceID: svc, ServiceName: "devmysql",
 			NodeName: "node-B", Status: models.CheckResultOK, Summary: "s",
-			Severity: models.CheckSeverityUnknown, CheckedAt: models.Now(),
+			Severity: models.Severity(common.Info), CheckedAt: models.Now(),
 		})
 
 		// service_name: case-insensitive substring.
@@ -117,11 +118,11 @@ func TestCheckResults(t *testing.T) {
 		require.Len(t, got, 1)
 
 		// severity: exact.
-		sev := models.CheckSeverityCritical
+		sev := models.Severity(common.Critical)
 		got, err = models.FindCheckResults(t.Context(), q, models.CheckResultFilters{ServiceID: svc, Severity: &sev}, 0, 0)
 		require.NoError(t, err)
 		require.Len(t, got, 1)
-		assert.Equal(t, models.CheckSeverityCritical, got[0].Severity)
+		assert.Equal(t, models.Severity(common.Critical), got[0].Severity)
 
 		// status.
 		st := models.CheckResultOK

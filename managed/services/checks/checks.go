@@ -948,7 +948,7 @@ func newCheckResultRecord(
 		Description:    c.Description,
 		Outcome:        result.Description,
 		ReadMoreURL:    result.ReadMoreURL,
-		Severity:       convertCommonSeverity(result.Severity),
+		Severity:       models.Severity(result.Severity),
 		CheckedAt:      checkedAt,
 		BatchID:        ri.batchID,
 		TriggeredBy:    ri.triggeredBy,
@@ -959,11 +959,11 @@ func newCheckResultRecord(
 	}
 	switch status {
 	case models.CheckResultOK:
-		r.Severity = models.CheckSeverityInfo
+		r.Severity = models.Severity(common.Info)
 		r.Outcome = "Check passed"
 	case models.CheckResultError:
 		// the check could not be executed, which is a diagnostic concern, not a database issue
-		r.Severity = models.CheckSeverityDebug
+		r.Severity = models.Severity(common.Debug)
 	case models.CheckResultFailed:
 		// keep the severity reported by the finding
 	}
@@ -971,32 +971,6 @@ func newCheckResultRecord(
 		_ = r.SetLabels(result.Labels)
 	}
 	return r
-}
-
-// convertCommonSeverity converts common.Severity to models.CheckSeverity.
-func convertCommonSeverity(severity common.Severity) models.CheckSeverity {
-	switch severity {
-	case common.Emergency:
-		return models.CheckSeverityEmergency
-	case common.Alert:
-		return models.CheckSeverityAlert
-	case common.Critical:
-		return models.CheckSeverityCritical
-	case common.Error:
-		return models.CheckSeverityError
-	case common.Warning:
-		return models.CheckSeverityWarning
-	case common.Notice:
-		return models.CheckSeverityNotice
-	case common.Info:
-		return models.CheckSeverityInfo
-	case common.Debug:
-		return models.CheckSeverityDebug
-	case common.Unknown:
-		return models.CheckSeverityUnknown
-	default:
-		return models.CheckSeverityUnknown
-	}
 }
 
 // saveCheckResultsHistory persists Advisor check results history in a single transaction.

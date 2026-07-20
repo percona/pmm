@@ -44,7 +44,7 @@ type CheckResultFilters struct {
 	CheckName   string
 	BatchID     string
 	TriggeredBy *CheckTriggeredBy
-	Severity    *CheckSeverity
+	Severity    *Severity
 	Status      *CheckResultStatus
 	IsRead      *bool
 	From        *time.Time

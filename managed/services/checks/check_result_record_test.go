@@ -74,7 +74,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 		assert.Equal(t, "cluster-1", rec.Cluster)
 		assert.Equal(t, "rs-1", rec.ReplicationSet)
 		assert.Equal(t, "https://example.com", rec.ReadMoreURL)
-		assert.Equal(t, models.CheckSeverityError, rec.Severity)
+		assert.Equal(t, models.Severity(common.Error), rec.Severity)
 		assert.Equal(t, checkedAt, rec.CheckedAt)
 		assert.Equal(t, "batch-1", rec.BatchID)
 		assert.Equal(t, models.CheckTriggeredByUser, rec.TriggeredBy)
@@ -92,7 +92,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 		assert.Equal(t, models.CheckResultOK, rec.Status)
 		assert.Equal(t, "Check title", rec.Summary)
 		assert.Equal(t, "Check passed", rec.Outcome)
-		assert.Equal(t, models.CheckSeverityInfo, rec.Severity)
+		assert.Equal(t, models.Severity(common.Info), rec.Severity)
 
 		labels, err := rec.GetLabels()
 		require.NoError(t, err)
@@ -110,6 +110,6 @@ func TestNewCheckResultRecord(t *testing.T) {
 		assert.Equal(t, "Check title", rec.Summary)
 		assert.Equal(t, "Check description", rec.Description)
 		assert.Equal(t, "execution failed", rec.Outcome)
-		assert.Equal(t, models.CheckSeverityDebug, rec.Severity)
+		assert.Equal(t, models.Severity(common.Debug), rec.Severity)
 	})
 }
