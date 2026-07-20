@@ -35,7 +35,7 @@ import {
   type MRT_Updater,
 } from 'material-react-table';
 import { closeSnackbar, enqueueSnackbar } from 'notistack';
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   AdvisorCheckResultStatus,
@@ -341,21 +341,27 @@ const AdvisorInsights: FC = () => {
     [filterValues]
   );
 
-  const columns = useMemo(() => getInsightsColumns(), []);
+  const handleToggleRead = useCallback(
+    (item: CheckResultHistoryItem) =>
+      markRead(
+        { ids: [item.id], isRead: !item.isRead },
+        {
+          onSuccess: () =>
+            enqueueSnackbar(
+              item.isRead
+                ? Messages.success.markedUnread
+                : Messages.success.markedRead,
+              { variant: 'success' }
+            ),
+        }
+      ),
+    [markRead]
+  );
 
-  const handleToggleRead = (item: CheckResultHistoryItem) =>
-    markRead(
-      { ids: [item.id], isRead: !item.isRead },
-      {
-        onSuccess: () =>
-          enqueueSnackbar(
-            item.isRead
-              ? Messages.success.markedUnread
-              : Messages.success.markedRead,
-            { variant: 'success' }
-          ),
-      }
-    );
+  const columns = useMemo(
+    () => getInsightsColumns({ onToggleRead: handleToggleRead }),
+    [handleToggleRead]
+  );
 
   return (
     <Page

@@ -369,6 +369,21 @@ describe('AdvisorInsights', () => {
     );
   });
 
+  it('toggles read state by clicking the read chip', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('insight-result-2-read-state'));
+
+    await waitFor(() =>
+      expect(advisorsApi.markCheckResultsRead).toHaveBeenCalledWith(
+        { ids: ['result-2'], isRead: true },
+        expect.anything()
+      )
+    );
+  });
+
   it('opens and closes the details pane from the row menu', async () => {
     renderComponent();
 

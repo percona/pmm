@@ -6,6 +6,8 @@ export const Messages = {
   readMore: 'Read more',
   read: 'Read',
   unread: 'Unread',
+  markAsRead: 'Mark as read',
+  markAsUnread: 'Mark as unread',
   actions: {
     viewDetails: 'View details',
     toggleRead: 'Toggle read',
