@@ -27,6 +27,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/percona/pmm/agent/utils/poll"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
@@ -211,36 +212,38 @@ func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string)
 	j.l.Infof("starting backup restore for: %s.", backupName)
 
 	var restoreOutput pbmRestore
-	var err error
 	startTime := time.Now()
-
-	ticker := time.NewTicker(statusCheckInterval)
-	defer ticker.Stop()
 	retryCount := 500
+	started := false
 
-	for {
-		select {
-		case <-ticker.C:
-
-			if j.pitrTimestamp.Unix() == 0 {
-				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
-			} else {
-				err = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", "--time="+j.pitrTimestamp.Format("2006-01-02T15:04:05"))
-			}
-
-			if err != nil {
-				if strings.HasSuffix(err.Error(), "another operation in progress") && retryCount > 0 {
-					retryCount--
-					continue
-				}
-				return nil, fmt.Errorf("pbm restore error: %w", err)
-			}
-
-			restoreOutput.StartedAt = startTime
-			return &restoreOutput, nil
-
-		case <-ctx.Done():
-			return nil, ctx.Err()
+	pollErr := poll.UntilContextTimeout(ctx, statusCheckInterval, func(ctx context.Context) (bool, error) {
+		// Preserve previous behavior: first restore command runs after the first tick.
+		if !started {
+			started = true
+			return false, nil
 		}
+
+		var cmdErr error
+		if j.pitrTimestamp.Unix() == 0 {
+			cmdErr = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", backupName)
+		} else {
+			cmdErr = execPBMCommand(ctx, j.dbURL, &restoreOutput, "restore", "--time="+j.pitrTimestamp.Format("2006-01-02T15:04:05"))
+		}
+
+		if cmdErr != nil {
+			if strings.HasSuffix(cmdErr.Error(), "another operation in progress") && retryCount > 0 {
+				retryCount--
+				return false, nil
+			}
+			return false, fmt.Errorf("pbm restore error: %w", cmdErr)
+		}
+
+		restoreOutput.StartedAt = startTime
+		return true, nil
+	})
+	if pollErr != nil {
+		return nil, pollErr
 	}
+
+	return &restoreOutput, nil
 }
