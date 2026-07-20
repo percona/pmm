@@ -2,6 +2,7 @@ import { FC, ReactNode, useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import CloseFullscreenOutlinedIcon from '@mui/icons-material/CloseFullscreenOutlined';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
+import ControlPointDuplicateOutlinedIcon from '@mui/icons-material/ControlPointDuplicateOutlined';
 import OpenInFullOutlinedIcon from '@mui/icons-material/OpenInFullOutlined';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -65,12 +66,15 @@ interface AdvisorCheckDetailsPaneProps {
   // open the pane already maximized (e.g. triggered by a row double-click)
   initialMaximized?: boolean;
   onClose: () => void;
+  // clone the current check into a new editable check
+  onClone?: () => void;
 }
 
 export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
   check,
   initialMaximized = false,
   onClose,
+  onClone,
 }) => {
   const [maximized, setMaximized] = useState(false);
   const { navOpen } = useNavigation();
@@ -217,15 +221,29 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
               justifyContent="space-between"
             >
               <Typography variant="h6">{m.code}</Typography>
-              <Button
-                size="small"
-                startIcon={<ContentCopyOutlinedIcon fontSize="small" />}
-                onClick={handleCopyCode}
-                disabled={!script}
-                data-testid="check-code-copy"
-              >
-                {m.copyCode}
-              </Button>
+              <Stack direction="row" gap={1}>
+                {onClone && (
+                  <Button
+                    size="small"
+                    startIcon={
+                      <ControlPointDuplicateOutlinedIcon fontSize="small" />
+                    }
+                    onClick={onClone}
+                    data-testid="check-clone"
+                  >
+                    {m.clone}
+                  </Button>
+                )}
+                <Button
+                  size="small"
+                  startIcon={<ContentCopyOutlinedIcon fontSize="small" />}
+                  onClick={handleCopyCode}
+                  disabled={!script}
+                  data-testid="check-code-copy"
+                >
+                  {m.copyCode}
+                </Button>
+              </Stack>
             </Stack>
             {isScriptLoading ? (
               <CircularProgress size={24} data-testid="check-code-loading" />

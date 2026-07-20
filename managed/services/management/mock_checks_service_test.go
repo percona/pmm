@@ -35,6 +35,42 @@ func (_m *mockChecksService) ChangeInterval(params map[string]check.Interval) er
 	return r0
 }
 
+// CreateAdvisorCheck provides a mock function with given fields: ctx, c
+func (_m *mockChecksService) CreateAdvisorCheck(ctx context.Context, c check.Check) error {
+	ret := _m.Called(ctx, c)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateAdvisorCheck")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, check.Check) error); ok {
+		r0 = rf(ctx, c)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DeleteAdvisorCheck provides a mock function with given fields: ctx, name
+func (_m *mockChecksService) DeleteAdvisorCheck(ctx context.Context, name string) error {
+	ret := _m.Called(ctx, name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteAdvisorCheck")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, name)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DisableChecks provides a mock function with given fields: checkNames
 func (_m *mockChecksService) DisableChecks(checkNames []string) error {
 	ret := _m.Called(checkNames)
@@ -311,6 +347,24 @@ func (_m *mockChecksService) StartChecks(checkNames []string) (string, error) {
 	}
 
 	return r0, r1
+}
+
+// UpdateAdvisorCheck provides a mock function with given fields: ctx, c
+func (_m *mockChecksService) UpdateAdvisorCheck(ctx context.Context, c check.Check) error {
+	ret := _m.Called(ctx, c)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateAdvisorCheck")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, check.Check) error); ok {
+		r0 = rf(ctx, c)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // newMockChecksService creates a new instance of mockChecksService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

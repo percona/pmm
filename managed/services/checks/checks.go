@@ -41,6 +41,8 @@ import (
 	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -57,7 +59,6 @@ const (
 	defaultStartDelay = time.Minute
 
 	// Environment variables that affect checks service; only for testing.
-	envCheckFile         = "PMM_DEV_ADVISOR_CHECKS_FILE"
 	envDisableStartDelay = "PMM_ADVISORS_CHECKS_DISABLE_START_DELAY"
 	builtinChecksPath    = "/usr/local/percona/checks"
 
@@ -89,9 +90,8 @@ type Service struct {
 	vmClient       v1.API
 	clickhouseDB   *sql.DB
 
-	l               *logrus.Entry
-	startDelay      time.Duration
-	customCheckFile string // For testing
+	l          *logrus.Entry
+	startDelay time.Duration
 
 	// startCheckCh delivers on-demand check runs from StartChecks to
 	// runChecksLoop, which owns the service lifecycle context.
@@ -134,10 +134,9 @@ func New(
 		vmClient:       vmClient,
 		clickhouseDB:   clickhouseDB,
 
-		l:               l,
-		startDelay:      defaultStartDelay,
-		customCheckFile: os.Getenv(envCheckFile),
-		startCheckCh:    make(chan checkRunRequest, 1),
+		l:            l,
+		startDelay:   defaultStartDelay,
+		startCheckCh: make(chan checkRunRequest, 1),
 
 		mChecksExecuted: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -528,6 +527,169 @@ func (s *Service) ChangeInterval(params map[string]check.Interval) error {
 	}
 
 	return nil
+}
+
+// CreateAdvisorCheck creates a new user-authored advisor check and reloads the check list.
+func (s *Service) CreateAdvisorCheck(ctx context.Context, c check.Check) error {
+	c.Version = check.MaxSupportedVersion
+	c.UserDefined = true
+
+	err := c.Validate()
+	if err != nil {
+		return status.Errorf(codes.InvalidArgument, "invalid advisor check: %v", err)
+	}
+
+	existing, err := s.GetChecks()
+	if err != nil {
+		return err
+	}
+	if _, ok := existing[c.Name]; ok {
+		return status.Errorf(codes.AlreadyExists, "advisor check '%s' already exists", c.Name)
+	}
+
+	m, err := userCheckToModel(c)
+	if err != nil {
+		return err
+	}
+
+	errTx := s.db.InTransaction(func(tx *reform.TX) error {
+		_, err := models.CreateAdvisorCheck(tx.Querier, m)
+		return err
+	})
+	if errTx != nil {
+		return fmt.Errorf("failed to create advisor check: %w", errTx)
+	}
+
+	s.UpdateAdvisorsList(ctx)
+	return nil
+}
+
+// UpdateAdvisorCheck updates an existing user-authored advisor check and reloads the check list.
+func (s *Service) UpdateAdvisorCheck(ctx context.Context, c check.Check) error {
+	c.Version = check.MaxSupportedVersion
+	c.UserDefined = true
+
+	err := c.Validate()
+	if err != nil {
+		return status.Errorf(codes.InvalidArgument, "invalid advisor check: %v", err)
+	}
+
+	err = s.ensureUserCheck(c.Name)
+	if err != nil {
+		return err
+	}
+
+	m, err := userCheckToModel(c)
+	if err != nil {
+		return err
+	}
+
+	errTx := s.db.InTransaction(func(tx *reform.TX) error {
+		_, err := models.UpdateAdvisorCheck(tx.Querier, m)
+		return err
+	})
+	if errTx != nil {
+		return fmt.Errorf("failed to update advisor check: %w", errTx)
+	}
+
+	s.UpdateAdvisorsList(ctx)
+	return nil
+}
+
+// DeleteAdvisorCheck deletes a user-authored advisor check and reloads the check list.
+func (s *Service) DeleteAdvisorCheck(ctx context.Context, name string) error {
+	err := s.ensureUserCheck(name)
+	if err != nil {
+		return err
+	}
+
+	errTx := s.db.InTransaction(func(tx *reform.TX) error {
+		err := models.RemoveAdvisorCheck(tx.Querier, name)
+		if err != nil {
+			return err
+		}
+
+		// drop any interval override recorded for this check
+		cs, err := models.FindCheckSettingsByName(tx.Querier, name)
+		if err != nil {
+			if errors.Is(err, reform.ErrNoRows) {
+				return nil
+			}
+			return err
+		}
+		return tx.Delete(cs)
+	})
+	if errTx != nil {
+		return fmt.Errorf("failed to delete advisor check: %w", errTx)
+	}
+
+	s.UpdateAdvisorsList(ctx)
+	return nil
+}
+
+// ensureUserCheck verifies that the named check exists and is user-authored.
+// It returns a NotFound error for unknown checks and a FailedPrecondition error
+// for Percona-shipped checks, which are immutable.
+func (s *Service) ensureUserCheck(name string) error {
+	_, err := models.FindAdvisorCheckByName(s.db.Querier, name)
+	if err == nil {
+		return nil
+	}
+	if !errors.Is(err, reform.ErrNoRows) {
+		return err
+	}
+
+	checks, gErr := s.GetChecks()
+	if gErr != nil {
+		return gErr
+	}
+	if _, ok := checks[name]; ok {
+		return status.Errorf(codes.FailedPrecondition, "advisor check '%s' is shipped by Percona and cannot be modified", name)
+	}
+	return status.Errorf(codes.NotFound, "advisor check '%s' not found", name)
+}
+
+// userCheckToModel converts a check.Check into its DB representation.
+func userCheckToModel(c check.Check) (*models.AdvisorCheck, error) {
+	queries, err := json.Marshal(c.Queries)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode queries: %w", err)
+	}
+
+	return &models.AdvisorCheck{
+		Name:        c.Name,
+		Summary:     c.Summary,
+		Description: c.Description,
+		Category:    c.Category,
+		Subcategory: c.Subcategory,
+		Family:      string(c.Family),
+		Interval:    string(c.Interval),
+		Queries:     queries,
+		Script:      c.Script,
+	}, nil
+}
+
+// modelToUserCheck converts a DB advisor check into a check.Check.
+func modelToUserCheck(m *models.AdvisorCheck) (check.Check, error) {
+	var queries []check.Query
+	err := json.Unmarshal(m.Queries, &queries)
+	if err != nil {
+		return check.Check{}, fmt.Errorf("failed to decode queries: %w", err)
+	}
+
+	return check.Check{
+		Version:     check.MaxSupportedVersion,
+		Name:        m.Name,
+		Summary:     m.Summary,
+		Description: m.Description,
+		Category:    m.Category,
+		Subcategory: m.Subcategory,
+		Family:      check.Family(m.Family),
+		Interval:    check.Interval(m.Interval),
+		Queries:     queries,
+		Script:      m.Script,
+		UserDefined: true,
+	}, nil
 }
 
 // waitForResult periodically checks result state and returns it when complete.
@@ -1597,18 +1759,52 @@ func (s *Service) UpdateAdvisorsList(ctx context.Context) {
 		s.l.Errorf("Failed to load built-in checks: %s.", err)
 		return // keep previously loaded advisors
 	}
-	// if custom check file is provided, load it and append to the list of checks
-	if s.customCheckFile != "" {
-		s.l.Infof("Using local test checks file: %s.", s.customCheckFile)
-		devChecks, err := s.loadChecksFromFiles([]string{s.customCheckFile})
-		if err != nil {
-			s.l.Errorf("Failed to load local checks file: %s.", err)
-			return // keep previously loaded advisors
-		}
-		checks = append(checks, devChecks...)
-	}
+
+	// Append user-authored checks stored in the DB. Names colliding with a
+	// built-in check are skipped so Percona-shipped checks cannot be shadowed.
+	checks = append(checks, s.loadUserChecks(checks)...)
 
 	s.updateAdvisors(s.filterSupportedChecks(groupChecksIntoAdvisors(checks)))
+}
+
+// loadUserChecks loads user-authored checks from the DB. Checks whose name
+// collides with a built-in check, or which fail validation, are skipped with a
+// warning so a single bad row cannot break the whole load.
+func (s *Service) loadUserChecks(builtin []check.Check) []check.Check {
+	rows, err := models.FindAdvisorChecks(s.db.Querier)
+	if err != nil {
+		s.l.Errorf("Failed to load user-authored checks: %s.", err)
+		return nil
+	}
+
+	builtinNames := make(map[string]struct{}, len(builtin))
+	for _, c := range builtin {
+		builtinNames[c.Name] = struct{}{}
+	}
+
+	res := make([]check.Check, 0, len(rows))
+	for _, row := range rows {
+		if _, ok := builtinNames[row.Name]; ok {
+			s.l.Warnf("User check '%s' collides with a built-in check and is ignored.", row.Name)
+			continue
+		}
+
+		c, err := modelToUserCheck(row)
+		if err != nil {
+			s.l.Warnf("Failed to decode user check '%s': %s.", row.Name, err)
+			continue
+		}
+
+		err = c.Validate()
+		if err != nil {
+			s.l.Warnf("User check '%s' is invalid and is ignored: %s.", row.Name, err)
+			continue
+		}
+
+		res = append(res, c)
+	}
+
+	return res
 }
 
 // loadBuiltinChecks loads builtin checks from the checks directory.
@@ -1676,7 +1872,6 @@ func (s *Service) loadChecksFromFiles(files []string) ([]check.Check, error) {
 	return res, nil
 }
 
-// loadAdvisorsFromFiles loads Advisors from a list of given files.
 // filterSupportedChecks returns supported advisor checks and prints warning log messages about unsupported.
 func (s *Service) filterSupportedChecks(advisors []check.Advisor) []check.Advisor {
 	res := make([]check.Advisor, 0, len(advisors))

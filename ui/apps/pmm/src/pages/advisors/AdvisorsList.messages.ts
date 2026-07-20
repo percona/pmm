@@ -5,12 +5,13 @@ export const Messages = {
   noData: 'No advisor checks found',
   columns: {
     check: 'Check',
-    description: 'Description',
     category: 'Category',
     subcategory: 'Sub category',
     vendor: 'Vendor',
+    author: 'Author',
     interval: 'Interval',
     status: 'Status',
+    actions: 'Actions',
   },
   status: {
     enabled: 'Enabled',
@@ -31,10 +32,17 @@ export const Messages = {
   addAdvisor: 'Add advisor',
   viewResults: 'View results',
   run: 'Run',
+  edit: 'Edit',
+  delete: 'Delete',
+  author: {
+    percona: 'Percona',
+    custom: 'Custom',
+  },
   details: {
     title: 'Advisor check details',
     maximize: 'Maximize',
     close: 'Close',
+    clone: 'Clone',
     checkName: 'Check name',
     category: 'Category',
     subcategory: 'Sub category',
@@ -49,12 +57,20 @@ export const Messages = {
     codeError: 'Unable to load the check code',
     noCode: 'No code available',
   },
+  deleteDialog: {
+    title: 'Delete advisor check',
+    body: (summary: string) =>
+      `Are you sure you want to delete the advisor check "${summary}"? This action cannot be undone.`,
+    cancel: 'Cancel',
+    confirm: 'Delete',
+  },
   success: {
     checksStarted: 'Advisor checks started, batch ID copied to clipboard',
     checkStarted: (summary: string) =>
       `Check "${summary}" started, batch ID copied to clipboard`,
     checkEnabled: (summary: string) => `Check "${summary}" enabled`,
     checkDisabled: (summary: string) => `Check "${summary}" disabled`,
+    checkDeleted: (summary: string) => `Check "${summary}" deleted`,
     intervalChanged: (summary: string, interval: string) =>
       `Check "${summary}" interval changed to "${interval}"`,
   },

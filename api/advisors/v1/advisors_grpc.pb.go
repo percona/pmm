@@ -30,6 +30,10 @@ const (
 	AdvisorService_GetAdvisorCheckScript_FullMethodName        = "/advisors.v1.AdvisorService/GetAdvisorCheckScript"
 	AdvisorService_ListAdvisors_FullMethodName                 = "/advisors.v1.AdvisorService/ListAdvisors"
 	AdvisorService_ChangeAdvisorChecks_FullMethodName          = "/advisors.v1.AdvisorService/ChangeAdvisorChecks"
+	AdvisorService_GetAdvisorCheck_FullMethodName              = "/advisors.v1.AdvisorService/GetAdvisorCheck"
+	AdvisorService_CreateAdvisorCheck_FullMethodName           = "/advisors.v1.AdvisorService/CreateAdvisorCheck"
+	AdvisorService_UpdateAdvisorCheck_FullMethodName           = "/advisors.v1.AdvisorService/UpdateAdvisorCheck"
+	AdvisorService_DeleteAdvisorCheck_FullMethodName           = "/advisors.v1.AdvisorService/DeleteAdvisorCheck"
 )
 
 // AdvisorServiceClient is the client API for AdvisorService service.
@@ -58,6 +62,14 @@ type AdvisorServiceClient interface {
 	ListAdvisors(ctx context.Context, in *ListAdvisorsRequest, opts ...grpc.CallOption) (*ListAdvisorsResponse, error)
 	// ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
 	ChangeAdvisorChecks(ctx context.Context, in *ChangeAdvisorChecksRequest, opts ...grpc.CallOption) (*ChangeAdvisorChecksResponse, error)
+	// GetAdvisorCheck returns a single advisor check by name, including its queries and script.
+	GetAdvisorCheck(ctx context.Context, in *GetAdvisorCheckRequest, opts ...grpc.CallOption) (*GetAdvisorCheckResponse, error)
+	// CreateAdvisorCheck creates a new user-authored advisor check.
+	CreateAdvisorCheck(ctx context.Context, in *CreateAdvisorCheckRequest, opts ...grpc.CallOption) (*CreateAdvisorCheckResponse, error)
+	// UpdateAdvisorCheck updates an existing user-authored advisor check.
+	UpdateAdvisorCheck(ctx context.Context, in *UpdateAdvisorCheckRequest, opts ...grpc.CallOption) (*UpdateAdvisorCheckResponse, error)
+	// DeleteAdvisorCheck deletes a user-authored advisor check.
+	DeleteAdvisorCheck(ctx context.Context, in *DeleteAdvisorCheckRequest, opts ...grpc.CallOption) (*DeleteAdvisorCheckResponse, error)
 }
 
 type advisorServiceClient struct {
@@ -168,6 +180,46 @@ func (c *advisorServiceClient) ChangeAdvisorChecks(ctx context.Context, in *Chan
 	return out, nil
 }
 
+func (c *advisorServiceClient) GetAdvisorCheck(ctx context.Context, in *GetAdvisorCheckRequest, opts ...grpc.CallOption) (*GetAdvisorCheckResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetAdvisorCheckResponse)
+	err := c.cc.Invoke(ctx, AdvisorService_GetAdvisorCheck_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *advisorServiceClient) CreateAdvisorCheck(ctx context.Context, in *CreateAdvisorCheckRequest, opts ...grpc.CallOption) (*CreateAdvisorCheckResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateAdvisorCheckResponse)
+	err := c.cc.Invoke(ctx, AdvisorService_CreateAdvisorCheck_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *advisorServiceClient) UpdateAdvisorCheck(ctx context.Context, in *UpdateAdvisorCheckRequest, opts ...grpc.CallOption) (*UpdateAdvisorCheckResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateAdvisorCheckResponse)
+	err := c.cc.Invoke(ctx, AdvisorService_UpdateAdvisorCheck_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *advisorServiceClient) DeleteAdvisorCheck(ctx context.Context, in *DeleteAdvisorCheckRequest, opts ...grpc.CallOption) (*DeleteAdvisorCheckResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteAdvisorCheckResponse)
+	err := c.cc.Invoke(ctx, AdvisorService_DeleteAdvisorCheck_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdvisorServiceServer is the server API for AdvisorService service.
 // All implementations must embed UnimplementedAdvisorServiceServer
 // for forward compatibility.
@@ -194,6 +246,14 @@ type AdvisorServiceServer interface {
 	ListAdvisors(context.Context, *ListAdvisorsRequest) (*ListAdvisorsResponse, error)
 	// ChangeAdvisorChecks enables/disables Advisor checks or changes their exec interval.
 	ChangeAdvisorChecks(context.Context, *ChangeAdvisorChecksRequest) (*ChangeAdvisorChecksResponse, error)
+	// GetAdvisorCheck returns a single advisor check by name, including its queries and script.
+	GetAdvisorCheck(context.Context, *GetAdvisorCheckRequest) (*GetAdvisorCheckResponse, error)
+	// CreateAdvisorCheck creates a new user-authored advisor check.
+	CreateAdvisorCheck(context.Context, *CreateAdvisorCheckRequest) (*CreateAdvisorCheckResponse, error)
+	// UpdateAdvisorCheck updates an existing user-authored advisor check.
+	UpdateAdvisorCheck(context.Context, *UpdateAdvisorCheckRequest) (*UpdateAdvisorCheckResponse, error)
+	// DeleteAdvisorCheck deletes a user-authored advisor check.
+	DeleteAdvisorCheck(context.Context, *DeleteAdvisorCheckRequest) (*DeleteAdvisorCheckResponse, error)
 	mustEmbedUnimplementedAdvisorServiceServer()
 }
 
@@ -242,6 +302,22 @@ func (UnimplementedAdvisorServiceServer) ListAdvisors(context.Context, *ListAdvi
 
 func (UnimplementedAdvisorServiceServer) ChangeAdvisorChecks(context.Context, *ChangeAdvisorChecksRequest) (*ChangeAdvisorChecksResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ChangeAdvisorChecks not implemented")
+}
+
+func (UnimplementedAdvisorServiceServer) GetAdvisorCheck(context.Context, *GetAdvisorCheckRequest) (*GetAdvisorCheckResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetAdvisorCheck not implemented")
+}
+
+func (UnimplementedAdvisorServiceServer) CreateAdvisorCheck(context.Context, *CreateAdvisorCheckRequest) (*CreateAdvisorCheckResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateAdvisorCheck not implemented")
+}
+
+func (UnimplementedAdvisorServiceServer) UpdateAdvisorCheck(context.Context, *UpdateAdvisorCheckRequest) (*UpdateAdvisorCheckResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateAdvisorCheck not implemented")
+}
+
+func (UnimplementedAdvisorServiceServer) DeleteAdvisorCheck(context.Context, *DeleteAdvisorCheckRequest) (*DeleteAdvisorCheckResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteAdvisorCheck not implemented")
 }
 func (UnimplementedAdvisorServiceServer) mustEmbedUnimplementedAdvisorServiceServer() {}
 func (UnimplementedAdvisorServiceServer) testEmbeddedByValue()                        {}
@@ -444,6 +520,78 @@ func _AdvisorService_ChangeAdvisorChecks_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdvisorService_GetAdvisorCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAdvisorCheckRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdvisorServiceServer).GetAdvisorCheck(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdvisorService_GetAdvisorCheck_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdvisorServiceServer).GetAdvisorCheck(ctx, req.(*GetAdvisorCheckRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdvisorService_CreateAdvisorCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAdvisorCheckRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdvisorServiceServer).CreateAdvisorCheck(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdvisorService_CreateAdvisorCheck_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdvisorServiceServer).CreateAdvisorCheck(ctx, req.(*CreateAdvisorCheckRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdvisorService_UpdateAdvisorCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateAdvisorCheckRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdvisorServiceServer).UpdateAdvisorCheck(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdvisorService_UpdateAdvisorCheck_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdvisorServiceServer).UpdateAdvisorCheck(ctx, req.(*UpdateAdvisorCheckRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdvisorService_DeleteAdvisorCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAdvisorCheckRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdvisorServiceServer).DeleteAdvisorCheck(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdvisorService_DeleteAdvisorCheck_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdvisorServiceServer).DeleteAdvisorCheck(ctx, req.(*DeleteAdvisorCheckRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdvisorService_ServiceDesc is the grpc.ServiceDesc for AdvisorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -490,6 +638,22 @@ var AdvisorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ChangeAdvisorChecks",
 			Handler:    _AdvisorService_ChangeAdvisorChecks_Handler,
+		},
+		{
+			MethodName: "GetAdvisorCheck",
+			Handler:    _AdvisorService_GetAdvisorCheck_Handler,
+		},
+		{
+			MethodName: "CreateAdvisorCheck",
+			Handler:    _AdvisorService_CreateAdvisorCheck_Handler,
+		},
+		{
+			MethodName: "UpdateAdvisorCheck",
+			Handler:    _AdvisorService_UpdateAdvisorCheck_Handler,
+		},
+		{
+			MethodName: "DeleteAdvisorCheck",
+			Handler:    _AdvisorService_DeleteAdvisorCheck_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

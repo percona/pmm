@@ -1218,6 +1218,23 @@ var databaseSchema = [][]string{
 		`CREATE INDEX check_results_service_id_idx ON check_results (service_id)`,
 		`CREATE INDEX check_results_checked_at_idx ON check_results (checked_at)`,
 	},
+	120: {
+		`CREATE TABLE advisor_checks (
+			name VARCHAR(128) NOT NULL CHECK (name <> ''),
+			summary VARCHAR NOT NULL,
+			description TEXT NOT NULL,
+			category VARCHAR NOT NULL,
+			subcategory VARCHAR NOT NULL,
+			family VARCHAR NOT NULL,
+			interval VARCHAR NOT NULL,
+			queries TEXT NOT NULL,
+			script TEXT NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (name)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

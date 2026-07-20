@@ -95,10 +95,23 @@ message CheckResult {
   bool silenced = 10;
 }
 
+// AdvisorCheckQuery is a single data-collection query of an advisor check.
+message AdvisorCheckQuery {
+  // Query type, e.g. "MYSQL_SHOW", "POSTGRESQL_SELECT", "METRICS_RANGE".
+  string type = 1;
+  // Query text (may be empty for parameterless types such as MYSQL_SHOW).
+  string query = 2;
+  // Optional query parameters (e.g. range/step for metrics range queries).
+  map<string, string> parameters = 3;
+}
+
 // AdvisorCheck contains check name and status.
 message AdvisorCheck {
   // Machine-readable name (ID) that is used in expression.
-  string name = 1;
+  string name = 1 [(validate.rules).string = {
+    pattern: "^[a-zA-Z_][a-zA-Z0-9_]*$"
+    max_len: 128
+  }];
   // True if that check is enabled.
   bool enabled = 2;
   // Long human-readable description.
@@ -109,6 +122,16 @@ message AdvisorCheck {
   AdvisorCheckInterval interval = 5;
   // DB family.
   AdvisorCheckFamily family = 6;
+  // Category (top-level grouping).
+  string category = 7;
+  // Subcategory (second-level grouping within a category).
+  string subcategory = 8;
+  // True if the check is user-authored (editable/deletable); false for Percona-shipped checks.
+  bool user_defined = 9;
+  // Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.
+  repeated AdvisorCheckQuery queries = 10;
+  // Starlark source script. Populated by Get/Create/Update; may be empty in list responses.
+  string script = 11;
 }
 
 message Advisor {
@@ -162,6 +185,42 @@ message GetAdvisorCheckScriptResponse {
   // Source script (Starlark) of the check.
   string script = 1;
 }
+
+message GetAdvisorCheckRequest {
+  // Machine-readable name (ID) of the check.
+  string name = 1;
+}
+
+message GetAdvisorCheckResponse {
+  AdvisorCheck check = 1;
+}
+
+message CreateAdvisorCheckRequest {
+  // The check to create. Its name must be unique across all checks.
+  AdvisorCheck check = 1;
+}
+
+message CreateAdvisorCheckResponse {
+  AdvisorCheck check = 1;
+}
+
+message UpdateAdvisorCheckRequest {
+  // Machine-readable name (ID) of the check to update.
+  string name = 1;
+  // The updated check definition.
+  AdvisorCheck check = 2;
+}
+
+message UpdateAdvisorCheckResponse {
+  AdvisorCheck check = 1;
+}
+
+message DeleteAdvisorCheckRequest {
+  // Machine-readable name (ID) of the check to delete.
+  string name = 1;
+}
+
+message DeleteAdvisorCheckResponse {}
 
 message ListAdvisorsRequest {}
 
@@ -399,6 +458,45 @@ service AdvisorService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change Advisor Checks"
       description: "Enables/disables advisor checks or changes their exec interval."
+    };
+  }
+  // GetAdvisorCheck returns a single advisor check by name, including its queries and script.
+  rpc GetAdvisorCheck(GetAdvisorCheckRequest) returns (GetAdvisorCheckResponse) {
+    // deeper path than /checks/{failed,history} so the {name} wildcard cannot shadow them
+    option (google.api.http) = {get: "/v1/advisors/checks/{name}/definition"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get Advisor Check"
+      description: "Returns a single advisor check by name, including its queries and script."
+    };
+  }
+  // CreateAdvisorCheck creates a new user-authored advisor check.
+  rpc CreateAdvisorCheck(CreateAdvisorCheckRequest) returns (CreateAdvisorCheckResponse) {
+    option (google.api.http) = {
+      post: "/v1/advisors/checks"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Create Advisor Check"
+      description: "Creates a new user-authored advisor check."
+    };
+  }
+  // UpdateAdvisorCheck updates an existing user-authored advisor check.
+  rpc UpdateAdvisorCheck(UpdateAdvisorCheckRequest) returns (UpdateAdvisorCheckResponse) {
+    option (google.api.http) = {
+      put: "/v1/advisors/checks/{name}"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update Advisor Check"
+      description: "Updates an existing user-authored advisor check. Percona-shipped checks cannot be modified."
+    };
+  }
+  // DeleteAdvisorCheck deletes a user-authored advisor check.
+  rpc DeleteAdvisorCheck(DeleteAdvisorCheckRequest) returns (DeleteAdvisorCheckResponse) {
+    option (google.api.http) = {delete: "/v1/advisors/checks/{name}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Delete Advisor Check"
+      description: "Deletes a user-authored advisor check. Percona-shipped checks cannot be deleted."
     };
   }
 }

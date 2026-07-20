@@ -1426,6 +1426,55 @@
                                 "ADVISOR_CHECK_FAMILY_MONGODB"
                               ],
                               "x-order": 5
+                            },
+                            "category": {
+                              "description": "Category (top-level grouping).",
+                              "type": "string",
+                              "x-order": 6
+                            },
+                            "subcategory": {
+                              "description": "Subcategory (second-level grouping within a category).",
+                              "type": "string",
+                              "x-order": 7
+                            },
+                            "user_defined": {
+                              "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
+                              "type": "boolean",
+                              "x-order": 8
+                            },
+                            "queries": {
+                              "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
+                              "type": "array",
+                              "items": {
+                                "description": "AdvisorCheckQuery is a single data-collection query of an advisor check.",
+                                "type": "object",
+                                "properties": {
+                                  "type": {
+                                    "description": "Query type, e.g. \"MYSQL_SHOW\", \"POSTGRESQL_SELECT\", \"METRICS_RANGE\".",
+                                    "type": "string",
+                                    "x-order": 0
+                                  },
+                                  "query": {
+                                    "description": "Query text (may be empty for parameterless types such as MYSQL_SHOW).",
+                                    "type": "string",
+                                    "x-order": 1
+                                  },
+                                  "parameters": {
+                                    "description": "Optional query parameters (e.g. range/step for metrics range queries).",
+                                    "type": "object",
+                                    "additionalProperties": {
+                                      "type": "string"
+                                    },
+                                    "x-order": 2
+                                  }
+                                }
+                              },
+                              "x-order": 9
+                            },
+                            "script": {
+                              "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
+                              "type": "string",
+                              "x-order": 10
                             }
                           }
                         },
@@ -1534,7 +1583,315 @@
                           "ADVISOR_CHECK_FAMILY_MONGODB"
                         ],
                         "x-order": 5
+                      },
+                      "category": {
+                        "description": "Category (top-level grouping).",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "subcategory": {
+                        "description": "Subcategory (second-level grouping within a category).",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "user_defined": {
+                        "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
+                        "type": "boolean",
+                        "x-order": 8
+                      },
+                      "queries": {
+                        "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
+                        "type": "array",
+                        "items": {
+                          "description": "AdvisorCheckQuery is a single data-collection query of an advisor check.",
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "description": "Query type, e.g. \"MYSQL_SHOW\", \"POSTGRESQL_SELECT\", \"METRICS_RANGE\".",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "query": {
+                              "description": "Query text (may be empty for parameterless types such as MYSQL_SHOW).",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "parameters": {
+                              "description": "Optional query parameters (e.g. range/step for metrics range queries).",
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 9
+                      },
+                      "script": {
+                        "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
+                        "type": "string",
+                        "x-order": 10
                       }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new user-authored advisor check.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Create Advisor Check",
+        "operationId": "CreateAdvisorCheck",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "check": {
+                  "description": "AdvisorCheck contains check name and status.",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Machine-readable name (ID) that is used in expression.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "enabled": {
+                      "description": "True if that check is enabled.",
+                      "type": "boolean",
+                      "x-order": 1
+                    },
+                    "description": {
+                      "description": "Long human-readable description.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "summary": {
+                      "description": "Short human-readable summary.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "interval": {
+                      "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
+                      "type": "string",
+                      "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                        "ADVISOR_CHECK_INTERVAL_STANDARD",
+                        "ADVISOR_CHECK_INTERVAL_FREQUENT",
+                        "ADVISOR_CHECK_INTERVAL_RARE"
+                      ],
+                      "x-order": 4
+                    },
+                    "family": {
+                      "type": "string",
+                      "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                        "ADVISOR_CHECK_FAMILY_MYSQL",
+                        "ADVISOR_CHECK_FAMILY_POSTGRESQL",
+                        "ADVISOR_CHECK_FAMILY_MONGODB"
+                      ],
+                      "x-order": 5
+                    },
+                    "category": {
+                      "description": "Category (top-level grouping).",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "subcategory": {
+                      "description": "Subcategory (second-level grouping within a category).",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "user_defined": {
+                      "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "queries": {
+                      "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
+                      "type": "array",
+                      "items": {
+                        "description": "AdvisorCheckQuery is a single data-collection query of an advisor check.",
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "description": "Query type, e.g. \"MYSQL_SHOW\", \"POSTGRESQL_SELECT\", \"METRICS_RANGE\".",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "query": {
+                            "description": "Query text (may be empty for parameterless types such as MYSQL_SHOW).",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "parameters": {
+                            "description": "Optional query parameters (e.g. range/step for metrics range queries).",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 2
+                          }
+                        }
+                      },
+                      "x-order": 9
+                    },
+                    "script": {
+                      "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
+                      "type": "string",
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "check": {
+                  "description": "AdvisorCheck contains check name and status.",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Machine-readable name (ID) that is used in expression.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "enabled": {
+                      "description": "True if that check is enabled.",
+                      "type": "boolean",
+                      "x-order": 1
+                    },
+                    "description": {
+                      "description": "Long human-readable description.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "summary": {
+                      "description": "Short human-readable summary.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "interval": {
+                      "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
+                      "type": "string",
+                      "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                        "ADVISOR_CHECK_INTERVAL_STANDARD",
+                        "ADVISOR_CHECK_INTERVAL_FREQUENT",
+                        "ADVISOR_CHECK_INTERVAL_RARE"
+                      ],
+                      "x-order": 4
+                    },
+                    "family": {
+                      "type": "string",
+                      "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                        "ADVISOR_CHECK_FAMILY_MYSQL",
+                        "ADVISOR_CHECK_FAMILY_POSTGRESQL",
+                        "ADVISOR_CHECK_FAMILY_MONGODB"
+                      ],
+                      "x-order": 5
+                    },
+                    "category": {
+                      "description": "Category (top-level grouping).",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "subcategory": {
+                      "description": "Subcategory (second-level grouping within a category).",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "user_defined": {
+                      "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "queries": {
+                      "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
+                      "type": "array",
+                      "items": {
+                        "description": "AdvisorCheckQuery is a single data-collection query of an advisor check.",
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "description": "Query type, e.g. \"MYSQL_SHOW\", \"POSTGRESQL_SELECT\", \"METRICS_RANGE\".",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "query": {
+                            "description": "Query text (may be empty for parameterless types such as MYSQL_SHOW).",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "parameters": {
+                            "description": "Optional query parameters (e.g. range/step for metrics range queries).",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 2
+                          }
+                        }
+                      },
+                      "x-order": 9
+                    },
+                    "script": {
+                      "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -2179,6 +2536,489 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/advisors/checks/{name}": {
+      "put": {
+        "description": "Updates an existing user-authored advisor check. Percona-shipped checks cannot be modified.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Update Advisor Check",
+        "operationId": "UpdateAdvisorCheck",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Machine-readable name (ID) of the check to update.",
+            "name": "name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "check": {
+                  "description": "AdvisorCheck contains check name and status.",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Machine-readable name (ID) that is used in expression.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "enabled": {
+                      "description": "True if that check is enabled.",
+                      "type": "boolean",
+                      "x-order": 1
+                    },
+                    "description": {
+                      "description": "Long human-readable description.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "summary": {
+                      "description": "Short human-readable summary.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "interval": {
+                      "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
+                      "type": "string",
+                      "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                        "ADVISOR_CHECK_INTERVAL_STANDARD",
+                        "ADVISOR_CHECK_INTERVAL_FREQUENT",
+                        "ADVISOR_CHECK_INTERVAL_RARE"
+                      ],
+                      "x-order": 4
+                    },
+                    "family": {
+                      "type": "string",
+                      "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                        "ADVISOR_CHECK_FAMILY_MYSQL",
+                        "ADVISOR_CHECK_FAMILY_POSTGRESQL",
+                        "ADVISOR_CHECK_FAMILY_MONGODB"
+                      ],
+                      "x-order": 5
+                    },
+                    "category": {
+                      "description": "Category (top-level grouping).",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "subcategory": {
+                      "description": "Subcategory (second-level grouping within a category).",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "user_defined": {
+                      "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "queries": {
+                      "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
+                      "type": "array",
+                      "items": {
+                        "description": "AdvisorCheckQuery is a single data-collection query of an advisor check.",
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "description": "Query type, e.g. \"MYSQL_SHOW\", \"POSTGRESQL_SELECT\", \"METRICS_RANGE\".",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "query": {
+                            "description": "Query text (may be empty for parameterless types such as MYSQL_SHOW).",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "parameters": {
+                            "description": "Optional query parameters (e.g. range/step for metrics range queries).",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 2
+                          }
+                        }
+                      },
+                      "x-order": 9
+                    },
+                    "script": {
+                      "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
+                      "type": "string",
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "check": {
+                  "description": "AdvisorCheck contains check name and status.",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Machine-readable name (ID) that is used in expression.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "enabled": {
+                      "description": "True if that check is enabled.",
+                      "type": "boolean",
+                      "x-order": 1
+                    },
+                    "description": {
+                      "description": "Long human-readable description.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "summary": {
+                      "description": "Short human-readable summary.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "interval": {
+                      "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
+                      "type": "string",
+                      "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                        "ADVISOR_CHECK_INTERVAL_STANDARD",
+                        "ADVISOR_CHECK_INTERVAL_FREQUENT",
+                        "ADVISOR_CHECK_INTERVAL_RARE"
+                      ],
+                      "x-order": 4
+                    },
+                    "family": {
+                      "type": "string",
+                      "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                        "ADVISOR_CHECK_FAMILY_MYSQL",
+                        "ADVISOR_CHECK_FAMILY_POSTGRESQL",
+                        "ADVISOR_CHECK_FAMILY_MONGODB"
+                      ],
+                      "x-order": 5
+                    },
+                    "category": {
+                      "description": "Category (top-level grouping).",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "subcategory": {
+                      "description": "Subcategory (second-level grouping within a category).",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "user_defined": {
+                      "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "queries": {
+                      "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
+                      "type": "array",
+                      "items": {
+                        "description": "AdvisorCheckQuery is a single data-collection query of an advisor check.",
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "description": "Query type, e.g. \"MYSQL_SHOW\", \"POSTGRESQL_SELECT\", \"METRICS_RANGE\".",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "query": {
+                            "description": "Query text (may be empty for parameterless types such as MYSQL_SHOW).",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "parameters": {
+                            "description": "Optional query parameters (e.g. range/step for metrics range queries).",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 2
+                          }
+                        }
+                      },
+                      "x-order": 9
+                    },
+                    "script": {
+                      "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
+                      "type": "string",
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes a user-authored advisor check. Percona-shipped checks cannot be deleted.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Delete Advisor Check",
+        "operationId": "DeleteAdvisorCheck",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Machine-readable name (ID) of the check to delete.",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/advisors/checks/{name}/definition": {
+      "get": {
+        "description": "Returns a single advisor check by name, including its queries and script.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Get Advisor Check",
+        "operationId": "GetAdvisorCheck",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Machine-readable name (ID) of the check.",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "check": {
+                  "description": "AdvisorCheck contains check name and status.",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Machine-readable name (ID) that is used in expression.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "enabled": {
+                      "description": "True if that check is enabled.",
+                      "type": "boolean",
+                      "x-order": 1
+                    },
+                    "description": {
+                      "description": "Long human-readable description.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "summary": {
+                      "description": "Short human-readable summary.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "interval": {
+                      "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
+                      "type": "string",
+                      "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                        "ADVISOR_CHECK_INTERVAL_STANDARD",
+                        "ADVISOR_CHECK_INTERVAL_FREQUENT",
+                        "ADVISOR_CHECK_INTERVAL_RARE"
+                      ],
+                      "x-order": 4
+                    },
+                    "family": {
+                      "type": "string",
+                      "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                        "ADVISOR_CHECK_FAMILY_MYSQL",
+                        "ADVISOR_CHECK_FAMILY_POSTGRESQL",
+                        "ADVISOR_CHECK_FAMILY_MONGODB"
+                      ],
+                      "x-order": 5
+                    },
+                    "category": {
+                      "description": "Category (top-level grouping).",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "subcategory": {
+                      "description": "Subcategory (second-level grouping within a category).",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "user_defined": {
+                      "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "queries": {
+                      "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
+                      "type": "array",
+                      "items": {
+                        "description": "AdvisorCheckQuery is a single data-collection query of an advisor check.",
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "description": "Query type, e.g. \"MYSQL_SHOW\", \"POSTGRESQL_SELECT\", \"METRICS_RANGE\".",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "query": {
+                            "description": "Query text (may be empty for parameterless types such as MYSQL_SHOW).",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "parameters": {
+                            "description": "Optional query parameters (e.g. range/step for metrics range queries).",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 2
+                          }
+                        }
+                      },
+                      "x-order": 9
+                    },
+                    "script": {
+                      "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
+                      "type": "string",
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
@@ -2960,7 +3800,7 @@
                         "x-order": 7
                       },
                       "source": {
-                        "description": "TemplateSource defines template source.\n\n - TEMPLATE_SOURCE_BUILT_IN: Template that is shipped with PMM Server releases.\n - TEMPLATE_SOURCE_SAAS: Template that is downloaded from check.percona.com.\n - TEMPLATE_SOURCE_USER_FILE: Templated loaded from user-suplied file.\n - TEMPLATE_SOURCE_USER_API: Templated created via API.",
+                        "description": "TemplateSource defines template source.\n\n - TEMPLATE_SOURCE_BUILT_IN: Template that is shipped with PMM Server releases.\n - TEMPLATE_SOURCE_SAAS: Template that is downloaded from check.percona.com. Deprecated.\n - TEMPLATE_SOURCE_USER_FILE: Templated loaded from user-suplied file.\n - TEMPLATE_SOURCE_USER_API: Templated created via API.",
                         "type": "string",
                         "default": "TEMPLATE_SOURCE_UNSPECIFIED",
                         "enum": [

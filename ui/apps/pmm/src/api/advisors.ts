@@ -1,8 +1,13 @@
 import {
   Advisor,
+  AdvisorCheck,
+  AdvisorCheckInput,
   ChangeAdvisorCheckParams,
   ChangeAdvisorChecksRequest,
   CheckResultHistoryItem,
+  CreateAdvisorCheckRequest,
+  CreateAdvisorCheckResponse,
+  GetAdvisorCheckResponse,
   GetAdvisorCheckScriptResponse,
   ListAdvisorsResponse,
   ListCheckResultsFilterValuesResponse,
@@ -10,6 +15,8 @@ import {
   MarkCheckResultsReadRequest,
   StartAdvisorChecksRequest,
   StartAdvisorChecksResponse,
+  UpdateAdvisorCheckRequest,
+  UpdateAdvisorCheckResponse,
 } from 'types/advisors.types';
 import { EmptyResponse, PaginatedResponse } from 'types/util.types';
 import { api } from './api';
@@ -24,6 +31,42 @@ export const getAdvisorCheckScript = async (name: string): Promise<string> => {
     `/advisors/checks/${encodeURIComponent(name)}/script`
   );
   return res.data.script;
+};
+
+export const getAdvisorCheck = async (name: string): Promise<AdvisorCheck> => {
+  const res = await api.get<GetAdvisorCheckResponse>(
+    `/advisors/checks/${encodeURIComponent(name)}/definition`
+  );
+  return res.data.check;
+};
+
+export const createAdvisorCheck = async (
+  check: AdvisorCheckInput
+): Promise<AdvisorCheck> => {
+  const payload: CreateAdvisorCheckRequest = { check };
+  const res = await api.post<CreateAdvisorCheckResponse>(
+    '/advisors/checks',
+    payload
+  );
+  return res.data.check;
+};
+
+export const updateAdvisorCheck = async (
+  name: string,
+  check: AdvisorCheckInput
+): Promise<AdvisorCheck> => {
+  const payload: UpdateAdvisorCheckRequest = { check };
+  const res = await api.put<UpdateAdvisorCheckResponse>(
+    `/advisors/checks/${encodeURIComponent(name)}`,
+    payload
+  );
+  return res.data.check;
+};
+
+export const deleteAdvisorCheck = async (name: string): Promise<void> => {
+  await api.delete<EmptyResponse>(
+    `/advisors/checks/${encodeURIComponent(name)}`
+  );
 };
 
 export const startAdvisorChecks = async (names: string[]): Promise<string> => {

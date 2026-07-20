@@ -548,6 +548,21 @@ type ListAdvisorChecksOKBodyChecksItems0 struct {
 	// family
 	// Enum: ["ADVISOR_CHECK_FAMILY_UNSPECIFIED","ADVISOR_CHECK_FAMILY_MYSQL","ADVISOR_CHECK_FAMILY_POSTGRESQL","ADVISOR_CHECK_FAMILY_MONGODB"]
 	Family *string `json:"family,omitempty"`
+
+	// Category (top-level grouping).
+	Category string `json:"category,omitempty"`
+
+	// Subcategory (second-level grouping within a category).
+	Subcategory string `json:"subcategory,omitempty"`
+
+	// True if the check is user-authored (editable/deletable); false for Percona-shipped checks.
+	UserDefined bool `json:"user_defined,omitempty"`
+
+	// Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.
+	Queries []*ListAdvisorChecksOKBodyChecksItems0QueriesItems0 `json:"queries"`
+
+	// Starlark source script. Populated by Get/Create/Update; may be empty in list responses.
+	Script string `json:"script,omitempty"`
 }
 
 // Validate validates this list advisor checks OK body checks items0
@@ -559,6 +574,10 @@ func (o *ListAdvisorChecksOKBodyChecksItems0) Validate(formats strfmt.Registry) 
 	}
 
 	if err := o.validateFamily(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQueries(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -664,8 +683,73 @@ func (o *ListAdvisorChecksOKBodyChecksItems0) validateFamily(formats strfmt.Regi
 	return nil
 }
 
-// ContextValidate validates this list advisor checks OK body checks items0 based on context it is used
+func (o *ListAdvisorChecksOKBodyChecksItems0) validateQueries(formats strfmt.Registry) error {
+	if swag.IsZero(o.Queries) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Queries); i++ {
+		if swag.IsZero(o.Queries[i]) { // not required
+			continue
+		}
+
+		if o.Queries[i] != nil {
+			if err := o.Queries[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("queries" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("queries" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this list advisor checks OK body checks items0 based on the context it is used
 func (o *ListAdvisorChecksOKBodyChecksItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateQueries(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAdvisorChecksOKBodyChecksItems0) contextValidateQueries(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Queries); i++ {
+		if o.Queries[i] != nil {
+
+			if swag.IsZero(o.Queries[i]) { // not required
+				return nil
+			}
+
+			if err := o.Queries[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("queries" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("queries" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -680,6 +764,49 @@ func (o *ListAdvisorChecksOKBodyChecksItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAdvisorChecksOKBodyChecksItems0) UnmarshalBinary(b []byte) error {
 	var res ListAdvisorChecksOKBodyChecksItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ListAdvisorChecksOKBodyChecksItems0QueriesItems0 AdvisorCheckQuery is a single data-collection query of an advisor check.
+swagger:model ListAdvisorChecksOKBodyChecksItems0QueriesItems0
+*/
+type ListAdvisorChecksOKBodyChecksItems0QueriesItems0 struct {
+	// Query type, e.g. "MYSQL_SHOW", "POSTGRESQL_SELECT", "METRICS_RANGE".
+	Type string `json:"type,omitempty"`
+
+	// Query text (may be empty for parameterless types such as MYSQL_SHOW).
+	Query string `json:"query,omitempty"`
+
+	// Optional query parameters (e.g. range/step for metrics range queries).
+	Parameters map[string]string `json:"parameters,omitempty"`
+}
+
+// Validate validates this list advisor checks OK body checks items0 queries items0
+func (o *ListAdvisorChecksOKBodyChecksItems0QueriesItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this list advisor checks OK body checks items0 queries items0 based on context it is used
+func (o *ListAdvisorChecksOKBodyChecksItems0QueriesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAdvisorChecksOKBodyChecksItems0QueriesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAdvisorChecksOKBodyChecksItems0QueriesItems0) UnmarshalBinary(b []byte) error {
+	var res ListAdvisorChecksOKBodyChecksItems0QueriesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

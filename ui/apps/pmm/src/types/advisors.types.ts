@@ -14,6 +14,12 @@ export enum AdvisorFamily {
   mongodb = 'ADVISOR_CHECK_FAMILY_MONGODB',
 }
 
+export interface AdvisorCheckQuery {
+  type: string;
+  query: string;
+  parameters?: Record<string, string>;
+}
+
 export interface AdvisorCheck {
   name: string;
   enabled: boolean;
@@ -21,6 +27,25 @@ export interface AdvisorCheck {
   summary: string;
   interval: AdvisorInterval;
   family: AdvisorFamily;
+  category: string;
+  subcategory: string;
+  userDefined: boolean;
+  // populated by get/create/update, empty in list responses
+  queries?: AdvisorCheckQuery[];
+  script?: string;
+}
+
+// AdvisorCheckInput is the authorable payload sent when creating or updating a check.
+export interface AdvisorCheckInput {
+  name: string;
+  summary: string;
+  description: string;
+  category: string;
+  subcategory: string;
+  family: AdvisorFamily;
+  interval: AdvisorInterval;
+  queries: AdvisorCheckQuery[];
+  script: string;
 }
 
 export interface Advisor {
@@ -35,6 +60,26 @@ export interface ListAdvisorsResponse {
 
 export interface GetAdvisorCheckScriptResponse {
   script: string;
+}
+
+export interface GetAdvisorCheckResponse {
+  check: AdvisorCheck;
+}
+
+export interface CreateAdvisorCheckRequest {
+  check: AdvisorCheckInput;
+}
+
+export interface CreateAdvisorCheckResponse {
+  check: AdvisorCheck;
+}
+
+export interface UpdateAdvisorCheckRequest {
+  check: AdvisorCheckInput;
+}
+
+export interface UpdateAdvisorCheckResponse {
+  check: AdvisorCheck;
 }
 
 export interface StartAdvisorChecksRequest {
@@ -131,4 +176,5 @@ export interface AdvisorCheckRow {
   family: AdvisorFamily;
   interval: AdvisorInterval;
   enabled: boolean;
+  userDefined: boolean;
 }

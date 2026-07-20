@@ -27,11 +27,6 @@ export const getAdvisorsColumns = ({
     size: 250,
   },
   {
-    header: Messages.columns.description,
-    accessorKey: 'description',
-    size: 350,
-  },
-  {
     id: 'category',
     header: Messages.columns.category,
     accessorFn: (row) => row.category,
@@ -48,12 +43,22 @@ export const getAdvisorsColumns = ({
     header: Messages.columns.vendor,
     accessorFn: (row) => ADVISOR_FAMILY[row.family],
     size: 140,
+    grow: false,
+  },
+  {
+    id: 'author',
+    header: Messages.columns.author,
+    accessorFn: (row) =>
+      row.userDefined ? Messages.author.custom : Messages.author.percona,
+    size: 110,
+    grow: false,
   },
   {
     id: 'interval',
     header: Messages.columns.interval,
     accessorFn: (row) => ADVISOR_INTERVAL[row.interval],
     size: 130,
+    grow: false,
     Cell: ({ row }) => (
       <Select
         size="small"
@@ -82,6 +87,7 @@ export const getAdvisorsColumns = ({
     accessorFn: (row) =>
       row.enabled ? Messages.status.enabled : Messages.status.disabled,
     size: 110,
+    grow: false,
     Cell: ({ row }) => (
       <Switch
         size="small"

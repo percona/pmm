@@ -31,6 +31,9 @@ const TEST_ADVISORS: Advisor[] = [
         description: 'Warns if MySQL version is EOL',
         interval: AdvisorInterval.standard,
         family: AdvisorFamily.mysql,
+        category: 'Configuration',
+        subcategory: 'Version',
+        userDefined: false,
       },
     ],
   },
@@ -45,6 +48,9 @@ const TEST_ADVISORS: Advisor[] = [
         description: 'Detects users with the SUPER role',
         interval: AdvisorInterval.rare,
         family: AdvisorFamily.postgresql,
+        category: 'Security',
+        subcategory: 'Authentication',
+        userDefined: true,
       },
       {
         name: 'postgresql_disabled_check',
@@ -53,6 +59,9 @@ const TEST_ADVISORS: Advisor[] = [
         description: 'A disabled check',
         interval: AdvisorInterval.standard,
         family: AdvisorFamily.postgresql,
+        category: 'Security',
+        subcategory: 'Authentication',
+        userDefined: false,
       },
     ],
   },
@@ -95,6 +104,7 @@ describe('AdvisorsList', () => {
     vi.mocked(advisorsApi.getAdvisorCheckScript).mockResolvedValue(
       'print("hi")'
     );
+    vi.mocked(advisorsApi.deleteAdvisorCheck).mockResolvedValue();
   });
 
   it('opens the check details overlay on row double-click and shows the code', async () => {
@@ -346,6 +356,37 @@ describe('AdvisorsList', () => {
     await waitFor(() =>
       expect(advisorsApi.changeAdvisorChecks).toHaveBeenCalledWith(
         [{ name: 'mysql_version_check', interval: AdvisorInterval.rare }],
+        expect.anything()
+      )
+    );
+  });
+
+  it('shows edit/delete only for user-defined checks', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    expect(
+      screen.getByTestId('check-postgresql_super_role-edit')
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('check-mysql_version_check-edit')
+    ).not.toBeInTheDocument();
+  });
+
+  it('deletes a user-defined check after confirmation', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('check-postgresql_super_role-delete'));
+
+    const confirm = await screen.findByTestId('delete-advisor-confirm');
+    fireEvent.click(confirm);
+
+    await waitFor(() =>
+      expect(advisorsApi.deleteAdvisorCheck).toHaveBeenCalledWith(
+        'postgresql_super_role',
         expect.anything()
       )
     );

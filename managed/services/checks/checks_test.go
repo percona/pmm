@@ -16,8 +16,10 @@
 package checks
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
+	"os"
 	"testing"
 	"time"
 
@@ -28,6 +30,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -47,6 +51,34 @@ var (
 	vmClient     v1.API
 	clickhouseDB *sql.DB
 )
+
+// loadTestCheck parses the good-check test fixture into a check.Check.
+func loadTestCheck(t *testing.T) check.Check {
+	t.Helper()
+
+	b, err := os.ReadFile(testChecksFile)
+	require.NoError(t, err)
+
+	checks, err := check.ParseChecks(bytes.NewReader(b), &check.ParseParams{
+		DisallowUnknownFields: true,
+		DisallowInvalidChecks: true,
+	})
+	require.NoError(t, err)
+	require.Len(t, checks, 1)
+
+	return checks[0]
+}
+
+// seedUserCheck stores the good-check test fixture as a user-authored check in the DB.
+func seedUserCheck(t *testing.T, db *reform.DB) {
+	t.Helper()
+
+	c := loadTestCheck(t)
+	m, err := userCheckToModel(c)
+	require.NoError(t, err)
+	_, err = models.CreateAdvisorCheck(db.Querier, m)
+	require.NoError(t, err)
+}
 
 func TestLoadBuiltinAdvisors(t *testing.T) {
 	setupClients(t)
@@ -106,7 +138,7 @@ func TestUpdateAdvisorsList(t *testing.T) {
 
 	t.Run("collect custom checks", func(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
-		s.customCheckFile = testChecksFile
+		seedUserCheck(t, db)
 
 		s.UpdateAdvisorsList(t.Context())
 
@@ -114,7 +146,7 @@ func TestUpdateAdvisorsList(t *testing.T) {
 		require.NoError(t, err)
 		require.GreaterOrEqual(t, len(advisors), 1)
 
-		// the custom check carries a unique (category, subcategory), so it forms
+		// the user check carries a unique (category, subcategory), so it forms
 		// its own advisor group loaded last.
 		advisor := advisors[len(advisors)-1]
 		require.Equal(t, "Development", advisor.Category)
@@ -141,7 +173,7 @@ func TestDisableChecks(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, vmClient, clickhouseDB)
-		s.customCheckFile = testChecksFile
+		seedUserCheck(t, db)
 
 		s.UpdateAdvisorsList(t.Context())
 
@@ -170,7 +202,7 @@ func TestDisableChecks(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, vmClient, clickhouseDB)
-		s.customCheckFile = testChecksFile
+		seedUserCheck(t, db)
 
 		s.UpdateAdvisorsList(t.Context())
 
@@ -202,7 +234,7 @@ func TestDisableChecks(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, vmClient, clickhouseDB)
-		s.customCheckFile = testChecksFile
+		seedUserCheck(t, db)
 
 		s.UpdateAdvisorsList(t.Context())
 
@@ -225,7 +257,7 @@ func TestEnableChecks(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, vmClient, clickhouseDB)
-		s.customCheckFile = testChecksFile
+		seedUserCheck(t, db)
 
 		s.UpdateAdvisorsList(t.Context())
 
@@ -256,7 +288,7 @@ func TestChangeInterval(t *testing.T) {
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 		s := New(db, nil, vmClient, clickhouseDB)
-		s.customCheckFile = testChecksFile
+		seedUserCheck(t, db)
 
 		s.UpdateAdvisorsList(t.Context())
 
@@ -302,7 +334,6 @@ func TestStartChecks(t *testing.T) {
 
 	t.Run("unknown interval", func(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
-		s.customCheckFile = testChecksFile
 
 		err := s.runChecksGroup(t.Context(), "unknown")
 		require.EqualError(t, err, "unknown check interval: unknown")
@@ -311,7 +342,7 @@ func TestStartChecks(t *testing.T) {
 	t.Run("advisors enabled", func(t *testing.T) {
 		s := New(db, nil, vmClient, clickhouseDB)
 
-		s.customCheckFile = testChecksFile
+		seedUserCheck(t, db)
 		s.UpdateAdvisorsList(t.Context())
 		assert.NotEmpty(t, s.advisors)
 		assert.NotEmpty(t, s.checks)
@@ -332,6 +363,73 @@ func TestStartChecks(t *testing.T) {
 
 		err = s.runChecksGroup(t.Context(), "")
 		require.ErrorIs(t, err, services.ErrAdvisorsDisabled)
+	})
+}
+
+func TestUserAdvisorChecks(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	ctx := t.Context()
+
+	s := New(db, nil, vmClient, clickhouseDB)
+
+	// author a valid user check from a known-good template
+	c := loadTestCheck(t)
+	c.Name = "test_user_check_crud"
+
+	err := s.CreateAdvisorCheck(ctx, c)
+	require.NoError(t, err)
+
+	checks, err := s.GetChecks()
+	require.NoError(t, err)
+	created, ok := checks[c.Name]
+	require.True(t, ok)
+	assert.True(t, created.UserDefined)
+	assert.Equal(t, c.Summary, created.Summary)
+
+	t.Run("duplicate name rejected", func(t *testing.T) {
+		err := s.CreateAdvisorCheck(ctx, c)
+		require.Error(t, err)
+		assert.Equal(t, codes.AlreadyExists, status.Code(err))
+	})
+
+	t.Run("update", func(t *testing.T) {
+		updated := c
+		updated.Summary = "updated summary"
+		err := s.UpdateAdvisorCheck(ctx, updated)
+		require.NoError(t, err)
+
+		checks, err := s.GetChecks()
+		require.NoError(t, err)
+		require.Contains(t, checks, c.Name)
+		assert.Equal(t, "updated summary", checks[c.Name].Summary)
+	})
+
+	t.Run("update unknown rejected", func(t *testing.T) {
+		unknown := c
+		unknown.Name = "no_such_check"
+		err := s.UpdateAdvisorCheck(ctx, unknown)
+		require.Error(t, err)
+		assert.Equal(t, codes.NotFound, status.Code(err))
+	})
+
+	t.Run("delete", func(t *testing.T) {
+		err := s.DeleteAdvisorCheck(ctx, c.Name)
+		require.NoError(t, err)
+
+		checks, err := s.GetChecks()
+		require.NoError(t, err)
+		assert.NotContains(t, checks, c.Name)
+	})
+
+	t.Run("delete unknown rejected", func(t *testing.T) {
+		err := s.DeleteAdvisorCheck(ctx, "no_such_check")
+		require.Error(t, err)
+		assert.Equal(t, codes.NotFound, status.Code(err))
 	})
 }
 

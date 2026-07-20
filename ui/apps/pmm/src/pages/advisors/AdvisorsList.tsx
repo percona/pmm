@@ -1,6 +1,11 @@
 import { FC, useCallback, useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import { paperClasses } from '@mui/material/Paper';
@@ -9,6 +14,8 @@ import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import FilterAltOffOutlinedIcon from '@mui/icons-material/FilterAltOffOutlined';
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 import PlaylistAddCheckOutlinedIcon from '@mui/icons-material/PlaylistAddCheckOutlined';
@@ -23,6 +30,7 @@ import { Page } from 'components/page';
 import {
   useAdvisors,
   useChangeAdvisorChecks,
+  useDeleteAdvisorCheck,
   useStartAdvisorChecks,
 } from 'hooks/api/useAdvisors';
 import { AdvisorCheckRow, AdvisorInterval } from 'types/advisors.types';
@@ -32,6 +40,7 @@ import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
 import { Messages } from './AdvisorsList.messages';
 import { getAdvisorsColumns, INTERVAL_OPTIONS } from './AdvisorsList.constants';
 import { AdvisorCheckDetailsPane } from './details-pane';
+import { AdvisorCheckForm, AdvisorCheckFormMode } from './check-form';
 
 interface CheckFilters {
   category: string;
@@ -91,8 +100,17 @@ const AdvisorsList: FC = () => {
   const { mutate: startChecks, isPending: isStarting } =
     useStartAdvisorChecks();
   const { mutate: changeChecks } = useChangeAdvisorChecks();
+  const { mutate: deleteCheck, isPending: isDeleting } =
+    useDeleteAdvisorCheck();
 
   const [detailsMaximized, setDetailsMaximized] = useState(false);
+  const [checkForm, setCheckForm] = useState<{
+    mode: AdvisorCheckFormMode;
+    checkName?: string;
+  } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AdvisorCheckRow | null>(
+    null
+  );
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -325,6 +343,21 @@ const AdvisorsList: FC = () => {
     [changeChecks]
   );
 
+  const handleDeleteConfirm = useCallback(() => {
+    if (!deleteTarget) {
+      return;
+    }
+    const target = deleteTarget;
+    deleteCheck(target.checkName, {
+      onSuccess: () => {
+        enqueueSnackbar(Messages.success.checkDeleted(target.summary), {
+          variant: 'success',
+        });
+        setDeleteTarget(null);
+      },
+    });
+  }, [deleteCheck, deleteTarget]);
+
   const columns = useMemo(
     () =>
       getAdvisorsColumns({
@@ -445,6 +478,7 @@ const AdvisorsList: FC = () => {
           <Tooltip title={Messages.addAdvisor} arrow>
             <IconButton
               aria-label={Messages.addAdvisor}
+              onClick={() => setCheckForm({ mode: 'create' })}
               data-testid="add-advisor"
             >
               <AddOutlinedIcon />
@@ -467,21 +501,76 @@ const AdvisorsList: FC = () => {
           enableHiding={false}
           enableRowActions
           positionActionsColumn="last"
+          // size the actions column so Run + Edit + Delete fit centered, show the
+          // "Actions" header (percona-ui hides it by default), and lock the width
+          // (grow: false) so the grid layout doesn't stretch it to fill the row
+          displayColumnDefOptions={{
+            'mrt-row-actions': {
+              header: Messages.columns.actions,
+              // undefined lets MRT render the `header` string with its normal head-cell
+              // layout (percona-ui defaults it to a visually-hidden span)
+              Header: undefined,
+              size: 120,
+              grow: false,
+              muiTableBodyCellProps: { align: 'center', sx: { px: 1 } },
+              muiTableHeadCellProps: { align: 'center', sx: { px: 1 } },
+            },
+          }}
           renderRowActions={({ row }) => (
-            <Button
-              color="inherit"
-              size="small"
-              disabled={!row.original.enabled || isStarting}
-              onClick={() =>
-                runChecks(
-                  [row.original.checkName],
-                  Messages.success.checkStarted(row.original.summary)
-                )
-              }
-              data-testid={`check-${row.original.checkName}-run`}
+            <Stack
+              direction="row"
+              gap={0.25}
+              alignItems="center"
+              justifyContent="center"
+              // tighten the button padding so three icons fit the narrow column
+              sx={{ width: '100%', '& .MuiIconButton-root': { p: 0.5 } }}
             >
-              {Messages.run}
-            </Button>
+              <Tooltip title={Messages.run} arrow>
+                <Box component="span">
+                  <IconButton
+                    color="inherit"
+                    disabled={!row.original.enabled || isStarting}
+                    aria-label={Messages.run}
+                    onClick={() =>
+                      runChecks(
+                        [row.original.checkName],
+                        Messages.success.checkStarted(row.original.summary)
+                      )
+                    }
+                    data-testid={`check-${row.original.checkName}-run`}
+                  >
+                    <PlayArrowOutlinedIcon />
+                  </IconButton>
+                </Box>
+              </Tooltip>
+              {row.original.userDefined && (
+                <>
+                  <Tooltip title={Messages.edit} arrow>
+                    <IconButton
+                      aria-label={Messages.edit}
+                      onClick={() =>
+                        setCheckForm({
+                          mode: 'edit',
+                          checkName: row.original.checkName,
+                        })
+                      }
+                      data-testid={`check-${row.original.checkName}-edit`}
+                    >
+                      <EditOutlinedIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title={Messages.delete} arrow>
+                    <IconButton
+                      aria-label={Messages.delete}
+                      onClick={() => setDeleteTarget(row.original)}
+                      data-testid={`check-${row.original.checkName}-delete`}
+                    >
+                      <DeleteOutlineOutlinedIcon />
+                    </IconButton>
+                  </Tooltip>
+                </>
+              )}
+            </Stack>
           )}
           muiTableBodyRowProps={({ row }) => ({
             'data-testid': `advisor-row-${row.original.checkName}`,
@@ -503,7 +592,56 @@ const AdvisorsList: FC = () => {
           onClose={() =>
             patchParams((p) => p.delete('details'), { resetPage: false })
           }
+          onClone={() => {
+            if (detailsCheck) {
+              setCheckForm({
+                mode: 'clone',
+                checkName: detailsCheck.checkName,
+              });
+              patchParams((p) => p.delete('details'), { resetPage: false });
+            }
+          }}
         />
+        <AdvisorCheckForm
+          open={!!checkForm}
+          mode={checkForm?.mode ?? 'create'}
+          checkName={checkForm?.checkName}
+          onClose={() => setCheckForm(null)}
+        />
+        <Dialog
+          open={!!deleteTarget}
+          onClose={() => setDeleteTarget(null)}
+          data-testid="delete-advisor-dialog"
+        >
+          <DialogTitle>{Messages.deleteDialog.title}</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              {deleteTarget
+                ? Messages.deleteDialog.body(
+                    deleteTarget.summary || deleteTarget.checkName
+                  )
+                : ''}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              color="inherit"
+              onClick={() => setDeleteTarget(null)}
+              data-testid="delete-advisor-cancel"
+            >
+              {Messages.deleteDialog.cancel}
+            </Button>
+            <Button
+              color="error"
+              variant="contained"
+              disabled={isDeleting}
+              onClick={handleDeleteConfirm}
+              data-testid="delete-advisor-confirm"
+            >
+              {Messages.deleteDialog.confirm}
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Stack>
     </Page>
   );

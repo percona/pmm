@@ -11,5 +11,6 @@ export const flattenAdvisorChecks = (advisors: Advisor[]): AdvisorCheckRow[] =>
       family: check.family,
       interval: check.interval,
       enabled: check.enabled,
+      userDefined: check.userDefined,
     }))
   );

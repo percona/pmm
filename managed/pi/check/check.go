@@ -234,9 +234,9 @@ const (
 
 // Query represents DB query of specified type.
 type Query struct {
-	Query      string
-	Type       Type
-	Parameters map[Parameter]string
+	Query      string               `json:"query"`
+	Type       Type                 `json:"type"`
+	Parameters map[Parameter]string `json:"parameters,omitempty"`
 }
 
 // Validate validates query.
@@ -276,6 +276,10 @@ type Check struct {
 	Interval    Interval `yaml:"interval,omitempty"`
 	Queries     []Query  `yaml:"queries"`
 	Script      string   `yaml:"script"`
+	// UserDefined is true for checks authored by a user and stored in the DB,
+	// false for Percona-shipped checks loaded from disk. It is not part of the
+	// check's YAML/JSON representation.
+	UserDefined bool `yaml:"-" json:"-"`
 }
 
 // Validate validates check for minimal correctness.

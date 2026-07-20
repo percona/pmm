@@ -1,0 +1,39 @@
+export const Messages = {
+  createTitle: 'Add advisor check',
+  editTitle: 'Edit advisor check',
+  cloneTitle: 'Clone advisor check',
+  close: 'Close',
+  fields: {
+    name: 'Name',
+    nameHelper:
+      'Unique ID: letters, digits and underscores, starting with a letter or underscore.',
+    summary: 'Summary',
+    description: 'Description',
+    category: 'Category',
+    subcategory: 'Sub category',
+    family: 'Vendor',
+    interval: 'Interval',
+    queries: 'Queries',
+    queryType: 'Type',
+    query: 'Query',
+    queryHelper:
+      'Leave empty for parameterless query types (e.g. SHOW / getParameter).',
+    script: 'Script',
+  },
+  addQuery: 'Add query',
+  removeQuery: 'Remove query',
+  cancel: 'Cancel',
+  save: 'Save',
+  loadError: 'Unable to load the check.',
+  success: {
+    created: (name: string) => `Advisor check "${name}" created`,
+    updated: (name: string) => `Advisor check "${name}" updated`,
+  },
+  validation: {
+    name: 'Enter a valid name: letters, digits and underscores, starting with a letter or underscore.',
+    nameMax: 'Name must be at most 128 characters.',
+    required: 'This field is required.',
+    queriesRequired: 'Add at least one query.',
+    queryType: 'Select a query type.',
+  },
+};

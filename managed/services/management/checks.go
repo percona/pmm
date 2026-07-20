@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"slices"
 
 	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
@@ -347,6 +348,9 @@ func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *advisorsv1.Li
 			Family:      convertFamily(c.Family),
 			Description: c.Description,
 			Interval:    convertInterval(c.Interval),
+			Category:    c.Category,
+			Subcategory: c.Subcategory,
+			UserDefined: c.UserDefined,
 		})
 	}
 
@@ -397,6 +401,9 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdv
 				Family:      convertFamily(c.Family),
 				Description: c.Description,
 				Interval:    convertInterval(c.Interval),
+				Category:    c.Category,
+				Subcategory: c.Subcategory,
+				UserDefined: c.UserDefined,
 			})
 		}
 
@@ -450,6 +457,90 @@ func (s *ChecksAPIService) ChangeAdvisorChecks(_ context.Context, req *advisorsv
 	}
 
 	return &advisorsv1.ChangeAdvisorChecksResponse{}, nil
+}
+
+// GetAdvisorCheck returns a single advisor check by name, including its queries and script.
+func (s *ChecksAPIService) GetAdvisorCheck(_ context.Context, req *advisorsv1.GetAdvisorCheckRequest) (*advisorsv1.GetAdvisorCheckResponse, error) {
+	c, enabled, err := s.getCheck(req.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &advisorsv1.GetAdvisorCheckResponse{Check: advisorCheckToAPI(c, enabled)}, nil
+}
+
+// CreateAdvisorCheck creates a new user-authored advisor check.
+func (s *ChecksAPIService) CreateAdvisorCheck(ctx context.Context, req *advisorsv1.CreateAdvisorCheckRequest) (*advisorsv1.CreateAdvisorCheckResponse, error) {
+	if req.Check == nil {
+		return nil, status.Error(codes.InvalidArgument, "Check is required.")
+	}
+
+	err := s.checksService.CreateAdvisorCheck(ctx, apiToAdvisorCheck(req.Check))
+	if err != nil {
+		return nil, err
+	}
+
+	c, enabled, err := s.getCheck(req.Check.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &advisorsv1.CreateAdvisorCheckResponse{Check: advisorCheckToAPI(c, enabled)}, nil
+}
+
+// UpdateAdvisorCheck updates an existing user-authored advisor check.
+func (s *ChecksAPIService) UpdateAdvisorCheck(ctx context.Context, req *advisorsv1.UpdateAdvisorCheckRequest) (*advisorsv1.UpdateAdvisorCheckResponse, error) {
+	if req.Check == nil {
+		return nil, status.Error(codes.InvalidArgument, "Check is required.")
+	}
+
+	c := apiToAdvisorCheck(req.Check)
+	// the path parameter is authoritative; the name cannot be changed on update
+	c.Name = req.Name
+
+	err := s.checksService.UpdateAdvisorCheck(ctx, c)
+	if err != nil {
+		return nil, err
+	}
+
+	updated, enabled, err := s.getCheck(req.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &advisorsv1.UpdateAdvisorCheckResponse{Check: advisorCheckToAPI(updated, enabled)}, nil
+}
+
+// DeleteAdvisorCheck deletes a user-authored advisor check.
+func (s *ChecksAPIService) DeleteAdvisorCheck(ctx context.Context, req *advisorsv1.DeleteAdvisorCheckRequest) (*advisorsv1.DeleteAdvisorCheckResponse, error) {
+	err := s.checksService.DeleteAdvisorCheck(ctx, req.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &advisorsv1.DeleteAdvisorCheckResponse{}, nil
+}
+
+// getCheck returns a check by name together with its enabled state.
+func (s *ChecksAPIService) getCheck(name string) (check.Check, bool, error) {
+	checks, err := s.checksService.GetChecks()
+	if err != nil {
+		return check.Check{}, false, fmt.Errorf("failed to get available checks list: %w", err)
+	}
+
+	c, ok := checks[name]
+	if !ok {
+		return check.Check{}, false, status.Errorf(codes.NotFound, "Advisor check %q not found.", name)
+	}
+
+	disabled, err := s.checksService.GetDisabledChecks()
+	if err != nil {
+		return check.Check{}, false, fmt.Errorf("failed to get disabled checks list: %w", err)
+	}
+
+	enabled := !slices.Contains(disabled, name)
+
+	return c, enabled, nil
 }
 
 // convertInterval converts check.Interval type to advisorsv1.AdvisorCheckInterval.
@@ -614,4 +705,123 @@ func convertAPIInterval(interval advisorsv1.AdvisorCheckInterval) (check.Interva
 	default:
 		return "", errors.New("unknown advisor check interval")
 	}
+}
+
+// convertAPIFamily converts advisorsv1.AdvisorCheckFamily to check.Family.
+// An unspecified family maps to an empty family, which fails check validation.
+func convertAPIFamily(family advisorsv1.AdvisorCheckFamily) check.Family {
+	switch family {
+	case advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MYSQL:
+		return check.MySQL
+	case advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_POSTGRESQL:
+		return check.PostgreSQL
+	case advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MONGODB:
+		return check.MongoDB
+	default:
+		return ""
+	}
+}
+
+// convertAPIIntervalOptional converts advisorsv1.AdvisorCheckInterval to check.Interval.
+// Unlike convertAPIInterval, an unspecified interval maps to an empty interval
+// (treated as standard by the loader) rather than an error.
+func convertAPIIntervalOptional(interval advisorsv1.AdvisorCheckInterval) check.Interval {
+	switch interval {
+	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD:
+		return check.Standard
+	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT:
+		return check.Frequent
+	case advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE:
+		return check.Rare
+	default:
+		return ""
+	}
+}
+
+// advisorCheckToAPI converts a check.Check into its full API representation, including queries and script.
+func advisorCheckToAPI(c check.Check, enabled bool) *advisorsv1.AdvisorCheck {
+	return &advisorsv1.AdvisorCheck{
+		Name:        c.Name,
+		Enabled:     enabled,
+		Summary:     c.Summary,
+		Description: c.Description,
+		Family:      convertFamily(c.Family),
+		Interval:    convertInterval(c.Interval),
+		Category:    c.Category,
+		Subcategory: c.Subcategory,
+		UserDefined: c.UserDefined,
+		Queries:     convertQueriesToAPI(c.Queries),
+		Script:      c.Script,
+	}
+}
+
+// apiToAdvisorCheck converts an API advisor check (from a create/update request) into a check.Check.
+func apiToAdvisorCheck(c *advisorsv1.AdvisorCheck) check.Check {
+	return check.Check{
+		Name:        c.Name,
+		Summary:     c.Summary,
+		Description: c.Description,
+		Category:    c.Category,
+		Subcategory: c.Subcategory,
+		Family:      convertAPIFamily(c.Family),
+		Interval:    convertAPIIntervalOptional(c.Interval),
+		Queries:     convertAPIQueries(c.Queries),
+		Script:      c.Script,
+	}
+}
+
+// convertQueriesToAPI converts check queries to their API representation.
+func convertQueriesToAPI(queries []check.Query) []*advisorsv1.AdvisorCheckQuery {
+	if len(queries) == 0 {
+		return nil
+	}
+
+	res := make([]*advisorsv1.AdvisorCheckQuery, 0, len(queries))
+	for _, q := range queries {
+		var params map[string]string
+		if len(q.Parameters) != 0 {
+			params = make(map[string]string, len(q.Parameters))
+			for k, v := range q.Parameters {
+				params[string(k)] = v
+			}
+		}
+
+		res = append(res, &advisorsv1.AdvisorCheckQuery{
+			Type:       string(q.Type),
+			Query:      q.Query,
+			Parameters: params,
+		})
+	}
+
+	return res
+}
+
+// convertAPIQueries converts API queries into check queries.
+func convertAPIQueries(queries []*advisorsv1.AdvisorCheckQuery) []check.Query {
+	if len(queries) == 0 {
+		return nil
+	}
+
+	res := make([]check.Query, 0, len(queries))
+	for _, q := range queries {
+		if q == nil {
+			continue
+		}
+
+		var params map[check.Parameter]string
+		if len(q.Parameters) != 0 {
+			params = make(map[check.Parameter]string, len(q.Parameters))
+			for k, v := range q.Parameters {
+				params[check.Parameter(k)] = v
+			}
+		}
+
+		res = append(res, check.Query{
+			Type:       check.Type(q.Type),
+			Query:      q.Query,
+			Parameters: params,
+		})
+	}
+
+	return res
 }
