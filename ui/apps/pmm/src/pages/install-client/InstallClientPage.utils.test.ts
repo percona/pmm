@@ -341,8 +341,8 @@ describe('buildInstallCommand prompt mode', () => {
   test('emits --force when registerForce is on', () => {
     const off = buildInstallCommand({ ...promptBase, registerForce: false });
     const on = buildInstallCommand({ ...promptBase, registerForce: true });
-    expect(off).not.toContain('--force');
-    expect(on).toContain('--force');
+    expect(off).not.toMatch(/(?:^|\s)--force(?:\s|$)/);
+    expect(on).toMatch(/(?:^|\s)--force(?:\s|$)/);
   });
 });
 
