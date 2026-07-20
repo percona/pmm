@@ -706,22 +706,36 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
 }
 
-func cleanPath(p string) (string, error) {
-	unescaped, err := url.PathUnescape(p)
+// fastCleanUnescaped returns a clean, unescaped path from a raw URI.
+// It achieves 0 allocations if the path requires no modifications.
+func cleanPath(uri string) (string, error) {
+	// 1. Strip query parameters
+	if i := strings.IndexByte(uri, '?'); i >= 0 {
+		uri = uri[:i]
+	}
+
+	// 2. Fast-path check: scan for characters that require processing
+	needsWork := false
+	for i := range len(uri) {
+		c := uri[i]
+		// Check for URL encoding (%), dot traversal (.), or double slashes (//)
+		if c == '%' || c == '.' || (c == '/' && i > 0 && uri[i-1] == '/') {
+			needsWork = true
+			break
+		}
+	}
+
+	// 3. Return zero-allocation slice if clean
+	if !needsWork {
+		return uri, nil
+	}
+
+	// 4. Slow-path: Allocate and process
+	unescaped, err := url.PathUnescape(uri)
 	if err != nil {
 		return "", err
 	}
-
-	cleanedPath := path.Clean(unescaped)
-
-	cleanedPath = strings.ReplaceAll(cleanedPath, "\n", " ")
-
-	u, err := url.Parse(cleanedPath)
-	if err != nil {
-		return "", err
-	}
-	u.RawQuery = ""
-	return u.String(), nil
+	return path.Clean(unescaped), nil
 }
 
 func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {

@@ -355,27 +355,57 @@ func TestCleanPath(t *testing.T) {
 	tests := []struct {
 		path     string
 		expected string
+		wantErr  bool
 	}{
 		{
+			connectionEndpointV2,
+			connectionEndpointV2,
+			false,
+		}, {
+			connectionEndpoint,
+			connectionEndpoint,
+			false,
+		}, {
+			rtaCollectEndpoint,
+			rtaCollectEndpoint,
+			false,
+		}, {
 			"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/List",
 			"/v1/inventory/Services/List",
+			false,
 		}, {
 			"/v1/server/AWSInstanceCheck/..%2f..%2f..%2fmanaged/logs.zip",
 			"/managed/logs.zip",
+			false,
 		}, {
 			"/v1/server/AWSInstanceCheck/..%2f..%2f..%2f/logs.zip",
 			"/logs.zip",
+			false,
 		}, {
 			"/graph/api/datasources/proxy/8/?query=WITH%20(%0A%20%20%20%20CASE%20%0A%20%20%20%20%20%20%20%20WHEN%20(3000%20%25%2060)%20%3D%200%20THEN%203000%0A%20%20%20%20ELSE%2060%20END%0A)%20AS%20scale%0ASELECT%0A%20%20%20%20(intDiv(toUInt32(timestamp)%2C%203000)%20*%203000)%20*%201000%20as%20t%2C%0A%20%20%20%20hostname%20h%2C%0A%20%20%20%20status%20s%2C%0A%20%20%20%20SUM(req_count)%20as%20req_count%0AFROM%20pinba.report_by_all%0AWHERE%0A%20%20%20%20timestamp%20%3E%3D%20toDateTime(1707139680)%20AND%20timestamp%20%3C%3D%20toDateTime(1707312480)%0A%20%20%20%20AND%20status%20%3E%3D%20400%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20schema%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20hostname%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20server_name%20%3D%20%27all%27%20ELSE%201%20END%0AGROUP%20BY%20t%2C%20h%2C%20s%0AORDER%20BY%20t%20FORMAT%20JSON",
 			"/graph/api/datasources/proxy/8/",
+			false,
+		}, {
+			"/v1/server/%zz/logs.zip",
+			"",
+			true,
+		}, {
+			"/v1/server/%",
+			"",
+			true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.path, func(t *testing.T) {
 			t.Parallel()
-			cleanedPath, err := cleanPath(tt.path)
+			got, err := cleanPath(tt.path)
+			if tt.wantErr {
+				require.Error(t, err)
+				return
+			}
+
 			require.NoError(t, err)
-			assert.Equalf(t, tt.expected, cleanedPath, "cleanPath(%v)", tt.path)
+			assert.Equalf(t, tt.expected, got, "cleanPath(%v)", tt.path)
 		})
 	}
 }
@@ -416,4 +446,26 @@ func TestAuthServerServeHTTPBadRequestMetricsFallbackToRawRouteOnCleanError(t *t
 
 	value := testutil.ToFloat64(s.metrics.mAuthRequests.WithLabelValues(http.MethodPost, "/bad%2", "400"))
 	require.InDelta(t, 1.0, value, 0.0, "expected auth request metric with original route when cleaning fails")
+}
+
+func BenchmarkFastCleanUnescaped_ComplexUnescapedURI(b *testing.B) {
+	const benchmarkComplexUnescapedURI = "/v1/server/AWSInstanceCheck/..%2f..%2f..%2f..%2fgraph/api/datasources/proxy/8%2f%2f.%2f..%2f8%2f%2f?query=WITH%20CASE%20WHEN%203000%20x%2060%20THEN%203000%20ELSE%2060%20END%20SELECT%20hostname%2Cstatus%20FROM%20pinba.report_by_all%20WHERE%20timestamp%3E%3D1707139680%20AND%20timestamp%3C%3D1707312480%20ORDER%20BY%20t"
+	const benchmarkComplexUnescapedExpectedCleanPath = "/graph/api/datasources/proxy/8"
+
+	b.ReportAllocs()
+
+	cleanedPath, err := cleanPath(benchmarkComplexUnescapedURI)
+	require.NoError(b, err)
+	require.Equal(b, benchmarkComplexUnescapedExpectedCleanPath, cleanedPath)
+
+	b.ResetTimer()
+	for range b.N {
+		cleanedPath, err = cleanPath(benchmarkComplexUnescapedURI)
+		if err != nil {
+			b.Fatalf("cleanPath returned error: %v", err)
+		}
+		if cleanedPath != benchmarkComplexUnescapedExpectedCleanPath {
+			b.Fatalf("unexpected cleaned path: got %q, want %q", cleanedPath, benchmarkComplexUnescapedExpectedCleanPath)
+		}
+	}
 }
