@@ -25,17 +25,12 @@ func TestForceNewAgentTokenSetupFlag(t *testing.T) {
 	for _, tt := range []struct {
 		name     string
 		args     []string
-		env      bool
 		expected bool
 	}{
 		{name: "disabled by default"},
 		{name: "enabled by flag", args: []string{"--force-new-agent-token"}, expected: true},
-		{name: "enabled by environment", env: true, expected: true},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			if tt.env {
-				t.Setenv("PMM_AGENT_SETUP_FORCE_NEW_AGENT_TOKEN", "1")
-			}
 			cfg := &Config{}
 			app, _ := Application(cfg)
 			args := append([]string{"setup"}, tt.args...)

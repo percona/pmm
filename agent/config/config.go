@@ -517,8 +517,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SETUP_FORCE").BoolVar(&cfg.Setup.Force)
 	setupCmd.Flag("skip-registration", "Skip registration on PMM Server [PMM_AGENT_SETUP_SKIP_REGISTRATION]").
 		Envar("PMM_AGENT_SETUP_SKIP_REGISTRATION").BoolVar(&cfg.Setup.SkipRegistration)
-	setupCmd.Flag("force-new-agent-token", "Create a new dedicated agent token even when registration uses an existing token [PMM_AGENT_SETUP_FORCE_NEW_AGENT_TOKEN]").
-		Envar("PMM_AGENT_SETUP_FORCE_NEW_AGENT_TOKEN").BoolVar(&cfg.Setup.ForceNewAgentToken)
+	setupCmd.Flag("force-new-agent-token", "Create a new dedicated agent token even when registration uses an existing token").
+		BoolVar(&cfg.Setup.ForceNewAgentToken)
 	setupCmd.Flag("metrics-mode", "Metrics flow mode for agents node-exporter, can be push - agent will push metrics,"+
 		"pull - server scrape metrics from agent  or auto - chosen by server. [PMM_AGENT_SETUP_METRICS_MODE]").
 		Envar("PMM_AGENT_SETUP_METRICS_MODE").Default("auto").EnumVar(&cfg.Setup.MetricsMode, "auto", "push", "pull")

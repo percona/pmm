@@ -44,18 +44,19 @@ type ConfigCommand struct {
 	flags.MetricsModeFlags
 	flags.LogLevelFatalFlags
 
-	NodeAddress       string   `arg:"" default:"${nodeIp}" help:"Node address (autodetected, default: ${nodeIp})"`
-	NodeType          string   `arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type. One of: [${enum}]. Default: ${default}"`
-	NodeName          string   `arg:"" default:"${hostname}" help:"Node name (autodetected, default: ${hostname})"`
-	NodeModel         string   `help:"Node model"`
-	Region            string   `help:"Node region"`
-	Az                string   `help:"Node availability zone"`
-	AgentPassword     string   `help:"Custom password for /metrics endpoint"`
-	Force             bool     `help:"Remove Node with that name with all dependent Services and Agents if one exist"`
-	DisableCollectors []string `help:"Comma-separated list of collector names to exclude from exporter"`
-	CustomLabels      string   `placeholder:"KEY=VALUE,KEY=VALUE,..." help:"Custom user-assigned labels"`
-	BasePath          string   `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`
-	LogLinesCount     uint     `help:"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents" default:"1024"`
+	NodeAddress        string   `arg:"" default:"${nodeIp}" help:"Node address (autodetected, default: ${nodeIp})"`
+	NodeType           string   `arg:"" enum:"generic,container" default:"${nodeTypeDefault}" help:"Node type. One of: [${enum}]. Default: ${default}"`
+	NodeName           string   `arg:"" default:"${hostname}" help:"Node name (autodetected, default: ${hostname})"`
+	NodeModel          string   `help:"Node model"`
+	Region             string   `help:"Node region"`
+	Az                 string   `help:"Node availability zone"`
+	AgentPassword      string   `help:"Custom password for /metrics endpoint"`
+	Force              bool     `help:"Remove Node with that name with all dependent Services and Agents if one exist"`
+	ForceNewAgentToken bool     `help:"Create a new dedicated agent token even when registration uses an existing token"`
+	DisableCollectors  []string `help:"Comma-separated list of collector names to exclude from exporter"`
+	CustomLabels       string   `placeholder:"KEY=VALUE,KEY=VALUE,..." help:"Custom user-assigned labels"`
+	BasePath           string   `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`
+	LogLinesCount      uint     `help:"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents" default:"1024"`
 }
 
 func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
@@ -117,6 +118,9 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 	}
 	if cmd.Force {
 		res = append(res, "--force")
+	}
+	if cmd.ForceNewAgentToken {
+		res = append(res, "--force-new-agent-token")
 	}
 
 	if cmd.MetricsMode != "" {

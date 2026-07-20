@@ -86,6 +86,28 @@ func TestConfigCommandArgs(t *testing.T) {
 		assert.True(t, switchedToTLS)
 	})
 
+	t.Run("ForceNewAgentToken", func(t *testing.T) {
+		cmd := &ConfigCommand{
+			NodeAddress:        "1.2.3.4",
+			NodeType:           "generic",
+			NodeName:           "node1",
+			ForceNewAgentToken: true,
+		}
+		u, err := url.Parse("https://admin:admin@127.0.0.1")
+		require.NoError(t, err)
+		args, switchedToTLS := cmd.args(&flags.GlobalFlags{ServerURL: u})
+		expected := []string{
+			"--server-address=127.0.0.1:443",
+			"--server-username=admin",
+			"--server-password=admin",
+			"setup",
+			"--force-new-agent-token",
+			"1.2.3.4", "generic", "node1",
+		}
+		assert.Equal(t, expected, args)
+		assert.False(t, switchedToTLS)
+	})
+
 	t.Run("LoggingLevel", func(t *testing.T) {
 		cmd := &ConfigCommand{
 			NodeAddress: "1.2.3.4",

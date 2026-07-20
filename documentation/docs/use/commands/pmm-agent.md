@@ -46,7 +46,7 @@ Most options can be set via environment variables (shown in parentheses).
 | `--debug`                              | `PMM_AGENT_DEBUG`                   | Enable debug output.
 | `--distro=distro`                      | `PMM_AGENT_SETUP_DISTRO`            | Node OS distribution (default is auto-detected).
 | `--force`                              | `PMM_AGENT_SETUP_FORCE`             | Remove Node with that name and all dependent Services and Agents (if existing).
-| `--force-new-agent-token`              | `PMM_AGENT_SETUP_FORCE_NEW_AGENT_TOKEN` | Create a new dedicated agent token even when registration uses an existing token.
+| `--force-new-agent-token`              |                                     | Create a new dedicated agent token even when registration uses an existing token.
 | `--id=...`                             | `PMM_AGENT_ID`                      | ID of this pmm-agent.
 | `--listen-address=LISTEN-ADDRESS`      | `PMM_AGENT_LISTEN_ADDRESS`          | Agent local API address.
 | `--listen-port=LISTEN-PORT`            | `PMM_AGENT_LISTEN_PORT`             | Agent local API port.

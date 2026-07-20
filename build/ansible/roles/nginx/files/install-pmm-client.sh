@@ -59,7 +59,7 @@ TECH="${TECH:-}"
 NODE_NAME="${NODE_NAME:-}"
 NODE_ADDRESS="${NODE_ADDRESS:-}"
 PMM_CONFIG_FORCE="${PMM_CONFIG_FORCE:-0}"
-FORCE_NEW_AGENT_TOKEN="${FORCE_NEW_AGENT_TOKEN:-0}"
+FORCE_NEW_AGENT_TOKEN=0
 PMM_CONFIG_SKIPPED=0
 # Combined stdout+stderr of the last `pmm-admin add` so we can tell a PMM Server
 # authentication failure (expired/invalid agent token) apart from a database error.
@@ -587,13 +587,12 @@ configure_pmm_agent() {
   if [ "${PMM_CONFIG_FORCE}" = "1" ] || [ "${PMM_CONFIG_FORCE}" = "true" ]; then
     config_cmd+=(--force)
   fi
+  if [ "${FORCE_NEW_AGENT_TOKEN}" = "1" ]; then
+    config_cmd+=(--force-new-agent-token)
+  fi
 
   log "Running pmm-admin config..."
-  if [ "${FORCE_NEW_AGENT_TOKEN}" = "1" ] || [ "${FORCE_NEW_AGENT_TOKEN}" = "true" ]; then
-    PMM_AGENT_SETUP_FORCE_NEW_AGENT_TOKEN=1 "${config_cmd[@]}"
-  else
-    "${config_cmd[@]}"
-  fi
+  "${config_cmd[@]}"
 }
 
 apply_generic_inputs() {
