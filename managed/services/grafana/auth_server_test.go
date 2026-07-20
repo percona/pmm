@@ -480,7 +480,7 @@ func TestExtractOriginalRequest(t *testing.T) {
 	t.Run("valid header values are normalized", func(t *testing.T) {
 		t.Parallel()
 
-		req := httptest.NewRequest(http.MethodGet, "/auth_request", nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
 		req.Header.Set("X-Original-Method", http.MethodPost)
 		req.Header.Set("X-Original-Uri", "/v1/server/AWSInstanceCheck/..%2f..%2fmanaged/logs.zip?foo=bar")
 
@@ -493,7 +493,7 @@ func TestExtractOriginalRequest(t *testing.T) {
 	t.Run("invalid escaped path returns error", func(t *testing.T) {
 		t.Parallel()
 
-		req := httptest.NewRequest(http.MethodGet, "/auth_request", nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
 		req.Header.Set("X-Original-Method", http.MethodGet)
 		req.Header.Set("X-Original-Uri", "/v1/server/%zz/logs.zip")
 
@@ -505,7 +505,7 @@ func TestExtractOriginalRequest(t *testing.T) {
 	t.Run("sanitizes encoded newline and carriage return", func(t *testing.T) {
 		t.Parallel()
 
-		req := httptest.NewRequest(http.MethodGet, "/auth_request", nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
 		req.Header.Set("X-Original-Method", http.MethodGet)
 		req.Header.Set("X-Original-Uri", "/v1/server/logs%0A%0D.zip")
 
@@ -529,11 +529,10 @@ func TestIsLocalAgentConnection(t *testing.T) {
 		{name: "remote endpoint", remoteAddr: "10.0.0.2:12345", path: connectionEndpoint, want: false},
 		{name: "local unknown path", remoteAddr: "127.0.0.1:12345", path: "/v1/server/version", want: false},
 	} {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			req := httptest.NewRequest(http.MethodGet, tc.path, nil)
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, tc.path, nil)
 			req.RemoteAddr = tc.remoteAddr
 			assert.Equal(t, tc.want, isLocalAgentConnection(req))
 		})
@@ -561,7 +560,7 @@ func TestAuthServerGetAuthUserCacheMetrics(t *testing.T) {
 	client := &fakeAuthClient{user: authUser{role: viewer, userID: 42}}
 	s := NewAuthServer(client, nil)
 
-	req := httptest.NewRequest(http.MethodGet, "/v1/management/Jobs", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/management/Jobs", nil)
 	req.Header.Set("Authorization", "Bearer token")
 
 	u1, err1 := s.getAuthUser(ctx, req, logrus.WithField("test", t.Name()))
@@ -678,7 +677,7 @@ func TestAuthServerServeHTTPBadRequestMetrics(t *testing.T) {
 
 	s := NewAuthServer(&fakeAuthClient{}, nil)
 	rw := httptest.NewRecorder()
-	req := httptest.NewRequest(http.MethodGet, "/auth_request", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
 	req.Header.Set("X-Original-Method", http.MethodGet)
 	req.Header.Set("X-Original-Uri", "/v1/server/%zz/logs.zip")
 
