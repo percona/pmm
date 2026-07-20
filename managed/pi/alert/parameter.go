@@ -29,6 +29,12 @@ type Parameter struct {
 	Type    Type   `yaml:"type"`           // required
 	Range   []any  `yaml:"range,flow,omitempty"`
 	Value   any    `yaml:"value,omitempty"`
+	// Overridable marks a float threshold parameter as eligible for per-node
+	// override via the dynamic-thresholds feature. It is only valid in a
+	// multi-expression template where the parameter is referenced as a
+	// `[[ .name ]]` token inside an expression step (validated at the template
+	// level, see Template.validateOverridableParams).
+	Overridable bool `yaml:"overridable,omitempty"` // optional
 }
 
 // GetValueForBool casts parameter value to the bool.

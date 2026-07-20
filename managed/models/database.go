@@ -1185,6 +1185,35 @@ var databaseSchema = [][]string{
 		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
 		`UPDATE dumps SET encrypted = false`,
 	},
+	119: {
+		// Registry of alerting rules created from templates, used by the
+		// dynamic-thresholds feature to emit per-node threshold metrics and to
+		// serve the node-centric override API.
+		`CREATE TABLE alert_rules (
+			rule_id VARCHAR NOT NULL,
+			template_name VARCHAR NOT NULL,
+			folder_uid VARCHAR NOT NULL,
+			rule_group VARCHAR NOT NULL,
+			rule_title VARCHAR NOT NULL,
+			default_params JSONB NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+			PRIMARY KEY (rule_id)
+		)`,
+		// Per-node threshold overrides. Keyed by the stable node_id; deleting a
+		// node or its rule cascades the overrides away.
+		`CREATE TABLE alert_rule_threshold_overrides (
+			id VARCHAR NOT NULL,
+			rule_id VARCHAR NOT NULL REFERENCES alert_rules (rule_id) ON DELETE CASCADE,
+			param_name VARCHAR NOT NULL,
+			node_id VARCHAR NOT NULL REFERENCES nodes (node_id) ON DELETE CASCADE,
+			value DOUBLE PRECISION NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+			PRIMARY KEY (id),
+			UNIQUE (rule_id, param_name, node_id)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

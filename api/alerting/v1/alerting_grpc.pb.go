@@ -8,7 +8,6 @@ package alertingv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -20,11 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AlertingService_ListTemplates_FullMethodName  = "/alerting.v1.AlertingService/ListTemplates"
-	AlertingService_CreateTemplate_FullMethodName = "/alerting.v1.AlertingService/CreateTemplate"
-	AlertingService_UpdateTemplate_FullMethodName = "/alerting.v1.AlertingService/UpdateTemplate"
-	AlertingService_DeleteTemplate_FullMethodName = "/alerting.v1.AlertingService/DeleteTemplate"
-	AlertingService_CreateRule_FullMethodName     = "/alerting.v1.AlertingService/CreateRule"
+	AlertingService_ListTemplates_FullMethodName       = "/alerting.v1.AlertingService/ListTemplates"
+	AlertingService_CreateTemplate_FullMethodName      = "/alerting.v1.AlertingService/CreateTemplate"
+	AlertingService_UpdateTemplate_FullMethodName      = "/alerting.v1.AlertingService/UpdateTemplate"
+	AlertingService_DeleteTemplate_FullMethodName      = "/alerting.v1.AlertingService/DeleteTemplate"
+	AlertingService_CreateRule_FullMethodName          = "/alerting.v1.AlertingService/CreateRule"
+	AlertingService_ListNodeThresholds_FullMethodName  = "/alerting.v1.AlertingService/ListNodeThresholds"
+	AlertingService_SetNodeThreshold_FullMethodName    = "/alerting.v1.AlertingService/SetNodeThreshold"
+	AlertingService_DeleteNodeThreshold_FullMethodName = "/alerting.v1.AlertingService/DeleteNodeThreshold"
 )
 
 // AlertingServiceClient is the client API for AlertingService service.
@@ -43,6 +45,13 @@ type AlertingServiceClient interface {
 	DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...grpc.CallOption) (*DeleteTemplateResponse, error)
 	// CreateRule creates alerting rule from the given template.
 	CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error)
+	// ListNodeThresholds lists the overridable thresholds for a node, including
+	// template defaults and any per-node overrides.
+	ListNodeThresholds(ctx context.Context, in *ListNodeThresholdsRequest, opts ...grpc.CallOption) (*ListNodeThresholdsResponse, error)
+	// SetNodeThreshold sets a per-node override for an overridable threshold.
+	SetNodeThreshold(ctx context.Context, in *SetNodeThresholdRequest, opts ...grpc.CallOption) (*SetNodeThresholdResponse, error)
+	// DeleteNodeThreshold clears a per-node override, reverting to the default.
+	DeleteNodeThreshold(ctx context.Context, in *DeleteNodeThresholdRequest, opts ...grpc.CallOption) (*DeleteNodeThresholdResponse, error)
 }
 
 type alertingServiceClient struct {
@@ -103,6 +112,36 @@ func (c *alertingServiceClient) CreateRule(ctx context.Context, in *CreateRuleRe
 	return out, nil
 }
 
+func (c *alertingServiceClient) ListNodeThresholds(ctx context.Context, in *ListNodeThresholdsRequest, opts ...grpc.CallOption) (*ListNodeThresholdsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListNodeThresholdsResponse)
+	err := c.cc.Invoke(ctx, AlertingService_ListNodeThresholds_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *alertingServiceClient) SetNodeThreshold(ctx context.Context, in *SetNodeThresholdRequest, opts ...grpc.CallOption) (*SetNodeThresholdResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetNodeThresholdResponse)
+	err := c.cc.Invoke(ctx, AlertingService_SetNodeThreshold_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *alertingServiceClient) DeleteNodeThreshold(ctx context.Context, in *DeleteNodeThresholdRequest, opts ...grpc.CallOption) (*DeleteNodeThresholdResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteNodeThresholdResponse)
+	err := c.cc.Invoke(ctx, AlertingService_DeleteNodeThreshold_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AlertingServiceServer is the server API for AlertingService service.
 // All implementations must embed UnimplementedAlertingServiceServer
 // for forward compatibility.
@@ -119,6 +158,13 @@ type AlertingServiceServer interface {
 	DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error)
 	// CreateRule creates alerting rule from the given template.
 	CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error)
+	// ListNodeThresholds lists the overridable thresholds for a node, including
+	// template defaults and any per-node overrides.
+	ListNodeThresholds(context.Context, *ListNodeThresholdsRequest) (*ListNodeThresholdsResponse, error)
+	// SetNodeThreshold sets a per-node override for an overridable threshold.
+	SetNodeThreshold(context.Context, *SetNodeThresholdRequest) (*SetNodeThresholdResponse, error)
+	// DeleteNodeThreshold clears a per-node override, reverting to the default.
+	DeleteNodeThreshold(context.Context, *DeleteNodeThresholdRequest) (*DeleteNodeThresholdResponse, error)
 	mustEmbedUnimplementedAlertingServiceServer()
 }
 
@@ -132,21 +178,26 @@ type UnimplementedAlertingServiceServer struct{}
 func (UnimplementedAlertingServiceServer) ListTemplates(context.Context, *ListTemplatesRequest) (*ListTemplatesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListTemplates not implemented")
 }
-
 func (UnimplementedAlertingServiceServer) CreateTemplate(context.Context, *CreateTemplateRequest) (*CreateTemplateResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateTemplate not implemented")
 }
-
 func (UnimplementedAlertingServiceServer) UpdateTemplate(context.Context, *UpdateTemplateRequest) (*UpdateTemplateResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateTemplate not implemented")
 }
-
 func (UnimplementedAlertingServiceServer) DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteTemplate not implemented")
 }
-
 func (UnimplementedAlertingServiceServer) CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateRule not implemented")
+}
+func (UnimplementedAlertingServiceServer) ListNodeThresholds(context.Context, *ListNodeThresholdsRequest) (*ListNodeThresholdsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListNodeThresholds not implemented")
+}
+func (UnimplementedAlertingServiceServer) SetNodeThreshold(context.Context, *SetNodeThresholdRequest) (*SetNodeThresholdResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetNodeThreshold not implemented")
+}
+func (UnimplementedAlertingServiceServer) DeleteNodeThreshold(context.Context, *DeleteNodeThresholdRequest) (*DeleteNodeThresholdResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteNodeThreshold not implemented")
 }
 func (UnimplementedAlertingServiceServer) mustEmbedUnimplementedAlertingServiceServer() {}
 func (UnimplementedAlertingServiceServer) testEmbeddedByValue()                         {}
@@ -259,6 +310,60 @@ func _AlertingService_CreateRule_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AlertingService_ListNodeThresholds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListNodeThresholdsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlertingServiceServer).ListNodeThresholds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AlertingService_ListNodeThresholds_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlertingServiceServer).ListNodeThresholds(ctx, req.(*ListNodeThresholdsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AlertingService_SetNodeThreshold_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetNodeThresholdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlertingServiceServer).SetNodeThreshold(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AlertingService_SetNodeThreshold_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlertingServiceServer).SetNodeThreshold(ctx, req.(*SetNodeThresholdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AlertingService_DeleteNodeThreshold_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteNodeThresholdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AlertingServiceServer).DeleteNodeThreshold(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AlertingService_DeleteNodeThreshold_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AlertingServiceServer).DeleteNodeThreshold(ctx, req.(*DeleteNodeThresholdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AlertingService_ServiceDesc is the grpc.ServiceDesc for AlertingService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -285,6 +390,18 @@ var AlertingService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateRule",
 			Handler:    _AlertingService_CreateRule_Handler,
+		},
+		{
+			MethodName: "ListNodeThresholds",
+			Handler:    _AlertingService_ListNodeThresholds_Handler,
+		},
+		{
+			MethodName: "SetNodeThreshold",
+			Handler:    _AlertingService_SetNodeThreshold_Handler,
+		},
+		{
+			MethodName: "DeleteNodeThreshold",
+			Handler:    _AlertingService_DeleteNodeThreshold_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

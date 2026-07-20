@@ -18,6 +18,8 @@ package alerting
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
+	"slices"
 	"strings"
 
 	alertingv1 "github.com/percona/pmm/api/alerting/v1"
@@ -34,7 +36,20 @@ const (
 	expressionTypeMath       = "math"
 	queryIntervalMs          = 1000
 	maxDataPoints            = 43200
+
+	// thresholdMetricName is the custom metric emitted by pmm-managed
+	// (see managed/services/alerting/threshold_metrics.go) that carries the
+	// effective per-node threshold value for each overridable parameter.
+	thresholdMetricName = "pmm_alert_threshold"
+	// thresholdJoinLabel is the label the injected threshold query is reduced to
+	// so it matches the observed query in the Grafana math expression. v1 is
+	// node-scoped, see the dynamic-thresholds plan.
+	thresholdJoinLabel = "node_name"
+	// thresholdRefIDPrefix prefixes the ref IDs of injected threshold queries.
+	thresholdRefIDPrefix = "T_"
 )
+
+var refIDSanitizeRegexp = regexp.MustCompile(`[^A-Za-z0-9_]`)
 
 type promQueryModel struct {
 	Expr          string `json:"expr"`
@@ -58,11 +73,12 @@ type mathExpressionModel struct {
 func buildGrafanaRuleData(
 	template *alert.Template,
 	metricsDatasourceUID string,
+	ruleID string,
 	params map[string]string,
 	filters []*alertingv1.Filter,
 ) ([]services.Data, string, error) {
 	if template.UsesMultipleExpressions() {
-		return buildMultiExpressionRuleData(template, metricsDatasourceUID, params, filters)
+		return buildMultiExpressionRuleData(template, metricsDatasourceUID, ruleID, params, filters)
 	}
 
 	expr, err := fillAndFilterExpr(template.Expr, params, filters)
@@ -81,10 +97,16 @@ func buildGrafanaRuleData(
 func buildMultiExpressionRuleData(
 	template *alert.Template,
 	metricsDatasourceUID string,
+	ruleID string,
 	params map[string]string,
 	filters []*alertingv1.Filter,
 ) ([]services.Data, string, error) {
-	data := make([]services.Data, 0, len(template.Queries)+len(template.Expressions))
+	// Assign each overridable parameter a dedicated ref ID whose query resolves
+	// the per-node threshold from the pmm_alert_threshold custom metric. The
+	// expression steps then reference $<refID> instead of the baked-in literal.
+	overridableRefs := allocateThresholdRefIDs(template)
+
+	data := make([]services.Data, 0, len(template.Queries)+len(overridableRefs)+len(template.Expressions))
 
 	for _, query := range template.Queries {
 		expr, err := fillAndFilterExpr(query.Expr, params, filters)
@@ -100,8 +122,31 @@ func buildMultiExpressionRuleData(
 		data = append(data, item)
 	}
 
+	// Inject one threshold query per overridable parameter. These carry no
+	// template tokens and are intentionally not wrapped in the alert filters:
+	// the query must return a value for every node so the math expression can
+	// compare every observed series (unmatched nodes would silently never fire).
+	for _, paramName := range sortedRefKeys(overridableRefs) {
+		refID := overridableRefs[paramName]
+		item, err := newPromQueryData(metricsDatasourceUID, refID, thresholdQueryExpr(ruleID, paramName))
+		if err != nil {
+			return nil, "", err
+		}
+
+		data = append(data, item)
+	}
+
 	for _, expression := range template.Expressions {
-		expr, err := fillExprWithParams(expression.Expression, params)
+		// Swap [[ .param ]] tokens of overridable params for their $refID before
+		// substituting the remaining (non-overridable) params. The default value
+		// is therefore never baked into the expression; it is emitted, per node,
+		// by the collector instead.
+		body := expression.Expression
+		for paramName, refID := range overridableRefs {
+			body = swapOverridableToken(body, paramName, refID)
+		}
+
+		expr, err := fillExprWithParams(body, params)
 		if err != nil {
 			return nil, "", fmt.Errorf("failed to fill expression %s: %w", expression.RefID, err)
 		}
@@ -115,6 +160,66 @@ func buildMultiExpressionRuleData(
 	}
 
 	return data, template.Condition, nil
+}
+
+// allocateThresholdRefIDs assigns a collision-free ref ID to every overridable
+// parameter of the template. Ref IDs are sanitized to Grafana-safe identifiers
+// and de-duplicated against the template's own query/expression ref IDs.
+func allocateThresholdRefIDs(template *alert.Template) map[string]string {
+	used := make(map[string]struct{}, len(template.Queries)+len(template.Expressions))
+	for _, query := range template.Queries {
+		used[query.RefID] = struct{}{}
+	}
+	for _, expression := range template.Expressions {
+		used[expression.RefID] = struct{}{}
+	}
+
+	refs := make(map[string]string)
+	for _, param := range template.Params {
+		if !param.Overridable {
+			continue
+		}
+
+		base := thresholdRefIDPrefix + refIDSanitizeRegexp.ReplaceAllString(param.Name, "_")
+		refID := base
+		for i := 1; ; i++ {
+			if _, ok := used[refID]; !ok {
+				break
+			}
+			refID = fmt.Sprintf("%s_%d", base, i)
+		}
+		used[refID] = struct{}{}
+		refs[param.Name] = refID
+	}
+
+	return refs
+}
+
+// thresholdQueryExpr returns the PromQL that resolves the effective per-node
+// threshold for the given rule/param. It is reduced to the join label only so it
+// matches the observed query in the Grafana math expression (the raw metric also
+// carries rule_id/param/job/instance labels that would otherwise break matching).
+func thresholdQueryExpr(ruleID, paramName string) string {
+	return fmt.Sprintf(`max by (%s) (%s{rule_id=%q, param=%q})`, thresholdJoinLabel, thresholdMetricName, ruleID, paramName)
+}
+
+// swapOverridableToken replaces every `[[ .name ]]` token (with flexible
+// whitespace) in expr with the given Grafana ref reference `$refID`.
+func swapOverridableToken(expr, paramName, refID string) string {
+	re := regexp.MustCompile(`\[\[\s*\.` + regexp.QuoteMeta(paramName) + `\s*\]\]`)
+	// ReplaceAllLiteralString avoids `$`-expansion (e.g. `$T_x` being read as a
+	// capture-group reference) in the Grafana ref replacement.
+	return re.ReplaceAllLiteralString(expr, "$"+refID)
+}
+
+// sortedRefKeys returns the map keys sorted, for deterministic query ordering.
+func sortedRefKeys(m map[string]string) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	slices.Sort(keys)
+	return keys
 }
 
 func fillAndFilterExpr(expr string, params map[string]string, filters []*alertingv1.Filter) (string, error) {

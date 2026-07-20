@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"regexp"
 	"sync"
 
 	"github.com/percona/promconfig"
@@ -146,6 +147,11 @@ func (r *Template) Validate() error {
 		return err
 	}
 
+	err = r.validateOverridableParams()
+	if err != nil {
+		return err
+	}
+
 	return r.Severity.Validate()
 }
 
@@ -159,4 +165,51 @@ func (r *Template) validateParams() error {
 	}
 
 	return nil
+}
+
+// validateOverridableParams ensures every parameter marked `overridable: true`
+// is a float threshold in a multi-expression template and is actually referenced
+// as a `[[ .name ]]` token inside one of the expression steps. These are the
+// preconditions for the dynamic-thresholds rule builder to inject the
+// pmm_alert_threshold query and swap the token — see
+// managed/services/alerting/rule_builder.go.
+func (r *Template) validateOverridableParams() error {
+	for _, param := range r.Params {
+		if !param.Overridable {
+			continue
+		}
+
+		if param.Type != Float {
+			return fmt.Errorf("parameter '%s' is overridable but not a float", param.Name)
+		}
+
+		if !r.UsesMultipleExpressions() {
+			return fmt.Errorf("parameter '%s' is overridable but the template is not multi-expression", param.Name)
+		}
+
+		if !r.paramReferencedInExpressions(param.Name) {
+			return fmt.Errorf("overridable parameter '%s' is not referenced as a [[ .%s ]] token in any expression step", param.Name, param.Name)
+		}
+	}
+
+	return nil
+}
+
+// paramReferencedInExpressions reports whether `[[ .name ]]` (allowing arbitrary
+// surrounding whitespace) appears in any expression step's body.
+func (r *Template) paramReferencedInExpressions(name string) bool {
+	re := paramTokenRegexp(name)
+	for _, expression := range r.Expressions {
+		if re.MatchString(expression.Expression) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// paramTokenRegexp builds a regexp matching the `[[ .name ]]` template token with
+// flexible whitespace, e.g. `[[.name]]` or `[[  .name  ]]`.
+func paramTokenRegexp(name string) *regexp.Regexp {
+	return regexp.MustCompile(`\[\[\s*\.` + regexp.QuoteMeta(name) + `\s*\]\]`)
 }

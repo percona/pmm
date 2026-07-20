@@ -49,6 +49,9 @@ message ParamDefinition {
     // String value.
     StringParamDefinition string = 7;
   }
+  // Overridable marks a float threshold parameter as eligible for per-node
+  // override via the dynamic-thresholds feature.
+  bool overridable = 8;
 }
 
 // TemplateSource defines template source.
@@ -208,7 +211,72 @@ message CreateRuleRequest {
   google.protobuf.Duration interval = 10;
 }
 
-message CreateRuleResponse {}
+message CreateRuleResponse {
+  // PMM-generated rule ID (also stamped on the Grafana rule as the
+  // `pmm_rule_id` label). Empty when the rule has no overridable thresholds.
+  string rule_id = 1;
+}
+
+// NodeThreshold represents an overridable threshold as it applies to a specific
+// node: the rule/param it belongs to, the template default, and the effective
+// value for that node (the override when present, otherwise the default).
+message NodeThreshold {
+  // PMM rule ID that owns this threshold.
+  string rule_id = 1;
+  // Human-readable title of the rule.
+  string rule_title = 2;
+  // Template the rule was created from.
+  string template_name = 3;
+  // Overridable parameter name.
+  string param_name = 4;
+  // Short human-readable parameter summary.
+  string summary = 5;
+  // Parameter unit.
+  ParamUnit unit = 6;
+  // Default value chosen at rule creation.
+  double default_value = 7;
+  // Effective value for the node (override if set, otherwise default).
+  double effective_value = 8;
+  // Whether this node has an explicit override.
+  bool is_overridden = 9;
+}
+
+message ListNodeThresholdsRequest {
+  // Node ID to list thresholds for.
+  string node_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message ListNodeThresholdsResponse {
+  // All overridable thresholds applicable to the node, with defaults and overrides.
+  repeated NodeThreshold thresholds = 1;
+}
+
+message SetNodeThresholdRequest {
+  // Node ID to set the override for.
+  string node_id = 1 [(validate.rules).string.min_len = 1];
+  // PMM rule ID that owns the threshold.
+  string rule_id = 2 [(validate.rules).string.min_len = 1];
+  // Overridable parameter name.
+  string param_name = 3 [(validate.rules).string.min_len = 1];
+  // Override value.
+  double value = 4;
+}
+
+message SetNodeThresholdResponse {
+  // The resulting threshold after applying the override.
+  NodeThreshold threshold = 1;
+}
+
+message DeleteNodeThresholdRequest {
+  // Node ID to clear the override for.
+  string node_id = 1 [(validate.rules).string.min_len = 1];
+  // PMM rule ID that owns the threshold.
+  string rule_id = 2 [(validate.rules).string.min_len = 1];
+  // Overridable parameter name.
+  string param_name = 3 [(validate.rules).string.min_len = 1];
+}
+
+message DeleteNodeThresholdResponse {}
 
 // Alerting service lets to manage alerting templates and create alerting rules from them.
 service AlertingService {
@@ -240,5 +308,21 @@ service AlertingService {
       post: "/v1/alerting/rules"
       body: "*"
     };
+  }
+  // ListNodeThresholds lists the overridable thresholds for a node, including
+  // template defaults and any per-node overrides.
+  rpc ListNodeThresholds(ListNodeThresholdsRequest) returns (ListNodeThresholdsResponse) {
+    option (google.api.http) = {get: "/v1/alerting/nodes/{node_id}/thresholds"};
+  }
+  // SetNodeThreshold sets a per-node override for an overridable threshold.
+  rpc SetNodeThreshold(SetNodeThresholdRequest) returns (SetNodeThresholdResponse) {
+    option (google.api.http) = {
+      post: "/v1/alerting/nodes/{node_id}/thresholds"
+      body: "*"
+    };
+  }
+  // DeleteNodeThreshold clears a per-node override, reverting to the default.
+  rpc DeleteNodeThreshold(DeleteNodeThresholdRequest) returns (DeleteNodeThresholdResponse) {
+    option (google.api.http) = {delete: "/v1/alerting/nodes/{node_id}/thresholds/{rule_id}/{param_name}"};
   }
 }

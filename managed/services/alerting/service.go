@@ -32,6 +32,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -639,10 +640,11 @@ func convertParamDefinitions(l *logrus.Entry, params models.AlertExprParamsDefin
 	res := make([]*alerting.ParamDefinition, 0, len(params))
 	for _, p := range params {
 		pd := &alerting.ParamDefinition{
-			Name:    p.Name,
-			Summary: p.Summary,
-			Unit:    convertParamUnit(p.Unit),
-			Type:    convertParamType(p.Type),
+			Name:        p.Name,
+			Summary:     p.Summary,
+			Unit:        convertParamUnit(p.Unit),
+			Type:        convertParamType(p.Type),
+			Overridable: p.Overridable,
 		}
 
 		switch p.Type {
@@ -729,7 +731,17 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, status.Errorf(codes.Internal, "Invalid template %s: %v.", req.TemplateName, err)
 	}
 
-	ruleData, condition, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, paramsValues.AsStringMap(), req.Filters)
+	// Dynamic thresholds: collect the default values of overridable parameters.
+	// When present, mint a stable PMM rule ID that scopes the injected
+	// pmm_alert_threshold queries and is persisted in the registry + stamped on
+	// the Grafana rule so the collector and override API can find it.
+	defaultParams := collectOverridableDefaults(alertTemplate, paramsValues)
+	var ruleID string
+	if len(defaultParams) > 0 {
+		ruleID = uuid.New().String()
+	}
+
+	ruleData, condition, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, ruleID, paramsValues.AsStringMap(), req.Filters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build alert rule data: %w", err)
 	}
@@ -768,6 +780,9 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	labels["percona_alerting"] = "1" // TODO: do we actually need it?
 	labels["severity"] = common.Severity(req.Severity).String()
 	labels["template_name"] = req.TemplateName
+	if ruleID != "" {
+		labels["pmm_rule_id"] = ruleID
+	}
 	labelSourceRefID := queryRefForRuleLabels(alertTemplate)
 	ensureRuleLabel(labels, "node_name", buildRuleLabelTemplate("node_name", labelSourceRefID))
 	ensureRuleLabel(labels, "service_name", buildRuleLabelTemplate("service_name", labelSourceRefID))
@@ -791,12 +806,64 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		interval = req.Interval.AsDuration().String()
 	}
 
+	// Persist the registry row before creating the Grafana rule so the collector
+	// can emit pmm_alert_threshold as soon as the rule exists. If the Grafana
+	// call fails we best-effort roll the row back (an orphan row only emits
+	// unused series, which is harmless).
+	if ruleID != "" {
+		err = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+			_, txErr := models.CreateAlertRule(tx.Querier, &models.CreateAlertRuleParams{
+				RuleID:        ruleID,
+				TemplateName:  req.TemplateName,
+				FolderUID:     req.FolderUid,
+				RuleGroup:     req.Group,
+				RuleTitle:     req.Name,
+				DefaultParams: defaultParams,
+			})
+			return txErr
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	err = s.grafanaClient.CreateAlertRule(ctx, req.FolderUid, req.Group, interval, &rule)
 	if err != nil {
+		if ruleID != "" {
+			if delErr := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+				return models.DeleteAlertRule(tx.Querier, ruleID)
+			}); delErr != nil {
+				s.l.Warnf("failed to roll back alert rule registry row %s: %v", ruleID, delErr)
+			}
+		}
 		return nil, err
 	}
 
-	return &alerting.CreateRuleResponse{}, nil
+	return &alerting.CreateRuleResponse{RuleId: ruleID}, nil
+}
+
+// collectOverridableDefaults returns the default (rule-creation-time) value for
+// each overridable float parameter, keyed by parameter name. These are the
+// values the collector emits for nodes without an explicit override.
+func collectOverridableDefaults(template *alert.Template, values AlertExprParamsValues) models.AlertRuleDefaultParams {
+	overridable := make(map[string]struct{})
+	for _, param := range template.Params {
+		if param.Overridable {
+			overridable[param.Name] = struct{}{}
+		}
+	}
+	if len(overridable) == 0 {
+		return nil
+	}
+
+	defaults := make(models.AlertRuleDefaultParams, len(overridable))
+	for _, v := range values {
+		if _, ok := overridable[v.Name]; ok {
+			defaults[v.Name] = v.FloatValue
+		}
+	}
+
+	return defaults
 }
 
 func convertParamsValuesToModel(params []*alerting.ParamValue) (AlertExprParamsValues, error) {
