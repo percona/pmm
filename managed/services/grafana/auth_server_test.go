@@ -16,11 +16,15 @@
 package grafana
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -468,4 +472,222 @@ func BenchmarkFastCleanUnescaped_ComplexUnescapedURI(b *testing.B) {
 			b.Fatalf("unexpected cleaned path: got %q, want %q", cleanedPath, benchmarkComplexUnescapedExpectedCleanPath)
 		}
 	}
+}
+
+func TestExtractOriginalRequest(t *testing.T) {
+	t.Parallel()
+
+	t.Run("valid header values are normalized", func(t *testing.T) {
+		t.Parallel()
+
+		req := httptest.NewRequest(http.MethodGet, "/auth_request", nil)
+		req.Header.Set("X-Original-Method", http.MethodPost)
+		req.Header.Set("X-Original-Uri", "/v1/server/AWSInstanceCheck/..%2f..%2fmanaged/logs.zip?foo=bar")
+
+		err := extractOriginalRequest(req)
+		require.NoError(t, err)
+		assert.Equal(t, http.MethodPost, req.Method)
+		assert.Equal(t, "/v1/managed/logs.zip", req.URL.Path)
+	})
+
+	t.Run("invalid escaped path returns error", func(t *testing.T) {
+		t.Parallel()
+
+		req := httptest.NewRequest(http.MethodGet, "/auth_request", nil)
+		req.Header.Set("X-Original-Method", http.MethodGet)
+		req.Header.Set("X-Original-Uri", "/v1/server/%zz/logs.zip")
+
+		err := extractOriginalRequest(req)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "failed to unescape path")
+	})
+
+	t.Run("sanitizes encoded newline and carriage return", func(t *testing.T) {
+		t.Parallel()
+
+		req := httptest.NewRequest(http.MethodGet, "/auth_request", nil)
+		req.Header.Set("X-Original-Method", http.MethodGet)
+		req.Header.Set("X-Original-Uri", "/v1/server/logs%0A%0D.zip")
+
+		err := extractOriginalRequest(req)
+		require.NoError(t, err)
+		assert.Equal(t, "/v1/server/logs  .zip", req.URL.Path)
+	})
+}
+
+func TestIsLocalAgentConnection(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name       string
+		remoteAddr string
+		path       string
+		want       bool
+	}{
+		{name: "local connect endpoint", remoteAddr: "127.0.0.1:12345", path: connectionEndpoint, want: true},
+		{name: "local rta endpoint", remoteAddr: "127.0.0.1:12345", path: rtaCollectEndpoint, want: true},
+		{name: "remote endpoint", remoteAddr: "10.0.0.2:12345", path: connectionEndpoint, want: false},
+		{name: "local unknown path", remoteAddr: "127.0.0.1:12345", path: "/v1/server/version", want: false},
+	} {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			req := httptest.NewRequest(http.MethodGet, tc.path, nil)
+			req.RemoteAddr = tc.remoteAddr
+			assert.Equal(t, tc.want, isLocalAgentConnection(req))
+		})
+	}
+}
+
+type fakeAuthClient struct {
+	user  authUser
+	err   error
+	calls int
+}
+
+func (c *fakeAuthClient) getAuthUser(_ context.Context, _ http.Header, _ *logrus.Entry) (authUser, error) {
+	c.calls++
+	if c.err != nil {
+		return authUser{}, c.err
+	}
+	return c.user, nil
+}
+
+func TestAuthServerGetAuthUserCacheMetrics(t *testing.T) {
+	t.Parallel()
+
+	ctx := t.Context()
+	client := &fakeAuthClient{user: authUser{role: viewer, userID: 42}}
+	s := NewAuthServer(client, nil)
+
+	req := httptest.NewRequest(http.MethodGet, "/v1/management/Jobs", nil)
+	req.Header.Set("Authorization", "Bearer token")
+
+	u1, err1 := s.getAuthUser(ctx, req, logrus.WithField("test", t.Name()))
+	require.Nil(t, err1)
+	require.NotNil(t, u1)
+	assert.Equal(t, 1, client.calls)
+
+	u2, err2 := s.getAuthUser(ctx, req, logrus.WithField("test", t.Name()))
+	require.Nil(t, err2)
+	require.NotNil(t, u2)
+	assert.Equal(t, 1, client.calls)
+	assert.Equal(t, uint64(1), s.mCacheHits.Load())
+	assert.Equal(t, uint64(1), s.mCacheMisses.Load())
+}
+
+func TestAuthServerRetrieveRoleGrafanaRequestMetrics(t *testing.T) {
+	t.Parallel()
+
+	ctx := t.Context()
+	authHeaders := http.Header{"Authorization": []string{"Bearer token"}}
+	l := logrus.WithField("test", t.Name())
+
+	t.Run("success increments 200", func(t *testing.T) {
+		t.Parallel()
+
+		s := NewAuthServer(&fakeAuthClient{user: authUser{role: viewer, userID: 1}}, nil)
+		got, authErr := s.retrieveRole(ctx, "ok", authHeaders, l)
+		require.Nil(t, authErr)
+		require.NotNil(t, got)
+
+		v, ok := s.mGrafanaAuthRequests.Load(http.StatusOK)
+		require.True(t, ok)
+		counter, ok := v.(*atomic.Uint64)
+		require.True(t, ok)
+		assert.Equal(t, uint64(1), counter.Load())
+	})
+
+	t.Run("401 maps to unauthenticated and increments 401", func(t *testing.T) {
+		t.Parallel()
+
+		s := NewAuthServer(&fakeAuthClient{err: &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}}, nil)
+		got, authErr := s.retrieveRole(ctx, "unauth", authHeaders, l)
+		require.Nil(t, got)
+		require.NotNil(t, authErr)
+		assert.Equal(t, codes.Unauthenticated, authErr.code)
+
+		v, ok := s.mGrafanaAuthRequests.Load(http.StatusUnauthorized)
+		require.True(t, ok)
+		counter, ok := v.(*atomic.Uint64)
+		require.True(t, ok)
+		assert.Equal(t, uint64(1), counter.Load())
+	})
+
+	t.Run("generic error increments 500", func(t *testing.T) {
+		t.Parallel()
+
+		s := NewAuthServer(&fakeAuthClient{err: errors.New("boom")}, nil)
+		got, authErr := s.retrieveRole(ctx, "internal", authHeaders, l)
+		require.Nil(t, got)
+		require.NotNil(t, authErr)
+		assert.Equal(t, codes.Internal, authErr.code)
+
+		v, ok := s.mGrafanaAuthRequests.Load(http.StatusInternalServerError)
+		require.True(t, ok)
+		counter, ok := v.(*atomic.Uint64)
+		require.True(t, ok)
+		assert.Equal(t, uint64(1), counter.Load())
+	})
+}
+
+func TestAuthServerCollectMetrics(t *testing.T) {
+	t.Parallel()
+
+	s := NewAuthServer(&fakeAuthClient{user: authUser{role: viewer, userID: 1}}, nil)
+	s.incAuthRequests(http.MethodGet, "/v1/server/version", http.StatusOK)
+	s.incGrafanaAuthRequests(http.StatusForbidden)
+	s.incCacheHit()
+	s.incCacheMiss()
+	s.cache["cached"] = cacheItem{u: authUser{role: viewer, userID: 1}, created: time.Now()}
+	s.mDurations.WithLabelValues("total").Observe(0.01)
+
+	const expected = `
+		# HELP pmm_managed_auth_requests_total Total number of authentication requests.
+		# TYPE pmm_managed_auth_requests_total counter
+		pmm_managed_auth_requests_total{method="GET",route="/v1/server/version",status_code="200"} 1
+		# HELP pmm_managed_auth_grafana_requests_total Total number of authentication requests to Grafana.
+		# TYPE pmm_managed_auth_grafana_requests_total counter
+		pmm_managed_auth_grafana_requests_total{status_code="403"} 1
+		# HELP pmm_managed_auth_cache_hits_total Total number of authentication cache hits.
+		# TYPE pmm_managed_auth_cache_hits_total counter
+		pmm_managed_auth_cache_hits_total 1
+		# HELP pmm_managed_auth_cache_misses_total Total number of authentication cache misses.
+		# TYPE pmm_managed_auth_cache_misses_total counter
+		pmm_managed_auth_cache_misses_total 1
+		# HELP pmm_managed_auth_cache_size Total number of items in the authentication cache.
+		# TYPE pmm_managed_auth_cache_size gauge
+		pmm_managed_auth_cache_size 1
+	`
+
+	err := testutil.CollectAndCompare(
+		s,
+		strings.NewReader(expected),
+		"pmm_managed_auth_requests_total",
+		"pmm_managed_auth_grafana_requests_total",
+		"pmm_managed_auth_cache_hits_total",
+		"pmm_managed_auth_cache_misses_total",
+		"pmm_managed_auth_cache_size",
+	)
+	require.NoError(t, err)
+}
+
+func TestAuthServerServeHTTPBadRequestMetrics(t *testing.T) {
+	t.Parallel()
+
+	s := NewAuthServer(&fakeAuthClient{}, nil)
+	rw := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodGet, "/auth_request", nil)
+	req.Header.Set("X-Original-Method", http.MethodGet)
+	req.Header.Set("X-Original-Uri", "/v1/server/%zz/logs.zip")
+
+	s.ServeHTTP(rw, req)
+	require.Equal(t, http.StatusBadRequest, rw.Code)
+
+	v, ok := s.mAuthRequests.Load(authRequestKey{method: http.MethodGet, route: "/v1/server/%zz/logs.zip", code: http.StatusBadRequest})
+	require.True(t, ok)
+	counter, ok := v.(*atomic.Uint64)
+	require.True(t, ok)
+	assert.Equal(t, uint64(1), counter.Load())
 }

@@ -718,8 +718,8 @@ func cleanPath(uri string) (string, error) {
 	needsWork := false
 	for i := range len(uri) {
 		c := uri[i]
-		// Check for URL encoding (%), dot traversal (.), or double slashes (//)
-		if c == '%' || c == '.' || (c == '/' && i > 0 && uri[i-1] == '/') {
+		// Check for URL encoding (%), dot traversal (.), double slashes (//), or CR/LF.
+		if c == '%' || c == '.' || c == '\n' || c == '\r' || (c == '/' && i > 0 && uri[i-1] == '/') {
 			needsWork = true
 			break
 		}
@@ -735,6 +735,8 @@ func cleanPath(uri string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	unescaped = strings.ReplaceAll(unescaped, "\n", " ")
+	unescaped = strings.ReplaceAll(unescaped, "\r", " ")
 	return path.Clean(unescaped), nil
 }
 
