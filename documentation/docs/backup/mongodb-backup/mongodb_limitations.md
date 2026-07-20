@@ -6,7 +6,7 @@ PMM requires Percona Backup for MongoDB (PBM) 2.0.1 or later:
 
 - PBM earlier than 2.0.1: not supported
 - PBM 2.0.1 to 2.9.x: supported
-- PBM 2.10.0 and later: supported, supported, but requires PMM 3.9.0 or later
+- PBM 2.10.0 and later: supported, but requires PMM 3.9.0 or later
 
 To find a PBM version compatible with your MongoDB or Percona Server for MongoDB version, see the [PBM compatibility matrix](https://docs.percona.com/percona-backup-mongodb/details/versions.html).
 
