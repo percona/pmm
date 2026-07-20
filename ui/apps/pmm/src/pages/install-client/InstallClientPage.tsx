@@ -392,7 +392,7 @@ export const InstallClientPage = () => {
         <Link
           href="https://per.co.na/pmm-oneclick"
           target="_blank"
-          rel="noopener"
+          rel="noopener noopener"
         >
           Learn more.
         </Link>
@@ -485,12 +485,12 @@ export const InstallClientPage = () => {
                 value={pmmHost}
                 onChange={handlePmmHostChange}
                 helperText={
-                  <Typography variant="helperText">
+                  <>
                     The PMM Server address your database host will connect to.
                     Pre-filled with this page's hostname. Change only if needed.
                     Do not include <code>http</code> / <code>https</code> or
                     paths.
-                  </Typography>
+                  </>
                 }
               />
               <TextField
@@ -499,9 +499,7 @@ export const InstallClientPage = () => {
                 label="Service token"
                 value={token}
                 onChange={handleTokenChange}
-                helperText={
-                  'Authenticates the install command with PMM Server. Generated automatically. Expires in 15 minutes. Do not share it as it contains Admin-level token.'
-                }
+                helperText={`Authenticates the install command with PMM Server. Generated automatically. Expires in ${DEFAULT_TTL_MINUTES} minutes. Do not share it as it contains Admin-level token.`}
               />
             </Stack>
 
@@ -709,7 +707,7 @@ export const InstallClientPage = () => {
                         <Link
                           href="https://per.co.na/pmm/connect_mysql"
                           target="_blank"
-                          rel="noopener"
+                          rel="noreferrer noopener"
                         >
                           Connect MySQL databases to PMM
                         </Link>{' '}
