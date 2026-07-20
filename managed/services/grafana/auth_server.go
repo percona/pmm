@@ -436,7 +436,10 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		}
 
 		status := httpStatusForAuthError(authErr.code)
-		s.incAuthRequests(req.Method, req.URL.Path, status)
+		// Use cleaned path for metrics to avoid high cardinality due to URL-encoded characters.
+		// TODO: move cleaning to the beginning of ServeHTTP and use it for both logging and metrics.
+		cleanedPath, _ := cleanPath(req.URL.Path)
+		s.incAuthRequests(req.Method, cleanedPath, status)
 		s.returnError(rw, status, m, l)
 		return
 	}
@@ -456,12 +459,18 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		}
 		l.Errorf("Failed to add VMProxy filters: %s", errF)
 
-		s.incAuthRequests(req.Method, req.URL.Path, authenticationErrorCode)
+		// Use cleaned path for metrics to avoid high cardinality due to URL-encoded characters.
+		// TODO: move cleaning to the beginning of ServeHTTP and use it for both logging and metrics.
+		cleanedPath, _ := cleanPath(req.URL.Path)
+		s.incAuthRequests(req.Method, cleanedPath, authenticationErrorCode)
 		s.returnError(rw, authenticationErrorCode, m, l)
 		return
 	}
 
-	s.incAuthRequests(req.Method, req.URL.Path, http.StatusOK)
+	// Use cleaned path for metrics to avoid high cardinality due to URL-encoded characters.
+	// TODO: move cleaning to the beginning of ServeHTTP and use it for both logging and metrics.
+	cleanedPath, _ := cleanPath(req.URL.Path)
+	s.incAuthRequests(req.Method, cleanedPath, http.StatusOK)
 }
 
 // httpStatusForAuthError maps an authError code to the HTTP status nginx receives.
