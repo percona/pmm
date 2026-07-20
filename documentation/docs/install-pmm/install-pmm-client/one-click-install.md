@@ -35,9 +35,11 @@ Generate and run the install command from the PMM UI:
 8. Copy the generated command and run it on your database host with `sudo`:
 
     ```sh
-    sudo -E bash '/tmp/install-pmm-client.sh' \
-        --pmm-server-url 'https://service_token:<token>@<pmm-server>' \
-        --tech '<technology>'
+    curl -fsSLk -o '/tmp/install-pmm-client.sh' 'https://<pmm-server-IP>/pmm-static/install-pmm-client.sh'
+    sudo -E bash '/tmp/install-pmm-client.sh'
+    --pmm-server-url 'https://<service_token>:@<pmm-server-IP'
+    --tech '<technology>'
+    --pmm-server-insecure-tls
     ```
 
     The command installs PMM Client, registers the node with PMM Server, and adds the first monitored service automatically.
