@@ -24,7 +24,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
-	"sync/atomic"
 	"testing"
 	"time"
 
@@ -386,6 +385,18 @@ func TestCleanPath(t *testing.T) {
 			"/logs.zip",
 			false,
 		}, {
+			"/managed/logs.zip?download=1",
+			"/managed/logs.zip",
+			false,
+		}, {
+			"/v1/server/./logs.zip",
+			"/v1/server/logs.zip",
+			false,
+		}, {
+			"/v1/server/../logs.zip",
+			"/v1/logs.zip",
+			false,
+		}, {
 			"/graph/api/datasources/proxy/8/?query=WITH%20(%0A%20%20%20%20CASE%20%0A%20%20%20%20%20%20%20%20WHEN%20(3000%20%25%2060)%20%3D%200%20THEN%203000%0A%20%20%20%20ELSE%2060%20END%0A)%20AS%20scale%0ASELECT%0A%20%20%20%20(intDiv(toUInt32(timestamp)%2C%203000)%20*%203000)%20*%201000%20as%20t%2C%0A%20%20%20%20hostname%20h%2C%0A%20%20%20%20status%20s%2C%0A%20%20%20%20SUM(req_count)%20as%20req_count%0AFROM%20pinba.report_by_all%0AWHERE%0A%20%20%20%20timestamp%20%3E%3D%20toDateTime(1707139680)%20AND%20timestamp%20%3C%3D%20toDateTime(1707312480)%0A%20%20%20%20AND%20status%20%3E%3D%20400%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20schema%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20hostname%20%3D%20%27all%27%20ELSE%201%20END%0A%20%20%20%20AND%20CASE%20WHEN%20%27all%27%20%3C%3E%20%27all%27%20THEN%20server_name%20%3D%20%27all%27%20ELSE%201%20END%0AGROUP%20BY%20t%2C%20h%2C%20s%0AORDER%20BY%20t%20FORMAT%20JSON",
 			"/graph/api/datasources/proxy/8/",
 			false,
@@ -452,24 +463,24 @@ func TestAuthServerServeHTTPBadRequestMetricsFallbackToRawRouteOnCleanError(t *t
 	require.InDelta(t, 1.0, value, 0.0, "expected auth request metric with original route when cleaning fails")
 }
 
-func BenchmarkFastCleanUnescaped_ComplexUnescapedURI(b *testing.B) {
-	const benchmarkComplexUnescapedURI = "/v1/server/AWSInstanceCheck/..%2f..%2f..%2f..%2fgraph/api/datasources/proxy/8%2f%2f.%2f..%2f8%2f%2f?query=WITH%20CASE%20WHEN%203000%20x%2060%20THEN%203000%20ELSE%2060%20END%20SELECT%20hostname%2Cstatus%20FROM%20pinba.report_by_all%20WHERE%20timestamp%3E%3D1707139680%20AND%20timestamp%3C%3D1707312480%20ORDER%20BY%20t"
-	const benchmarkComplexUnescapedExpectedCleanPath = "/graph/api/datasources/proxy/8"
+func BenchmarkCleanPath(b *testing.B) {
+	const unescapedURI = "/v1/server/AWSInstanceCheck/..%2f..%2f..%2f..%2fgraph/api/datasources/proxy/8%2f%2f.%2f..%2f8%2f%2f?query=WITH%20CASE%20WHEN%203000%20x%2060%20THEN%203000%20ELSE%2060%20END%20SELECT%20hostname%2Cstatus%20FROM%20pinba.report_by_all%20WHERE%20timestamp%3E%3D1707139680%20AND%20timestamp%3C%3D1707312480%20ORDER%20BY%20t"
+	const expectedCleanPath = "/graph/api/datasources/proxy/8"
 
 	b.ReportAllocs()
 
-	cleanedPath, err := cleanPath(benchmarkComplexUnescapedURI)
+	cleanedPath, err := cleanPath(unescapedURI)
 	require.NoError(b, err)
-	require.Equal(b, benchmarkComplexUnescapedExpectedCleanPath, cleanedPath)
+	require.Equal(b, expectedCleanPath, cleanedPath)
 
 	b.ResetTimer()
-	for range b.N {
-		cleanedPath, err = cleanPath(benchmarkComplexUnescapedURI)
+	for b.Loop() {
+		cleanedPath, err = cleanPath(unescapedURI)
 		if err != nil {
 			b.Fatalf("cleanPath returned error: %v", err)
 		}
-		if cleanedPath != benchmarkComplexUnescapedExpectedCleanPath {
-			b.Fatalf("unexpected cleaned path: got %q, want %q", cleanedPath, benchmarkComplexUnescapedExpectedCleanPath)
+		if cleanedPath != expectedCleanPath {
+			b.Fatalf("unexpected cleaned path: got %q, want %q", cleanedPath, expectedCleanPath)
 		}
 	}
 }
@@ -572,8 +583,8 @@ func TestAuthServerGetAuthUserCacheMetrics(t *testing.T) {
 	require.Nil(t, err2)
 	require.NotNil(t, u2)
 	assert.Equal(t, 1, client.calls)
-	assert.Equal(t, uint64(1), s.mCacheHits.Load())
-	assert.Equal(t, uint64(1), s.mCacheMisses.Load())
+	assert.Equal(t, float64(1), testutil.ToFloat64(s.metrics.mCache.WithLabelValues("hit")))
+	assert.Equal(t, float64(1), testutil.ToFloat64(s.metrics.mCache.WithLabelValues("miss")))
 }
 
 func TestAuthServerRetrieveRoleGrafanaRequestMetrics(t *testing.T) {
@@ -590,12 +601,7 @@ func TestAuthServerRetrieveRoleGrafanaRequestMetrics(t *testing.T) {
 		got, authErr := s.retrieveRole(ctx, "ok", authHeaders, l)
 		require.Nil(t, authErr)
 		require.NotNil(t, got)
-
-		v, ok := s.mGrafanaAuthRequests.Load(http.StatusOK)
-		require.True(t, ok)
-		counter, ok := v.(*atomic.Uint64)
-		require.True(t, ok)
-		assert.Equal(t, uint64(1), counter.Load())
+		assert.Equal(t, float64(1), testutil.ToFloat64(s.metrics.mGrafanaAuthRequests.WithLabelValues("200")))
 	})
 
 	t.Run("401 maps to unauthenticated and increments 401", func(t *testing.T) {
@@ -606,12 +612,7 @@ func TestAuthServerRetrieveRoleGrafanaRequestMetrics(t *testing.T) {
 		require.Nil(t, got)
 		require.NotNil(t, authErr)
 		assert.Equal(t, codes.Unauthenticated, authErr.code)
-
-		v, ok := s.mGrafanaAuthRequests.Load(http.StatusUnauthorized)
-		require.True(t, ok)
-		counter, ok := v.(*atomic.Uint64)
-		require.True(t, ok)
-		assert.Equal(t, uint64(1), counter.Load())
+		assert.Equal(t, float64(1), testutil.ToFloat64(s.metrics.mGrafanaAuthRequests.WithLabelValues("401")))
 	})
 
 	t.Run("generic error increments 500", func(t *testing.T) {
@@ -622,12 +623,7 @@ func TestAuthServerRetrieveRoleGrafanaRequestMetrics(t *testing.T) {
 		require.Nil(t, got)
 		require.NotNil(t, authErr)
 		assert.Equal(t, codes.Internal, authErr.code)
-
-		v, ok := s.mGrafanaAuthRequests.Load(http.StatusInternalServerError)
-		require.True(t, ok)
-		counter, ok := v.(*atomic.Uint64)
-		require.True(t, ok)
-		assert.Equal(t, uint64(1), counter.Load())
+		assert.Equal(t, float64(1), testutil.ToFloat64(s.metrics.mGrafanaAuthRequests.WithLabelValues("500")))
 	})
 }
 
@@ -640,7 +636,7 @@ func TestAuthServerCollectMetrics(t *testing.T) {
 	s.incCacheHit()
 	s.incCacheMiss()
 	s.cache["cached"] = cacheItem{u: authUser{role: viewer, userID: 1}, created: time.Now()}
-	s.mDurations.WithLabelValues("total").Observe(0.01)
+	s.metrics.mDurations.WithLabelValues("total").Observe(0.01)
 
 	const expected = `
 		# HELP pmm_managed_auth_requests_total Total number of authentication requests.
@@ -649,12 +645,10 @@ func TestAuthServerCollectMetrics(t *testing.T) {
 		# HELP pmm_managed_auth_grafana_requests_total Total number of authentication requests to Grafana.
 		# TYPE pmm_managed_auth_grafana_requests_total counter
 		pmm_managed_auth_grafana_requests_total{status_code="403"} 1
-		# HELP pmm_managed_auth_cache_hits_total Total number of authentication cache hits.
-		# TYPE pmm_managed_auth_cache_hits_total counter
-		pmm_managed_auth_cache_hits_total 1
-		# HELP pmm_managed_auth_cache_misses_total Total number of authentication cache misses.
-		# TYPE pmm_managed_auth_cache_misses_total counter
-		pmm_managed_auth_cache_misses_total 1
+		# HELP pmm_managed_auth_cache_total Total number of authentication cache requests by status (hit or miss).
+		# TYPE pmm_managed_auth_cache_total counter
+		pmm_managed_auth_cache_total{status="hit"} 1
+		pmm_managed_auth_cache_total{status="miss"} 1
 		# HELP pmm_managed_auth_cache_size Total number of items in the authentication cache.
 		# TYPE pmm_managed_auth_cache_size gauge
 		pmm_managed_auth_cache_size 1
@@ -665,8 +659,7 @@ func TestAuthServerCollectMetrics(t *testing.T) {
 		strings.NewReader(expected),
 		"pmm_managed_auth_requests_total",
 		"pmm_managed_auth_grafana_requests_total",
-		"pmm_managed_auth_cache_hits_total",
-		"pmm_managed_auth_cache_misses_total",
+		"pmm_managed_auth_cache_total",
 		"pmm_managed_auth_cache_size",
 	)
 	require.NoError(t, err)
@@ -683,10 +676,5 @@ func TestAuthServerServeHTTPBadRequestMetrics(t *testing.T) {
 
 	s.ServeHTTP(rw, req)
 	require.Equal(t, http.StatusBadRequest, rw.Code)
-
-	v, ok := s.mAuthRequests.Load(authRequestKey{method: http.MethodGet, route: "/v1/server/%zz/logs.zip", code: http.StatusBadRequest})
-	require.True(t, ok)
-	counter, ok := v.(*atomic.Uint64)
-	require.True(t, ok)
-	assert.Equal(t, uint64(1), counter.Load())
+	assert.Equal(t, float64(1), testutil.ToFloat64(s.metrics.mAuthRequests.WithLabelValues(http.MethodGet, "/v1/server/%zz/logs.zip", "400")))
 }

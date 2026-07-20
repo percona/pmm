@@ -718,11 +718,20 @@ func cleanPath(uri string) (string, error) {
 	needsWork := false
 	for i := range len(uri) {
 		c := uri[i]
-		// Check for URL encoding (%), dot traversal (.), double slashes (//), or CR/LF.
-		if c == '%' || c == '.' || c == '\n' || c == '\r' || (c == '/' && i > 0 && uri[i-1] == '/') {
+		// Check for URL encoding (%), dot\-segments (/\. or /\.\.), double slashes (//), or CR/LF.
+		if c == '%' || c == '\n' || c == '\r' || (c == '/' && i > 0 && uri[i-1] == '/') {
 			needsWork = true
 			break
 		}
+
+		if c == '.' && i > 0 && uri[i-1] == '/' {
+			// Match only dot\-segments, not dots inside normal segments (e.g. logs.zip).
+			if i+1 == len(uri) || uri[i+1] == '/' ||
+				(uri[i+1] == '.' && (i+2 == len(uri) || uri[i+2] == '/')) {
+			needsWork = true
+			break
+		}
+	}
 	}
 
 	// 3. Return zero-allocation slice if clean
