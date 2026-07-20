@@ -156,6 +156,7 @@ The check script assumes that there is a function with `check_context`, that acc
 ## Check severity levels
 
 You can label your advisor checks with one of the following available severity levels:
+
 - Emergency
 - Alert
 - Critical
