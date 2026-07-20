@@ -29,6 +29,7 @@ Install PMM Client using one of the following deployment methods:
 
 | **Your setup** | **Recommended deployment** |
 |----------------|----------------------------|
+| **Quick one-step installation from the UI | **[Quick-Install PMM Client (Technical Preview) →](one-click-install.md)** |
 | **Production** environments on supported Linux distributions | **[Package Manager →](package_manager.md)** |
 | Unsupported Linux distributions or **non-root** installation | **[Binary Package →](binary_package.md)** |
 | **Containerized** environments or testing | **[Docker →](docker.md)** |
