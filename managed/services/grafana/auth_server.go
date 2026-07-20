@@ -415,6 +415,10 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		} else if i := strings.IndexByte(route, '?'); i >= 0 {
 			route = route[:i]
 		}
+		cleaned, cleanErr := cleanPath(route)
+		if cleanErr == nil {
+			route = cleaned
+		}
 
 		s.incAuthRequests(method, route, http.StatusBadRequest)
 		return

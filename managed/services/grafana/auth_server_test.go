@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -377,4 +378,52 @@ func TestCleanPath(t *testing.T) {
 			assert.Equalf(t, tt.expected, cleanedPath, "cleanPath(%v)", tt.path)
 		})
 	}
+}
+
+func TestAuthServerServeHTTPBadRequestMetricsUsesCleanedRoute(t *testing.T) {
+	t.Parallel()
+
+	s := NewAuthServer(nil, nil)
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
+
+	// Trigger extractOriginalRequest error (missing X-Original-Method),
+	// but keep X-Original-Uri so ServeHTTP records a metric for it.
+	req.Header.Set("X-Original-Uri", "/v1/server/AWSInstanceCheck/..%2f..%2f..%2f/logs.zip?foo=bar")
+
+	s.ServeHTTP(rr, req)
+
+	require.Equal(t, http.StatusBadRequest, rr.Code)
+
+	key := authRequestKey{method: http.MethodGet, route: "/logs.zip", code: http.StatusBadRequest}
+	value, ok := s.mAuthRequests.Load(key)
+	require.True(t, ok, "expected auth request metric with cleaned route")
+
+	counter, ok := value.(*atomic.Uint64)
+	require.True(t, ok)
+	require.EqualValues(t, 1, counter.Load())
+}
+
+func TestAuthServerServeHTTPBadRequestMetricsFallbackToRawRouteOnCleanError(t *testing.T) {
+	t.Parallel()
+
+	s := NewAuthServer(nil, nil)
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/auth_request", nil)
+
+	// Invalid escape sequence keeps cleanPath from normalizing the path,
+	// so ServeHTTP should use route value after query trimming.
+	req.Header.Set("X-Original-Uri", "/bad%2?foo=bar")
+
+	s.ServeHTTP(rr, req)
+
+	require.Equal(t, http.StatusBadRequest, rr.Code)
+
+	key := authRequestKey{method: http.MethodPost, route: "/bad%2", code: http.StatusBadRequest}
+	value, ok := s.mAuthRequests.Load(key)
+	require.True(t, ok, "expected auth request metric with original route when cleaning fails")
+
+	counter, ok := value.(*atomic.Uint64)
+	require.True(t, ok)
+	require.EqualValues(t, 1, counter.Load())
 }
