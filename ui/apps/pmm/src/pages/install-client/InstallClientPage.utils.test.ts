@@ -86,11 +86,14 @@ describe('buildInstallCommand', () => {
     'prompt',
     'env',
     'flags',
-  ])('forces replacing the short-lived install token in %s mode', (credentialsMode) => {
-    expect(
-      buildInstallCommand({ ...baseOptions, credentialsMode })
-    ).toContain('--force-new-agent-token');
-  });
+  ])(
+    'forces replacing the short-lived install token in %s mode',
+    (credentialsMode) => {
+      expect(
+        buildInstallCommand({ ...baseOptions, credentialsMode })
+      ).toContain('--force-new-agent-token');
+    }
+  );
 
   test('env mode renders curl|bash with PMM_SERVER_URL and TECH', () => {
     const cmd = buildInstallCommand(baseOptions);
