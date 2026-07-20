@@ -17,7 +17,9 @@ const useMainNavVisible = () => {
   const { user } = useUser();
   const { isFullScreen } = useGrafana();
 
-  return (isLoggedIn || user?.isAnonymous) && !isFullScreen && !isRenderingServer();
+  return (
+    (isLoggedIn || user?.isAnonymous) && !isFullScreen && !isRenderingServer()
+  );
 };
 
 export const MainWithNav = () => {

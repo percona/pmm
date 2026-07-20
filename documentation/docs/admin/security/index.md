@@ -19,9 +19,14 @@ To prevent unauthorized data modification, configure the datasource with a datab
 To add the PostgreSQL datasource:
 {.power-number}
 
-1. Go to **Administration → Plugins and data → Plugins** (use the search icon in the top-right and search for "plugins").
-2. Find and open the **Postgres** plugin.
-3. Select **Add new datasource**.
-4. Configure the connection parameters and click **Save & test**.
-5. If the test is successful, you can start using the datasource from the **Explore** page.
+1. From the **Home** page, locate the Search icon (top right on the screen).
+2. Type "plugins" and select **Administration > Plugins and data > Plugins**.
+3. Find and open the **Postgres** plugin.
+4. Select **Add new datasource**.
+5. Configure the connection parameters and click **Save & test**.
+6. If the test is successful, you can start using the datasource from the **Explore** page.
+
+!!! note
+
+    You might see this datasource labeled as unsupported. You can safely disregard that label. The PostgreSQL datasource works as expected.
 
