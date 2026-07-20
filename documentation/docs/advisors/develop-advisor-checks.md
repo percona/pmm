@@ -155,7 +155,16 @@ The check script assumes that there is a function with `check_context`, that acc
 
 ## Check severity levels
 
-You can label your advisor checks with one of the following available severity levels: **Emergency**, **Alert**, **Critical**, **Error**, **Warning**, **Notice**, **Info**, **Debug**.
+You can label your advisor checks with one of the following available severity levels:
+- Emergency**
+- Alert
+- Critical
+- Error
+- Warning
+- Notice
+- Info**
+- Debug
+
 PMM groups failed checks by their severity, and displays them under **Advisors Checks > Failed Checks**.
 
 ## Check fields
