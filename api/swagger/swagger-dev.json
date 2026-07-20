@@ -22399,6 +22399,11 @@
                   "description": "AWS instance ID.",
                   "type": "string",
                   "x-order": 16
+                },
+                "force_new_agent_token": {
+                  "description": "Create a new dedicated agent token even when registration uses an existing token.",
+                  "type": "boolean",
+                  "x-order": 17
                 }
               }
             }

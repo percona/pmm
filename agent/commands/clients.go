@@ -196,10 +196,11 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 			CustomLabels:  customLabels,
 			AgentPassword: cfgSetup.AgentPassword,
 
-			Reregister:        cfgSetup.Force,
-			MetricsMode:       new(strings.ToUpper("METRICS_MODE_" + cfgSetup.MetricsMode)),
-			DisableCollectors: disableCollectors,
-			ExposeExporter:    cfgSetup.ExposeExporter,
+			Reregister:         cfgSetup.Force,
+			MetricsMode:        new(strings.ToUpper("METRICS_MODE_" + cfgSetup.MetricsMode)),
+			DisableCollectors:  disableCollectors,
+			ExposeExporter:     cfgSetup.ExposeExporter,
+			ForceNewAgentToken: cfgSetup.ForceNewAgentToken,
 		},
 		Context: context.Background(),
 	})

@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"strings"
 	"testing"
@@ -28,6 +29,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
@@ -229,6 +231,72 @@ func TestNodeService(t *testing.T) {
 			require.NoError(t, err)
 			assert.Empty(t, res.Warning)
 		})
+	})
+
+	t.Run("NodeRegistrationTokenPolicy", func(t *testing.T) {
+		testCases := []struct {
+			name               string
+			forceNewAgentToken bool
+			expectedToken      string
+		}{
+			{
+				name:          "reuses provided token by default",
+				expectedToken: "provided-token",
+			},
+			{
+				name:               "creates new token when forced",
+				forceNewAgentToken: true,
+				expectedToken:      "new-token",
+			},
+		}
+
+		for _, tt := range testCases {
+			t.Run(tt.name, func(t *testing.T) {
+				uuid.SetRand(&tests.IDReader{})
+				t.Cleanup(func() {
+					uuid.SetRand(nil)
+				})
+
+				authorization := "Basic " + base64.StdEncoding.EncodeToString([]byte("service_token:provided-token"))
+				ctx := metadata.NewIncomingContext(t.Context(), metadata.Pairs("authorization", authorization))
+				ctx = logger.Set(ctx, t.Name())
+
+				sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+				t.Cleanup(func() {
+					require.NoError(t, sqlDB.Close())
+				})
+				db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+				r := &mockAgentsRegistry{}
+				r.Test(t)
+				vmdb := &mockPrometheusService{}
+				vmdb.Test(t)
+				state := &mockAgentsStateUpdater{}
+				state.Test(t)
+				grafanaClient := &mockGrafanaClient{}
+				grafanaClient.Test(t)
+				if tt.forceNewAgentToken {
+					grafanaClient.On("CreateServiceAccount", ctx, "test-node", false).
+						Return(1, tt.expectedToken, nil)
+				}
+				vmClient := &mockVictoriaMetricsClient{}
+				vmClient.Test(t)
+
+				s := NewManagementService(db, r, state, nil, nil, vmdb, nil, grafanaClient, vmClient)
+				res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
+					NodeType:           inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+					NodeName:           "test-node",
+					Address:            "some.address.org",
+					ForceNewAgentToken: tt.forceNewAgentToken,
+				})
+
+				require.NoError(t, err)
+				assert.Equal(t, tt.expectedToken, res.Token)
+				if !tt.forceNewAgentToken {
+					grafanaClient.AssertNotCalled(t, "CreateServiceAccount", mock.Anything, mock.Anything, mock.Anything)
+				}
+			})
+		}
 	})
 
 	t.Run("ListNodes", func(t *testing.T) {

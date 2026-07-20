@@ -157,6 +157,7 @@ const buildPromptModeCommand = (opts: InstallCommandOptions): string => {
   const flags: string[] = [
     `--pmm-server-url ${shellEscape(opts.serverURL)}`,
     `--tech ${shellEscape(opts.technology)}`,
+    '--force-new-agent-token',
   ];
   if (opts.insecureTLS) {
     flags.push('--pmm-server-insecure-tls');
@@ -216,7 +217,7 @@ export const buildInstallCommand = (opts: InstallCommandOptions): string => {
   }
 
   /** Passed after \`bash -s --\` (matches install-pmm-client.sh). */
-  const scriptFlags: string[] = [];
+  const scriptFlags: string[] = ['--force-new-agent-token'];
   if (opts.insecureTLS) {
     scriptFlags.push('--pmm-server-insecure-tls');
   }
@@ -253,6 +254,7 @@ export const buildInstallCommand = (opts: InstallCommandOptions): string => {
     const flags: string[] = [
       `--pmm-server-url ${shellEscape(opts.serverURL)}`,
       `--tech ${shellEscape(opts.technology)}`,
+      '--force-new-agent-token',
     ];
 
     if (opts.nodeName.trim()) {

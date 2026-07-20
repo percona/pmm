@@ -70,6 +70,8 @@ message RegisterNodeRequest {
   bool expose_exporter = 16;
   // AWS instance ID.
   string instance_id = 17;
+  // Create a new dedicated agent token even when registration uses an existing token.
+  bool force_new_agent_token = 18;
 }
 
 message RegisterNodeResponse {

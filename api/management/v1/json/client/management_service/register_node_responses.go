@@ -245,6 +245,9 @@ type RegisterNodeBody struct {
 
 	// AWS instance ID.
 	InstanceID string `json:"instance_id,omitempty"`
+
+	// Create a new dedicated agent token even when registration uses an existing token.
+	ForceNewAgentToken bool `json:"force_new_agent_token,omitempty"`
 }
 
 // Validate validates this register node body

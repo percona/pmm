@@ -232,6 +232,8 @@ func (m *RegisterNodeRequest) validate(all bool) error {
 
 	// no validation rules for InstanceId
 
+	// no validation rules for ForceNewAgentToken
+
 	if len(errors) > 0 {
 		return RegisterNodeRequestMultiError(errors)
 	}

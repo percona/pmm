@@ -22,6 +22,7 @@ Global options:
   --node-name NAME              Node name for pmm-admin config
   --node-address ADDRESS        Node address for pmm-admin config
   --force                       Pass --force to pmm-admin config (removes existing node name and its services on the server, then registers again). When omitted, pmm-admin config is skipped automatically if pmm-agent is already set up on this node; if PMM Server then rejects the agent's stored token (e.g. an expired install token), it is refreshed from --pmm-server-url non-destructively (existing services kept) and the add is retried. Use --force only for a full re-registration.
+  --force-new-agent-token       Create a new dedicated agent token during registration
 
 Generic DB options (mapped per technology):
   --db-user USER
@@ -58,6 +59,7 @@ TECH="${TECH:-}"
 NODE_NAME="${NODE_NAME:-}"
 NODE_ADDRESS="${NODE_ADDRESS:-}"
 PMM_CONFIG_FORCE="${PMM_CONFIG_FORCE:-0}"
+FORCE_NEW_AGENT_TOKEN="${FORCE_NEW_AGENT_TOKEN:-0}"
 PMM_CONFIG_SKIPPED=0
 # Combined stdout+stderr of the last `pmm-admin add` so we can tell a PMM Server
 # authentication failure (expired/invalid agent token) apart from a database error.
@@ -149,6 +151,10 @@ while [ $# -gt 0 ]; do
       ;;
     --force)
       PMM_CONFIG_FORCE=1
+      shift
+      ;;
+    --force-new-agent-token)
+      FORCE_NEW_AGENT_TOKEN=1
       shift
       ;;
     --db-user)
@@ -583,7 +589,11 @@ configure_pmm_agent() {
   fi
 
   log "Running pmm-admin config..."
-  "${config_cmd[@]}"
+  if [ "${FORCE_NEW_AGENT_TOKEN}" = "1" ] || [ "${FORCE_NEW_AGENT_TOKEN}" = "true" ]; then
+    PMM_AGENT_SETUP_FORCE_NEW_AGENT_TOKEN=1 "${config_cmd[@]}"
+  else
+    "${config_cmd[@]}"
+  fi
 }
 
 apply_generic_inputs() {

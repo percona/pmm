@@ -248,9 +248,11 @@ type RegisterNodeRequest struct {
 	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,16,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 	// AWS instance ID.
-	InstanceId    string `protobuf:"bytes,17,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	InstanceId string `protobuf:"bytes,17,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
+	// Create a new dedicated agent token even when registration uses an existing token.
+	ForceNewAgentToken bool `protobuf:"varint,18,opt,name=force_new_agent_token,json=forceNewAgentToken,proto3" json:"force_new_agent_token,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *RegisterNodeRequest) Reset() {
@@ -400,6 +402,13 @@ func (x *RegisterNodeRequest) GetInstanceId() string {
 		return x.InstanceId
 	}
 	return ""
+}
+
+func (x *RegisterNodeRequest) GetForceNewAgentToken() bool {
+	if x != nil {
+		return x.ForceNewAgentToken
+	}
+	return false
 }
 
 type RegisterNodeResponse struct {
@@ -1121,7 +1130,7 @@ const file_management_v1_node_proto_rawDesc = "" +
 	" \x03(\v2..management.v1.AddNodeParams.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf3\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa6\x06\n" +
 	"\x13RegisterNodeRequest\x123\n" +
 	"\tnode_type\x18\x01 \x01(\x0e2\x16.inventory.v1.NodeTypeR\bnodeType\x12$\n" +
 	"\tnode_name\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bnodeName\x12\x18\n" +
@@ -1145,7 +1154,8 @@ const file_management_v1_node_proto_rawDesc = "" +
 	"\x0eagent_password\x18\x0f \x01(\tB\x04\x88\xb5\x18\x01R\ragentPassword\x12'\n" +
 	"\x0fexpose_exporter\x18\x10 \x01(\bR\x0eexposeExporter\x12\x1f\n" +
 	"\vinstance_id\x18\x11 \x01(\tR\n" +
-	"instanceId\x1a?\n" +
+	"instanceId\x121\n" +
+	"\x15force_new_agent_token\x18\x12 \x01(\bR\x12forceNewAgentToken\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x83\x02\n" +
