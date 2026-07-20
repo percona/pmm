@@ -706,7 +706,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
 }
 
-// fastCleanUnescaped returns a clean, unescaped path from a raw URI.
+// cleanPath returns a clean, unescaped path from a raw URI.
 // It achieves 0 allocations if the path requires no modifications.
 func cleanPath(uri string) (string, error) {
 	// 1. Strip query parameters
