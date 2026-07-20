@@ -17,7 +17,10 @@
 
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { useSnippetPluginExecution, useSnippetPluginSchema } from '@sep/framework';
+import {
+  useSnippetPluginExecution,
+  useSnippetPluginSchema,
+} from '@sep/framework';
 import { AtwPage } from './AtwPage';
 import { useAtwCategories } from './hooks';
 
@@ -32,7 +35,8 @@ vi.mock('@sep/framework', async (importOriginal) => {
   return {
     ...actual,
     SchemaFormRenderer: () => <div>Schema form</div>,
-    buildSnippetExecutionFormPayload: (values: Record<string, unknown>) => values,
+    buildSnippetExecutionFormPayload: (values: Record<string, unknown>) =>
+      values,
     useSnippetPluginSchema: mocks.useSnippetPluginSchema,
     useSnippetPluginExecution: mocks.useSnippetPluginExecution,
   };
@@ -91,8 +95,12 @@ describe('AtwPage', () => {
     render(<AtwPage />);
 
     expect(screen.queryByRole('combobox', { name: /^Category$/ })).toBeNull();
-    expect(screen.getByRole('combobox', { name: 'Subcategory 1' })).toBeTruthy();
-    expect(screen.getByRole('combobox', { name: 'Subcategory 2' })).toBeTruthy();
+    expect(
+      screen.getByRole('combobox', { name: 'Subcategory 1' })
+    ).toBeTruthy();
+    expect(
+      screen.getByRole('combobox', { name: 'Subcategory 2' })
+    ).toBeTruthy();
     expect(screen.getByRole('combobox', { name: 'Snippet' })).toBeTruthy();
   });
 
@@ -137,6 +145,8 @@ describe('AtwPage', () => {
     render(<AtwPage />);
 
     expect(screen.getByRole('combobox', { name: /^Category$/ })).toBeTruthy();
-    expect(screen.getByRole('combobox', { name: 'Subcategory 1' })).toBeTruthy();
+    expect(
+      screen.getByRole('combobox', { name: 'Subcategory 1' })
+    ).toBeTruthy();
   });
 });

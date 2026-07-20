@@ -51,7 +51,9 @@ export function AtwPage() {
 
   const rootOptions = useMemo(() => {
     const listing = categoriesQuery.data ?? [];
-    return Array.from(new Set(listing.map((item: AtwCategoryListing) => item.category_root)));
+    return Array.from(
+      new Set(listing.map((item: AtwCategoryListing) => item.category_root))
+    );
   }, [categoriesQuery.data]);
 
   useEffect(() => {
@@ -90,31 +92,37 @@ export function AtwPage() {
     const listing = categoriesQuery.data ?? [];
     return listing.filter(
       (item: AtwCategoryListing) =>
-        item.category_root === selectedRoot && item.parent_category === selectedParent,
+        item.category_root === selectedRoot &&
+        item.parent_category === selectedParent
     );
   }, [categoriesQuery.data, selectedRoot, selectedParent]);
 
   const selectedCategoryRow = useMemo<AtwCategoryListing | null>(
     () =>
-      leafListingOptions.find((item: AtwCategoryListing) => item.category === selectedCategory) ??
-      null,
-    [leafListingOptions, selectedCategory],
+      leafListingOptions.find(
+        (item: AtwCategoryListing) => item.category === selectedCategory
+      ) ?? null,
+    [leafListingOptions, selectedCategory]
   );
 
   const selectedSnippetRow = useMemo<AtwSnippetSummary | null>(
     () =>
       selectedCategoryRow?.snippets.find(
-        (snippet: AtwSnippetSummary) => snippet.name === selectedSnippet,
+        (snippet: AtwSnippetSummary) => snippet.name === selectedSnippet
       ) ?? null,
-    [selectedCategoryRow, selectedSnippet],
+    [selectedCategoryRow, selectedSnippet]
   );
 
   const selectedSnippetFilename = selectedSnippetRow?.name ?? null;
   const schemaQuery = useSnippetPluginSchema(
-    selectedSnippetFilename ? snippetPluginSchemaPath(selectedSnippetFilename) : undefined,
+    selectedSnippetFilename
+      ? snippetPluginSchemaPath(selectedSnippetFilename)
+      : undefined
   );
   const executionMutation = useSnippetPluginExecution(
-    selectedSnippetFilename ? snippetPluginExecutePath(selectedSnippetFilename) : undefined,
+    selectedSnippetFilename
+      ? snippetPluginExecutePath(selectedSnippetFilename)
+      : undefined
   );
 
   const submitError = executionMutation.isError
@@ -143,7 +151,9 @@ export function AtwPage() {
 
   if (categoriesQuery.error) {
     return (
-      <Alert severity="error">Failed to load ATW categories: {categoriesQuery.error.message}</Alert>
+      <Alert severity="error">
+        Failed to load ATW categories: {categoriesQuery.error.message}
+      </Alert>
     );
   }
 

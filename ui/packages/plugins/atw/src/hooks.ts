@@ -27,7 +27,9 @@ export function useAtwCategories() {
   return useQuery<AtwCategoryListing[]>({
     queryKey: ['atw', 'categories'],
     queryFn: async () => {
-      const { data } = await apiClient.get<AtwCategoryListing[]>(`${ATW_BASE}/`);
+      const { data } = await apiClient.get<AtwCategoryListing[]>(
+        `${ATW_BASE}/`
+      );
       return data;
     },
     staleTime: ATW_STALE_TIME_MS,
