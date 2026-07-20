@@ -438,7 +438,10 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		status := httpStatusForAuthError(authErr.code)
 		// Use cleaned path for metrics to avoid high cardinality due to URL-encoded characters.
 		// TODO: move cleaning to the beginning of ServeHTTP and use it for both logging and metrics.
-		cleanedPath, _ := cleanPath(req.URL.Path)
+		cleanedPath, cleanErr := cleanPath(req.URL.Path)
+		if cleanErr != nil {
+			cleanedPath = req.URL.Path
+		}
 		s.incAuthRequests(req.Method, cleanedPath, status)
 		s.returnError(rw, status, m, l)
 		return
