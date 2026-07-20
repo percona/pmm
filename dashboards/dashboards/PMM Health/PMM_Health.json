@@ -1455,7 +1455,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 5
+                        "y": 83
                     },
                     "id": 337,
                     "options": {
@@ -1701,7 +1701,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 5
+                        "y": 83
                     },
                     "id": 339,
                     "options": {
@@ -1905,7 +1905,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 13
+                        "y": 91
                     },
                     "id": 341,
                     "links": [
@@ -2074,7 +2074,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 13
+                        "y": 91
                     },
                     "id": 343,
                     "options": {
@@ -2544,7 +2544,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 6
+                        "y": 84
                     },
                     "id": 1072,
                     "options": {
@@ -2645,7 +2645,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 6
+                        "y": 84
                     },
                     "id": 1058,
                     "options": {
@@ -2756,7 +2756,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 14
+                        "y": 92
                     },
                     "id": 1075,
                     "options": {
@@ -2849,7 +2849,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 14
+                        "y": 92
                     },
                     "id": 1077,
                     "options": {
@@ -4651,7 +4651,7 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "wait rate"
+                            "options": "blocked go-routines"
                         },
                         "properties": [
                             {
@@ -4708,7 +4708,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "go_sql_connections_max_open{job=\"pmm-managed\"}",
+                    "expr": "go_sql_connections_max_open{job=\"pmm-managed\", db=\"pmm-managed\"}",
                     "legendFormat": "max",
                     "range": true,
                     "refId": "A"
@@ -4720,7 +4720,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "go_sql_connections_in_use{job=\"pmm-managed\"}",
+                    "expr": "go_sql_connections_in_use{job=\"pmm-managed\", db=\"pmm-managed\"}",
                     "instant": false,
                     "legendFormat": "in-use",
                     "range": true,
@@ -4733,9 +4733,9 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "rate(go_sql_connections_wait_duration_seconds{db=\"pmm-managed\", driver=\"postgres\"}[$__interval])",
+                    "expr": "rate(go_sql_connections_wait_duration_seconds{db=\"pmm-managed\",driver=\"postgres\"}[$__interval])",
                     "instant": false,
-                    "legendFormat": "wait rate",
+                    "legendFormat": "blocked go-routines",
                     "range": true,
                     "refId": "C"
                 }
@@ -6387,20 +6387,18 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "wait rate"
+                            "options": "max"
                         },
                         "properties": [
                             {
-                                "id": "custom.axisPlacement",
-                                "value": "right"
-                            },
-                            {
-                                "id": "unit",
-                                "value": "short"
-                            },
-                            {
-                                "id": "min",
-                                "value": 0
+                                "id": "custom.lineStyle",
+                                "value": {
+                                    "dash": [
+                                        10,
+                                        10
+                                    ],
+                                    "fill": "dash"
+                                }
                             }
                         ]
                     }
@@ -6430,7 +6428,7 @@
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "grafana_database_conn_max_open{job=\"grafana\"}",
+                    "expr": "go_sql_stats_connections_max_open{job=\"grafana\", db_name=\"grafana\"}",
                     "legendFormat": "max",
                     "range": true,
                     "refId": "A"
@@ -6442,24 +6440,11 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "grafana_database_conn_in_use{job=\"grafana\"}",
+                    "expr": "go_sql_stats_connections_in_use{job=\"grafana\",db_name=\"grafana\"}",
                     "instant": false,
                     "legendFormat": "in-use",
                     "range": true,
                     "refId": "B"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "PA58DA793C7250F1B"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "rate(grafana_database_conn_wait_duration_seconds{job=\"grafana\"}[$__interval])",
-                    "instant": false,
-                    "legendFormat": "wait rate",
-                    "range": true,
-                    "refId": "C"
                 }
             ],
             "title": "SQL connections pool",
@@ -6521,7 +6506,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 0,
-                        "y": 152
+                        "y": 230
                     },
                     "id": 1011,
                     "maxDataPoints": 100,
@@ -6606,7 +6591,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 5,
-                        "y": 152
+                        "y": 230
                     },
                     "id": 1013,
                     "maxDataPoints": 100,
@@ -6699,7 +6684,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 10,
-                        "y": 152
+                        "y": 230
                     },
                     "id": 1015,
                     "maxDataPoints": 100,
@@ -6781,7 +6766,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 15,
-                        "y": 152
+                        "y": 230
                     },
                     "id": 1017,
                     "maxDataPoints": 100,
@@ -6863,7 +6848,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 19,
-                        "y": 152
+                        "y": 230
                     },
                     "id": 1019,
                     "maxDataPoints": 100,
@@ -6969,7 +6954,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 155
+                        "y": 233
                     },
                     "id": 1021,
                     "options": {
@@ -7071,7 +7056,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 155
+                        "y": 233
                     },
                     "id": 1023,
                     "options": {
@@ -7171,7 +7156,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 163
+                        "y": 241
                     },
                     "id": 1025,
                     "options": {
@@ -7272,7 +7257,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 163
+                        "y": 241
                     },
                     "id": 1027,
                     "links": [
@@ -7381,7 +7366,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 0,
-                        "y": 153
+                        "y": 231
                     },
                     "id": 1094,
                     "options": {
@@ -7460,7 +7445,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 4,
-                        "y": 153
+                        "y": 231
                     },
                     "id": 1095,
                     "options": {
@@ -7539,7 +7524,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 8,
-                        "y": 153
+                        "y": 231
                     },
                     "id": 1096,
                     "options": {
@@ -7619,7 +7604,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 12,
-                        "y": 153
+                        "y": 231
                     },
                     "id": 1099,
                     "options": {
@@ -7699,7 +7684,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 16,
-                        "y": 153
+                        "y": 231
                     },
                     "id": 1098,
                     "options": {
@@ -7779,7 +7764,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 20,
-                        "y": 153
+                        "y": 231
                     },
                     "id": 1097,
                     "options": {
@@ -7877,7 +7862,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 0,
-                        "y": 156
+                        "y": 234
                     },
                     "id": 1101,
                     "maxDataPoints": 200,
@@ -7975,7 +7960,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 12,
-                        "y": 156
+                        "y": 234
                     },
                     "id": 1103,
                     "maxDataPoints": 200,
@@ -8083,7 +8068,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 0,
-                        "y": 161
+                        "y": 239
                     },
                     "id": 1105,
                     "maxDataPoints": 200,
@@ -8192,7 +8177,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 12,
-                        "y": 161
+                        "y": 239
                     },
                     "id": 1107,
                     "maxDataPoints": 200,
@@ -8295,7 +8280,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 0,
-                        "y": 185
+                        "y": 263
                     },
                     "id": 63,
                     "maxDataPoints": 100,
@@ -8343,7 +8328,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 4,
-                        "y": 185
+                        "y": 263
                     },
                     "id": 1001,
                     "options": {
@@ -8384,7 +8369,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 9,
-                        "y": 185
+                        "y": 263
                     },
                     "id": 65,
                     "options": {
@@ -8460,7 +8445,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 14,
-                        "y": 185
+                        "y": 263
                     },
                     "id": 67,
                     "links": [
@@ -8547,7 +8532,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 19,
-                        "y": 185
+                        "y": 263
                     },
                     "id": 69,
                     "links": [
@@ -8647,7 +8632,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 0,
-                        "y": 188
+                        "y": 266
                     },
                     "id": 85,
                     "links": [
@@ -8736,7 +8721,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 4,
-                        "y": 188
+                        "y": 266
                     },
                     "id": 86,
                     "maxDataPoints": 100,
@@ -8819,7 +8804,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 9,
-                        "y": 188
+                        "y": 266
                     },
                     "id": 1005,
                     "links": [
@@ -8907,7 +8892,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 14,
-                        "y": 188
+                        "y": 266
                     },
                     "id": 70,
                     "links": [
@@ -8995,7 +8980,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 19,
-                        "y": 188
+                        "y": 266
                     },
                     "id": 68,
                     "links": [
@@ -9152,7 +9137,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 191
+                        "y": 269
                     },
                     "id": 23,
                     "options": {
@@ -9308,7 +9293,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 191
+                        "y": 269
                     },
                     "id": 34,
                     "options": {
@@ -9418,7 +9403,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 199
+                        "y": 277
                     },
                     "id": 36,
                     "options": {
@@ -9555,7 +9540,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 199
+                        "y": 277
                     },
                     "id": 26,
                     "options": {

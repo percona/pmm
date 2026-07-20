@@ -403,7 +403,20 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		s.l.Warnf("Failed to parse request: %s.", err)
 		rw.WriteHeader(http.StatusBadRequest)
-		s.incAuthRequests(req.Method, req.URL.Path, http.StatusBadRequest)
+
+		method := req.Header.Get("X-Original-Method")
+		if method == "" {
+			method = req.Method
+		}
+
+		route := req.Header.Get("X-Original-Uri")
+		if route == "" {
+			route = req.URL.Path
+		} else if i := strings.IndexByte(route, '?'); i >= 0 {
+			route = route[:i]
+		}
+
+		s.incAuthRequests(method, route, http.StatusBadRequest)
 		return
 	}
 
@@ -678,6 +691,8 @@ func isLocalAgentConnection(req *http.Request) bool {
 // It returns user information retrieved during authentication.
 // Paths which require no Grafana role return zero value for
 // some user fields such as authUser.userID.
+// This func expects that req.Method and req.URL.Path are already replaced
+// with original request values - extractOriginalRequest(req) has been called beforehand.
 func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
 	// Unescape the URL-encoded parts of the path.
 	p := req.URL.Path
@@ -690,6 +705,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 		}
 	}
 
+	// Determine the minimal required role for the (already cleaned) original request path.
 	minRole, prefix := resolveRule(req.Method, cleanedPath, l)
 	l = l.WithField("prefix", prefix)
 
