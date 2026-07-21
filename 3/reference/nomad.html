@@ -16379,13 +16379,20 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </ul>
 <p>Nomad is <strong>disabled by default</strong> in PMM and has no impact on system performance when not enabled. </p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
-<p>Before enabling Nomad, check that PMM Server has a public address configured under <strong>Configuration &gt; Settings &gt; Advanced settings</strong>. This is required for Nomad to function properly and enable communication between Nomad components.</p>
+<p>Nomad requires <strong>both</strong> of the following to start:</p>
+<ul>
+<li><code>PMM_ENABLE_NOMAD=1</code> — enables the Nomad feature flag</li>
+<li><code>PMM_PUBLIC_ADDRESS=&lt;your-pmm-server-address&gt;</code> — the publicly reachable address of your PMM Server</li>
+</ul>
+<p>Setting <code>PMM_ENABLE_NOMAD=1</code> alone is not sufficient. If <code>PMM_PUBLIC_ADDRESS</code> is not set, PMM silently skips starting the Nomad server process with no error or warning.</p>
+<p>You can set the public address either as an environment variable at container start, or later via <strong>Configuration &gt; Settings &gt; Advanced settings</strong> in the PMM UI (though setting it via the UI requires restarting the container for Nomad to pick it up).</p>
 <h3 id="enable-nomad">Enable Nomad<a class="headerlink" href="#enable-nomad" title="Permanent link">&para;</a></h3>
 <p class="power-number">If you&rsquo;re an advanced user who needs Nomad for specific use cases, follow these steps to enable Nomad in PMM:</p>
 <ol>
 <li>
-<p>Start PMM Server with the <code>PMM_ENABLE_NOMAD</code> environment variable:
-   <div class="highlight"><pre><span></span><code>-e PMM_ENABLE_NOMAD=1
+<p>Start PMM Server with the <code>PMM_ENABLE_NOMAD</code> and <code>PMM_PUBLIC_ADDRESS</code> environment variables:
+   <div class="highlight"><pre><span></span><code>-e PMM_ENABLE_NOMAD=1 \
+-e PMM_PUBLIC_ADDRESS=&lt;your-pmm-server-address&gt;
 </code></pre></div></p>
 </li>
 <li>
@@ -16393,14 +16400,12 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
    <div class="highlight"><pre><span></span><code>-p 4647:4647
 </code></pre></div></p>
 </li>
-<li>
-<p>Go to PMM&rsquo;s <strong>Advanced Settings</strong> and set the public address.</p>
-</li>
 </ol>
 <details class="info">
 <summary>Docker run command</summary>
 <div class="highlight"><pre><span></span><code>docker run -d \
 -e PMM_ENABLE_NOMAD=1 \
+-e PMM_PUBLIC_ADDRESS=&lt;your-pmm-server-address&gt; \
 -p 4647:4647 \
 -p 443:8443 \
 --name pmm-server \
@@ -16477,7 +16482,7 @@ percona/pmm-server:3
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 21, 2026 09:36:11 UTC">July 21, 2026</span>
   </span>
 
     
