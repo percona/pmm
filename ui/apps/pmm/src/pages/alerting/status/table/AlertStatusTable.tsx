@@ -22,12 +22,14 @@ import {
   createAlertRuleEditUrl,
   createAlertRuleViewUrl,
   createSilenceUrl,
+  createUnsilenceUrl,
   filterTriggeredAt,
   getTableRows,
 } from './AlertStatusTable.utils';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOutlined';
+import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
 import { Icon } from 'components/icon';
 import { Messages } from './AlertStatusTable.messages';
 import { useUser } from 'contexts/user';
@@ -196,20 +198,37 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
         if (user?.isEditor) {
           items.push(
             <Divider key="divider" />,
-            <MenuItem
-              key="silence"
-              component={RouterLink}
-              to={createSilenceUrl(alert.labels)}
-              onClick={(event) => {
-                event.stopPropagation();
-                closeMenu();
-              }}
-            >
-              <ListItemIcon>
-                <NotificationsOffOutlinedIcon />
-              </ListItemIcon>
-              <ListItemText>{Messages.silence}</ListItemText>
-            </MenuItem>
+            alert.silenced ? (
+              <MenuItem
+                key="unsilence"
+                component={RouterLink}
+                to={createUnsilenceUrl()}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  closeMenu();
+                }}
+              >
+                <ListItemIcon>
+                  <NotificationsActiveOutlinedIcon />
+                </ListItemIcon>
+                <ListItemText>{Messages.unsilence}</ListItemText>
+              </MenuItem>
+            ) : (
+              <MenuItem
+                key="silence"
+                component={RouterLink}
+                to={createSilenceUrl(alert.labels)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  closeMenu();
+                }}
+              >
+                <ListItemIcon>
+                  <NotificationsOffOutlinedIcon />
+                </ListItemIcon>
+                <ListItemText>{Messages.silence}</ListItemText>
+              </MenuItem>
+            )
           );
         }
 

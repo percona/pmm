@@ -56,8 +56,8 @@ services:
       # percona-ui
       # - ../percona-ui:/root/go/src/github.com/percona/percona-ui
       # grafana
-      - ../grafana:/root/go/src/github.com/percona/grafana
-      - ../grafana/public:/usr/share/grafana/public
+      # - ../grafana:/root/go/src/github.com/percona/grafana
+      # - ../grafana/public:/usr/share/grafana/public
 
   
   mail-server:

@@ -2,7 +2,9 @@ import { Chip, MRT_ColumnDef } from '@percona/percona-ui';
 import { AlertsTableRow } from '../AlertsPage.types';
 import type { AlertSeverity as Severity } from 'types/alerting.types';
 import { Stack, Typography } from '@mui/material';
+import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOutlined';
 import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../AlertsPage.constants';
+import { Messages } from './AlertStatusTable.messages';
 import TriggeredAtCell from './TriggeredAtCell';
 import { AlertSeverity } from '../alert-severity';
 
@@ -28,11 +30,25 @@ export const ALERT_STATUS_COLUMNS: MRT_ColumnDef<AlertsTableRow>[] = [
       if (original.type === 'alert') {
         return (
           <Stack direction="row" alignItems="center" gap={1}>
-            <Chip
-              label={STATUS_LABEL_MAP[original.state]}
-              color={STATUS_COLOR_MAP[original.state]}
-            />
-            <Typography noWrap>for {original.age}</Typography>
+            {original.silenced ? (
+              <Chip
+                color="info"
+                label={
+                  <Stack direction="row" alignItems="center" gap={0.5}>
+                    <NotificationsOffOutlinedIcon fontSize="small" />
+                    {Messages.silenced}
+                  </Stack>
+                }
+              />
+            ) : (
+              <Chip
+                label={STATUS_LABEL_MAP[original.state]}
+                color={STATUS_COLOR_MAP[original.state]}
+              />
+            )}
+            <Typography noWrap>
+              for {original.silenced ? original.silencedAge : original.age}
+            </Typography>
           </Stack>
         );
       }

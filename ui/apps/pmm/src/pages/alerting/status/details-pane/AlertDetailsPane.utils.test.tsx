@@ -25,6 +25,9 @@ const createAlert = (uid?: string): AlertRow => ({
   annotations: {},
   expression: 'up == 0',
   age: '1m',
+  silenced: false,
+  silencedBy: [],
+  silencedAge: '-',
   rawAlert: { labels: {}, annotations: {} },
   rule: {
     uid,

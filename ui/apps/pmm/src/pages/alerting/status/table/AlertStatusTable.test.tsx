@@ -20,6 +20,9 @@ const createAlert = (overrides: Partial<AlertRow>): AlertRow => ({
   expression: 'up == 0',
   age: '1m',
   activeAt: '2026-04-15T12:00:00.000Z',
+  silenced: false,
+  silencedBy: [],
+  silencedAge: '-',
   rawAlert: { labels: {}, annotations: {} },
   ...overrides,
 });

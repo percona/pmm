@@ -2,6 +2,7 @@ import { TextSelectOption } from 'components/text-select/TextSelect.types';
 import { AlertStatus } from 'types/alerting.types';
 
 export const ALL_STATES_FILTER = '__all_states__';
+export const SILENCED_FILTER = '__silenced__';
 
 export const STATUS_COLOR_MAP: Record<
   AlertStatus,
@@ -31,4 +32,5 @@ export const STATE_OPTIONS: TextSelectOption<string>[] = [
     value,
     label,
   })),
+  { label: 'Silenced', value: SILENCED_FILTER },
 ];

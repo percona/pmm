@@ -1,11 +1,14 @@
 import { format } from 'date-fns/format';
 import { type MRT_Row } from 'material-react-table';
-import { ALL_STATES_FILTER } from '../AlertsPage.constants';
+import { ALL_STATES_FILTER, SILENCED_FILTER } from '../AlertsPage.constants';
 import { AlertRow, AlertsTableRow } from '../AlertsPage.types';
 import { groupAlertsByNode } from '../AlertsPage.utils';
 import { GRAFANA_SUB_PATH, TIME_FORMAT } from 'lib/constants';
 import { tz } from '@date-fns/tz/tz';
-import { makeLabelBasedSilenceLink } from 'utils/alerting.utils';
+import {
+  createRelativeUrl,
+  makeLabelBasedSilenceLink,
+} from 'utils/alerting.utils';
 
 export type GetFilteredDataParams = {
   rows: AlertRow[];
@@ -18,10 +21,13 @@ export const getTableRows = ({
   groupByNodes,
   selectedState,
 }: GetFilteredDataParams): AlertsTableRow[] => {
-  const result =
-    selectedState === ALL_STATES_FILTER
-      ? rows
-      : rows.filter((row) => row.state === selectedState);
+  let result = rows;
+
+  if (selectedState === SILENCED_FILTER) {
+    result = rows.filter((row) => row.silenced);
+  } else if (selectedState !== ALL_STATES_FILTER) {
+    result = rows.filter((row) => row.state === selectedState && !row.silenced);
+  }
 
   return groupByNodes ? groupAlertsByNode(result) : result;
 };
@@ -83,3 +89,7 @@ export const createAlertRuleEditUrl = (ruleGroupUid: string) =>
 
 export const createSilenceUrl = (labels: Record<string, string>) =>
   makeLabelBasedSilenceLink('grafana', labels);
+
+// Link to Grafana's silences list, where a user can expire (unsilence) the
+// silence suppressing an alert — matching the fired-alerts page behaviour.
+export const createUnsilenceUrl = () => createRelativeUrl('/alerting/silences');

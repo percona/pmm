@@ -54,6 +54,43 @@ export interface PrometheusAlertRulesResponse {
   data: PrometheusAlertRulesData;
 }
 
+// Alertmanager v2 alert. Silence/suppression only exists here, not in the
+// Prometheus rules API: a suppressed alert has `status.state === 'suppressed'`
+// and a non-empty `status.silencedBy`. Fields stay camelCase because `grafanaApi`
+// does not run the case-converter middleware.
+export type AlertmanagerAlertState = 'unprocessed' | 'active' | 'suppressed';
+
+export interface AlertmanagerAlert {
+  labels: Record<string, string>;
+  annotations: Record<string, string>;
+  startsAt: string;
+  endsAt: string;
+  updatedAt: string;
+  fingerprint: string;
+  status: {
+    state: AlertmanagerAlertState;
+    silencedBy: string[];
+    inhibitedBy: string[];
+  };
+}
+
+export type AlertmanagerSilenceState = 'expired' | 'active' | 'pending';
+
+// A silence from the Alertmanager. `startsAt` is when the silence began — joined
+// to an alert's `status.silencedBy` id, it lets us compute how long an alert has
+// been silenced.
+export interface AlertmanagerSilence {
+  id: string;
+  startsAt: string;
+  endsAt: string;
+  updatedAt: string;
+  comment?: string;
+  createdBy?: string;
+  status: {
+    state: AlertmanagerSilenceState;
+  };
+}
+
 // Structured Grafana-managed rule definition (from the provisioning API). The
 // `data` array holds the datasource queries and `__expr__` expression nodes that
 // make up the rule; `condition` is the refId whose result decides firing.
