@@ -23,7 +23,6 @@ checks:
           for row in docs[0]:
               node = row["metric"]["node_name"]
               cluster = row["metric"]["cluster"]
-              replsetname = row["metric"]["rs_nm"]
               pid = int(row["value"][1])
               if pid:
                   mongo_cnt = int(mongo_cnt) + 1

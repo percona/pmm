@@ -28,4 +28,4 @@ checks:
                       "read_more_url": read_url.format("mongodb-chunk-imbalance"),
                       "severity": "warning",
                   })
-              return results
+          return results

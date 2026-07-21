@@ -27,6 +27,9 @@ checks:
 
           for row in docs[0]:
               #Calculate the configured Oplog size(GB), 95% of configured Oplog size(GB) & current Oplog size(GB)
+              if "local.oplog.rs.stats" not in row["data"]:
+                  # No oplog (standalone / non-replica-set); nothing to recommend
+                  return results
               oplog_size = row["data"]["local.oplog.rs.stats"]["maxSize"]
               oplog_size_GB = float(float(oplog_size) / (1024*1024*1024))
               oplog_size_GB_95per = float(oplog_size_GB * 0.95)
@@ -38,6 +41,9 @@ checks:
               print(repr(window))
               window_sum = float(window_sum) + float(type[1])
               window_total = int(window_total) + 1
+
+          if window_total == 0:
+              return results
 
           #Calculate the average Oplog Window for last 8hrs with 5m step
           window_avg = float(float(window_sum) / int(window_total))

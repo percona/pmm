@@ -89,6 +89,8 @@ checks:
 
                   return results
 
+              if mm not in LATEST_VERSIONS["percona"]:
+                  return results
               latest = LATEST_VERSIONS["percona"][mm]
               if latest > numcve:
                   results.append({
@@ -105,6 +107,8 @@ checks:
               return results
 
           if True:  # MongoDB
+              if mm not in LATEST_VERSIONS["mongodb"]:
+                  return results
               latest = LATEST_VERSIONS["mongodb"][mm]
               if latest > num:
                   results.append({

@@ -47,6 +47,10 @@ checks:
               num = version["num"]
               mm = "{}.{}".format(version["major"], version["minor"])
 
+              if mm not in LATEST_VERSIONS["version_check"]:
+                  # Newer major version we do not track yet; nothing to advise
+                  return []
+
               latest_current_version = LATEST_VERSIONS["version_check"][mm]
               current_version = row["version"]
 

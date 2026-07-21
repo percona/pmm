@@ -28,4 +28,4 @@ checks:
                       "read_more_url": read_url.format("mongodb-inconsistent-indexes-across-shards"),
                       "severity": "warning",
                   })
-              return results
+          return results

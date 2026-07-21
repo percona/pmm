@@ -20,14 +20,16 @@ checks:
           info = docs[0]
           results = []
 
+          taskExecutorPoolSize_int = 0
           for row in info:
               taskExecutorPoolSize = row["taskExecutorPoolSize"]
               taskExecutorPoolSize_int = int(taskExecutorPoolSize)
 
+          value = 0
           for row in docs[1]:
               value = int(row["value"][1])
 
-          if taskExecutorPoolSize_int > value:
+          if value > 0 and taskExecutorPoolSize_int > value:
               results.append({
                   "summary": "MongoDB TaskExecutorPoolSize count is higher than available CPU cores. Please reduce it to equal to or less than the available cores.",
                   "description": "See the following to reduce the taskExecutorPools size",

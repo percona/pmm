@@ -13,6 +13,8 @@ checks:
     queries:
       - type: MONGODB_GETPARAMETER
     script: |
+      read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+
       def check_context(docs, context):
           rows = docs[0]
 
@@ -21,7 +23,7 @@ checks:
 
           results = []
           parsed = rows[0]
-          writeParameter = parsed.get("wiredTigerConcurrentWriteTransactions", {})
+          writeParameter = parsed.get("wiredTigerConcurrentWriteTransactions", 0)
           check = (int(writeParameter) >= 128)
           if check:
               results.append({

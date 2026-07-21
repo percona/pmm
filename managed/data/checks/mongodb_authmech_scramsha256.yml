@@ -24,8 +24,8 @@ checks:
               return "Unexpected number of documents"
 
           results = []
-          parsed = rows[0]["parsed"]
-          authMechanism = "SCRAM-SHA-256" not in parsed.get("authenicationMechanisms")
+          authMechanisms = rows[0].get("authenticationMechanisms", [])
+          authMechanism = "SCRAM-SHA-256" not in authMechanisms
 
           if authMechanism:
               results.append({

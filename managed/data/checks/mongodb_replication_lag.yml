@@ -11,7 +11,7 @@ checks:
     #author: Ivan Groenewold
     interval: standard
     queries:
-      - type: MONGODB_REPLSETGETSTATUS
+      - type: MONGODB_GETDIAGNOSTICDATA
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
@@ -26,13 +26,22 @@ checks:
 
           results = []
 
-          set_name = rows[0]["set"]
+          # getDiagnosticData includes replSetGetStatus only for replica-set members;
+          # on a standalone it is absent, so there is nothing to check.
+          repl_status = rows[0]["data"].get("replSetGetStatus")
+          if not repl_status:
+              return results
 
-          for member in rows[0]["members"]:
+          set_name = repl_status["set"]
+
+          pri_last_opt_t = None
+          this_name = None
+          this_last_opt_t = None
+          for member in repl_status["members"]:
               if member["state"] == 1:
                   pri_last_opt_t = member["optimeDate"]
 
-          for member in rows[0]["members"]:
+          for member in repl_status["members"]:
               if "self" in member.keys():
                   this_name = member["name"]
                   this_last_opt_t = member["optimeDate"]
