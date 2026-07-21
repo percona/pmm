@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Detect PMM version and API ID
         run: |
@@ -31,11 +31,11 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: API
-        uses: readmeio/rdme@460da9b8aa6b7bbd6bf774fb2d66b3f0b9030b12 # v10.9.2
+        uses: readmeio/rdme@2ba919093bf3e008ce09a1d56c9b2a9982cbd7d9 # v10.9.3
         with:
           rdme: openapi upload ./api/swagger/swagger.json --useSpecVersion --slug=pmm-api.json --key=${{ secrets.README_TOKEN }}
 
       - name: Markdown docs
-        uses: readmeio/rdme@460da9b8aa6b7bbd6bf774fb2d66b3f0b9030b12 # v10.9.2
+        uses: readmeio/rdme@2ba919093bf3e008ce09a1d56c9b2a9982cbd7d9 # v10.9.3
         with:
           rdme: reference upload documentation/api/ --branch=${{ env.VERSION }}  --key=${{ secrets.README_TOKEN }}
