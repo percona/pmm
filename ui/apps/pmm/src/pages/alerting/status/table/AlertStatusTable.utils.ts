@@ -5,7 +5,10 @@ import { AlertRow, AlertsTableRow } from '../AlertsPage.types';
 import { groupAlertsByNode } from '../AlertsPage.utils';
 import { GRAFANA_SUB_PATH, TIME_FORMAT } from 'lib/constants';
 import { tz } from '@date-fns/tz/tz';
-import { createRelativeUrl, makeLabelBasedSilenceLink } from 'utils/alerting.utils';
+import {
+  createRelativeUrl,
+  makeLabelBasedSilenceLink,
+} from 'utils/alerting.utils';
 
 export type GetFilteredDataParams = {
   rows: AlertRow[];
