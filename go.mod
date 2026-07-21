@@ -18,7 +18,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.42.1
 	github.com/aws/aws-sdk-go-v2/config v1.32.25
 	github.com/aws/aws-sdk-go-v2/credentials v1.19.24
-	github.com/aws/aws-sdk-go-v2/service/rds v1.120.0
+	github.com/aws/aws-sdk-go-v2/service/rds v1.122.0
 	github.com/aws/smithy-go v1.27.3
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.28.0
@@ -50,7 +50,7 @@ require (
 	github.com/lib/pq v1.12.3
 	github.com/minio/minio-go/v7 v7.2.0
 	github.com/percona/exporter_shared v0.7.5
-	github.com/percona/go-mysql v0.0.0-20251202083530-b3e1c16efc74
+	github.com/percona/go-mysql v0.0.0-20260721111653-2a02c0e64767
 	github.com/percona/percona-toolkit v0.0.0-20251217124347-6b3e5ed485dd
 	github.com/percona/platform v0.0.0-20260424191126-0d2cfd8ceb51
 	github.com/percona/promconfig v0.3.0
