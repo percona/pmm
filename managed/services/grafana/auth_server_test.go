@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/prometheus/client_golang/prometheus/testutil"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -395,13 +395,8 @@ func TestAuthServerServeHTTPBadRequestMetricsUsesCleanedRoute(t *testing.T) {
 
 	require.Equal(t, http.StatusBadRequest, rr.Code)
 
-	key := authRequestKey{method: http.MethodGet, route: "/logs.zip", code: http.StatusBadRequest}
-	value, ok := s.mAuthRequests.Load(key)
-	require.True(t, ok, "expected auth request metric with cleaned route")
-
-	counter, ok := value.(*atomic.Uint64)
-	require.True(t, ok)
-	require.EqualValues(t, 1, counter.Load())
+	value := testutil.ToFloat64(s.metrics.mAuthRequests.WithLabelValues(http.MethodGet, "/logs.zip", "400"))
+	require.InDelta(t, 1.0, value, 0.0, "expected auth request metric with cleaned route")
 }
 
 func TestAuthServerServeHTTPBadRequestMetricsFallbackToRawRouteOnCleanError(t *testing.T) {
@@ -419,11 +414,6 @@ func TestAuthServerServeHTTPBadRequestMetricsFallbackToRawRouteOnCleanError(t *t
 
 	require.Equal(t, http.StatusBadRequest, rr.Code)
 
-	key := authRequestKey{method: http.MethodPost, route: "/bad%2", code: http.StatusBadRequest}
-	value, ok := s.mAuthRequests.Load(key)
-	require.True(t, ok, "expected auth request metric with original route when cleaning fails")
-
-	counter, ok := value.(*atomic.Uint64)
-	require.True(t, ok)
-	require.EqualValues(t, 1, counter.Load())
+	value := testutil.ToFloat64(s.metrics.mAuthRequests.WithLabelValues(http.MethodPost, "/bad%2", "400"))
+	require.InDelta(t, 1.0, value, 0.0, "expected auth request metric with original route when cleaning fails")
 }

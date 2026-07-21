@@ -2961,7 +2961,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3041,7 +3041,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3108,7 +3108,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3175,7 +3175,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3242,7 +3242,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3309,7 +3309,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3389,7 +3389,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3472,7 +3472,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3574,7 +3574,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3676,7 +3676,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3784,7 +3784,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3880,7 +3880,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3979,12 +3979,12 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "rate(sum(pmm_managed_auth_requests_total[$__interval]))",
+                    "expr": "sum(irate(pmm_managed_auth_requests_total[$__rate_interval]))",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "requests",
@@ -4112,12 +4112,12 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "histogram_quantile(0.95, rate(sum(pmm_managed_auth_duration_seconds_bucket[$__interval]) by (le, type)))",
+                    "expr": "histogram_quantile(0.95, sum(irate(pmm_managed_auth_duration_seconds_bucket[$__rate_interval])) by (le, type))",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "{{type}} latency",
@@ -4127,7 +4127,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "rate(sum(pmm_managed_auth_grafana_requests_total[$__interval]))",
+                    "expr": "sum(irate(pmm_managed_auth_grafana_requests_total[$__rate_interval]))",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "request to grafana rate",
@@ -4141,7 +4141,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Percentage of successful authentications.",
+            "description": "/auth_request http response status",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -4165,25 +4165,26 @@
                         },
                         "insertNulls": false,
                         "lineInterpolation": "linear",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
                         "lineWidth": 1,
                         "pointSize": 5,
                         "scaleDistribution": {
                             "type": "linear"
                         },
-                        "showPoints": "auto",
+                        "showPoints": "never",
                         "showValues": false,
                         "spanNulls": 60000,
                         "stacking": {
                             "group": "A",
-                            "mode": "normal"
+                            "mode": "none"
                         },
                         "thresholdsStyle": {
                             "mode": "off"
                         }
                     },
                     "mappings": [],
-                    "max": 1,
-                    "min": 0,
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -4197,7 +4198,7 @@
                             }
                         ]
                     },
-                    "unit": "percentunit"
+                    "unit": "reqps"
                 },
                 "overrides": []
             },
@@ -4207,13 +4208,13 @@
                 "x": 0,
                 "y": 34
             },
-            "id": 1126,
+            "id": 1108,
             "options": {
                 "legend": {
                     "calcs": [],
                     "displayMode": "list",
                     "placement": "bottom",
-                    "showLegend": false
+                    "showLegend": true
                 },
                 "tooltip": {
                     "hideZeros": false,
@@ -4221,13 +4222,13 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "rate(sum(pmm_managed_auth_requests_total{status_code=~\"2.*\"}[$__interval])) / rate(sum(pmm_managed_auth_requests_total[$__interval]))",
+                    "expr": "sort_desc(sum(irate(pmm_managed_auth_requests_total[$__rate_interval])) by (status_code) )",
                     "format": "time_series",
                     "instant": false,
                     "intervalFactor": 2,
@@ -4236,7 +4237,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "Auth Success Ratio",
+            "title": "Auth Response Statuses Rate",
             "transparent": true,
             "type": "timeseries"
         },
@@ -4321,12 +4322,12 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sort_desc(rate(sum(pmm_managed_auth_grafana_requests_total[$__interval]) by (status_code)))",
+                    "expr": "sort_desc(sum(irate(pmm_managed_auth_grafana_requests_total[$__rate_interval])) by (status_code))",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "{{ status_code }}",
@@ -4335,6 +4336,107 @@
                 }
             ],
             "title": "Grafana Auth Response Rate",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Percentage of successful authentications.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "showValues": false,
+                        "spanNulls": 60000,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "normal"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "max": 1,
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "percentunit"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 42
+            },
+            "id": 1126,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": false
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "multi",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "12.4.3",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "sum(irate(pmm_managed_auth_requests_total{status_code=~\"2.*\"}[$__rate_interval])) / sum(irate(pmm_managed_auth_requests_total[$__rate_interval]))",
+                    "format": "time_series",
+                    "instant": false,
+                    "intervalFactor": 2,
+                    "legendFormat": "{{ status_code }}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Auth Success Ratio",
             "transparent": true,
             "type": "timeseries"
         },
@@ -4383,7 +4485,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 1049
+                                "value": 719
                             }
                         ]
                     },
@@ -4407,7 +4509,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 229
+                                "value": 198
                             }
                         ]
                     },
@@ -4447,8 +4549,8 @@
             },
             "gridPos": {
                 "h": 8,
-                "w": 24,
-                "x": 0,
+                "w": 12,
+                "x": 12,
                 "y": 42
             },
             "id": 1117,
@@ -4459,7 +4561,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -4477,272 +4579,6 @@
             "title": "Total Auth Response per URI",
             "transparent": true,
             "type": "table"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "/auth_request http response status",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "barWidthFactor": 0.6,
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "insertNulls": false,
-                        "lineInterpolation": "linear",
-                        "lineStyle": {
-                            "fill": "solid"
-                        },
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "showValues": false,
-                        "spanNulls": 60000,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "reqps"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 50
-            },
-            "id": 1108,
-            "options": {
-                "legend": {
-                    "calcs": [],
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "hideZeros": false,
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "sort_desc(rate(sum(pmm_managed_auth_requests_total[$__interval]) by (status_code) ))",
-                    "format": "time_series",
-                    "instant": false,
-                    "intervalFactor": 2,
-                    "legendFormat": "{{ status_code }}",
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "Auth Response Statuses Rate",
-            "transparent": true,
-            "type": "timeseries"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "go_sql_connections_max_open - Maximum number of open connections to the database.\n\ngo_sql_connections_in_use - The number of connections currently in use.\n\nWait rate.\n\ngo_sql_connections_wait_duration_seconds - The total time blocked waiting for a new connection. If the result is 1.0, it means that at any given moment, exactly one goroutine is completely blocked waiting for a DB connection. If it spikes to 5.0, five goroutines are perpetually blocked. It should be 0 ideally.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "series",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "barWidthFactor": 0.6,
-                        "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "insertNulls": false,
-                        "lineInterpolation": "linear",
-                        "lineStyle": {
-                            "dash": [
-                                10,
-                                10
-                            ],
-                            "fill": "dash"
-                        },
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "auto",
-                        "showValues": false,
-                        "spanNulls": 60000,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "decimals": 0,
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "short"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "blocked go-routines"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.axisPlacement",
-                                "value": "right"
-                            },
-                            {
-                                "id": "unit",
-                                "value": "short"
-                            },
-                            {
-                                "id": "min",
-                                "value": 0
-                            },
-                            {
-                                "id": "custom.lineStyle"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "in-use"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.lineStyle"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 50
-            },
-            "id": 1123,
-            "options": {
-                "legend": {
-                    "calcs": [],
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "hideZeros": false,
-                    "mode": "single",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "editorMode": "code",
-                    "expr": "go_sql_connections_max_open{job=\"pmm-managed\", db=\"pmm-managed\"}",
-                    "legendFormat": "max",
-                    "range": true,
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "PA58DA793C7250F1B"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "go_sql_connections_in_use{job=\"pmm-managed\", db=\"pmm-managed\"}",
-                    "instant": false,
-                    "legendFormat": "in-use",
-                    "range": true,
-                    "refId": "B"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "PA58DA793C7250F1B"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "rate(go_sql_connections_wait_duration_seconds{db=\"pmm-managed\",driver=\"postgres\"}[$__interval])",
-                    "instant": false,
-                    "legendFormat": "blocked go-routines",
-                    "range": true,
-                    "refId": "C"
-                }
-            ],
-            "title": "SQL connections pool",
-            "transparent": true,
-            "type": "timeseries"
         },
         {
             "datasource": "Metrics",
@@ -4810,7 +4646,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 58
+                "y": 50
             },
             "id": 1109,
             "options": {
@@ -4826,12 +4662,12 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "rate(sum(pmm_managed_auth_cache_hits_total[$__interval])) / (rate(sum(pmm_managed_auth_cache_hits_total[$__interval])) + rate(sum(pmm_managed_auth_cache_misses_total[$__interval])))",
+                    "expr": "sum(irate(pmm_managed_auth_cache_total[$__rate_interval])) / sum(irate(pmm_managed_auth_cache_total[$__rate_interval]))",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "rate",
@@ -4910,7 +4746,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 58
+                "y": 50
             },
             "id": 1115,
             "options": {
@@ -4926,7 +4762,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -5024,7 +4860,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 66
+                "y": 58
             },
             "id": 1122,
             "options": {
@@ -5040,7 +4876,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "editorMode": "code",
@@ -5162,7 +4998,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 66
+                "y": 58
             },
             "id": 1113,
             "options": {
@@ -5178,18 +5014,18 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "rate(go_memstats_mallocs_total{job=\"pmm-managed\"}[$__interval])",
+                    "expr": "sum(irate(go_memstats_mallocs_total{job=\"pmm-managed\"}[$__rate_interval]))",
                     "legendFormat": "Mallocs/s",
                     "range": true,
                     "refId": "B"
                 },
                 {
                     "editorMode": "code",
-                    "expr": "rate(go_memstats_frees_total{job=\"pmm-managed\"}[$__interval])",
+                    "expr": "sum(irate(go_memstats_frees_total{job=\"pmm-managed\"}[$__rate_interval]))",
                     "legendFormat": "Frees/s",
                     "range": true,
                     "refId": "C"
@@ -5280,7 +5116,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 74
+                "y": 66
             },
             "id": 1118,
             "options": {
@@ -5296,7 +5132,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "editorMode": "code",
@@ -5311,7 +5147,7 @@
                         "uid": "PA58DA793C7250F1B"
                     },
                     "editorMode": "code",
-                    "expr": "rate(go_gc_duration_seconds_count{job=\"pmm-managed\"}[$__interval])",
+                    "expr": "sum(irate(go_gc_duration_seconds_count{job=\"pmm-managed\"}[$__rate_interval]))",
                     "legendFormat": "GC run rate (cycles/s)",
                     "range": true,
                     "refId": "B"
@@ -5398,7 +5234,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 74
+                "y": 66
             },
             "id": 1111,
             "options": {
@@ -5414,7 +5250,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "expr": "go_goroutines{job=\"pmm-managed\"}",
@@ -5430,6 +5266,170 @@
                 }
             ],
             "title": "Goroutines",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "go_sql_connections_max_open - Maximum number of open connections to the database.\n\ngo_sql_connections_in_use - The number of connections currently in use.\n\nWait rate.\n\ngo_sql_connections_wait_duration_seconds - The total time blocked waiting for a new connection. If the result is 1.0, it means that at any given moment, exactly one goroutine is completely blocked waiting for a DB connection. If it spikes to 5.0, five goroutines are perpetually blocked. It should be 0 ideally.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "series",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineStyle": {
+                            "dash": [
+                                10,
+                                10
+                            ],
+                            "fill": "dash"
+                        },
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "showValues": false,
+                        "spanNulls": 60000,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "blocked go-routines"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "right"
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "min",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.lineStyle"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "in-use"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.lineStyle"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 74
+            },
+            "id": 1123,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "12.4.3",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "go_sql_connections_max_open{job=\"pmm-managed\", db=\"pmm-managed\"}",
+                    "legendFormat": "max",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "go_sql_connections_in_use{job=\"pmm-managed\", db=\"pmm-managed\"}",
+                    "instant": false,
+                    "legendFormat": "in-use",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "rate(go_sql_connections_wait_duration_seconds{db=\"pmm-managed\",driver=\"postgres\"}[$__interval])",
+                    "instant": false,
+                    "legendFormat": "blocked go-routines",
+                    "range": true,
+                    "refId": "C"
+                }
+            ],
+            "title": "SQL connections pool",
             "transparent": true,
             "type": "timeseries"
         },
@@ -5511,7 +5511,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -5574,7 +5574,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -5636,7 +5636,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -5712,7 +5712,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -5788,7 +5788,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -5864,7 +5864,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -5964,7 +5964,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -6065,7 +6065,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -9732,6 +9732,6 @@
     "timezone": "",
     "title": "PMM Health",
     "uid": "pmm-health",
-    "version": 5,
+    "version": 13,
     "weekStart": ""
 }
