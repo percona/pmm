@@ -68,7 +68,7 @@ Shows queries that spent the most time waiting on disk reads and writes. High I/
 
 Use this to identify candidates for indexing, partition pruning, or caching improvements.
 
-### Top 10 Queries by Shared Block Reads
+### Top 10 Queries by Shared Block Reads (Sequential Scan Indicator)
 
 Shows queries with the highest average shared block reads per execution, serving as a sequential scan indicator. A high value suggests the query is reading large portions of a table rather than using an index. Requires `pg_stat_statements` or `pg_stat_monitor`.
 
