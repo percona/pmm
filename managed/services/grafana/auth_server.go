@@ -354,28 +354,16 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	err := extractOriginalRequest(req)
 	if err != nil {
-		s.l.Warnf("Failed to parse request: %s.", err)
+		s.l.WithError(err).Warn("Failed to parse original request headers.")
 		rw.WriteHeader(http.StatusBadRequest)
 
-		method := req.Header.Get("X-Original-Method")
-		if method == "" {
-			method = req.Method
-		}
-
-		route := req.Header.Get("X-Original-Uri")
-		if route == "" {
-			route = req.URL.Path
-		} else if i := strings.IndexByte(route, '?'); i >= 0 {
-			route = route[:i]
-		}
-		cleaned, cleanErr := cleanPath(route)
-		if cleanErr == nil {
-			route = cleaned
-		}
-
-		s.incAuthRequests(method, route, http.StatusBadRequest)
+		s.incAuthRequests(req.Method, req.URL.Path, http.StatusBadRequest)
 		return
 	}
+
+	// NOTE: now req.Method and req.URL.Path contain original request values
+	// that NGINX received from the client. The original request values are used for
+	// logging and authentication.
 
 	l := s.l.WithField("req", fmt.Sprintf("%s %s", req.Method, req.URL.Path))
 	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
@@ -573,11 +561,13 @@ func extractOriginalRequest(req *http.Request) error {
 	if origURI == "" {
 		return errors.New("empty X-Original-Uri")
 	}
+
 	if origURI[0] != '/' {
-		return fmt.Errorf("unexpected X-Original-Uri: %s", origURI)
+		return fmt.Errorf("unexpected X-Original-Uri: %q", origURI)
 	}
+
 	if !utf8.ValidString(origURI) {
-		return fmt.Errorf("invalid X-Original-Uri: %s", origURI)
+		return fmt.Errorf("invalid X-Original-Uri: %q", origURI)
 	}
 
 	cleanedOrigURI, err := cleanPath(origURI)

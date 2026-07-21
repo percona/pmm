@@ -488,42 +488,147 @@ func BenchmarkCleanPath(b *testing.B) {
 func TestExtractOriginalRequest(t *testing.T) {
 	t.Parallel()
 
-	t.Run("valid header values are normalized", func(t *testing.T) {
-		t.Parallel()
+	invalidUTF8URI := string([]byte{'/', 'b', 'a', 'd', 0xff})
 
-		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
-		req.Header.Set("X-Original-Method", http.MethodPost)
-		req.Header.Set("X-Original-Uri", "/v1/server/AWSInstanceCheck/..%2f..%2fmanaged/logs.zip?foo=bar")
+	for _, tc := range []struct {
+		name          string
+		initialMethod string
+		origMethod    *string
+		origURI       *string
+		wantMethod    string
+		wantPath      string
+		wantErr       string
+	}{
+		{
+			name:          "normalizes traversal and strips query",
+			initialMethod: http.MethodGet,
+			origMethod:    new(http.MethodPost),
+			origURI:       new("/v1/server/AWSInstanceCheck/..%2f..%2fmanaged/logs.zip?foo=bar"),
+			wantMethod:    http.MethodPost,
+			wantPath:      "/v1/managed/logs.zip",
+		},
+		{
+			name:          "keeps already clean path",
+			initialMethod: http.MethodPost,
+			origMethod:    new(http.MethodGet),
+			origURI:       new("/v1/server/version"),
+			wantMethod:    http.MethodGet,
+			wantPath:      "/v1/server/version",
+		},
+		{
+			name:          "collapses duplicate slashes",
+			initialMethod: http.MethodGet,
+			origMethod:    new(http.MethodGet),
+			origURI:       new("/v1//server///logs.zip"),
+			wantMethod:    http.MethodGet,
+			wantPath:      "/v1/server/logs.zip",
+		},
+		{
+			name:          "cleans plain dot segments",
+			initialMethod: http.MethodGet,
+			origMethod:    new(http.MethodDelete),
+			origURI:       new("/v1/server/../inventory/./Services/List"),
+			wantMethod:    http.MethodDelete,
+			wantPath:      "/v1/inventory/Services/List",
+		},
+		{
+			name:          "cleans encoded slashes in traversal",
+			initialMethod: http.MethodGet,
+			origMethod:    new(http.MethodGet),
+			origURI:       new("/v1/server/AWSInstanceCheck/..%2F..%2Finventory/Services/List"),
+			wantMethod:    http.MethodGet,
+			wantPath:      "/v1/inventory/Services/List",
+		},
+		{
+			name:          "sanitizes encoded newline and carriage return",
+			initialMethod: http.MethodGet,
+			origMethod:    new(http.MethodGet),
+			origURI:       new("/v1/server/logs%0A%0D.zip"),
+			wantMethod:    http.MethodGet,
+			wantPath:      "/v1/server/logs  .zip",
+		},
+		{
+			name:          "sanitizes raw newline and carriage return",
+			initialMethod: http.MethodGet,
+			origMethod:    new(http.MethodGet),
+			origURI:       new("/v1/server/logs\n\r.zip"),
+			wantMethod:    http.MethodGet,
+			wantPath:      "/v1/server/logs  .zip",
+		},
+		{
+			name:          "accepts custom method",
+			initialMethod: http.MethodGet,
+			origMethod:    new("CUSTOM"),
+			origURI:       new("/v1/management/Jobs"),
+			wantMethod:    "CUSTOM",
+			wantPath:      "/v1/management/Jobs",
+		},
+		{
+			name:          "fails on missing original method",
+			initialMethod: http.MethodGet,
+			origURI:       new("/v1/server/version"),
+			wantErr:       "empty X-Original-Method",
+		},
+		{
+			name:          "fails on missing original uri",
+			initialMethod: http.MethodGet,
+			origMethod:    new(http.MethodGet),
+			wantErr:       "empty X-Original-Uri",
+		},
+		{
+			name:          "fails on uri without leading slash",
+			initialMethod: http.MethodGet,
+			origMethod:    new(http.MethodGet),
+			origURI:       new("v1/server/version"),
+			wantErr:       "unexpected X-Original-Uri",
+		},
+		{
+			name:          "fails on invalid utf8 uri",
+			initialMethod: http.MethodGet,
+			origMethod:    new(http.MethodGet),
+			origURI:       new(invalidUTF8URI),
+			wantErr:       "invalid X-Original-Uri",
+		},
+		{
+			name:          "fails on invalid escape sequence",
+			initialMethod: http.MethodGet,
+			origMethod:    new(http.MethodGet),
+			origURI:       new("/v1/server/%zz/logs.zip"),
+			wantErr:       "failed to unescape path",
+		},
+		{
+			name:          "fails on incomplete escape",
+			initialMethod: http.MethodGet,
+			origMethod:    new(http.MethodGet),
+			origURI:       new("/v1/server/%"),
+			wantErr:       "failed to unescape path",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-		err := extractOriginalRequest(req)
-		require.NoError(t, err)
-		assert.Equal(t, http.MethodPost, req.Method)
-		assert.Equal(t, "/v1/managed/logs.zip", req.URL.Path)
-	})
+			req := httptest.NewRequestWithContext(t.Context(), tc.initialMethod, "/auth_request", nil)
+			if tc.origMethod != nil {
+				req.Header.Set("X-Original-Method", *tc.origMethod)
+			}
+			if tc.origURI != nil {
+				req.Header.Set("X-Original-Uri", *tc.origURI)
+			}
 
-	t.Run("invalid escaped path returns error", func(t *testing.T) {
-		t.Parallel()
+			err := extractOriginalRequest(req)
+			if tc.wantErr != "" {
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), tc.wantErr)
+				assert.Equal(t, tc.initialMethod, req.Method)
+				assert.Equal(t, "/auth_request", req.URL.Path)
+				return
+			}
 
-		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
-		req.Header.Set("X-Original-Method", http.MethodGet)
-		req.Header.Set("X-Original-Uri", "/v1/server/%zz/logs.zip")
-
-		err := extractOriginalRequest(req)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "failed to unescape path")
-	})
-
-	t.Run("sanitizes encoded newline and carriage return", func(t *testing.T) {
-		t.Parallel()
-
-		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
-		req.Header.Set("X-Original-Method", http.MethodGet)
-		req.Header.Set("X-Original-Uri", "/v1/server/logs%0A%0D.zip")
-
-		err := extractOriginalRequest(req)
-		require.NoError(t, err)
-		assert.Equal(t, "/v1/server/logs  .zip", req.URL.Path)
-	})
+			require.NoError(t, err)
+			assert.Equal(t, tc.wantMethod, req.Method)
+			assert.Equal(t, tc.wantPath, req.URL.Path)
+		})
+	}
 }
 
 func TestIsLocalAgentConnection(t *testing.T) {
