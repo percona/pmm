@@ -31,6 +31,7 @@ import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOu
 import { Icon } from 'components/icon';
 import { Messages } from './AlertStatusTable.messages';
 import { useUser } from 'contexts/user';
+import AlertsStatusEmptyState from './empty-state/AlertsStatusEmptyState';
 
 const AlertStatusTable: FC<AlertStatusTableProps> = ({
   rows,
@@ -65,6 +66,12 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
           pageIndex: 0,
         },
       }}
+      displayColumnDefOptions={{
+        'mrt-row-expand': {
+          size: 60,
+          grow: false,
+        },
+      }}
       columns={ALERT_STATUS_COLUMNS}
       data={tableRows}
       getRowId={(row) => row.id}
@@ -89,6 +96,7 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
           onOpenDetail(row.original as AlertRow);
         }
       }}
+      emptyState={<AlertsStatusEmptyState />}
       renderTopToolbarCustomActions={() => (
         <Stack
           flex="1"

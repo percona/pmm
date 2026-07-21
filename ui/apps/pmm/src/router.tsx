@@ -14,7 +14,6 @@ import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
-import { InstallClientPage } from 'pages/install-client';
 
 const router = createBrowserRouter(
   [
@@ -50,10 +49,6 @@ const router = createBrowserRouter(
                   element: <AlertsPage />,
                 },
               ],
-            },
-            {
-              path: 'install-client',
-              element: <InstallClientPage />,
             },
             {
               path: 'settings/:tab?',

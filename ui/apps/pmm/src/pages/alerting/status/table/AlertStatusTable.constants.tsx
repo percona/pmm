@@ -1,8 +1,22 @@
 import { Chip, MRT_ColumnDef } from '@percona/percona-ui';
 import { AlertsTableRow } from '../AlertsPage.types';
+import type { AlertSeverity as Severity } from 'types/alerting.types';
 import { Stack, Typography } from '@mui/material';
 import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../AlertsPage.constants';
 import TriggeredAtCell from './TriggeredAtCell';
+import { AlertSeverity } from '../alert-severity';
+
+const ALERT_SEVERITY_OPTIONS = [
+  { value: 'emergency', label: 'Emergency' },
+  { value: 'alert', label: 'Alert' },
+  { value: 'critical', label: 'Critical' },
+  { value: 'error', label: 'Error' },
+  { value: 'warning', label: 'Warning' },
+  { value: 'notice', label: 'Notice' },
+  { value: 'info', label: 'Info' },
+  { value: 'debug', label: 'Debug' },
+  { value: 'unknown', label: 'Unknown' },
+];
 
 export const ALERT_STATUS_COLUMNS: MRT_ColumnDef<AlertsTableRow>[] = [
   {
@@ -18,7 +32,7 @@ export const ALERT_STATUS_COLUMNS: MRT_ColumnDef<AlertsTableRow>[] = [
               label={STATUS_LABEL_MAP[original.state]}
               color={STATUS_COLOR_MAP[original.state]}
             />
-            <Typography>for {original.age}</Typography>
+            <Typography noWrap>for {original.age}</Typography>
           </Stack>
         );
       }
@@ -42,6 +56,22 @@ export const ALERT_STATUS_COLUMNS: MRT_ColumnDef<AlertsTableRow>[] = [
   {
     accessorKey: 'serviceName',
     header: 'Service',
+  },
+  {
+    id: 'severity',
+    accessorFn: (row) => row.type === 'alert' && row.labels.severity,
+    header: 'Severity',
+    filterVariant: 'multi-select',
+    filterSelectOptions: ALERT_SEVERITY_OPTIONS,
+    Cell: ({ row: { original } }) => {
+      if (original.type === 'alert') {
+        return (
+          <AlertSeverity severity={original.labels.severity as Severity} />
+        );
+      }
+
+      return null;
+    },
   },
   {
     id: 'activeAt',
