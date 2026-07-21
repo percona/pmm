@@ -637,10 +637,14 @@ func resolveRule(method, cleanedPath string, l *logrus.Entry) (role, string) {
 	}
 }
 
+// isLocalAgentConnection reports whether the request is a local PMM agent
+// connection for endpoints that are allowed from localhost.
+// This func expects that req.Method and req.URL.Path are already replaced
+// with original request values - extractOriginalRequest(req) has been called beforehand.
 func isLocalAgentConnection(req *http.Request) bool {
 	ip := strings.Split(req.RemoteAddr, ":")[0]
 	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
-	path := req.Header.Get("X-Original-Uri")
+	path := req.URL.Path
 	if ip == "127.0.0.1" &&
 		(path == connectionEndpoint || path == rtaCollectEndpoint) {
 		return true
