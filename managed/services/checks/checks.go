@@ -1626,8 +1626,17 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 
 	procOut, err := cmd.Output()
 	if err != nil {
-		l.Errorf("Check script failed:\n%s", stderr.String())
-		return nil, err
+		scriptErr := strings.TrimSpace(stderr.String())
+		l.Errorf("Check script failed (%s): %s", err, scriptErr)
+		switch {
+		case scriptErr != "":
+			// the subprocess reported the real cause (script bug, malformed query result, etc.) on stderr
+			return nil, errors.New(scriptErr)
+		case cmdCtx.Err() != nil:
+			return nil, fmt.Errorf("check script execution timed out after %s", scriptExecutionTimeout)
+		default:
+			return nil, fmt.Errorf("check script execution failed: %w", err)
+		}
 	}
 
 	var results []check.Result

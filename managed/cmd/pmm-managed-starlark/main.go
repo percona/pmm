@@ -90,20 +90,21 @@ func main() {
 	var data checks.StarlarkScriptData
 	err = decoder.Decode(&data)
 	if err != nil {
-		l.Errorf("Error decoding json data: %s", err)
+		// write to stderr as plain text so pmm-managed can surface the cause instead of a bare exit code
+		fmt.Fprintf(os.Stderr, "Error decoding json data: %s\n", err)
 		os.Exit(1)
 	}
 
 	results, err := runChecks(l, &data)
 	if err != nil {
-		l.Errorf("Error running starlark script: %+v", err)
+		fmt.Fprintf(os.Stderr, "Error running starlark script: %+v\n", err)
 		os.Exit(1)
 	}
 
 	encoder := json.NewEncoder(os.Stdout)
 	err = encoder.Encode(results)
 	if err != nil {
-		l.Errorf("Error encoding JSON results: %s", err)
+		fmt.Fprintf(os.Stderr, "Error encoding JSON results: %s\n", err)
 		os.Exit(1)
 	}
 }
