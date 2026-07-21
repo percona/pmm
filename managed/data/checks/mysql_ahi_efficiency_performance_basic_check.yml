@@ -79,7 +79,7 @@ checks:
                    sample = float(row[1])
                    dataPoints.append(sample)
                    samplesSum = samplesSum + sample
-               hitRatioAvg = int((samplesSum/len(dataPoints))*100)
+               hitRatioAvg = int((samplesSum/len(dataPoints))*100) if dataPoints else 0
 
                # AHI btr_search_latch load
                dataPoints = []
@@ -90,7 +90,7 @@ checks:
                    if sample!=0.0:
                        dataPoints.append(sample)
                    samplesSum = samplesSum + sample
-               loadAvg = int(samplesSum/len(dataPoints))
+               loadAvg = int(samplesSum/len(dataPoints)) if dataPoints else 0
 
                # Proposed evaluation:
                # Low AHI hit ratio --> NOTICE

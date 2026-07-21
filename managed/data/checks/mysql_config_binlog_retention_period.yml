@@ -10,47 +10,51 @@ checks:
     family: MYSQL
     queries:
       - type: MYSQL_SELECT
-        query: " @@version version,@@hostname service, @@global.expire_logs_days as exp_days, @@global.binlog_expire_logs_seconds as exp_secs;"
+        query: " @@version version, @@hostname service, COALESCE((SELECT CAST(VARIABLE_VALUE AS SIGNED) FROM performance_schema.global_variables WHERE VARIABLE_NAME = 'expire_logs_days'), -1) exp_days, COALESCE((SELECT CAST(VARIABLE_VALUE AS SIGNED) FROM performance_schema.global_variables WHERE VARIABLE_NAME = 'binlog_expire_logs_seconds'), -1) exp_secs;"
     script: |
-      def check_binlog_retention_period(doc,read_url):
+      def check_binlog_retention_period(doc, read_url):
           for row in doc:
-             exp_secs = row["exp_secs"]
-             exp_days = row["exp_days"]
-             version = row["version"]
-             service = row["service"]
-             minimum_retention = 7*86400;
-             if exp_days > 0:
-               exptime = exp_days*86400
-               if exptime < minimum_retention:
-                  return {
-                      "summary": "Binlogs are removed too early and expire_logs_days is deprecated",
-                      "description": "Please consider to use binlog_expire_logs_seconds, and to set it to at least {} seconds".format(minimum_retention),
-                      "read_more_url": read_url.format("binlog-retention-period"),
-                      "severity": "warning",
-                      "labels": {
-                         "mysql_version": "{}".format(version),
-                         "service": "{}".format(service),
-                       }
-                  }
-             if exp_secs < minimum_retention:
-               return {
-                  "summary": "Binlogs are removed too early.",
-                  "description": "Please consider to set binlog_expire_logs_seconds to at least {} seconds".format(minimum_retention),
-                  "read_more_url": read_url.format("binlog-retention-period"),
-                  "severity": "warning",
-                  "labels": {
-                      "mysql_version": "{}".format(version),
-                      "service": "{}".format(service),
-                  }
-
-               }
+              # exp_days / exp_secs are -1 when the variable is absent on this MySQL version
+              # (expire_logs_days was removed in 8.4; binlog_expire_logs_seconds was added in 8.0.1).
+              # A value of 0 means automatic purging is disabled, so binlogs are kept indefinitely.
+              exp_secs = row["exp_secs"]
+              exp_days = row["exp_days"]
+              version = row["version"]
+              service = row["service"]
+              minimum_retention = 7 * 86400
+              # binlog_expire_logs_seconds takes precedence over the legacy expire_logs_days
+              if exp_secs > 0:
+                  if exp_secs < minimum_retention:
+                      return {
+                          "summary": "Binlogs are removed too early.",
+                          "description": "Please consider to set binlog_expire_logs_seconds to at least {} seconds".format(minimum_retention),
+                          "read_more_url": read_url.format("binlog-retention-period"),
+                          "severity": "warning",
+                          "labels": {
+                              "mysql_version": "{}".format(version),
+                              "service": "{}".format(service),
+                          }
+                      }
+              elif exp_days > 0:
+                  exptime = exp_days * 86400
+                  if exptime < minimum_retention:
+                      return {
+                          "summary": "Binlogs are removed too early and expire_logs_days is deprecated",
+                          "description": "Please consider to use binlog_expire_logs_seconds, and to set it to at least {} seconds".format(minimum_retention),
+                          "read_more_url": read_url.format("binlog-retention-period"),
+                          "severity": "warning",
+                          "labels": {
+                              "mysql_version": "{}".format(version),
+                              "service": "{}".format(service),
+                          }
+                      }
 
       def check_context(docs, context):
           # we first define some global variables
           read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
           results = []
 
-          in_result = check_binlog_retention_period(docs[0],read_url)
+          in_result = check_binlog_retention_period(docs[0], read_url)
           if in_result:
             results.append(in_result)
 

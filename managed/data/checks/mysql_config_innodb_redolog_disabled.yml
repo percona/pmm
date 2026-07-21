@@ -17,7 +17,7 @@ checks:
           for row in doc:
             version = row["version"]
             service = row["service"]
-            redolog = row["redolog"]
+            redolog = row.get("redolog", "")
 
             if redolog == "OFF":
                return {

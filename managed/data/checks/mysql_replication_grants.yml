@@ -17,8 +17,8 @@ checks:
           for row in doc:
             version = row["version"]
             service = row["service"]
-            source = row["source"]
-            found = row["found"]
+            source = row.get("source", "")
+            found = row.get("found", 0)
 
             if found > 0 :
                return {
