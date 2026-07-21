@@ -175,7 +175,7 @@ export const InstallClientPage = () => {
 
   const serviceNameHelperText = dbServiceName.trim()
     ? 'Passed to the script as --db-service-name.'
-    : `The name for this service in PMM. Defaults to <hostname>-<technology>. Set a custom name when monitoring multiple instances of the same technology on the same node.`;
+    : `Leave empty to use the script default (${suggestedServiceName} on the node).`;
 
   const installerUrl = useMemo(
     () => `${window.location.origin}/pmm-static/install-pmm-client.sh`,
@@ -384,19 +384,7 @@ export const InstallClientPage = () => {
   );
 
   return (
-    <Page title="Quick-install PMM Client">
-      <Typography mb={1}>
-        Generate a command that installs PMM Client on your database server and
-        adds it for monitoring. Run it on the target host with <code>sudo</code>
-        .{' '}
-        <Link
-          href="https://per.co.na/pmm-oneclick"
-          target="_blank"
-          rel="noopener noopener"
-        >
-          Learn more.
-        </Link>
-      </Typography>
+    <Page title="Install PMM Client (One-step)">
       <Card variant="outlined">
         <CardContent>
           <Stack spacing={2}>
@@ -472,10 +460,6 @@ export const InstallClientPage = () => {
                 <MenuItem value="mongodb">MongoDB</MenuItem>
                 <MenuItem value="valkey">Valkey</MenuItem>
               </Select>
-              <FormHelperText>
-                The database type you want to monitor. Determines which service
-                the quick-install command adds to PMM after installation.
-              </FormHelperText>
             </FormControl>
 
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
@@ -484,14 +468,7 @@ export const InstallClientPage = () => {
                 label="PMM host"
                 value={pmmHost}
                 onChange={handlePmmHostChange}
-                helperText={
-                  <>
-                    The PMM Server address your database host will connect to.
-                    Pre-filled with this page's hostname. Change only if needed.
-                    Do not include <code>http</code> / <code>https</code> or
-                    paths.
-                  </>
-                }
+                helperText="Usually leave as-is (this page's hostname). Do not include the protocol (http/https), paths or query parameters."
               />
               <TextField
                 fullWidth
@@ -499,7 +476,12 @@ export const InstallClientPage = () => {
                 label="Service token"
                 value={token}
                 onChange={handleTokenChange}
-                helperText={`Authenticates the install command with PMM Server. Generated automatically. Expires in ${DEFAULT_TTL_MINUTES} minutes. Do not share it as it contains Admin-level token.`}
+                error={isExpired}
+                helperText={
+                  isExpired
+                    ? 'Token expired. Click Regenerate to mint a new one.'
+                    : 'Click Generate below — token is filled in automatically.'
+                }
               />
             </Stack>
 
@@ -523,8 +505,8 @@ export const InstallClientPage = () => {
                 {genLoading
                   ? 'Generating…'
                   : tokenExpiresAt
-                    ? 'Regenerate install token'
-                    : 'Generate install token'}
+                    ? 'Regenerate token'
+                    : 'Generate short-lived token'}
               </Button>
               {tokenExpiresAt && !genLoading && (
                 <Chip
@@ -553,22 +535,15 @@ export const InstallClientPage = () => {
               </Typography>
             )}
 
-            <FormControl>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={automationMode}
-                    onChange={handleAutomationModeChange}
-                  />
-                }
-                label="Running in CI/automation?"
-              />
-              <FormHelperText>
-                Leave off to enter database credentials when running the
-                command. Toggle on to embed them in the command for CI or
-                automated environments.
-              </FormHelperText>
-            </FormControl>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={automationMode}
+                  onChange={handleAutomationModeChange}
+                />
+              }
+              label="Running in CI/automation?"
+            />
 
             {automationMode && (
               <Stack spacing={2}>
@@ -621,16 +596,13 @@ export const InstallClientPage = () => {
               </Stack>
             )}
 
-            <Typography variant="h4">Advanced options</Typography>
             <Accordion
               disableGutters
               elevation={0}
               sx={{ '&:before': { display: 'none' } }}
             >
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography>
-                  Customize your service name, port, and node settings.
-                </Typography>
+                <Typography variant="subtitle1">Advanced options</Typography>
               </AccordionSummary>
               <AccordionDetails>
                 <Stack spacing={2}>
@@ -640,14 +612,14 @@ export const InstallClientPage = () => {
                       label="Node name"
                       value={nodeName}
                       onChange={handleNodeNameChange}
-                      helperText="A name for this node in PMM. Defaults to the server hostname."
+                      helperText="Optional. Defaults to the server hostname."
                     />
                     <TextField
                       fullWidth
                       label="Node address"
                       value={nodeAddress}
                       onChange={handleNodeAddressChange}
-                      helperText="The node's IP address as it appears in PMM. Defaults to the autodetected IP of the server."
+                      helperText="Optional. Defaults to autodetected IP."
                     />
                   </Stack>
 
@@ -657,7 +629,7 @@ export const InstallClientPage = () => {
                       label="DB host"
                       value={dbHost}
                       onChange={handleDbHostChange}
-                      helperText="The host where your database is running. Defaults to 127.0.0.1."
+                      helperText="Optional. Defaults to 127.0.0.1 on the node."
                     />
                     <TextField
                       fullWidth
@@ -667,7 +639,7 @@ export const InstallClientPage = () => {
                       helperText={
                         dbPort.trim()
                           ? 'Adds a -<port> suffix to the default service name.'
-                          : 'The port your database listens on. Defaults to the standard port for the selected technology.'
+                          : 'Optional. Technology default if empty (e.g. 3306).'
                       }
                     />
                     <TextField
@@ -701,17 +673,8 @@ export const InstallClientPage = () => {
                         ))}
                       </Select>
                       <FormHelperText>
-                        Choose how PMM collects query data. Performance Schema
-                        requires fewer privileges while Slow log provides more
-                        detail but needs additional grants. See{' '}
-                        <Link
-                          href="https://per.co.na/pmm/connect_mysql"
-                          target="_blank"
-                          rel="noreferrer noopener"
-                        >
-                          Connect MySQL databases to PMM
-                        </Link>{' '}
-                        for details.
+                        Slow log vs Performance Schema — see MySQL connect docs
+                        for required grants.
                       </FormHelperText>
                     </FormControl>
                   )}
@@ -733,22 +696,15 @@ export const InstallClientPage = () => {
                     />
                   )}
 
-                  <FormControl>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={insecureTLS}
-                          onChange={handleInsecureTLSChange}
-                        />
-                      }
-                      label="Use insecure TLS"
-                    />
-                    <FormHelperText>
-                      Skip TLS certificate verification when connecting to PMM
-                      Server. Enable if your PMM Server uses a self-signed
-                      certificate.
-                    </FormHelperText>
-                  </FormControl>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={insecureTLS}
+                        onChange={handleInsecureTLSChange}
+                      />
+                    }
+                    label="Use insecure TLS"
+                  />
 
                   <Box
                     sx={{
@@ -777,11 +733,11 @@ export const InstallClientPage = () => {
                             color="text.secondary"
                             sx={{ mt: 0.5 }}
                           >
-                            Removes this node and all its services from PMM,
-                            then re-registers the node from scratch. Use this
-                            only if the first install failed and the node is in
-                            a broken state. Do not use this to add another
-                            database on the same node.
+                            Removes the existing node and{' '}
+                            <strong>all its services</strong> on PMM Server,
+                            then registers again. Use only to recover from a
+                            failed first install — not when adding another
+                            database instance.
                           </Typography>
                         </Box>
                       }
