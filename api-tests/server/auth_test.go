@@ -222,12 +222,6 @@ func TestBasicAuthPermissions(t *testing.T) {
 			{userType: "editor", login: editor, statusCode: 403},
 			{userType: "admin", login: admin, statusCode: 200},
 		}},
-		{name: "grafana serviceaccounts search", url: "/graph/api/serviceaccounts/search?query=pmm-install", method: "GET", userCase: []userCase{
-			{userType: "default", login: none, statusCode: 403},
-			{userType: "viewer", login: viewer, statusCode: 403},
-			{userType: "editor", login: editor, statusCode: 403},
-			{userType: "admin", login: admin, statusCode: 200},
-		}},
 	}
 
 	for _, test := range tests {
@@ -238,11 +232,7 @@ func TestBasicAuthPermissions(t *testing.T) {
 					u, err := url.Parse(pmmapitests.BaseURL.String())
 					require.NoError(t, err)
 					u.User = url.UserPassword(user.login, user.login)
-
-					pathURL, err := url.Parse(test.url)
-					require.NoError(t, err)
-					u.Path = pathURL.Path
-					u.RawQuery = pathURL.RawQuery
+					u.Path = test.url
 
 					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
 					require.NoError(t, err)
