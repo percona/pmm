@@ -728,10 +728,10 @@ func cleanPath(uri string) (string, error) {
 			// Match only dot\-segments, not dots inside normal segments (e.g. logs.zip).
 			if i+1 == len(uri) || uri[i+1] == '/' ||
 				(uri[i+1] == '.' && (i+2 == len(uri) || uri[i+2] == '/')) {
-			needsWork = true
-			break
+				needsWork = true
+				break
+			}
 		}
-	}
 	}
 
 	// 3. Return zero-allocation slice if clean

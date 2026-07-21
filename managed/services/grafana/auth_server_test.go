@@ -583,8 +583,8 @@ func TestAuthServerGetAuthUserCacheMetrics(t *testing.T) {
 	require.Nil(t, err2)
 	require.NotNil(t, u2)
 	assert.Equal(t, 1, client.calls)
-	assert.Equal(t, float64(1), testutil.ToFloat64(s.metrics.mCache.WithLabelValues("hit")))
-	assert.Equal(t, float64(1), testutil.ToFloat64(s.metrics.mCache.WithLabelValues("miss")))
+	assert.InDelta(t, 1.0, testutil.ToFloat64(s.metrics.mCache.WithLabelValues("hit")), 0.0)
+	assert.InDelta(t, 1.0, testutil.ToFloat64(s.metrics.mCache.WithLabelValues("miss")), 0.0)
 }
 
 func TestAuthServerRetrieveRoleGrafanaRequestMetrics(t *testing.T) {
@@ -601,7 +601,7 @@ func TestAuthServerRetrieveRoleGrafanaRequestMetrics(t *testing.T) {
 		got, authErr := s.retrieveRole(ctx, "ok", authHeaders, l)
 		require.Nil(t, authErr)
 		require.NotNil(t, got)
-		assert.Equal(t, float64(1), testutil.ToFloat64(s.metrics.mGrafanaAuthRequests.WithLabelValues("200")))
+		assert.InDelta(t, 1.0, testutil.ToFloat64(s.metrics.mGrafanaAuthRequests.WithLabelValues("200")), 0.0)
 	})
 
 	t.Run("401 maps to unauthenticated and increments 401", func(t *testing.T) {
@@ -612,7 +612,7 @@ func TestAuthServerRetrieveRoleGrafanaRequestMetrics(t *testing.T) {
 		require.Nil(t, got)
 		require.NotNil(t, authErr)
 		assert.Equal(t, codes.Unauthenticated, authErr.code)
-		assert.Equal(t, float64(1), testutil.ToFloat64(s.metrics.mGrafanaAuthRequests.WithLabelValues("401")))
+		assert.InDelta(t, 1.0, testutil.ToFloat64(s.metrics.mGrafanaAuthRequests.WithLabelValues("401")), 0.0)
 	})
 
 	t.Run("generic error increments 500", func(t *testing.T) {
@@ -623,7 +623,7 @@ func TestAuthServerRetrieveRoleGrafanaRequestMetrics(t *testing.T) {
 		require.Nil(t, got)
 		require.NotNil(t, authErr)
 		assert.Equal(t, codes.Internal, authErr.code)
-		assert.Equal(t, float64(1), testutil.ToFloat64(s.metrics.mGrafanaAuthRequests.WithLabelValues("500")))
+		assert.InDelta(t, 1.0, testutil.ToFloat64(s.metrics.mGrafanaAuthRequests.WithLabelValues("500")), 0.0)
 	})
 }
 
@@ -676,5 +676,5 @@ func TestAuthServerServeHTTPBadRequestMetrics(t *testing.T) {
 
 	s.ServeHTTP(rw, req)
 	require.Equal(t, http.StatusBadRequest, rw.Code)
-	assert.Equal(t, float64(1), testutil.ToFloat64(s.metrics.mAuthRequests.WithLabelValues(http.MethodGet, "/v1/server/%zz/logs.zip", "400")))
+	assert.InDelta(t, 1.0, testutil.ToFloat64(s.metrics.mAuthRequests.WithLabelValues(http.MethodGet, "/v1/server/%zz/logs.zip", "400")), 0.0)
 }
