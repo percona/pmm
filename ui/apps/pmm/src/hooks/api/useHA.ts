@@ -25,7 +25,9 @@ export const useHANodes = (
     ...options,
   });
 
-export const useHaInfo = (options?: Partial<UseQueryOptions<GetHAStatusResponse>>) => {
+export const useHaInfo = (
+  options?: Partial<UseQueryOptions<GetHAStatusResponse>>
+) => {
   const statusQuery = useHAStatus(options);
   const nodesQuery = useHANodes({
     enabled: statusQuery.data?.status === 'Enabled',
