@@ -300,7 +300,7 @@
     },
     {
       "type": "dashboard",
-      "name": "PMM HA Health Overview",
+      "name": "PMM HA Overview",
       "path": "dashboards/PMM Health/PMM_HA_Health_Overview.json"
     },
     {

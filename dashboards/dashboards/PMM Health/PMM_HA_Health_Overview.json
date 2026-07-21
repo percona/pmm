@@ -15,7 +15,7 @@
             }
         ]
     },
-    "description": "High-level health overview of PMM-HA components: PostgreSQL/Patroni, ClickHouse, VictoriaMetrics, HAProxy",
+    "description": "GA overview of cluster-level and instance-level health for PMM HA, PostgreSQL/Patroni, ClickHouse, VictoriaMetrics, and HAProxy.",
     "editable": false,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 1,
@@ -37,53 +37,68 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Click row below to see PMM pod details",
+            "description": "PMM instances alive versus expected. Green means all expected instances are alive, yellow means degraded, and red means no instance is alive or none is discovered.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "thresholds"
+                        "fixedColor": "text",
+                        "mode": "fixed"
                     },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "red",
-                                    "index": 1,
-                                    "text": "Not Healthy"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "1": {
-                                    "color": "green",
-                                    "index": 0,
-                                    "text": "Healthy"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
+                    "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "red"
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
+                                "color": "green"
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Health"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 100
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percent"
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 4,
-                "w": 4,
+                "w": 4.8,
                 "x": 0,
                 "y": 1
             },
@@ -102,7 +117,7 @@
                     "values": false
                 },
                 "showPercentChange": false,
-                "textMode": "value",
+                "textMode": "value_and_name",
                 "wideLayout": true
             },
             "pluginVersion": "11.6.4",
@@ -110,10 +125,29 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(\n  count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}) == 1)\n  ==\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}))\n  and\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"})) > 0\n) * 0 + 1 or vector(0)",
-                    "legendFormat": "PMM",
-                    "range": true,
+                    "expr": "count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}) == 1)",
+                    "instant": true,
+                    "legendFormat": "Alive",
+                    "range": false,
                     "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}))",
+                    "instant": true,
+                    "legendFormat": "Expected",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "Health",
+                    "range": false,
+                    "refId": "C"
                 }
             ],
             "title": "🧭 PMM",
@@ -121,54 +155,69 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Click row below to see PostgreSQL pod details",
+            "description": "PostgreSQL instances alive versus expected. Green means all expected instances are alive, yellow means degraded, and red means no instance is alive or none is discovered.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "thresholds"
+                        "fixedColor": "text",
+                        "mode": "fixed"
                     },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "red",
-                                    "index": 1,
-                                    "text": "Not Healthy"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "1": {
-                                    "color": "green",
-                                    "index": 0,
-                                    "text": "Healthy"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
+                    "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "red"
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
+                                "color": "green"
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Health"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 100
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percent"
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 4,
-                "w": 4,
-                "x": 4,
+                "w": 4.8,
+                "x": 4.8,
                 "y": 1
             },
             "id": 1,
@@ -186,7 +235,7 @@
                     "values": false
                 },
                 "showPercentChange": false,
-                "textMode": "value",
+                "textMode": "value_and_name",
                 "wideLayout": true
             },
             "pluginVersion": "11.6.4",
@@ -194,10 +243,29 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(\n  count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}) == 1)\n  ==\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}))\n  and\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"})) > 0\n) * 0 + 1 or vector(0)",
-                    "legendFormat": "PostgreSQL",
-                    "range": true,
+                    "expr": "count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}) == 1)",
+                    "instant": true,
+                    "legendFormat": "Alive",
+                    "range": false,
                     "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}))",
+                    "instant": true,
+                    "legendFormat": "Expected",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "Health",
+                    "range": false,
+                    "refId": "C"
                 }
             ],
             "title": "🐘 PostgreSQL",
@@ -205,54 +273,69 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Click row below to see ClickHouse pod details",
+            "description": "ClickHouse instances alive versus expected. Green means all expected instances are alive, yellow means degraded, and red means no instance is alive or none is discovered.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "thresholds"
+                        "fixedColor": "text",
+                        "mode": "fixed"
                     },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "red",
-                                    "index": 1,
-                                    "text": "Not Healthy"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "1": {
-                                    "color": "green",
-                                    "index": 0,
-                                    "text": "Healthy"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
+                    "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "red"
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
+                                "color": "green"
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Health"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 100
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percent"
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 4,
-                "w": 4,
-                "x": 8,
+                "w": 4.8,
+                "x": 9.6,
                 "y": 1
             },
             "id": 2,
@@ -270,7 +353,7 @@
                     "values": false
                 },
                 "showPercentChange": false,
-                "textMode": "value",
+                "textMode": "value_and_name",
                 "wideLayout": true
             },
             "pluginVersion": "11.6.4",
@@ -278,10 +361,29 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(\n  count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}) == 1)\n  ==\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}))\n  and\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"})) > 0\n) * 0 + 1 or vector(0)",
-                    "legendFormat": "ClickHouse",
-                    "range": true,
+                    "expr": "count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}) == 1)",
+                    "instant": true,
+                    "legendFormat": "Alive",
+                    "range": false,
                     "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}))",
+                    "instant": true,
+                    "legendFormat": "Expected",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "Health",
+                    "range": false,
+                    "refId": "C"
                 }
             ],
             "title": "🖱️ ClickHouse",
@@ -289,54 +391,69 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Click row below to see VictoriaMetrics pod details",
+            "description": "VictoriaMetrics instances alive versus expected. Green means all expected instances are alive, yellow means degraded, and red means no instance is alive or none is discovered.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "thresholds"
+                        "fixedColor": "text",
+                        "mode": "fixed"
                     },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "red",
-                                    "index": 1,
-                                    "text": "Not Healthy"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "1": {
-                                    "color": "green",
-                                    "index": 0,
-                                    "text": "Healthy"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
+                    "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "red"
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
+                                "color": "green"
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Health"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 100
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percent"
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 4,
-                "w": 4,
-                "x": 12,
+                "w": 4.8,
+                "x": 14.4,
                 "y": 1
             },
             "id": 3,
@@ -354,7 +471,7 @@
                     "values": false
                 },
                 "showPercentChange": false,
-                "textMode": "value",
+                "textMode": "value_and_name",
                 "wideLayout": true
             },
             "pluginVersion": "11.6.4",
@@ -362,10 +479,29 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(\n  count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}) == 1)\n  ==\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}))\n  and\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"})) > 0\n) * 0 + 1 or vector(0)",
-                    "legendFormat": "VictoriaMetrics",
-                    "range": true,
+                    "expr": "count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}) == 1)",
+                    "instant": true,
+                    "legendFormat": "Alive",
+                    "range": false,
                     "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}))",
+                    "instant": true,
+                    "legendFormat": "Expected",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "Health",
+                    "range": false,
+                    "refId": "C"
                 }
             ],
             "title": "📊 VictoriaMetrics",
@@ -373,54 +509,69 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Click row below to see HAProxy pod details",
+            "description": "HAProxy instances alive versus expected. Green means all expected instances are alive, yellow means degraded, and red means no instance is alive or none is discovered.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "thresholds"
+                        "fixedColor": "text",
+                        "mode": "fixed"
                     },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "red",
-                                    "index": 1,
-                                    "text": "Not Healthy"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "1": {
-                                    "color": "green",
-                                    "index": 0,
-                                    "text": "Healthy"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
+                    "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "red"
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
+                                "color": "green"
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Health"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 1
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 100
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percent"
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 4,
-                "w": 4,
-                "x": 16,
+                "w": 4.8,
+                "x": 19.2,
                 "y": 1
             },
             "id": 4,
@@ -438,7 +589,7 @@
                     "values": false
                 },
                 "showPercentChange": false,
-                "textMode": "value",
+                "textMode": "value_and_name",
                 "wideLayout": true
             },
             "pluginVersion": "11.6.4",
@@ -446,10 +597,29 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(\n  count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}) == 1)\n  ==\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}))\n  and\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"})) > 0\n) * 0 + 1 or vector(0)",
-                    "legendFormat": "HAProxy",
-                    "range": true,
+                    "expr": "count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}) == 1)",
+                    "instant": true,
+                    "legendFormat": "Alive",
+                    "range": false,
                     "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}))",
+                    "instant": true,
+                    "legendFormat": "Expected",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "Health",
+                    "range": false,
+                    "refId": "C"
                 }
             ],
             "title": "⚖️ HAProxy",
@@ -765,12 +935,249 @@
             "type": "table"
         },
         {
+            "datasource": "Metrics",
+            "description": "Current PMM Raft leader. Shows the active instance name, or No active instance when no leader is visible.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 6,
+                "x": 0,
+                "y": 11
+            },
+            "id": 213,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "name",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "(max by(node_id) (pmm_ha_leader_status) == 1) or label_replace(vector(0), \"node_id\", \"No active instance\", \"\", \"\")",
+                    "instant": true,
+                    "legendFormat": "{{node_id}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Active PMM Instance",
+            "type": "stat"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Current Patroni primary instance.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "green",
+                        "mode": "fixed"
+                    },
+                    "mappings": [],
+                    "noValue": "No primary",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 6,
+                "x": 6,
+                "y": 11
+            },
+            "id": 214,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "name",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "max by(name) (patroni_primary) == 1",
+                    "instant": true,
+                    "legendFormat": "{{name}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "PostgreSQL Primary",
+            "type": "stat"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Health percentage for vmauth, vminsert, vmselect, vmstorage, and vmagent.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "green",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    "unit": "percent"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 12,
+                "y": 11
+            },
+            "id": 215,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"vmauth.*${release}.*\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"vmauth.*${release}.*\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "vmauth",
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"vminsert.*${release}.*\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"vminsert.*${release}.*\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "vminsert",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"vmselect.*${release}.*\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"vmselect.*${release}.*\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "vmselect",
+                    "range": false,
+                    "refId": "C"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"vmstorage.*${release}.*\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"vmstorage.*${release}.*\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "vmstorage",
+                    "range": false,
+                    "refId": "D"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"vmagent.*${release}.*\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"vmagent.*${release}.*\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "vmagent",
+                    "range": false,
+                    "refId": "E"
+                }
+            ],
+            "title": "VictoriaMetrics Components",
+            "type": "stat"
+        },
+        {
             "collapsed": false,
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 11
+                "y": 16
             },
             "id": 205,
             "panels": [],
@@ -839,7 +1246,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 12
+                "y": 17
             },
             "id": 6,
             "options": {
@@ -935,7 +1342,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 12
+                "y": 17
             },
             "id": 206,
             "options": {
@@ -975,7 +1382,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 20
+                "y": 25
             },
             "id": 207,
             "panels": [],
@@ -1017,7 +1424,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 0,
-                "y": 21
+                "y": 26
             },
             "id": 208,
             "options": {
@@ -1084,7 +1491,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 8,
-                "y": 21
+                "y": 26
             },
             "id": 209,
             "options": {
@@ -1151,7 +1558,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 16,
-                "y": 21
+                "y": 26
             },
             "id": 210,
             "options": {
@@ -1189,7 +1596,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 27
+                "y": 32
             },
             "id": 211,
             "panels": [],
@@ -1248,7 +1655,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 28
+                "y": 33
             },
             "id": 212,
             "options": {
@@ -1319,13 +1726,13 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 43
+                "y": 48
             },
             "id": 105,
             "panels": [
                 {
                     "datasource": "Metrics",
-                    "description": "Status of each PMM server pod (Running = UP).",
+                    "description": "Status and Raft role of every PMM server instance.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -1391,6 +1798,34 @@
                                         }
                                     }
                                 ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Role"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "0": {
+                                                        "color": "yellow",
+                                                        "index": 1,
+                                                        "text": "Follower"
+                                                    },
+                                                    "1": {
+                                                        "color": "green",
+                                                        "index": 0,
+                                                        "text": "Active"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            }
+                                        ]
+                                    }
+                                ]
                             }
                         ]
                     },
@@ -1425,24 +1860,44 @@
                             "legendFormat": "__auto",
                             "range": false,
                             "refId": "Status"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "exemplar": false,
+                            "expr": "label_replace(max by(node_id) (pmm_ha_leader_status), \"exported_pod\", \"$1\", \"node_id\", \"(.*)\")",
+                            "format": "table",
+                            "instant": true,
+                            "legendFormat": "__auto",
+                            "range": false,
+                            "refId": "Leader"
                         }
                     ],
                     "title": "PMM Pods",
                     "transformations": [
                         {
+                            "id": "seriesToColumns",
+                            "options": {
+                                "byField": "exported_pod"
+                            }
+                        },
+                        {
                             "id": "organize",
                             "options": {
                                 "excludeByName": {
                                     "Time": true,
+                                    "node_id": true,
                                     "service_name": true
                                 },
                                 "indexByName": {
-                                    "Value": 1,
+                                    "Value #Leader": 2,
+                                    "Value #Status": 1,
                                     "exported_pod": 0
                                 },
                                 "renameByName": {
-                                    "Value": "Status",
-                                    "exported_pod": "Pod"
+                                    "Value #Leader": "Role",
+                                    "Value #Status": "Status",
+                                    "exported_pod": "Instance"
                                 }
                             }
                         }
@@ -1459,7 +1914,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 37
+                "y": 42
             },
             "id": 101,
             "panels": [],
@@ -1468,7 +1923,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Status of each PostgreSQL pod based on Kubernetes phase (Running = UP).",
+            "description": "Status, primary/replica role, and replication streaming health for every PostgreSQL instance.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1575,6 +2030,34 @@
                                 ]
                             }
                         ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Replication"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "yellow",
+                                                "index": 1,
+                                                "text": "Not streaming"
+                                            },
+                                            "1": {
+                                                "color": "green",
+                                                "index": 0,
+                                                "text": "Healthy"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ]
             },
@@ -1582,7 +2065,7 @@
                 "h": 6,
                 "w": 24,
                 "x": 0,
-                "y": 38
+                "y": 43
             },
             "id": 10,
             "options": {
@@ -1620,6 +2103,17 @@
                     "legendFormat": "__auto",
                     "range": true,
                     "refId": "Primary"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "label_replace(max by(name) (patroni_postgres_streaming) + on(name) max by(name) (patroni_primary), \"exported_pod\", \"$1\", \"name\", \"(.*)\")",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "Replication"
                 }
             ],
             "title": "PostgreSQL Pods",
@@ -1641,11 +2135,13 @@
                         "includeByName": {},
                         "indexByName": {
                             "Value #Primary": 2,
+                            "Value #Replication": 3,
                             "Value #Status": 1,
                             "exported_pod": 0
                         },
                         "renameByName": {
                             "Value #Primary": "Role",
+                            "Value #Replication": "Replication",
                             "Value #Status": "Status",
                             "exported_pod": "Pod"
                         }
@@ -1660,13 +2156,13 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 44
+                "y": 49
             },
             "id": 102,
             "panels": [
                 {
                     "datasource": "Metrics",
-                    "description": "Status of each ClickHouse pod with leader/follower role.",
+                    "description": "Health of all ClickHouse database and Keeper nodes. Keeper nodes additionally show leader/follower role.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -1801,7 +2297,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"})",
+                            "expr": "max by(exported_pod, component) (label_replace(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}, \"component\", \"$1\", \"exported_pod\", \".*(pmmdb|keeper).*\"))",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -1837,13 +2333,15 @@
                                     "pod_ip": true
                                 },
                                 "indexByName": {
-                                    "Value #Leader": 2,
-                                    "Value #Status": 1,
+                                    "Value #Leader": 3,
+                                    "Value #Status": 2,
+                                    "component": 1,
                                     "exported_pod": 0
                                 },
                                 "renameByName": {
                                     "Value #Leader": "Role",
                                     "Value #Status": "Status",
+                                    "component": "Component",
                                     "exported_pod": "Pod"
                                 }
                             }
@@ -1861,7 +2359,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 45
+                "y": 50
             },
             "id": 103,
             "panels": [
@@ -2035,7 +2533,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 46
+                "y": 51
             },
             "id": 104,
             "panels": [
@@ -2166,7 +2664,7 @@
                 },
                 {
                     "datasource": "Metrics",
-                    "description": "Status of HAProxy backends",
+                    "description": "UP/DOWN status of every HAProxy backend server.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -2278,7 +2776,7 @@
                             "datasource": "Metrics",
                             "editorMode": "code",
                             "exemplar": false,
-                            "expr": "max by(service_name, proxy) (haproxy_backend_status)",
+                            "expr": "max by(service_name, proxy, server) (haproxy_server_status)",
                             "format": "table",
                             "instant": true,
                             "legendFormat": "__auto",
@@ -2286,7 +2784,7 @@
                             "refId": "Backend"
                         }
                     ],
-                    "title": "HAProxy Backends",
+                    "title": "HAProxy Backend Servers",
                     "transformations": [
                         {
                             "id": "organize",
@@ -2295,13 +2793,15 @@
                                     "Time": true
                                 },
                                 "indexByName": {
-                                    "Value": 2,
+                                    "Value": 3,
                                     "proxy": 1,
+                                    "server": 2,
                                     "service_name": 0
                                 },
                                 "renameByName": {
                                     "Value": "Status",
                                     "proxy": "Backend",
+                                    "server": "Server",
                                     "service_name": "Service"
                                 }
                             }
@@ -2488,7 +2988,7 @@
     },
     "timepicker": {},
     "timezone": "",
-    "title": "PMM HA Health Overview",
+    "title": "PMM HA Overview",
     "uid": "pmm-ha-health-overview",
-    "version": 3
+    "version": 4
 }

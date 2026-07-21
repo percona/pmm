@@ -1,26 +1,26 @@
-# PMM HA Health Overview
+# PMM HA Overview
 
-![PMM HA Health Overview Dashboard](../../images/PMM_HA_Health_Overview.png)
+![PMM HA Overview Dashboard](../../images/PMM_HA_Health_Overview.png)
 
-The PMM HA Health Overview dashboard provides at-a-glance monitoring of your PMM High Availability Cluster deployment health. 
+The PMM HA Overview dashboard provides at-a-glance monitoring of cluster-level and instance-level health for your PMM High Availability deployment.
 
-Use this dashboard to quickly identify component failures, resource constraints, and stability issues across your high-availability infrastructure.
+Use the **Alive**, **Expected**, and **Health** values to identify component failures. Green means all expected instances are alive, yellow means the service is degraded, and red means no instances are alive or no expected instances were discovered.
 
-This dashboard monitors all critical components: PMM server replicas, PostgreSQL database cluster, ClickHouse query analytics storage, VictoriaMetrics time series storage, and HAProxy load balancers.
+The dashboard monitors PMM server replicas, PostgreSQL, ClickHouse, VictoriaMetrics, and HAProxy. It also identifies the active PMM instance, PostgreSQL primary, ClickHouse Keeper leader, VictoriaMetrics component health, and HAProxy backend server status.
 
 ## Overview
 
 ### PMM
 
-Shows the overall health status of PMM server pods with green **Healthy** when all pods are running normally or red **Not Healthy** when one or more pods are down.
+Shows PMM instances alive versus expected and the resulting health percentage.
 
 In HA Cluster mode, you have three PMM server replicas providing full redundancy. If one replica fails, the remaining two continue serving requests with no user-visible impact, but you should investigate quickly to restore full redundancy. 
 
-Check the **PMM Pods** table in the Pod Status Details section below to see which specific pods are affected.
+The **Active PMM Instance** panel identifies the current Raft leader. Check the **PMM Pods** table to see every instance's status and Active or Follower role.
 
 ### PostgreSQL
 
-Shows the overall health status of PostgreSQL database pods. Green **Healthy** indicates the cluster is fully operational with primary and replicas running. Red **Not Healthy** signals the cluster is degraded, putting metadata and configuration storage at risk.
+Shows PostgreSQL instances alive versus expected. The **PostgreSQL Primary** panel identifies the current primary, and the instance table reports replication streaming health.
 
 PostgreSQL stores PMM's critical data including user accounts, dashboard configurations, alerting rules, and inventory information. 
 
@@ -30,20 +30,21 @@ Check the [**PostgreSQL Pods**](#postgresql-pods) panel in the **PostgreSQL Pod'
 
 ### ClickHouse
 
-Shows the overall health status of ClickHouse pods. Green **Healthy** indicates the cluster is operating normally with all keeper and database nodes running. Red **Not Healthy** signals Query Analytics data storage is degraded.
+Shows ClickHouse database and Keeper nodes alive versus expected.
 
 ClickHouse stores all Query Analytics (QAN) data. When pods fail, QAN dashboards will show incomplete query performance metrics, you won't be able to analyze slow queries during the outage, and you'll have permanent gaps in your historical query analysis data.
 
-Check the **ClickHouse Pods** panel in the **ClickHouse Pod's Status** section below to see which pods are down. 
+Check the **ClickHouse Pods** panel to distinguish database (`pmmdb`) and Keeper nodes and to identify the Keeper leader. The dashboard reports Kubernetes node role and Keeper election state; it does not infer ClickHouse logical shard topology.
 
 Loss of keeper nodes (which handle coordination) is more critical than loss of a single database node (which handles storage).
 
 ### VictoriaMetrics
 
-Shows the overall health status of VictoriaMetrics components. Green **Healthy** indicates all components are operational and metrics collection and querying are working properly. Red **Not Healthy** signals the time series infrastructure is degraded.
+Shows VictoriaMetrics instances alive versus expected. The **VictoriaMetrics Components** panel breaks health down by `vmauth`, `vminsert`, `vmselect`, `vmstorage`, and `vmagent`.
 
-VictoriaMetrics uses multiple components working together: 
-- `vminsert` receives metrics from monitored services, - `vmselect` processes dashboard queries
+VictoriaMetrics uses multiple components working together:
+- `vminsert` receives metrics from monitored services
+- `vmselect` processes dashboard queries
 - `vmstorage` stores time series data
 - `vmagent` scrapes metrics from targets
 - `vmauth` handles authentication
@@ -54,7 +55,7 @@ Failures in `vminsert` or `vmstorage` are most critical as they prevent metrics 
 
 ### HAProxy
 
-Shows the overall health status of HAProxy load balancer pods. Green **Healthy** means load balancing is working and traffic is properly distributed across your PMM replicas. Red **Not Healthy** means the load balancer has problems and you may not be able to access PMM.
+Shows HAProxy instances alive versus expected. The backend server table reports the UP or DOWN state of each server in each backend.
 
 HAProxy is how you get into your PMM cluster. It routes web traffic to healthy PMM server replicas and handles automatic failover when the leader changes.
 
@@ -196,7 +197,7 @@ A healthy PMM HA deployment should be mostly green with only short gaps during p
 
 ### PostgreSQL Pods
 
-Shows each of your PostgreSQL pods with their status (UP or DOWN) and role (Primary or Replica). In a healthy cluster, you should see one Primary and the rest as Replicas, all showing UP in green.
+Shows each PostgreSQL instance with its status (UP or DOWN), role (Primary or Replica), and replication health. In a healthy cluster, you should see one Primary, the remaining instances as Replicas, and all rows showing UP and Healthy.
 
 If the Primary shows DOWN, a failover is either in progress or just completed. Check that a Replica was promoted to become the new Primary. 
 
@@ -212,18 +213,18 @@ After a failover, verify that the new Primary is handling writes correctly.
 
 ### PMM Pods
 
-Shows each of your PMM server pods with their current status. Green UP means the pod is running normally. Red DOWN means the pod has failed or isn't running.
+Shows each PMM server instance with its current status and Raft role. Green UP means the pod is running normally; **Active** identifies the Raft leader and **Follower** identifies the remaining instances.
 
 If one pod shows DOWN, identify which replica is affected and investigate the cause. Two or more DOWN pods means your deployment is at serious risk—investigate immediately. 
 
 If all three show DOWN, your entire PMM system is unavailable.
 
-Use this table to identify which specific PMM server pods need attention when the [**PMM**](#pmm) health indicator shows **Not Healthy**.
+Use this table to identify which PMM server instances need attention when the [**PMM**](#pmm) health percentage is below 100%.
 
 
 ### ClickHouse Pods
 
-Shows each of your ClickHouse pods with their status (UP or DOWN) and role (Leader or Follower). 
+Shows every ClickHouse database and Keeper node with its UP or DOWN status. Keeper nodes also show their Leader or Follower role.
 
 ClickHouse uses two types of pods: keeper nodes that handle coordination and metadata, and database nodes that handle storage.
 
@@ -243,7 +244,7 @@ Check for failures in `vmstorage` pods first—each stores a subset of your metr
 
 Failures in `vmselect` pods reduce query capacity but don't cause data loss. Down `vmagent` or `vmauth` pods affect metric scraping and authentication respectively.
 
-Use this table to identify which specific components need attention when the [**VictoriaMetrics**](#victoriametrics) health indicator shows **Not Healthy**.
+Use this table to identify which components need attention when the [**VictoriaMetrics**](#victoriametrics) health percentage is below 100%.
 
 ## HAProxy Pod's Status
 
@@ -257,11 +258,11 @@ If one pod shows DOWN, your load balancing is still working but with reduced cap
 
 Investigate DOWN pods quickly to restore full redundancy and prevent a single point of failure. Check pod logs to identify whether the issue is configuration, resource limits, or connectivity problems.
 
-Use this table to identify which specific HAProxy pods need attention when the [**HAProxy**](#haproxy) health indicator shows **Not Healthy**.
+Use this table to identify which HAProxy pods need attention when the [**HAProxy**](#haproxy) health percentage is below 100%.
 
-### HAProxy Backends
+### HAProxy Backend Servers
 
-Shows the health status of each backend service that HAProxy routes traffic to. 
+Shows the health status of every server in each backend that HAProxy routes traffic to.
 
 Green UP means HAProxy can reach the backend and will route traffic to it. Red DOWN means HAProxy detected the backend is unavailable and won't route traffic there.
 
@@ -278,7 +279,7 @@ Check pod status in the tables above to identify why backends remain unavailable
 ## Dashboard Usage Tips
 
 ### Refresh rate
-This dashboard auto-refreshes every 30 seconds to provide near real-time monitoring.
+Use Grafana's refresh control to update the dashboard while investigating failovers or degraded components.
 
 ### Filters
 Use the namespace and Helm release variables at the top to focus on your specific PMM HA deployment if you have multiple installations.
