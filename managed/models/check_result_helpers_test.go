@@ -140,11 +140,13 @@ func TestCheckResults(t *testing.T) {
 		svc := "svc-time"
 		create(t, &models.CheckResult{
 			CheckName: "c", ServiceID: svc, ServiceName: "s", NodeName: "n",
-			Status: models.CheckResultFailed, Summary: "s", CheckedAt: models.Now().Add(-48 * time.Hour),
+			Status: models.CheckResultFailed, Summary: "s",
+			Severity: models.Severity(common.Warning), CheckedAt: models.Now().Add(-48 * time.Hour),
 		})
 		create(t, &models.CheckResult{
 			CheckName: "c", ServiceID: svc, ServiceName: "s", NodeName: "n",
-			Status: models.CheckResultFailed, Summary: "s", CheckedAt: models.Now(),
+			Status: models.CheckResultFailed, Summary: "s",
+			Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
 		})
 
 		from := models.Now().Add(-24 * time.Hour)
@@ -159,7 +161,8 @@ func TestCheckResults(t *testing.T) {
 		for i := range 5 {
 			create(t, &models.CheckResult{
 				CheckName: fmt.Sprintf("c%d", i), ServiceID: svc, ServiceName: "s", NodeName: "n",
-				Status: models.CheckResultFailed, Summary: "s", CheckedAt: base.Add(time.Duration(i) * time.Minute),
+				Status: models.CheckResultFailed, Summary: "s",
+				Severity: models.Severity(common.Warning), CheckedAt: base.Add(time.Duration(i) * time.Minute),
 			})
 		}
 
@@ -185,11 +188,13 @@ func TestCheckResults(t *testing.T) {
 		svc := "svc-mark"
 		cr1 := create(t, &models.CheckResult{
 			CheckName: "c1", ServiceID: svc, ServiceName: "s", NodeName: "n",
-			Status: models.CheckResultFailed, Summary: "s", CheckedAt: models.Now(),
+			Status: models.CheckResultFailed, Summary: "s",
+			Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
 		})
 		cr2 := create(t, &models.CheckResult{
 			CheckName: "c2", ServiceID: svc, ServiceName: "s", NodeName: "n",
-			Status: models.CheckResultFailed, Summary: "s", CheckedAt: models.Now(),
+			Status: models.CheckResultFailed, Summary: "s",
+			Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
 		})
 
 		require.NoError(t, models.MarkCheckResultsRead(t.Context(), q, []string{cr1.ID}, true))
@@ -217,11 +222,13 @@ func TestCheckResults(t *testing.T) {
 		svc := "svc-clean"
 		create(t, &models.CheckResult{
 			CheckName: "old", ServiceID: svc, ServiceName: "s", NodeName: "n",
-			Status: models.CheckResultFailed, Summary: "s", CheckedAt: models.Now().Add(-72 * time.Hour),
+			Status: models.CheckResultFailed, Summary: "s",
+			Severity: models.Severity(common.Warning), CheckedAt: models.Now().Add(-72 * time.Hour),
 		})
 		create(t, &models.CheckResult{
 			CheckName: "new", ServiceID: svc, ServiceName: "s", NodeName: "n",
-			Status: models.CheckResultFailed, Summary: "s", CheckedAt: models.Now(),
+			Status: models.CheckResultFailed, Summary: "s",
+			Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
 		})
 
 		require.NoError(t, models.CleanupOldCheckResults(t.Context(), q, models.Now().Add(-24*time.Hour)))
@@ -237,12 +244,14 @@ func TestCheckResults(t *testing.T) {
 		for range 2 {
 			create(t, &models.CheckResult{
 				CheckName: "c", ServiceID: "svc-fv", ServiceName: "fv-svc-b", NodeName: "fv-node-b",
-				Status: models.CheckResultFailed, Summary: "s", CheckedAt: models.Now(),
+				Status: models.CheckResultFailed, Summary: "s",
+				Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
 			})
 		}
 		create(t, &models.CheckResult{
 			CheckName: "c", ServiceID: "svc-fv", ServiceName: "fv-svc-a", NodeName: "fv-node-a",
-			Status: models.CheckResultOK, Summary: "s", CheckedAt: models.Now(),
+			Status: models.CheckResultOK, Summary: "s",
+			Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
 		})
 
 		serviceNames, nodeNames, err := models.FindCheckResultFilterValues(t.Context(), q)

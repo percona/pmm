@@ -26,6 +26,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -41,11 +42,13 @@ func TestCheckResultsCleaner(t *testing.T) {
 	// Default retention is 30 days, so this row is past it and must be removed.
 	require.NoError(t, models.CreateCheckResult(t.Context(), q, &models.CheckResult{
 		CheckName: "old", ServiceID: "svc", ServiceName: "svc", NodeName: "node",
-		Status: models.CheckResultFailed, Summary: "s", CheckedAt: models.Now().Add(-31 * 24 * time.Hour),
+		Status: models.CheckResultFailed, Summary: "s",
+		Severity: models.Severity(common.Warning), CheckedAt: models.Now().Add(-31 * 24 * time.Hour),
 	}))
 	require.NoError(t, models.CreateCheckResult(t.Context(), q, &models.CheckResult{
 		CheckName: "new", ServiceID: "svc", ServiceName: "svc", NodeName: "node",
-		Status: models.CheckResultFailed, Summary: "s", CheckedAt: models.Now(),
+		Status: models.CheckResultFailed, Summary: "s",
+		Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
 	}))
 
 	// Run a single cleanup pass synchronously; the ticker loop in Run is trivial plumbing.
