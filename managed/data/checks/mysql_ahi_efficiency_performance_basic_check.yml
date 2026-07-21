@@ -45,7 +45,7 @@ checks:
 
            results = []
            ahi_parts = 0
-           read_more = "https://docs.percona.com/percona-platform/advisors/checks/mysql-ahi-efficiency-performance-basic-check.html"
+           read_more = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql-ahi-efficiency-performance-basic-check.html"
 
            # Check if AHI is enabled and partitioned
            for row in docs[0]:
