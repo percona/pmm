@@ -89,6 +89,9 @@ type ChangeAgentValkeyExporterCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+
+	// Connection check
+	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
 // RunCmd executes the ChangeAgentValkeyExporterCommand and returns the result.
@@ -126,20 +129,21 @@ func (cmd *ChangeAgentValkeyExporterCommand) RunCmd() (commands.Result, error) {
 	}
 
 	body := &agents.ChangeAgentParamsBodyValkeyExporter{
-		Enable:            cmd.Enable,
-		Username:          cmd.Username,
-		Password:          cmd.Password,
-		TLS:               cmd.TLS,
-		TLSSkipVerify:     cmd.TLSSkipVerify,
-		AgentPassword:     cmd.AgentPassword,
-		TLSCa:             tlsCa,
-		TLSCert:           tlsCert,
-		TLSKey:            tlsKey,
-		DisableCollectors: cmd.DisableCollectors,
-		ExposeExporter:    cmd.ExposeExporter,
-		EnablePushMetrics: cmd.PushMetrics,
-		LogLevel:          convertLogLevelPtr(cmd.LogLevel),
-		ConnectionTimeout: commands.DurationString(cmd.ConnectionTimeout),
+		Enable:              cmd.Enable,
+		Username:            cmd.Username,
+		Password:            cmd.Password,
+		TLS:                 cmd.TLS,
+		TLSSkipVerify:       cmd.TLSSkipVerify,
+		AgentPassword:       cmd.AgentPassword,
+		TLSCa:               tlsCa,
+		TLSCert:             tlsCert,
+		TLSKey:              tlsKey,
+		DisableCollectors:   cmd.DisableCollectors,
+		ExposeExporter:      cmd.ExposeExporter,
+		EnablePushMetrics:   cmd.PushMetrics,
+		LogLevel:            convertLogLevelPtr(cmd.LogLevel),
+		ConnectionTimeout:   commands.DurationString(cmd.ConnectionTimeout),
+		SkipConnectionCheck: cmd.SkipConnectionCheck,
 	}
 
 	if customLabels != nil {

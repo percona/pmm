@@ -2,6 +2,7 @@
 
 include Makefile.include
 -include documentation/Makefile
+-include Makefile.local
 
 ifeq ($(PROFILES),)
 PROFILES := 'pmm'
