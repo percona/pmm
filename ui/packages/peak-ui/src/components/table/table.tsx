@@ -1,11 +1,15 @@
-import {
-  FilterList as FilterListIcon,
-  KeyboardDoubleArrowDown as KeyboardDoubleArrowDownIcon,
-  MoreVert as MoreVertIcon,
-  Search as SearchIcon,
-  ViewColumn as ViewColumnIcon,
-} from '@mui/icons-material';
-import { Alert, AlertProps, Box, Theme } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import SearchIcon from '@mui/icons-material/Search';
+import ViewColumnIcon from '@mui/icons-material/ViewColumn';
+import Alert, { type AlertProps } from '@mui/material/Alert';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import Tooltip from '@mui/material/Tooltip';
+import { type Theme } from '@mui/material/styles';
 import visuallyHidden from '@mui/utils/visuallyHidden';
 import {
   MaterialReactTable,
@@ -175,6 +179,8 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
       FilterListIcon: () => <FilterListIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
       ViewColumnIcon: () => <ViewColumnIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
       MoreVertIcon: () => <MoreVertIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
+      // row-actions button: vertical ellipsis per design, not MRT's horizontal one
+      MoreHorizIcon: () => <MoreVertIcon sx={{ opacity: !data.length ? ICONS_OPACITY : 1 }} />,
     },
     muiExpandAllButtonProps: { sx: { height: 40, width: 40 } },
     muiExpandButtonProps: { sx: { height: 40, width: 40 } },
@@ -191,22 +197,79 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
           ? muiFilterTextFieldProps({ column, table, rangeFilterIndex })
           : muiFilterTextFieldProps;
       const isRangeInput = rangeFilterIndex !== undefined;
+      const { filterVariant } = column.columnDef;
+      const usesPicker =
+        !!filterVariant &&
+        (filterVariant.startsWith('date') ||
+          filterVariant.startsWith('time') ||
+          filterVariant === 'autocomplete');
+      const filterFn = table.getState().columnFilterFns?.[column.id];
+      // Own the end adornment so consumer adornments, the select caret and the
+      // clear button coexist (MRT drops its clear button when one is passed).
+      const managesEndAdornment = !usesPicker && filterFn !== 'empty' && filterFn !== 'notEmpty';
+
+      const filterValue = column.getFilterValue();
+      const hasFilterValue = Array.isArray(filterValue)
+        ? filterValue.some((value) => value !== undefined && value !== null && value !== '')
+        : filterValue !== undefined && filterValue !== null && filterValue !== '';
+
+      const { slotProps: consumerSlotProps, ...consumerRest } = consumer ?? {};
+      const consumerInput = consumerSlotProps?.input;
+      const consumerInputProps = typeof consumerInput === 'function' ? undefined : consumerInput;
+
+      const clearLabel = table.options.localization.clearFilter;
+      const clearAdornment =
+        managesEndAdornment && !isRangeInput && hasFilterValue ? (
+          <InputAdornment position="end">
+            <Tooltip title={clearLabel}>
+              <IconButton
+                aria-label={clearLabel}
+                size="small"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  column.setFilterValue(filterVariant === 'multi-select' ? [] : undefined);
+                  table.refs.filterInputRefs.current?.[`${column.id}-0`]?.focus?.();
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Tooltip>
+          </InputAdornment>
+        ) : null;
+      const endAdornment =
+        consumerInputProps?.endAdornment || clearAdornment ? (
+          <>
+            {consumerInputProps?.endAdornment}
+            {clearAdornment}
+          </>
+        ) : undefined;
+
       return {
         variant: 'outlined',
         size: 'small',
-        ...consumer,
-        sx: mergeSx(
-          isRangeInput
-            ? {
-                minWidth: 0,
-                width: '100%',
-                mx: 0,
-                '& .MuiInputAdornment-positionEnd': { display: 'none' },
-                '& .MuiOutlinedInput-root': { paddingRight: 0 },
-              }
-            : {},
-          consumer?.sx
-        ),
+        ...consumerRest,
+        slotProps: {
+          ...consumerSlotProps,
+          input: !managesEndAdornment
+            ? consumerInput
+            : typeof consumerInput === 'function'
+              ? (ownerState) => {
+                  const resolved = consumerInput(ownerState) ?? {};
+                  const consumerEndAdornment = resolved.endAdornment;
+                  return {
+                    ...resolved,
+                    endAdornment:
+                      consumerEndAdornment || clearAdornment ? (
+                        <>
+                          {consumerEndAdornment}
+                          {clearAdornment}
+                        </>
+                      ) : undefined,
+                  };
+                }
+              : { ...(consumerInputProps ?? {}), endAdornment },
+        },
+        sx: mergeSx({ minWidth: 0, width: '100%', mx: 0 }, consumer?.sx),
       };
     },
     muiToolbarAlertBannerProps: {
@@ -304,6 +367,15 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
     },
     muiColumnActionsButtonProps: {
       size: 'medium',
+      // MRT has no open-state hook for its menu, so flag the anchor while open.
+      // DOM-only on purpose: a state update here re-renders mid-click and kills the menu.
+      onClickCapture: (event) => {
+        if (data.length) {
+          event.currentTarget.classList.add('percona-column-actions-open');
+        }
+      },
+      // the closing menu restores focus to the anchor
+      onFocus: (event) => event.currentTarget.classList.remove('percona-column-actions-open'),
       sx: {
         height: 40,
         width: 40,
@@ -347,13 +419,66 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
             '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels': {
               gap: 0.5,
             },
+            // "Filtered by" indicator: undo MRT's 0.75 downscale so its icon renders at 20px,
+            // pairing with the 20px column-actions icon
+            '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels > span .MuiIconButton-root': {
+              width: 32,
+              height: 32,
+              margin: 0,
+              padding: '6px',
+              transform: 'none',
+              '& > .MuiSvgIcon-root': { width: 20, height: 20, fontSize: 20 },
+            },
             '& .MuiTableCell-head .Mui-TableHeadCell-Content-Labels .MuiTableSortLabel-root': {
               transform: 'none',
+              width: 20,
+              margin: 0,
+              opacity: 0,
+              transition: theme.transitions.create('opacity', {
+                duration: theme.transitions.duration.shortest,
+              }),
+              '@media (hover: none)': { opacity: 0.5 },
+              '& .MuiTableSortLabel-icon': { width: 20, height: 20, fontSize: 20, margin: 0 },
             },
-            '& .MuiTableCell-head:has(.Mui-TableHeadCell-Content-Actions .MuiIconButton-root:hover)':
+            '& .MuiTableCell-head .Mui-TableHeadCell-Content-Actions .MuiIconButton-root': {
+              opacity: 0,
+              transition: theme.transitions.create('opacity', {
+                duration: theme.transitions.duration.shortest,
+              }),
+              '@media (hover: none)': { opacity: 0.5 },
+            },
+            // :has(:focus-visible), not :focus-within: reveal for keyboard focus only,
+            // so mouse-clicking sort doesn't pin the controls via lingering focus
+            '& .MuiTableCell-head:is(:hover, :focus-visible, :has(:focus-visible)) .MuiTableSortLabel-root, & .MuiTableCell-head:is(:hover, :focus-visible, :has(:focus-visible)) .Mui-TableHeadCell-Content-Actions .MuiIconButton-root':
+              {
+                opacity: 0.5,
+              },
+            '& .MuiTableCell-head .MuiTableSortLabel-root:hover, & .MuiTableCell-head .MuiTableSortLabel-root:focus-visible, & .MuiTableCell-head .Mui-TableHeadCell-Content-Actions .MuiIconButton-root:hover, & .MuiTableCell-head .Mui-TableHeadCell-Content-Actions .MuiIconButton-root:focus-visible':
+              {
+                opacity: 1,
+              },
+            '& .MuiTableCell-head[data-sort] .MuiTableSortLabel-root': {
+              opacity: 1,
+            },
+            '& .MuiTableCell-head .Mui-TableHeadCell-Content-Actions .MuiIconButton-root.percona-column-actions-open':
+              {
+                opacity: 1,
+                backgroundColor: theme.palette.action.selected,
+              },
+            '& .MuiTableCell-head:has(.Mui-TableHeadCell-Content-Actions .MuiIconButton-root:hover), & .MuiTableCell-head:has(.percona-column-actions-open)':
               {
                 backgroundColor: theme.palette.action.hover,
               },
+            // MRT's built-in row-actions button carries an inline 32px sx that beats the
+            // theme's sizeSmall override; restyle it to the medium 40px kebab
+            '& .MuiTableCell-body [aria-label="Row Actions"]': {
+              width: 40,
+              height: 40,
+              padding: '10px',
+              marginLeft: 0,
+              opacity: 1,
+              '& > .MuiSvgIcon-root': { width: 20, height: 20 },
+            },
           }),
           consumer?.sx
         ),
@@ -371,13 +496,28 @@ function Table<T extends MRT_RowData>(props: TableProps<T>) {
       };
     },
     muiBottomToolbarProps: {
-      sx: {
+      sx: (theme: Theme) => ({
         backgroundColor: 'transparent',
         boxShadow: 'none',
         '& label': {
           transform: 'none !important',
         },
-      },
+        '& .MuiTablePagination-root': {
+          '& .MuiInputLabel-root, & .MuiInputBase-root': {
+            typography: 'body2',
+          },
+          // MRT disables the standard-variant underline, dropping the only keyboard focus cue
+          '& .MuiSelect-select:focus-visible': {
+            backgroundColor: theme.palette.primary.focusVisible,
+            borderRadius: '4px',
+          },
+          // MRT hardcodes size="small"; render as medium (20px icons) like the header buttons
+          '& .MuiIconButton-root': {
+            padding: '10px',
+            '& > .MuiSvgIcon-root': { width: 20, height: 20 },
+          },
+        },
+      }),
     },
     muiTableBodyProps: ({ table }) => {
       const consumer =
