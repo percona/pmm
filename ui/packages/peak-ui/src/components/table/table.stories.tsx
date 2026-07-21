@@ -305,12 +305,13 @@ const meta = {
     enableColumnActions: {
       control: 'boolean',
       description:
-        'Per-column action menu (medium `IconButton`, 20px icon). Opens a dropdown with sort, filter, grouping, pinning, and visibility options provided by MRT.',
+        'Per-column action menu (medium `IconButton`, 20px icon), revealed on header-cell hover or keyboard focus. Opens a dropdown with sort, filter, grouping, pinning, and visibility options provided by MRT.',
       table: { category: 'Toolbar', defaultValue: { summary: 'true' } },
     },
     enableSorting: {
       control: 'boolean',
-      description: '**Peak Design override.** Auto-disabled when `data` is empty.',
+      description:
+        '**Peak Design override.** Auto-disabled when `data` is empty. The sort affordance appears on header-cell hover/focus; the active sort direction stays visible.',
       table: { category: 'Rows', defaultValue: { summary: '!!data.length' } },
     },
     enablePagination: {
