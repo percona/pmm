@@ -55,12 +55,24 @@ is_build_needed() {
 prepare_specs() {
     local spec_name=$1
     local repo_name=$2
+    # When set, the package commit (and thus its S3 cache key) is derived from
+    # the last commit that touched this path rather than HEAD. This keeps the
+    # cache key stable across pushes that don't change the path, so the package
+    # is rebuilt only when the branch actually differs from its base in it.
+    local git_path=$3
 
     sudo chown -R $(id -u):$(id -g) ${rpmbuild_dir}/SPECS ${rpmbuild_dir}/SOURCES
     cp ${rpmbuild_dir}/SPECS/${spec_name}.spec ${rpmbuild_dir}/SOURCES/${spec_name}.spec
     if [ -d "${root_dir}/sources/${repo_name}" ]; then
         local git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
-        local full_commit=$(git -C "${git_dir}" rev-parse HEAD)
+        local full_commit
+        if [ -n "${git_path}" ]; then
+            full_commit=$(git -C "${git_dir}" log -1 --format=%H -- "${git_path}")
+        fi
+        # Fall back to HEAD when no path is given or the path has no history.
+        if [ -z "${full_commit}" ]; then
+            full_commit=$(git -C "${git_dir}" rev-parse HEAD)
+        fi
         local short_commit=${full_commit:0:7}
 
         sed -i -e "s/global commit.*/global commit ${full_commit}/" ${rpmbuild_dir}/SOURCES/${spec_name}.spec
@@ -94,7 +106,8 @@ prepare_specs() {
 build() {
     local spec_name=$1
     local repo_name=${2:-$1}
-    prepare_specs "${spec_name}" "${repo_name}"
+    local git_path=$3
+    prepare_specs "${spec_name}" "${repo_name}" "${git_path}"
     local rpm_version=$(get_rpm_version "${spec_name}")
     local CH_VERSION=${rpm_version%-*}
     local CH_TAG=${rpm_version#*-}
@@ -168,7 +181,7 @@ build() {
     fi
 }
 
-build "$1" "$2"
+build "$1" "$2" "$3"
 echo "build-server-rpm finished, spec_name: $1, repo_name: ${2:-$1}"
 
 # vim: expandtab shiftwidth=4 tabstop=4
