@@ -7,7 +7,9 @@ import {
   Typography,
 } from '@mui/material';
 import { usePrometheusAlertRules } from 'hooks/api/usePrometheusAlertRules';
-import { flattenAlertRules } from './AlertsPage.utils';
+import { useAlertmanagerAlerts } from 'hooks/api/useAlertmanagerAlerts';
+import { useAlertmanagerSilences } from 'hooks/api/useAlertmanagerSilences';
+import { buildSilenceMap, flattenAlertRules } from './AlertsPage.utils';
 import { AlertStatusTable } from './table';
 import { useDetailsPaneNavigation } from '@percona/percona-ui';
 import { AlertRow, AlertsTableRow } from './AlertsPage.types';
@@ -18,7 +20,22 @@ const AlertsPage = () => {
   const { data, isError, isLoading } = usePrometheusAlertRules({
     refetchInterval: 5000,
   });
-  const rows = useMemo(() => flattenAlertRules(data), [data]);
+  // Supplementary: silence data enriches the rows but must not block rendering.
+  // If this call fails the page still lists alerts, just without silenced badges.
+  const { data: silencedAlerts } = useAlertmanagerAlerts({
+    refetchInterval: 5000,
+  });
+  const { data: silences } = useAlertmanagerSilences({
+    refetchInterval: 5000,
+  });
+  const silenceMap = useMemo(
+    () => buildSilenceMap(silencedAlerts, silences),
+    [silencedAlerts, silences]
+  );
+  const rows = useMemo(
+    () => flattenAlertRules(data, silenceMap),
+    [data, silenceMap]
+  );
   const [navigableRows, setNavigableRows] = useState<AlertsTableRow[]>(rows);
   const [selectedRowId, setSelectedRowId] = useState<string>();
   // Node group headers are not navigable — the details pane only shows alerts, so

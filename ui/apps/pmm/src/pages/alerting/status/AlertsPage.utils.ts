@@ -1,13 +1,16 @@
 import {
   AlertStatus,
+  AlertmanagerAlert,
+  AlertmanagerSilence,
   PrometheusAlertItem,
   PrometheusAlertRuleGroup,
   PrometheusAlertRuleItem,
   PrometheusAlertState,
   PrometheusAlertRulesResponse,
 } from 'types/alerting.types';
-import { AlertRow, NodeGroupRow } from './AlertsPage.types';
+import { AlertRow, NodeGroupRow, SilenceInfo } from './AlertsPage.types';
 import { formatDurationSeconds } from 'utils/duration.utils';
+import { isPrivateLabelKey } from 'utils/alerting.utils';
 
 const NODE_NAME_LABEL = 'node_name';
 const UNKNOWN_NODE = 'unknown-node';
@@ -117,8 +120,56 @@ const getAlertId = (
   return `${ruleId}:${JSON.stringify(sortedLabels)}`;
 };
 
+// Stable key over an alert's visible (non-private) labels, used to correlate a
+// rules-API alert instance with an Alertmanager alert. Silence matchers only use
+// visible labels, so private-label drift between the two APIs is ignored here.
+export const serializeVisibleLabels = (
+  labels: Record<string, string>
+): string => {
+  const visible = Object.entries(labels)
+    .filter(([key]) => !isPrivateLabelKey(key))
+    .sort(([a], [b]) => a.localeCompare(b));
+
+  return JSON.stringify(visible);
+};
+
+// Map of visible-label key -> silence info, built by correlating the suppressed
+// Alertmanager alerts with the configured silences: each entry carries the silence
+// ids and the earliest silence start, so flattenAlertRules can flag matching rows
+// as silenced and compute how long they have been silenced.
+export const buildSilenceMap = (
+  alerts?: AlertmanagerAlert[],
+  silences?: AlertmanagerSilence[]
+): Map<string, SilenceInfo> => {
+  const silenceStartsById = new Map<string, string>();
+  for (const silence of silences || []) {
+    silenceStartsById.set(silence.id, silence.startsAt);
+  }
+
+  const map = new Map<string, SilenceInfo>();
+
+  for (const alert of alerts || []) {
+    if (alert.status.state === 'suppressed' && alert.status.silencedBy.length) {
+      const silencedBy = alert.status.silencedBy;
+      // ISO timestamps sort chronologically as strings, so the first is earliest.
+      const silencedSince = silencedBy
+        .map((id) => silenceStartsById.get(id))
+        .filter((start): start is string => !!start)
+        .sort()[0];
+
+      map.set(serializeVisibleLabels(alert.labels), {
+        silencedBy,
+        silencedSince,
+      });
+    }
+  }
+
+  return map;
+};
+
 export const flattenAlertRules = (
-  data?: PrometheusAlertRulesResponse
+  data?: PrometheusAlertRulesResponse,
+  silenceMap?: Map<string, SilenceInfo>
 ): AlertRow[] => {
   if (!data?.data.groups.length) {
     return [];
@@ -126,25 +177,33 @@ export const flattenAlertRules = (
 
   const rows = data.data.groups.flatMap((group) =>
     (group.rules || []).flatMap((rule) =>
-      (rule.alerts || []).map((alert) => ({
-        type: 'alert' as const,
-        id: getAlertId(group, rule, alert.labels),
-        alertName: getAlertName(alert, rule),
-        ruleName: rule.name || 'Unnamed rule',
-        ruleGroupUid: rule.uid,
-        ruleGroup: group,
-        rule,
-        rawAlert: alert,
-        state: resolveState(alert, rule),
-        nodeId: getAlertNodeId(alert),
-        serviceName: getAlertServiceName(alert),
-        summary: getSummary(alert),
-        labels: alert.labels,
-        annotations: alert.annotations,
-        expression: rule.query || '',
-        activeAt: alert.activeAt,
-        age: getAge(alert.activeAt),
-      }))
+      (rule.alerts || []).map((alert) => {
+        const silence = silenceMap?.get(serializeVisibleLabels(alert.labels));
+        const silencedBy = silence?.silencedBy || [];
+
+        return {
+          type: 'alert' as const,
+          id: getAlertId(group, rule, alert.labels),
+          alertName: getAlertName(alert, rule),
+          ruleName: rule.name || 'Unnamed rule',
+          ruleGroupUid: rule.uid,
+          ruleGroup: group,
+          rule,
+          rawAlert: alert,
+          state: resolveState(alert, rule),
+          nodeId: getAlertNodeId(alert),
+          serviceName: getAlertServiceName(alert),
+          summary: getSummary(alert),
+          labels: alert.labels,
+          annotations: alert.annotations,
+          expression: rule.query || '',
+          activeAt: alert.activeAt,
+          age: getAge(alert.activeAt),
+          silenced: silencedBy.length > 0,
+          silencedBy,
+          silencedAge: getAge(silence?.silencedSince),
+        };
+      })
     )
   );
 

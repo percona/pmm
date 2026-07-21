@@ -42,13 +42,16 @@ export const useAlertDetailsPane = (
     summary: {
       alertName: alert.alertName,
       state: alert.state,
-      stateDuration: alert.age,
+      // Pair the duration with the state shown: how long silenced when silenced,
+      // otherwise how long in its current alert state.
+      stateDuration: alert.silenced ? alert.silencedAge : alert.age,
       nodeName: alert.labels['node_name'],
       serviceName: alert.labels['service_name'],
       triggeredAt: alert.activeAt,
       severity: alert.labels['severity'],
       summary: alert.summary,
       description: alert.annotations['description'],
+      silenced: alert.silenced,
     },
     ruleConfiguration: {
       isLoading,

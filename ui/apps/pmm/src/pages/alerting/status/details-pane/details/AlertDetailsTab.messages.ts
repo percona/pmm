@@ -6,6 +6,7 @@ export const Messages = {
     alertName: 'Alert name',
     state: 'State',
     stateDuration: 'State duration',
+    silenced: 'Silenced',
     node: 'Node',
     service: 'Service',
     triggeredAt: 'Triggered at',

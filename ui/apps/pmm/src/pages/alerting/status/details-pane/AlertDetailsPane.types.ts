@@ -16,6 +16,7 @@ export interface AlertDetailsPane {
     severity?: string;
     summary: string;
     description?: string;
+    silenced: boolean;
   };
   ruleConfiguration: {
     isLoading: boolean;

@@ -24,6 +24,19 @@ export interface AlertRow {
   expression: string;
   activeAt?: string;
   age: string;
+  // Whether an Alertmanager silence currently suppresses this alert, the ids of
+  // the silences doing so (empty when not silenced), and how long it has been
+  // silenced (time since the earliest governing silence started; '-' if unknown).
+  silenced: boolean;
+  silencedBy: string[];
+  silencedAge: string;
+}
+
+// Per-alert silence data, keyed by visible-label signature in the silence map.
+export interface SilenceInfo {
+  silencedBy: string[];
+  // ISO start time of the earliest silence suppressing the alert.
+  silencedSince?: string;
 }
 
 export interface NodeGroupRow {

@@ -6,6 +6,7 @@ import ValueThreshold from './value-threshold/ValueThreshold';
 import { Chip, CodeBlock } from '@percona/percona-ui';
 import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../../AlertsPage.constants';
 import { formatTriggeredAt } from '../../table/AlertStatusTable.utils';
+import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOutlined';
 import { useTimezone } from 'hooks/utils/useTimezone';
 import { formatDurationSeconds } from 'utils/duration.utils';
 import AlertSeverityDetail from './severity/AlertSeverityDetail';
@@ -27,10 +28,22 @@ const AlertDetailsTab: FC<Props> = ({
           {summary.alertName}
         </DataPoint>
         <DataPoint size={1} title={Messages.details.state}>
-          <Chip
-            label={STATUS_LABEL_MAP[summary.state]}
-            color={STATUS_COLOR_MAP[summary.state]}
-          />
+          {summary.silenced ? (
+            <Chip
+              color="info"
+              label={
+                <Stack direction="row" alignItems="center" gap={0.5}>
+                  <NotificationsOffOutlinedIcon fontSize="small" />
+                  {Messages.details.silenced}
+                </Stack>
+              }
+            />
+          ) : (
+            <Chip
+              label={STATUS_LABEL_MAP[summary.state]}
+              color={STATUS_COLOR_MAP[summary.state]}
+            />
+          )}
         </DataPoint>
         <DataPoint size={1} title={Messages.details.stateDuration}>
           {summary.stateDuration}

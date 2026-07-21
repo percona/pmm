@@ -1,18 +1,57 @@
-import { PrometheusAlertRulesResponse } from 'types/alerting.types';
-import { flattenAlertRules, groupAlertsByNode } from './AlertsPage.utils';
+import {
+  AlertmanagerAlert,
+  AlertmanagerSilence,
+  PrometheusAlertRulesResponse,
+} from 'types/alerting.types';
+import {
+  buildSilenceMap,
+  flattenAlertRules,
+  groupAlertsByNode,
+} from './AlertsPage.utils';
 import { AlertRow } from './AlertsPage.types';
 
+type OptionalAlertRowKeys =
+  | 'labels'
+  | 'annotations'
+  | 'expression'
+  | 'rawAlert'
+  | 'silenced'
+  | 'silencedBy'
+  | 'silencedAge';
+
 const createAlertRow = (
-  row: Omit<AlertRow, 'labels' | 'annotations' | 'expression' | 'rawAlert'> &
-    Partial<
-      Pick<AlertRow, 'labels' | 'annotations' | 'expression' | 'rawAlert'>
-    >
+  row: Omit<AlertRow, OptionalAlertRowKeys> &
+    Partial<Pick<AlertRow, OptionalAlertRowKeys>>
 ): AlertRow => ({
   labels: {},
   annotations: {},
   expression: '',
   rawAlert: { labels: {}, annotations: {} },
+  silenced: false,
+  silencedBy: [],
+  silencedAge: '-',
   ...row,
+});
+
+const createSuppressedAlert = (
+  labels: Record<string, string>,
+  silencedBy: string[]
+): AlertmanagerAlert => ({
+  labels,
+  annotations: {},
+  startsAt: '',
+  endsAt: '',
+  updatedAt: '',
+  fingerprint: '',
+  status: { state: 'suppressed', silencedBy, inhibitedBy: [] },
+});
+
+const createSilence = (id: string, startsAt: string): AlertmanagerSilence => ({
+  id,
+  startsAt,
+  endsAt: '',
+  updatedAt: '',
+  status: { state: 'active' },
 });
 
 describe('flattenAlertRules', () => {
@@ -277,6 +316,96 @@ describe('flattenAlertRules', () => {
     expect(rows).toHaveLength(1);
     expect(rows[0].nodeId).toBe('');
     expect(rows[0].serviceName).toBe('');
+  });
+
+  it('flags rows as silenced when a suppressed Alertmanager alert matches', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-04-15T12:00:00.000Z'));
+
+    const payload: PrometheusAlertRulesResponse = {
+      data: {
+        groups: [
+          {
+            rules: [
+              {
+                name: 'mysql_connections',
+                alerts: [
+                  {
+                    state: 'firing',
+                    labels: {
+                      alertname: 'Silenced alert',
+                      service_name: 'svc-a',
+                    },
+                    annotations: {},
+                  },
+                  {
+                    state: 'firing',
+                    labels: {
+                      alertname: 'Loud alert',
+                      service_name: 'svc-b',
+                    },
+                    annotations: {},
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    // Extra private label on the Alertmanager side must not break correlation.
+    const silenceMap = buildSilenceMap(
+      [
+        createSuppressedAlert(
+          {
+            alertname: 'Silenced alert',
+            service_name: 'svc-a',
+            __grafana_origin: 'grafana',
+          },
+          ['silence-1']
+        ),
+      ],
+      [createSilence('silence-1', '2026-04-15T11:45:00.000Z')]
+    );
+
+    const rows = flattenAlertRules(payload, silenceMap);
+
+    const silenced = rows.find((row) => row.alertName === 'Silenced alert');
+    expect(silenced?.silenced).toBe(true);
+    expect(silenced?.silencedBy).toEqual(['silence-1']);
+    // Silenced 15 minutes ago (12:00 now, silence started 11:45).
+    expect(silenced?.silencedAge).toBe('15m');
+
+    const loud = rows.find((row) => row.alertName === 'Loud alert');
+    expect(loud?.silenced).toBe(false);
+    expect(loud?.silencedBy).toEqual([]);
+    expect(loud?.silencedAge).toBe('-');
+  });
+
+  it('defaults silenced to false when no silence map is supplied', () => {
+    const payload: PrometheusAlertRulesResponse = {
+      data: {
+        groups: [
+          {
+            rules: [
+              {
+                name: 'rule',
+                alerts: [
+                  {
+                    state: 'firing',
+                    labels: { alertname: 'Alert' },
+                    annotations: {},
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    expect(flattenAlertRules(payload)[0].silenced).toBe(false);
   });
 
   it('groups alert rows by node and exposes child alert rows', () => {
