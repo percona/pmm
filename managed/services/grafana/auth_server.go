@@ -195,10 +195,8 @@ type authMetrics struct {
 	mAuthRequests *prom.CounterVec
 	// mGrafanaAuthRequests tracks auth requests made to Grafana by response code.
 	mGrafanaAuthRequests *prom.CounterVec
-	// mCacheHits tracks total authentication cache hits.
+	// mCache tracks total authentication cache requests by status (hit or miss).
 	mCache *prom.CounterVec
-	// mCacheMisses tracks total authentication cache misses.
-	// mCacheMisses prom.Counter
 	// mCacheSizeDesc is the descriptor for the number of items in the auth cache.
 	mCacheSizeDesc *prom.Desc
 	// mDurations tracks latency of auth operations (labels: total, grafana, db).
