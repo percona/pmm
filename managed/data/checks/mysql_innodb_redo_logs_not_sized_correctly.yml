@@ -2,7 +2,7 @@
 checks:
   - version: 2
     name: mysql_innodb_redo_logs_not_sized_correctly
-    summary: Checks if InnoDB redo log size is not configured correctly.
+    summary: Checks if InnoDB redo log size is not configured correctly
     description: This check reviews InnoDB redo log size and suggests if it is configured too low.
     family: MYSQL
     #subcategory: configuration

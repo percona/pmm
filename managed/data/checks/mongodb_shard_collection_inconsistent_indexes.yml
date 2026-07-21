@@ -2,8 +2,8 @@
 checks:
   - version: 2
     name: mongodb_shard_collection_inconsistent_indexes
-    summary: MongoDB Sharding - Inconsistent Indexes Across Shards.
-    description: This check warns if there are inconsistent indexes across shards for sharded collections. Missing or inconsistent indexes across the shards can have a negative impact on performance.
+    summary: MongoDB Inconsistent Indexes Across Shards
+    description: Warns if there are inconsistent indexes across shards for sharded collections. Missing or inconsistent indexes across the shards can have a negative impact on performance.
     interval: standard
     family: MONGODB
     category: Query

@@ -2,7 +2,7 @@
 checks:
   - version: 2
     name: mysql_configuration_innodb_file_maxlimit
-    summary: InnoDB Tablespace size has a maximum limit.
+    summary: InnoDB Tablespace size has a maximum limit
     description: Check if InnoDB is configured with recommended auto-extend
     interval: standard
     category: Configuration

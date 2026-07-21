@@ -2,7 +2,7 @@
 checks:
   - version: 2
     name: mysql_automatic_sp_privileges_enabled
-    summary: Checks if automatic_sp_privileges configuration is ON.
+    summary: Checks if automatic_sp_privileges configuration is ON
     description: This check reviews the automatic_sp_privileges configuration is ON.
     family: MYSQL
     #author: Kedar Vaijanapurkar

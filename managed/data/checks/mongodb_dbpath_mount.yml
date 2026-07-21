@@ -2,7 +2,7 @@
 checks:
   - version: 2
     name: mongodb_dbpath_mount
-    summary: MongoDB - separate mount point other than "/" partition for dbpath.
+    summary: MongoDB separate mount point other than "/" partition for dbpath
     description: This check returns a warning if dbpath does not have a dedicated mount point.
     interval: rare
     family: MONGODB

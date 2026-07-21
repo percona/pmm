@@ -2,7 +2,7 @@
 checks:
   - version: 2
     name: mysql_version_eol_57
-    summary: End Of Life server version (5.7).
+    summary: End Of Life server version (5.7)
     description: Check if server version is EOL
     interval: standard
     category: Configuration
