@@ -1,7 +1,9 @@
 import {
   createTheme,
   type ComponentsOverrides,
+  type CSSObject,
   type PaletteMode,
+  type Theme,
   type ThemeOptions,
 } from '@mui/material/styles';
 import { DatePickerToolbarClassKey } from '@mui/x-date-pickers/DatePicker';
@@ -501,6 +503,60 @@ export type ShapeTokens = typeof shape;
 
 const BaseTheme = createTheme();
 
+// Figma shadow/elevation2 & elevation4
+const BUTTON_ELEVATION_2 =
+  '0px 0px 1px 0px rgba(0,0,0,0.24), 0px 2px 2px 0px rgba(0,0,0,0.2), 0px 2px 4px 0px rgba(0,0,0,0.24)';
+const BUTTON_ELEVATION_4 =
+  '0px 0px 1px 0px rgba(0,0,0,0.2), 0px 4px 2px 0px rgba(0,0,0,0.16), 0px 4px 8px 0px rgba(0,0,0,0.22)';
+
+const buttonVariantStyles = (variant: string, theme: Theme): CSSObject => {
+  switch (variant) {
+    case 'contained':
+      return {
+        border: '2px solid transparent',
+        boxShadow: BUTTON_ELEVATION_2,
+        '&:hover': {
+          backgroundColor: theme.palette.primary.dark,
+          border: '2px solid transparent',
+          boxShadow: BUTTON_ELEVATION_4,
+        },
+        '&.Mui-disabled': {
+          backgroundColor: theme.palette.action.disabled,
+          color: theme.palette.text.disabled,
+          border: '2px solid transparent',
+          boxShadow: 'none',
+        },
+      };
+    case 'outlined':
+      return {
+        borderWidth: 2,
+        borderStyle: 'solid',
+        borderColor: theme.palette.primary.main,
+        '&:hover': {
+          borderWidth: 2,
+          backgroundColor: theme.palette.primary.hover,
+          borderColor: theme.palette.primary.light,
+          color: theme.palette.primary.light,
+        },
+        '&.Mui-disabled': {
+          borderWidth: 2,
+          color: theme.palette.text.disabled,
+        },
+      };
+    default:
+      return {
+        border: 'none',
+        '&:hover': {
+          backgroundColor: theme.palette.primary.hover,
+          color: theme.palette.primary.light,
+        },
+        '&.Mui-disabled': {
+          color: theme.palette.text.disabled,
+        },
+      };
+  }
+};
+
 const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
   const tokens = mode === 'light' ? semanticTokensLight : semanticTokensDark;
   const primary = mode === 'light' ? defaultPrimaryLight : defaultPrimaryDark;
@@ -893,12 +949,6 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
         },
         styleOverrides: {
           root: ({ ownerState, theme }) => {
-            // Figma shadow/elevation2 & elevation4
-            const elevation2 =
-              '0px 0px 1px 0px rgba(0,0,0,0.24), 0px 2px 2px 0px rgba(0,0,0,0.2), 0px 2px 4px 0px rgba(0,0,0,0.24)';
-            const elevation4 =
-              '0px 0px 1px 0px rgba(0,0,0,0.2), 0px 4px 2px 0px rgba(0,0,0,0.16), 0px 4px 8px 0px rgba(0,0,0,0.22)';
-
             const size = ownerState.size ?? 'medium';
             const variant = ownerState.variant ?? 'text';
 
@@ -943,48 +993,7 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
                 marginRight: iconEdgePull ? -iconEdgePull : 0,
               },
 
-              ...(variant === 'contained' && {
-                border: '2px solid transparent',
-                boxShadow: elevation2,
-                '&:hover': {
-                  backgroundColor: theme.palette.primary.dark,
-                  border: '2px solid transparent',
-                  boxShadow: elevation4,
-                },
-                '&.Mui-disabled': {
-                  backgroundColor: theme.palette.action.disabled,
-                  color: theme.palette.text.disabled,
-                  border: '2px solid transparent',
-                  boxShadow: 'none',
-                },
-              }),
-
-              ...(variant === 'outlined' && {
-                borderWidth: 2,
-                borderStyle: 'solid',
-                borderColor: theme.palette.primary.main,
-                '&:hover': {
-                  borderWidth: 2,
-                  backgroundColor: theme.palette.primary.hover,
-                  borderColor: theme.palette.primary.light,
-                  color: theme.palette.primary.light,
-                },
-                '&.Mui-disabled': {
-                  borderWidth: 2,
-                  color: theme.palette.text.disabled,
-                },
-              }),
-
-              ...(variant === 'text' && {
-                border: 'none',
-                '&:hover': {
-                  backgroundColor: theme.palette.primary.hover,
-                  color: theme.palette.primary.light,
-                },
-                '&.Mui-disabled': {
-                  color: theme.palette.text.disabled,
-                },
-              }),
+              ...buttonVariantStyles(variant, theme),
             };
           },
         },
