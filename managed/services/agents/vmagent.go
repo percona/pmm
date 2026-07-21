@@ -52,16 +52,27 @@ func splitURLCredentials(urlStr string) (string, string, string) {
 	return parsedURL.String(), username, password
 }
 
+// vmAgentDeployment describes the deployment context that selects the
+// vmagent remote-write path.
+type vmAgentDeployment struct {
+	haEnabled     bool // PMM Server runs in HA (clustered) mode
+	isServerAgent bool // this is PMM Server's own built-in agent
+}
+
 // vmAgentConfig returns desired configuration of vmagent process.
-func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams, haEnabled bool) *agentv1.SetStateRequest_AgentProcess {
-	if params.ExternalVM() && !haEnabled {
-		// Scenario: standalone deployment with externally configured VM.
+func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams, deployment vmAgentDeployment) *agentv1.SetStateRequest_AgentProcess {
+	// Push straight to VictoriaMetrics when the vmagent can reach it directly:
+	//   a) PMM Server's own agent in HA is in-cluster and reaches the VM the same way it did
+	//     before the write-proxy existed. Only remote clients need the server write-proxy, so
+	//     in HA the built-in agent is not routed through it.
+	//   b) standalone deployment with an externally configured VM.
+	if (deployment.haEnabled && deployment.isServerAgent) || (params.ExternalVM() && !deployment.haEnabled) {
 		return vmAgentConfigExternalVM(scrapeCfg, params)
 	}
 	// Scenarios:
-	// a) standalone deployment with internal VM
-	// b) HA deployment (external VM by default)
-	return vmAgentConfigServerProxy(scrapeCfg, haEnabled)
+	// c) standalone deployment with internal VM.
+	// d) HA deployment, remote (non-server) client.
+	return vmAgentConfigServerProxy(scrapeCfg, deployment.haEnabled)
 }
 
 // vmAgentConfigServerProxy configures the vmagent so that writes go through the PMM server's VM proxy,
