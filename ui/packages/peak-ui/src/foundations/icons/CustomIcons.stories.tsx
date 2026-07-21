@@ -10,17 +10,31 @@ import Tooltip from '@mui/material/Tooltip';
 import { ContentCopy, Search } from '@mui/icons-material';
 import { type SvgIconProps } from '@mui/material/SvgIcon';
 import {
+  BottomPanelCloseIcon,
+  BottomPanelOpenIcon,
+  CirclesExtIcon,
   ClusterDegradedIcon,
   ClusterHealthyIcon,
   ClusterInoperationalIcon,
   ClusterTransitioningIcon,
+  ElectricBoltIcon,
+  ElectricBoltOffIcon,
+  Graph4Icon,
+  Graph5Icon,
+  Graph6Icon,
   HaproxyIcon,
+  HomeIcon,
+  KnowledgeBaseIcon,
+  NetworkIntelligenceIcon,
+  NetworkNodeIcon,
   PerconaIcon,
   PerconaMoIcon,
   PerconaMyIcon,
   PerconaPoIcon,
   PerconaVaIcon,
   ProxyIcon,
+  QueryStatsIcon,
+  SearchInsightsIcon,
 } from '../../components/icons';
 
 interface CustomIconEntry {
@@ -97,6 +111,90 @@ const customIcons: CustomIconEntry[] = [
     importName: 'ClusterTransitioningIcon',
     designName: 'cluster-transitioning',
     keywords: 'cluster transitioning updating status topology',
+  },
+  {
+    component: HomeIcon,
+    importName: 'HomeIcon',
+    designName: 'home',
+    keywords: 'home house dashboard start main landing',
+  },
+  {
+    component: KnowledgeBaseIcon,
+    importName: 'KnowledgeBaseIcon',
+    designName: 'knowledge-base',
+    keywords: 'knowledge base book docs documentation library guide help',
+  },
+  {
+    component: BottomPanelOpenIcon,
+    importName: 'BottomPanelOpenIcon',
+    designName: 'bottom-panel-open',
+    keywords: 'bottom panel open expand layout show drawer terminal',
+  },
+  {
+    component: BottomPanelCloseIcon,
+    importName: 'BottomPanelCloseIcon',
+    designName: 'bottom-panel-close',
+    keywords: 'bottom panel close collapse layout hide drawer terminal',
+  },
+  {
+    component: Graph4Icon,
+    importName: 'Graph4Icon',
+    designName: 'graph-4',
+    keywords: 'graph molecule nodes network connections topology data',
+  },
+  {
+    component: Graph5Icon,
+    importName: 'Graph5Icon',
+    designName: 'graph-5',
+    keywords: 'graph nodes network connections diagram topology data',
+  },
+  {
+    component: Graph6Icon,
+    importName: 'Graph6Icon',
+    designName: 'graph-6',
+    keywords: 'graph nodes network connections cluster topology data',
+  },
+  {
+    component: CirclesExtIcon,
+    importName: 'CirclesExtIcon',
+    designName: 'circles-ext',
+    keywords: 'circles connected nodes group cluster relationship',
+  },
+  {
+    component: NetworkNodeIcon,
+    importName: 'NetworkNodeIcon',
+    designName: 'network-node',
+    keywords: 'network node topology connection tree hierarchy',
+  },
+  {
+    component: NetworkIntelligenceIcon,
+    importName: 'NetworkIntelligenceIcon',
+    designName: 'network-intelligence',
+    keywords: 'network intelligence routing smart connections',
+  },
+  {
+    component: QueryStatsIcon,
+    importName: 'QueryStatsIcon',
+    designName: 'query-stats',
+    keywords: 'query stats analytics chart search metrics performance',
+  },
+  {
+    component: SearchInsightsIcon,
+    importName: 'SearchInsightsIcon',
+    designName: 'search-insights',
+    keywords: 'search insights analytics bars chart magnify explore',
+  },
+  {
+    component: ElectricBoltIcon,
+    importName: 'ElectricBoltIcon',
+    designName: 'electric-bolt',
+    keywords: 'electric bolt lightning energy power fast flash',
+  },
+  {
+    component: ElectricBoltOffIcon,
+    importName: 'ElectricBoltOffIcon',
+    designName: 'electric-bolt-off',
+    keywords: 'electric bolt off lightning disabled no power flash off',
   },
 ];
 
