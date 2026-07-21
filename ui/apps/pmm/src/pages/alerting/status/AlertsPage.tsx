@@ -68,8 +68,6 @@ const AlertsPage = () => {
           />
         ) : isError && !data ? (
           <Alert severity="error">{Messages.fetchError}</Alert>
-        ) : rows.length === 0 ? (
-          <Alert severity="info">{Messages.empty}</Alert>
         ) : (
           <Stack
             sx={(theme) => ({
