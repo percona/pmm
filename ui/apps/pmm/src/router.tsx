@@ -15,7 +15,6 @@ import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AdvisorsList } from 'pages/advisors';
 import { AdvisorInsights } from 'pages/advisors/insights';
-import { InstallClientPage } from 'pages/install-client';
 
 const router = createBrowserRouter(
   [
@@ -42,10 +41,6 @@ const router = createBrowserRouter(
             {
               path: 'help',
               element: <HelpCenter />,
-            },
-            {
-              path: 'install-client',
-              element: <InstallClientPage />,
             },
             {
               path: 'settings/:tab?',

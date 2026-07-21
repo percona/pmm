@@ -54,7 +54,7 @@ Enable or disable specific PMM features:
 Use these variables when diagnosing issues with PMM Server:
 
 | Variable | Default | Purpose |
-|----------|---------|---------|
+|----------|---------|-------|
 | `PMM_DEBUG` | `false` | Enables verbose logging |
 | `PMM_TRACE` | `false` | Enables detailed trace logging |
 
@@ -175,12 +175,16 @@ Control how PMM Server presents itself on the network:
 Configure connections to external database services:
 
 | Variable | Purpose |
-|----------|----------|
+|----------|---------|
+| `PMM_CLICKHOUSE_CONFIG` | Set to `low-memory` to activate the built-in ClickHouse profile optimized for hosts with less than 16 GB RAM. Omit or set to `default` for standard deployments. See [ClickHouse memory issues](../../../../troubleshoot/qan_issues.md#clickhouse-memory-issues-in-low-memory-environments). |
 | `PMM_CLICKHOUSE_*` | ClickHouse connection settings |
 | `PMM_POSTGRES_*` | PostgreSQL connection settings |
 
 
 ### Nomad Garbage Collection (GC) settings
+
+!!! note
+    To enable Nomad, you must set **both** `PMM_ENABLE_NOMAD=1` and `PMM_PUBLIC_ADDRESS=<your-pmm-server-address>`. Setting `PMM_ENABLE_NOMAD=1` alone is not sufficient — without a public address, Nomad does not start. See [Configure Nomad](../../../../reference/nomad.md#prerequisites) for details.
 
 Control Nomad client-side garbage collection (GC) directly from PMM using environment variables. 
 
