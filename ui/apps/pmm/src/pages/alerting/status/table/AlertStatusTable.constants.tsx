@@ -7,6 +7,11 @@ import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../AlertsPage.constants';
 import { Messages } from './AlertStatusTable.messages';
 import TriggeredAtCell from './TriggeredAtCell';
 import { AlertSeverity } from '../alert-severity';
+import {
+  sortByState,
+  sortByNode,
+  sortByService,
+} from './AlertStatusTable.utils';
 
 const ALERT_SEVERITY_OPTIONS = [
   { value: 'emergency', label: 'Emergency' },
@@ -26,6 +31,7 @@ export const ALERT_STATUS_COLUMNS: MRT_ColumnDef<AlertsTableRow>[] = [
     header: 'State',
     // State is filtered via the dropdown in the top toolbar.
     enableColumnFilter: false,
+    sortingFn: (a, b) => sortByState(a.original, b.original),
     Cell: ({ row: { original } }) => {
       if (original.type === 'alert') {
         return (
@@ -63,6 +69,7 @@ export const ALERT_STATUS_COLUMNS: MRT_ColumnDef<AlertsTableRow>[] = [
   {
     accessorKey: 'nodeId',
     header: 'Node',
+    sortingFn: (a, b) => sortByNode(a.original, b.original),
     Cell: ({ row: { original } }) => (
       <Typography fontWeight={original.type === 'node' ? 'bold' : undefined}>
         {original.nodeId}
@@ -72,6 +79,7 @@ export const ALERT_STATUS_COLUMNS: MRT_ColumnDef<AlertsTableRow>[] = [
   {
     accessorKey: 'serviceName',
     header: 'Service',
+    sortingFn: (a, b) => sortByService(a.original, b.original),
   },
   {
     id: 'severity',
