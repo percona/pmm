@@ -166,6 +166,33 @@ const (
 	prometheusSubsystem       = "auth"
 )
 
+func statusCodeToString(code int) string {
+	switch code {
+	case http.StatusOK:
+		return "200"
+	case http.StatusBadRequest:
+		return "400"
+	case http.StatusUnauthorized:
+		return "401"
+	case http.StatusForbidden:
+		return "403"
+	case http.StatusNotFound:
+		return "404"
+	case http.StatusMethodNotAllowed:
+		return "405"
+	case http.StatusRequestTimeout:
+		return "408"
+	case http.StatusTooManyRequests:
+		return "429"
+	case http.StatusInternalServerError:
+		return "500"
+	case http.StatusServiceUnavailable:
+		return "503"
+	default:
+		return strconv.Itoa(code)
+	}
+}
+
 // clientError contains authentication error response details.
 type authError struct {
 	code    codes.Code // error code for API client; not mapped to HTTP status code
@@ -298,11 +325,11 @@ func (s *AuthServer) Collect(ch chan<- prom.Metric) {
 }
 
 func (s *AuthServer) incAuthRequests(method, route string, code int) {
-	s.metrics.mAuthRequests.WithLabelValues(method, route, strconv.Itoa(code)).Inc()
+	s.metrics.mAuthRequests.WithLabelValues(method, route, statusCodeToString(code)).Inc()
 }
 
 func (s *AuthServer) incGrafanaAuthRequests(code int) {
-	s.metrics.mGrafanaAuthRequests.WithLabelValues(strconv.Itoa(code)).Inc()
+	s.metrics.mGrafanaAuthRequests.WithLabelValues(statusCodeToString(code)).Inc()
 }
 
 func (s *AuthServer) incCacheHit() {
@@ -574,10 +601,10 @@ func extractOriginalRequest(req *http.Request) error {
 		return errors.New("empty X-Original-Uri")
 	}
 	if origURI[0] != '/' {
-		return fmt.Errorf("unexpected X-Original-Uri: %s", origURI)
+		return fmt.Errorf("unexpected X-Original-Uri: %q", origURI)
 	}
 	if !utf8.ValidString(origURI) {
-		return fmt.Errorf("invalid X-Original-Uri: %s", origURI)
+		return fmt.Errorf("invalid X-Original-Uri: %q", origURI)
 	}
 
 	cleanedOrigURI, err := cleanPath(origURI)
