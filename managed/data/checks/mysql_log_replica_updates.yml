@@ -35,8 +35,8 @@ checks:
                if name == "log_replica_updates" or name == "log_slave_updates":
                 if value == "OFF":
                    results.append({
-                       "summary": "MySQL server updates received by a replica server from a replication source server are not logged to the replica's own binary log.",
-                       "description": "MySQL server replicating events are not logged.",
+                       "summary": "MySQL server replicating events are not logged",
+                       "description": "MySQL server updates received by a replica server from a replication source server are not logged to the replica's own binary log.",
                        "read_more_url":read_url.format("mysql-log-replica-updates"),
                        "severity": "warning",
                        "labels": {},
