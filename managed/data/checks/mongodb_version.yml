@@ -7,7 +7,6 @@ checks:
     family: MONGODB
     category: Configuration
     subcategory: Version
-    #category: configuration
     #author: Parag Bhayani
     interval: standard
     queries:
