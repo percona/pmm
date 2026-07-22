@@ -18,6 +18,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -51,6 +52,9 @@ func AssignRoles(tx *reform.TX, userID int, roleIDs []int) error {
 			return err
 		}
 
+		if roleID < 0 || roleID > math.MaxUint32 {
+			return fmt.Errorf("role ID %d is out of range for uint32", roleID)
+		}
 		var userRole UserRoles
 		userRole.UserID = userID
 		userRole.RoleID = uint32(roleID)

@@ -281,6 +281,77 @@ func TestServer(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, s)
 	})
+
+	t.Run("Version", func(t *testing.T) {
+		t.Parallel()
+		s := newServer(t)
+		ctx := context.Background()
+
+		t.Run("PanicError", func(t *testing.T) {
+			t.Parallel()
+			assert.PanicsWithError(t, "panic-error", func() {
+				_, _ = s.Version(ctx, &serverv1.VersionRequest{Dummy: "panic-error"})
+			})
+		})
+
+		t.Run("PanicFmtError", func(t *testing.T) {
+			t.Parallel()
+			assert.PanicsWithError(t, "panic-fmterror", func() {
+				_, _ = s.Version(ctx, &serverv1.VersionRequest{Dummy: "panic-fmterror"})
+			})
+		})
+
+		t.Run("PanicDefault", func(t *testing.T) {
+			t.Parallel()
+			assert.PanicsWithValue(t, "panic-custom-string", func() {
+				_, _ = s.Version(ctx, &serverv1.VersionRequest{Dummy: "panic-custom-string"})
+			})
+		})
+
+		t.Run("GRPCCode", func(t *testing.T) {
+			t.Parallel()
+			t.Run("Valid", func(t *testing.T) {
+				t.Parallel()
+				_, err := s.Version(ctx, &serverv1.VersionRequest{Dummy: "grpccode-1"})
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				assert.Equal(t, codes.Canceled, st.Code())
+				assert.Equal(t, "gRPC code 1 (Canceled)", st.Message())
+			})
+
+			t.Run("InvalidFormat", func(t *testing.T) {
+				t.Parallel()
+				_, err := s.Version(ctx, &serverv1.VersionRequest{Dummy: "grpccode-abc"})
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				assert.Equal(t, codes.InvalidArgument, st.Code())
+				assert.Contains(t, st.Message(), "invalid gRPC code")
+			})
+
+			t.Run("Overflow", func(t *testing.T) {
+				t.Parallel()
+				// 2^32 is larger than max uint32
+				_, err := s.Version(ctx, &serverv1.VersionRequest{Dummy: "grpccode-4294967296"})
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				assert.Equal(t, codes.InvalidArgument, st.Code())
+				assert.Contains(t, st.Message(), "invalid gRPC code")
+			})
+
+			t.Run("Negative", func(t *testing.T) {
+				t.Parallel()
+				_, err := s.Version(ctx, &serverv1.VersionRequest{Dummy: "grpccode--1"})
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				assert.Equal(t, codes.InvalidArgument, st.Code())
+				assert.Contains(t, st.Message(), "invalid gRPC code")
+			})
+		})
+	})
 }
 
 func TestConvertDefaultRoleID(t *testing.T) {

@@ -80,7 +80,7 @@ func (s *ActionsService) StartMySQLExplainAction(
 		return err
 	}
 
-	if res.PlaceholdersCount != uint32(len(placeholders)) {
+	if res.PlaceholdersCount != uint32(len(placeholders)) { //nolint:gosec // placeholders count is not expected to exceed uint32
 		return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
 	}
 	q = res.ExplainFingerprint

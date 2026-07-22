@@ -189,8 +189,11 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	err := server.Shutdown(ctx) //nolint:contextcheck
 	if err != nil {
-		l.Errorf("Failed to shutdown gracefully: %s \n", err)
-		server.Close() //nolint:errcheck
+		l.Errorf("Failed to shutdown gracefully: %v", err)
+		err = server.Close()
+		if err != nil {
+			l.Errorf("Failed to close server: %v", err)
+		}
 	}
 	cancel()
 }
@@ -232,7 +235,10 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 		l.Panic(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, _ *http.Request) {
-		rw.Write(buf.Bytes()) //nolint:errcheck
+		_, wErr := rw.Write(buf.Bytes())
+		if wErr != nil {
+			l.WithError(wErr).Error("Failed to write response")
+		}
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugBindF, strings.Join(handlers, "\n\t"))
 

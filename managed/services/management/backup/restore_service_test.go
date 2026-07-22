@@ -17,6 +17,7 @@ package backup
 
 import (
 	"fmt"
+	"math"
 	"testing"
 
 	"github.com/google/uuid"
@@ -38,7 +39,7 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 	ctx := t.Context()
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 	backupService := &mockBackupService{}
 	scheduleService := &mockScheduleService{}
 	restoreSvc := NewRestoreService(db, backupService, scheduleService)
@@ -148,6 +149,53 @@ func TestRestoreServiceGetLogs(t *testing.T) {
 			}
 			assert.Equal(t, tc.expect, chunkIDs)
 		}
+	})
+
+	t.Run("skip invalid chunk IDs", func(t *testing.T) {
+		restoreID := uuid.New().String()
+		job, err := models.CreateJob(db.Querier, models.CreateJobParams{
+			PMMAgentID: "agent",
+			Type:       models.MongoDBBackupJob,
+			Data: &models.JobData{
+				MongoDBRestoreBackup: &models.MongoDBRestoreBackupJobData{
+					ServiceID: "svc",
+					RestoreID: restoreID,
+					DataModel: models.PhysicalDataModel,
+				},
+			},
+		})
+		require.NoError(t, err)
+
+		// Create logs with various IDs to test bounds checking in GetLogs
+		testLogs := []struct {
+			chunkID int
+		}{
+			{chunkID: 10},            // Valid
+			{chunkID: -1},            // Invalid (negative)
+			{chunkID: math.MaxInt32}, // Valid (boundary of signed 32-bit int)
+		}
+
+		for _, tl := range testLogs {
+			_, err = models.CreateJobLog(db.Querier, models.CreateJobLogParams{
+				JobID:   job.ID,
+				ChunkID: tl.chunkID,
+				Data:    "not important",
+			})
+			require.NoError(t, err)
+		}
+
+		logs, err := restoreSvc.GetLogs(ctx, &backupv1.RestoreServiceGetLogsRequest{
+			RestoreId: restoreID,
+		})
+		require.NoError(t, err)
+
+		chunkIDs := make([]uint32, 0, len(logs.Logs))
+		for _, log := range logs.Logs {
+			chunkIDs = append(chunkIDs, log.ChunkId)
+		}
+
+		// Only the valid IDs (10 and MaxInt32) should be present in the response
+		assert.Equal(t, []uint32{10, uint32(math.MaxInt32)}, chunkIDs)
 	})
 }
 

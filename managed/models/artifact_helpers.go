@@ -330,10 +330,8 @@ func DeleteArtifact(q *reform.Querier, id string) error {
 
 // MetadataRemoveFirstN removes first N records from artifact metadata list.
 func (s *Artifact) MetadataRemoveFirstN(q *reform.Querier, n uint32) error {
-	if n > uint32(len(s.MetadataList)) {
-		n = uint32(len(s.MetadataList))
-	}
-	s.MetadataList = s.MetadataList[n:]
+	idx := min(int(n), len(s.MetadataList))
+	s.MetadataList = s.MetadataList[idx:]
 	err := q.Update(s)
 	if err != nil {
 		return fmt.Errorf("failed to remove artifact metadata records: %w", err)

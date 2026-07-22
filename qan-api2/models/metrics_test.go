@@ -276,3 +276,51 @@ func TestMetrics_ExplainFingerprintByQueryID(t *testing.T) {
 		assert.Zero(t, res.PlaceholdersCount)
 	})
 }
+
+func TestMetrics_SelectSparklines(t *testing.T) {
+	t.Parallel()
+	ctx := t.Context()
+	sqlxDB := setupTestClickHouse(t)
+	m := NewMetrics(sqlxDB)
+
+	t1, err := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
+	require.NoError(t, err)
+	periodFrom := t1.Unix()
+	t2, err := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
+	require.NoError(t, err)
+	periodTo := t2.Unix()
+
+	t.Run("Invalid time range", func(t *testing.T) {
+		t.Parallel()
+		res, err := m.SelectSparklines(ctx, periodTo, periodFrom, "B305F6354FA21F2A", "queryid", nil, nil)
+		require.ErrorIs(t, err, errMetricsPeriodStartToLessStartFrom)
+		require.Nil(t, res)
+	})
+
+	t.Run("Very small time range", func(t *testing.T) {
+		t.Parallel()
+		ts := int64(1600000000)
+		res, err := m.SelectSparklines(ctx, ts, ts+1, "B305F6354FA21F2A", "queryid", nil, nil)
+		require.NoError(t, err)
+		require.NotNil(t, res)
+	})
+
+	t.Run("Timeframe overflow", func(t *testing.T) {
+		t.Parallel()
+		from := int64(0)
+		// optimalAmountOfPoint is 120. timeFrame is roughly (To - From) / 120.
+		// To trigger > MaxUint32 (4294967295), difference must be > 515,396,075,400.
+		to := int64(600_000_000_000)
+		res, err := m.SelectSparklines(ctx, from, to, "B305F6354FA21F2A", "queryid", nil, nil)
+		require.ErrorContains(t, err, "exceeds uint32 max value")
+		require.Nil(t, res)
+	})
+
+	t.Run("Happy path", func(t *testing.T) {
+		t.Parallel()
+		res, err := m.SelectSparklines(ctx, periodFrom, periodTo, "B305F6354FA21F2A", "queryid", nil, nil)
+		require.NoError(t, err)
+		require.NotNil(t, res)
+		assert.NotEmpty(t, res)
+	})
+}

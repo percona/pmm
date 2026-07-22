@@ -19,6 +19,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 
@@ -28,7 +29,7 @@ import (
 func encryptionKeyPath() string {
 	customKeyPath := os.Getenv("PMM_ENCRYPTION_KEY_PATH")
 	if customKeyPath != "" {
-		return customKeyPath
+		return filepath.Clean(customKeyPath)
 	}
 
 	return DefaultEncryptionKeyPath

@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"path"
 	"sort"
 	"strconv"
@@ -231,10 +232,15 @@ func pitrParseTS(tstr string) *primitive.Timestamp {
 		// just skip this file
 		return nil
 	}
-	ts := primitive.Timestamp{T: uint32(t.Unix())}
+	unix := t.Unix()
+	if unix < 0 || unix > math.MaxUint32 {
+		return nil
+	}
+	ts := primitive.Timestamp{T: uint32(unix)}
+
 	if len(tparts) > 1 {
-		ti, err := strconv.Atoi(tparts[1])
-		if err != nil {
+		ti, err := strconv.ParseUint(tparts[1], 10, 32)
+		if err != nil || ti > math.MaxUint32 {
 			// just skip this file
 			return nil
 		}

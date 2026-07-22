@@ -20,9 +20,9 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"math"
 	"strings"
 
-	"github.com/AlekSi/pointer"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -58,7 +58,7 @@ func (s *ChecksAPIService) ListFailedServices(ctx context.Context, _ *advisorsv1
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
-		return nil, fmt.Errorf("failed to get check results: %w", err)
+		return nil, status.Errorf(codes.Internal, "Failed to get check results: %v", err)
 	}
 
 	summaries := make(map[string]*services.CheckResultSummary)
@@ -124,11 +124,55 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.
 		return nil, fmt.Errorf("failed to get check results for service '%s': %w", req.ServiceId, err)
 	}
 
-	failedChecks := make([]*advisorsv1.CheckResult, 0, len(results))
-	for _, result := range results {
+	var pageIndex, pageSize int
+	if req.PageIndex != nil {
+		pageIndex = int(*req.PageIndex)
+		if pageIndex < 0 {
+			return nil, errors.New("page index must be non-negative")
+		}
+	}
+	if req.PageSize != nil {
+		pageSize = int(*req.PageSize)
+		if pageSize < 0 {
+			return nil, errors.New("page size must be non-negative")
+		}
+	}
+
+	totalItems := len(results)
+	// return value type is int32, so we need to limit it to max int32 value
+	if totalItems > math.MaxInt32 {
+		s.l.Warnf("Total checks count %d is greater than max int32 value, limiting to %d.", totalItems, math.MaxInt32)
+		totalItems = math.MaxInt32
+	}
+
+	totalPages := 1
+	if pageSize > 0 {
+		totalPages = totalItems / pageSize
+		if totalItems%pageSize > 0 {
+			totalPages++
+		}
+		// return value type is int32, so we need to limit it to max int32 value
+		if totalPages > math.MaxInt32 {
+			totalPages = math.MaxInt32
+		}
+	}
+
+	from := min(pageIndex*pageSize, totalItems)
+	to := totalItems
+	if pageSize > 0 {
+		to = min(from+pageSize, totalItems)
+	}
+
+	// Avoid redundant allocations by only processing the requested page slice.
+	failedChecks := make([]*advisorsv1.CheckResult, 0, to-from)
+	for _, result := range results[from:to] {
 		labels := make(map[string]string, len(result.Target.Labels)+len(result.Result.Labels))
 		maps.Copy(labels, result.Result.Labels)
 		maps.Copy(labels, result.Target.Labels)
+
+		if result.Result.Severity < math.MinInt32 || result.Result.Severity > math.MaxInt32 {
+			return nil, fmt.Errorf("check result severity %d is out of range for int32", result.Result.Severity)
+		}
 
 		failedChecks = append(failedChecks, &advisorsv1.CheckResult{
 			Summary:     result.Result.Summary,
@@ -142,36 +186,10 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.
 		})
 	}
 
-	var pageIndex, pageSize int
-	totalPages := int32(1)
-	totalItems := int32(len(failedChecks))
-
-	if req.PageIndex != nil {
-		pageIndex = int(pointer.GetInt32(req.PageIndex))
-	}
-	if req.PageSize != nil {
-		pageSize = int(pointer.GetInt32(req.PageSize))
-	}
-
-	from, to := pageIndex*pageSize, (pageIndex+1)*pageSize
-	if to > len(failedChecks) || to == 0 {
-		to = len(failedChecks)
-	}
-	if from > len(failedChecks) {
-		from = len(failedChecks)
-	}
-
-	if pageSize > 0 {
-		totalPages = int32(len(failedChecks) / pageSize)
-		if len(failedChecks)%pageSize > 0 {
-			totalPages++
-		}
-	}
-
 	return &advisorsv1.GetFailedChecksResponse{
-		Results:    failedChecks[from:to],
-		TotalItems: totalItems,
-		TotalPages: totalPages,
+		Results:    failedChecks,
+		TotalItems: int32(totalItems),
+		TotalPages: int32(totalPages),
 	}, nil
 }
 

@@ -19,6 +19,8 @@ package user
 import (
 	"context"
 	"errors"
+	"fmt"
+	"math"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -130,8 +132,16 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 		return nil, e
 	}
 
+	if userInfo.ID < 0 || userInfo.ID > math.MaxUint32 {
+		return nil, status.Errorf(codes.Internal, "%s", fmt.Sprintf("User ID %d is out of uint32 range", userInfo.ID))
+	}
+
+	if userInfo.SnoozeCount < 0 || userInfo.SnoozeCount > math.MaxUint32 {
+		return nil, status.Errorf(codes.Internal, "%s", fmt.Sprintf("Snooze count %d is out of uint32 range", userInfo.SnoozeCount))
+	}
+
 	resp := &userv1.UpdateUserResponse{
-		UserId:                uint32(userInfo.ID), //nolint:gosec // user ID is not expected to overflow uint32
+		UserId:                uint32(userInfo.ID),
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
 		SnoozedPmmVersion:     userInfo.SnoozedPMMVersion,
@@ -157,7 +167,7 @@ func (s *Service) ListUsers(_ context.Context, _ *userv1.ListUsersRequest) (*use
 	}
 	for userID, roleIDs := range userRoles {
 		resp.Users = append(resp.Users, &userv1.ListUsersResponse_UserDetail{
-			UserId:  uint32(userID),
+			UserId:  uint32(userID), //nolint:gosec // user ID is not expected to overflow uint32
 			RoleIds: roleIDs,
 		})
 	}

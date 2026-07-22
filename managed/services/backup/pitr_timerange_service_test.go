@@ -70,6 +70,11 @@ func TestPitrMetaFromFileName(t *testing.T) {
 				EndTS:       primitive.Timestamp{T: uint32(1661774744), I: 10},
 			},
 		},
+		{
+			name:     "timestamp overflow in filename",
+			filename: "rs0/20220829/21060207062816-1.20220829120544-10.oplog.s2",
+			expected: nil,
+		},
 	}
 
 	prefix := path.Join("test_artifact_name", pitrFSPrefix)
@@ -163,6 +168,21 @@ func TestPitrParseTs(t *testing.T) {
 		{
 			name:     "with invalid timestamp",
 			filename: "2022",
+			expected: nil,
+		},
+		{
+			name:     "timestamp overflow",
+			filename: "21060207062816", // math.MaxUint32 + 1
+			expected: nil,
+		},
+		{
+			name:     "timestamp underflow",
+			filename: "19691231235959", // unix -1
+			expected: nil,
+		},
+		{
+			name:     "index overflow",
+			filename: "20220829115611-4294967296", // math.MaxUint32 + 1
 			expected: nil,
 		},
 	}

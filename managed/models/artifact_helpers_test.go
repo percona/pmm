@@ -118,6 +118,7 @@ func TestArtifacts(t *testing.T) {
 		assert.Equal(t, createParams.DataModel, a.DataModel)
 		assert.Equal(t, createParams.Status, a.Status)
 		assert.Equal(t, createParams.Folder, a.Folder)
+		assert.Equal(t, models.OnDemandArtifactType, a.Type)
 		assert.Less(t, time.Now().UTC().Unix()-a.CreatedAt.Unix(), int64(5))
 
 		updateParams := models.UpdateArtifactParams{
@@ -135,9 +136,108 @@ func TestArtifacts(t *testing.T) {
 		assert.Equal(t, *updateParams.ServiceID, a.ServiceID)
 		assert.Equal(t, updateParams.IsShardedCluster, a.IsShardedCluster)
 		assert.Less(t, time.Now().UTC().Unix()-a.UpdatedAt.Unix(), int64(5))
+
+		t.Run("scheduled type", func(t *testing.T) {
+			createParams.Name = "scheduled_backup"
+			createParams.ScheduleID = "some_schedule"
+			sa, err := models.CreateArtifact(q, createParams)
+			require.NoError(t, err)
+			assert.Equal(t, models.ScheduledArtifactType, sa.Type)
+			assert.Equal(t, "some_schedule", sa.ScheduleID)
+		})
 	})
 
-	t.Run("list", func(t *testing.T) {
+	t.Run("unique name", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, tx.Rollback())
+		})
+
+		q := tx.Querier
+		prepareLocationsAndService(q)
+
+		params := models.CreateArtifactParams{
+			Name:       "unique_name",
+			Vendor:     "MySQL",
+			LocationID: locationID1,
+			ServiceID:  serviceID1,
+			DataModel:  models.PhysicalDataModel,
+			Status:     models.PendingBackupStatus,
+			Mode:       models.Snapshot,
+		}
+
+		_, err = models.CreateArtifact(q, params)
+		require.NoError(t, err)
+
+		_, err = models.CreateArtifact(q, params)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), `Artifact with name "unique_name" already exists.`)
+	})
+
+	t.Run("find by ID and name", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, tx.Rollback())
+		})
+
+		q := tx.Querier
+		prepareLocationsAndService(q)
+
+		a, err := models.CreateArtifact(q, models.CreateArtifactParams{
+			Name:       "find_me",
+			Vendor:     "MySQL",
+			LocationID: locationID1,
+			ServiceID:  serviceID1,
+			DataModel:  models.PhysicalDataModel,
+			Status:     models.PendingBackupStatus,
+			Mode:       models.Snapshot,
+		})
+		require.NoError(t, err)
+
+		// Find by ID
+		found, err := models.FindArtifactByID(q, a.ID)
+		require.NoError(t, err)
+		assert.Equal(t, a.Name, found.Name)
+
+		_, err = models.FindArtifactByID(q, "non-existent")
+		require.ErrorIs(t, err, models.ErrNotFound)
+
+		// Find by Name
+		found, err = models.FindArtifactByName(q, "find_me")
+		require.NoError(t, err)
+		assert.Equal(t, a.ID, found.ID)
+
+		_, err = models.FindArtifactByName(q, "unknown")
+		assert.ErrorIs(t, err, models.ErrNotFound)
+	})
+
+	t.Run("find by IDs", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, tx.Rollback())
+		})
+
+		q := tx.Querier
+		prepareLocationsAndService(q)
+
+		a1, _ := models.CreateArtifact(q, models.CreateArtifactParams{Name: "a1", Vendor: "V", LocationID: locationID1, ServiceID: serviceID1, DataModel: models.PhysicalDataModel, Status: models.PendingBackupStatus, Mode: models.Snapshot})
+		a2, _ := models.CreateArtifact(q, models.CreateArtifactParams{Name: "a2", Vendor: "V", LocationID: locationID1, ServiceID: serviceID1, DataModel: models.PhysicalDataModel, Status: models.PendingBackupStatus, Mode: models.Snapshot})
+
+		res, err := models.FindArtifactsByIDs(q, []string{a1.ID, a2.ID, "unknown"})
+		require.NoError(t, err)
+		assert.Len(t, res, 2)
+		assert.Contains(t, res, a1.ID)
+		assert.Contains(t, res, a2.ID)
+
+		emptyRes, err := models.FindArtifactsByIDs(q, []string{})
+		require.NoError(t, err)
+		assert.Empty(t, emptyRes)
+	})
+
+	t.Run("list and filters", func(t *testing.T) {
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -206,13 +306,23 @@ func TestArtifacts(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, []*models.Artifact{a3}, actual2)
 
-		actual3, err := models.FindArtifacts(q, models.ArtifactFilters{})
+		// Check filters by status and service.
+		actual3, err := models.FindArtifacts(q, models.ArtifactFilters{Status: models.PausedBackupStatus, ServiceID: serviceID2})
 		require.NoError(t, err)
-		require.Len(t, actual3, 3)
+		assert.Len(t, actual3, 1)
+		assert.Equal(t, a2.ID, actual3[0].ID)
 
-		for _, a := range actual3 {
-			assert.Contains(t, []models.Artifact{*a1, *a2, *a3}, *a)
-		}
+		// Check non-existent location error.
+		_, err = models.FindArtifacts(q, models.ArtifactFilters{LocationID: "invalid_loc"})
+		require.Error(t, err)
+
+		// Check sorting (latest first).
+		all, err := models.FindArtifacts(q, models.ArtifactFilters{})
+		require.NoError(t, err)
+		require.Len(t, all, 3)
+		assert.Equal(t, a3.ID, all[0].ID)
+		assert.Equal(t, a2.ID, all[1].ID)
+		assert.Equal(t, a1.ID, all[2].ID)
 	})
 
 	t.Run("remove", func(t *testing.T) {
@@ -444,5 +554,21 @@ func TestArtifactValidation(t *testing.T) {
 			require.NoError(t, err)
 			assert.NotNil(t, c)
 		})
+	}
+}
+
+func TestIsArtifactFinalStatus(t *testing.T) {
+	testCases := []struct {
+		status   models.BackupStatus
+		expected bool
+	}{
+		{models.SuccessBackupStatus, true},
+		{models.ErrorBackupStatus, true},
+		{models.FailedToDeleteBackupStatus, true},
+		{models.PendingBackupStatus, false},
+		{models.PausedBackupStatus, false},
+	}
+	for _, tc := range testCases {
+		assert.Equal(t, tc.expected, models.IsArtifactFinalStatus(tc.status), "Status: %s", tc.status)
 	}
 }

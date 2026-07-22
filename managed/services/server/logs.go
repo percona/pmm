@@ -22,6 +22,7 @@ import (
 	"container/ring"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"mime"
@@ -450,10 +451,17 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 			return fmt.Errorf("failed to open file %s: %w", file.Name, err)
 		}
 
+		// FIXME: Use zip.CreateRaw and zip.OpenRaw API to avoid decompressing-copy-compressing the files
+		//  that significantly increase CPU-bound performance overhead and memory usage and
+		//  avoid 'G110: Potential DoS vulnerability via decompression bomb' security issue.
 		_, err = io.Copy(fw, fr) //nolint:gosec
 		if err != nil {
-			fr.Close() //nolint:errcheck
-			return fmt.Errorf("failed to copy data to file %s: %w", file.Name, err)
+			err = fmt.Errorf("failed to copy data to file %s: %w", file.Name, err)
+			closeErr := fr.Close()
+			if closeErr != nil {
+				return errors.Join(err, fmt.Errorf("failed to close file %s: %w", file.Name, closeErr))
+			}
+			return err
 		}
 
 		err = fr.Close()
