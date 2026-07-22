@@ -15,6 +15,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"os/exec"
 	"testing"
@@ -24,7 +25,7 @@ import (
 )
 
 func TestPackages(t *testing.T) {
-	cmd := exec.Command("pmm-admin", "-h")
+	cmd := exec.CommandContext(t.Context(), "pmm-admin", "-h")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)
 
@@ -34,7 +35,7 @@ func TestPackages(t *testing.T) {
 }
 
 func TestVersionPlain(t *testing.T) {
-	cmd := exec.Command("pmm-admin", "--version")
+	cmd := exec.CommandContext(t.Context(), "pmm-admin", "--version")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)
 
@@ -42,8 +43,26 @@ func TestVersionPlain(t *testing.T) {
 	assert.Contains(t, out, `Version:`, `--version output is incorrect`)
 }
 
+func TestNoCommandPrintsUsage(t *testing.T) {
+	// --server-url avoids the local pmm-agent lookup so the test does not depend
+	// on a running agent; with no subcommand pmm-admin must print usage instead
+	// of panicking (PMM-15242).
+	cmd := exec.CommandContext(t.Context(), "pmm-admin", "--server-url=http://localhost/")
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+
+	var exitErr *exec.ExitError
+	require.ErrorAs(t, err, &exitErr, "stdout=%q stderr=%q", stdout.String(), stderr.String())
+	assert.Equal(t, 80, exitErr.ExitCode())
+	assert.Contains(t, stdout.String(), "Usage: pmm-admin <command>")
+	assert.NotContains(t, stderr.String(), "panic")
+	assert.NotContains(t, stderr.String(), "SIGSEGV")
+}
+
 func TestVersionJson(t *testing.T) {
-	cmd := exec.Command("pmm-admin", "--version", "--json")
+	cmd := exec.CommandContext(t.Context(), "pmm-admin", "--version", "--json")
 	b, err := cmd.CombinedOutput()
 	require.NoError(t, err, "%s", b)
 

@@ -11,10 +11,10 @@ import {
   NAV_ALERTS_RULES,
   NAV_ALERTS,
   NAV_ALERTS_CONTACT_POINTS,
-  NAV_ALERTS_FIRED,
   NAV_ALERTS_NOTIFICATION_POLICIES,
   NAV_ALERTS_SETTINGS,
   NAV_ALERTS_TEMPLATES,
+  NAV_ALERTS_STATUS,
   NAV_CHANGE_PASSWORD,
   NAV_CONFIGURATION,
   NAV_DASHBOARDS,
@@ -135,10 +135,15 @@ export const addAlerting = (enabled = false, user?: User): NavItem => {
   const children: NavItem[] = [];
 
   if (enabled) {
-    children.push(NAV_ALERTS_FIRED);
+    children.push(NAV_ALERTS_STATUS);
   }
 
   children.push(NAV_ALERTS_RULES);
+
+  if (enabled && user?.isEditor) {
+    children.push(NAV_ALERTS_TEMPLATES);
+  }
+
   children.push(NAV_ALERTS_CONTACT_POINTS);
   children.push(NAV_ALERTS_NOTIFICATION_POLICIES);
   children.push(NAV_ALERTS_SILENCES);
@@ -146,10 +151,6 @@ export const addAlerting = (enabled = false, user?: User): NavItem => {
 
   if (user?.isPMMAdmin) {
     children.push(NAV_ALERTS_SETTINGS);
-  }
-
-  if (enabled && user?.isEditor) {
-    children.push(NAV_ALERTS_TEMPLATES);
   }
 
   return { ...NAV_ALERTS, children };

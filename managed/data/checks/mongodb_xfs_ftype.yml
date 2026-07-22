@@ -42,7 +42,7 @@ checks:
                   results.append({
                       "summary": "The DBPATH mount point is not currently using XFS as its filesystem type.",
                       "description": "The dbPath for this instance is not currently using XFS as its filesystem type. It is strongly recommended to use XFS to provide better performance for data bearing nodes and to avoid performance issues that have been observed when using EXT4 with the wiredTiger engine. DBPATH - {}, MOUNT - {}, FTYPE - {}".format(dbpath, mount, ftype),
-                      "read_more_url": read_url.format("Mongodb-XFS"),
+                      "read_more_url": read_url.format("mongodb-xfs"),
                       "severity": "warning",
                   })
 
