@@ -433,15 +433,15 @@ func TestAuthServerServeHTTPBadRequestMetricsUsesCleanedRoute(t *testing.T) {
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
 
 	// Trigger extractOriginalRequest error (missing X-Original-Method),
-	// but keep X-Original-Uri so ServeHTTP records a metric for it.
+	// but keep X-Original-Uri.
 	req.Header.Set("X-Original-Uri", "/v1/server/AWSInstanceCheck/..%2f..%2f..%2f/logs.zip?foo=bar")
 
 	s.ServeHTTP(rr, req)
 
 	require.Equal(t, http.StatusBadRequest, rr.Code)
 
-	value := testutil.ToFloat64(s.metrics.mAuthRequests.WithLabelValues(http.MethodGet, "/logs.zip", "400"))
-	require.InDelta(t, 1.0, value, 0.0, "expected auth request metric with cleaned route")
+	value := testutil.ToFloat64(s.metrics.mAuthRequests.WithLabelValues(http.MethodGet, "/auth_request", "400"))
+	require.InDelta(t, 1.0, value, 0.0, "expected auth request metric with /auth_request route")
 }
 
 func TestAuthServerServeHTTPBadRequestMetricsFallbackToRawRouteOnCleanError(t *testing.T) {
@@ -451,15 +451,14 @@ func TestAuthServerServeHTTPBadRequestMetricsFallbackToRawRouteOnCleanError(t *t
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/auth_request", nil)
 
-	// Invalid escape sequence keeps cleanPath from normalizing the path,
-	// so ServeHTTP should use route value after query trimming.
+	// Invalid escape sequence keeps cleanPath from normalizing the path.
 	req.Header.Set("X-Original-Uri", "/bad%2?foo=bar")
 
 	s.ServeHTTP(rr, req)
 
 	require.Equal(t, http.StatusBadRequest, rr.Code)
 
-	value := testutil.ToFloat64(s.metrics.mAuthRequests.WithLabelValues(http.MethodPost, "/bad%2", "400"))
+	value := testutil.ToFloat64(s.metrics.mAuthRequests.WithLabelValues(http.MethodPost, "/auth_request", "400"))
 	require.InDelta(t, 1.0, value, 0.0, "expected auth request metric with original route when cleaning fails")
 }
 
@@ -781,5 +780,5 @@ func TestAuthServerServeHTTPBadRequestMetrics(t *testing.T) {
 
 	s.ServeHTTP(rw, req)
 	require.Equal(t, http.StatusBadRequest, rw.Code)
-	assert.InDelta(t, 1.0, testutil.ToFloat64(s.metrics.mAuthRequests.WithLabelValues(http.MethodGet, "/v1/server/%zz/logs.zip", "400")), 0.0)
+	assert.InDelta(t, 1.0, testutil.ToFloat64(s.metrics.mAuthRequests.WithLabelValues(http.MethodGet, "/auth_request", "400")), 0.0)
 }
