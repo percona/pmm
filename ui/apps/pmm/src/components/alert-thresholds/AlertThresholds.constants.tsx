@@ -1,30 +1,39 @@
 import { MRT_ColumnDef, TextInput } from '@percona/percona-ui';
 import { AlertThresholdRow } from './AlertThresholds.types';
-import Typography from '@mui/material/Typography';
+
+// Maps the backend ParamUnit enum to a display symbol.
+export const UNIT_SYMBOLS: Record<string, string> = {
+  PARAM_UNIT_PERCENTAGE: '%',
+  PARAM_UNIT_SECONDS: 's',
+};
+
+export const formatUnit = (unit?: string): string =>
+  (unit && UNIT_SYMBOLS[unit]) || '';
 
 export const ALERT_THRESHOLDS_COLUMNS: MRT_ColumnDef<AlertThresholdRow>[] = [
   {
-    accessorKey: 'alertRuleName',
+    accessorKey: 'ruleTitle',
     header: 'Alert rule',
   },
   {
-    accessorKey: 'defaultThreshold',
+    accessorKey: 'summary',
+    header: 'Parameter',
+    Cell: ({ row: { original } }) => original.summary || original.paramName,
+  },
+  {
+    accessorKey: 'defaultValue',
     header: 'Default',
   },
   {
-    accessorKey: 'overrideThreshold',
+    accessorKey: 'effectiveValue',
     header: 'Override',
-    Cell: ({ row: { original } }) =>
-      original.supportsOverride ? (
-        <TextInput name={original.ruleUid} />
-      ) : (
-        <Typography variant="body2" color="text.secondary">
-          Unsupported
-        </Typography>
-      ),
+    // Every row returned by the endpoint is overridable; the field is
+    // pre-filled with the effective value via react-hook-form defaults.
+    Cell: ({ row: { original } }) => <TextInput name={original.id} />,
   },
   {
-    accessorKey: 'unit',
+    id: 'unit',
     header: 'Unit',
+    Cell: ({ row: { original } }) => formatUnit(original.unit),
   },
 ];

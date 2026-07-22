@@ -1,91 +1,121 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import { Modal } from 'components/modal';
-import { usePrometheusAlertRules } from 'hooks/api/usePrometheusAlertRules';
-import { useEffect, useMemo, useState } from 'react';
-import { getInitialFormValues, getNodeAlerts } from './AlertThresholds.utils';
+import Typography from '@mui/material/Typography';
 import { Table } from '@percona/percona-ui';
-import { ALERT_THRESHOLDS_COLUMNS } from './AlertThresholds.constants';
-import { FormProvider, useForm } from 'react-hook-form';
-import { AlertThresholdsFormValues } from './AlertThresholds.types';
-import {
-  UpdateAlertThresholdData,
-  useUpdateAlertThresholds,
-} from 'hooks/api/useUpdateAlertThreshold';
-import messenger from 'lib/messenger';
-import { useGrafana } from 'contexts/grafana';
 import { OpenAlertThresholdsModalMessage } from '@pmm/shared';
+import { Modal } from 'components/modal';
+import { useGrafana } from 'contexts/grafana';
+import {
+  useDeleteNodeThreshold,
+  useNodeThresholds,
+  useSetNodeThreshold,
+} from 'hooks/api/useNodeThresholds';
+import messenger from 'lib/messenger';
+import { enqueueSnackbar } from 'notistack';
+import { useEffect, useMemo, useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+import { ALERT_THRESHOLDS_COLUMNS } from './AlertThresholds.constants';
+import {
+  AlertThresholdRow,
+  AlertThresholdsFormValues,
+  thresholdRowId,
+} from './AlertThresholds.types';
 
 const AlertThresholds = () => {
+  const [nodeId, setNodeId] = useState<string>();
   const [nodeName, setNodeName] = useState<string>();
   const [open, setIsOpen] = useState(false);
-  const { data, isLoading } = usePrometheusAlertRules({
-    enabled: open,
-  });
-  const rules = useMemo(
-    () => (data && nodeName ? getNodeAlerts(nodeName, data) : []),
-    [data, nodeName]
-  );
-  const methods = useForm<AlertThresholdsFormValues>({
-    defaultValues: getInitialFormValues(rules),
-  });
-  const { mutateAsync } = useUpdateAlertThresholds();
   const { isFrameLoaded } = useGrafana();
 
-  const handleSubmit = async (values: AlertThresholdsFormValues) => {
-    const initial = getInitialFormValues(rules);
-    const changedValues = Object.entries(values).reduce(
-      (acc, [key, value]) => {
-        if (initial[key] !== value || true) {
-          acc[key] = value;
-        }
+  const { data, isLoading } = useNodeThresholds(nodeId ?? '', {
+    enabled: open && !!nodeId,
+  });
+
+  const rows = useMemo<AlertThresholdRow[]>(
+    () =>
+      (data?.thresholds ?? []).map((t) => ({ ...t, id: thresholdRowId(t) })),
+    [data]
+  );
+
+  const initialValues = useMemo<AlertThresholdsFormValues>(
+    () =>
+      rows.reduce((acc, row) => {
+        acc[row.id] = row.effectiveValue;
         return acc;
+      }, {} as AlertThresholdsFormValues),
+    [rows]
+  );
+
+  const methods = useForm<AlertThresholdsFormValues>({
+    defaultValues: initialValues,
+  });
+  const { mutateAsync: setThreshold } = useSetNodeThreshold(nodeId ?? '');
+  const { mutateAsync: deleteThreshold } = useDeleteNodeThreshold(nodeId ?? '');
+
+  useEffect(() => {
+    methods.reset(initialValues);
+  }, [initialValues, methods]);
+
+  useEffect(() => {
+    if (!isFrameLoaded) {
+      return;
+    }
+    messenger.addListener({
+      type: 'OPEN_ALERT_THRESHOLDS_MODAL',
+      onMessage: (msg: OpenAlertThresholdsModalMessage) => {
+        setNodeId(msg.payload?.nodeId);
+        setNodeName(msg.payload?.nodeName);
+        setIsOpen(true);
       },
-      {} as Record<string, number | undefined>
-    );
-
-    console.log('changedValues:', changedValues);
-
-    const payloads = Object.entries(changedValues)
-      .filter(([, threshold]) => threshold !== undefined && nodeName)
-      .map<UpdateAlertThresholdData>(
-        ([uid, threshold]) =>
-          ({
-            uid,
-            nodeName,
-            threshold,
-          }) as UpdateAlertThresholdData
-      );
-
-    await mutateAsync(payloads);
-
-    handleClose();
-  };
+    });
+  }, [isFrameLoaded]);
 
   const handleClose = () => {
+    setNodeId(undefined);
     setNodeName(undefined);
     setIsOpen(false);
   };
 
-  useEffect(() => {
-    console.log('reset');
-    methods.reset(getInitialFormValues(rules));
-  }, [rules]);
+  const handleSubmit = async (values: AlertThresholdsFormValues) => {
+    const operations: Promise<unknown>[] = [];
 
-  useEffect(() => {
-    if (isFrameLoaded) {
-      console.log('[ALERT_THRESHOLDS] adding listener');
-      messenger.addListener({
-        type: 'OPEN_ALERT_THRESHOLDS_MODAL',
-        onMessage: (msg: OpenAlertThresholdsModalMessage) => {
-          setNodeName(msg.payload?.nodeName);
-          setIsOpen(true);
-        },
-      });
+    for (const row of rows) {
+      const raw = values[row.id];
+      const parsed =
+        raw === undefined || (raw as unknown) === '' ? undefined : Number(raw);
+      const cleared = parsed === undefined || Number.isNaN(parsed);
+
+      // Clearing the field or setting it to the default reverts the node to the
+      // template default (delete the override); only needed if one exists.
+      if (cleared || parsed === row.defaultValue) {
+        if (row.isOverridden) {
+          operations.push(
+            deleteThreshold({ ruleId: row.ruleId, paramName: row.paramName })
+          );
+        }
+        continue;
+      }
+
+      if (parsed !== row.effectiveValue) {
+        operations.push(
+          setThreshold({
+            ruleId: row.ruleId,
+            paramName: row.paramName,
+            value: parsed,
+          })
+        );
+      }
     }
-  }, [isFrameLoaded]);
 
-  if (isLoading || !nodeName) {
+    if (operations.length > 0) {
+      await Promise.all(operations);
+      enqueueSnackbar('Alert thresholds updated', { variant: 'success' });
+    }
+
+    handleClose();
+  };
+
+  if (!open || !nodeId) {
     return null;
   }
 
@@ -93,20 +123,25 @@ const AlertThresholds = () => {
     <Modal
       open={open}
       onClose={handleClose}
-      title={`Alert thresholds: ${nodeName}`}
+      title={`Alert thresholds: ${nodeName ?? ''}`}
     >
       <FormProvider {...methods}>
-        <Stack
-          component="form"
-          onSubmit={methods.handleSubmit(handleSubmit, (errors) =>
-            console.error('Validation errors:', errors)
+        <Stack component="form" onSubmit={methods.handleSubmit(handleSubmit)}>
+          {isLoading ? (
+            <Typography variant="body2" color="text.secondary">
+              Loading thresholds…
+            </Typography>
+          ) : rows.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              No overridable thresholds for this node.
+            </Typography>
+          ) : (
+            <Table
+              tableName="alert-thresholds"
+              columns={ALERT_THRESHOLDS_COLUMNS}
+              data={rows}
+            />
           )}
-        >
-          <Table
-            tableName="alert-thresholds"
-            columns={ALERT_THRESHOLDS_COLUMNS}
-            data={rules || []}
-          />
           <Stack
             direction="row"
             justifyContent="end"
@@ -115,7 +150,11 @@ const AlertThresholds = () => {
             <Button type="button" variant="text" onClick={handleClose}>
               Cancel and close
             </Button>
-            <Button type="submit" variant="contained">
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={rows.length === 0}
+            >
               Submit changes
             </Button>
           </Stack>
