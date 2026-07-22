@@ -114,6 +114,10 @@ linters:
           - unusedwrite      # not critical for tests
         path: _test\.go
       - linters:
+          - gosec
+        text: G101 # Potential hardcoded credentials - acceptable in tests
+        path: _test\.go
+      - linters:
           - recvcheck
         path: managed/models/
       - linters:
