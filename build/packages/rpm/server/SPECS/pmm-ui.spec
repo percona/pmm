@@ -13,8 +13,8 @@ Version:	%{version}
 Release:	%{rpm_release}
 Summary:	Percona Monitoring and Management web UI
 
-License:	AGPLv3
-URL:		  https://%{provider}
+License:	Apache-2.0
+URL:	    https://%{provider}
 Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
 
 %description
