@@ -39,8 +39,8 @@ cp -pa ./ui/apps/pmm-compat/dist/. %{buildroot}%{_datadir}/percona-dashboards/pa
 
 
 %files
-%license ./LICENSE
-%doc ./README.md
+%license ./ui/LICENSE
+%doc ./ui/README.md
 %attr(-, pmm, root) %{_datadir}/pmm-ui
 %attr(-, pmm, root) %{_datadir}/percona-dashboards/panels/pmm-compat-app
 
