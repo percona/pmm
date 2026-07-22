@@ -15,18 +15,26 @@ import { useDetailsPaneNavigation } from '@percona/percona-ui';
 import { AlertRow, AlertsTableRow } from './AlertsPage.types';
 import { AlertDetailsPane } from './details-pane';
 import { Messages } from './AlertsPage.messages';
+import { updateDocumentTitle } from 'utils/document.utils';
+import { useSettings } from 'contexts/settings';
+import FeatureCheck from 'components/feature-check';
 
 const AlertsPage = () => {
+  updateDocumentTitle(Messages.browserTitle);
+  const { settings } = useSettings();
   const { data, isError, isLoading } = usePrometheusAlertRules({
     refetchInterval: 5000,
+    enabled: settings?.alertingEnabled,
   });
   // Supplementary: silence data enriches the rows but must not block rendering.
   // If this call fails the page still lists alerts, just without silenced badges.
   const { data: silencedAlerts } = useAlertmanagerAlerts({
     refetchInterval: 5000,
+    enabled: settings?.alertingEnabled,
   });
   const { data: silences } = useAlertmanagerSilences({
     refetchInterval: 5000,
+    enabled: settings?.alertingEnabled,
   });
   const silenceMap = useMemo(
     () => buildSilenceMap(silencedAlerts, silences),
@@ -64,6 +72,12 @@ const AlertsPage = () => {
     getRowId: (row) => row.id,
     onSelect: (row) => setSelectedRowId(row?.id),
   });
+
+  if (!settings?.alertingEnabled) {
+    return (
+      <FeatureCheck pageTitle={Messages.title} feature={Messages.feature} />
+    );
+  }
 
   return (
     <Stack
