@@ -93,3 +93,44 @@ export const createSilenceUrl = (labels: Record<string, string>) =>
 // Link to Grafana's silences list, where a user can expire (unsilence) the
 // silence suppressing an alert — matching the fired-alerts page behaviour.
 export const createUnsilenceUrl = () => createRelativeUrl('/alerting/silences');
+
+const STATE_ORDER = {
+  Normal: 0,
+  Pending: 1,
+  Alerting: 2,
+  Recovering: 3,
+  NoData: 4,
+  Error: 5,
+  Silenced: 6,
+};
+
+const NO_VALUE = '[no value]';
+
+export const sortByState = (a: AlertsTableRow, b: AlertsTableRow) => {
+  if (a.type === 'node' || b.type === 'node') {
+    return 0;
+  }
+  const stateA = a.silenced ? 'Silenced' : a.state;
+  const stateB = b.silenced ? 'Silenced' : b.state;
+  return (STATE_ORDER[stateA] ?? 0) - (STATE_ORDER[stateB] ?? 0);
+};
+
+export const sortByNode = (a: AlertsTableRow, b: AlertsTableRow) => {
+  if (a.type === 'node' || b.type === 'node') {
+    return 0;
+  }
+
+  const valueA = a.nodeId === NO_VALUE ? '' : a.nodeId;
+  const valueB = b.nodeId === NO_VALUE ? '' : b.nodeId;
+  return valueA.localeCompare(valueB, undefined, { sensitivity: 'base' });
+};
+
+export const sortByService = (a: AlertsTableRow, b: AlertsTableRow) => {
+  if (a.type === 'node' || b.type === 'node') {
+    return 0;
+  }
+
+  const valueA = a.serviceName === NO_VALUE ? '' : a.serviceName;
+  const valueB = b.serviceName === NO_VALUE ? '' : b.serviceName;
+  return valueA.localeCompare(valueB, undefined, { sensitivity: 'base' });
+};
