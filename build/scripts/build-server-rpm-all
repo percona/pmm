@@ -5,10 +5,11 @@ set -o xtrace
 . "$(dirname $0)"/vars
 
 # 1st-party
-"${bin_dir}/build-server-rpm" percona-dashboards pmm
+# The 3rd arg scopes the cache key to the given paths (the package sources plus
+# its spec) so the package is rebuilt only when those actually change.
+"${bin_dir}/build-server-rpm" percona-dashboards pmm "dashboards build/packages/rpm/server/SPECS/percona-dashboards.spec"
 "${bin_dir}/build-server-rpm" pmm-managed pmm
-# The 3rd arg scopes the cache key to the ui/ path so it is rebuilt only on UI changes
-"${bin_dir}/build-server-rpm" pmm-ui pmm ui
+"${bin_dir}/build-server-rpm" pmm-ui pmm "ui build/packages/rpm/server/SPECS/pmm-ui.spec"
 "${bin_dir}/build-server-rpm" percona-qan-api2 pmm
 "${bin_dir}/build-server-rpm" pmm-dump
 "${bin_dir}/build-server-rpm" vmproxy pmm

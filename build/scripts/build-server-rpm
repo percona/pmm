@@ -56,9 +56,9 @@ prepare_specs() {
     local spec_name=$1
     local repo_name=$2
     # When set, the package commit (and thus its S3 cache key) is derived from
-    # the last commit that touched this path rather than HEAD. This keeps the
-    # cache key stable across pushes that don't change the path, so the package
-    # is rebuilt only when the branch actually differs from its base in it.
+    # the last commit that touched these paths rather than HEAD. This keeps the
+    # cache key stable across pushes that don't change them, so the package is
+    # rebuilt only when the branch actually differs from its base in them.
     local git_path=$3
 
     sudo chown -R $(id -u):$(id -g) ${rpmbuild_dir}/SPECS ${rpmbuild_dir}/SOURCES
@@ -67,7 +67,9 @@ prepare_specs() {
         local git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
         local full_commit
         if [ -n "${git_path}" ]; then
-            full_commit=$(git -C "${git_dir}" log -1 --format=%H -- "${git_path}")
+            # git_path may hold several space-separated pathspecs, so it is
+            # intentionally left unquoted here.
+            full_commit=$(git -C "${git_dir}" log -1 --format=%H -- ${git_path})
         fi
         # Fall back to HEAD when no path is given or the path has no history.
         if [ -z "${full_commit}" ]; then
