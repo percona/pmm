@@ -56,6 +56,10 @@ export const DYNAMIC_ICON_IMPORT_MAP = {
   pause: () => import('icons/pause.svg?react'),
   refresh: () => import('icons/refresh.svg?react'),
   'file-download': () => import('icons/file-download.svg?react'),
+  // todo: move to percona-ui
+  'emergency-home': () => import('icons/emergency-home.svg?react'),
+  // todo: move to percona-ui
+  'chat-info-outlined': () => import('icons/chat-info-outlined.svg?react'),
 };
 
 export const VIEWBOX_MAP: Partial<
