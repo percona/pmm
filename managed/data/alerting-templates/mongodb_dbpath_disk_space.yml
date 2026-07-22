@@ -3,9 +3,15 @@ templates:
   - name: pmm_mongodb_dbpath_disk_space
     version: 1
     summary: MongoDB DBPath Disk Space Utilization
-    expr: |-
-      (((max(mongodb_dbstats_fsUsedSize) by(cluster,node_name,rs_nm)) / (max(mongodb_dbstats_fsTotalSize) by(cluster,node_name,rs_nm))) * 100)
-      > [[ .threshold ]]
+    queries:
+      - ref_id: A
+        expr: |-
+          ((max(mongodb_dbstats_fsUsedSize) by(cluster,node_name,service_name,rs_nm)) / (max(mongodb_dbstats_fsTotalSize) by(cluster,node_name,service_name,rs_nm))) * 100
+    expressions:
+      - ref_id: C
+        type: math
+        expression: "$A > [[ .threshold ]]"
+    condition: C
     params:
       - name: threshold
         summary: A percentage from configured maximum
