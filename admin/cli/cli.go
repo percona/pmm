@@ -85,9 +85,21 @@ type CmdWithContextRunner interface {
 	RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error)
 }
 
+// usageErrorExitCode mirrors Kong's internal exitUsageError, used when the
+// binary is invoked without a subcommand.
+const usageErrorExitCode = 80
+
 func run(ctx *kong.Context, globals *flags.GlobalFlags) error {
 	var res commands.Result
 	var err error
+
+	// Since Kong 1.16.0 the root command is treated as runnable, so invoking
+	// pmm-admin without a subcommand no longer produces a parse error and
+	// ctx.Selected() is nil. Print usage and exit as previous versions did.
+	if ctx.Selected() == nil {
+		_ = ctx.PrintUsage(false)
+		os.Exit(usageErrorExitCode)
+	}
 
 	i := ctx.Selected().Target.Addr().Interface()
 
