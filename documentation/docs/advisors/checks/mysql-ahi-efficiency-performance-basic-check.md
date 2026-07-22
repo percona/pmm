@@ -42,7 +42,7 @@ Benchmark your workload with it off to see if performance improves.
 
 ### If the AHI is disabled
 
-Consider turning it on and watching the **InnoDB Adaptive Hash Index** panel on the **MySQL InnoDB Details** dashboard. The AHI is most useful for read-heavy workloads that repeatedly access the same index data.
+Consider turning it on and watching the **InnoDB Adaptive Hash Index** panel on the [MySQL InnoDB Details](../../reference/dashboards/dashboard-mysql-innodb-details.md) dashboard. The AHI is most useful for read-heavy workloads that repeatedly access the same index data.
 
 ## Need more support from Percona?
 
