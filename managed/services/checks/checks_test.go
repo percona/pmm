@@ -98,9 +98,8 @@ func TestLoadBuiltinAdvisors(t *testing.T) {
 		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 		defer cancel()
 
-		dChecks, err := s.loadBuiltinChecks(ctx)
+		err = s.reconcileBuiltinChecks(ctx)
 		require.NoError(t, err)
-		assert.NotEmpty(t, dChecks)
 
 		s.UpdateAdvisorsList(ctx)
 
@@ -181,14 +180,14 @@ func TestDisableChecks(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotEmpty(t, checks)
 
-		disChecks, err := s.GetDisabledChecks()
+		disChecks, err := s.GetDisabledChecks(t.Context())
 		require.NoError(t, err)
 		assert.Empty(t, disChecks)
 
-		err = s.DisableChecks([]string{checks["good_check_pg"].Name})
+		err = s.DisableChecks(t.Context(), []string{checks["good_check_pg"].Name})
 		require.NoError(t, err)
 
-		disChecks, err = s.GetDisabledChecks()
+		disChecks, err = s.GetDisabledChecks(t.Context())
 		require.NoError(t, err)
 		assert.Len(t, disChecks, 1)
 	})
@@ -210,17 +209,17 @@ func TestDisableChecks(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotEmpty(t, checks)
 
-		disChecks, err := s.GetDisabledChecks()
+		disChecks, err := s.GetDisabledChecks(t.Context())
 		require.NoError(t, err)
 		assert.Empty(t, disChecks)
 
-		err = s.DisableChecks([]string{checks["good_check_pg"].Name})
+		err = s.DisableChecks(t.Context(), []string{checks["good_check_pg"].Name})
 		require.NoError(t, err)
 
-		err = s.DisableChecks([]string{checks["good_check_pg"].Name})
+		err = s.DisableChecks(t.Context(), []string{checks["good_check_pg"].Name})
 		require.NoError(t, err)
 
-		disChecks, err = s.GetDisabledChecks()
+		disChecks, err = s.GetDisabledChecks(t.Context())
 		require.NoError(t, err)
 		assert.Len(t, disChecks, 1)
 	})
@@ -238,10 +237,10 @@ func TestDisableChecks(t *testing.T) {
 
 		s.UpdateAdvisorsList(t.Context())
 
-		err := s.DisableChecks([]string{"unknown_check"})
+		err := s.DisableChecks(t.Context(), []string{"unknown_check"})
 		require.Error(t, err)
 
-		disChecks, err := s.GetDisabledChecks()
+		disChecks, err := s.GetDisabledChecks(t.Context())
 		require.NoError(t, err)
 		assert.Empty(t, disChecks)
 	})
@@ -266,10 +265,10 @@ func TestEnableChecks(t *testing.T) {
 		assert.NotEmpty(t, checks, 1)
 
 		originalLength := len(checks)
-		err = s.DisableChecks([]string{checks["good_check_pg"].Name})
+		err = s.DisableChecks(t.Context(), []string{checks["good_check_pg"].Name})
 		require.NoError(t, err)
 
-		disChecks, err := s.GetDisabledChecks()
+		disChecks, err := s.GetDisabledChecks(t.Context())
 		require.NoError(t, err)
 		assert.Equal(t, []string{checks["good_check_pg"].Name}, disChecks)
 
@@ -301,7 +300,7 @@ func TestChangeInterval(t *testing.T) {
 		for _, c := range checks {
 			params[c.Name] = check.Rare
 		}
-		err = s.ChangeInterval(params)
+		err = s.ChangeInterval(t.Context(), params)
 		require.NoError(t, err)
 
 		updatedChecks, err := s.GetChecks()
@@ -320,6 +319,101 @@ func TestChangeInterval(t *testing.T) {
 				assert.Equal(t, check.Rare, c.Interval)
 			}
 		})
+	})
+}
+
+func TestChecksForServices(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	ctx := t.Context()
+
+	s := New(db, nil, vmClient, clickhouseDB)
+	seedUserCheck(t, db)
+	s.UpdateAdvisorsList(ctx)
+
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+		NodeName: "test-node",
+	})
+	require.NoError(t, err)
+
+	serviceIDs := make([]string, 0, 2)
+	for _, name := range []string{"mysql1", "mysql2"} {
+		svc, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: name,
+			NodeID:      node.NodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
+		})
+		require.NoError(t, err)
+		serviceIDs = append(serviceIDs, svc.ServiceID)
+	}
+
+	t.Run("disable and dedup", func(t *testing.T) {
+		err := s.DisableChecksForServices(ctx, "good_check_pg", []string{serviceIDs[0]})
+		require.NoError(t, err)
+
+		// disabling again including an already-disabled service must not duplicate it
+		err = s.DisableChecksForServices(ctx, "good_check_pg", serviceIDs)
+		require.NoError(t, err)
+
+		m, err := s.GetDisabledServicesForChecks(ctx)
+		require.NoError(t, err)
+		assert.ElementsMatch(t, serviceIDs, m["good_check_pg"])
+	})
+
+	t.Run("unknown check rejected", func(t *testing.T) {
+		err := s.DisableChecksForServices(ctx, "no_such_check", []string{serviceIDs[0]})
+		require.Error(t, err)
+		assert.Equal(t, codes.NotFound, status.Code(err))
+	})
+
+	t.Run("unknown service rejected", func(t *testing.T) {
+		err := s.DisableChecksForServices(ctx, "good_check_pg", []string{"no-such-service"})
+		require.Error(t, err)
+		assert.Equal(t, codes.NotFound, status.Code(err))
+	})
+
+	t.Run("globally disabled check rejects per-service changes but keeps them", func(t *testing.T) {
+		err := s.DisableChecks(ctx, []string{"good_check_pg"})
+		require.NoError(t, err)
+
+		err = s.DisableChecksForServices(ctx, "good_check_pg", []string{serviceIDs[0]})
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+
+		// existing per-service settings survive the global disable...
+		m, err := s.GetDisabledServicesForChecks(ctx)
+		require.NoError(t, err)
+		assert.ElementsMatch(t, serviceIDs, m["good_check_pg"])
+
+		// ...and still apply after the check is re-enabled globally
+		err = s.EnableChecks(ctx, []string{"good_check_pg"})
+		require.NoError(t, err)
+
+		m, err = s.GetDisabledServicesForChecks(ctx)
+		require.NoError(t, err)
+		assert.ElementsMatch(t, serviceIDs, m["good_check_pg"])
+	})
+
+	t.Run("enable removes only given services", func(t *testing.T) {
+		err := s.EnableChecksForServices(ctx, "good_check_pg", []string{serviceIDs[0]})
+		require.NoError(t, err)
+
+		m, err := s.GetDisabledServicesForChecks(ctx)
+		require.NoError(t, err)
+		assert.Equal(t, []string{serviceIDs[1]}, m["good_check_pg"])
+
+		// IDs of unknown (e.g. already removed) services are accepted
+		err = s.EnableChecksForServices(ctx, "good_check_pg", []string{"no-such-service", serviceIDs[1]})
+		require.NoError(t, err)
+
+		m, err = s.GetDisabledServicesForChecks(ctx)
+		require.NoError(t, err)
+		assert.Empty(t, m)
 	})
 }
 
@@ -379,7 +473,7 @@ func TestUserAdvisorChecks(t *testing.T) {
 
 	// author a valid user check from a known-good template
 	c := loadTestCheck(t)
-	c.Name = "test_user_check_crud"
+	c.Name = "custom_test_user_check_crud"
 
 	err := s.CreateAdvisorCheck(ctx, c)
 	require.NoError(t, err)
@@ -395,6 +489,14 @@ func TestUserAdvisorChecks(t *testing.T) {
 		err := s.CreateAdvisorCheck(ctx, c)
 		require.Error(t, err)
 		assert.Equal(t, codes.AlreadyExists, status.Code(err))
+	})
+
+	t.Run("name without the reserved prefix rejected", func(t *testing.T) {
+		unprefixed := c
+		unprefixed.Name = "test_user_check_without_prefix"
+		err := s.CreateAdvisorCheck(ctx, unprefixed)
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 	})
 
 	t.Run("update", func(t *testing.T) {
@@ -592,7 +694,7 @@ func TestFindTargets(t *testing.T) {
 	t.Run("unknown service", func(t *testing.T) {
 		t.Parallel()
 
-		targets, err := s.findTargets(models.PostgreSQLServiceType, nil)
+		targets, err := s.findTargets(t.Context(), models.PostgreSQLServiceType, nil)
 		require.NoError(t, err)
 		assert.Empty(t, targets)
 	})
@@ -628,7 +730,7 @@ func TestFindTargets(t *testing.T) {
 			t.Run(test.name, func(t *testing.T) {
 				t.Parallel()
 
-				targets, err := s.findTargets(models.MySQLServiceType, test.minRequiredVersion)
+				targets, err := s.findTargets(t.Context(), models.MySQLServiceType, test.minRequiredVersion)
 				require.NoError(t, err)
 				assert.Len(t, targets, test.count)
 			})
@@ -651,13 +753,13 @@ func TestFindTargetsSkipsOnlyInternalPostgreSQL(t *testing.T) {
 	// A user service registered on the PMM Server node must still be a valid target.
 	setup(t, db, "mysql-on-pmm-node", models.PMMServerNodeID, "")
 
-	mysqlTargets, err := s.findTargets(models.MySQLServiceType, nil)
+	mysqlTargets, err := s.findTargets(t.Context(), models.MySQLServiceType, nil)
 	require.NoError(t, err)
 	require.Len(t, mysqlTargets, 1)
 	assert.Equal(t, "mysql-on-pmm-node", mysqlTargets[0].ServiceName)
 
 	// PMM Server's internal PostgreSQL must be skipped, leaving no PostgreSQL targets.
-	pgTargets, err := s.findTargets(models.PostgreSQLServiceType, nil)
+	pgTargets, err := s.findTargets(t.Context(), models.PostgreSQLServiceType, nil)
 	require.NoError(t, err)
 	assert.Empty(t, pgTargets)
 }

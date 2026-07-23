@@ -17,17 +17,17 @@ type mockChecksService struct {
 	mock.Mock
 }
 
-// ChangeInterval provides a mock function with given fields: params
-func (_m *mockChecksService) ChangeInterval(params map[string]check.Interval) error {
-	ret := _m.Called(params)
+// ChangeInterval provides a mock function with given fields: ctx, params
+func (_m *mockChecksService) ChangeInterval(ctx context.Context, params map[string]check.Interval) error {
+	ret := _m.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ChangeInterval")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(map[string]check.Interval) error); ok {
-		r0 = rf(params)
+	if rf, ok := ret.Get(0).(func(context.Context, map[string]check.Interval) error); ok {
+		r0 = rf(ctx, params)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -71,17 +71,17 @@ func (_m *mockChecksService) DeleteAdvisorCheck(ctx context.Context, name string
 	return r0
 }
 
-// DisableChecks provides a mock function with given fields: checkNames
-func (_m *mockChecksService) DisableChecks(checkNames []string) error {
-	ret := _m.Called(checkNames)
+// DisableChecks provides a mock function with given fields: ctx, checkNames
+func (_m *mockChecksService) DisableChecks(ctx context.Context, checkNames []string) error {
+	ret := _m.Called(ctx, checkNames)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DisableChecks")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func([]string) error); ok {
-		r0 = rf(checkNames)
+	if rf, ok := ret.Get(0).(func(context.Context, []string) error); ok {
+		r0 = rf(ctx, checkNames)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -89,17 +89,53 @@ func (_m *mockChecksService) DisableChecks(checkNames []string) error {
 	return r0
 }
 
-// EnableChecks provides a mock function with given fields: checkNames
-func (_m *mockChecksService) EnableChecks(checkNames []string) error {
-	ret := _m.Called(checkNames)
+// DisableChecksForServices provides a mock function with given fields: ctx, checkName, serviceIDs
+func (_m *mockChecksService) DisableChecksForServices(ctx context.Context, checkName string, serviceIDs []string) error {
+	ret := _m.Called(ctx, checkName, serviceIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DisableChecksForServices")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, []string) error); ok {
+		r0 = rf(ctx, checkName, serviceIDs)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// EnableChecks provides a mock function with given fields: ctx, checkNames
+func (_m *mockChecksService) EnableChecks(ctx context.Context, checkNames []string) error {
+	ret := _m.Called(ctx, checkNames)
 
 	if len(ret) == 0 {
 		panic("no return value specified for EnableChecks")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func([]string) error); ok {
-		r0 = rf(checkNames)
+	if rf, ok := ret.Get(0).(func(context.Context, []string) error); ok {
+		r0 = rf(ctx, checkNames)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// EnableChecksForServices provides a mock function with given fields: ctx, checkName, serviceIDs
+func (_m *mockChecksService) EnableChecksForServices(ctx context.Context, checkName string, serviceIDs []string) error {
+	ret := _m.Called(ctx, checkName, serviceIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EnableChecksForServices")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, []string) error); ok {
+		r0 = rf(ctx, checkName, serviceIDs)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -273,9 +309,9 @@ func (_m *mockChecksService) GetChecksResults(ctx context.Context, serviceID str
 	return r0, r1
 }
 
-// GetDisabledChecks provides a mock function with no fields
-func (_m *mockChecksService) GetDisabledChecks() ([]string, error) {
-	ret := _m.Called()
+// GetDisabledChecks provides a mock function with given fields: ctx
+func (_m *mockChecksService) GetDisabledChecks(ctx context.Context) ([]string, error) {
+	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDisabledChecks")
@@ -283,19 +319,49 @@ func (_m *mockChecksService) GetDisabledChecks() ([]string, error) {
 
 	var r0 []string
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]string, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(context.Context) ([]string, error)); ok {
+		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func() []string); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context) []string); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]string)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetDisabledServicesForChecks provides a mock function with given fields: ctx
+func (_m *mockChecksService) GetDisabledServicesForChecks(ctx context.Context) (map[string][]string, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetDisabledServicesForChecks")
+	}
+
+	var r0 map[string][]string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (map[string][]string, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) map[string][]string); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[string][]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
 	} else {
 		r1 = ret.Error(1)
 	}

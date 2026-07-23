@@ -62,10 +62,13 @@ type checksService interface {
 	GetCheckResultsHistory(ctx context.Context, filters models.CheckResultFilters, pageIndex, pageSize int) ([]*models.CheckResult, int, error)
 	GetCheckResultsFilterValues(ctx context.Context) ([]string, []string, error)
 	MarkCheckResultsRead(ctx context.Context, ids []string, isRead bool) error
-	GetDisabledChecks() ([]string, error)
-	DisableChecks(checkNames []string) error
-	EnableChecks(checkNames []string) error
-	ChangeInterval(params map[string]check.Interval) error
+	GetDisabledChecks(ctx context.Context) ([]string, error)
+	GetDisabledServicesForChecks(ctx context.Context) (map[string][]string, error)
+	DisableChecks(ctx context.Context, checkNames []string) error
+	EnableChecks(ctx context.Context, checkNames []string) error
+	DisableChecksForServices(ctx context.Context, checkName string, serviceIDs []string) error
+	EnableChecksForServices(ctx context.Context, checkName string, serviceIDs []string) error
+	ChangeInterval(ctx context.Context, params map[string]check.Interval) error
 	CreateAdvisorCheck(ctx context.Context, c check.Check) error
 	UpdateAdvisorCheck(ctx context.Context, c check.Check) error
 	DeleteAdvisorCheck(ctx context.Context, name string) error

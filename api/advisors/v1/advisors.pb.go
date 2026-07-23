@@ -655,9 +655,11 @@ type AdvisorCheck struct {
 	// Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.
 	Queries []*AdvisorCheckQuery `protobuf:"bytes,10,rep,name=queries,proto3" json:"queries,omitempty"`
 	// Starlark source script. Populated by Get/Create/Update; may be empty in list responses.
-	Script        string `protobuf:"bytes,11,opt,name=script,proto3" json:"script,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Script string `protobuf:"bytes,11,opt,name=script,proto3" json:"script,omitempty"`
+	// IDs of services for which this check is disabled.
+	DisabledServiceIds []string `protobuf:"bytes,12,rep,name=disabled_service_ids,json=disabledServiceIds,proto3" json:"disabled_service_ids,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *AdvisorCheck) Reset() {
@@ -765,6 +767,13 @@ func (x *AdvisorCheck) GetScript() string {
 		return x.Script
 	}
 	return ""
+}
+
+func (x *AdvisorCheck) GetDisabledServiceIds() []string {
+	if x != nil {
+		return x.DisabledServiceIds
+	}
+	return nil
 }
 
 type Advisor struct {
@@ -885,7 +894,11 @@ type ChangeAdvisorCheckParams struct {
 	Name   string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Enable *bool  `protobuf:"varint,2,opt,name=enable,proto3,oneof" json:"enable,omitempty"`
 	// check execution interval.
-	Interval      AdvisorCheckInterval `protobuf:"varint,4,opt,name=interval,proto3,enum=advisors.v1.AdvisorCheckInterval" json:"interval,omitempty"`
+	Interval AdvisorCheckInterval `protobuf:"varint,4,opt,name=interval,proto3,enum=advisors.v1.AdvisorCheckInterval" json:"interval,omitempty"`
+	// IDs of services to apply the enable/disable to. When set, enable/disable
+	// affects only the given services instead of the whole check; interval
+	// changes are not allowed in the same params entry.
+	ServiceIds    []string `protobuf:"bytes,5,rep,name=service_ids,json=serviceIds,proto3" json:"service_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -939,6 +952,13 @@ func (x *ChangeAdvisorCheckParams) GetInterval() AdvisorCheckInterval {
 		return x.Interval
 	}
 	return AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED
+}
+
+func (x *ChangeAdvisorCheckParams) GetServiceIds() []string {
+	if x != nil {
+		return x.ServiceIds
+	}
+	return nil
 }
 
 type StartAdvisorChecksRequest struct {
@@ -2638,7 +2658,7 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"parameters\x1a=\n" +
 	"\x0fParametersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc7\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf9\x03\n" +
 	"\fAdvisorCheck\x126\n" +
 	"\x04name\x18\x01 \x01(\tB\"\xfaB\x1fr\x1d\x18\x80\x012\x18^[a-zA-Z_][a-zA-Z0-9_]*$R\x04name\x12\x18\n" +
 	"\aenabled\x18\x02 \x01(\bR\aenabled\x12 \n" +
@@ -2651,7 +2671,8 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\fuser_defined\x18\t \x01(\bR\vuserDefined\x128\n" +
 	"\aqueries\x18\n" +
 	" \x03(\v2\x1e.advisors.v1.AdvisorCheckQueryR\aqueries\x12\x16\n" +
-	"\x06script\x18\v \x01(\tR\x06script\"\xf4\x01\n" +
+	"\x06script\x18\v \x01(\tR\x06script\x120\n" +
+	"\x14disabled_service_ids\x18\f \x03(\tR\x12disabledServiceIds\"\xf4\x01\n" +
 	"\aAdvisor\x12\x16\n" +
 	"\x04name\x18\x01 \x01(\tB\x02\x18\x01R\x04name\x12$\n" +
 	"\vdescription\x18\x02 \x01(\tB\x02\x18\x01R\vdescription\x12\x1c\n" +
@@ -2659,11 +2680,13 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\acomment\x18\x04 \x01(\tB\x02\x18\x01R\acomment\x12\x1a\n" +
 	"\bcategory\x18\x05 \x01(\tR\bcategory\x12 \n" +
 	"\vsubcategory\x18\x06 \x01(\tR\vsubcategory\x121\n" +
-	"\x06checks\x18\a \x03(\v2\x19.advisors.v1.AdvisorCheckR\x06checks\"\x95\x01\n" +
+	"\x06checks\x18\a \x03(\v2\x19.advisors.v1.AdvisorCheckR\x06checks\"\xb6\x01\n" +
 	"\x18ChangeAdvisorCheckParams\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1b\n" +
 	"\x06enable\x18\x02 \x01(\bH\x00R\x06enable\x88\x01\x01\x12=\n" +
-	"\binterval\x18\x04 \x01(\x0e2!.advisors.v1.AdvisorCheckIntervalR\bintervalB\t\n" +
+	"\binterval\x18\x04 \x01(\x0e2!.advisors.v1.AdvisorCheckIntervalR\binterval\x12\x1f\n" +
+	"\vservice_ids\x18\x05 \x03(\tR\n" +
+	"serviceIdsB\t\n" +
 	"\a_enable\"1\n" +
 	"\x19StartAdvisorChecksRequest\x12\x14\n" +
 	"\x05names\x18\x01 \x03(\tR\x05names\"7\n" +

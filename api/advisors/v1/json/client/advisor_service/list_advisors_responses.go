@@ -692,6 +692,9 @@ type ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 struct {
 
 	// Starlark source script. Populated by Get/Create/Update; may be empty in list responses.
 	Script string `json:"script,omitempty"`
+
+	// IDs of services for which this check is disabled.
+	DisabledServiceIds []string `json:"disabled_service_ids"`
 }
 
 // Validate validates this list advisors OK body advisors items0 checks items0

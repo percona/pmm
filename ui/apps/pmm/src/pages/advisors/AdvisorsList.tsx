@@ -15,6 +15,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import DnsOutlinedIcon from '@mui/icons-material/DnsOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import FilterAltOffOutlinedIcon from '@mui/icons-material/FilterAltOffOutlined';
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
@@ -41,6 +42,7 @@ import { Messages } from './AdvisorsList.messages';
 import { getAdvisorsColumns, INTERVAL_OPTIONS } from './AdvisorsList.constants';
 import { AdvisorCheckDetailsPane } from './details-pane';
 import { AdvisorCheckForm, AdvisorCheckFormMode } from './check-form';
+import { DisableServicesDrawer } from './disable-services';
 
 interface CheckFilters {
   category: string;
@@ -109,6 +111,9 @@ const AdvisorsList: FC = () => {
     checkName?: string;
   } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdvisorCheckRow | null>(
+    null
+  );
+  const [servicesTargetName, setServicesTargetName] = useState<string | null>(
     null
   );
 
@@ -202,6 +207,13 @@ const AdvisorsList: FC = () => {
         (row) => row.checkName === (searchParams.get('details') || '')
       ) ?? null,
     [rows, searchParams]
+  );
+
+  // resolved from rows on every render so the open drawer always shows the
+  // fresh disabled-services list after a mutation refetch
+  const servicesTarget = useMemo(
+    () => rows.find((row) => row.checkName === servicesTargetName) ?? null,
+    [rows, servicesTargetName]
   );
 
   const categoryOptions = useMemo<FilterOption[]>(
@@ -510,7 +522,7 @@ const AdvisorsList: FC = () => {
               // undefined lets MRT render the `header` string with its normal head-cell
               // layout (percona-ui defaults it to a visually-hidden span)
               Header: undefined,
-              size: 120,
+              size: 150,
               grow: false,
               muiTableBodyCellProps: { align: 'center', sx: { px: 1 } },
               muiTableHeadCellProps: { align: 'center', sx: { px: 1 } },
@@ -542,6 +554,15 @@ const AdvisorsList: FC = () => {
                     <PlayArrowOutlinedIcon />
                   </IconButton>
                 </Box>
+              </Tooltip>
+              <Tooltip title={Messages.disableForServices} arrow>
+                <IconButton
+                  aria-label={Messages.disableForServices}
+                  onClick={() => setServicesTargetName(row.original.checkName)}
+                  data-testid={`check-${row.original.checkName}-services`}
+                >
+                  <DnsOutlinedIcon />
+                </IconButton>
               </Tooltip>
               {row.original.userDefined && (
                 <>
@@ -607,6 +628,10 @@ const AdvisorsList: FC = () => {
           mode={checkForm?.mode ?? 'create'}
           checkName={checkForm?.checkName}
           onClose={() => setCheckForm(null)}
+        />
+        <DisableServicesDrawer
+          check={servicesTarget}
+          onClose={() => setServicesTargetName(null)}
         />
         <Dialog
           open={!!deleteTarget}

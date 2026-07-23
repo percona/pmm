@@ -9,6 +9,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import AdvisorsList from './AdvisorsList';
 import { Messages } from './AdvisorsList.messages';
 import * as advisorsApi from 'api/advisors';
+import * as servicesApi from 'api/services';
 import {
   wrapWithQueryProvider,
   wrapWithRouter,
@@ -18,6 +19,7 @@ import {
 import { Advisor, AdvisorFamily, AdvisorInterval } from 'types/advisors.types';
 
 vi.mock('api/advisors');
+vi.mock('api/services');
 
 const TEST_ADVISORS: Advisor[] = [
   {
@@ -105,6 +107,7 @@ describe('AdvisorsList', () => {
       'print("hi")'
     );
     vi.mocked(advisorsApi.deleteAdvisorCheck).mockResolvedValue();
+    vi.mocked(servicesApi.listServices).mockResolvedValue({ mysql: [] });
   });
 
   it('opens the check details overlay on row double-click and shows the code', async () => {
@@ -359,6 +362,19 @@ describe('AdvisorsList', () => {
         expect.anything()
       )
     );
+  });
+
+  it('opens the disable-for-services drawer from the row action', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('check-mysql_version_check-services'));
+
+    const drawer = await screen.findByTestId('disable-services-drawer');
+    expect(
+      within(drawer).getByText('MySQL version check', { exact: false })
+    ).toBeInTheDocument();
   });
 
   it('shows edit/delete only for user-defined checks', async () => {

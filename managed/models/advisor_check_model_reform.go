@@ -29,12 +29,17 @@ func (v *advisorCheckTableType) Name() string {
 func (v *advisorCheckTableType) Columns() []string {
 	return []string{
 		"name",
+		"source",
+		"version",
 		"summary",
 		"description",
 		"category",
 		"subcategory",
 		"family",
 		"interval",
+		"interval_override",
+		"disabled",
+		"disabled_service_ids",
 		"queries",
 		"script",
 		"created_at",
@@ -64,12 +69,17 @@ var AdvisorCheckTable = &advisorCheckTableType{
 		SQLName: "advisor_checks",
 		Fields: []parse.FieldInfo{
 			{Name: "Name", Type: "string", Column: "name"},
+			{Name: "Source", Type: "CheckSource", Column: "source"},
+			{Name: "Version", Type: "uint32", Column: "version"},
 			{Name: "Summary", Type: "string", Column: "summary"},
 			{Name: "Description", Type: "string", Column: "description"},
 			{Name: "Category", Type: "string", Column: "category"},
 			{Name: "Subcategory", Type: "string", Column: "subcategory"},
 			{Name: "Family", Type: "string", Column: "family"},
 			{Name: "Interval", Type: "string", Column: "interval"},
+			{Name: "IntervalOverride", Type: "*string", Column: "interval_override"},
+			{Name: "Disabled", Type: "bool", Column: "disabled"},
+			{Name: "DisabledServiceIDs", Type: "[]uint8", Column: "disabled_service_ids"},
 			{Name: "Queries", Type: "[]uint8", Column: "queries"},
 			{Name: "Script", Type: "string", Column: "script"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
@@ -82,18 +92,23 @@ var AdvisorCheckTable = &advisorCheckTableType{
 
 // String returns a string representation of this struct or record.
 func (s AdvisorCheck) String() string {
-	res := make([]string, 11)
+	res := make([]string, 16)
 	res[0] = "Name: " + reform.Inspect(s.Name, true)
-	res[1] = "Summary: " + reform.Inspect(s.Summary, true)
-	res[2] = "Description: " + reform.Inspect(s.Description, true)
-	res[3] = "Category: " + reform.Inspect(s.Category, true)
-	res[4] = "Subcategory: " + reform.Inspect(s.Subcategory, true)
-	res[5] = "Family: " + reform.Inspect(s.Family, true)
-	res[6] = "Interval: " + reform.Inspect(s.Interval, true)
-	res[7] = "Queries: " + reform.Inspect(s.Queries, true)
-	res[8] = "Script: " + reform.Inspect(s.Script, true)
-	res[9] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[10] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[1] = "Source: " + reform.Inspect(s.Source, true)
+	res[2] = "Version: " + reform.Inspect(s.Version, true)
+	res[3] = "Summary: " + reform.Inspect(s.Summary, true)
+	res[4] = "Description: " + reform.Inspect(s.Description, true)
+	res[5] = "Category: " + reform.Inspect(s.Category, true)
+	res[6] = "Subcategory: " + reform.Inspect(s.Subcategory, true)
+	res[7] = "Family: " + reform.Inspect(s.Family, true)
+	res[8] = "Interval: " + reform.Inspect(s.Interval, true)
+	res[9] = "IntervalOverride: " + reform.Inspect(s.IntervalOverride, true)
+	res[10] = "Disabled: " + reform.Inspect(s.Disabled, true)
+	res[11] = "DisabledServiceIDs: " + reform.Inspect(s.DisabledServiceIDs, true)
+	res[12] = "Queries: " + reform.Inspect(s.Queries, true)
+	res[13] = "Script: " + reform.Inspect(s.Script, true)
+	res[14] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[15] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -102,12 +117,17 @@ func (s AdvisorCheck) String() string {
 func (s *AdvisorCheck) Values() []interface{} {
 	return []interface{}{
 		s.Name,
+		s.Source,
+		s.Version,
 		s.Summary,
 		s.Description,
 		s.Category,
 		s.Subcategory,
 		s.Family,
 		s.Interval,
+		s.IntervalOverride,
+		s.Disabled,
+		s.DisabledServiceIDs,
 		s.Queries,
 		s.Script,
 		s.CreatedAt,
@@ -120,12 +140,17 @@ func (s *AdvisorCheck) Values() []interface{} {
 func (s *AdvisorCheck) Pointers() []interface{} {
 	return []interface{}{
 		&s.Name,
+		&s.Source,
+		&s.Version,
 		&s.Summary,
 		&s.Description,
 		&s.Category,
 		&s.Subcategory,
 		&s.Family,
 		&s.Interval,
+		&s.IntervalOverride,
+		&s.Disabled,
+		&s.DisabledServiceIDs,
 		&s.Queries,
 		&s.Script,
 		&s.CreatedAt,

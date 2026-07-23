@@ -6,7 +6,7 @@ export const Messages = {
   fields: {
     name: 'Name',
     nameHelper:
-      'Unique ID: letters, digits and underscores, starting with a letter or underscore.',
+      'Unique ID: letters, digits and underscores, starting with the reserved "custom_" prefix.',
     summary: 'Summary',
     description: 'Description',
     category: 'Category',
@@ -32,6 +32,7 @@ export const Messages = {
   validation: {
     name: 'Enter a valid name: letters, digits and underscores, starting with a letter or underscore.',
     nameMax: 'Name must be at most 128 characters.',
+    namePrefix: 'Custom check names must start with "custom_".',
     required: 'This field is required.',
     queriesRequired: 'Add at least one query.',
     queryType: 'Select a query type.',

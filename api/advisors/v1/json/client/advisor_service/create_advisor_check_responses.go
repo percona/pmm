@@ -656,6 +656,9 @@ type CreateAdvisorCheckOKBodyCheck struct {
 
 	// Starlark source script. Populated by Get/Create/Update; may be empty in list responses.
 	Script string `json:"script,omitempty"`
+
+	// IDs of services for which this check is disabled.
+	DisabledServiceIds []string `json:"disabled_service_ids"`
 }
 
 // Validate validates this create advisor check OK body check
@@ -946,6 +949,9 @@ type CreateAdvisorCheckParamsBodyCheck struct {
 
 	// Starlark source script. Populated by Get/Create/Update; may be empty in list responses.
 	Script string `json:"script,omitempty"`
+
+	// IDs of services for which this check is disabled.
+	DisabledServiceIds []string `json:"disabled_service_ids"`
 }
 
 // Validate validates this create advisor check params body check

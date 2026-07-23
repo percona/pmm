@@ -486,7 +486,9 @@ func TestListAdvisorChecks(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
 		var checksService mockChecksService
 		checksService.On("GetDisabledChecks", mock.Anything).Return([]string{"two"}, nil)
-		checksService.On("GetChecks", mock.Anything).
+		checksService.On("GetDisabledServicesForChecks", mock.Anything).
+			Return(map[string][]string{"three": {"svc-1", "svc-2"}}, nil)
+		checksService.On("GetChecks").
 			Return(map[string]check.Check{
 				"one":   {Name: "one", Interval: check.Standard},
 				"two":   {Name: "two", Interval: check.Frequent},
@@ -505,7 +507,7 @@ func TestListAdvisorChecks(t *testing.T) {
 			[]*advisorsv1.AdvisorCheck{
 				{Name: "one", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD},
 				{Name: "two", Enabled: false, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_FREQUENT},
-				{Name: "three", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE},
+				{Name: "three", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE, DisabledServiceIds: []string{"svc-1", "svc-2"}},
 				{Name: "four", Enabled: true, Interval: advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD},
 			},
 		)
@@ -526,7 +528,7 @@ func TestListAdvisorChecks(t *testing.T) {
 func TestUpdateAdvisorChecks(t *testing.T) {
 	t.Run("enable advisor checks error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("EnableChecks", mock.Anything).Return(errors.New("random error"))
+		checksService.On("EnableChecks", mock.Anything, mock.Anything).Return(errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
@@ -537,8 +539,8 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 
 	t.Run("disable advisor checks error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("EnableChecks", mock.Anything).Return(nil)
-		checksService.On("DisableChecks", mock.Anything).Return(errors.New("random error"))
+		checksService.On("EnableChecks", mock.Anything, mock.Anything).Return(nil)
+		checksService.On("DisableChecks", mock.Anything, mock.Anything).Return(errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
@@ -549,7 +551,7 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 
 	t.Run("change interval error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("ChangeInterval", mock.Anything).Return(errors.New("random error"))
+		checksService.On("ChangeInterval", mock.Anything, mock.Anything).Return(errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
@@ -565,9 +567,9 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 
 	t.Run("ChangeInterval success", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("ChangeInterval", mock.Anything).Return(nil)
-		checksService.On("EnableChecks", mock.Anything).Return(nil)
-		checksService.On("DisableChecks", mock.Anything).Return(nil)
+		checksService.On("ChangeInterval", mock.Anything, mock.Anything).Return(nil)
+		checksService.On("EnableChecks", mock.Anything, mock.Anything).Return(nil)
+		checksService.On("DisableChecks", mock.Anything, mock.Anything).Return(nil)
 
 		s := NewChecksAPIService(&checksService)
 
@@ -579,5 +581,80 @@ func TestUpdateAdvisorChecks(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.Equal(t, &advisorsv1.ChangeAdvisorChecksResponse{}, resp)
+	})
+
+	t.Run("disable for services", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("DisableChecksForServices", mock.Anything, "check-name", []string{"svc-1", "svc-2"}).Return(nil)
+		checksService.On("EnableChecks", mock.Anything, mock.Anything).Return(nil)
+		checksService.On("DisableChecks", mock.Anything, mock.Anything).Return(nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{
+			Params: []*advisorsv1.ChangeAdvisorCheckParams{{
+				Name:       "check-name",
+				Enable:     new(false),
+				ServiceIds: []string{"svc-1", "svc-2"},
+			}},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, &advisorsv1.ChangeAdvisorChecksResponse{}, resp)
+		checksService.AssertCalled(t, "DisableChecksForServices", mock.Anything, "check-name", []string{"svc-1", "svc-2"})
+		// a per-service change must not touch the global enable/disable lists
+		checksService.AssertNotCalled(t, "DisableChecks", mock.Anything, []string{"check-name"})
+	})
+
+	t.Run("enable for services", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("EnableChecksForServices", mock.Anything, "check-name", []string{"svc-1"}).Return(nil)
+		checksService.On("EnableChecks", mock.Anything, mock.Anything).Return(nil)
+		checksService.On("DisableChecks", mock.Anything, mock.Anything).Return(nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{
+			Params: []*advisorsv1.ChangeAdvisorCheckParams{{
+				Name:       "check-name",
+				Enable:     new(true),
+				ServiceIds: []string{"svc-1"},
+			}},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, &advisorsv1.ChangeAdvisorChecksResponse{}, resp)
+		checksService.AssertCalled(t, "EnableChecksForServices", mock.Anything, "check-name", []string{"svc-1"})
+	})
+
+	t.Run("interval change with services rejected", func(t *testing.T) {
+		var checksService mockChecksService
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{
+			Params: []*advisorsv1.ChangeAdvisorCheckParams{{
+				Name:       "check-name",
+				Interval:   advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_RARE,
+				ServiceIds: []string{"svc-1"},
+			}},
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Nil(t, resp)
+	})
+
+	t.Run("services without enable flag rejected", func(t *testing.T) {
+		var checksService mockChecksService
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ChangeAdvisorChecks(t.Context(), &advisorsv1.ChangeAdvisorChecksRequest{
+			Params: []*advisorsv1.ChangeAdvisorCheckParams{{
+				Name:       "check-name",
+				ServiceIds: []string{"svc-1"},
+			}},
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Nil(t, resp)
 	})
 }

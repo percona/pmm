@@ -112,6 +112,11 @@ func loadAndValidateChecks(dir string) (map[string]check.Check, error) {
 			validationErrors = append(validationErrors, fmt.Errorf("check name does not match file name %s", file))
 		}
 
+		if strings.HasPrefix(c.Name, check.UserCheckNamePrefix) {
+			validationErrors = append(validationErrors,
+				fmt.Errorf("check %s uses the name prefix '%s' reserved for user-authored checks", c.Name, check.UserCheckNamePrefix))
+		}
+
 		if _, ok := res[c.Name]; ok {
 			validationErrors = append(validationErrors, fmt.Errorf("check name collision detected for: %s", c.Name))
 		}

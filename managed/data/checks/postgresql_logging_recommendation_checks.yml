@@ -6,7 +6,7 @@ checks:
     description: Checks to see if recommended minimum logging features are enabled.
     category: Configuration
     subcategory: Generic
-    #Author: Jorge Torralba
+    # author: Jorge Torralba
     interval: standard
     family: POSTGRESQL
     queries:

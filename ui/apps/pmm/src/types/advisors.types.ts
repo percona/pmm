@@ -30,6 +30,8 @@ export interface AdvisorCheck {
   category: string;
   subcategory: string;
   userDefined: boolean;
+  // IDs of services for which this check is disabled
+  disabledServiceIds?: string[];
   // populated by get/create/update, empty in list responses
   queries?: AdvisorCheckQuery[];
   script?: string;
@@ -90,6 +92,8 @@ export interface ChangeAdvisorCheckParams {
   name: string;
   enable?: boolean;
   interval?: AdvisorInterval;
+  // when set, enable/disable applies only to these services
+  serviceIds?: string[];
 }
 
 export interface ChangeAdvisorChecksRequest {
@@ -177,4 +181,5 @@ export interface AdvisorCheckRow {
   interval: AdvisorInterval;
   enabled: boolean;
   userDefined: boolean;
+  disabledServiceIds: string[];
 }

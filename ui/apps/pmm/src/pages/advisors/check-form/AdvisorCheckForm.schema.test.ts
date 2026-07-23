@@ -9,10 +9,11 @@ import {
   advisorCheckFormSchema,
   toFormValues,
   toInput,
+  USER_CHECK_NAME_PREFIX,
 } from './AdvisorCheckForm.schema';
 
 const valid: AdvisorCheckFormValues = {
-  name: 'my_custom_check',
+  name: 'custom_my_check',
   summary: 'My check',
   description: 'Checks something',
   category: 'Custom',
@@ -36,8 +37,16 @@ describe('advisorCheckFormSchema', () => {
 
   it('rejects a name longer than 128 characters', () => {
     expect(
-      advisorCheckFormSchema.safeParse({ ...valid, name: 'a'.repeat(129) })
-        .success
+      advisorCheckFormSchema.safeParse({
+        ...valid,
+        name: `custom_${'a'.repeat(128)}`,
+      }).success
+    ).toBe(false);
+  });
+
+  it('rejects a name without the reserved prefix', () => {
+    expect(
+      advisorCheckFormSchema.safeParse({ ...valid, name: 'my_check' }).success
     ).toBe(false);
   });
 
@@ -67,7 +76,7 @@ describe('advisorCheckFormSchema', () => {
 describe('toInput', () => {
   it('maps form values to an API payload', () => {
     expect(toInput(valid)).toEqual({
-      name: 'my_custom_check',
+      name: 'custom_my_check',
       summary: 'My check',
       description: 'Checks something',
       category: 'Custom',
@@ -109,7 +118,9 @@ describe('toFormValues', () => {
     });
   });
 
-  it('clears the name when cloning', () => {
-    expect(toFormValues(check, true).name).toBe('');
+  it('prefills the name with the prefixed source name when cloning', () => {
+    expect(toFormValues(check, true).name).toBe(
+      `${USER_CHECK_NAME_PREFIX}existing_check`
+    );
   });
 });

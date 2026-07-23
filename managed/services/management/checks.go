@@ -322,8 +322,8 @@ func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1
 }
 
 // ListAdvisorChecks returns a list of available advisor checks and their statuses.
-func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *advisorsv1.ListAdvisorChecksRequest) (*advisorsv1.ListAdvisorChecksResponse, error) {
-	disChecks, err := s.checksService.GetDisabledChecks()
+func (s *ChecksAPIService) ListAdvisorChecks(ctx context.Context, _ *advisorsv1.ListAdvisorChecksRequest) (*advisorsv1.ListAdvisorChecksResponse, error) {
+	disChecks, err := s.checksService.GetDisabledChecks(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get disabled checks list: %w", err)
 	}
@@ -331,6 +331,11 @@ func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *advisorsv1.Li
 	m := make(map[string]struct{}, len(disChecks))
 	for _, c := range disChecks {
 		m[c] = struct{}{}
+	}
+
+	disServices, err := s.checksService.GetDisabledServicesForChecks(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get disabled services list: %w", err)
 	}
 
 	checks, err := s.checksService.GetChecks()
@@ -342,15 +347,16 @@ func (s *ChecksAPIService) ListAdvisorChecks(_ context.Context, _ *advisorsv1.Li
 	for _, c := range checks {
 		_, disabled := m[c.Name]
 		res = append(res, &advisorsv1.AdvisorCheck{
-			Name:        c.Name,
-			Enabled:     !disabled,
-			Summary:     c.Summary,
-			Family:      convertFamily(c.Family),
-			Description: c.Description,
-			Interval:    convertInterval(c.Interval),
-			Category:    c.Category,
-			Subcategory: c.Subcategory,
-			UserDefined: c.UserDefined,
+			Name:               c.Name,
+			Enabled:            !disabled,
+			Summary:            c.Summary,
+			Family:             convertFamily(c.Family),
+			Description:        c.Description,
+			Interval:           convertInterval(c.Interval),
+			Category:           c.Category,
+			Subcategory:        c.Subcategory,
+			UserDefined:        c.UserDefined,
+			DisabledServiceIds: disServices[c.Name],
 		})
 	}
 
@@ -373,8 +379,8 @@ func (s *ChecksAPIService) GetAdvisorCheckScript(_ context.Context, req *advisor
 }
 
 // ListAdvisors retrieves a list of advisors based on the provided request.
-func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdvisorsRequest) (*advisorsv1.ListAdvisorsResponse, error) {
-	disChecks, err := s.checksService.GetDisabledChecks()
+func (s *ChecksAPIService) ListAdvisors(ctx context.Context, _ *advisorsv1.ListAdvisorsRequest) (*advisorsv1.ListAdvisorsResponse, error) {
+	disChecks, err := s.checksService.GetDisabledChecks(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get disabled checks list: %w", err)
 	}
@@ -382,6 +388,11 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdv
 	m := make(map[string]struct{}, len(disChecks))
 	for _, c := range disChecks {
 		m[c] = struct{}{}
+	}
+
+	disServices, err := s.checksService.GetDisabledServicesForChecks(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get disabled services list: %w", err)
 	}
 
 	advisors, err := s.checksService.GetAdvisors()
@@ -395,15 +406,16 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdv
 		for _, c := range a.Checks {
 			_, disabled := m[c.Name]
 			checks = append(checks, &advisorsv1.AdvisorCheck{
-				Name:        c.Name,
-				Enabled:     !disabled,
-				Summary:     c.Summary,
-				Family:      convertFamily(c.Family),
-				Description: c.Description,
-				Interval:    convertInterval(c.Interval),
-				Category:    c.Category,
-				Subcategory: c.Subcategory,
-				UserDefined: c.UserDefined,
+				Name:               c.Name,
+				Enabled:            !disabled,
+				Summary:            c.Summary,
+				Family:             convertFamily(c.Family),
+				Description:        c.Description,
+				Interval:           convertInterval(c.Interval),
+				Category:           c.Category,
+				Subcategory:        c.Subcategory,
+				UserDefined:        c.UserDefined,
+				DisabledServiceIds: disServices[c.Name],
 			})
 		}
 
@@ -417,41 +429,50 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *advisorsv1.ListAdv
 	return &advisorsv1.ListAdvisorsResponse{Advisors: res}, nil
 }
 
-// ChangeAdvisorChecks enables/disables advisor checks by names or changes its execution interval.
-func (s *ChecksAPIService) ChangeAdvisorChecks(_ context.Context, req *advisorsv1.ChangeAdvisorChecksRequest) (*advisorsv1.ChangeAdvisorChecksResponse, error) {
+// ChangeAdvisorChecks enables/disables advisor checks — globally or for specific
+// services — by names, or changes their execution interval.
+func (s *ChecksAPIService) ChangeAdvisorChecks(ctx context.Context, req *advisorsv1.ChangeAdvisorChecksRequest) (*advisorsv1.ChangeAdvisorChecksResponse, error) {
 	var enableChecks, disableChecks []string
 	changeIntervalParams := make(map[string]check.Interval)
-	for _, check := range req.Params {
-		if check.Interval != advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED {
-			interval, err := convertAPIInterval(check.Interval)
+	for _, p := range req.Params {
+		if len(p.ServiceIds) != 0 {
+			err := s.changeChecksForServices(ctx, p)
 			if err != nil {
 				return nil, err
 			}
-			changeIntervalParams[check.Name] = interval
+			continue
 		}
 
-		if check.Enable != nil {
-			if *check.Enable {
-				enableChecks = append(enableChecks, check.Name)
+		if p.Interval != advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED {
+			interval, err := convertAPIInterval(p.Interval)
+			if err != nil {
+				return nil, err
+			}
+			changeIntervalParams[p.Name] = interval
+		}
+
+		if p.Enable != nil {
+			if *p.Enable {
+				enableChecks = append(enableChecks, p.Name)
 			} else {
-				disableChecks = append(disableChecks, check.Name)
+				disableChecks = append(disableChecks, p.Name)
 			}
 		}
 	}
 
 	if len(changeIntervalParams) != 0 {
-		err := s.checksService.ChangeInterval(changeIntervalParams)
+		err := s.checksService.ChangeInterval(ctx, changeIntervalParams)
 		if err != nil {
 			return nil, fmt.Errorf("failed to change advisor check interval: %w", err)
 		}
 	}
 
-	err := s.checksService.EnableChecks(enableChecks)
+	err := s.checksService.EnableChecks(ctx, enableChecks)
 	if err != nil {
 		return nil, fmt.Errorf("failed to enable disabled advisor checks: %w", err)
 	}
 
-	err = s.checksService.DisableChecks(disableChecks)
+	err = s.checksService.DisableChecks(ctx, disableChecks)
 	if err != nil {
 		return nil, fmt.Errorf("failed to disable advisor checks: %w", err)
 	}
@@ -459,14 +480,31 @@ func (s *ChecksAPIService) ChangeAdvisorChecks(_ context.Context, req *advisorsv
 	return &advisorsv1.ChangeAdvisorChecksResponse{}, nil
 }
 
+// changeChecksForServices applies a per-service enable/disable params entry:
+// the change affects only the given services. The interval stays check-wide
+// and cannot be mixed into such an entry.
+func (s *ChecksAPIService) changeChecksForServices(ctx context.Context, p *advisorsv1.ChangeAdvisorCheckParams) error {
+	if p.Interval != advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED {
+		return status.Errorf(codes.InvalidArgument, "Interval of check %s cannot be changed per service.", p.Name)
+	}
+	if p.Enable == nil {
+		return status.Errorf(codes.InvalidArgument, "Enable flag is required to change check %s per service.", p.Name)
+	}
+
+	if *p.Enable {
+		return s.checksService.EnableChecksForServices(ctx, p.Name, p.ServiceIds)
+	}
+	return s.checksService.DisableChecksForServices(ctx, p.Name, p.ServiceIds)
+}
+
 // GetAdvisorCheck returns a single advisor check by name, including its queries and script.
-func (s *ChecksAPIService) GetAdvisorCheck(_ context.Context, req *advisorsv1.GetAdvisorCheckRequest) (*advisorsv1.GetAdvisorCheckResponse, error) {
-	c, enabled, err := s.getCheck(req.Name)
+func (s *ChecksAPIService) GetAdvisorCheck(ctx context.Context, req *advisorsv1.GetAdvisorCheckRequest) (*advisorsv1.GetAdvisorCheckResponse, error) {
+	c, enabled, disabledServiceIDs, err := s.getCheck(ctx, req.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	return &advisorsv1.GetAdvisorCheckResponse{Check: advisorCheckToAPI(c, enabled)}, nil
+	return &advisorsv1.GetAdvisorCheckResponse{Check: advisorCheckToAPI(c, enabled, disabledServiceIDs)}, nil
 }
 
 // CreateAdvisorCheck creates a new user-authored advisor check.
@@ -480,12 +518,12 @@ func (s *ChecksAPIService) CreateAdvisorCheck(ctx context.Context, req *advisors
 		return nil, err
 	}
 
-	c, enabled, err := s.getCheck(req.Check.Name)
+	c, enabled, disabledServiceIDs, err := s.getCheck(ctx, req.Check.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	return &advisorsv1.CreateAdvisorCheckResponse{Check: advisorCheckToAPI(c, enabled)}, nil
+	return &advisorsv1.CreateAdvisorCheckResponse{Check: advisorCheckToAPI(c, enabled, disabledServiceIDs)}, nil
 }
 
 // UpdateAdvisorCheck updates an existing user-authored advisor check.
@@ -503,12 +541,12 @@ func (s *ChecksAPIService) UpdateAdvisorCheck(ctx context.Context, req *advisors
 		return nil, err
 	}
 
-	updated, enabled, err := s.getCheck(req.Name)
+	updated, enabled, disabledServiceIDs, err := s.getCheck(ctx, req.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	return &advisorsv1.UpdateAdvisorCheckResponse{Check: advisorCheckToAPI(updated, enabled)}, nil
+	return &advisorsv1.UpdateAdvisorCheckResponse{Check: advisorCheckToAPI(updated, enabled, disabledServiceIDs)}, nil
 }
 
 // DeleteAdvisorCheck deletes a user-authored advisor check.
@@ -521,26 +559,32 @@ func (s *ChecksAPIService) DeleteAdvisorCheck(ctx context.Context, req *advisors
 	return &advisorsv1.DeleteAdvisorCheckResponse{}, nil
 }
 
-// getCheck returns a check by name together with its enabled state.
-func (s *ChecksAPIService) getCheck(name string) (check.Check, bool, error) {
+// getCheck returns a check by name together with its enabled state and the
+// service IDs for which it is disabled.
+func (s *ChecksAPIService) getCheck(ctx context.Context, name string) (check.Check, bool, []string, error) {
 	checks, err := s.checksService.GetChecks()
 	if err != nil {
-		return check.Check{}, false, fmt.Errorf("failed to get available checks list: %w", err)
+		return check.Check{}, false, nil, fmt.Errorf("failed to get available checks list: %w", err)
 	}
 
 	c, ok := checks[name]
 	if !ok {
-		return check.Check{}, false, status.Errorf(codes.NotFound, "Advisor check %q not found.", name)
+		return check.Check{}, false, nil, status.Errorf(codes.NotFound, "Advisor check %q not found.", name)
 	}
 
-	disabled, err := s.checksService.GetDisabledChecks()
+	disabled, err := s.checksService.GetDisabledChecks(ctx)
 	if err != nil {
-		return check.Check{}, false, fmt.Errorf("failed to get disabled checks list: %w", err)
+		return check.Check{}, false, nil, fmt.Errorf("failed to get disabled checks list: %w", err)
+	}
+
+	disServices, err := s.checksService.GetDisabledServicesForChecks(ctx)
+	if err != nil {
+		return check.Check{}, false, nil, fmt.Errorf("failed to get disabled services list: %w", err)
 	}
 
 	enabled := !slices.Contains(disabled, name)
 
-	return c, enabled, nil
+	return c, enabled, disServices[name], nil
 }
 
 // convertInterval converts check.Interval type to advisorsv1.AdvisorCheckInterval.
@@ -687,19 +731,20 @@ func convertAPIIntervalOptional(interval advisorsv1.AdvisorCheckInterval) check.
 }
 
 // advisorCheckToAPI converts a check.Check into its full API representation, including queries and script.
-func advisorCheckToAPI(c check.Check, enabled bool) *advisorsv1.AdvisorCheck {
+func advisorCheckToAPI(c check.Check, enabled bool, disabledServiceIDs []string) *advisorsv1.AdvisorCheck {
 	return &advisorsv1.AdvisorCheck{
-		Name:        c.Name,
-		Enabled:     enabled,
-		Summary:     c.Summary,
-		Description: c.Description,
-		Family:      convertFamily(c.Family),
-		Interval:    convertInterval(c.Interval),
-		Category:    c.Category,
-		Subcategory: c.Subcategory,
-		UserDefined: c.UserDefined,
-		Queries:     convertQueriesToAPI(c.Queries),
-		Script:      c.Script,
+		Name:               c.Name,
+		Enabled:            enabled,
+		Summary:            c.Summary,
+		Description:        c.Description,
+		Family:             convertFamily(c.Family),
+		Interval:           convertInterval(c.Interval),
+		Category:           c.Category,
+		Subcategory:        c.Subcategory,
+		UserDefined:        c.UserDefined,
+		Queries:            convertQueriesToAPI(c.Queries),
+		Script:             c.Script,
+		DisabledServiceIds: disabledServiceIDs,
 	}
 }
 

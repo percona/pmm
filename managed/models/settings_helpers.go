@@ -78,10 +78,6 @@ type ChangeSettingsParams struct {
 
 	EnableNomad *bool
 
-	// List of Advisor checks to disable
-	DisableAdvisorChecks []string
-	// List of Advisor checks to enable
-	EnableAdvisorChecks []string
 	// Advisors run intervals
 	AdvisorsRunInterval AdvisorsRunIntervals
 
@@ -210,25 +206,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 	if params.AdvisorsRunInterval.FrequentInterval != 0 {
 		settings.SaaS.AdvisorRunIntervals.FrequentInterval = params.AdvisorsRunInterval.FrequentInterval
-	}
-
-	if len(params.DisableAdvisorChecks) != 0 {
-		settings.SaaS.DisabledAdvisors = deduplicateStrings(append(settings.SaaS.DisabledAdvisors, params.DisableAdvisorChecks...))
-	}
-
-	if len(params.EnableAdvisorChecks) != 0 {
-		m := make(map[string]struct{}, len(params.EnableAdvisorChecks))
-		for _, p := range params.EnableAdvisorChecks {
-			m[p] = struct{}{}
-		}
-
-		var res []string
-		for _, c := range settings.SaaS.DisabledAdvisors {
-			if _, ok := m[c]; !ok {
-				res = append(res, c)
-			}
-		}
-		settings.SaaS.DisabledAdvisors = res
 	}
 
 	if params.EnableVMCache != nil {

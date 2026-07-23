@@ -9,6 +9,10 @@ import { Messages } from './AdvisorCheckForm.messages';
 
 const NAME_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
+// user-check names carry a reserved prefix so they can never collide with
+// current or future Percona-shipped check names (enforced server-side too)
+export const USER_CHECK_NAME_PREFIX = 'custom_';
+
 const querySchema = z.object({
   type: z.string().min(1, Messages.validation.queryType),
   // may be empty for parameterless query types (SHOW / getParameter)
@@ -19,7 +23,8 @@ export const advisorCheckFormSchema = z.object({
   name: z
     .string()
     .regex(NAME_RE, Messages.validation.name)
-    .max(128, Messages.validation.nameMax),
+    .max(128, Messages.validation.nameMax)
+    .startsWith(USER_CHECK_NAME_PREFIX, Messages.validation.namePrefix),
   summary: z.string().min(1, Messages.validation.required),
   description: z.string().min(1, Messages.validation.required),
   category: z.string().min(1, Messages.validation.required),
@@ -34,7 +39,7 @@ export const advisorCheckFormSchema = z.object({
 export type AdvisorCheckFormValues = z.infer<typeof advisorCheckFormSchema>;
 
 export const emptyFormValues: AdvisorCheckFormValues = {
-  name: '',
+  name: USER_CHECK_NAME_PREFIX,
   summary: '',
   description: '',
   category: '',
@@ -45,13 +50,14 @@ export const emptyFormValues: AdvisorCheckFormValues = {
   script: '',
 };
 
-// toFormValues maps a fetched check into form values. When clearName is true
-// (clone), the name is left blank so the user must provide a new one.
+// toFormValues maps a fetched check into form values. When cloneName is true
+// (clone), the name is prefilled as "custom_<source check name>" so the clone
+// starts with a valid, recognizable name the user can adjust.
 export const toFormValues = (
   check: AdvisorCheck,
-  clearName = false
+  cloneName = false
 ): AdvisorCheckFormValues => ({
-  name: clearName ? '' : check.name,
+  name: cloneName ? `${USER_CHECK_NAME_PREFIX}${check.name}` : check.name,
   summary: check.summary,
   description: check.description,
   category: check.category,

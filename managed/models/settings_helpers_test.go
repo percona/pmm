@@ -271,27 +271,6 @@ func TestSettings(t *testing.T) {
 			assert.Empty(t, ns.Telemetry.UUID)
 		})
 
-		t.Run("disable checks", func(t *testing.T) {
-			disChecks := []string{"one", "two", "three"}
-
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				DisableAdvisorChecks: disChecks,
-			})
-			require.NoError(t, err)
-			assert.ElementsMatch(t, ns.SaaS.DisabledAdvisors, disChecks)
-		})
-
-		t.Run("enable checks", func(t *testing.T) {
-			disChecks := []string{"one", "two", "three"}
-
-			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableAdvisorChecks: disChecks})
-			require.NoError(t, err)
-
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAdvisorChecks: []string{"two"}})
-			require.NoError(t, err)
-			assert.ElementsMatch(t, ns.SaaS.DisabledAdvisors, []string{"one", "three"})
-		})
-
 		t.Run("enable azure discover", func(t *testing.T) {
 			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAzurediscover: new(false)})
 			require.NoError(t, err)

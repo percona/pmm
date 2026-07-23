@@ -262,6 +262,12 @@ const (
 	MaxSupportedVersion uint32 = 2
 )
 
+// UserCheckNamePrefix is the name prefix reserved for user-authored checks.
+// Check names are primary identifiers, so the prefix keeps the user namespace
+// from ever colliding with Percona-shipped checks: user checks must carry it,
+// Percona checks must not (enforced by pi-validator).
+const UserCheckNamePrefix = "custom_"
+
 // Check represents a self-contained advisor check. Category and Subcategory are
 // authored as exact display strings; the advisor "group" is the set of distinct
 // (Category, Subcategory) pairs across all loaded checks.

@@ -132,6 +132,8 @@ message AdvisorCheck {
   repeated AdvisorCheckQuery queries = 10;
   // Starlark source script. Populated by Get/Create/Update; may be empty in list responses.
   string script = 11;
+  // IDs of services for which this check is disabled.
+  repeated string disabled_service_ids = 12;
 }
 
 message Advisor {
@@ -158,6 +160,10 @@ message ChangeAdvisorCheckParams {
   optional bool enable = 2;
   // check execution interval.
   AdvisorCheckInterval interval = 4;
+  // IDs of services to apply the enable/disable to. When set, enable/disable
+  // affects only the given services instead of the whole check; interval
+  // changes are not allowed in the same params entry.
+  repeated string service_ids = 5;
 }
 
 message StartAdvisorChecksRequest {

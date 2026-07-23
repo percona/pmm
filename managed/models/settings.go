@@ -57,8 +57,6 @@ func (r *MetricsResolutions) Scan(src any) error { return jsonScan(r, src) }
 type Advisors struct {
 	// Advisor checks disabled, false by default.
 	Enabled *bool `json:"enabled"`
-	// List of disabled advisors
-	DisabledAdvisors []string `json:"disabled_advisors"`
 	// Advisor run intervals
 	AdvisorRunIntervals AdvisorsRunIntervals `json:"advisor_run_intervals"`
 }

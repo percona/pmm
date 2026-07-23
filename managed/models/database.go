@@ -1221,12 +1221,17 @@ var databaseSchema = [][]string{
 	120: {
 		`CREATE TABLE advisor_checks (
 			name VARCHAR(128) NOT NULL CHECK (name <> ''),
+			source VARCHAR NOT NULL CHECK (source <> ''),
+			version INTEGER NOT NULL,
 			summary VARCHAR NOT NULL,
 			description TEXT NOT NULL,
 			category VARCHAR NOT NULL,
 			subcategory VARCHAR NOT NULL,
 			family VARCHAR NOT NULL,
 			interval VARCHAR NOT NULL,
+			interval_override VARCHAR,
+			disabled BOOLEAN NOT NULL,
+			disabled_service_ids JSONB,
 			queries TEXT NOT NULL,
 			script TEXT NOT NULL,
 			created_at TIMESTAMP NOT NULL,
@@ -1234,6 +1239,35 @@ var databaseSchema = [][]string{
 
 			PRIMARY KEY (name)
 		)`,
+
+		// Carry over interval overrides recorded by earlier PMM versions in the
+		// check_settings table. Content columns are placeholders: the startup
+		// reconcile refreshes them from the shipped check files and prunes rows
+		// of checks that no longer exist.
+		`INSERT INTO advisor_checks (
+			name, source, version, summary, description, category, subcategory,
+			family, interval, interval_override, disabled, queries, script,
+			created_at, updated_at
+		)
+		SELECT name, 'builtin', 2, '', '', '', '', '', '', interval, false, '[]', '', now(), now()
+		FROM check_settings
+		WHERE name <> ''`,
+
+		// Carry over globally-disabled check names recorded by earlier PMM
+		// versions in the settings JSON.
+		`INSERT INTO advisor_checks (
+			name, source, version, summary, description, category, subcategory,
+			family, interval, interval_override, disabled, queries, script,
+			created_at, updated_at
+		)
+		SELECT DISTINCT x.name, 'builtin', 2, '', '', '', '', '', '', NULL, true, '[]', '', now(), now()
+		FROM settings, jsonb_array_elements_text(COALESCE(settings #> '{sass,disabled_advisors}', '[]'::jsonb)) AS x(name)
+		WHERE x.name <> ''
+		ON CONFLICT (name) DO UPDATE SET disabled = true`,
+
+		`UPDATE settings SET settings = settings #- '{sass,disabled_advisors}'`,
+
+		`DROP TABLE IF EXISTS check_settings`,
 	},
 }
 

@@ -46,10 +46,10 @@ export const getAdvisorsColumns = ({
     grow: false,
   },
   {
-    id: 'author',
-    header: Messages.columns.author,
+    id: 'source',
+    header: Messages.columns.source,
     accessorFn: (row) =>
-      row.userDefined ? Messages.author.custom : Messages.author.percona,
+      row.userDefined ? Messages.source.custom : Messages.source.builtin,
     size: 110,
     grow: false,
   },

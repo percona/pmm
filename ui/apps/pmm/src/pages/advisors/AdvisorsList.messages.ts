@@ -8,7 +8,7 @@ export const Messages = {
     category: 'Category',
     subcategory: 'Sub category',
     vendor: 'Vendor',
-    author: 'Author',
+    source: 'Source',
     interval: 'Interval',
     status: 'Status',
     actions: 'Actions',
@@ -34,8 +34,9 @@ export const Messages = {
   run: 'Run',
   edit: 'Edit',
   delete: 'Delete',
-  author: {
-    percona: 'Percona',
+  disableForServices: 'Disable for services',
+  source: {
+    builtin: 'Builtin',
     custom: 'Custom',
   },
   details: {
