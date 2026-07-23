@@ -32,7 +32,7 @@
             },
             "id": 200,
             "panels": [],
-            "title": "\ud83d\udcca Overview",
+            "title": "📊 Overview",
             "type": "row"
         },
         {
@@ -6855,7 +6855,7 @@
             },
             "gridPos": {
                 "h": 4,
-                "w": 4.8,
+                "w": 8,
                 "x": 0,
                 "y": 1
             },
@@ -6901,7 +6901,7 @@
                     "refId": "B"
                 }
             ],
-            "title": "\ud83e\udded PMM",
+            "title": "🧭 PMM",
             "type": "stat"
         },
         {
@@ -13724,8 +13724,8 @@
             },
             "gridPos": {
                 "h": 4,
-                "w": 4.8,
-                "x": 4.8,
+                "w": 8,
+                "x": 8,
                 "y": 1
             },
             "id": 1,
@@ -13770,7 +13770,7 @@
                     "refId": "B"
                 }
             ],
-            "title": "\ud83d\udc18 PostgreSQL",
+            "title": "🐘 PostgreSQL",
             "type": "stat"
         },
         {
@@ -20593,8 +20593,8 @@
             },
             "gridPos": {
                 "h": 4,
-                "w": 4.8,
-                "x": 9.6,
+                "w": 8,
+                "x": 16,
                 "y": 1
             },
             "id": 2,
@@ -20639,7 +20639,7 @@
                     "refId": "B"
                 }
             ],
-            "title": "\ud83d\uddb1\ufe0f ClickHouse",
+            "title": "🖱️ ClickHouse",
             "type": "stat"
         },
         {
@@ -27462,9 +27462,9 @@
             },
             "gridPos": {
                 "h": 4,
-                "w": 4.8,
-                "x": 14.4,
-                "y": 1
+                "w": 8,
+                "x": 0,
+                "y": 5
             },
             "id": 3,
             "options": {
@@ -27508,7 +27508,7 @@
                     "refId": "B"
                 }
             ],
-            "title": "\ud83d\udcca VictoriaMetrics",
+            "title": "📊 VictoriaMetrics",
             "type": "stat"
         },
         {
@@ -34331,9 +34331,9 @@
             },
             "gridPos": {
                 "h": 4,
-                "w": 4.8,
-                "x": 19.2,
-                "y": 1
+                "w": 8,
+                "x": 8,
+                "y": 5
             },
             "id": 4,
             "options": {
@@ -34377,7 +34377,7 @@
                     "refId": "B"
                 }
             ],
-            "title": "\u2696\ufe0f HAProxy",
+            "title": "⚖️ HAProxy",
             "type": "stat"
         },
         {
@@ -34415,7 +34415,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 13
+                "y": 17
             },
             "id": 201,
             "options": {
@@ -34444,7 +34444,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\ud83c\udfaf Overall System Health",
+            "title": "🎯 Overall System Health",
             "type": "gauge"
         },
         {
@@ -34472,7 +34472,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 13
+                "y": 17
             },
             "id": 202,
             "options": {
@@ -34515,7 +34515,7 @@
                     "refId": "B"
                 }
             ],
-            "title": "\ud83d\udd22 Pod Count",
+            "title": "🔢 Pod Count",
             "type": "stat"
         },
         {
@@ -34548,9 +34548,9 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
+                "h": 4,
+                "w": 8,
+                "x": 16,
                 "y": 5
             },
             "id": 203,
@@ -34585,7 +34585,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\ud83d\udd04 Pod Restarts",
+            "title": "🔄 Pod Restarts",
             "type": "stat"
         },
         {
@@ -34644,9 +34644,9 @@
             },
             "gridPos": {
                 "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 5
+                "w": 24,
+                "x": 0,
+                "y": 9
             },
             "id": 204,
             "options": {
@@ -34675,7 +34675,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\u26a0\ufe0f Pods with Restarts",
+            "title": "⚠️ Pods with Restarts",
             "transformations": [
                 {
                     "id": "organize",
@@ -34722,7 +34722,7 @@
                 "h": 5,
                 "w": 6,
                 "x": 0,
-                "y": 21
+                "y": 25
             },
             "id": 213,
             "options": {
@@ -34792,7 +34792,7 @@
                 "h": 5,
                 "w": 6,
                 "x": 6,
-                "y": 21
+                "y": 25
             },
             "id": 214,
             "options": {
@@ -34864,7 +34864,7 @@
                 "h": 5,
                 "w": 12,
                 "x": 12,
-                "y": 21
+                "y": 25
             },
             "id": 215,
             "options": {
@@ -34944,11 +34944,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 26
+                "y": 30
             },
             "id": 205,
             "panels": [],
-            "title": "\ud83d\udcbb Resource Usage",
+            "title": "💻 Resource Usage",
             "type": "row"
         },
         {
@@ -35013,7 +35013,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 27
+                "y": 31
             },
             "id": 6,
             "options": {
@@ -35044,7 +35044,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\ud83e\uddee CPU Usage",
+            "title": "🧮 CPU Usage",
             "type": "timeseries"
         },
         {
@@ -35109,7 +35109,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 27
+                "y": 31
             },
             "id": 206,
             "options": {
@@ -35140,7 +35140,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\ud83d\udcbe Memory Usage",
+            "title": "💾 Memory Usage",
             "type": "timeseries"
         },
         {
@@ -35149,11 +35149,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 35
+                "y": 39
             },
             "id": 207,
             "panels": [],
-            "title": "\ud83d\udcbf Storage Usage",
+            "title": "💿 Storage Usage",
             "type": "row"
         },
         {
@@ -35191,7 +35191,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 0,
-                "y": 36
+                "y": 40
             },
             "id": 208,
             "options": {
@@ -35220,7 +35220,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\ud83d\udc18 PostgreSQL Storage",
+            "title": "🐘 PostgreSQL Storage",
             "type": "gauge"
         },
         {
@@ -35258,7 +35258,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 8,
-                "y": 36
+                "y": 40
             },
             "id": 209,
             "options": {
@@ -35287,7 +35287,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\ud83d\uddb1\ufe0f ClickHouse Storage",
+            "title": "🖱️ ClickHouse Storage",
             "type": "gauge"
         },
         {
@@ -35325,7 +35325,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 16,
-                "y": 36
+                "y": 40
             },
             "id": 210,
             "options": {
@@ -35354,7 +35354,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\ud83d\udcca VictoriaMetrics Storage",
+            "title": "📊 VictoriaMetrics Storage",
             "type": "gauge"
         },
         {
@@ -35363,11 +35363,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 42
+                "y": 46
             },
             "id": 211,
             "panels": [],
-            "title": "\ud83d\udcc8 Service Availability",
+            "title": "📈 Service Availability",
             "type": "row"
         },
         {
@@ -35422,7 +35422,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 43
+                "y": 47
             },
             "id": 212,
             "options": {
@@ -35447,7 +35447,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\", exported_pod!~\".*($health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\", exported_pod!~\".*($health_exclude_regex).*\"})\n) * 100",
-                    "legendFormat": "\ud83e\udded PMM",
+                    "legendFormat": "🧭 PMM",
                     "range": true,
                     "refId": "PMM"
                 },
@@ -35455,7 +35455,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}|$health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}|$health_exclude_regex).*\"})\n) * 100",
-                    "legendFormat": "\ud83d\udc18 PostgreSQL",
+                    "legendFormat": "🐘 PostgreSQL",
                     "range": true,
                     "refId": "PostgreSQL"
                 },
@@ -35463,7 +35463,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\", exported_pod!~\".*($health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\", exported_pod!~\".*($health_exclude_regex).*\"})\n) * 100",
-                    "legendFormat": "\ud83d\uddb1\ufe0f ClickHouse",
+                    "legendFormat": "🖱️ ClickHouse",
                     "range": true,
                     "refId": "ClickHouse"
                 },
@@ -35471,7 +35471,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\", exported_pod!~\".*($health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\", exported_pod!~\".*($health_exclude_regex).*\"})\n) * 100",
-                    "legendFormat": "\ud83d\udcca VictoriaMetrics",
+                    "legendFormat": "📊 VictoriaMetrics",
                     "range": true,
                     "refId": "VictoriaMetrics"
                 },
@@ -35479,12 +35479,12 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\", exported_pod!~\".*($health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\", exported_pod!~\".*($health_exclude_regex).*\"})\n) * 100",
-                    "legendFormat": "\u2696\ufe0f HAProxy",
+                    "legendFormat": "⚖️ HAProxy",
                     "range": true,
                     "refId": "HAProxy"
                 }
             ],
-            "title": "\u23f1\ufe0f Service Availability by Component",
+            "title": "⏱️ Service Availability by Component",
             "type": "state-timeline"
         },
         {
@@ -35493,11 +35493,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 51
+                "y": 55
             },
             "id": 105,
             "panels": [],
-            "title": "\ud83e\udded PMM Pod's Status",
+            "title": "🧭 PMM Pod's Status",
             "type": "row"
         },
         {
@@ -35619,7 +35619,7 @@
                 "h": 10,
                 "w": 24,
                 "x": 0,
-                "y": 52
+                "y": 56
             },
             "id": 50,
             "options": {
@@ -35696,11 +35696,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 62
+                "y": 66
             },
             "id": 101,
             "panels": [],
-            "title": "\ud83d\udc18 PostgreSQL Pod's Status",
+            "title": "🐘 PostgreSQL Pod's Status",
             "type": "row"
         },
         {
@@ -35820,6 +35820,16 @@
                                             }
                                         },
                                         "type": "value"
+                                    },
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "-1": {
+                                                "text": "No data",
+                                                "color": "text",
+                                                "index": 99
+                                            }
+                                        }
                                     }
                                 ]
                             }
@@ -35848,6 +35858,16 @@
                                             }
                                         },
                                         "type": "value"
+                                    },
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "-1": {
+                                                "text": "No data",
+                                                "color": "text",
+                                                "index": 99
+                                            }
+                                        }
                                     }
                                 ]
                             }
@@ -35859,7 +35879,7 @@
                 "h": 10,
                 "w": 24,
                 "x": 0,
-                "y": 63
+                "y": 67
             },
             "id": 10,
             "options": {
@@ -35891,7 +35911,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by(exported_pod) (\n  label_replace(max by(name) (patroni_primary), \"exported_pod\", \"$1\", \"name\", \"(.*)\")\n  or\n  label_replace(\n    max by(node_name) (1 - clamp_max(pg_replication_is_replica, 1)),\n    \"exported_pod\", \"$1\", \"node_name\", \".*(${release}-pg-db-[a-zA-Z0-9-]+)\"\n  )\n)",
+                    "expr": "max by(exported_pod) (\n  label_replace(max by(name) (patroni_primary), \"exported_pod\", \"$1\", \"name\", \"(.*)\")\n  or\n  label_replace(\n    max by(node_name) (1 - clamp_max(pg_replication_is_replica, 1)),\n    \"exported_pod\", \"$1\", \"node_name\", \".*(${release}-pg-db-[a-zA-Z0-9-]+)\"\n  )\n  or\n  (max by(exported_pod) (\n    kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}\n  ) * 0 - 1)\n)",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
@@ -35902,7 +35922,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by(exported_pod) (\n  label_replace(\n    max by(name) (patroni_postgres_streaming) + on(name) max by(name) (patroni_primary),\n    \"exported_pod\", \"$1\", \"name\", \"(.*)\"\n  )\n  or\n  label_replace(\n    max by(node_name) (\n      (1 - clamp_max(pg_replication_is_replica, 1))\n      +\n      (clamp_max(pg_replication_is_replica, 1) * (pg_replication_lag_seconds < bool 60))\n    ),\n    \"exported_pod\", \"$1\", \"node_name\", \".*(${release}-pg-db-[a-zA-Z0-9-]+)\"\n  )\n)",
+                    "expr": "max by(exported_pod) (\n  label_replace(\n    max by(name) (patroni_postgres_streaming) + on(name) max by(name) (patroni_primary),\n    \"exported_pod\", \"$1\", \"name\", \"(.*)\"\n  )\n  or\n  label_replace(\n    max by(node_name) (\n      (1 - clamp_max(pg_replication_is_replica, 1))\n      +\n      (clamp_max(pg_replication_is_replica, 1) * (pg_replication_lag_seconds < bool 60))\n    ),\n    \"exported_pod\", \"$1\", \"node_name\", \".*(${release}-pg-db-[a-zA-Z0-9-]+)\"\n  )\n  or\n  (max by(exported_pod) (\n    kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}\n  ) * 0 - 1)\n)",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
@@ -35950,11 +35970,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 73
+                "y": 77
             },
             "id": 102,
             "panels": [],
-            "title": "\ud83d\uddb1\ufe0f ClickHouse Pod's Status",
+            "title": "🖱️ ClickHouse Pod's Status",
             "type": "row"
         },
         {
@@ -36102,7 +36122,7 @@
                 "h": 20,
                 "w": 24,
                 "x": 0,
-                "y": 74
+                "y": 78
             },
             "id": 20,
             "options": {
@@ -36181,11 +36201,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 94
+                "y": 98
             },
             "id": 103,
             "panels": [],
-            "title": "\ud83d\udcca VictoriaMetrics Pod's Status",
+            "title": "📊 VictoriaMetrics Pod's Status",
             "type": "row"
         },
         {
@@ -36293,7 +36313,7 @@
                 "h": 22,
                 "w": 24,
                 "x": 0,
-                "y": 95
+                "y": 99
             },
             "id": 30,
             "options": {
@@ -36362,11 +36382,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 117
+                "y": 121
             },
             "id": 104,
             "panels": [],
-            "title": "\u2696\ufe0f HAProxy Pod's Status",
+            "title": "⚖️ HAProxy Pod's Status",
             "type": "row"
         },
         {
@@ -36452,7 +36472,7 @@
                 "h": 10,
                 "w": 24,
                 "x": 0,
-                "y": 118
+                "y": 122
             },
             "id": 40,
             "options": {
@@ -36615,7 +36635,7 @@
                 "h": 10,
                 "w": 24,
                 "x": 0,
-                "y": 128
+                "y": 132
             },
             "id": 41,
             "options": {
