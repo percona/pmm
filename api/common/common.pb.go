@@ -147,7 +147,6 @@ var (
 		nil,                 // 2: common.StringMap.ValuesEntry
 	}
 )
-
 var file_common_common_proto_depIdxs = []int32{
 	2, // 0: common.StringMap.values:type_name -> common.StringMap.ValuesEntry
 	1, // [1:1] is the sub-list for method output_type
