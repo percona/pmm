@@ -1,0 +1,40 @@
+---
+templates:
+  - name: pmm_postgresql_table_bloat_dual_threshold
+    version: 1
+    summary: PostgreSQL table bloat is high (dual threshold)
+    queries:
+      - ref_id: A
+        expr: |-
+          pg_bloat_table_bloat_pct
+      - ref_id: B
+        expr: |-
+          pg_bloat_table_real_size
+    expressions:
+      - ref_id: C
+        type: math
+        expression: "$A > [[ .bloat_threshold ]] && $B > [[ .size_threshold ]]"
+    condition: C
+    params:
+      - name: bloat_threshold
+        summary: Table bloat percentage above which the table is considered bloated
+        unit: "%"
+        type: float
+        range: [0, 100]
+        value: 70
+        overridable: true
+      - name: size_threshold
+        summary: Minimum real table size (in bytes) before bloat is reported, to ignore small tables
+        type: float
+        range: [0, 1099511627776]
+        value: 200000000
+        overridable: true
+    for: 1h
+    severity: warning
+    annotations:
+      summary: PostgreSQL table bloat high ({{ $labels.service_name }})
+      description: |-
+        The table {{ $labels.relname }} on {{ $labels.service_name }} is bloated above
+        [[ .bloat_threshold ]]% and larger than [[ .size_threshold ]] bytes.
+        Current bloat is {{ printf "%.2f" $values.A.Value }}% at {{ printf "%.0f" $values.B.Value }} bytes.
+        You should execute `VACUUM {{ $labels.relname }};`.

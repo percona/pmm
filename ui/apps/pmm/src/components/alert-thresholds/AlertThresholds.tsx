@@ -140,6 +140,14 @@ const AlertThresholds = () => {
               tableName="alert-thresholds"
               columns={ALERT_THRESHOLDS_COLUMNS}
               data={rows}
+              enableHiding={false}
+              muiTableContainerProps={{
+                sx: {
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: '8px',
+                },
+              }}
             />
           )}
           <Stack
