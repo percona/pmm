@@ -83,7 +83,7 @@ type AddMongoDBCommand struct {
 	AuthenticationMechanism        string            `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
 	AuthenticationDatabase         string            `help:"Authentication database. Default is empty. Use $external for ssl certificates"`
 	EnableAllCollectors            bool              `help:"Enable all collectors"`
-	EnableDiagnosticDataHistograms bool              `name:"enable-diagnostic-data-histograms" help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
+	EnableDiagnosticDataHistograms bool              `help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
 	DisableCollectors              []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	StatsCollections               []string          `help:"Collections for collstats & indexstats"`
 	CollectionsLimit               int32             `name:"max-collections-limit" default:"-1" help:"Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, which let PMM automatically set this value"`

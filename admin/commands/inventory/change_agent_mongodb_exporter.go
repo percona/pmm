@@ -88,7 +88,7 @@ type ChangeAgentMongodbExporterCommand struct {
 	AuthenticationDatabase         *string `help:"Authentication database for MongoDB"`
 	StatsCollections               *string `help:"List of comma-separated collection names to collect"`
 	CollectionsLimit               *int32  `help:"Collections limit"`
-	EnableDiagnosticDataHistograms *bool   `name:"enable-diagnostic-data-histograms" help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
+	EnableDiagnosticDataHistograms *bool   `help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
 
 	// Exporter options
 	DisableCollectors []string       `help:"List of collector names to disable"`
