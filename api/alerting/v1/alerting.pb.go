@@ -433,6 +433,125 @@ func (*ParamDefinition_Float) isParamDefinition_Value() {}
 
 func (*ParamDefinition_String_) isParamDefinition_Value() {}
 
+// TemplateQuery represents a PromQL query step in a multi-query alert template.
+type TemplateQuery struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Reference ID of the query (e.g. "A").
+	RefId string `protobuf:"bytes,1,opt,name=ref_id,json=refId,proto3" json:"ref_id,omitempty"`
+	// PromQL query expression with templating parameters (placeholders kept intact).
+	Expr          string `protobuf:"bytes,2,opt,name=expr,proto3" json:"expr,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TemplateQuery) Reset() {
+	*x = TemplateQuery{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TemplateQuery) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TemplateQuery) ProtoMessage() {}
+
+func (x *TemplateQuery) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TemplateQuery.ProtoReflect.Descriptor instead.
+func (*TemplateQuery) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *TemplateQuery) GetRefId() string {
+	if x != nil {
+		return x.RefId
+	}
+	return ""
+}
+
+func (x *TemplateQuery) GetExpr() string {
+	if x != nil {
+		return x.Expr
+	}
+	return ""
+}
+
+// TemplateExpression represents a server-side expression step in a multi-query alert template.
+type TemplateExpression struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Reference ID of the expression (e.g. "C").
+	RefId string `protobuf:"bytes,1,opt,name=ref_id,json=refId,proto3" json:"ref_id,omitempty"`
+	// Expression type. Currently only "math" is supported.
+	Type string `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	// Expression body referencing other steps by ref ID (e.g. "$A > $B").
+	Expression    string `protobuf:"bytes,3,opt,name=expression,proto3" json:"expression,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TemplateExpression) Reset() {
+	*x = TemplateExpression{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TemplateExpression) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TemplateExpression) ProtoMessage() {}
+
+func (x *TemplateExpression) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TemplateExpression.ProtoReflect.Descriptor instead.
+func (*TemplateExpression) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *TemplateExpression) GetRefId() string {
+	if x != nil {
+		return x.RefId
+	}
+	return ""
+}
+
+func (x *TemplateExpression) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *TemplateExpression) GetExpression() string {
+	if x != nil {
+		return x.Expression
+	}
+	return ""
+}
+
 // Template represents Alert Template that is used to create Alert Rule.
 type Template struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -457,14 +576,20 @@ type Template struct {
 	// Template creation time. Empty for built-in and SaaS templates.
 	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// YAML template file content. Empty for built-in and SaaS templates.
-	Yaml          string `protobuf:"bytes,11,opt,name=yaml,proto3" json:"yaml,omitempty"`
+	Yaml string `protobuf:"bytes,11,opt,name=yaml,proto3" json:"yaml,omitempty"`
+	// PromQL query steps for multi-query templates. Empty for single-expression templates.
+	Queries []*TemplateQuery `protobuf:"bytes,12,rep,name=queries,proto3" json:"queries,omitempty"`
+	// Server-side expression steps for multi-query templates. Empty for single-expression templates.
+	Expressions []*TemplateExpression `protobuf:"bytes,13,rep,name=expressions,proto3" json:"expressions,omitempty"`
+	// Reference ID of the step used as the alert condition (e.g. "C"). Empty for single-expression templates.
+	Condition     string `protobuf:"bytes,14,opt,name=condition,proto3" json:"condition,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Template) Reset() {
 	*x = Template{}
-	mi := &file_alerting_v1_alerting_proto_msgTypes[4]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -476,7 +601,7 @@ func (x *Template) String() string {
 func (*Template) ProtoMessage() {}
 
 func (x *Template) ProtoReflect() protoreflect.Message {
-	mi := &file_alerting_v1_alerting_proto_msgTypes[4]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -489,7 +614,7 @@ func (x *Template) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Template.ProtoReflect.Descriptor instead.
 func (*Template) Descriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{4}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Template) GetName() string {
@@ -569,6 +694,27 @@ func (x *Template) GetYaml() string {
 	return ""
 }
 
+func (x *Template) GetQueries() []*TemplateQuery {
+	if x != nil {
+		return x.Queries
+	}
+	return nil
+}
+
+func (x *Template) GetExpressions() []*TemplateExpression {
+	if x != nil {
+		return x.Expressions
+	}
+	return nil
+}
+
+func (x *Template) GetCondition() string {
+	if x != nil {
+		return x.Condition
+	}
+	return ""
+}
+
 type ListTemplatesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Maximum number of results per page.
@@ -583,7 +729,7 @@ type ListTemplatesRequest struct {
 
 func (x *ListTemplatesRequest) Reset() {
 	*x = ListTemplatesRequest{}
-	mi := &file_alerting_v1_alerting_proto_msgTypes[5]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -595,7 +741,7 @@ func (x *ListTemplatesRequest) String() string {
 func (*ListTemplatesRequest) ProtoMessage() {}
 
 func (x *ListTemplatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_alerting_v1_alerting_proto_msgTypes[5]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -608,7 +754,7 @@ func (x *ListTemplatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTemplatesRequest.ProtoReflect.Descriptor instead.
 func (*ListTemplatesRequest) Descriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{5}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListTemplatesRequest) GetPageSize() int32 {
@@ -646,7 +792,7 @@ type ListTemplatesResponse struct {
 
 func (x *ListTemplatesResponse) Reset() {
 	*x = ListTemplatesResponse{}
-	mi := &file_alerting_v1_alerting_proto_msgTypes[6]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -658,7 +804,7 @@ func (x *ListTemplatesResponse) String() string {
 func (*ListTemplatesResponse) ProtoMessage() {}
 
 func (x *ListTemplatesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_alerting_v1_alerting_proto_msgTypes[6]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -671,7 +817,7 @@ func (x *ListTemplatesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListTemplatesResponse.ProtoReflect.Descriptor instead.
 func (*ListTemplatesResponse) Descriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{6}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListTemplatesResponse) GetTotalItems() int32 {
@@ -705,7 +851,7 @@ type CreateTemplateRequest struct {
 
 func (x *CreateTemplateRequest) Reset() {
 	*x = CreateTemplateRequest{}
-	mi := &file_alerting_v1_alerting_proto_msgTypes[7]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -717,7 +863,7 @@ func (x *CreateTemplateRequest) String() string {
 func (*CreateTemplateRequest) ProtoMessage() {}
 
 func (x *CreateTemplateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_alerting_v1_alerting_proto_msgTypes[7]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -730,7 +876,7 @@ func (x *CreateTemplateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTemplateRequest.ProtoReflect.Descriptor instead.
 func (*CreateTemplateRequest) Descriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{7}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *CreateTemplateRequest) GetYaml() string {
@@ -748,7 +894,7 @@ type CreateTemplateResponse struct {
 
 func (x *CreateTemplateResponse) Reset() {
 	*x = CreateTemplateResponse{}
-	mi := &file_alerting_v1_alerting_proto_msgTypes[8]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -760,7 +906,7 @@ func (x *CreateTemplateResponse) String() string {
 func (*CreateTemplateResponse) ProtoMessage() {}
 
 func (x *CreateTemplateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_alerting_v1_alerting_proto_msgTypes[8]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -773,7 +919,7 @@ func (x *CreateTemplateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTemplateResponse.ProtoReflect.Descriptor instead.
 func (*CreateTemplateResponse) Descriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{8}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{10}
 }
 
 type UpdateTemplateRequest struct {
@@ -788,7 +934,7 @@ type UpdateTemplateRequest struct {
 
 func (x *UpdateTemplateRequest) Reset() {
 	*x = UpdateTemplateRequest{}
-	mi := &file_alerting_v1_alerting_proto_msgTypes[9]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -800,7 +946,7 @@ func (x *UpdateTemplateRequest) String() string {
 func (*UpdateTemplateRequest) ProtoMessage() {}
 
 func (x *UpdateTemplateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_alerting_v1_alerting_proto_msgTypes[9]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -813,7 +959,7 @@ func (x *UpdateTemplateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTemplateRequest.ProtoReflect.Descriptor instead.
 func (*UpdateTemplateRequest) Descriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{9}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *UpdateTemplateRequest) GetName() string {
@@ -838,7 +984,7 @@ type UpdateTemplateResponse struct {
 
 func (x *UpdateTemplateResponse) Reset() {
 	*x = UpdateTemplateResponse{}
-	mi := &file_alerting_v1_alerting_proto_msgTypes[10]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -850,7 +996,7 @@ func (x *UpdateTemplateResponse) String() string {
 func (*UpdateTemplateResponse) ProtoMessage() {}
 
 func (x *UpdateTemplateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_alerting_v1_alerting_proto_msgTypes[10]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -863,7 +1009,7 @@ func (x *UpdateTemplateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTemplateResponse.ProtoReflect.Descriptor instead.
 func (*UpdateTemplateResponse) Descriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{10}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{12}
 }
 
 type DeleteTemplateRequest struct {
@@ -875,7 +1021,7 @@ type DeleteTemplateRequest struct {
 
 func (x *DeleteTemplateRequest) Reset() {
 	*x = DeleteTemplateRequest{}
-	mi := &file_alerting_v1_alerting_proto_msgTypes[11]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -887,7 +1033,7 @@ func (x *DeleteTemplateRequest) String() string {
 func (*DeleteTemplateRequest) ProtoMessage() {}
 
 func (x *DeleteTemplateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_alerting_v1_alerting_proto_msgTypes[11]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -900,7 +1046,7 @@ func (x *DeleteTemplateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteTemplateRequest.ProtoReflect.Descriptor instead.
 func (*DeleteTemplateRequest) Descriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{11}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *DeleteTemplateRequest) GetName() string {
@@ -918,7 +1064,7 @@ type DeleteTemplateResponse struct {
 
 func (x *DeleteTemplateResponse) Reset() {
 	*x = DeleteTemplateResponse{}
-	mi := &file_alerting_v1_alerting_proto_msgTypes[12]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -930,7 +1076,7 @@ func (x *DeleteTemplateResponse) String() string {
 func (*DeleteTemplateResponse) ProtoMessage() {}
 
 func (x *DeleteTemplateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_alerting_v1_alerting_proto_msgTypes[12]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -943,7 +1089,7 @@ func (x *DeleteTemplateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteTemplateResponse.ProtoReflect.Descriptor instead.
 func (*DeleteTemplateResponse) Descriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{12}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{14}
 }
 
 // Filter represents a single filter condition.
@@ -958,7 +1104,7 @@ type Filter struct {
 
 func (x *Filter) Reset() {
 	*x = Filter{}
-	mi := &file_alerting_v1_alerting_proto_msgTypes[13]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -970,7 +1116,7 @@ func (x *Filter) String() string {
 func (*Filter) ProtoMessage() {}
 
 func (x *Filter) ProtoReflect() protoreflect.Message {
-	mi := &file_alerting_v1_alerting_proto_msgTypes[13]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -983,7 +1129,7 @@ func (x *Filter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Filter.ProtoReflect.Descriptor instead.
 func (*Filter) Descriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{13}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *Filter) GetType() FilterType {
@@ -1028,7 +1174,7 @@ type ParamValue struct {
 
 func (x *ParamValue) Reset() {
 	*x = ParamValue{}
-	mi := &file_alerting_v1_alerting_proto_msgTypes[14]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1040,7 +1186,7 @@ func (x *ParamValue) String() string {
 func (*ParamValue) ProtoMessage() {}
 
 func (x *ParamValue) ProtoReflect() protoreflect.Message {
-	mi := &file_alerting_v1_alerting_proto_msgTypes[14]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1053,7 +1199,7 @@ func (x *ParamValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ParamValue.ProtoReflect.Descriptor instead.
 func (*ParamValue) Descriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{14}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *ParamValue) GetName() string {
@@ -1157,7 +1303,7 @@ type CreateRuleRequest struct {
 
 func (x *CreateRuleRequest) Reset() {
 	*x = CreateRuleRequest{}
-	mi := &file_alerting_v1_alerting_proto_msgTypes[15]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1169,7 +1315,7 @@ func (x *CreateRuleRequest) String() string {
 func (*CreateRuleRequest) ProtoMessage() {}
 
 func (x *CreateRuleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_alerting_v1_alerting_proto_msgTypes[15]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1182,7 +1328,7 @@ func (x *CreateRuleRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRuleRequest.ProtoReflect.Descriptor instead.
 func (*CreateRuleRequest) Descriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{15}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *CreateRuleRequest) GetTemplateName() string {
@@ -1263,7 +1409,7 @@ type CreateRuleResponse struct {
 
 func (x *CreateRuleResponse) Reset() {
 	*x = CreateRuleResponse{}
-	mi := &file_alerting_v1_alerting_proto_msgTypes[16]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1275,7 +1421,7 @@ func (x *CreateRuleResponse) String() string {
 func (*CreateRuleResponse) ProtoMessage() {}
 
 func (x *CreateRuleResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_alerting_v1_alerting_proto_msgTypes[16]
+	mi := &file_alerting_v1_alerting_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1288,7 +1434,7 @@ func (x *CreateRuleResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRuleResponse.ProtoReflect.Descriptor instead.
 func (*CreateRuleResponse) Descriptor() ([]byte, []int) {
-	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{16}
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{18}
 }
 
 var File_alerting_v1_alerting_proto protoreflect.FileDescriptor
@@ -1320,7 +1466,16 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\x04bool\x18\x05 \x01(\v2 .alerting.v1.BoolParamDefinitionH\x00R\x04bool\x129\n" +
 	"\x05float\x18\x06 \x01(\v2!.alerting.v1.FloatParamDefinitionH\x00R\x05float\x12<\n" +
 	"\x06string\x18\a \x01(\v2\".alerting.v1.StringParamDefinitionH\x00R\x06stringB\a\n" +
-	"\x05value\"\xe8\x04\n" +
+	"\x05value\":\n" +
+	"\rTemplateQuery\x12\x15\n" +
+	"\x06ref_id\x18\x01 \x01(\tR\x05refId\x12\x12\n" +
+	"\x04expr\x18\x02 \x01(\tR\x04expr\"_\n" +
+	"\x12TemplateExpression\x12\x15\n" +
+	"\x06ref_id\x18\x01 \x01(\tR\x05refId\x12\x12\n" +
+	"\x04type\x18\x02 \x01(\tR\x04type\x12\x1e\n" +
+	"\n" +
+	"expression\x18\x03 \x01(\tR\n" +
+	"expression\"\xff\x05\n" +
 	"\bTemplate\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\asummary\x18\x02 \x01(\tR\asummary\x12\x12\n" +
@@ -1334,7 +1489,10 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\n" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x12\n" +
-	"\x04yaml\x18\v \x01(\tR\x04yaml\x1a9\n" +
+	"\x04yaml\x18\v \x01(\tR\x04yaml\x124\n" +
+	"\aqueries\x18\f \x03(\v2\x1a.alerting.v1.TemplateQueryR\aqueries\x12A\n" +
+	"\vexpressions\x18\r \x03(\v2\x1f.alerting.v1.TemplateExpressionR\vexpressions\x12\x1c\n" +
+	"\tcondition\x18\x0e \x01(\tR\tcondition\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1a>\n" +
@@ -1428,7 +1586,7 @@ func file_alerting_v1_alerting_proto_rawDescGZIP() []byte {
 
 var (
 	file_alerting_v1_alerting_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-	file_alerting_v1_alerting_proto_msgTypes  = make([]protoimpl.MessageInfo, 20)
+	file_alerting_v1_alerting_proto_msgTypes  = make([]protoimpl.MessageInfo, 22)
 	file_alerting_v1_alerting_proto_goTypes   = []any{
 		TemplateSource(0),              // 0: alerting.v1.TemplateSource
 		FilterType(0),                  // 1: alerting.v1.FilterType
@@ -1436,67 +1594,71 @@ var (
 		(*FloatParamDefinition)(nil),   // 3: alerting.v1.FloatParamDefinition
 		(*StringParamDefinition)(nil),  // 4: alerting.v1.StringParamDefinition
 		(*ParamDefinition)(nil),        // 5: alerting.v1.ParamDefinition
-		(*Template)(nil),               // 6: alerting.v1.Template
-		(*ListTemplatesRequest)(nil),   // 7: alerting.v1.ListTemplatesRequest
-		(*ListTemplatesResponse)(nil),  // 8: alerting.v1.ListTemplatesResponse
-		(*CreateTemplateRequest)(nil),  // 9: alerting.v1.CreateTemplateRequest
-		(*CreateTemplateResponse)(nil), // 10: alerting.v1.CreateTemplateResponse
-		(*UpdateTemplateRequest)(nil),  // 11: alerting.v1.UpdateTemplateRequest
-		(*UpdateTemplateResponse)(nil), // 12: alerting.v1.UpdateTemplateResponse
-		(*DeleteTemplateRequest)(nil),  // 13: alerting.v1.DeleteTemplateRequest
-		(*DeleteTemplateResponse)(nil), // 14: alerting.v1.DeleteTemplateResponse
-		(*Filter)(nil),                 // 15: alerting.v1.Filter
-		(*ParamValue)(nil),             // 16: alerting.v1.ParamValue
-		(*CreateRuleRequest)(nil),      // 17: alerting.v1.CreateRuleRequest
-		(*CreateRuleResponse)(nil),     // 18: alerting.v1.CreateRuleResponse
-		nil,                            // 19: alerting.v1.Template.LabelsEntry
-		nil,                            // 20: alerting.v1.Template.AnnotationsEntry
-		nil,                            // 21: alerting.v1.CreateRuleRequest.CustomLabelsEntry
-		ParamUnit(0),                   // 22: alerting.v1.ParamUnit
-		ParamType(0),                   // 23: alerting.v1.ParamType
-		(*durationpb.Duration)(nil),    // 24: google.protobuf.Duration
-		v1.Severity(0),                 // 25: management.v1.Severity
-		(*timestamppb.Timestamp)(nil),  // 26: google.protobuf.Timestamp
+		(*TemplateQuery)(nil),          // 6: alerting.v1.TemplateQuery
+		(*TemplateExpression)(nil),     // 7: alerting.v1.TemplateExpression
+		(*Template)(nil),               // 8: alerting.v1.Template
+		(*ListTemplatesRequest)(nil),   // 9: alerting.v1.ListTemplatesRequest
+		(*ListTemplatesResponse)(nil),  // 10: alerting.v1.ListTemplatesResponse
+		(*CreateTemplateRequest)(nil),  // 11: alerting.v1.CreateTemplateRequest
+		(*CreateTemplateResponse)(nil), // 12: alerting.v1.CreateTemplateResponse
+		(*UpdateTemplateRequest)(nil),  // 13: alerting.v1.UpdateTemplateRequest
+		(*UpdateTemplateResponse)(nil), // 14: alerting.v1.UpdateTemplateResponse
+		(*DeleteTemplateRequest)(nil),  // 15: alerting.v1.DeleteTemplateRequest
+		(*DeleteTemplateResponse)(nil), // 16: alerting.v1.DeleteTemplateResponse
+		(*Filter)(nil),                 // 17: alerting.v1.Filter
+		(*ParamValue)(nil),             // 18: alerting.v1.ParamValue
+		(*CreateRuleRequest)(nil),      // 19: alerting.v1.CreateRuleRequest
+		(*CreateRuleResponse)(nil),     // 20: alerting.v1.CreateRuleResponse
+		nil,                            // 21: alerting.v1.Template.LabelsEntry
+		nil,                            // 22: alerting.v1.Template.AnnotationsEntry
+		nil,                            // 23: alerting.v1.CreateRuleRequest.CustomLabelsEntry
+		ParamUnit(0),                   // 24: alerting.v1.ParamUnit
+		ParamType(0),                   // 25: alerting.v1.ParamType
+		(*durationpb.Duration)(nil),    // 26: google.protobuf.Duration
+		v1.Severity(0),                 // 27: management.v1.Severity
+		(*timestamppb.Timestamp)(nil),  // 28: google.protobuf.Timestamp
 	}
 )
 
 var file_alerting_v1_alerting_proto_depIdxs = []int32{
-	22, // 0: alerting.v1.ParamDefinition.unit:type_name -> alerting.v1.ParamUnit
-	23, // 1: alerting.v1.ParamDefinition.type:type_name -> alerting.v1.ParamType
+	24, // 0: alerting.v1.ParamDefinition.unit:type_name -> alerting.v1.ParamUnit
+	25, // 1: alerting.v1.ParamDefinition.type:type_name -> alerting.v1.ParamType
 	2,  // 2: alerting.v1.ParamDefinition.bool:type_name -> alerting.v1.BoolParamDefinition
 	3,  // 3: alerting.v1.ParamDefinition.float:type_name -> alerting.v1.FloatParamDefinition
 	4,  // 4: alerting.v1.ParamDefinition.string:type_name -> alerting.v1.StringParamDefinition
 	5,  // 5: alerting.v1.Template.params:type_name -> alerting.v1.ParamDefinition
-	24, // 6: alerting.v1.Template.for:type_name -> google.protobuf.Duration
-	25, // 7: alerting.v1.Template.severity:type_name -> management.v1.Severity
-	19, // 8: alerting.v1.Template.labels:type_name -> alerting.v1.Template.LabelsEntry
-	20, // 9: alerting.v1.Template.annotations:type_name -> alerting.v1.Template.AnnotationsEntry
+	26, // 6: alerting.v1.Template.for:type_name -> google.protobuf.Duration
+	27, // 7: alerting.v1.Template.severity:type_name -> management.v1.Severity
+	21, // 8: alerting.v1.Template.labels:type_name -> alerting.v1.Template.LabelsEntry
+	22, // 9: alerting.v1.Template.annotations:type_name -> alerting.v1.Template.AnnotationsEntry
 	0,  // 10: alerting.v1.Template.source:type_name -> alerting.v1.TemplateSource
-	26, // 11: alerting.v1.Template.created_at:type_name -> google.protobuf.Timestamp
-	6,  // 12: alerting.v1.ListTemplatesResponse.templates:type_name -> alerting.v1.Template
-	1,  // 13: alerting.v1.Filter.type:type_name -> alerting.v1.FilterType
-	23, // 14: alerting.v1.ParamValue.type:type_name -> alerting.v1.ParamType
-	16, // 15: alerting.v1.CreateRuleRequest.params:type_name -> alerting.v1.ParamValue
-	24, // 16: alerting.v1.CreateRuleRequest.for:type_name -> google.protobuf.Duration
-	25, // 17: alerting.v1.CreateRuleRequest.severity:type_name -> management.v1.Severity
-	21, // 18: alerting.v1.CreateRuleRequest.custom_labels:type_name -> alerting.v1.CreateRuleRequest.CustomLabelsEntry
-	15, // 19: alerting.v1.CreateRuleRequest.filters:type_name -> alerting.v1.Filter
-	24, // 20: alerting.v1.CreateRuleRequest.interval:type_name -> google.protobuf.Duration
-	7,  // 21: alerting.v1.AlertingService.ListTemplates:input_type -> alerting.v1.ListTemplatesRequest
-	9,  // 22: alerting.v1.AlertingService.CreateTemplate:input_type -> alerting.v1.CreateTemplateRequest
-	11, // 23: alerting.v1.AlertingService.UpdateTemplate:input_type -> alerting.v1.UpdateTemplateRequest
-	13, // 24: alerting.v1.AlertingService.DeleteTemplate:input_type -> alerting.v1.DeleteTemplateRequest
-	17, // 25: alerting.v1.AlertingService.CreateRule:input_type -> alerting.v1.CreateRuleRequest
-	8,  // 26: alerting.v1.AlertingService.ListTemplates:output_type -> alerting.v1.ListTemplatesResponse
-	10, // 27: alerting.v1.AlertingService.CreateTemplate:output_type -> alerting.v1.CreateTemplateResponse
-	12, // 28: alerting.v1.AlertingService.UpdateTemplate:output_type -> alerting.v1.UpdateTemplateResponse
-	14, // 29: alerting.v1.AlertingService.DeleteTemplate:output_type -> alerting.v1.DeleteTemplateResponse
-	18, // 30: alerting.v1.AlertingService.CreateRule:output_type -> alerting.v1.CreateRuleResponse
-	26, // [26:31] is the sub-list for method output_type
-	21, // [21:26] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	28, // 11: alerting.v1.Template.created_at:type_name -> google.protobuf.Timestamp
+	6,  // 12: alerting.v1.Template.queries:type_name -> alerting.v1.TemplateQuery
+	7,  // 13: alerting.v1.Template.expressions:type_name -> alerting.v1.TemplateExpression
+	8,  // 14: alerting.v1.ListTemplatesResponse.templates:type_name -> alerting.v1.Template
+	1,  // 15: alerting.v1.Filter.type:type_name -> alerting.v1.FilterType
+	25, // 16: alerting.v1.ParamValue.type:type_name -> alerting.v1.ParamType
+	18, // 17: alerting.v1.CreateRuleRequest.params:type_name -> alerting.v1.ParamValue
+	26, // 18: alerting.v1.CreateRuleRequest.for:type_name -> google.protobuf.Duration
+	27, // 19: alerting.v1.CreateRuleRequest.severity:type_name -> management.v1.Severity
+	23, // 20: alerting.v1.CreateRuleRequest.custom_labels:type_name -> alerting.v1.CreateRuleRequest.CustomLabelsEntry
+	17, // 21: alerting.v1.CreateRuleRequest.filters:type_name -> alerting.v1.Filter
+	26, // 22: alerting.v1.CreateRuleRequest.interval:type_name -> google.protobuf.Duration
+	9,  // 23: alerting.v1.AlertingService.ListTemplates:input_type -> alerting.v1.ListTemplatesRequest
+	11, // 24: alerting.v1.AlertingService.CreateTemplate:input_type -> alerting.v1.CreateTemplateRequest
+	13, // 25: alerting.v1.AlertingService.UpdateTemplate:input_type -> alerting.v1.UpdateTemplateRequest
+	15, // 26: alerting.v1.AlertingService.DeleteTemplate:input_type -> alerting.v1.DeleteTemplateRequest
+	19, // 27: alerting.v1.AlertingService.CreateRule:input_type -> alerting.v1.CreateRuleRequest
+	10, // 28: alerting.v1.AlertingService.ListTemplates:output_type -> alerting.v1.ListTemplatesResponse
+	12, // 29: alerting.v1.AlertingService.CreateTemplate:output_type -> alerting.v1.CreateTemplateResponse
+	14, // 30: alerting.v1.AlertingService.UpdateTemplate:output_type -> alerting.v1.UpdateTemplateResponse
+	16, // 31: alerting.v1.AlertingService.DeleteTemplate:output_type -> alerting.v1.DeleteTemplateResponse
+	20, // 32: alerting.v1.AlertingService.CreateRule:output_type -> alerting.v1.CreateRuleResponse
+	28, // [28:33] is the sub-list for method output_type
+	23, // [23:28] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_alerting_v1_alerting_proto_init() }
@@ -1513,8 +1675,8 @@ func file_alerting_v1_alerting_proto_init() {
 		(*ParamDefinition_Float)(nil),
 		(*ParamDefinition_String_)(nil),
 	}
-	file_alerting_v1_alerting_proto_msgTypes[5].OneofWrappers = []any{}
-	file_alerting_v1_alerting_proto_msgTypes[14].OneofWrappers = []any{
+	file_alerting_v1_alerting_proto_msgTypes[7].OneofWrappers = []any{}
+	file_alerting_v1_alerting_proto_msgTypes[16].OneofWrappers = []any{
 		(*ParamValue_Bool)(nil),
 		(*ParamValue_Float)(nil),
 		(*ParamValue_String_)(nil),
@@ -1525,7 +1687,7 @@ func file_alerting_v1_alerting_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_alerting_v1_alerting_proto_rawDesc), len(file_alerting_v1_alerting_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   20,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
