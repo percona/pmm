@@ -171,7 +171,7 @@ func (s *Server) Version(_ context.Context, req *serverv1.VersionRequest) (*serv
 			if err != nil {
 				return nil, err
 			}
-			grpcCode := codes.Code(code)
+			grpcCode := codes.Code(code) //nolint:gosec // debug-only value from the dummy field
 			return nil, status.Errorf(grpcCode, "gRPC code %d (%s)", grpcCode, grpcCode)
 		}
 	}
@@ -615,9 +615,9 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 	}
 
-	// When Advisor is moved from enabled to disabled state, drop all existing alerts.
+	// When Advisor is moved from enabled to disabled state, drop all existing check results.
 	if oldSettings.IsAdvisorsEnabled() && !newSettings.IsAdvisorsEnabled() {
-		s.checksService.CleanupAlerts()
+		s.checksService.CleanupCheckResults()
 	}
 
 	// When telemetry state is switched force alert templates and Advisor check files collection.

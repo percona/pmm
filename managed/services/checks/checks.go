@@ -83,11 +83,11 @@ var (
 
 // Service is responsible for interactions with Percona Check service.
 type Service struct {
-	agentsRegistry agentsRegistry
-	db             *reform.DB
-	alertsRegistry *registry
-	vmClient       v1.API
-	clickhouseDB   *sql.DB
+	agentsRegistry  agentsRegistry
+	db              *reform.DB
+	resultsRegistry *registry
+	vmClient        v1.API
+	clickhouseDB    *sql.DB
 
 	l          *logrus.Entry
 	startDelay time.Duration
@@ -127,11 +127,11 @@ func New(
 	l := logrus.WithField("component", "checks")
 
 	s := &Service{
-		db:             db,
-		agentsRegistry: agentsRegistry,
-		alertsRegistry: newRegistry(),
-		vmClient:       vmClient,
-		clickhouseDB:   clickhouseDB,
+		db:              db,
+		agentsRegistry:  agentsRegistry,
+		resultsRegistry: newRegistry(),
+		vmClient:        vmClient,
+		clickhouseDB:    clickhouseDB,
 
 		l:            l,
 		startDelay:   defaultStartDelay,
@@ -341,16 +341,16 @@ func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNa
 	switch {
 	case len(checkNames) != 0:
 		// If we run some specific checks, delete previous results for them.
-		s.alertsRegistry.deleteByName(checkNames)
+		s.resultsRegistry.deleteByName(checkNames)
 	case intervalGroup != "":
 		// If we run whole interval group, delete previous results for that group.
-		s.alertsRegistry.deleteByInterval(intervalGroup)
+		s.resultsRegistry.deleteByInterval(intervalGroup)
 	default:
 		// If we run all checks, delete all previous results.
-		s.alertsRegistry.cleanup()
+		s.resultsRegistry.cleanup()
 	}
 
-	s.alertsRegistry.set(res)
+	s.resultsRegistry.set(res)
 
 	// Best-effort: email the completed batch to the configured Advisor contact point.
 	s.maybeSendAdvisorNotification(ctx, ri.batchID, ri.triggeredBy)
@@ -358,9 +358,9 @@ func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNa
 	return nil
 }
 
-// CleanupAlerts drops all alerts in registry.
-func (s *Service) CleanupAlerts() {
-	s.alertsRegistry.cleanup()
+// CleanupCheckResults drops all check results in the registry.
+func (s *Service) CleanupCheckResults() {
+	s.resultsRegistry.cleanup()
 }
 
 // GetAdvisors returns all available advisors.
@@ -2135,7 +2135,7 @@ func (s *Service) Describe(ch chan<- *prom.Desc) {
 	s.mChecksAvailable.Describe(ch)
 	s.mChecksExecutionTime.Describe(ch)
 
-	s.alertsRegistry.Describe(ch)
+	s.resultsRegistry.Describe(ch)
 }
 
 // Collect implements prom.Collector.
@@ -2144,7 +2144,7 @@ func (s *Service) Collect(ch chan<- prom.Metric) {
 	s.mChecksAvailable.Collect(ch)
 	s.mChecksExecutionTime.Collect(ch)
 
-	s.alertsRegistry.Collect(ch)
+	s.resultsRegistry.Collect(ch)
 }
 
 func (s *Service) refreshChecksInMemoryMetric() {

@@ -14,8 +14,8 @@ type mockChecksService struct {
 	mock.Mock
 }
 
-// CleanupAlerts provides a mock function with no fields
-func (_m *mockChecksService) CleanupAlerts() {
+// CleanupCheckResults provides a mock function with no fields
+func (_m *mockChecksService) CleanupCheckResults() {
 	_m.Called()
 }
 

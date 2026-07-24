@@ -24,7 +24,7 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-// registry stores alerts and delay information by IDs.
+// registry keeps a snapshot of the current check results and exposes it as the insights metric.
 type registry struct {
 	rw sync.RWMutex
 	// Results stored grouped by interval and by check name. It allows us to remove results for specific group.
@@ -83,7 +83,7 @@ func (r *registry) deleteByInterval(interval check.Interval) {
 	delete(r.checkResults, interval)
 }
 
-// cleanup removes all advisors results form registry.
+// cleanup removes all check results from the registry.
 func (r *registry) cleanup() {
 	r.rw.Lock()
 	defer r.rw.Unlock()
