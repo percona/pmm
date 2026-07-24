@@ -36,8 +36,6 @@ func TestBuildAdvisorEmailReport(t *testing.T) {
 	want := `Percona Monitoring and Management runs Advisor checks against your monitored databases to surface potential issues. This report covers batch batch-123, which was triggered manually by an operator. It found 2 insight(s) at or above the "Warning" severity level that may need your attention.
 
 Findings by severity:
-  Emergency: 0
-  Alert: 0
   Critical: 0
   Error: 1
   Warning: 1

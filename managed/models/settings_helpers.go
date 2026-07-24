@@ -331,9 +331,9 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 	}
 
 	if params.AdvisorNotificationSeverityThreshold != common.Unknown {
-		err := params.AdvisorNotificationSeverityThreshold.Validate()
+		err := validateAdvisorSeverityThreshold(params.AdvisorNotificationSeverityThreshold)
 		if err != nil {
-			return fmt.Errorf("advisor_notification_severity_threshold: %w", err)
+			return err
 		}
 	}
 
@@ -343,6 +343,17 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 	}
 
 	return nil
+}
+
+// validateAdvisorSeverityThreshold accepts only the severities advisors use;
+// the remaining common.Severity levels are retired for advisors.
+func validateAdvisorSeverityThreshold(s common.Severity) error {
+	switch s {
+	case common.Critical, common.Error, common.Warning, common.Info:
+		return nil
+	default:
+		return fmt.Errorf("advisor_notification_severity_threshold: unsupported severity level: %s", s)
+	}
 }
 
 // SaveSettings saves PMM Server settings.

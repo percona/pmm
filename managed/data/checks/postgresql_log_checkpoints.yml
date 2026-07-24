@@ -28,7 +28,7 @@ checks:
                   "summary": "The current value of log_checkpoints is off",
                   "description": "Logging of checkpoint information is currently disabled. It is recommended to enable the logging of checkpoint information, as that provides a lot of useful information with almost no drawbacks.",
                   "read_more_url": read_url.format("configuration-pg-log-checkpoints-disabled"),
-                  "severity": "notice"
+                  "severity": "info"
               })
 
           return results

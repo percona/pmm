@@ -38,14 +38,10 @@ var insightStatusText = map[models.CheckResultStatus]string{
 }
 
 var insightSeverityText = map[models.Severity]string{
-	models.Severity(common.Emergency): "Emergency",
-	models.Severity(common.Alert):     "Alert",
-	models.Severity(common.Critical):  "Critical",
-	models.Severity(common.Error):     "Error",
-	models.Severity(common.Warning):   "Warning",
-	models.Severity(common.Notice):    "Notice",
-	models.Severity(common.Info):      "Info",
-	models.Severity(common.Debug):     "Debug",
+	models.Severity(common.Critical): "Critical",
+	models.Severity(common.Error):    "Error",
+	models.Severity(common.Warning):  "Warning",
+	models.Severity(common.Info):     "Info",
 }
 
 var insightIntervalText = map[models.Interval]string{

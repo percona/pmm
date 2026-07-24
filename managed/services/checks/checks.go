@@ -1097,7 +1097,7 @@ func newCheckResultRecord(
 		r.Outcome = "Check passed"
 	case models.CheckResultError:
 		// the check could not be executed, which is a diagnostic concern, not a database issue
-		r.Severity = models.Severity(common.Debug)
+		r.Severity = models.Severity(common.Info)
 	case models.CheckResultFailed:
 		// keep the severity reported by the finding
 	}
@@ -1828,6 +1828,7 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 
 	checkResults := make([]services.CheckResult, len(results))
 	for i, result := range results {
+		result.Severity = normalizeAdvisorSeverity(result.Severity)
 		checkResults[i] = services.CheckResult{
 			CheckName:   aCheck.Name,
 			Subcategory: aCheck.Subcategory,
@@ -1837,6 +1838,21 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 		}
 	}
 	return checkResults, nil
+}
+
+// normalizeAdvisorSeverity maps retired advisor severities to the supported set:
+// emergency and alert become critical; notice and debug become info. Advisors use
+// only critical, error, warning and info, but check scripts may still emit the
+// retired values.
+func normalizeAdvisorSeverity(s common.Severity) common.Severity {
+	switch s {
+	case common.Emergency, common.Alert:
+		return common.Critical
+	case common.Notice, common.Debug:
+		return common.Info
+	default:
+		return s
+	}
 }
 
 // findTargets returns slice of available targets for specified service type.

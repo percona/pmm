@@ -27,7 +27,7 @@ checks:
                   "summary": "Table level autovacuum settings are existing",
                   "description": "Table {} has autovacuum settings {}".format(tabname, opts),
                   "read_more_url": read_url.format("postgresql-tables-per-table-vacuum-settings"),
-                  "severity": "notice"
+                  "severity": "info"
               })
 
           return results

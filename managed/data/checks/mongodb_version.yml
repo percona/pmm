@@ -74,7 +74,7 @@ checks:
                   "summary": "Newer version of MongoDB is available.",
                   "description": description,
                   "read_more_url": LATEST_VERSIONS["read_url"].format("mongodb-version"),
-                  "severity": "notice",
+                  "severity": "info",
               })
 
               if num == latest_current_version and mm == latest_major:

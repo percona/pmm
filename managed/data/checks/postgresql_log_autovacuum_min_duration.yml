@@ -28,7 +28,7 @@ checks:
                   "summary": "The current value of log_autovacuum_min_duration is -1",
                   "description": "Logging of autovacuum run information is currently disabled. It is recommended to enable the logging of autovacuum run information, as that provides a lot of useful information with almost no drawbacks.",
                   "read_more_url": read_url.format("configuration-pg-log-autovacuum-disabled"),
-                  "severity": "notice"
+                  "severity": "info"
               })
 
           return results

@@ -24,7 +24,7 @@ checks:
                return {
                  "summary": "InnoDB Tablespace size has a maximum limit",
                  "description": "InnoDB Tablespace can not grow because of this limit. Current setting: {} = {} ;".format(name,value),
-                 "severity": "notice",
+                 "severity": "info",
                  "read_more_url": read_url.format("configuration-check-innodb-data-file-path"),
                  "labels": {
                     "mysql_version": "{}".format(version),

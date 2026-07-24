@@ -34,7 +34,7 @@ checks:
               return [{
                   "summary": "User(s) with Superuser role found",
                   "description": "{} - {}".format(desc, users),
-                  "severity": "notice",
+                  "severity": "info",
                   "labels": {
                       "count": str(count),
                   },

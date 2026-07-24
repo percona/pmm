@@ -83,7 +83,7 @@ checks:
                       "summary": "MongoDB CVE Version check is available for Percona Server since PMM 2.17.0",
                       "description": "",
                       "read_more_url": "https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/index.html",
-                      "severity": "notice",
+                      "severity": "info",
                       "labels": {},
                   })
 

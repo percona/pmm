@@ -110,6 +110,6 @@ func TestNewCheckResultRecord(t *testing.T) {
 		assert.Equal(t, "Check title", rec.Summary)
 		assert.Equal(t, "Check description", rec.Description)
 		assert.Equal(t, "execution failed", rec.Outcome)
-		assert.Equal(t, models.Severity(common.Debug), rec.Severity)
+		assert.Equal(t, models.Severity(common.Info), rec.Severity)
 	})
 }

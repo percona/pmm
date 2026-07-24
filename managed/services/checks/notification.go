@@ -56,7 +56,7 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, batchID stri
 	for _, r := range results {
 		severity := common.Severity(r.Severity)
 		// Keep only insights at least as severe as the threshold (a smaller value is more severe).
-		if severity < common.Emergency || severity > threshold {
+		if severity < common.Critical || severity > threshold {
 			continue
 		}
 		text, err := insightToText(r)
@@ -95,8 +95,12 @@ func buildAdvisorEmailReport(batchID string, triggeredBy models.CheckTriggeredBy
 		batchID, triggerPhrase(triggeredBy), len(insights), capitalize(threshold.String()))
 
 	b.WriteString("Findings by severity:\n")
-	// Iterate from the most severe level down to the configured threshold (Emergency=1 .. threshold).
-	for sev := common.Emergency; sev <= threshold; sev++ {
+	// Iterate from the most severe advisor level down to the configured threshold
+	// (Critical=3 .. threshold), skipping the retired Notice level.
+	for sev := common.Critical; sev <= threshold; sev++ {
+		if sev == common.Notice {
+			continue
+		}
 		fmt.Fprintf(&b, "  %s: %d\n", capitalize(sev.String()), counts[sev])
 	}
 

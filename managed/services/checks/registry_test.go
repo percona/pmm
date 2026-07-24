@@ -66,7 +66,7 @@ func TestRegistry(t *testing.T) {
 					Summary:     "check summary 2",
 					Description: "check description 2",
 					ReadMoreURL: "https://www.example2.com",
-					Severity:    common.Notice,
+					Severity:    common.Info,
 					Labels: map[string]string{
 						"qux": "baz",
 					},
@@ -120,7 +120,7 @@ func TestRegistry(t *testing.T) {
 					Summary:     "check summary 2",
 					Description: "check description 2",
 					ReadMoreURL: "https://www.example2.com",
-					Severity:    common.Notice,
+					Severity:    common.Info,
 					Labels: map[string]string{
 						"qux": "baz",
 					},
@@ -173,7 +173,7 @@ func TestRegistry(t *testing.T) {
 					Summary:     "check summary 2",
 					Description: "check description 2",
 					ReadMoreURL: "https://www.example2.com",
-					Severity:    common.Notice,
+					Severity:    common.Info,
 					Labels: map[string]string{
 						"qux": "baz",
 					},
@@ -225,7 +225,7 @@ func TestRegistry(t *testing.T) {
 					Summary:     "check summary 2",
 					Description: "check description 2",
 					ReadMoreURL: "https://www.example2.com",
-					Severity:    common.Notice,
+					Severity:    common.Info,
 					Labels: map[string]string{
 						"qux": "baz",
 					},

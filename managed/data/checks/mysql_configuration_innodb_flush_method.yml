@@ -24,7 +24,7 @@ checks:
                return {
                  "summary": "MySQL InnoDB flush method",
                  "description": "InnoDB is not configured with recommended flush method. Current setting: {} = {} ;".format(name,value),
-                 "severity": "notice",
+                 "severity": "info",
                  "read_more_url": read_url.format("configuration-innodb-flush-method"),
                  "labels": {
                     "mysql_version": "{}".format(version),

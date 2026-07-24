@@ -266,7 +266,7 @@ func TestListCheckResultsHistory(t *testing.T) {
 			Summary:     "Check summary",
 			Description: "Check Description",
 			ReadMoreURL: "https://www.example.com",
-			Severity:    models.Severity(common.Emergency),
+			Severity:    models.Severity(common.Critical),
 			CheckedAt:   checkedAt,
 		}
 		require.NoError(t, record.SetLabels(map[string]string{"label_key": "label_value"}))
@@ -301,7 +301,7 @@ func TestListCheckResultsHistory(t *testing.T) {
 					Summary:     "Check summary",
 					Description: "Check Description",
 					ReadMoreUrl: "https://www.example.com",
-					Severity:    managementv1.Severity_SEVERITY_EMERGENCY,
+					Severity:    managementv1.Severity_SEVERITY_CRITICAL,
 					Labels:      map[string]string{"label_key": "label_value"},
 					CheckedAt:   timestamppb.New(checkedAt),
 				},

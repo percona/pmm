@@ -113,7 +113,7 @@ checks:
                       "description": "Current version is {}, the latest available version is {}.".format(
                           format_version_num(num), format_version_num(latest)),
                       "read_more_url": LATEST_VERSIONS["percona_server_url"][major],
-                      "severity": "notice",
+                      "severity": "info",
                       "labels": {
                           "current": format_version_num(num),
                           "latest": format_version_num(latest),
@@ -130,7 +130,7 @@ checks:
                       "description": "Current version is {}, the latest available version is {}.".format(
                           format_version_num(num), format_version_num(latest)),
                       "read_more_url": LATEST_VERSIONS["percona_xtradb_cluster_url"][major],
-                      "severity": "notice",
+                      "severity": "info",
                       "labels": {
                           "current": format_version_num(num),
                           "latest": format_version_num(latest),
@@ -151,7 +151,7 @@ checks:
                       "description": "Current version is {}, the latest available version is {}.".format(
                           format_version_num(num), format_version_num(latest)),
                       "read_more_url": LATEST_VERSIONS["rds_url"][major],
-                      "severity": "notice",
+                      "severity": "info",
                       "labels": {
                           "current": format_version_num(num),
                           "latest": format_version_num(latest),
@@ -168,7 +168,7 @@ checks:
                       "description": "Current version is {}, the latest available version is {}.".format(
                           format_version_num(num), format_version_num(latest)),
                       "read_more_url": LATEST_VERSIONS["mariadb_url"][major],
-                      "severity": "notice",
+                      "severity": "info",
                       "labels": {
                           "current": format_version_num(num),
                           "latest": format_version_num(latest),
@@ -185,7 +185,7 @@ checks:
                       "description": "Current version is {}, the latest available version is {}.".format(
                           format_version_num(num), format_version_num(latest)),
                       "read_more_url": LATEST_VERSIONS["oracle_url"][major],
-                      "severity": "notice",
+                      "severity": "info",
                       "labels": {
                           "current": format_version_num(num),
                           "latest": format_version_num(latest),

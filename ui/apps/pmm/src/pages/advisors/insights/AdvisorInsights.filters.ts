@@ -4,14 +4,10 @@ import { ADVISOR_RESULT_STATUS, SEVERITY } from 'lib/constants';
 import { Messages } from './AdvisorInsights.messages';
 
 export const SEVERITY_FILTER_OPTIONS = [
-  Severity.emergency,
-  Severity.alert,
   Severity.critical,
   Severity.error,
   Severity.warning,
-  Severity.notice,
   Severity.info,
-  Severity.debug,
 ].map((severity) => ({ label: SEVERITY[severity], value: severity }));
 
 export const STATUS_FILTER_OPTIONS = [

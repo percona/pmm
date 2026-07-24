@@ -37,6 +37,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/check"
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/version"
@@ -958,4 +959,18 @@ func TestGroupChecksByDB(t *testing.T) {
 	assert.Equal(t, check.MySQL, mySQLChecks["mysql_1"].Family)
 	assert.Equal(t, check.PostgreSQL, postgreSQLChecks["postgresql_1"].Family)
 	assert.Equal(t, check.MongoDB, mongoDBChecks["mongodb_1"].Family)
+}
+
+func TestNormalizeAdvisorSeverity(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, common.Critical, normalizeAdvisorSeverity(common.Emergency))
+	assert.Equal(t, common.Critical, normalizeAdvisorSeverity(common.Alert))
+	assert.Equal(t, common.Info, normalizeAdvisorSeverity(common.Notice))
+	assert.Equal(t, common.Info, normalizeAdvisorSeverity(common.Debug))
+
+	// the supported set passes through unchanged
+	for _, s := range []common.Severity{common.Critical, common.Error, common.Warning, common.Info, common.Unknown} {
+		assert.Equal(t, s, normalizeAdvisorSeverity(s))
+	}
 }

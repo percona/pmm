@@ -6,14 +6,10 @@ export const MIN_ADVISOR_CHECK_INTERVAL = 0.1;
 export const DEFAULT_ADVISOR_RETENTION = '2592000s';
 
 export const ADVISOR_SEVERITY_OPTIONS = [
-  Severity.emergency,
-  Severity.alert,
   Severity.critical,
   Severity.error,
   Severity.warning,
-  Severity.notice,
   Severity.info,
-  Severity.debug,
 ];
 
 export const STT_CHECK_INTERVALS = [
