@@ -173,8 +173,11 @@ var ErrInvalidUserID = errors.New("InvalidUserID")
 // ErrCannotGetUserID is returned when we cannot retrieve user ID.
 var ErrCannotGetUserID = errors.New("CannotGetUserID")
 
+// cacheItem holds a cached authentication outcome: either the resolved user
+// or, for definitive rejections, the authentication error.
 type cacheItem struct {
 	u       authUser
+	authErr *authError // non-nil for a cached authentication failure
 	created time.Time
 }
 
@@ -614,6 +617,9 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	// cacheInvalidationInterval, so without this an entry could be served for almost
 	// twice that long. Re-fetch once an entry is older than the interval.
 	if ok && time.Since(item.created) < cacheInvalidationInterval {
+		if item.authErr != nil {
+			return nil, nil, item.authErr
+		}
 		return &item.u, nil, nil
 	}
 
@@ -648,14 +654,27 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 	if err != nil {
 		l.Warnf("%s", err)
 		cErr, ok := errors.AsType[*clientError](err)
-		if ok {
-			code := codes.Internal
-			if cErr.Code == 401 || cErr.Code == 403 {
-				code = codes.Unauthenticated
-			}
-			return nil, nil, &authError{code: code, message: cErr.ErrorMessage}
+		if !ok {
+			return nil, nil, &authError{code: codes.Internal, message: "Internal server error."}
 		}
-		return nil, nil, &authError{code: codes.Internal, message: "Internal server error."}
+		code := codes.Internal
+		if cErr.Code == 401 || cErr.Code == 403 {
+			code = codes.Unauthenticated
+		}
+		authErr := &authError{code: code, message: cErr.ErrorMessage}
+		if code == codes.Unauthenticated {
+			// Cache definitive rejections: clients polling with a dead session would
+			// otherwise cost Grafana two failed lookups (user + rotation) per request.
+			// Internal errors are not cached so a Grafana hiccup does not lock
+			// clients out for the cache lifetime.
+			s.rw.Lock()
+			s.cache[hash] = cacheItem{
+				authErr: authErr,
+				created: time.Now(),
+			}
+			s.rw.Unlock()
+		}
+		return nil, nil, authErr
 	}
 	// Cache under the hash of the original headers even after a rotation: requests
 	// still carrying the old cookie (sent before the browser stores the new one)

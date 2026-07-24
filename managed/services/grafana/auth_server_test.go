@@ -16,6 +16,7 @@
 package grafana
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -76,6 +77,59 @@ func TestHeadersWithRotatedCookies(t *testing.T) {
 	// cookie names missing from the original header are appended
 	headers = headersWithRotatedCookies(authHeaders, []string{"brand_new=v1; Path=/"})
 	assert.Equal(t, "other=abc; pmm_session=old; brand_new=v1", headers.Get("Cookie"))
+}
+
+// countingRejectingClient implements clientInterface, rejecting every lookup
+// and rotation with 401 while counting the calls.
+type countingRejectingClient struct {
+	getAuthUserCalls int
+	rotateCalls      int
+}
+
+func (c *countingRejectingClient) getAuthUser(context.Context, http.Header, *logrus.Entry) (authUser, error) {
+	c.getAuthUserCalls++
+	return emptyUser, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}
+}
+
+func (c *countingRejectingClient) rotateSessionToken(context.Context, http.Header) ([]string, error) {
+	c.rotateCalls++
+	return nil, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}
+}
+
+func TestAuthServerNegativeCache(t *testing.T) {
+	t.Parallel()
+
+	client := &countingRejectingClient{}
+	s := NewAuthServer(client, nil)
+	l := logrus.WithField("test", t.Name())
+
+	newReq := func() *http.Request {
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/advisors", nil)
+		req.Header.Set("Cookie", "pmm_session=dead")
+		return req
+	}
+
+	_, _, authErr := s.authenticate(t.Context(), newReq(), l)
+	require.NotNil(t, authErr)
+	assert.Equal(t, codes.Unauthenticated, authErr.code)
+	// the dead session cost one lookup and one rotation attempt
+	assert.Equal(t, 1, client.getAuthUserCalls)
+	assert.Equal(t, 1, client.rotateCalls)
+
+	// the rejection is served from the cache without further Grafana calls
+	_, _, authErr = s.authenticate(t.Context(), newReq(), l)
+	require.NotNil(t, authErr)
+	assert.Equal(t, codes.Unauthenticated, authErr.code)
+	assert.Equal(t, 1, client.getAuthUserCalls)
+	assert.Equal(t, 1, client.rotateCalls)
+
+	// different credentials bypass the cached rejection
+	req := newReq()
+	req.Header.Set("Cookie", "pmm_session=another")
+	_, _, authErr = s.authenticate(t.Context(), req, l)
+	require.NotNil(t, authErr)
+	assert.Equal(t, 2, client.getAuthUserCalls)
+	assert.Equal(t, 2, client.rotateCalls)
 }
 
 func TestSessionCookieForClient(t *testing.T) {
