@@ -1828,7 +1828,10 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 
 	checkResults := make([]services.CheckResult, len(results))
 	for i, result := range results {
-		result.Severity = normalizeAdvisorSeverity(result.Severity)
+		err = validateAdvisorSeverity(result.Severity)
+		if err != nil {
+			return nil, fmt.Errorf("check result %d: %w", i+1, err)
+		}
 		checkResults[i] = services.CheckResult{
 			CheckName:   aCheck.Name,
 			Subcategory: aCheck.Subcategory,
@@ -1840,18 +1843,16 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 	return checkResults, nil
 }
 
-// normalizeAdvisorSeverity maps retired advisor severities to the supported set:
-// emergency and alert become critical; notice and debug become info. Advisors use
-// only critical, error, warning and info, but check scripts may still emit the
-// retired values.
-func normalizeAdvisorSeverity(s common.Severity) common.Severity {
+// validateAdvisorSeverity rejects result severities outside the set advisors use.
+// The retired levels (emergency, alert, notice, debug) fail the check run with a
+// clear message instead of being coerced silently, so check authors notice and
+// migrate their scripts.
+func validateAdvisorSeverity(s common.Severity) error {
 	switch s {
-	case common.Emergency, common.Alert:
-		return common.Critical
-	case common.Notice, common.Debug:
-		return common.Info
+	case common.Critical, common.Error, common.Warning, common.Info:
+		return nil
 	default:
-		return s
+		return fmt.Errorf("result severity '%s' is not supported by advisors; use one of: critical, error, warning, info", s)
 	}
 }
 

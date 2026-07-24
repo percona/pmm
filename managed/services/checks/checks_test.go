@@ -961,16 +961,16 @@ func TestGroupChecksByDB(t *testing.T) {
 	assert.Equal(t, check.MongoDB, mongoDBChecks["mongodb_1"].Family)
 }
 
-func TestNormalizeAdvisorSeverity(t *testing.T) {
+func TestValidateAdvisorSeverity(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, common.Critical, normalizeAdvisorSeverity(common.Emergency))
-	assert.Equal(t, common.Critical, normalizeAdvisorSeverity(common.Alert))
-	assert.Equal(t, common.Info, normalizeAdvisorSeverity(common.Notice))
-	assert.Equal(t, common.Info, normalizeAdvisorSeverity(common.Debug))
+	for _, s := range []common.Severity{common.Critical, common.Error, common.Warning, common.Info} {
+		require.NoError(t, validateAdvisorSeverity(s))
+	}
 
-	// the supported set passes through unchanged
-	for _, s := range []common.Severity{common.Critical, common.Error, common.Warning, common.Info, common.Unknown} {
-		assert.Equal(t, s, normalizeAdvisorSeverity(s))
+	for _, s := range []common.Severity{common.Emergency, common.Alert, common.Notice, common.Debug, common.Unknown} {
+		err := validateAdvisorSeverity(s)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "use one of: critical, error, warning, info")
 	}
 }
