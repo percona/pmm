@@ -1,0 +1,197 @@
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { AxiosError, AxiosResponse } from 'axios';
+import * as advisorsApi from 'api/advisors';
+import * as servicesApi from 'api/services';
+import {
+  wrapWithQueryProvider,
+  wrapWithSnackbarProvider,
+} from 'utils/testUtils';
+import {
+  AdvisorCheck,
+  AdvisorFamily,
+  AdvisorInterval,
+  TestAdvisorCheckResult,
+} from 'types/advisors.types';
+import { MySqlService } from 'types/services.types';
+import { Severity } from 'types/severity.types';
+import { AdvisorCheckForm } from './AdvisorCheckForm';
+import { Messages } from './AdvisorCheckForm.messages';
+
+vi.mock('api/advisors');
+vi.mock('api/services');
+
+const mysqlService = (id: string, name: string): MySqlService => ({
+  serviceId: id,
+  serviceName: name,
+  nodeId: 'node-1',
+  environment: '',
+  cluster: '',
+  replicationSet: '',
+  customLabels: {},
+  address: '127.0.0.1',
+  port: 3306,
+  socket: '',
+  version: '8.0',
+  extraDsnParams: {},
+});
+
+const SOURCE_CHECK: AdvisorCheck = {
+  name: 'mysql_version_check',
+  enabled: true,
+  summary: 'MySQL version check',
+  description: 'Warns if MySQL version is EOL',
+  category: 'Configuration',
+  subcategory: 'Version',
+  family: AdvisorFamily.mysql,
+  interval: AdvisorInterval.standard,
+  userDefined: false,
+  queries: [{ type: 'MYSQL_SHOW', query: 'version' }],
+  script: 'def check_context(docs, context):\n    return []',
+};
+
+const TEST_RESULT: TestAdvisorCheckResult = {
+  summary: 'MySQL is outdated',
+  checkName: 'custom_mysql_version_check',
+  description: 'Upgrade MySQL',
+  readMoreUrl: '',
+  severity: Severity.warning,
+  labels: {},
+  serviceName: 'mysql-svc-1',
+  serviceId: 'svc-1',
+};
+
+const renderForm = (onClose = vi.fn()) =>
+  render(
+    wrapWithQueryProvider(
+      wrapWithSnackbarProvider(
+        <AdvisorCheckForm
+          open
+          mode="clone"
+          checkName={SOURCE_CHECK.name}
+          onClose={onClose}
+        />
+      )
+    )
+  );
+
+const pickTestService = async (serviceName: string) => {
+  const picker = await screen.findByTestId('advisor-check-form-test-service');
+  const input = within(picker).getByRole('combobox');
+  // ArrowDown opens the MUI Autocomplete popup reliably in jsdom
+  fireEvent.keyDown(input, { key: 'ArrowDown' });
+  const listbox = await screen.findByRole('listbox', { hidden: true });
+  fireEvent.click(within(listbox).getByText(serviceName));
+};
+
+const waitForPrefill = async () => {
+  await waitFor(() =>
+    expect(screen.getByTestId('check-name')).toHaveValue(
+      `custom_${SOURCE_CHECK.name}`
+    )
+  );
+};
+
+describe('AdvisorCheckForm test run', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(advisorsApi.getAdvisorCheck).mockResolvedValue(SOURCE_CHECK);
+    vi.mocked(servicesApi.listServices).mockResolvedValue({
+      mysql: [
+        mysqlService('svc-1', 'mysql-svc-1'),
+        mysqlService('svc-2', 'mysql-svc-2'),
+      ],
+    });
+    vi.mocked(advisorsApi.testAdvisorCheck).mockResolvedValue([TEST_RESULT]);
+  });
+
+  it('keeps the test button disabled until a service is picked', async () => {
+    renderForm();
+    await waitForPrefill();
+
+    expect(screen.getByTestId('advisor-check-form-test')).toBeDisabled();
+
+    await pickTestService('mysql-svc-1');
+
+    expect(screen.getByTestId('advisor-check-form-test')).toBeEnabled();
+  });
+
+  it('tests the current definition against the picked service and shows the results', async () => {
+    renderForm();
+    await waitForPrefill();
+
+    await pickTestService('mysql-svc-1');
+    fireEvent.click(screen.getByTestId('advisor-check-form-test'));
+
+    await waitFor(() =>
+      expect(advisorsApi.testAdvisorCheck).toHaveBeenCalledWith(
+        {
+          check: {
+            name: `custom_${SOURCE_CHECK.name}`,
+            summary: SOURCE_CHECK.summary,
+            description: SOURCE_CHECK.description,
+            category: SOURCE_CHECK.category,
+            subcategory: SOURCE_CHECK.subcategory,
+            family: SOURCE_CHECK.family,
+            interval: SOURCE_CHECK.interval,
+            queries: [{ type: 'MYSQL_SHOW', query: 'version' }],
+            script: SOURCE_CHECK.script,
+          },
+          serviceId: 'svc-1',
+        },
+        expect.anything()
+      )
+    );
+
+    const results = await screen.findByTestId(
+      'advisor-check-form-test-results'
+    );
+    expect(
+      within(results).getByText(Messages.testResults(1))
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId('advisor-check-form-test-output')
+    ).toBeInTheDocument();
+  });
+
+  it('shows the backend error inside the results panel when the test fails', async () => {
+    const error = new AxiosError('Request failed');
+    error.response = {
+      data: { message: 'invalid advisor check: unknown query type' },
+    } as AxiosResponse;
+    vi.mocked(advisorsApi.testAdvisorCheck).mockRejectedValue(error);
+
+    renderForm();
+    await waitForPrefill();
+
+    await pickTestService('mysql-svc-2');
+    fireEvent.click(screen.getByTestId('advisor-check-form-test'));
+
+    expect(
+      await screen.findByTestId('advisor-check-form-test-error')
+    ).toHaveTextContent('invalid advisor check: unknown query type');
+  });
+
+  it('clears the results panel with its close button', async () => {
+    renderForm();
+    await waitForPrefill();
+
+    await pickTestService('mysql-svc-1');
+    fireEvent.click(screen.getByTestId('advisor-check-form-test'));
+    await screen.findByTestId('advisor-check-form-test-results');
+
+    fireEvent.click(
+      screen.getByTestId('advisor-check-form-test-results-close')
+    );
+
+    expect(
+      screen.queryByTestId('advisor-check-form-test-results')
+    ).not.toBeInTheDocument();
+  });
+});

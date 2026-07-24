@@ -1,7 +1,8 @@
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -10,10 +11,12 @@ import { formControlClasses } from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { SelectInput, TextInput } from '@percona/percona-ui';
+import { CodeBlock, SelectInput, TextInput } from '@percona/percona-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { AxiosError } from 'axios';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import {
@@ -24,9 +27,14 @@ import { useNavigation } from 'contexts/navigation/navigation.hooks';
 import {
   useAdvisorCheck,
   useCreateAdvisorCheck,
+  useTestAdvisorCheck,
   useUpdateAdvisorCheck,
 } from 'hooks/api/useAdvisors';
+import { useServices } from 'hooks/api/useServices';
 import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
+import { TestAdvisorCheckResult } from 'types/advisors.types';
+import { VersionedService } from 'types/services.types';
+import { ADVISOR_FAMILY_SERVICE_TYPE } from 'utils/advisors.utils';
 import { helperTextTestId } from 'utils/mui.utils';
 import { Messages } from './AdvisorCheckForm.messages';
 import {
@@ -76,11 +84,26 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
     defaultValues: emptyFormValues,
     mode: 'onChange',
   });
-  const { control, handleSubmit, reset, watch } = methods;
+  const { control, handleSubmit, reset, watch, trigger, getValues } = methods;
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'queries',
   });
+
+  const [testServiceId, setTestServiceId] = useState<string | null>(null);
+  const [testResults, setTestResults] = useState<
+    TestAdvisorCheckResult[] | null
+  >(null);
+  const [testError, setTestError] = useState<string | null>(null);
+
+  // drop stale test state whenever the overlay opens
+  useEffect(() => {
+    if (open) {
+      setTestServiceId(null);
+      setTestResults(null);
+      setTestError(null);
+    }
+  }, [open]);
 
   // (re)initialize the form whenever the overlay opens or its source loads
   useEffect(() => {
@@ -99,11 +122,54 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
   const family = watch('family');
   const queryTypeOptions = QUERY_TYPES_BY_FAMILY[family] ?? [];
 
+  // the test target must match the check's family
+  const serviceType = ADVISOR_FAMILY_SERVICE_TYPE[family];
+  const { data: servicesResponse } = useServices(
+    { serviceType },
+    { enabled: open && !!serviceType }
+  );
+  const serviceOptions = useMemo(
+    () =>
+      (Object.values(servicesResponse ?? {}).flat() as VersionedService[]).map(
+        (s) => ({ id: s.serviceId, label: s.serviceName })
+      ),
+    [servicesResponse]
+  );
+
+  // a previously picked service is likely of the wrong type after a family change
+  useEffect(() => {
+    setTestServiceId(null);
+  }, [family]);
+
   const { mutateAsync: create, isPending: isCreating } =
     useCreateAdvisorCheck();
   const { mutateAsync: update, isPending: isUpdating } =
     useUpdateAdvisorCheck();
   const isSaving = isCreating || isUpdating;
+  const { mutateAsync: testCheck, isPending: isTesting } =
+    useTestAdvisorCheck();
+
+  const handleTest = async () => {
+    const valid = await trigger();
+    if (!valid || !testServiceId) {
+      return;
+    }
+    setTestResults(null);
+    setTestError(null);
+    try {
+      const results = await testCheck({
+        check: toInput(getValues()),
+        serviceId: testServiceId,
+      });
+      setTestResults(results);
+    } catch (error) {
+      const message =
+        error instanceof AxiosError
+          ? (error.response?.data?.message ?? error.message)
+          : Messages.testFailed;
+      setTestError(message);
+    }
+  };
 
   const onSubmit = async (values: AdvisorCheckFormValues) => {
     const input = toInput(values);
@@ -384,7 +450,90 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
               />
             </Box>
 
-            <Stack direction="row" justifyContent="flex-end" gap={1}>
+            {(testResults !== null || testError !== null) && (
+              <Stack gap={1} data-testid="advisor-check-form-test-results">
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Typography variant="subtitle2">
+                    {testError
+                      ? Messages.testFailed
+                      : Messages.testResults(testResults?.length ?? 0)}
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    aria-label={Messages.closeResults}
+                    onClick={() => {
+                      setTestResults(null);
+                      setTestError(null);
+                    }}
+                    data-testid="advisor-check-form-test-results-close"
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+                {testError ? (
+                  <Typography
+                    variant="body2"
+                    color="error"
+                    sx={{ whiteSpace: 'pre-wrap' }}
+                    data-testid="advisor-check-form-test-error"
+                  >
+                    {testError}
+                  </Typography>
+                ) : (
+                  <CodeBlock
+                    language="json"
+                    copyable
+                    content={JSON.stringify(testResults, null, 2)}
+                    maxHeight="30vh"
+                    sx={{ overflow: 'auto', m: 0 }}
+                    data-testid="advisor-check-form-test-output"
+                  />
+                )}
+              </Stack>
+            )}
+
+            <Stack
+              direction="row"
+              alignItems="center"
+              gap={1}
+              // full-bleed toolbar: cancel the drawer padding so the darker
+              // strip visually closes the form at the bottom edge
+              sx={{
+                mx: -2,
+                mb: -2,
+                px: 2,
+                py: 1.5,
+                borderTop: 1,
+                borderColor: 'divider',
+                bgcolor: 'background.default',
+              }}
+            >
+              <Autocomplete
+                size="small"
+                sx={{ width: 280 }}
+                options={serviceOptions}
+                value={
+                  serviceOptions.find((o) => o.id === testServiceId) ?? null
+                }
+                onChange={(_, option) => setTestServiceId(option?.id ?? null)}
+                renderInput={(params) => (
+                  <TextField {...params} label={Messages.testService} />
+                )}
+                data-testid="advisor-check-form-test-service"
+              />
+              <Button
+                variant="outlined"
+                disabled={!testServiceId || isTesting}
+                onClick={handleTest}
+                data-testid="advisor-check-form-test"
+              >
+                {isTesting ? Messages.testing : Messages.test}
+              </Button>
+              <Box sx={{ flex: 1 }} />
               <Button
                 color="inherit"
                 onClick={onClose}

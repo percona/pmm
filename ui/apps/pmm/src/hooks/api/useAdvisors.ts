@@ -17,6 +17,7 @@ import {
   listCheckResultsHistory,
   markCheckResultsRead,
   startAdvisorChecks,
+  testAdvisorCheck,
   updateAdvisorCheck,
 } from 'api/advisors';
 import {
@@ -28,6 +29,8 @@ import {
   ListCheckResultsFilterValuesResponse,
   ListCheckResultsHistoryParams,
   MarkCheckResultsReadRequest,
+  TestAdvisorCheckRequest,
+  TestAdvisorCheckResult,
 } from 'types/advisors.types';
 import { PaginatedResponse } from 'types/util.types';
 
@@ -40,6 +43,7 @@ const KEYS = {
   CREATE_CHECK: 'advisors:create-check',
   UPDATE_CHECK: 'advisors:update-check',
   DELETE_CHECK: 'advisors:delete-check',
+  TEST_CHECK: 'advisors:test-check',
   HISTORY: 'advisors:history',
   HISTORY_FILTER_VALUES: 'advisors:history-filter-values',
   MARK_READ: 'advisors:mark-read',
@@ -180,6 +184,18 @@ export const useUpdateAdvisorCheck = (
     },
   });
 };
+
+// a dry-run mutates nothing on the server, so no queries are invalidated
+export const useTestAdvisorCheck = (
+  options?: Partial<
+    UseMutationOptions<TestAdvisorCheckResult[], Error, TestAdvisorCheckRequest>
+  >
+) =>
+  useMutation({
+    mutationKey: [KEYS.TEST_CHECK],
+    mutationFn: testAdvisorCheck,
+    ...options,
+  });
 
 export const useDeleteAdvisorCheck = (
   options?: Partial<UseMutationOptions<void, Error, string>>

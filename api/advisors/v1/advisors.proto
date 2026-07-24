@@ -228,6 +228,34 @@ message DeleteAdvisorCheckRequest {
 
 message DeleteAdvisorCheckResponse {}
 
+message TestAdvisorCheckRequest {
+  // Check definition to execute; it is not saved.
+  AdvisorCheck check = 1;
+  // ID of the service to run the check against.
+  string service_id = 2 [(validate.rules).string.min_len = 1];
+}
+
+// TestAdvisorCheckResult is a single finding produced by a test (dry-run) check execution.
+message TestAdvisorCheckResult {
+  string summary = 1;
+  string description = 2;
+  management.v1.Severity severity = 3;
+  map<string, string> labels = 4;
+  // URL containing information on how to resolve an issue detected by the check.
+  string read_more_url = 5;
+  // Name of the monitored service on which the check ran.
+  string service_name = 6;
+  // ID of the monitored service on which the check ran.
+  string service_id = 7;
+  // Name of the tested check.
+  string check_name = 8;
+}
+
+message TestAdvisorCheckResponse {
+  // Findings produced by the check script; empty means the check passed.
+  repeated TestAdvisorCheckResult results = 1;
+}
+
 message ListAdvisorsRequest {}
 
 message ListAdvisorsResponse {
@@ -495,6 +523,17 @@ service AdvisorService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Update Advisor Check"
       description: "Updates an existing user-authored advisor check. Percona-shipped checks cannot be modified."
+    };
+  }
+  // TestAdvisorCheck executes an advisor check definition without saving it.
+  rpc TestAdvisorCheck(TestAdvisorCheckRequest) returns (TestAdvisorCheckResponse) {
+    option (google.api.http) = {
+      post: "/v1/advisors/checks:test"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Test Advisor Check"
+      description: "Executes an advisor check definition against a single service without saving the check; results are returned and not persisted."
     };
   }
   // DeleteAdvisorCheck deletes a user-authored advisor check.

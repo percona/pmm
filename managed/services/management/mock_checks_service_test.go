@@ -415,6 +415,36 @@ func (_m *mockChecksService) StartChecks(checkNames []string) (string, error) {
 	return r0, r1
 }
 
+// TestAdvisorCheck provides a mock function with given fields: ctx, c, serviceID
+func (_m *mockChecksService) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, error) {
+	ret := _m.Called(ctx, c, serviceID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TestAdvisorCheck")
+	}
+
+	var r0 []services.CheckResult
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, check.Check, string) ([]services.CheckResult, error)); ok {
+		return rf(ctx, c, serviceID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, check.Check, string) []services.CheckResult); ok {
+		r0 = rf(ctx, c, serviceID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]services.CheckResult)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, check.Check, string) error); ok {
+		r1 = rf(ctx, c, serviceID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // UpdateAdvisorCheck provides a mock function with given fields: ctx, c
 func (_m *mockChecksService) UpdateAdvisorCheck(ctx context.Context, c check.Check) error {
 	ret := _m.Called(ctx, c)

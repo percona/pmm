@@ -54,7 +54,7 @@ type prometheusService interface {
 
 // checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type checksService interface {
+type checksService interface { //nolint:interfacebloat
 	StartChecks(checkNames []string) (string, error)
 	GetChecks() (map[string]check.Check, error)
 	GetAdvisors() ([]check.Advisor, error)
@@ -72,6 +72,7 @@ type checksService interface {
 	CreateAdvisorCheck(ctx context.Context, c check.Check) error
 	UpdateAdvisorCheck(ctx context.Context, c check.Check) error
 	DeleteAdvisorCheck(ctx context.Context, name string) error
+	TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, error)
 }
 
 // grafanaClient is a subset of methods of grafana.Client used by this package.

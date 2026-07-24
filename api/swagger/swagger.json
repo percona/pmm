@@ -2836,6 +2836,244 @@
         }
       }
     },
+    "/v1/advisors/checks:test": {
+      "post": {
+        "description": "Executes an advisor check definition against a single service without saving the check; results are returned and not persisted.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "Test Advisor Check",
+        "operationId": "TestAdvisorCheck",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "check": {
+                  "description": "AdvisorCheck contains check name and status.",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "description": "Machine-readable name (ID) that is used in expression.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "enabled": {
+                      "description": "True if that check is enabled.",
+                      "type": "boolean",
+                      "x-order": 1
+                    },
+                    "description": {
+                      "description": "Long human-readable description.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "summary": {
+                      "description": "Short human-readable summary.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "interval": {
+                      "description": "AdvisorCheckInterval represents possible execution interval values for checks.",
+                      "type": "string",
+                      "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+                        "ADVISOR_CHECK_INTERVAL_STANDARD",
+                        "ADVISOR_CHECK_INTERVAL_FREQUENT",
+                        "ADVISOR_CHECK_INTERVAL_RARE"
+                      ],
+                      "x-order": 4
+                    },
+                    "family": {
+                      "type": "string",
+                      "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                        "ADVISOR_CHECK_FAMILY_MYSQL",
+                        "ADVISOR_CHECK_FAMILY_POSTGRESQL",
+                        "ADVISOR_CHECK_FAMILY_MONGODB"
+                      ],
+                      "x-order": 5
+                    },
+                    "category": {
+                      "description": "Category (top-level grouping).",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "subcategory": {
+                      "description": "Subcategory (second-level grouping within a category).",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "user_defined": {
+                      "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "queries": {
+                      "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.",
+                      "type": "array",
+                      "items": {
+                        "description": "AdvisorCheckQuery is a single data-collection query of an advisor check.",
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "description": "Query type, e.g. \"MYSQL_SHOW\", \"POSTGRESQL_SELECT\", \"METRICS_RANGE\".",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "query": {
+                            "description": "Query text (may be empty for parameterless types such as MYSQL_SHOW).",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "parameters": {
+                            "description": "Optional query parameters (e.g. range/step for metrics range queries).",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 2
+                          }
+                        }
+                      },
+                      "x-order": 9
+                    },
+                    "script": {
+                      "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses.",
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "disabled_service_ids": {
+                      "description": "IDs of services for which this check is disabled.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 11
+                    }
+                  },
+                  "x-order": 0
+                },
+                "service_id": {
+                  "description": "ID of the service to run the check against.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "results": {
+                  "description": "Findings produced by the check script; empty means the check passed.",
+                  "type": "array",
+                  "items": {
+                    "description": "TestAdvisorCheckResult is a single finding produced by a test (dry-run) check execution.",
+                    "type": "object",
+                    "properties": {
+                      "summary": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "description": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "severity": {
+                        "description": "Severity represents severity level of the check result or alert.",
+                        "type": "string",
+                        "default": "SEVERITY_UNSPECIFIED",
+                        "enum": [
+                          "SEVERITY_UNSPECIFIED",
+                          "SEVERITY_EMERGENCY",
+                          "SEVERITY_ALERT",
+                          "SEVERITY_CRITICAL",
+                          "SEVERITY_ERROR",
+                          "SEVERITY_WARNING",
+                          "SEVERITY_NOTICE",
+                          "SEVERITY_INFO",
+                          "SEVERITY_DEBUG"
+                        ],
+                        "x-order": 2
+                      },
+                      "labels": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 3
+                      },
+                      "read_more_url": {
+                        "description": "URL containing information on how to resolve an issue detected by the check.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "service_name": {
+                        "description": "Name of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "service_id": {
+                        "description": "ID of the monitored service on which the check ran.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "check_name": {
+                        "description": "Name of the tested check.",
+                        "type": "string",
+                        "x-order": 7
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/advisors/failedServices": {
       "get": {
         "description": "Returns a list of services with failed checks and a summary of check results.",

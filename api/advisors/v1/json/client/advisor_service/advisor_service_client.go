@@ -77,6 +77,8 @@ type ClientService interface {
 
 	StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...ClientOption) (*StartAdvisorChecksOK, error)
 
+	TestAdvisorCheck(params *TestAdvisorCheckParams, opts ...ClientOption) (*TestAdvisorCheckOK, error)
+
 	UpdateAdvisorCheck(params *UpdateAdvisorCheckParams, opts ...ClientOption) (*UpdateAdvisorCheckOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -650,6 +652,50 @@ func (a *Client) StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...Cl
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*StartAdvisorChecksDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+TestAdvisorCheck tests advisor check
+
+Executes an advisor check definition against a single service without saving the check; results are returned and not persisted.
+*/
+func (a *Client) TestAdvisorCheck(params *TestAdvisorCheckParams, opts ...ClientOption) (*TestAdvisorCheckOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewTestAdvisorCheckParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "TestAdvisorCheck",
+		Method:             "POST",
+		PathPattern:        "/v1/advisors/checks:test",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &TestAdvisorCheckReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*TestAdvisorCheckOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*TestAdvisorCheckDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

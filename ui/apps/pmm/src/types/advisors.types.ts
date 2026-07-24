@@ -88,6 +88,27 @@ export interface StartAdvisorChecksRequest {
   names: string[];
 }
 
+export interface TestAdvisorCheckRequest {
+  check: AdvisorCheckInput;
+  serviceId: string;
+}
+
+// a single finding produced by a dry-run check execution
+export interface TestAdvisorCheckResult {
+  summary: string;
+  checkName: string;
+  description: string;
+  readMoreUrl: string;
+  severity: Severity;
+  labels: Record<string, string>;
+  serviceName: string;
+  serviceId: string;
+}
+
+export interface TestAdvisorCheckResponse {
+  results?: TestAdvisorCheckResult[];
+}
+
 export interface ChangeAdvisorCheckParams {
   name: string;
   enable?: boolean;

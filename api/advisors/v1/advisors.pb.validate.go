@@ -2571,6 +2571,405 @@ var _ interface {
 	ErrorName() string
 } = DeleteAdvisorCheckResponseValidationError{}
 
+// Validate checks the field values on TestAdvisorCheckRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TestAdvisorCheckRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TestAdvisorCheckRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TestAdvisorCheckRequestMultiError, or nil if none found.
+func (m *TestAdvisorCheckRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TestAdvisorCheckRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetCheck()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, TestAdvisorCheckRequestValidationError{
+					field:  "Check",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, TestAdvisorCheckRequestValidationError{
+					field:  "Check",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetCheck()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return TestAdvisorCheckRequestValidationError{
+				field:  "Check",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := TestAdvisorCheckRequestValidationError{
+			field:  "ServiceId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return TestAdvisorCheckRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// TestAdvisorCheckRequestMultiError is an error wrapping multiple validation
+// errors returned by TestAdvisorCheckRequest.ValidateAll() if the designated
+// constraints aren't met.
+type TestAdvisorCheckRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TestAdvisorCheckRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TestAdvisorCheckRequestMultiError) AllErrors() []error { return m }
+
+// TestAdvisorCheckRequestValidationError is the validation error returned by
+// TestAdvisorCheckRequest.Validate if the designated constraints aren't met.
+type TestAdvisorCheckRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TestAdvisorCheckRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TestAdvisorCheckRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TestAdvisorCheckRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TestAdvisorCheckRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TestAdvisorCheckRequestValidationError) ErrorName() string {
+	return "TestAdvisorCheckRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TestAdvisorCheckRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTestAdvisorCheckRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = TestAdvisorCheckRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TestAdvisorCheckRequestValidationError{}
+
+// Validate checks the field values on TestAdvisorCheckResult with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TestAdvisorCheckResult) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TestAdvisorCheckResult with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TestAdvisorCheckResultMultiError, or nil if none found.
+func (m *TestAdvisorCheckResult) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TestAdvisorCheckResult) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Summary
+
+	// no validation rules for Description
+
+	// no validation rules for Severity
+
+	// no validation rules for Labels
+
+	// no validation rules for ReadMoreUrl
+
+	// no validation rules for ServiceName
+
+	// no validation rules for ServiceId
+
+	// no validation rules for CheckName
+
+	if len(errors) > 0 {
+		return TestAdvisorCheckResultMultiError(errors)
+	}
+
+	return nil
+}
+
+// TestAdvisorCheckResultMultiError is an error wrapping multiple validation
+// errors returned by TestAdvisorCheckResult.ValidateAll() if the designated
+// constraints aren't met.
+type TestAdvisorCheckResultMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TestAdvisorCheckResultMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TestAdvisorCheckResultMultiError) AllErrors() []error { return m }
+
+// TestAdvisorCheckResultValidationError is the validation error returned by
+// TestAdvisorCheckResult.Validate if the designated constraints aren't met.
+type TestAdvisorCheckResultValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TestAdvisorCheckResultValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TestAdvisorCheckResultValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TestAdvisorCheckResultValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TestAdvisorCheckResultValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TestAdvisorCheckResultValidationError) ErrorName() string {
+	return "TestAdvisorCheckResultValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TestAdvisorCheckResultValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTestAdvisorCheckResult.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = TestAdvisorCheckResultValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TestAdvisorCheckResultValidationError{}
+
+// Validate checks the field values on TestAdvisorCheckResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TestAdvisorCheckResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TestAdvisorCheckResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TestAdvisorCheckResponseMultiError, or nil if none found.
+func (m *TestAdvisorCheckResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TestAdvisorCheckResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetResults() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, TestAdvisorCheckResponseValidationError{
+						field:  fmt.Sprintf("Results[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, TestAdvisorCheckResponseValidationError{
+						field:  fmt.Sprintf("Results[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return TestAdvisorCheckResponseValidationError{
+					field:  fmt.Sprintf("Results[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return TestAdvisorCheckResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// TestAdvisorCheckResponseMultiError is an error wrapping multiple validation
+// errors returned by TestAdvisorCheckResponse.ValidateAll() if the designated
+// constraints aren't met.
+type TestAdvisorCheckResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TestAdvisorCheckResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TestAdvisorCheckResponseMultiError) AllErrors() []error { return m }
+
+// TestAdvisorCheckResponseValidationError is the validation error returned by
+// TestAdvisorCheckResponse.Validate if the designated constraints aren't met.
+type TestAdvisorCheckResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TestAdvisorCheckResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TestAdvisorCheckResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TestAdvisorCheckResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TestAdvisorCheckResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TestAdvisorCheckResponseValidationError) ErrorName() string {
+	return "TestAdvisorCheckResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TestAdvisorCheckResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTestAdvisorCheckResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = TestAdvisorCheckResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TestAdvisorCheckResponseValidationError{}
+
 // Validate checks the field values on ListAdvisorsRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

@@ -74,9 +74,7 @@ const (
 // pmm-agent versions with known changes in Query Actions.
 // To match all pre-release versions, add a '-0' suffix to the specified version.
 var (
-	pmmAgent2_6_0   = version.MustParse("2.6.0")
-	pmmAgent2_7_0   = version.MustParse("2.7.0")
-	pmmAgent2_27_0  = version.MustParse("2.27.0-0")
+	pmmAgent3_0_0   = version.MustParse("3.0.0-0")
 	pmmAgentInvalid = version.MustParse("3.0.0-invalid")
 
 	b64 = base64.StdEncoding
@@ -157,7 +155,7 @@ func New(
 			Subsystem:  prometheusSubsystem,
 			Name:       "check_execution_time_seconds",
 			Help:       "Time taken to execute checks per service type, advisor, and check name",
-			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001}, //nolint:mnd
 		}, []string{"service_type", "advisor", "check_name"}),
 	}
 
@@ -683,6 +681,61 @@ func (s *Service) DeleteAdvisorCheck(ctx context.Context, name string) error {
 	return nil
 }
 
+// TestAdvisorCheck executes an advisor check definition against a single service
+// and returns its findings without saving the check or persisting the results.
+func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+	if !settings.IsAdvisorsEnabled() {
+		return nil, services.ErrAdvisorsDisabled
+	}
+
+	c.Version = check.MaxSupportedVersion
+	c.UserDefined = true
+
+	err = c.Validate()
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid advisor check: %v", err)
+	}
+
+	var serviceType models.ServiceType
+	switch c.Family {
+	case check.MySQL:
+		serviceType = models.MySQLServiceType
+	case check.PostgreSQL:
+		serviceType = models.PostgreSQLServiceType
+	case check.MongoDB:
+		serviceType = models.MongoDBServiceType
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "Unknown check family %s", c.Family)
+	}
+
+	targets, err := s.findTargets(ctx, serviceType, s.minPMMAgentVersion(c))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, target := range targets {
+		if target.ServiceID != serviceID {
+			continue
+		}
+		res, err := s.executeCheck(ctx, target, c)
+		if err != nil {
+			// a status error keeps the query/script failure details visible to
+			// the caller; plain errors are masked by the gRPC interceptor
+			return nil, status.Errorf(codes.FailedPrecondition,
+				"Failed to execute check '%s' on service '%s': %v", c.Name, target.ServiceName, err)
+		}
+		return res, nil
+	}
+
+	return nil, status.Errorf(codes.NotFound,
+		"No eligible %s service with ID '%s': the service may not exist, be of another type or lack a compatible pmm-agent",
+		serviceType, serviceID)
+}
+
 // ensureUserCheck verifies that the named check exists and is user-authored.
 // It returns a NotFound error for unknown checks and a FailedPrecondition error
 // for Percona-shipped checks, whose content is immutable.
@@ -690,13 +743,13 @@ func (s *Service) ensureUserCheck(name string) error {
 	c, err := models.FindAdvisorCheckByName(s.db.Querier, name)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return status.Errorf(codes.NotFound, "advisor check '%s' not found", name)
+			return status.Errorf(codes.NotFound, "Advisor check '%s' not found", name)
 		}
 		return err
 	}
 
 	if c.Source != models.UserCheckSource {
-		return status.Errorf(codes.FailedPrecondition, "advisor check '%s' is shipped by Percona and cannot be modified", name)
+		return status.Errorf(codes.FailedPrecondition, "Advisor check '%s' is shipped by Percona and cannot be modified", name)
 	}
 	return nil
 }
@@ -795,7 +848,7 @@ func (s *Service) waitForResult(ctx context.Context, resultID string) ([]byte, e
 }
 
 func (s *Service) minPMMAgentVersion(c check.Check) *version.Parsed {
-	res := pmmAgent2_6_0 // minimum version that can be used with advisors
+	res := pmmAgent3_0_0 // minimum version that can be used with advisors
 	for _, query := range c.Queries {
 		v := s.minPMMAgentVersionForType(query.Type)
 		if v != nil && res.Less(v) {
@@ -820,15 +873,13 @@ func (s *Service) minPMMAgentVersionForType(t check.Type) *version.Parsed {
 	case check.MongoDBBuildInfo:
 		fallthrough
 	case check.MongoDBGetParameter:
-		return pmmAgent2_6_0
-
+		fallthrough
 	case check.MongoDBGetCmdLineOpts:
-		return pmmAgent2_7_0
-
+		fallthrough
 	case check.MongoDBReplSetGetStatus:
 		fallthrough
 	case check.MongoDBGetDiagnosticData:
-		return pmmAgent2_27_0
+		return pmmAgent3_0_0
 
 	case check.MetricsRange:
 		fallthrough

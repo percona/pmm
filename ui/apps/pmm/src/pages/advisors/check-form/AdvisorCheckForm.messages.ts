@@ -24,6 +24,13 @@ export const Messages = {
   removeQuery: 'Remove query',
   cancel: 'Cancel',
   save: 'Save',
+  test: 'Test',
+  testing: 'Testing…',
+  testService: 'Test on service',
+  testResults: (count: number) =>
+    `Test results (${count} finding${count === 1 ? '' : 's'})`,
+  testFailed: 'Test failed',
+  closeResults: 'Close results',
   loadError: 'Unable to load the check.',
   success: {
     created: (name: string) => `Advisor check "${name}" created`,

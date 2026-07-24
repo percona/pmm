@@ -535,6 +535,62 @@ func TestUserAdvisorChecks(t *testing.T) {
 	})
 }
 
+func TestTestAdvisorCheck(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+	ctx := t.Context()
+
+	s := New(db, nil, vmClient, clickhouseDB)
+
+	c := loadTestCheck(t)
+	c.Name = "custom_test_dry_run"
+
+	t.Run("invalid check rejected", func(t *testing.T) {
+		invalid := c
+		invalid.Script = ""
+
+		res, err := s.TestAdvisorCheck(ctx, invalid, "svc-1")
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Nil(t, res)
+	})
+
+	t.Run("unknown check family rejected", func(t *testing.T) {
+		unknown := c
+		unknown.Family = "unknown"
+
+		res, err := s.TestAdvisorCheck(ctx, unknown, "svc-1")
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Nil(t, res)
+	})
+
+	t.Run("unknown service rejected", func(t *testing.T) {
+		res, err := s.TestAdvisorCheck(ctx, c, "no-such-service")
+		require.Error(t, err)
+		assert.Equal(t, codes.NotFound, status.Code(err))
+		assert.Nil(t, res)
+	})
+
+	// keep last: it flips the shared test DB settings
+	t.Run("advisors disabled", func(t *testing.T) {
+		settings, err := models.GetSettings(db)
+		require.NoError(t, err)
+
+		settings.SaaS.Enabled = new(false)
+		err = models.SaveSettings(db, settings)
+		require.NoError(t, err)
+
+		res, err := s.TestAdvisorCheck(ctx, c, "svc-1")
+		require.ErrorIs(t, err, services.ErrAdvisorsDisabled)
+		assert.Nil(t, res)
+	})
+}
+
 func TestNewInitializesStartCheckChannel(t *testing.T) {
 	t.Parallel()
 	// New must initialize the on-demand channel so StartChecks can enqueue a
@@ -618,16 +674,16 @@ func TestMinPMMAgents(t *testing.T) {
 		check      check.Check
 		minVersion *version.Parsed
 	}{
-		{name: "MySQLShow", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLShow}}}},
-		{name: "MySQLSelect", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLSelect}}}},
-		{name: "PostgreSQLShow", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}}}},
-		{name: "PostgreSQLSelect", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLSelect}}}},
-		{name: "MongoDBGetParameter", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBGetParameter}}}},
-		{name: "MongoDBBuildInfo", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}}}},
-		{name: "MongoDBGetCmdLineOpts", minVersion: pmmAgent2_7_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBGetCmdLineOpts}}}},
-		{name: "MySQL Family", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}}},
-		{name: "MongoDB Family", minVersion: pmmAgent2_7_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}}},
-		{name: "PostgreSQL Family", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}}},
+		{name: "MySQLShow", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLShow}}}},
+		{name: "MySQLSelect", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLSelect}}}},
+		{name: "PostgreSQLShow", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}}}},
+		{name: "PostgreSQLSelect", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLSelect}}}},
+		{name: "MongoDBGetParameter", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBGetParameter}}}},
+		{name: "MongoDBBuildInfo", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}}}},
+		{name: "MongoDBGetCmdLineOpts", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBGetCmdLineOpts}}}},
+		{name: "MySQL Family", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}}},
+		{name: "MongoDB Family", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}}},
+		{name: "PostgreSQL Family", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}}},
 	}
 
 	s := New(nil, nil, vmClient, clickhouseDB)

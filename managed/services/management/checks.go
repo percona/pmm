@@ -137,7 +137,7 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.
 			CheckName:   result.CheckName,
 			Description: result.Result.Description,
 			ReadMoreUrl: result.Result.ReadMoreURL,
-			Severity:    managementv1.Severity(result.Result.Severity),
+			Severity:    managementv1.Severity(result.Result.Severity), //nolint:gosec
 			Labels:      labels,
 			ServiceName: result.Target.ServiceName,
 			ServiceId:   result.Target.ServiceID,
@@ -146,7 +146,7 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.
 
 	var pageIndex, pageSize int
 	totalPages := int32(1)
-	totalItems := int32(len(failedChecks))
+	totalItems := int32(len(failedChecks)) //nolint:gosec
 
 	if req.PageIndex != nil {
 		pageIndex = int(pointer.GetInt32(req.PageIndex))
@@ -164,7 +164,7 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.
 	}
 
 	if pageSize > 0 {
-		totalPages = int32(len(failedChecks) / pageSize)
+		totalPages = int32(len(failedChecks) / pageSize) //nolint:gosec
 		if len(failedChecks)%pageSize > 0 {
 			totalPages++
 		}
@@ -557,6 +557,49 @@ func (s *ChecksAPIService) DeleteAdvisorCheck(ctx context.Context, req *advisors
 	}
 
 	return &advisorsv1.DeleteAdvisorCheckResponse{}, nil
+}
+
+// TestAdvisorCheck executes an advisor check definition against a single service
+// without saving the check or persisting its results.
+func (s *ChecksAPIService) TestAdvisorCheck(ctx context.Context, req *advisorsv1.TestAdvisorCheckRequest) (*advisorsv1.TestAdvisorCheckResponse, error) {
+	if req.Check == nil {
+		return nil, status.Error(codes.InvalidArgument, "Check is required.")
+	}
+
+	results, err := s.checksService.TestAdvisorCheck(ctx, apiToAdvisorCheck(req.Check), req.ServiceId)
+	if err != nil {
+		if errors.Is(err, services.ErrAdvisorsDisabled) {
+			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
+		}
+		// pass errors through with their message intact (incl. query and
+		// script failures), so the check can be debugged from the UI
+		return nil, err
+	}
+
+	return &advisorsv1.TestAdvisorCheckResponse{Results: convertTestCheckResults(results)}, nil
+}
+
+// convertTestCheckResults converts test (dry-run) check execution results to their API representation.
+func convertTestCheckResults(results []services.CheckResult) []*advisorsv1.TestAdvisorCheckResult {
+	converted := make([]*advisorsv1.TestAdvisorCheckResult, 0, len(results))
+	for _, result := range results {
+		labels := make(map[string]string, len(result.Target.Labels)+len(result.Result.Labels))
+		maps.Copy(labels, result.Result.Labels)
+		maps.Copy(labels, result.Target.Labels)
+
+		converted = append(converted, &advisorsv1.TestAdvisorCheckResult{
+			Summary:     result.Result.Summary,
+			CheckName:   result.CheckName,
+			Description: result.Result.Description,
+			ReadMoreUrl: result.Result.ReadMoreURL,
+			Severity:    managementv1.Severity(result.Result.Severity), //nolint:gosec // severity is a bounded enum (0-8), no overflow
+			Labels:      labels,
+			ServiceName: result.Target.ServiceName,
+			ServiceId:   result.Target.ServiceID,
+		})
+	}
+
+	return converted
 }
 
 // getCheck returns a check by name together with its enabled state and the

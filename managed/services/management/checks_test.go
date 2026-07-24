@@ -61,6 +61,114 @@ func TestStartAdvisorChecks(t *testing.T) {
 	})
 }
 
+func TestTestAdvisorCheck(t *testing.T) {
+	t.Parallel()
+
+	apiCheck := &advisorsv1.AdvisorCheck{
+		Name:        "custom_mysql_version",
+		Summary:     "Check summary",
+		Description: "Check description",
+		Category:    "configuration",
+		Subcategory: "version",
+		Family:      advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MYSQL,
+		Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
+		Queries:     []*advisorsv1.AdvisorCheckQuery{{Type: "MYSQL_SHOW", Query: "version"}},
+		Script:      "def check_context(docs, context):\n    return []",
+	}
+
+	t.Run("check is required", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.TestAdvisorCheck(t.Context(), &advisorsv1.TestAdvisorCheckRequest{ServiceId: "test_svc"})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Check is required."), err)
+		assert.Nil(t, resp)
+		checksService.AssertNotCalled(t, "TestAdvisorCheck")
+	})
+
+	t.Run("Advisors disabled error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("TestAdvisorCheck", mock.Anything, mock.Anything, "test_svc").Return(nil, services.ErrAdvisorsDisabled)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.TestAdvisorCheck(t.Context(), &advisorsv1.TestAdvisorCheckRequest{Check: apiCheck, ServiceId: "test_svc"})
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "advisor checks are disabled."), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("execution errors keep their message", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("TestAdvisorCheck", mock.Anything, mock.Anything, "test_svc").
+			Return(nil, status.Errorf(codes.FailedPrecondition,
+				"failed to execute check 'custom_mysql_version' on service 'svc': random error"))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.TestAdvisorCheck(t.Context(), &advisorsv1.TestAdvisorCheckRequest{Check: apiCheck, ServiceId: "test_svc"})
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
+			"failed to execute check 'custom_mysql_version' on service 'svc': random error"), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("passes the converted check and returns converted results", func(t *testing.T) {
+		t.Parallel()
+
+		expectedCheck := check.Check{
+			Name:        "custom_mysql_version",
+			Summary:     "Check summary",
+			Description: "Check description",
+			Category:    "configuration",
+			Subcategory: "version",
+			Family:      check.MySQL,
+			Interval:    check.Standard,
+			Queries:     []check.Query{{Type: check.MySQLShow, Query: "version"}},
+			Script:      "def check_context(docs, context):\n    return []",
+		}
+		checkResult := []services.CheckResult{
+			{
+				Result: check.Result{
+					Summary:     "Check summary",
+					Description: "Check Description",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Warning,
+					Labels:      map[string]string{"label_key": "label_value"},
+				},
+				Target:    services.Target{ServiceName: "svc", ServiceID: "test_svc"},
+				CheckName: "custom_mysql_version",
+			},
+		}
+		var checksService mockChecksService
+		checksService.On("TestAdvisorCheck", mock.Anything, expectedCheck, "test_svc").Return(checkResult, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.TestAdvisorCheck(t.Context(), &advisorsv1.TestAdvisorCheckRequest{Check: apiCheck, ServiceId: "test_svc"})
+		require.NoError(t, err)
+		assert.Equal(t, &advisorsv1.TestAdvisorCheckResponse{
+			Results: []*advisorsv1.TestAdvisorCheckResult{
+				{
+					Summary:     "Check summary",
+					Description: "Check Description",
+					ReadMoreUrl: "https://www.example.com",
+					Severity:    managementv1.Severity_SEVERITY_WARNING,
+					Labels:      map[string]string{"label_key": "label_value"},
+					ServiceName: "svc",
+					ServiceId:   "test_svc",
+					CheckName:   "custom_mysql_version",
+				},
+			},
+		}, resp)
+	})
+}
+
 func TestGetAdvisorCheckScript(t *testing.T) {
 	t.Run("returns the check script", func(t *testing.T) {
 		var checksService mockChecksService
