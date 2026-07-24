@@ -3,7 +3,7 @@ checks:
   - version: 2
     name: mongodb_multiple_services
     summary: MongoDB - Multiple mongod services
-    description: This check returns a notice if multiple mongod services are running in a single node.
+    description: This check returns a warning if multiple mongod services are running in a single node.
     interval: standard
     family: MONGODB
     category: Performance

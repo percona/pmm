@@ -14,7 +14,7 @@ checks:
     script: |
       def check_context(docs, context):
         """
-        This check returns a notice if MySQL accounts are allowed to be used from public networks
+        This check returns a warning if MySQL accounts are allowed to be used from public networks
         """
 
         func = context.get("ip_is_private", fail)

@@ -93,7 +93,7 @@ checks:
                loadAvg = int(samplesSum/len(dataPoints)) if dataPoints else 0
 
                # Proposed evaluation:
-               # Low AHI hit ratio --> NOTICE
+               # Low AHI hit ratio --> WARNING
                # Low AHI contention --> WARNING
                # Medium AHI contention --> MAJOR
                # High AHI contention --> CRITICAL

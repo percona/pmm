@@ -3,7 +3,7 @@ checks:
   - version: 2
     name: mongodb_connections
     summary: MongoDB High connections
-    description: This check returns the current number of connections as an informational notice when connection counts are above 5000.
+    description: This check returns the current number of connections as a warning when connection counts are above 5000.
     interval: standard
     family: MONGODB
     category: Configuration
@@ -18,7 +18,7 @@ checks:
 
       def check_context(docs, context):
           """
-          This check returns a notice if the number of connections is above a default threshold - currently set to 5000. While not necessarily a high number, it can highlight potential configuration issues with connection or driver settings that may lead to increased memory usage if unintended.
+          This check returns a warning if the number of connections is above a default threshold - currently set to 5000. While not necessarily a high number, it can highlight potential configuration issues with connection or driver settings that may lead to increased memory usage if unintended.
           """
 
           format_version_num = context.get("format_version_num", fail)

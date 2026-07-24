@@ -3,7 +3,7 @@ checks:
   - version: 2
     name: postgresql_super_role
     summary: PostgreSQL Super Role
-    description: This check returns a notice if there are users with superuser role.
+    description: This check returns a warning if there are users with superuser role.
     family: POSTGRESQL
     category: Security
     subcategory: Authentication
@@ -14,7 +14,7 @@ checks:
     script: |
       def check_context(docs, context):
           """
-          This check returns a notice if there are users with superuser role.
+          This check returns a warning if there are users with superuser role.
           """
 
           users = []
