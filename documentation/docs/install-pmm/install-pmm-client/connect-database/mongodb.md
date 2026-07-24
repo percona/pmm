@@ -202,7 +202,7 @@ PMM offers two methods for collecting MongoDB queries. Choose based on your envi
 
     === "On CLI"
 
-        Use this method when starting the MongoDB server manually. Keep in mind that smaller values improve accuracy but can adversely affect the performance of your server:
+        Use this method when starting the MongoDB server manually. Smaller values improve accuracy but can adversely affect the performance of your server:
 
         ```sh
         mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
@@ -222,9 +222,9 @@ PMM offers two methods for collecting MongoDB queries. Choose based on your envi
         db.setProfilingLevel(2, {slowms: 0})
         ```
 
-    If you have already [added a service](#step-3-add-mongodb-service-to-pmm), you should remove it and re-add it after changing the profiling level.   
+    If you have already [added a service](#step-3-add-mongodb-service-to-pmm), remove it and re-add it after changing the profiling level.   
 
-=== "Diagnostic Log (Recommended for scale)"
+=== "Diagnostic log (Recommended for scale)"
      Choose this method for production environments with 100+ databases, when experiencing connection pool issues, or when monitoring mongos routers.
 
     Available from PMM 3.3.0+, this method reads query data directly from MongoDB's log files instead of querying the database. This eliminates connection pool usage and reduces performance impact.
@@ -236,7 +236,7 @@ PMM offers two methods for collecting MongoDB queries. Choose based on your envi
     - Scales linearly regardless of database count
     - Identical query analytics data as traditional profiler
 
-    Prerequisites for Diagnostic Log: 
+    Prerequisites for diagnostic log: 
 
     - MongoDB 5.0+ (tested with 5.0.20-17)
     - Write access to the configured log directory for MongoDB process
@@ -362,7 +362,7 @@ After configuring your database server, add a MongoDB service using either the u
         --tls-skip-verify
         ```
 
-    === "With mongolog query source"
+    === "With diagnostic log"
         ```sh
         pmm-admin add mongodb \
         --username=pmm \
@@ -384,14 +384,14 @@ After configuring your database server, add a MongoDB service using either the u
         --tls-certificate-key-file-password=cert_password \  # If needed
         --tls-ca-file=/path/to/ca.pem \
         --authentication-mechanism=MONGODB-X509 \
-        --authentication-database=$external \
+        --authentication-database='$external'\
         --cluster=my_cluster_or_rs_name
         ```
     
     When successful, PMM Client will print `MongoDB Service added` with the service's ID and name. Use the `--environment` and `--custom-labels` options to set tags for the service to help identify them.
 
     !!! hint alert alert-success "Tips"
-        - When adding members of a replica set or sharded cluster, ensure to add each node using the same `--cluster my_cluster_or_rs_name`. This allows the [MongoDB Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) and [MongoDB ReplSetSummary](../../../reference/dashboards/dashboard-mongodb-replset-summary.md) dashboards to populate correctly. 
+        - When adding members of a replica set or sharded cluster, add each node using the same `--cluster my_cluster_or_rs_name`. This allows the [MongoDB Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) and [MongoDB ReplSetSummary](../../../reference/dashboards/dashboard-mongodb-replset-summary.md) dashboards to populate correctly. 
         - Some dashboard panels, such as **Total data size** on the [MongoDB ReplSet Summary](../../../reference/dashboards/dashboard-mongodb-replset-summary.md) and [MongoDB Sharded Cluster Summary](../../../reference/dashboards/dashboard-mongodb-cluster-summary.md) dashboards, require the `dbstats` collector. Pass [`--enable-all-collectors`](../../../use/commands/pmm-admin/add.md#collector-options) when adding the service to enable it.
         - PMM does not gather collection and index metrics if it detects you have more than 200 collections, in order to limit the resource consumption. Check the [advanced options](../../../use/commands/pmm-admin/add.md#collector-options) section if you want to modify this behaviour. 
         - When running mongos routers in containers, specify the `diagnosticDataCollectionDirectoryPath` to ensure that pmm-agent can properly capture mongos metrics. For example: `mongos --setParameter diagnosticDataCollectionDirectoryPath=/var/log/mongo/mongos.diagnostic.data/`
