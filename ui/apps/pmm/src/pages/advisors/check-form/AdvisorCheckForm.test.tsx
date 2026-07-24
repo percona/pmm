@@ -155,8 +155,12 @@ describe('AdvisorCheckForm test run', () => {
     const results = await screen.findByTestId(
       'advisor-check-form-test-results'
     );
+    // the run status and the findings count are separate facts
     expect(
-      within(results).getByText(Messages.testResults(1))
+      within(results).getByTestId('advisor-check-form-test-status')
+    ).toHaveTextContent(Messages.testSuccess);
+    expect(
+      within(results).getByText(`· ${Messages.testFindings(1)}`)
     ).toBeInTheDocument();
     expect(
       screen.getByTestId('advisor-check-form-test-output')
@@ -200,6 +204,9 @@ describe('AdvisorCheckForm test run', () => {
     expect(
       await screen.findByTestId('advisor-check-form-test-error')
     ).toHaveTextContent('invalid advisor check: unknown query type');
+    expect(
+      screen.getByTestId('advisor-check-form-test-status')
+    ).toHaveTextContent(Messages.testFailure);
   });
 
   it('clears the results panel with its close button', async () => {

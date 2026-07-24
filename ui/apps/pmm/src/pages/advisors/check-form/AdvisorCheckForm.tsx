@@ -1,10 +1,13 @@
 import { FC, useEffect, useMemo, useState } from 'react';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import Drawer from '@mui/material/Drawer';
 import { formControlClasses } from '@mui/material/FormControl';
@@ -49,6 +52,7 @@ import {
   toFormValues,
   toInput,
 } from './AdvisorCheckForm.schema';
+import { ScriptEditorInput } from './ScriptEditorInput';
 
 export type AdvisorCheckFormMode = 'create' | 'edit' | 'clone';
 
@@ -442,11 +446,14 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                 label={Messages.fields.script}
                 textFieldProps={{
                   multiline: true,
-                  minRows: 8,
-                  sx: {
-                    '& textarea': { fontFamily: 'monospace', fontSize: 13 },
+                  // the outlined root already signals focus; drop the browser's
+                  // native focus ring on the editor's inner textarea
+                  sx: { '& textarea': { outline: 'none' } },
+                  slotProps: {
+                    // syntax-highlighted editor in place of the plain textarea
+                    input: { inputComponent: ScriptEditorInput },
+                    htmlInput: { 'data-testid': 'check-script' },
                   },
-                  slotProps: { htmlInput: { 'data-testid': 'check-script' } },
                 }}
                 formHelperTextProps={helperTextTestId(
                   'script-field-error-message'
@@ -455,17 +462,50 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
             </Box>
 
             {(testResults !== null || testError !== null) && (
-              <Stack gap={1} data-testid="advisor-check-form-test-results">
+              <Stack
+                gap={1}
+                data-testid="advisor-check-form-test-results"
+                // recessed "console" surface so the results read as output,
+                // not as another editable field
+                sx={{
+                  p: 1.5,
+                  pt: 1,
+                  border: 1,
+                  borderColor: 'divider',
+                  borderRadius: 1,
+                  bgcolor: 'background.default',
+                }}
+              >
                 <Stack
                   direction="row"
                   justifyContent="space-between"
                   alignItems="center"
                 >
-                  <Typography variant="subtitle2">
-                    {testError
-                      ? Messages.testFailed
-                      : Messages.testResults(testResults?.length ?? 0)}
-                  </Typography>
+                  <Stack direction="row" alignItems="center" gap={1}>
+                    <Typography variant="subtitle2">
+                      {Messages.testResultsTitle}
+                    </Typography>
+                    <Chip
+                      size="small"
+                      color={testError ? 'error' : 'success'}
+                      icon={
+                        testError ? (
+                          <ErrorOutlineIcon />
+                        ) : (
+                          <CheckCircleOutlineIcon />
+                        )
+                      }
+                      label={
+                        testError ? Messages.testFailure : Messages.testSuccess
+                      }
+                      data-testid="advisor-check-form-test-status"
+                    />
+                    {!testError && (
+                      <Typography variant="body2" color="text.secondary">
+                        {`· ${Messages.testFindings(testResults?.length ?? 0)}`}
+                      </Typography>
+                    )}
+                  </Stack>
                   <IconButton
                     size="small"
                     aria-label={Messages.closeResults}
@@ -494,7 +534,18 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                     copyable
                     content={JSON.stringify(testResults, null, 2)}
                     maxHeight="30vh"
-                    sx={{ overflow: 'auto', m: 0 }}
+                    // an explicit border so the panel stands out from the
+                    // form fields around it; wrap long lines instead of
+                    // clipping them behind a horizontal scroll
+                    sx={{
+                      overflow: 'auto',
+                      m: 0,
+                      border: 1,
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      whiteSpace: 'pre-wrap',
+                      overflowWrap: 'anywhere',
+                    }}
                     data-testid="advisor-check-form-test-output"
                   />
                 )}
@@ -507,7 +558,15 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                       copyable
                       content={testScriptOutput}
                       maxHeight="20vh"
-                      sx={{ overflow: 'auto', m: 0 }}
+                      sx={{
+                        overflow: 'auto',
+                        m: 0,
+                        border: 1,
+                        borderColor: 'divider',
+                        borderRadius: 1,
+                        whiteSpace: 'pre-wrap',
+                        overflowWrap: 'anywhere',
+                      }}
                       data-testid="advisor-check-form-test-script-output"
                     />
                   </>
