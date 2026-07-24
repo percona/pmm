@@ -25,7 +25,8 @@ packages:
       agentsRegistry:
   github.com/percona/pmm/managed/services/grafana:
     interfaces:
-      clientInterface:
+      grafanaAuthUserGetter:
+      accessControl:
   github.com/percona/pmm/managed/services/inventory:
     interfaces:
       agentService:

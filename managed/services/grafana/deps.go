@@ -22,7 +22,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// clientInterface exist only to make fuzzing simpler.
-type clientInterface interface {
+// grafanaAuthUserGetter exist only to make fuzzing simpler.
+type grafanaAuthUserGetter interface {
 	getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error)
+}
+type accessControl interface {
+	isEnabled() bool
 }

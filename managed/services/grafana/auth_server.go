@@ -230,7 +230,7 @@ type authMetrics struct {
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
 	// c is the client used to interact with the Grafana API.
-	c clientInterface
+	c grafanaAuthUserGetter
 	// db is the PostgreSQL database handle using reform ORM.
 	db *reform.DB
 	// l is the structured logger for the auth component.
@@ -243,7 +243,7 @@ type AuthServer struct {
 	rw sync.RWMutex
 
 	// accessControl manages RBAC and LBAC filtering logic.
-	accessControl *accessControl
+	accessControl accessControl
 
 	// TODO server metrics should be provided by middleware https://jira.percona.com/browse/PMM-4326
 	// Prometheus metrics for the AuthServer.
@@ -251,13 +251,13 @@ type AuthServer struct {
 }
 
 // NewAuthServer creates new AuthServer.
-func NewAuthServer(c clientInterface, db *reform.DB) *AuthServer {
+func NewAuthServer(c grafanaAuthUserGetter, db *reform.DB) *AuthServer {
 	s := &AuthServer{
 		c:     c,
 		db:    db,
 		l:     logrus.WithField("component", "grafana/auth"),
 		cache: make(map[string]cacheItem),
-		accessControl: &accessControl{
+		accessControl: &accessControlCache{
 			db: db,
 		},
 		metrics: authMetrics{

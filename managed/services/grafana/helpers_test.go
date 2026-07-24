@@ -410,10 +410,10 @@ func BenchmarkResolveRule(b *testing.B) {
 	}{
 		{name: "method specific alerting write", method: http.MethodPut, path: "/v1/alerting/templates/template-id"},
 		{name: "unknown path fallback", method: http.MethodGet, path: "/v1/not-found-endpoint"},
-		{name: "metrics write path", method: http.MethodGet, path: "/victoriametrics/api/v1/write"},
+		{name: "metrics write path", method: http.MethodPost, path: "/victoriametrics/api/v1/write"},
 		{name: "query metrics path", method: http.MethodGet, path: "/graph/api/ds/query"},
 		{name: "server readyz path", method: http.MethodGet, path: "/v1/server/readyz"},
-		{name: "pmm agent connect path", method: http.MethodGet, path: "/agent.v1.AgentService/Connect"},
+		{name: "pmm agent connect path", method: http.MethodPost, path: "/agent.v1.AgentService/Connect"},
 	} {
 		b.Run(tc.name, func(b *testing.B) {
 			for b.Loop() {
