@@ -15,8 +15,10 @@ Summary:	Percona Monitoring and Management web UI
 
 License:	Apache-2.0
 URL:	    https://%{provider}
-Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
 
+BuildRequires:	nodejs
+
+Source0:	https://%{provider}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
 %description
 This package provides the PMM web UI (the pmm application) and the pmm-compat
 Grafana panel plugin, both built from the PMM monorepo UI workspace.
