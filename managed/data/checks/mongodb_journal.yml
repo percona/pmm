@@ -22,7 +22,7 @@ checks:
 
           rows = docs[0]
           if len(rows) != 1:
-              return "Unexpected number of documents"
+              return "unexpected number of documents"
 
           results = []
           parsed = rows[0]["parsed"]

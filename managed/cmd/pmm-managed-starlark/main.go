@@ -91,20 +91,20 @@ func main() {
 	err = decoder.Decode(&data)
 	if err != nil {
 		// write to stderr as plain text so pmm-managed can surface the cause instead of a bare exit code
-		fmt.Fprintf(os.Stderr, "Error decoding json data: %s\n", err)
+		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
 
 	results, err := runChecks(l, &data)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error running starlark script: %+v\n", err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}
 
 	encoder := json.NewEncoder(os.Stdout)
 	err = encoder.Encode(results)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error encoding JSON results: %s\n", err)
+		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
 }
@@ -155,7 +155,7 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 		results, err = env.Run(data.Name, res, contextFuncs, l.Debugln)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("error running starlark env: %w", err)
+		return nil, err
 	}
 
 	return results, nil

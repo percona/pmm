@@ -274,6 +274,16 @@ func convertResult(m map[string]any) (*check.Result, error) {
 		return nil, err
 	}
 
+	// parse severity here, where the raw string is still available for the error message
+	parsedSeverity := common.ParseSeverity(severity)
+	err = parsedSeverity.Validate()
+	if err != nil {
+		if severity == "" {
+			return nil, errors.New("severity is required")
+		}
+		return nil, fmt.Errorf("unknown severity level: '%s'", severity)
+	}
+
 	var labels map[string]string
 
 	l, ok := m["labels"]
@@ -298,7 +308,7 @@ func convertResult(m map[string]any) (*check.Result, error) {
 		Summary:     summary,
 		Description: description,
 		ReadMoreURL: readMoreURL,
-		Severity:    common.ParseSeverity(severity),
+		Severity:    parsedSeverity,
 		Labels:      labels,
 	}
 

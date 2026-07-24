@@ -37,7 +37,7 @@ checks:
           
           build_info = docs[0]
           if len(build_info) != 1:
-              return "Unexpected number of documents from buildInfo"
+              return "unexpected number of documents from buildInfo"
           
           info = build_info[0]
           version = parse_version(info["version"])

@@ -32,7 +32,7 @@ checks:
 
           rows = docs[0]
           if len(rows) != 1:
-              return "Unexpected number of documents"
+              return "unexpected number of documents"
 
           print(repr(rows[0]))
           data = rows[0]["data"]
