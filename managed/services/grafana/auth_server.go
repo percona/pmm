@@ -206,13 +206,8 @@ func (a authError) Error() string {
 	return fmt.Sprintf("%s: %s", a.message, a.code)
 }
 
-var (
-	// errInvalidUserID is returned when user ID is not valid.
-	errInvalidUserID = errors.New("invalid user ID")
-
-	// errFailGetUserID is returned when we cannot retrieve user ID.
-	errFailGetUserID = errors.New("failed to get user ID")
-)
+// ErrFailGetUserID is returned when we cannot retrieve user ID.
+var errFailGetUserID = errors.New("failed to get user ID")
 
 type cacheItem struct {
 	u       authUser
