@@ -36,7 +36,7 @@ checks:
                       "summary": "The current number of connections for this MongoDB node are - {} ".format(connections),
                       "description": "Please confirm your desired driver and connection settings. You can use mongostat and the currentOp command to see what operations the connections are running. For more information please check the Read More documentation.",
                       "read_more_url": read_url.format("mongo-high-connections"),
-                      "severity": "info",
+                      "severity": "warning",
                   })
 
               return results

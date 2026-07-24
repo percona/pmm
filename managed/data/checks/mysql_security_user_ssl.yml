@@ -24,7 +24,7 @@ checks:
                return {
                  "summary": "User(s) not using secure SSL protocol to connect",
                  "description": "User(s) not using secure SSL protocol to connect. User list = {} ;".format(user),
-                 "severity": "info",
+                 "severity": "warning",
                  "read_more_url": read_url.format("security-user-not-using-ssl-protocol"),
                  "labels": {
                     "mysql_version": "{}".format(version),

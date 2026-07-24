@@ -24,7 +24,7 @@ checks:
                return {
                  "summary": "Users have super privileges with remote or lack access restrictions",
                  "description": "Users have super privileges but are not connecting from local or the host is not fully restricted (i.e. 192.168.%). User list = {} ;".format(user),
-                 "severity": "info",
+                 "severity": "warning",
                  "read_more_url": read_url.format("security-non-root-accounts-super-privileges"),
                  "labels": {
                     "mysql_version": "{}".format(version),

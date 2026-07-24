@@ -36,7 +36,7 @@ checks:
                  "summary": "MySQL Time Zone data is not loaded",
                  "description": "MySQL Time Zone data is not loaded.",
                  "read_more_url":read_url.format("time-zone-data-not-loaded"),
-                 "severity": "info",
+                 "severity": "warning",
                  "labels": {},
              })
            return results

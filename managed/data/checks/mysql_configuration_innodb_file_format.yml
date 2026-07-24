@@ -24,7 +24,7 @@ checks:
                return {
                  "summary": "InnoDB File Format is not optimal",
                  "description": "InnoDB is using the old file format insted of the new Barracuda. Current setting: {} = {} ;".format(name,value),
-                 "severity": "info",
+                 "severity": "warning",
                  "read_more_url": read_url.format("configuration-innodb-file-format"),
                  "labels": {
                     "mysql_version": "{}".format(version),
@@ -36,7 +36,7 @@ checks:
                return {
                  "summary": "InnoDB File Format Max is not optimal",
                  "description": "InnoDB is using the old file format insted of the new Barracuda. Current setting: {} = {} ;".format(name,value),
-                 "severity": "info",
+                 "severity": "warning",
                  "read_more_url": read_url.format("configuration-innodb-file-format"),
                  "labels": {
                     "mysql_version": "{}".format(version),

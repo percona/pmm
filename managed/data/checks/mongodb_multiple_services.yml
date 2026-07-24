@@ -33,6 +33,6 @@ checks:
                   "summary": "MongoDB - multiple mongod services running",
                   "description": "Multiple mongod services (pids: {}) are running on a single node <{}>. We recommended to use a dedicated node or container for each mongod service. For more information, refer to Read More documentation.".format(pids, node),
                   "read_more_url": read_url.format("multiple-mongod-running-in-a-node"),
-                  "severity": "info",
+                  "severity": "warning",
               })
           return results

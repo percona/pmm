@@ -68,7 +68,7 @@ checks:
                    "summary": "InnoDB's Adaptive Hash Index (AHI) is enabled.",
                    "description": desc,
                    "read_more_url": read_more,
-                   "severity": "info",
+                   "severity": "warning",
                    "labels": {},
                })
 
@@ -126,7 +126,7 @@ checks:
                else:
                    summary = "AHI is operating with no contention detected"
                    description = btrWaitLoadHitRatioMsg
-                   severity = "info"
+                   severity = "warning"
 
                results.append({
                    "summary": summary,
@@ -142,7 +142,7 @@ checks:
                    "summary": "InnoDB's Adaptive Hash Index (AHI) is disabled.",
                    "description": "The AHI can speed up queries in certain MySQL read workloads, sometimes at the expense of concurrency. It might be worth experimenting operating with it enabled if you haven't already. Then, keep checking this dashboard for any signs of contention on AHI; test with caution.",
                    "read_more_url": read_more,
-                   "severity": "info",
+                   "severity": "warning",
                    "labels": {},
                })
 

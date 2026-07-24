@@ -23,7 +23,7 @@ checks:
                return {
                  "summary": "InnoDB strict mode is disabled",
                  "description": "Please consider setting innodb_strict_mode=ON to improve data consistency. Current settings = {} ;".format(innodb_strict_mode),
-                 "severity": "info",
+                 "severity": "warning",
                  "read_more_url": read_url.format("innodb-strict-mode"),
                  "labels": {
                     "mysql_version": "{}".format(version),
