@@ -148,7 +148,7 @@ func TestHTTPStatusForAuthError(t *testing.T) {
 	}
 }
 
-func TestAuthServerShallAddLBACFilters(t *testing.T) {
+func TestAuthServerNeedAddLBACFilters(t *testing.T) {
 	t.Parallel()
 
 	t.Run("disabled LBAC - lbacPrefixes", func(t *testing.T) {
