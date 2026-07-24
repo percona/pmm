@@ -113,8 +113,10 @@ type AddMongoDBServiceParams struct {
 	RtaMongodbAgent bool `protobuf:"varint,37,opt,name=rta_mongodb_agent,json=rtaMongodbAgent,proto3" json:"rta_mongodb_agent,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,38,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms bool `protobuf:"varint,39,opt,name=enable_diagnostic_data_histograms,json=enableDiagnosticDataHistograms,proto3" json:"enable_diagnostic_data_histograms,omitempty"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
 }
 
 func (x *AddMongoDBServiceParams) Reset() {
@@ -399,6 +401,13 @@ func (x *AddMongoDBServiceParams) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+func (x *AddMongoDBServiceParams) GetEnableDiagnosticDataHistograms() bool {
+	if x != nil {
+		return x.EnableDiagnosticDataHistograms
+	}
+	return false
+}
+
 type MongoDBServiceResult struct {
 	state              protoimpl.MessageState      `protogen:"open.v1"`
 	Service            *v1.MongoDBService          `protobuf:"bytes,1,opt,name=service,proto3" json:"service,omitempty"`
@@ -479,7 +488,7 @@ var File_management_v1_mongodb_proto protoreflect.FileDescriptor
 
 const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xdf\r\n" +
+	"\x1bmanagement/v1/mongodb.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xaa\x0e\n" +
 	"\x17AddMongoDBServiceParams\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -518,7 +527,8 @@ const file_management_v1_mongodb_proto_rawDesc = "" +
 	"\x0fexpose_exporter\x18\" \x01(\bR\x0eexposeExporter\x12<\n" +
 	"\x1aenvironment_variable_names\x18$ \x03(\tR\x18environmentVariableNames\x12*\n" +
 	"\x11rta_mongodb_agent\x18% \x01(\bR\x0frtaMongodbAgent\x12R\n" +
-	"\x12connection_timeout\x18& \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18& \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12I\n" +
+	"!enable_diagnostic_data_histograms\x18' \x01(\bR\x1eenableDiagnosticDataHistograms\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01J\x04\b\b\x10\tR\x17query_examples_disabled\"\x95\x03\n" +
