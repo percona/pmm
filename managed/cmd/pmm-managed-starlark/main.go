@@ -112,7 +112,7 @@ func main() {
 func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result, error) {
 	funcs, err := checks.GetFuncsForVersion(data.Version)
 	if err != nil {
-		return nil, fmt.Errorf("error getting funcs: %w", err)
+		return nil, err
 	}
 
 	env, err := starlark.NewEnv(data.Name, data.Script, funcs)
@@ -148,12 +148,7 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 
 	var results []check.Result
 	contextFuncs := checks.GetAdditionalContext()
-	switch data.Version {
-	case 1:
-		results, err = env.Run(data.Name, res[0], contextFuncs, l.Debugln)
-	case 2:
-		results, err = env.Run(data.Name, res, contextFuncs, l.Debugln)
-	}
+	results, err = env.Run(data.Name, res, contextFuncs, l.Debugln)
 	if err != nil {
 		return nil, err
 	}
@@ -164,12 +159,12 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 func unmarshalQueryResult(qr string) ([]map[string]any, error) {
 	b, err := base64.StdEncoding.DecodeString(qr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode base64 encoded query result: %w", err)
+		return nil, err
 	}
 
 	res, err := agentv1.UnmarshalActionQueryResult(b)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal query result: %w", err)
+		return nil, err
 	}
 
 	return res, nil

@@ -4,9 +4,9 @@ checks:
   - version: 2
     name: mongodb_write_tickets_runtime
     summary: MongoDB Configuration Write ticket Check
-    description: This check returns warnings if MongoDB is using more than 128 write tickets during runtime.
+    description: Warns when MongoDB is using more than 128 write tickets during runtime.
     family: MONGODB
-    #author: Vinicius Grippa
+    # author: Vinicius Grippa
     category: Configuration
     subcategory: Generic
     interval: standard
@@ -19,11 +19,11 @@ checks:
           rows = docs[0]
 
           if len(rows) != 1:
-              return "unexpected number of documents"
+              return "unexpected number of documents: {}".format(len(rows))
 
           results = []
-          parsed = rows[0]
-          writeParameter = parsed.get("wiredTigerConcurrentWriteTransactions", 0)
+          row = rows[0]
+          writeParameter = row.get("wiredTigerConcurrentWriteTransactions", 0)
           check = (int(writeParameter) >= 128)
           if check:
               results.append({

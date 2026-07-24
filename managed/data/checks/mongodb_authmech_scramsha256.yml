@@ -21,7 +21,7 @@ checks:
 
           rows = docs[0]
           if len(rows) != 1:
-              return "unexpected number of documents"
+              return "unexpected number of documents: {}".format(len(rows))
 
           results = []
           authMechanisms = rows[0].get("authenticationMechanisms", [])
