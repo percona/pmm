@@ -55,46 +55,6 @@ message AdvisorCheckResult {
   string service_name = 6;
 }
 
-// CheckResultSummary is a summary of check results.
-message CheckResultSummary {
-  string service_name = 1;
-  string service_id = 2;
-  // Number of failed checks for this service with severity level "EMERGENCY".
-  uint32 emergency_count = 3;
-  // Number of failed checks for this service with severity level "ALERT".
-  uint32 alert_count = 4;
-  // Number of failed checks for this service with severity level "CRITICAL".
-  uint32 critical_count = 5;
-  // Number of failed checks for this service with severity level "ERROR".
-  uint32 error_count = 6;
-  // Number of failed checks for this service with severity level "WARNING".
-  uint32 warning_count = 7;
-  // Number of failed checks for this service with severity level "NOTICE".
-  uint32 notice_count = 8;
-  // Number of failed checks for this service with severity level "INFO".
-  uint32 info_count = 9;
-  // Number of failed checks for this service with severity level "DEBUG".
-  uint32 debug_count = 10;
-}
-
-// CheckResult represents the check results for a given service.
-message CheckResult {
-  string summary = 1;
-  string description = 2;
-  management.v1.Severity severity = 3;
-  map<string, string> labels = 4;
-  // URL containing information on how to resolve an issue detected by an Advisor check.
-  string read_more_url = 5;
-  // Name of the monitored service on which the check ran.
-  string service_name = 6;
-  // ID of the monitored service on which the check ran.
-  string service_id = 7;
-  // Name of the check that failed
-  string check_name = 8;
-  // Silence status of the check result
-  bool silenced = 10;
-}
-
 // AdvisorCheckQuery is a single data-collection query of an advisor check.
 message AdvisorCheckQuery {
   // Query type, e.g. "MYSQL_SHOW", "POSTGRESQL_SELECT", "METRICS_RANGE".
@@ -270,30 +230,6 @@ message ChangeAdvisorChecksRequest {
 
 message ChangeAdvisorChecksResponse {}
 
-message ListFailedServicesRequest {}
-
-message ListFailedServicesResponse {
-  repeated CheckResultSummary result = 1;
-}
-
-message GetFailedChecksRequest {
-  // Maximum number of results per page.
-  optional int32 page_size = 1 [(validate.rules).int32.gte = 1];
-  // Index of the requested page, starts from 0.
-  optional int32 page_index = 2 [(validate.rules).int32.gte = 0];
-  // Service ID.
-  string service_id = 3;
-}
-
-message GetFailedChecksResponse {
-  // Total number of results.
-  int32 total_items = 1;
-  // Total number of pages.
-  int32 total_pages = 2;
-  // Check results
-  repeated CheckResult results = 3;
-}
-
 // CheckResultHistoryItem represents a single persisted Advisor check run against a service.
 message CheckResultHistoryItem {
   // Unique identifier of the history record.
@@ -406,22 +342,6 @@ message MarkCheckResultsReadResponse {}
 
 // AdvisorService service provides public Management API methods for Advisor Service.
 service AdvisorService {
-  // ListFailedServices returns a list of services with failed checks.
-  rpc ListFailedServices(ListFailedServicesRequest) returns (ListFailedServicesResponse) {
-    option (google.api.http) = {get: "/v1/advisors/failedServices"};
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List Failed Services"
-      description: "Returns a list of services with failed checks and a summary of check results."
-    };
-  }
-  // GetFailedChecks returns the checks result for a given service.
-  rpc GetFailedChecks(GetFailedChecksRequest) returns (GetFailedChecksResponse) {
-    option (google.api.http) = {get: "/v1/advisors/checks/failed"};
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Get Failed Advisor Checks"
-      description: "Returns the latest check results for a given service."
-    };
-  }
   // ListCheckResultsHistory returns the history of Advisor check runs.
   rpc ListCheckResultsHistory(ListCheckResultsHistoryRequest) returns (ListCheckResultsHistoryResponse) {
     option (google.api.http) = {get: "/v1/advisors/checks/history"};
@@ -470,7 +390,7 @@ service AdvisorService {
   }
   // GetAdvisorCheckScript returns the source script of a single advisor check.
   rpc GetAdvisorCheckScript(GetAdvisorCheckScriptRequest) returns (GetAdvisorCheckScriptResponse) {
-    // deeper path than /checks/{failed,history} so the wildcard cannot shadow them
+    // deeper path than /checks/history so the wildcard cannot shadow it
     option (google.api.http) = {get: "/v1/advisors/checks/{name}/script"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Advisor Check Script"
@@ -498,7 +418,7 @@ service AdvisorService {
   }
   // GetAdvisorCheck returns a single advisor check by name, including its queries and script.
   rpc GetAdvisorCheck(GetAdvisorCheckRequest) returns (GetAdvisorCheckResponse) {
-    // deeper path than /checks/{failed,history} so the {name} wildcard cannot shadow them
+    // deeper path than /checks/history so the {name} wildcard cannot shadow it
     option (google.api.http) = {get: "/v1/advisors/checks/{name}/definition"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Advisor Check"

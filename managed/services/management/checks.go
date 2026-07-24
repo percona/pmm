@@ -32,7 +32,6 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/check"
-	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/services"
 )
 
@@ -50,131 +49,6 @@ func NewChecksAPIService(checksService checksService) *ChecksAPIService {
 		checksService: checksService,
 		l:             logrus.WithField("component", "management/checks"),
 	}
-}
-
-// ListFailedServices returns a list of services with failed checks and their summaries.
-func (s *ChecksAPIService) ListFailedServices(ctx context.Context, _ *advisorsv1.ListFailedServicesRequest) (*advisorsv1.ListFailedServicesResponse, error) {
-	results, err := s.checksService.GetChecksResults(ctx, "")
-	if err != nil {
-		if errors.Is(err, services.ErrAdvisorsDisabled) {
-			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
-		}
-
-		return nil, fmt.Errorf("failed to get check results: %w", err)
-	}
-
-	summaries := make(map[string]*services.CheckResultSummary)
-	var svcSummary *services.CheckResultSummary
-	var exists bool
-	for _, result := range results {
-		if svcSummary, exists = summaries[result.Target.ServiceID]; !exists {
-			svcSummary = &services.CheckResultSummary{
-				ServiceName: result.Target.ServiceName,
-				ServiceID:   result.Target.ServiceID,
-			}
-			summaries[result.Target.ServiceID] = svcSummary
-		}
-		switch result.Result.Severity {
-		case common.Emergency:
-			svcSummary.EmergencyCount++
-		case common.Alert:
-			svcSummary.AlertCount++
-		case common.Critical:
-			svcSummary.CriticalCount++
-		case common.Error:
-			svcSummary.ErrorCount++
-		case common.Warning:
-			svcSummary.WarningCount++
-		case common.Notice:
-			svcSummary.NoticeCount++
-		case common.Info:
-			svcSummary.InfoCount++
-		case common.Debug:
-			svcSummary.DebugCount++
-		case common.Unknown:
-			continue
-		}
-	}
-
-	failedServices := make([]*advisorsv1.CheckResultSummary, 0, len(summaries))
-	for _, result := range summaries {
-		failedServices = append(failedServices, &advisorsv1.CheckResultSummary{
-			ServiceId:      result.ServiceID,
-			ServiceName:    result.ServiceName,
-			EmergencyCount: result.EmergencyCount,
-			AlertCount:     result.AlertCount,
-			CriticalCount:  result.CriticalCount,
-			ErrorCount:     result.ErrorCount,
-			WarningCount:   result.WarningCount,
-			NoticeCount:    result.NoticeCount,
-			InfoCount:      result.InfoCount,
-			DebugCount:     result.DebugCount,
-		})
-	}
-
-	return &advisorsv1.ListFailedServicesResponse{Result: failedServices}, nil
-}
-
-// GetFailedChecks returns details of failed checks for a given service.
-func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *advisorsv1.GetFailedChecksRequest) (*advisorsv1.GetFailedChecksResponse, error) {
-	results, err := s.checksService.GetChecksResults(ctx, req.ServiceId)
-	if err != nil {
-		if errors.Is(err, services.ErrAdvisorsDisabled) {
-			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
-		}
-
-		return nil, fmt.Errorf("failed to get check results for service '%s': %w", req.ServiceId, err)
-	}
-
-	failedChecks := make([]*advisorsv1.CheckResult, 0, len(results))
-	for _, result := range results {
-		labels := make(map[string]string, len(result.Target.Labels)+len(result.Result.Labels))
-		maps.Copy(labels, result.Result.Labels)
-		maps.Copy(labels, result.Target.Labels)
-
-		failedChecks = append(failedChecks, &advisorsv1.CheckResult{
-			Summary:     result.Result.Summary,
-			CheckName:   result.CheckName,
-			Description: result.Result.Description,
-			ReadMoreUrl: result.Result.ReadMoreURL,
-			Severity:    managementv1.Severity(result.Result.Severity), //nolint:gosec
-			Labels:      labels,
-			ServiceName: result.Target.ServiceName,
-			ServiceId:   result.Target.ServiceID,
-		})
-	}
-
-	var pageIndex, pageSize int
-	totalPages := int32(1)
-	totalItems := int32(len(failedChecks)) //nolint:gosec
-
-	if req.PageIndex != nil {
-		pageIndex = int(pointer.GetInt32(req.PageIndex))
-	}
-	if req.PageSize != nil {
-		pageSize = int(pointer.GetInt32(req.PageSize))
-	}
-
-	from, to := pageIndex*pageSize, (pageIndex+1)*pageSize
-	if to > len(failedChecks) || to == 0 {
-		to = len(failedChecks)
-	}
-	if from > len(failedChecks) {
-		from = len(failedChecks)
-	}
-
-	if pageSize > 0 {
-		totalPages = int32(len(failedChecks) / pageSize) //nolint:gosec
-		if len(failedChecks)%pageSize > 0 {
-			totalPages++
-		}
-	}
-
-	return &advisorsv1.GetFailedChecksResponse{
-		Results:    failedChecks[from:to],
-		TotalItems: totalItems,
-		TotalPages: totalPages,
-	}, nil
 }
 
 // ListCheckResultsHistory returns the paginated history of Advisor check runs matching the filters.

@@ -91,19 +91,15 @@ func (r *registry) cleanup() {
 	r.checkResults = make(map[check.Interval]map[string][]services.CheckResult)
 }
 
-// getCheckResults returns checks results for the given service. If serviceID is empty it returns results for all services.
-func (r *registry) getCheckResults(serviceID string) []services.CheckResult {
+// getCheckResults returns checks results for all services.
+func (r *registry) getCheckResults() []services.CheckResult {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
 	var results []services.CheckResult
 	for _, intervalGroup := range r.checkResults {
 		for _, checkNameGroup := range intervalGroup {
-			for _, checkResult := range checkNameGroup {
-				if serviceID == "" || checkResult.Target.ServiceID == serviceID {
-					results = append(results, checkResult)
-				}
-			}
+			results = append(results, checkNameGroup...)
 		}
 	}
 
@@ -118,7 +114,7 @@ func (r *registry) Describe(ch chan<- *prom.Desc) {
 // Collect implements prom.Collector.
 func (r *registry) Collect(ch chan<- prom.Metric) {
 	r.mInsights.Reset()
-	res := r.getCheckResults("")
+	res := r.getCheckResults()
 	for _, re := range res {
 		r.mInsights.WithLabelValues(string(re.Target.ServiceType), re.Target.ServiceName, re.Subcategory, re.CheckName, re.Result.Severity.String()).Inc()
 	}

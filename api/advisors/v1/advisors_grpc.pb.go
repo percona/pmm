@@ -20,8 +20,6 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AdvisorService_ListFailedServices_FullMethodName           = "/advisors.v1.AdvisorService/ListFailedServices"
-	AdvisorService_GetFailedChecks_FullMethodName              = "/advisors.v1.AdvisorService/GetFailedChecks"
 	AdvisorService_ListCheckResultsHistory_FullMethodName      = "/advisors.v1.AdvisorService/ListCheckResultsHistory"
 	AdvisorService_ListCheckResultsFilterValues_FullMethodName = "/advisors.v1.AdvisorService/ListCheckResultsFilterValues"
 	AdvisorService_MarkCheckResultsRead_FullMethodName         = "/advisors.v1.AdvisorService/MarkCheckResultsRead"
@@ -43,10 +41,6 @@ const (
 //
 // AdvisorService service provides public Management API methods for Advisor Service.
 type AdvisorServiceClient interface {
-	// ListFailedServices returns a list of services with failed checks.
-	ListFailedServices(ctx context.Context, in *ListFailedServicesRequest, opts ...grpc.CallOption) (*ListFailedServicesResponse, error)
-	// GetFailedChecks returns the checks result for a given service.
-	GetFailedChecks(ctx context.Context, in *GetFailedChecksRequest, opts ...grpc.CallOption) (*GetFailedChecksResponse, error)
 	// ListCheckResultsHistory returns the history of Advisor check runs.
 	ListCheckResultsHistory(ctx context.Context, in *ListCheckResultsHistoryRequest, opts ...grpc.CallOption) (*ListCheckResultsHistoryResponse, error)
 	// ListCheckResultsFilterValues returns the distinct values usable as history filters.
@@ -81,26 +75,6 @@ type advisorServiceClient struct {
 
 func NewAdvisorServiceClient(cc grpc.ClientConnInterface) AdvisorServiceClient {
 	return &advisorServiceClient{cc}
-}
-
-func (c *advisorServiceClient) ListFailedServices(ctx context.Context, in *ListFailedServicesRequest, opts ...grpc.CallOption) (*ListFailedServicesResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListFailedServicesResponse)
-	err := c.cc.Invoke(ctx, AdvisorService_ListFailedServices_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *advisorServiceClient) GetFailedChecks(ctx context.Context, in *GetFailedChecksRequest, opts ...grpc.CallOption) (*GetFailedChecksResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetFailedChecksResponse)
-	err := c.cc.Invoke(ctx, AdvisorService_GetFailedChecks_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *advisorServiceClient) ListCheckResultsHistory(ctx context.Context, in *ListCheckResultsHistoryRequest, opts ...grpc.CallOption) (*ListCheckResultsHistoryResponse, error) {
@@ -239,10 +213,6 @@ func (c *advisorServiceClient) DeleteAdvisorCheck(ctx context.Context, in *Delet
 //
 // AdvisorService service provides public Management API methods for Advisor Service.
 type AdvisorServiceServer interface {
-	// ListFailedServices returns a list of services with failed checks.
-	ListFailedServices(context.Context, *ListFailedServicesRequest) (*ListFailedServicesResponse, error)
-	// GetFailedChecks returns the checks result for a given service.
-	GetFailedChecks(context.Context, *GetFailedChecksRequest) (*GetFailedChecksResponse, error)
 	// ListCheckResultsHistory returns the history of Advisor check runs.
 	ListCheckResultsHistory(context.Context, *ListCheckResultsHistoryRequest) (*ListCheckResultsHistoryResponse, error)
 	// ListCheckResultsFilterValues returns the distinct values usable as history filters.
@@ -278,14 +248,6 @@ type AdvisorServiceServer interface {
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
 type UnimplementedAdvisorServiceServer struct{}
-
-func (UnimplementedAdvisorServiceServer) ListFailedServices(context.Context, *ListFailedServicesRequest) (*ListFailedServicesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListFailedServices not implemented")
-}
-
-func (UnimplementedAdvisorServiceServer) GetFailedChecks(context.Context, *GetFailedChecksRequest) (*GetFailedChecksResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetFailedChecks not implemented")
-}
 
 func (UnimplementedAdvisorServiceServer) ListCheckResultsHistory(context.Context, *ListCheckResultsHistoryRequest) (*ListCheckResultsHistoryResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListCheckResultsHistory not implemented")
@@ -357,42 +319,6 @@ func RegisterAdvisorServiceServer(s grpc.ServiceRegistrar, srv AdvisorServiceSer
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&AdvisorService_ServiceDesc, srv)
-}
-
-func _AdvisorService_ListFailedServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListFailedServicesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AdvisorServiceServer).ListFailedServices(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AdvisorService_ListFailedServices_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdvisorServiceServer).ListFailedServices(ctx, req.(*ListFailedServicesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AdvisorService_GetFailedChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetFailedChecksRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AdvisorServiceServer).GetFailedChecks(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AdvisorService_GetFailedChecks_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdvisorServiceServer).GetFailedChecks(ctx, req.(*GetFailedChecksRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _AdvisorService_ListCheckResultsHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -636,14 +562,6 @@ var AdvisorService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "advisors.v1.AdvisorService",
 	HandlerType: (*AdvisorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "ListFailedServices",
-			Handler:    _AdvisorService_ListFailedServices_Handler,
-		},
-		{
-			MethodName: "GetFailedChecks",
-			Handler:    _AdvisorService_GetFailedChecks_Handler,
-		},
 		{
 			MethodName: "ListCheckResultsHistory",
 			Handler:    _AdvisorService_ListCheckResultsHistory_Handler,

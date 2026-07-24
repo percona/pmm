@@ -79,7 +79,7 @@ func TestRegistry(t *testing.T) {
 		// Empty interval means standard
 		checkResults[1].Interval = check.Standard
 
-		collectedAlerts := r.getCheckResults("")
+		collectedAlerts := r.getCheckResults()
 		assert.ElementsMatch(t, checkResults, collectedAlerts)
 	})
 
@@ -131,7 +131,7 @@ func TestRegistry(t *testing.T) {
 		r.set(checkResults)
 		r.deleteByInterval(check.Standard)
 
-		collectedAlerts := r.getCheckResults("")
+		collectedAlerts := r.getCheckResults()
 		require.Len(t, collectedAlerts, 1)
 		assert.Equal(t, checkResults[1], collectedAlerts[0])
 	})
@@ -184,7 +184,7 @@ func TestRegistry(t *testing.T) {
 		r.set(checkResults)
 		r.deleteByName([]string{"name1"})
 
-		collectedAlerts := r.getCheckResults("")
+		collectedAlerts := r.getCheckResults()
 		require.Len(t, collectedAlerts, 1)
 		assert.Equal(t, checkResults[1], collectedAlerts[0])
 	})
@@ -236,7 +236,7 @@ func TestRegistry(t *testing.T) {
 		r.set(checkResults)
 		r.deleteByInterval(check.Standard)
 
-		collectedAlerts := r.getCheckResults("")
+		collectedAlerts := r.getCheckResults()
 		assert.Empty(t, collectedAlerts)
 	})
 }

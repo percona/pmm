@@ -245,20 +245,6 @@ func (s *Service) runChecksLoop(ctx context.Context) {
 	}
 }
 
-// GetChecksResults returns the failed checks for a given service.
-func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]services.CheckResult, error) {
-	settings, err := models.GetSettings(s.db)
-	if err != nil {
-		return nil, err
-	}
-
-	if !settings.IsAdvisorsEnabled() {
-		return nil, services.ErrAdvisorsDisabled
-	}
-
-	return s.alertsRegistry.getCheckResults(serviceID), nil
-}
-
 // GetCheckResultsHistory returns Advisor check results history matching the filters,
 // together with the total number of matching rows (ignoring pagination).
 func (s *Service) GetCheckResultsHistory(ctx context.Context, filters models.CheckResultFilters, pageIndex, pageSize int) ([]*models.CheckResult, int, error) {
