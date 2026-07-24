@@ -30,7 +30,7 @@ import {
   ListCheckResultsHistoryParams,
   MarkCheckResultsReadRequest,
   TestAdvisorCheckRequest,
-  TestAdvisorCheckResult,
+  TestAdvisorCheckResponse,
 } from 'types/advisors.types';
 import { PaginatedResponse } from 'types/util.types';
 
@@ -188,7 +188,7 @@ export const useUpdateAdvisorCheck = (
 // a dry-run mutates nothing on the server, so no queries are invalidated
 export const useTestAdvisorCheck = (
   options?: Partial<
-    UseMutationOptions<TestAdvisorCheckResult[], Error, TestAdvisorCheckRequest>
+    UseMutationOptions<TestAdvisorCheckResponse, Error, TestAdvisorCheckRequest>
   >
 ) =>
   useMutation({

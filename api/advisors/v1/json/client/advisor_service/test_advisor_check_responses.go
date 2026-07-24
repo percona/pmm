@@ -525,6 +525,9 @@ swagger:model TestAdvisorCheckOKBody
 type TestAdvisorCheckOKBody struct {
 	// Findings produced by the check script; empty means the check passed.
 	Results []*TestAdvisorCheckOKBodyResultsItems0 `json:"results"`
+
+	// Output produced by the script's print() calls, for debugging.
+	ScriptOutput string `json:"script_output,omitempty"`
 }
 
 // Validate validates this test advisor check OK body

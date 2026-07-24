@@ -72,7 +72,7 @@ type checksService interface { //nolint:interfacebloat
 	CreateAdvisorCheck(ctx context.Context, c check.Check) error
 	UpdateAdvisorCheck(ctx context.Context, c check.Check) error
 	DeleteAdvisorCheck(ctx context.Context, name string) error
-	TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, error)
+	TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, string, error)
 }
 
 // grafanaClient is a subset of methods of grafana.Client used by this package.

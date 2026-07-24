@@ -683,13 +683,13 @@ func (s *Service) DeleteAdvisorCheck(ctx context.Context, name string) error {
 
 // TestAdvisorCheck executes an advisor check definition against a single service
 // and returns its findings without saving the check or persisting the results.
-func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, error) {
+func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, string, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	if !settings.IsAdvisorsEnabled() {
-		return nil, services.ErrAdvisorsDisabled
+		return nil, "", services.ErrAdvisorsDisabled
 	}
 
 	c.Version = check.MaxSupportedVersion
@@ -697,7 +697,7 @@ func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID
 
 	err = c.Validate()
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "Invalid advisor check: %v", err)
+		return nil, "", status.Errorf(codes.InvalidArgument, "Invalid advisor check: %v", err)
 	}
 
 	var serviceType models.ServiceType
@@ -709,29 +709,31 @@ func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID
 	case check.MongoDB:
 		serviceType = models.MongoDBServiceType
 	default:
-		return nil, status.Errorf(codes.InvalidArgument, "Unknown check family %s", c.Family)
+		return nil, "", status.Errorf(codes.InvalidArgument, "Unknown check family %s", c.Family)
 	}
 
 	targets, err := s.findTargets(ctx, serviceType, s.minPMMAgentVersion(c))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	for _, target := range targets {
 		if target.ServiceID != serviceID {
 			continue
 		}
-		res, err := s.executeCheck(ctx, target, c)
+		// collect the script's print() output so check authors can debug their scripts
+		var scriptOutput bytes.Buffer
+		res, err := s.executeCheck(ctx, target, c, &scriptOutput)
 		if err != nil {
 			// a status error keeps the query/script failure details visible to
 			// the caller; plain errors are masked by the gRPC interceptor
-			return nil, status.Errorf(codes.FailedPrecondition,
+			return nil, "", status.Errorf(codes.FailedPrecondition,
 				"Failed to execute check '%s' on service '%s': %v", c.Name, target.ServiceName, err)
 		}
-		return res, nil
+		return res, scriptOutput.String(), nil
 	}
 
-	return nil, status.Errorf(codes.NotFound,
+	return nil, "", status.Errorf(codes.NotFound,
 		"No eligible %s service with ID '%s': the service may not exist, be of another type or lack a compatible pmm-agent",
 		serviceType, serviceID)
 }
@@ -1028,7 +1030,7 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 				continue
 			}
 
-			results, err := s.executeCheck(ctx, target, c)
+			results, err := s.executeCheck(ctx, target, c, nil)
 			// stamp each (check, target) outcome with its actual completion time
 			checkedAt := models.Now()
 			if err != nil {
@@ -1130,7 +1132,9 @@ func (s *Service) saveCheckResultsHistory(ctx context.Context, history []*models
 	})
 }
 
-func (s *Service) executeCheck(ctx context.Context, target services.Target, c check.Check) ([]services.CheckResult, error) {
+// executeCheck runs a single check against a single target. When scriptOutput is
+// non-nil, the script's print() output is collected into it.
+func (s *Service) executeCheck(ctx context.Context, target services.Target, c check.Check, scriptOutput *bytes.Buffer) ([]services.CheckResult, error) {
 	ctx, cancel := context.WithTimeout(ctx, checkExecutionTimeout)
 	defer cancel()
 
@@ -1232,7 +1236,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 		return nil, fmt.Errorf("check query failed: %w", err)
 	}
 
-	res, err := s.processResults(ctx, c, target, resData)
+	res, err := s.processResults(ctx, c, target, resData, scriptOutput)
 	if err != nil {
 		return nil, fmt.Errorf("failed to process query result: %w", err)
 	}
@@ -1733,19 +1737,25 @@ type StarlarkScriptData struct {
 	Name           string `json:"name"`
 	Script         string `json:"script"`
 	QueriesResults []any  `json:"queries_results"`
+	// CapturePrintOutput makes the script's print() calls emit plain lines on
+	// stderr so the caller can collect them (used by check test runs).
+	CapturePrintOutput bool `json:"capture_print_output"`
 }
 
-func (s *Service) processResults(ctx context.Context, aCheck check.Check, target services.Target, queryResults []any) ([]services.CheckResult, error) {
+// processResults runs the check script in the pmm-managed-starlark sandbox and converts its
+// findings. When scriptOutput is non-nil, the script's print() output is collected into it.
+func (s *Service) processResults(ctx context.Context, aCheck check.Check, target services.Target, queryResults []any, scriptOutput *bytes.Buffer) ([]services.CheckResult, error) { //nolint:lll
 	l := s.l.WithFields(logrus.Fields{
 		"name":       aCheck.Name,
 		"service_id": target.ServiceID,
 	})
 
 	input := &StarlarkScriptData{
-		Version:        aCheck.Version,
-		Name:           aCheck.Name,
-		Script:         aCheck.Script,
-		QueriesResults: queryResults,
+		Version:            aCheck.Version,
+		Name:               aCheck.Name,
+		Script:             aCheck.Script,
+		QueriesResults:     queryResults,
+		CapturePrintOutput: scriptOutput != nil,
 	}
 
 	cmdCtx, cancel := context.WithTimeout(ctx, scriptExecutionTimeout)
@@ -1777,6 +1787,10 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 		default:
 			return nil, fmt.Errorf("check script execution failed: %w", err)
 		}
+	}
+
+	if scriptOutput != nil {
+		scriptOutput.WriteString(strings.TrimSpace(stderr.String()))
 	}
 
 	var results []check.Result

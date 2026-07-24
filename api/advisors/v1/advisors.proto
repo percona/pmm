@@ -254,6 +254,8 @@ message TestAdvisorCheckResult {
 message TestAdvisorCheckResponse {
   // Findings produced by the check script; empty means the check passed.
   repeated TestAdvisorCheckResult results = 1;
+  // Output produced by the script's print() calls, for debugging.
+  string script_output = 2;
 }
 
 message ListAdvisorsRequest {}

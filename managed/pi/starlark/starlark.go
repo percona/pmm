@@ -113,9 +113,10 @@ func (env *Env) run(funcName string, args starlark.Tuple, threadName string, pri
 	}
 	if printFunc != nil {
 		thread.Print = func(t *starlark.Thread, msg string) {
-			// make it look similar to starlark.CallStack.String
+			// function -> script position -> printed message, so the output
+			// is easy to trace back to the originating line
 			fr := t.CallFrame(1)
-			printFunc("thread "+t.Name+":", fr.Pos.String()+":", "in", fr.Name+":", msg)
+			printFunc(fr.Name, "->", fr.Pos.String(), "->", msg)
 		}
 	}
 

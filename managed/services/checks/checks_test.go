@@ -553,27 +553,30 @@ func TestTestAdvisorCheck(t *testing.T) {
 		invalid := c
 		invalid.Script = ""
 
-		res, err := s.TestAdvisorCheck(ctx, invalid, "svc-1")
+		res, output, err := s.TestAdvisorCheck(ctx, invalid, "svc-1")
 		require.Error(t, err)
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		assert.Nil(t, res)
+		assert.Empty(t, output)
 	})
 
 	t.Run("unknown check family rejected", func(t *testing.T) {
 		unknown := c
 		unknown.Family = "unknown"
 
-		res, err := s.TestAdvisorCheck(ctx, unknown, "svc-1")
+		res, output, err := s.TestAdvisorCheck(ctx, unknown, "svc-1")
 		require.Error(t, err)
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		assert.Nil(t, res)
+		assert.Empty(t, output)
 	})
 
 	t.Run("unknown service rejected", func(t *testing.T) {
-		res, err := s.TestAdvisorCheck(ctx, c, "no-such-service")
+		res, output, err := s.TestAdvisorCheck(ctx, c, "no-such-service")
 		require.Error(t, err)
 		assert.Equal(t, codes.NotFound, status.Code(err))
 		assert.Nil(t, res)
+		assert.Empty(t, output)
 	})
 
 	// keep last: it flips the shared test DB settings
@@ -585,9 +588,10 @@ func TestTestAdvisorCheck(t *testing.T) {
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
-		res, err := s.TestAdvisorCheck(ctx, c, "svc-1")
+		res, output, err := s.TestAdvisorCheck(ctx, c, "svc-1")
 		require.ErrorIs(t, err, services.ErrAdvisorsDisabled)
 		assert.Nil(t, res)
+		assert.Empty(t, output)
 	})
 }
 

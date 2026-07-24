@@ -2240,6 +2240,11 @@
                     }
                   },
                   "x-order": 0
+                },
+                "script_output": {
+                  "description": "Output produced by the script's print() calls, for debugging.",
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }

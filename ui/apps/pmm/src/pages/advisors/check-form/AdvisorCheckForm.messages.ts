@@ -30,6 +30,7 @@ export const Messages = {
   testResults: (count: number) =>
     `Test results (${count} finding${count === 1 ? '' : 's'})`,
   testFailed: 'Test failed',
+  scriptOutput: 'Script output',
   closeResults: 'Close results',
   loadError: 'Unable to load the check.',
   success: {

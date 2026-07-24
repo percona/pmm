@@ -146,9 +146,18 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 		}
 	}
 
+	// print() output is normally debug-logged; for check test runs it is emitted
+	// as plain lines on stderr so pmm-managed can return it to the check author
+	var printFn starlark.PrintFunc = l.Debugln
+	if data.CapturePrintOutput {
+		printFn = func(args ...any) {
+			fmt.Fprintln(os.Stderr, args...)
+		}
+	}
+
 	var results []check.Result
 	contextFuncs := checks.GetAdditionalContext()
-	results, err = env.Run(data.Name, res, contextFuncs, l.Debugln)
+	results, err = env.Run(data.Name, res, contextFuncs, printFn)
 	if err != nil {
 		return nil, err
 	}

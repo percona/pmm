@@ -1740,7 +1740,9 @@ func (x *TestAdvisorCheckResult) GetCheckName() string {
 type TestAdvisorCheckResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Findings produced by the check script; empty means the check passed.
-	Results       []*TestAdvisorCheckResult `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	Results []*TestAdvisorCheckResult `protobuf:"bytes,1,rep,name=results,proto3" json:"results,omitempty"`
+	// Output produced by the script's print() calls, for debugging.
+	ScriptOutput  string `protobuf:"bytes,2,opt,name=script_output,json=scriptOutput,proto3" json:"script_output,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1780,6 +1782,13 @@ func (x *TestAdvisorCheckResponse) GetResults() []*TestAdvisorCheckResult {
 		return x.Results
 	}
 	return nil
+}
+
+func (x *TestAdvisorCheckResponse) GetScriptOutput() string {
+	if x != nil {
+		return x.ScriptOutput
+	}
+	return ""
 }
 
 type ListAdvisorsRequest struct {
@@ -2936,9 +2945,10 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"check_name\x18\b \x01(\tR\tcheckName\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"Y\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"~\n" +
 	"\x18TestAdvisorCheckResponse\x12=\n" +
-	"\aresults\x18\x01 \x03(\v2#.advisors.v1.TestAdvisorCheckResultR\aresults\"\x15\n" +
+	"\aresults\x18\x01 \x03(\v2#.advisors.v1.TestAdvisorCheckResultR\aresults\x12#\n" +
+	"\rscript_output\x18\x02 \x01(\tR\fscriptOutput\"\x15\n" +
 	"\x13ListAdvisorsRequest\"H\n" +
 	"\x14ListAdvisorsResponse\x120\n" +
 	"\badvisors\x18\x01 \x03(\v2\x14.advisors.v1.AdvisorR\badvisors\"[\n" +

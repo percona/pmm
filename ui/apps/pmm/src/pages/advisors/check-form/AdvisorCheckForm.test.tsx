@@ -108,7 +108,10 @@ describe('AdvisorCheckForm test run', () => {
         mysqlService('svc-2', 'mysql-svc-2'),
       ],
     });
-    vi.mocked(advisorsApi.testAdvisorCheck).mockResolvedValue([TEST_RESULT]);
+    vi.mocked(advisorsApi.testAdvisorCheck).mockResolvedValue({
+      results: [TEST_RESULT],
+      scriptOutput: 'version = 8.2.6',
+    });
   });
 
   it('keeps the test button disabled until a service is picked', async () => {
@@ -158,6 +161,27 @@ describe('AdvisorCheckForm test run', () => {
     expect(
       screen.getByTestId('advisor-check-form-test-output')
     ).toBeInTheDocument();
+    // the script's print() output is shown in its own section
+    expect(
+      screen.getByTestId('advisor-check-form-test-script-output')
+    ).toHaveTextContent('version = 8.2.6');
+  });
+
+  it('omits the script output section when the script printed nothing', async () => {
+    vi.mocked(advisorsApi.testAdvisorCheck).mockResolvedValue({
+      results: [TEST_RESULT],
+    });
+
+    renderForm();
+    await waitForPrefill();
+
+    await pickTestService('mysql-svc-1');
+    fireEvent.click(screen.getByTestId('advisor-check-form-test'));
+    await screen.findByTestId('advisor-check-form-test-results');
+
+    expect(
+      screen.queryByTestId('advisor-check-form-test-script-output')
+    ).not.toBeInTheDocument();
   });
 
   it('shows the backend error inside the results panel when the test fails', async () => {

@@ -107,6 +107,8 @@ export interface TestAdvisorCheckResult {
 
 export interface TestAdvisorCheckResponse {
   results?: TestAdvisorCheckResult[];
+  // output of the script's print() calls, for debugging
+  scriptOutput?: string;
 }
 
 export interface ChangeAdvisorCheckParams {

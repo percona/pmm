@@ -93,7 +93,7 @@ func TestTestAdvisorCheck(t *testing.T) {
 		t.Parallel()
 
 		var checksService mockChecksService
-		checksService.On("TestAdvisorCheck", mock.Anything, mock.Anything, "test_svc").Return(nil, services.ErrAdvisorsDisabled)
+		checksService.On("TestAdvisorCheck", mock.Anything, mock.Anything, "test_svc").Return(nil, "", services.ErrAdvisorsDisabled)
 
 		s := NewChecksAPIService(&checksService)
 
@@ -107,7 +107,7 @@ func TestTestAdvisorCheck(t *testing.T) {
 
 		var checksService mockChecksService
 		checksService.On("TestAdvisorCheck", mock.Anything, mock.Anything, "test_svc").
-			Return(nil, status.Errorf(codes.FailedPrecondition,
+			Return(nil, "", status.Errorf(codes.FailedPrecondition,
 				"failed to execute check 'custom_mysql_version' on service 'svc': random error"))
 
 		s := NewChecksAPIService(&checksService)
@@ -146,7 +146,7 @@ func TestTestAdvisorCheck(t *testing.T) {
 			},
 		}
 		var checksService mockChecksService
-		checksService.On("TestAdvisorCheck", mock.Anything, expectedCheck, "test_svc").Return(checkResult, nil)
+		checksService.On("TestAdvisorCheck", mock.Anything, expectedCheck, "test_svc").Return(checkResult, "print output", nil)
 
 		s := NewChecksAPIService(&checksService)
 
@@ -165,6 +165,7 @@ func TestTestAdvisorCheck(t *testing.T) {
 					CheckName:   "custom_mysql_version",
 				},
 			},
+			ScriptOutput: "print output",
 		}, resp)
 	})
 }

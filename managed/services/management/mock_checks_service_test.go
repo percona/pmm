@@ -416,7 +416,7 @@ func (_m *mockChecksService) StartChecks(checkNames []string) (string, error) {
 }
 
 // TestAdvisorCheck provides a mock function with given fields: ctx, c, serviceID
-func (_m *mockChecksService) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, error) {
+func (_m *mockChecksService) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, string, error) {
 	ret := _m.Called(ctx, c, serviceID)
 
 	if len(ret) == 0 {
@@ -424,8 +424,9 @@ func (_m *mockChecksService) TestAdvisorCheck(ctx context.Context, c check.Check
 	}
 
 	var r0 []services.CheckResult
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, check.Check, string) ([]services.CheckResult, error)); ok {
+	var r1 string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, check.Check, string) ([]services.CheckResult, string, error)); ok {
 		return rf(ctx, c, serviceID)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, check.Check, string) []services.CheckResult); ok {
@@ -436,13 +437,19 @@ func (_m *mockChecksService) TestAdvisorCheck(ctx context.Context, c check.Check
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, check.Check, string) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, check.Check, string) string); ok {
 		r1 = rf(ctx, c, serviceID)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(string)
 	}
 
-	return r0, r1
+	if rf, ok := ret.Get(2).(func(context.Context, check.Check, string) error); ok {
+		r2 = rf(ctx, c, serviceID)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }
 
 // UpdateAdvisorCheck provides a mock function with given fields: ctx, c

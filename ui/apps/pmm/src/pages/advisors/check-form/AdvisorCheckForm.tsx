@@ -94,6 +94,7 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
   const [testResults, setTestResults] = useState<
     TestAdvisorCheckResult[] | null
   >(null);
+  const [testScriptOutput, setTestScriptOutput] = useState<string | null>(null);
   const [testError, setTestError] = useState<string | null>(null);
 
   // drop stale test state whenever the overlay opens
@@ -101,6 +102,7 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
     if (open) {
       setTestServiceId(null);
       setTestResults(null);
+      setTestScriptOutput(null);
       setTestError(null);
     }
   }, [open]);
@@ -155,13 +157,15 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
       return;
     }
     setTestResults(null);
+    setTestScriptOutput(null);
     setTestError(null);
     try {
-      const results = await testCheck({
+      const { results, scriptOutput } = await testCheck({
         check: toInput(getValues()),
         serviceId: testServiceId,
       });
-      setTestResults(results);
+      setTestResults(results ?? []);
+      setTestScriptOutput(scriptOutput || null);
     } catch (error) {
       const message =
         error instanceof AxiosError
@@ -467,6 +471,7 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                     aria-label={Messages.closeResults}
                     onClick={() => {
                       setTestResults(null);
+                      setTestScriptOutput(null);
                       setTestError(null);
                     }}
                     data-testid="advisor-check-form-test-results-close"
@@ -492,6 +497,20 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                     sx={{ overflow: 'auto', m: 0 }}
                     data-testid="advisor-check-form-test-output"
                   />
+                )}
+                {testScriptOutput && (
+                  <>
+                    <Typography variant="subtitle2">
+                      {Messages.scriptOutput}
+                    </Typography>
+                    <CodeBlock
+                      copyable
+                      content={testScriptOutput}
+                      maxHeight="20vh"
+                      sx={{ overflow: 'auto', m: 0 }}
+                      data-testid="advisor-check-form-test-script-output"
+                    />
+                  </>
                 )}
               </Stack>
             )}

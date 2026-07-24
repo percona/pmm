@@ -17,7 +17,6 @@ import {
   StartAdvisorChecksResponse,
   TestAdvisorCheckRequest,
   TestAdvisorCheckResponse,
-  TestAdvisorCheckResult,
   UpdateAdvisorCheckRequest,
   UpdateAdvisorCheckResponse,
 } from 'types/advisors.types';
@@ -83,7 +82,7 @@ export const startAdvisorChecks = async (names: string[]): Promise<string> => {
 
 export const testAdvisorCheck = async (
   payload: TestAdvisorCheckRequest
-): Promise<TestAdvisorCheckResult[]> => {
+): Promise<TestAdvisorCheckResponse> => {
   // errors are rendered inside the form's test results panel,
   // so the global error snackbar is suppressed
   const res = await api.post<TestAdvisorCheckResponse>(
@@ -91,7 +90,7 @@ export const testAdvisorCheck = async (
     payload,
     { disableNotifications: true }
   );
-  return res.data.results ?? [];
+  return res.data;
 };
 
 export const changeAdvisorChecks = async (

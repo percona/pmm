@@ -2889,6 +2889,8 @@ func (m *TestAdvisorCheckResponse) validate(all bool) error {
 
 	}
 
+	// no validation rules for ScriptOutput
+
 	if len(errors) > 0 {
 		return TestAdvisorCheckResponseMultiError(errors)
 	}

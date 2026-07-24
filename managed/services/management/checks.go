@@ -566,7 +566,7 @@ func (s *ChecksAPIService) TestAdvisorCheck(ctx context.Context, req *advisorsv1
 		return nil, status.Error(codes.InvalidArgument, "Check is required.")
 	}
 
-	results, err := s.checksService.TestAdvisorCheck(ctx, apiToAdvisorCheck(req.Check), req.ServiceId)
+	results, scriptOutput, err := s.checksService.TestAdvisorCheck(ctx, apiToAdvisorCheck(req.Check), req.ServiceId)
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
@@ -576,7 +576,10 @@ func (s *ChecksAPIService) TestAdvisorCheck(ctx context.Context, req *advisorsv1
 		return nil, err
 	}
 
-	return &advisorsv1.TestAdvisorCheckResponse{Results: convertTestCheckResults(results)}, nil
+	return &advisorsv1.TestAdvisorCheckResponse{
+		Results:      convertTestCheckResults(results),
+		ScriptOutput: scriptOutput,
+	}, nil
 }
 
 // convertTestCheckResults converts test (dry-run) check execution results to their API representation.
