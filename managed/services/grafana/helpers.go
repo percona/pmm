@@ -16,6 +16,8 @@
 package grafana
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -178,4 +180,31 @@ func extractAuthHeaders(req *http.Request) http.Header {
 		}
 	}
 	return authHeaders
+}
+
+// authCacheKey builds a deterministic cache key for auth headers.
+// Fast paths avoid JSON marshaling on common single- and dual-header requests.
+func authCacheKey(authHeaders http.Header) (string, error) {
+	if len(authHeaders) == 0 {
+		return "", nil
+	}
+
+	authorization := authHeaders.Get("Authorization")
+	cookie := authHeaders.Get("Cookie")
+
+	if len(authHeaders) == 1 {
+		if authorization != "" {
+			return "a:" + authorization, nil
+		}
+		if cookie != "" {
+			return "c:" + cookie, nil
+		}
+	}
+
+	j, err := json.Marshal(authHeaders)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(j), nil
 }

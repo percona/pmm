@@ -616,9 +616,8 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		req := mkReq(t, "Bearer cached")
 
 		headers := extractAuthHeaders(req)
-		j, err := json.Marshal(headers)
+		hash, err := authCacheKey(headers)
 		require.NoError(t, err)
-		hash := base64.StdEncoding.EncodeToString(j)
 		s.cache[hash] = cacheItem{u: authUser{role: viewer, userID: 11}, created: time.Now()}
 
 		got, authErr := s.getAuthUser(t.Context(), req, l)
@@ -634,9 +633,8 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		req := mkReq(t, "Bearer stale")
 
 		headers := extractAuthHeaders(req)
-		j, err := json.Marshal(headers)
+		hash, err := authCacheKey(headers)
 		require.NoError(t, err)
-		hash := base64.StdEncoding.EncodeToString(j)
 		s.cache[hash] = cacheItem{u: authUser{role: viewer, userID: 1}, created: time.Now().Add(-cacheInvalidationInterval - time.Second)}
 
 		want := authUser{role: admin, userID: 99}
@@ -665,9 +663,8 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		require.NotNil(t, got)
 		assert.Equal(t, want, *got)
 
-		j, err := json.Marshal(headers)
+		hash, err := authCacheKey(headers)
 		require.NoError(t, err)
-		hash := base64.StdEncoding.EncodeToString(j)
 		item, ok := s.cache[hash]
 		require.True(t, ok)
 		assert.Equal(t, want, item.u)
@@ -744,9 +741,8 @@ func TestAuthServerProcessRequest(t *testing.T) {
 		res, authErr := s.processRequest(t.Context(), req, l)
 		assert.Nil(t, res)
 
-		j, err := json.Marshal(headers)
+		hash, err := authCacheKey(headers)
 		require.NoError(t, err)
-		hash := base64.StdEncoding.EncodeToString(j)
 		item, ok := s.cache[hash]
 		require.True(t, ok)
 		assert.Equal(t, userInfo, item.u)

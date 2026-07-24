@@ -398,6 +398,109 @@ func BenchmarkCleanPath(b *testing.B) {
 	}
 }
 
+func TestAuthCacheKey(t *testing.T) {
+	t.Parallel()
+
+	t.Run("empty headers", func(t *testing.T) {
+		t.Parallel()
+
+		key, err := authCacheKey(http.Header{})
+		require.NoError(t, err)
+		assert.Empty(t, key)
+	})
+
+	t.Run("authorization fast path", func(t *testing.T) {
+		t.Parallel()
+
+		headers := http.Header{"Authorization": []string{"Bearer token"}}
+		key, err := authCacheKey(headers)
+		require.NoError(t, err)
+		assert.Equal(t, "a:Bearer token", key)
+	})
+
+	t.Run("cookie fast path", func(t *testing.T) {
+		t.Parallel()
+
+		headers := http.Header{"Cookie": []string{"grafana_session=abc"}}
+		key, err := authCacheKey(headers)
+		require.NoError(t, err)
+		assert.Equal(t, "c:grafana_session=abc", key)
+	})
+
+	t.Run("authorization and cookie dual fast path", func(t *testing.T) {
+		t.Parallel()
+
+		headers := http.Header{
+			"Authorization": []string{"Bearer token"},
+			"Cookie":        []string{"grafana_session=abc"},
+		}
+		key, err := authCacheKey(headers)
+		require.NoError(t, err)
+		assert.Equal(t, "ac:12:Bearer token|19:grafana_session=abc", key)
+	})
+
+	t.Run("fallback is deterministic for same headers", func(t *testing.T) {
+		t.Parallel()
+
+		headers1 := http.Header{"Authorization": []string{"Bearer token"}, "Cookie": []string{"grafana_session=abc"}}
+		headers2 := http.Header{"Cookie": []string{"grafana_session=abc"}, "Authorization": []string{"Bearer token"}}
+
+		key1, err := authCacheKey(headers1)
+		require.NoError(t, err)
+		key2, err := authCacheKey(headers2)
+		require.NoError(t, err)
+
+		assert.Equal(t, key1, key2)
+	})
+}
+
+// ------------------------------------------------------------------------------------------
+// Benchmark tests.
+func BenchmarkAuthCacheKey(b *testing.B) {
+	b.ReportAllocs()
+
+	for _, tc := range []struct {
+		name    string
+		headers http.Header
+	}{
+		{
+			name:    "authorization-only",
+			headers: http.Header{"Authorization": []string{"Bearer token"}},
+		},
+		{
+			name:    "cookie-only",
+			headers: http.Header{"Cookie": []string{"grafana_session=abc"}},
+		},
+		{
+			name: "authorization-and-cookie",
+			headers: http.Header{
+				"Authorization": []string{"Bearer token"},
+				"Cookie":        []string{"grafana_session=abc"},
+			},
+		},
+		{
+			name: "fallback-with-extra-header",
+			headers: http.Header{
+				"Authorization": []string{"Bearer token"},
+				"Cookie":        []string{"grafana_session=abc"},
+				"X-Extra":       []string{"1"},
+			},
+		},
+	} {
+		b.Run(tc.name, func(b *testing.B) {
+			for b.Loop() {
+				key, err := authCacheKey(tc.headers)
+				if err != nil {
+					b.Fatalf("authCacheKey returned error: %v", err)
+				}
+				if key == "" {
+					b.Fatalf("authCacheKey returned empty key")
+				}
+			}
+		})
+	}
+}
+
 func BenchmarkResolveRule(b *testing.B) {
 	b.ReportAllocs()
 

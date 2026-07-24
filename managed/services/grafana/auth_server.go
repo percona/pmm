@@ -653,13 +653,11 @@ func authorizeUser(minRole role, user *authUser, l *logrus.Entry) *authError {
 func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
 	// check Grafana with some headers from request
 	authHeaders := extractAuthHeaders(req)
-	// TODO: check anonymous users
-	j, err := json.Marshal(authHeaders)
+	hash, err := authCacheKey(authHeaders)
 	if err != nil {
-		l.WithError(err).Error("Failed to encode authHeaders to json.")
+		l.WithError(err).Error("Failed to build auth cache key.")
 		return nil, errStaticAuthErrorInternalError
 	}
-	hash := base64.StdEncoding.EncodeToString(j)
 
 	// lookup user in cache first.
 	s.rw.RLock()
