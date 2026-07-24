@@ -108,10 +108,10 @@ func (c *Client) Collect(ch chan<- prom.Metric) {
 
 // clientError contains error response details.
 type clientError struct {
-	Method       string
-	URL          string
-	Code         int
-	Body         string
+	Method       string `json:"-"`
+	URL          string `json:"-"`
+	Code         int    `json:"-"`
+	Body         string `json:"-"`
 	ErrorMessage string `json:"message"` // from response JSON object, if any
 }
 
@@ -142,10 +142,7 @@ func CurrentUserHTTPResponse(err error) (int, map[string]string) {
 		}
 		return http.StatusForbidden, map[string]string{"message": msg}
 	default:
-		if cErr.Code >= 500 {
-			return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
-		}
-		// Other Grafana 4xx responses are treated as upstream errors for this proxy endpoint.
+		// Grafana 5xx and other 4xx responses are treated as upstream errors for this proxy endpoint.
 		return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
 	}
 }
@@ -160,7 +157,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		Path:     path,
 		RawQuery: rawQuery,
 	}
-	req, err := http.NewRequest(method, u.String(), bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("failed to create http request: %w", err)
 	}
@@ -171,7 +168,6 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		req.Header.Set(k, headers.Get(k))
 	}
 
-	req = req.WithContext(ctx)
 	resp, err := c.http.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to execute http request: %w", err)
@@ -276,7 +272,7 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 
 	userID, ok := m["id"].(float64)
 	if !ok {
-		return 0, errors.New("Missing User ID in Grafana response")
+		return 0, errors.New("missing user ID in Grafana response")
 	}
 
 	return int(userID), nil
@@ -369,6 +365,48 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 		role:   none,
 		userID: userID,
 	}, nil
+}
+
+// rotateSessionToken calls the Grafana session token rotation endpoint with the
+// session cookie from authHeaders. Grafana rejects tokens older than the rotation
+// interval until a client rotates them explicitly. It returns the Set-Cookie
+// headers carrying the rotated token; they may be empty if a concurrent request
+// has already rotated it.
+func (c *Client) rotateSessionToken(ctx context.Context, authHeaders http.Header) ([]string, error) {
+	u := url.URL{
+		Scheme: "http",
+		Host:   c.addr,
+		Path:   "/api/user/auth-tokens/rotate",
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, u.String(), nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create http request: %w", err)
+	}
+	req.Header.Set("Cookie", authHeaders.Get("Cookie"))
+
+	resp, err := c.http.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute http request: %w", err)
+	}
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read http response body: %w", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		cErr := &clientError{
+			Method: req.Method,
+			URL:    req.URL.String(),
+			Code:   resp.StatusCode,
+			Body:   string(b),
+		}
+		// add ErrorMessage
+		_ = json.Unmarshal(b, cErr)
+		return nil, cErr
+	}
+
+	return resp.Header.Values("Set-Cookie"), nil
 }
 
 func (c *Client) convertRole(role string) role {

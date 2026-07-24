@@ -62,6 +62,36 @@ func TestNextPrefix(t *testing.T) {
 	}
 }
 
+func TestHeadersWithRotatedCookies(t *testing.T) {
+	t.Parallel()
+
+	authHeaders := http.Header{}
+	authHeaders.Set("Cookie", "other=abc; pmm_session=old")
+
+	headers := headersWithRotatedCookies(authHeaders, []string{"pmm_session=new; Path=/; HttpOnly; SameSite=Lax"})
+	assert.Equal(t, "other=abc; pmm_session=new", headers.Get("Cookie"))
+	// the original headers stay untouched
+	assert.Equal(t, "other=abc; pmm_session=old", authHeaders.Get("Cookie"))
+
+	// cookie names missing from the original header are appended
+	headers = headersWithRotatedCookies(authHeaders, []string{"brand_new=v1; Path=/"})
+	assert.Equal(t, "other=abc; pmm_session=old; brand_new=v1", headers.Get("Cookie"))
+}
+
+func TestSessionCookieForClient(t *testing.T) {
+	t.Parallel()
+
+	cookies := sessionCookieForClient([]string{
+		"pmm_session=new; Path=/graph; Max-Age=2592000; HttpOnly; SameSite=Lax",
+		"grafana_session_expiry=1784931672; Path=/graph; Max-Age=2592000; SameSite=Lax",
+	})
+	require.Len(t, cookies, 1)
+	assert.Equal(t, "pmm_session=new; Path=/; Max-Age=2592000; HttpOnly; SameSite=Lax", cookies[0])
+
+	assert.Nil(t, sessionCookieForClient([]string{"grafana_session_expiry=1; Path=/graph"}))
+	assert.Nil(t, sessionCookieForClient(nil))
+}
+
 func TestResolveRule(t *testing.T) {
 	t.Parallel()
 
@@ -107,7 +137,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 
-		_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, _, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 		assert.Nil(t, res)
 	})
 
@@ -117,7 +147,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/foo", nil)
 		require.NoError(t, err)
 
-		_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, _, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 		assert.Equal(t, &authError{code: codes.Unauthenticated, message: "Unauthorized"}, res)
 	})
 
@@ -141,7 +171,7 @@ func TestAuthServerAuthenticate(t *testing.T) {
 				require.NoError(t, err)
 				req.SetBasicAuth(login, login)
 
-				_, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+				_, _, res := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 				if minRole <= role {
 					assert.Nil(t, res)
 				} else {
@@ -166,7 +196,7 @@ func TestServerClientConnection(t *testing.T) {
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 
-		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, _, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 		assert.Nil(t, authError)
 	})
 
@@ -178,7 +208,7 @@ func TestServerClientConnection(t *testing.T) {
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "wrong")
 
-		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, _, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 		assert.Equal(t, codes.Unauthenticated, authError.code)
 	})
 
@@ -202,7 +232,7 @@ func TestServerClientConnection(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Authorization", "Bearer "+serviceToken)
 
-		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, _, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 		assert.Nil(t, authError)
 	})
 
@@ -213,7 +243,7 @@ func TestServerClientConnection(t *testing.T) {
 		require.NoError(t, err)
 		req.Header.Set("Authorization", "Bearer wrong")
 
-		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		_, _, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
 		assert.Equal(t, codes.Internal, authError.code)
 	})
 }
