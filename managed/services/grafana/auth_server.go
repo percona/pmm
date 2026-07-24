@@ -509,7 +509,7 @@ func (s *AuthServer) getLBACFilters(ctx context.Context, userID int) ([]string, 
 		s.metrics.mDurations.WithLabelValues("db").Observe(time.Since(start).Seconds())
 	}()
 
-	roles, err := models.GetUserRoles(s.db.Querier, userID)
+	roles, err := models.GetUserRoles(s.db.WithContext(ctx), userID)
 	if err != nil {
 		return nil, err
 	}
@@ -533,7 +533,7 @@ func (s *AuthServer) getLBACFilters(ctx context.Context, userID int) ([]string, 
 		}
 
 		// Reload roles
-		roles, err = models.GetUserRoles(s.db.Querier, userID)
+		roles, err = models.GetUserRoles(s.db.WithContext(ctx), userID)
 		if err != nil {
 			return nil, err
 		}
