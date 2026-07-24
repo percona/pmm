@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"os"
 	"os/exec"
 	"testing"
@@ -132,7 +133,7 @@ func TestStarlarkSandbox(t *testing.T) { //nolint:tparallel
 			if !present {
 				releasePath = "./../../bin"
 			}
-			cmd := exec.Command(releasePath + "/pmm-managed-starlark") //nolint:gosec
+			cmd := exec.CommandContext(t.Context(), releasePath+"/pmm-managed-starlark") //nolint:gosec
 
 			var stdin, stderr bytes.Buffer
 			cmd.Stdin = &stdin
@@ -165,6 +166,99 @@ func TestStarlarkSandbox(t *testing.T) { //nolint:tparallel
 			// make sure that the limits were set
 			assert.NotContains(t, stderrContent, cpuUsageWarning)
 			assert.NotContains(t, stderrContent, memoryUsageWarning)
+		})
+	}
+}
+
+func TestPrintOutputCapture(t *testing.T) { //nolint:tparallel
+	testCases := []struct {
+		name       string
+		script     string
+		wantErr    bool
+		stderrPart string
+	}{
+		{
+			name:    "prints are captured on success",
+			script:  "def check_context(rows, context):\n    print(\"debug line\", 42)\n    return []",
+			wantErr: false,
+		},
+		{
+			name:       "prints stay out of the error output on failure",
+			script:     "def check_context(rows, context):\n    print(\"debug line\", 42)\n    return rows[99]",
+			wantErr:    true,
+			stderrPart: "failed to execute function check_context",
+		},
+	}
+
+	ctx, cancel := context.WithTimeout(t.Context(), 120*time.Second)
+	t.Cleanup(cancel)
+	// since we run the binary as a child process to test it we need to build it first.
+	command := exec.CommandContext(ctx, "make", "-C", "../..", "release-starlark")
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+	err := command.Run()
+	require.NoError(t, err)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			result, err := agentv1.MarshalActionQueryDocsResult(validQueryActionResult)
+			require.NoError(t, err)
+
+			data := &checks.StarlarkScriptData{
+				Version:            1,
+				Name:               "print_capture",
+				Script:             tc.script,
+				QueriesResults:     []any{result},
+				CapturePrintOutput: true,
+			}
+
+			releasePath, present := os.LookupEnv("PMM_RELEASE_PATH")
+			if !present {
+				releasePath = "./../../bin"
+			}
+			cmd := exec.CommandContext(t.Context(), releasePath+"/pmm-managed-starlark") //nolint:gosec
+
+			// the pipe pmm-managed wires as fd 3 for the print() output
+			printR, printW, err := os.Pipe()
+			require.NoError(t, err)
+			cmd.ExtraFiles = []*os.File{printW}
+
+			var stdin, stderr bytes.Buffer
+			cmd.Stdin = &stdin
+			cmd.Stderr = &stderr
+			cmd.Env = []string{starlarkRecursionFlag + "=1"}
+
+			encoder := json.NewEncoder(&stdin)
+			err = encoder.Encode(data)
+			require.NoError(t, err)
+
+			err = cmd.Start()
+			require.NoError(t, err)
+			// close our copy of the write end so the read below sees EOF once the child exits
+			require.NoError(t, printW.Close())
+			runErr := cmd.Wait()
+
+			printOutput, err := io.ReadAll(printR)
+			require.NoError(t, err)
+			require.NoError(t, printR.Close())
+
+			if tc.wantErr {
+				require.Error(t, runErr)
+			} else {
+				require.NoError(t, runErr)
+			}
+
+			// print() output arrives on the dedicated pipe, prefixed with the source position...
+			assert.Contains(t, string(printOutput), "check_context -> print_capture:2:")
+			assert.Contains(t, string(printOutput), "-> debug line 42")
+			// ...and never pollutes the stderr error channel
+			stderrContent := stderr.String()
+			assert.NotContains(t, stderrContent, "debug line")
+			if tc.stderrPart != "" {
+				assert.Contains(t, stderrContent, tc.stderrPart)
+			}
 		})
 	}
 }

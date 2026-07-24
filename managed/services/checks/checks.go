@@ -24,6 +24,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/url"
 	"os"
 	"os/exec"
@@ -724,13 +725,18 @@ func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID
 		// collect the script's print() output so check authors can debug their scripts
 		var scriptOutput bytes.Buffer
 		res, err := s.executeCheck(ctx, target, c, &scriptOutput)
+		output := strings.TrimSpace(scriptOutput.String())
 		if err != nil {
 			// a status error keeps the query/script failure details visible to
 			// the caller; plain errors are masked by the gRPC interceptor
-			return nil, "", status.Errorf(codes.FailedPrecondition,
-				"Failed to execute check '%s' on service '%s': %v", c.Name, target.ServiceName, err)
+			msg := fmt.Sprintf("Failed to execute check '%s' on service '%s': %v", c.Name, target.ServiceName, err)
+			if output != "" {
+				// keep the error itself on top; the print output goes below it
+				msg += "\n\nScript output:\n" + output
+			}
+			return nil, "", status.Error(codes.FailedPrecondition, msg)
 		}
-		return res, scriptOutput.String(), nil
+		return res, output, nil
 	}
 
 	return nil, "", status.Errorf(codes.NotFound,
@@ -1738,12 +1744,14 @@ type StarlarkScriptData struct {
 	Script         string `json:"script"`
 	QueriesResults []any  `json:"queries_results"`
 	// CapturePrintOutput makes the script's print() calls emit plain lines on
-	// stderr so the caller can collect them (used by check test runs).
+	// a dedicated pipe (fd 3) so the caller can collect them without mixing
+	// them into the stderr error channel (used by check test runs).
 	CapturePrintOutput bool `json:"capture_print_output"`
 }
 
 // processResults runs the check script in the pmm-managed-starlark sandbox and converts its
-// findings. When scriptOutput is non-nil, the script's print() output is collected into it.
+// findings. When scriptOutput is non-nil, the script's print() output is collected into it,
+// on failures too.
 func (s *Service) processResults(ctx context.Context, aCheck check.Check, target services.Target, queryResults []any, scriptOutput *bytes.Buffer) ([]services.CheckResult, error) { //nolint:lll
 	l := s.l.WithFields(logrus.Fields{
 		"name":       aCheck.Name,
@@ -1764,9 +1772,23 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 	cmd := exec.CommandContext(cmdCtx, "pmm-managed-starlark")
 	pdeathsig.Set(cmd, syscall.SIGKILL)
 
-	var stdin, stderr bytes.Buffer
+	var stdin, stdout, stderr bytes.Buffer
 	cmd.Stdin = &stdin
+	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
+
+	// print() output arrives on its own pipe (fd 3 in the child), keeping
+	// stderr a pure error channel
+	var printR, printW *os.File
+	if scriptOutput != nil {
+		var err error
+		printR, printW, err = os.Pipe()
+		if err != nil {
+			return nil, fmt.Errorf("failed to create print output pipe: %w", err)
+		}
+		defer printR.Close() //nolint:errcheck
+		cmd.ExtraFiles = []*os.File{printW}
+	}
 
 	encoder := json.NewEncoder(&stdin)
 	err := encoder.Encode(input)
@@ -1774,7 +1796,25 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 		return nil, fmt.Errorf("error encoding data to STDIN: %w", err)
 	}
 
-	procOut, err := cmd.Output()
+	err = cmd.Start()
+	if err != nil {
+		return nil, fmt.Errorf("failed to start check script: %w", err)
+	}
+
+	printDone := make(chan struct{})
+	if printW != nil {
+		// the child holds its own copy now; closing ours lets the reader see EOF on child exit
+		_ = printW.Close()
+		go func() {
+			defer close(printDone)
+			_, _ = io.Copy(scriptOutput, printR)
+		}()
+	} else {
+		close(printDone)
+	}
+
+	err = cmd.Wait()
+	<-printDone
 	if err != nil {
 		scriptErr := strings.TrimSpace(stderr.String())
 		l.Errorf("Check script failed (%s): %s", err, scriptErr)
@@ -1789,9 +1829,7 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 		}
 	}
 
-	if scriptOutput != nil {
-		scriptOutput.WriteString(strings.TrimSpace(stderr.String()))
-	}
+	procOut := stdout.Bytes()
 
 	var results []check.Result
 	decoder := json.NewDecoder(bytes.NewReader(procOut))

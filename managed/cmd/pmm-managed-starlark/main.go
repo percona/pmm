@@ -41,6 +41,9 @@ const (
 	cpuLimit         = 4 * time.Second
 	memoryLimitBytes = 1024 * 1024 * 1024
 
+	// File descriptor pmm-managed wires for the captured print() output.
+	printOutputFD = 3
+
 	// Only used for testing.
 	starlarkRecursionFlag = "PMM_DEV_ADVISOR_STARLARK_ALLOW_RECURSION"
 
@@ -147,11 +150,13 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 	}
 
 	// print() output is normally debug-logged; for check test runs it is emitted
-	// as plain lines on stderr so pmm-managed can return it to the check author
+	// as plain lines on the dedicated pipe (fd 3, wired by pmm-managed) so it
+	// reaches the check author without mixing into stderr's error channel
 	var printFn starlark.PrintFunc = l.Debugln
 	if data.CapturePrintOutput {
+		printOut := os.NewFile(printOutputFD, "print-output")
 		printFn = func(args ...any) {
-			fmt.Fprintln(os.Stderr, args...)
+			_, _ = fmt.Fprintln(printOut, args...)
 		}
 	}
 
