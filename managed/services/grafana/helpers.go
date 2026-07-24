@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -199,6 +200,20 @@ func authCacheKey(authHeaders http.Header) (string, error) {
 		if cookie != "" {
 			return "c:" + cookie, nil
 		}
+	}
+
+	if len(authHeaders) == 2 && authorization != "" && cookie != "" {
+		// Length-prefix segments to keep the key unambiguous without escaping.
+		buf := make([]byte, 0, len(authorization)+len(cookie)+24) //nolint:mnd
+		buf = append(buf, "ac:"...)
+		buf = strconv.AppendInt(buf, int64(len(authorization)), 10) //nolint:mnd
+		buf = append(buf, ':')
+		buf = append(buf, authorization...)
+		buf = append(buf, '|')
+		buf = strconv.AppendInt(buf, int64(len(cookie)), 10) //nolint:mnd
+		buf = append(buf, ':')
+		buf = append(buf, cookie...)
+		return string(buf), nil
 	}
 
 	j, err := json.Marshal(authHeaders)
