@@ -36,7 +36,7 @@ checks:
         if count:
             return [{
                 "summary": "Some accounts are allowed to be connected from public networks",
-                "description": " {}".format(", ".join(users)),
+                "description": "These accounts are allowed to connect from public networks: {}".format(", ".join(users)),
                 "read_more_url": "https://dev.mysql.com/doc/refman/8.0/en/request-access.html",
                 "severity": "warning",
                 "labels": {

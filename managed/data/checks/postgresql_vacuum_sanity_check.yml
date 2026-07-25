@@ -15,65 +15,61 @@ checks:
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
       def check_context(rows, context):
-           results = []
-           description = ""
-           alert = 0
+          results = []
+          description = ""
+          alert = 0
 
-           if len(rows) != 1 :
-               results.append({
-                   "summary": "Autovacuum concerns",
-                   "description": "Error encountered reading configuration parameters",
-                   "read_more_url":read_url.format("postgresql-vacuum-sanity-check"),
-                   "severity": "warning",
-                   "labels": {},
-               })
-               return results
+          if len(rows) != 1 :
+              results.append({
+                  "summary": "Autovacuum concerns",
+                  "description": "Error encountered reading configuration parameters",
+                  "read_more_url": read_url.format("postgresql-vacuum-sanity-check"),
+                  "severity": "warning",
+              })
+              return results
 
-           for row in rows[0]:
+          for row in rows[0]:
 
-               autovacuum                     = row["autovacuum"]
-               autovacuum_max_workers         = row["autovacuum_max_workers"]
-               autovacuum_vacuum_scale_factor = row["autovacuum_vacuum_scale_factor"]
-               vacuum_cost_page_hit           = row["vacuum_cost_page_hit"]
-               vacuum_cost_delay              = row["vacuum_cost_delay"]
-               vacuum_cost_page_dirty         = row["vacuum_cost_page_dirty"]
-               vacuum_cost_page_miss          = row["vacuum_cost_page_miss"]
+              autovacuum                     = row["autovacuum"]
+              autovacuum_max_workers         = row["autovacuum_max_workers"]
+              autovacuum_vacuum_scale_factor = row["autovacuum_vacuum_scale_factor"]
+              vacuum_cost_page_hit           = row["vacuum_cost_page_hit"]
+              vacuum_cost_delay              = row["vacuum_cost_delay"]
+              vacuum_cost_page_dirty         = row["vacuum_cost_page_dirty"]
+              vacuum_cost_page_miss          = row["vacuum_cost_page_miss"]
 
-               if autovacuum == "off" :
-                  alert = 1
-                  description = description + " WARNING! autovacuum is set to off. This can lead to performance issues and excessive table bloat."
+              if autovacuum == "off" :
+                alert = 1
+                description += " WARNING! autovacuum is set to off. This can lead to performance issues and excessive table bloat."
 
-               if int(autovacuum_max_workers) == 3 :
-                  alert = 1
-                  description = description + " autovacuum_max_workers is currently set to the default value of 3. You should consider raising this value \
-                                              if you find autovacuum is not completing it's task."
+              if int(autovacuum_max_workers) == 3 :
+                alert = 1
+                description += " autovacuum_max_workers is currently set to the default value of 3. You should consider raising this value if you find autovacuum is not completing its task."
 
-               if float(autovacuum_vacuum_scale_factor) == .2 :
-                  alert = 1
-                  description = description + " autovacuum_vacuum_scale_factor is set to the default value of 20%. This means all tables unless customized \
-                                              with storage parameters will not receive autovacuum until at least 20% of data has been updated or deleted."
-               if int(vacuum_cost_page_hit) == 1 :
-                  alert = 1
-                  description = description + " vacuum_cost_page_hit is currently set to the default value of 1. "
+              if float(autovacuum_vacuum_scale_factor) == .2 :
+                alert = 1
+                description += " autovacuum_vacuum_scale_factor is set to the default value of 20%. This means unless customized with storage parameters, all tables will not receive autovacuum until at least 20% of data has been updated or deleted."
 
-               if int(vacuum_cost_page_miss) == 10 :
-                  alert = 1
-                  description = description + " vacuum_cost_page_miss is currently set to the default value of 10."
+              if int(vacuum_cost_page_hit) == 1 :
+                alert = 1
+                description += " vacuum_cost_page_hit is currently set to the default value of 1."
 
-               if int(vacuum_cost_page_dirty) == 20 :
-                  alert = 1
-                  description = description + " vacuum_cost_page_dirty is currently set to the default value of 20."
+              if int(vacuum_cost_page_miss) == 10 :
+                alert = 1
+                description += " vacuum_cost_page_miss is currently set to the default value of 10."
 
-               if alert == 1 :
-                  description = description + " Please take a moment to read the advisors documentation in the Read More link regarding these findings. "
+              if int(vacuum_cost_page_dirty) == 20 :
+                alert = 1
+                description += " vacuum_cost_page_dirty is currently set to the default value of 20."
 
-               results.append({
-                   "summary": "Autovacuum concerns",
-                   "description": description,
-                   "read_more_url":read_url.format("postgresql-vacuum-sanity-check"),
-                   "severity": "warning",
-                   "labels": {},
-               })
+              if alert == 1 :
+                description += " Please take a moment to read the advisors documentation in the Read More link regarding these findings."
 
+                results.append({
+                    "summary": "Autovacuum concerns",
+                    "description": description.strip(),
+                    "read_more_url":read_url.format("postgresql-vacuum-sanity-check"),
+                    "severity": "warning",
+                })
 
-           return results
+          return results

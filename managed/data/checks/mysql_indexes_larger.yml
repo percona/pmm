@@ -3,7 +3,7 @@ checks:
   - version: 2
     name: mysql_indexes_larger
     summary: Are there tables with index sizes larger than data?
-    description: Check all the tables to see if any have indexes larger than data.  This indicates sub-optimial schema and should be reviewed.
+    description: Check all the tables to see if any have indexes larger than data. This indicates sub-optimal schema and should be reviewed.
     interval: standard
     category: Query
     subcategory: Schema
@@ -19,7 +19,7 @@ checks:
             if float(value) > 1.0:
               results.append({
                 "summary": "Index size is larger than data for table: {}".format(name),
-                "description": "There is a table where index is larger than data.  This typically indicates sub-optimial indexing.",
+                "description": "There is a table where index is larger than data. This typically indicates sub-optimal indexing.",
                 "read_more_url": "https://dev.mysql.com/doc/refman/en/data-size.html",
                 "severity": "warning",
                 "labels": {},

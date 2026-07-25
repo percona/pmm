@@ -78,7 +78,7 @@ checks:
               return {
                   "summary": "Redo log size check.",
                   "read_more": "https://percona.com/blog",
-                  "description": "Current total redo log size is {}M. The relo log written are more than the configured though this hasn't caused system degradation. The average logs written in past 24h is {}M with spikes above redo_log_size being {}% of total samples with max written redolog size being {}M. ".format(int(redo_log_size/1024/1024),int(logs_written_avg), int(cnt_high*100/cnt),int(logs_written_max/1024/1024)),
+                  "description": "Current total redo log size is {}M. The redo log written are more than the configured though this hasn't caused system degradation. The average logs written in past 24h is {}M with spikes above redo_log_size being {}% of total samples with max written redolog size being {}M.".format(int(redo_log_size/1024/1024),int(logs_written_avg), int(cnt_high*100/cnt),int(logs_written_max/1024/1024)),
                   "severity": "warning",
                   "labels": {
                       "mysql_version": "{}".format(version),

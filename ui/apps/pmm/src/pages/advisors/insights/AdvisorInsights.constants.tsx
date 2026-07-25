@@ -56,12 +56,14 @@ export const getInsightsColumns = ({
     header: Messages.columns.service,
     accessorKey: 'serviceName',
     size: 160,
+    grow: true,
   },
   {
     id: 'category',
     header: Messages.columns.category,
     accessorFn: (row) => row.category,
     size: 140,
+    grow: false,
   },
   {
     id: 'severity',
@@ -71,17 +73,20 @@ export const getInsightsColumns = ({
       SEVERITY_ORDER[rowA.original.severity] -
       SEVERITY_ORDER[rowB.original.severity],
     size: 130,
+    grow: false,
   },
   {
     id: 'status',
     header: Messages.columns.status,
     accessorFn: (row) => ADVISOR_RESULT_STATUS[row.status],
     size: 120,
+    grow: false,
   },
   {
     header: Messages.columns.checkedAt,
     accessorKey: 'checkedAt',
-    size: 160,
+    size: 150,
+    grow: false,
     Cell: ({ row }) =>
       row.original.checkedAt
         ? format(new Date(row.original.checkedAt), TIME_FORMAT)

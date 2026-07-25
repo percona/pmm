@@ -494,6 +494,7 @@ const AdvisorInsights: FC = () => {
           onPaginationChange={handlePaginationChange}
           enableRowActions
           positionActionsColumn="last"
+          displayColumnDefOptions={{ 'mrt-row-actions': { grow: false } }}
           renderRowActions={({ row }) => (
             <IconButton
               size="small"

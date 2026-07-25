@@ -30,7 +30,7 @@ checks:
           for row in docs[0]:
              results.append({
                  "summary": "Replication privileges Mixed with more elevated grants",
-                 "description": "{}. This instance has #{} occurrence(s) of users with mixed privileges {} ".format(whois, row.get("nuser"), row.get("users")),
+                 "description": "{}. This instance has #{} occurrence(s) of users with mixed privileges: {}".format(whois, row.get("nuser"), row.get("users")),
                  "severity": "warning",
                  "read_more_url":read_url.format("mysql-replication-privileges"),
                  "labels": {
