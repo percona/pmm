@@ -167,14 +167,14 @@ Relationships:
 ## Global Development Conventions
 
 ### Code Style
-- Format with `gofumpt -s`; run `make format`
+- Format with `make format-changed` for branch edits, or `make format` for the whole tree
 - Follow [Effective Go](https://golang.org/doc/effective_go.html) and [CodeReviewComments](https://github.com/golang/go/wiki/CodeReviewComments)
 - Import grouping: stdlib, then external (`github.com/percona`, third-party), then internal (this repo)
 - Use `any` instead of `interface{}`
-- Use modern slice helpers (`slices.Contains`), range loops
+- Use modern slice and map helpers (`slices.Contains`, `maps.Copy`), range loops
 - Don't use named return values
 - Don't inline comments (`code // comment`); put comments on separate lines
-- Don't add obvious/redundant comments; only comment non-obvious intent
+- Don't add obvious/redundant comments; only comment non-obvious intent; keep comments short and descriptive
 
 ### Error Handling
 - Use `status.Error()` with proper gRPC codes for API errors
@@ -189,10 +189,11 @@ Relationships:
 - Pass `*logrus.Entry` (not `*logrus.Logger`) to maintain context
 - Format: `s.l.WithField("key", value).Error("message")`
 - Log to unbuffered stderr; let the process supervisor handle the rest
+- Do not use `%q` for logging; use `%s` or `%v` instead
 
 ### Environment Variables
 - `PMM_DEV_*` — development/test only, never for end users
-- `PMM_TEST_*` — not part of GA functionality
+- `PMM_TEST_*` — no longer used; replaced by `PMM_DEV_*`
 - `PMM_*` — GA functionality
 - Use sub-prefixes for component groups (e.g., `PMM_HA_*`)
 
@@ -231,7 +232,8 @@ All long-running daemons expose on `127.0.0.1`:
 | `make run-qan-ui` | Inside devcontainer: webpack + livereload for the QAN Grafana plugin |
 | `make gen` | Generate all code (protobuf, reform, mocks, format) |
 | `make check` | Run linters (buf, golangci-lint, go-sumtype) |
-| `make format` | Format code (gofumpt, goimports, gci) |
+| `make format` | Format all code (gofumpt, goimports, gci); slow — see `format-changed` |
+| `make format-changed` | Format only the Go files changed on this branch |
 | `make release` | Build all binaries (agent, admin, managed, qan-api2) |
 | `make test-common` | Run common unit tests |
 | `make api-test` | Run API integration tests |
