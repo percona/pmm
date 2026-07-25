@@ -16,7 +16,13 @@ import {
   wrapWithSnackbarProvider,
   wrapWithUserProvider,
 } from 'utils/testUtils';
-import { Advisor, AdvisorFamily, AdvisorInterval } from 'types/advisors.types';
+import {
+  Advisor,
+  AdvisorCheck,
+  AdvisorFamily,
+  AdvisorInterval,
+} from 'types/advisors.types';
+import { MySqlService } from 'types/services.types';
 
 vi.mock('api/advisors');
 vi.mock('api/services');
@@ -69,6 +75,28 @@ const TEST_ADVISORS: Advisor[] = [
   },
 ];
 
+// the full definition returned by getAdvisorCheck (queries + script populated)
+const FULL_CHECK: AdvisorCheck = {
+  ...TEST_ADVISORS[0].checks[0],
+  queries: [{ type: 'MYSQL_SHOW', query: 'version' }],
+  script: 'print("hi")',
+};
+
+const mysqlService = (id: string, name: string): MySqlService => ({
+  serviceId: id,
+  serviceName: name,
+  nodeId: 'node-1',
+  environment: '',
+  cluster: '',
+  replicationSet: '',
+  customLabels: {},
+  address: '127.0.0.1',
+  port: 3306,
+  socket: '',
+  version: '8.0',
+  extraDsnParams: {},
+});
+
 const renderComponent = (initialEntry = '/advisors') =>
   render(
     wrapWithQueryProvider(
@@ -103,9 +131,8 @@ describe('AdvisorsList', () => {
     vi.mocked(advisorsApi.listAdvisors).mockResolvedValue(TEST_ADVISORS);
     vi.mocked(advisorsApi.startAdvisorChecks).mockResolvedValue('run-123');
     vi.mocked(advisorsApi.changeAdvisorChecks).mockResolvedValue();
-    vi.mocked(advisorsApi.getAdvisorCheckScript).mockResolvedValue(
-      'print("hi")'
-    );
+    vi.mocked(advisorsApi.getAdvisorCheck).mockResolvedValue(FULL_CHECK);
+    vi.mocked(advisorsApi.testAdvisorCheck).mockResolvedValue({ results: [] });
     vi.mocked(advisorsApi.deleteAdvisorCheck).mockResolvedValue();
     vi.mocked(servicesApi.listServices).mockResolvedValue({ mysql: [] });
   });
@@ -129,10 +156,11 @@ describe('AdvisorsList', () => {
       within(pane).getByTestId('CloseFullscreenOutlinedIcon')
     ).toBeInTheDocument();
 
-    // the script is fetched lazily and shown in the read-only editor
-    // (the testid sits on the editor container, the value on its textarea)
+    // the definition is fetched lazily; the script shows in the read-only
+    // editor (the testid sits on the editor container, the value on its
+    // textarea)
     const editor = await screen.findByTestId('check-code');
-    expect(advisorsApi.getAdvisorCheckScript).toHaveBeenCalledWith(
+    expect(advisorsApi.getAdvisorCheck).toHaveBeenCalledWith(
       'mysql_version_check'
     );
     expect(within(editor).getByRole('textbox')).toHaveValue('print("hi")');
@@ -140,6 +168,66 @@ describe('AdvisorsList', () => {
     // Copy button copies the code
     fireEvent.click(within(pane).getByTestId('check-code-copy'));
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith('print("hi")');
+  });
+
+  it('tests the check against a picked service from the details pane', async () => {
+    vi.mocked(servicesApi.listServices).mockResolvedValue({
+      mysql: [
+        mysqlService('svc-1', 'mysql-svc-1'),
+        // PMM Server's own database is not a valid check target and must be
+        // filtered out of the picker (the filter is name-based)
+        mysqlService('svc-internal', 'pmm-server-postgresql'),
+      ],
+    });
+
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.dblClick(screen.getByTestId('advisor-row-mysql_version_check'));
+
+    const pane = await screen.findByTestId('check-details-pane');
+    // wait for the full definition (the Test payload) to load
+    await screen.findByTestId('check-code');
+
+    // pick the target service in the footer toolbar
+    const picker = within(pane).getByTestId('advisor-check-form-test-service');
+    // ArrowDown opens the MUI Autocomplete popup reliably in jsdom
+    fireEvent.keyDown(within(picker).getByRole('combobox'), {
+      key: 'ArrowDown',
+    });
+    const listbox = await screen.findByRole('listbox', { hidden: true });
+    // the internal PMM Server database is not offered as a target
+    expect(
+      within(listbox).queryByText('pmm-server-postgresql')
+    ).not.toBeInTheDocument();
+    fireEvent.click(within(listbox).getByText('mysql-svc-1'));
+
+    fireEvent.click(within(pane).getByTestId('advisor-check-form-test'));
+
+    // the saved definition is dry-run as-is against the picked service
+    await waitFor(() =>
+      expect(advisorsApi.testAdvisorCheck).toHaveBeenCalledWith(
+        {
+          check: {
+            name: FULL_CHECK.name,
+            summary: FULL_CHECK.summary,
+            description: FULL_CHECK.description,
+            category: FULL_CHECK.category,
+            subcategory: FULL_CHECK.subcategory,
+            family: FULL_CHECK.family,
+            interval: FULL_CHECK.interval,
+            queries: FULL_CHECK.queries,
+            script: FULL_CHECK.script,
+          },
+          serviceId: 'svc-1',
+        },
+        expect.anything()
+      )
+    );
+    expect(
+      await within(pane).findByTestId('advisor-check-form-test-results')
+    ).toBeInTheDocument();
   });
 
   it('renders all checks', async () => {

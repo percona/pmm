@@ -20,10 +20,13 @@ import {
   DRAWER_WIDTH,
 } from 'components/sidebar/drawer/Drawer.constants';
 import { useNavigation } from 'contexts/navigation/navigation.hooks';
-import { useAdvisorCheckScript } from 'hooks/api/useAdvisors';
+import { useAdvisorCheck } from 'hooks/api/useAdvisors';
 import { AdvisorCheckRow } from 'types/advisors.types';
 import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
 import { ScriptEditorInput } from '../check-form/ScriptEditorInput';
+import { CheckTestControls } from '../check-test/CheckTestControls';
+import { CheckTestResults } from '../check-test/CheckTestResults';
+import { useCheckTest } from '../check-test/useCheckTest';
 import { Messages } from '../AdvisorsList.messages';
 
 const EM_DASH = '—';
@@ -84,11 +87,37 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
   // the pane never covers the main navigation
   const sidebarWidth = navOpen ? DRAWER_WIDTH : DRAWER_CLOSED_WIDTH;
 
+  // full definition (queries + script): the script is displayed and the whole
+  // check is the payload for the dry-run Test
   const {
-    data: script,
+    data: fullCheck,
     isLoading: isScriptLoading,
     isError: isScriptError,
-  } = useAdvisorCheckScript(check?.checkName);
+  } = useAdvisorCheck(check?.checkName);
+  const script = fullCheck?.script;
+
+  const test = useCheckTest({
+    family: check?.family,
+    enabled: open,
+    resetKey: check?.checkName ?? null,
+  });
+
+  const handleTest = () => {
+    if (!fullCheck) {
+      return;
+    }
+    void test.runTest({
+      name: fullCheck.name,
+      summary: fullCheck.summary,
+      description: fullCheck.description,
+      category: fullCheck.category,
+      subcategory: fullCheck.subcategory,
+      family: fullCheck.family,
+      interval: fullCheck.interval,
+      queries: fullCheck.queries ?? [],
+      script: fullCheck.script ?? '',
+    });
+  };
 
   // apply the requested height on each open, reset on close
   useEffect(() => {
@@ -155,130 +184,158 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
         </Stack>
       </Stack>
       {check && (
-        <Box
-          sx={{
-            flex: 1,
-            minHeight: 0,
-            mt: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 3,
-            overflow: 'auto',
-          }}
-        >
+        <>
           <Box
             sx={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 1fr)',
-              columnGap: 4,
-              rowGap: 3,
+              flex: 1,
+              minHeight: 0,
+              mt: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 3,
+              overflow: 'auto',
             }}
           >
-            <Field label={m.checkName}>
-              <Stack direction="row" alignItems="center" gap={0.5}>
-                <Typography variant="body1">{check.checkName}</Typography>
-                <CopyToClipboardButton textToCopy={check.checkName} />
-              </Stack>
-            </Field>
-            <Field label={m.category}>
-              <Typography variant="body1">{check.category}</Typography>
-            </Field>
-            <Field label={m.subcategory}>
-              <Typography variant="body1">{check.subcategory}</Typography>
-            </Field>
-            <Field label={m.vendor}>
-              <Typography variant="body1">
-                {ADVISOR_FAMILY[check.family]}
-              </Typography>
-            </Field>
-            <Field label={m.interval}>
-              <Typography variant="body1">
-                {ADVISOR_INTERVAL[check.interval]}
-              </Typography>
-            </Field>
-            <Field label={m.status}>
-              <Typography variant="body1">
-                {check.enabled
-                  ? Messages.status.enabled
-                  : Messages.status.disabled}
-              </Typography>
-            </Field>
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                columnGap: 4,
+                rowGap: 3,
+              }}
+            >
+              <Field label={m.checkName}>
+                <Stack direction="row" alignItems="center" gap={0.5}>
+                  <Typography variant="body1">{check.checkName}</Typography>
+                  <CopyToClipboardButton textToCopy={check.checkName} />
+                </Stack>
+              </Field>
+              <Field label={m.category}>
+                <Typography variant="body1">{check.category}</Typography>
+              </Field>
+              <Field label={m.subcategory}>
+                <Typography variant="body1">{check.subcategory}</Typography>
+              </Field>
+              <Field label={m.vendor}>
+                <Typography variant="body1">
+                  {ADVISOR_FAMILY[check.family]}
+                </Typography>
+              </Field>
+              <Field label={m.interval}>
+                <Typography variant="body1">
+                  {ADVISOR_INTERVAL[check.interval]}
+                </Typography>
+              </Field>
+              <Field label={m.status}>
+                <Typography variant="body1">
+                  {check.enabled
+                    ? Messages.status.enabled
+                    : Messages.status.disabled}
+                </Typography>
+              </Field>
 
-            <Field label={m.summary} span={4}>
-              <Typography variant="body1">
-                {check.summary || EM_DASH}
-              </Typography>
-            </Field>
-            <Field label={m.description} span={4}>
-              <Typography variant="body1">
-                {check.description || EM_DASH}
-              </Typography>
-            </Field>
-          </Box>
+              <Field label={m.summary} span={4}>
+                <Typography variant="body1">
+                  {check.summary || EM_DASH}
+                </Typography>
+              </Field>
+              <Field label={m.description} span={4}>
+                <Typography variant="body1">
+                  {check.description || EM_DASH}
+                </Typography>
+              </Field>
+            </Box>
 
-          <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
-            <Stack direction="row" justifyContent="flex-end" gap={1}>
-              {onClone && (
+            <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
+              <Stack direction="row" justifyContent="flex-end" gap={1}>
+                {onClone && (
+                  <Button
+                    size="small"
+                    startIcon={
+                      <ControlPointDuplicateOutlinedIcon fontSize="small" />
+                    }
+                    onClick={onClone}
+                    data-testid="check-clone"
+                  >
+                    {m.clone}
+                  </Button>
+                )}
                 <Button
                   size="small"
-                  startIcon={
-                    <ControlPointDuplicateOutlinedIcon fontSize="small" />
-                  }
-                  onClick={onClone}
-                  data-testid="check-clone"
+                  startIcon={<ContentCopyOutlinedIcon fontSize="small" />}
+                  onClick={handleCopyCode}
+                  disabled={!script}
+                  data-testid="check-code-copy"
                 >
-                  {m.clone}
+                  {m.copyCode}
                 </Button>
+              </Stack>
+              {isScriptLoading ? (
+                <CircularProgress size={24} data-testid="check-code-loading" />
+              ) : isScriptError ? (
+                <Typography variant="body2" color="error">
+                  {m.codeError}
+                </Typography>
+              ) : script ? (
+                // same syntax-highlighted editor as the check form, read-only;
+                // fills the remaining height and scrolls internally, so the pane
+                // itself never scrolls
+                <TextField
+                  // explicit id: MUI's auto-generated useId (":r1:") is not a
+                  // valid CSS identifier and breaks jsdom's selector matching
+                  id="check-details-script"
+                  label={m.script}
+                  value={script}
+                  multiline
+                  sx={{
+                    flex: 1,
+                    minHeight: 0,
+                    // fixed-height field; the editor's wrapper scrolls inside
+                    // it (scrolling this root would carry the absolutely-
+                    // positioned outlined border away with the content)
+                    '& .MuiInputBase-root': { height: '100%' },
+                    '& textarea': { outline: 'none' },
+                  }}
+                  slotProps={{
+                    input: {
+                      inputComponent: ScriptEditorInput,
+                      readOnly: true,
+                    },
+                    htmlInput: { 'data-testid': 'check-code' },
+                  }}
+                />
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  {m.noCode}
+                </Typography>
               )}
-              <Button
-                size="small"
-                startIcon={<ContentCopyOutlinedIcon fontSize="small" />}
-                onClick={handleCopyCode}
-                disabled={!script}
-                data-testid="check-code-copy"
-              >
-                {m.copyCode}
-              </Button>
             </Stack>
-            {isScriptLoading ? (
-              <CircularProgress size={24} data-testid="check-code-loading" />
-            ) : isScriptError ? (
-              <Typography variant="body2" color="error">
-                {m.codeError}
-              </Typography>
-            ) : script ? (
-              // same syntax-highlighted editor as the check form, read-only;
-              // fills the remaining height and scrolls internally, so the pane
-              // itself never scrolls
-              <TextField
-                // explicit id: MUI's auto-generated useId (":r1:") is not a
-                // valid CSS identifier and breaks jsdom's selector matching
-                id="check-details-script"
-                label={m.script}
-                value={script}
-                multiline
-                sx={{
-                  flex: 1,
-                  minHeight: 0,
-                  '& .MuiInputBase-root': {
-                    height: '100%',
-                    alignItems: 'flex-start',
-                    overflow: 'auto',
-                  },
-                  '& textarea': { outline: 'none' },
-                }}
-                slotProps={{
-                  input: { inputComponent: ScriptEditorInput, readOnly: true },
-                  htmlInput: { 'data-testid': 'check-code' },
-                }}
-              />
-            ) : (
-              <Typography variant="body2" color="text.secondary">
-                {m.noCode}
-              </Typography>
-            )}
+          </Box>
+          <CheckTestResults test={test} sx={{ mt: 2 }} />
+          <Stack
+            direction="row"
+            alignItems="center"
+            gap={1}
+            // full-bleed toolbar: cancel the drawer padding so the darker
+            // strip visually closes the pane at the bottom edge
+            sx={{
+              mt: 2,
+              mx: -2,
+              mb: -2,
+              px: 2,
+              py: 1.5,
+              borderTop: 1,
+              borderColor: 'divider',
+              bgcolor: 'background.default',
+            }}
+          >
+            <CheckTestControls
+              test={test}
+              onTest={handleTest}
+              disabled={!fullCheck}
+            />
           </Stack>
-        </Box>
+        </>
       )}
     </Drawer>
   );

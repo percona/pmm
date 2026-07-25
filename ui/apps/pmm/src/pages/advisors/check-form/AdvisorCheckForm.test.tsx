@@ -21,8 +21,8 @@ import {
 } from 'types/advisors.types';
 import { MySqlService } from 'types/services.types';
 import { Severity } from 'types/severity.types';
+import { Messages } from '../check-test/CheckTest.messages';
 import { AdvisorCheckForm } from './AdvisorCheckForm';
-import { Messages } from './AdvisorCheckForm.messages';
 
 vi.mock('api/advisors');
 vi.mock('api/services');

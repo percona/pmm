@@ -1,25 +1,19 @@
-import { FC, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect } from 'react';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import Drawer from '@mui/material/Drawer';
 import { formControlClasses } from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { CodeBlock, SelectInput, TextInput } from '@percona/percona-ui';
+import { SelectInput, TextInput } from '@percona/percona-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AxiosError } from 'axios';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import {
@@ -30,15 +24,13 @@ import { useNavigation } from 'contexts/navigation/navigation.hooks';
 import {
   useAdvisorCheck,
   useCreateAdvisorCheck,
-  useTestAdvisorCheck,
   useUpdateAdvisorCheck,
 } from 'hooks/api/useAdvisors';
-import { useServices } from 'hooks/api/useServices';
 import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
-import { TestAdvisorCheckResult } from 'types/advisors.types';
-import { VersionedService } from 'types/services.types';
-import { ADVISOR_FAMILY_SERVICE_TYPE } from 'utils/advisors.utils';
 import { helperTextTestId } from 'utils/mui.utils';
+import { CheckTestControls } from '../check-test/CheckTestControls';
+import { CheckTestResults } from '../check-test/CheckTestResults';
+import { useCheckTest } from '../check-test/useCheckTest';
 import { Messages } from './AdvisorCheckForm.messages';
 import {
   FAMILY_OPTIONS,
@@ -94,23 +86,6 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
     name: 'queries',
   });
 
-  const [testServiceId, setTestServiceId] = useState<string | null>(null);
-  const [testResults, setTestResults] = useState<
-    TestAdvisorCheckResult[] | null
-  >(null);
-  const [testScriptOutput, setTestScriptOutput] = useState<string | null>(null);
-  const [testError, setTestError] = useState<string | null>(null);
-
-  // drop stale test state whenever the overlay opens
-  useEffect(() => {
-    if (open) {
-      setTestServiceId(null);
-      setTestResults(null);
-      setTestScriptOutput(null);
-      setTestError(null);
-    }
-  }, [open]);
-
   // (re)initialize the form whenever the overlay opens or its source loads
   useEffect(() => {
     if (!open) {
@@ -128,55 +103,20 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
   const family = watch('family');
   const queryTypeOptions = QUERY_TYPES_BY_FAMILY[family] ?? [];
 
-  // the test target must match the check's family
-  const serviceType = ADVISOR_FAMILY_SERVICE_TYPE[family];
-  const { data: servicesResponse } = useServices(
-    { serviceType },
-    { enabled: open && !!serviceType }
-  );
-  const serviceOptions = useMemo(
-    () =>
-      (Object.values(servicesResponse ?? {}).flat() as VersionedService[]).map(
-        (s) => ({ id: s.serviceId, label: s.serviceName })
-      ),
-    [servicesResponse]
-  );
-
-  // a previously picked service is likely of the wrong type after a family change
-  useEffect(() => {
-    setTestServiceId(null);
-  }, [family]);
+  const test = useCheckTest({ family, enabled: open, resetKey: open });
 
   const { mutateAsync: create, isPending: isCreating } =
     useCreateAdvisorCheck();
   const { mutateAsync: update, isPending: isUpdating } =
     useUpdateAdvisorCheck();
   const isSaving = isCreating || isUpdating;
-  const { mutateAsync: testCheck, isPending: isTesting } =
-    useTestAdvisorCheck();
 
   const handleTest = async () => {
     const valid = await trigger();
-    if (!valid || !testServiceId) {
+    if (!valid) {
       return;
     }
-    setTestResults(null);
-    setTestScriptOutput(null);
-    setTestError(null);
-    try {
-      const { results, scriptOutput } = await testCheck({
-        check: toInput(getValues()),
-        serviceId: testServiceId,
-      });
-      setTestResults(results ?? []);
-      setTestScriptOutput(scriptOutput || null);
-    } catch (error) {
-      const message =
-        error instanceof AxiosError
-          ? (error.response?.data?.message ?? error.message)
-          : Messages.testFailed;
-      setTestError(message);
-    }
+    await test.runTest(toInput(getValues()));
   };
 
   const onSubmit = async (values: AdvisorCheckFormValues) => {
@@ -461,118 +401,7 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
               />
             </Box>
 
-            {(testResults !== null || testError !== null) && (
-              <Stack
-                gap={1}
-                data-testid="advisor-check-form-test-results"
-                // recessed "console" surface so the results read as output,
-                // not as another editable field
-                sx={{
-                  p: 1.5,
-                  pt: 1,
-                  border: 1,
-                  borderColor: 'divider',
-                  borderRadius: 1,
-                  bgcolor: 'background.default',
-                }}
-              >
-                <Stack
-                  direction="row"
-                  justifyContent="space-between"
-                  alignItems="center"
-                >
-                  <Stack direction="row" alignItems="center" gap={1}>
-                    <Typography variant="subtitle2">
-                      {Messages.testResultsTitle}
-                    </Typography>
-                    <Chip
-                      size="small"
-                      color={testError ? 'error' : 'success'}
-                      icon={
-                        testError ? (
-                          <ErrorOutlineIcon />
-                        ) : (
-                          <CheckCircleOutlineIcon />
-                        )
-                      }
-                      label={
-                        testError ? Messages.testFailure : Messages.testSuccess
-                      }
-                      data-testid="advisor-check-form-test-status"
-                    />
-                    {!testError && (
-                      <Typography variant="body2" color="text.secondary">
-                        {`· ${Messages.testFindings(testResults?.length ?? 0)}`}
-                      </Typography>
-                    )}
-                  </Stack>
-                  <IconButton
-                    size="small"
-                    aria-label={Messages.closeResults}
-                    onClick={() => {
-                      setTestResults(null);
-                      setTestScriptOutput(null);
-                      setTestError(null);
-                    }}
-                    data-testid="advisor-check-form-test-results-close"
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Stack>
-                {testError ? (
-                  <Typography
-                    variant="body2"
-                    color="error"
-                    sx={{ whiteSpace: 'pre-wrap' }}
-                    data-testid="advisor-check-form-test-error"
-                  >
-                    {testError}
-                  </Typography>
-                ) : (
-                  <CodeBlock
-                    language="json"
-                    copyable
-                    content={JSON.stringify(testResults, null, 2)}
-                    maxHeight="30vh"
-                    // an explicit border so the panel stands out from the
-                    // form fields around it; wrap long lines instead of
-                    // clipping them behind a horizontal scroll
-                    sx={{
-                      overflow: 'auto',
-                      m: 0,
-                      border: 1,
-                      borderColor: 'divider',
-                      borderRadius: 1,
-                      whiteSpace: 'pre-wrap',
-                      overflowWrap: 'anywhere',
-                    }}
-                    data-testid="advisor-check-form-test-output"
-                  />
-                )}
-                {testScriptOutput && (
-                  <>
-                    <Typography variant="subtitle2">
-                      {Messages.scriptOutput}
-                    </Typography>
-                    <CodeBlock
-                      copyable
-                      content={testScriptOutput}
-                      maxHeight="20vh"
-                      sx={{
-                        overflow: 'auto',
-                        m: 0,
-                        border: 1,
-                        borderColor: 'divider',
-                        borderRadius: 1,
-                        whiteSpace: 'pre-wrap',
-                        overflowWrap: 'anywhere',
-                      }}
-                      data-testid="advisor-check-form-test-script-output"
-                    />
-                  </>
-                )}
-              </Stack>
-            )}
+            <CheckTestResults test={test} />
 
             <Stack
               direction="row"
@@ -590,27 +419,7 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                 bgcolor: 'background.default',
               }}
             >
-              <Autocomplete
-                size="small"
-                sx={{ width: 280 }}
-                options={serviceOptions}
-                value={
-                  serviceOptions.find((o) => o.id === testServiceId) ?? null
-                }
-                onChange={(_, option) => setTestServiceId(option?.id ?? null)}
-                renderInput={(params) => (
-                  <TextField {...params} label={Messages.testService} />
-                )}
-                data-testid="advisor-check-form-test-service"
-              />
-              <Button
-                variant="outlined"
-                disabled={!testServiceId || isTesting}
-                onClick={handleTest}
-                data-testid="advisor-check-form-test"
-              >
-                {isTesting ? Messages.testing : Messages.test}
-              </Button>
+              <CheckTestControls test={test} onTest={handleTest} />
               <Box sx={{ flex: 1 }} />
               <Button
                 color="inherit"

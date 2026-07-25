@@ -11,7 +11,6 @@ import {
   createAdvisorCheck,
   deleteAdvisorCheck,
   getAdvisorCheck,
-  getAdvisorCheckScript,
   listAdvisors,
   listInsightsFilterValues,
   listInsights,
@@ -37,7 +36,6 @@ import { PaginatedResponse } from 'types/util.types';
 const KEYS = {
   LIST: 'advisors:list',
   CHECK: 'advisors:check',
-  CHECK_SCRIPT: 'advisors:check-script',
   START_CHECKS: 'advisors:start-checks',
   CHANGE_CHECKS: 'advisors:change-checks',
   CREATE_CHECK: 'advisors:create-check',
@@ -53,18 +51,6 @@ export const useAdvisors = (options?: Partial<UseQueryOptions<Advisor[]>>) =>
   useQuery({
     queryKey: [KEYS.LIST],
     queryFn: () => listAdvisors(),
-    ...options,
-  });
-
-export const useAdvisorCheckScript = (
-  name?: string,
-  options?: Partial<UseQueryOptions<string>>
-) =>
-  useQuery({
-    queryKey: [KEYS.CHECK_SCRIPT, name],
-    queryFn: () => getAdvisorCheckScript(name!),
-    // only fetch once a check is selected (lazy, on overlay open)
-    enabled: !!name,
     ...options,
   });
 

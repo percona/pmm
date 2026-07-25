@@ -37,7 +37,12 @@ export const ScriptEditorInput = forwardRef<
   const prismTheme =
     theme.palette.mode === 'dark' ? themes.okaidia : themes.nightOwlLight;
   // the editor's own ref only exposes its undo history, so the textarea is
-  // reached through a layout-neutral wrapper instead
+  // reached through a wrapper instead. The wrapper is also the scroll
+  // container: scrolling must happen INSIDE the field — scrolling the
+  // MuiInputBase root would carry its absolutely-positioned fieldset (the
+  // outlined border) away with the content. maxHeight only bites when the
+  // field has a bounded height (details pane); in the form it resolves to
+  // none and the field grows with the content.
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   // InputBase drives focus through the input ref (e.g. clicking the label)
@@ -54,7 +59,10 @@ export const ScriptEditorInput = forwardRef<
   );
 
   return (
-    <div ref={wrapperRef} style={{ display: 'contents' }}>
+    <div
+      ref={wrapperRef}
+      style={{ width: '100%', maxHeight: '100%', overflow: 'auto' }}
+    >
       <Editor
         value={typeof value === 'string' ? value : ''}
         onValueChange={(code) =>
