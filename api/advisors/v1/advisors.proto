@@ -331,11 +331,32 @@ message ListCheckResultsFilterValuesResponse {
   repeated string node_names = 2;
 }
 
+// CheckResultsFilters select Advisor check history records by attribute; all present fields must match.
+message CheckResultsFilters {
+  // Filter by service name (partial, case-insensitive match).
+  string service_name = 1;
+  // Filter by node name (partial, case-insensitive match).
+  string node_name = 2;
+  // Filter by advisor category.
+  string category = 3;
+  // Filter by severity.
+  optional management.v1.Severity severity = 4;
+  // Filter by outcome.
+  optional AdvisorCheckResultStatus status = 5;
+  // Filter by read state.
+  optional bool is_read = 6;
+  // Filter by batch ID.
+  string batch_id = 7;
+}
+
 message MarkCheckResultsReadRequest {
-  // IDs of the history records to update.
-  repeated string ids = 1 [(validate.rules).repeated.min_items = 1];
+  // IDs of the history records to update. Takes precedence over filters.
+  repeated string ids = 1;
   // Read state to set on the records.
   bool is_read = 2;
+  // When set and ids is empty, all records matching these filters are updated
+  // (an empty filter set matches every record). Either ids or filters must be provided.
+  CheckResultsFilters filters = 3;
 }
 
 message MarkCheckResultsReadResponse {}

@@ -8,6 +8,10 @@ export const Messages = {
   unread: 'Unread',
   markAsRead: 'Mark as read',
   markAsUnread: 'Mark as unread',
+  markFilteredRead: 'Mark filtered as read',
+  markFilteredReadTooltip:
+    'Mark every insight matching the current filters as read',
+  markFilteredReadNoFilters: 'Select at least one filter first',
   actions: {
     viewDetails: 'View details',
     toggleRead: 'Toggle read',
@@ -53,7 +57,7 @@ export const Messages = {
     clear: 'Clear filters',
     refresh: 'Refresh',
     refreshTooltip:
-      'Reload the check results and re-populate the filter options.',
+      'Reload the check results and re-populate the filter options',
     service: 'Service',
     node: 'Node',
     category: 'Category',
@@ -78,5 +82,6 @@ export const Messages = {
     copied: 'Insight copied to clipboard',
     markedRead: 'Insight marked as read',
     markedUnread: 'Insight marked as unread',
+    markedFilteredRead: 'Matching insights marked as read',
   },
 };

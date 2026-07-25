@@ -384,6 +384,41 @@ describe('AdvisorInsights', () => {
     );
   });
 
+  it('disables the bulk mark-as-read button when no filters are active', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    // guards against accidentally marking every record as read
+    expect(screen.getByTestId('mark-filtered-read')).toBeDisabled();
+  });
+
+  it('marks all insights matching the filters as read', async () => {
+    renderComponent('/advisors/insights?service=mysql-prod&read=false');
+
+    await waitForRows();
+
+    const button = screen.getByTestId('mark-filtered-read');
+    expect(button).toBeEnabled();
+    fireEvent.click(button);
+
+    await waitFor(() =>
+      expect(advisorsApi.markCheckResultsRead).toHaveBeenCalledWith(
+        {
+          filters: {
+            serviceName: 'mysql-prod',
+            isRead: false,
+          },
+          isRead: true,
+        },
+        expect.anything()
+      )
+    );
+    expect(
+      await screen.findByText(Messages.success.markedFilteredRead)
+    ).toBeInTheDocument();
+  });
+
   it('opens and closes the details pane from the row menu', async () => {
     renderComponent();
 

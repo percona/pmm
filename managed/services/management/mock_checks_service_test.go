@@ -357,6 +357,24 @@ func (_m *mockChecksService) MarkCheckResultsRead(ctx context.Context, ids []str
 	return r0
 }
 
+// MarkCheckResultsReadByFilters provides a mock function with given fields: ctx, filters, isRead
+func (_m *mockChecksService) MarkCheckResultsReadByFilters(ctx context.Context, filters models.CheckResultFilters, isRead bool) error {
+	ret := _m.Called(ctx, filters, isRead)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MarkCheckResultsReadByFilters")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, models.CheckResultFilters, bool) error); ok {
+		r0 = rf(ctx, filters, isRead)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // StartChecks provides a mock function with given fields: checkNames
 func (_m *mockChecksService) StartChecks(checkNames []string) (string, error) {
 	ret := _m.Called(checkNames)

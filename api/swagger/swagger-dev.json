@@ -2394,7 +2394,7 @@
               "type": "object",
               "properties": {
                 "ids": {
-                  "description": "IDs of the history records to update.",
+                  "description": "IDs of the history records to update. Takes precedence over filters.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -2405,6 +2405,70 @@
                   "description": "Read state to set on the records.",
                   "type": "boolean",
                   "x-order": 1
+                },
+                "filters": {
+                  "description": "CheckResultsFilters select Advisor check history records by attribute; all present fields must match.",
+                  "type": "object",
+                  "properties": {
+                    "service_name": {
+                      "description": "Filter by service name (partial, case-insensitive match).",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_name": {
+                      "description": "Filter by node name (partial, case-insensitive match).",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "category": {
+                      "description": "Filter by advisor category.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "severity": {
+                      "description": "Severity represents severity level of the check result or alert.",
+                      "type": "string",
+                      "default": "SEVERITY_UNSPECIFIED",
+                      "enum": [
+                        "SEVERITY_UNSPECIFIED",
+                        "SEVERITY_EMERGENCY",
+                        "SEVERITY_ALERT",
+                        "SEVERITY_CRITICAL",
+                        "SEVERITY_ERROR",
+                        "SEVERITY_WARNING",
+                        "SEVERITY_NOTICE",
+                        "SEVERITY_INFO",
+                        "SEVERITY_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 3
+                    },
+                    "status": {
+                      "description": "AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.",
+                      "type": "string",
+                      "default": "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
+                        "ADVISOR_CHECK_RESULT_STATUS_OK",
+                        "ADVISOR_CHECK_RESULT_STATUS_FAILED",
+                        "ADVISOR_CHECK_RESULT_STATUS_ERROR"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "is_read": {
+                      "description": "Filter by read state.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "batch_id": {
+                      "description": "Filter by batch ID.",
+                      "type": "string",
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 2
                 }
               }
             }

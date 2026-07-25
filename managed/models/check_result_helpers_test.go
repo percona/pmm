@@ -218,6 +218,42 @@ func TestCheckResults(t *testing.T) {
 		require.Len(t, got, 2)
 	})
 
+	t.Run("mark read by filters", func(t *testing.T) {
+		svc := "svc-mark-filters"
+		cr1 := create(t, &models.CheckResult{
+			CheckName: "c1", Category: "security", ServiceID: svc, ServiceName: "s", NodeName: "n",
+			Status: models.CheckResultFailed, Summary: "s",
+			Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
+		})
+		create(t, &models.CheckResult{
+			CheckName: "c2", Category: "configuration", ServiceID: svc, ServiceName: "s", NodeName: "n",
+			Status: models.CheckResultFailed, Summary: "s",
+			Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
+		})
+
+		// Only the matching row is updated.
+		require.NoError(t, models.MarkCheckResultsReadByFilters(t.Context(), q, models.CheckResultFilters{ServiceID: svc, Category: "security"}, true))
+
+		isRead := true
+		got, err := models.FindCheckResults(t.Context(), q, models.CheckResultFilters{ServiceID: svc, IsRead: &isRead}, 0, 0)
+		require.NoError(t, err)
+		require.Len(t, got, 1)
+		assert.Equal(t, cr1.ID, got[0].ID)
+
+		// The read-state filter narrows the update to unread rows.
+		notRead := false
+		require.NoError(t, models.MarkCheckResultsReadByFilters(t.Context(), q, models.CheckResultFilters{ServiceID: svc, IsRead: &notRead}, true))
+		got, err = models.FindCheckResults(t.Context(), q, models.CheckResultFilters{ServiceID: svc, IsRead: &isRead}, 0, 0)
+		require.NoError(t, err)
+		require.Len(t, got, 2)
+
+		// Empty filters match every record.
+		require.NoError(t, models.MarkCheckResultsReadByFilters(t.Context(), q, models.CheckResultFilters{}, false))
+		got, err = models.FindCheckResults(t.Context(), q, models.CheckResultFilters{ServiceID: svc, IsRead: &isRead}, 0, 0)
+		require.NoError(t, err)
+		require.Empty(t, got)
+	})
+
 	t.Run("cleanup old results", func(t *testing.T) {
 		svc := "svc-clean"
 		create(t, &models.CheckResult{

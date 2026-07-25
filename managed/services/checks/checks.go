@@ -272,6 +272,11 @@ func (s *Service) MarkCheckResultsRead(ctx context.Context, ids []string, isRead
 	return models.MarkCheckResultsRead(ctx, s.db.Querier, ids, isRead)
 }
 
+// MarkCheckResultsReadByFilters sets the read state on all check results history records matching the filters.
+func (s *Service) MarkCheckResultsReadByFilters(ctx context.Context, filters models.CheckResultFilters, isRead bool) error {
+	return models.MarkCheckResultsReadByFilters(ctx, s.db.Querier, filters, isRead)
+}
+
 // runChecksGroup downloads and executes Advisors checks that should run in the interval specified by intervalGroup.
 // All checks are executed if intervalGroup is empty.
 func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interval) error {

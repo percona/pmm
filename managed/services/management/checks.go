@@ -172,9 +172,35 @@ func (s *ChecksAPIService) MarkCheckResultsRead(
 	ctx context.Context,
 	req *advisorsv1.MarkCheckResultsReadRequest,
 ) (*advisorsv1.MarkCheckResultsReadResponse, error) {
-	err := s.checksService.MarkCheckResultsRead(ctx, req.Ids, req.IsRead)
-	if err != nil {
-		return nil, fmt.Errorf("failed to mark check results read: %w", err)
+	switch {
+	case len(req.Ids) > 0:
+		err := s.checksService.MarkCheckResultsRead(ctx, req.Ids, req.IsRead)
+		if err != nil {
+			return nil, fmt.Errorf("failed to mark check results read: %w", err)
+		}
+	case req.Filters != nil:
+		filters := models.CheckResultFilters{
+			ServiceName: req.Filters.ServiceName,
+			NodeName:    req.Filters.NodeName,
+			Category:    req.Filters.Category,
+			BatchID:     req.Filters.BatchId,
+			IsRead:      req.Filters.IsRead,
+		}
+		if req.Filters.Status != nil {
+			if st := convertAPIResultStatus(*req.Filters.Status); st != "" {
+				filters.Status = &st
+			}
+		}
+		if req.Filters.Severity != nil && *req.Filters.Severity != managementv1.Severity_SEVERITY_UNSPECIFIED {
+			severity := models.Severity(*req.Filters.Severity)
+			filters.Severity = &severity
+		}
+		err := s.checksService.MarkCheckResultsReadByFilters(ctx, filters, req.IsRead)
+		if err != nil {
+			return nil, fmt.Errorf("failed to mark check results read by filters: %w", err)
+		}
+	default:
+		return nil, status.Error(codes.InvalidArgument, "Either ids or filters must be provided.")
 	}
 
 	return &advisorsv1.MarkCheckResultsReadResponse{}, nil

@@ -40,6 +40,7 @@ import { useSearchParams } from 'react-router-dom';
 import {
   AdvisorCheckResultStatus,
   CheckResultHistoryItem,
+  CheckResultsFilters,
   ListCheckResultsHistoryParams,
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
@@ -182,9 +183,8 @@ const AdvisorInsights: FC = () => {
     setSearchParams(next, { replace: true });
   };
 
-  const params: ListCheckResultsHistoryParams = {
-    pageIndex: pagination.pageIndex,
-    pageSize: pagination.pageSize,
+  // filter portion of the query, shared with the bulk mark-as-read action
+  const filterParams: CheckResultsFilters = {
     batchId,
     serviceName: filters.serviceName || undefined,
     nodeName: filters.nodeName || undefined,
@@ -192,6 +192,12 @@ const AdvisorInsights: FC = () => {
     severity: (filters.severity as Severity) || undefined,
     status: (filters.status as AdvisorCheckResultStatus) || undefined,
     isRead: filters.isRead === '' ? undefined : filters.isRead === 'true',
+  };
+
+  const params: ListCheckResultsHistoryParams = {
+    pageIndex: pagination.pageIndex,
+    pageSize: pagination.pageSize,
+    ...filterParams,
   };
 
   const [actionMenu, setActionMenu] = useState<RowActionMenuState | null>(null);
@@ -363,6 +369,17 @@ const AdvisorInsights: FC = () => {
     [handleToggleRead]
   );
 
+  const handleMarkFilteredRead = () =>
+    markRead(
+      { filters: filterParams, isRead: true },
+      {
+        onSuccess: () =>
+          enqueueSnackbar(Messages.success.markedFilteredRead, {
+            variant: 'success',
+          }),
+      }
+    );
+
   return (
     <Page
       title={Messages.title}
@@ -448,28 +465,50 @@ const AdvisorInsights: FC = () => {
             sx={{ minWidth: 260 }}
             data-testid="batch-id-filter"
           />
-          <Tooltip title={Messages.filters.clear} arrow>
-            <Box component="span" sx={{ alignSelf: 'center' }}>
+          {/* tight icon cluster so the toolbar stays on a single row */}
+          <Stack direction="row" gap={0.5} sx={{ alignSelf: 'center' }}>
+            <Tooltip title={Messages.filters.clear} arrow>
+              <Box component="span">
+                <IconButton
+                  disabled={!hasActiveFilters}
+                  onClick={handleClearFilters}
+                  aria-label={Messages.filters.clear}
+                  data-testid="clear-filters"
+                >
+                  <FilterAltOffOutlinedIcon />
+                </IconButton>
+              </Box>
+            </Tooltip>
+            <Tooltip title={Messages.filters.refreshTooltip} arrow>
               <IconButton
-                disabled={!hasActiveFilters}
-                onClick={handleClearFilters}
-                aria-label={Messages.filters.clear}
-                data-testid="clear-filters"
+                onClick={handleRefresh}
+                aria-label={Messages.filters.refresh}
+                data-testid="refresh-insights"
               >
-                <FilterAltOffOutlinedIcon />
+                <RefreshOutlinedIcon />
               </IconButton>
-            </Box>
-          </Tooltip>
-          <Tooltip title={Messages.filters.refreshTooltip} arrow>
-            <IconButton
-              onClick={handleRefresh}
-              aria-label={Messages.filters.refresh}
-              data-testid="refresh-insights"
-              sx={{ alignSelf: 'center' }}
+            </Tooltip>
+            <Tooltip
+              title={
+                hasActiveFilters
+                  ? Messages.markFilteredReadTooltip
+                  : Messages.markFilteredReadNoFilters
+              }
+              arrow
             >
-              <RefreshOutlinedIcon />
-            </IconButton>
-          </Tooltip>
+              <Box component="span">
+                <IconButton
+                  // require a filter so a stray click cannot mark everything read
+                  disabled={!hasActiveFilters || isMarking || !data?.totalItems}
+                  onClick={handleMarkFilteredRead}
+                  aria-label={Messages.markFilteredRead}
+                  data-testid="mark-filtered-read"
+                >
+                  <MarkEmailReadOutlinedIcon />
+                </IconButton>
+              </Box>
+            </Tooltip>
+          </Stack>
         </Stack>
         <Table
           tableName="advisor-insights-table"

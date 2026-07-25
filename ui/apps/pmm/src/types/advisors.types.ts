@@ -184,9 +184,22 @@ export interface ListCheckResultsHistoryParams {
   to?: string;
 }
 
+export interface CheckResultsFilters {
+  serviceName?: string;
+  nodeName?: string;
+  category?: string;
+  severity?: Severity;
+  status?: AdvisorCheckResultStatus;
+  isRead?: boolean;
+  batchId?: string;
+}
+
 export interface MarkCheckResultsReadRequest {
-  ids: string[];
+  // record IDs to update; takes precedence over filters
+  ids?: string[];
   isRead: boolean;
+  // when set and ids is empty, updates all records matching the filters
+  filters?: CheckResultsFilters;
 }
 
 export interface ListCheckResultsFilterValuesResponse {

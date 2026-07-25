@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // MarkCheckResultsReadReader is a Reader for the MarkCheckResultsRead structure.
@@ -187,20 +188,88 @@ MarkCheckResultsReadBody mark check results read body
 swagger:model MarkCheckResultsReadBody
 */
 type MarkCheckResultsReadBody struct {
-	// IDs of the history records to update.
+	// IDs of the history records to update. Takes precedence over filters.
 	Ids []string `json:"ids"`
 
 	// Read state to set on the records.
 	IsRead bool `json:"is_read,omitempty"`
+
+	// filters
+	Filters *MarkCheckResultsReadParamsBodyFilters `json:"filters,omitempty"`
 }
 
 // Validate validates this mark check results read body
 func (o *MarkCheckResultsReadBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateFilters(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this mark check results read body based on context it is used
+func (o *MarkCheckResultsReadBody) validateFilters(formats strfmt.Registry) error {
+	if swag.IsZero(o.Filters) { // not required
+		return nil
+	}
+
+	if o.Filters != nil {
+		if err := o.Filters.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "filters")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "filters")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this mark check results read body based on the context it is used
 func (o *MarkCheckResultsReadBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateFilters(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *MarkCheckResultsReadBody) contextValidateFilters(ctx context.Context, formats strfmt.Registry) error {
+	if o.Filters != nil {
+
+		if swag.IsZero(o.Filters) { // not required
+			return nil
+		}
+
+		if err := o.Filters.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "filters")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "filters")
+			}
+
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -443,6 +512,191 @@ func (o *MarkCheckResultsReadDefaultBodyDetailsItems0) MarshalBinary() ([]byte, 
 // UnmarshalBinary interface implementation
 func (o *MarkCheckResultsReadDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	var res MarkCheckResultsReadDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+MarkCheckResultsReadParamsBodyFilters CheckResultsFilters select Advisor check history records by attribute; all present fields must match.
+swagger:model MarkCheckResultsReadParamsBodyFilters
+*/
+type MarkCheckResultsReadParamsBodyFilters struct {
+	// Filter by service name (partial, case-insensitive match).
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Filter by node name (partial, case-insensitive match).
+	NodeName string `json:"node_name,omitempty"`
+
+	// Filter by advisor category.
+	Category string `json:"category,omitempty"`
+
+	// Severity represents severity level of the check result or alert.
+	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
+	Severity *string `json:"severity,omitempty"`
+
+	// AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.
+	//
+	//  - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.
+	//  - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.
+	//  - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.
+	// Enum: ["ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED","ADVISOR_CHECK_RESULT_STATUS_OK","ADVISOR_CHECK_RESULT_STATUS_FAILED","ADVISOR_CHECK_RESULT_STATUS_ERROR"]
+	Status *string `json:"status,omitempty"`
+
+	// Filter by read state.
+	IsRead *bool `json:"is_read,omitempty"`
+
+	// Filter by batch ID.
+	BatchID string `json:"batch_id,omitempty"`
+}
+
+// Validate validates this mark check results read params body filters
+func (o *MarkCheckResultsReadParamsBodyFilters) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateSeverity(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var markCheckResultsReadParamsBodyFiltersTypeSeverityPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		markCheckResultsReadParamsBodyFiltersTypeSeverityPropEnum = append(markCheckResultsReadParamsBodyFiltersTypeSeverityPropEnum, v)
+	}
+}
+
+const (
+
+	// MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYUNSPECIFIED captures enum value "SEVERITY_UNSPECIFIED"
+	MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYUNSPECIFIED string = "SEVERITY_UNSPECIFIED"
+
+	// MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+
+	// MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYALERT captures enum value "SEVERITY_ALERT"
+	MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYALERT string = "SEVERITY_ALERT"
+
+	// MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+
+	// MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYERROR captures enum value "SEVERITY_ERROR"
+	MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYERROR string = "SEVERITY_ERROR"
+
+	// MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYWARNING string = "SEVERITY_WARNING"
+
+	// MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYNOTICE string = "SEVERITY_NOTICE"
+
+	// MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYINFO captures enum value "SEVERITY_INFO"
+	MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYINFO string = "SEVERITY_INFO"
+
+	// MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	MarkCheckResultsReadParamsBodyFiltersSeveritySEVERITYDEBUG string = "SEVERITY_DEBUG"
+)
+
+// prop value enum
+func (o *MarkCheckResultsReadParamsBodyFilters) validateSeverityEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, markCheckResultsReadParamsBodyFiltersTypeSeverityPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *MarkCheckResultsReadParamsBodyFilters) validateSeverity(formats strfmt.Registry) error {
+	if swag.IsZero(o.Severity) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateSeverityEnum("body"+"."+"filters"+"."+"severity", "body", *o.Severity); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var markCheckResultsReadParamsBodyFiltersTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED","ADVISOR_CHECK_RESULT_STATUS_OK","ADVISOR_CHECK_RESULT_STATUS_FAILED","ADVISOR_CHECK_RESULT_STATUS_ERROR"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		markCheckResultsReadParamsBodyFiltersTypeStatusPropEnum = append(markCheckResultsReadParamsBodyFiltersTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// MarkCheckResultsReadParamsBodyFiltersStatusADVISORCHECKRESULTSTATUSUNSPECIFIED captures enum value "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED"
+	MarkCheckResultsReadParamsBodyFiltersStatusADVISORCHECKRESULTSTATUSUNSPECIFIED string = "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED"
+
+	// MarkCheckResultsReadParamsBodyFiltersStatusADVISORCHECKRESULTSTATUSOK captures enum value "ADVISOR_CHECK_RESULT_STATUS_OK"
+	MarkCheckResultsReadParamsBodyFiltersStatusADVISORCHECKRESULTSTATUSOK string = "ADVISOR_CHECK_RESULT_STATUS_OK"
+
+	// MarkCheckResultsReadParamsBodyFiltersStatusADVISORCHECKRESULTSTATUSFAILED captures enum value "ADVISOR_CHECK_RESULT_STATUS_FAILED"
+	MarkCheckResultsReadParamsBodyFiltersStatusADVISORCHECKRESULTSTATUSFAILED string = "ADVISOR_CHECK_RESULT_STATUS_FAILED"
+
+	// MarkCheckResultsReadParamsBodyFiltersStatusADVISORCHECKRESULTSTATUSERROR captures enum value "ADVISOR_CHECK_RESULT_STATUS_ERROR"
+	MarkCheckResultsReadParamsBodyFiltersStatusADVISORCHECKRESULTSTATUSERROR string = "ADVISOR_CHECK_RESULT_STATUS_ERROR"
+)
+
+// prop value enum
+func (o *MarkCheckResultsReadParamsBodyFilters) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, markCheckResultsReadParamsBodyFiltersTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *MarkCheckResultsReadParamsBodyFilters) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("body"+"."+"filters"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this mark check results read params body filters based on context it is used
+func (o *MarkCheckResultsReadParamsBodyFilters) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *MarkCheckResultsReadParamsBodyFilters) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *MarkCheckResultsReadParamsBodyFilters) UnmarshalBinary(b []byte) error {
+	var res MarkCheckResultsReadParamsBodyFilters
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

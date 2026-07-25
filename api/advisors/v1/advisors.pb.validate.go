@@ -3960,6 +3960,129 @@ var _ interface {
 	ErrorName() string
 } = ListCheckResultsFilterValuesResponseValidationError{}
 
+// Validate checks the field values on CheckResultsFilters with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *CheckResultsFilters) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on CheckResultsFilters with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// CheckResultsFiltersMultiError, or nil if none found.
+func (m *CheckResultsFilters) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *CheckResultsFilters) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ServiceName
+
+	// no validation rules for NodeName
+
+	// no validation rules for Category
+
+	// no validation rules for BatchId
+
+	if m.Severity != nil {
+		// no validation rules for Severity
+	}
+
+	if m.Status != nil {
+		// no validation rules for Status
+	}
+
+	if m.IsRead != nil {
+		// no validation rules for IsRead
+	}
+
+	if len(errors) > 0 {
+		return CheckResultsFiltersMultiError(errors)
+	}
+
+	return nil
+}
+
+// CheckResultsFiltersMultiError is an error wrapping multiple validation
+// errors returned by CheckResultsFilters.ValidateAll() if the designated
+// constraints aren't met.
+type CheckResultsFiltersMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m CheckResultsFiltersMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m CheckResultsFiltersMultiError) AllErrors() []error { return m }
+
+// CheckResultsFiltersValidationError is the validation error returned by
+// CheckResultsFilters.Validate if the designated constraints aren't met.
+type CheckResultsFiltersValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CheckResultsFiltersValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CheckResultsFiltersValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CheckResultsFiltersValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CheckResultsFiltersValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CheckResultsFiltersValidationError) ErrorName() string {
+	return "CheckResultsFiltersValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CheckResultsFiltersValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCheckResultsFilters.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = CheckResultsFiltersValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CheckResultsFiltersValidationError{}
+
 // Validate checks the field values on MarkCheckResultsReadRequest with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -3982,18 +4105,36 @@ func (m *MarkCheckResultsReadRequest) validate(all bool) error {
 
 	var errors []error
 
-	if len(m.GetIds()) < 1 {
-		err := MarkCheckResultsReadRequestValidationError{
-			field:  "Ids",
-			reason: "value must contain at least 1 item(s)",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
 	// no validation rules for IsRead
+
+	if all {
+		switch v := interface{}(m.GetFilters()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MarkCheckResultsReadRequestValidationError{
+					field:  "Filters",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MarkCheckResultsReadRequestValidationError{
+					field:  "Filters",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetFilters()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MarkCheckResultsReadRequestValidationError{
+				field:  "Filters",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return MarkCheckResultsReadRequestMultiError(errors)

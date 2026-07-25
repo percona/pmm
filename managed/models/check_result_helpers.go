@@ -203,6 +203,19 @@ func MarkCheckResultsRead(ctx context.Context, q *reform.Querier, ids []string, 
 	return nil
 }
 
+// MarkCheckResultsReadByFilters sets the read state on all check results matching the filters.
+func MarkCheckResultsReadByFilters(ctx context.Context, q *reform.Querier, filters CheckResultFilters, isRead bool) error {
+	where, args := checkResultConditions(q, filters)
+	args = append(args, isRead)
+
+	query := "UPDATE " + CheckResultTable.Name() + " SET is_read = " + q.Placeholder(len(args)) + " " + where
+	_, err := q.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to mark check results as read by filters: %w", err)
+	}
+	return nil
+}
+
 // CleanupOldCheckResults deletes Advisor check results older than a specified date.
 func CleanupOldCheckResults(ctx context.Context, q *reform.Querier, olderThan time.Time) error {
 	_, err := q.WithContext(ctx).DeleteFrom(CheckResultTable, " WHERE checked_at <= $1", olderThan)

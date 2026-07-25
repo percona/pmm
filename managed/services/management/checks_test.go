@@ -349,6 +349,70 @@ func TestMarkCheckResultsRead(t *testing.T) {
 		assert.Equal(t, &advisorsv1.MarkCheckResultsReadResponse{}, resp)
 		checksService.AssertExpectations(t)
 	})
+
+	t.Run("converts filters", func(t *testing.T) {
+		t.Parallel()
+
+		severity := models.Severity(common.Warning)
+		status := models.CheckResultFailed
+		var checksService mockChecksService
+		checksService.On("MarkCheckResultsReadByFilters", mock.Anything, models.CheckResultFilters{
+			ServiceName: "mysql-prod",
+			NodeName:    "node-1",
+			Category:    "security",
+			BatchID:     "batch-1",
+			Severity:    &severity,
+			Status:      &status,
+			IsRead:      new(false),
+		}, true).Return(nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.MarkCheckResultsRead(t.Context(), &advisorsv1.MarkCheckResultsReadRequest{
+			Filters: &advisorsv1.CheckResultsFilters{
+				ServiceName: "mysql-prod",
+				NodeName:    "node-1",
+				Category:    "security",
+				BatchId:     "batch-1",
+				Severity:    new(managementv1.Severity_SEVERITY_WARNING),
+				Status:      new(advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_FAILED),
+				IsRead:      new(true),
+			},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, &advisorsv1.MarkCheckResultsReadResponse{}, resp)
+		checksService.AssertExpectations(t)
+	})
+
+	t.Run("empty filters match every record", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("MarkCheckResultsReadByFilters", mock.Anything, models.CheckResultFilters{}, true).Return(nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.MarkCheckResultsRead(t.Context(), &advisorsv1.MarkCheckResultsReadRequest{
+			IsRead:  true,
+			Filters: &advisorsv1.CheckResultsFilters{},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, &advisorsv1.MarkCheckResultsReadResponse{}, resp)
+		checksService.AssertExpectations(t)
+	})
+
+	t.Run("requires ids or filters", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.MarkCheckResultsRead(t.Context(), &advisorsv1.MarkCheckResultsReadRequest{
+			IsRead: true,
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Either ids or filters must be provided."), err)
+		assert.Nil(t, resp)
+	})
 }
 
 func TestListAdvisorChecks(t *testing.T) {
