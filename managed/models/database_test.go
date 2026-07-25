@@ -463,4 +463,28 @@ func TestDatabaseMigrations(t *testing.T) {
 		require.NoError(t, err)
 		assert.False(t, checkSettingsExists)
 	})
+
+	t.Run("advisor checks migration: non-array disabled_advisors is ignored", func(t *testing.T) {
+		sqlDB := testdb.Open(t, models.SkipFixtures, new(119))
+		t.Cleanup(func() {
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		// A nil Go slice marshals to JSON null, so disabled_advisors can be a
+		// scalar rather than an array; the migration must not choke on it.
+		_, err := sqlDB.ExecContext(
+			t.Context(),
+			`UPDATE settings SET settings = jsonb_set(
+				jsonb_set(settings, '{sass}', COALESCE(settings->'sass', '{}'::jsonb)),
+				'{sass,disabled_advisors}', 'null'::jsonb)`,
+		)
+		require.NoError(t, err)
+
+		testdb.SetupDB(t, sqlDB, models.SkipFixtures, new(120))
+
+		var count int
+		err = sqlDB.QueryRowContext(t.Context(), `SELECT count(*) FROM advisor_checks`).Scan(&count)
+		require.NoError(t, err)
+		assert.Equal(t, 0, count)
+	})
 }

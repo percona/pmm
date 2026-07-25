@@ -1261,7 +1261,11 @@ var databaseSchema = [][]string{
 			created_at, updated_at
 		)
 		SELECT DISTINCT x.name, 'builtin', 2, '', '', '', '', '', '', NULL, true, '[]', '', now(), now()
-		FROM settings, jsonb_array_elements_text(COALESCE(settings #> '{sass,disabled_advisors}', '[]'::jsonb)) AS x(name)
+		FROM settings, jsonb_array_elements_text(
+			CASE WHEN jsonb_typeof(settings #> '{sass,disabled_advisors}') = 'array'
+				THEN settings #> '{sass,disabled_advisors}'
+				ELSE '[]'::jsonb END
+		) AS x(name)
 		WHERE x.name <> ''
 		ON CONFLICT (name) DO UPDATE SET disabled = true`,
 
