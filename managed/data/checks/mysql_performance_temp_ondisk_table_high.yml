@@ -48,7 +48,7 @@ checks:
                   "summary": "More than {}% of the temporary tables are converted to on-disk.".format(perc),
                   "read_more": "https://percona.com/blog",
                   "description": "More than {}% of the queries are causing temporary table creation on-disk. Query and configuration review is recommended.".format(perc),
-                  "severity": "Error",
+                  "severity": "error",
                   "labels": {
                       "mysql_version": "{}".format(version),
                       "service": "{}".format(service),

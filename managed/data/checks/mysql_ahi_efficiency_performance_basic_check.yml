@@ -110,18 +110,29 @@ checks:
                thresholdB = nCPUs*2
                # - The "warning" threshold is 3/4 of the critical one
                thresholdA = (thresholdB/4)*3
+               # - The "error" threshold sits midway between warning and critical
+               thresholdMid = (thresholdA+thresholdB)/2
 
                btrWaitLoadHitRatioMsg = "AHI average btr_search_latch wait load is {}, AHI average hit ratio is {}%.".format(loadAvg,hitRatioAvg)
 
                if hitRatioAvg > 50 and loadAvg > thresholdA:
-                   if loadAvg < thresholdB:
+                   if loadAvg < thresholdMid:
                        summary = "AHI is experiencing some contention"
                        description = btrWaitLoadHitRatioMsg
                        severity = "warning"
+                   elif loadAvg < thresholdB:
+                       summary = "AHI is experiencing contention"
+                       description = "{}. Consider increasing the number of AHI partitions (currently operating with {}).".format(btrWaitLoadHitRatioMsg,ahi_parts)
+                       severity = "error"
                    else:  # loadAvg > thresholdB
                        summary = "AHI is likely experiencing contention"
                        description = "{}. You should consider increasing the number of AHI partitions (currently operating with {}) or disable it altogether.".format(btrWaitLoadHitRatioMsg,ahi_parts)
-                       severity = "error"
+                       severity = "critical"
+
+               elif hitRatioAvg <= 50:
+                   summary = "AHI hit ratio is low"
+                   description = "{}. AHI is enabled but only a small share of searches are served by it; it may not be benefiting this workload.".format(btrWaitLoadHitRatioMsg)
+                   severity = "info"
 
                else:
                    summary = "AHI is operating with no contention detected"

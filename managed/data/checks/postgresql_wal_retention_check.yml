@@ -42,7 +42,7 @@ checks:
                       "summary": "Could not determine version information needed for check",
                       "description": "Unknown version",
                       "read_more_url": "",
-                      "severity": "Error",
+                      "severity": "error",
                       "labels": {},
                   })
                   return results
