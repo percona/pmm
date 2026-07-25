@@ -24,11 +24,16 @@ checks:
                 datname = row["datname"]
                 relname = row["relname"]
                 rundate = row["rundate"]
+                if stats_reset:
+                    since = "since the statistics reset on {}".format(stats_reset)
+                else:
+                    since = "since statistics collection began"
                 results.append({
-                    "summary": "Relations with unused indexes",
-                    "description": "The relation {}.{} has unused indexes as of the last statistics reset on {}. This check was last executed on {}".format(datname, relname, stats_reset, rundate),
+                    "summary": "Unused indexes in {}.{}".format(datname, relname),
+                    "description": "The relation {}.{} has indexes that have not been used {}. This check was last executed on {}.".format(datname, relname, since, rundate),
                     "read_more_url":read_url.format("postgresql-unused-index-check"),
                     "severity": "warning",
+                    "labels": {"database": datname, "relation": relname},
                 })
 
           return results
