@@ -805,96 +805,6 @@ func (x *ListAdvisorChecksResponse) GetChecks() []*AdvisorCheck {
 	return nil
 }
 
-type GetAdvisorCheckScriptRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Machine-readable name (ID) of the check.
-	Name          string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetAdvisorCheckScriptRequest) Reset() {
-	*x = GetAdvisorCheckScriptRequest{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetAdvisorCheckScriptRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAdvisorCheckScriptRequest) ProtoMessage() {}
-
-func (x *GetAdvisorCheckScriptRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAdvisorCheckScriptRequest.ProtoReflect.Descriptor instead.
-func (*GetAdvisorCheckScriptRequest) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *GetAdvisorCheckScriptRequest) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-type GetAdvisorCheckScriptResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Source script (Starlark) of the check.
-	Script        string `protobuf:"bytes,1,opt,name=script,proto3" json:"script,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetAdvisorCheckScriptResponse) Reset() {
-	*x = GetAdvisorCheckScriptResponse{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetAdvisorCheckScriptResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetAdvisorCheckScriptResponse) ProtoMessage() {}
-
-func (x *GetAdvisorCheckScriptResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetAdvisorCheckScriptResponse.ProtoReflect.Descriptor instead.
-func (*GetAdvisorCheckScriptResponse) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *GetAdvisorCheckScriptResponse) GetScript() string {
-	if x != nil {
-		return x.Script
-	}
-	return ""
-}
-
 type GetAdvisorCheckRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Machine-readable name (ID) of the check.
@@ -905,7 +815,7 @@ type GetAdvisorCheckRequest struct {
 
 func (x *GetAdvisorCheckRequest) Reset() {
 	*x = GetAdvisorCheckRequest{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[10]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -917,7 +827,7 @@ func (x *GetAdvisorCheckRequest) String() string {
 func (*GetAdvisorCheckRequest) ProtoMessage() {}
 
 func (x *GetAdvisorCheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[10]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -930,7 +840,7 @@ func (x *GetAdvisorCheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdvisorCheckRequest.ProtoReflect.Descriptor instead.
 func (*GetAdvisorCheckRequest) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{10}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetAdvisorCheckRequest) GetName() string {
@@ -949,7 +859,7 @@ type GetAdvisorCheckResponse struct {
 
 func (x *GetAdvisorCheckResponse) Reset() {
 	*x = GetAdvisorCheckResponse{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[11]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -961,7 +871,7 @@ func (x *GetAdvisorCheckResponse) String() string {
 func (*GetAdvisorCheckResponse) ProtoMessage() {}
 
 func (x *GetAdvisorCheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[11]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -974,7 +884,7 @@ func (x *GetAdvisorCheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAdvisorCheckResponse.ProtoReflect.Descriptor instead.
 func (*GetAdvisorCheckResponse) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{11}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetAdvisorCheckResponse) GetCheck() *AdvisorCheck {
@@ -994,7 +904,7 @@ type CreateAdvisorCheckRequest struct {
 
 func (x *CreateAdvisorCheckRequest) Reset() {
 	*x = CreateAdvisorCheckRequest{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[12]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1006,7 +916,7 @@ func (x *CreateAdvisorCheckRequest) String() string {
 func (*CreateAdvisorCheckRequest) ProtoMessage() {}
 
 func (x *CreateAdvisorCheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[12]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1019,7 +929,7 @@ func (x *CreateAdvisorCheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdvisorCheckRequest.ProtoReflect.Descriptor instead.
 func (*CreateAdvisorCheckRequest) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{12}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *CreateAdvisorCheckRequest) GetCheck() *AdvisorCheck {
@@ -1038,7 +948,7 @@ type CreateAdvisorCheckResponse struct {
 
 func (x *CreateAdvisorCheckResponse) Reset() {
 	*x = CreateAdvisorCheckResponse{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[13]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1050,7 +960,7 @@ func (x *CreateAdvisorCheckResponse) String() string {
 func (*CreateAdvisorCheckResponse) ProtoMessage() {}
 
 func (x *CreateAdvisorCheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[13]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1063,7 +973,7 @@ func (x *CreateAdvisorCheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateAdvisorCheckResponse.ProtoReflect.Descriptor instead.
 func (*CreateAdvisorCheckResponse) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{13}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CreateAdvisorCheckResponse) GetCheck() *AdvisorCheck {
@@ -1085,7 +995,7 @@ type UpdateAdvisorCheckRequest struct {
 
 func (x *UpdateAdvisorCheckRequest) Reset() {
 	*x = UpdateAdvisorCheckRequest{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[14]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1097,7 +1007,7 @@ func (x *UpdateAdvisorCheckRequest) String() string {
 func (*UpdateAdvisorCheckRequest) ProtoMessage() {}
 
 func (x *UpdateAdvisorCheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[14]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1110,7 +1020,7 @@ func (x *UpdateAdvisorCheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAdvisorCheckRequest.ProtoReflect.Descriptor instead.
 func (*UpdateAdvisorCheckRequest) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{14}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *UpdateAdvisorCheckRequest) GetName() string {
@@ -1136,7 +1046,7 @@ type UpdateAdvisorCheckResponse struct {
 
 func (x *UpdateAdvisorCheckResponse) Reset() {
 	*x = UpdateAdvisorCheckResponse{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[15]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1148,7 +1058,7 @@ func (x *UpdateAdvisorCheckResponse) String() string {
 func (*UpdateAdvisorCheckResponse) ProtoMessage() {}
 
 func (x *UpdateAdvisorCheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[15]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1161,7 +1071,7 @@ func (x *UpdateAdvisorCheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateAdvisorCheckResponse.ProtoReflect.Descriptor instead.
 func (*UpdateAdvisorCheckResponse) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{15}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *UpdateAdvisorCheckResponse) GetCheck() *AdvisorCheck {
@@ -1181,7 +1091,7 @@ type DeleteAdvisorCheckRequest struct {
 
 func (x *DeleteAdvisorCheckRequest) Reset() {
 	*x = DeleteAdvisorCheckRequest{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[16]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1193,7 +1103,7 @@ func (x *DeleteAdvisorCheckRequest) String() string {
 func (*DeleteAdvisorCheckRequest) ProtoMessage() {}
 
 func (x *DeleteAdvisorCheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[16]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1206,7 +1116,7 @@ func (x *DeleteAdvisorCheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdvisorCheckRequest.ProtoReflect.Descriptor instead.
 func (*DeleteAdvisorCheckRequest) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{16}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *DeleteAdvisorCheckRequest) GetName() string {
@@ -1224,7 +1134,7 @@ type DeleteAdvisorCheckResponse struct {
 
 func (x *DeleteAdvisorCheckResponse) Reset() {
 	*x = DeleteAdvisorCheckResponse{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[17]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1236,7 +1146,7 @@ func (x *DeleteAdvisorCheckResponse) String() string {
 func (*DeleteAdvisorCheckResponse) ProtoMessage() {}
 
 func (x *DeleteAdvisorCheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[17]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1249,7 +1159,7 @@ func (x *DeleteAdvisorCheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteAdvisorCheckResponse.ProtoReflect.Descriptor instead.
 func (*DeleteAdvisorCheckResponse) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{17}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{15}
 }
 
 type TestAdvisorCheckRequest struct {
@@ -1264,7 +1174,7 @@ type TestAdvisorCheckRequest struct {
 
 func (x *TestAdvisorCheckRequest) Reset() {
 	*x = TestAdvisorCheckRequest{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[18]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1276,7 +1186,7 @@ func (x *TestAdvisorCheckRequest) String() string {
 func (*TestAdvisorCheckRequest) ProtoMessage() {}
 
 func (x *TestAdvisorCheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[18]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1289,7 +1199,7 @@ func (x *TestAdvisorCheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TestAdvisorCheckRequest.ProtoReflect.Descriptor instead.
 func (*TestAdvisorCheckRequest) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{18}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *TestAdvisorCheckRequest) GetCheck() *AdvisorCheck {
@@ -1327,7 +1237,7 @@ type TestAdvisorCheckResult struct {
 
 func (x *TestAdvisorCheckResult) Reset() {
 	*x = TestAdvisorCheckResult{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[19]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1339,7 +1249,7 @@ func (x *TestAdvisorCheckResult) String() string {
 func (*TestAdvisorCheckResult) ProtoMessage() {}
 
 func (x *TestAdvisorCheckResult) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[19]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1352,7 +1262,7 @@ func (x *TestAdvisorCheckResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TestAdvisorCheckResult.ProtoReflect.Descriptor instead.
 func (*TestAdvisorCheckResult) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{19}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *TestAdvisorCheckResult) GetSummary() string {
@@ -1423,7 +1333,7 @@ type TestAdvisorCheckResponse struct {
 
 func (x *TestAdvisorCheckResponse) Reset() {
 	*x = TestAdvisorCheckResponse{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[20]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1435,7 +1345,7 @@ func (x *TestAdvisorCheckResponse) String() string {
 func (*TestAdvisorCheckResponse) ProtoMessage() {}
 
 func (x *TestAdvisorCheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[20]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1448,7 +1358,7 @@ func (x *TestAdvisorCheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TestAdvisorCheckResponse.ProtoReflect.Descriptor instead.
 func (*TestAdvisorCheckResponse) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{20}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *TestAdvisorCheckResponse) GetResults() []*TestAdvisorCheckResult {
@@ -1473,7 +1383,7 @@ type ListAdvisorsRequest struct {
 
 func (x *ListAdvisorsRequest) Reset() {
 	*x = ListAdvisorsRequest{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[21]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1485,7 +1395,7 @@ func (x *ListAdvisorsRequest) String() string {
 func (*ListAdvisorsRequest) ProtoMessage() {}
 
 func (x *ListAdvisorsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[21]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1498,7 +1408,7 @@ func (x *ListAdvisorsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdvisorsRequest.ProtoReflect.Descriptor instead.
 func (*ListAdvisorsRequest) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{21}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{19}
 }
 
 type ListAdvisorsResponse struct {
@@ -1510,7 +1420,7 @@ type ListAdvisorsResponse struct {
 
 func (x *ListAdvisorsResponse) Reset() {
 	*x = ListAdvisorsResponse{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[22]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1522,7 +1432,7 @@ func (x *ListAdvisorsResponse) String() string {
 func (*ListAdvisorsResponse) ProtoMessage() {}
 
 func (x *ListAdvisorsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[22]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1535,7 +1445,7 @@ func (x *ListAdvisorsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListAdvisorsResponse.ProtoReflect.Descriptor instead.
 func (*ListAdvisorsResponse) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{22}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ListAdvisorsResponse) GetAdvisors() []*Advisor {
@@ -1554,7 +1464,7 @@ type ChangeAdvisorChecksRequest struct {
 
 func (x *ChangeAdvisorChecksRequest) Reset() {
 	*x = ChangeAdvisorChecksRequest{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[23]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1566,7 +1476,7 @@ func (x *ChangeAdvisorChecksRequest) String() string {
 func (*ChangeAdvisorChecksRequest) ProtoMessage() {}
 
 func (x *ChangeAdvisorChecksRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[23]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1579,7 +1489,7 @@ func (x *ChangeAdvisorChecksRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeAdvisorChecksRequest.ProtoReflect.Descriptor instead.
 func (*ChangeAdvisorChecksRequest) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{23}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ChangeAdvisorChecksRequest) GetParams() []*ChangeAdvisorCheckParams {
@@ -1597,7 +1507,7 @@ type ChangeAdvisorChecksResponse struct {
 
 func (x *ChangeAdvisorChecksResponse) Reset() {
 	*x = ChangeAdvisorChecksResponse{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[24]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1609,7 +1519,7 @@ func (x *ChangeAdvisorChecksResponse) String() string {
 func (*ChangeAdvisorChecksResponse) ProtoMessage() {}
 
 func (x *ChangeAdvisorChecksResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[24]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1622,7 +1532,7 @@ func (x *ChangeAdvisorChecksResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeAdvisorChecksResponse.ProtoReflect.Descriptor instead.
 func (*ChangeAdvisorChecksResponse) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{24}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{22}
 }
 
 // Insight represents a single persisted Advisor check run against a service.
@@ -1682,7 +1592,7 @@ type Insight struct {
 
 func (x *Insight) Reset() {
 	*x = Insight{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[25]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1694,7 +1604,7 @@ func (x *Insight) String() string {
 func (*Insight) ProtoMessage() {}
 
 func (x *Insight) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[25]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1707,7 +1617,7 @@ func (x *Insight) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Insight.ProtoReflect.Descriptor instead.
 func (*Insight) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{25}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *Insight) GetId() string {
@@ -1914,7 +1824,7 @@ type ListInsightsRequest struct {
 
 func (x *ListInsightsRequest) Reset() {
 	*x = ListInsightsRequest{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[26]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1926,7 +1836,7 @@ func (x *ListInsightsRequest) String() string {
 func (*ListInsightsRequest) ProtoMessage() {}
 
 func (x *ListInsightsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[26]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1939,7 +1849,7 @@ func (x *ListInsightsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListInsightsRequest.ProtoReflect.Descriptor instead.
 func (*ListInsightsRequest) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{26}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ListInsightsRequest) GetPageSize() int32 {
@@ -2054,7 +1964,7 @@ type ListInsightsResponse struct {
 
 func (x *ListInsightsResponse) Reset() {
 	*x = ListInsightsResponse{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[27]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2066,7 +1976,7 @@ func (x *ListInsightsResponse) String() string {
 func (*ListInsightsResponse) ProtoMessage() {}
 
 func (x *ListInsightsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[27]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2079,7 +1989,7 @@ func (x *ListInsightsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListInsightsResponse.ProtoReflect.Descriptor instead.
 func (*ListInsightsResponse) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{27}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ListInsightsResponse) GetTotalItems() int32 {
@@ -2111,7 +2021,7 @@ type ListInsightsFilterValuesRequest struct {
 
 func (x *ListInsightsFilterValuesRequest) Reset() {
 	*x = ListInsightsFilterValuesRequest{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[28]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2123,7 +2033,7 @@ func (x *ListInsightsFilterValuesRequest) String() string {
 func (*ListInsightsFilterValuesRequest) ProtoMessage() {}
 
 func (x *ListInsightsFilterValuesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[28]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2136,7 +2046,7 @@ func (x *ListInsightsFilterValuesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListInsightsFilterValuesRequest.ProtoReflect.Descriptor instead.
 func (*ListInsightsFilterValuesRequest) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{28}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{26}
 }
 
 type ListInsightsFilterValuesResponse struct {
@@ -2151,7 +2061,7 @@ type ListInsightsFilterValuesResponse struct {
 
 func (x *ListInsightsFilterValuesResponse) Reset() {
 	*x = ListInsightsFilterValuesResponse{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[29]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2163,7 +2073,7 @@ func (x *ListInsightsFilterValuesResponse) String() string {
 func (*ListInsightsFilterValuesResponse) ProtoMessage() {}
 
 func (x *ListInsightsFilterValuesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[29]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2176,7 +2086,7 @@ func (x *ListInsightsFilterValuesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListInsightsFilterValuesResponse.ProtoReflect.Descriptor instead.
 func (*ListInsightsFilterValuesResponse) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{29}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ListInsightsFilterValuesResponse) GetServiceNames() []string {
@@ -2216,7 +2126,7 @@ type InsightsFilters struct {
 
 func (x *InsightsFilters) Reset() {
 	*x = InsightsFilters{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[30]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2228,7 +2138,7 @@ func (x *InsightsFilters) String() string {
 func (*InsightsFilters) ProtoMessage() {}
 
 func (x *InsightsFilters) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[30]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2241,7 +2151,7 @@ func (x *InsightsFilters) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InsightsFilters.ProtoReflect.Descriptor instead.
 func (*InsightsFilters) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{30}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *InsightsFilters) GetServiceName() string {
@@ -2308,7 +2218,7 @@ type MarkInsightsReadRequest struct {
 
 func (x *MarkInsightsReadRequest) Reset() {
 	*x = MarkInsightsReadRequest{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[31]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2320,7 +2230,7 @@ func (x *MarkInsightsReadRequest) String() string {
 func (*MarkInsightsReadRequest) ProtoMessage() {}
 
 func (x *MarkInsightsReadRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[31]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2333,7 +2243,7 @@ func (x *MarkInsightsReadRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MarkInsightsReadRequest.ProtoReflect.Descriptor instead.
 func (*MarkInsightsReadRequest) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{31}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *MarkInsightsReadRequest) GetIds() []string {
@@ -2365,7 +2275,7 @@ type MarkInsightsReadResponse struct {
 
 func (x *MarkInsightsReadResponse) Reset() {
 	*x = MarkInsightsReadResponse{}
-	mi := &file_advisors_v1_advisors_proto_msgTypes[32]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2377,7 +2287,7 @@ func (x *MarkInsightsReadResponse) String() string {
 func (*MarkInsightsReadResponse) ProtoMessage() {}
 
 func (x *MarkInsightsReadResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_advisors_v1_advisors_proto_msgTypes[32]
+	mi := &file_advisors_v1_advisors_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2390,7 +2300,7 @@ func (x *MarkInsightsReadResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MarkInsightsReadResponse.ProtoReflect.Descriptor instead.
 func (*MarkInsightsReadResponse) Descriptor() ([]byte, []int) {
-	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{32}
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{30}
 }
 
 var File_advisors_v1_advisors_proto protoreflect.FileDescriptor
@@ -2442,11 +2352,7 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\bbatch_id\x18\x01 \x01(\tR\abatchId\"\x1a\n" +
 	"\x18ListAdvisorChecksRequest\"N\n" +
 	"\x19ListAdvisorChecksResponse\x121\n" +
-	"\x06checks\x18\x01 \x03(\v2\x19.advisors.v1.AdvisorCheckR\x06checks\"2\n" +
-	"\x1cGetAdvisorCheckScriptRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\"7\n" +
-	"\x1dGetAdvisorCheckScriptResponse\x12\x16\n" +
-	"\x06script\x18\x01 \x01(\tR\x06script\",\n" +
+	"\x06checks\x18\x01 \x03(\v2\x19.advisors.v1.AdvisorCheckR\x06checks\",\n" +
 	"\x16GetAdvisorCheckRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\"J\n" +
 	"\x17GetAdvisorCheckResponse\x12/\n" +
@@ -2595,14 +2501,13 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\x17AdvisorCheckTriggeredBy\x12*\n" +
 	"&ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fADVISOR_CHECK_TRIGGERED_BY_USER\x10\x01\x12(\n" +
-	"$ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER\x10\x022\x9b\x19\n" +
+	"$ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER\x10\x022\xa3\x17\n" +
 	"\x0eAdvisorService\x12\xe1\x01\n" +
 	"\fListInsights\x12 .advisors.v1.ListInsightsRequest\x1a!.advisors.v1.ListInsightsResponse\"\x8b\x01\x92Ak\x12\x15List Advisor Insights\x1aRReturns the history of Advisor check results (insights), including their outcomes.\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/advisors/insights\x12\xbc\x02\n" +
 	"\x18ListInsightsFilterValues\x12,.advisors.v1.ListInsightsFilterValuesRequest\x1a-.advisors.v1.ListInsightsFilterValuesResponse\"\xc2\x01\x92A\x94\x01\x12#List Advisor Insights Filter Values\x1amReturns the distinct service and node names present in the Advisor insights, for populating filter dropdowns.\x82\xd3\xe4\x93\x02$\x12\"/v1/advisors/insights:filterValues\x12\x8c\x02\n" +
 	"\x10MarkInsightsRead\x12$.advisors.v1.MarkInsightsReadRequest\x1a%.advisors.v1.MarkInsightsReadResponse\"\xaa\x01\x92A~\x12\x1aMark Advisor Insights Read\x1a`Sets the read state on the specified Advisor insights. Set is_read to false to mark them unread.\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/advisors/insights:markRead\x12\xb0\x02\n" +
 	"\x12StartAdvisorChecks\x12&.advisors.v1.StartAdvisorChecksRequest\x1a'.advisors.v1.StartAdvisorChecksResponse\"\xc8\x01\x92A\xa0\x01\x12\x14Start Advisor Checks\x1a\x87\x01Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified.\x82\xd3\xe4\x93\x02\x1e:\x01*\"\x19/v1/advisors/checks:start\x12\xc3\x01\n" +
-	"\x11ListAdvisorChecks\x12%.advisors.v1.ListAdvisorChecksRequest\x1a&.advisors.v1.ListAdvisorChecksResponse\"_\x92AA\x12\x13List Advisor Checks\x1a*List advisor checks available to the user.\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/advisors/checks\x12\xf5\x01\n" +
-	"\x15GetAdvisorCheckScript\x12).advisors.v1.GetAdvisorCheckScriptRequest\x1a*.advisors.v1.GetAdvisorCheckScriptResponse\"\x84\x01\x92AX\x12\x18Get Advisor Check Script\x1a<Returns the source script of a single advisor check by name.\x82\xd3\xe4\x93\x02#\x12!/v1/advisors/checks/{name}/script\x12\xa1\x01\n" +
+	"\x11ListAdvisorChecks\x12%.advisors.v1.ListAdvisorChecksRequest\x1a&.advisors.v1.ListAdvisorChecksResponse\"_\x92AA\x12\x13List Advisor Checks\x1a*List advisor checks available to the user.\x82\xd3\xe4\x93\x02\x15\x12\x13/v1/advisors/checks\x12\xa1\x01\n" +
 	"\fListAdvisors\x12 .advisors.v1.ListAdvisorsRequest\x1a!.advisors.v1.ListAdvisorsResponse\"L\x92A5\x12\rList Advisors\x1a$List advisors available to the user.\x82\xd3\xe4\x93\x02\x0e\x12\f/v1/advisors\x12\xf0\x01\n" +
 	"\x13ChangeAdvisorChecks\x12'.advisors.v1.ChangeAdvisorChecksRequest\x1a(.advisors.v1.ChangeAdvisorChecksResponse\"\x85\x01\x92AX\x12\x15Change Advisor Checks\x1a?Enables/disables advisor checks or changes their exec interval.\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/advisors/checks:batchChange\x12\xe2\x01\n" +
 	"\x0fGetAdvisorCheck\x12#.advisors.v1.GetAdvisorCheckRequest\x1a$.advisors.v1.GetAdvisorCheckResponse\"\x83\x01\x92A^\x12\x11Get Advisor Check\x1aIReturns a single advisor check by name, including its queries and script.\x82\xd3\xe4\x93\x02\x1c\x12\x1a/v1/advisors/checks/{name}\x12\xca\x01\n" +
@@ -2626,7 +2531,7 @@ func file_advisors_v1_advisors_proto_rawDescGZIP() []byte {
 
 var (
 	file_advisors_v1_advisors_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-	file_advisors_v1_advisors_proto_msgTypes  = make([]protoimpl.MessageInfo, 36)
+	file_advisors_v1_advisors_proto_msgTypes  = make([]protoimpl.MessageInfo, 34)
 	file_advisors_v1_advisors_proto_goTypes   = []any{
 		AdvisorCheckInterval(0),                  // 0: advisors.v1.AdvisorCheckInterval
 		AdvisorCheckFamily(0),                    // 1: advisors.v1.AdvisorCheckFamily
@@ -2640,41 +2545,39 @@ var (
 		(*StartAdvisorChecksResponse)(nil),       // 9: advisors.v1.StartAdvisorChecksResponse
 		(*ListAdvisorChecksRequest)(nil),         // 10: advisors.v1.ListAdvisorChecksRequest
 		(*ListAdvisorChecksResponse)(nil),        // 11: advisors.v1.ListAdvisorChecksResponse
-		(*GetAdvisorCheckScriptRequest)(nil),     // 12: advisors.v1.GetAdvisorCheckScriptRequest
-		(*GetAdvisorCheckScriptResponse)(nil),    // 13: advisors.v1.GetAdvisorCheckScriptResponse
-		(*GetAdvisorCheckRequest)(nil),           // 14: advisors.v1.GetAdvisorCheckRequest
-		(*GetAdvisorCheckResponse)(nil),          // 15: advisors.v1.GetAdvisorCheckResponse
-		(*CreateAdvisorCheckRequest)(nil),        // 16: advisors.v1.CreateAdvisorCheckRequest
-		(*CreateAdvisorCheckResponse)(nil),       // 17: advisors.v1.CreateAdvisorCheckResponse
-		(*UpdateAdvisorCheckRequest)(nil),        // 18: advisors.v1.UpdateAdvisorCheckRequest
-		(*UpdateAdvisorCheckResponse)(nil),       // 19: advisors.v1.UpdateAdvisorCheckResponse
-		(*DeleteAdvisorCheckRequest)(nil),        // 20: advisors.v1.DeleteAdvisorCheckRequest
-		(*DeleteAdvisorCheckResponse)(nil),       // 21: advisors.v1.DeleteAdvisorCheckResponse
-		(*TestAdvisorCheckRequest)(nil),          // 22: advisors.v1.TestAdvisorCheckRequest
-		(*TestAdvisorCheckResult)(nil),           // 23: advisors.v1.TestAdvisorCheckResult
-		(*TestAdvisorCheckResponse)(nil),         // 24: advisors.v1.TestAdvisorCheckResponse
-		(*ListAdvisorsRequest)(nil),              // 25: advisors.v1.ListAdvisorsRequest
-		(*ListAdvisorsResponse)(nil),             // 26: advisors.v1.ListAdvisorsResponse
-		(*ChangeAdvisorChecksRequest)(nil),       // 27: advisors.v1.ChangeAdvisorChecksRequest
-		(*ChangeAdvisorChecksResponse)(nil),      // 28: advisors.v1.ChangeAdvisorChecksResponse
-		(*Insight)(nil),                          // 29: advisors.v1.Insight
-		(*ListInsightsRequest)(nil),              // 30: advisors.v1.ListInsightsRequest
-		(*ListInsightsResponse)(nil),             // 31: advisors.v1.ListInsightsResponse
-		(*ListInsightsFilterValuesRequest)(nil),  // 32: advisors.v1.ListInsightsFilterValuesRequest
-		(*ListInsightsFilterValuesResponse)(nil), // 33: advisors.v1.ListInsightsFilterValuesResponse
-		(*InsightsFilters)(nil),                  // 34: advisors.v1.InsightsFilters
-		(*MarkInsightsReadRequest)(nil),          // 35: advisors.v1.MarkInsightsReadRequest
-		(*MarkInsightsReadResponse)(nil),         // 36: advisors.v1.MarkInsightsReadResponse
-		nil,                                      // 37: advisors.v1.AdvisorCheckQuery.ParametersEntry
-		nil,                                      // 38: advisors.v1.TestAdvisorCheckResult.LabelsEntry
-		nil,                                      // 39: advisors.v1.Insight.LabelsEntry
-		v1.Severity(0),                           // 40: management.v1.Severity
-		(*timestamppb.Timestamp)(nil),            // 41: google.protobuf.Timestamp
+		(*GetAdvisorCheckRequest)(nil),           // 12: advisors.v1.GetAdvisorCheckRequest
+		(*GetAdvisorCheckResponse)(nil),          // 13: advisors.v1.GetAdvisorCheckResponse
+		(*CreateAdvisorCheckRequest)(nil),        // 14: advisors.v1.CreateAdvisorCheckRequest
+		(*CreateAdvisorCheckResponse)(nil),       // 15: advisors.v1.CreateAdvisorCheckResponse
+		(*UpdateAdvisorCheckRequest)(nil),        // 16: advisors.v1.UpdateAdvisorCheckRequest
+		(*UpdateAdvisorCheckResponse)(nil),       // 17: advisors.v1.UpdateAdvisorCheckResponse
+		(*DeleteAdvisorCheckRequest)(nil),        // 18: advisors.v1.DeleteAdvisorCheckRequest
+		(*DeleteAdvisorCheckResponse)(nil),       // 19: advisors.v1.DeleteAdvisorCheckResponse
+		(*TestAdvisorCheckRequest)(nil),          // 20: advisors.v1.TestAdvisorCheckRequest
+		(*TestAdvisorCheckResult)(nil),           // 21: advisors.v1.TestAdvisorCheckResult
+		(*TestAdvisorCheckResponse)(nil),         // 22: advisors.v1.TestAdvisorCheckResponse
+		(*ListAdvisorsRequest)(nil),              // 23: advisors.v1.ListAdvisorsRequest
+		(*ListAdvisorsResponse)(nil),             // 24: advisors.v1.ListAdvisorsResponse
+		(*ChangeAdvisorChecksRequest)(nil),       // 25: advisors.v1.ChangeAdvisorChecksRequest
+		(*ChangeAdvisorChecksResponse)(nil),      // 26: advisors.v1.ChangeAdvisorChecksResponse
+		(*Insight)(nil),                          // 27: advisors.v1.Insight
+		(*ListInsightsRequest)(nil),              // 28: advisors.v1.ListInsightsRequest
+		(*ListInsightsResponse)(nil),             // 29: advisors.v1.ListInsightsResponse
+		(*ListInsightsFilterValuesRequest)(nil),  // 30: advisors.v1.ListInsightsFilterValuesRequest
+		(*ListInsightsFilterValuesResponse)(nil), // 31: advisors.v1.ListInsightsFilterValuesResponse
+		(*InsightsFilters)(nil),                  // 32: advisors.v1.InsightsFilters
+		(*MarkInsightsReadRequest)(nil),          // 33: advisors.v1.MarkInsightsReadRequest
+		(*MarkInsightsReadResponse)(nil),         // 34: advisors.v1.MarkInsightsReadResponse
+		nil,                                      // 35: advisors.v1.AdvisorCheckQuery.ParametersEntry
+		nil,                                      // 36: advisors.v1.TestAdvisorCheckResult.LabelsEntry
+		nil,                                      // 37: advisors.v1.Insight.LabelsEntry
+		v1.Severity(0),                           // 38: management.v1.Severity
+		(*timestamppb.Timestamp)(nil),            // 39: google.protobuf.Timestamp
 	}
 )
 
 var file_advisors_v1_advisors_proto_depIdxs = []int32{
-	37, // 0: advisors.v1.AdvisorCheckQuery.parameters:type_name -> advisors.v1.AdvisorCheckQuery.ParametersEntry
+	35, // 0: advisors.v1.AdvisorCheckQuery.parameters:type_name -> advisors.v1.AdvisorCheckQuery.ParametersEntry
 	0,  // 1: advisors.v1.AdvisorCheck.interval:type_name -> advisors.v1.AdvisorCheckInterval
 	1,  // 2: advisors.v1.AdvisorCheck.family:type_name -> advisors.v1.AdvisorCheckFamily
 	4,  // 3: advisors.v1.AdvisorCheck.queries:type_name -> advisors.v1.AdvisorCheckQuery
@@ -2687,54 +2590,52 @@ var file_advisors_v1_advisors_proto_depIdxs = []int32{
 	5,  // 10: advisors.v1.UpdateAdvisorCheckRequest.check:type_name -> advisors.v1.AdvisorCheck
 	5,  // 11: advisors.v1.UpdateAdvisorCheckResponse.check:type_name -> advisors.v1.AdvisorCheck
 	5,  // 12: advisors.v1.TestAdvisorCheckRequest.check:type_name -> advisors.v1.AdvisorCheck
-	40, // 13: advisors.v1.TestAdvisorCheckResult.severity:type_name -> management.v1.Severity
-	38, // 14: advisors.v1.TestAdvisorCheckResult.labels:type_name -> advisors.v1.TestAdvisorCheckResult.LabelsEntry
-	23, // 15: advisors.v1.TestAdvisorCheckResponse.results:type_name -> advisors.v1.TestAdvisorCheckResult
+	38, // 13: advisors.v1.TestAdvisorCheckResult.severity:type_name -> management.v1.Severity
+	36, // 14: advisors.v1.TestAdvisorCheckResult.labels:type_name -> advisors.v1.TestAdvisorCheckResult.LabelsEntry
+	21, // 15: advisors.v1.TestAdvisorCheckResponse.results:type_name -> advisors.v1.TestAdvisorCheckResult
 	6,  // 16: advisors.v1.ListAdvisorsResponse.advisors:type_name -> advisors.v1.Advisor
 	7,  // 17: advisors.v1.ChangeAdvisorChecksRequest.params:type_name -> advisors.v1.ChangeAdvisorCheckParams
 	0,  // 18: advisors.v1.Insight.interval:type_name -> advisors.v1.AdvisorCheckInterval
 	2,  // 19: advisors.v1.Insight.status:type_name -> advisors.v1.AdvisorCheckResultStatus
-	40, // 20: advisors.v1.Insight.severity:type_name -> management.v1.Severity
-	39, // 21: advisors.v1.Insight.labels:type_name -> advisors.v1.Insight.LabelsEntry
-	41, // 22: advisors.v1.Insight.checked_at:type_name -> google.protobuf.Timestamp
+	38, // 20: advisors.v1.Insight.severity:type_name -> management.v1.Severity
+	37, // 21: advisors.v1.Insight.labels:type_name -> advisors.v1.Insight.LabelsEntry
+	39, // 22: advisors.v1.Insight.checked_at:type_name -> google.protobuf.Timestamp
 	3,  // 23: advisors.v1.Insight.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
 	2,  // 24: advisors.v1.ListInsightsRequest.status:type_name -> advisors.v1.AdvisorCheckResultStatus
-	41, // 25: advisors.v1.ListInsightsRequest.from:type_name -> google.protobuf.Timestamp
-	41, // 26: advisors.v1.ListInsightsRequest.to:type_name -> google.protobuf.Timestamp
-	40, // 27: advisors.v1.ListInsightsRequest.severity:type_name -> management.v1.Severity
+	39, // 25: advisors.v1.ListInsightsRequest.from:type_name -> google.protobuf.Timestamp
+	39, // 26: advisors.v1.ListInsightsRequest.to:type_name -> google.protobuf.Timestamp
+	38, // 27: advisors.v1.ListInsightsRequest.severity:type_name -> management.v1.Severity
 	3,  // 28: advisors.v1.ListInsightsRequest.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
-	29, // 29: advisors.v1.ListInsightsResponse.results:type_name -> advisors.v1.Insight
-	40, // 30: advisors.v1.InsightsFilters.severity:type_name -> management.v1.Severity
+	27, // 29: advisors.v1.ListInsightsResponse.results:type_name -> advisors.v1.Insight
+	38, // 30: advisors.v1.InsightsFilters.severity:type_name -> management.v1.Severity
 	2,  // 31: advisors.v1.InsightsFilters.status:type_name -> advisors.v1.AdvisorCheckResultStatus
-	34, // 32: advisors.v1.MarkInsightsReadRequest.filters:type_name -> advisors.v1.InsightsFilters
-	30, // 33: advisors.v1.AdvisorService.ListInsights:input_type -> advisors.v1.ListInsightsRequest
-	32, // 34: advisors.v1.AdvisorService.ListInsightsFilterValues:input_type -> advisors.v1.ListInsightsFilterValuesRequest
-	35, // 35: advisors.v1.AdvisorService.MarkInsightsRead:input_type -> advisors.v1.MarkInsightsReadRequest
+	32, // 32: advisors.v1.MarkInsightsReadRequest.filters:type_name -> advisors.v1.InsightsFilters
+	28, // 33: advisors.v1.AdvisorService.ListInsights:input_type -> advisors.v1.ListInsightsRequest
+	30, // 34: advisors.v1.AdvisorService.ListInsightsFilterValues:input_type -> advisors.v1.ListInsightsFilterValuesRequest
+	33, // 35: advisors.v1.AdvisorService.MarkInsightsRead:input_type -> advisors.v1.MarkInsightsReadRequest
 	8,  // 36: advisors.v1.AdvisorService.StartAdvisorChecks:input_type -> advisors.v1.StartAdvisorChecksRequest
 	10, // 37: advisors.v1.AdvisorService.ListAdvisorChecks:input_type -> advisors.v1.ListAdvisorChecksRequest
-	12, // 38: advisors.v1.AdvisorService.GetAdvisorCheckScript:input_type -> advisors.v1.GetAdvisorCheckScriptRequest
-	25, // 39: advisors.v1.AdvisorService.ListAdvisors:input_type -> advisors.v1.ListAdvisorsRequest
-	27, // 40: advisors.v1.AdvisorService.ChangeAdvisorChecks:input_type -> advisors.v1.ChangeAdvisorChecksRequest
-	14, // 41: advisors.v1.AdvisorService.GetAdvisorCheck:input_type -> advisors.v1.GetAdvisorCheckRequest
-	16, // 42: advisors.v1.AdvisorService.CreateAdvisorCheck:input_type -> advisors.v1.CreateAdvisorCheckRequest
-	18, // 43: advisors.v1.AdvisorService.UpdateAdvisorCheck:input_type -> advisors.v1.UpdateAdvisorCheckRequest
-	22, // 44: advisors.v1.AdvisorService.TestAdvisorCheck:input_type -> advisors.v1.TestAdvisorCheckRequest
-	20, // 45: advisors.v1.AdvisorService.DeleteAdvisorCheck:input_type -> advisors.v1.DeleteAdvisorCheckRequest
-	31, // 46: advisors.v1.AdvisorService.ListInsights:output_type -> advisors.v1.ListInsightsResponse
-	33, // 47: advisors.v1.AdvisorService.ListInsightsFilterValues:output_type -> advisors.v1.ListInsightsFilterValuesResponse
-	36, // 48: advisors.v1.AdvisorService.MarkInsightsRead:output_type -> advisors.v1.MarkInsightsReadResponse
-	9,  // 49: advisors.v1.AdvisorService.StartAdvisorChecks:output_type -> advisors.v1.StartAdvisorChecksResponse
-	11, // 50: advisors.v1.AdvisorService.ListAdvisorChecks:output_type -> advisors.v1.ListAdvisorChecksResponse
-	13, // 51: advisors.v1.AdvisorService.GetAdvisorCheckScript:output_type -> advisors.v1.GetAdvisorCheckScriptResponse
-	26, // 52: advisors.v1.AdvisorService.ListAdvisors:output_type -> advisors.v1.ListAdvisorsResponse
-	28, // 53: advisors.v1.AdvisorService.ChangeAdvisorChecks:output_type -> advisors.v1.ChangeAdvisorChecksResponse
-	15, // 54: advisors.v1.AdvisorService.GetAdvisorCheck:output_type -> advisors.v1.GetAdvisorCheckResponse
-	17, // 55: advisors.v1.AdvisorService.CreateAdvisorCheck:output_type -> advisors.v1.CreateAdvisorCheckResponse
-	19, // 56: advisors.v1.AdvisorService.UpdateAdvisorCheck:output_type -> advisors.v1.UpdateAdvisorCheckResponse
-	24, // 57: advisors.v1.AdvisorService.TestAdvisorCheck:output_type -> advisors.v1.TestAdvisorCheckResponse
-	21, // 58: advisors.v1.AdvisorService.DeleteAdvisorCheck:output_type -> advisors.v1.DeleteAdvisorCheckResponse
-	46, // [46:59] is the sub-list for method output_type
-	33, // [33:46] is the sub-list for method input_type
+	23, // 38: advisors.v1.AdvisorService.ListAdvisors:input_type -> advisors.v1.ListAdvisorsRequest
+	25, // 39: advisors.v1.AdvisorService.ChangeAdvisorChecks:input_type -> advisors.v1.ChangeAdvisorChecksRequest
+	12, // 40: advisors.v1.AdvisorService.GetAdvisorCheck:input_type -> advisors.v1.GetAdvisorCheckRequest
+	14, // 41: advisors.v1.AdvisorService.CreateAdvisorCheck:input_type -> advisors.v1.CreateAdvisorCheckRequest
+	16, // 42: advisors.v1.AdvisorService.UpdateAdvisorCheck:input_type -> advisors.v1.UpdateAdvisorCheckRequest
+	20, // 43: advisors.v1.AdvisorService.TestAdvisorCheck:input_type -> advisors.v1.TestAdvisorCheckRequest
+	18, // 44: advisors.v1.AdvisorService.DeleteAdvisorCheck:input_type -> advisors.v1.DeleteAdvisorCheckRequest
+	29, // 45: advisors.v1.AdvisorService.ListInsights:output_type -> advisors.v1.ListInsightsResponse
+	31, // 46: advisors.v1.AdvisorService.ListInsightsFilterValues:output_type -> advisors.v1.ListInsightsFilterValuesResponse
+	34, // 47: advisors.v1.AdvisorService.MarkInsightsRead:output_type -> advisors.v1.MarkInsightsReadResponse
+	9,  // 48: advisors.v1.AdvisorService.StartAdvisorChecks:output_type -> advisors.v1.StartAdvisorChecksResponse
+	11, // 49: advisors.v1.AdvisorService.ListAdvisorChecks:output_type -> advisors.v1.ListAdvisorChecksResponse
+	24, // 50: advisors.v1.AdvisorService.ListAdvisors:output_type -> advisors.v1.ListAdvisorsResponse
+	26, // 51: advisors.v1.AdvisorService.ChangeAdvisorChecks:output_type -> advisors.v1.ChangeAdvisorChecksResponse
+	13, // 52: advisors.v1.AdvisorService.GetAdvisorCheck:output_type -> advisors.v1.GetAdvisorCheckResponse
+	15, // 53: advisors.v1.AdvisorService.CreateAdvisorCheck:output_type -> advisors.v1.CreateAdvisorCheckResponse
+	17, // 54: advisors.v1.AdvisorService.UpdateAdvisorCheck:output_type -> advisors.v1.UpdateAdvisorCheckResponse
+	22, // 55: advisors.v1.AdvisorService.TestAdvisorCheck:output_type -> advisors.v1.TestAdvisorCheckResponse
+	19, // 56: advisors.v1.AdvisorService.DeleteAdvisorCheck:output_type -> advisors.v1.DeleteAdvisorCheckResponse
+	45, // [45:57] is the sub-list for method output_type
+	33, // [33:45] is the sub-list for method input_type
 	33, // [33:33] is the sub-list for extension type_name
 	33, // [33:33] is the sub-list for extension extendee
 	0,  // [0:33] is the sub-list for field type_name
@@ -2746,15 +2647,15 @@ func file_advisors_v1_advisors_proto_init() {
 		return
 	}
 	file_advisors_v1_advisors_proto_msgTypes[3].OneofWrappers = []any{}
-	file_advisors_v1_advisors_proto_msgTypes[26].OneofWrappers = []any{}
-	file_advisors_v1_advisors_proto_msgTypes[30].OneofWrappers = []any{}
+	file_advisors_v1_advisors_proto_msgTypes[24].OneofWrappers = []any{}
+	file_advisors_v1_advisors_proto_msgTypes[28].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_advisors_v1_advisors_proto_rawDesc), len(file_advisors_v1_advisors_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   36,
+			NumMessages:   34,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

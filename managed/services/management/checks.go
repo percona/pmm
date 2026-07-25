@@ -263,21 +263,6 @@ func (s *ChecksAPIService) ListAdvisorChecks(ctx context.Context, _ *advisorsv1.
 	return &advisorsv1.ListAdvisorChecksResponse{Checks: res}, nil
 }
 
-// GetAdvisorCheckScript returns the source script of a single advisor check by name.
-func (s *ChecksAPIService) GetAdvisorCheckScript(_ context.Context, req *advisorsv1.GetAdvisorCheckScriptRequest) (*advisorsv1.GetAdvisorCheckScriptResponse, error) {
-	checks, err := s.checksService.GetChecks()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get available checks list: %w", err)
-	}
-
-	c, ok := checks[req.Name]
-	if !ok {
-		return nil, status.Errorf(codes.NotFound, "Advisor check %q not found.", req.Name)
-	}
-
-	return &advisorsv1.GetAdvisorCheckScriptResponse{Script: c.Script}, nil
-}
-
 // ListAdvisors retrieves a list of advisors based on the provided request.
 func (s *ChecksAPIService) ListAdvisors(ctx context.Context, _ *advisorsv1.ListAdvisorsRequest) (*advisorsv1.ListAdvisorsResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks(ctx)

@@ -130,16 +130,6 @@ message ListAdvisorChecksResponse {
   repeated AdvisorCheck checks = 1;
 }
 
-message GetAdvisorCheckScriptRequest {
-  // Machine-readable name (ID) of the check.
-  string name = 1;
-}
-
-message GetAdvisorCheckScriptResponse {
-  // Source script (Starlark) of the check.
-  string script = 1;
-}
-
 message GetAdvisorCheckRequest {
   // Machine-readable name (ID) of the check.
   string name = 1;
@@ -395,14 +385,6 @@ service AdvisorService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Advisor Checks"
       description: "List advisor checks available to the user."
-    };
-  }
-  // GetAdvisorCheckScript returns the source script of a single advisor check.
-  rpc GetAdvisorCheckScript(GetAdvisorCheckScriptRequest) returns (GetAdvisorCheckScriptResponse) {
-    option (google.api.http) = {get: "/v1/advisors/checks/{name}/script"};
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Get Advisor Check Script"
-      description: "Returns the source script of a single advisor check by name."
     };
   }
   // ListAdvisors returns a list of advisors available for the user.

@@ -59,8 +59,6 @@ type ClientService interface {
 
 	GetAdvisorCheck(params *GetAdvisorCheckParams, opts ...ClientOption) (*GetAdvisorCheckOK, error)
 
-	GetAdvisorCheckScript(params *GetAdvisorCheckScriptParams, opts ...ClientOption) (*GetAdvisorCheckScriptOK, error)
-
 	ListAdvisorChecks(params *ListAdvisorChecksParams, opts ...ClientOption) (*ListAdvisorChecksOK, error)
 
 	ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) (*ListAdvisorsOK, error)
@@ -252,50 +250,6 @@ func (a *Client) GetAdvisorCheck(params *GetAdvisorCheckParams, opts ...ClientOp
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*GetAdvisorCheckDefault)
-
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-GetAdvisorCheckScript gets advisor check script
-
-Returns the source script of a single advisor check by name.
-*/
-func (a *Client) GetAdvisorCheckScript(params *GetAdvisorCheckScriptParams, opts ...ClientOption) (*GetAdvisorCheckScriptOK, error) {
-	// NOTE: parameters are not validated before sending
-	if params == nil {
-		params = NewGetAdvisorCheckScriptParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "GetAdvisorCheckScript",
-		Method:             "GET",
-		PathPattern:        "/v1/advisors/checks/{name}/script",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &GetAdvisorCheckScriptReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-
-	// only one success response has to be checked
-	success, ok := result.(*GetAdvisorCheckScriptOK)
-	if ok {
-		return success, nil
-	}
-
-	// unexpected success response.
-	//
-	// a default response is provided: fill this and return an error
-	unexpectedSuccess := result.(*GetAdvisorCheckScriptDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
