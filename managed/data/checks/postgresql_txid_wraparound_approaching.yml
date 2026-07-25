@@ -19,6 +19,11 @@ checks:
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
+      def format_list(items, cap=10):
+          if len(items) > cap:
+              return "; ".join(items[:cap]) + "; and {} more".format(len(items) - cap)
+          return "; ".join(items)
+
       # pg_advisor
       def check_context(docs, context):
           """
@@ -30,13 +35,17 @@ checks:
 
           results = []
           # extract information from variables
+          databases = []
           for row in docs[0]:
-              datname, age, wraparound_risk_perc = row["datname"], row["age"], row["wraparound_risk_perc"]
+              databases.append("{} (txid age {}, {}% towards wraparound)".format(row["datname"], row["age"], row["wraparound_risk_perc"]))
+
+          if databases:
               results.append({
-                  "summary": "Database Transaction ID Wraparound is approaching",
-                  "description": "Database {} txid age is {} which is {}% towards transaction ID wraparound. VACCUM FREEZE actions are recommended.".format(datname, age, wraparound_risk_perc),
+                  "summary": "{} database(s) approaching transaction ID wraparound".format(len(databases)),
+                  "description": "The following databases are approaching transaction ID wraparound; VACUUM FREEZE actions are recommended: {}.".format(format_list(databases)),
                   "read_more_url": read_url.format("postgresql-transaction-id-wraparound-is-approaching"),
-                  "severity": "warning"
+                  "severity": "warning",
+                  "labels": {"count": str(len(databases))},
               })
 
           return results

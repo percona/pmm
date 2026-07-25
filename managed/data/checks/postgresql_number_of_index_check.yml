@@ -15,23 +15,33 @@ checks:
           all_dbs: true
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+
+      def format_list(items, cap=10):
+          if len(items) > cap:
+              return "; ".join(items[:cap]) + "; and {} more".format(len(items) - cap)
+          return "; ".join(items)
+
       def check_context(tuple, context):
           results = []
           for checkedDB, rows in tuple[0].items():
+              datname = ""
+              relations = []
               for row in rows:
-                datname = row["datname"]
-                relname = row["relname"]
-                idxcount = row["idxcount"]
-
                 # Cant get rid of decimal point without formatting to index
-                idxcount = int(idxcount)
+                idxcount = int(row["idxcount"])
+                if idxcount >= 10:
+                    datname = row["datname"]
+                    relations.append("{} ({} indexes)".format(row["relname"], idxcount))
 
-                if int(idxcount) >= 10:
-                    results.append({
-                        "summary": "Relations with more than 10 indexes",
-                        "description": "The relation {}.{} has {} indexes".format(datname, relname, idxcount),
-                        "read_more_url":read_url.format("postgresql-high-number-of-indexes-check"),
-                        "severity": "warning",
-                    })
+              if not relations:
+                  continue
+
+              results.append({
+                  "summary": "{} relation(s) with more than 10 indexes in database {}".format(len(relations), datname),
+                  "description": "The database {} has relations with more than 10 indexes: {}.".format(datname, format_list(relations)),
+                  "read_more_url":read_url.format("postgresql-high-number-of-indexes-check"),
+                  "severity": "warning",
+                  "labels": {"database": datname, "count": str(len(relations))},
+              })
 
           return results

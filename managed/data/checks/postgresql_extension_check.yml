@@ -15,19 +15,30 @@ checks:
           all_dbs: true
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+
+      def format_list(items, cap=10):
+          if len(items) > cap:
+              return "; ".join(items[:cap]) + "; and {} more".format(len(items) - cap)
+          return "; ".join(items)
+
       def check_context(docs, context):
           results = []
           for checkedDB, rows in docs[0].items():
+              dbname = ""
+              outdated = []
               for row in rows:
                 dbname = row["db"]
-                name = row["name"]
-                installed_version = row["installed_version"]
-                default_version = row["default_version"]
-                results.append({
-                    "summary": "Outdated extensions found",
-                    "description": "database {} has extension {} installed with an outdated version {}. A newer version {} is available.".format(dbname, name, installed_version, default_version),
-                    "read_more_url":read_url.format("postgresql-extension-check"),
-                    "severity": "warning",
-                })
+                outdated.append("{} ({} -> {})".format(row["name"], row["installed_version"], row["default_version"]))
+
+              if not outdated:
+                  continue
+
+              results.append({
+                  "summary": "{} outdated extension(s) in database {}".format(len(outdated), dbname),
+                  "description": "The database {} has extensions installed with an outdated version: {}.".format(dbname, format_list(outdated)),
+                  "read_more_url":read_url.format("postgresql-extension-check"),
+                  "severity": "warning",
+                  "labels": {"database": dbname, "count": str(len(outdated))},
+              })
 
           return results

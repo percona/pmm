@@ -16,24 +16,34 @@ checks:
           all_dbs: true
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+      def format_list(items, cap=10):
+          if len(items) > cap:
+              return "; ".join(items[:cap]) + "; and {} more".format(len(items) - cap)
+          return "; ".join(items)
+
       def check_context(tuple, context):
           results = []
           for checkedDB, rows in tuple[0].items():
+              datname = ""
+              since = ""
+              relations = []
               for row in rows:
-                stats_reset = row["stats_reset"]
                 datname = row["datname"]
-                relname = row["relname"]
-                rundate = row["rundate"]
-                if stats_reset:
-                    since = "since the statistics reset on {}".format(stats_reset)
+                if row["stats_reset"]:
+                    since = "since the statistics reset on {}".format(row["stats_reset"])
                 else:
                     since = "since statistics collection began"
-                results.append({
-                    "summary": "Unused indexes in {}.{}".format(datname, relname),
-                    "description": "The relation {}.{} has indexes that have not been used {}. This check was last executed on {}.".format(datname, relname, since, rundate),
-                    "read_more_url":read_url.format("postgresql-unused-index-check"),
-                    "severity": "warning",
-                    "labels": {"database": datname, "relation": relname},
-                })
+                relations.append(row["relname"])
+
+              if not relations:
+                  continue
+
+              results.append({
+                  "summary": "{} relation(s) with unused indexes in database {}".format(len(relations), datname),
+                  "description": "The database {} has relations with indexes that have not been used {}: {}.".format(datname, since, format_list(relations)),
+                  "read_more_url":read_url.format("postgresql-unused-index-check"),
+                  "severity": "warning",
+                  "labels": {"database": datname, "count": str(len(relations))},
+              })
 
           return results

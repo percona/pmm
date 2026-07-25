@@ -13,24 +13,27 @@ checks:
       - type: POSTGRESQL_SELECT
         query: "rolname, rolvaliduntil::timestamp(0)::text, floor((extract(epoch from rolvaliduntil) - extract(epoch from now())) / 86400)::int AS expires FROM pg_roles WHERE rolvaliduntil IS NOT NULL"
     script: |
+      def format_list(items, cap=10):
+          if len(items) > cap:
+              return "; ".join(items[:cap]) + "; and {} more".format(len(items) - cap)
+          return "; ".join(items)
+
       def check_context(rows, context):
            results = []
            read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
-           description = ""
-           sev="warning"
+           roles = []
            for row in rows[0]:
-               rolname, rolvaliduntil, expires = row["rolname"], row["rolvaliduntil"], row["expires"]
-
+               rolname, expires = row["rolname"], row["expires"]
                if expires <= 10:
-                   sev = "warning"
+                   roles.append("{} (expires in {} days)".format(rolname, expires))
 
-                   results.append({
-                       "summary": "Checking for expiring passwords",
-                       "description": "Password for {} will expire in {} days".format( rolname, expires ),
-                       "read_more_url":read_url.format("postgresql-expiring-passwd"),
-                       "severity": sev,
-                       "labels": {},
-                   })
-
+           if roles:
+               results.append({
+                   "summary": "{} role(s) with passwords expiring within 10 days".format(len(roles)),
+                   "description": "Passwords of the following roles are about to expire: {}.".format(format_list(roles)),
+                   "read_more_url":read_url.format("postgresql-expiring-passwd"),
+                   "severity": "warning",
+                   "labels": {"count": str(len(roles))},
+               })
 
            return results

@@ -34,25 +34,33 @@ checks:
               if not parsed.get("storage", {}):
                   return results
 
+          dbpath_mounts = []
+          parent_mounts = []
           for type in docs[1]:
               mount = type["metric"]["mountpoint"]
               ftype = type["metric"]["fstype"]
 
               if dbpath == mount and ftype != "xfs":
-                  results.append({
-                      "summary": "The DBPATH mount point is not currently using XFS as its filesystem type.",
-                      "description": "The dbPath for this instance is not currently using XFS as its filesystem type. It is strongly recommended to use XFS to provide better performance for data bearing nodes and to avoid performance issues that have been observed when using EXT4 with the wiredTiger engine. DBPATH - {}, MOUNT - {}, FTYPE - {}".format(dbpath, mount, ftype),
-                      "read_more_url": read_url.format("mongodb-xfs"),
-                      "severity": "warning",
-                  })
+                  dbpath_mounts.append("{} ({})".format(mount, ftype))
 
-              if dbpath.startswith(mount) and dbpath != mount and ftype != "xfs":
-                  actual_mount = mount
-                  if actual_mount != "/":
-                      results.append({
-                          "summary": "The current mount point is subset of dbPath and is not using XFS as its filesystem type.",
-                          "description": "The dbPath for this instance is not currently using XFS as its filesystem type. It is strongly recommended to use XFS to provide better performance for data bearing nodes and to avoid performance issues that have been observed when using EXT4 with the wiredTiger engine. DBPATH - {}, MOUNT - {}, FTYPE - {}".format(dbpath, mount, ftype),
-                          "read_more_url": read_url.format("mongodb-xfs"),
-                          "severity": "warning",
-                      })
+              if dbpath.startswith(mount) and dbpath != mount and ftype != "xfs" and mount != "/":
+                  parent_mounts.append("{} ({})".format(mount, ftype))
+
+          recommendation = "It is strongly recommended to use XFS to provide better performance for data bearing nodes and to avoid performance issues that have been observed when using EXT4 with the wiredTiger engine."
+          if dbpath_mounts:
+              results.append({
+                  "summary": "The DBPATH mount point is not using XFS as its filesystem type.",
+                  "description": "The dbPath {} for this instance is not currently using XFS as its filesystem type. {} Mount point(s): {}".format(dbpath, recommendation, ", ".join(dbpath_mounts)),
+                  "read_more_url": read_url.format("mongodb-xfs"),
+                  "severity": "warning",
+                  "labels": {"count": str(len(dbpath_mounts))},
+              })
+          if parent_mounts:
+              results.append({
+                  "summary": "{} mount point(s) containing dbPath are not using XFS as their filesystem type.".format(len(parent_mounts)),
+                  "description": "The dbPath {} for this instance resides on mount point(s) not using XFS as their filesystem type. {} Mount point(s): {}".format(dbpath, recommendation, ", ".join(parent_mounts)),
+                  "read_more_url": read_url.format("mongodb-xfs"),
+                  "severity": "warning",
+                  "labels": {"count": str(len(parent_mounts))},
+              })
           return results

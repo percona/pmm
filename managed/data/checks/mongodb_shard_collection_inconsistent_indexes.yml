@@ -18,14 +18,19 @@ checks:
       def check_context(docs, context):
           results = []
 
+          clusters = []
           for row in docs[0]:
               cluster = row["metric"]["cluster"]
               inconsistent_index = int(row["value"][1])
               if inconsistent_index > 0:
-                  results.append({
-                      "summary": "MongoDB Sharding - Inconsistent Indexes Across Shards",
-                      "description": "Inconsistent indexes detected across shards for {} sharded collections in <{}> cluster. Either the indexes are missing in some shards or an index has inconsistent properties across collection's shards. To get inconsistent index details, kindly refer to Read More documentation.".format(inconsistent_index, cluster),
-                      "read_more_url": read_url.format("mongodb-inconsistent-indexes-across-shards"),
-                      "severity": "warning",
-                  })
+                  clusters.append("{} ({} sharded collections)".format(cluster, inconsistent_index))
+
+          if clusters:
+              results.append({
+                  "summary": "Inconsistent indexes across shards on {} cluster(s)".format(len(clusters)),
+                  "description": "Inconsistent indexes detected across shards on the following cluster(s): {}. Either the indexes are missing in some shards or an index has inconsistent properties across collection's shards. To get inconsistent index details, kindly refer to Read More documentation.".format(", ".join(clusters)),
+                  "read_more_url": read_url.format("mongodb-inconsistent-indexes-across-shards"),
+                  "severity": "warning",
+                  "labels": {"count": str(len(clusters))},
+              })
           return results
