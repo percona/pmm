@@ -129,12 +129,13 @@ describe('AdvisorsList', () => {
       within(pane).getByTestId('CloseFullscreenOutlinedIcon')
     ).toBeInTheDocument();
 
-    // the code is fetched lazily and shown in the text area
-    await screen.findByTestId('check-code');
+    // the script is fetched lazily and shown in the read-only editor
+    // (the testid sits on the editor container, the value on its textarea)
+    const editor = await screen.findByTestId('check-code');
     expect(advisorsApi.getAdvisorCheckScript).toHaveBeenCalledWith(
       'mysql_version_check'
     );
-    expect(screen.getByTestId('check-code')).toHaveValue('print("hi")');
+    expect(within(editor).getByRole('textbox')).toHaveValue('print("hi")');
 
     // Copy button copies the code
     fireEvent.click(within(pane).getByTestId('check-code-copy'));

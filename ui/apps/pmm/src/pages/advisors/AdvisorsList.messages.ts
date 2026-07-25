@@ -52,7 +52,7 @@ export const Messages = {
     status: 'Status',
     summary: 'Summary',
     description: 'Description',
-    code: 'Code',
+    script: 'Script',
     copyCode: 'Copy',
     codeCopied: 'Check code copied to clipboard',
     codeError: 'Unable to load the check code',

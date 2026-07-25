@@ -11,6 +11,7 @@ import Divider from '@mui/material/Divider';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { CopyToClipboardButton } from '@percona/percona-ui';
 import { enqueueSnackbar } from 'notistack';
@@ -22,6 +23,7 @@ import { useNavigation } from 'contexts/navigation/navigation.hooks';
 import { useAdvisorCheckScript } from 'hooks/api/useAdvisors';
 import { AdvisorCheckRow } from 'types/advisors.types';
 import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
+import { ScriptEditorInput } from '../check-form/ScriptEditorInput';
 import { Messages } from '../AdvisorsList.messages';
 
 const EM_DASH = '—';
@@ -215,35 +217,28 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
           </Box>
 
           <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Typography variant="h6">{m.code}</Typography>
-              <Stack direction="row" gap={1}>
-                {onClone && (
-                  <Button
-                    size="small"
-                    startIcon={
-                      <ControlPointDuplicateOutlinedIcon fontSize="small" />
-                    }
-                    onClick={onClone}
-                    data-testid="check-clone"
-                  >
-                    {m.clone}
-                  </Button>
-                )}
+            <Stack direction="row" justifyContent="flex-end" gap={1}>
+              {onClone && (
                 <Button
                   size="small"
-                  startIcon={<ContentCopyOutlinedIcon fontSize="small" />}
-                  onClick={handleCopyCode}
-                  disabled={!script}
-                  data-testid="check-code-copy"
+                  startIcon={
+                    <ControlPointDuplicateOutlinedIcon fontSize="small" />
+                  }
+                  onClick={onClone}
+                  data-testid="check-clone"
                 >
-                  {m.copyCode}
+                  {m.clone}
                 </Button>
-              </Stack>
+              )}
+              <Button
+                size="small"
+                startIcon={<ContentCopyOutlinedIcon fontSize="small" />}
+                onClick={handleCopyCode}
+                disabled={!script}
+                data-testid="check-code-copy"
+              >
+                {m.copyCode}
+              </Button>
             </Stack>
             {isScriptLoading ? (
               <CircularProgress size={24} data-testid="check-code-loading" />
@@ -252,27 +247,29 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
                 {m.codeError}
               </Typography>
             ) : script ? (
+              // same syntax-highlighted editor as the check form, read-only;
               // fills the remaining height and scrolls internally, so the pane
               // itself never scrolls
-              <Box
-                component="textarea"
-                readOnly
+              <TextField
+                // explicit id: MUI's auto-generated useId (":r1:") is not a
+                // valid CSS identifier and breaks jsdom's selector matching
+                id="check-details-script"
+                label={m.script}
                 value={script}
-                data-testid="check-code"
+                multiline
                 sx={{
                   flex: 1,
-                  minHeight: 120,
-                  width: '100%',
-                  resize: 'none',
-                  boxSizing: 'border-box',
-                  p: 1.5,
-                  borderRadius: 1,
-                  border: '1px solid',
-                  borderColor: 'divider',
-                  bgcolor: 'transparent',
-                  color: 'text.primary',
-                  fontFamily: 'monospace',
-                  fontSize: 13,
+                  minHeight: 0,
+                  '& .MuiInputBase-root': {
+                    height: '100%',
+                    alignItems: 'flex-start',
+                    overflow: 'auto',
+                  },
+                  '& textarea': { outline: 'none' },
+                }}
+                slotProps={{
+                  input: { inputComponent: ScriptEditorInput, readOnly: true },
+                  htmlInput: { 'data-testid': 'check-code' },
                 }}
               />
             ) : (
