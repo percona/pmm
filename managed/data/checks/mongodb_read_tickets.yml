@@ -35,4 +35,5 @@ checks:
                               "read_more_url": read_url.format("mongodb-read-tickets"),
                               "severity": "warning",
                           })
-              return results
+
+          return results

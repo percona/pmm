@@ -22,7 +22,7 @@ checks:
 
             if slave_parallel_workers < 2 and repl_conf_count > 0:
                return {
-                 "summary": "Load data in file active",
+                 "summary": "Replication is not multi-threaded",
                  "description": "Replication is single threaded. Current settings = {} ;".format(slave_parallel_workers),
                  "severity": "warning",
                  "read_more_url": read_url.format("sql-processing-not-multi-threaded"),

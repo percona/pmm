@@ -13,7 +13,8 @@ checks:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service, VARIABLE_NAME as name, VARIABLE_VALUE as value from performance_schema.global_variables where VARIABLE_NAME in ('innodb_file_format','innodb_file_format_max');"
     script: |
-      def check_innodb_conf(doc,read_url):
+      def check_innodb_conf(doc, read_url):
+          findings = []
           for row in doc:
             version = row["version"]
             service = row["service"]
@@ -21,7 +22,7 @@ checks:
             value = row["value"]
 
             if name == "innodb_file_format" and value != "Barracuda" :
-               return {
+               findings.append({
                  "summary": "InnoDB File Format is not optimal",
                  "description": "InnoDB is using the old file format insted of the new Barracuda. Current setting: {} = {} ;".format(name,value),
                  "severity": "warning",
@@ -30,10 +31,10 @@ checks:
                     "mysql_version": "{}".format(version),
                      "service": "{}".format(service),
                     }
-               }
+               })
 
             if name == "innodb_file_format_max" and value != "Barracuda" :
-               return {
+               findings.append({
                  "summary": "InnoDB File Format Max is not optimal",
                  "description": "InnoDB is using the old file format insted of the new Barracuda. Current setting: {} = {} ;".format(name,value),
                  "severity": "warning",
@@ -42,15 +43,14 @@ checks:
                     "mysql_version": "{}".format(version),
                      "service": "{}".format(service),
                     }
-               }
+               })
+
+          return findings
 
       def check_context(docs, context):
           # we first define some global variables
           read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
           results = []
-
-          result1 = check_innodb_conf(docs[0],read_url)
-          if result1:
-            results.append(result1)
+          results.extend(check_innodb_conf(docs[0],read_url))
 
           return results

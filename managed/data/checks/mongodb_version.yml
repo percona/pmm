@@ -34,8 +34,7 @@ checks:
           info = docs[0]
           results = []
 
-          is_version = 'version' in info
-          latest_major = "6.0"
+          latest_major = "8.0"
 
           for row in info:
               # Checking MongoDB version
@@ -48,36 +47,27 @@ checks:
 
               if mm not in LATEST_VERSIONS["version_check"]:
                   # Newer major version we do not track yet; nothing to advise
-                  return []
+                  continue
 
               latest_current_version = LATEST_VERSIONS["version_check"][mm]
               current_version = row["version"]
 
-              if is_version == "":
+              description = ""
+              if mm < "4.4":
+                  description = "Current MongoDB version = {}, Latest Major version = {}. This instance has reached EOL for this MongoDB version. It is highly recommended to perform an upgrade to reach a supported major release version immediately. This upgrade should be performed in a stepped manner without skipping any major version releases.".format(current_version, latest_major)
+              elif num < latest_current_version and mm < latest_major:
+                  description = "There is a new minor version {} available. Always consider upgrading to the highest minor version in order to take advantage of the latest bug fixes and performance tweaks. There is also an updated Major version {} available. Please consider planning for and implementing the major version upgrade after completing the minor patch upgrade. Current MongoDB version = {}.".format(format_version_num(latest_current_version), latest_major, current_version)
+              elif num == latest_current_version and mm < latest_major:
+                  description = "The instance is currently running MongoDB version {}. This is the latest minor patch for this version. However there is an updated Major version {} available. Please consider planning for and implementing the upgrade to the latest major version.".format(current_version, latest_major)
+              elif num < latest_current_version:
+                  description = "There is a new minor version {} available. Always consider upgrading to the highest minor version in order to take advantage of the latest bug fixes and performance tweaks. Current MongoDB version = {}.".format(format_version_num(latest_current_version), current_version)
+
+              if description:
                   results.append({
-                      "summary": "Not able to determine the version details.",
-                      "description": "Not able to determine the current version details. Please check your mongod instance for availability and details.",
-                      "read_more_url": "",
+                      "summary": "Newer version of MongoDB is available.",
+                      "description": description,
+                      "read_more_url": LATEST_VERSIONS["read_url"].format("mongodb-version"),
                       "severity": "warning",
                   })
 
-              if mm < "4.4":
-                  description = "Current MongoDB version = {}, Latest Major version = {}. This instance has reached EOL for this MongoDB version. It is highly recommended to perform an upgrade to reach a supported major release version immediately. This upgrade should be performed in a stepped manner without skipping any major version releases.".format(current_version, latest_major)
-
-              if num < latest_current_version and mm < latest_major:
-                  description = "There is a new minor version {} available. Always consider upgrading to the highest minor version in order to take advantage of the latest bug fixes and performance tweaks. There is also an updated Major version {} available. Please consider planning for and implementing the major version upgrade after completing the minor patch upgrade. Current MongoDB version = {}.".format(format_version_num(latest_current_version), latest_major, current_version)
-
-              if num == latest_current_version and mm < latest_major:
-                  description = "The instance is currently running MongoDB version {}. This is the latest minor patch for this version. However there is an updated Major version {} available. Please consider planning for and implementing the upgrade to the latest major version.".format(current_version, latest_major)
-
-              results.append({
-                  "summary": "Newer version of MongoDB is available.",
-                  "description": description,
-                  "read_more_url": LATEST_VERSIONS["read_url"].format("mongodb-version"),
-                  "severity": "warning",
-              })
-
-              if num == latest_current_version and mm == latest_major:
-                  return []
-
-              return results
+          return results
