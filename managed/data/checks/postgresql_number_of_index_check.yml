@@ -2,8 +2,8 @@
 checks:
   - version: 2
     name: postgresql_number_of_index_check
-    summary: Check for relations have high number of indexes
-    description: This check will list relations with more than 10 indexes
+    summary: Check for relations with a high number of indexes
+    description: This check lists relations with more than 10 indexes
     interval: standard
     family: POSTGRESQL
     category: Query
