@@ -51,11 +51,11 @@ func NewChecksAPIService(checksService checksService) *ChecksAPIService {
 	}
 }
 
-// ListCheckResultsHistory returns the paginated history of Advisor check runs matching the filters.
-func (s *ChecksAPIService) ListCheckResultsHistory(
+// ListInsights returns the paginated history of Advisor check results (insights) matching the filters.
+func (s *ChecksAPIService) ListInsights(
 	ctx context.Context,
-	req *advisorsv1.ListCheckResultsHistoryRequest,
-) (*advisorsv1.ListCheckResultsHistoryResponse, error) {
+	req *advisorsv1.ListInsightsRequest,
+) (*advisorsv1.ListInsightsResponse, error) {
 	var pageIndex, pageSize int
 	if req.PageIndex != nil {
 		pageIndex = int(pointer.GetInt32(req.PageIndex))
@@ -64,7 +64,7 @@ func (s *ChecksAPIService) ListCheckResultsHistory(
 		pageSize = int(pointer.GetInt32(req.PageSize))
 	}
 
-	filters := models.CheckResultFilters{
+	filters := models.InsightFilters{
 		ServiceID:   req.ServiceId,
 		ServiceName: req.ServiceName,
 		NodeName:    req.NodeName,
@@ -96,19 +96,19 @@ func (s *ChecksAPIService) ListCheckResultsHistory(
 		filters.To = &to
 	}
 
-	results, totalItems, err := s.checksService.GetCheckResultsHistory(ctx, filters, pageIndex, pageSize)
+	results, totalItems, err := s.checksService.GetInsights(ctx, filters, pageIndex, pageSize)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get check results history: %w", err)
+		return nil, fmt.Errorf("failed to get insights: %w", err)
 	}
 
-	items := make([]*advisorsv1.CheckResultHistoryItem, 0, len(results))
+	items := make([]*advisorsv1.Insight, 0, len(results))
 	for _, r := range results {
 		labels, err := r.GetLabels()
 		if err != nil {
-			return nil, fmt.Errorf("failed to decode labels for check result '%s': %w", r.ID, err)
+			return nil, fmt.Errorf("failed to decode labels for insight '%s': %w", r.ID, err)
 		}
 
-		items = append(items, &advisorsv1.CheckResultHistoryItem{
+		items = append(items, &advisorsv1.Insight{
 			Id:             r.ID,
 			CheckName:      r.CheckName,
 			BatchId:        r.BatchID,
@@ -144,42 +144,42 @@ func (s *ChecksAPIService) ListCheckResultsHistory(
 		}
 	}
 
-	return &advisorsv1.ListCheckResultsHistoryResponse{
+	return &advisorsv1.ListInsightsResponse{
 		Results:    items,
 		TotalItems: int32(totalItems), //nolint:gosec
 		TotalPages: int32(totalPages),
 	}, nil
 }
 
-// ListCheckResultsFilterValues returns the distinct values usable as history filters.
-func (s *ChecksAPIService) ListCheckResultsFilterValues(
+// ListInsightsFilterValues returns the distinct values usable as insights filters.
+func (s *ChecksAPIService) ListInsightsFilterValues(
 	ctx context.Context,
-	_ *advisorsv1.ListCheckResultsFilterValuesRequest,
-) (*advisorsv1.ListCheckResultsFilterValuesResponse, error) {
-	serviceNames, nodeNames, err := s.checksService.GetCheckResultsFilterValues(ctx)
+	_ *advisorsv1.ListInsightsFilterValuesRequest,
+) (*advisorsv1.ListInsightsFilterValuesResponse, error) {
+	serviceNames, nodeNames, err := s.checksService.GetInsightsFilterValues(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get check results filter values: %w", err)
+		return nil, fmt.Errorf("failed to get insights filter values: %w", err)
 	}
 
-	return &advisorsv1.ListCheckResultsFilterValuesResponse{
+	return &advisorsv1.ListInsightsFilterValuesResponse{
 		ServiceNames: serviceNames,
 		NodeNames:    nodeNames,
 	}, nil
 }
 
-// MarkCheckResultsRead sets the read state on the specified Advisor check history records.
-func (s *ChecksAPIService) MarkCheckResultsRead(
+// MarkInsightsRead sets the read state on the specified Advisor insights.
+func (s *ChecksAPIService) MarkInsightsRead(
 	ctx context.Context,
-	req *advisorsv1.MarkCheckResultsReadRequest,
-) (*advisorsv1.MarkCheckResultsReadResponse, error) {
+	req *advisorsv1.MarkInsightsReadRequest,
+) (*advisorsv1.MarkInsightsReadResponse, error) {
 	switch {
 	case len(req.Ids) > 0:
-		err := s.checksService.MarkCheckResultsRead(ctx, req.Ids, req.IsRead)
+		err := s.checksService.MarkInsightsRead(ctx, req.Ids, req.IsRead)
 		if err != nil {
-			return nil, fmt.Errorf("failed to mark check results read: %w", err)
+			return nil, fmt.Errorf("failed to mark insights read: %w", err)
 		}
 	case req.Filters != nil:
-		filters := models.CheckResultFilters{
+		filters := models.InsightFilters{
 			ServiceName: req.Filters.ServiceName,
 			NodeName:    req.Filters.NodeName,
 			Category:    req.Filters.Category,
@@ -195,15 +195,15 @@ func (s *ChecksAPIService) MarkCheckResultsRead(
 			severity := models.Severity(*req.Filters.Severity)
 			filters.Severity = &severity
 		}
-		err := s.checksService.MarkCheckResultsReadByFilters(ctx, filters, req.IsRead)
+		err := s.checksService.MarkInsightsReadByFilters(ctx, filters, req.IsRead)
 		if err != nil {
-			return nil, fmt.Errorf("failed to mark check results read by filters: %w", err)
+			return nil, fmt.Errorf("failed to mark insights read by filters: %w", err)
 		}
 	default:
 		return nil, status.Error(codes.InvalidArgument, "Either ids or filters must be provided.")
 	}
 
-	return &advisorsv1.MarkCheckResultsReadResponse{}, nil
+	return &advisorsv1.MarkInsightsReadResponse{}, nil
 }
 
 // StartAdvisorChecks executes advisor checks and returns the ID assigned to this batch.

@@ -40,7 +40,7 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, batchID stri
 		return
 	}
 
-	results, _, err := s.GetCheckResultsHistory(ctx, models.CheckResultFilters{BatchID: batchID}, 0, 0)
+	results, _, err := s.GetInsights(ctx, models.InsightFilters{BatchID: batchID}, 0, 0)
 	if err != nil {
 		s.l.Warnf("Advisor notification: failed to load results for batch %s: %v", batchID, err)
 		return

@@ -17,7 +17,7 @@ import {
   DRAWER_WIDTH,
 } from 'components/sidebar/drawer/Drawer.constants';
 import { useNavigation } from 'contexts/navigation/navigation.hooks';
-import { CheckResultHistoryItem } from 'types/advisors.types';
+import { Insight } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import {
   ADVISOR_INTERVAL,
@@ -80,7 +80,7 @@ const Field: FC<FieldProps> = ({ label, children, span = 1 }) => (
 );
 
 interface InsightDetailsPaneProps {
-  insight: CheckResultHistoryItem | null;
+  insight: Insight | null;
   // enabled state of the underlying check; undefined when unknown
   checkEnabled?: boolean;
   // open the pane already maximized (e.g. when triggered by a row double-click)

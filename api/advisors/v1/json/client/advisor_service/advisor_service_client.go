@@ -65,11 +65,11 @@ type ClientService interface {
 
 	ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) (*ListAdvisorsOK, error)
 
-	ListCheckResultsFilterValues(params *ListCheckResultsFilterValuesParams, opts ...ClientOption) (*ListCheckResultsFilterValuesOK, error)
+	ListInsights(params *ListInsightsParams, opts ...ClientOption) (*ListInsightsOK, error)
 
-	ListCheckResultsHistory(params *ListCheckResultsHistoryParams, opts ...ClientOption) (*ListCheckResultsHistoryOK, error)
+	ListInsightsFilterValues(params *ListInsightsFilterValuesParams, opts ...ClientOption) (*ListInsightsFilterValuesOK, error)
 
-	MarkCheckResultsRead(params *MarkCheckResultsReadParams, opts ...ClientOption) (*MarkCheckResultsReadOK, error)
+	MarkInsightsRead(params *MarkInsightsReadParams, opts ...ClientOption) (*MarkInsightsReadOK, error)
 
 	StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...ClientOption) (*StartAdvisorChecksOK, error)
 
@@ -225,7 +225,7 @@ func (a *Client) GetAdvisorCheck(params *GetAdvisorCheckParams, opts ...ClientOp
 	op := &runtime.ClientOperation{
 		ID:                 "GetAdvisorCheck",
 		Method:             "GET",
-		PathPattern:        "/v1/advisors/checks/{name}/definition",
+		PathPattern:        "/v1/advisors/checks/{name}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -389,24 +389,24 @@ func (a *Client) ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) 
 }
 
 /*
-ListCheckResultsFilterValues lists advisor check results filter values
+ListInsights lists advisor insights
 
-Returns the distinct service and node names present in the Advisor check results history, for populating filter dropdowns.
+Returns the history of Advisor check results (insights), including their outcomes.
 */
-func (a *Client) ListCheckResultsFilterValues(params *ListCheckResultsFilterValuesParams, opts ...ClientOption) (*ListCheckResultsFilterValuesOK, error) {
+func (a *Client) ListInsights(params *ListInsightsParams, opts ...ClientOption) (*ListInsightsOK, error) {
 	// NOTE: parameters are not validated before sending
 	if params == nil {
-		params = NewListCheckResultsFilterValuesParams()
+		params = NewListInsightsParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "ListCheckResultsFilterValues",
+		ID:                 "ListInsights",
 		Method:             "GET",
-		PathPattern:        "/v1/advisors/checks/history:filterValues",
+		PathPattern:        "/v1/advisors/insights",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListCheckResultsFilterValuesReader{formats: a.formats},
+		Reader:             &ListInsightsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -419,7 +419,7 @@ func (a *Client) ListCheckResultsFilterValues(params *ListCheckResultsFilterValu
 	}
 
 	// only one success response has to be checked
-	success, ok := result.(*ListCheckResultsFilterValuesOK)
+	success, ok := result.(*ListInsightsOK)
 	if ok {
 		return success, nil
 	}
@@ -427,30 +427,30 @@ func (a *Client) ListCheckResultsFilterValues(params *ListCheckResultsFilterValu
 	// unexpected success response.
 	//
 	// a default response is provided: fill this and return an error
-	unexpectedSuccess := result.(*ListCheckResultsFilterValuesDefault)
+	unexpectedSuccess := result.(*ListInsightsDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-ListCheckResultsHistory lists advisor check results history
+ListInsightsFilterValues lists advisor insights filter values
 
-Returns the history of Advisor check runs, including their outcomes.
+Returns the distinct service and node names present in the Advisor insights, for populating filter dropdowns.
 */
-func (a *Client) ListCheckResultsHistory(params *ListCheckResultsHistoryParams, opts ...ClientOption) (*ListCheckResultsHistoryOK, error) {
+func (a *Client) ListInsightsFilterValues(params *ListInsightsFilterValuesParams, opts ...ClientOption) (*ListInsightsFilterValuesOK, error) {
 	// NOTE: parameters are not validated before sending
 	if params == nil {
-		params = NewListCheckResultsHistoryParams()
+		params = NewListInsightsFilterValuesParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "ListCheckResultsHistory",
+		ID:                 "ListInsightsFilterValues",
 		Method:             "GET",
-		PathPattern:        "/v1/advisors/checks/history",
+		PathPattern:        "/v1/advisors/insights:filterValues",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListCheckResultsHistoryReader{formats: a.formats},
+		Reader:             &ListInsightsFilterValuesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -463,7 +463,7 @@ func (a *Client) ListCheckResultsHistory(params *ListCheckResultsHistoryParams, 
 	}
 
 	// only one success response has to be checked
-	success, ok := result.(*ListCheckResultsHistoryOK)
+	success, ok := result.(*ListInsightsFilterValuesOK)
 	if ok {
 		return success, nil
 	}
@@ -471,30 +471,30 @@ func (a *Client) ListCheckResultsHistory(params *ListCheckResultsHistoryParams, 
 	// unexpected success response.
 	//
 	// a default response is provided: fill this and return an error
-	unexpectedSuccess := result.(*ListCheckResultsHistoryDefault)
+	unexpectedSuccess := result.(*ListInsightsFilterValuesDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
-MarkCheckResultsRead marks advisor check results read
+MarkInsightsRead marks advisor insights read
 
-Sets the read state on the specified Advisor check history records. Set is_read to false to mark them unread.
+Sets the read state on the specified Advisor insights. Set is_read to false to mark them unread.
 */
-func (a *Client) MarkCheckResultsRead(params *MarkCheckResultsReadParams, opts ...ClientOption) (*MarkCheckResultsReadOK, error) {
+func (a *Client) MarkInsightsRead(params *MarkInsightsReadParams, opts ...ClientOption) (*MarkInsightsReadOK, error) {
 	// NOTE: parameters are not validated before sending
 	if params == nil {
-		params = NewMarkCheckResultsReadParams()
+		params = NewMarkInsightsReadParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "MarkCheckResultsRead",
+		ID:                 "MarkInsightsRead",
 		Method:             "POST",
-		PathPattern:        "/v1/advisors/checks/history:markRead",
+		PathPattern:        "/v1/advisors/insights:markRead",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &MarkCheckResultsReadReader{formats: a.formats},
+		Reader:             &MarkInsightsReadReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -507,7 +507,7 @@ func (a *Client) MarkCheckResultsRead(params *MarkCheckResultsReadParams, opts .
 	}
 
 	// only one success response has to be checked
-	success, ok := result.(*MarkCheckResultsReadOK)
+	success, ok := result.(*MarkInsightsReadOK)
 	if ok {
 		return success, nil
 	}
@@ -515,7 +515,7 @@ func (a *Client) MarkCheckResultsRead(params *MarkCheckResultsReadParams, opts .
 	// unexpected success response.
 	//
 	// a default response is provided: fill this and return an error
-	unexpectedSuccess := result.(*MarkCheckResultsReadDefault)
+	unexpectedSuccess := result.(*MarkInsightsReadDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

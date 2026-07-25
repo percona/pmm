@@ -57,7 +57,7 @@ var insightTriggeredByText = map[models.CheckTriggeredBy]string{
 
 // insightToText renders an Advisor check result as a human-readable narrative, matching the
 // UI's "Copy to text" command (insightToText in ui/apps/pmm/src/pages/advisors/insights/AdvisorInsights.utils.ts).
-func insightToText(r *models.CheckResult) (string, error) {
+func insightToText(r *models.Insight) (string, error) {
 	labelsMap, err := r.GetLabels()
 	if err != nil {
 		return "", fmt.Errorf("failed to decode labels for check result %q: %w", r.ID, err)

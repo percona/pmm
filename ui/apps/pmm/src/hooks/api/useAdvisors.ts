@@ -13,9 +13,9 @@ import {
   getAdvisorCheck,
   getAdvisorCheckScript,
   listAdvisors,
-  listCheckResultsFilterValues,
-  listCheckResultsHistory,
-  markCheckResultsRead,
+  listInsightsFilterValues,
+  listInsights,
+  markInsightsRead,
   startAdvisorChecks,
   testAdvisorCheck,
   updateAdvisorCheck,
@@ -25,10 +25,10 @@ import {
   AdvisorCheck,
   AdvisorCheckInput,
   ChangeAdvisorCheckParams,
-  CheckResultHistoryItem,
-  ListCheckResultsFilterValuesResponse,
-  ListCheckResultsHistoryParams,
-  MarkCheckResultsReadRequest,
+  Insight,
+  ListInsightsFilterValuesResponse,
+  ListInsightsParams,
+  MarkInsightsReadRequest,
   TestAdvisorCheckRequest,
   TestAdvisorCheckResponse,
 } from 'types/advisors.types';
@@ -44,8 +44,8 @@ const KEYS = {
   UPDATE_CHECK: 'advisors:update-check',
   DELETE_CHECK: 'advisors:delete-check',
   TEST_CHECK: 'advisors:test-check',
-  HISTORY: 'advisors:history',
-  HISTORY_FILTER_VALUES: 'advisors:history-filter-values',
+  INSIGHTS: 'advisors:insights',
+  INSIGHTS_FILTER_VALUES: 'advisors:insights-filter-values',
   MARK_READ: 'advisors:mark-read',
 };
 
@@ -89,41 +89,39 @@ export const useStartAdvisorChecks = (
     ...options,
   });
 
-export const useCheckResultsHistory = (
-  params: ListCheckResultsHistoryParams,
-  options?: Partial<UseQueryOptions<PaginatedResponse<CheckResultHistoryItem>>>
+export const useInsights = (
+  params: ListInsightsParams,
+  options?: Partial<UseQueryOptions<PaginatedResponse<Insight>>>
 ) =>
   useQuery({
-    queryKey: [KEYS.HISTORY, params],
-    queryFn: () => listCheckResultsHistory(params),
+    queryKey: [KEYS.INSIGHTS, params],
+    queryFn: () => listInsights(params),
     // keep showing the current page while the next one loads
     placeholderData: keepPreviousData,
     ...options,
   });
 
-export const useCheckResultsFilterValues = (
-  options?: Partial<UseQueryOptions<ListCheckResultsFilterValuesResponse>>
+export const useInsightsFilterValues = (
+  options?: Partial<UseQueryOptions<ListInsightsFilterValuesResponse>>
 ) =>
   useQuery({
-    queryKey: [KEYS.HISTORY_FILTER_VALUES],
-    queryFn: () => listCheckResultsFilterValues(),
+    queryKey: [KEYS.INSIGHTS_FILTER_VALUES],
+    queryFn: () => listInsightsFilterValues(),
     ...options,
   });
 
-export const useMarkCheckResultsRead = (
-  options?: Partial<
-    UseMutationOptions<void, Error, MarkCheckResultsReadRequest>
-  >
+export const useMarkInsightsRead = (
+  options?: Partial<UseMutationOptions<void, Error, MarkInsightsReadRequest>>
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: [KEYS.MARK_READ],
-    mutationFn: markCheckResultsRead,
+    mutationFn: markInsightsRead,
     ...options,
     onSuccess: async (data, variables, onMutate, context) => {
       await options?.onSuccess?.(data, variables, onMutate, context);
-      await queryClient.invalidateQueries({ queryKey: [KEYS.HISTORY] });
+      await queryClient.invalidateQueries({ queryKey: [KEYS.INSIGHTS] });
     },
   });
 };

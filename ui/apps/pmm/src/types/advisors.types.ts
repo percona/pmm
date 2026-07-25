@@ -140,7 +140,7 @@ export interface StartAdvisorChecksResponse {
   batchId: string;
 }
 
-export interface CheckResultHistoryItem {
+export interface Insight {
   id: string;
   checkName: string;
   subcategory: string;
@@ -167,7 +167,7 @@ export interface CheckResultHistoryItem {
   replicationSet: string;
 }
 
-export interface ListCheckResultsHistoryParams {
+export interface ListInsightsParams {
   pageSize?: number;
   pageIndex?: number;
   serviceId?: string;
@@ -184,7 +184,7 @@ export interface ListCheckResultsHistoryParams {
   to?: string;
 }
 
-export interface CheckResultsFilters {
+export interface InsightsFilters {
   serviceName?: string;
   nodeName?: string;
   category?: string;
@@ -194,15 +194,15 @@ export interface CheckResultsFilters {
   batchId?: string;
 }
 
-export interface MarkCheckResultsReadRequest {
+export interface MarkInsightsReadRequest {
   // record IDs to update; takes precedence over filters
   ids?: string[];
   isRead: boolean;
   // when set and ids is empty, updates all records matching the filters
-  filters?: CheckResultsFilters;
+  filters?: InsightsFilters;
 }
 
-export interface ListCheckResultsFilterValuesResponse {
+export interface ListInsightsFilterValuesResponse {
   serviceNames: string[];
   nodeNames: string[];
 }

@@ -25,16 +25,16 @@ import (
 	"gopkg.in/reform.v1"
 )
 
-// CreateCheckResult inserts a single Advisor check result into the history.
-func CreateCheckResult(ctx context.Context, q *reform.Querier, r *CheckResult) error {
+// CreateInsight inserts a single Advisor check result into the history.
+func CreateInsight(ctx context.Context, q *reform.Querier, r *Insight) error {
 	if r.ID == "" {
 		r.ID = uuid.NewString()
 	}
 	return q.WithContext(ctx).Insert(r)
 }
 
-// CheckResultFilters specifies filters for querying Advisor check results history.
-type CheckResultFilters struct {
+// InsightFilters specifies filters for querying Advisor insights.
+type InsightFilters struct {
 	ServiceID string
 	// ServiceName is matched as a case-insensitive substring.
 	ServiceName string
@@ -51,8 +51,8 @@ type CheckResultFilters struct {
 	To          *time.Time
 }
 
-// checkResultConditions builds the WHERE clause and arguments for the given filters.
-func checkResultConditions(q *reform.Querier, filters CheckResultFilters) (string, []any) {
+// insightConditions builds the WHERE clause and arguments for the given filters.
+func insightConditions(q *reform.Querier, filters InsightFilters) (string, []any) {
 	var conditions []string
 	var args []any
 
@@ -111,10 +111,10 @@ func checkResultConditions(q *reform.Querier, filters CheckResultFilters) (strin
 	return "WHERE " + strings.Join(conditions, " AND "), args
 }
 
-// FindCheckResults returns Advisor check results history matching the filters, ordered by
+// FindInsights returns Advisor insights matching the filters, ordered by
 // checked_at descending. When pageSize is greater than zero, the results are paginated.
-func FindCheckResults(ctx context.Context, q *reform.Querier, filters CheckResultFilters, pageIndex, pageSize int) ([]*CheckResult, error) {
-	tail, args := checkResultConditions(q, filters)
+func FindInsights(ctx context.Context, q *reform.Querier, filters InsightFilters, pageIndex, pageSize int) ([]*Insight, error) {
+	tail, args := insightConditions(q, filters)
 	tail += " ORDER BY checked_at DESC"
 	if pageSize > 0 {
 		tail += " LIMIT " + q.Placeholder(len(args)+1)
@@ -123,35 +123,35 @@ func FindCheckResults(ctx context.Context, q *reform.Querier, filters CheckResul
 		args = append(args, pageIndex*pageSize)
 	}
 
-	rows, err := q.WithContext(ctx).SelectAllFrom(CheckResultTable, tail, args...)
+	rows, err := q.WithContext(ctx).SelectAllFrom(InsightTable, tail, args...)
 	if err != nil {
-		return nil, fmt.Errorf("failed to select check results: %w", err)
+		return nil, fmt.Errorf("failed to select insights: %w", err)
 	}
 
-	results := make([]*CheckResult, 0, len(rows))
+	results := make([]*Insight, 0, len(rows))
 	for _, r := range rows {
-		results = append(results, r.(*CheckResult)) //nolint:forcetypeassert
+		results = append(results, r.(*Insight)) //nolint:forcetypeassert
 	}
 	return results, nil
 }
 
-// CountCheckResults returns the number of Advisor check results history rows matching the filters.
-func CountCheckResults(ctx context.Context, q *reform.Querier, filters CheckResultFilters) (int, error) {
-	where, args := checkResultConditions(q, filters)
+// CountInsights returns the number of Advisor insights rows matching the filters.
+func CountInsights(ctx context.Context, q *reform.Querier, filters InsightFilters) (int, error) {
+	where, args := insightConditions(q, filters)
 
 	var count int
-	err := q.QueryRowContext(ctx, "SELECT count(*) FROM "+CheckResultTable.Name()+" "+where, args...).Scan(&count)
+	err := q.QueryRowContext(ctx, "SELECT count(*) FROM "+InsightTable.Name()+" "+where, args...).Scan(&count)
 	if err != nil {
-		return 0, fmt.Errorf("failed to count check results: %w", err)
+		return 0, fmt.Errorf("failed to count insights: %w", err)
 	}
 	return count, nil
 }
 
-// FindCheckResultFilterValues returns the distinct service and node names present in the
-// Advisor check results history, each sorted alphabetically.
-func FindCheckResultFilterValues(ctx context.Context, q *reform.Querier) ([]string, []string, error) {
+// FindInsightFilterValues returns the distinct service and node names present in the
+// Advisor insights, each sorted alphabetically.
+func FindInsightFilterValues(ctx context.Context, q *reform.Querier) ([]string, []string, error) {
 	distinct := func(column string) ([]string, error) {
-		rows, err := q.QueryContext(ctx, "SELECT DISTINCT "+column+" FROM "+CheckResultTable.Name()+
+		rows, err := q.QueryContext(ctx, "SELECT DISTINCT "+column+" FROM "+InsightTable.Name()+
 			" ORDER BY "+column)
 		if err != nil {
 			return nil, fmt.Errorf("failed to select distinct %s: %w", column, err)
@@ -181,8 +181,8 @@ func FindCheckResultFilterValues(ctx context.Context, q *reform.Querier) ([]stri
 	return serviceNames, nodeNames, nil
 }
 
-// MarkCheckResultsRead sets the read state on the check results with the given IDs.
-func MarkCheckResultsRead(ctx context.Context, q *reform.Querier, ids []string, isRead bool) error {
+// MarkInsightsRead sets the read state on the insights with the given IDs.
+func MarkInsightsRead(ctx context.Context, q *reform.Querier, ids []string, isRead bool) error {
 	if len(ids) == 0 {
 		return nil
 	}
@@ -194,30 +194,30 @@ func MarkCheckResultsRead(ctx context.Context, q *reform.Querier, ids []string, 
 		args = append(args, id)
 	}
 
-	query := "UPDATE " + CheckResultTable.Name() + " SET is_read = " + q.Placeholder(1) +
+	query := "UPDATE " + InsightTable.Name() + " SET is_read = " + q.Placeholder(1) +
 		" WHERE id IN (" + strings.Join(placeholders, ", ") + ")"
 	_, err := q.ExecContext(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("failed to mark check results as read: %w", err)
+		return fmt.Errorf("failed to mark insights as read: %w", err)
 	}
 	return nil
 }
 
-// MarkCheckResultsReadByFilters sets the read state on all check results matching the filters.
-func MarkCheckResultsReadByFilters(ctx context.Context, q *reform.Querier, filters CheckResultFilters, isRead bool) error {
-	where, args := checkResultConditions(q, filters)
+// MarkInsightsReadByFilters sets the read state on all insights matching the filters.
+func MarkInsightsReadByFilters(ctx context.Context, q *reform.Querier, filters InsightFilters, isRead bool) error {
+	where, args := insightConditions(q, filters)
 	args = append(args, isRead)
 
-	query := "UPDATE " + CheckResultTable.Name() + " SET is_read = " + q.Placeholder(len(args)) + " " + where
+	query := "UPDATE " + InsightTable.Name() + " SET is_read = " + q.Placeholder(len(args)) + " " + where
 	_, err := q.ExecContext(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("failed to mark check results as read by filters: %w", err)
+		return fmt.Errorf("failed to mark insights as read by filters: %w", err)
 	}
 	return nil
 }
 
-// CleanupOldCheckResults deletes Advisor check results older than a specified date.
-func CleanupOldCheckResults(ctx context.Context, q *reform.Querier, olderThan time.Time) error {
-	_, err := q.WithContext(ctx).DeleteFrom(CheckResultTable, " WHERE checked_at <= $1", olderThan)
+// CleanupOldInsights deletes Advisor insights older than a specified date.
+func CleanupOldInsights(ctx context.Context, q *reform.Querier, olderThan time.Time) error {
+	_, err := q.WithContext(ctx).DeleteFrom(InsightTable, " WHERE checked_at <= $1", olderThan)
 	return err
 }

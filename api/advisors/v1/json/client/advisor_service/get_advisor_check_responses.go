@@ -89,12 +89,12 @@ func (o *GetAdvisorCheckOK) Code() int {
 
 func (o *GetAdvisorCheckOK) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[GET /v1/advisors/checks/{name}/definition][%d] getAdvisorCheckOk %s", 200, payload)
+	return fmt.Sprintf("[GET /v1/advisors/checks/{name}][%d] getAdvisorCheckOk %s", 200, payload)
 }
 
 func (o *GetAdvisorCheckOK) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[GET /v1/advisors/checks/{name}/definition][%d] getAdvisorCheckOk %s", 200, payload)
+	return fmt.Sprintf("[GET /v1/advisors/checks/{name}][%d] getAdvisorCheckOk %s", 200, payload)
 }
 
 func (o *GetAdvisorCheckOK) GetPayload() *GetAdvisorCheckOKBody {
@@ -162,12 +162,12 @@ func (o *GetAdvisorCheckDefault) Code() int {
 
 func (o *GetAdvisorCheckDefault) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[GET /v1/advisors/checks/{name}/definition][%d] GetAdvisorCheck default %s", o._statusCode, payload)
+	return fmt.Sprintf("[GET /v1/advisors/checks/{name}][%d] GetAdvisorCheck default %s", o._statusCode, payload)
 }
 
 func (o *GetAdvisorCheckDefault) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[GET /v1/advisors/checks/{name}/definition][%d] GetAdvisorCheck default %s", o._statusCode, payload)
+	return fmt.Sprintf("[GET /v1/advisors/checks/{name}][%d] GetAdvisorCheck default %s", o._statusCode, payload)
 }
 
 func (o *GetAdvisorCheckDefault) GetPayload() *GetAdvisorCheckDefaultBody {

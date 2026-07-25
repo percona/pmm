@@ -1186,7 +1186,7 @@ var databaseSchema = [][]string{
 		`UPDATE dumps SET encrypted = false`,
 	},
 	119: {
-		`CREATE TABLE check_results (
+		`CREATE TABLE advisor_insights (
 			id VARCHAR NOT NULL,
 			batch_id VARCHAR NOT NULL,
 			check_name VARCHAR NOT NULL CHECK (check_name <> ''),
@@ -1214,9 +1214,9 @@ var databaseSchema = [][]string{
 
 			PRIMARY KEY (id)
 		)`,
-		`CREATE INDEX check_results_batch_id_idx ON check_results (batch_id)`,
-		`CREATE INDEX check_results_service_id_idx ON check_results (service_id)`,
-		`CREATE INDEX check_results_checked_at_idx ON check_results (checked_at)`,
+		`CREATE INDEX advisor_insights_batch_id_idx ON advisor_insights (batch_id)`,
+		`CREATE INDEX advisor_insights_service_id_idx ON advisor_insights (service_id)`,
+		`CREATE INDEX advisor_insights_checked_at_idx ON advisor_insights (checked_at)`,
 	},
 	120: {
 		`CREATE TABLE advisor_checks (
@@ -1243,15 +1243,22 @@ var databaseSchema = [][]string{
 		// Carry over interval overrides recorded by earlier PMM versions in the
 		// check_settings table. Content columns are placeholders: the startup
 		// reconcile refreshes them from the shipped check files and prunes rows
-		// of checks that no longer exist.
-		`INSERT INTO advisor_checks (
-			name, source, version, summary, description, category, subcategory,
-			family, interval, interval_override, disabled, queries, script,
-			created_at, updated_at
-		)
-		SELECT name, 'builtin', 2, '', '', '', '', '', '', interval, false, '[]', '', now(), now()
-		FROM check_settings
-		WHERE name <> ''`,
+		// of checks that no longer exist. Guarded so a re-run (dev force-rerun
+		// after the first run already dropped check_settings) succeeds.
+		`DO $$
+		BEGIN
+			IF to_regclass('check_settings') IS NOT NULL THEN
+				INSERT INTO advisor_checks (
+					name, source, version, summary, description, category, subcategory,
+					family, interval, interval_override, disabled, queries, script,
+					created_at, updated_at
+				)
+				SELECT name, 'builtin', 2, '', '', '', '', '', '', interval, false, '[]', '', now(), now()
+				FROM check_settings
+				WHERE name <> '';
+			END IF;
+		END
+		$$`,
 
 		// Carry over globally-disabled check names recorded by earlier PMM
 		// versions in the settings JSON.

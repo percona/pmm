@@ -909,7 +909,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 
 	cleaner := clean.New(db)
-	advisorHistoryCleaner := clean.NewCheckResults(db)
+	advisorHistoryCleaner := clean.NewInsights(db)
 	externalRules := vmalert.NewExternalRules()
 	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, chParams, haService)
 	if err != nil {

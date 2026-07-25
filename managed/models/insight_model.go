@@ -47,10 +47,10 @@ const (
 	CheckTriggeredByScheduler CheckTriggeredBy = "scheduler"
 )
 
-// CheckResult represents a single Advisor check run against a target persisted to history.
+// Insight represents a single Advisor check run against a target persisted to history.
 //
-//reform:check_results
-type CheckResult struct {
+//reform:advisor_insights
+type Insight struct {
 	ID             string            `reform:"id,pk"`
 	CheckName      string            `reform:"check_name"`
 	Category       string            `reform:"category"`
@@ -78,7 +78,7 @@ type CheckResult struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-func (r *CheckResult) BeforeInsert() error {
+func (r *Insight) BeforeInsert() error {
 	if r.CheckedAt.IsZero() {
 		r.CheckedAt = Now()
 	}
@@ -89,7 +89,7 @@ func (r *CheckResult) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-func (r *CheckResult) BeforeUpdate() error {
+func (r *Insight) BeforeUpdate() error {
 	if len(r.Labels) == 0 {
 		r.Labels = nil
 	}
@@ -97,7 +97,7 @@ func (r *CheckResult) BeforeUpdate() error {
 }
 
 // AfterFind implements reform.AfterFinder interface.
-func (r *CheckResult) AfterFind() error {
+func (r *Insight) AfterFind() error {
 	r.CheckedAt = r.CheckedAt.UTC()
 	if len(r.Labels) == 0 {
 		r.Labels = nil
@@ -106,18 +106,18 @@ func (r *CheckResult) AfterFind() error {
 }
 
 // GetLabels decodes result labels.
-func (r *CheckResult) GetLabels() (map[string]string, error) {
+func (r *Insight) GetLabels() (map[string]string, error) {
 	return getLabels(r.Labels)
 }
 
 // SetLabels encodes result labels.
-func (r *CheckResult) SetLabels(m map[string]string) error {
+func (r *Insight) SetLabels(m map[string]string) error {
 	return setLabels(m, &r.Labels)
 }
 
 // check interfaces.
 var (
-	_ reform.BeforeInserter = (*CheckResult)(nil)
-	_ reform.BeforeUpdater  = (*CheckResult)(nil)
-	_ reform.AfterFinder    = (*CheckResult)(nil)
+	_ reform.BeforeInserter = (*Insight)(nil)
+	_ reform.BeforeUpdater  = (*Insight)(nil)
+	_ reform.AfterFinder    = (*Insight)(nil)
 )

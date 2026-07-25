@@ -35,11 +35,11 @@ var (
 	_ = metadata.Join
 )
 
-var filter_AdvisorService_ListCheckResultsHistory_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_AdvisorService_ListInsights_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
-func request_AdvisorService_ListCheckResultsHistory_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AdvisorService_ListInsights_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListCheckResultsHistoryRequest
+		protoReq ListInsightsRequest
 		metadata runtime.ServerMetadata
 	)
 	if req.Body != nil {
@@ -48,52 +48,52 @@ func request_AdvisorService_ListCheckResultsHistory_0(ctx context.Context, marsh
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AdvisorService_ListCheckResultsHistory_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AdvisorService_ListInsights_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	msg, err := client.ListCheckResultsHistory(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListInsights(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_AdvisorService_ListCheckResultsHistory_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AdvisorService_ListInsights_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListCheckResultsHistoryRequest
+		protoReq ListInsightsRequest
 		metadata runtime.ServerMetadata
 	)
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AdvisorService_ListCheckResultsHistory_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AdvisorService_ListInsights_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	msg, err := server.ListCheckResultsHistory(ctx, &protoReq)
+	msg, err := server.ListInsights(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_AdvisorService_ListCheckResultsFilterValues_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AdvisorService_ListInsightsFilterValues_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListCheckResultsFilterValuesRequest
+		protoReq ListInsightsFilterValuesRequest
 		metadata runtime.ServerMetadata
 	)
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	msg, err := client.ListCheckResultsFilterValues(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListInsightsFilterValues(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_AdvisorService_ListCheckResultsFilterValues_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AdvisorService_ListInsightsFilterValues_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq ListCheckResultsFilterValuesRequest
+		protoReq ListInsightsFilterValuesRequest
 		metadata runtime.ServerMetadata
 	)
-	msg, err := server.ListCheckResultsFilterValues(ctx, &protoReq)
+	msg, err := server.ListInsightsFilterValues(ctx, &protoReq)
 	return msg, metadata, err
 }
 
-func request_AdvisorService_MarkCheckResultsRead_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AdvisorService_MarkInsightsRead_0(ctx context.Context, marshaler runtime.Marshaler, client AdvisorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq MarkCheckResultsReadRequest
+		protoReq MarkInsightsReadRequest
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
@@ -102,19 +102,19 @@ func request_AdvisorService_MarkCheckResultsRead_0(ctx context.Context, marshale
 	if req.Body != nil {
 		_, _ = io.Copy(io.Discard, req.Body)
 	}
-	msg, err := client.MarkCheckResultsRead(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.MarkInsightsRead(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_AdvisorService_MarkCheckResultsRead_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AdvisorService_MarkInsightsRead_0(ctx context.Context, marshaler runtime.Marshaler, server AdvisorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
-		protoReq MarkCheckResultsReadRequest
+		protoReq MarkInsightsReadRequest
 		metadata runtime.ServerMetadata
 	)
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && !errors.Is(err, io.EOF) {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	msg, err := server.MarkCheckResultsRead(ctx, &protoReq)
+	msg, err := server.MarkInsightsRead(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -436,65 +436,65 @@ func local_request_AdvisorService_DeleteAdvisorCheck_0(ctx context.Context, mars
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAdvisorServiceHandlerFromEndpoint instead.
 // GRPC interceptors will not work for this type of registration. To use interceptors, you must use the "runtime.WithMiddlewares" option in the "runtime.NewServeMux" call.
 func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AdvisorServiceServer) error {
-	mux.Handle(http.MethodGet, pattern_AdvisorService_ListCheckResultsHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AdvisorService_ListInsights_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/advisors.v1.AdvisorService/ListCheckResultsHistory", runtime.WithHTTPPathPattern("/v1/advisors/checks/history"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/advisors.v1.AdvisorService/ListInsights", runtime.WithHTTPPathPattern("/v1/advisors/insights"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_AdvisorService_ListCheckResultsHistory_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AdvisorService_ListInsights_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_AdvisorService_ListCheckResultsHistory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_ListInsights_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_AdvisorService_ListCheckResultsFilterValues_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AdvisorService_ListInsightsFilterValues_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/advisors.v1.AdvisorService/ListCheckResultsFilterValues", runtime.WithHTTPPathPattern("/v1/advisors/checks/history:filterValues"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/advisors.v1.AdvisorService/ListInsightsFilterValues", runtime.WithHTTPPathPattern("/v1/advisors/insights:filterValues"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_AdvisorService_ListCheckResultsFilterValues_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AdvisorService_ListInsightsFilterValues_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_AdvisorService_ListCheckResultsFilterValues_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_ListInsightsFilterValues_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_AdvisorService_MarkCheckResultsRead_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AdvisorService_MarkInsightsRead_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/advisors.v1.AdvisorService/MarkCheckResultsRead", runtime.WithHTTPPathPattern("/v1/advisors/checks/history:markRead"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/advisors.v1.AdvisorService/MarkInsightsRead", runtime.WithHTTPPathPattern("/v1/advisors/insights:markRead"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_AdvisorService_MarkCheckResultsRead_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AdvisorService_MarkInsightsRead_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_AdvisorService_MarkCheckResultsRead_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_MarkInsightsRead_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_AdvisorService_StartAdvisorChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -602,7 +602,7 @@ func RegisterAdvisorServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/advisors.v1.AdvisorService/GetAdvisorCheck", runtime.WithHTTPPathPattern("/v1/advisors/checks/{name}/definition"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/advisors.v1.AdvisorService/GetAdvisorCheck", runtime.WithHTTPPathPattern("/v1/advisors/checks/{name}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -736,56 +736,56 @@ func RegisterAdvisorServiceHandler(ctx context.Context, mux *runtime.ServeMux, c
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AdvisorServiceClient" to call the correct interceptors. This client ignores the HTTP middlewares.
 func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AdvisorServiceClient) error {
-	mux.Handle(http.MethodGet, pattern_AdvisorService_ListCheckResultsHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AdvisorService_ListInsights_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/advisors.v1.AdvisorService/ListCheckResultsHistory", runtime.WithHTTPPathPattern("/v1/advisors/checks/history"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/advisors.v1.AdvisorService/ListInsights", runtime.WithHTTPPathPattern("/v1/advisors/insights"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_AdvisorService_ListCheckResultsHistory_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AdvisorService_ListInsights_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_AdvisorService_ListCheckResultsHistory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_ListInsights_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodGet, pattern_AdvisorService_ListCheckResultsFilterValues_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodGet, pattern_AdvisorService_ListInsightsFilterValues_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/advisors.v1.AdvisorService/ListCheckResultsFilterValues", runtime.WithHTTPPathPattern("/v1/advisors/checks/history:filterValues"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/advisors.v1.AdvisorService/ListInsightsFilterValues", runtime.WithHTTPPathPattern("/v1/advisors/insights:filterValues"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_AdvisorService_ListCheckResultsFilterValues_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AdvisorService_ListInsightsFilterValues_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_AdvisorService_ListCheckResultsFilterValues_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_ListInsightsFilterValues_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPost, pattern_AdvisorService_MarkCheckResultsRead_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPost, pattern_AdvisorService_MarkInsightsRead_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/advisors.v1.AdvisorService/MarkCheckResultsRead", runtime.WithHTTPPathPattern("/v1/advisors/checks/history:markRead"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/advisors.v1.AdvisorService/MarkInsightsRead", runtime.WithHTTPPathPattern("/v1/advisors/insights:markRead"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_AdvisorService_MarkCheckResultsRead_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AdvisorService_MarkInsightsRead_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		forward_AdvisorService_MarkCheckResultsRead_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AdvisorService_MarkInsightsRead_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodPost, pattern_AdvisorService_StartAdvisorChecks_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -876,7 +876,7 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/advisors.v1.AdvisorService/GetAdvisorCheck", runtime.WithHTTPPathPattern("/v1/advisors/checks/{name}/definition"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/advisors.v1.AdvisorService/GetAdvisorCheck", runtime.WithHTTPPathPattern("/v1/advisors/checks/{name}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -961,33 +961,33 @@ func RegisterAdvisorServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 }
 
 var (
-	pattern_AdvisorService_ListCheckResultsHistory_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "advisors", "checks", "history"}, ""))
-	pattern_AdvisorService_ListCheckResultsFilterValues_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "advisors", "checks", "history"}, "filterValues"))
-	pattern_AdvisorService_MarkCheckResultsRead_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "advisors", "checks", "history"}, "markRead"))
-	pattern_AdvisorService_StartAdvisorChecks_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, "start"))
-	pattern_AdvisorService_ListAdvisorChecks_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, ""))
-	pattern_AdvisorService_GetAdvisorCheckScript_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "advisors", "checks", "name", "script"}, ""))
-	pattern_AdvisorService_ListAdvisors_0                 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "advisors"}, ""))
-	pattern_AdvisorService_ChangeAdvisorChecks_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, "batchChange"))
-	pattern_AdvisorService_GetAdvisorCheck_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "advisors", "checks", "name", "definition"}, ""))
-	pattern_AdvisorService_CreateAdvisorCheck_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, ""))
-	pattern_AdvisorService_UpdateAdvisorCheck_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "checks", "name"}, ""))
-	pattern_AdvisorService_TestAdvisorCheck_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, "test"))
-	pattern_AdvisorService_DeleteAdvisorCheck_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "checks", "name"}, ""))
+	pattern_AdvisorService_ListInsights_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "insights"}, ""))
+	pattern_AdvisorService_ListInsightsFilterValues_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "insights"}, "filterValues"))
+	pattern_AdvisorService_MarkInsightsRead_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "insights"}, "markRead"))
+	pattern_AdvisorService_StartAdvisorChecks_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, "start"))
+	pattern_AdvisorService_ListAdvisorChecks_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, ""))
+	pattern_AdvisorService_GetAdvisorCheckScript_0    = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"v1", "advisors", "checks", "name", "script"}, ""))
+	pattern_AdvisorService_ListAdvisors_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "advisors"}, ""))
+	pattern_AdvisorService_ChangeAdvisorChecks_0      = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, "batchChange"))
+	pattern_AdvisorService_GetAdvisorCheck_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "checks", "name"}, ""))
+	pattern_AdvisorService_CreateAdvisorCheck_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, ""))
+	pattern_AdvisorService_UpdateAdvisorCheck_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "checks", "name"}, ""))
+	pattern_AdvisorService_TestAdvisorCheck_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "advisors", "checks"}, "test"))
+	pattern_AdvisorService_DeleteAdvisorCheck_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"v1", "advisors", "checks", "name"}, ""))
 )
 
 var (
-	forward_AdvisorService_ListCheckResultsHistory_0      = runtime.ForwardResponseMessage
-	forward_AdvisorService_ListCheckResultsFilterValues_0 = runtime.ForwardResponseMessage
-	forward_AdvisorService_MarkCheckResultsRead_0         = runtime.ForwardResponseMessage
-	forward_AdvisorService_StartAdvisorChecks_0           = runtime.ForwardResponseMessage
-	forward_AdvisorService_ListAdvisorChecks_0            = runtime.ForwardResponseMessage
-	forward_AdvisorService_GetAdvisorCheckScript_0        = runtime.ForwardResponseMessage
-	forward_AdvisorService_ListAdvisors_0                 = runtime.ForwardResponseMessage
-	forward_AdvisorService_ChangeAdvisorChecks_0          = runtime.ForwardResponseMessage
-	forward_AdvisorService_GetAdvisorCheck_0              = runtime.ForwardResponseMessage
-	forward_AdvisorService_CreateAdvisorCheck_0           = runtime.ForwardResponseMessage
-	forward_AdvisorService_UpdateAdvisorCheck_0           = runtime.ForwardResponseMessage
-	forward_AdvisorService_TestAdvisorCheck_0             = runtime.ForwardResponseMessage
-	forward_AdvisorService_DeleteAdvisorCheck_0           = runtime.ForwardResponseMessage
+	forward_AdvisorService_ListInsights_0             = runtime.ForwardResponseMessage
+	forward_AdvisorService_ListInsightsFilterValues_0 = runtime.ForwardResponseMessage
+	forward_AdvisorService_MarkInsightsRead_0         = runtime.ForwardResponseMessage
+	forward_AdvisorService_StartAdvisorChecks_0       = runtime.ForwardResponseMessage
+	forward_AdvisorService_ListAdvisorChecks_0        = runtime.ForwardResponseMessage
+	forward_AdvisorService_GetAdvisorCheckScript_0    = runtime.ForwardResponseMessage
+	forward_AdvisorService_ListAdvisors_0             = runtime.ForwardResponseMessage
+	forward_AdvisorService_ChangeAdvisorChecks_0      = runtime.ForwardResponseMessage
+	forward_AdvisorService_GetAdvisorCheck_0          = runtime.ForwardResponseMessage
+	forward_AdvisorService_CreateAdvisorCheck_0       = runtime.ForwardResponseMessage
+	forward_AdvisorService_UpdateAdvisorCheck_0       = runtime.ForwardResponseMessage
+	forward_AdvisorService_TestAdvisorCheck_0         = runtime.ForwardResponseMessage
+	forward_AdvisorService_DeleteAdvisorCheck_0       = runtime.ForwardResponseMessage
 )

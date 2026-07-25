@@ -14,50 +14,50 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// NewListCheckResultsHistoryParams creates a new ListCheckResultsHistoryParams object,
+// NewListInsightsParams creates a new ListInsightsParams object,
 // with the default timeout for this client.
 //
 // Default values are not hydrated, since defaults are normally applied by the API server side.
 //
 // To enforce default values in parameter, use SetDefaults or WithDefaults.
-func NewListCheckResultsHistoryParams() *ListCheckResultsHistoryParams {
-	return &ListCheckResultsHistoryParams{
+func NewListInsightsParams() *ListInsightsParams {
+	return &ListInsightsParams{
 		timeout: cr.DefaultTimeout,
 	}
 }
 
-// NewListCheckResultsHistoryParamsWithTimeout creates a new ListCheckResultsHistoryParams object
+// NewListInsightsParamsWithTimeout creates a new ListInsightsParams object
 // with the ability to set a timeout on a request.
-func NewListCheckResultsHistoryParamsWithTimeout(timeout time.Duration) *ListCheckResultsHistoryParams {
-	return &ListCheckResultsHistoryParams{
+func NewListInsightsParamsWithTimeout(timeout time.Duration) *ListInsightsParams {
+	return &ListInsightsParams{
 		timeout: timeout,
 	}
 }
 
-// NewListCheckResultsHistoryParamsWithContext creates a new ListCheckResultsHistoryParams object
+// NewListInsightsParamsWithContext creates a new ListInsightsParams object
 // with the ability to set a context for a request.
-func NewListCheckResultsHistoryParamsWithContext(ctx context.Context) *ListCheckResultsHistoryParams {
-	return &ListCheckResultsHistoryParams{
+func NewListInsightsParamsWithContext(ctx context.Context) *ListInsightsParams {
+	return &ListInsightsParams{
 		Context: ctx,
 	}
 }
 
-// NewListCheckResultsHistoryParamsWithHTTPClient creates a new ListCheckResultsHistoryParams object
+// NewListInsightsParamsWithHTTPClient creates a new ListInsightsParams object
 // with the ability to set a custom HTTPClient for a request.
-func NewListCheckResultsHistoryParamsWithHTTPClient(client *http.Client) *ListCheckResultsHistoryParams {
-	return &ListCheckResultsHistoryParams{
+func NewListInsightsParamsWithHTTPClient(client *http.Client) *ListInsightsParams {
+	return &ListInsightsParams{
 		HTTPClient: client,
 	}
 }
 
 /*
-ListCheckResultsHistoryParams contains all the parameters to send to the API endpoint
+ListInsightsParams contains all the parameters to send to the API endpoint
 
-	for the list check results history operation.
+	for the list insights operation.
 
 	Typically these are written to a http.Request.
 */
-type ListCheckResultsHistoryParams struct {
+type ListInsightsParams struct {
 	/* BatchID.
 
 	   Filter by batch ID.
@@ -168,18 +168,18 @@ type ListCheckResultsHistoryParams struct {
 	HTTPClient *http.Client
 }
 
-// WithDefaults hydrates default values in the list check results history params (not the query body).
+// WithDefaults hydrates default values in the list insights params (not the query body).
 //
 // All values with no default are reset to their zero value.
-func (o *ListCheckResultsHistoryParams) WithDefaults() *ListCheckResultsHistoryParams {
+func (o *ListInsightsParams) WithDefaults() *ListInsightsParams {
 	o.SetDefaults()
 	return o
 }
 
-// SetDefaults hydrates default values in the list check results history params (not the query body).
+// SetDefaults hydrates default values in the list insights params (not the query body).
 //
 // All values with no default are reset to their zero value.
-func (o *ListCheckResultsHistoryParams) SetDefaults() {
+func (o *ListInsightsParams) SetDefaults() {
 	var (
 		severityDefault = string("SEVERITY_UNSPECIFIED")
 
@@ -188,7 +188,7 @@ func (o *ListCheckResultsHistoryParams) SetDefaults() {
 		triggeredByDefault = string("ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED")
 	)
 
-	val := ListCheckResultsHistoryParams{
+	val := ListInsightsParams{
 		Severity:    &severityDefault,
 		Status:      &statusDefault,
 		TriggeredBy: &triggeredByDefault,
@@ -200,195 +200,195 @@ func (o *ListCheckResultsHistoryParams) SetDefaults() {
 	*o = val
 }
 
-// WithTimeout adds the timeout to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithTimeout(timeout time.Duration) *ListCheckResultsHistoryParams {
+// WithTimeout adds the timeout to the list insights params
+func (o *ListInsightsParams) WithTimeout(timeout time.Duration) *ListInsightsParams {
 	o.SetTimeout(timeout)
 	return o
 }
 
-// SetTimeout adds the timeout to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetTimeout(timeout time.Duration) {
+// SetTimeout adds the timeout to the list insights params
+func (o *ListInsightsParams) SetTimeout(timeout time.Duration) {
 	o.timeout = timeout
 }
 
-// WithContext adds the context to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithContext(ctx context.Context) *ListCheckResultsHistoryParams {
+// WithContext adds the context to the list insights params
+func (o *ListInsightsParams) WithContext(ctx context.Context) *ListInsightsParams {
 	o.SetContext(ctx)
 	return o
 }
 
-// SetContext adds the context to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetContext(ctx context.Context) {
+// SetContext adds the context to the list insights params
+func (o *ListInsightsParams) SetContext(ctx context.Context) {
 	o.Context = ctx
 }
 
-// WithHTTPClient adds the HTTPClient to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithHTTPClient(client *http.Client) *ListCheckResultsHistoryParams {
+// WithHTTPClient adds the HTTPClient to the list insights params
+func (o *ListInsightsParams) WithHTTPClient(client *http.Client) *ListInsightsParams {
 	o.SetHTTPClient(client)
 	return o
 }
 
-// SetHTTPClient adds the HTTPClient to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetHTTPClient(client *http.Client) {
+// SetHTTPClient adds the HTTPClient to the list insights params
+func (o *ListInsightsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBatchID adds the batchID to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithBatchID(batchID *string) *ListCheckResultsHistoryParams {
+// WithBatchID adds the batchID to the list insights params
+func (o *ListInsightsParams) WithBatchID(batchID *string) *ListInsightsParams {
 	o.SetBatchID(batchID)
 	return o
 }
 
-// SetBatchID adds the batchId to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetBatchID(batchID *string) {
+// SetBatchID adds the batchId to the list insights params
+func (o *ListInsightsParams) SetBatchID(batchID *string) {
 	o.BatchID = batchID
 }
 
-// WithCategory adds the category to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithCategory(category *string) *ListCheckResultsHistoryParams {
+// WithCategory adds the category to the list insights params
+func (o *ListInsightsParams) WithCategory(category *string) *ListInsightsParams {
 	o.SetCategory(category)
 	return o
 }
 
-// SetCategory adds the category to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetCategory(category *string) {
+// SetCategory adds the category to the list insights params
+func (o *ListInsightsParams) SetCategory(category *string) {
 	o.Category = category
 }
 
-// WithCheckName adds the checkName to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithCheckName(checkName *string) *ListCheckResultsHistoryParams {
+// WithCheckName adds the checkName to the list insights params
+func (o *ListInsightsParams) WithCheckName(checkName *string) *ListInsightsParams {
 	o.SetCheckName(checkName)
 	return o
 }
 
-// SetCheckName adds the checkName to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetCheckName(checkName *string) {
+// SetCheckName adds the checkName to the list insights params
+func (o *ListInsightsParams) SetCheckName(checkName *string) {
 	o.CheckName = checkName
 }
 
-// WithFrom adds the from to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithFrom(from *strfmt.DateTime) *ListCheckResultsHistoryParams {
+// WithFrom adds the from to the list insights params
+func (o *ListInsightsParams) WithFrom(from *strfmt.DateTime) *ListInsightsParams {
 	o.SetFrom(from)
 	return o
 }
 
-// SetFrom adds the from to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetFrom(from *strfmt.DateTime) {
+// SetFrom adds the from to the list insights params
+func (o *ListInsightsParams) SetFrom(from *strfmt.DateTime) {
 	o.From = from
 }
 
-// WithIsRead adds the isRead to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithIsRead(isRead *bool) *ListCheckResultsHistoryParams {
+// WithIsRead adds the isRead to the list insights params
+func (o *ListInsightsParams) WithIsRead(isRead *bool) *ListInsightsParams {
 	o.SetIsRead(isRead)
 	return o
 }
 
-// SetIsRead adds the isRead to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetIsRead(isRead *bool) {
+// SetIsRead adds the isRead to the list insights params
+func (o *ListInsightsParams) SetIsRead(isRead *bool) {
 	o.IsRead = isRead
 }
 
-// WithNodeName adds the nodeName to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithNodeName(nodeName *string) *ListCheckResultsHistoryParams {
+// WithNodeName adds the nodeName to the list insights params
+func (o *ListInsightsParams) WithNodeName(nodeName *string) *ListInsightsParams {
 	o.SetNodeName(nodeName)
 	return o
 }
 
-// SetNodeName adds the nodeName to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetNodeName(nodeName *string) {
+// SetNodeName adds the nodeName to the list insights params
+func (o *ListInsightsParams) SetNodeName(nodeName *string) {
 	o.NodeName = nodeName
 }
 
-// WithPageIndex adds the pageIndex to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithPageIndex(pageIndex *int32) *ListCheckResultsHistoryParams {
+// WithPageIndex adds the pageIndex to the list insights params
+func (o *ListInsightsParams) WithPageIndex(pageIndex *int32) *ListInsightsParams {
 	o.SetPageIndex(pageIndex)
 	return o
 }
 
-// SetPageIndex adds the pageIndex to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetPageIndex(pageIndex *int32) {
+// SetPageIndex adds the pageIndex to the list insights params
+func (o *ListInsightsParams) SetPageIndex(pageIndex *int32) {
 	o.PageIndex = pageIndex
 }
 
-// WithPageSize adds the pageSize to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithPageSize(pageSize *int32) *ListCheckResultsHistoryParams {
+// WithPageSize adds the pageSize to the list insights params
+func (o *ListInsightsParams) WithPageSize(pageSize *int32) *ListInsightsParams {
 	o.SetPageSize(pageSize)
 	return o
 }
 
-// SetPageSize adds the pageSize to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetPageSize(pageSize *int32) {
+// SetPageSize adds the pageSize to the list insights params
+func (o *ListInsightsParams) SetPageSize(pageSize *int32) {
 	o.PageSize = pageSize
 }
 
-// WithServiceID adds the serviceID to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithServiceID(serviceID *string) *ListCheckResultsHistoryParams {
+// WithServiceID adds the serviceID to the list insights params
+func (o *ListInsightsParams) WithServiceID(serviceID *string) *ListInsightsParams {
 	o.SetServiceID(serviceID)
 	return o
 }
 
-// SetServiceID adds the serviceId to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetServiceID(serviceID *string) {
+// SetServiceID adds the serviceId to the list insights params
+func (o *ListInsightsParams) SetServiceID(serviceID *string) {
 	o.ServiceID = serviceID
 }
 
-// WithServiceName adds the serviceName to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithServiceName(serviceName *string) *ListCheckResultsHistoryParams {
+// WithServiceName adds the serviceName to the list insights params
+func (o *ListInsightsParams) WithServiceName(serviceName *string) *ListInsightsParams {
 	o.SetServiceName(serviceName)
 	return o
 }
 
-// SetServiceName adds the serviceName to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetServiceName(serviceName *string) {
+// SetServiceName adds the serviceName to the list insights params
+func (o *ListInsightsParams) SetServiceName(serviceName *string) {
 	o.ServiceName = serviceName
 }
 
-// WithSeverity adds the severity to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithSeverity(severity *string) *ListCheckResultsHistoryParams {
+// WithSeverity adds the severity to the list insights params
+func (o *ListInsightsParams) WithSeverity(severity *string) *ListInsightsParams {
 	o.SetSeverity(severity)
 	return o
 }
 
-// SetSeverity adds the severity to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetSeverity(severity *string) {
+// SetSeverity adds the severity to the list insights params
+func (o *ListInsightsParams) SetSeverity(severity *string) {
 	o.Severity = severity
 }
 
-// WithStatus adds the status to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithStatus(status *string) *ListCheckResultsHistoryParams {
+// WithStatus adds the status to the list insights params
+func (o *ListInsightsParams) WithStatus(status *string) *ListInsightsParams {
 	o.SetStatus(status)
 	return o
 }
 
-// SetStatus adds the status to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetStatus(status *string) {
+// SetStatus adds the status to the list insights params
+func (o *ListInsightsParams) SetStatus(status *string) {
 	o.Status = status
 }
 
-// WithTo adds the to to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithTo(to *strfmt.DateTime) *ListCheckResultsHistoryParams {
+// WithTo adds the to to the list insights params
+func (o *ListInsightsParams) WithTo(to *strfmt.DateTime) *ListInsightsParams {
 	o.SetTo(to)
 	return o
 }
 
-// SetTo adds the to to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetTo(to *strfmt.DateTime) {
+// SetTo adds the to to the list insights params
+func (o *ListInsightsParams) SetTo(to *strfmt.DateTime) {
 	o.To = to
 }
 
-// WithTriggeredBy adds the triggeredBy to the list check results history params
-func (o *ListCheckResultsHistoryParams) WithTriggeredBy(triggeredBy *string) *ListCheckResultsHistoryParams {
+// WithTriggeredBy adds the triggeredBy to the list insights params
+func (o *ListInsightsParams) WithTriggeredBy(triggeredBy *string) *ListInsightsParams {
 	o.SetTriggeredBy(triggeredBy)
 	return o
 }
 
-// SetTriggeredBy adds the triggeredBy to the list check results history params
-func (o *ListCheckResultsHistoryParams) SetTriggeredBy(triggeredBy *string) {
+// SetTriggeredBy adds the triggeredBy to the list insights params
+func (o *ListInsightsParams) SetTriggeredBy(triggeredBy *string) {
 	o.TriggeredBy = triggeredBy
 }
 
 // WriteToRequest writes these params to a swagger request
-func (o *ListCheckResultsHistoryParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+func (o *ListInsightsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

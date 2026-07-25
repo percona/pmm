@@ -4,15 +4,15 @@ import {
   AdvisorCheckInput,
   ChangeAdvisorCheckParams,
   ChangeAdvisorChecksRequest,
-  CheckResultHistoryItem,
+  Insight,
   CreateAdvisorCheckRequest,
   CreateAdvisorCheckResponse,
   GetAdvisorCheckResponse,
   GetAdvisorCheckScriptResponse,
   ListAdvisorsResponse,
-  ListCheckResultsFilterValuesResponse,
-  ListCheckResultsHistoryParams,
-  MarkCheckResultsReadRequest,
+  ListInsightsFilterValuesResponse,
+  ListInsightsParams,
+  MarkInsightsReadRequest,
   StartAdvisorChecksRequest,
   StartAdvisorChecksResponse,
   TestAdvisorCheckRequest,
@@ -37,7 +37,7 @@ export const getAdvisorCheckScript = async (name: string): Promise<string> => {
 
 export const getAdvisorCheck = async (name: string): Promise<AdvisorCheck> => {
   const res = await api.get<GetAdvisorCheckResponse>(
-    `/advisors/checks/${encodeURIComponent(name)}/definition`
+    `/advisors/checks/${encodeURIComponent(name)}`
   );
   return res.data.check;
 };
@@ -100,26 +100,25 @@ export const changeAdvisorChecks = async (
   await api.post<EmptyResponse>('/advisors/checks:batchChange', payload);
 };
 
-export const listCheckResultsHistory = async (
-  params: ListCheckResultsHistoryParams
-): Promise<PaginatedResponse<CheckResultHistoryItem>> => {
-  const res = await api.get<PaginatedResponse<CheckResultHistoryItem>>(
-    '/advisors/checks/history',
-    { params }
-  );
+export const listInsights = async (
+  params: ListInsightsParams
+): Promise<PaginatedResponse<Insight>> => {
+  const res = await api.get<PaginatedResponse<Insight>>('/advisors/insights', {
+    params,
+  });
   return res.data;
 };
 
-export const markCheckResultsRead = async (
-  payload: MarkCheckResultsReadRequest
+export const markInsightsRead = async (
+  payload: MarkInsightsReadRequest
 ): Promise<void> => {
-  await api.post<EmptyResponse>('/advisors/checks/history:markRead', payload);
+  await api.post<EmptyResponse>('/advisors/insights:markRead', payload);
 };
 
-export const listCheckResultsFilterValues =
-  async (): Promise<ListCheckResultsFilterValuesResponse> => {
-    const res = await api.get<ListCheckResultsFilterValuesResponse>(
-      '/advisors/checks/history:filterValues'
+export const listInsightsFilterValues =
+  async (): Promise<ListInsightsFilterValuesResponse> => {
+    const res = await api.get<ListInsightsFilterValuesResponse>(
+      '/advisors/insights:filterValues'
     );
     return res.data;
   };

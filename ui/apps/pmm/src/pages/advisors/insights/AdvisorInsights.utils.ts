@@ -1,8 +1,5 @@
 import { format } from 'date-fns';
-import {
-  AdvisorCheckTriggeredBy,
-  CheckResultHistoryItem,
-} from 'types/advisors.types';
+import { AdvisorCheckTriggeredBy, Insight } from 'types/advisors.types';
 import {
   ADVISOR_INTERVAL,
   ADVISOR_RESULT_STATUS,
@@ -17,7 +14,7 @@ const TRIGGERED_BY_LABEL: Record<AdvisorCheckTriggeredBy, string> = {
 };
 
 // renders an insight as a human-readable narrative for "Copy as text"
-export const insightToText = (item: CheckResultHistoryItem): string => {
+export const insightToText = (item: Insight): string => {
   const checkedAt = item.checkedAt
     ? format(new Date(item.checkedAt), TIME_FORMAT)
     : '';

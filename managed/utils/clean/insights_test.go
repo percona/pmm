@@ -30,7 +30,7 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-func TestCheckResultsCleaner(t *testing.T) {
+func TestInsightsCleaner(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	defer func() {
 		require.NoError(t, sqlDB.Close())
@@ -40,21 +40,21 @@ func TestCheckResultsCleaner(t *testing.T) {
 	q := db.Querier
 
 	// Default retention is 30 days, so this row is past it and must be removed.
-	require.NoError(t, models.CreateCheckResult(t.Context(), q, &models.CheckResult{
+	require.NoError(t, models.CreateInsight(t.Context(), q, &models.Insight{
 		CheckName: "old", ServiceID: "svc", ServiceName: "svc", NodeName: "node",
 		Status: models.CheckResultFailed, Summary: "s",
 		Severity: models.Severity(common.Warning), CheckedAt: models.Now().Add(-31 * 24 * time.Hour),
 	}))
-	require.NoError(t, models.CreateCheckResult(t.Context(), q, &models.CheckResult{
+	require.NoError(t, models.CreateInsight(t.Context(), q, &models.Insight{
 		CheckName: "new", ServiceID: "svc", ServiceName: "svc", NodeName: "node",
 		Status: models.CheckResultFailed, Summary: "s",
 		Severity: models.Severity(common.Warning), CheckedAt: models.Now(),
 	}))
 
 	// Run a single cleanup pass synchronously; the ticker loop in Run is trivial plumbing.
-	NewCheckResults(db).cleanup(t.Context(), logrus.WithField("component", "test"))
+	NewInsights(db).cleanup(t.Context(), logrus.WithField("component", "test"))
 
-	results, err := models.FindCheckResults(t.Context(), q, models.CheckResultFilters{ServiceID: "svc"}, 0, 0)
+	results, err := models.FindInsights(t.Context(), q, models.InsightFilters{ServiceID: "svc"}, 0, 0)
 	require.NoError(t, err)
 	require.Len(t, results, 1)
 	assert.Equal(t, "new", results[0].CheckName)

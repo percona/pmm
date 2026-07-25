@@ -25,9 +25,9 @@ import { Page } from 'components/page';
 import {
   useAdvisors,
   useChangeAdvisorChecks,
-  useCheckResultsFilterValues,
-  useCheckResultsHistory,
-  useMarkCheckResultsRead,
+  useInsightsFilterValues,
+  useInsights,
+  useMarkInsightsRead,
   useStartAdvisorChecks,
 } from 'hooks/api/useAdvisors';
 import {
@@ -39,9 +39,9 @@ import { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   AdvisorCheckResultStatus,
-  CheckResultHistoryItem,
-  CheckResultsFilters,
-  ListCheckResultsHistoryParams,
+  Insight,
+  InsightsFilters,
+  ListInsightsParams,
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { OrgRole } from 'types/user.types';
@@ -83,7 +83,7 @@ interface FilterOption {
 
 interface RowActionMenuState {
   anchor: HTMLElement;
-  insight: CheckResultHistoryItem;
+  insight: Insight;
 }
 
 interface FilterSelectProps {
@@ -184,7 +184,7 @@ const AdvisorInsights: FC = () => {
   };
 
   // filter portion of the query, shared with the bulk mark-as-read action
-  const filterParams: CheckResultsFilters = {
+  const filterParams: InsightsFilters = {
     batchId,
     serviceName: filters.serviceName || undefined,
     nodeName: filters.nodeName || undefined,
@@ -194,7 +194,7 @@ const AdvisorInsights: FC = () => {
     isRead: filters.isRead === '' ? undefined : filters.isRead === 'true',
   };
 
-  const params: ListCheckResultsHistoryParams = {
+  const params: ListInsightsParams = {
     pageIndex: pagination.pageIndex,
     pageSize: pagination.pageSize,
     ...filterParams,
@@ -203,13 +203,12 @@ const AdvisorInsights: FC = () => {
   const [actionMenu, setActionMenu] = useState<RowActionMenuState | null>(null);
   const [detailsMaximized, setDetailsMaximized] = useState(false);
 
-  const openDetails = (insight: CheckResultHistoryItem, maximized = false) => {
+  const openDetails = (insight: Insight, maximized = false) => {
     setDetailsMaximized(maximized);
     patchParams((p) => p.set('insight', insight.id), { resetPage: false });
   };
 
-  const { data, isLoading, isFetching, refetch } =
-    useCheckResultsHistory(params);
+  const { data, isLoading, isFetching, refetch } = useInsights(params);
 
   // the open details overlay is driven by the ?insight=<id> URL param (the
   // result's Check ID), so the overlay is deep-linkable via a shared URL
@@ -222,8 +221,8 @@ const AdvisorInsights: FC = () => {
   );
   const { data: advisors = [], refetch: refetchAdvisors } = useAdvisors();
   const { data: filterValues, refetch: refetchFilterValues } =
-    useCheckResultsFilterValues();
-  const { mutate: markRead, isPending: isMarking } = useMarkCheckResultsRead();
+    useInsightsFilterValues();
+  const { mutate: markRead, isPending: isMarking } = useMarkInsightsRead();
   const { mutate: startChecks, isPending: isStarting } =
     useStartAdvisorChecks();
   const { mutate: changeChecks, isPending: isChangingCheck } =
@@ -267,7 +266,7 @@ const AdvisorInsights: FC = () => {
     }
   };
 
-  const handleRerun = (insight: CheckResultHistoryItem) => {
+  const handleRerun = (insight: Insight) => {
     const checkSummary =
       checksByName.get(insight.checkName)?.summary ?? insight.checkName;
     startChecks([insight.checkName], {
@@ -293,7 +292,7 @@ const AdvisorInsights: FC = () => {
     });
   };
 
-  const handleToggleCheckEnabled = (insight: CheckResultHistoryItem) => {
+  const handleToggleCheckEnabled = (insight: Insight) => {
     const check = checksByName.get(insight.checkName);
     if (!check) {
       return;
@@ -309,7 +308,7 @@ const AdvisorInsights: FC = () => {
     });
   };
 
-  const handleCopyAsText = async (insight: CheckResultHistoryItem) => {
+  const handleCopyAsText = async (insight: Insight) => {
     await navigator.clipboard.writeText(insightToText(insight));
     enqueueSnackbar(Messages.success.copied, { variant: 'success' });
   };
@@ -348,7 +347,7 @@ const AdvisorInsights: FC = () => {
   );
 
   const handleToggleRead = useCallback(
-    (item: CheckResultHistoryItem) =>
+    (item: Insight) =>
       markRead(
         { ids: [item.id], isRead: !item.isRead },
         {

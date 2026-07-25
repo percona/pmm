@@ -173,82 +173,6 @@ func (_m *mockChecksService) GetAdvisors() ([]check.Advisor, error) {
 	return r0, r1
 }
 
-// GetCheckResultsFilterValues provides a mock function with given fields: ctx
-func (_m *mockChecksService) GetCheckResultsFilterValues(ctx context.Context) ([]string, []string, error) {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetCheckResultsFilterValues")
-	}
-
-	var r0 []string
-	var r1 []string
-	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]string, []string, error)); ok {
-		return rf(ctx)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context) []string); ok {
-		r0 = rf(ctx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]string)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context) []string); ok {
-		r1 = rf(ctx)
-	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).([]string)
-		}
-	}
-
-	if rf, ok := ret.Get(2).(func(context.Context) error); ok {
-		r2 = rf(ctx)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
-}
-
-// GetCheckResultsHistory provides a mock function with given fields: ctx, filters, pageIndex, pageSize
-func (_m *mockChecksService) GetCheckResultsHistory(ctx context.Context, filters models.CheckResultFilters, pageIndex int, pageSize int) ([]*models.CheckResult, int, error) {
-	ret := _m.Called(ctx, filters, pageIndex, pageSize)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetCheckResultsHistory")
-	}
-
-	var r0 []*models.CheckResult
-	var r1 int
-	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, models.CheckResultFilters, int, int) ([]*models.CheckResult, int, error)); ok {
-		return rf(ctx, filters, pageIndex, pageSize)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, models.CheckResultFilters, int, int) []*models.CheckResult); ok {
-		r0 = rf(ctx, filters, pageIndex, pageSize)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*models.CheckResult)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, models.CheckResultFilters, int, int) int); ok {
-		r1 = rf(ctx, filters, pageIndex, pageSize)
-	} else {
-		r1 = ret.Get(1).(int)
-	}
-
-	if rf, ok := ret.Get(2).(func(context.Context, models.CheckResultFilters, int, int) error); ok {
-		r2 = rf(ctx, filters, pageIndex, pageSize)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
-}
-
 // GetChecks provides a mock function with no fields
 func (_m *mockChecksService) GetChecks() (map[string]check.Check, error) {
 	ret := _m.Called()
@@ -339,12 +263,88 @@ func (_m *mockChecksService) GetDisabledServicesForChecks(ctx context.Context) (
 	return r0, r1
 }
 
-// MarkCheckResultsRead provides a mock function with given fields: ctx, ids, isRead
-func (_m *mockChecksService) MarkCheckResultsRead(ctx context.Context, ids []string, isRead bool) error {
+// GetInsights provides a mock function with given fields: ctx, filters, pageIndex, pageSize
+func (_m *mockChecksService) GetInsights(ctx context.Context, filters models.InsightFilters, pageIndex int, pageSize int) ([]*models.Insight, int, error) {
+	ret := _m.Called(ctx, filters, pageIndex, pageSize)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetInsights")
+	}
+
+	var r0 []*models.Insight
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, models.InsightFilters, int, int) ([]*models.Insight, int, error)); ok {
+		return rf(ctx, filters, pageIndex, pageSize)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, models.InsightFilters, int, int) []*models.Insight); ok {
+		r0 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.Insight)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, models.InsightFilters, int, int) int); ok {
+		r1 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, models.InsightFilters, int, int) error); ok {
+		r2 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// GetInsightsFilterValues provides a mock function with given fields: ctx
+func (_m *mockChecksService) GetInsightsFilterValues(ctx context.Context) ([]string, []string, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetInsightsFilterValues")
+	}
+
+	var r0 []string
+	var r1 []string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]string, []string, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []string); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) []string); ok {
+		r1 = rf(ctx)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context) error); ok {
+		r2 = rf(ctx)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// MarkInsightsRead provides a mock function with given fields: ctx, ids, isRead
+func (_m *mockChecksService) MarkInsightsRead(ctx context.Context, ids []string, isRead bool) error {
 	ret := _m.Called(ctx, ids, isRead)
 
 	if len(ret) == 0 {
-		panic("no return value specified for MarkCheckResultsRead")
+		panic("no return value specified for MarkInsightsRead")
 	}
 
 	var r0 error
@@ -357,16 +357,16 @@ func (_m *mockChecksService) MarkCheckResultsRead(ctx context.Context, ids []str
 	return r0
 }
 
-// MarkCheckResultsReadByFilters provides a mock function with given fields: ctx, filters, isRead
-func (_m *mockChecksService) MarkCheckResultsReadByFilters(ctx context.Context, filters models.CheckResultFilters, isRead bool) error {
+// MarkInsightsReadByFilters provides a mock function with given fields: ctx, filters, isRead
+func (_m *mockChecksService) MarkInsightsReadByFilters(ctx context.Context, filters models.InsightFilters, isRead bool) error {
 	ret := _m.Called(ctx, filters, isRead)
 
 	if len(ret) == 0 {
-		panic("no return value specified for MarkCheckResultsReadByFilters")
+		panic("no return value specified for MarkInsightsReadByFilters")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, models.CheckResultFilters, bool) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, models.InsightFilters, bool) error); ok {
 		r0 = rf(ctx, filters, isRead)
 	} else {
 		r0 = ret.Error(0)

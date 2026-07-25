@@ -3,13 +3,13 @@ import Chip from '@mui/material/Chip';
 import Link from '@mui/material/Link';
 import Tooltip from '@mui/material/Tooltip';
 import { format } from 'date-fns';
-import { CheckResultHistoryItem } from 'types/advisors.types';
+import { Insight } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { ADVISOR_RESULT_STATUS, SEVERITY, TIME_FORMAT } from 'lib/constants';
 import { Messages } from './AdvisorInsights.messages';
 
 interface InsightsColumnsProps {
-  onToggleRead: (item: CheckResultHistoryItem) => void;
+  onToggleRead: (item: Insight) => void;
 }
 
 const SEVERITY_ORDER: Record<Severity, number> = {
@@ -26,7 +26,7 @@ const SEVERITY_ORDER: Record<Severity, number> = {
 
 export const getInsightsColumns = ({
   onToggleRead,
-}: InsightsColumnsProps): MRT_ColumnDef<CheckResultHistoryItem>[] => [
+}: InsightsColumnsProps): MRT_ColumnDef<Insight>[] => [
   {
     header: Messages.columns.summary,
     accessorKey: 'summary',

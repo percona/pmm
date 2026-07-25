@@ -10,23 +10,23 @@ import (
 	"gopkg.in/reform.v1/parse"
 )
 
-type checkResultTableType struct {
+type insightTableType struct {
 	s parse.StructInfo
 	z []interface{}
 }
 
 // Schema returns a schema name in SQL database ("").
-func (v *checkResultTableType) Schema() string {
+func (v *insightTableType) Schema() string {
 	return v.s.SQLSchema
 }
 
-// Name returns a view or table name in SQL database ("check_results").
-func (v *checkResultTableType) Name() string {
+// Name returns a view or table name in SQL database ("advisor_insights").
+func (v *insightTableType) Name() string {
 	return v.s.SQLName
 }
 
 // Columns returns a new slice of column names for that view or table in SQL database.
-func (v *checkResultTableType) Columns() []string {
+func (v *insightTableType) Columns() []string {
 	return []string{
 		"id",
 		"check_name",
@@ -56,25 +56,25 @@ func (v *checkResultTableType) Columns() []string {
 }
 
 // NewStruct makes a new struct for that view or table.
-func (v *checkResultTableType) NewStruct() reform.Struct {
-	return new(CheckResult)
+func (v *insightTableType) NewStruct() reform.Struct {
+	return new(Insight)
 }
 
 // NewRecord makes a new record for that table.
-func (v *checkResultTableType) NewRecord() reform.Record {
-	return new(CheckResult)
+func (v *insightTableType) NewRecord() reform.Record {
+	return new(Insight)
 }
 
 // PKColumnIndex returns an index of primary key column for that table in SQL database.
-func (v *checkResultTableType) PKColumnIndex() uint {
+func (v *insightTableType) PKColumnIndex() uint {
 	return uint(v.s.PKFieldIndex)
 }
 
-// CheckResultTable represents check_results view or table in SQL database.
-var CheckResultTable = &checkResultTableType{
+// InsightTable represents advisor_insights view or table in SQL database.
+var InsightTable = &insightTableType{
 	s: parse.StructInfo{
-		Type:    "CheckResult",
-		SQLName: "check_results",
+		Type:    "Insight",
+		SQLName: "advisor_insights",
 		Fields: []parse.FieldInfo{
 			{Name: "ID", Type: "string", Column: "id"},
 			{Name: "CheckName", Type: "string", Column: "check_name"},
@@ -103,11 +103,11 @@ var CheckResultTable = &checkResultTableType{
 		},
 		PKFieldIndex: 0,
 	},
-	z: new(CheckResult).Values(),
+	z: new(Insight).Values(),
 }
 
 // String returns a string representation of this struct or record.
-func (s CheckResult) String() string {
+func (s Insight) String() string {
 	res := make([]string, 24)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "CheckName: " + reform.Inspect(s.CheckName, true)
@@ -138,7 +138,7 @@ func (s CheckResult) String() string {
 
 // Values returns a slice of struct or record field values.
 // Returned interface{} values are never untyped nils.
-func (s *CheckResult) Values() []interface{} {
+func (s *Insight) Values() []interface{} {
 	return []interface{}{
 		s.ID,
 		s.CheckName,
@@ -169,7 +169,7 @@ func (s *CheckResult) Values() []interface{} {
 
 // Pointers returns a slice of pointers to struct or record fields.
 // Returned interface{} values are never untyped nils.
-func (s *CheckResult) Pointers() []interface{} {
+func (s *Insight) Pointers() []interface{} {
 	return []interface{}{
 		&s.ID,
 		&s.CheckName,
@@ -199,48 +199,48 @@ func (s *CheckResult) Pointers() []interface{} {
 }
 
 // View returns View object for that struct.
-func (s *CheckResult) View() reform.View {
-	return CheckResultTable
+func (s *Insight) View() reform.View {
+	return InsightTable
 }
 
 // Table returns Table object for that record.
-func (s *CheckResult) Table() reform.Table {
-	return CheckResultTable
+func (s *Insight) Table() reform.Table {
+	return InsightTable
 }
 
 // PKValue returns a value of primary key for that record.
 // Returned interface{} value is never untyped nil.
-func (s *CheckResult) PKValue() interface{} {
+func (s *Insight) PKValue() interface{} {
 	return s.ID
 }
 
 // PKPointer returns a pointer to primary key field for that record.
 // Returned interface{} value is never untyped nil.
-func (s *CheckResult) PKPointer() interface{} {
+func (s *Insight) PKPointer() interface{} {
 	return &s.ID
 }
 
 // HasPK returns true if record has non-zero primary key set, false otherwise.
-func (s *CheckResult) HasPK() bool {
-	return s.ID != CheckResultTable.z[CheckResultTable.s.PKFieldIndex]
+func (s *Insight) HasPK() bool {
+	return s.ID != InsightTable.z[InsightTable.s.PKFieldIndex]
 }
 
 // SetPK sets record primary key, if possible.
 //
 // Deprecated: prefer direct field assignment where possible: s.ID = pk.
-func (s *CheckResult) SetPK(pk interface{}) {
+func (s *Insight) SetPK(pk interface{}) {
 	reform.SetPK(s, pk)
 }
 
 // check interfaces
 var (
-	_ reform.View   = CheckResultTable
-	_ reform.Struct = (*CheckResult)(nil)
-	_ reform.Table  = CheckResultTable
-	_ reform.Record = (*CheckResult)(nil)
-	_ fmt.Stringer  = (*CheckResult)(nil)
+	_ reform.View   = InsightTable
+	_ reform.Struct = (*Insight)(nil)
+	_ reform.Table  = InsightTable
+	_ reform.Record = (*Insight)(nil)
+	_ fmt.Stringer  = (*Insight)(nil)
 )
 
 func init() {
-	parse.AssertUpToDate(&CheckResultTable.s, new(CheckResult))
+	parse.AssertUpToDate(&InsightTable.s, new(Insight))
 }

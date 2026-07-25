@@ -25,18 +25,18 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// CheckResults cleans up Advisor check results history past the configured retention.
-type CheckResults struct {
+// Insights cleans up Advisor insights past the configured retention.
+type Insights struct {
 	db *reform.DB
 }
 
-// NewCheckResults returns a new CheckResults cleaner.
-func NewCheckResults(db *reform.DB) *CheckResults {
-	return &CheckResults{db: db}
+// NewInsights returns a new Insights cleaner.
+func NewInsights(db *reform.DB) *Insights {
+	return &Insights{db: db}
 }
 
-// Run starts the Advisor check results history cleanup process.
-func (c *CheckResults) Run(ctx context.Context, interval time.Duration) {
+// Run starts the Advisor insights cleanup process.
+func (c *Insights) Run(ctx context.Context, interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 	l := logrus.WithField("component", "advisor-history-cleaner")
@@ -52,8 +52,8 @@ func (c *CheckResults) Run(ctx context.Context, interval time.Duration) {
 	}
 }
 
-// cleanup performs a single cleanup pass, removing check results past the configured retention.
-func (c *CheckResults) cleanup(ctx context.Context, l *logrus.Entry) {
+// cleanup performs a single cleanup pass, removing insights past the configured retention.
+func (c *Insights) cleanup(ctx context.Context, l *logrus.Entry) {
 	settings, err := models.GetSettings(c.db)
 	if err != nil {
 		l.Error(err)
@@ -61,7 +61,7 @@ func (c *CheckResults) cleanup(ctx context.Context, l *logrus.Entry) {
 	}
 
 	olderThanTS := models.Now().Add(-1 * settings.AdvisorHistoryRetention)
-	err = models.CleanupOldCheckResults(ctx, c.db.Querier, olderThanTS)
+	err = models.CleanupOldInsights(ctx, c.db.Querier, olderThanTS)
 	if err != nil {
 		l.Error(err)
 	}

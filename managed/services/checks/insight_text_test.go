@@ -33,7 +33,7 @@ func TestInsightToText(t *testing.T) {
 	t.Run("all fields", func(t *testing.T) {
 		t.Parallel()
 
-		r := &models.CheckResult{
+		r := &models.Insight{
 			ID:             "insight-1",
 			BatchID:        "batch-1",
 			CheckName:      "mysql_version",
@@ -90,7 +90,7 @@ Check Details:
 	t.Run("empty fields are omitted", func(t *testing.T) {
 		t.Parallel()
 
-		r := &models.CheckResult{
+		r := &models.Insight{
 			ID:          "insight-2",
 			BatchID:     "batch-2",
 			CheckName:   "pg_check",

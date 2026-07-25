@@ -43,18 +43,6 @@ enum AdvisorCheckTriggeredBy {
   ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER = 2;
 }
 
-// AdvisorCheckResult represents the check result returned from pmm-managed after running the check.
-message AdvisorCheckResult {
-  string summary = 1;
-  string description = 2;
-  management.v1.Severity severity = 3;
-  map<string, string> labels = 4;
-  // URL containing information on how to resolve an issue detected by an Advisor check.
-  string read_more_url = 5;
-  // Name of the monitored service on which the check ran.
-  string service_name = 6;
-}
-
 // AdvisorCheckQuery is a single data-collection query of an advisor check.
 message AdvisorCheckQuery {
   // Query type, e.g. "MYSQL_SHOW", "POSTGRESQL_SELECT", "METRICS_RANGE".
@@ -230,8 +218,8 @@ message ChangeAdvisorChecksRequest {
 
 message ChangeAdvisorChecksResponse {}
 
-// CheckResultHistoryItem represents a single persisted Advisor check run against a service.
-message CheckResultHistoryItem {
+// Insight represents a single persisted Advisor check run against a service.
+message Insight {
   // Unique identifier of the history record.
   string id = 1;
   // ID of the batch this result belongs to; all results produced by one execution share it.
@@ -282,7 +270,7 @@ message CheckResultHistoryItem {
   AdvisorCheckTriggeredBy triggered_by = 24;
 }
 
-message ListCheckResultsHistoryRequest {
+message ListInsightsRequest {
   // Maximum number of results per page.
   optional int32 page_size = 1 [(validate.rules).int32.gte = 1];
   // Index of the requested page, starts from 0.
@@ -313,26 +301,26 @@ message ListCheckResultsHistoryRequest {
   optional AdvisorCheckTriggeredBy triggered_by = 14;
 }
 
-message ListCheckResultsHistoryResponse {
+message ListInsightsResponse {
   // Total number of results.
   int32 total_items = 1;
   // Total number of pages.
   int32 total_pages = 2;
-  // History records.
-  repeated CheckResultHistoryItem results = 3;
+  // Insight records.
+  repeated Insight results = 3;
 }
 
-message ListCheckResultsFilterValuesRequest {}
+message ListInsightsFilterValuesRequest {}
 
-message ListCheckResultsFilterValuesResponse {
+message ListInsightsFilterValuesResponse {
   // Distinct service names present in the check results history, sorted alphabetically.
   repeated string service_names = 1;
   // Distinct node names present in the check results history, sorted alphabetically.
   repeated string node_names = 2;
 }
 
-// CheckResultsFilters select Advisor check history records by attribute; all present fields must match.
-message CheckResultsFilters {
+// InsightsFilters select Advisor insights by attribute; all present fields must match.
+message InsightsFilters {
   // Filter by service name (partial, case-insensitive match).
   string service_name = 1;
   // Filter by node name (partial, case-insensitive match).
@@ -349,45 +337,45 @@ message CheckResultsFilters {
   string batch_id = 7;
 }
 
-message MarkCheckResultsReadRequest {
-  // IDs of the history records to update. Takes precedence over filters.
+message MarkInsightsReadRequest {
+  // IDs of the insights to update. Takes precedence over filters.
   repeated string ids = 1;
   // Read state to set on the records.
   bool is_read = 2;
-  // When set and ids is empty, all records matching these filters are updated
+  // When set and ids is empty, all insights matching these filters are updated
   // (an empty filter set matches every record). Either ids or filters must be provided.
-  CheckResultsFilters filters = 3;
+  InsightsFilters filters = 3;
 }
 
-message MarkCheckResultsReadResponse {}
+message MarkInsightsReadResponse {}
 
 // AdvisorService service provides public Management API methods for Advisor Service.
 service AdvisorService {
-  // ListCheckResultsHistory returns the history of Advisor check runs.
-  rpc ListCheckResultsHistory(ListCheckResultsHistoryRequest) returns (ListCheckResultsHistoryResponse) {
-    option (google.api.http) = {get: "/v1/advisors/checks/history"};
+  // ListInsights returns the history of Advisor check results (insights).
+  rpc ListInsights(ListInsightsRequest) returns (ListInsightsResponse) {
+    option (google.api.http) = {get: "/v1/advisors/insights"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List Advisor Check Results History"
-      description: "Returns the history of Advisor check runs, including their outcomes."
+      summary: "List Advisor Insights"
+      description: "Returns the history of Advisor check results (insights), including their outcomes."
     };
   }
-  // ListCheckResultsFilterValues returns the distinct values usable as history filters.
-  rpc ListCheckResultsFilterValues(ListCheckResultsFilterValuesRequest) returns (ListCheckResultsFilterValuesResponse) {
-    option (google.api.http) = {get: "/v1/advisors/checks/history:filterValues"};
+  // ListInsightsFilterValues returns the distinct values usable as insights filters.
+  rpc ListInsightsFilterValues(ListInsightsFilterValuesRequest) returns (ListInsightsFilterValuesResponse) {
+    option (google.api.http) = {get: "/v1/advisors/insights:filterValues"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "List Advisor Check Results Filter Values"
-      description: "Returns the distinct service and node names present in the Advisor check results history, for populating filter dropdowns."
+      summary: "List Advisor Insights Filter Values"
+      description: "Returns the distinct service and node names present in the Advisor insights, for populating filter dropdowns."
     };
   }
-  // MarkCheckResultsRead sets the read state on Advisor check history records.
-  rpc MarkCheckResultsRead(MarkCheckResultsReadRequest) returns (MarkCheckResultsReadResponse) {
+  // MarkInsightsRead sets the read state on Advisor insights.
+  rpc MarkInsightsRead(MarkInsightsReadRequest) returns (MarkInsightsReadResponse) {
     option (google.api.http) = {
-      post: "/v1/advisors/checks/history:markRead"
+      post: "/v1/advisors/insights:markRead"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Mark Advisor Check Results Read"
-      description: "Sets the read state on the specified Advisor check history records. Set is_read to false to mark them unread."
+      summary: "Mark Advisor Insights Read"
+      description: "Sets the read state on the specified Advisor insights. Set is_read to false to mark them unread."
     };
   }
   // StartAdvisorChecks executes Advisor checks and returns when all checks are executed.
@@ -411,7 +399,6 @@ service AdvisorService {
   }
   // GetAdvisorCheckScript returns the source script of a single advisor check.
   rpc GetAdvisorCheckScript(GetAdvisorCheckScriptRequest) returns (GetAdvisorCheckScriptResponse) {
-    // deeper path than /checks/history so the wildcard cannot shadow it
     option (google.api.http) = {get: "/v1/advisors/checks/{name}/script"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Advisor Check Script"
@@ -439,8 +426,7 @@ service AdvisorService {
   }
   // GetAdvisorCheck returns a single advisor check by name, including its queries and script.
   rpc GetAdvisorCheck(GetAdvisorCheckRequest) returns (GetAdvisorCheckResponse) {
-    // deeper path than /checks/history so the {name} wildcard cannot shadow it
-    option (google.api.http) = {get: "/v1/advisors/checks/{name}/definition"};
+    option (google.api.http) = {get: "/v1/advisors/checks/{name}"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Advisor Check"
       description: "Returns a single advisor check by name, including its queries and script."

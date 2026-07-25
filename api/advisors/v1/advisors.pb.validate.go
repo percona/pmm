@@ -39,121 +39,6 @@ var (
 	_ = managementv1.Severity(0)
 )
 
-// Validate checks the field values on AdvisorCheckResult with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AdvisorCheckResult) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AdvisorCheckResult with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AdvisorCheckResultMultiError, or nil if none found.
-func (m *AdvisorCheckResult) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AdvisorCheckResult) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Summary
-
-	// no validation rules for Description
-
-	// no validation rules for Severity
-
-	// no validation rules for Labels
-
-	// no validation rules for ReadMoreUrl
-
-	// no validation rules for ServiceName
-
-	if len(errors) > 0 {
-		return AdvisorCheckResultMultiError(errors)
-	}
-
-	return nil
-}
-
-// AdvisorCheckResultMultiError is an error wrapping multiple validation errors
-// returned by AdvisorCheckResult.ValidateAll() if the designated constraints
-// aren't met.
-type AdvisorCheckResultMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AdvisorCheckResultMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AdvisorCheckResultMultiError) AllErrors() []error { return m }
-
-// AdvisorCheckResultValidationError is the validation error returned by
-// AdvisorCheckResult.Validate if the designated constraints aren't met.
-type AdvisorCheckResultValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AdvisorCheckResultValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AdvisorCheckResultValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AdvisorCheckResultValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AdvisorCheckResultValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AdvisorCheckResultValidationError) ErrorName() string {
-	return "AdvisorCheckResultValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AdvisorCheckResultValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAdvisorCheckResult.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause,
-	)
-}
-
-var _ error = AdvisorCheckResultValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AdvisorCheckResultValidationError{}
-
 // Validate checks the field values on AdvisorCheckQuery with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -3212,22 +3097,21 @@ var _ interface {
 	ErrorName() string
 } = ChangeAdvisorChecksResponseValidationError{}
 
-// Validate checks the field values on CheckResultHistoryItem with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *CheckResultHistoryItem) Validate() error {
+// Validate checks the field values on Insight with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Insight) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on CheckResultHistoryItem with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// CheckResultHistoryItemMultiError, or nil if none found.
-func (m *CheckResultHistoryItem) ValidateAll() error {
+// ValidateAll checks the field values on Insight with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in InsightMultiError, or nil if none found.
+func (m *Insight) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *CheckResultHistoryItem) validate(all bool) error {
+func (m *Insight) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -3280,7 +3164,7 @@ func (m *CheckResultHistoryItem) validate(all bool) error {
 		switch v := interface{}(m.GetCheckedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, CheckResultHistoryItemValidationError{
+				errors = append(errors, InsightValidationError{
 					field:  "CheckedAt",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -3288,7 +3172,7 @@ func (m *CheckResultHistoryItem) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, CheckResultHistoryItemValidationError{
+				errors = append(errors, InsightValidationError{
 					field:  "CheckedAt",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -3297,7 +3181,7 @@ func (m *CheckResultHistoryItem) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetCheckedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return CheckResultHistoryItemValidationError{
+			return InsightValidationError{
 				field:  "CheckedAt",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -3310,19 +3194,18 @@ func (m *CheckResultHistoryItem) validate(all bool) error {
 	// no validation rules for TriggeredBy
 
 	if len(errors) > 0 {
-		return CheckResultHistoryItemMultiError(errors)
+		return InsightMultiError(errors)
 	}
 
 	return nil
 }
 
-// CheckResultHistoryItemMultiError is an error wrapping multiple validation
-// errors returned by CheckResultHistoryItem.ValidateAll() if the designated
-// constraints aren't met.
-type CheckResultHistoryItemMultiError []error
+// InsightMultiError is an error wrapping multiple validation errors returned
+// by Insight.ValidateAll() if the designated constraints aren't met.
+type InsightMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m CheckResultHistoryItemMultiError) Error() string {
+func (m InsightMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -3331,11 +3214,11 @@ func (m CheckResultHistoryItemMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m CheckResultHistoryItemMultiError) AllErrors() []error { return m }
+func (m InsightMultiError) AllErrors() []error { return m }
 
-// CheckResultHistoryItemValidationError is the validation error returned by
-// CheckResultHistoryItem.Validate if the designated constraints aren't met.
-type CheckResultHistoryItemValidationError struct {
+// InsightValidationError is the validation error returned by Insight.Validate
+// if the designated constraints aren't met.
+type InsightValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -3343,24 +3226,22 @@ type CheckResultHistoryItemValidationError struct {
 }
 
 // Field function returns field value.
-func (e CheckResultHistoryItemValidationError) Field() string { return e.field }
+func (e InsightValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e CheckResultHistoryItemValidationError) Reason() string { return e.reason }
+func (e InsightValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e CheckResultHistoryItemValidationError) Cause() error { return e.cause }
+func (e InsightValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e CheckResultHistoryItemValidationError) Key() bool { return e.key }
+func (e InsightValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e CheckResultHistoryItemValidationError) ErrorName() string {
-	return "CheckResultHistoryItemValidationError"
-}
+func (e InsightValidationError) ErrorName() string { return "InsightValidationError" }
 
 // Error satisfies the builtin error interface
-func (e CheckResultHistoryItemValidationError) Error() string {
+func (e InsightValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -3372,7 +3253,7 @@ func (e CheckResultHistoryItemValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sCheckResultHistoryItem.%s: %s%s",
+		"invalid %sInsight.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
@@ -3380,7 +3261,7 @@ func (e CheckResultHistoryItemValidationError) Error() string {
 	)
 }
 
-var _ error = CheckResultHistoryItemValidationError{}
+var _ error = InsightValidationError{}
 
 var _ interface {
 	Field() string
@@ -3388,24 +3269,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = CheckResultHistoryItemValidationError{}
+} = InsightValidationError{}
 
-// Validate checks the field values on ListCheckResultsHistoryRequest with the
-// rules defined in the proto definition for this message. If any rules are
+// Validate checks the field values on ListInsightsRequest with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ListCheckResultsHistoryRequest) Validate() error {
+func (m *ListInsightsRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ListCheckResultsHistoryRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// ListCheckResultsHistoryRequestMultiError, or nil if none found.
-func (m *ListCheckResultsHistoryRequest) ValidateAll() error {
+// ValidateAll checks the field values on ListInsightsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListInsightsRequestMultiError, or nil if none found.
+func (m *ListInsightsRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ListCheckResultsHistoryRequest) validate(all bool) error {
+func (m *ListInsightsRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -3418,7 +3299,7 @@ func (m *ListCheckResultsHistoryRequest) validate(all bool) error {
 		switch v := interface{}(m.GetFrom()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ListCheckResultsHistoryRequestValidationError{
+				errors = append(errors, ListInsightsRequestValidationError{
 					field:  "From",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -3426,7 +3307,7 @@ func (m *ListCheckResultsHistoryRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ListCheckResultsHistoryRequestValidationError{
+				errors = append(errors, ListInsightsRequestValidationError{
 					field:  "From",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -3435,7 +3316,7 @@ func (m *ListCheckResultsHistoryRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetFrom()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ListCheckResultsHistoryRequestValidationError{
+			return ListInsightsRequestValidationError{
 				field:  "From",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -3447,7 +3328,7 @@ func (m *ListCheckResultsHistoryRequest) validate(all bool) error {
 		switch v := interface{}(m.GetTo()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ListCheckResultsHistoryRequestValidationError{
+				errors = append(errors, ListInsightsRequestValidationError{
 					field:  "To",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -3455,7 +3336,7 @@ func (m *ListCheckResultsHistoryRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ListCheckResultsHistoryRequestValidationError{
+				errors = append(errors, ListInsightsRequestValidationError{
 					field:  "To",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -3464,7 +3345,7 @@ func (m *ListCheckResultsHistoryRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetTo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ListCheckResultsHistoryRequestValidationError{
+			return ListInsightsRequestValidationError{
 				field:  "To",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -3484,7 +3365,7 @@ func (m *ListCheckResultsHistoryRequest) validate(all bool) error {
 
 	if m.PageSize != nil {
 		if m.GetPageSize() < 1 {
-			err := ListCheckResultsHistoryRequestValidationError{
+			err := ListInsightsRequestValidationError{
 				field:  "PageSize",
 				reason: "value must be greater than or equal to 1",
 			}
@@ -3497,7 +3378,7 @@ func (m *ListCheckResultsHistoryRequest) validate(all bool) error {
 
 	if m.PageIndex != nil {
 		if m.GetPageIndex() < 0 {
-			err := ListCheckResultsHistoryRequestValidationError{
+			err := ListInsightsRequestValidationError{
 				field:  "PageIndex",
 				reason: "value must be greater than or equal to 0",
 			}
@@ -3525,19 +3406,19 @@ func (m *ListCheckResultsHistoryRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ListCheckResultsHistoryRequestMultiError(errors)
+		return ListInsightsRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// ListCheckResultsHistoryRequestMultiError is an error wrapping multiple
-// validation errors returned by ListCheckResultsHistoryRequest.ValidateAll()
-// if the designated constraints aren't met.
-type ListCheckResultsHistoryRequestMultiError []error
+// ListInsightsRequestMultiError is an error wrapping multiple validation
+// errors returned by ListInsightsRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ListInsightsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ListCheckResultsHistoryRequestMultiError) Error() string {
+func (m ListInsightsRequestMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -3546,12 +3427,11 @@ func (m ListCheckResultsHistoryRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ListCheckResultsHistoryRequestMultiError) AllErrors() []error { return m }
+func (m ListInsightsRequestMultiError) AllErrors() []error { return m }
 
-// ListCheckResultsHistoryRequestValidationError is the validation error
-// returned by ListCheckResultsHistoryRequest.Validate if the designated
-// constraints aren't met.
-type ListCheckResultsHistoryRequestValidationError struct {
+// ListInsightsRequestValidationError is the validation error returned by
+// ListInsightsRequest.Validate if the designated constraints aren't met.
+type ListInsightsRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -3559,24 +3439,24 @@ type ListCheckResultsHistoryRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListCheckResultsHistoryRequestValidationError) Field() string { return e.field }
+func (e ListInsightsRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListCheckResultsHistoryRequestValidationError) Reason() string { return e.reason }
+func (e ListInsightsRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListCheckResultsHistoryRequestValidationError) Cause() error { return e.cause }
+func (e ListInsightsRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListCheckResultsHistoryRequestValidationError) Key() bool { return e.key }
+func (e ListInsightsRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListCheckResultsHistoryRequestValidationError) ErrorName() string {
-	return "ListCheckResultsHistoryRequestValidationError"
+func (e ListInsightsRequestValidationError) ErrorName() string {
+	return "ListInsightsRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListCheckResultsHistoryRequestValidationError) Error() string {
+func (e ListInsightsRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -3588,7 +3468,7 @@ func (e ListCheckResultsHistoryRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListCheckResultsHistoryRequest.%s: %s%s",
+		"invalid %sListInsightsRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
@@ -3596,7 +3476,7 @@ func (e ListCheckResultsHistoryRequestValidationError) Error() string {
 	)
 }
 
-var _ error = ListCheckResultsHistoryRequestValidationError{}
+var _ error = ListInsightsRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -3604,24 +3484,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListCheckResultsHistoryRequestValidationError{}
+} = ListInsightsRequestValidationError{}
 
-// Validate checks the field values on ListCheckResultsHistoryResponse with the
-// rules defined in the proto definition for this message. If any rules are
+// Validate checks the field values on ListInsightsResponse with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *ListCheckResultsHistoryResponse) Validate() error {
+func (m *ListInsightsResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ListCheckResultsHistoryResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// ListCheckResultsHistoryResponseMultiError, or nil if none found.
-func (m *ListCheckResultsHistoryResponse) ValidateAll() error {
+// ValidateAll checks the field values on ListInsightsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListInsightsResponseMultiError, or nil if none found.
+func (m *ListInsightsResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ListCheckResultsHistoryResponse) validate(all bool) error {
+func (m *ListInsightsResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -3639,7 +3519,7 @@ func (m *ListCheckResultsHistoryResponse) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ListCheckResultsHistoryResponseValidationError{
+					errors = append(errors, ListInsightsResponseValidationError{
 						field:  fmt.Sprintf("Results[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -3647,7 +3527,7 @@ func (m *ListCheckResultsHistoryResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, ListCheckResultsHistoryResponseValidationError{
+					errors = append(errors, ListInsightsResponseValidationError{
 						field:  fmt.Sprintf("Results[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -3656,7 +3536,7 @@ func (m *ListCheckResultsHistoryResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return ListCheckResultsHistoryResponseValidationError{
+				return ListInsightsResponseValidationError{
 					field:  fmt.Sprintf("Results[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -3667,19 +3547,19 @@ func (m *ListCheckResultsHistoryResponse) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ListCheckResultsHistoryResponseMultiError(errors)
+		return ListInsightsResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// ListCheckResultsHistoryResponseMultiError is an error wrapping multiple
-// validation errors returned by ListCheckResultsHistoryResponse.ValidateAll()
-// if the designated constraints aren't met.
-type ListCheckResultsHistoryResponseMultiError []error
+// ListInsightsResponseMultiError is an error wrapping multiple validation
+// errors returned by ListInsightsResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ListInsightsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ListCheckResultsHistoryResponseMultiError) Error() string {
+func (m ListInsightsResponseMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -3688,12 +3568,11 @@ func (m ListCheckResultsHistoryResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ListCheckResultsHistoryResponseMultiError) AllErrors() []error { return m }
+func (m ListInsightsResponseMultiError) AllErrors() []error { return m }
 
-// ListCheckResultsHistoryResponseValidationError is the validation error
-// returned by ListCheckResultsHistoryResponse.Validate if the designated
-// constraints aren't met.
-type ListCheckResultsHistoryResponseValidationError struct {
+// ListInsightsResponseValidationError is the validation error returned by
+// ListInsightsResponse.Validate if the designated constraints aren't met.
+type ListInsightsResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -3701,24 +3580,24 @@ type ListCheckResultsHistoryResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListCheckResultsHistoryResponseValidationError) Field() string { return e.field }
+func (e ListInsightsResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListCheckResultsHistoryResponseValidationError) Reason() string { return e.reason }
+func (e ListInsightsResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListCheckResultsHistoryResponseValidationError) Cause() error { return e.cause }
+func (e ListInsightsResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListCheckResultsHistoryResponseValidationError) Key() bool { return e.key }
+func (e ListInsightsResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListCheckResultsHistoryResponseValidationError) ErrorName() string {
-	return "ListCheckResultsHistoryResponseValidationError"
+func (e ListInsightsResponseValidationError) ErrorName() string {
+	return "ListInsightsResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListCheckResultsHistoryResponseValidationError) Error() string {
+func (e ListInsightsResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -3730,7 +3609,7 @@ func (e ListCheckResultsHistoryResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListCheckResultsHistoryResponse.%s: %s%s",
+		"invalid %sListInsightsResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
@@ -3738,7 +3617,7 @@ func (e ListCheckResultsHistoryResponseValidationError) Error() string {
 	)
 }
 
-var _ error = ListCheckResultsHistoryResponseValidationError{}
+var _ error = ListInsightsResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -3746,25 +3625,129 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListCheckResultsHistoryResponseValidationError{}
+} = ListInsightsResponseValidationError{}
 
-// Validate checks the field values on ListCheckResultsFilterValuesRequest with
+// Validate checks the field values on ListInsightsFilterValuesRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListInsightsFilterValuesRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListInsightsFilterValuesRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ListInsightsFilterValuesRequestMultiError, or nil if none found.
+func (m *ListInsightsFilterValuesRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListInsightsFilterValuesRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ListInsightsFilterValuesRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListInsightsFilterValuesRequestMultiError is an error wrapping multiple
+// validation errors returned by ListInsightsFilterValuesRequest.ValidateAll()
+// if the designated constraints aren't met.
+type ListInsightsFilterValuesRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListInsightsFilterValuesRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListInsightsFilterValuesRequestMultiError) AllErrors() []error { return m }
+
+// ListInsightsFilterValuesRequestValidationError is the validation error
+// returned by ListInsightsFilterValuesRequest.Validate if the designated
+// constraints aren't met.
+type ListInsightsFilterValuesRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListInsightsFilterValuesRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListInsightsFilterValuesRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListInsightsFilterValuesRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListInsightsFilterValuesRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListInsightsFilterValuesRequestValidationError) ErrorName() string {
+	return "ListInsightsFilterValuesRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListInsightsFilterValuesRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListInsightsFilterValuesRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ListInsightsFilterValuesRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListInsightsFilterValuesRequestValidationError{}
+
+// Validate checks the field values on ListInsightsFilterValuesResponse with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the first error encountered is returned, or nil if there are
 // no violations.
-func (m *ListCheckResultsFilterValuesRequest) Validate() error {
+func (m *ListInsightsFilterValuesResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ListCheckResultsFilterValuesRequest
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// ListCheckResultsFilterValuesRequestMultiError, or nil if none found.
-func (m *ListCheckResultsFilterValuesRequest) ValidateAll() error {
+// ValidateAll checks the field values on ListInsightsFilterValuesResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// ListInsightsFilterValuesResponseMultiError, or nil if none found.
+func (m *ListInsightsFilterValuesResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ListCheckResultsFilterValuesRequest) validate(all bool) error {
+func (m *ListInsightsFilterValuesResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -3772,20 +3755,20 @@ func (m *ListCheckResultsFilterValuesRequest) validate(all bool) error {
 	var errors []error
 
 	if len(errors) > 0 {
-		return ListCheckResultsFilterValuesRequestMultiError(errors)
+		return ListInsightsFilterValuesResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// ListCheckResultsFilterValuesRequestMultiError is an error wrapping multiple
+// ListInsightsFilterValuesResponseMultiError is an error wrapping multiple
 // validation errors returned by
-// ListCheckResultsFilterValuesRequest.ValidateAll() if the designated
+// ListInsightsFilterValuesResponse.ValidateAll() if the designated
 // constraints aren't met.
-type ListCheckResultsFilterValuesRequestMultiError []error
+type ListInsightsFilterValuesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ListCheckResultsFilterValuesRequestMultiError) Error() string {
+func (m ListInsightsFilterValuesResponseMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -3794,12 +3777,12 @@ func (m ListCheckResultsFilterValuesRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ListCheckResultsFilterValuesRequestMultiError) AllErrors() []error { return m }
+func (m ListInsightsFilterValuesResponseMultiError) AllErrors() []error { return m }
 
-// ListCheckResultsFilterValuesRequestValidationError is the validation error
-// returned by ListCheckResultsFilterValuesRequest.Validate if the designated
+// ListInsightsFilterValuesResponseValidationError is the validation error
+// returned by ListInsightsFilterValuesResponse.Validate if the designated
 // constraints aren't met.
-type ListCheckResultsFilterValuesRequestValidationError struct {
+type ListInsightsFilterValuesResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -3807,24 +3790,24 @@ type ListCheckResultsFilterValuesRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListCheckResultsFilterValuesRequestValidationError) Field() string { return e.field }
+func (e ListInsightsFilterValuesResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListCheckResultsFilterValuesRequestValidationError) Reason() string { return e.reason }
+func (e ListInsightsFilterValuesResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListCheckResultsFilterValuesRequestValidationError) Cause() error { return e.cause }
+func (e ListInsightsFilterValuesResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListCheckResultsFilterValuesRequestValidationError) Key() bool { return e.key }
+func (e ListInsightsFilterValuesResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListCheckResultsFilterValuesRequestValidationError) ErrorName() string {
-	return "ListCheckResultsFilterValuesRequestValidationError"
+func (e ListInsightsFilterValuesResponseValidationError) ErrorName() string {
+	return "ListInsightsFilterValuesResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListCheckResultsFilterValuesRequestValidationError) Error() string {
+func (e ListInsightsFilterValuesResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -3836,7 +3819,7 @@ func (e ListCheckResultsFilterValuesRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListCheckResultsFilterValuesRequest.%s: %s%s",
+		"invalid %sListInsightsFilterValuesResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
@@ -3844,7 +3827,7 @@ func (e ListCheckResultsFilterValuesRequestValidationError) Error() string {
 	)
 }
 
-var _ error = ListCheckResultsFilterValuesRequestValidationError{}
+var _ error = ListInsightsFilterValuesResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -3852,130 +3835,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListCheckResultsFilterValuesRequestValidationError{}
+} = ListInsightsFilterValuesResponseValidationError{}
 
-// Validate checks the field values on ListCheckResultsFilterValuesResponse
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the first error encountered is returned, or nil if
-// there are no violations.
-func (m *ListCheckResultsFilterValuesResponse) Validate() error {
+// Validate checks the field values on InsightsFilters with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *InsightsFilters) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ListCheckResultsFilterValuesResponse
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// ListCheckResultsFilterValuesResponseMultiError, or nil if none found.
-func (m *ListCheckResultsFilterValuesResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *ListCheckResultsFilterValuesResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if len(errors) > 0 {
-		return ListCheckResultsFilterValuesResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// ListCheckResultsFilterValuesResponseMultiError is an error wrapping multiple
-// validation errors returned by
-// ListCheckResultsFilterValuesResponse.ValidateAll() if the designated
-// constraints aren't met.
-type ListCheckResultsFilterValuesResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m ListCheckResultsFilterValuesResponseMultiError) Error() string {
-	msgs := make([]string, 0, len(m))
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m ListCheckResultsFilterValuesResponseMultiError) AllErrors() []error { return m }
-
-// ListCheckResultsFilterValuesResponseValidationError is the validation error
-// returned by ListCheckResultsFilterValuesResponse.Validate if the designated
-// constraints aren't met.
-type ListCheckResultsFilterValuesResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ListCheckResultsFilterValuesResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ListCheckResultsFilterValuesResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ListCheckResultsFilterValuesResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ListCheckResultsFilterValuesResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ListCheckResultsFilterValuesResponseValidationError) ErrorName() string {
-	return "ListCheckResultsFilterValuesResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e ListCheckResultsFilterValuesResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sListCheckResultsFilterValuesResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause,
-	)
-}
-
-var _ error = ListCheckResultsFilterValuesResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ListCheckResultsFilterValuesResponseValidationError{}
-
-// Validate checks the field values on CheckResultsFilters with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *CheckResultsFilters) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on CheckResultsFilters with the rules
+// ValidateAll checks the field values on InsightsFilters with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// CheckResultsFiltersMultiError, or nil if none found.
-func (m *CheckResultsFilters) ValidateAll() error {
+// InsightsFiltersMultiError, or nil if none found.
+func (m *InsightsFilters) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *CheckResultsFilters) validate(all bool) error {
+func (m *InsightsFilters) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -4003,19 +3880,19 @@ func (m *CheckResultsFilters) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return CheckResultsFiltersMultiError(errors)
+		return InsightsFiltersMultiError(errors)
 	}
 
 	return nil
 }
 
-// CheckResultsFiltersMultiError is an error wrapping multiple validation
-// errors returned by CheckResultsFilters.ValidateAll() if the designated
-// constraints aren't met.
-type CheckResultsFiltersMultiError []error
+// InsightsFiltersMultiError is an error wrapping multiple validation errors
+// returned by InsightsFilters.ValidateAll() if the designated constraints
+// aren't met.
+type InsightsFiltersMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m CheckResultsFiltersMultiError) Error() string {
+func (m InsightsFiltersMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -4024,11 +3901,11 @@ func (m CheckResultsFiltersMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m CheckResultsFiltersMultiError) AllErrors() []error { return m }
+func (m InsightsFiltersMultiError) AllErrors() []error { return m }
 
-// CheckResultsFiltersValidationError is the validation error returned by
-// CheckResultsFilters.Validate if the designated constraints aren't met.
-type CheckResultsFiltersValidationError struct {
+// InsightsFiltersValidationError is the validation error returned by
+// InsightsFilters.Validate if the designated constraints aren't met.
+type InsightsFiltersValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -4036,24 +3913,22 @@ type CheckResultsFiltersValidationError struct {
 }
 
 // Field function returns field value.
-func (e CheckResultsFiltersValidationError) Field() string { return e.field }
+func (e InsightsFiltersValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e CheckResultsFiltersValidationError) Reason() string { return e.reason }
+func (e InsightsFiltersValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e CheckResultsFiltersValidationError) Cause() error { return e.cause }
+func (e InsightsFiltersValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e CheckResultsFiltersValidationError) Key() bool { return e.key }
+func (e InsightsFiltersValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e CheckResultsFiltersValidationError) ErrorName() string {
-	return "CheckResultsFiltersValidationError"
-}
+func (e InsightsFiltersValidationError) ErrorName() string { return "InsightsFiltersValidationError" }
 
 // Error satisfies the builtin error interface
-func (e CheckResultsFiltersValidationError) Error() string {
+func (e InsightsFiltersValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -4065,7 +3940,7 @@ func (e CheckResultsFiltersValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sCheckResultsFilters.%s: %s%s",
+		"invalid %sInsightsFilters.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
@@ -4073,7 +3948,7 @@ func (e CheckResultsFiltersValidationError) Error() string {
 	)
 }
 
-var _ error = CheckResultsFiltersValidationError{}
+var _ error = InsightsFiltersValidationError{}
 
 var _ interface {
 	Field() string
@@ -4081,24 +3956,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = CheckResultsFiltersValidationError{}
+} = InsightsFiltersValidationError{}
 
-// Validate checks the field values on MarkCheckResultsReadRequest with the
-// rules defined in the proto definition for this message. If any rules are
+// Validate checks the field values on MarkInsightsReadRequest with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *MarkCheckResultsReadRequest) Validate() error {
+func (m *MarkInsightsReadRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on MarkCheckResultsReadRequest with the
+// ValidateAll checks the field values on MarkInsightsReadRequest with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// MarkCheckResultsReadRequestMultiError, or nil if none found.
-func (m *MarkCheckResultsReadRequest) ValidateAll() error {
+// MarkInsightsReadRequestMultiError, or nil if none found.
+func (m *MarkInsightsReadRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *MarkCheckResultsReadRequest) validate(all bool) error {
+func (m *MarkInsightsReadRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -4111,7 +3986,7 @@ func (m *MarkCheckResultsReadRequest) validate(all bool) error {
 		switch v := interface{}(m.GetFilters()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, MarkCheckResultsReadRequestValidationError{
+				errors = append(errors, MarkInsightsReadRequestValidationError{
 					field:  "Filters",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4119,7 +3994,7 @@ func (m *MarkCheckResultsReadRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, MarkCheckResultsReadRequestValidationError{
+				errors = append(errors, MarkInsightsReadRequestValidationError{
 					field:  "Filters",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4128,7 +4003,7 @@ func (m *MarkCheckResultsReadRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetFilters()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return MarkCheckResultsReadRequestValidationError{
+			return MarkInsightsReadRequestValidationError{
 				field:  "Filters",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -4137,19 +4012,19 @@ func (m *MarkCheckResultsReadRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return MarkCheckResultsReadRequestMultiError(errors)
+		return MarkInsightsReadRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// MarkCheckResultsReadRequestMultiError is an error wrapping multiple
-// validation errors returned by MarkCheckResultsReadRequest.ValidateAll() if
-// the designated constraints aren't met.
-type MarkCheckResultsReadRequestMultiError []error
+// MarkInsightsReadRequestMultiError is an error wrapping multiple validation
+// errors returned by MarkInsightsReadRequest.ValidateAll() if the designated
+// constraints aren't met.
+type MarkInsightsReadRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m MarkCheckResultsReadRequestMultiError) Error() string {
+func (m MarkInsightsReadRequestMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -4158,12 +4033,11 @@ func (m MarkCheckResultsReadRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m MarkCheckResultsReadRequestMultiError) AllErrors() []error { return m }
+func (m MarkInsightsReadRequestMultiError) AllErrors() []error { return m }
 
-// MarkCheckResultsReadRequestValidationError is the validation error returned
-// by MarkCheckResultsReadRequest.Validate if the designated constraints
-// aren't met.
-type MarkCheckResultsReadRequestValidationError struct {
+// MarkInsightsReadRequestValidationError is the validation error returned by
+// MarkInsightsReadRequest.Validate if the designated constraints aren't met.
+type MarkInsightsReadRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -4171,24 +4045,24 @@ type MarkCheckResultsReadRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e MarkCheckResultsReadRequestValidationError) Field() string { return e.field }
+func (e MarkInsightsReadRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e MarkCheckResultsReadRequestValidationError) Reason() string { return e.reason }
+func (e MarkInsightsReadRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e MarkCheckResultsReadRequestValidationError) Cause() error { return e.cause }
+func (e MarkInsightsReadRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e MarkCheckResultsReadRequestValidationError) Key() bool { return e.key }
+func (e MarkInsightsReadRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e MarkCheckResultsReadRequestValidationError) ErrorName() string {
-	return "MarkCheckResultsReadRequestValidationError"
+func (e MarkInsightsReadRequestValidationError) ErrorName() string {
+	return "MarkInsightsReadRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e MarkCheckResultsReadRequestValidationError) Error() string {
+func (e MarkInsightsReadRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -4200,7 +4074,7 @@ func (e MarkCheckResultsReadRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sMarkCheckResultsReadRequest.%s: %s%s",
+		"invalid %sMarkInsightsReadRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
@@ -4208,7 +4082,7 @@ func (e MarkCheckResultsReadRequestValidationError) Error() string {
 	)
 }
 
-var _ error = MarkCheckResultsReadRequestValidationError{}
+var _ error = MarkInsightsReadRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -4216,24 +4090,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = MarkCheckResultsReadRequestValidationError{}
+} = MarkInsightsReadRequestValidationError{}
 
-// Validate checks the field values on MarkCheckResultsReadResponse with the
-// rules defined in the proto definition for this message. If any rules are
+// Validate checks the field values on MarkInsightsReadResponse with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *MarkCheckResultsReadResponse) Validate() error {
+func (m *MarkInsightsReadResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on MarkCheckResultsReadResponse with the
+// ValidateAll checks the field values on MarkInsightsReadResponse with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// MarkCheckResultsReadResponseMultiError, or nil if none found.
-func (m *MarkCheckResultsReadResponse) ValidateAll() error {
+// MarkInsightsReadResponseMultiError, or nil if none found.
+func (m *MarkInsightsReadResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *MarkCheckResultsReadResponse) validate(all bool) error {
+func (m *MarkInsightsReadResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -4241,19 +4115,19 @@ func (m *MarkCheckResultsReadResponse) validate(all bool) error {
 	var errors []error
 
 	if len(errors) > 0 {
-		return MarkCheckResultsReadResponseMultiError(errors)
+		return MarkInsightsReadResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// MarkCheckResultsReadResponseMultiError is an error wrapping multiple
-// validation errors returned by MarkCheckResultsReadResponse.ValidateAll() if
-// the designated constraints aren't met.
-type MarkCheckResultsReadResponseMultiError []error
+// MarkInsightsReadResponseMultiError is an error wrapping multiple validation
+// errors returned by MarkInsightsReadResponse.ValidateAll() if the designated
+// constraints aren't met.
+type MarkInsightsReadResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m MarkCheckResultsReadResponseMultiError) Error() string {
+func (m MarkInsightsReadResponseMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -4262,12 +4136,11 @@ func (m MarkCheckResultsReadResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m MarkCheckResultsReadResponseMultiError) AllErrors() []error { return m }
+func (m MarkInsightsReadResponseMultiError) AllErrors() []error { return m }
 
-// MarkCheckResultsReadResponseValidationError is the validation error returned
-// by MarkCheckResultsReadResponse.Validate if the designated constraints
-// aren't met.
-type MarkCheckResultsReadResponseValidationError struct {
+// MarkInsightsReadResponseValidationError is the validation error returned by
+// MarkInsightsReadResponse.Validate if the designated constraints aren't met.
+type MarkInsightsReadResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -4275,24 +4148,24 @@ type MarkCheckResultsReadResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e MarkCheckResultsReadResponseValidationError) Field() string { return e.field }
+func (e MarkInsightsReadResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e MarkCheckResultsReadResponseValidationError) Reason() string { return e.reason }
+func (e MarkInsightsReadResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e MarkCheckResultsReadResponseValidationError) Cause() error { return e.cause }
+func (e MarkInsightsReadResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e MarkCheckResultsReadResponseValidationError) Key() bool { return e.key }
+func (e MarkInsightsReadResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e MarkCheckResultsReadResponseValidationError) ErrorName() string {
-	return "MarkCheckResultsReadResponseValidationError"
+func (e MarkInsightsReadResponseValidationError) ErrorName() string {
+	return "MarkInsightsReadResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e MarkCheckResultsReadResponseValidationError) Error() string {
+func (e MarkInsightsReadResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -4304,7 +4177,7 @@ func (e MarkCheckResultsReadResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sMarkCheckResultsReadResponse.%s: %s%s",
+		"invalid %sMarkInsightsReadResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
@@ -4312,7 +4185,7 @@ func (e MarkCheckResultsReadResponseValidationError) Error() string {
 	)
 }
 
-var _ error = MarkCheckResultsReadResponseValidationError{}
+var _ error = MarkInsightsReadResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -4320,4 +4193,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = MarkCheckResultsReadResponseValidationError{}
+} = MarkInsightsReadResponseValidationError{}

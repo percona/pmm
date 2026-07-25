@@ -55,7 +55,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 			Labels:      map[string]string{"k": "v"},
 		}
 
-		rec := newCheckResultRecord(c, target, models.CheckResultFailed, result, checkedAt, ri)
+		rec := newInsightRecord(c, target, models.CheckResultFailed, result, checkedAt, ri)
 
 		assert.Equal(t, "chk", rec.CheckName)
 		assert.Equal(t, "Performance", rec.Category)
@@ -87,7 +87,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 	t.Run("ok outcome falls back to check summary and info severity", func(t *testing.T) {
 		t.Parallel()
 
-		rec := newCheckResultRecord(c, target, models.CheckResultOK, check.Result{}, checkedAt, ri)
+		rec := newInsightRecord(c, target, models.CheckResultOK, check.Result{}, checkedAt, ri)
 
 		assert.Equal(t, models.CheckResultOK, rec.Status)
 		assert.Equal(t, "Check title", rec.Summary)
@@ -104,7 +104,7 @@ func TestNewCheckResultRecord(t *testing.T) {
 
 		result := check.Result{Description: "execution failed"}
 
-		rec := newCheckResultRecord(c, target, models.CheckResultError, result, checkedAt, ri)
+		rec := newInsightRecord(c, target, models.CheckResultError, result, checkedAt, ri)
 
 		assert.Equal(t, models.CheckResultError, rec.Status)
 		assert.Equal(t, "Check title", rec.Summary)

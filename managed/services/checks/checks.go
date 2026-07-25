@@ -245,15 +245,15 @@ func (s *Service) runChecksLoop(ctx context.Context) {
 	}
 }
 
-// GetCheckResultsHistory returns Advisor check results history matching the filters,
+// GetInsights returns Advisor insights matching the filters,
 // together with the total number of matching rows (ignoring pagination).
-func (s *Service) GetCheckResultsHistory(ctx context.Context, filters models.CheckResultFilters, pageIndex, pageSize int) ([]*models.CheckResult, int, error) {
-	results, err := models.FindCheckResults(ctx, s.db.Querier, filters, pageIndex, pageSize)
+func (s *Service) GetInsights(ctx context.Context, filters models.InsightFilters, pageIndex, pageSize int) ([]*models.Insight, int, error) {
+	results, err := models.FindInsights(ctx, s.db.Querier, filters, pageIndex, pageSize)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	total, err := models.CountCheckResults(ctx, s.db.Querier, filters)
+	total, err := models.CountInsights(ctx, s.db.Querier, filters)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -261,20 +261,20 @@ func (s *Service) GetCheckResultsHistory(ctx context.Context, filters models.Che
 	return results, total, nil
 }
 
-// GetCheckResultsFilterValues returns the distinct service and node names present in the
-// Advisor check results history.
-func (s *Service) GetCheckResultsFilterValues(ctx context.Context) ([]string, []string, error) {
-	return models.FindCheckResultFilterValues(ctx, s.db.Querier)
+// GetInsightsFilterValues returns the distinct service and node names present in the
+// Advisor insights.
+func (s *Service) GetInsightsFilterValues(ctx context.Context) ([]string, []string, error) {
+	return models.FindInsightFilterValues(ctx, s.db.Querier)
 }
 
-// MarkCheckResultsRead sets the read state on the check results history with the given IDs.
-func (s *Service) MarkCheckResultsRead(ctx context.Context, ids []string, isRead bool) error {
-	return models.MarkCheckResultsRead(ctx, s.db.Querier, ids, isRead)
+// MarkInsightsRead sets the read state on the insights with the given IDs.
+func (s *Service) MarkInsightsRead(ctx context.Context, ids []string, isRead bool) error {
+	return models.MarkInsightsRead(ctx, s.db.Querier, ids, isRead)
 }
 
-// MarkCheckResultsReadByFilters sets the read state on all check results history records matching the filters.
-func (s *Service) MarkCheckResultsReadByFilters(ctx context.Context, filters models.CheckResultFilters, isRead bool) error {
-	return models.MarkCheckResultsReadByFilters(ctx, s.db.Querier, filters, isRead)
+// MarkInsightsReadByFilters sets the read state on all insights matching the filters.
+func (s *Service) MarkInsightsReadByFilters(ctx context.Context, filters models.InsightFilters, isRead bool) error {
+	return models.MarkInsightsReadByFilters(ctx, s.db.Querier, filters, isRead)
 }
 
 // runChecksGroup downloads and executes Advisors checks that should run in the interval specified by intervalGroup.
@@ -1009,7 +1009,7 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 
 func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType models.ServiceType, checks map[string]check.Check, disabledTargets map[string]map[string]struct{}, ri runInfo) []services.CheckResult { //nolint:lll
 	var res []services.CheckResult
-	var history []*models.CheckResult
+	var history []*models.Insight
 
 	for _, c := range checks {
 		s.l.Infof("Executing check: %s with interval: %s", c.Name, c.Interval)
@@ -1033,7 +1033,7 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 			if err != nil {
 				s.l.Warnf("Failed to execute check %s of family %s on target %s: %+v", c.Name, c.Family, target.AgentID, err)
 				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Subcategory, c.Name, "error").Inc()
-				history = append(history, newCheckResultRecord(c, target, models.CheckResultError, check.Result{Description: err.Error()}, checkedAt, ri))
+				history = append(history, newInsightRecord(c, target, models.CheckResultError, check.Result{Description: err.Error()}, checkedAt, ri))
 				continue
 			}
 
@@ -1042,34 +1042,34 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Subcategory, c.Name, "ok").Inc()
 
 			if len(results) == 0 {
-				history = append(history, newCheckResultRecord(c, target, models.CheckResultOK, check.Result{}, checkedAt, ri))
+				history = append(history, newInsightRecord(c, target, models.CheckResultOK, check.Result{}, checkedAt, ri))
 				continue
 			}
 
 			for _, finding := range results {
-				history = append(history, newCheckResultRecord(c, target, models.CheckResultFailed, finding.Result, checkedAt, ri))
+				history = append(history, newInsightRecord(c, target, models.CheckResultFailed, finding.Result, checkedAt, ri))
 			}
 		}
 	}
 
-	err := s.saveCheckResultsHistory(ctx, history)
+	err := s.saveInsights(ctx, history)
 	if err != nil {
-		s.l.Warnf("Failed to save Advisor check results history: %+v", err)
+		s.l.Warnf("Failed to save Advisor insights: %+v", err)
 	}
 
 	return res
 }
 
-// newCheckResultRecord builds a history record for a single executed (check, target) outcome.
-func newCheckResultRecord(
+// newInsightRecord builds a history record for a single executed (check, target) outcome.
+func newInsightRecord(
 	c check.Check,
 	target services.Target,
 	status models.CheckResultStatus,
 	result check.Result,
 	checkedAt time.Time,
 	ri runInfo,
-) *models.CheckResult {
-	r := &models.CheckResult{
+) *models.Insight {
+	r := &models.Insight{
 		CheckName:      c.Name,
 		Category:       c.Category,
 		Subcategory:    c.Subcategory,
@@ -1112,15 +1112,15 @@ func newCheckResultRecord(
 	return r
 }
 
-// saveCheckResultsHistory persists Advisor check results history in a single transaction.
-func (s *Service) saveCheckResultsHistory(ctx context.Context, history []*models.CheckResult) error {
+// saveInsights persists Advisor insights in a single transaction.
+func (s *Service) saveInsights(ctx context.Context, history []*models.Insight) error {
 	if len(history) == 0 {
 		return nil
 	}
 
 	return s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		for _, r := range history {
-			err := models.CreateCheckResult(ctx, tx.Querier, r)
+			err := models.CreateInsight(ctx, tx.Querier, r)
 			if err != nil {
 				return err
 			}

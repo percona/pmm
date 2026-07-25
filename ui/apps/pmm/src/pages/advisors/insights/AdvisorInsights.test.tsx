@@ -21,7 +21,7 @@ import {
   AdvisorCheckTriggeredBy,
   AdvisorFamily,
   AdvisorInterval,
-  CheckResultHistoryItem,
+  Insight,
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { format } from 'date-fns';
@@ -60,7 +60,7 @@ const TEST_ADVISORS: Advisor[] = [
   },
 ];
 
-const TEST_ITEM: CheckResultHistoryItem = {
+const TEST_ITEM: Insight = {
   id: 'result-1',
   checkName: 'mysql_version_check',
   subcategory: 'Version',
@@ -87,7 +87,7 @@ const TEST_ITEM: CheckResultHistoryItem = {
   replicationSet: 'rs1',
 };
 
-const TEST_ITEM_UNREAD: CheckResultHistoryItem = {
+const TEST_ITEM_UNREAD: Insight = {
   ...TEST_ITEM,
   id: 'result-2',
   checkName: 'postgresql_super_role',
@@ -124,15 +124,15 @@ describe('AdvisorInsights', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(advisorsApi.listAdvisors).mockResolvedValue(TEST_ADVISORS);
-    vi.mocked(advisorsApi.listCheckResultsHistory).mockResolvedValue({
+    vi.mocked(advisorsApi.listInsights).mockResolvedValue({
       totalItems: 250,
       totalPages: 3,
       results: [TEST_ITEM, TEST_ITEM_UNREAD],
     });
-    vi.mocked(advisorsApi.markCheckResultsRead).mockResolvedValue();
+    vi.mocked(advisorsApi.markInsightsRead).mockResolvedValue();
     vi.mocked(advisorsApi.startAdvisorChecks).mockResolvedValue('batch-123');
     vi.mocked(advisorsApi.changeAdvisorChecks).mockResolvedValue();
-    vi.mocked(advisorsApi.listCheckResultsFilterValues).mockResolvedValue({
+    vi.mocked(advisorsApi.listInsightsFilterValues).mockResolvedValue({
       serviceNames: ['mysql-prod', 'postgresql-prod'],
       nodeNames: ['node-1', 'node-2'],
     });
@@ -170,7 +170,7 @@ describe('AdvisorInsights', () => {
 
     await waitForRows();
 
-    expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+    expect(advisorsApi.listInsights).toHaveBeenCalledWith(
       expect.objectContaining({ pageIndex: 0, pageSize: 100 })
     );
   });
@@ -180,7 +180,7 @@ describe('AdvisorInsights', () => {
 
     await waitForRows();
 
-    expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+    expect(advisorsApi.listInsights).toHaveBeenCalledWith(
       expect.objectContaining({ batchId: 'batch-42' })
     );
   });
@@ -192,7 +192,7 @@ describe('AdvisorInsights', () => {
 
     await waitForRows();
 
-    expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+    expect(advisorsApi.listInsights).toHaveBeenCalledWith(
       expect.objectContaining({
         category: 'version_configuration',
         serviceName: 'mysql-prod',
@@ -210,7 +210,7 @@ describe('AdvisorInsights', () => {
     fireEvent.click(screen.getByRole('button', { name: /go to next page/i }));
 
     await waitFor(() =>
-      expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+      expect(advisorsApi.listInsights).toHaveBeenCalledWith(
         expect.objectContaining({ pageIndex: 1 })
       )
     );
@@ -224,7 +224,7 @@ describe('AdvisorInsights', () => {
     fireEvent.click(screen.getByRole('button', { name: /go to next page/i }));
 
     await waitFor(() =>
-      expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+      expect(advisorsApi.listInsights).toHaveBeenCalledWith(
         expect.objectContaining({ pageIndex: 1 })
       )
     );
@@ -232,7 +232,7 @@ describe('AdvisorInsights', () => {
     await selectFilterOption('serviceName-filter', 'mysql-prod');
 
     await waitFor(() =>
-      expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+      expect(advisorsApi.listInsights).toHaveBeenCalledWith(
         expect.objectContaining({ serviceName: 'mysql-prod', pageIndex: 0 })
       )
     );
@@ -246,7 +246,7 @@ describe('AdvisorInsights', () => {
     await selectFilterOption('nodeName-filter', 'node-2');
 
     await waitFor(() =>
-      expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+      expect(advisorsApi.listInsights).toHaveBeenCalledWith(
         expect.objectContaining({ nodeName: 'node-2', pageIndex: 0 })
       )
     );
@@ -262,7 +262,7 @@ describe('AdvisorInsights', () => {
     await selectFilterOption('serviceName-filter', 'mysql-prod');
 
     await waitFor(() =>
-      expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+      expect(advisorsApi.listInsights).toHaveBeenCalledWith(
         expect.objectContaining({ serviceName: 'mysql-prod' })
       )
     );
@@ -270,7 +270,7 @@ describe('AdvisorInsights', () => {
     fireEvent.click(screen.getByTestId('clear-filters'));
 
     await waitFor(() =>
-      expect(advisorsApi.listCheckResultsHistory).toHaveBeenLastCalledWith(
+      expect(advisorsApi.listInsights).toHaveBeenLastCalledWith(
         expect.objectContaining({ serviceName: undefined, pageIndex: 0 })
       )
     );
@@ -282,24 +282,22 @@ describe('AdvisorInsights', () => {
 
     await waitForRows();
 
-    const historyCalls = vi.mocked(advisorsApi.listCheckResultsHistory).mock
-      .calls.length;
+    const historyCalls = vi.mocked(advisorsApi.listInsights).mock.calls.length;
     const advisorsCalls = vi.mocked(advisorsApi.listAdvisors).mock.calls.length;
-    const filterValuesCalls = vi.mocked(
-      advisorsApi.listCheckResultsFilterValues
-    ).mock.calls.length;
+    const filterValuesCalls = vi.mocked(advisorsApi.listInsightsFilterValues)
+      .mock.calls.length;
 
     fireEvent.click(screen.getByTestId('refresh-insights'));
 
     await waitFor(() => {
-      expect(
-        vi.mocked(advisorsApi.listCheckResultsHistory).mock.calls.length
-      ).toBe(historyCalls + 1);
+      expect(vi.mocked(advisorsApi.listInsights).mock.calls.length).toBe(
+        historyCalls + 1
+      );
       expect(vi.mocked(advisorsApi.listAdvisors).mock.calls.length).toBe(
         advisorsCalls + 1
       );
       expect(
-        vi.mocked(advisorsApi.listCheckResultsFilterValues).mock.calls.length
+        vi.mocked(advisorsApi.listInsightsFilterValues).mock.calls.length
       ).toBe(filterValuesCalls + 1);
     });
   });
@@ -343,7 +341,7 @@ describe('AdvisorInsights', () => {
     fireEvent.click(await screen.findByTestId('action-toggle-read'));
 
     await waitFor(() =>
-      expect(advisorsApi.markCheckResultsRead).toHaveBeenCalledWith(
+      expect(advisorsApi.markInsightsRead).toHaveBeenCalledWith(
         { ids: ['result-2'], isRead: true },
         expect.anything()
       )
@@ -362,7 +360,7 @@ describe('AdvisorInsights', () => {
     fireEvent.click(await screen.findByTestId('action-toggle-read'));
 
     await waitFor(() =>
-      expect(advisorsApi.markCheckResultsRead).toHaveBeenCalledWith(
+      expect(advisorsApi.markInsightsRead).toHaveBeenCalledWith(
         { ids: ['result-1'], isRead: false },
         expect.anything()
       )
@@ -377,7 +375,7 @@ describe('AdvisorInsights', () => {
     fireEvent.click(screen.getByTestId('insight-result-2-read-state'));
 
     await waitFor(() =>
-      expect(advisorsApi.markCheckResultsRead).toHaveBeenCalledWith(
+      expect(advisorsApi.markInsightsRead).toHaveBeenCalledWith(
         { ids: ['result-2'], isRead: true },
         expect.anything()
       )
@@ -403,7 +401,7 @@ describe('AdvisorInsights', () => {
     fireEvent.click(button);
 
     await waitFor(() =>
-      expect(advisorsApi.markCheckResultsRead).toHaveBeenCalledWith(
+      expect(advisorsApi.markInsightsRead).toHaveBeenCalledWith(
         {
           filters: {
             serviceName: 'mysql-prod',
@@ -628,7 +626,7 @@ describe('AdvisorInsights', () => {
     fireEvent.click(await screen.findByTestId('action-filter-by-batch-id'));
 
     await waitFor(() =>
-      expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+      expect(advisorsApi.listInsights).toHaveBeenCalledWith(
         expect.objectContaining({ batchId: 'batch-1', pageIndex: 0 })
       )
     );
@@ -643,7 +641,7 @@ describe('AdvisorInsights', () => {
     fireEvent.click(screen.getByTestId('clear-filters'));
 
     await waitFor(() =>
-      expect(advisorsApi.listCheckResultsHistory).toHaveBeenLastCalledWith(
+      expect(advisorsApi.listInsights).toHaveBeenLastCalledWith(
         expect.objectContaining({ batchId: undefined })
       )
     );
@@ -663,7 +661,7 @@ describe('AdvisorInsights', () => {
     fireEvent.keyDown(input, { key: 'Enter' });
 
     await waitFor(() =>
-      expect(advisorsApi.listCheckResultsHistory).toHaveBeenCalledWith(
+      expect(advisorsApi.listInsights).toHaveBeenCalledWith(
         expect.objectContaining({ batchId: 'batch-77', pageIndex: 0 })
       )
     );
@@ -693,7 +691,7 @@ describe('AdvisorInsights', () => {
     fireEvent.click(screen.getByTestId('view-run-results'));
 
     await waitFor(() =>
-      expect(advisorsApi.listCheckResultsHistory).toHaveBeenLastCalledWith(
+      expect(advisorsApi.listInsights).toHaveBeenLastCalledWith(
         expect.objectContaining({ batchId: 'batch-123' })
       )
     );

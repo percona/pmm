@@ -195,20 +195,20 @@ func TestGetAdvisorCheckScript(t *testing.T) {
 	})
 }
 
-func TestListCheckResultsFilterValues(t *testing.T) {
+func TestListInsightsFilterValues(t *testing.T) {
 	t.Parallel()
 
 	t.Run("internal error", func(t *testing.T) {
 		t.Parallel()
 
 		var checksService mockChecksService
-		checksService.On("GetCheckResultsFilterValues", mock.Anything).
+		checksService.On("GetInsightsFilterValues", mock.Anything).
 			Return(nil, nil, errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListCheckResultsFilterValues(t.Context(), &advisorsv1.ListCheckResultsFilterValuesRequest{})
-		require.EqualError(t, err, "failed to get check results filter values: random error")
+		resp, err := s.ListInsightsFilterValues(t.Context(), &advisorsv1.ListInsightsFilterValuesRequest{})
+		require.EqualError(t, err, "failed to get insights filter values: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -216,34 +216,34 @@ func TestListCheckResultsFilterValues(t *testing.T) {
 		t.Parallel()
 
 		var checksService mockChecksService
-		checksService.On("GetCheckResultsFilterValues", mock.Anything).
+		checksService.On("GetInsightsFilterValues", mock.Anything).
 			Return([]string{"mysql-1", "pg-1"}, []string{"node-a"}, nil)
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListCheckResultsFilterValues(t.Context(), &advisorsv1.ListCheckResultsFilterValuesRequest{})
+		resp, err := s.ListInsightsFilterValues(t.Context(), &advisorsv1.ListInsightsFilterValuesRequest{})
 		require.NoError(t, err)
-		assert.Equal(t, &advisorsv1.ListCheckResultsFilterValuesResponse{
+		assert.Equal(t, &advisorsv1.ListInsightsFilterValuesResponse{
 			ServiceNames: []string{"mysql-1", "pg-1"},
 			NodeNames:    []string{"node-a"},
 		}, resp)
 	})
 }
 
-func TestListCheckResultsHistory(t *testing.T) {
+func TestListInsights(t *testing.T) {
 	t.Parallel()
 
 	t.Run("internal error", func(t *testing.T) {
 		t.Parallel()
 
 		var checksService mockChecksService
-		checksService.On("GetCheckResultsHistory", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		checksService.On("GetInsights", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 			Return(nil, 0, errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListCheckResultsHistory(t.Context(), &advisorsv1.ListCheckResultsHistoryRequest{})
-		require.EqualError(t, err, "failed to get check results history: random error")
+		resp, err := s.ListInsights(t.Context(), &advisorsv1.ListInsightsRequest{})
+		require.EqualError(t, err, "failed to get insights: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -251,7 +251,7 @@ func TestListCheckResultsHistory(t *testing.T) {
 		t.Parallel()
 
 		checkedAt := time.Date(2026, time.June, 27, 10, 0, 0, 0, time.UTC)
-		record := &models.CheckResult{
+		record := &models.Insight{
 			ID:          "id1",
 			CheckName:   "test_check",
 			Subcategory: "test_advisor",
@@ -272,20 +272,20 @@ func TestListCheckResultsHistory(t *testing.T) {
 		require.NoError(t, record.SetLabels(map[string]string{"label_key": "label_value"}))
 
 		var checksService mockChecksService
-		checksService.On("GetCheckResultsHistory", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-			Return([]*models.CheckResult{record}, 3, nil)
+		checksService.On("GetInsights", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return([]*models.Insight{record}, 3, nil)
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListCheckResultsHistory(t.Context(), &advisorsv1.ListCheckResultsHistoryRequest{
+		resp, err := s.ListInsights(t.Context(), &advisorsv1.ListInsightsRequest{
 			ServiceId: "test_svc",
 			PageSize:  new(int32(2)),
 			PageIndex: new(int32(0)),
 		})
 		require.NoError(t, err)
 
-		expected := &advisorsv1.ListCheckResultsHistoryResponse{
-			Results: []*advisorsv1.CheckResultHistoryItem{
+		expected := &advisorsv1.ListInsightsResponse{
+			Results: []*advisorsv1.Insight{
 				{
 					Id:          "id1",
 					CheckName:   "test_check",
@@ -313,23 +313,23 @@ func TestListCheckResultsHistory(t *testing.T) {
 	})
 }
 
-func TestMarkCheckResultsRead(t *testing.T) {
+func TestMarkInsightsRead(t *testing.T) {
 	t.Parallel()
 
 	t.Run("internal error", func(t *testing.T) {
 		t.Parallel()
 
 		var checksService mockChecksService
-		checksService.On("MarkCheckResultsRead", mock.Anything, mock.Anything, mock.Anything).
+		checksService.On("MarkInsightsRead", mock.Anything, mock.Anything, mock.Anything).
 			Return(errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.MarkCheckResultsRead(t.Context(), &advisorsv1.MarkCheckResultsReadRequest{
+		resp, err := s.MarkInsightsRead(t.Context(), &advisorsv1.MarkInsightsReadRequest{
 			Ids:    []string{"id1"},
 			IsRead: true,
 		})
-		require.EqualError(t, err, "failed to mark check results read: random error")
+		require.EqualError(t, err, "failed to mark insights read: random error")
 		assert.Nil(t, resp)
 	})
 
@@ -337,16 +337,16 @@ func TestMarkCheckResultsRead(t *testing.T) {
 		t.Parallel()
 
 		var checksService mockChecksService
-		checksService.On("MarkCheckResultsRead", mock.Anything, []string{"id1", "id2"}, true).Return(nil)
+		checksService.On("MarkInsightsRead", mock.Anything, []string{"id1", "id2"}, true).Return(nil)
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.MarkCheckResultsRead(t.Context(), &advisorsv1.MarkCheckResultsReadRequest{
+		resp, err := s.MarkInsightsRead(t.Context(), &advisorsv1.MarkInsightsReadRequest{
 			Ids:    []string{"id1", "id2"},
 			IsRead: true,
 		})
 		require.NoError(t, err)
-		assert.Equal(t, &advisorsv1.MarkCheckResultsReadResponse{}, resp)
+		assert.Equal(t, &advisorsv1.MarkInsightsReadResponse{}, resp)
 		checksService.AssertExpectations(t)
 	})
 
@@ -356,7 +356,7 @@ func TestMarkCheckResultsRead(t *testing.T) {
 		severity := models.Severity(common.Warning)
 		status := models.CheckResultFailed
 		var checksService mockChecksService
-		checksService.On("MarkCheckResultsReadByFilters", mock.Anything, models.CheckResultFilters{
+		checksService.On("MarkInsightsReadByFilters", mock.Anything, models.InsightFilters{
 			ServiceName: "mysql-prod",
 			NodeName:    "node-1",
 			Category:    "security",
@@ -368,19 +368,20 @@ func TestMarkCheckResultsRead(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.MarkCheckResultsRead(t.Context(), &advisorsv1.MarkCheckResultsReadRequest{
-			Filters: &advisorsv1.CheckResultsFilters{
+		resp, err := s.MarkInsightsRead(t.Context(), &advisorsv1.MarkInsightsReadRequest{
+			IsRead: true,
+			Filters: &advisorsv1.InsightsFilters{
 				ServiceName: "mysql-prod",
 				NodeName:    "node-1",
 				Category:    "security",
 				BatchId:     "batch-1",
 				Severity:    new(managementv1.Severity_SEVERITY_WARNING),
 				Status:      new(advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_FAILED),
-				IsRead:      new(true),
+				IsRead:      new(false),
 			},
 		})
 		require.NoError(t, err)
-		assert.Equal(t, &advisorsv1.MarkCheckResultsReadResponse{}, resp)
+		assert.Equal(t, &advisorsv1.MarkInsightsReadResponse{}, resp)
 		checksService.AssertExpectations(t)
 	})
 
@@ -388,16 +389,16 @@ func TestMarkCheckResultsRead(t *testing.T) {
 		t.Parallel()
 
 		var checksService mockChecksService
-		checksService.On("MarkCheckResultsReadByFilters", mock.Anything, models.CheckResultFilters{}, true).Return(nil)
+		checksService.On("MarkInsightsReadByFilters", mock.Anything, models.InsightFilters{}, true).Return(nil)
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.MarkCheckResultsRead(t.Context(), &advisorsv1.MarkCheckResultsReadRequest{
+		resp, err := s.MarkInsightsRead(t.Context(), &advisorsv1.MarkInsightsReadRequest{
 			IsRead:  true,
-			Filters: &advisorsv1.CheckResultsFilters{},
+			Filters: &advisorsv1.InsightsFilters{},
 		})
 		require.NoError(t, err)
-		assert.Equal(t, &advisorsv1.MarkCheckResultsReadResponse{}, resp)
+		assert.Equal(t, &advisorsv1.MarkInsightsReadResponse{}, resp)
 		checksService.AssertExpectations(t)
 	})
 
@@ -407,7 +408,7 @@ func TestMarkCheckResultsRead(t *testing.T) {
 		var checksService mockChecksService
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.MarkCheckResultsRead(t.Context(), &advisorsv1.MarkCheckResultsReadRequest{
+		resp, err := s.MarkInsightsRead(t.Context(), &advisorsv1.MarkInsightsReadRequest{
 			IsRead: true,
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Either ids or filters must be provided."), err)
