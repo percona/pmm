@@ -1201,6 +1201,8 @@ var databaseSchema = [][]string{
 			environment VARCHAR NOT NULL,
 			cluster VARCHAR NOT NULL,
 			replication_set VARCHAR NOT NULL,
+			region VARCHAR NOT NULL,
+			az VARCHAR NOT NULL,
 			status VARCHAR NOT NULL CHECK (status <> ''),
 			summary VARCHAR NOT NULL,
 			description TEXT NOT NULL,
@@ -1243,22 +1245,15 @@ var databaseSchema = [][]string{
 		// Carry over interval overrides recorded by earlier PMM versions in the
 		// check_settings table. Content columns are placeholders: the startup
 		// reconcile refreshes them from the shipped check files and prunes rows
-		// of checks that no longer exist. Guarded so a re-run (dev force-rerun
-		// after the first run already dropped check_settings) succeeds.
-		`DO $$
-		BEGIN
-			IF to_regclass('check_settings') IS NOT NULL THEN
-				INSERT INTO advisor_checks (
-					name, source, version, summary, description, category, subcategory,
-					family, interval, interval_override, disabled, queries, script,
-					created_at, updated_at
-				)
-				SELECT name, 'builtin', 2, '', '', '', '', '', '', interval, false, '[]', '', now(), now()
-				FROM check_settings
-				WHERE name <> '';
-			END IF;
-		END
-		$$`,
+		// of checks that no longer exist.
+		`INSERT INTO advisor_checks (
+			name, source, version, summary, description, category, subcategory,
+			family, interval, interval_override, disabled, queries, script,
+			created_at, updated_at
+		)
+		SELECT name, 'builtin', 2, '', '', '', '', '', '', interval, false, '[]', '', now(), now()
+		FROM check_settings
+		WHERE name <> ''`,
 
 		// Carry over globally-disabled check names recorded by earlier PMM
 		// versions in the settings JSON.

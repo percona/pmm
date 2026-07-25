@@ -64,6 +64,8 @@ type Insight struct {
 	Environment    string            `reform:"environment"`
 	Cluster        string            `reform:"cluster"`
 	ReplicationSet string            `reform:"replication_set"`
+	Region         string            `reform:"region"`
+	AZ             string            `reform:"az"`
 	Status         CheckResultStatus `reform:"status"`
 	Summary        string            `reform:"summary"`
 	Description    string            `reform:"description"`
