@@ -730,9 +730,25 @@ func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID
 		return res, output, nil
 	}
 
-	return nil, "", status.Errorf(codes.NotFound,
-		"No eligible %s service with ID '%s': the service may not exist, be of another type or lack a compatible pmm-agent",
-		serviceType, serviceID)
+	// no target matched - diagnose why so the error states the actual reason
+	service, err := models.FindServiceByID(s.db.WithContext(ctx), serviceID)
+	if err != nil {
+		return nil, "", err
+	}
+
+	switch {
+	case service.ServiceName == models.PMMServerPostgreSQLServiceName:
+		return nil, "", status.Error(codes.FailedPrecondition,
+			"PMM Server's internal PostgreSQL database cannot be targeted by advisor checks")
+	case service.ServiceType != serviceType:
+		return nil, "", status.Errorf(codes.FailedPrecondition,
+			"Service '%s' is a %s service, but this check targets %s services",
+			service.ServiceName, service.ServiceType, serviceType)
+	default:
+		return nil, "", status.Errorf(codes.FailedPrecondition,
+			"Service '%s' has no compatible pmm-agent: it may be missing, disconnected or outdated",
+			service.ServiceName)
+	}
 }
 
 // ensureUserCheck verifies that the named check exists and is user-authored.

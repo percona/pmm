@@ -579,6 +579,81 @@ func TestTestAdvisorCheck(t *testing.T) {
 		assert.Empty(t, output)
 	})
 
+	// ineligible-service diagnosis: each case gets its own precise error
+	pgCheck := check.Check{
+		Name:        "custom_test_diagnosis",
+		Summary:     "Diagnosis probe",
+		Description: "Diagnosis probe",
+		Category:    "test",
+		Subcategory: "diagnosis",
+		Family:      check.PostgreSQL,
+		Interval:    check.Standard,
+		Queries:     []check.Query{{Type: check.PostgreSQLSelect, Query: "1"}},
+		Script:      "def check_context(docs, context):\n    return []",
+	}
+
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+		NodeName: "diagnosis-node",
+	})
+	require.NoError(t, err)
+
+	mysqlSvc, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "mysql-diagnosis-svc",
+		NodeID:      node.NodeID,
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(3306)),
+	})
+	require.NoError(t, err)
+
+	pgSvc, err := models.AddNewService(db.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "pg-diagnosis-no-agent",
+		NodeID:      node.NodeID,
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(5432)),
+	})
+	require.NoError(t, err)
+
+	internalPG, err := models.AddNewService(db.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: models.PMMServerPostgreSQLServiceName,
+		NodeID:      node.NodeID,
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(5432)),
+	})
+	require.NoError(t, err)
+
+	t.Run("internal PMM Server PostgreSQL rejected", func(t *testing.T) {
+		res, output, err := s.TestAdvisorCheck(ctx, pgCheck, internalPG.ServiceID)
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Equal(t,
+			"PMM Server's internal PostgreSQL database cannot be targeted by advisor checks",
+			status.Convert(err).Message())
+		assert.Nil(t, res)
+		assert.Empty(t, output)
+	})
+
+	t.Run("service of another type rejected", func(t *testing.T) {
+		res, output, err := s.TestAdvisorCheck(ctx, pgCheck, mysqlSvc.ServiceID)
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Equal(t,
+			"Service 'mysql-diagnosis-svc' is a mysql service, but this check targets postgresql services",
+			status.Convert(err).Message())
+		assert.Nil(t, res)
+		assert.Empty(t, output)
+	})
+
+	t.Run("service without pmm-agent rejected", func(t *testing.T) {
+		res, output, err := s.TestAdvisorCheck(ctx, pgCheck, pgSvc.ServiceID)
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Equal(t,
+			"Service 'pg-diagnosis-no-agent' has no compatible pmm-agent: it may be missing, disconnected or outdated",
+			status.Convert(err).Message())
+		assert.Nil(t, res)
+		assert.Empty(t, output)
+	})
+
 	// keep last: it flips the shared test DB settings
 	t.Run("advisors disabled", func(t *testing.T) {
 		settings, err := models.GetSettings(db)
