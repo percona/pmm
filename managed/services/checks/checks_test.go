@@ -829,7 +829,7 @@ func TestFindTargets(t *testing.T) {
 	t.Run("unknown service", func(t *testing.T) {
 		t.Parallel()
 
-		targets, err := s.findTargets(t.Context(), models.PostgreSQLServiceType, nil)
+		targets, err := s.findTargets(t.Context(), models.PostgreSQLServiceType, nil, nil)
 		require.NoError(t, err)
 		assert.Empty(t, targets)
 	})
@@ -865,7 +865,7 @@ func TestFindTargets(t *testing.T) {
 			t.Run(test.name, func(t *testing.T) {
 				t.Parallel()
 
-				targets, err := s.findTargets(t.Context(), models.MySQLServiceType, test.minRequiredVersion)
+				targets, err := s.findTargets(t.Context(), models.MySQLServiceType, test.minRequiredVersion, nil)
 				require.NoError(t, err)
 				assert.Len(t, targets, test.count)
 			})
@@ -888,13 +888,13 @@ func TestFindTargetsSkipsOnlyInternalPostgreSQL(t *testing.T) {
 	// A user service registered on the PMM Server node must still be a valid target.
 	setup(t, db, "mysql-on-pmm-node", models.PMMServerNodeID, "")
 
-	mysqlTargets, err := s.findTargets(t.Context(), models.MySQLServiceType, nil)
+	mysqlTargets, err := s.findTargets(t.Context(), models.MySQLServiceType, nil, nil)
 	require.NoError(t, err)
 	require.Len(t, mysqlTargets, 1)
 	assert.Equal(t, "mysql-on-pmm-node", mysqlTargets[0].ServiceName)
 
 	// PMM Server's internal PostgreSQL must be skipped, leaving no PostgreSQL targets.
-	pgTargets, err := s.findTargets(t.Context(), models.PostgreSQLServiceType, nil)
+	pgTargets, err := s.findTargets(t.Context(), models.PostgreSQLServiceType, nil, nil)
 	require.NoError(t, err)
 	assert.Empty(t, pgTargets)
 }

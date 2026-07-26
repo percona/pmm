@@ -191,6 +191,10 @@ swagger:model StartAdvisorChecksBody
 type StartAdvisorChecksBody struct {
 	// Names of the checks that should be started.
 	Names []string `json:"names"`
+
+	// IDs of the services to run the checks against. When empty, the checks run
+	// against every monitored service of a matching technology.
+	ServiceIds []string `json:"service_ids"`
 }
 
 // Validate validates this start advisor checks body

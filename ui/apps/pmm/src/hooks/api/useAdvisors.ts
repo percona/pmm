@@ -31,6 +31,7 @@ import {
   ListInsightsFilterValuesResponse,
   ListInsightsParams,
   MarkInsightsReadRequest,
+  StartAdvisorChecksRequest,
   TestAdvisorCheckRequest,
   TestAdvisorCheckResponse,
 } from 'types/advisors.types';
@@ -82,7 +83,9 @@ export const useAdvisorCheckTestTargets = (
   });
 
 export const useStartAdvisorChecks = (
-  options?: Partial<UseMutationOptions<string, Error, string[]>>
+  options?: Partial<
+    UseMutationOptions<string, Error, StartAdvisorChecksRequest>
+  >
 ) =>
   useMutation({
     mutationKey: [KEYS.START_CHECKS],

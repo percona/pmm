@@ -82,6 +82,8 @@ export interface UpdateAdvisorCheckResponse {
 
 export interface StartAdvisorChecksRequest {
   names: string[];
+  // when set, the checks run only against these services
+  serviceIds?: string[];
 }
 
 export interface TestAdvisorCheckRequest {

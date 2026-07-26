@@ -1,16 +1,10 @@
 import { type MRT_ColumnDef } from 'material-react-table';
-import Chip from '@mui/material/Chip';
 import Link from '@mui/material/Link';
-import Tooltip from '@mui/material/Tooltip';
 import { format } from 'date-fns';
 import { Insight } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
 import { ADVISOR_RESULT_STATUS, SEVERITY, TIME_FORMAT } from 'lib/constants';
 import { Messages } from './AdvisorInsights.messages';
-
-interface InsightsColumnsProps {
-  onToggleRead: (item: Insight) => void;
-}
 
 const SEVERITY_ORDER: Record<Severity, number> = {
   [Severity.emergency]: 1,
@@ -24,9 +18,7 @@ const SEVERITY_ORDER: Record<Severity, number> = {
   [Severity.unspecified]: 9,
 };
 
-export const getInsightsColumns = ({
-  onToggleRead,
-}: InsightsColumnsProps): MRT_ColumnDef<Insight>[] => [
+export const getInsightsColumns = (): MRT_ColumnDef<Insight>[] => [
   {
     header: Messages.columns.summary,
     accessorKey: 'summary',
@@ -91,33 +83,5 @@ export const getInsightsColumns = ({
       row.original.checkedAt
         ? format(new Date(row.original.checkedAt), TIME_FORMAT)
         : null,
-  },
-  {
-    id: 'isRead',
-    header: Messages.columns.read,
-    accessorFn: (row) => (row.isRead ? Messages.read : Messages.unread),
-    size: 90,
-    grow: false,
-    Cell: ({ row }) => (
-      <Tooltip
-        title={
-          row.original.isRead ? Messages.markAsUnread : Messages.markAsRead
-        }
-        arrow
-      >
-        <Chip
-          size="small"
-          clickable
-          color={row.original.isRead ? 'default' : 'info'}
-          label={row.original.isRead ? Messages.read : Messages.unread}
-          onClick={(e) => {
-            // don't let the click bubble to the row (double-click opens details)
-            e.stopPropagation();
-            onToggleRead(row.original);
-          }}
-          data-testid={`insight-${row.original.id}-read-state`}
-        />
-      </Tooltip>
-    ),
   },
 ];

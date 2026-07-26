@@ -55,7 +55,7 @@ type prometheusService interface {
 // checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface { //nolint:interfacebloat
-	StartChecks(checkNames []string) (string, error)
+	StartChecks(checkNames, serviceIDs []string) (string, error)
 	GetChecks() (map[string]check.Check, error)
 	GetAdvisors() ([]check.Advisor, error)
 	GetInsights(ctx context.Context, filters models.InsightFilters, pageIndex, pageSize int) ([]*models.Insight, int, error)

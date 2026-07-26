@@ -189,6 +189,39 @@ func TestRegistry(t *testing.T) {
 		assert.Equal(t, checkResults[1], collectedAlerts[0])
 	})
 
+	t.Run("delete check result by name and service", func(t *testing.T) {
+		r := newRegistry()
+		checkResults := []services.CheckResult{
+			{
+				CheckName: "name1",
+				Interval:  check.Standard,
+				Target:    services.Target{AgentID: "123", ServiceID: "123"},
+				Result:    check.Result{Summary: "service 123", Severity: common.Warning},
+			},
+			{
+				CheckName: "name1",
+				Interval:  check.Standard,
+				Target:    services.Target{AgentID: "321", ServiceID: "321"},
+				Result:    check.Result{Summary: "service 321", Severity: common.Warning},
+			},
+			{
+				CheckName: "name2",
+				Interval:  check.Standard,
+				Target:    services.Target{AgentID: "123", ServiceID: "123"},
+				Result:    check.Result{Summary: "other check", Severity: common.Info},
+			},
+		}
+
+		r.set(checkResults)
+		r.deleteByNameAndService([]string{"name1"}, []string{"123"})
+
+		collectedAlerts := r.getCheckResults()
+		require.Len(t, collectedAlerts, 2)
+		assert.NotContains(t, collectedAlerts, checkResults[0])
+		assert.Contains(t, collectedAlerts, checkResults[1])
+		assert.Contains(t, collectedAlerts, checkResults[2])
+	})
+
 	t.Run("empty interval recognized as standard", func(t *testing.T) {
 		r := newRegistry()
 		checkResults := []services.CheckResult{

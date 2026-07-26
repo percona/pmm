@@ -638,7 +638,10 @@ func (x *ChangeAdvisorCheckParams) GetServiceIds() []string {
 type StartAdvisorChecksRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Names of the checks that should be started.
-	Names         []string `protobuf:"bytes,1,rep,name=names,proto3" json:"names,omitempty"`
+	Names []string `protobuf:"bytes,1,rep,name=names,proto3" json:"names,omitempty"`
+	// IDs of the services to run the checks against. When empty, the checks run
+	// against every monitored service of a matching technology.
+	ServiceIds    []string `protobuf:"bytes,2,rep,name=service_ids,json=serviceIds,proto3" json:"service_ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -676,6 +679,13 @@ func (*StartAdvisorChecksRequest) Descriptor() ([]byte, []int) {
 func (x *StartAdvisorChecksRequest) GetNames() []string {
 	if x != nil {
 		return x.Names
+	}
+	return nil
+}
+
+func (x *StartAdvisorChecksRequest) GetServiceIds() []string {
+	if x != nil {
+		return x.ServiceIds
 	}
 	return nil
 }
@@ -2493,9 +2503,11 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\binterval\x18\x04 \x01(\x0e2!.advisors.v1.AdvisorCheckIntervalR\binterval\x12\x1f\n" +
 	"\vservice_ids\x18\x05 \x03(\tR\n" +
 	"serviceIdsB\t\n" +
-	"\a_enable\"1\n" +
+	"\a_enable\"R\n" +
 	"\x19StartAdvisorChecksRequest\x12\x14\n" +
-	"\x05names\x18\x01 \x03(\tR\x05names\"7\n" +
+	"\x05names\x18\x01 \x03(\tR\x05names\x12\x1f\n" +
+	"\vservice_ids\x18\x02 \x03(\tR\n" +
+	"serviceIds\"7\n" +
 	"\x1aStartAdvisorChecksResponse\x12\x19\n" +
 	"\bbatch_id\x18\x01 \x01(\tR\abatchId\"\x1a\n" +
 	"\x18ListAdvisorChecksRequest\"N\n" +

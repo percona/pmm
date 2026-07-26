@@ -117,6 +117,9 @@ message ChangeAdvisorCheckParams {
 message StartAdvisorChecksRequest {
   // Names of the checks that should be started.
   repeated string names = 1;
+  // IDs of the services to run the checks against. When empty, the checks run
+  // against every monitored service of a matching technology.
+  repeated string service_ids = 2;
 }
 
 message StartAdvisorChecksResponse {

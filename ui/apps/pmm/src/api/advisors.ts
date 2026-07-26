@@ -66,8 +66,9 @@ export const deleteAdvisorCheck = async (name: string): Promise<void> => {
   );
 };
 
-export const startAdvisorChecks = async (names: string[]): Promise<string> => {
-  const payload: StartAdvisorChecksRequest = { names };
+export const startAdvisorChecks = async (
+  payload: StartAdvisorChecksRequest
+): Promise<string> => {
   const res = await api.post<StartAdvisorChecksResponse>(
     '/advisors/checks:start',
     payload

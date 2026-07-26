@@ -315,7 +315,7 @@ describe('AdvisorsList', () => {
 
     await waitFor(() =>
       expect(advisorsApi.startAdvisorChecks).toHaveBeenCalledWith(
-        [],
+        { names: [] },
         expect.anything()
       )
     );
@@ -345,7 +345,7 @@ describe('AdvisorsList', () => {
 
     await waitFor(() =>
       expect(advisorsApi.startAdvisorChecks).toHaveBeenCalledWith(
-        ['postgresql_super_role'],
+        { names: ['postgresql_super_role'] },
         expect.anything()
       )
     );
@@ -378,7 +378,7 @@ describe('AdvisorsList', () => {
 
     await waitFor(() =>
       expect(advisorsApi.startAdvisorChecks).toHaveBeenCalledWith(
-        ['mysql_version_check'],
+        { names: ['mysql_version_check'] },
         expect.anything()
       )
     );

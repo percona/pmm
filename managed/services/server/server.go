@@ -623,7 +623,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	var advisorsStarted bool
 	if !oldSettings.IsAdvisorsEnabled() && newSettings.IsAdvisorsEnabled() {
 		advisorsStarted = true
-		_, err := s.checksService.StartChecks(nil)
+		_, err := s.checksService.StartChecks(nil, nil)
 		if err != nil {
 			s.l.Error(err)
 		}

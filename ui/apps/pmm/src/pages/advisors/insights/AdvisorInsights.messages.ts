@@ -13,13 +13,14 @@ export const Messages = {
     'Mark every insight matching the current filters as read',
   markFilteredReadNoFilters: 'Select at least one filter first',
   actions: {
+    more: 'More actions',
     viewDetails: 'View details',
-    toggleRead: 'Toggle read',
     rerunNow: 'Re-run now',
     filterByBatchId: 'Filter by batch ID',
     copyAsText: 'Copy as text',
-    disableCheck: 'Disable check',
-    enableCheck: 'Enable check',
+    copyUrl: 'Copy URL',
+    disableCheck: 'Disable check for this service',
+    enableCheck: 'Enable check for this service',
   },
   details: {
     title: 'Advisor insight details',
@@ -70,14 +71,17 @@ export const Messages = {
     severity: 'Severity',
     status: 'Status',
     checkedAt: 'Checked at',
-    read: 'Read',
+    actions: 'Actions',
   },
   success: {
-    rerunStarted: (check: string) =>
-      `Check "${check}" started, batch ID copied to clipboard.`,
-    checkEnabled: (check: string) => `Check "${check}" enabled`,
-    checkDisabled: (check: string) => `Check "${check}" disabled`,
+    rerunStarted: (check: string, service: string) =>
+      `Check "${check}" started on ${service}, batch ID copied to clipboard.`,
+    checkEnabled: (check: string, service: string) =>
+      `Check "${check}" enabled for ${service}`,
+    checkDisabled: (check: string, service: string) =>
+      `Check "${check}" disabled for ${service}`,
     copied: 'Insight copied to clipboard',
+    urlCopied: 'Insight URL copied to clipboard',
     markedRead: 'Insight marked as read',
     markedUnread: 'Insight marked as unread',
     markedFilteredRead: 'Matching insights marked as read',

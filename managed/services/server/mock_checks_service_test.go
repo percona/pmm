@@ -19,9 +19,9 @@ func (_m *mockChecksService) CleanupCheckResults() {
 	_m.Called()
 }
 
-// StartChecks provides a mock function with given fields: checkNames
-func (_m *mockChecksService) StartChecks(checkNames []string) (string, error) {
-	ret := _m.Called(checkNames)
+// StartChecks provides a mock function with given fields: checkNames, serviceIDs
+func (_m *mockChecksService) StartChecks(checkNames []string, serviceIDs []string) (string, error) {
+	ret := _m.Called(checkNames, serviceIDs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartChecks")
@@ -29,17 +29,17 @@ func (_m *mockChecksService) StartChecks(checkNames []string) (string, error) {
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func([]string) (string, error)); ok {
-		return rf(checkNames)
+	if rf, ok := ret.Get(0).(func([]string, []string) (string, error)); ok {
+		return rf(checkNames, serviceIDs)
 	}
-	if rf, ok := ret.Get(0).(func([]string) string); ok {
-		r0 = rf(checkNames)
+	if rf, ok := ret.Get(0).(func([]string, []string) string); ok {
+		r0 = rf(checkNames, serviceIDs)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func([]string) error); ok {
-		r1 = rf(checkNames)
+	if rf, ok := ret.Get(1).(func([]string, []string) error); ok {
+		r1 = rf(checkNames, serviceIDs)
 	} else {
 		r1 = ret.Error(1)
 	}

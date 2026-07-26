@@ -2594,6 +2594,14 @@
                     "type": "string"
                   },
                   "x-order": 0
+                },
+                "service_ids": {
+                  "description": "IDs of the services to run the checks against. When empty, the checks run\nagainst every monitored service of a matching technology.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 1
                 }
               }
             }

@@ -306,27 +306,31 @@ const AdvisorsList: FC = () => {
 
   const runChecks = useCallback(
     (names: string[], message: string) =>
-      startChecks(names, {
-        onSuccess: (batchId) => {
-          void navigator.clipboard.writeText(batchId);
-          enqueueSnackbar(message, {
-            variant: 'success',
-            action: (key) => (
-              <Button
-                color="inherit"
-                size="small"
-                onClick={() => {
-                  closeSnackbar(key);
-                  navigate(`/advisors/insights?batchId=${batchId}`);
-                }}
-                data-testid="view-run-results"
-              >
-                {Messages.viewResults}
-              </Button>
-            ),
-          });
-        },
-      }),
+      // no serviceIds: this page always runs a check against every service
+      startChecks(
+        { names },
+        {
+          onSuccess: (batchId) => {
+            void navigator.clipboard.writeText(batchId);
+            enqueueSnackbar(message, {
+              variant: 'success',
+              action: (key) => (
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    closeSnackbar(key);
+                    navigate(`/advisors/insights?batchId=${batchId}`);
+                  }}
+                  data-testid="view-run-results"
+                >
+                  {Messages.viewResults}
+                </Button>
+              ),
+            });
+          },
+        }
+      ),
     [startChecks, navigate]
   );
 

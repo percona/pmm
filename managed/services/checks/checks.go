@@ -232,7 +232,7 @@ func (s *Service) runChecksLoop(ctx context.Context) {
 		case req := <-s.startCheckCh:
 			// On-demand run requested via StartChecks.
 			s.UpdateAdvisorsList(ctx)
-			err = s.run(ctx, "", req.checkNames, req.ri)
+			err = s.run(ctx, "", req.checkNames, req.serviceIDs, req.ri)
 		case <-s.rareTicker.C:
 			// Start all checks from rare group.
 			err = s.runChecksGroup(ctx, check.Rare)
@@ -292,12 +292,13 @@ func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interv
 
 	s.UpdateAdvisorsList(ctx)
 	ri := runInfo{batchID: uuid.NewString(), triggeredBy: models.CheckTriggeredByScheduler}
-	return s.run(ctx, intervalGroup, nil, ri)
+	return s.run(ctx, intervalGroup, nil, nil, ri)
 }
 
 // StartChecks downloads and executes advisor checks in asynchronous way and returns the batch ID.
 // If checkNames specified then only matched checks will be executed.
-func (s *Service) StartChecks(checkNames []string) (string, error) {
+// If serviceIDs specified then the checks run only against those services.
+func (s *Service) StartChecks(checkNames, serviceIDs []string) (string, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return "", err
@@ -313,7 +314,7 @@ func (s *Service) StartChecks(checkNames []string) (string, error) {
 	// context. The loop only runs on the leader node, so a non-blocking send
 	// drops the request where there is nothing to execute it.
 	select {
-	case s.startCheckCh <- checkRunRequest{checkNames: checkNames, ri: ri}:
+	case s.startCheckCh <- checkRunRequest{checkNames: checkNames, serviceIDs: serviceIDs, ri: ri}:
 	default:
 		s.l.Warn("Advisor checks run is already pending, skipping the request.")
 	}
@@ -330,21 +331,25 @@ type runInfo struct {
 // checkRunRequest is an on-demand run handed from StartChecks to runChecksLoop.
 type checkRunRequest struct {
 	checkNames []string
+	serviceIDs []string
 	ri         runInfo
 }
 
-func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNames []string, ri runInfo) error {
+func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNames, serviceIDs []string, ri runInfo) error {
 	err := intervalGroup.Validate()
 	if err != nil {
 		return err
 	}
 
-	res, err := s.executeChecks(ctx, intervalGroup, checkNames, ri)
+	res, err := s.executeChecks(ctx, intervalGroup, checkNames, serviceIDs, ri)
 	if err != nil {
 		return err
 	}
 
 	switch {
+	case len(checkNames) != 0 && len(serviceIDs) != 0:
+		// A service-scoped run must not drop the other services' findings.
+		s.resultsRegistry.deleteByNameAndService(checkNames, serviceIDs)
 	case len(checkNames) != 0:
 		// If we run some specific checks, delete previous results for them.
 		s.resultsRegistry.deleteByName(checkNames)
@@ -698,7 +703,7 @@ func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID
 		return nil, "", err
 	}
 
-	targets, err := s.findTargets(ctx, serviceType, s.minPMMAgentVersion(c))
+	targets, err := s.findTargets(ctx, serviceType, s.minPMMAgentVersion(c), nil)
 	if err != nil {
 		return nil, "", err
 	}
@@ -769,7 +774,7 @@ func (s *Service) ListTestTargets(ctx context.Context, technology check.Technolo
 		return nil, err
 	}
 
-	targets, err := s.findTargets(ctx, serviceType, nil)
+	targets, err := s.findTargets(ctx, serviceType, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -990,8 +995,9 @@ func (s *Service) getActiveUserServiceTypes() (map[models.ServiceType]struct{}, 
 }
 
 // executeChecks runs checks for all reachable services. If intervalGroup specified only checks from that group will be
-// executed. If checkNames specified then only matched checks will be executed.
-func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interval, checkNames []string, ri runInfo) ([]services.CheckResult, error) {
+// executed. If checkNames specified then only matched checks will be executed. If serviceIDs specified then only those
+// services are targeted.
+func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interval, checkNames, serviceIDs []string, ri runInfo) ([]services.CheckResult, error) { //nolint:lll
 	disabledChecks, err := s.GetDisabledChecks(ctx)
 	if err != nil {
 		return nil, err
@@ -1025,7 +1031,7 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 	// Execute MySQL checks only if MySQL services exist
 	if _, hasMySQL := activeServiceTypes[models.MySQLServiceType]; hasMySQL {
 		mySQLChecks = s.filterChecks(mySQLChecks, intervalGroup, disabledChecks, checkNames)
-		mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks, disabledTargets, ri)
+		mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks, disabledTargets, serviceIDs, ri)
 		res = append(res, mySQLCheckResults...)
 	} else {
 		s.l.Info("Skipping MySQL advisor checks: no MySQL services in inventory")
@@ -1034,7 +1040,7 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 	// Execute PostgreSQL checks only if PostgreSQL services exist
 	if _, hasPostgreSQL := activeServiceTypes[models.PostgreSQLServiceType]; hasPostgreSQL {
 		postgreSQLChecks = s.filterChecks(postgreSQLChecks, intervalGroup, disabledChecks, checkNames)
-		postgreSQLCheckResults := s.executeChecksForTargetType(ctx, models.PostgreSQLServiceType, postgreSQLChecks, disabledTargets, ri)
+		postgreSQLCheckResults := s.executeChecksForTargetType(ctx, models.PostgreSQLServiceType, postgreSQLChecks, disabledTargets, serviceIDs, ri)
 		res = append(res, postgreSQLCheckResults...)
 	} else {
 		s.l.Info("Skipping PostgreSQL advisor checks: no PostgreSQL services in inventory")
@@ -1043,7 +1049,7 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 	// Execute MongoDB checks only if MongoDB services exist
 	if _, hasMongoDB := activeServiceTypes[models.MongoDBServiceType]; hasMongoDB {
 		mongoDBChecks = s.filterChecks(mongoDBChecks, intervalGroup, disabledChecks, checkNames)
-		mongoDBCheckResults := s.executeChecksForTargetType(ctx, models.MongoDBServiceType, mongoDBChecks, disabledTargets, ri)
+		mongoDBCheckResults := s.executeChecksForTargetType(ctx, models.MongoDBServiceType, mongoDBChecks, disabledTargets, serviceIDs, ri)
 		res = append(res, mongoDBCheckResults...)
 	} else {
 		s.l.Info("Skipping MongoDB advisor checks: no MongoDB services in inventory")
@@ -1052,14 +1058,14 @@ func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interva
 	return res, nil
 }
 
-func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType models.ServiceType, checks map[string]check.Check, disabledTargets map[string]map[string]struct{}, ri runInfo) []services.CheckResult { //nolint:lll
+func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType models.ServiceType, checks map[string]check.Check, disabledTargets map[string]map[string]struct{}, serviceIDs []string, ri runInfo) []services.CheckResult { //nolint:lll
 	var res []services.CheckResult
 	var history []*models.Insight
 
 	for _, c := range checks {
 		s.l.Infof("Executing check: %s with interval: %s", c.Name, c.Interval)
 		pmmAgentVersion := s.minPMMAgentVersion(c)
-		targets, err := s.findTargets(ctx, serviceType, pmmAgentVersion)
+		targets, err := s.findTargets(ctx, serviceType, pmmAgentVersion, serviceIDs)
 		if err != nil {
 			s.l.Warnf("Failed to find proper agents and services for check technology: %s and "+
 				"min version: %s, reason: %s.", c.Technology, pmmAgentVersion, err)
@@ -1907,14 +1913,27 @@ func validateAdvisorSeverity(s common.Severity) error {
 }
 
 // findTargets returns slice of available targets for specified service type.
-func (s *Service) findTargets(ctx context.Context, serviceType models.ServiceType, minPMMAgentVersion *version.Parsed) ([]services.Target, error) {
+// If serviceIDs is not empty, only those services are considered.
+func (s *Service) findTargets(ctx context.Context, serviceType models.ServiceType, minPMMAgentVersion *version.Parsed, serviceIDs []string) ([]services.Target, error) { //nolint:lll
 	var targets []services.Target
 	monitoredServices, err := models.FindServices(s.db.WithContext(ctx), models.ServiceFilters{ServiceType: &serviceType})
 	if err != nil {
 		return nil, err
 	}
 
+	wanted := make(map[string]struct{}, len(serviceIDs))
+	for _, id := range serviceIDs {
+		wanted[id] = struct{}{}
+	}
+
 	for _, service := range monitoredServices {
+		if len(wanted) != 0 {
+			_, ok := wanted[service.ServiceID]
+			if !ok {
+				continue
+			}
+		}
+
 		// skip PMM Server's internal PostgreSQL database, but allow other services on the PMM Server node
 		if service.ServiceName == models.PMMServerPostgreSQLServiceName {
 			s.l.Debugf("Skip PMM Server's internal PostgreSQL service, name: %s, type: %s.", service.ServiceName, service.ServiceType)

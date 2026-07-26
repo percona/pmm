@@ -2,9 +2,12 @@ import Button from '@mui/material/Button';
 import BlockOutlinedIcon from '@mui/icons-material/BlockOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
+import DraftsOutlinedIcon from '@mui/icons-material/DraftsOutlined';
 import FilterAltOffOutlinedIcon from '@mui/icons-material/FilterAltOffOutlined';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import LinkOutlinedIcon from '@mui/icons-material/LinkOutlined';
 import MarkEmailReadOutlinedIcon from '@mui/icons-material/MarkEmailReadOutlined';
+import MarkunreadOutlinedIcon from '@mui/icons-material/MarkunreadOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
 import ReplayOutlinedIcon from '@mui/icons-material/ReplayOutlined';
@@ -35,7 +38,7 @@ import {
   type MRT_Updater,
 } from 'material-react-table';
 import { closeSnackbar, enqueueSnackbar } from 'notistack';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   AdvisorCheckResultStatus,
@@ -236,6 +239,12 @@ const AdvisorInsights: FC = () => {
     [advisors]
   );
 
+  // a check can be turned off for individual services while staying enabled
+  const isCheckDisabledForService = (insight: Insight) =>
+    !!checksByName
+      .get(insight.checkName)
+      ?.disabledServiceIds?.includes(insight.serviceId);
+
   const applyBatchIdFilter = (newBatchId: string) =>
     patchParams((p) => {
       if (newBatchId) {
@@ -266,51 +275,81 @@ const AdvisorInsights: FC = () => {
     }
   };
 
+  // re-runs the check against this insight's service only; running it against
+  // every service is what the Advisor checks page is for
   const handleRerun = (insight: Insight) => {
     const checkSummary =
       checksByName.get(insight.checkName)?.summary ?? insight.checkName;
-    startChecks([insight.checkName], {
-      onSuccess: (newBatchId) => {
-        void navigator.clipboard.writeText(newBatchId);
-        enqueueSnackbar(Messages.success.rerunStarted(checkSummary), {
-          variant: 'success',
-          action: (key) => (
-            <Button
-              color="inherit"
-              size="small"
-              onClick={() => {
-                closeSnackbar(key);
-                applyBatchIdFilter(newBatchId);
-              }}
-              data-testid="view-run-results"
-            >
-              {Messages.viewResults}
-            </Button>
-          ),
-        });
-      },
-    });
+    startChecks(
+      { names: [insight.checkName], serviceIds: [insight.serviceId] },
+      {
+        onSuccess: (newBatchId) => {
+          void navigator.clipboard.writeText(newBatchId);
+          enqueueSnackbar(
+            Messages.success.rerunStarted(checkSummary, insight.serviceName),
+            {
+              variant: 'success',
+              action: (key) => (
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    closeSnackbar(key);
+                    applyBatchIdFilter(newBatchId);
+                  }}
+                  data-testid="view-run-results"
+                >
+                  {Messages.viewResults}
+                </Button>
+              ),
+            }
+          );
+        },
+      }
+    );
   };
 
-  const handleToggleCheckEnabled = (insight: Insight) => {
+  // enables/disables the check for this insight's service only, leaving the
+  // check running everywhere else
+  const handleToggleCheckForService = (insight: Insight) => {
     const check = checksByName.get(insight.checkName);
     if (!check) {
       return;
     }
-    changeChecks([{ name: check.name, enable: !check.enabled }], {
-      onSuccess: () =>
-        enqueueSnackbar(
-          check.enabled
-            ? Messages.success.checkDisabled(check.summary)
-            : Messages.success.checkEnabled(check.summary),
-          { variant: 'success' }
-        ),
-    });
+    const enable = isCheckDisabledForService(insight);
+    changeChecks(
+      [{ name: check.name, serviceIds: [insight.serviceId], enable }],
+      {
+        onSuccess: () =>
+          enqueueSnackbar(
+            enable
+              ? Messages.success.checkEnabled(
+                  check.summary,
+                  insight.serviceName
+                )
+              : Messages.success.checkDisabled(
+                  check.summary,
+                  insight.serviceName
+                ),
+            { variant: 'success' }
+          ),
+      }
+    );
   };
 
   const handleCopyAsText = async (insight: Insight) => {
     await navigator.clipboard.writeText(insightToText(insight));
     enqueueSnackbar(Messages.success.copied, { variant: 'success' });
+  };
+
+  // shareable deep link: keeps the current filters and page so the recipient
+  // lands on the same view with this insight's details pane open
+  const handleCopyUrl = async (insight: Insight) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('insight', insight.id);
+    const { origin, pathname } = window.location;
+    await navigator.clipboard.writeText(`${origin}${pathname}?${params}`);
+    enqueueSnackbar(Messages.success.urlCopied, { variant: 'success' });
   };
 
   // reloads the results and the data behind the filter dropdowns
@@ -346,27 +385,21 @@ const AdvisorInsights: FC = () => {
     [filterValues]
   );
 
-  const handleToggleRead = useCallback(
-    (item: Insight) =>
-      markRead(
-        { ids: [item.id], isRead: !item.isRead },
-        {
-          onSuccess: () =>
-            enqueueSnackbar(
-              item.isRead
-                ? Messages.success.markedUnread
-                : Messages.success.markedRead,
-              { variant: 'success' }
-            ),
-        }
-      ),
-    [markRead]
-  );
+  const handleToggleRead = (item: Insight) =>
+    markRead(
+      { ids: [item.id], isRead: !item.isRead },
+      {
+        onSuccess: () =>
+          enqueueSnackbar(
+            item.isRead
+              ? Messages.success.markedUnread
+              : Messages.success.markedRead,
+            { variant: 'success' }
+          ),
+      }
+    );
 
-  const columns = useMemo(
-    () => getInsightsColumns({ onToggleRead: handleToggleRead }),
-    [handleToggleRead]
-  );
+  const columns = useMemo(() => getInsightsColumns(), []);
 
   const handleMarkFilteredRead = () =>
     markRead(
@@ -532,26 +565,112 @@ const AdvisorInsights: FC = () => {
           onPaginationChange={handlePaginationChange}
           enableRowActions
           positionActionsColumn="last"
-          displayColumnDefOptions={{ 'mrt-row-actions': { grow: false } }}
+          // mirrors the Advisors list: show the "Actions" header (percona-ui
+          // hides it by default) and lock the column width (grow: false)
+          displayColumnDefOptions={{
+            'mrt-row-actions': {
+              header: Messages.columns.actions,
+              // undefined lets MRT render the `header` string with its normal head-cell
+              // layout (percona-ui defaults it to a visually-hidden span)
+              Header: undefined,
+              size: 110,
+              grow: false,
+              muiTableBodyCellProps: { align: 'center', sx: { px: 1 } },
+              // MRT zeroes the bottom padding on display-column head cells;
+              // match the 0.6rem data headers get so the label aligns with them
+              muiTableHeadCellProps: {
+                align: 'center',
+                sx: {
+                  px: 1,
+                  pb: '0.6rem',
+                  // align='center' only sets text-align. MRT's head-cell
+                  // content row pushes its (here empty) actions box right with
+                  // margin-left:auto, which eats the free space before
+                  // justify-content applies — so stretch the label box to fill
+                  // the row and centre the label inside it instead.
+                  '& .Mui-TableHeadCell-Content-Labels': {
+                    flex: 1,
+                    justifyContent: 'center',
+                  },
+                },
+              },
+            },
+          }}
           renderRowActions={({ row }) => (
-            <IconButton
-              size="small"
-              onClick={(e) =>
-                setActionMenu({
-                  anchor: e.currentTarget,
-                  insight: row.original,
-                })
-              }
-              data-testid={`insight-${row.original.id}-actions`}
+            <Stack
+              direction="row"
+              gap={0.25}
+              alignItems="center"
+              justifyContent="center"
+              // percona-ui's theme pins MuiIconButton to a fixed 40x40, so the
+              // icons overflow the column however small their padding gets.
+              // Unpin the box to collapse each button onto its icon.
+              sx={{
+                width: '100%',
+                '& .MuiIconButton-root': {
+                  width: 'auto',
+                  height: 'auto',
+                  p: 0.5,
+                },
+              }}
             >
-              <MoreVertIcon fontSize="small" />
-            </IconButton>
+              <Tooltip
+                title={
+                  row.original.isRead
+                    ? Messages.markAsUnread
+                    : Messages.markAsRead
+                }
+                arrow
+              >
+                <IconButton
+                  // grey once read, blue while unread — same signal the
+                  // Read/Unread chip used to carry
+                  sx={{
+                    color: row.original.isRead ? 'text.secondary' : 'info.main',
+                  }}
+                  aria-label={
+                    row.original.isRead
+                      ? Messages.markAsUnread
+                      : Messages.markAsRead
+                  }
+                  onClick={(e) => {
+                    // don't let the click bubble to the row (double-click opens details)
+                    e.stopPropagation();
+                    handleToggleRead(row.original);
+                  }}
+                  data-testid={`insight-${row.original.id}-read-state`}
+                >
+                  {row.original.isRead ? (
+                    <DraftsOutlinedIcon />
+                  ) : (
+                    <MarkunreadOutlinedIcon />
+                  )}
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={Messages.actions.more} arrow>
+                <IconButton
+                  aria-label={Messages.actions.more}
+                  onClick={(e) =>
+                    setActionMenu({
+                      anchor: e.currentTarget,
+                      insight: row.original,
+                    })
+                  }
+                  data-testid={`insight-${row.original.id}-actions`}
+                >
+                  <MoreVertIcon />
+                </IconButton>
+              </Tooltip>
+            </Stack>
           )}
           muiTableBodyRowProps={({ row }) => {
             const check = checksByName.get(row.original.checkName);
-            // dim results of disabled checks; unknown checks stay normal
-            // to avoid flicker while the advisors list loads
-            const checkDisabled = check ? !check.enabled : false;
+            // dim results whose check no longer runs for that row's service,
+            // whether it is off globally or only there; unknown checks stay
+            // normal to avoid flicker while the advisors list loads
+            const checkDisabled = check
+              ? !check.enabled || isCheckDisabledForService(row.original)
+              : false;
 
             return {
               'data-testid': `insight-row-${row.original.id}`,
@@ -590,26 +709,13 @@ const AdvisorInsights: FC = () => {
             <ListItemText>{Messages.actions.viewDetails}</ListItemText>
           </MenuItem>
           <MenuItem
-            disabled={isMarking}
-            onClick={() => {
-              if (actionMenu) {
-                handleToggleRead(actionMenu.insight);
-              }
-              setActionMenu(null);
-            }}
-            data-testid="action-toggle-read"
-          >
-            <ListItemIcon>
-              <MarkEmailReadOutlinedIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>{Messages.actions.toggleRead}</ListItemText>
-          </MenuItem>
-          <MenuItem
-            // the backend silently skips disabled checks, so don't offer the action
+            // the backend silently skips checks disabled for the target, so
+            // don't offer the action when this service would be skipped
             disabled={
               isStarting ||
               !actionMenu ||
-              !checksByName.get(actionMenu.insight.checkName)?.enabled
+              !checksByName.get(actionMenu.insight.checkName)?.enabled ||
+              isCheckDisabledForService(actionMenu.insight)
             }
             onClick={() => {
               if (actionMenu) {
@@ -655,32 +761,44 @@ const AdvisorInsights: FC = () => {
             <ListItemText>{Messages.actions.copyAsText}</ListItemText>
           </MenuItem>
           <MenuItem
-            // unknown checks (e.g. removed advisors) cannot be toggled
+            onClick={() => {
+              if (actionMenu) {
+                handleCopyUrl(actionMenu.insight);
+              }
+              setActionMenu(null);
+            }}
+            data-testid="action-copy-url"
+          >
+            <ListItemIcon>
+              <LinkOutlinedIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>{Messages.actions.copyUrl}</ListItemText>
+          </MenuItem>
+          <MenuItem
+            // unknown checks (e.g. removed advisors) cannot be toggled, and a
+            // globally disabled check is re-enabled from the Advisor checks page
             disabled={
               isChangingCheck ||
               !actionMenu ||
-              !checksByName.has(actionMenu.insight.checkName)
+              !checksByName.get(actionMenu.insight.checkName)?.enabled
             }
             onClick={() => {
               if (actionMenu) {
-                handleToggleCheckEnabled(actionMenu.insight);
+                handleToggleCheckForService(actionMenu.insight);
               }
               setActionMenu(null);
             }}
             data-testid="action-disable-check"
           >
             <ListItemIcon>
-              {actionMenu &&
-              checksByName.get(actionMenu.insight.checkName)?.enabled ===
-                false ? (
+              {actionMenu && isCheckDisabledForService(actionMenu.insight) ? (
                 <CheckCircleOutlinedIcon fontSize="small" />
               ) : (
                 <BlockOutlinedIcon fontSize="small" />
               )}
             </ListItemIcon>
             <ListItemText>
-              {actionMenu &&
-              checksByName.get(actionMenu.insight.checkName)?.enabled === false
+              {actionMenu && isCheckDisabledForService(actionMenu.insight)
                 ? Messages.actions.enableCheck
                 : Messages.actions.disableCheck}
             </ListItemText>

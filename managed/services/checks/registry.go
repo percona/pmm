@@ -75,6 +75,41 @@ func (r *registry) deleteByName(checkNames []string) {
 	}
 }
 
+// deleteByNameAndService removes results for the specified checks, but only those
+// produced for the specified services, leaving other services' results in place.
+func (r *registry) deleteByNameAndService(checkNames, serviceIDs []string) {
+	r.rw.Lock()
+	defer r.rw.Unlock()
+
+	wanted := make(map[string]struct{}, len(serviceIDs))
+	for _, id := range serviceIDs {
+		wanted[id] = struct{}{}
+	}
+
+	for _, intervalGroup := range r.checkResults {
+		for _, name := range checkNames {
+			results, ok := intervalGroup[name]
+			if !ok {
+				continue
+			}
+
+			kept := make([]services.CheckResult, 0, len(results))
+			for _, result := range results {
+				_, drop := wanted[result.Target.ServiceID]
+				if !drop {
+					kept = append(kept, result)
+				}
+			}
+
+			if len(kept) == 0 {
+				delete(intervalGroup, name)
+				continue
+			}
+			intervalGroup[name] = kept
+		}
+	}
+}
+
 // deleteByInterval removes results for specified interval.
 func (r *registry) deleteByInterval(interval check.Interval) {
 	r.rw.Lock()

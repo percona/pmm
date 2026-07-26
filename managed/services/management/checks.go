@@ -209,7 +209,7 @@ func (s *ChecksAPIService) MarkInsightsRead(
 // StartAdvisorChecks executes advisor checks and returns the ID assigned to this batch.
 func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1.StartAdvisorChecksRequest) (*advisorsv1.StartAdvisorChecksResponse, error) {
 	// Start only specified checks from any group.
-	batchID, err := s.checksService.StartChecks(req.Names)
+	batchID, err := s.checksService.StartChecks(req.Names, req.ServiceIds)
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
