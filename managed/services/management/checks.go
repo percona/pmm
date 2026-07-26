@@ -417,8 +417,17 @@ func (s *ChecksAPIService) UpdateAdvisorCheck(ctx context.Context, req *advisors
 		return nil, status.Error(codes.InvalidArgument, "Check is required.")
 	}
 
+	// a check cannot be renamed: its name is the primary key and is denormalized
+	// into insight history, so reject a body name that disagrees with the path
+	// instead of silently updating the check the path points at. An empty body
+	// name means "not specified" and keeps working.
+	if req.Check.Name != "" && req.Check.Name != req.Name {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"Advisor check cannot be renamed: name '%s' in the request body does not match '%s'.",
+			req.Check.Name, req.Name)
+	}
+
 	c := apiToAdvisorCheck(req.Check)
-	// the path parameter is authoritative; the name cannot be changed on update
 	c.Name = req.Name
 
 	err := s.checksService.UpdateAdvisorCheck(ctx, c)

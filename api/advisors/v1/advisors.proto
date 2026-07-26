@@ -151,7 +151,8 @@ message CreateAdvisorCheckResponse {
 message UpdateAdvisorCheckRequest {
   // Machine-readable name (ID) of the check to update.
   string name = 1;
-  // The updated check definition.
+  // The updated check definition. A check cannot be renamed: leave its name
+  // empty or set it to the name above, otherwise the request is rejected.
   AdvisorCheck check = 2;
 }
 
@@ -451,7 +452,7 @@ service AdvisorService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Update Advisor Check"
-      description: "Updates an existing user-authored advisor check. Percona-shipped checks cannot be modified."
+      description: "Updates an existing user-authored advisor check. Percona-shipped checks cannot be modified. A check cannot be renamed: the name in the request body must either be empty or match the name in the path."
     };
   }
   // TestAdvisorCheck executes an advisor check definition without saving it.

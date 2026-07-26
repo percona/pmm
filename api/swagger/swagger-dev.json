@@ -2132,7 +2132,7 @@
         }
       },
       "put": {
-        "description": "Updates an existing user-authored advisor check. Percona-shipped checks cannot be modified.",
+        "description": "Updates an existing user-authored advisor check. Percona-shipped checks cannot be modified. A check cannot be renamed: the name in the request body must either be empty or match the name in the path.",
         "tags": [
           "AdvisorService"
         ],
