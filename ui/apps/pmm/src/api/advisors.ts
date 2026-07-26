@@ -2,12 +2,15 @@ import {
   Advisor,
   AdvisorCheck,
   AdvisorCheckInput,
+  AdvisorCheckTestTarget,
+  AdvisorFamily,
   ChangeAdvisorCheckParams,
   ChangeAdvisorChecksRequest,
   Insight,
   CreateAdvisorCheckRequest,
   CreateAdvisorCheckResponse,
   GetAdvisorCheckResponse,
+  ListAdvisorCheckTestTargetsResponse,
   ListAdvisorsResponse,
   ListInsightsFilterValuesResponse,
   ListInsightsParams,
@@ -83,6 +86,16 @@ export const testAdvisorCheck = async (
     { disableNotifications: true }
   );
   return res.data;
+};
+
+export const listAdvisorCheckTestTargets = async (
+  family: AdvisorFamily
+): Promise<AdvisorCheckTestTarget[]> => {
+  const res = await api.get<ListAdvisorCheckTestTargetsResponse>(
+    '/advisors/checks:testTargets',
+    { params: { family } }
+  );
+  return res.data.targets ?? [];
 };
 
 export const changeAdvisorChecks = async (

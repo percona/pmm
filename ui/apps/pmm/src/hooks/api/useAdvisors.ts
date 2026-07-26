@@ -11,6 +11,7 @@ import {
   createAdvisorCheck,
   deleteAdvisorCheck,
   getAdvisorCheck,
+  listAdvisorCheckTestTargets,
   listAdvisors,
   listInsightsFilterValues,
   listInsights,
@@ -23,6 +24,8 @@ import {
   Advisor,
   AdvisorCheck,
   AdvisorCheckInput,
+  AdvisorCheckTestTarget,
+  AdvisorFamily,
   ChangeAdvisorCheckParams,
   Insight,
   ListInsightsFilterValuesResponse,
@@ -36,6 +39,7 @@ import { PaginatedResponse } from 'types/util.types';
 const KEYS = {
   LIST: 'advisors:list',
   CHECK: 'advisors:check',
+  TEST_TARGETS: 'advisors:test-targets',
   START_CHECKS: 'advisors:start-checks',
   CHANGE_CHECKS: 'advisors:change-checks',
   CREATE_CHECK: 'advisors:create-check',
@@ -63,6 +67,17 @@ export const useAdvisorCheck = (
     queryFn: () => getAdvisorCheck(name!),
     // only fetch once a check is selected (lazy, on overlay open)
     enabled: !!name,
+    ...options,
+  });
+
+export const useAdvisorCheckTestTargets = (
+  family?: AdvisorFamily,
+  options?: Partial<UseQueryOptions<AdvisorCheckTestTarget[]>>
+) =>
+  useQuery({
+    queryKey: [KEYS.TEST_TARGETS, family],
+    queryFn: () => listAdvisorCheckTestTargets(family!),
+    enabled: !!family,
     ...options,
   });
 

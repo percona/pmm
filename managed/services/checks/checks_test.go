@@ -899,6 +899,39 @@ func TestFindTargetsSkipsOnlyInternalPostgreSQL(t *testing.T) {
 	assert.Empty(t, pgTargets)
 }
 
+func TestListTestTargets(t *testing.T) {
+	// NOTE: no t.Parallel() - testdb.Open recreates a single shared database, so concurrent
+	// testdb tests collide.
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
+
+	s := New(db, nil, vmClient, clickhouseDB)
+
+	setup(t, db, "mysql-b", models.PMMServerNodeID, "")
+	setup(t, db, "mysql-a", models.PMMServerNodeID, "")
+
+	targets, err := s.ListTestTargets(t.Context(), check.MySQL)
+	require.NoError(t, err)
+	require.Len(t, targets, 2)
+	// sorted by service name
+	assert.Equal(t, "mysql-a", targets[0].ServiceName)
+	assert.Equal(t, "mysql-b", targets[1].ServiceName)
+
+	// the internal PMM Server PostgreSQL is monitored but not a target
+	pgTargets, err := s.ListTestTargets(t.Context(), check.PostgreSQL)
+	require.NoError(t, err)
+	assert.Empty(t, pgTargets)
+
+	// unknown family rejected
+	_, err = s.ListTestTargets(t.Context(), check.Family("unknown"))
+	require.Error(t, err)
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
 func TestFilterChecksByInterval(t *testing.T) {
 	t.Parallel()
 	s := New(nil, nil, vmClient, clickhouseDB)

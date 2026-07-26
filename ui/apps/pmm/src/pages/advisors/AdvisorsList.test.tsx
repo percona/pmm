@@ -22,7 +22,6 @@ import {
   AdvisorFamily,
   AdvisorInterval,
 } from 'types/advisors.types';
-import { MySqlService } from 'types/services.types';
 
 vi.mock('api/advisors');
 vi.mock('api/services');
@@ -82,21 +81,6 @@ const FULL_CHECK: AdvisorCheck = {
   script: 'print("hi")',
 };
 
-const mysqlService = (id: string, name: string): MySqlService => ({
-  serviceId: id,
-  serviceName: name,
-  nodeId: 'node-1',
-  environment: '',
-  cluster: '',
-  replicationSet: '',
-  customLabels: {},
-  address: '127.0.0.1',
-  port: 3306,
-  socket: '',
-  version: '8.0',
-  extraDsnParams: {},
-});
-
 const renderComponent = (initialEntry = '/advisors') =>
   render(
     wrapWithQueryProvider(
@@ -132,6 +116,7 @@ describe('AdvisorsList', () => {
     vi.mocked(advisorsApi.startAdvisorChecks).mockResolvedValue('run-123');
     vi.mocked(advisorsApi.changeAdvisorChecks).mockResolvedValue();
     vi.mocked(advisorsApi.getAdvisorCheck).mockResolvedValue(FULL_CHECK);
+    vi.mocked(advisorsApi.listAdvisorCheckTestTargets).mockResolvedValue([]);
     vi.mocked(advisorsApi.testAdvisorCheck).mockResolvedValue({ results: [] });
     vi.mocked(advisorsApi.deleteAdvisorCheck).mockResolvedValue();
     vi.mocked(servicesApi.listServices).mockResolvedValue({ mysql: [] });
@@ -171,14 +156,10 @@ describe('AdvisorsList', () => {
   });
 
   it('tests the check against a picked service from the details pane', async () => {
-    vi.mocked(servicesApi.listServices).mockResolvedValue({
-      mysql: [
-        mysqlService('svc-1', 'mysql-svc-1'),
-        // PMM Server's own database is not a valid check target and must be
-        // filtered out of the picker (the filter is name-based)
-        mysqlService('svc-internal', 'pmm-server-postgresql'),
-      ],
-    });
+    // the backend decides eligibility; the picker offers its list verbatim
+    vi.mocked(advisorsApi.listAdvisorCheckTestTargets).mockResolvedValue([
+      { serviceId: 'svc-1', serviceName: 'mysql-svc-1' },
+    ]);
 
     renderComponent();
 
@@ -197,10 +178,6 @@ describe('AdvisorsList', () => {
       key: 'ArrowDown',
     });
     const listbox = await screen.findByRole('listbox', { hidden: true });
-    // the internal PMM Server database is not offered as a target
-    expect(
-      within(listbox).queryByText('pmm-server-postgresql')
-    ).not.toBeInTheDocument();
     fireEvent.click(within(listbox).getByText('mysql-svc-1'));
 
     fireEvent.click(within(pane).getByTestId('advisor-check-form-test'));

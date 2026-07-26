@@ -2373,6 +2373,93 @@
         }
       }
     },
+    "/v1/advisors/checks:testTargets": {
+      "get": {
+        "description": "Lists the services an advisor check of the given family can be tested against.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "List Advisor Check Test Targets",
+        "operationId": "ListAdvisorCheckTestTargets",
+        "parameters": [
+          {
+            "enum": [
+              "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+              "ADVISOR_CHECK_FAMILY_MYSQL",
+              "ADVISOR_CHECK_FAMILY_POSTGRESQL",
+              "ADVISOR_CHECK_FAMILY_MONGODB"
+            ],
+            "type": "string",
+            "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+            "description": "Family of the check to be tested; determines the eligible service type.",
+            "name": "family",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "targets": {
+                  "description": "Services a check of the requested family can be tested against.",
+                  "type": "array",
+                  "items": {
+                    "description": "AdvisorCheckTestTarget is a service an advisor check can be tested against.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "ID of the eligible service.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Name of the eligible service.",
+                        "type": "string",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/advisors/insights": {
       "get": {
         "description": "Returns the history of Advisor check results (insights), including their outcomes.",

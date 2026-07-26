@@ -339,6 +339,36 @@ func (_m *mockChecksService) GetInsightsFilterValues(ctx context.Context) ([]str
 	return r0, r1, r2
 }
 
+// ListTestTargets provides a mock function with given fields: ctx, family
+func (_m *mockChecksService) ListTestTargets(ctx context.Context, family check.Family) ([]services.Target, error) {
+	ret := _m.Called(ctx, family)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListTestTargets")
+	}
+
+	var r0 []services.Target
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, check.Family) ([]services.Target, error)); ok {
+		return rf(ctx, family)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, check.Family) []services.Target); ok {
+		r0 = rf(ctx, family)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]services.Target)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, check.Family) error); ok {
+		r1 = rf(ctx, family)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // MarkInsightsRead provides a mock function with given fields: ctx, ids, isRead
 func (_m *mockChecksService) MarkInsightsRead(ctx context.Context, ids []string, isRead bool) error {
 	ret := _m.Called(ctx, ids, isRead)

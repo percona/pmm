@@ -1,20 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AxiosError } from 'axios';
-import { useTestAdvisorCheck } from 'hooks/api/useAdvisors';
-import { useServices } from 'hooks/api/useServices';
+import {
+  useAdvisorCheckTestTargets,
+  useTestAdvisorCheck,
+} from 'hooks/api/useAdvisors';
 import {
   AdvisorCheckInput,
   AdvisorFamily,
   TestAdvisorCheckResult,
 } from 'types/advisors.types';
-import { VersionedService } from 'types/services.types';
-import { ADVISOR_FAMILY_SERVICE_TYPE } from 'utils/advisors.utils';
 import { Messages } from './CheckTest.messages';
-
-// PMM Server's internal PostgreSQL is monitored but deliberately excluded from
-// advisor check targets (models.PMMServerPostgreSQLServiceName on the backend),
-// so it must not be offered as a test target either
-const PMM_SERVER_POSTGRESQL_SERVICE_NAME = 'pmm-server-postgresql';
 
 interface UseCheckTestOptions {
   // the check's family; the test target must be a service of a matching type
@@ -57,17 +52,16 @@ export const useCheckTest = ({
     setServiceId(null);
   }, [family]);
 
-  const serviceType = family ? ADVISOR_FAMILY_SERVICE_TYPE[family] : undefined;
-  const { data: servicesResponse } = useServices(
-    { serviceType },
-    { enabled: enabled && !!serviceType }
-  );
+  // the backend decides eligibility (service type, agent availability, and
+  // exclusions like PMM Server's internal PostgreSQL) - the picker offers
+  // exactly what checks:test will accept
+  const { data: targets } = useAdvisorCheckTestTargets(family, {
+    enabled: enabled && !!family,
+  });
   const serviceOptions = useMemo(
     () =>
-      (Object.values(servicesResponse ?? {}).flat() as VersionedService[])
-        .filter((s) => s.serviceName !== PMM_SERVER_POSTGRESQL_SERVICE_NAME)
-        .map((s) => ({ id: s.serviceId, label: s.serviceName })),
-    [servicesResponse]
+      (targets ?? []).map((t) => ({ id: t.serviceId, label: t.serviceName })),
+    [targets]
   );
 
   const { mutateAsync: testCheck, isPending: isTesting } =

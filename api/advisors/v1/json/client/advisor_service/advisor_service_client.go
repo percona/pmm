@@ -59,6 +59,8 @@ type ClientService interface {
 
 	GetAdvisorCheck(params *GetAdvisorCheckParams, opts ...ClientOption) (*GetAdvisorCheckOK, error)
 
+	ListAdvisorCheckTestTargets(params *ListAdvisorCheckTestTargetsParams, opts ...ClientOption) (*ListAdvisorCheckTestTargetsOK, error)
+
 	ListAdvisorChecks(params *ListAdvisorChecksParams, opts ...ClientOption) (*ListAdvisorChecksOK, error)
 
 	ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) (*ListAdvisorsOK, error)
@@ -250,6 +252,50 @@ func (a *Client) GetAdvisorCheck(params *GetAdvisorCheckParams, opts ...ClientOp
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*GetAdvisorCheckDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListAdvisorCheckTestTargets lists advisor check test targets
+
+Lists the services an advisor check of the given family can be tested against.
+*/
+func (a *Client) ListAdvisorCheckTestTargets(params *ListAdvisorCheckTestTargetsParams, opts ...ClientOption) (*ListAdvisorCheckTestTargetsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListAdvisorCheckTestTargetsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListAdvisorCheckTestTargets",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors/checks:testTargets",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListAdvisorCheckTestTargetsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListAdvisorCheckTestTargetsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListAdvisorCheckTestTargetsDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

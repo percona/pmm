@@ -196,6 +196,24 @@ message TestAdvisorCheckResponse {
   string script_output = 2;
 }
 
+message ListAdvisorCheckTestTargetsRequest {
+  // Family of the check to be tested; determines the eligible service type.
+  AdvisorCheckFamily family = 1;
+}
+
+// AdvisorCheckTestTarget is a service an advisor check can be tested against.
+message AdvisorCheckTestTarget {
+  // ID of the eligible service.
+  string service_id = 1;
+  // Name of the eligible service.
+  string service_name = 2;
+}
+
+message ListAdvisorCheckTestTargetsResponse {
+  // Services a check of the requested family can be tested against.
+  repeated AdvisorCheckTestTarget targets = 1;
+}
+
 message ListAdvisorsRequest {}
 
 message ListAdvisorsResponse {
@@ -445,6 +463,14 @@ service AdvisorService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Test Advisor Check"
       description: "Executes an advisor check definition against a single service without saving the check; results are returned and not persisted."
+    };
+  }
+  // ListAdvisorCheckTestTargets returns the services an advisor check of the given family can be tested against.
+  rpc ListAdvisorCheckTestTargets(ListAdvisorCheckTestTargetsRequest) returns (ListAdvisorCheckTestTargetsResponse) {
+    option (google.api.http) = {get: "/v1/advisors/checks:testTargets"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Advisor Check Test Targets"
+      description: "Lists the services an advisor check of the given family can be tested against."
     };
   }
   // DeleteAdvisorCheck deletes a user-authored advisor check.

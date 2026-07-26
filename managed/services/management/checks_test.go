@@ -169,6 +169,29 @@ func TestTestAdvisorCheck(t *testing.T) {
 	})
 }
 
+func TestListAdvisorCheckTestTargets(t *testing.T) {
+	t.Parallel()
+
+	var checksService mockChecksService
+	checksService.On("ListTestTargets", mock.Anything, check.PostgreSQL).Return([]services.Target{
+		{ServiceID: "svc-1", ServiceName: "pg-1"},
+		{ServiceID: "svc-2", ServiceName: "pg-2"},
+	}, nil)
+
+	s := NewChecksAPIService(&checksService)
+
+	resp, err := s.ListAdvisorCheckTestTargets(t.Context(), &advisorsv1.ListAdvisorCheckTestTargetsRequest{
+		Family: advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_POSTGRESQL,
+	})
+	require.NoError(t, err)
+	assert.Equal(t, &advisorsv1.ListAdvisorCheckTestTargetsResponse{
+		Targets: []*advisorsv1.AdvisorCheckTestTarget{
+			{ServiceId: "svc-1", ServiceName: "pg-1"},
+			{ServiceId: "svc-2", ServiceName: "pg-2"},
+		},
+	}, resp)
+}
+
 func TestListInsightsFilterValues(t *testing.T) {
 	t.Parallel()
 

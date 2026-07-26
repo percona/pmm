@@ -107,6 +107,16 @@ export interface TestAdvisorCheckResponse {
   scriptOutput?: string;
 }
 
+// a service an advisor check can be tested against
+export interface AdvisorCheckTestTarget {
+  serviceId: string;
+  serviceName: string;
+}
+
+export interface ListAdvisorCheckTestTargetsResponse {
+  targets?: AdvisorCheckTestTarget[];
+}
+
 export interface ChangeAdvisorCheckParams {
   name: string;
   enable?: boolean;

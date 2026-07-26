@@ -29,6 +29,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -692,16 +693,9 @@ func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID
 		return nil, "", status.Errorf(codes.InvalidArgument, "Invalid advisor check: %v", err)
 	}
 
-	var serviceType models.ServiceType
-	switch c.Family {
-	case check.MySQL:
-		serviceType = models.MySQLServiceType
-	case check.PostgreSQL:
-		serviceType = models.PostgreSQLServiceType
-	case check.MongoDB:
-		serviceType = models.MongoDBServiceType
-	default:
-		return nil, "", status.Errorf(codes.InvalidArgument, "Unknown check family %s", c.Family)
+	serviceType, err := serviceTypeForFamily(c.Family)
+	if err != nil {
+		return nil, "", err
 	}
 
 	targets, err := s.findTargets(ctx, serviceType, s.minPMMAgentVersion(c))
@@ -749,6 +743,41 @@ func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID
 			"Service '%s' has no compatible pmm-agent: it may be missing, disconnected or outdated",
 			service.ServiceName)
 	}
+}
+
+// serviceTypeForFamily maps a check family to the service type it targets.
+func serviceTypeForFamily(family check.Family) (models.ServiceType, error) {
+	switch family {
+	case check.MySQL:
+		return models.MySQLServiceType, nil
+	case check.PostgreSQL:
+		return models.PostgreSQLServiceType, nil
+	case check.MongoDB:
+		return models.MongoDBServiceType, nil
+	default:
+		return "", status.Errorf(codes.InvalidArgument, "Unknown check family '%s'", family)
+	}
+}
+
+// ListTestTargets returns the services an advisor check of the given family can
+// be tested against. The minimum agent version is check-specific and unknown
+// before the check is final, so it is not applied here; checks:test reports an
+// outdated agent precisely when it happens.
+func (s *Service) ListTestTargets(ctx context.Context, family check.Family) ([]services.Target, error) {
+	serviceType, err := serviceTypeForFamily(family)
+	if err != nil {
+		return nil, err
+	}
+
+	targets, err := s.findTargets(ctx, serviceType, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	sort.Slice(targets, func(i, j int) bool {
+		return targets[i].ServiceName < targets[j].ServiceName
+	})
+	return targets, nil
 }
 
 // ensureUserCheck verifies that the named check exists and is user-authored.

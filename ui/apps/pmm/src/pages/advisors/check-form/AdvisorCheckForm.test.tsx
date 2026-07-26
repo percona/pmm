@@ -8,7 +8,6 @@ import {
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AxiosError, AxiosResponse } from 'axios';
 import * as advisorsApi from 'api/advisors';
-import * as servicesApi from 'api/services';
 import {
   wrapWithQueryProvider,
   wrapWithSnackbarProvider,
@@ -19,28 +18,11 @@ import {
   AdvisorInterval,
   TestAdvisorCheckResult,
 } from 'types/advisors.types';
-import { MySqlService } from 'types/services.types';
 import { Severity } from 'types/severity.types';
 import { Messages } from '../check-test/CheckTest.messages';
 import { AdvisorCheckForm } from './AdvisorCheckForm';
 
 vi.mock('api/advisors');
-vi.mock('api/services');
-
-const mysqlService = (id: string, name: string): MySqlService => ({
-  serviceId: id,
-  serviceName: name,
-  nodeId: 'node-1',
-  environment: '',
-  cluster: '',
-  replicationSet: '',
-  customLabels: {},
-  address: '127.0.0.1',
-  port: 3306,
-  socket: '',
-  version: '8.0',
-  extraDsnParams: {},
-});
 
 const SOURCE_CHECK: AdvisorCheck = {
   name: 'mysql_version_check',
@@ -102,12 +84,10 @@ describe('AdvisorCheckForm test run', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(advisorsApi.getAdvisorCheck).mockResolvedValue(SOURCE_CHECK);
-    vi.mocked(servicesApi.listServices).mockResolvedValue({
-      mysql: [
-        mysqlService('svc-1', 'mysql-svc-1'),
-        mysqlService('svc-2', 'mysql-svc-2'),
-      ],
-    });
+    vi.mocked(advisorsApi.listAdvisorCheckTestTargets).mockResolvedValue([
+      { serviceId: 'svc-1', serviceName: 'mysql-svc-1' },
+      { serviceId: 'svc-2', serviceName: 'mysql-svc-2' },
+    ]);
     vi.mocked(advisorsApi.testAdvisorCheck).mockResolvedValue({
       results: [TEST_RESULT],
       scriptOutput: 'version = 8.2.6',

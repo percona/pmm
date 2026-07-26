@@ -467,6 +467,27 @@ func (s *ChecksAPIService) TestAdvisorCheck(ctx context.Context, req *advisorsv1
 	}, nil
 }
 
+// ListAdvisorCheckTestTargets returns the services an advisor check of the given family can be tested against.
+func (s *ChecksAPIService) ListAdvisorCheckTestTargets(
+	ctx context.Context,
+	req *advisorsv1.ListAdvisorCheckTestTargetsRequest,
+) (*advisorsv1.ListAdvisorCheckTestTargetsResponse, error) {
+	targets, err := s.checksService.ListTestTargets(ctx, convertAPIFamily(req.Family))
+	if err != nil {
+		return nil, err
+	}
+
+	res := make([]*advisorsv1.AdvisorCheckTestTarget, len(targets))
+	for i, target := range targets {
+		res[i] = &advisorsv1.AdvisorCheckTestTarget{
+			ServiceId:   target.ServiceID,
+			ServiceName: target.ServiceName,
+		}
+	}
+
+	return &advisorsv1.ListAdvisorCheckTestTargetsResponse{Targets: res}, nil
+}
+
 // convertTestCheckResults converts test (dry-run) check execution results to their API representation.
 func convertTestCheckResults(results []services.CheckResult) []*advisorsv1.TestAdvisorCheckResult {
 	converted := make([]*advisorsv1.TestAdvisorCheckResult, 0, len(results))
