@@ -25,18 +25,23 @@ export const getAdvisorsColumns = ({
     header: Messages.columns.check,
     accessorKey: 'summary',
     size: 250,
+    // the only growing column; all others stay at their fixed size
+    grow: true,
   },
   {
     id: 'category',
     header: Messages.columns.category,
     accessorFn: (row) => row.category,
     size: 150,
+    grow: false,
   },
   {
     id: 'subcategory',
     header: Messages.columns.subcategory,
     accessorFn: (row) => row.subcategory,
-    size: 150,
+    // wide enough for the "Sub category" header + sort icon
+    size: 170,
+    grow: false,
   },
   {
     id: 'technology',

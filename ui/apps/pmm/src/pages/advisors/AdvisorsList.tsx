@@ -528,7 +528,12 @@ const AdvisorsList: FC = () => {
               size: 150,
               grow: false,
               muiTableBodyCellProps: { align: 'center', sx: { px: 1 } },
-              muiTableHeadCellProps: { align: 'center', sx: { px: 1 } },
+              // MRT zeroes the bottom padding on display-column head cells;
+              // match the 0.6rem data headers get so the label aligns with them
+              muiTableHeadCellProps: {
+                align: 'center',
+                sx: { px: 1, pb: '0.6rem' },
+              },
             },
           }}
           renderRowActions={({ row }) => (
