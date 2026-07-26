@@ -36,6 +36,7 @@ import {
   TECHNOLOGY_OPTIONS,
   INTERVAL_OPTIONS,
   QUERY_TYPES_BY_TECHNOLOGY,
+  SCRIPT_FIELD_MIN_HEIGHT,
 } from './AdvisorCheckForm.constants';
 import {
   AdvisorCheckFormValues,
@@ -386,9 +387,26 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                 label={Messages.fields.script}
                 textFieldProps={{
                   multiline: true,
-                  // the outlined root already signals focus; drop the browser's
-                  // native focus ring on the editor's inner textarea
-                  sx: { '& textarea': { outline: 'none' } },
+                  sx: {
+                    // fill the leftover height of the scroll area instead of
+                    // sitting at the editor's minimum, so the field matches the
+                    // details pane; a long script scrolls inside it
+                    flex: 1,
+                    '& .MuiInputBase-root': {
+                      flex: 1,
+                      // the editor's own minHeight lives inside an overflow:auto
+                      // wrapper, so it never reaches this box as a min-content
+                      // floor — state it here, or a long queries list squeezes
+                      // the editor away instead of scrolling the form
+                      minHeight: SCRIPT_FIELD_MIN_HEIGHT,
+                      // the root centres its flex items, which would float a
+                      // short script in the middle once it can outgrow content
+                      alignItems: 'flex-start',
+                    },
+                    // the outlined root already signals focus; drop the
+                    // browser's native focus ring on the editor's inner textarea
+                    '& textarea': { outline: 'none' },
+                  },
                   slotProps: {
                     // syntax-highlighted editor in place of the plain textarea
                     input: { inputComponent: ScriptEditorInput },

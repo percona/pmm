@@ -1,5 +1,9 @@
 import { AdvisorTechnology, AdvisorInterval } from 'types/advisors.types';
 
+// the height the Script field never shrinks below, however many queries are
+// listed above it; the form scrolls instead of squeezing the editor
+export const SCRIPT_FIELD_MIN_HEIGHT = 300;
+
 export const TECHNOLOGY_OPTIONS: AdvisorTechnology[] = [
   AdvisorTechnology.mysql,
   AdvisorTechnology.postgresql,
