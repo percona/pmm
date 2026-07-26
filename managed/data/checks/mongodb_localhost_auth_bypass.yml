@@ -4,7 +4,7 @@ checks:
     name: mongodb_localhost_auth_bypass
     summary: MongoDB localhost authentication bypass enabled
     description: This check returns warnings if MongoDB localhost bypass is enabled.
-    family: MONGODB
+    technology: MONGODB
     #author: Divyanshu Soni
     category: Security
     subcategory: Authentication

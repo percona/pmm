@@ -545,9 +545,9 @@ type ListAdvisorChecksOKBodyChecksItems0 struct {
 	// Enum: ["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]
 	Interval *string `json:"interval,omitempty"`
 
-	// family
-	// Enum: ["ADVISOR_CHECK_FAMILY_UNSPECIFIED","ADVISOR_CHECK_FAMILY_MYSQL","ADVISOR_CHECK_FAMILY_POSTGRESQL","ADVISOR_CHECK_FAMILY_MONGODB"]
-	Family *string `json:"family,omitempty"`
+	// technology
+	// Enum: ["ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED","ADVISOR_CHECK_TECHNOLOGY_MYSQL","ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL","ADVISOR_CHECK_TECHNOLOGY_MONGODB"]
+	Technology *string `json:"technology,omitempty"`
 
 	// Category (top-level grouping).
 	Category string `json:"category,omitempty"`
@@ -576,7 +576,7 @@ func (o *ListAdvisorChecksOKBodyChecksItems0) Validate(formats strfmt.Registry) 
 		res = append(res, err)
 	}
 
-	if err := o.validateFamily(formats); err != nil {
+	if err := o.validateTechnology(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -638,48 +638,48 @@ func (o *ListAdvisorChecksOKBodyChecksItems0) validateInterval(formats strfmt.Re
 	return nil
 }
 
-var listAdvisorChecksOkBodyChecksItems0TypeFamilyPropEnum []any
+var listAdvisorChecksOkBodyChecksItems0TypeTechnologyPropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_FAMILY_UNSPECIFIED","ADVISOR_CHECK_FAMILY_MYSQL","ADVISOR_CHECK_FAMILY_POSTGRESQL","ADVISOR_CHECK_FAMILY_MONGODB"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED","ADVISOR_CHECK_TECHNOLOGY_MYSQL","ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL","ADVISOR_CHECK_TECHNOLOGY_MONGODB"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
-		listAdvisorChecksOkBodyChecksItems0TypeFamilyPropEnum = append(listAdvisorChecksOkBodyChecksItems0TypeFamilyPropEnum, v)
+		listAdvisorChecksOkBodyChecksItems0TypeTechnologyPropEnum = append(listAdvisorChecksOkBodyChecksItems0TypeTechnologyPropEnum, v)
 	}
 }
 
 const (
 
-	// ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYUNSPECIFIED captures enum value "ADVISOR_CHECK_FAMILY_UNSPECIFIED"
-	ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYUNSPECIFIED string = "ADVISOR_CHECK_FAMILY_UNSPECIFIED"
+	// ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYUNSPECIFIED captures enum value "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED"
+	ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYUNSPECIFIED string = "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED"
 
-	// ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYMYSQL captures enum value "ADVISOR_CHECK_FAMILY_MYSQL"
-	ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYMYSQL string = "ADVISOR_CHECK_FAMILY_MYSQL"
+	// ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYMYSQL captures enum value "ADVISOR_CHECK_TECHNOLOGY_MYSQL"
+	ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYMYSQL string = "ADVISOR_CHECK_TECHNOLOGY_MYSQL"
 
-	// ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYPOSTGRESQL captures enum value "ADVISOR_CHECK_FAMILY_POSTGRESQL"
-	ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYPOSTGRESQL string = "ADVISOR_CHECK_FAMILY_POSTGRESQL"
+	// ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYPOSTGRESQL captures enum value "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL"
+	ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYPOSTGRESQL string = "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL"
 
-	// ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYMONGODB captures enum value "ADVISOR_CHECK_FAMILY_MONGODB"
-	ListAdvisorChecksOKBodyChecksItems0FamilyADVISORCHECKFAMILYMONGODB string = "ADVISOR_CHECK_FAMILY_MONGODB"
+	// ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYMONGODB captures enum value "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
+	ListAdvisorChecksOKBodyChecksItems0TechnologyADVISORCHECKTECHNOLOGYMONGODB string = "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
 )
 
 // prop value enum
-func (o *ListAdvisorChecksOKBodyChecksItems0) validateFamilyEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listAdvisorChecksOkBodyChecksItems0TypeFamilyPropEnum, true); err != nil {
+func (o *ListAdvisorChecksOKBodyChecksItems0) validateTechnologyEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listAdvisorChecksOkBodyChecksItems0TypeTechnologyPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *ListAdvisorChecksOKBodyChecksItems0) validateFamily(formats strfmt.Registry) error {
-	if swag.IsZero(o.Family) { // not required
+func (o *ListAdvisorChecksOKBodyChecksItems0) validateTechnology(formats strfmt.Registry) error {
+	if swag.IsZero(o.Technology) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateFamilyEnum("family", "body", *o.Family); err != nil {
+	if err := o.validateTechnologyEnum("technology", "body", *o.Technology); err != nil {
 		return err
 	}
 

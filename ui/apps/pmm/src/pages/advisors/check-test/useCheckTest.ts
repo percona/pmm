@@ -6,14 +6,14 @@ import {
 } from 'hooks/api/useAdvisors';
 import {
   AdvisorCheckInput,
-  AdvisorFamily,
+  AdvisorTechnology,
   TestAdvisorCheckResult,
 } from 'types/advisors.types';
 import { Messages } from './CheckTest.messages';
 
 interface UseCheckTestOptions {
-  // the check's family; the test target must be a service of a matching type
-  family?: AdvisorFamily;
+  // the check's technology; the test target must be a service of a matching type
+  technology?: AdvisorTechnology;
   // gates the services query (e.g. only while the overlay is open)
   enabled: boolean;
   // all test state resets when this changes (e.g. overlay open, check name)
@@ -24,7 +24,7 @@ interface UseCheckTestOptions {
 // user-picked service: the service options, the picked service and the last
 // run's outcome. Shared by the check form and the check details pane.
 export const useCheckTest = ({
-  family,
+  technology,
   enabled,
   resetKey,
 }: UseCheckTestOptions) => {
@@ -47,16 +47,16 @@ export const useCheckTest = ({
     setError(null);
   }, [resetKey]);
 
-  // a previously picked service is likely of the wrong type after a family change
+  // a previously picked service is likely of the wrong type after a technology change
   useEffect(() => {
     setServiceId(null);
-  }, [family]);
+  }, [technology]);
 
   // the backend decides eligibility (service type, agent availability, and
   // exclusions like PMM Server's internal PostgreSQL) - the picker offers
   // exactly what checks:test will accept
-  const { data: targets } = useAdvisorCheckTestTargets(family, {
-    enabled: enabled && !!family,
+  const { data: targets } = useAdvisorCheckTestTargets(technology, {
+    enabled: enabled && !!technology,
   });
   const serviceOptions = useMemo(
     () =>

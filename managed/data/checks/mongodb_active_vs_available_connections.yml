@@ -5,7 +5,7 @@ checks:
     name: mongodb_active_vs_available_connections
     summary: MongoDB Active vs Available Connections
     description: This check returns warnings if the ratio between active and available connections is higher than 75%
-    family: MONGODB
+    technology: MONGODB
     #author: Corrado Pandiani
     category: Configuration
     subcategory: Generic

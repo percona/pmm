@@ -25,7 +25,7 @@ import {
   AdvisorCheck,
   AdvisorCheckInput,
   AdvisorCheckTestTarget,
-  AdvisorFamily,
+  AdvisorTechnology,
   ChangeAdvisorCheckParams,
   Insight,
   ListInsightsFilterValuesResponse,
@@ -71,13 +71,13 @@ export const useAdvisorCheck = (
   });
 
 export const useAdvisorCheckTestTargets = (
-  family?: AdvisorFamily,
+  technology?: AdvisorTechnology,
   options?: Partial<UseQueryOptions<AdvisorCheckTestTarget[]>>
 ) =>
   useQuery({
-    queryKey: [KEYS.TEST_TARGETS, family],
-    queryFn: () => listAdvisorCheckTestTargets(family!),
-    enabled: !!family,
+    queryKey: [KEYS.TEST_TARGETS, technology],
+    queryFn: () => listAdvisorCheckTestTargets(technology!),
+    enabled: !!technology,
     ...options,
   });
 

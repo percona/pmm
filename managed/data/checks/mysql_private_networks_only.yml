@@ -4,7 +4,7 @@ checks:
     name: mysql_private_networks_only
     summary: MySQL Users With Granted Public Networks Access
     description: Discovers MySQL accounts currently allowed to connect from public networks.
-    family: MYSQL
+    technology: MYSQL
     category: Security
     subcategory: Connection
     interval: standard

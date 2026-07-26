@@ -4,7 +4,7 @@ checks:
     name: mongodb_authmech_scramsha256
     summary: MongoDB Security AuthMech Check
     description: This check returns warnings if MongoDB is not using the default SHA-256 hashing function as its SCRAM authentication method.
-    family: MONGODB
+    technology: MONGODB
     #author: Kimberly Wilkins
     category: Security
     subcategory: Configuration

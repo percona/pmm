@@ -5,7 +5,7 @@ checks:
     summary: Mongo Storage Cache
     description: Mongo wiredtiger cache size is greater then default 50%
     interval: standard
-    family: MONGODB
+    technology: MONGODB
     category: Configuration
     subcategory: Generic
     queries:

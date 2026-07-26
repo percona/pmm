@@ -4,7 +4,7 @@ checks:
     name: mysql_32binary_on_64system
     summary: Check if binaries are 32 bits
     description: This check returns a warning if version_compile_machine equals i686.
-    family: MYSQL
+    technology: MYSQL
     #author: Carlos Tutte
     category: Configuration
     subcategory: Resources

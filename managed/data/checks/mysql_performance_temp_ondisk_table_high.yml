@@ -4,7 +4,7 @@ checks:
     name: mysql_performance_temp_ondisk_table_high
     summary: Too many on-disk temporary tables
     description: This check warns against too many on-disk temporary tables created due to unoptimized query execution.
-    family: MYSQL
+    technology: MYSQL
     category: Query
     subcategory: Index
     #author: Kedar Vaijanapurkar

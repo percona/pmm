@@ -9,7 +9,7 @@ checks:
     subcategory: Configuration
     #subcategory: generic
     #author: The Grinch
-    family: MYSQL
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service, @@global.local_infile as local_infile;"

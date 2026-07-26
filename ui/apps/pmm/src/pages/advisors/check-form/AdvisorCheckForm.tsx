@@ -26,16 +26,16 @@ import {
   useCreateAdvisorCheck,
   useUpdateAdvisorCheck,
 } from 'hooks/api/useAdvisors';
-import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
+import { ADVISOR_TECHNOLOGY, ADVISOR_INTERVAL } from 'lib/constants';
 import { helperTextTestId } from 'utils/mui.utils';
 import { CheckTestControls } from '../check-test/CheckTestControls';
 import { CheckTestResults } from '../check-test/CheckTestResults';
 import { useCheckTest } from '../check-test/useCheckTest';
 import { Messages } from './AdvisorCheckForm.messages';
 import {
-  FAMILY_OPTIONS,
+  TECHNOLOGY_OPTIONS,
   INTERVAL_OPTIONS,
-  QUERY_TYPES_BY_FAMILY,
+  QUERY_TYPES_BY_TECHNOLOGY,
 } from './AdvisorCheckForm.constants';
 import {
   AdvisorCheckFormValues,
@@ -100,10 +100,10 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
     }
   }, [open, mode, sourceCheck, reset]);
 
-  const family = watch('family');
-  const queryTypeOptions = QUERY_TYPES_BY_FAMILY[family] ?? [];
+  const technology = watch('technology');
+  const queryTypeOptions = QUERY_TYPES_BY_TECHNOLOGY[technology] ?? [];
 
-  const test = useCheckTest({ family, enabled: open, resetKey: open });
+  const test = useCheckTest({ technology, enabled: open, resetKey: open });
 
   const { mutateAsync: create, isPending: isCreating } =
     useCreateAdvisorCheck();
@@ -281,17 +281,17 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                   )}
                 />
                 <SelectInput
-                  name="family"
-                  label={Messages.fields.family}
+                  name="technology"
+                  label={Messages.fields.technology}
                   formControlProps={{ sx: { flex: 1, minWidth: 160 } }}
                   selectFieldProps={{
                     // @ts-expect-error data-testid is passed through to the DOM
-                    'data-testid': 'check-family-select',
+                    'data-testid': 'check-technology-select',
                   }}
                 >
-                  {FAMILY_OPTIONS.map((option) => (
+                  {TECHNOLOGY_OPTIONS.map((option) => (
                     <MenuItem key={option} value={option}>
-                      {ADVISOR_FAMILY[option]}
+                      {ADVISOR_TECHNOLOGY[option]}
                     </MenuItem>
                   ))}
                 </SelectInput>

@@ -417,7 +417,7 @@ ListAdvisorCheckTestTargetsOKBody list advisor check test targets OK body
 swagger:model ListAdvisorCheckTestTargetsOKBody
 */
 type ListAdvisorCheckTestTargetsOKBody struct {
-	// Services a check of the requested family can be tested against.
+	// Services a check of the requested technology can be tested against.
 	Targets []*ListAdvisorCheckTestTargetsOKBodyTargetsItems0 `json:"targets"`
 }
 

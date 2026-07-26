@@ -5,7 +5,7 @@ checks:
     summary: PostgreSQL sequential scan check
     description: This check for tables with excessive sequential scans
     interval: standard
-    family: POSTGRESQL
+    technology: POSTGRESQL
     category: Query
     subcategory: Index
     queries:

@@ -560,9 +560,9 @@ func TestTestAdvisorCheck(t *testing.T) {
 		assert.Empty(t, output)
 	})
 
-	t.Run("unknown check family rejected", func(t *testing.T) {
+	t.Run("unknown check technology rejected", func(t *testing.T) {
 		unknown := c
-		unknown.Family = "unknown"
+		unknown.Technology = "unknown"
 
 		res, output, err := s.TestAdvisorCheck(ctx, unknown, "svc-1")
 		require.Error(t, err)
@@ -586,7 +586,7 @@ func TestTestAdvisorCheck(t *testing.T) {
 		Description: "Diagnosis probe",
 		Category:    "test",
 		Subcategory: "diagnosis",
-		Family:      check.PostgreSQL,
+		Technology:  check.PostgreSQL,
 		Interval:    check.Standard,
 		Queries:     []check.Query{{Type: check.PostgreSQLSelect, Query: "1"}},
 		Script:      "def check_context(docs, context):\n    return []",
@@ -760,9 +760,9 @@ func TestMinPMMAgents(t *testing.T) {
 		{name: "MongoDBGetParameter", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBGetParameter}}}},
 		{name: "MongoDBBuildInfo", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}}}},
 		{name: "MongoDBGetCmdLineOpts", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBGetCmdLineOpts}}}},
-		{name: "MySQL Family", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}}},
-		{name: "MongoDB Family", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}}},
-		{name: "PostgreSQL Family", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}}},
+		{name: "MySQL Technology", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}}},
+		{name: "MongoDB Technology", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}}},
+		{name: "PostgreSQL Technology", minVersion: pmmAgent3_0_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}}},
 	}
 
 	s := New(nil, nil, vmClient, clickhouseDB)
@@ -926,8 +926,8 @@ func TestListTestTargets(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, pgTargets)
 
-	// unknown family rejected
-	_, err = s.ListTestTargets(t.Context(), check.Family("unknown"))
+	// unknown technology rejected
+	_, err = s.ListTestTargets(t.Context(), check.Technology("unknown"))
 	require.Error(t, err)
 	assert.Equal(t, codes.InvalidArgument, status.Code(err))
 }
@@ -1040,33 +1040,33 @@ func TestGroupChecksByDB(t *testing.T) {
 	t.Parallel()
 
 	checks := map[string]check.Check{
-		"mysql_1":        {Name: "mysql_1", Version: 2, Family: check.MySQL},
-		"mysql_2":        {Name: "mysql_2", Version: 2, Family: check.MySQL},
-		"mysql_3":        {Name: "mysql_3", Version: 2, Family: check.MySQL},
-		"postgresql_1":   {Name: "postgresql_1", Version: 2, Family: check.PostgreSQL},
-		"postgresql_2":   {Name: "postgresql_2", Version: 2, Family: check.PostgreSQL},
-		"postgresql_3":   {Name: "postgresql_3", Version: 2, Family: check.PostgreSQL},
-		"mongodb_1":      {Name: "mongodb_1", Version: 2, Family: check.MongoDB},
-		"mongodb_2":      {Name: "mongodb_2", Version: 2, Family: check.MongoDB},
-		"mongodb_3":      {Name: "mongodb_3", Version: 2, Family: check.MongoDB},
-		"mongodb_4":      {Name: "mongodb_4", Version: 2, Family: check.MongoDB},
-		"mongodb_5":      {Name: "mongodb_5", Version: 2, Family: check.MongoDB},
-		"mongodb_6":      {Name: "mongodb_6", Version: 2, Family: check.MongoDB},
-		"missing family": {Name: "missing family", Version: 2},
-		"unknown family": {Name: "unknown family", Version: 2, Family: check.Family("RedisFamily")},
+		"mysql_1":            {Name: "mysql_1", Version: 2, Technology: check.MySQL},
+		"mysql_2":            {Name: "mysql_2", Version: 2, Technology: check.MySQL},
+		"mysql_3":            {Name: "mysql_3", Version: 2, Technology: check.MySQL},
+		"postgresql_1":       {Name: "postgresql_1", Version: 2, Technology: check.PostgreSQL},
+		"postgresql_2":       {Name: "postgresql_2", Version: 2, Technology: check.PostgreSQL},
+		"postgresql_3":       {Name: "postgresql_3", Version: 2, Technology: check.PostgreSQL},
+		"mongodb_1":          {Name: "mongodb_1", Version: 2, Technology: check.MongoDB},
+		"mongodb_2":          {Name: "mongodb_2", Version: 2, Technology: check.MongoDB},
+		"mongodb_3":          {Name: "mongodb_3", Version: 2, Technology: check.MongoDB},
+		"mongodb_4":          {Name: "mongodb_4", Version: 2, Technology: check.MongoDB},
+		"mongodb_5":          {Name: "mongodb_5", Version: 2, Technology: check.MongoDB},
+		"mongodb_6":          {Name: "mongodb_6", Version: 2, Technology: check.MongoDB},
+		"missing technology": {Name: "missing technology", Version: 2},
+		"unknown technology": {Name: "unknown technology", Version: 2, Technology: check.Technology("RedisTechnology")},
 	}
 
 	l := logrus.WithField("component", "tests")
 	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(l, checks)
 
-	// checks with a missing or unknown family are skipped
+	// checks with a missing or unknown technology are skipped
 	require.Len(t, mySQLChecks, 3)
 	require.Len(t, postgreSQLChecks, 3)
 	require.Len(t, mongoDBChecks, 6)
 
-	assert.Equal(t, check.MySQL, mySQLChecks["mysql_1"].Family)
-	assert.Equal(t, check.PostgreSQL, postgreSQLChecks["postgresql_1"].Family)
-	assert.Equal(t, check.MongoDB, mongoDBChecks["mongodb_1"].Family)
+	assert.Equal(t, check.MySQL, mySQLChecks["mysql_1"].Technology)
+	assert.Equal(t, check.PostgreSQL, postgreSQLChecks["postgresql_1"].Technology)
+	assert.Equal(t, check.MongoDB, mongoDBChecks["mongodb_1"].Technology)
 }
 
 func TestValidateAdvisorSeverity(t *testing.T) {

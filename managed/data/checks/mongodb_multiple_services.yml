@@ -5,7 +5,7 @@ checks:
     summary: MongoDB - Multiple mongod services
     description: This check returns a warning if multiple mongod services are running in a single node.
     interval: standard
-    family: MONGODB
+    technology: MONGODB
     category: Performance
     subcategory: Generic
     #author: Parag Bhayani

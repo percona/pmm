@@ -97,7 +97,7 @@ func UpsertAdvisorCheckContent(ctx context.Context, q *reform.Querier, c *Adviso
 	_, err := q.ExecContext(ctx, `
 		INSERT INTO advisor_checks (
 			name, source, version, summary, description, category, subcategory,
-			family, interval, interval_override, disabled, disabled_service_ids,
+			technology, interval, interval_override, disabled, disabled_service_ids,
 			queries, script, created_at, updated_at
 		) VALUES (
 			$1, $2, $3, $4, $5, $6, $7, $8, $9, NULL, false, NULL, $10, $11, $12, $12
@@ -109,13 +109,13 @@ func UpsertAdvisorCheckContent(ctx context.Context, q *reform.Querier, c *Adviso
 			description = EXCLUDED.description,
 			category = EXCLUDED.category,
 			subcategory = EXCLUDED.subcategory,
-			family = EXCLUDED.family,
+			technology = EXCLUDED.technology,
 			interval = EXCLUDED.interval,
 			queries = EXCLUDED.queries,
 			script = EXCLUDED.script,
 			updated_at = EXCLUDED.updated_at`,
 		c.Name, BuiltinCheckSource, c.Version, c.Summary, c.Description, c.Category, c.Subcategory,
-		c.Family, c.Interval, c.Queries, c.Script, now)
+		c.Technology, c.Interval, c.Queries, c.Script, now)
 	if err != nil {
 		return fmt.Errorf("failed to upsert advisor check %s: %w", c.Name, err)
 	}

@@ -5,7 +5,7 @@ checks:
     summary: MongoDB - allocate swap memory
     description: This check returns a warning if there is no swap memory allocated to your instance.
     interval: standard
-    family: MONGODB
+    technology: MONGODB
     category: Configuration
     subcategory: Resources
     #author: Parag Bhayani

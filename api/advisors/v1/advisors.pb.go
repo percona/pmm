@@ -81,55 +81,55 @@ func (AdvisorCheckInterval) EnumDescriptor() ([]byte, []int) {
 	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{0}
 }
 
-type AdvisorCheckFamily int32
+type AdvisorCheckTechnology int32
 
 const (
-	AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_UNSPECIFIED AdvisorCheckFamily = 0
-	AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MYSQL       AdvisorCheckFamily = 1
-	AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_POSTGRESQL  AdvisorCheckFamily = 2
-	AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MONGODB     AdvisorCheckFamily = 3
+	AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED AdvisorCheckTechnology = 0
+	AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MYSQL       AdvisorCheckTechnology = 1
+	AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL  AdvisorCheckTechnology = 2
+	AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MONGODB     AdvisorCheckTechnology = 3
 )
 
-// Enum value maps for AdvisorCheckFamily.
+// Enum value maps for AdvisorCheckTechnology.
 var (
-	AdvisorCheckFamily_name = map[int32]string{
-		0: "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
-		1: "ADVISOR_CHECK_FAMILY_MYSQL",
-		2: "ADVISOR_CHECK_FAMILY_POSTGRESQL",
-		3: "ADVISOR_CHECK_FAMILY_MONGODB",
+	AdvisorCheckTechnology_name = map[int32]string{
+		0: "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+		1: "ADVISOR_CHECK_TECHNOLOGY_MYSQL",
+		2: "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
+		3: "ADVISOR_CHECK_TECHNOLOGY_MONGODB",
 	}
-	AdvisorCheckFamily_value = map[string]int32{
-		"ADVISOR_CHECK_FAMILY_UNSPECIFIED": 0,
-		"ADVISOR_CHECK_FAMILY_MYSQL":       1,
-		"ADVISOR_CHECK_FAMILY_POSTGRESQL":  2,
-		"ADVISOR_CHECK_FAMILY_MONGODB":     3,
+	AdvisorCheckTechnology_value = map[string]int32{
+		"ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED": 0,
+		"ADVISOR_CHECK_TECHNOLOGY_MYSQL":       1,
+		"ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL":  2,
+		"ADVISOR_CHECK_TECHNOLOGY_MONGODB":     3,
 	}
 )
 
-func (x AdvisorCheckFamily) Enum() *AdvisorCheckFamily {
-	p := new(AdvisorCheckFamily)
+func (x AdvisorCheckTechnology) Enum() *AdvisorCheckTechnology {
+	p := new(AdvisorCheckTechnology)
 	*p = x
 	return p
 }
 
-func (x AdvisorCheckFamily) String() string {
+func (x AdvisorCheckTechnology) String() string {
 	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
 }
 
-func (AdvisorCheckFamily) Descriptor() protoreflect.EnumDescriptor {
+func (AdvisorCheckTechnology) Descriptor() protoreflect.EnumDescriptor {
 	return file_advisors_v1_advisors_proto_enumTypes[1].Descriptor()
 }
 
-func (AdvisorCheckFamily) Type() protoreflect.EnumType {
+func (AdvisorCheckTechnology) Type() protoreflect.EnumType {
 	return &file_advisors_v1_advisors_proto_enumTypes[1]
 }
 
-func (x AdvisorCheckFamily) Number() protoreflect.EnumNumber {
+func (x AdvisorCheckTechnology) Number() protoreflect.EnumNumber {
 	return protoreflect.EnumNumber(x)
 }
 
-// Deprecated: Use AdvisorCheckFamily.Descriptor instead.
-func (AdvisorCheckFamily) EnumDescriptor() ([]byte, []int) {
+// Deprecated: Use AdvisorCheckTechnology.Descriptor instead.
+func (AdvisorCheckTechnology) EnumDescriptor() ([]byte, []int) {
 	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{1}
 }
 
@@ -318,8 +318,8 @@ type AdvisorCheck struct {
 	Summary string `protobuf:"bytes,4,opt,name=summary,proto3" json:"summary,omitempty"`
 	// Check execution interval.
 	Interval AdvisorCheckInterval `protobuf:"varint,5,opt,name=interval,proto3,enum=advisors.v1.AdvisorCheckInterval" json:"interval,omitempty"`
-	// DB family.
-	Family AdvisorCheckFamily `protobuf:"varint,6,opt,name=family,proto3,enum=advisors.v1.AdvisorCheckFamily" json:"family,omitempty"`
+	// DB technology.
+	Technology AdvisorCheckTechnology `protobuf:"varint,6,opt,name=technology,proto3,enum=advisors.v1.AdvisorCheckTechnology" json:"technology,omitempty"`
 	// Category (top-level grouping).
 	Category string `protobuf:"bytes,7,opt,name=category,proto3" json:"category,omitempty"`
 	// Subcategory (second-level grouping within a category).
@@ -401,11 +401,11 @@ func (x *AdvisorCheck) GetInterval() AdvisorCheckInterval {
 	return AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_UNSPECIFIED
 }
 
-func (x *AdvisorCheck) GetFamily() AdvisorCheckFamily {
+func (x *AdvisorCheck) GetTechnology() AdvisorCheckTechnology {
 	if x != nil {
-		return x.Family
+		return x.Technology
 	}
-	return AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_UNSPECIFIED
+	return AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED
 }
 
 func (x *AdvisorCheck) GetCategory() string {
@@ -1377,8 +1377,8 @@ func (x *TestAdvisorCheckResponse) GetScriptOutput() string {
 
 type ListAdvisorCheckTestTargetsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Family of the check to be tested; determines the eligible service type.
-	Family        AdvisorCheckFamily `protobuf:"varint,1,opt,name=family,proto3,enum=advisors.v1.AdvisorCheckFamily" json:"family,omitempty"`
+	// Technology of the check to be tested; determines the eligible service type.
+	Technology    AdvisorCheckTechnology `protobuf:"varint,1,opt,name=technology,proto3,enum=advisors.v1.AdvisorCheckTechnology" json:"technology,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1413,11 +1413,11 @@ func (*ListAdvisorCheckTestTargetsRequest) Descriptor() ([]byte, []int) {
 	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{19}
 }
 
-func (x *ListAdvisorCheckTestTargetsRequest) GetFamily() AdvisorCheckFamily {
+func (x *ListAdvisorCheckTestTargetsRequest) GetTechnology() AdvisorCheckTechnology {
 	if x != nil {
-		return x.Family
+		return x.Technology
 	}
-	return AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_UNSPECIFIED
+	return AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED
 }
 
 // AdvisorCheckTestTarget is a service an advisor check can be tested against.
@@ -1477,7 +1477,7 @@ func (x *AdvisorCheckTestTarget) GetServiceName() string {
 
 type ListAdvisorCheckTestTargetsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Services a check of the requested family can be tested against.
+	// Services a check of the requested technology can be tested against.
 	Targets       []*AdvisorCheckTestTarget `protobuf:"bytes,1,rep,name=targets,proto3" json:"targets,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2461,14 +2461,16 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"parameters\x1a=\n" +
 	"\x0fParametersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf9\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x85\x04\n" +
 	"\fAdvisorCheck\x126\n" +
 	"\x04name\x18\x01 \x01(\tB\"\xfaB\x1fr\x1d\x18\x80\x012\x18^[a-zA-Z_][a-zA-Z0-9_]*$R\x04name\x12\x18\n" +
 	"\aenabled\x18\x02 \x01(\bR\aenabled\x12 \n" +
 	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x18\n" +
 	"\asummary\x18\x04 \x01(\tR\asummary\x12=\n" +
-	"\binterval\x18\x05 \x01(\x0e2!.advisors.v1.AdvisorCheckIntervalR\binterval\x127\n" +
-	"\x06family\x18\x06 \x01(\x0e2\x1f.advisors.v1.AdvisorCheckFamilyR\x06family\x12\x1a\n" +
+	"\binterval\x18\x05 \x01(\x0e2!.advisors.v1.AdvisorCheckIntervalR\binterval\x12C\n" +
+	"\n" +
+	"technology\x18\x06 \x01(\x0e2#.advisors.v1.AdvisorCheckTechnologyR\n" +
+	"technology\x12\x1a\n" +
 	"\bcategory\x18\a \x01(\tR\bcategory\x12 \n" +
 	"\vsubcategory\x18\b \x01(\tR\vsubcategory\x12!\n" +
 	"\fuser_defined\x18\t \x01(\bR\vuserDefined\x128\n" +
@@ -2534,9 +2536,11 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"~\n" +
 	"\x18TestAdvisorCheckResponse\x12=\n" +
 	"\aresults\x18\x01 \x03(\v2#.advisors.v1.TestAdvisorCheckResultR\aresults\x12#\n" +
-	"\rscript_output\x18\x02 \x01(\tR\fscriptOutput\"]\n" +
-	"\"ListAdvisorCheckTestTargetsRequest\x127\n" +
-	"\x06family\x18\x01 \x01(\x0e2\x1f.advisors.v1.AdvisorCheckFamilyR\x06family\"Z\n" +
+	"\rscript_output\x18\x02 \x01(\tR\fscriptOutput\"i\n" +
+	"\"ListAdvisorCheckTestTargetsRequest\x12C\n" +
+	"\n" +
+	"technology\x18\x01 \x01(\x0e2#.advisors.v1.AdvisorCheckTechnologyR\n" +
+	"technology\"Z\n" +
 	"\x16AdvisorCheckTestTarget\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -2640,12 +2644,12 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\"ADVISOR_CHECK_INTERVAL_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fADVISOR_CHECK_INTERVAL_STANDARD\x10\x01\x12#\n" +
 	"\x1fADVISOR_CHECK_INTERVAL_FREQUENT\x10\x02\x12\x1f\n" +
-	"\x1bADVISOR_CHECK_INTERVAL_RARE\x10\x03*\xa1\x01\n" +
-	"\x12AdvisorCheckFamily\x12$\n" +
-	" ADVISOR_CHECK_FAMILY_UNSPECIFIED\x10\x00\x12\x1e\n" +
-	"\x1aADVISOR_CHECK_FAMILY_MYSQL\x10\x01\x12#\n" +
-	"\x1fADVISOR_CHECK_FAMILY_POSTGRESQL\x10\x02\x12 \n" +
-	"\x1cADVISOR_CHECK_FAMILY_MONGODB\x10\x03*\xba\x01\n" +
+	"\x1bADVISOR_CHECK_INTERVAL_RARE\x10\x03*\xb5\x01\n" +
+	"\x16AdvisorCheckTechnology\x12(\n" +
+	"$ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED\x10\x00\x12\"\n" +
+	"\x1eADVISOR_CHECK_TECHNOLOGY_MYSQL\x10\x01\x12'\n" +
+	"#ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL\x10\x02\x12$\n" +
+	" ADVISOR_CHECK_TECHNOLOGY_MONGODB\x10\x03*\xba\x01\n" +
 	"\x18AdvisorCheckResultStatus\x12+\n" +
 	"'ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED\x10\x00\x12\"\n" +
 	"\x1eADVISOR_CHECK_RESULT_STATUS_OK\x10\x01\x12&\n" +
@@ -2654,7 +2658,7 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\x17AdvisorCheckTriggeredBy\x12*\n" +
 	"&ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fADVISOR_CHECK_TRIGGERED_BY_USER\x10\x01\x12(\n" +
-	"$ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER\x10\x022\xc4\x19\n" +
+	"$ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER\x10\x022\xc8\x19\n" +
 	"\x0eAdvisorService\x12\xe1\x01\n" +
 	"\fListInsights\x12 .advisors.v1.ListInsightsRequest\x1a!.advisors.v1.ListInsightsResponse\"\x8b\x01\x92Ak\x12\x15List Advisor Insights\x1aRReturns the history of Advisor check results (insights), including their outcomes.\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/advisors/insights\x12\xbc\x02\n" +
 	"\x18ListInsightsFilterValues\x12,.advisors.v1.ListInsightsFilterValuesRequest\x1a-.advisors.v1.ListInsightsFilterValuesResponse\"\xc2\x01\x92A\x94\x01\x12#List Advisor Insights Filter Values\x1amReturns the distinct service and node names present in the Advisor insights, for populating filter dropdowns.\x82\xd3\xe4\x93\x02$\x12\"/v1/advisors/insights:filterValues\x12\x8c\x02\n" +
@@ -2666,8 +2670,8 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\x0fGetAdvisorCheck\x12#.advisors.v1.GetAdvisorCheckRequest\x1a$.advisors.v1.GetAdvisorCheckResponse\"\x83\x01\x92A^\x12\x11Get Advisor Check\x1aIReturns a single advisor check by name, including its queries and script.\x82\xd3\xe4\x93\x02\x1c\x12\x1a/v1/advisors/checks/{name}\x12\xca\x01\n" +
 	"\x12CreateAdvisorCheck\x12&.advisors.v1.CreateAdvisorCheckRequest\x1a'.advisors.v1.CreateAdvisorCheckResponse\"c\x92AB\x12\x14Create Advisor Check\x1a*Creates a new user-authored advisor check.\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/v1/advisors/checks\x12\x83\x02\n" +
 	"\x12UpdateAdvisorCheck\x12&.advisors.v1.UpdateAdvisorCheckRequest\x1a'.advisors.v1.UpdateAdvisorCheckResponse\"\x9b\x01\x92As\x12\x14Update Advisor Check\x1a[Updates an existing user-authored advisor check. Percona-shipped checks cannot be modified.\x82\xd3\xe4\x93\x02\x1f:\x01*\x1a\x1a/v1/advisors/checks/{name}\x12\x9e\x02\n" +
-	"\x10TestAdvisorCheck\x12$.advisors.v1.TestAdvisorCheckRequest\x1a%.advisors.v1.TestAdvisorCheckResponse\"\xbc\x01\x92A\x95\x01\x12\x12Test Advisor Check\x1a\x7fExecutes an advisor check definition against a single service without saving the check; results are returned and not persisted.\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/advisors/checks:test\x12\x9e\x02\n" +
-	"\x1bListAdvisorCheckTestTargets\x12/.advisors.v1.ListAdvisorCheckTestTargetsRequest\x1a0.advisors.v1.ListAdvisorCheckTestTargetsResponse\"\x9b\x01\x92Aq\x12\x1fList Advisor Check Test Targets\x1aNLists the services an advisor check of the given family can be tested against.\x82\xd3\xe4\x93\x02!\x12\x1f/v1/advisors/checks:testTargets\x12\xf5\x01\n" +
+	"\x10TestAdvisorCheck\x12$.advisors.v1.TestAdvisorCheckRequest\x1a%.advisors.v1.TestAdvisorCheckResponse\"\xbc\x01\x92A\x95\x01\x12\x12Test Advisor Check\x1a\x7fExecutes an advisor check definition against a single service without saving the check; results are returned and not persisted.\x82\xd3\xe4\x93\x02\x1d:\x01*\"\x18/v1/advisors/checks:test\x12\xa2\x02\n" +
+	"\x1bListAdvisorCheckTestTargets\x12/.advisors.v1.ListAdvisorCheckTestTargetsRequest\x1a0.advisors.v1.ListAdvisorCheckTestTargetsResponse\"\x9f\x01\x92Au\x12\x1fList Advisor Check Test Targets\x1aRLists the services an advisor check of the given technology can be tested against.\x82\xd3\xe4\x93\x02!\x12\x1f/v1/advisors/checks:testTargets\x12\xf5\x01\n" +
 	"\x12DeleteAdvisorCheck\x12&.advisors.v1.DeleteAdvisorCheckRequest\x1a'.advisors.v1.DeleteAdvisorCheckResponse\"\x8d\x01\x92Ah\x12\x14Delete Advisor Check\x1aPDeletes a user-authored advisor check. Percona-shipped checks cannot be deleted.\x82\xd3\xe4\x93\x02\x1c*\x1a/v1/advisors/checks/{name}B\xa0\x01\n" +
 	"\x0fcom.advisors.v1B\rAdvisorsProtoP\x01Z1github.com/percona/pmm/api/advisors/v1;advisorsv1\xa2\x02\x03AXX\xaa\x02\vAdvisors.V1\xca\x02\vAdvisors\\V1\xe2\x02\x17Advisors\\V1\\GPBMetadata\xea\x02\fAdvisors::V1b\x06proto3"
 
@@ -2688,7 +2692,7 @@ var (
 	file_advisors_v1_advisors_proto_msgTypes  = make([]protoimpl.MessageInfo, 37)
 	file_advisors_v1_advisors_proto_goTypes   = []any{
 		AdvisorCheckInterval(0),                     // 0: advisors.v1.AdvisorCheckInterval
-		AdvisorCheckFamily(0),                       // 1: advisors.v1.AdvisorCheckFamily
+		AdvisorCheckTechnology(0),                   // 1: advisors.v1.AdvisorCheckTechnology
 		AdvisorCheckResultStatus(0),                 // 2: advisors.v1.AdvisorCheckResultStatus
 		AdvisorCheckTriggeredBy(0),                  // 3: advisors.v1.AdvisorCheckTriggeredBy
 		(*AdvisorCheckQuery)(nil),                   // 4: advisors.v1.AdvisorCheckQuery
@@ -2736,7 +2740,7 @@ var (
 var file_advisors_v1_advisors_proto_depIdxs = []int32{
 	38, // 0: advisors.v1.AdvisorCheckQuery.parameters:type_name -> advisors.v1.AdvisorCheckQuery.ParametersEntry
 	0,  // 1: advisors.v1.AdvisorCheck.interval:type_name -> advisors.v1.AdvisorCheckInterval
-	1,  // 2: advisors.v1.AdvisorCheck.family:type_name -> advisors.v1.AdvisorCheckFamily
+	1,  // 2: advisors.v1.AdvisorCheck.technology:type_name -> advisors.v1.AdvisorCheckTechnology
 	4,  // 3: advisors.v1.AdvisorCheck.queries:type_name -> advisors.v1.AdvisorCheckQuery
 	5,  // 4: advisors.v1.Advisor.checks:type_name -> advisors.v1.AdvisorCheck
 	0,  // 5: advisors.v1.ChangeAdvisorCheckParams.interval:type_name -> advisors.v1.AdvisorCheckInterval
@@ -2750,7 +2754,7 @@ var file_advisors_v1_advisors_proto_depIdxs = []int32{
 	41, // 13: advisors.v1.TestAdvisorCheckResult.severity:type_name -> management.v1.Severity
 	39, // 14: advisors.v1.TestAdvisorCheckResult.labels:type_name -> advisors.v1.TestAdvisorCheckResult.LabelsEntry
 	21, // 15: advisors.v1.TestAdvisorCheckResponse.results:type_name -> advisors.v1.TestAdvisorCheckResult
-	1,  // 16: advisors.v1.ListAdvisorCheckTestTargetsRequest.family:type_name -> advisors.v1.AdvisorCheckFamily
+	1,  // 16: advisors.v1.ListAdvisorCheckTestTargetsRequest.technology:type_name -> advisors.v1.AdvisorCheckTechnology
 	24, // 17: advisors.v1.ListAdvisorCheckTestTargetsResponse.targets:type_name -> advisors.v1.AdvisorCheckTestTarget
 	6,  // 18: advisors.v1.ListAdvisorsResponse.advisors:type_name -> advisors.v1.Advisor
 	7,  // 19: advisors.v1.ChangeAdvisorChecksRequest.params:type_name -> advisors.v1.ChangeAdvisorCheckParams

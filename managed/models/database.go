@@ -1229,7 +1229,7 @@ var databaseSchema = [][]string{
 			description TEXT NOT NULL,
 			category VARCHAR NOT NULL,
 			subcategory VARCHAR NOT NULL,
-			family VARCHAR NOT NULL,
+			technology VARCHAR NOT NULL,
 			interval VARCHAR NOT NULL,
 			interval_override VARCHAR,
 			disabled BOOLEAN NOT NULL,
@@ -1248,7 +1248,7 @@ var databaseSchema = [][]string{
 		// of checks that no longer exist.
 		`INSERT INTO advisor_checks (
 			name, source, version, summary, description, category, subcategory,
-			family, interval, interval_override, disabled, queries, script,
+			technology, interval, interval_override, disabled, queries, script,
 			created_at, updated_at
 		)
 		SELECT name, 'builtin', 2, '', '', '', '', '', '', interval, false, '[]', '', now(), now()
@@ -1259,7 +1259,7 @@ var databaseSchema = [][]string{
 		// versions in the settings JSON.
 		`INSERT INTO advisor_checks (
 			name, source, version, summary, description, category, subcategory,
-			family, interval, interval_override, disabled, queries, script,
+			technology, interval, interval_override, disabled, queries, script,
 			created_at, updated_at
 		)
 		SELECT DISTINCT x.name, 'builtin', 2, '', '', '', '', '', '', NULL, true, '[]', '', now(), now()

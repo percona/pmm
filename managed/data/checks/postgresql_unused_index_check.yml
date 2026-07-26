@@ -5,7 +5,7 @@ checks:
     summary: Check for relations that have unused indexes
     description: This check lists relations with indexes that have not been used since statistics were last reset
     interval: standard
-    family: POSTGRESQL
+    technology: POSTGRESQL
     category: Query
     subcategory: Index
     queries:

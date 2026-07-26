@@ -1,4 +1,8 @@
-import { Advisor, AdvisorCheckRow, AdvisorFamily } from 'types/advisors.types';
+import {
+  Advisor,
+  AdvisorCheckRow,
+  AdvisorTechnology,
+} from 'types/advisors.types';
 import { ServiceType } from 'types/services.types';
 
 export const flattenAdvisorChecks = (advisors: Advisor[]): AdvisorCheckRow[] =>
@@ -9,7 +13,7 @@ export const flattenAdvisorChecks = (advisors: Advisor[]): AdvisorCheckRow[] =>
       description: check.description,
       subcategory: advisor.subcategory,
       category: advisor.category,
-      family: check.family,
+      technology: check.technology,
       interval: check.interval,
       enabled: check.enabled,
       userDefined: check.userDefined,
@@ -17,11 +21,11 @@ export const flattenAdvisorChecks = (advisors: Advisor[]): AdvisorCheckRow[] =>
     }))
   );
 
-// maps a check's target DB family to the inventory service type it runs against
-export const ADVISOR_FAMILY_SERVICE_TYPE: Partial<
-  Record<AdvisorFamily, ServiceType>
+// maps a check's target DB technology to the inventory service type it runs against
+export const ADVISOR_TECHNOLOGY_SERVICE_TYPE: Partial<
+  Record<AdvisorTechnology, ServiceType>
 > = {
-  [AdvisorFamily.mysql]: ServiceType.mysql,
-  [AdvisorFamily.postgresql]: ServiceType.posgresql,
-  [AdvisorFamily.mongodb]: ServiceType.mongodb,
+  [AdvisorTechnology.mysql]: ServiceType.mysql,
+  [AdvisorTechnology.postgresql]: ServiceType.posgresql,
+  [AdvisorTechnology.mongodb]: ServiceType.mongodb,
 };

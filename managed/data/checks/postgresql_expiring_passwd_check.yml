@@ -8,7 +8,7 @@ checks:
     category: Security
     subcategory: Configuration
     interval: standard
-    family: POSTGRESQL
+    technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT
         query: "rolname, rolvaliduntil::timestamp(0)::text, floor((extract(epoch from rolvaliduntil) - extract(epoch from now())) / 86400)::int AS expires FROM pg_roles WHERE rolvaliduntil IS NOT NULL"

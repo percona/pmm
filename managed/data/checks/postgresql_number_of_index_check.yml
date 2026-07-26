@@ -5,7 +5,7 @@ checks:
     summary: Check for relations with a high number of indexes
     description: This check lists relations with more than 10 indexes
     interval: standard
-    family: POSTGRESQL
+    technology: POSTGRESQL
     category: Query
     subcategory: Index
     queries:

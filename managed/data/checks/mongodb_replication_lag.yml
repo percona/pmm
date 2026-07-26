@@ -7,7 +7,7 @@ checks:
     description: This check returns warnings if the Replica Set member is more than 10 sec behind the primary
     category: Performance
     subcategory: Replication
-    family: MONGODB
+    technology: MONGODB
     #author: Ivan Groenewold
     interval: standard
     queries:

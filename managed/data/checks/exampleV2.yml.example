@@ -7,7 +7,7 @@ checks:
     interval: standard
     category: Security
     subcategory: Example
-    family: MYSQL
+    technology: MYSQL
     queries:
       - type: MYSQL_SHOW
         query: VARIABLES

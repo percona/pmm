@@ -5,7 +5,7 @@ checks:
     summary: MongoDB write Tickets
     description: This check returns warnings if MongoDB is using more than 128 write tickets.
     interval: standard
-    family: MONGODB
+    technology: MONGODB
     category: Configuration
     subcategory: Generic
     #author: Vinicius Grippa/Parag Bhayani

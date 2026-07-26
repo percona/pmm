@@ -4,7 +4,7 @@ checks:
     name: postgresql_super_role
     summary: PostgreSQL Super Role
     description: This check returns a warning if there are users with superuser role.
-    family: POSTGRESQL
+    technology: POSTGRESQL
     category: Security
     subcategory: Authentication
     interval: standard

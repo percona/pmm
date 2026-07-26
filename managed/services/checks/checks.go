@@ -693,7 +693,7 @@ func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID
 		return nil, "", status.Errorf(codes.InvalidArgument, "Invalid advisor check: %v", err)
 	}
 
-	serviceType, err := serviceTypeForFamily(c.Family)
+	serviceType, err := serviceTypeForTechnology(c.Technology)
 	if err != nil {
 		return nil, "", err
 	}
@@ -745,9 +745,9 @@ func (s *Service) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID
 	}
 }
 
-// serviceTypeForFamily maps a check family to the service type it targets.
-func serviceTypeForFamily(family check.Family) (models.ServiceType, error) {
-	switch family {
+// serviceTypeForTechnology maps a check technology to the service type it targets.
+func serviceTypeForTechnology(technology check.Technology) (models.ServiceType, error) {
+	switch technology {
 	case check.MySQL:
 		return models.MySQLServiceType, nil
 	case check.PostgreSQL:
@@ -755,16 +755,16 @@ func serviceTypeForFamily(family check.Family) (models.ServiceType, error) {
 	case check.MongoDB:
 		return models.MongoDBServiceType, nil
 	default:
-		return "", status.Errorf(codes.InvalidArgument, "Unknown check family '%s'", family)
+		return "", status.Errorf(codes.InvalidArgument, "Unknown check technology '%s'", technology)
 	}
 }
 
-// ListTestTargets returns the services an advisor check of the given family can
+// ListTestTargets returns the services an advisor check of the given technology can
 // be tested against. The minimum agent version is check-specific and unknown
 // before the check is final, so it is not applied here; checks:test reports an
 // outdated agent precisely when it happens.
-func (s *Service) ListTestTargets(ctx context.Context, family check.Family) ([]services.Target, error) {
-	serviceType, err := serviceTypeForFamily(family)
+func (s *Service) ListTestTargets(ctx context.Context, technology check.Technology) ([]services.Target, error) {
+	serviceType, err := serviceTypeForTechnology(technology)
 	if err != nil {
 		return nil, err
 	}
@@ -824,7 +824,7 @@ func checkToModel(c check.Check) (*models.AdvisorCheck, error) {
 		Description: c.Description,
 		Category:    c.Category,
 		Subcategory: c.Subcategory,
-		Family:      string(c.Family),
+		Technology:  string(c.Technology),
 		Interval:    string(c.Interval),
 		Queries:     queries,
 		Script:      c.Script,
@@ -852,7 +852,7 @@ func modelToCheck(m *models.AdvisorCheck) (check.Check, error) {
 		Description: m.Description,
 		Category:    m.Category,
 		Subcategory: m.Subcategory,
-		Family:      check.Family(m.Family),
+		Technology:  check.Technology(m.Technology),
 		Interval:    check.Interval(interval),
 		Queries:     queries,
 		Script:      m.Script,
@@ -1061,8 +1061,8 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 		pmmAgentVersion := s.minPMMAgentVersion(c)
 		targets, err := s.findTargets(ctx, serviceType, pmmAgentVersion)
 		if err != nil {
-			s.l.Warnf("Failed to find proper agents and services for check family: %s and "+
-				"min version: %s, reason: %s.", c.Family, pmmAgentVersion, err)
+			s.l.Warnf("Failed to find proper agents and services for check technology: %s and "+
+				"min version: %s, reason: %s.", c.Technology, pmmAgentVersion, err)
 			continue
 		}
 
@@ -1076,7 +1076,7 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 			// stamp each (check, target) outcome with its actual completion time
 			checkedAt := models.Now()
 			if err != nil {
-				s.l.Warnf("Failed to execute check %s of family %s on target %s: %+v", c.Name, c.Family, target.AgentID, err)
+				s.l.Warnf("Failed to execute check %s of technology %s on target %s: %+v", c.Name, c.Technology, target.AgentID, err)
 				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Subcategory, c.Name, "error").Inc()
 				history = append(history, newInsightRecord(c, target, models.CheckResultError, check.Result{Description: err.Error()}, checkedAt, ri))
 				continue
@@ -2239,7 +2239,7 @@ func groupChecksByDB(l *logrus.Entry, checks map[string]check.Check) (mySQLCheck
 	postgreSQLChecks = make(map[string]check.Check)
 	mongoDBChecks = make(map[string]check.Check)
 	for _, c := range checks {
-		switch c.Family {
+		switch c.Technology {
 		case check.MySQL:
 			mySQLChecks[c.Name] = c
 		case check.PostgreSQL:
@@ -2247,7 +2247,7 @@ func groupChecksByDB(l *logrus.Entry, checks map[string]check.Check) (mySQLCheck
 		case check.MongoDB:
 			mongoDBChecks[c.Name] = c
 		default:
-			l.Warnf("Unknown check family %s, will be skipped.", c.Family)
+			l.Warnf("Unknown check technology %s, will be skipped.", c.Technology)
 		}
 	}
 

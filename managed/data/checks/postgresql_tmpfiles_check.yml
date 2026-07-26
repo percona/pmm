@@ -8,7 +8,7 @@ checks:
     category: Performance
     subcategory: Generic
     interval: standard
-    family: POSTGRESQL
+    technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT
         query: datname, temp_files, PG_SIZE_PRETTY(temp_bytes) AS temp_bytes, TO_CHAR( AGE(stats_reset), 'MM "Months" DD "Days"') AS age FROM pg_stat_database

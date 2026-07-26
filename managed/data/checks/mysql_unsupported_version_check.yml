@@ -4,7 +4,7 @@ checks:
     name: mysql_unsupported_version_check
     summary: Checks mysql version for support
     description: This check warns against an unsupported mysql version
-    family: MYSQL
+    technology: MYSQL
     #author: Kedar Vaijanapurkar
     category: Configuration
     subcategory: Version

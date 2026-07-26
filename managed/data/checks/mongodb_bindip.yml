@@ -4,7 +4,7 @@ checks:
     name: mongodb_bindip
     summary: MonogDB IP bindings
     description: This check returns warnings if the MongoDB network binding is not set as recommended.
-    family: MONGODB
+    technology: MONGODB
     #author: Divyanshu  Soni
     category: Security
     subcategory: Connection

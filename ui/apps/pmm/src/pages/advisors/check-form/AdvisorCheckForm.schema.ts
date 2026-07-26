@@ -2,7 +2,7 @@ import { z } from 'zod';
 import {
   AdvisorCheck,
   AdvisorCheckInput,
-  AdvisorFamily,
+  AdvisorTechnology,
   AdvisorInterval,
 } from 'types/advisors.types';
 import { Messages } from './AdvisorCheckForm.messages';
@@ -29,8 +29,8 @@ export const advisorCheckFormSchema = z.object({
   description: z.string().min(1, Messages.validation.required),
   category: z.string().min(1, Messages.validation.required),
   subcategory: z.string().min(1, Messages.validation.required),
-  // the family select never offers "unspecified"; an empty family is rejected server-side
-  family: z.nativeEnum(AdvisorFamily),
+  // the technology select never offers "unspecified"; an empty technology is rejected server-side
+  technology: z.nativeEnum(AdvisorTechnology),
   interval: z.nativeEnum(AdvisorInterval),
   queries: z.array(querySchema).min(1, Messages.validation.queriesRequired),
   script: z.string().min(1, Messages.validation.required),
@@ -44,7 +44,7 @@ export const emptyFormValues: AdvisorCheckFormValues = {
   description: '',
   category: '',
   subcategory: '',
-  family: AdvisorFamily.mysql,
+  technology: AdvisorTechnology.mysql,
   interval: AdvisorInterval.standard,
   queries: [{ type: 'MYSQL_SHOW', query: '' }],
   script: '',
@@ -62,10 +62,10 @@ export const toFormValues = (
   description: check.description,
   category: check.category,
   subcategory: check.subcategory,
-  family:
-    check.family === AdvisorFamily.unspecified
-      ? AdvisorFamily.mysql
-      : check.family,
+  technology:
+    check.technology === AdvisorTechnology.unspecified
+      ? AdvisorTechnology.mysql
+      : check.technology,
   interval:
     check.interval === AdvisorInterval.unspecified
       ? AdvisorInterval.standard
@@ -83,7 +83,7 @@ export const toInput = (values: AdvisorCheckFormValues): AdvisorCheckInput => ({
   description: values.description,
   category: values.category,
   subcategory: values.subcategory,
-  family: values.family,
+  technology: values.technology,
   interval: values.interval,
   queries: values.queries.map((q) => ({ type: q.type, query: q.query })),
   script: values.script,

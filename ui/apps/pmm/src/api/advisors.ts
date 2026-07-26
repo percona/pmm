@@ -3,7 +3,7 @@ import {
   AdvisorCheck,
   AdvisorCheckInput,
   AdvisorCheckTestTarget,
-  AdvisorFamily,
+  AdvisorTechnology,
   ChangeAdvisorCheckParams,
   ChangeAdvisorChecksRequest,
   Insight,
@@ -89,11 +89,11 @@ export const testAdvisorCheck = async (
 };
 
 export const listAdvisorCheckTestTargets = async (
-  family: AdvisorFamily
+  technology: AdvisorTechnology
 ): Promise<AdvisorCheckTestTarget[]> => {
   const res = await api.get<ListAdvisorCheckTestTargetsResponse>(
     '/advisors/checks:testTargets',
-    { params: { family } }
+    { params: { technology } }
   );
   return res.data.targets ?? [];
 };

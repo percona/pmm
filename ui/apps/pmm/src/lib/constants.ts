@@ -1,6 +1,6 @@
 import {
   AdvisorCheckResultStatus,
-  AdvisorFamily,
+  AdvisorTechnology,
   AdvisorInterval,
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
@@ -26,11 +26,11 @@ export const INTERVALS_MS = {
   SERVICE_TYPES: 300000,
 };
 
-export const ADVISOR_FAMILY: Record<AdvisorFamily, string> = {
-  [AdvisorFamily.mysql]: 'MySQL',
-  [AdvisorFamily.postgresql]: 'PostgreSQL',
-  [AdvisorFamily.mongodb]: 'MongoDB',
-  [AdvisorFamily.unspecified]: 'Unspecified',
+export const ADVISOR_TECHNOLOGY: Record<AdvisorTechnology, string> = {
+  [AdvisorTechnology.mysql]: 'MySQL',
+  [AdvisorTechnology.postgresql]: 'PostgreSQL',
+  [AdvisorTechnology.mongodb]: 'MongoDB',
+  [AdvisorTechnology.unspecified]: 'Unspecified',
 };
 
 export const ADVISOR_INTERVAL: Record<AdvisorInterval, string> = {

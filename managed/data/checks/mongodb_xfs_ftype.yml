@@ -5,7 +5,7 @@ checks:
     summary: MongoDB - xfs
     description: This check returns a warning if dbpath is not using xfs filesystem type.
     interval: standard
-    family: MONGODB
+    technology: MONGODB
     category: Configuration
     subcategory: Resources
     #category: configuration

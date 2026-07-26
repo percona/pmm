@@ -7,7 +7,7 @@ checks:
     category: Performance
     subcategory: Vacuum
     interval: standard
-    family: POSTGRESQL
+    technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT
         parameters:

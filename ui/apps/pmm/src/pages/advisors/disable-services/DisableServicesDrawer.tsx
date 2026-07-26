@@ -23,7 +23,7 @@ import { useServices } from 'hooks/api/useServices';
 import { ServicesAutocompleteInput } from 'pages/rta/components/services-autocomplete-input';
 import { AdvisorCheckRow } from 'types/advisors.types';
 import { VersionedService } from 'types/services.types';
-import { ADVISOR_FAMILY_SERVICE_TYPE } from 'utils/advisors.utils';
+import { ADVISOR_TECHNOLOGY_SERVICE_TYPE } from 'utils/advisors.utils';
 import { Messages } from './DisableServicesDrawer.messages';
 
 interface DisableServicesDrawerProps {
@@ -47,7 +47,7 @@ export const DisableServicesDrawer: FC<DisableServicesDrawerProps> = ({
   }, [check?.checkName]);
 
   const serviceType = check
-    ? ADVISOR_FAMILY_SERVICE_TYPE[check.family]
+    ? ADVISOR_TECHNOLOGY_SERVICE_TYPE[check.technology]
     : undefined;
   // the picker offers only services of the check's target type
   const { data: servicesResponse } = useServices(

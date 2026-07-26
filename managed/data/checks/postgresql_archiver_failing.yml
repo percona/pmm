@@ -4,7 +4,7 @@ checks:
     name: postgresql_archiver_failing
     summary: PostgreSQL Archiver is failing
     description: This check verifies if the archiver has failed.
-    family: POSTGRESQL
+    technology: POSTGRESQL
     #author: David Gonzales
     category: Configuration
     subcategory: Generic

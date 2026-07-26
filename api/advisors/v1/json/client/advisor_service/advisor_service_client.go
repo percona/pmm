@@ -259,7 +259,7 @@ func (a *Client) GetAdvisorCheck(params *GetAdvisorCheckParams, opts ...ClientOp
 /*
 ListAdvisorCheckTestTargets lists advisor check test targets
 
-Lists the services an advisor check of the given family can be tested against.
+Lists the services an advisor check of the given technology can be tested against.
 */
 func (a *Client) ListAdvisorCheckTestTargets(params *ListAdvisorCheckTestTargetsParams, opts ...ClientOption) (*ListAdvisorCheckTestTargetsOK, error) {
 	// NOTE: parameters are not validated before sending

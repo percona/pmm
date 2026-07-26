@@ -14,7 +14,7 @@ import {
 } from 'utils/testUtils';
 import {
   AdvisorCheckRow,
-  AdvisorFamily,
+  AdvisorTechnology,
   AdvisorInterval,
 } from 'types/advisors.types';
 import { MySqlService } from 'types/services.types';
@@ -45,7 +45,7 @@ const TEST_CHECK: AdvisorCheckRow = {
   description: 'Warns if MySQL version is EOL',
   category: 'Configuration',
   subcategory: 'Version',
-  family: AdvisorFamily.mysql,
+  technology: AdvisorTechnology.mysql,
   interval: AdvisorInterval.standard,
   enabled: true,
   userDefined: false,
@@ -103,7 +103,7 @@ describe('DisableServicesDrawer', () => {
     );
   });
 
-  it('requests services of the check family type only', async () => {
+  it('requests services of the check technology type only', async () => {
     renderDrawer(TEST_CHECK);
 
     await waitFor(() =>

@@ -4,7 +4,7 @@ checks:
     name: mongodb_cpucores
     summary: MongoDB CPU cores
     description: This check returns warnings if the number of CPU cores does not meet the minimum recommended requirements according to best practices.
-    family: MONGODB
+    technology: MONGODB
     #author: Parag Bhayani
     category: Configuration
     subcategory: Resources

@@ -19,7 +19,7 @@ import {
 import {
   Advisor,
   AdvisorCheck,
-  AdvisorFamily,
+  AdvisorTechnology,
   AdvisorInterval,
 } from 'types/advisors.types';
 
@@ -37,7 +37,7 @@ const TEST_ADVISORS: Advisor[] = [
         summary: 'MySQL version check',
         description: 'Warns if MySQL version is EOL',
         interval: AdvisorInterval.standard,
-        family: AdvisorFamily.mysql,
+        technology: AdvisorTechnology.mysql,
         category: 'Configuration',
         subcategory: 'Version',
         userDefined: false,
@@ -54,7 +54,7 @@ const TEST_ADVISORS: Advisor[] = [
         summary: 'PostgreSQL super role',
         description: 'Detects users with the SUPER role',
         interval: AdvisorInterval.rare,
-        family: AdvisorFamily.postgresql,
+        technology: AdvisorTechnology.postgresql,
         category: 'Security',
         subcategory: 'Authentication',
         userDefined: true,
@@ -65,7 +65,7 @@ const TEST_ADVISORS: Advisor[] = [
         summary: 'PostgreSQL disabled check',
         description: 'A disabled check',
         interval: AdvisorInterval.standard,
-        family: AdvisorFamily.postgresql,
+        technology: AdvisorTechnology.postgresql,
         category: 'Security',
         subcategory: 'Authentication',
         userDefined: false,
@@ -192,7 +192,7 @@ describe('AdvisorsList', () => {
             description: FULL_CHECK.description,
             category: FULL_CHECK.category,
             subcategory: FULL_CHECK.subcategory,
-            family: FULL_CHECK.family,
+            technology: FULL_CHECK.technology,
             interval: FULL_CHECK.interval,
             queries: FULL_CHECK.queries,
             script: FULL_CHECK.script,
@@ -245,12 +245,12 @@ describe('AdvisorsList', () => {
     ).toBeInTheDocument();
   });
 
-  it('filters checks by the vendor dropdown', async () => {
+  it('filters checks by the technology dropdown', async () => {
     renderComponent();
 
     await waitForRows();
 
-    await selectFilterOption('vendor-filter', 'PostgreSQL');
+    await selectFilterOption('technology-filter', 'PostgreSQL');
 
     await waitFor(() =>
       expect(
@@ -262,8 +262,8 @@ describe('AdvisorsList', () => {
     ).toBeInTheDocument();
   });
 
-  it('reads the vendor filter from the URL (deep link)', async () => {
-    renderComponent('/advisors?vendor=PostgreSQL');
+  it('reads the technology filter from the URL (deep link)', async () => {
+    renderComponent('/advisors?technology=PostgreSQL');
 
     await waitFor(() =>
       expect(screen.getByText('PostgreSQL super role')).toBeInTheDocument()
@@ -281,7 +281,7 @@ describe('AdvisorsList', () => {
 
     expect(screen.getByTestId('clear-filters')).toBeDisabled();
 
-    await selectFilterOption('vendor-filter', 'PostgreSQL');
+    await selectFilterOption('technology-filter', 'PostgreSQL');
 
     await waitFor(() =>
       expect(

@@ -8,7 +8,7 @@ checks:
     category: Security
     subcategory: Authentication
     #author: The Grinch
-    family: MYSQL
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service, count(user) found,group_concat( concat(user,'@',host) separator'; ') user from mysql.user where user like '' group by version, service;"

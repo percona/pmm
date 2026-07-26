@@ -200,7 +200,7 @@ func (m *AdvisorCheck) validate(all bool) error {
 
 	// no validation rules for Interval
 
-	// no validation rules for Family
+	// no validation rules for Technology
 
 	// no validation rules for Category
 
@@ -2427,7 +2427,7 @@ func (m *ListAdvisorCheckTestTargetsRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Family
+	// no validation rules for Technology
 
 	if len(errors) > 0 {
 		return ListAdvisorCheckTestTargetsRequestMultiError(errors)

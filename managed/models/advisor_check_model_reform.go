@@ -35,7 +35,7 @@ func (v *advisorCheckTableType) Columns() []string {
 		"description",
 		"category",
 		"subcategory",
-		"family",
+		"technology",
 		"interval",
 		"interval_override",
 		"disabled",
@@ -75,7 +75,7 @@ var AdvisorCheckTable = &advisorCheckTableType{
 			{Name: "Description", Type: "string", Column: "description"},
 			{Name: "Category", Type: "string", Column: "category"},
 			{Name: "Subcategory", Type: "string", Column: "subcategory"},
-			{Name: "Family", Type: "string", Column: "family"},
+			{Name: "Technology", Type: "string", Column: "technology"},
 			{Name: "Interval", Type: "string", Column: "interval"},
 			{Name: "IntervalOverride", Type: "*string", Column: "interval_override"},
 			{Name: "Disabled", Type: "bool", Column: "disabled"},
@@ -100,7 +100,7 @@ func (s AdvisorCheck) String() string {
 	res[4] = "Description: " + reform.Inspect(s.Description, true)
 	res[5] = "Category: " + reform.Inspect(s.Category, true)
 	res[6] = "Subcategory: " + reform.Inspect(s.Subcategory, true)
-	res[7] = "Family: " + reform.Inspect(s.Family, true)
+	res[7] = "Technology: " + reform.Inspect(s.Technology, true)
 	res[8] = "Interval: " + reform.Inspect(s.Interval, true)
 	res[9] = "IntervalOverride: " + reform.Inspect(s.IntervalOverride, true)
 	res[10] = "Disabled: " + reform.Inspect(s.Disabled, true)
@@ -123,7 +123,7 @@ func (s *AdvisorCheck) Values() []interface{} {
 		s.Description,
 		s.Category,
 		s.Subcategory,
-		s.Family,
+		s.Technology,
 		s.Interval,
 		s.IntervalOverride,
 		s.Disabled,
@@ -146,7 +146,7 @@ func (s *AdvisorCheck) Pointers() []interface{} {
 		&s.Description,
 		&s.Category,
 		&s.Subcategory,
-		&s.Family,
+		&s.Technology,
 		&s.Interval,
 		&s.IntervalOverride,
 		&s.Disabled,

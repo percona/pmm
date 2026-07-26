@@ -9,7 +9,7 @@ checks:
     subcategory: Configuration
     #subcategory: security
     #author:Kedar Vaijanapurkar
-    family: MYSQL
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: "@@global.version as version, @@global.hostname as service, @@global.secure_file_priv as secure_file_priv"

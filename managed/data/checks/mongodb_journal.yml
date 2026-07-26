@@ -5,7 +5,7 @@ checks:
     name: mongodb_journal
     summary: MongoDB Journal
     description: This check returns warnings if journal is disabled.
-    family: MONGODB
+    technology: MONGODB
     #author: Corrado Pandiani
     category: Configuration
     subcategory: Generic

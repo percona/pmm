@@ -5,7 +5,7 @@ checks:
     summary: Check for outdated extensions
     description: This check will list outdated extensions with newer versions available
     interval: standard
-    family: POSTGRESQL
+    technology: POSTGRESQL
     category: Configuration
     subcategory: Version
     queries:

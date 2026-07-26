@@ -250,7 +250,7 @@ func (s *ChecksAPIService) ListAdvisorChecks(ctx context.Context, _ *advisorsv1.
 			Name:               c.Name,
 			Enabled:            !disabled,
 			Summary:            c.Summary,
-			Family:             convertFamily(c.Family),
+			Technology:         convertTechnology(c.Technology),
 			Description:        c.Description,
 			Interval:           convertInterval(c.Interval),
 			Category:           c.Category,
@@ -294,7 +294,7 @@ func (s *ChecksAPIService) ListAdvisors(ctx context.Context, _ *advisorsv1.ListA
 				Name:               c.Name,
 				Enabled:            !disabled,
 				Summary:            c.Summary,
-				Family:             convertFamily(c.Family),
+				Technology:         convertTechnology(c.Technology),
 				Description:        c.Description,
 				Interval:           convertInterval(c.Interval),
 				Category:           c.Category,
@@ -467,12 +467,12 @@ func (s *ChecksAPIService) TestAdvisorCheck(ctx context.Context, req *advisorsv1
 	}, nil
 }
 
-// ListAdvisorCheckTestTargets returns the services an advisor check of the given family can be tested against.
+// ListAdvisorCheckTestTargets returns the services an advisor check of the given technology can be tested against.
 func (s *ChecksAPIService) ListAdvisorCheckTestTargets(
 	ctx context.Context,
 	req *advisorsv1.ListAdvisorCheckTestTargetsRequest,
 ) (*advisorsv1.ListAdvisorCheckTestTargetsResponse, error) {
-	targets, err := s.checksService.ListTestTargets(ctx, convertAPIFamily(req.Family))
+	targets, err := s.checksService.ListTestTargets(ctx, convertAPITechnology(req.Technology))
 	if err != nil {
 		return nil, err
 	}
@@ -621,17 +621,17 @@ func convertAPITriggeredBy(triggeredBy advisorsv1.AdvisorCheckTriggeredBy) model
 	}
 }
 
-// convertFamily converts check.Family type to advisorsv1.AdvisorCheckFamily.
-func convertFamily(family check.Family) advisorsv1.AdvisorCheckFamily {
-	switch family {
+// convertTechnology converts check.Technology type to advisorsv1.AdvisorCheckTechnology.
+func convertTechnology(technology check.Technology) advisorsv1.AdvisorCheckTechnology {
+	switch technology {
 	case check.MySQL:
-		return advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MYSQL
+		return advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MYSQL
 	case check.PostgreSQL:
-		return advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_POSTGRESQL
+		return advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL
 	case check.MongoDB:
-		return advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MONGODB
+		return advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MONGODB
 	default:
-		return advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_UNSPECIFIED
+		return advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED
 	}
 }
 
@@ -651,15 +651,15 @@ func convertAPIInterval(interval advisorsv1.AdvisorCheckInterval) (check.Interva
 	}
 }
 
-// convertAPIFamily converts advisorsv1.AdvisorCheckFamily to check.Family.
-// An unspecified family maps to an empty family, which fails check validation.
-func convertAPIFamily(family advisorsv1.AdvisorCheckFamily) check.Family {
-	switch family {
-	case advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MYSQL:
+// convertAPITechnology converts advisorsv1.AdvisorCheckTechnology to check.Technology.
+// An unspecified technology maps to an empty technology, which fails check validation.
+func convertAPITechnology(technology advisorsv1.AdvisorCheckTechnology) check.Technology {
+	switch technology {
+	case advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MYSQL:
 		return check.MySQL
-	case advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_POSTGRESQL:
+	case advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL:
 		return check.PostgreSQL
-	case advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MONGODB:
+	case advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MONGODB:
 		return check.MongoDB
 	default:
 		return ""
@@ -689,7 +689,7 @@ func advisorCheckToAPI(c check.Check, enabled bool, disabledServiceIDs []string)
 		Enabled:            enabled,
 		Summary:            c.Summary,
 		Description:        c.Description,
-		Family:             convertFamily(c.Family),
+		Technology:         convertTechnology(c.Technology),
 		Interval:           convertInterval(c.Interval),
 		Category:           c.Category,
 		Subcategory:        c.Subcategory,
@@ -708,7 +708,7 @@ func apiToAdvisorCheck(c *advisorsv1.AdvisorCheck) check.Check {
 		Description: c.Description,
 		Category:    c.Category,
 		Subcategory: c.Subcategory,
-		Family:      convertAPIFamily(c.Family),
+		Technology:  convertAPITechnology(c.Technology),
 		Interval:    convertAPIIntervalOptional(c.Interval),
 		Queries:     convertAPIQueries(c.Queries),
 		Script:      c.Script,

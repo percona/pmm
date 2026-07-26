@@ -69,7 +69,7 @@ func TestTestAdvisorCheck(t *testing.T) {
 		Description: "Check description",
 		Category:    "configuration",
 		Subcategory: "version",
-		Family:      advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MYSQL,
+		Technology:  advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_MYSQL,
 		Interval:    advisorsv1.AdvisorCheckInterval_ADVISOR_CHECK_INTERVAL_STANDARD,
 		Queries:     []*advisorsv1.AdvisorCheckQuery{{Type: "MYSQL_SHOW", Query: "version"}},
 		Script:      "def check_context(docs, context):\n    return []",
@@ -126,7 +126,7 @@ func TestTestAdvisorCheck(t *testing.T) {
 			Description: "Check description",
 			Category:    "configuration",
 			Subcategory: "version",
-			Family:      check.MySQL,
+			Technology:  check.MySQL,
 			Interval:    check.Standard,
 			Queries:     []check.Query{{Type: check.MySQLShow, Query: "version"}},
 			Script:      "def check_context(docs, context):\n    return []",
@@ -181,7 +181,7 @@ func TestListAdvisorCheckTestTargets(t *testing.T) {
 	s := NewChecksAPIService(&checksService)
 
 	resp, err := s.ListAdvisorCheckTestTargets(t.Context(), &advisorsv1.ListAdvisorCheckTestTargetsRequest{
-		Family: advisorsv1.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_POSTGRESQL,
+		Technology: advisorsv1.AdvisorCheckTechnology_ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL,
 	})
 	require.NoError(t, err)
 	assert.Equal(t, &advisorsv1.ListAdvisorCheckTestTargetsResponse{

@@ -5,7 +5,7 @@ checks:
     summary: PostgreSQL vacuum setting quick check
     description: This performs a quick check of some vacuum parameters
     interval: standard
-    family: POSTGRESQL
+    technology: POSTGRESQL
     category: Configuration
     subcategory: Vacuum
     queries:

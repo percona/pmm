@@ -3,7 +3,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import Switch from '@mui/material/Switch';
 import { AdvisorCheckRow, AdvisorInterval } from 'types/advisors.types';
-import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
+import { ADVISOR_TECHNOLOGY, ADVISOR_INTERVAL } from 'lib/constants';
 import { Messages } from './AdvisorsList.messages';
 
 export const INTERVAL_OPTIONS = [
@@ -39,9 +39,9 @@ export const getAdvisorsColumns = ({
     size: 150,
   },
   {
-    id: 'vendor',
-    header: Messages.columns.vendor,
-    accessorFn: (row) => ADVISOR_FAMILY[row.family],
+    id: 'technology',
+    header: Messages.columns.technology,
+    accessorFn: (row) => ADVISOR_TECHNOLOGY[row.technology],
     size: 140,
     grow: false,
   },

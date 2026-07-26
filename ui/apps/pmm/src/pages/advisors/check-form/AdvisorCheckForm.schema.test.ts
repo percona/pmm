@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   AdvisorCheck,
-  AdvisorFamily,
+  AdvisorTechnology,
   AdvisorInterval,
 } from 'types/advisors.types';
 import {
@@ -18,7 +18,7 @@ const valid: AdvisorCheckFormValues = {
   description: 'Checks something',
   category: 'Custom',
   subcategory: 'General',
-  family: AdvisorFamily.mysql,
+  technology: AdvisorTechnology.mysql,
   interval: AdvisorInterval.standard,
   queries: [{ type: 'MYSQL_SHOW', query: '' }],
   script: 'def check_context(docs, context):\n    return []',
@@ -81,7 +81,7 @@ describe('toInput', () => {
       description: 'Checks something',
       category: 'Custom',
       subcategory: 'General',
-      family: AdvisorFamily.mysql,
+      technology: AdvisorTechnology.mysql,
       interval: AdvisorInterval.standard,
       queries: [{ type: 'MYSQL_SHOW', query: '' }],
       script: valid.script,
@@ -96,7 +96,7 @@ describe('toFormValues', () => {
     summary: 'Existing',
     description: 'desc',
     interval: AdvisorInterval.rare,
-    family: AdvisorFamily.postgresql,
+    technology: AdvisorTechnology.postgresql,
     category: 'Cat',
     subcategory: 'Sub',
     userDefined: true,
@@ -111,7 +111,7 @@ describe('toFormValues', () => {
       description: 'desc',
       category: 'Cat',
       subcategory: 'Sub',
-      family: AdvisorFamily.postgresql,
+      technology: AdvisorTechnology.postgresql,
       interval: AdvisorInterval.rare,
       queries: [{ type: 'POSTGRESQL_SELECT', query: 'SELECT 1' }],
       script: 'print(1)',

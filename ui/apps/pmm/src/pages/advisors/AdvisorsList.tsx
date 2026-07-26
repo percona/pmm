@@ -37,7 +37,7 @@ import {
 import { AdvisorCheckRow, AdvisorInterval } from 'types/advisors.types';
 import { OrgRole } from 'types/user.types';
 import { flattenAdvisorChecks } from 'utils/advisors.utils';
-import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
+import { ADVISOR_TECHNOLOGY, ADVISOR_INTERVAL } from 'lib/constants';
 import { Messages } from './AdvisorsList.messages';
 import { getAdvisorsColumns, INTERVAL_OPTIONS } from './AdvisorsList.constants';
 import { AdvisorCheckDetailsPane } from './details-pane';
@@ -47,7 +47,7 @@ import { DisableServicesDrawer } from './disable-services';
 interface CheckFilters {
   category: string;
   subcategory: string;
-  vendor: string;
+  technology: string;
   interval: string;
   status: string;
 }
@@ -126,7 +126,7 @@ const AdvisorsList: FC = () => {
     () => ({
       category: searchParams.get('category') || '',
       subcategory: searchParams.get('subcategory') || '',
-      vendor: searchParams.get('vendor') || '',
+      technology: searchParams.get('technology') || '',
       interval: searchParams.get('interval') || '',
       status: searchParams.get('status') || '',
     }),
@@ -232,11 +232,11 @@ const AdvisorsList: FC = () => {
     [rows]
   );
 
-  const vendorOptions = useMemo<FilterOption[]>(
+  const technologyOptions = useMemo<FilterOption[]>(
     () =>
-      [...new Set(rows.map((row) => ADVISOR_FAMILY[row.family]))]
+      [...new Set(rows.map((row) => ADVISOR_TECHNOLOGY[row.technology]))]
         .sort()
-        .map((vendor) => ({ label: vendor, value: vendor })),
+        .map((technology) => ({ label: technology, value: technology })),
     [rows]
   );
 
@@ -263,7 +263,10 @@ const AdvisorsList: FC = () => {
       if (filters.subcategory && row.subcategory !== filters.subcategory) {
         return false;
       }
-      if (filters.vendor && ADVISOR_FAMILY[row.family] !== filters.vendor) {
+      if (
+        filters.technology &&
+        ADVISOR_TECHNOLOGY[row.technology] !== filters.technology
+      ) {
         return false;
       }
       if (
@@ -282,7 +285,7 @@ const AdvisorsList: FC = () => {
       }
       if (term) {
         const haystack =
-          `${row.summary} ${row.description} ${row.category} ${row.subcategory} ${ADVISOR_FAMILY[row.family]}`.toLowerCase();
+          `${row.summary} ${row.description} ${row.category} ${row.subcategory} ${ADVISOR_TECHNOLOGY[row.technology]}`.toLowerCase();
         if (!haystack.includes(term)) {
           return false;
         }
@@ -429,11 +432,11 @@ const AdvisorsList: FC = () => {
             onChange={(value) => updateFilter('subcategory', value)}
           />
           <FilterSelect
-            id="vendor"
-            label={Messages.filters.vendor}
-            options={vendorOptions}
-            value={filters.vendor}
-            onChange={(value) => updateFilter('vendor', value)}
+            id="technology"
+            label={Messages.filters.technology}
+            options={technologyOptions}
+            value={filters.technology}
+            onChange={(value) => updateFilter('technology', value)}
           />
           <FilterSelect
             id="interval"

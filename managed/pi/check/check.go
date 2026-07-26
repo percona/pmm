@@ -179,25 +179,25 @@ func (t Type) Validate() error {
 	}
 }
 
-// Supported DB families.
+// Supported DB technologies.
 const (
-	MySQL      = Family("MYSQL")
-	PostgreSQL = Family("POSTGRESQL")
-	MongoDB    = Family("MONGODB")
+	MySQL      = Technology("MYSQL")
+	PostgreSQL = Technology("POSTGRESQL")
+	MongoDB    = Technology("MONGODB")
 )
 
-// Family represents monitored service family.
-type Family string
+// Technology represents monitored service technology.
+type Technology string
 
-// Validate validates check family.
-func (f Family) Validate() error {
+// Validate validates check technology.
+func (f Technology) Validate() error {
 	switch f {
 	case MySQL, PostgreSQL, MongoDB:
 		return nil
 	case "":
-		return errors.New("check family is empty")
+		return errors.New("check technology is empty")
 	default:
-		return fmt.Errorf("unknown check family: %s", f)
+		return fmt.Errorf("unknown check technology: %s", f)
 	}
 }
 
@@ -272,16 +272,16 @@ const UserCheckNamePrefix = "custom_"
 // authored as exact display strings; the advisor "group" is the set of distinct
 // (Category, Subcategory) pairs across all loaded checks.
 type Check struct {
-	Version     uint32   `yaml:"version"`
-	Name        string   `yaml:"name"`
-	Summary     string   `yaml:"summary"`
-	Description string   `yaml:"description"`
-	Category    string   `yaml:"category"`
-	Subcategory string   `yaml:"subcategory"`
-	Family      Family   `yaml:"family"`
-	Interval    Interval `yaml:"interval,omitempty"`
-	Queries     []Query  `yaml:"queries"`
-	Script      string   `yaml:"script"`
+	Version     uint32     `yaml:"version"`
+	Name        string     `yaml:"name"`
+	Summary     string     `yaml:"summary"`
+	Description string     `yaml:"description"`
+	Category    string     `yaml:"category"`
+	Subcategory string     `yaml:"subcategory"`
+	Technology  Technology `yaml:"technology"`
+	Interval    Interval   `yaml:"interval,omitempty"`
+	Queries     []Query    `yaml:"queries"`
+	Script      string     `yaml:"script"`
 	// UserDefined is true for checks authored by a user and stored in the DB,
 	// false for Percona-shipped checks loaded from disk. It is not part of the
 	// check's YAML/JSON representation.
@@ -334,7 +334,7 @@ func (c *Check) Validate() error {
 		return errors.New("subcategory is empty")
 	}
 
-	err = c.Family.Validate()
+	err = c.Technology.Validate()
 	if err != nil {
 		return err
 	}
@@ -454,19 +454,19 @@ func (c *Check) validateQueries() error {
 		}
 	}
 
-	switch c.Family {
+	switch c.Technology {
 	case MySQL:
-		return checkQueryForCompatibilityWithMySQLFamily(c.Queries)
+		return checkQueryForCompatibilityWithMySQLTechnology(c.Queries)
 	case PostgreSQL:
-		return checkQueryForCompatibilityWithPostgreSQLFamily(c.Queries)
+		return checkQueryForCompatibilityWithPostgreSQLTechnology(c.Queries)
 	case MongoDB:
-		return checkQueryCompatibilityWithMongoDBFamily(c.Queries)
+		return checkQueryCompatibilityWithMongoDBTechnology(c.Queries)
 	default:
-		return fmt.Errorf("unknown check family: %s", c.Family)
+		return fmt.Errorf("unknown check technology: %s", c.Technology)
 	}
 }
 
-func checkQueryForCompatibilityWithMySQLFamily(queries []Query) error {
+func checkQueryForCompatibilityWithMySQLTechnology(queries []Query) error {
 	for _, q := range queries {
 		switch q.Type {
 		case MySQLShow:
@@ -475,14 +475,14 @@ func checkQueryForCompatibilityWithMySQLFamily(queries []Query) error {
 		case MetricsRange:
 		case ClickHouseSelect:
 		default:
-			return fmt.Errorf("unsupported query type '%s' for mySQL family", q.Type)
+			return fmt.Errorf("unsupported query type '%s' for mySQL technology", q.Type)
 		}
 	}
 
 	return nil
 }
 
-func checkQueryForCompatibilityWithPostgreSQLFamily(queries []Query) error {
+func checkQueryForCompatibilityWithPostgreSQLTechnology(queries []Query) error {
 	for _, q := range queries {
 		switch q.Type {
 		case PostgreSQLShow:
@@ -491,14 +491,14 @@ func checkQueryForCompatibilityWithPostgreSQLFamily(queries []Query) error {
 		case MetricsRange:
 		case ClickHouseSelect:
 		default:
-			return fmt.Errorf("unsupported query type '%s' for postgreSQL family", q.Type)
+			return fmt.Errorf("unsupported query type '%s' for postgreSQL technology", q.Type)
 		}
 	}
 
 	return nil
 }
 
-func checkQueryCompatibilityWithMongoDBFamily(queries []Query) error {
+func checkQueryCompatibilityWithMongoDBTechnology(queries []Query) error {
 	for _, q := range queries {
 		switch q.Type {
 		case MongoDBGetParameter:
@@ -510,7 +510,7 @@ func checkQueryCompatibilityWithMongoDBFamily(queries []Query) error {
 		case MetricsRange:
 		case ClickHouseSelect:
 		default:
-			return fmt.Errorf("unsupported query type '%s' for mongoDB family", q.Type)
+			return fmt.Errorf("unsupported query type '%s' for mongoDB technology", q.Type)
 		}
 	}
 

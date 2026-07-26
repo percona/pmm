@@ -61,7 +61,7 @@ type AdvisorCheck struct {
 	Description string      `reform:"description"`
 	Category    string      `reform:"category"`
 	Subcategory string      `reform:"subcategory"`
-	Family      string      `reform:"family"`
+	Technology  string      `reform:"technology"`
 	// Interval is the original author-defined execution interval.
 	Interval string `reform:"interval"`
 	// IntervalOverride is the user-set execution interval; nil means no override.

@@ -22,7 +22,7 @@ import {
 import { useNavigation } from 'contexts/navigation/navigation.hooks';
 import { useAdvisorCheck } from 'hooks/api/useAdvisors';
 import { AdvisorCheckRow } from 'types/advisors.types';
-import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
+import { ADVISOR_TECHNOLOGY, ADVISOR_INTERVAL } from 'lib/constants';
 import { ScriptEditorInput } from '../check-form/ScriptEditorInput';
 import { CheckTestControls } from '../check-test/CheckTestControls';
 import { CheckTestResults } from '../check-test/CheckTestResults';
@@ -97,7 +97,7 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
   const script = fullCheck?.script;
 
   const test = useCheckTest({
-    family: check?.family,
+    technology: check?.technology,
     enabled: open,
     resetKey: check?.checkName ?? null,
   });
@@ -112,7 +112,7 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
       description: fullCheck.description,
       category: fullCheck.category,
       subcategory: fullCheck.subcategory,
-      family: fullCheck.family,
+      technology: fullCheck.technology,
       interval: fullCheck.interval,
       queries: fullCheck.queries ?? [],
       script: fullCheck.script ?? '',
@@ -216,9 +216,9 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
               <Field label={m.subcategory}>
                 <Typography variant="body1">{check.subcategory}</Typography>
               </Field>
-              <Field label={m.vendor}>
+              <Field label={m.technology}>
                 <Typography variant="body1">
-                  {ADVISOR_FAMILY[check.family]}
+                  {ADVISOR_TECHNOLOGY[check.technology]}
                 </Typography>
               </Field>
               <Field label={m.interval}>

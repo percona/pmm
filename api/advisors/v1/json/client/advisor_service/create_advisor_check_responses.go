@@ -638,9 +638,9 @@ type CreateAdvisorCheckOKBodyCheck struct {
 	// Enum: ["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]
 	Interval *string `json:"interval,omitempty"`
 
-	// family
-	// Enum: ["ADVISOR_CHECK_FAMILY_UNSPECIFIED","ADVISOR_CHECK_FAMILY_MYSQL","ADVISOR_CHECK_FAMILY_POSTGRESQL","ADVISOR_CHECK_FAMILY_MONGODB"]
-	Family *string `json:"family,omitempty"`
+	// technology
+	// Enum: ["ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED","ADVISOR_CHECK_TECHNOLOGY_MYSQL","ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL","ADVISOR_CHECK_TECHNOLOGY_MONGODB"]
+	Technology *string `json:"technology,omitempty"`
 
 	// Category (top-level grouping).
 	Category string `json:"category,omitempty"`
@@ -669,7 +669,7 @@ func (o *CreateAdvisorCheckOKBodyCheck) Validate(formats strfmt.Registry) error 
 		res = append(res, err)
 	}
 
-	if err := o.validateFamily(formats); err != nil {
+	if err := o.validateTechnology(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -731,48 +731,48 @@ func (o *CreateAdvisorCheckOKBodyCheck) validateInterval(formats strfmt.Registry
 	return nil
 }
 
-var createAdvisorCheckOkBodyCheckTypeFamilyPropEnum []any
+var createAdvisorCheckOkBodyCheckTypeTechnologyPropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_FAMILY_UNSPECIFIED","ADVISOR_CHECK_FAMILY_MYSQL","ADVISOR_CHECK_FAMILY_POSTGRESQL","ADVISOR_CHECK_FAMILY_MONGODB"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED","ADVISOR_CHECK_TECHNOLOGY_MYSQL","ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL","ADVISOR_CHECK_TECHNOLOGY_MONGODB"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
-		createAdvisorCheckOkBodyCheckTypeFamilyPropEnum = append(createAdvisorCheckOkBodyCheckTypeFamilyPropEnum, v)
+		createAdvisorCheckOkBodyCheckTypeTechnologyPropEnum = append(createAdvisorCheckOkBodyCheckTypeTechnologyPropEnum, v)
 	}
 }
 
 const (
 
-	// CreateAdvisorCheckOKBodyCheckFamilyADVISORCHECKFAMILYUNSPECIFIED captures enum value "ADVISOR_CHECK_FAMILY_UNSPECIFIED"
-	CreateAdvisorCheckOKBodyCheckFamilyADVISORCHECKFAMILYUNSPECIFIED string = "ADVISOR_CHECK_FAMILY_UNSPECIFIED"
+	// CreateAdvisorCheckOKBodyCheckTechnologyADVISORCHECKTECHNOLOGYUNSPECIFIED captures enum value "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED"
+	CreateAdvisorCheckOKBodyCheckTechnologyADVISORCHECKTECHNOLOGYUNSPECIFIED string = "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED"
 
-	// CreateAdvisorCheckOKBodyCheckFamilyADVISORCHECKFAMILYMYSQL captures enum value "ADVISOR_CHECK_FAMILY_MYSQL"
-	CreateAdvisorCheckOKBodyCheckFamilyADVISORCHECKFAMILYMYSQL string = "ADVISOR_CHECK_FAMILY_MYSQL"
+	// CreateAdvisorCheckOKBodyCheckTechnologyADVISORCHECKTECHNOLOGYMYSQL captures enum value "ADVISOR_CHECK_TECHNOLOGY_MYSQL"
+	CreateAdvisorCheckOKBodyCheckTechnologyADVISORCHECKTECHNOLOGYMYSQL string = "ADVISOR_CHECK_TECHNOLOGY_MYSQL"
 
-	// CreateAdvisorCheckOKBodyCheckFamilyADVISORCHECKFAMILYPOSTGRESQL captures enum value "ADVISOR_CHECK_FAMILY_POSTGRESQL"
-	CreateAdvisorCheckOKBodyCheckFamilyADVISORCHECKFAMILYPOSTGRESQL string = "ADVISOR_CHECK_FAMILY_POSTGRESQL"
+	// CreateAdvisorCheckOKBodyCheckTechnologyADVISORCHECKTECHNOLOGYPOSTGRESQL captures enum value "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL"
+	CreateAdvisorCheckOKBodyCheckTechnologyADVISORCHECKTECHNOLOGYPOSTGRESQL string = "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL"
 
-	// CreateAdvisorCheckOKBodyCheckFamilyADVISORCHECKFAMILYMONGODB captures enum value "ADVISOR_CHECK_FAMILY_MONGODB"
-	CreateAdvisorCheckOKBodyCheckFamilyADVISORCHECKFAMILYMONGODB string = "ADVISOR_CHECK_FAMILY_MONGODB"
+	// CreateAdvisorCheckOKBodyCheckTechnologyADVISORCHECKTECHNOLOGYMONGODB captures enum value "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
+	CreateAdvisorCheckOKBodyCheckTechnologyADVISORCHECKTECHNOLOGYMONGODB string = "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
 )
 
 // prop value enum
-func (o *CreateAdvisorCheckOKBodyCheck) validateFamilyEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, createAdvisorCheckOkBodyCheckTypeFamilyPropEnum, true); err != nil {
+func (o *CreateAdvisorCheckOKBodyCheck) validateTechnologyEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, createAdvisorCheckOkBodyCheckTypeTechnologyPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *CreateAdvisorCheckOKBodyCheck) validateFamily(formats strfmt.Registry) error {
-	if swag.IsZero(o.Family) { // not required
+func (o *CreateAdvisorCheckOKBodyCheck) validateTechnology(formats strfmt.Registry) error {
+	if swag.IsZero(o.Technology) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateFamilyEnum("createAdvisorCheckOk"+"."+"check"+"."+"family", "body", *o.Family); err != nil {
+	if err := o.validateTechnologyEnum("createAdvisorCheckOk"+"."+"check"+"."+"technology", "body", *o.Technology); err != nil {
 		return err
 	}
 
@@ -931,9 +931,9 @@ type CreateAdvisorCheckParamsBodyCheck struct {
 	// Enum: ["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]
 	Interval *string `json:"interval,omitempty"`
 
-	// family
-	// Enum: ["ADVISOR_CHECK_FAMILY_UNSPECIFIED","ADVISOR_CHECK_FAMILY_MYSQL","ADVISOR_CHECK_FAMILY_POSTGRESQL","ADVISOR_CHECK_FAMILY_MONGODB"]
-	Family *string `json:"family,omitempty"`
+	// technology
+	// Enum: ["ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED","ADVISOR_CHECK_TECHNOLOGY_MYSQL","ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL","ADVISOR_CHECK_TECHNOLOGY_MONGODB"]
+	Technology *string `json:"technology,omitempty"`
 
 	// Category (top-level grouping).
 	Category string `json:"category,omitempty"`
@@ -962,7 +962,7 @@ func (o *CreateAdvisorCheckParamsBodyCheck) Validate(formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
-	if err := o.validateFamily(formats); err != nil {
+	if err := o.validateTechnology(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1024,48 +1024,48 @@ func (o *CreateAdvisorCheckParamsBodyCheck) validateInterval(formats strfmt.Regi
 	return nil
 }
 
-var createAdvisorCheckParamsBodyCheckTypeFamilyPropEnum []any
+var createAdvisorCheckParamsBodyCheckTypeTechnologyPropEnum []any
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_FAMILY_UNSPECIFIED","ADVISOR_CHECK_FAMILY_MYSQL","ADVISOR_CHECK_FAMILY_POSTGRESQL","ADVISOR_CHECK_FAMILY_MONGODB"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED","ADVISOR_CHECK_TECHNOLOGY_MYSQL","ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL","ADVISOR_CHECK_TECHNOLOGY_MONGODB"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
-		createAdvisorCheckParamsBodyCheckTypeFamilyPropEnum = append(createAdvisorCheckParamsBodyCheckTypeFamilyPropEnum, v)
+		createAdvisorCheckParamsBodyCheckTypeTechnologyPropEnum = append(createAdvisorCheckParamsBodyCheckTypeTechnologyPropEnum, v)
 	}
 }
 
 const (
 
-	// CreateAdvisorCheckParamsBodyCheckFamilyADVISORCHECKFAMILYUNSPECIFIED captures enum value "ADVISOR_CHECK_FAMILY_UNSPECIFIED"
-	CreateAdvisorCheckParamsBodyCheckFamilyADVISORCHECKFAMILYUNSPECIFIED string = "ADVISOR_CHECK_FAMILY_UNSPECIFIED"
+	// CreateAdvisorCheckParamsBodyCheckTechnologyADVISORCHECKTECHNOLOGYUNSPECIFIED captures enum value "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED"
+	CreateAdvisorCheckParamsBodyCheckTechnologyADVISORCHECKTECHNOLOGYUNSPECIFIED string = "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED"
 
-	// CreateAdvisorCheckParamsBodyCheckFamilyADVISORCHECKFAMILYMYSQL captures enum value "ADVISOR_CHECK_FAMILY_MYSQL"
-	CreateAdvisorCheckParamsBodyCheckFamilyADVISORCHECKFAMILYMYSQL string = "ADVISOR_CHECK_FAMILY_MYSQL"
+	// CreateAdvisorCheckParamsBodyCheckTechnologyADVISORCHECKTECHNOLOGYMYSQL captures enum value "ADVISOR_CHECK_TECHNOLOGY_MYSQL"
+	CreateAdvisorCheckParamsBodyCheckTechnologyADVISORCHECKTECHNOLOGYMYSQL string = "ADVISOR_CHECK_TECHNOLOGY_MYSQL"
 
-	// CreateAdvisorCheckParamsBodyCheckFamilyADVISORCHECKFAMILYPOSTGRESQL captures enum value "ADVISOR_CHECK_FAMILY_POSTGRESQL"
-	CreateAdvisorCheckParamsBodyCheckFamilyADVISORCHECKFAMILYPOSTGRESQL string = "ADVISOR_CHECK_FAMILY_POSTGRESQL"
+	// CreateAdvisorCheckParamsBodyCheckTechnologyADVISORCHECKTECHNOLOGYPOSTGRESQL captures enum value "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL"
+	CreateAdvisorCheckParamsBodyCheckTechnologyADVISORCHECKTECHNOLOGYPOSTGRESQL string = "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL"
 
-	// CreateAdvisorCheckParamsBodyCheckFamilyADVISORCHECKFAMILYMONGODB captures enum value "ADVISOR_CHECK_FAMILY_MONGODB"
-	CreateAdvisorCheckParamsBodyCheckFamilyADVISORCHECKFAMILYMONGODB string = "ADVISOR_CHECK_FAMILY_MONGODB"
+	// CreateAdvisorCheckParamsBodyCheckTechnologyADVISORCHECKTECHNOLOGYMONGODB captures enum value "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
+	CreateAdvisorCheckParamsBodyCheckTechnologyADVISORCHECKTECHNOLOGYMONGODB string = "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
 )
 
 // prop value enum
-func (o *CreateAdvisorCheckParamsBodyCheck) validateFamilyEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, createAdvisorCheckParamsBodyCheckTypeFamilyPropEnum, true); err != nil {
+func (o *CreateAdvisorCheckParamsBodyCheck) validateTechnologyEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, createAdvisorCheckParamsBodyCheckTypeTechnologyPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *CreateAdvisorCheckParamsBodyCheck) validateFamily(formats strfmt.Registry) error {
-	if swag.IsZero(o.Family) { // not required
+func (o *CreateAdvisorCheckParamsBodyCheck) validateTechnology(formats strfmt.Registry) error {
+	if swag.IsZero(o.Technology) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateFamilyEnum("body"+"."+"check"+"."+"family", "body", *o.Family); err != nil {
+	if err := o.validateTechnologyEnum("body"+"."+"check"+"."+"technology", "body", *o.Technology); err != nil {
 		return err
 	}
 

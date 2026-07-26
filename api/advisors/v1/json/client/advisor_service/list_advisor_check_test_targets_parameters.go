@@ -57,13 +57,13 @@ ListAdvisorCheckTestTargetsParams contains all the parameters to send to the API
 	Typically these are written to a http.Request.
 */
 type ListAdvisorCheckTestTargetsParams struct {
-	/* Family.
+	/* Technology.
 
-	   Family of the check to be tested; determines the eligible service type.
+	   Technology of the check to be tested; determines the eligible service type.
 
-	   Default: "ADVISOR_CHECK_FAMILY_UNSPECIFIED"
+	   Default: "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED"
 	*/
-	Family *string
+	Technology *string
 
 	timeout    time.Duration
 	Context    context.Context
@@ -82,10 +82,10 @@ func (o *ListAdvisorCheckTestTargetsParams) WithDefaults() *ListAdvisorCheckTest
 //
 // All values with no default are reset to their zero value.
 func (o *ListAdvisorCheckTestTargetsParams) SetDefaults() {
-	familyDefault := string("ADVISOR_CHECK_FAMILY_UNSPECIFIED")
+	technologyDefault := string("ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED")
 
 	val := ListAdvisorCheckTestTargetsParams{
-		Family: &familyDefault,
+		Technology: &technologyDefault,
 	}
 
 	val.timeout = o.timeout
@@ -127,15 +127,15 @@ func (o *ListAdvisorCheckTestTargetsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithFamily adds the family to the list advisor check test targets params
-func (o *ListAdvisorCheckTestTargetsParams) WithFamily(family *string) *ListAdvisorCheckTestTargetsParams {
-	o.SetFamily(family)
+// WithTechnology adds the technology to the list advisor check test targets params
+func (o *ListAdvisorCheckTestTargetsParams) WithTechnology(technology *string) *ListAdvisorCheckTestTargetsParams {
+	o.SetTechnology(technology)
 	return o
 }
 
-// SetFamily adds the family to the list advisor check test targets params
-func (o *ListAdvisorCheckTestTargetsParams) SetFamily(family *string) {
-	o.Family = family
+// SetTechnology adds the technology to the list advisor check test targets params
+func (o *ListAdvisorCheckTestTargetsParams) SetTechnology(technology *string) {
+	o.Technology = technology
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -145,17 +145,17 @@ func (o *ListAdvisorCheckTestTargetsParams) WriteToRequest(r runtime.ClientReque
 	}
 	var res []error
 
-	if o.Family != nil {
+	if o.Technology != nil {
 
-		// query param family
-		var qrFamily string
+		// query param technology
+		var qrTechnology string
 
-		if o.Family != nil {
-			qrFamily = *o.Family
+		if o.Technology != nil {
+			qrTechnology = *o.Technology
 		}
-		qFamily := qrFamily
-		if qFamily != "" {
-			if err := r.SetQueryParam("family", qFamily); err != nil {
+		qTechnology := qrTechnology
+		if qTechnology != "" {
+			if err := r.SetQueryParam("technology", qTechnology); err != nil {
 				return err
 			}
 		}

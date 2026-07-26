@@ -1416,14 +1416,14 @@
                               ],
                               "x-order": 4
                             },
-                            "family": {
+                            "technology": {
                               "type": "string",
-                              "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                              "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
                               "enum": [
-                                "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
-                                "ADVISOR_CHECK_FAMILY_MYSQL",
-                                "ADVISOR_CHECK_FAMILY_POSTGRESQL",
-                                "ADVISOR_CHECK_FAMILY_MONGODB"
+                                "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+                                "ADVISOR_CHECK_TECHNOLOGY_MYSQL",
+                                "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
+                                "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                               ],
                               "x-order": 5
                             },
@@ -1581,14 +1581,14 @@
                         ],
                         "x-order": 4
                       },
-                      "family": {
+                      "technology": {
                         "type": "string",
-                        "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                        "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
                         "enum": [
-                          "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
-                          "ADVISOR_CHECK_FAMILY_MYSQL",
-                          "ADVISOR_CHECK_FAMILY_POSTGRESQL",
-                          "ADVISOR_CHECK_FAMILY_MONGODB"
+                          "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+                          "ADVISOR_CHECK_TECHNOLOGY_MYSQL",
+                          "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
+                          "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                         ],
                         "x-order": 5
                       },
@@ -1740,14 +1740,14 @@
                       ],
                       "x-order": 4
                     },
-                    "family": {
+                    "technology": {
                       "type": "string",
-                      "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                      "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
                       "enum": [
-                        "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
-                        "ADVISOR_CHECK_FAMILY_MYSQL",
-                        "ADVISOR_CHECK_FAMILY_POSTGRESQL",
-                        "ADVISOR_CHECK_FAMILY_MONGODB"
+                        "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+                        "ADVISOR_CHECK_TECHNOLOGY_MYSQL",
+                        "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
+                        "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                       ],
                       "x-order": 5
                     },
@@ -1857,14 +1857,14 @@
                       ],
                       "x-order": 4
                     },
-                    "family": {
+                    "technology": {
                       "type": "string",
-                      "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                      "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
                       "enum": [
-                        "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
-                        "ADVISOR_CHECK_FAMILY_MYSQL",
-                        "ADVISOR_CHECK_FAMILY_POSTGRESQL",
-                        "ADVISOR_CHECK_FAMILY_MONGODB"
+                        "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+                        "ADVISOR_CHECK_TECHNOLOGY_MYSQL",
+                        "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
+                        "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                       ],
                       "x-order": 5
                     },
@@ -2024,14 +2024,14 @@
                       ],
                       "x-order": 4
                     },
-                    "family": {
+                    "technology": {
                       "type": "string",
-                      "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                      "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
                       "enum": [
-                        "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
-                        "ADVISOR_CHECK_FAMILY_MYSQL",
-                        "ADVISOR_CHECK_FAMILY_POSTGRESQL",
-                        "ADVISOR_CHECK_FAMILY_MONGODB"
+                        "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+                        "ADVISOR_CHECK_TECHNOLOGY_MYSQL",
+                        "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
+                        "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                       ],
                       "x-order": 5
                     },
@@ -2189,14 +2189,14 @@
                       ],
                       "x-order": 4
                     },
-                    "family": {
+                    "technology": {
                       "type": "string",
-                      "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                      "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
                       "enum": [
-                        "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
-                        "ADVISOR_CHECK_FAMILY_MYSQL",
-                        "ADVISOR_CHECK_FAMILY_POSTGRESQL",
-                        "ADVISOR_CHECK_FAMILY_MONGODB"
+                        "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+                        "ADVISOR_CHECK_TECHNOLOGY_MYSQL",
+                        "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
+                        "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                       ],
                       "x-order": 5
                     },
@@ -2306,14 +2306,14 @@
                       ],
                       "x-order": 4
                     },
-                    "family": {
+                    "technology": {
                       "type": "string",
-                      "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                      "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
                       "enum": [
-                        "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
-                        "ADVISOR_CHECK_FAMILY_MYSQL",
-                        "ADVISOR_CHECK_FAMILY_POSTGRESQL",
-                        "ADVISOR_CHECK_FAMILY_MONGODB"
+                        "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+                        "ADVISOR_CHECK_TECHNOLOGY_MYSQL",
+                        "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
+                        "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                       ],
                       "x-order": 5
                     },
@@ -2699,14 +2699,14 @@
                       ],
                       "x-order": 4
                     },
-                    "family": {
+                    "technology": {
                       "type": "string",
-                      "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
+                      "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
                       "enum": [
-                        "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
-                        "ADVISOR_CHECK_FAMILY_MYSQL",
-                        "ADVISOR_CHECK_FAMILY_POSTGRESQL",
-                        "ADVISOR_CHECK_FAMILY_MONGODB"
+                        "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+                        "ADVISOR_CHECK_TECHNOLOGY_MYSQL",
+                        "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
+                        "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
                       ],
                       "x-order": 5
                     },
@@ -2892,7 +2892,7 @@
     },
     "/v1/advisors/checks:testTargets": {
       "get": {
-        "description": "Lists the services an advisor check of the given family can be tested against.",
+        "description": "Lists the services an advisor check of the given technology can be tested against.",
         "tags": [
           "AdvisorService"
         ],
@@ -2901,15 +2901,15 @@
         "parameters": [
           {
             "enum": [
-              "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
-              "ADVISOR_CHECK_FAMILY_MYSQL",
-              "ADVISOR_CHECK_FAMILY_POSTGRESQL",
-              "ADVISOR_CHECK_FAMILY_MONGODB"
+              "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+              "ADVISOR_CHECK_TECHNOLOGY_MYSQL",
+              "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
+              "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
             ],
             "type": "string",
-            "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
-            "description": "Family of the check to be tested; determines the eligible service type.",
-            "name": "family",
+            "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+            "description": "Technology of the check to be tested; determines the eligible service type.",
+            "name": "technology",
             "in": "query"
           }
         ],
@@ -2920,7 +2920,7 @@
               "type": "object",
               "properties": {
                 "targets": {
-                  "description": "Services a check of the requested family can be tested against.",
+                  "description": "Services a check of the requested technology can be tested against.",
                   "type": "array",
                   "items": {
                     "description": "AdvisorCheckTestTarget is a service an advisor check can be tested against.",

@@ -5,7 +5,7 @@ checks:
     summary: MongoDB TaskExecutorPoolSize High
     description: MongoDB TaskExecutorPoolSize count is higher than available CPU cores
     interval: standard
-    family: MONGODB
+    technology: MONGODB
     #author: Divyanshu Soni/Parag Bhayani
     category: Configuration
     subcategory: Resources

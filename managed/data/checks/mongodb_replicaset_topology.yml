@@ -5,7 +5,7 @@ checks:
     name: mongodb_replicaset_topology
     summary: MongoDB Replica Set Topology
     description: This check returns warnings if the Replica Set has less than 3 data bearing nodes
-    family: MONGODB
+    technology: MONGODB
     #author: Corrado Pandiani
     category: Configuration
     subcategory: Replication

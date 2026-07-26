@@ -5,7 +5,7 @@ checks:
     summary: MongoDB Balancer is disabled
     description: This check warns if the balancer process is disabled
     interval: standard
-    family: MONGODB
+    technology: MONGODB
     category: Performance
     subcategory: Replication
     #author: Parag bhayani

@@ -7,7 +7,7 @@ checks:
     interval: standard
     category: Configuration
     subcategory: InnoDB
-    family: MYSQL
+    technology: MYSQL
     queries:
       - type: MYSQL_SHOW
         query: VARIABLES

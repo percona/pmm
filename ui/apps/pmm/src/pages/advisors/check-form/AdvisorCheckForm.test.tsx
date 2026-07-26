@@ -14,7 +14,7 @@ import {
 } from 'utils/testUtils';
 import {
   AdvisorCheck,
-  AdvisorFamily,
+  AdvisorTechnology,
   AdvisorInterval,
   TestAdvisorCheckResult,
 } from 'types/advisors.types';
@@ -31,7 +31,7 @@ const SOURCE_CHECK: AdvisorCheck = {
   description: 'Warns if MySQL version is EOL',
   category: 'Configuration',
   subcategory: 'Version',
-  family: AdvisorFamily.mysql,
+  technology: AdvisorTechnology.mysql,
   interval: AdvisorInterval.standard,
   userDefined: false,
   queries: [{ type: 'MYSQL_SHOW', query: 'version' }],
@@ -121,7 +121,7 @@ describe('AdvisorCheckForm test run', () => {
             description: SOURCE_CHECK.description,
             category: SOURCE_CHECK.category,
             subcategory: SOURCE_CHECK.subcategory,
-            family: SOURCE_CHECK.family,
+            technology: SOURCE_CHECK.technology,
             interval: SOURCE_CHECK.interval,
             queries: [{ type: 'MYSQL_SHOW', query: 'version' }],
             script: SOURCE_CHECK.script,

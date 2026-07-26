@@ -16,11 +16,11 @@ enum AdvisorCheckInterval {
   ADVISOR_CHECK_INTERVAL_RARE = 3;
 }
 
-enum AdvisorCheckFamily {
-  ADVISOR_CHECK_FAMILY_UNSPECIFIED = 0;
-  ADVISOR_CHECK_FAMILY_MYSQL = 1;
-  ADVISOR_CHECK_FAMILY_POSTGRESQL = 2;
-  ADVISOR_CHECK_FAMILY_MONGODB = 3;
+enum AdvisorCheckTechnology {
+  ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED = 0;
+  ADVISOR_CHECK_TECHNOLOGY_MYSQL = 1;
+  ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL = 2;
+  ADVISOR_CHECK_TECHNOLOGY_MONGODB = 3;
 }
 
 // AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.
@@ -68,8 +68,8 @@ message AdvisorCheck {
   string summary = 4;
   // Check execution interval.
   AdvisorCheckInterval interval = 5;
-  // DB family.
-  AdvisorCheckFamily family = 6;
+  // DB technology.
+  AdvisorCheckTechnology technology = 6;
   // Category (top-level grouping).
   string category = 7;
   // Subcategory (second-level grouping within a category).
@@ -197,8 +197,8 @@ message TestAdvisorCheckResponse {
 }
 
 message ListAdvisorCheckTestTargetsRequest {
-  // Family of the check to be tested; determines the eligible service type.
-  AdvisorCheckFamily family = 1;
+  // Technology of the check to be tested; determines the eligible service type.
+  AdvisorCheckTechnology technology = 1;
 }
 
 // AdvisorCheckTestTarget is a service an advisor check can be tested against.
@@ -210,7 +210,7 @@ message AdvisorCheckTestTarget {
 }
 
 message ListAdvisorCheckTestTargetsResponse {
-  // Services a check of the requested family can be tested against.
+  // Services a check of the requested technology can be tested against.
   repeated AdvisorCheckTestTarget targets = 1;
 }
 
@@ -465,12 +465,12 @@ service AdvisorService {
       description: "Executes an advisor check definition against a single service without saving the check; results are returned and not persisted."
     };
   }
-  // ListAdvisorCheckTestTargets returns the services an advisor check of the given family can be tested against.
+  // ListAdvisorCheckTestTargets returns the services an advisor check of the given technology can be tested against.
   rpc ListAdvisorCheckTestTargets(ListAdvisorCheckTestTargetsRequest) returns (ListAdvisorCheckTestTargetsResponse) {
     option (google.api.http) = {get: "/v1/advisors/checks:testTargets"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List Advisor Check Test Targets"
-      description: "Lists the services an advisor check of the given family can be tested against."
+      description: "Lists the services an advisor check of the given technology can be tested against."
     };
   }
   // DeleteAdvisorCheck deletes a user-authored advisor check.

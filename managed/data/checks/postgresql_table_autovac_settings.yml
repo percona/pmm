@@ -4,7 +4,7 @@ checks:
     name: postgresql_table_autovac_settings
     summary: Check whether there is any table level autovacuum settings
     description: This check returns those tables where autovacuum parameters are specified along with autovacuum settings specified
-    family: POSTGRESQL
+    technology: POSTGRESQL
     #author: Jobin Augustine
     category: Configuration
     subcategory: Vacuum

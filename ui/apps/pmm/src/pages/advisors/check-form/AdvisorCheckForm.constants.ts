@@ -1,9 +1,9 @@
-import { AdvisorFamily, AdvisorInterval } from 'types/advisors.types';
+import { AdvisorTechnology, AdvisorInterval } from 'types/advisors.types';
 
-export const FAMILY_OPTIONS: AdvisorFamily[] = [
-  AdvisorFamily.mysql,
-  AdvisorFamily.postgresql,
-  AdvisorFamily.mongodb,
+export const TECHNOLOGY_OPTIONS: AdvisorTechnology[] = [
+  AdvisorTechnology.mysql,
+  AdvisorTechnology.postgresql,
+  AdvisorTechnology.mongodb,
 ];
 
 export const INTERVAL_OPTIONS: AdvisorInterval[] = [
@@ -12,22 +12,26 @@ export const INTERVAL_OPTIONS: AdvisorInterval[] = [
   AdvisorInterval.frequent,
 ];
 
-// query types available regardless of family
+// query types available regardless of technology
 const SHARED_QUERY_TYPES = [
   'METRICS_INSTANT',
   'METRICS_RANGE',
   'CLICKHOUSE_SELECT',
 ];
 
-// query types offered per family; values match the server-side check.Type constants
-export const QUERY_TYPES_BY_FAMILY: Record<AdvisorFamily, string[]> = {
-  [AdvisorFamily.mysql]: ['MYSQL_SHOW', 'MYSQL_SELECT', ...SHARED_QUERY_TYPES],
-  [AdvisorFamily.postgresql]: [
+// query types offered per technology; values match the server-side check.Type constants
+export const QUERY_TYPES_BY_TECHNOLOGY: Record<AdvisorTechnology, string[]> = {
+  [AdvisorTechnology.mysql]: [
+    'MYSQL_SHOW',
+    'MYSQL_SELECT',
+    ...SHARED_QUERY_TYPES,
+  ],
+  [AdvisorTechnology.postgresql]: [
     'POSTGRESQL_SHOW',
     'POSTGRESQL_SELECT',
     ...SHARED_QUERY_TYPES,
   ],
-  [AdvisorFamily.mongodb]: [
+  [AdvisorTechnology.mongodb]: [
     'MONGODB_GETPARAMETER',
     'MONGODB_BUILDINFO',
     'MONGODB_GETCMDLINEOPTS',
@@ -35,5 +39,5 @@ export const QUERY_TYPES_BY_FAMILY: Record<AdvisorFamily, string[]> = {
     'MONGODB_REPLSETGETSTATUS',
     ...SHARED_QUERY_TYPES,
   ],
-  [AdvisorFamily.unspecified]: [],
+  [AdvisorTechnology.unspecified]: [],
 };

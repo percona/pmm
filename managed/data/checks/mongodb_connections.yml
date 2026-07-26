@@ -5,7 +5,7 @@ checks:
     summary: MongoDB High connections
     description: This check returns the current number of connections as a warning when connection counts are above 5000.
     interval: standard
-    family: MONGODB
+    technology: MONGODB
     category: Configuration
     subcategory: Connection
     #category: configuration

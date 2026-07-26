@@ -5,7 +5,7 @@ checks:
     summary: MongoDB Inconsistent Indexes Across Shards
     description: Warns if there are inconsistent indexes across shards for sharded collections. Missing or inconsistent indexes across the shards can have a negative impact on performance.
     interval: standard
-    family: MONGODB
+    technology: MONGODB
     category: Query
     subcategory: Index
     #author: Parag Bhayani

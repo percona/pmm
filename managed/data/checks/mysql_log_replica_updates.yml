@@ -5,7 +5,7 @@ checks:
     summary: MySQL configuration check
     description: Checks if a replica is safely logging replicated transactions.
     interval: standard
-    family: MYSQL
+    technology: MYSQL
     category: Configuration
     subcategory: Replication
     #author: tibi/the grinch

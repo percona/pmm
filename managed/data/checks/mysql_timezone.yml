@@ -5,7 +5,7 @@ checks:
     summary: MySQL configuration check
     description: Checks if time zone is correctly loaded.
     interval: standard
-    family: MYSQL
+    technology: MYSQL
     #author:tibi/the grinch
     category: Configuration
     subcategory: Generic

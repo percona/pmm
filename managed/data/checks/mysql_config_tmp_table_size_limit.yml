@@ -8,7 +8,7 @@ checks:
     category: Configuration
     subcategory: Generic
     #author: The Grinch
-    family: MYSQL
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@global.max_heap_table_size as max_heap_table_size, @@global.tmp_table_size as tmp_table_size, @@version version,@@hostname service;"

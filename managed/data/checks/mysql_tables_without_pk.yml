@@ -5,7 +5,7 @@ checks:
     summary: MySQL check for table without Primary Key
     description: Checks tables without primary keys.
     interval: standard
-    family: MYSQL
+    technology: MYSQL
     #author:tibi/the grinch
     category: Query
     subcategory: Index

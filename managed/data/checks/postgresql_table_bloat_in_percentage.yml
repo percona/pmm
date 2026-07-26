@@ -4,7 +4,7 @@ checks:
     name: postgresql_table_bloat_in_percentage
     summary: PostgreSQL Table Bloat in percentage of the table size
     description: This check verifies the size of the table bloat in percentage of the total table size and alert accordingly
-    family: POSTGRESQL
+    technology: POSTGRESQL
     #author: David Gonzalez
     category: Performance
     subcategory: Vacuum

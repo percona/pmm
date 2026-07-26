@@ -4,7 +4,7 @@ checks:
     name: mongodb_version
     summary: MongoDB version check
     description: This check returns information on current MongoDB or Percona Server for MongoDB versions used in your environment. It also provides information on other available minor or major versions to consider for upgrades.
-    family: MONGODB
+    technology: MONGODB
     category: Configuration
     subcategory: Version
     #author: Parag Bhayani

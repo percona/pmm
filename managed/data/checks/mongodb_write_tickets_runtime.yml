@@ -5,7 +5,7 @@ checks:
     name: mongodb_write_tickets_runtime
     summary: MongoDB Configuration Write ticket Check
     description: Warns when MongoDB is using more than 128 write tickets during runtime.
-    family: MONGODB
+    technology: MONGODB
     # author: Vinicius Grippa
     category: Configuration
     subcategory: Generic

@@ -8,7 +8,7 @@ checks:
     category: Security
     subcategory: Replication
     #author: The Grinch
-    family: MYSQL
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service /*!80001 , IF(ifnull((select SERVICE_STATE from performance_schema.replication_connection_status),'OFF') = 'ON',(select IF(count(User)< 1,1,0) from mysql.user where Repl_slave_priv='Y' ),0)  as found,(select SOURCE_UUID  from performance_schema.replication_connection_status) as source */;"

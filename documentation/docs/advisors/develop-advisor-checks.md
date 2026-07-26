@@ -47,7 +47,7 @@ Advisor checks use the following format:
         summary: Check format V2
         description: Checks something important
         interval: standard
-        family: MYSQL
+        technology: MYSQL
         category: configuration ## Deprecated since PMM 2.36
         advisor: dev            ## Required since PMM 2.36
         queries:
@@ -178,7 +178,7 @@ Checks can include the following fields:
 - **Name** (string, required): defines machine-readable name (ID).
 - **Summary** (string, required): defines short human-readable description.
 - **Description** (string, required): defines long human-readable description.
-- **Family** (string, required): specifies one of the supported database families: MYSQL, POSTGRESQL, MONGODB. This field is only available for Advisor checks v.2.
+- **Technology** (string, required): specifies one of the supported database technologies: MYSQL, POSTGRESQL, MONGODB. This field is only available for Advisor checks v.2.
 - **Advisor** (string, required): specifies the advisor to which this check belongs. For local environments, specify **dev**.
 - **Interval** (string/enum, optional): defines running interval. Can be one of the predefined intervals in the UI: Standard, Frequent, Rare.
 - **Queries** (array, required): contains items that specify queries.

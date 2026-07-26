@@ -6,7 +6,7 @@ checks:
     description: Good check for PostgreSQL.
     category: Development
     subcategory: Dev
-    family: POSTGRESQL
+    technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT
         query: rolpassword FROM pg_authid WHERE rolcanlogin

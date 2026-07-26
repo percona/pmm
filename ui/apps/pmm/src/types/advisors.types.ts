@@ -7,11 +7,11 @@ export enum AdvisorInterval {
   unspecified = 'ADVISOR_CHECK_INTERVAL_UNSPECIFIED',
 }
 
-export enum AdvisorFamily {
-  unspecified = 'ADVISOR_CHECK_FAMILY_UNSPECIFIED',
-  mysql = 'ADVISOR_CHECK_FAMILY_MYSQL',
-  postgresql = 'ADVISOR_CHECK_FAMILY_POSTGRESQL',
-  mongodb = 'ADVISOR_CHECK_FAMILY_MONGODB',
+export enum AdvisorTechnology {
+  unspecified = 'ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED',
+  mysql = 'ADVISOR_CHECK_TECHNOLOGY_MYSQL',
+  postgresql = 'ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL',
+  mongodb = 'ADVISOR_CHECK_TECHNOLOGY_MONGODB',
 }
 
 export interface AdvisorCheckQuery {
@@ -26,7 +26,7 @@ export interface AdvisorCheck {
   description: string;
   summary: string;
   interval: AdvisorInterval;
-  family: AdvisorFamily;
+  technology: AdvisorTechnology;
   category: string;
   subcategory: string;
   userDefined: boolean;
@@ -44,7 +44,7 @@ export interface AdvisorCheckInput {
   description: string;
   category: string;
   subcategory: string;
-  family: AdvisorFamily;
+  technology: AdvisorTechnology;
   interval: AdvisorInterval;
   queries: AdvisorCheckQuery[];
   script: string;
@@ -219,7 +219,7 @@ export interface AdvisorCheckRow {
   description: string;
   subcategory: string;
   category: string;
-  family: AdvisorFamily;
+  technology: AdvisorTechnology;
   interval: AdvisorInterval;
   enabled: boolean;
   userDefined: boolean;

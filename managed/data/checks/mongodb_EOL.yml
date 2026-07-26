@@ -5,7 +5,7 @@ checks:
     summary: MongoDB version EOL
     description: This check returns errors or warnings if your current PSMDB or MongoDB version has reached or is about to reach End-of-Life.
     interval: standard
-    family: MONGODB
+    technology: MONGODB
     category: Configuration
     subcategory: Version
     #category: configuration

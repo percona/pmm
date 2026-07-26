@@ -339,9 +339,9 @@ func (_m *mockChecksService) GetInsightsFilterValues(ctx context.Context) ([]str
 	return r0, r1, r2
 }
 
-// ListTestTargets provides a mock function with given fields: ctx, family
-func (_m *mockChecksService) ListTestTargets(ctx context.Context, family check.Family) ([]services.Target, error) {
-	ret := _m.Called(ctx, family)
+// ListTestTargets provides a mock function with given fields: ctx, technology
+func (_m *mockChecksService) ListTestTargets(ctx context.Context, technology check.Technology) ([]services.Target, error) {
+	ret := _m.Called(ctx, technology)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListTestTargets")
@@ -349,19 +349,19 @@ func (_m *mockChecksService) ListTestTargets(ctx context.Context, family check.F
 
 	var r0 []services.Target
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, check.Family) ([]services.Target, error)); ok {
-		return rf(ctx, family)
+	if rf, ok := ret.Get(0).(func(context.Context, check.Technology) ([]services.Target, error)); ok {
+		return rf(ctx, technology)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, check.Family) []services.Target); ok {
-		r0 = rf(ctx, family)
+	if rf, ok := ret.Get(0).(func(context.Context, check.Technology) []services.Target); ok {
+		r0 = rf(ctx, technology)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]services.Target)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, check.Family) error); ok {
-		r1 = rf(ctx, family)
+	if rf, ok := ret.Get(1).(func(context.Context, check.Technology) error); ok {
+		r1 = rf(ctx, technology)
 	} else {
 		r1 = ret.Error(1)
 	}

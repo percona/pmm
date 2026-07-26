@@ -7,7 +7,7 @@ checks:
     interval: standard
     category: Query
     subcategory: Schema
-    family: MYSQL
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: "concat(table_schema, '.', table_name) as tbl_name, concat(round(table_rows/1000000,2),'M') num_rows, concat(round(data_length/(1024*1024*1024),2),'G') data_size, concat(round(index_length/(1024*1024*1024),2),'G') idx_size, concat(round((data_length+index_length)/(1024*1024*1024),2),'G') total_size, round(index_length/data_length,2) idxfrac FROM information_schema.TABLES WHERE table_schema not in ('information_schema', 'mysql', 'performance_schema', 'sys') ORDER BY data_length+index_length DESC LIMIT 10"

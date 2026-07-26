@@ -63,7 +63,7 @@ type AdvisorServiceClient interface {
 	UpdateAdvisorCheck(ctx context.Context, in *UpdateAdvisorCheckRequest, opts ...grpc.CallOption) (*UpdateAdvisorCheckResponse, error)
 	// TestAdvisorCheck executes an advisor check definition without saving it.
 	TestAdvisorCheck(ctx context.Context, in *TestAdvisorCheckRequest, opts ...grpc.CallOption) (*TestAdvisorCheckResponse, error)
-	// ListAdvisorCheckTestTargets returns the services an advisor check of the given family can be tested against.
+	// ListAdvisorCheckTestTargets returns the services an advisor check of the given technology can be tested against.
 	ListAdvisorCheckTestTargets(ctx context.Context, in *ListAdvisorCheckTestTargetsRequest, opts ...grpc.CallOption) (*ListAdvisorCheckTestTargetsResponse, error)
 	// DeleteAdvisorCheck deletes a user-authored advisor check.
 	DeleteAdvisorCheck(ctx context.Context, in *DeleteAdvisorCheckRequest, opts ...grpc.CallOption) (*DeleteAdvisorCheckResponse, error)
@@ -235,7 +235,7 @@ type AdvisorServiceServer interface {
 	UpdateAdvisorCheck(context.Context, *UpdateAdvisorCheckRequest) (*UpdateAdvisorCheckResponse, error)
 	// TestAdvisorCheck executes an advisor check definition without saving it.
 	TestAdvisorCheck(context.Context, *TestAdvisorCheckRequest) (*TestAdvisorCheckResponse, error)
-	// ListAdvisorCheckTestTargets returns the services an advisor check of the given family can be tested against.
+	// ListAdvisorCheckTestTargets returns the services an advisor check of the given technology can be tested against.
 	ListAdvisorCheckTestTargets(context.Context, *ListAdvisorCheckTestTargetsRequest) (*ListAdvisorCheckTestTargetsResponse, error)
 	// DeleteAdvisorCheck deletes a user-authored advisor check.
 	DeleteAdvisorCheck(context.Context, *DeleteAdvisorCheckRequest) (*DeleteAdvisorCheckResponse, error)
