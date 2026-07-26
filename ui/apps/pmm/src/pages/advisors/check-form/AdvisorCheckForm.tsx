@@ -1,4 +1,4 @@
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useMemo } from 'react';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
@@ -12,7 +12,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { SelectInput, TextInput } from '@percona/percona-ui';
+import { AutoCompleteInput, SelectInput, TextInput } from '@percona/percona-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
@@ -23,10 +23,12 @@ import {
 import { useNavigation } from 'contexts/navigation/navigation.hooks';
 import {
   useAdvisorCheck,
+  useAdvisors,
   useCreateAdvisorCheck,
   useUpdateAdvisorCheck,
 } from 'hooks/api/useAdvisors';
 import { ADVISOR_TECHNOLOGY, ADVISOR_INTERVAL } from 'lib/constants';
+import { flattenAdvisorChecks } from 'utils/advisors.utils';
 import { helperTextTestId } from 'utils/mui.utils';
 import { CheckTestControls } from '../check-test/CheckTestControls';
 import { CheckTestResults } from '../check-test/CheckTestResults';
@@ -103,6 +105,19 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
 
   const technology = watch('technology');
   const queryTypeOptions = QUERY_TYPES_BY_TECHNOLOGY[technology] ?? [];
+
+  // suggest the categories already in use; the query is shared with the list
+  // page, so opening the form costs no extra request
+  const { data: advisors = [] } = useAdvisors();
+  const { categoryOptions, subcategoryOptions } = useMemo(() => {
+    const rows = flattenAdvisorChecks(advisors);
+    return {
+      categoryOptions: [...new Set(rows.map((row) => row.category))].sort(),
+      subcategoryOptions: [
+        ...new Set(rows.map((row) => row.subcategory)),
+      ].sort(),
+    };
+  }, [advisors]);
 
   const test = useCheckTest({ technology, enabled: open, resetKey: open });
 
@@ -255,31 +270,29 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                 )}
               />
               <Stack direction="row" gap={2} flexWrap="wrap">
-                <TextInput
+                <AutoCompleteInput
                   name="category"
                   label={Messages.fields.category}
-                  textFieldProps={{
-                    sx: { flex: 1, minWidth: 160 },
-                    slotProps: {
-                      htmlInput: { 'data-testid': 'check-category' },
-                    },
+                  options={categoryOptions}
+                  autoCompleteProps={{
+                    // existing values are suggestions, not a closed list, and
+                    // autoSelect commits a typed-in value on blur (freeSolo
+                    // alone only commits on Enter)
+                    freeSolo: true,
+                    autoSelect: true,
+                    // percona-ui defaults the Autocomplete to mt: 3
+                    sx: { mt: 0, flex: 1, minWidth: 160 },
                   }}
-                  formHelperTextProps={helperTextTestId(
-                    'category-field-error-message'
-                  )}
                 />
-                <TextInput
+                <AutoCompleteInput
                   name="subcategory"
                   label={Messages.fields.subcategory}
-                  textFieldProps={{
-                    sx: { flex: 1, minWidth: 160 },
-                    slotProps: {
-                      htmlInput: { 'data-testid': 'check-subcategory' },
-                    },
+                  options={subcategoryOptions}
+                  autoCompleteProps={{
+                    freeSolo: true,
+                    autoSelect: true,
+                    sx: { mt: 0, flex: 1, minWidth: 160 },
                   }}
-                  formHelperTextProps={helperTextTestId(
-                    'subcategory-field-error-message'
-                  )}
                 />
                 <SelectInput
                   name="technology"
