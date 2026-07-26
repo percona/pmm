@@ -26,6 +26,7 @@ import {
   TIME_FORMAT,
 } from 'lib/constants';
 import { Messages } from '../AdvisorInsights.messages';
+import { TRIGGERED_BY_LABEL } from '../AdvisorInsights.utils';
 
 const EM_DASH = '—';
 
@@ -81,8 +82,6 @@ const Field: FC<FieldProps> = ({ label, children, span = 1 }) => (
 
 interface InsightDetailsPaneProps {
   insight: Insight | null;
-  // enabled state of the underlying check; undefined when unknown
-  checkEnabled?: boolean;
   // open the pane already maximized (e.g. when triggered by a row double-click)
   initialMaximized?: boolean;
   onClose: () => void;
@@ -90,7 +89,6 @@ interface InsightDetailsPaneProps {
 
 export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
   insight,
-  checkEnabled,
   initialMaximized = false,
   onClose,
 }) => {
@@ -210,13 +208,9 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
                 {ADVISOR_RESULT_STATUS[insight.status]}
               </Typography>
             </Field>
-            <Field label={m.advisorStatus}>
+            <Field label={m.triggeredBy}>
               <Typography variant="body1">
-                {checkEnabled === undefined
-                  ? EM_DASH
-                  : checkEnabled
-                    ? m.enabled
-                    : m.disabled}
+                {TRIGGERED_BY_LABEL[insight.triggeredBy] || EM_DASH}
               </Typography>
             </Field>
 

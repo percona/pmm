@@ -689,11 +689,6 @@ const AdvisorInsights: FC = () => {
         <InsightDetailsPane
           insight={detailsInsight}
           initialMaximized={detailsMaximized}
-          checkEnabled={
-            detailsInsight
-              ? checksByName.get(detailsInsight.checkName)?.enabled
-              : undefined
-          }
           onClose={() =>
             patchParams((p) => p.delete('insight'), { resetPage: false })
           }

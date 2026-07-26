@@ -444,11 +444,8 @@ describe('AdvisorInsights', () => {
         'mysql_version_check'
       )
     ).toBeInTheDocument();
-    // the underlying check is enabled in the advisors fixture
     expect(
-      within(screen.getByTestId('details-field-advisor-status')).getByText(
-        Messages.details.enabled
-      )
+      within(screen.getByTestId('details-field-triggered-by')).getByText('User')
     ).toBeInTheDocument();
     // populated topology fields and outcome
     expect(within(pane).getByText('prod')).toBeInTheDocument();

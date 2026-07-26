@@ -7,7 +7,7 @@ import {
   TIME_FORMAT,
 } from 'lib/constants';
 
-const TRIGGERED_BY_LABEL: Record<AdvisorCheckTriggeredBy, string> = {
+export const TRIGGERED_BY_LABEL: Record<AdvisorCheckTriggeredBy, string> = {
   [AdvisorCheckTriggeredBy.user]: 'User',
   [AdvisorCheckTriggeredBy.scheduler]: 'Scheduler',
   [AdvisorCheckTriggeredBy.unspecified]: '',
