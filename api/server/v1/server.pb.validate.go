@@ -2022,39 +2022,6 @@ func (m *Settings) validate(all bool) error {
 		}
 	}
 
-	if all {
-		switch v := interface{}(m.GetAdvisorHistoryRetention()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, SettingsValidationError{
-					field:  "AdvisorHistoryRetention",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, SettingsValidationError{
-					field:  "AdvisorHistoryRetention",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetAdvisorHistoryRetention()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return SettingsValidationError{
-				field:  "AdvisorHistoryRetention",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	// no validation rules for AdvisorNotificationsEnabled
-
-	// no validation rules for AdvisorNotificationSeverityThreshold
-
 	// no validation rules for SshKey
 
 	// no validation rules for AdvisorEnabled
@@ -2105,6 +2072,39 @@ func (m *Settings) validate(all bool) error {
 	// no validation rules for DefaultRoleId
 
 	// no validation rules for EnableInternalPgQan
+
+	if all {
+		switch v := interface{}(m.GetAdvisorHistoryRetention()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "AdvisorHistoryRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SettingsValidationError{
+					field:  "AdvisorHistoryRetention",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAdvisorHistoryRetention()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SettingsValidationError{
+				field:  "AdvisorHistoryRetention",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for AdvisorNotificationsEnabled
+
+	// no validation rules for AdvisorNotificationSeverityThreshold
 
 	if len(errors) > 0 {
 		return SettingsMultiError(errors)
@@ -2853,6 +2853,35 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	}
 
 	if all {
+		switch v := interface{}(m.GetAdvisorRunIntervals()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, ChangeSettingsRequestValidationError{
+					field:  "AdvisorRunIntervals",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, ChangeSettingsRequestValidationError{
+					field:  "AdvisorRunIntervals",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetAdvisorRunIntervals()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ChangeSettingsRequestValidationError{
+				field:  "AdvisorRunIntervals",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
 		switch v := interface{}(m.GetAdvisorHistoryRetention()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
@@ -2883,45 +2912,12 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 
 	// no validation rules for AdvisorNotificationSeverityThreshold
 
-	if all {
-		switch v := interface{}(m.GetAdvisorRunIntervals()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeSettingsRequestValidationError{
-					field:  "AdvisorRunIntervals",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeSettingsRequestValidationError{
-					field:  "AdvisorRunIntervals",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetAdvisorRunIntervals()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeSettingsRequestValidationError{
-				field:  "AdvisorRunIntervals",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	if m.EnableUpdates != nil {
 		// no validation rules for EnableUpdates
 	}
 
 	if m.EnableTelemetry != nil {
 		// no validation rules for EnableTelemetry
-	}
-
-	if m.EnableAdvisorNotifications != nil {
-		// no validation rules for EnableAdvisorNotifications
 	}
 
 	if m.SshKey != nil {
@@ -2985,6 +2981,41 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 
 	if m.EnableInternalPgQan != nil {
 		// no validation rules for EnableInternalPgQan
+	}
+
+	if m.EnableAdvisorNotifications != nil {
+		// no validation rules for EnableAdvisorNotifications
+	}
+
+	if m.AdvisorNotificationEmailAddresses != nil {
+		if all {
+			switch v := interface{}(m.GetAdvisorNotificationEmailAddresses()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeSettingsRequestValidationError{
+						field:  "AdvisorNotificationEmailAddresses",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeSettingsRequestValidationError{
+						field:  "AdvisorNotificationEmailAddresses",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetAdvisorNotificationEmailAddresses()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeSettingsRequestValidationError{
+					field:  "AdvisorNotificationEmailAddresses",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
 	}
 
 	if len(errors) > 0 {

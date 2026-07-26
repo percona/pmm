@@ -16,79 +16,73 @@
 package server
 
 import (
-	"errors"
 	"testing"
 
-	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
 )
 
-func TestReconcileAdvisorContactPoint(t *testing.T) {
+func TestValidateAdvisorNotificationRecipients(t *testing.T) {
 	t.Parallel()
 
-	newServer := func(t *testing.T) (*Server, *mockGrafanaClient) {
-		t.Helper()
-		gc := newMockGrafanaClient(t)
-		s := &Server{
-			grafanaClient: gc,
-			l:             logrus.WithField("test", t.Name()),
-		}
-		return s, gc
-	}
-
-	enabledSettings := func() *models.Settings {
-		enabled := true
+	settings := func(enabled bool, addresses ...string) *models.Settings {
 		s := &models.Settings{}
-		s.AdvisorNotifications.Enabled = &enabled
+		s.AdvisorNotifications.Enabled = new(enabled)
+		s.AdvisorNotifications.EmailAddresses = addresses
 		return s
 	}
 
-	t.Run("enabled resolves the email contact point recipients", func(t *testing.T) {
+	t.Run("disabled needs no recipients", func(t *testing.T) {
 		t.Parallel()
 
-		s, gc := newServer(t)
-		gc.On("GetEmailContactPoint", mock.Anything, advisorContactPointName).
-			Return([]string{"a@example.com", "b@example.com"}, nil)
-
-		addresses, err := s.reconcileAdvisorContactPoint(t.Context(), enabledSettings())
+		err := validateAdvisorNotificationRecipients(settings(false), &models.ChangeSettingsParams{})
 		require.NoError(t, err)
-		require.Equal(t, []string{"a@example.com", "b@example.com"}, addresses)
 	})
 
-	t.Run("disabled returns nil without calling Grafana", func(t *testing.T) {
+	t.Run("disabling drops the requirement even with no recipients", func(t *testing.T) {
 		t.Parallel()
 
-		s, gc := newServer(t)
-
-		addresses, err := s.reconcileAdvisorContactPoint(t.Context(), &models.Settings{})
+		err := validateAdvisorNotificationRecipients(settings(true, "a@example.com"),
+			&models.ChangeSettingsParams{
+				EnableAdvisorNotifications:        new(false),
+				AdvisorNotificationEmailAddresses: []string{},
+			})
 		require.NoError(t, err)
-		require.Nil(t, addresses)
-		gc.AssertNotCalled(t, "GetEmailContactPoint")
 	})
 
-	t.Run("enabled with no matching contact point returns nil", func(t *testing.T) {
+	t.Run("enabling without recipients is rejected", func(t *testing.T) {
 		t.Parallel()
 
-		s, gc := newServer(t)
-		gc.On("GetEmailContactPoint", mock.Anything, advisorContactPointName).
-			Return([]string(nil), nil)
-
-		addresses, err := s.reconcileAdvisorContactPoint(t.Context(), enabledSettings())
-		require.NoError(t, err)
-		require.Empty(t, addresses)
+		err := validateAdvisorNotificationRecipients(settings(false),
+			&models.ChangeSettingsParams{EnableAdvisorNotifications: new(true)})
+		require.ErrorContains(t, err, "at least one recipient is required")
 	})
 
-	t.Run("enabled propagates a Grafana error", func(t *testing.T) {
+	t.Run("enabling with recipients in the same request is accepted", func(t *testing.T) {
 		t.Parallel()
 
-		s, gc := newServer(t)
-		gc.On("GetEmailContactPoint", mock.Anything, advisorContactPointName).
-			Return([]string(nil), errors.New("boom"))
+		err := validateAdvisorNotificationRecipients(settings(false),
+			&models.ChangeSettingsParams{
+				EnableAdvisorNotifications:        new(true),
+				AdvisorNotificationEmailAddresses: []string{"a@example.com"},
+			})
+		require.NoError(t, err)
+	})
 
-		_, err := s.reconcileAdvisorContactPoint(t.Context(), enabledSettings())
-		require.Error(t, err)
+	t.Run("already enabled, stored recipients satisfy an unrelated change", func(t *testing.T) {
+		t.Parallel()
+
+		err := validateAdvisorNotificationRecipients(settings(true, "a@example.com"),
+			&models.ChangeSettingsParams{})
+		require.NoError(t, err)
+	})
+
+	t.Run("clearing recipients while enabled is rejected", func(t *testing.T) {
+		t.Parallel()
+
+		err := validateAdvisorNotificationRecipients(settings(true, "a@example.com"),
+			&models.ChangeSettingsParams{AdvisorNotificationEmailAddresses: []string{}})
+		require.ErrorContains(t, err, "at least one recipient is required")
 	})
 }

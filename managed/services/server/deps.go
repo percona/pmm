@@ -34,7 +34,6 @@ type healthChecker interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type grafanaClient interface {
 	healthChecker
-	GetEmailContactPoint(ctx context.Context, name string) ([]string, error)
 }
 
 // prometheusService is a subset of methods of victoriametrics.Service used by this package.

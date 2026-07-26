@@ -856,14 +856,8 @@ type Settings struct {
 	TelemetryEnabled   bool                 `protobuf:"varint,2,opt,name=telemetry_enabled,json=telemetryEnabled,proto3" json:"telemetry_enabled,omitempty"`
 	MetricsResolutions *MetricsResolutions  `protobuf:"bytes,3,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
 	DataRetention      *durationpb.Duration `protobuf:"bytes,4,opt,name=data_retention,json=dataRetention,proto3" json:"data_retention,omitempty"`
-	// Advisor check results history retention.
-	AdvisorHistoryRetention *durationpb.Duration `protobuf:"bytes,21,opt,name=advisor_history_retention,json=advisorHistoryRetention,proto3" json:"advisor_history_retention,omitempty"`
-	// True if Advisor email notifications are enabled.
-	AdvisorNotificationsEnabled bool `protobuf:"varint,22,opt,name=advisor_notifications_enabled,json=advisorNotificationsEnabled,proto3" json:"advisor_notifications_enabled,omitempty"`
-	// Least-severe level that triggers an Advisor notification.
-	AdvisorNotificationSeverityThreshold v1.Severity `protobuf:"varint,23,opt,name=advisor_notification_severity_threshold,json=advisorNotificationSeverityThreshold,proto3,enum=management.v1.Severity" json:"advisor_notification_severity_threshold,omitempty"`
-	SshKey                               string      `protobuf:"bytes,5,opt,name=ssh_key,json=sshKey,proto3" json:"ssh_key,omitempty"`
-	AwsPartitions                        []string    `protobuf:"bytes,6,rep,name=aws_partitions,json=awsPartitions,proto3" json:"aws_partitions,omitempty"`
+	SshKey             string               `protobuf:"bytes,5,opt,name=ssh_key,json=sshKey,proto3" json:"ssh_key,omitempty"`
+	AwsPartitions      []string             `protobuf:"bytes,6,rep,name=aws_partitions,json=awsPartitions,proto3" json:"aws_partitions,omitempty"`
 	// True if Advisor is enabled.
 	AdvisorEnabled bool `protobuf:"varint,7,opt,name=advisor_enabled,json=advisorEnabled,proto3" json:"advisor_enabled,omitempty"`
 	// Deprecated: Marked as deprecated in server/v1/server.proto.
@@ -890,8 +884,16 @@ type Settings struct {
 	DefaultRoleId uint32 `protobuf:"varint,18,opt,name=default_role_id,json=defaultRoleId,proto3" json:"default_role_id,omitempty"`
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQan bool `protobuf:"varint,19,opt,name=enable_internal_pg_qan,json=enableInternalPgQan,proto3" json:"enable_internal_pg_qan,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Advisor check results history retention.
+	AdvisorHistoryRetention *durationpb.Duration `protobuf:"bytes,21,opt,name=advisor_history_retention,json=advisorHistoryRetention,proto3" json:"advisor_history_retention,omitempty"`
+	// True if Advisor email notifications are enabled.
+	AdvisorNotificationsEnabled bool `protobuf:"varint,22,opt,name=advisor_notifications_enabled,json=advisorNotificationsEnabled,proto3" json:"advisor_notifications_enabled,omitempty"`
+	// Least-severe level that triggers an Advisor notification.
+	AdvisorNotificationSeverityThreshold v1.Severity `protobuf:"varint,23,opt,name=advisor_notification_severity_threshold,json=advisorNotificationSeverityThreshold,proto3,enum=management.v1.Severity" json:"advisor_notification_severity_threshold,omitempty"`
+	// Email addresses Advisor notifications are sent to.
+	AdvisorNotificationEmailAddresses []string `protobuf:"bytes,24,rep,name=advisor_notification_email_addresses,json=advisorNotificationEmailAddresses,proto3" json:"advisor_notification_email_addresses,omitempty"`
+	unknownFields                     protoimpl.UnknownFields
+	sizeCache                         protoimpl.SizeCache
 }
 
 func (x *Settings) Reset() {
@@ -950,27 +952,6 @@ func (x *Settings) GetDataRetention() *durationpb.Duration {
 		return x.DataRetention
 	}
 	return nil
-}
-
-func (x *Settings) GetAdvisorHistoryRetention() *durationpb.Duration {
-	if x != nil {
-		return x.AdvisorHistoryRetention
-	}
-	return nil
-}
-
-func (x *Settings) GetAdvisorNotificationsEnabled() bool {
-	if x != nil {
-		return x.AdvisorNotificationsEnabled
-	}
-	return false
-}
-
-func (x *Settings) GetAdvisorNotificationSeverityThreshold() v1.Severity {
-	if x != nil {
-		return x.AdvisorNotificationSeverityThreshold
-	}
-	return v1.Severity(0)
 }
 
 func (x *Settings) GetSshKey() string {
@@ -1071,6 +1052,34 @@ func (x *Settings) GetEnableInternalPgQan() bool {
 		return x.EnableInternalPgQan
 	}
 	return false
+}
+
+func (x *Settings) GetAdvisorHistoryRetention() *durationpb.Duration {
+	if x != nil {
+		return x.AdvisorHistoryRetention
+	}
+	return nil
+}
+
+func (x *Settings) GetAdvisorNotificationsEnabled() bool {
+	if x != nil {
+		return x.AdvisorNotificationsEnabled
+	}
+	return false
+}
+
+func (x *Settings) GetAdvisorNotificationSeverityThreshold() v1.Severity {
+	if x != nil {
+		return x.AdvisorNotificationSeverityThreshold
+	}
+	return v1.Severity(0)
+}
+
+func (x *Settings) GetAdvisorNotificationEmailAddresses() []string {
+	if x != nil {
+		return x.AdvisorNotificationEmailAddresses
+	}
+	return nil
 }
 
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
@@ -1349,14 +1358,8 @@ type ChangeSettingsRequest struct {
 	MetricsResolutions *MetricsResolutions    `protobuf:"bytes,3,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
 	// A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
 	DataRetention *durationpb.Duration `protobuf:"bytes,4,opt,name=data_retention,json=dataRetention,proto3" json:"data_retention,omitempty"`
-	// A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
-	AdvisorHistoryRetention *durationpb.Duration `protobuf:"bytes,16,opt,name=advisor_history_retention,json=advisorHistoryRetention,proto3" json:"advisor_history_retention,omitempty"`
-	// Enable Advisor email notifications.
-	EnableAdvisorNotifications *bool `protobuf:"varint,17,opt,name=enable_advisor_notifications,json=enableAdvisorNotifications,proto3,oneof" json:"enable_advisor_notifications,omitempty"`
-	// Least-severe level that triggers an Advisor notification.
-	AdvisorNotificationSeverityThreshold v1.Severity         `protobuf:"varint,18,opt,name=advisor_notification_severity_threshold,json=advisorNotificationSeverityThreshold,proto3,enum=management.v1.Severity" json:"advisor_notification_severity_threshold,omitempty"`
-	SshKey                               *string             `protobuf:"bytes,5,opt,name=ssh_key,json=sshKey,proto3,oneof" json:"ssh_key,omitempty"`
-	AwsPartitions                        *common.StringArray `protobuf:"bytes,6,opt,name=aws_partitions,json=awsPartitions,proto3,oneof" json:"aws_partitions,omitempty"`
+	SshKey        *string              `protobuf:"bytes,5,opt,name=ssh_key,json=sshKey,proto3,oneof" json:"ssh_key,omitempty"`
+	AwsPartitions *common.StringArray  `protobuf:"bytes,6,opt,name=aws_partitions,json=awsPartitions,proto3,oneof" json:"aws_partitions,omitempty"`
 	// Enable Advisor.
 	EnableAdvisor *bool `protobuf:"varint,7,opt,name=enable_advisor,json=enableAdvisor,proto3,oneof" json:"enable_advisor,omitempty"`
 	// Enable Alerting.
@@ -1373,8 +1376,17 @@ type ChangeSettingsRequest struct {
 	EnableAccessControl *bool `protobuf:"varint,13,opt,name=enable_access_control,json=enableAccessControl,proto3,oneof" json:"enable_access_control,omitempty"`
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQan *bool `protobuf:"varint,14,opt,name=enable_internal_pg_qan,json=enableInternalPgQan,proto3,oneof" json:"enable_internal_pg_qan,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
+	AdvisorHistoryRetention *durationpb.Duration `protobuf:"bytes,16,opt,name=advisor_history_retention,json=advisorHistoryRetention,proto3" json:"advisor_history_retention,omitempty"`
+	// Enable Advisor email notifications.
+	EnableAdvisorNotifications *bool `protobuf:"varint,17,opt,name=enable_advisor_notifications,json=enableAdvisorNotifications,proto3,oneof" json:"enable_advisor_notifications,omitempty"`
+	// Least-severe level that triggers an Advisor notification.
+	AdvisorNotificationSeverityThreshold v1.Severity `protobuf:"varint,18,opt,name=advisor_notification_severity_threshold,json=advisorNotificationSeverityThreshold,proto3,enum=management.v1.Severity" json:"advisor_notification_severity_threshold,omitempty"`
+	// Email addresses Advisor notifications are sent to. Unset leaves them unchanged; an empty
+	// array clears the list.
+	AdvisorNotificationEmailAddresses *common.StringArray `protobuf:"bytes,20,opt,name=advisor_notification_email_addresses,json=advisorNotificationEmailAddresses,proto3,oneof" json:"advisor_notification_email_addresses,omitempty"`
+	unknownFields                     protoimpl.UnknownFields
+	sizeCache                         protoimpl.SizeCache
 }
 
 func (x *ChangeSettingsRequest) Reset() {
@@ -1433,27 +1445,6 @@ func (x *ChangeSettingsRequest) GetDataRetention() *durationpb.Duration {
 		return x.DataRetention
 	}
 	return nil
-}
-
-func (x *ChangeSettingsRequest) GetAdvisorHistoryRetention() *durationpb.Duration {
-	if x != nil {
-		return x.AdvisorHistoryRetention
-	}
-	return nil
-}
-
-func (x *ChangeSettingsRequest) GetEnableAdvisorNotifications() bool {
-	if x != nil && x.EnableAdvisorNotifications != nil {
-		return *x.EnableAdvisorNotifications
-	}
-	return false
-}
-
-func (x *ChangeSettingsRequest) GetAdvisorNotificationSeverityThreshold() v1.Severity {
-	if x != nil {
-		return x.AdvisorNotificationSeverityThreshold
-	}
-	return v1.Severity(0)
 }
 
 func (x *ChangeSettingsRequest) GetSshKey() string {
@@ -1524,6 +1515,34 @@ func (x *ChangeSettingsRequest) GetEnableInternalPgQan() bool {
 		return *x.EnableInternalPgQan
 	}
 	return false
+}
+
+func (x *ChangeSettingsRequest) GetAdvisorHistoryRetention() *durationpb.Duration {
+	if x != nil {
+		return x.AdvisorHistoryRetention
+	}
+	return nil
+}
+
+func (x *ChangeSettingsRequest) GetEnableAdvisorNotifications() bool {
+	if x != nil && x.EnableAdvisorNotifications != nil {
+		return *x.EnableAdvisorNotifications
+	}
+	return false
+}
+
+func (x *ChangeSettingsRequest) GetAdvisorNotificationSeverityThreshold() v1.Severity {
+	if x != nil {
+		return x.AdvisorNotificationSeverityThreshold
+	}
+	return v1.Severity(0)
+}
+
+func (x *ChangeSettingsRequest) GetAdvisorNotificationEmailAddresses() *common.StringArray {
+	if x != nil {
+		return x.AdvisorNotificationEmailAddresses
+	}
+	return nil
 }
 
 type ChangeSettingsResponse struct {
@@ -1618,15 +1637,13 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13AdvisorRunIntervals\x12F\n" +
 	"\x11standard_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x10standardInterval\x12>\n" +
 	"\rrare_interval\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\frareInterval\x12F\n" +
-	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xc7\t\n" +
+	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\x98\n" +
+	"\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12N\n" +
 	"\x13metrics_resolutions\x18\x03 \x01(\v2\x1d.server.v1.MetricsResolutionsR\x12metricsResolutions\x12@\n" +
-	"\x0edata_retention\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\rdataRetention\x12U\n" +
-	"\x19advisor_history_retention\x18\x15 \x01(\v2\x19.google.protobuf.DurationR\x17advisorHistoryRetention\x12B\n" +
-	"\x1dadvisor_notifications_enabled\x18\x16 \x01(\bR\x1badvisorNotificationsEnabled\x12n\n" +
-	"'advisor_notification_severity_threshold\x18\x17 \x01(\x0e2\x17.management.v1.SeverityR$advisorNotificationSeverityThreshold\x12\x17\n" +
+	"\x0edata_retention\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\rdataRetention\x12\x17\n" +
 	"\assh_key\x18\x05 \x01(\tR\x06sshKey\x12%\n" +
 	"\x0eaws_partitions\x18\x06 \x03(\tR\rawsPartitions\x12'\n" +
 	"\x0fadvisor_enabled\x18\a \x01(\bR\x0eadvisorEnabled\x12)\n" +
@@ -1641,7 +1658,11 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13telemetry_summaries\x18\x10 \x03(\tR\x12telemetrySummaries\x122\n" +
 	"\x15enable_access_control\x18\x11 \x01(\bR\x13enableAccessControl\x12&\n" +
 	"\x0fdefault_role_id\x18\x12 \x01(\rR\rdefaultRoleId\x123\n" +
-	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQanJ\x04\b\x14\x10\x15R\x16update_snooze_duration\"\x8f\x03\n" +
+	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQan\x12U\n" +
+	"\x19advisor_history_retention\x18\x15 \x01(\v2\x19.google.protobuf.DurationR\x17advisorHistoryRetention\x12B\n" +
+	"\x1dadvisor_notifications_enabled\x18\x16 \x01(\bR\x1badvisorNotificationsEnabled\x12n\n" +
+	"'advisor_notification_severity_threshold\x18\x17 \x01(\x0e2\x17.management.v1.SeverityR$advisorNotificationSeverityThreshold\x12O\n" +
+	"$advisor_notification_email_addresses\x18\x18 \x03(\tR!advisorNotificationEmailAddressesJ\x04\b\x14\x10\x15R\x16update_snooze_duration\"\x8f\x03\n" +
 	"\x10ReadOnlySettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12'\n" +
@@ -1656,31 +1677,30 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13GetSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings\"V\n" +
 	"\x1bGetReadOnlySettingsResponse\x127\n" +
-	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\xec\n" +
-	"\n" +
+	"\bsettings\x18\x01 \x01(\v2\x1b.server.v1.ReadOnlySettingsR\bsettings\"\x80\f\n" +
 	"\x15ChangeSettingsRequest\x12*\n" +
 	"\x0eenable_updates\x18\x01 \x01(\bH\x00R\renableUpdates\x88\x01\x01\x12.\n" +
 	"\x10enable_telemetry\x18\x02 \x01(\bH\x01R\x0fenableTelemetry\x88\x01\x01\x12N\n" +
 	"\x13metrics_resolutions\x18\x03 \x01(\v2\x1d.server.v1.MetricsResolutionsR\x12metricsResolutions\x12@\n" +
-	"\x0edata_retention\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\rdataRetention\x12U\n" +
-	"\x19advisor_history_retention\x18\x10 \x01(\v2\x19.google.protobuf.DurationR\x17advisorHistoryRetention\x12E\n" +
-	"\x1cenable_advisor_notifications\x18\x11 \x01(\bH\x02R\x1aenableAdvisorNotifications\x88\x01\x01\x12n\n" +
-	"'advisor_notification_severity_threshold\x18\x12 \x01(\x0e2\x17.management.v1.SeverityR$advisorNotificationSeverityThreshold\x12\x1c\n" +
-	"\assh_key\x18\x05 \x01(\tH\x03R\x06sshKey\x88\x01\x01\x12?\n" +
-	"\x0eaws_partitions\x18\x06 \x01(\v2\x13.common.StringArrayH\x04R\rawsPartitions\x88\x01\x01\x12*\n" +
-	"\x0eenable_advisor\x18\a \x01(\bH\x05R\renableAdvisor\x88\x01\x01\x12,\n" +
-	"\x0fenable_alerting\x18\b \x01(\bH\x06R\x0eenableAlerting\x88\x01\x01\x121\n" +
-	"\x12pmm_public_address\x18\t \x01(\tH\aR\x10pmmPublicAddress\x88\x01\x01\x12R\n" +
+	"\x0edata_retention\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\rdataRetention\x12\x1c\n" +
+	"\assh_key\x18\x05 \x01(\tH\x02R\x06sshKey\x88\x01\x01\x12?\n" +
+	"\x0eaws_partitions\x18\x06 \x01(\v2\x13.common.StringArrayH\x03R\rawsPartitions\x88\x01\x01\x12*\n" +
+	"\x0eenable_advisor\x18\a \x01(\bH\x04R\renableAdvisor\x88\x01\x01\x12,\n" +
+	"\x0fenable_alerting\x18\b \x01(\bH\x05R\x0eenableAlerting\x88\x01\x01\x121\n" +
+	"\x12pmm_public_address\x18\t \x01(\tH\x06R\x10pmmPublicAddress\x88\x01\x01\x12R\n" +
 	"\x15advisor_run_intervals\x18\n" +
 	" \x01(\v2\x1e.server.v1.AdvisorRunIntervalsR\x13advisorRunIntervals\x126\n" +
-	"\x14enable_azurediscover\x18\v \x01(\bH\bR\x13enableAzurediscover\x88\x01\x01\x12=\n" +
-	"\x18enable_backup_management\x18\f \x01(\bH\tR\x16enableBackupManagement\x88\x01\x01\x127\n" +
-	"\x15enable_access_control\x18\r \x01(\bH\n" +
-	"R\x13enableAccessControl\x88\x01\x01\x128\n" +
-	"\x16enable_internal_pg_qan\x18\x0e \x01(\bH\vR\x13enableInternalPgQan\x88\x01\x01B\x11\n" +
+	"\x14enable_azurediscover\x18\v \x01(\bH\aR\x13enableAzurediscover\x88\x01\x01\x12=\n" +
+	"\x18enable_backup_management\x18\f \x01(\bH\bR\x16enableBackupManagement\x88\x01\x01\x127\n" +
+	"\x15enable_access_control\x18\r \x01(\bH\tR\x13enableAccessControl\x88\x01\x01\x128\n" +
+	"\x16enable_internal_pg_qan\x18\x0e \x01(\bH\n" +
+	"R\x13enableInternalPgQan\x88\x01\x01\x12U\n" +
+	"\x19advisor_history_retention\x18\x10 \x01(\v2\x19.google.protobuf.DurationR\x17advisorHistoryRetention\x12E\n" +
+	"\x1cenable_advisor_notifications\x18\x11 \x01(\bH\vR\x1aenableAdvisorNotifications\x88\x01\x01\x12n\n" +
+	"'advisor_notification_severity_threshold\x18\x12 \x01(\x0e2\x17.management.v1.SeverityR$advisorNotificationSeverityThreshold\x12i\n" +
+	"$advisor_notification_email_addresses\x18\x14 \x01(\v2\x13.common.StringArrayH\fR!advisorNotificationEmailAddresses\x88\x01\x01B\x11\n" +
 	"\x0f_enable_updatesB\x13\n" +
-	"\x11_enable_telemetryB\x1f\n" +
-	"\x1d_enable_advisor_notificationsB\n" +
+	"\x11_enable_telemetryB\n" +
 	"\n" +
 	"\b_ssh_keyB\x11\n" +
 	"\x0f_aws_partitionsB\x11\n" +
@@ -1690,7 +1710,9 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x15_enable_azurediscoverB\x1b\n" +
 	"\x19_enable_backup_managementB\x18\n" +
 	"\x16_enable_access_controlB\x19\n" +
-	"\x17_enable_internal_pg_qanJ\x04\b\x0f\x10\x10R\x16update_snooze_duration\"I\n" +
+	"\x17_enable_internal_pg_qanB\x1f\n" +
+	"\x1d_enable_advisor_notificationsB'\n" +
+	"%_advisor_notification_email_addressesJ\x04\b\x0f\x10\x10R\x16update_snooze_duration\"I\n" +
 	"\x16ChangeSettingsResponse\x12/\n" +
 	"\bsettings\x18\x01 \x01(\v2\x13.server.v1.SettingsR\bsettings*\xce\x01\n" +
 	"\x12DistributionMethod\x12#\n" +
@@ -1777,39 +1799,40 @@ var file_server_v1_server_proto_depIdxs = []int32{
 	24, // 15: server.v1.AdvisorRunIntervals.frequent_interval:type_name -> google.protobuf.Duration
 	13, // 16: server.v1.Settings.metrics_resolutions:type_name -> server.v1.MetricsResolutions
 	24, // 17: server.v1.Settings.data_retention:type_name -> google.protobuf.Duration
-	24, // 18: server.v1.Settings.advisor_history_retention:type_name -> google.protobuf.Duration
-	25, // 19: server.v1.Settings.advisor_notification_severity_threshold:type_name -> management.v1.Severity
-	14, // 20: server.v1.Settings.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
+	14, // 18: server.v1.Settings.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
+	24, // 19: server.v1.Settings.advisor_history_retention:type_name -> google.protobuf.Duration
+	25, // 20: server.v1.Settings.advisor_notification_severity_threshold:type_name -> management.v1.Severity
 	15, // 21: server.v1.GetSettingsResponse.settings:type_name -> server.v1.Settings
 	16, // 22: server.v1.GetReadOnlySettingsResponse.settings:type_name -> server.v1.ReadOnlySettings
 	13, // 23: server.v1.ChangeSettingsRequest.metrics_resolutions:type_name -> server.v1.MetricsResolutions
 	24, // 24: server.v1.ChangeSettingsRequest.data_retention:type_name -> google.protobuf.Duration
-	24, // 25: server.v1.ChangeSettingsRequest.advisor_history_retention:type_name -> google.protobuf.Duration
-	25, // 26: server.v1.ChangeSettingsRequest.advisor_notification_severity_threshold:type_name -> management.v1.Severity
-	26, // 27: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
-	14, // 28: server.v1.ChangeSettingsRequest.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
-	15, // 29: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
-	2,  // 30: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest
-	4,  // 31: server.v1.ServerService.Readiness:input_type -> server.v1.ReadinessRequest
-	6,  // 32: server.v1.ServerService.LeaderHealthCheck:input_type -> server.v1.LeaderHealthCheckRequest
-	8,  // 33: server.v1.ServerService.CheckUpdates:input_type -> server.v1.CheckUpdatesRequest
-	11, // 34: server.v1.ServerService.ListChangeLogs:input_type -> server.v1.ListChangeLogsRequest
-	17, // 35: server.v1.ServerService.GetSettings:input_type -> server.v1.GetSettingsRequest
-	18, // 36: server.v1.ServerService.GetReadOnlySettings:input_type -> server.v1.GetReadOnlySettingsRequest
-	21, // 37: server.v1.ServerService.ChangeSettings:input_type -> server.v1.ChangeSettingsRequest
-	3,  // 38: server.v1.ServerService.Version:output_type -> server.v1.VersionResponse
-	5,  // 39: server.v1.ServerService.Readiness:output_type -> server.v1.ReadinessResponse
-	7,  // 40: server.v1.ServerService.LeaderHealthCheck:output_type -> server.v1.LeaderHealthCheckResponse
-	10, // 41: server.v1.ServerService.CheckUpdates:output_type -> server.v1.CheckUpdatesResponse
-	12, // 42: server.v1.ServerService.ListChangeLogs:output_type -> server.v1.ListChangeLogsResponse
-	19, // 43: server.v1.ServerService.GetSettings:output_type -> server.v1.GetSettingsResponse
-	20, // 44: server.v1.ServerService.GetReadOnlySettings:output_type -> server.v1.GetReadOnlySettingsResponse
-	22, // 45: server.v1.ServerService.ChangeSettings:output_type -> server.v1.ChangeSettingsResponse
-	38, // [38:46] is the sub-list for method output_type
-	30, // [30:38] is the sub-list for method input_type
-	30, // [30:30] is the sub-list for extension type_name
-	30, // [30:30] is the sub-list for extension extendee
-	0,  // [0:30] is the sub-list for field type_name
+	26, // 25: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
+	14, // 26: server.v1.ChangeSettingsRequest.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
+	24, // 27: server.v1.ChangeSettingsRequest.advisor_history_retention:type_name -> google.protobuf.Duration
+	25, // 28: server.v1.ChangeSettingsRequest.advisor_notification_severity_threshold:type_name -> management.v1.Severity
+	26, // 29: server.v1.ChangeSettingsRequest.advisor_notification_email_addresses:type_name -> common.StringArray
+	15, // 30: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
+	2,  // 31: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest
+	4,  // 32: server.v1.ServerService.Readiness:input_type -> server.v1.ReadinessRequest
+	6,  // 33: server.v1.ServerService.LeaderHealthCheck:input_type -> server.v1.LeaderHealthCheckRequest
+	8,  // 34: server.v1.ServerService.CheckUpdates:input_type -> server.v1.CheckUpdatesRequest
+	11, // 35: server.v1.ServerService.ListChangeLogs:input_type -> server.v1.ListChangeLogsRequest
+	17, // 36: server.v1.ServerService.GetSettings:input_type -> server.v1.GetSettingsRequest
+	18, // 37: server.v1.ServerService.GetReadOnlySettings:input_type -> server.v1.GetReadOnlySettingsRequest
+	21, // 38: server.v1.ServerService.ChangeSettings:input_type -> server.v1.ChangeSettingsRequest
+	3,  // 39: server.v1.ServerService.Version:output_type -> server.v1.VersionResponse
+	5,  // 40: server.v1.ServerService.Readiness:output_type -> server.v1.ReadinessResponse
+	7,  // 41: server.v1.ServerService.LeaderHealthCheck:output_type -> server.v1.LeaderHealthCheckResponse
+	10, // 42: server.v1.ServerService.CheckUpdates:output_type -> server.v1.CheckUpdatesResponse
+	12, // 43: server.v1.ServerService.ListChangeLogs:output_type -> server.v1.ListChangeLogsResponse
+	19, // 44: server.v1.ServerService.GetSettings:output_type -> server.v1.GetSettingsResponse
+	20, // 45: server.v1.ServerService.GetReadOnlySettings:output_type -> server.v1.GetReadOnlySettingsResponse
+	22, // 46: server.v1.ServerService.ChangeSettings:output_type -> server.v1.ChangeSettingsResponse
+	39, // [39:47] is the sub-list for method output_type
+	31, // [31:39] is the sub-list for method input_type
+	31, // [31:31] is the sub-list for extension type_name
+	31, // [31:31] is the sub-list for extension extendee
+	0,  // [0:31] is the sub-list for field type_name
 }
 
 func init() { file_server_v1_server_proto_init() }

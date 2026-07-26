@@ -68,6 +68,11 @@ export const Messages = {
       retentionRange: (min: number, max: number) =>
         `Value should be in the range from ${min} to ${max}`,
       intervalMin: (min: number) => `Min ${min}`,
+      emailsRequired:
+        'Add at least one recipient, or turn Advisor notifications off',
+      emailInvalid: (email: string) =>
+        `"${email}" is not a valid email address`,
+      emailsMax: (max: number) => `At most ${max} recipients are allowed`,
     },
     advisorsLabel: 'Advisors',
     advisorsLink: 'https://per.co.na/advisors',
@@ -85,10 +90,13 @@ export const Messages = {
     retentionUnits: 'days',
     advisorNotificationsLabel: 'Advisor notifications',
     advisorNotificationsTooltip:
-      'Email a summary of completed Advisor checks to a Grafana email contact point named "PMM Advisor Insights".',
+      'Email a summary of completed Advisor checks to the recipients below.',
     advisorSeverityThresholdLabel: 'Notification severity threshold',
     advisorSeverityThresholdTooltip:
       'Least-severe level that triggers a notification.',
+    advisorEmailsLabel: 'Notification recipients',
+    advisorEmailsTooltip:
+      'Email addresses the summaries are sent to, separated by commas.',
   },
   metrics: {
     label: 'Metrics resolution',

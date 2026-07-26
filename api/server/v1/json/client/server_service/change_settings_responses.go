@@ -199,16 +199,6 @@ type ChangeSettingsBody struct {
 	// A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
 	DataRetention string `json:"data_retention,omitempty"`
 
-	// A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
-	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
-
-	// Enable Advisor email notifications.
-	EnableAdvisorNotifications *bool `json:"enable_advisor_notifications,omitempty"`
-
-	// Severity represents severity level of the check result or alert.
-	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
-	AdvisorNotificationSeverityThreshold *string `json:"advisor_notification_severity_threshold,omitempty"`
-
 	// ssh key
 	SSHKey *string `json:"ssh_key,omitempty"`
 
@@ -233,6 +223,19 @@ type ChangeSettingsBody struct {
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQAN *bool `json:"enable_internal_pg_qan,omitempty"`
 
+	// A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
+	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
+
+	// Enable Advisor email notifications.
+	EnableAdvisorNotifications *bool `json:"enable_advisor_notifications,omitempty"`
+
+	// Severity represents severity level of the check result or alert.
+	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
+	AdvisorNotificationSeverityThreshold *string `json:"advisor_notification_severity_threshold,omitempty"`
+
+	// advisor notification email addresses
+	AdvisorNotificationEmailAddresses *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses `json:"advisor_notification_email_addresses,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -248,6 +251,10 @@ func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateAdvisorNotificationSeverityThreshold(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateAdvisorNotificationEmailAddresses(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -332,6 +339,29 @@ func (o *ChangeSettingsBody) validateAdvisorNotificationSeverityThreshold(format
 	return nil
 }
 
+func (o *ChangeSettingsBody) validateAdvisorNotificationEmailAddresses(formats strfmt.Registry) error {
+	if swag.IsZero(o.AdvisorNotificationEmailAddresses) { // not required
+		return nil
+	}
+
+	if o.AdvisorNotificationEmailAddresses != nil {
+		if err := o.AdvisorNotificationEmailAddresses.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "advisor_notification_email_addresses")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "advisor_notification_email_addresses")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *ChangeSettingsBody) validateAdvisorRunIntervals(formats strfmt.Registry) error {
 	if swag.IsZero(o.AdvisorRunIntervals) { // not required
 		return nil
@@ -405,6 +435,10 @@ func (o *ChangeSettingsBody) validateMetricsResolutions(formats strfmt.Registry)
 func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.contextValidateAdvisorNotificationEmailAddresses(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateAdvisorRunIntervals(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -420,6 +454,30 @@ func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ChangeSettingsBody) contextValidateAdvisorNotificationEmailAddresses(ctx context.Context, formats strfmt.Registry) error {
+	if o.AdvisorNotificationEmailAddresses != nil {
+
+		if swag.IsZero(o.AdvisorNotificationEmailAddresses) { // not required
+			return nil
+		}
+
+		if err := o.AdvisorNotificationEmailAddresses.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "advisor_notification_email_addresses")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "advisor_notification_email_addresses")
+			}
+
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1022,16 +1080,6 @@ type ChangeSettingsOKBodySettings struct {
 	// data retention
 	DataRetention string `json:"data_retention,omitempty"`
 
-	// Advisor check results history retention.
-	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
-
-	// True if Advisor email notifications are enabled.
-	AdvisorNotificationsEnabled bool `json:"advisor_notifications_enabled,omitempty"`
-
-	// Severity represents severity level of the check result or alert.
-	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
-	AdvisorNotificationSeverityThreshold *string `json:"advisor_notification_severity_threshold,omitempty"`
-
 	// ssh key
 	SSHKey string `json:"ssh_key,omitempty"`
 
@@ -1070,6 +1118,19 @@ type ChangeSettingsOKBodySettings struct {
 
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
+
+	// Advisor check results history retention.
+	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
+
+	// True if Advisor email notifications are enabled.
+	AdvisorNotificationsEnabled bool `json:"advisor_notifications_enabled,omitempty"`
+
+	// Severity represents severity level of the check result or alert.
+	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
+	AdvisorNotificationSeverityThreshold *string `json:"advisor_notification_severity_threshold,omitempty"`
+
+	// Email addresses Advisor notifications are sent to.
+	AdvisorNotificationEmailAddresses []string `json:"advisor_notification_email_addresses"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
@@ -1409,6 +1470,43 @@ func (o *ChangeSettingsParamsBodyAWSPartitions) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *ChangeSettingsParamsBodyAWSPartitions) UnmarshalBinary(b []byte) error {
 	var res ChangeSettingsParamsBodyAWSPartitions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses A wrapper for a string array. This type allows to distinguish between an empty array and a null value.
+swagger:model ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses
+*/
+type ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses struct {
+	// values
+	Values []string `json:"values"`
+}
+
+// Validate validates this change settings params body advisor notification email addresses
+func (o *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change settings params body advisor notification email addresses based on context it is used
+func (o *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -11,6 +11,14 @@ export const convertSecondsStringToHour = (secondsStr: string): number =>
 export const convertHoursStringToSeconds = (hours: string | number): number =>
   Math.round(parseFloat(String(hours)) * 3600);
 
+// splitEmailAddresses turns the recipients text field into the array the API takes, tolerating
+// commas, semicolons and whitespace between entries.
+export const splitEmailAddresses = (value: string): string[] =>
+  value
+    .split(/[;,\s]+/)
+    .map((address) => address.trim())
+    .filter(Boolean);
+
 export const convertCheckIntervalsToHours = (
   sttCheckIntervals: AdvisorRunIntervals | undefined
 ) => {

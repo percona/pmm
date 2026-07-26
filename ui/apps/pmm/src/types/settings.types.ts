@@ -37,6 +37,7 @@ export interface Settings extends ReadonlySettings {
   advisorHistoryRetention?: string;
   advisorNotificationsEnabled?: boolean;
   advisorNotificationSeverityThreshold?: Severity;
+  advisorNotificationEmailAddresses?: string[];
   telemetrySummaries?: string[];
   enableInternalPgQan?: boolean;
   defaultRoleId?: number;
@@ -55,6 +56,7 @@ export interface UpdateSettingsPayload {
   advisorHistoryRetention?: string;
   enableAdvisorNotifications?: boolean;
   advisorNotificationSeverityThreshold?: Severity;
+  advisorNotificationEmailAddresses?: string[];
   enableBackupManagement?: boolean;
   enableAzurediscover?: boolean;
   enableUpdates?: boolean;

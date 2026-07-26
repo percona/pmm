@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/mail"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -67,6 +68,8 @@ type ChangeSettingsParams struct {
 	EnableAdvisorNotifications *bool
 	// Least-severe level that triggers an Advisor notification. Unknown means "do not change".
 	AdvisorNotificationSeverityThreshold common.Severity
+	// Recipients of Advisor notifications. Nil means "do not change"; an empty non-nil slice clears them.
+	AdvisorNotificationEmailAddresses []string
 
 	// List of AWS partitions to use. If empty - default partitions will be used. If nil - no changes will be made.
 	AWSPartitions []string
@@ -180,6 +183,10 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.AdvisorNotificationSeverityThreshold != common.Unknown {
 		settings.AdvisorNotifications.SeverityThreshold = params.AdvisorNotificationSeverityThreshold
+	}
+
+	if params.AdvisorNotificationEmailAddresses != nil {
+		settings.AdvisorNotifications.EmailAddresses = deduplicateStrings(params.AdvisorNotificationEmailAddresses)
 	}
 
 	if params.AWSPartitions != nil {
@@ -337,7 +344,12 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 	}
 
-	err := validators.ValidateAWSPartitions(params.AWSPartitions)
+	err := validateAdvisorNotificationEmailAddresses(params.AdvisorNotificationEmailAddresses)
+	if err != nil {
+		return err
+	}
+
+	err = validators.ValidateAWSPartitions(params.AWSPartitions)
 	if err != nil {
 		return err
 	}
@@ -354,6 +366,33 @@ func validateAdvisorSeverityThreshold(s common.Severity) error {
 	default:
 		return fmt.Errorf("advisor_notification_severity_threshold: unsupported severity level: %s", s)
 	}
+}
+
+// maxAdvisorNotificationEmailAddresses caps the recipient list so a single settings change cannot
+// turn every batch completion into a mass mailing.
+const maxAdvisorNotificationEmailAddresses = 20
+
+// validateAdvisorNotificationEmailAddresses accepts a nil or empty list ("do not change" and
+// "clear" respectively) and otherwise requires every entry to be a bare, parseable address.
+func validateAdvisorNotificationEmailAddresses(addresses []string) error {
+	if len(addresses) > maxAdvisorNotificationEmailAddresses {
+		return fmt.Errorf("advisor_notification_email_addresses: at most %d addresses are allowed, got %d",
+			maxAdvisorNotificationEmailAddresses, len(addresses))
+	}
+
+	for _, a := range addresses {
+		parsed, err := mail.ParseAddress(a)
+		if err != nil {
+			return fmt.Errorf("advisor_notification_email_addresses: invalid address '%s'", a)
+		}
+		// ParseAddress also accepts `Name <addr>`; the sender only needs the address itself, and
+		// accepting display names here would make the stored list ambiguous.
+		if parsed.Address != a {
+			return fmt.Errorf("advisor_notification_email_addresses: expected a bare email address, got '%s'", a)
+		}
+	}
+
+	return nil
 }
 
 // SaveSettings saves PMM Server settings.

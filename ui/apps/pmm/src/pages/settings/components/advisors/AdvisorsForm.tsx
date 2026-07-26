@@ -156,25 +156,45 @@ export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
                   formControlLabelProps={{ sx: { mr: 0 } }}
                 />
                 {advisorNotificationsEnabled && (
-                  <SelectInput
-                    name="advisorSeverityThreshold"
-                    label={m.advisorSeverityThresholdLabel}
-                    helperText={m.advisorSeverityThresholdTooltip}
-                    formControlProps={{
-                      sx: { minWidth: 240, maxWidth: 320 },
-                      size: 'small',
-                    }}
-                    selectFieldProps={{
-                      // @ts-expect-error data-testid is passed through to the DOM
-                      'data-testid': 'advisorSeverityThreshold-select-input',
-                    }}
-                  >
-                    {ADVISOR_SEVERITY_OPTIONS.map((severity) => (
-                      <MenuItem key={severity} value={severity}>
-                        {SEVERITY[severity]}
-                      </MenuItem>
-                    ))}
-                  </SelectInput>
+                  // wider gap than the enclosing Stack: both fields carry helper
+                  // text, which otherwise sits flush against the next field
+                  <Stack gap={2}>
+                    <SelectInput
+                      name="advisorSeverityThreshold"
+                      label={m.advisorSeverityThresholdLabel}
+                      helperText={m.advisorSeverityThresholdTooltip}
+                      formControlProps={{
+                        sx: { minWidth: 240, maxWidth: 320 },
+                        size: 'small',
+                      }}
+                      selectFieldProps={{
+                        // @ts-expect-error data-testid is passed through to the DOM
+                        'data-testid': 'advisorSeverityThreshold-select-input',
+                      }}
+                    >
+                      {ADVISOR_SEVERITY_OPTIONS.map((severity) => (
+                        <MenuItem key={severity} value={severity}>
+                          {SEVERITY[severity]}
+                        </MenuItem>
+                      ))}
+                    </SelectInput>
+                    <TextInput
+                      name="advisorNotificationEmails"
+                      label={m.advisorEmailsLabel}
+                      textFieldProps={{
+                        helperText: m.advisorEmailsTooltip,
+                        placeholder: 'dba@example.com, oncall@example.com',
+                        size: 'small',
+                        sx: { minWidth: 240, maxWidth: 520 },
+                        slotProps: {
+                          htmlInput: {
+                            'data-testid':
+                              'advisorNotificationEmails-text-input',
+                          },
+                        },
+                      }}
+                    />
+                  </Stack>
                 )}
               </Stack>
             </Stack>

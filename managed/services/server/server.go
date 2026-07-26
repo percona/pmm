@@ -354,6 +354,7 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 		//nolint:gosec // severity is a small bounded enum value
 		AdvisorNotificationSeverityThreshold: managementv1.Severity(settings.AdvisorNotifications.SeverityThreshold),
 		AdvisorNotificationsEnabled:          settings.IsAdvisorNotificationsEnabled(),
+		AdvisorNotificationEmailAddresses:    settings.AdvisorNotifications.EmailAddresses,
 		SshKey:                               settings.SSHKey,
 		AwsPartitions:                        settings.AWSPartitions,
 		AdvisorEnabled:                       settings.IsAdvisorsEnabled(),
@@ -557,6 +558,19 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			settingsParams.AWSPartitions = req.AwsPartitions.Values
 		}
 
+		if req.AdvisorNotificationEmailAddresses != nil {
+			// Nil treated as "do not change", empty slice treated as "clear the recipients"
+			settingsParams.AdvisorNotificationEmailAddresses = req.AdvisorNotificationEmailAddresses.Values
+		}
+
+		// Notifications with nobody to notify would fail silently at batch-completion time, so
+		// reject the combination here rather than at delivery. The effective state is checked, not
+		// just this request's fields, because either half may already be stored.
+		err = validateAdvisorNotificationRecipients(oldSettings, settingsParams)
+		if err != nil {
+			return err
+		}
+
 		var errInvalidArgument *models.InvalidArgumentError
 		newSettings, err = models.UpdateSettings(tx, settingsParams)
 		switch {
@@ -628,11 +642,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			s.checksService.UpdateAdvisorsList(ctx)
 		}
 	}
-
-	// Resolve and cache the Advisor contact point while notifications are enabled (so the background
-	// batch-completion path can deliver without Grafana credentials), and clear it on disable. This
-	// runs in the request context, which carries the Grafana credentials needed to reach Grafana.
-	s.syncAdvisorContactPoint(ctx, oldSettings, newSettings)
 
 	return &serverv1.ChangeSettingsResponse{
 		Settings: s.convertSettings(newSettings, disableInternalPgQan),

@@ -7,6 +7,7 @@ import { DEFAULT_ADVISOR_RETENTION } from './Advisors.constants';
 import {
   convertCheckIntervalsToHours,
   convertHoursStringToSeconds,
+  splitEmailAddresses,
 } from './Advisors.utils';
 
 export const toFormValues = (settings: Settings): AdvisorsFormValues => ({
@@ -23,6 +24,9 @@ export const toFormValues = (settings: Settings): AdvisorsFormValues => ({
     settings.advisorNotificationSeverityThreshold !== Severity.unspecified
       ? settings.advisorNotificationSeverityThreshold
       : Severity.error,
+  advisorNotificationEmails: (
+    settings.advisorNotificationEmailAddresses ?? []
+  ).join(', '),
 });
 
 export const toPayload = (
@@ -42,5 +46,8 @@ export const toPayload = (
     advisorHistoryRetention: `${Math.round(parseFloat(values.advisorRetention)) * SECONDS_IN_DAY}s`,
     enableAdvisorNotifications: values.advisorNotifications,
     advisorNotificationSeverityThreshold: values.advisorSeverityThreshold,
+    advisorNotificationEmailAddresses: splitEmailAddresses(
+      values.advisorNotificationEmails
+    ),
   };
 };

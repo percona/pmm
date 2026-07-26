@@ -694,16 +694,6 @@ type GetSettingsOKBodySettings struct {
 	// data retention
 	DataRetention string `json:"data_retention,omitempty"`
 
-	// Advisor check results history retention.
-	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
-
-	// True if Advisor email notifications are enabled.
-	AdvisorNotificationsEnabled bool `json:"advisor_notifications_enabled,omitempty"`
-
-	// Severity represents severity level of the check result or alert.
-	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
-	AdvisorNotificationSeverityThreshold *string `json:"advisor_notification_severity_threshold,omitempty"`
-
 	// ssh key
 	SSHKey string `json:"ssh_key,omitempty"`
 
@@ -742,6 +732,19 @@ type GetSettingsOKBodySettings struct {
 
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
+
+	// Advisor check results history retention.
+	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
+
+	// True if Advisor email notifications are enabled.
+	AdvisorNotificationsEnabled bool `json:"advisor_notifications_enabled,omitempty"`
+
+	// Severity represents severity level of the check result or alert.
+	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
+	AdvisorNotificationSeverityThreshold *string `json:"advisor_notification_severity_threshold,omitempty"`
+
+	// Email addresses Advisor notifications are sent to.
+	AdvisorNotificationEmailAddresses []string `json:"advisor_notification_email_addresses"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *GetSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`

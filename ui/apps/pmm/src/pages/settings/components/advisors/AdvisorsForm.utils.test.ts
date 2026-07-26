@@ -16,6 +16,7 @@ const TEST_SETTINGS: Settings = {
   advisorHistoryRetention: '1209600s',
   advisorNotificationsEnabled: true,
   advisorNotificationSeverityThreshold: Severity.warning,
+  advisorNotificationEmailAddresses: ['dba@example.com', 'oncall@example.com'],
 };
 
 describe('toFormValues', () => {
@@ -25,6 +26,9 @@ describe('toFormValues', () => {
     expect(values.advisorRetention).toBe('14');
     expect(values.advisorNotifications).toBe(true);
     expect(values.advisorSeverityThreshold).toBe(Severity.warning);
+    expect(values.advisorNotificationEmails).toBe(
+      'dba@example.com, oncall@example.com'
+    );
   });
 
   it('falls back to defaults when advisor settings are missing', () => {
@@ -33,11 +37,13 @@ describe('toFormValues', () => {
       advisorHistoryRetention: undefined,
       advisorNotificationsEnabled: undefined,
       advisorNotificationSeverityThreshold: undefined,
+      advisorNotificationEmailAddresses: undefined,
     });
 
     expect(values.advisorRetention).toBe('30');
     expect(values.advisorNotifications).toBe(false);
     expect(values.advisorSeverityThreshold).toBe(Severity.error);
+    expect(values.advisorNotificationEmails).toBe('');
   });
 
   it('treats unspecified severity threshold as the default', () => {
@@ -57,5 +63,9 @@ describe('toPayload', () => {
     expect(payload.advisorHistoryRetention).toBe('1209600s');
     expect(payload.enableAdvisorNotifications).toBe(true);
     expect(payload.advisorNotificationSeverityThreshold).toBe(Severity.warning);
+    expect(payload.advisorNotificationEmailAddresses).toEqual([
+      'dba@example.com',
+      'oncall@example.com',
+    ]);
   });
 });

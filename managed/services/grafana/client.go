@@ -805,50 +805,6 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 	return nil
 }
 
-// GetEmailContactPoint returns the recipient addresses of the Grafana email contact point with the
-// given name. It returns nil when no contact point with that name exists or it is not an email type.
-func (c *Client) GetEmailContactPoint(ctx context.Context, name string) ([]string, error) {
-	authHeaders, err := auth.GetHeadersFromContext(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	var contactPoints []struct {
-		Name     string         `json:"name"`
-		Type     string         `json:"type"`
-		Settings map[string]any `json:"settings"`
-	}
-	err = c.do(ctx, http.MethodGet, "/api/v1/provisioning/contact-points", "", authHeaders, nil, &contactPoints)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, cp := range contactPoints {
-		if cp.Name != name || cp.Type != "email" {
-			continue
-		}
-		addresses, _ := cp.Settings["addresses"].(string)
-		return splitEmailAddresses(addresses), nil
-	}
-
-	return nil, nil
-}
-
-// splitEmailAddresses splits a Grafana email contact point address string, whose entries may be
-// separated by ';', ',', whitespace, or newlines.
-func splitEmailAddresses(s string) []string {
-	fields := strings.FieldsFunc(s, func(r rune) bool {
-		return r == ';' || r == ',' || r == '\n' || r == ' ' || r == '\t'
-	})
-	addresses := make([]string, 0, len(fields))
-	for _, f := range fields {
-		if f != "" {
-			addresses = append(addresses, f)
-		}
-	}
-	return addresses
-}
-
 func validateDurations(intervalD, forD string) error {
 	i, err := time.ParseDuration(intervalD)
 	if err != nil {

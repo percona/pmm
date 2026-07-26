@@ -17,6 +17,7 @@ package models_test
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -102,6 +103,46 @@ func TestSettings(t *testing.T) {
 			AdvisorNotificationSeverityThreshold: common.Severity(42),
 		})
 		require.ErrorContains(t, err, "advisor_notification_severity_threshold")
+	})
+
+	t.Run("AdvisorNotificationEmailAddresses", func(t *testing.T) {
+		settings, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: []string{"a@example.com", "b@example.com", "a@example.com"},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"a@example.com", "b@example.com"}, settings.AdvisorNotifications.EmailAddresses)
+
+		// Nil leaves the stored recipients alone.
+		settings, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"a@example.com", "b@example.com"}, settings.AdvisorNotifications.EmailAddresses)
+
+		// An empty non-nil slice clears them.
+		settings, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: []string{},
+		})
+		require.NoError(t, err)
+		assert.Empty(t, settings.AdvisorNotifications.EmailAddresses)
+
+		_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: []string{"not-an-email"},
+		})
+		require.ErrorContains(t, err, "invalid address 'not-an-email'")
+
+		// A display name would make the stored list ambiguous for the sender.
+		_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: []string{"DBA <dba@example.com>"},
+		})
+		require.ErrorContains(t, err, "expected a bare email address")
+
+		tooMany := make([]string, 21)
+		for i := range tooMany {
+			tooMany[i] = fmt.Sprintf("a%d@example.com", i)
+		}
+		_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
+			AdvisorNotificationEmailAddresses: tooMany,
+		})
+		require.ErrorContains(t, err, "at most 20 addresses are allowed")
 	})
 
 	t.Run("Validation", func(t *testing.T) {

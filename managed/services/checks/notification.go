@@ -36,7 +36,14 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, batchID stri
 		return
 	}
 	an := settings.AdvisorNotifications
-	if !settings.IsAdvisorNotificationsEnabled() || len(an.EmailAddresses) == 0 {
+	if !settings.IsAdvisorNotificationsEnabled() {
+		return
+	}
+	// ChangeSettings rejects this combination, so it only happens when notifications were enabled
+	// through PMM_ENABLE_ADVISOR_NOTIFICATIONS without recipients ever being configured.
+	if len(an.EmailAddresses) == 0 {
+		s.l.Warnf("Advisor notification: enabled, but no recipients are configured, so batch %s was "+
+			"not emailed. Set the Advisor notification email addresses in the PMM settings.", batchID)
 		return
 	}
 

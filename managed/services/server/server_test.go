@@ -83,12 +83,9 @@ func TestServer(t *testing.T) {
 		ha.On("IsLeader").Return(true)
 		ha.On("Params").Return(&models.HAParams{Enabled: false})
 
-		// Permissive expectations so the Advisor-notifications reconcile (triggered on a settings
-		// toggle) succeeds; calls are a no-op for tests that don't change those settings.
 		var mgrafana mockGrafanaClient
 		mgrafana.Test(t)
 		mgrafana.On("IsReady", mock.Anything).Return(nil)
-		mgrafana.On("GetEmailContactPoint", mock.Anything, mock.Anything).Return([]string(nil), nil)
 
 		s, err := NewServer(&Params{
 			DB:                   reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),

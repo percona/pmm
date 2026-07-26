@@ -100,14 +100,12 @@ type Settings struct {
 		Enabled *bool `json:"enabled"`
 	} `json:"alerting"`
 
-	// AdvisorNotifications controls emailing Advisor check results to a Grafana email contact point.
+	// AdvisorNotifications controls emailing Advisor check results to the configured recipients.
 	AdvisorNotifications struct {
 		Enabled *bool `json:"enabled"`
 		// SeverityThreshold is the least-severe level that triggers a notification.
 		SeverityThreshold common.Severity `json:"severity_threshold"`
-		// EmailAddresses is the resolved recipient list of the Grafana email contact point. It is
-		// cached at enable time because the batch-completion path runs in a background context that
-		// has no Grafana credentials.
+		// EmailAddresses is the recipient list the batch summaries are sent to.
 		EmailAddresses []string `json:"email_addresses"`
 	} `json:"advisor_notifications"`
 

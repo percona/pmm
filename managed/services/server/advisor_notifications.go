@@ -16,72 +16,37 @@
 package server
 
 import (
-	"context"
-	"fmt"
-
-	"gopkg.in/reform.v1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/models"
 )
 
-// advisorContactPointName is the fixed-convention Grafana email contact point that PMM delivers
-// Advisor batch summaries to. The user creates and configures it in Grafana.
-const advisorContactPointName = "PMM Advisor Insights"
-
-// syncAdvisorContactPoint resolves the Advisor email contact point and caches its recipients in
-// settings when the notification enablement changes or notifications are enabled (to pick up
-// changes). Failures are logged and swallowed - they must not fail the settings change.
-func (s *Server) syncAdvisorContactPoint(ctx context.Context, oldSettings, newSettings *models.Settings) {
-	enabledNow := newSettings.IsAdvisorNotificationsEnabled()
-	if !enabledNow && oldSettings.IsAdvisorNotificationsEnabled() == enabledNow {
-		return
-	}
-
-	addresses, err := s.reconcileAdvisorContactPoint(ctx, newSettings)
-	if err != nil {
-		s.l.Errorf("Failed to reconcile Advisor contact point: %v", err)
-		return
-	}
-
-	err = s.saveAdvisorContactPointCache(ctx, addresses)
-	if err != nil {
-		s.l.Errorf("Failed to cache Advisor contact point: %v", err)
-	}
-}
-
-// reconcileAdvisorContactPoint resolves the Advisor email contact point's recipients from Grafana
-// when notifications are enabled, returning them for the caller to cache in settings.
+// validateAdvisorNotificationRecipients rejects a settings change that would leave Advisor
+// notifications enabled with nobody to notify, which would otherwise fail silently once a check
+// batch completed.
 //
-// It talks to Grafana on the caller's behalf, so it must be called within an authenticated request
-// context (e.g. ChangeSettings) - background contexts have no Grafana credentials.
-func (s *Server) reconcileAdvisorContactPoint(ctx context.Context, settings *models.Settings) ([]string, error) {
-	if !settings.IsAdvisorNotificationsEnabled() {
-		return nil, nil
+// It resolves the effective post-change state rather than looking at the request alone, because
+// enablement and recipients are separate fields and either one may already be stored. Callers that
+// bypass the API - PMM_ENABLE_ADVISOR_NOTIFICATIONS via UpdateSettingsFromEnv - are not covered, so
+// the delivery path still logs when it finds no recipients.
+func validateAdvisorNotificationRecipients(oldSettings *models.Settings, params *models.ChangeSettingsParams) error {
+	enabled := oldSettings.IsAdvisorNotificationsEnabled()
+	if params.EnableAdvisorNotifications != nil {
+		enabled = *params.EnableAdvisorNotifications
+	}
+	if !enabled {
+		return nil
 	}
 
-	addresses, err := s.grafanaClient.GetEmailContactPoint(ctx, advisorContactPointName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read advisor contact point: %w", err)
+	addresses := oldSettings.AdvisorNotifications.EmailAddresses
+	if params.AdvisorNotificationEmailAddresses != nil {
+		addresses = params.AdvisorNotificationEmailAddresses
 	}
 	if len(addresses) == 0 {
-		s.l.Warnf("Advisor notifications are enabled but no email contact point named %q was found in "+
-			"Grafana. Create one to start sending batch summaries.", advisorContactPointName)
+		return status.Error(codes.InvalidArgument, "Invalid argument: advisor_notification_email_addresses: "+
+			"at least one recipient is required while Advisor notifications are enabled.")
 	}
 
-	return addresses, nil
-}
-
-// saveAdvisorContactPointCache persists the resolved recipient addresses into settings so the
-// background batch-completion path (which cannot reach Grafana) can email without further Grafana calls.
-func (s *Server) saveAdvisorContactPointCache(ctx context.Context, addresses []string) error {
-	return s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		settings, err := models.GetSettings(tx)
-		if err != nil {
-			return err
-		}
-
-		settings.AdvisorNotifications.EmailAddresses = addresses
-
-		return models.SaveSettings(tx, settings)
-	})
+	return nil
 }
