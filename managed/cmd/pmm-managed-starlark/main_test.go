@@ -34,7 +34,7 @@ import (
 )
 
 const (
-	invalidStarlarkScriptStderr = "thread invalid starlark script: failed to execute function check_context: function check_context accepts no arguments (2 given)"
+	invalidStarlarkScriptStderr = "failed to execute function check_context: function check_context accepts no arguments (2 given)"
 
 	// Possible errors:
 	// fatal error: runtime: out of memory
@@ -251,7 +251,7 @@ func TestPrintOutputCapture(t *testing.T) { //nolint:tparallel
 			}
 
 			// print() output arrives on the dedicated pipe, prefixed with the source position...
-			assert.Contains(t, string(printOutput), "check_context -> print_capture:2:")
+			assert.Contains(t, string(printOutput), "print_capture -> check_context:2:")
 			assert.Contains(t, string(printOutput), "-> debug line 42")
 			// ...and never pollutes the stderr error channel
 			stderrContent := stderr.String()

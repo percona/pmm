@@ -113,10 +113,16 @@ func (env *Env) run(funcName string, args starlark.Tuple, threadName string, pri
 	}
 	if printFunc != nil {
 		thread.Print = func(t *starlark.Thread, msg string) {
-			// function -> script position -> printed message, so the output
+			// check -> function:line:col -> printed message, so the output
 			// is easy to trace back to the originating line
 			fr := t.CallFrame(1)
-			printFunc(fr.Name, "->", fr.Pos.String(), "->", msg)
+			printFunc(
+				fr.Pos.Filename(),
+				"->",
+				fmt.Sprintf("%s:%d:%d", fr.Name, fr.Pos.Line, fr.Pos.Col),
+				"->",
+				msg,
+			)
 		}
 	}
 
@@ -125,7 +131,7 @@ func (env *Env) run(funcName string, args starlark.Tuple, threadName string, pri
 		var eErr *starlark.EvalError
 		if ok := errors.As(err, &eErr); ok {
 			// tweak message, but keep original type, callstack, and cause
-			eErr.Msg = fmt.Sprintf("thread %s: failed to init script: %s\n%s", threadName, eErr.Msg, eErr.CallStack)
+			eErr.Msg = fmt.Sprintf("failed to init script: %s\n%s", eErr.Msg, eErr.CallStack)
 			return nil, eErr
 		}
 
@@ -136,7 +142,7 @@ func (env *Env) run(funcName string, args starlark.Tuple, threadName string, pri
 
 	fn := globals[funcName]
 	if fn == nil {
-		return nil, fmt.Errorf("thread %s: function %s is not defined", threadName, funcName)
+		return nil, fmt.Errorf("function %s is not defined", funcName)
 	}
 
 	v, err := starlark.Call(thread, fn, args, nil)
@@ -144,7 +150,7 @@ func (env *Env) run(funcName string, args starlark.Tuple, threadName string, pri
 		var eErr *starlark.EvalError
 		if ok := errors.As(err, &eErr); ok {
 			// tweak message, but keep original type, callstack, and cause
-			eErr.Msg = fmt.Sprintf("thread %s: failed to execute function %s: %s\n%s", threadName, funcName, eErr.Msg, eErr.CallStack)
+			eErr.Msg = fmt.Sprintf("failed to execute function %s: %s\n%s", funcName, eErr.Msg, eErr.CallStack)
 			return nil, eErr
 		}
 

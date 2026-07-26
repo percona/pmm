@@ -1286,7 +1286,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 
 	res, err := s.processResults(ctx, c, target, resData, scriptOutput)
 	if err != nil {
-		return nil, fmt.Errorf("failed to process query result: %w", err)
+		return nil, err
 	}
 
 	return res, nil

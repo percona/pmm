@@ -4,7 +4,7 @@ export const Messages = {
   testService: 'Test on service',
   testResultsTitle: 'Test results',
   testSuccess: 'Success',
-  testFailure: 'Failed',
+  testFailure: 'Error',
   testFindings: (count: number) =>
     count === 0 ? 'no findings' : `${count} finding${count === 1 ? '' : 's'}`,
   testFailed: 'Test failed',
