@@ -58,6 +58,7 @@ const TEST_ADVISORS: Advisor[] = [
         category: 'Security',
         subcategory: 'Authentication',
         userDefined: true,
+        disabledServiceIds: ['svc-1', 'svc-2'],
       },
       {
         name: 'postgresql_disabled_check',
@@ -446,6 +447,20 @@ describe('AdvisorsList', () => {
     expect(
       within(drawer).getByText('MySQL version check', { exact: false })
     ).toBeInTheDocument();
+  });
+
+  it('badges the services action with the disablement count', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    expect(
+      screen.getByTestId('check-postgresql_super_role-services-badge')
+    ).toHaveTextContent('2');
+    // no disablements: the badge renders but carries no count
+    expect(
+      screen.getByTestId('check-mysql_version_check-services-badge')
+    ).toHaveTextContent('');
   });
 
   it('shows edit/delete only for user-defined checks', async () => {

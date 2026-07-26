@@ -1,4 +1,11 @@
-import { FC, useCallback, useMemo, useState } from 'react';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import DnsOutlinedIcon from '@mui/icons-material/DnsOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import FilterAltOffOutlinedIcon from '@mui/icons-material/FilterAltOffOutlined';
+import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
+import PlaylistAddCheckOutlinedIcon from '@mui/icons-material/PlaylistAddCheckOutlined';
+import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -13,20 +20,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import DnsOutlinedIcon from '@mui/icons-material/DnsOutlined';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import FilterAltOffOutlinedIcon from '@mui/icons-material/FilterAltOffOutlined';
-import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
-import PlaylistAddCheckOutlinedIcon from '@mui/icons-material/PlaylistAddCheckOutlined';
 import { Table } from '@percona/percona-ui';
-import {
-  type MRT_PaginationState,
-  type MRT_Updater,
-} from 'material-react-table';
-import { closeSnackbar, enqueueSnackbar } from 'notistack';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Page } from 'components/page';
 import {
   useAdvisors,
@@ -34,14 +28,21 @@ import {
   useDeleteAdvisorCheck,
   useStartAdvisorChecks,
 } from 'hooks/api/useAdvisors';
+import { ADVISOR_INTERVAL, ADVISOR_TECHNOLOGY } from 'lib/constants';
+import {
+  type MRT_PaginationState,
+  type MRT_Updater,
+} from 'material-react-table';
+import { closeSnackbar, enqueueSnackbar } from 'notistack';
+import { FC, useCallback, useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AdvisorCheckRow, AdvisorInterval } from 'types/advisors.types';
 import { OrgRole } from 'types/user.types';
 import { flattenAdvisorChecks } from 'utils/advisors.utils';
-import { ADVISOR_TECHNOLOGY, ADVISOR_INTERVAL } from 'lib/constants';
-import { Messages } from './AdvisorsList.messages';
 import { getAdvisorsColumns, INTERVAL_OPTIONS } from './AdvisorsList.constants';
-import { AdvisorCheckDetailsPane } from './details-pane';
+import { Messages } from './AdvisorsList.messages';
 import { AdvisorCheckForm, AdvisorCheckFormMode } from './check-form';
+import { AdvisorCheckDetailsPane } from './details-pane';
 import { DisableServicesDrawer } from './disable-services';
 
 interface CheckFilters {
@@ -516,7 +517,7 @@ const AdvisorsList: FC = () => {
           enableHiding={false}
           enableRowActions
           positionActionsColumn="last"
-          // size the actions column so Run + Edit + Delete fit centered, show the
+          // size the actions column so four icons fit centered, show the
           // "Actions" header (percona-ui hides it by default), and lock the width
           // (grow: false) so the grid layout doesn't stretch it to fill the row
           displayColumnDefOptions={{
@@ -532,7 +533,19 @@ const AdvisorsList: FC = () => {
               // match the 0.6rem data headers get so the label aligns with them
               muiTableHeadCellProps: {
                 align: 'center',
-                sx: { px: 1, pb: '0.6rem' },
+                sx: {
+                  px: 1,
+                  pb: '0.6rem',
+                  // align='center' only sets text-align. MRT's head-cell
+                  // content row pushes its (here empty) actions box right with
+                  // margin-left:auto, which eats the free space before
+                  // justify-content applies — so stretch the label box to fill
+                  // the row and centre the label inside it instead.
+                  '& .Mui-TableHeadCell-Content-Labels': {
+                    flex: 1,
+                    justifyContent: 'center',
+                  },
+                },
               },
             },
           }}
@@ -542,8 +555,17 @@ const AdvisorsList: FC = () => {
               gap={0.25}
               alignItems="center"
               justifyContent="center"
-              // tighten the button padding so three icons fit the narrow column
-              sx={{ width: '100%', '& .MuiIconButton-root': { p: 0.5 } }}
+              // percona-ui's theme pins MuiIconButton to a fixed 40x40, so four
+              // icons overflow the column however small their padding gets.
+              // Unpin the box to collapse each button onto its icon.
+              sx={{
+                width: '100%',
+                '& .MuiIconButton-root': {
+                  width: 'auto',
+                  height: 'auto',
+                  p: 0.5,
+                },
+              }}
             >
               <Tooltip title={Messages.run} arrow>
                 <Box component="span">
@@ -563,13 +585,39 @@ const AdvisorsList: FC = () => {
                   </IconButton>
                 </Box>
               </Tooltip>
-              <Tooltip title={Messages.disableForServices} arrow>
+              <Tooltip
+                title={
+                  row.original.disabledServiceIds.length
+                    ? Messages.disabledForServices(
+                        row.original.disabledServiceIds.length
+                      )
+                    : Messages.disableForServices
+                }
+                arrow
+              >
                 <IconButton
                   aria-label={Messages.disableForServices}
                   onClick={() => setServicesTargetName(row.original.checkName)}
                   data-testid={`check-${row.original.checkName}-services`}
                 >
-                  <DnsOutlinedIcon />
+                  <Badge
+                    // the count doubles as the "has disablements" signal, so the
+                    // state is not conveyed by colour alone
+                    badgeContent={row.original.disabledServiceIds.length}
+                    color="warning"
+                    overlap="circular"
+                    data-testid={`check-${row.original.checkName}-services-badge`}
+                    sx={{
+                      '& .MuiBadge-badge': {
+                        minWidth: 14,
+                        height: 14,
+                        p: '0 3px',
+                        fontSize: 10,
+                      },
+                    }}
+                  >
+                    <DnsOutlinedIcon />
+                  </Badge>
                 </IconButton>
               </Tooltip>
               {row.original.userDefined && (

@@ -35,6 +35,8 @@ export const Messages = {
   edit: 'Edit',
   delete: 'Delete',
   disableForServices: 'Disable for services',
+  disabledForServices: (count: number) =>
+    `Disabled for ${count} ${count === 1 ? 'service' : 'services'}`,
   source: {
     builtin: 'Builtin',
     custom: 'Custom',
