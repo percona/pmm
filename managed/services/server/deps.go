@@ -26,13 +26,13 @@ import (
 
 // healthChecker interface wraps all services that implements the IsReady method to report the
 // service health for the Readiness check.
-type healthChecker interface {
+type healthChecker interface { //nolint:iface
 	IsReady(ctx context.Context) error
 }
 
 // grafanaClient is a subset of methods of grafana.Client used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type grafanaClient interface {
+type grafanaClient interface { //nolint:iface
 	healthChecker
 }
 
