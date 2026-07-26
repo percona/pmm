@@ -447,7 +447,7 @@
             "id": 44,
             "links": [],
             "options": {
-                "content": "Table activity uses `INFORMATION_SCHEMA.TABLE_STATISTICS` on [Percona Server](https://per.co.na/5_6_diagnostics_user_stat) and [MariaDB](https://mariadb.com/kb/en/mariadb/user-statistics/) when `userstat` is enabled. On Oracle MySQL, including MySQL 9.7, it uses `performance_schema.table_io_waits_summary_by_table`.",
+                "content": "Table activity uses `INFORMATION_SCHEMA.TABLE_STATISTICS` on [Percona Server](https://per.co.na/5_6_diagnostics_user_stat) and [MariaDB](https://mariadb.com/kb/en/mariadb/user-statistics/) when `userstat` is enabled. On Oracle MySQL, including MySQL 9.7, it uses `performance_schema.table_io_waits_summary_by_table`. Both sources require per-table statistics collection, which PMM disables for services with more tables than the configured table statistics limit.",
                 "mode": "markdown"
             },
             "pluginVersion": "8.3.5",

@@ -346,7 +346,7 @@
             "type": "stat"
         },
         {
-            "description": "",
+            "description": "Checkpoint age relative to the redo log size. On MySQL 8.0.30 and newer the denominator is the total InnoDB redo log capacity. Older servers expose only the legacy status variables, so the panel falls back to the sync flush threshold (Innodb_checkpoint_max_age), which is smaller than the capacity and therefore reports a higher percentage for the same workload.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -11817,7 +11817,7 @@
                     "type": "stat"
                 },
                 {
-                    "description": "",
+                    "description": "Checkpoint age relative to the redo log size. On MySQL 8.0.30 and newer the denominator is the total InnoDB redo log capacity. Older servers expose only the legacy status variables, so the panel falls back to the sync flush threshold (Innodb_checkpoint_max_age), which is smaller than the capacity and therefore reports a higher percentage for the same workload.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {

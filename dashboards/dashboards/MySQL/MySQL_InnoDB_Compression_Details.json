@@ -809,7 +809,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "avg by (service_name) ((sum by (service_name, node_name) (rate(mysql_info_schema_innodb_cmp_compress_time_seconds_total{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name, node_name) (irate(mysql_info_schema_innodb_cmp_compress_time_seconds_total{service_name=~\"$service_name\"}[5m]))) /\non (node_name) count by (node_name) (node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}) * 100)",
+                    "expr": "avg by (service_name) ((sum by (service_name, node_name) (rate(mysql_info_schema_innodb_cmp_compress_time_seconds_total{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name, node_name) (irate(mysql_info_schema_innodb_cmp_compress_time_seconds_total{service_name=~\"$service_name\"}[5m]))) /\non (node_name) group_left () count by (node_name) (node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}) * 100)",
                     "format": "time_series",
                     "hide": false,
                     "intervalFactor": 1,
@@ -917,7 +917,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "avg by (service_name) ((sum by (service_name, node_name) (rate(mysql_info_schema_innodb_cmp_uncompress_time_seconds_total{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name, node_name) (irate(mysql_info_schema_innodb_cmp_uncompress_time_seconds_total{service_name=~\"$service_name\"}[5m]))) /\non (node_name) count by (node_name) (node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}) * 100)",
+                    "expr": "avg by (service_name) ((sum by (service_name, node_name) (rate(mysql_info_schema_innodb_cmp_uncompress_time_seconds_total{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name, node_name) (irate(mysql_info_schema_innodb_cmp_uncompress_time_seconds_total{service_name=~\"$service_name\"}[5m]))) /\non (node_name) group_left () count by (node_name) (node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}) * 100)",
                     "format": "time_series",
                     "intervalFactor": 1,
                     "legendFormat": "{{service_name}}",
@@ -1650,7 +1650,7 @@
                     "type": "stat"
                 },
                 {
-                    "description": "",
+                    "description": "Checkpoint age relative to the redo log size. On MySQL 8.0.30 and newer the denominator is the total InnoDB redo log capacity. Older servers expose only the legacy status variables, so the panel falls back to the sync flush threshold (Innodb_checkpoint_max_age), which is smaller than the capacity and therefore reports a higher percentage for the same workload.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
