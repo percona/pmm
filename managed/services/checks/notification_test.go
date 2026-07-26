@@ -27,9 +27,13 @@ import (
 func TestBuildAdvisorEmailReport(t *testing.T) {
 	t.Parallel()
 
-	counts := map[common.Severity]int{
+	sCounts := map[common.Severity]int{
 		common.Error:   1,
 		common.Warning: 1,
+	}
+	tCounts := map[models.ServiceType]int{
+		models.MySQLServiceType:   1,
+		models.MongoDBServiceType: 1,
 	}
 	insights := []string{"Insight A", "Insight B"}
 
@@ -39,6 +43,11 @@ Findings by severity:
   Critical: 0
   Error: 1
   Warning: 1
+
+Findings by technology:
+  MySQL: 1
+  PostgreSQL: 0
+  MongoDB: 1
 
 Next steps:
   - Review the insights below, addressing the most severe findings first.
@@ -52,6 +61,7 @@ Insight A
 
 Insight B`
 
-	got := buildAdvisorEmailReport("batch-123", models.CheckTriggeredByUser, common.Warning, counts, insights)
+	got := buildAdvisorEmailReport("batch-123", models.CheckTriggeredByUser, common.Warning, sCounts,
+		tCounts, insights)
 	require.Equal(t, want, got)
 }

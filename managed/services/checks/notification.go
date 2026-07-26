@@ -24,11 +24,9 @@ import (
 	"github.com/percona/pmm/managed/pi/common"
 )
 
-// maybeSendAdvisorNotification emails the completed batch's insights to the configured Advisor email
-// contact point when notifications are enabled. It is best-effort: every failure is logged and
-// swallowed so it never affects the check run. The recipients are read from settings (cached at
-// enable time by the server service), because this runs in a background context that cannot reach
-// Grafana.
+// maybeSendAdvisorNotification emails the completed batch's insights to the configured recipients
+// when notifications are enabled. It is best-effort: every failure is logged and swallowed so it
+// never affects the check run.
 func (s *Service) maybeSendAdvisorNotification(ctx context.Context, batchID string, triggeredBy models.CheckTriggeredBy) {
 	settings, err := models.GetSettings(s.db.Querier)
 	if err != nil {
@@ -58,7 +56,8 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, batchID stri
 		threshold = common.Error
 	}
 
-	counts := make(map[common.Severity]int)
+	sCounts := make(map[common.Severity]int)
+	tCounts := make(map[models.ServiceType]int)
 	texts := make([]string, 0, len(results))
 	for _, r := range results {
 		severity := common.Severity(r.Severity)
@@ -71,7 +70,8 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, batchID stri
 			s.l.Warnf("Advisor notification: failed to format insight %s: %v", r.ID, err)
 			continue
 		}
-		counts[severity]++
+		sCounts[severity]++
+		tCounts[r.ServiceType]++
 		texts = append(texts, text)
 	}
 
@@ -80,7 +80,7 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, batchID stri
 	}
 
 	subject := fmt.Sprintf("PMM Advisor Insights: %d finding(s) for batch %s", len(texts), batchID)
-	body := buildAdvisorEmailReport(batchID, triggeredBy, threshold, counts, texts)
+	body := buildAdvisorEmailReport(batchID, triggeredBy, threshold, sCounts, tCounts, texts)
 
 	err = s.sendAdvisorEmail(an.EmailAddresses, subject, body)
 	if err != nil {
@@ -90,10 +90,29 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, batchID stri
 	s.l.Infof("Advisor notification: emailed %d insight(s) for batch %s", len(texts), batchID)
 }
 
-// buildAdvisorEmailReport composes the notification email body: a brief introduction, a per-severity
-// summary, suggested next steps, and then the insights (formatted like the UI's "Copy to text")
-// one after another.
-func buildAdvisorEmailReport(batchID string, triggeredBy models.CheckTriggeredBy, threshold common.Severity, counts map[common.Severity]int, insights []string) string {
+// advisorTechnologies lists the technologies advisor checks run against, in report order, paired
+// with the service type insights record. Checks can only target these, so the per-technology
+// summary covers every insight.
+var advisorTechnologies = []struct {
+	serviceType models.ServiceType
+	label       string
+}{
+	{models.MySQLServiceType, "MySQL"},
+	{models.PostgreSQLServiceType, "PostgreSQL"},
+	{models.MongoDBServiceType, "MongoDB"},
+}
+
+// buildAdvisorEmailReport composes the notification email body: a brief introduction, per-severity
+// and per-technology summaries, suggested next steps, and then the insights (formatted like the
+// UI's "Copy to text") one after another.
+func buildAdvisorEmailReport(
+	batchID string,
+	triggeredBy models.CheckTriggeredBy,
+	threshold common.Severity,
+	sCounts map[common.Severity]int,
+	tCounts map[models.ServiceType]int,
+	insights []string,
+) string {
 	var b strings.Builder
 
 	fmt.Fprintf(&b, "Percona Monitoring and Management runs Advisor checks against your monitored "+
@@ -108,7 +127,14 @@ func buildAdvisorEmailReport(batchID string, triggeredBy models.CheckTriggeredBy
 		if sev == common.Notice {
 			continue
 		}
-		fmt.Fprintf(&b, "  %s: %d\n", capitalize(sev.String()), counts[sev])
+		fmt.Fprintf(&b, "  %s: %d\n", capitalize(sev.String()), sCounts[sev])
+	}
+
+	// Every technology is listed, zero included, so the reader can tell "no findings" apart from
+	// "not covered by this report".
+	b.WriteString("\nFindings by technology:\n")
+	for _, t := range advisorTechnologies {
+		fmt.Fprintf(&b, "  %s: %d\n", t.label, tCounts[t.serviceType])
 	}
 
 	b.WriteString("\nNext steps:\n")
