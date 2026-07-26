@@ -299,8 +299,14 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
                     minHeight: 0,
                     // fixed-height field; the editor's wrapper scrolls inside
                     // it (scrolling this root would carry the absolutely-
-                    // positioned outlined border away with the content)
-                    '& .MuiInputBase-root': { height: '100%' },
+                    // positioned outlined border away with the content).
+                    // flex-start because InputBase's root centers its flex
+                    // items, which floats a short script in the middle of the
+                    // pinned height.
+                    '& .MuiInputBase-root': {
+                      height: '100%',
+                      alignItems: 'flex-start',
+                    },
                     '& textarea': { outline: 'none' },
                   }}
                   slotProps={{
