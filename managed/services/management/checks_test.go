@@ -39,7 +39,7 @@ import (
 func TestStartAdvisorChecks(t *testing.T) {
 	t.Run("internal error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", []string(nil)).Return("", errors.New("random error"))
+		checksService.On("StartChecks", []string(nil), []string(nil)).Return("", errors.New("random error"))
 
 		s := NewChecksAPIService(&checksService)
 
@@ -50,7 +50,7 @@ func TestStartAdvisorChecks(t *testing.T) {
 
 	t.Run("Advisors disabled error", func(t *testing.T) {
 		var checksService mockChecksService
-		checksService.On("StartChecks", []string(nil)).Return("", services.ErrAdvisorsDisabled)
+		checksService.On("StartChecks", []string(nil), []string(nil)).Return("", services.ErrAdvisorsDisabled)
 
 		s := NewChecksAPIService(&checksService)
 

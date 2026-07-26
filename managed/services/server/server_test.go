@@ -16,7 +16,6 @@
 package server
 
 import (
-	"errors"
 	"math"
 	"testing"
 	"time"
@@ -30,6 +29,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	"github.com/percona/pmm/api/common"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
@@ -167,7 +167,7 @@ func TestServer(t *testing.T) {
 			})
 			require.Len(t, errs, 1)
 			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(errs[0], &errInvalidArgument))
+			require.ErrorAs(t, errs[0], &errInvalidArgument)
 			require.EqualError(t, errs[0], `invalid argument: hr: minimal resolution is 1s`)
 			assert.Zero(t, s.envSettings.MetricsResolutions.HR)
 		})
@@ -179,7 +179,7 @@ func TestServer(t *testing.T) {
 			})
 			require.Len(t, errs, 1)
 			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(errs[0], &errInvalidArgument))
+			require.ErrorAs(t, errs[0], &errInvalidArgument)
 			require.EqualError(t, errs[0], `invalid argument: data_retention: minimal resolution is 24h`)
 			assert.Zero(t, s.envSettings.DataRetention)
 		})
@@ -191,7 +191,7 @@ func TestServer(t *testing.T) {
 			})
 			require.Len(t, errs, 1)
 			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(errs[0], &errInvalidArgument))
+			require.ErrorAs(t, errs[0], &errInvalidArgument)
 			require.EqualError(t, errs[0], `invalid argument: data_retention: should be a natural number of days`)
 			assert.Zero(t, s.envSettings.DataRetention)
 		})
@@ -306,6 +306,10 @@ func TestServer(t *testing.T) {
 			EnableAdvisorNotifications:           new(true),
 			AdvisorNotificationSeverityThreshold: managementv1.Severity_SEVERITY_WARNING,
 			AdvisorHistoryRetention:              durationpb.New(48 * time.Hour),
+			// enabling the notifications requires at least one recipient
+			AdvisorNotificationEmailAddresses: &common.StringArray{
+				Values: []string{"dba@percona.com"},
+			},
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
@@ -315,6 +319,7 @@ func TestServer(t *testing.T) {
 		assert.True(t, settings.Settings.AdvisorNotificationsEnabled)
 		assert.Equal(t, managementv1.Severity_SEVERITY_WARNING, settings.Settings.AdvisorNotificationSeverityThreshold)
 		assert.Equal(t, durationpb.New(48*time.Hour), settings.Settings.AdvisorHistoryRetention)
+		assert.Equal(t, []string{"dba@percona.com"}, settings.Settings.AdvisorNotificationEmailAddresses)
 	})
 }
 
