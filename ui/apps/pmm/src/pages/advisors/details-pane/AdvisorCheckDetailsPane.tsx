@@ -3,6 +3,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import CloseFullscreenOutlinedIcon from '@mui/icons-material/CloseFullscreenOutlined';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import ControlPointDuplicateOutlinedIcon from '@mui/icons-material/ControlPointDuplicateOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import OpenInFullOutlinedIcon from '@mui/icons-material/OpenInFullOutlined';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -73,6 +74,8 @@ interface AdvisorCheckDetailsPaneProps {
   onClose: () => void;
   // clone the current check into a new editable check
   onClone?: () => void;
+  // edit the current check; only user-authored checks can be modified
+  onEdit?: () => void;
 }
 
 export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
@@ -80,6 +83,7 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
   initialMaximized = false,
   onClose,
   onClone,
+  onEdit,
 }) => {
   const [maximized, setMaximized] = useState(false);
   const { navOpen } = useNavigation();
@@ -255,6 +259,19 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
 
             <Stack gap={1} sx={{ flex: 1, minHeight: 0 }}>
               <Stack direction="row" justifyContent="flex-end" gap={1}>
+                {onEdit && (
+                  <Button
+                    size="small"
+                    startIcon={<EditOutlinedIcon fontSize="small" />}
+                    onClick={onEdit}
+                    // Percona-shipped checks cannot be modified; Clone is the
+                    // way to start from one
+                    disabled={!check.userDefined}
+                    data-testid="check-edit"
+                  >
+                    {Messages.edit}
+                  </Button>
+                )}
                 {onClone && (
                   <Button
                     size="small"

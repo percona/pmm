@@ -678,6 +678,15 @@ const AdvisorsList: FC = () => {
               patchParams((p) => p.delete('details'), { resetPage: false });
             }
           }}
+          onEdit={() => {
+            if (detailsCheck) {
+              setCheckForm({
+                mode: 'edit',
+                checkName: detailsCheck.checkName,
+              });
+              patchParams((p) => p.delete('details'), { resetPage: false });
+            }
+          }}
         />
         <AdvisorCheckForm
           open={!!checkForm}

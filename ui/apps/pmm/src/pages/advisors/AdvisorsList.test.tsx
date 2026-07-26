@@ -449,6 +449,28 @@ describe('AdvisorsList', () => {
     ).toBeInTheDocument();
   });
 
+  it('disables the details-pane Edit button for built-in checks', async () => {
+    renderComponent('/advisors?details=mysql_version_check');
+
+    const pane = await screen.findByTestId('check-details-pane');
+    // the button is shown but unusable: Percona-shipped checks cannot be edited
+    expect(within(pane).getByTestId('check-edit')).toBeDisabled();
+  });
+
+  it('opens the editor from the details pane for a user-defined check', async () => {
+    renderComponent('/advisors?details=postgresql_super_role');
+
+    const pane = await screen.findByTestId('check-details-pane');
+    const editButton = within(pane).getByTestId('check-edit');
+    expect(editButton).toBeEnabled();
+
+    fireEvent.click(editButton);
+
+    // the form opens in edit mode, which locks the check name
+    const form = await screen.findByTestId('advisor-check-form');
+    expect(within(form).getByTestId('check-name')).toBeDisabled();
+  });
+
   it('badges the services action with the disablement count', async () => {
     renderComponent();
 
