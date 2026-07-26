@@ -39,11 +39,9 @@ export PMM_RELEASE_VERSION=%{full_pmm_version}
 export PMM_RELEASE_FULLCOMMIT=%{commit}
 export PMM_RELEASE_BRANCH=""
 
-cd src/github.com/percona/pmm/managed
-make release
+make -C src/github.com/percona/pmm/managed release
 
-cd ../ui
-make release
+make -C src/github.com/percona/pmm/ui release
 
 %install
 install -d -p %{buildroot}%{_bindir}
@@ -51,7 +49,7 @@ install -d -p %{buildroot}%{_sbindir}
 install -d -p %{buildroot}%{_datadir}/%{name}
 install -d -p %{buildroot}%{_datadir}/pmm-ui
 install -d -p %{buildroot}%{_datadir}/percona-dashboards/panels/pmm-compat-app
-install -d -o 1000 %{buildroot}/usr/local/percona/{advisors,checks,alerting-templates}
+install -d -p %{buildroot}/usr/local/percona/{checks,alerting-templates}
 install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-encryption-rotation %{buildroot}%{_sbindir}/pmm-encryption-rotation
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
@@ -74,6 +72,8 @@ cp -pa ./managed/data/alerting-templates/*.yml %{buildroot}/usr/local/percona/al
 %{_datadir}/%{name}
 %attr(-, pmm, root) %{_datadir}/pmm-ui
 %attr(-, pmm, root) %{_datadir}/percona-dashboards/panels/pmm-compat-app
+%attr(0755, pmm, root) %dir /usr/local/percona/checks
+%attr(0755, pmm, root) %dir /usr/local/percona/alerting-templates
 %attr(0644, pmm, root) /usr/local/percona/checks/*.yml
 %attr(0644, pmm, root) /usr/local/percona/alerting-templates/*.yml
 
