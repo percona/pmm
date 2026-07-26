@@ -1,9 +1,10 @@
-import { type MRT_ColumnDef } from 'material-react-table';
+import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import { format } from 'date-fns';
+import { ADVISOR_RESULT_STATUS, SEVERITY, TIME_FORMAT } from 'lib/constants';
+import { type MRT_ColumnDef } from 'material-react-table';
 import { Insight } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
-import { ADVISOR_RESULT_STATUS, SEVERITY, TIME_FORMAT } from 'lib/constants';
 import { Messages } from './AdvisorInsights.messages';
 
 const SEVERITY_ORDER: Record<Severity, number> = {
@@ -77,11 +78,13 @@ export const getInsightsColumns = (): MRT_ColumnDef<Insight>[] => [
   {
     header: Messages.columns.checkedAt,
     accessorKey: 'checkedAt',
-    size: 150,
+    size: 160,
     grow: false,
     Cell: ({ row }) =>
-      row.original.checkedAt
-        ? format(new Date(row.original.checkedAt), TIME_FORMAT)
-        : null,
+      row.original.checkedAt ? (
+        <Box component="span" sx={{ fontSize: '0.85rem' }}>
+          {format(new Date(row.original.checkedAt), TIME_FORMAT)}
+        </Box>
+      ) : null,
   },
 ];
