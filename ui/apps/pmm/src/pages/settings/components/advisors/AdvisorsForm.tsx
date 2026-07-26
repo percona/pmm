@@ -21,7 +21,6 @@ import { toFormValues, toPayload } from './AdvisorsForm.utils';
 import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';
 import { formControlClasses } from '@mui/material/FormControl';
-import { helperTextTestId } from 'utils/mui.utils';
 
 export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
   const { mutateAsync: updateSettings } = useUpdateSettings();
@@ -105,9 +104,6 @@ export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
                       size: 'small',
                       sx: { minWidth: 80, maxWidth: 120 },
                     }}
-                    formHelperTextProps={helperTextTestId(
-                      `${name}-field-error-message`
-                    )}
                   />
                 ))}
               </Stack>
@@ -134,9 +130,6 @@ export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
                       sx: { minWidth: 120, maxWidth: 240 },
                       size: 'small',
                     }}
-                    formHelperTextProps={helperTextTestId(
-                      'advisorRetention-field-error-message'
-                    )}
                   />
                   <Typography variant="body1" color="text.secondary">
                     {m.retentionUnits}

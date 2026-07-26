@@ -35,7 +35,6 @@ import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';
 import { formControlClasses } from '@mui/material/FormControl';
 import { formControlLabelClasses } from '@mui/material/FormControlLabel';
-import { helperTextTestId } from 'utils/mui.utils';
 
 export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   settings,
@@ -142,9 +141,6 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
                 sx: { minWidth: 120, maxWidth: 240 },
                 size: 'small',
               }}
-              formHelperTextProps={helperTextTestId(
-                'retention-field-error-message'
-              )}
             />
             <Typography variant="body1" color="text.secondary">
               {m.retentionUnits}

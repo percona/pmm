@@ -29,7 +29,6 @@ import {
 } from 'hooks/api/useAdvisors';
 import { ADVISOR_TECHNOLOGY, ADVISOR_INTERVAL } from 'lib/constants';
 import { flattenAdvisorChecks } from 'utils/advisors.utils';
-import { helperTextTestId } from 'utils/mui.utils';
 import { CheckTestControls } from '../check-test/CheckTestControls';
 import { CheckTestResults } from '../check-test/CheckTestResults';
 import { useCheckTest } from '../check-test/useCheckTest';
@@ -241,9 +240,6 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                   helperText: Messages.fields.nameHelper,
                   slotProps: { htmlInput: { 'data-testid': 'check-name' } },
                 }}
-                formHelperTextProps={helperTextTestId(
-                  'name-field-error-message'
-                )}
               />
               <TextInput
                 name="summary"
@@ -251,9 +247,6 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                 textFieldProps={{
                   slotProps: { htmlInput: { 'data-testid': 'check-summary' } },
                 }}
-                formHelperTextProps={helperTextTestId(
-                  'summary-field-error-message'
-                )}
               />
               <TextInput
                 name="description"
@@ -265,9 +258,6 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                     htmlInput: { 'data-testid': 'check-description' },
                   },
                 }}
-                formHelperTextProps={helperTextTestId(
-                  'description-field-error-message'
-                )}
               />
               <Stack direction="row" gap={2} flexWrap="wrap">
                 <AutoCompleteInput
@@ -426,9 +416,6 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                     htmlInput: { 'data-testid': 'check-script' },
                   },
                 }}
-                formHelperTextProps={helperTextTestId(
-                  'script-field-error-message'
-                )}
               />
             </Box>
 
