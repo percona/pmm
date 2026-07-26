@@ -22,6 +22,5 @@ checks:
                 "description": "There is a table where index is larger than data. This typically indicates sub-optimal indexing.",
                 "read_more_url": "https://dev.mysql.com/doc/refman/en/data-size.html",
                 "severity": "warning",
-                "labels": {},
               })
           return results
