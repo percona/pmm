@@ -48,6 +48,7 @@ export const Messages = {
     category: 'Category',
     subcategory: 'Sub category',
     technology: 'Technology',
+    source: 'Source',
     interval: 'Interval',
     status: 'Status',
     summary: 'Summary',

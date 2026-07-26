@@ -221,6 +221,13 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
                   {ADVISOR_TECHNOLOGY[check.technology]}
                 </Typography>
               </Field>
+              <Field label={m.source}>
+                <Typography variant="body1">
+                  {check.userDefined
+                    ? Messages.source.custom
+                    : Messages.source.builtin}
+                </Typography>
+              </Field>
               <Field label={m.interval}>
                 <Typography variant="body1">
                   {ADVISOR_INTERVAL[check.interval]}

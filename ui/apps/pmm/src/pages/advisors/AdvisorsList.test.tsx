@@ -136,6 +136,11 @@ describe('AdvisorsList', () => {
         'mysql_version_check'
       )
     ).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId('check-details-field-source')).getByText(
+        'Builtin'
+      )
+    ).toBeInTheDocument();
     // double-click opens the pane maximized
     expect(
       within(pane).getByTestId('CloseFullscreenOutlinedIcon')
