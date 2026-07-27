@@ -172,16 +172,15 @@ Recurring tasks — follow in order before opening a PR.
 
 ## Git and pull request checklist
 
-Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITHUB.md). For commits and PR titles, use **[Conventional Commits](https://www.conventionalcommits.org/)** (`type(scope): summary`) — not the `PMM-XXXX` title style from the process doc. When opening PRs to the upstream Percona repo, confirm with reviewers if they expect conventional titles or `PMM-XXXX` titles from the process doc.
+Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITHUB.md). PMM uses its own convention — **not Conventional Commits**. Commit and PR titles are `PMM-XXXX Short summary` (Jira key prefix, summary ≤50 chars, final period optional); do **not** use `type(scope):` prefixes.
 
 | Item | Rule |
 |------|------|
-| Branch name | `PMM-1234-short-description` (lowercase, dashes) |
-| Commit title | `type(scope): short imperative summary` — e.g. `feat(ui): add pagination to the services table`, `fix(managed): handle missing agent in registry` |
-| PR title | Same format as commit title (squash merge uses the PR title) |
-| Types | `feat` (feature), `fix` (bug), `chore` (deps, lint, tooling), `refactor`, `test`, `docs` |
-| Scope | Optional but preferred: `ui`, `managed`, `api`, `agent`, `dashboards`, … |
-| Ticket | Put `PMM-XXXX` in the branch name and/or PR body, required in the title as well |
+| Branch name | `PMM-1234-short-description` — start with `PMM-XXXX` (or `SAAS-XXXX`); lowercase, dashes, always a short description |
+| Commit title | `PMM-XXXX Short summary` — Jira key prefix, ≤50 chars, imperative; final period optional. No `type(scope):` |
+| Commit body | Blank line after the title, then an optional description wrapped at 72 chars |
+| PR title | Same `PMM-XXXX Short summary` format (squash merge uses the PR title) |
+| Ticket | `PMM-XXXX` is required as the title prefix (and in the branch name) |
 | Review fixes | New commit per round — do not amend and force-push |
 | Merge | Squash and merge on GitHub |
 | PR body | What/why, Feature Build link for features/fixes/improvements, link related PRs |
