@@ -195,3 +195,4 @@ Always run `make gen` after modifying `.proto` files, reform models, or interfac
 - `managed/utils/envvars/parser.go` — environment variable parsing
 - `docker-compose.yml` — development environment
 - `Makefile`, `Makefile.include` — build and development targets
+- `managed/CONTRIBUTING.md` — pmm-managed contribution notes (dev setup, patterns)

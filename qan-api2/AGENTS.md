@@ -118,3 +118,4 @@ CLI flags (parsed via `kingpin`):
 - `qan-api2/services/analytics/profile.go` — `GetReport` implementation
 - `qan-api2/services/receiver/receiver.go` — data ingestion from agents
 - `qan-api2/migrations/sql/` — ClickHouse schema migrations
+- `qan-api2/README.md` — component overview and local development
