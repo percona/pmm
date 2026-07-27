@@ -3,7 +3,7 @@ description: PMM — read AGENTS.md before any code change
 alwaysApply: true
 ---
 
-# PMM agent entrypoint
+# AGENTS.md entrypoint
 
 Before planning, implementing, or reviewing changes in this repository, **read and follow** `AGENTS.md` at the repo root — including its component guide table and linked process docs.
 

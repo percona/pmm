@@ -57,6 +57,7 @@ dev/clickhouse-backups/
 # Exclude local AI skills/settings; team rules live in .cursor/rules/
 # Ignore AI-related files to support fast local experimentation
 .claude/
+CLAUDE.local.md
 GEMINI.md
 .cursor/*
 !.cursor/rules/

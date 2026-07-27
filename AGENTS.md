@@ -8,7 +8,7 @@ Some tools also use a thin pointer file that simply routes them here — these a
 
 | Tool | Pointer file (→ reads `AGENTS.md`) |
 |------|------|
-| Cursor | `.cursor/rules/pmm-agents-entrypoint.mdc` (`alwaysApply: true`) |
+| Cursor | `.cursor/rules/agents-md-entrypoint.mdc` (`alwaysApply: true`) |
 | Claude Code | [CLAUDE.md](CLAUDE.md) |
 | GitHub Copilot | [.github/copilot-instructions.md](.github/copilot-instructions.md) |
 
