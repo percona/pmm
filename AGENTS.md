@@ -271,4 +271,4 @@ PMM development uses a **single "fat" Docker container** (`perconalab/pmm-server
 
 ### Notes
 - The built-in `pmm-agent` already self-monitors the server node and internal PostgreSQL (`pmm-managed`/`pmm-managed`). You can add more monitored services from the UI (Inventory → Add Service) or with `pmm-admin add ...` inside the container.
-- Host ports mapped from the container: `443` (UI/API), `5432` (PG), `9090` (VictoriaMetrics), `8123`/`9000` (ClickHouse), `5173` (Vite), `2345` (Delve).
+- Host ports mapped from the container (defaults; override via `PMM_PORT_*` in `.env`): `443` (UI/API), `5432` (PG), `9090` (VictoriaMetrics), `8123`/`9000` (ClickHouse), `5173` (Vite), `2345` (Delve).
