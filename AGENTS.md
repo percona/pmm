@@ -152,12 +152,16 @@ Recurring tasks — follow in order before opening a PR.
 5. If UI-facing: add API module in `ui/apps/pmm/src/api/` and TanStack Query hooks in `ui/apps/pmm/src/hooks/api/`.
 6. If public API docs change: update [`documentation/api/`](documentation/api/) (PR template checkbox).
 
+> Keep proto changes additive — `buf breaking` runs in CI (see [Backward compatibility](#backward-compatibility)).
+
 ### Adding a DB table or migration
 
 1. Add a versioned migration in `managed/models/database.go`.
 2. Add or update the reform model; run `//go:generate` or `make gen`.
 3. Add CRUD helpers in `*_helpers.go` or `*_crud.go` as surrounding code does.
 4. Prefer `go-sqlmock` for unit tests; use `testdb.Open` when SQL/migration behavior must be verified.
+
+> Migrations are forward-only — never edit or reorder one that has shipped (see [Backward compatibility](#backward-compatibility)).
 
 ### Adding a UI page or settings section
 
@@ -167,6 +171,35 @@ Recurring tasks — follow in order before opening a PR.
 4. Co-locate Vitest tests (`*.test.ts` / `*.test.tsx`).
 5. Run `cd ui && make lint && make test` before opening a PR.
 6. JSON on the wire is **snake_case** (`axios-case-converter`); TypeScript uses **camelCase**.
+
+---
+
+## Running and verifying locally
+
+Don't stop at unit tests — run PMM and exercise the change when it is user-visible.
+
+1. `make env-up` starts the dev stack (`docker-compose.dev.yml`, waits for health).
+2. Open **https://localhost** (accept the self-signed cert) and log in with PMM's default **`admin` / `admin`** (you're prompted to change it).
+3. Inside the devcontainer, `make run-ui` serves the main UI with Vite HMR (port `5173`); `make run-qan-ui` serves the QAN plugin.
+4. Call the REST API directly — paths live in `api/swagger/swagger.json` (e.g. `curl -k -u admin:admin https://localhost/v1/...`).
+5. Handy ports: PostgreSQL `5432`, VictoriaMetrics `9090`, ClickHouse `9000`/`8123`, Delve `2345`, Mailhog UI `8025`.
+6. Daemons log to stderr via the supervisor — read the logs for the component you changed.
+
+---
+
+## Definition of Done
+
+Before calling a change complete, verify every item that applies — never report done on a check you didn't run:
+
+- [ ] Builds (component build or `make release`) and, when you can exercise it, the app runs.
+- [ ] Tests pass for **every** area you touched ([Testing decision tree](#testing-decision-tree)); new behavior has new/updated tests.
+- [ ] The **matching** linter is clean ([Linting decision tree](#linting-decision-tree)); Go/API: `make prepare-pr`.
+- [ ] Ran `make gen` if you changed `.proto`, reform models, or mocked interfaces — and did **not** hand-edit generated files.
+- [ ] New source files carry the license header (`make check-license`); no secrets, credentials, or stray `fmt.Printf`/debug prints in the diff.
+- [ ] Commits use `PMM-XXXX Short summary` and are signed off (`git commit -s`).
+- [ ] Updated `AGENTS.md`/component guide **only** if structure, conventions, or workflows changed.
+
+If a change is architecturally significant or spans multiple components, propose a short plan before mass-editing. Never delete or weaken tests just to make them pass, and don't invent APIs or fields — check the proto/generated code.
 
 ---
 
@@ -181,6 +214,7 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 | Commit body | Blank line after the title, then an optional description wrapped at 72 chars |
 | PR title | Same `PMM-XXXX Short summary` format (squash merge uses the PR title) |
 | Ticket | `PMM-XXXX` is required as the title prefix (and in the branch name) |
+| Sign-off | Sign commits with `git commit -s` (adds a `Signed-off-by` trailer — DCO convention; most PMM commits carry it) |
 | Review fixes | New commit per round — do not amend and force-push |
 | Merge | Squash and merge on GitHub |
 | PR body | What/why, Feature Build link for features/fixes/improvements, link related PRs |
@@ -351,6 +385,29 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - reform ORM: `//go:generate go tool reform` (pmm-managed only)
 - Mocks: `mockery` per `.mockery.yaml`
 - **Never edit generated files** (`.pb.go`, `.pb.gw.go`, `*_reform.go`, `*.pb.validate.go`, swagger specs, `json/client/`)
+
+### Security and secrets
+- Never log, hardcode, or commit secrets — credentials, tokens, S3 keys, TLS material. `.env`, `encryption.key`, and key material are gitignored; keep it that way.
+- Persist sensitive values encrypted at rest via `managed/services/encryption` (rotation: `managed/cmd/pmm-encryption-rotation`) — not as plaintext columns.
+- Enforce authorization in the service layer and respect RBAC ([`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md)); don't rely on the UI to hide privileged actions.
+- Validate and bound external input; rely on reform's parameterized queries — never string-concatenate SQL.
+- Report vulnerabilities per [`SECURITY.md`](SECURITY.md); keep exploit detail out of public issues and PRs.
+
+### Concurrency and context propagation
+- Thread `context.Context` as the first argument through call chains; honor cancellation and deadlines.
+- Give every goroutine a clear exit tied to a context or `errgroup` — don't leak goroutines on shutdown (see [Graceful Shutdown](#graceful-shutdown)).
+- Protect shared state with mutexes or channels; run `go test -race` on concurrency-sensitive packages.
+
+### Backward compatibility
+PMM Server talks to pmm-agents and API clients already deployed in the field, so changes must not break them.
+- **Proto/API:** additive only — never renumber, retype, or remove an existing field. CI runs `buf breaking` against `api/descriptor.bin` (`cd api && make`).
+- **DB migrations:** forward-only — add a new versioned migration in `managed/models/database.go`; never edit or reorder one that has shipped.
+- Gate genuinely new behavior behind version checks (`version/features.go`) when older agents/servers must keep working.
+
+### Dependencies and new files
+- Prefer the standard library and deps already in `go.mod` / `ui/package.json`; a new dependency needs justification and an AGPL-3-compatible license (CI runs a license check).
+- Go: `go get` then `go mod tidy` (both in `make prepare-pr`). UI: `yarn add` from `ui/`.
+- New Go source files need the AGPL-3 Percona license header — copy it from an existing `.go` file or run `go tool license-eye -c .licenserc.yaml header fix`. Enforced by `make check-license` (exemptions: `agent/`, `admin/`, `utils/`, mocks).
 
 ### Graceful Shutdown
 - Handle `SIGTERM` and `SIGINT` by canceling parent context
