@@ -19,6 +19,32 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '../client';
 import { ApiError } from '../errors';
+import type { components as TasksComponents } from '../generated/tasks';
+
+export type TaskHistoryStatus =
+  TasksComponents['schemas']['TaskHistoryStatusEnum'];
+
+/**
+ * Task-history statuses that count as "still executing".
+ *
+ * Canonical source of truth for the poll-while-running convention. It lives in
+ * the ``api`` package because ``api`` is the lowest layer — ``framework`` and
+ * the apps depend on it, never the other way round — so both the list-page
+ * poll predicate here and the framework's ``useTaskHistory`` reuse the same
+ * set instead of drifting apart. ``framework`` re-exports these for callers
+ * that import from ``@sep/framework``.
+ */
+export const RUNNING_STATUSES: ReadonlySet<TaskHistoryStatus> = new Set([
+  'running',
+  'pending',
+]);
+
+export function isRunningStatus(status: TaskHistoryStatus): boolean {
+  return RUNNING_STATUSES.has(status);
+}
+
+/** Default poll cadence (ms) while a running task is visible; mirrors ``useTaskHistory``. */
+const DEFAULT_TASK_POLLING_INTERVAL_MS = 5000;
 
 // Mock-fallback gate. Active in dev builds (`pnpm dev`) and in production
 // builds explicitly opted-in via `VITE_MOCK_API=true` (e.g. the Playwright
@@ -49,80 +75,273 @@ export function isBackendUnavailable(error: unknown): boolean {
   return false;
 }
 
-type PaginatedPluginList<T> = {
+export type PaginatedPluginList<T> = {
   items: T[];
   total: number;
   offset: number;
   limit: number;
 };
 
-/** Accept legacy flat lists or paginated ``{ items, total, offset, limit }`` envelopes. */
-export function unwrapPluginListResponse<T>(
-  data: T[] | PaginatedPluginList<T>
-): T[] {
-  if (Array.isArray(data)) {
-    return data;
+export type PluginListPagination = {
+  total: number;
+  offset: number;
+  limit: number;
+};
+
+export type PluginListResult<T> = {
+  items: T[];
+  /** ``null`` when the backend returned a bare array (``NO_PAGINATION``). */
+  pagination: PluginListPagination | null;
+  /**
+   * Set when ``fetchAllPages`` stopped at the page cap before reaching
+   * ``total``. Absent (or false) when the fetch completed or was not used.
+   */
+  truncated?: boolean;
+};
+
+function isPaginatedPluginListEnvelope<T>(
+  data: unknown
+): data is PaginatedPluginList<T> {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    return false;
   }
-  if (data && typeof data === 'object' && Array.isArray(data.items)) {
-    return data.items;
-  }
-  return [];
+  const candidate = data as PaginatedPluginList<T>;
+  return (
+    Array.isArray(candidate.items) &&
+    typeof candidate.total === 'number' &&
+    typeof candidate.offset === 'number' &&
+    typeof candidate.limit === 'number'
+  );
 }
 
 /**
- * Generic CRUD hooks for plugin tasks.
+ * Normalize a plugin list response to items plus optional pagination metadata.
  *
- * The real API is always attempted first. When the backend is unavailable
- * (network error or 5xx), mock data is used as a fallback only when the
- * mock-fallback gate is on — that is, in dev builds, and in production
- * builds explicitly opted in via `VITE_MOCK_API=true` (the Playwright
- * preview target). Real production bundles never use the fallback.
+ * Bare arrays (``NO_PAGINATION``) yield ``pagination: null``; full
+ * ``{ items, total, offset, limit }`` envelopes preserve all four fields.
+ * Partial ``{ items }`` envelopes (legacy migration shape) unwrap items only.
  */
+export function normalizePluginListResponse<T>(
+  data: T[] | PaginatedPluginList<T> | { items: T[] | null } | null | undefined
+): PluginListResult<T> {
+  if (Array.isArray(data)) {
+    return { items: data, pagination: null };
+  }
+  if (isPaginatedPluginListEnvelope<T>(data)) {
+    return {
+      items: data.items,
+      pagination: {
+        total: data.total,
+        offset: data.offset,
+        limit: data.limit,
+      },
+    };
+  }
+  if (data && typeof data === 'object' && 'items' in data) {
+    const items = (data as { items: T[] | null }).items;
+    return { items: items ?? [], pagination: null };
+  }
+  return { items: [], pagination: null };
+}
+
+export const DEFAULT_PLUGIN_LIST_OFFSET = 0;
+/**
+ * Default page size for plugin list requests. Keep list UI page-size options at
+ * this value: some plugins (``DEFAULT_PAGINATION_LIMIT``) reject ``limit`` > 50
+ * with HTTP 422.
+ */
+export const DEFAULT_PLUGIN_LIST_LIMIT = 50;
+
+/** Soft cap on pages walked by ``fetchAllPages`` (~2500 rows at the default limit). */
+export const MAX_FETCH_ALL_PAGES = 50;
+
+export type PluginListQueryOptions = {
+  enabled?: boolean;
+  offset?: number;
+  limit?: number;
+  /**
+   * Walk paginated list pages for schedule joins (e.g. SchemaListView schedule
+   * columns). Caps at ``MAX_FETCH_ALL_PAGES`` × ``DEFAULT_PLUGIN_LIST_LIMIT``
+   * (2500 items); if ``total`` is larger the result sets ``truncated: true``
+   * and logs a warning. Issues up to that many sequential GETs.
+   */
+  fetchAllPages?: boolean;
+  /** Disable poll-while-running (stories, tests). */
+  disablePolling?: boolean;
+  /** Override poll cadence (ms) while a running task is visible. */
+  pollingIntervalMs?: number;
+};
+
+function mockItemsToResult<T>(mockItems: T[]): PluginListResult<T> {
+  return { items: mockItems, pagination: null };
+}
+
+function tasksQueryKey(
+  pluginName: string,
+  options: Pick<PluginListQueryOptions, 'offset' | 'limit' | 'fetchAllPages'>
+) {
+  return [
+    'plugins',
+    pluginName,
+    'tasks',
+    {
+      offset: options.offset ?? DEFAULT_PLUGIN_LIST_OFFSET,
+      limit: options.limit ?? DEFAULT_PLUGIN_LIST_LIMIT,
+      fetchAllPages: options.fetchAllPages ?? false,
+    },
+  ] as const;
+}
 
 /**
- * Plugin task list endpoint shape during the multi-plugin migration:
+ * Plugin list endpoint shape during the multi-plugin migration:
  * - Legacy plugins return `T[]` directly.
  * - Migrated plugins (e.g. mysql_backups) return `PaginatedResponse<T>`.
- *
- * The hook unwraps both shapes to `T[]` so call sites stay stable.
  */
-type PluginTasksResponse<T> = T[] | { items: T[] | null };
+type PluginListResponse<T> =
+  | T[]
+  | PaginatedPluginList<T>
+  | { items: T[] | null };
 
-export function unwrapTasks<T>(
-  data: PluginTasksResponse<T> | null | undefined
-): T[] {
-  if (Array.isArray(data)) {
-    return data;
+async function fetchAllPluginListPages<T extends Record<string, unknown>>(
+  path: string
+): Promise<PluginListResult<T>> {
+  const out: T[] = [];
+  let offset = 0;
+  let lastTotal: number | null = null;
+  const limit = DEFAULT_PLUGIN_LIST_LIMIT;
+
+  for (let iter = 0; iter < MAX_FETCH_ALL_PAGES; iter++) {
+    const { data } = await apiClient.get<PluginListResponse<T>>(path, {
+      params: { offset, limit },
+    });
+    const page = normalizePluginListResponse(data);
+
+    if (page.pagination === null) {
+      return { items: page.items, pagination: null };
+    }
+
+    lastTotal = page.pagination.total;
+    out.push(...page.items);
+    offset += page.items.length;
+    if (offset >= page.pagination.total || page.items.length === 0) {
+      return { items: out, pagination: null };
+    }
   }
-  return data?.items ?? [];
+
+  // eslint-disable-next-line no-console -- surface silent schedule-join truncation
+  console.warn(
+    `[api] fetchAllPages truncated ${path} at ${out.length} of ${lastTotal ?? '?'} items ` +
+      `(cap ${MAX_FETCH_ALL_PAGES}×${limit})`
+  );
+  return { items: out, pagination: null, truncated: true };
+}
+
+async function fetchPluginList<T extends Record<string, unknown>>(
+  path: string,
+  options: Pick<
+    PluginListQueryOptions,
+    'offset' | 'limit' | 'fetchAllPages'
+  > = {}
+): Promise<PluginListResult<T>> {
+  if (options.fetchAllPages) {
+    return fetchAllPluginListPages<T>(path);
+  }
+  const offset = options.offset ?? DEFAULT_PLUGIN_LIST_OFFSET;
+  const limit = options.limit ?? DEFAULT_PLUGIN_LIST_LIMIT;
+  const { data } = await apiClient.get<PluginListResponse<T>>(path, {
+    params: { offset, limit },
+  });
+  return normalizePluginListResponse(data);
+}
+
+/** Fetch plugin task list rows, optionally across all pages. */
+export async function fetchPluginTasksList<T extends Record<string, unknown>>(
+  pluginName: string,
+  options: Pick<
+    PluginListQueryOptions,
+    'offset' | 'limit' | 'fetchAllPages'
+  > = {}
+): Promise<PluginListResult<T>> {
+  return fetchPluginList<T>(`/apps/${pluginName}/`, options);
+}
+
+/** Fetch rows for one entity of a multi-entity plugin, optionally across all pages. */
+export async function fetchPluginEntityList<T extends Record<string, unknown>>(
+  pluginName: string,
+  entityName: string,
+  options: Pick<
+    PluginListQueryOptions,
+    'offset' | 'limit' | 'fetchAllPages'
+  > = {}
+): Promise<PluginListResult<T>> {
+  return fetchPluginList<T>(`/apps/${pluginName}/${entityName}/`, options);
+}
+
+/**
+ * Poll while any fetched row is still running; otherwise stay idle.
+ *
+ * Exported for tests; not part of the public hook surface.
+ */
+export function taskListRefetchInterval<T extends Record<string, unknown>>(
+  data: T[] | undefined,
+  pollingMs: number,
+  disabled: boolean
+): number | false {
+  if (disabled || !data) {
+    return false;
+  }
+  const hasRunning = data.some((row) =>
+    RUNNING_STATUSES.has(row.status as TaskHistoryStatus)
+  );
+  return hasRunning ? pollingMs : false;
 }
 
 export function usePluginTasks<T extends Record<string, unknown>>(
   pluginName: string,
   mockTasks?: T[],
-  options?: { enabled?: boolean }
+  options?: PluginListQueryOptions
 ) {
-  return useQuery<T[]>({
-    queryKey: ['plugins', pluginName, 'tasks'],
+  const offset = options?.offset ?? DEFAULT_PLUGIN_LIST_OFFSET;
+  const limit = options?.limit ?? DEFAULT_PLUGIN_LIST_LIMIT;
+  const fetchAllPages = options?.fetchAllPages ?? false;
+  const disablePolling = options?.disablePolling ?? false;
+  const pollingIntervalMs =
+    options?.pollingIntervalMs ?? DEFAULT_TASK_POLLING_INTERVAL_MS;
+
+  return useQuery<PluginListResult<T>>({
+    queryKey: tasksQueryKey(pluginName, { offset, limit, fetchAllPages }),
     enabled: options?.enabled !== false,
     queryFn: async () => {
       try {
-        const { data } = await apiClient.get<PluginTasksResponse<T>>(
-          `/apps/${pluginName}/`
-        );
-        return unwrapTasks(data);
+        return await fetchPluginTasksList<T>(pluginName, {
+          offset,
+          limit,
+          fetchAllPages,
+        });
       } catch (error) {
         if (
           MOCK_FALLBACKS_ENABLED &&
           mockTasks &&
           isBackendUnavailable(error)
         ) {
-          return mockTasks;
+          return mockItemsToResult(mockTasks);
         }
         throw error;
       }
     },
-    ...(MOCK_FALLBACKS_ENABLED && mockTasks && { placeholderData: mockTasks }),
+    // Keep the previous page while offset/limit changes, but not across a
+    // plugin switch that leaves the list mounted (would flash the wrong rows).
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[1] === pluginName ? previousData : undefined,
+    // Keep the list live while something is running; an idle list issues no
+    // repeat requests. Polling reflects the task's actual current state rather
+    // than its state at page load.
+    refetchInterval: (query) =>
+      taskListRefetchInterval(
+        query.state.data?.items,
+        pollingIntervalMs,
+        disablePolling
+      ),
   });
 }
 
@@ -230,8 +449,23 @@ export function useUpdatePluginTask<T extends Record<string, unknown>>(
   });
 }
 
-function entityQueryKey(pluginName: string, entityName: string) {
+function entityQueriesPrefix(pluginName: string, entityName: string) {
   return ['plugins', pluginName, 'entity', entityName] as const;
+}
+
+function entityListQueryKey(
+  pluginName: string,
+  entityName: string,
+  options: Pick<PluginListQueryOptions, 'offset' | 'limit' | 'fetchAllPages'>
+) {
+  return [
+    ...entityQueriesPrefix(pluginName, entityName),
+    {
+      offset: options.offset ?? DEFAULT_PLUGIN_LIST_OFFSET,
+      limit: options.limit ?? DEFAULT_PLUGIN_LIST_LIMIT,
+      fetchAllPages: options.fetchAllPages ?? false,
+    },
+  ] as const;
 }
 
 function entityQueriesRootKey(pluginName: string) {
@@ -258,29 +492,44 @@ export function usePluginEntityList<T extends Record<string, unknown>>(
   pluginName: string,
   entityName: string,
   mockItems?: T[],
-  options?: { enabled?: boolean }
+  options?: PluginListQueryOptions
 ) {
-  return useQuery<T[]>({
-    queryKey: entityQueryKey(pluginName, entityName),
+  const offset = options?.offset ?? DEFAULT_PLUGIN_LIST_OFFSET;
+  const limit = options?.limit ?? DEFAULT_PLUGIN_LIST_LIMIT;
+  const fetchAllPages = options?.fetchAllPages ?? false;
+
+  return useQuery<PluginListResult<T>>({
+    queryKey: entityListQueryKey(pluginName, entityName, {
+      offset,
+      limit,
+      fetchAllPages,
+    }),
     enabled: options?.enabled !== false,
     queryFn: async () => {
       try {
-        const { data } = await apiClient.get<T[] | PaginatedPluginList<T>>(
-          `/apps/${pluginName}/${entityName}/`
-        );
-        return unwrapPluginListResponse(data);
+        return await fetchPluginEntityList<T>(pluginName, entityName, {
+          offset,
+          limit,
+          fetchAllPages,
+        });
       } catch (error) {
         if (
           MOCK_FALLBACKS_ENABLED &&
           mockItems &&
           isBackendUnavailable(error)
         ) {
-          return mockItems;
+          return mockItemsToResult(mockItems);
         }
         throw error;
       }
     },
-    ...(MOCK_FALLBACKS_ENABLED && mockItems && { placeholderData: mockItems }),
+    // Keep the previous page while offset/limit changes, but not across an
+    // entity-tab (or plugin) switch that leaves PluginListPage mounted.
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[1] === pluginName &&
+      previousQuery?.queryKey[3] === entityName
+        ? previousData
+        : undefined,
   });
 }
 
@@ -292,7 +541,7 @@ export function usePluginEntityDetail<T extends Record<string, unknown>>(
   options?: { enabled?: boolean }
 ) {
   return useQuery<T | undefined>({
-    queryKey: [...entityQueryKey(pluginName, entityName), itemId],
+    queryKey: [...entityQueriesPrefix(pluginName, entityName), itemId],
     enabled: options?.enabled !== false && !!itemId,
     queryFn: async () => {
       try {

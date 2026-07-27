@@ -16,10 +16,24 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiClient, usePluginTasks, type TasksComponents } from '@sep/api';
+import {
+  apiClient,
+  usePluginTasks,
+  type TaskHistoryStatus,
+  type TasksComponents,
+} from '@sep/api';
 
+/**
+ * STUB (backend-assumed): `last_run_status` is served by the periodic-task API
+ * (SEP-1607) but is not yet in PMM's committed OpenAPI spec, so it is layered
+ * on here. Drop this intersection once `specs/tasks.json` is regenerated with
+ * the field.
+ */
 export type PeriodicTaskResponse =
-  TasksComponents['schemas']['PeriodicTaskResponse'];
+  TasksComponents['schemas']['PeriodicTaskResponse'] & {
+    /** Last-run outcome; null when never run or unresolved (see LastRunStatus). */
+    last_run_status?: TaskHistoryStatus | null;
+  };
 export type PeriodicTaskCreate =
   TasksComponents['schemas']['PeriodicTaskCreate'];
 export type PeriodicTaskUpdate =
@@ -55,8 +69,17 @@ export function useScheduledTasksForPlugin(
 ) {
   const { pollingIntervalMs = POLL_INTERVAL_MS, disablePolling = false } =
     options;
-  const tasksQuery = usePluginTasks<PluginTask>(pluginName);
-  const pluginTaskNames = tasksQuery.data?.map((t) => t.name) ?? [];
+  // Forward the escape hatch: `usePluginTasks` now polls while a task row is
+  // running, so without this a story/test that sets `disablePolling` would
+  // still spin up a live task-list refetch. The task-list poll keeps its own
+  // default cadence — the schedule `pollingIntervalMs` governs periodic-task
+  // freshness, a separate concern. `fetchAllPages` walks the paginated task
+  // list so schedule joins see every definition, not just the first page.
+  const tasksQuery = usePluginTasks<PluginTask>(pluginName, undefined, {
+    fetchAllPages: true,
+    disablePolling,
+  });
+  const pluginTaskNames = tasksQuery.data?.items.map((t) => t.name) ?? [];
 
   const periodicQuery = useQuery<
     PeriodicTaskResponse[],
@@ -84,7 +107,7 @@ export function useScheduledTasksForPlugin(
 
   return {
     periodicTasks: filtered,
-    pluginTasks: tasksQuery.data ?? [],
+    pluginTasks: tasksQuery.data?.items ?? [],
     isLoading: tasksQuery.isLoading || periodicQuery.isLoading,
     isError: tasksQuery.isError || periodicQuery.isError,
     error: tasksQuery.error ?? periodicQuery.error,

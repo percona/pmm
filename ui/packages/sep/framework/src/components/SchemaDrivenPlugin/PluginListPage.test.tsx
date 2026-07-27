@@ -27,8 +27,17 @@ vi.mock('../SchemaListView', () => ({
 }));
 
 vi.mock('@sep/api', () => ({
-  usePluginTasks: () => ({ data: [], isLoading: false }),
-  usePluginEntityList: () => ({ data: [], isLoading: false }),
+  DEFAULT_PLUGIN_LIST_OFFSET: 0,
+  DEFAULT_PLUGIN_LIST_LIMIT: 50,
+  RUNNING_STATUSES: new Set(['running', 'pending']),
+  usePluginTasks: () => ({
+    data: { items: [], pagination: null },
+    isLoading: false,
+  }),
+  usePluginEntityList: () => ({
+    data: { items: [], pagination: null },
+    isLoading: false,
+  }),
   useDeletePluginEntity: () => ({
     mutate: vi.fn(),
     isPending: false,

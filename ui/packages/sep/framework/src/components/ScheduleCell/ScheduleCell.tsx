@@ -25,6 +25,7 @@ import {
   describePeriod,
   formatAbsoluteTime,
   formatRelativeTime,
+  LastRunStatus,
   type PeriodicTaskResponse,
 } from '../ScheduledTasksPanel';
 
@@ -117,6 +118,10 @@ export function ScheduleCell({ task, isLoading = false }: ScheduleCellProps) {
           sx={{ color: 'text.secondary' }}
         />
       </Tooltip>
+      <LastRunStatus
+        status={task.last_run_status}
+        lastRunAt={task.last_run_at}
+      />
     </Stack>
   );
 }

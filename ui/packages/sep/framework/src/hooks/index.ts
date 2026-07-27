@@ -35,7 +35,10 @@ export { useLogDownload } from './useLogDownload';
 export type { DownloadLog } from './useLogDownload';
 
 export { useServices } from './useServices';
+export { useResolvedServiceField } from './useResolvedServiceField';
+export type { ResolvedServiceField } from './useResolvedServiceField';
 export type {
+  ServiceNodeOption,
   ServiceOption,
   ServiceType,
   UseServicesOptions,

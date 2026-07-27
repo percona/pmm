@@ -27,6 +27,7 @@ import {
   describePeriod,
   formatAbsoluteTime,
   formatRelativeTime,
+  LastRunStatus,
   selectSchedule,
   useScheduledTasksForPlugin,
 } from '../ScheduledTasksPanel';
@@ -111,6 +112,19 @@ export function ScheduleSummary({
             <Typography variant="body1">
               {describePeriod(task).display}
             </Typography>
+          </Box>
+          <Box data-testid="schedule-summary-last-run">
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ display: 'block', mb: 0.5 }}
+            >
+              Last run
+            </Typography>
+            <LastRunStatus
+              status={task.last_run_status}
+              lastRunAt={task.last_run_at}
+            />
           </Box>
         </Stack>
       ) : (

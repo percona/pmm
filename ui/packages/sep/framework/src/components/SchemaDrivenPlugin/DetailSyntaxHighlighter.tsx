@@ -65,7 +65,9 @@ function formatDetailSyntaxCode(
     return typeof value === 'string' ? formatCreateSql(value) : String(value);
   }
   if (language === 'yaml') {
-    return typeof value === 'string' ? value : String(value);
+    // A non-string value can't be raw YAML; pretty-print it rather than
+    // rendering "[object Object]".
+    return typeof value === 'string' ? value : formatKeysForDisplay(value);
   }
   return formatKeysForDisplay(value);
 }

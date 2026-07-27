@@ -16,6 +16,8 @@
  */
 
 export { ScheduledTasksPanel } from './ScheduledTasksPanel';
+export { LastRunStatus } from './LastRunStatus';
+export type { LastRunStatusProps } from './LastRunStatus';
 export { useScheduledTasksForPlugin } from './hooks';
 export type { UseScheduledTasksOptions, PeriodicTaskResponse } from './hooks';
 export {

@@ -49,7 +49,7 @@ vi.mock('@sep/api', () => ({
   // the summary renders its "Not scheduled" state, leaving the execute/delete
   // flows under test untouched.
   usePluginTasks: () => ({
-    data: [],
+    data: { items: [], pagination: null },
     isLoading: false,
     isError: false,
     error: null,
@@ -98,7 +98,10 @@ vi.mock('../../hooks', () => ({
 // Execution History tab renders the real TaskHistoryTable; stub it to capture
 // the wired onStopTask handler (no other test exercises the Execution History
 // tab / this component).
-vi.mock('../TaskHistoryTable', () => ({
+vi.mock('../TaskHistoryTable', async (importOriginal) => ({
+  // Keep the real TaskHistoryStatusBadge + isTaskHistoryStatus (now used by the
+  // detail header/status chip); only stub the heavy TaskHistoryTable.
+  ...(await importOriginal<typeof import('../TaskHistoryTable')>()),
   TaskHistoryTable: ({
     onStopTask,
   }: {

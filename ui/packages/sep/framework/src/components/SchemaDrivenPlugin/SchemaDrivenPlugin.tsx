@@ -118,6 +118,13 @@ interface SchemaDrivenPluginProps {
   renderEditForm?: RenderFormSlot;
   /** Per-cell list column override (non-`actions` columns), threaded to the list page. */
   renderListColumn?: RenderListColumnOverride;
+  /**
+   * Disable the poll-while-running task-list refresh on the single-task list
+   * page. Threaded to {@link PluginListPage} so stories/tests mounting a real
+   * list with a running row issue no repeat requests, mirroring
+   * `disableSchedulePolling`.
+   */
+  disableTaskPolling?: boolean;
 }
 
 function PluginEditPage({
@@ -276,6 +283,7 @@ export function SchemaDrivenPlugin({
   renderCreateForm,
   renderEditForm,
   renderListColumn,
+  disableTaskPolling = false,
 }: SchemaDrivenPluginProps) {
   const { pathname } = useLocation();
   const {
@@ -413,6 +421,7 @@ export function SchemaDrivenPlugin({
             listOnly={listOnly}
             hideCreate={browseOnly && !listOnly}
             renderListColumn={renderListColumn}
+            disableTaskPolling={disableTaskPolling}
           />
         }
       />

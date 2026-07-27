@@ -81,10 +81,11 @@ const router = createBrowserRouter(
             // SEP apps mounted as native routes. Both plugins compose their own
             // <Routes>, so the paths are splats.
             {
-              // ATW ("Collect Diagnostic Data") is a single-view app (no internal
-              // <Routes>), so this is a plain path rather than a splat. Backend
-              // API calls hit /apps/atw and the snippet-execution endpoints.
-              path: 'sep/atw',
+              // ATW ("Collect Diagnostic Data") is now incident-first: AtwApp
+              // composes its own <Routes> (incident list at index, workspace at
+              // :incidentId), so this must be a splat. Backend API calls hit
+              // /apps/atw and the incident / batch-execution endpoints.
+              path: 'sep/atw/*',
               element: (
                 <SepPage>
                   <AtwApp />

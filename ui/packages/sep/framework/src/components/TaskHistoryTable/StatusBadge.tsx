@@ -61,6 +61,24 @@ const STATUS_MAP: Record<TaskHistoryStatus, StatusEntry> = {
   stale: { label: 'Stale', color: 'default', icon: <HourglassDisabledIcon /> },
 };
 
+/**
+ * Narrow an arbitrary value to a {@link TaskHistoryStatus}.
+ *
+ * `STATUS_MAP` is the source of truth for the recognized statuses, so call
+ * sites that receive loosely-typed values (`unknown` list cells, `task.status`
+ * guarded only by `typeof === 'string'`) can validate before handing the value
+ * to {@link StatusBadge}, which would otherwise index `STATUS_MAP` with an
+ * unrecognized key.
+ */
+export function isTaskHistoryStatus(
+  value: unknown
+): value is TaskHistoryStatus {
+  return (
+    typeof value === 'string' &&
+    Object.prototype.hasOwnProperty.call(STATUS_MAP, value)
+  );
+}
+
 export interface StatusBadgeProps {
   status: TaskHistoryStatus;
 }

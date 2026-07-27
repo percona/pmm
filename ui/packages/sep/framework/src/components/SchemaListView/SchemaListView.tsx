@@ -20,9 +20,21 @@ import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { MaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
-import type { ListColumn, ListView } from '@sep/api';
+import {
+  MaterialReactTable,
+  type MRT_ColumnDef,
+  type MRT_PaginationState,
+} from 'material-react-table';
+import {
+  DEFAULT_PLUGIN_LIST_LIMIT,
+  type ListColumn,
+  type ListView,
+} from '@sep/api';
 import { SEP_TABLE_CLASS } from '../../constants';
+import {
+  TaskHistoryStatusBadge,
+  isTaskHistoryStatus,
+} from '../TaskHistoryTable';
 import { ScheduleCell } from '../ScheduleCell';
 import {
   selectSchedule,
@@ -53,6 +65,14 @@ export type RenderListColumnOverride = (
   args: RenderListColumnArgs
 ) => ReactNode;
 
+/** Server-driven pagination metadata wired into MaterialReactTable manual pagination. */
+export interface SchemaListServerPagination {
+  total: number;
+  offset: number;
+  limit: number;
+  onChange: (next: { offset: number; limit: number }) => void;
+}
+
 interface SchemaListViewProps {
   listView: ListView;
   data: Record<string, unknown>[];
@@ -77,6 +97,12 @@ interface SchemaListViewProps {
    * {@link RenderListColumnOverride}.
    */
   renderListColumn?: RenderListColumnOverride;
+  /**
+   * When set, enables server-driven manual pagination over the current page in
+   * ``data``. Omit or pass ``null`` for legacy bare-array lists (client-side
+   * pagination over the full ``data`` prop).
+   */
+  pagination?: SchemaListServerPagination | null;
 }
 
 function formatCellValue(
@@ -92,20 +118,12 @@ function formatCellValue(
     case 'chip':
       return <Chip label={str} size="small" />;
     case 'status':
-      return (
-        <Chip
-          label={str}
-          size="small"
-          color={
-            str === 'completed' || str === 'success'
-              ? 'success'
-              : str === 'failed' || str === 'error'
-                ? 'error'
-                : str === 'running' || str === 'in_progress'
-                  ? 'info'
-                  : 'default'
-          }
-        />
+      // Unrecognized values (no live backend producer) fall back to a plain
+      // chip rather than indexing StatusBadge's STATUS_MAP with an unknown key.
+      return isTaskHistoryStatus(str) ? (
+        <TaskHistoryStatusBadge status={str} />
+      ) : (
+        <Chip label={str} size="small" />
       );
     case 'date':
       return new Date(str).toLocaleDateString();
@@ -217,12 +235,21 @@ function SchemaListViewCore({
   onDeleteRow,
   deletingRowId,
   renderListColumn,
+  pagination,
   scheduleByTask,
   scheduleLoading = false,
 }: SchemaListViewProps & {
   scheduleByTask: Map<string, PeriodicTaskResponse>;
   scheduleLoading?: boolean;
 }) {
+  const serverPagination = pagination ?? null;
+  const manualPagination = serverPagination !== null;
+  const pageIndex =
+    manualPagination && serverPagination.limit > 0
+      ? Math.floor(serverPagination.offset / serverPagination.limit)
+      : 0;
+  const pageSize = manualPagination ? serverPagination.limit : 10;
+
   const columns = useMemo<MRT_ColumnDef<Record<string, unknown>>[]>(
     () =>
       listView.columns.map((col) => {
@@ -311,10 +338,37 @@ function SchemaListViewCore({
     <MaterialReactTable
       columns={columns}
       data={data}
-      state={{ isLoading }}
+      state={{
+        isLoading,
+        ...(manualPagination && { pagination: { pageIndex, pageSize } }),
+      }}
       enableColumnActions={false}
       enableDensityToggle={false}
       enableFullScreenToggle={false}
+      enablePagination
+      manualPagination={manualPagination}
+      rowCount={manualPagination ? serverPagination.total : undefined}
+      onPaginationChange={
+        manualPagination
+          ? (updater) => {
+              const prev: MRT_PaginationState = { pageIndex, pageSize };
+              const next =
+                typeof updater === 'function' ? updater(prev) : updater;
+              serverPagination.onChange({
+                offset: next.pageIndex * next.pageSize,
+                limit: next.pageSize,
+              });
+            }
+          : undefined
+      }
+      muiTablePaginationProps={
+        manualPagination
+          ? {
+              // Single option: MUI hides the select; see DEFAULT_PLUGIN_LIST_LIMIT.
+              rowsPerPageOptions: [DEFAULT_PLUGIN_LIST_LIMIT],
+            }
+          : undefined
+      }
       initialState={{
         sorting: listView.default_sort
           ? [
@@ -325,6 +379,9 @@ function SchemaListViewCore({
             ]
           : [],
         density: 'compact',
+        ...(!manualPagination && {
+          pagination: { pageIndex: 0, pageSize: 10 },
+        }),
       }}
       muiTablePaperProps={{
         className: SEP_TABLE_CLASS,

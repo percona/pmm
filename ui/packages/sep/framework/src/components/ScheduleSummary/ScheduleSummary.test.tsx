@@ -29,6 +29,7 @@ const { useScheduledTasksForPluginMock } = vi.hoisted(() => ({
 // whole suite runs.
 vi.mock('../ScheduledTasksPanel', async () => {
   const periods = await import('../ScheduledTasksPanel/periods');
+  const lastRun = await import('../ScheduledTasksPanel/LastRunStatus');
   return {
     useScheduledTasksForPlugin: (...args: unknown[]) =>
       useScheduledTasksForPluginMock(...args),
@@ -36,6 +37,7 @@ vi.mock('../ScheduledTasksPanel', async () => {
     formatRelativeTime: periods.formatRelativeTime,
     formatAbsoluteTime: periods.formatAbsoluteTime,
     selectSchedule: periods.selectSchedule,
+    LastRunStatus: lastRun.LastRunStatus,
   };
 });
 

@@ -16,7 +16,7 @@
  */
 
 import type { ReactNode } from 'react';
-import type { PluginCapabilities } from '@sep/api';
+import type { PluginCapabilities, FieldValidationError } from '@sep/api';
 import type {
   FormSection,
   RenderFieldOverride,
@@ -46,6 +46,10 @@ export interface PluginFormSlotProps {
   capabilities?: PluginCapabilities;
   /** Per-field override threaded through, so a composed renderer can honour it. */
   renderField?: RenderFieldOverride;
+  /** Form-level submit error banner (populated on a 422); pass to the composed renderer. */
+  submitError?: string | null;
+  /** Per-field validation errors (from a 422); pass to the composed renderer for inline display. */
+  fieldErrors?: FieldValidationError[];
 }
 
 /**

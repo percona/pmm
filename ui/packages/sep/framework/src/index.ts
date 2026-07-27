@@ -77,13 +77,16 @@ export type {
 export {
   TaskHistoryTable,
   TaskHistoryStatusBadge,
+  isTaskHistoryStatus,
   ChainDisplay,
+  TaskFilesDialog,
 } from './components/TaskHistoryTable';
 export type {
   TaskHistoryTableProps,
   TaskHistoryEntry,
   TaskHistoryStatus,
   PaginatedTaskHistory,
+  TaskFilesDialogProps,
 } from './components/TaskHistoryTable';
 export { SnippetExecutionAccordion } from './components/SnippetExecutionAccordion';
 export type { SnippetExecutionAccordionProps } from './components/SnippetExecutionAccordion';
@@ -127,9 +130,16 @@ export { detailSyntaxBlockSx } from './components/SchemaDrivenPlugin/detailSynta
 export type { DetailSyntaxLanguage } from './components/SchemaDrivenPlugin/detailSyntaxStyles';
 
 // Hooks
-export { useServices, useSchemas, useTables, useHosts } from './hooks';
+export {
+  useServices,
+  useSchemas,
+  useTables,
+  useHosts,
+  useResolvedServiceField,
+} from './hooks';
 export type {
   ServiceOption,
+  ServiceNodeOption,
   ServiceType,
   SchemaOption,
   TableOption,
@@ -138,7 +148,9 @@ export type {
   UseSchemasOptions,
   UseTablesOptions,
   UseHostsOptions,
+  ResolvedServiceField,
 } from './hooks';
+export { cascadeParentResetKey } from './utils/cascadeParentResetKey';
 
 export {
   useTaskLogs,

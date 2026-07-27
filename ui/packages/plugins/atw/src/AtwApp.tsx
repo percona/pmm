@@ -15,17 +15,19 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-export { TaskHistoryTable } from './TaskHistoryTable';
-export {
-  StatusBadge as TaskHistoryStatusBadge,
-  isTaskHistoryStatus,
-} from './StatusBadge';
-export { ChainDisplay } from './ChainDisplay';
-export { TaskFilesDialog } from './TaskFilesDialog';
-export type { TaskFilesDialogProps } from './TaskFilesDialog';
-export type {
-  TaskHistoryTableProps,
-  TaskHistoryEntry,
-  TaskHistoryStatus,
-  PaginatedTaskHistory,
-} from './TaskHistoryTable.types';
+import { Route, Routes } from 'react-router-dom';
+import { IncidentListPage } from './IncidentListPage';
+import { IncidentWorkspacePage } from './IncidentWorkspacePage';
+
+/**
+ * ATW app router. The shell mounts this at ``atw/*``; the incident list is the
+ * index route and an incident opens its workspace at ``:incidentId``.
+ */
+export function AtwApp() {
+  return (
+    <Routes>
+      <Route index element={<IncidentListPage />} />
+      <Route path=":incidentId" element={<IncidentWorkspacePage />} />
+    </Routes>
+  );
+}

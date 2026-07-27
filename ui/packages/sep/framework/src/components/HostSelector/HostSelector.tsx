@@ -20,6 +20,9 @@ import { useFormContext } from 'react-hook-form';
 import { AutoCompleteInput } from '@percona/percona-ui';
 import { useSnackbar } from 'notistack';
 import { useHosts, type HostOption } from '../../hooks/useHosts';
+import { useResolvedServiceField } from '../../hooks/useResolvedServiceField';
+import type { ServiceType } from '../../hooks/useServices';
+import { resolveExecutorHostForService } from './resolveExecutorHostForService';
 
 const EMPTY_OPTIONS: HostOption[] = [];
 
@@ -30,6 +33,19 @@ export interface HostSelectorProps {
   required?: boolean;
   disabled?: boolean;
   helperText?: string;
+  /**
+   * Optional upstream service field. When set, the selector clears on service
+   * change and auto-selects an executor using the resolve order
+   * (node name → address → service name). The user may still override.
+   */
+  dependsOn?: string;
+  /**
+   * When resolving a scalar ``dependsOn`` id, bound the services fetch to these
+   * types (typically the parent ``ServiceField.service_types``). Omit only when
+   * the parent value is already a hydrated ``ServiceOption``; an unbound
+   * ``useServices()`` page-loop is intentionally not used here.
+   */
+  serviceTypes?: readonly ServiceType[];
 }
 
 const getOptionLabel = (opt: HostOption | string) =>
@@ -37,12 +53,79 @@ const getOptionLabel = (opt: HostOption | string) =>
 
 const isOptionEqualToValue = (a: HostOption, b: HostOption) => a.id === b.id;
 
+function hostValueId(value: unknown): string | undefined {
+  if (value && typeof value === 'object' && 'id' in value) {
+    const id = (value as { id: unknown }).id;
+    return typeof id === 'string' || typeof id === 'number'
+      ? String(id)
+      : undefined;
+  }
+  if (typeof value === 'string' && value !== '') {
+    return value;
+  }
+  return undefined;
+}
+
+/**
+ * Cascade auto-select for a single host field. Mounted only when ``dependsOn``
+ * is set. Scalar parent ids rehydrate through {@link useResolvedServiceField}
+ * (same path as task-name suggestion and other service consumers).
+ */
+function HostServiceCascade({
+  name,
+  dependsOn,
+  hosts,
+  serviceTypes,
+}: {
+  name: string;
+  dependsOn: string;
+  hosts: HostOption[];
+  serviceTypes?: readonly ServiceType[];
+}) {
+  const { setValue, getValues } = useFormContext();
+  const { service, resetKey } = useResolvedServiceField(
+    dependsOn,
+    serviceTypes
+  );
+  const prevParentKeyRef = useRef<string | undefined>(undefined);
+  const autoHostIdRef = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (prevParentKeyRef.current === undefined) {
+      prevParentKeyRef.current = resetKey;
+    } else if (prevParentKeyRef.current !== resetKey) {
+      prevParentKeyRef.current = resetKey;
+      setValue(name, null, { shouldDirty: false, shouldValidate: false });
+      autoHostIdRef.current = undefined;
+    }
+
+    if (!service || hosts.length === 0) {
+      return;
+    }
+
+    const match = resolveExecutorHostForService(hosts, service);
+    if (!match) {
+      return;
+    }
+
+    const currentId = hostValueId(getValues(name));
+    if (currentId === undefined || currentId === autoHostIdRef.current) {
+      setValue(name, match, { shouldDirty: false, shouldValidate: false });
+      autoHostIdRef.current = match.id;
+    }
+  }, [resetKey, service, hosts, name, setValue, getValues]);
+
+  return null;
+}
+
 export function HostSelector({
   name,
   label,
   required,
   disabled,
   helperText,
+  dependsOn,
+  serviceTypes,
 }: HostSelectorProps) {
   const {
     control,
@@ -82,24 +165,34 @@ export function HostSelector({
   }
 
   return (
-    <AutoCompleteInput<HostOption>
-      name={name}
-      label={label}
-      control={control}
-      isRequired={required}
-      loading={isLoading}
-      disabled={disabled || isError}
-      options={hosts}
-      controllerProps={{
-        rules: required ? { required: `${label} is required` } : undefined,
-      }}
-      autoCompleteProps={{
-        getOptionLabel,
-        isOptionEqualToValue,
-        noOptionsText: isLoading ? 'Loading hosts…' : 'No hosts available',
-        onOpen: () => refetch(),
-      }}
-      textFieldProps={{ helperText: text, error: isError || !!fieldError }}
-    />
+    <>
+      {dependsOn ? (
+        <HostServiceCascade
+          name={name}
+          dependsOn={dependsOn}
+          hosts={hosts}
+          serviceTypes={serviceTypes}
+        />
+      ) : null}
+      <AutoCompleteInput<HostOption>
+        name={name}
+        label={label}
+        control={control}
+        isRequired={required}
+        loading={isLoading}
+        disabled={disabled || isError}
+        options={hosts}
+        controllerProps={{
+          rules: required ? { required: `${label} is required` } : undefined,
+        }}
+        autoCompleteProps={{
+          getOptionLabel,
+          isOptionEqualToValue,
+          noOptionsText: isLoading ? 'Loading hosts…' : 'No hosts available',
+          onOpen: () => refetch(),
+        }}
+        textFieldProps={{ helperText: text, error: isError || !!fieldError }}
+      />
+    </>
   );
 }

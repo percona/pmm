@@ -223,6 +223,8 @@ export function PluginTaskEditPage({
         defaultValues: normalizedDefaults,
         capabilities: schema.capabilities,
         renderField,
+        submitError,
+        fieldErrors,
       }) ?? (
         <SchemaFormRenderer
           sections={editableSections}

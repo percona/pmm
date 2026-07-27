@@ -30,6 +30,7 @@ import {
   useFormContext,
   type SubmitHandler,
 } from 'react-hook-form';
+import { FormFieldsProvider } from './formFieldsContext';
 // UNSAFE_DataRouterContext is an unstable react-router API — pinned to react-router-dom ^7.6.0; review on version bumps.
 import { UNSAFE_DataRouterContext, useBlocker } from 'react-router-dom';
 import Accordion from '@mui/material/Accordion';
@@ -394,7 +395,7 @@ function SchemaFormBody({
   };
 
   return (
-    <>
+    <FormFieldsProvider value={allFields}>
       {inDataRouter && <UnsavedChangesBlocker isGuarded={isGuarded} />}
       <Box
         component="form"
@@ -454,7 +455,7 @@ function SchemaFormBody({
           </Box>
         ) : null}
       </Box>
-    </>
+    </FormFieldsProvider>
   );
 }
 

@@ -21,10 +21,18 @@ import { sepRetry } from './sepRetry';
 
 export type ServiceType = InventoryComponents['schemas']['ServiceTypeEnum'];
 
+/** Inventory node fields needed to cascade an executor host from a service. */
+export interface ServiceNodeOption {
+  name: string;
+  address: string;
+}
+
 export interface ServiceOption {
   id: number;
   name: string;
   type: ServiceType;
+  /** Present when the list response includes the nested inventory node. */
+  node?: ServiceNodeOption;
 }
 
 type PaginatedServices =
@@ -79,7 +87,14 @@ async function fetchServicesForType(
     const page = await fetchServicesPage(serviceType, offset);
     for (const svc of page.items) {
       if (svc.id !== null && svc.id !== undefined) {
-        out.push({ id: svc.id, name: svc.name, type: svc.type });
+        out.push({
+          id: svc.id,
+          name: svc.name,
+          type: svc.type,
+          ...(svc.node
+            ? { node: { name: svc.node.name, address: svc.node.address } }
+            : {}),
+        });
       }
     }
     offset += page.items.length;

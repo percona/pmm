@@ -115,10 +115,15 @@ export {
   usePluginSchema,
   usePluginTasks,
   usePluginTask,
+  RUNNING_STATUSES,
+  isRunningStatus,
   useCreatePluginTask,
   useUpdatePluginTask,
   usePluginEntityList,
   usePluginEntityDetail,
+  normalizePluginListResponse,
+  DEFAULT_PLUGIN_LIST_OFFSET,
+  DEFAULT_PLUGIN_LIST_LIMIT,
   useCreatePluginEntity,
   useUpdatePluginEntity,
   useDeletePluginEntity,
@@ -145,7 +150,17 @@ export {
   useAppInfo,
   APP_INFO_QUERY_KEY,
 } from './hooks';
-export type { AlertConfig, DashboardStats, EnabledApp, AppInfo } from './hooks';
+export type {
+  AlertConfig,
+  DashboardStats,
+  EnabledApp,
+  AppInfo,
+  PluginListPagination,
+  PluginListQueryOptions,
+  PluginListResult,
+  PaginatedPluginList,
+  TaskHistoryStatus,
+} from './hooks';
 export type {
   AdminApp,
   AppStateResult,

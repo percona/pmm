@@ -35,12 +35,17 @@ import type {
   TaskHistoryStatus,
 } from './TaskHistoryTable.types';
 
-vi.mock('@sep/api', () => ({
-  apiClient: {
-    get: vi.fn(),
-    post: vi.fn(),
-  },
-}));
+vi.mock('@sep/api', () => {
+  const RUNNING_STATUSES = new Set(['running', 'pending']);
+  return {
+    apiClient: {
+      get: vi.fn(),
+      post: vi.fn(),
+    },
+    RUNNING_STATUSES,
+    isRunningStatus: (status: string) => RUNNING_STATUSES.has(status),
+  };
+});
 
 import { apiClient } from '@sep/api';
 

@@ -83,7 +83,10 @@ beforeEach(() => {
 
 function setup(periodic: PeriodicTaskResponse[]) {
   usePluginTasksMock.mockReturnValue({
-    data: [{ name: 'plugin-task' }, { name: 'other-plugin-task' }],
+    data: {
+      items: [{ name: 'plugin-task' }, { name: 'other-plugin-task' }],
+      pagination: null,
+    },
     isLoading: false,
     isError: false,
   });

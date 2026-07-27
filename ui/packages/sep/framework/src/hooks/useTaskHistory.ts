@@ -16,10 +16,15 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiClient, type SepComponents, type TasksComponents } from '@sep/api';
+import {
+  apiClient,
+  isRunningStatus,
+  RUNNING_STATUSES,
+  type SepComponents,
+  type TaskHistoryStatus,
+  type TasksComponents,
+} from '@sep/api';
 
-export type TaskHistoryStatus =
-  TasksComponents['schemas']['TaskHistoryStatusEnum'];
 export type TaskHistoryEntry =
   TasksComponents['schemas']['TaskHistoryResponse'];
 export type PaginatedTaskHistory =
@@ -28,14 +33,11 @@ export type PaginatedTaskHistory =
 /** Optional JSON body for ``POST .../execute`` (chain wiring, schedule ETA, etc.). */
 export type TaskExecuteBody = SepComponents['schemas']['TaskExecuteWrite'];
 
-export const RUNNING_STATUSES: ReadonlySet<TaskHistoryStatus> = new Set([
-  'running',
-  'pending',
-]);
-
-export function isRunningStatus(status: TaskHistoryStatus): boolean {
-  return RUNNING_STATUSES.has(status);
-}
+// The poll-while-running status set is owned by the ``api`` package (the lower
+// layer) so the schema-driven list page and this hook share one definition.
+// Re-exported here to keep the ``@sep/framework`` import surface stable.
+export { isRunningStatus, RUNNING_STATUSES };
+export type { TaskHistoryStatus };
 
 export interface UseTaskHistoryOptions {
   /** Filter by exact status (server-side ?status=). */

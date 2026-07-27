@@ -16,6 +16,7 @@
  */
 
 import { HostSelector } from '../../HostSelector';
+import { serviceTypesForDependsOn, useFormFields } from '../formFieldsContext';
 import type { HostField as HostFieldType } from '../types';
 
 interface HostFieldProps {
@@ -23,11 +24,16 @@ interface HostFieldProps {
 }
 
 export function HostField({ field }: HostFieldProps) {
+  const fields = useFormFields();
+  const serviceTypes = serviceTypesForDependsOn(fields, field.depends_on);
+
   return (
     <HostSelector
       name={field.name}
       label={field.label}
       required={field.required}
+      dependsOn={field.depends_on}
+      serviceTypes={serviceTypes}
     />
   );
 }

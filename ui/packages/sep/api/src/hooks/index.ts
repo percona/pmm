@@ -28,6 +28,18 @@ export {
   useUpdatePluginEntity,
   useDeletePluginEntity,
   useDeletePluginTask,
+  normalizePluginListResponse,
+  DEFAULT_PLUGIN_LIST_OFFSET,
+  DEFAULT_PLUGIN_LIST_LIMIT,
+  RUNNING_STATUSES,
+  isRunningStatus,
+} from './usePluginTasks';
+export type {
+  PluginListPagination,
+  PluginListQueryOptions,
+  PluginListResult,
+  PaginatedPluginList,
+  TaskHistoryStatus,
 } from './usePluginTasks';
 export { useAlertConfig, ALERT_CONFIG_QUERY_KEY } from './useAlertConfig';
 export type { AlertConfig } from './useAlertConfig';

@@ -188,6 +188,14 @@ export interface TableField extends BaseField {
 
 export interface HostField extends BaseField {
   type: 'host';
+  /**
+   * Optional upstream field whose value drives the default executor
+   * selection (typically a service field). Omitted when the host list is
+   * not cascaded.
+   */
+  depends_on?: string;
+  /** Offer free-text (free-solo) entry alongside the inventory options. */
+  allow_custom?: boolean;
 }
 
 // ── Read-only preview ───────────────────────────────────────────────────
@@ -302,7 +310,7 @@ export interface ListView {
   columns: ListColumn[];
   /** Column key to sort by. Prefix with '-' for descending (e.g. '-last_run'). */
   default_sort?: string;
-  /** Extra task-level keys to hide from the Overview tab extras loop (merged with the framework baseline). */
+  /** Extra record-level keys to hide from the detail Overview — both the list_view.columns rows and the extras loop, across single-task and multi-entity detail views — merged with the framework baseline. */
   overview_hidden_fields?: string[];
 }
 
@@ -323,8 +331,8 @@ export interface DetailField {
   /** Dotted path into the task record (e.g. ``"data.meta.command"``). */
   path: string;
   label: string;
-  /** Optional syntax-highlighter hint. */
-  highlight?: 'sql' | 'json' | 'bash';
+  /** Optional syntax-highlighter hint; mirrors the backend ``DetailHighlightLanguage`` enum. */
+  highlight?: 'sql' | 'json' | 'bash' | 'yaml';
 }
 
 /** One titled section rendered on the task detail page. */
@@ -347,8 +355,9 @@ export interface PluginEntitySchema {
   description?: string;
   forms: FormSection[];
   list_view: ListView;
-  /** Optional detail-view syntax hints keyed by field name. */
-  detail_highlights?: Partial<Record<string, 'sql' | 'json' | 'bash'>>;
+  /** Optional detail-view syntax hints keyed by field name; mirrors the backend
+   * ``DetailHighlightLanguage`` enum. */
+  detail_highlights?: Partial<Record<string, 'sql' | 'json' | 'bash' | 'yaml'>>;
 }
 
 // ── Related apps (sibling tabs) ─────────────────────────────────────────

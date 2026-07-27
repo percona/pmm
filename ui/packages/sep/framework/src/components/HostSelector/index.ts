@@ -19,3 +19,5 @@ export { HostSelector } from './HostSelector';
 export type { HostSelectorProps } from './HostSelector';
 export { StandaloneHostSelector } from './StandaloneHostSelector';
 export type { StandaloneHostSelectorProps } from './StandaloneHostSelector';
+export { resolveExecutorHostForService } from './resolveExecutorHostForService';
+export type { ServiceHostResolveInput } from './resolveExecutorHostForService';
