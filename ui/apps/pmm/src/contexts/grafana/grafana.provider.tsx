@@ -14,6 +14,7 @@ import type {
 } from '@pmm/shared';
 import { updateDocumentTitle } from 'utils/document.utils';
 import { useKioskMode } from 'hooks/utils/useKioskMode';
+import { useMessengerListener } from 'hooks/utils/useMessengerListener';
 import { useAuth } from 'contexts/auth';
 import { useColorMode } from 'hooks/theme';
 import { getLocationUrl, isMigratedPage } from './grafana.utils';
@@ -25,21 +26,18 @@ import { USER_PREFERENCES_QUERY_KEY } from 'hooks/api/useUser';
 import { isGrafanaLoginPath } from 'contexts/auth/auth.clientSession';
 import { handleGrafanaUserLoggedOut } from 'contexts/auth/auth.grafanaLogout';
 
-/** Guard DOM usage. */
-const isBrowser = () =>
-  typeof window !== 'undefined' &&
-  typeof window.addEventListener === 'function';
-
 /**
  * GrafanaProvider wires three bridges:
  * 1) THEME: PMM (left) ↔ Grafana iframe (right)
  * 2) ROUTING: PMM (left) ↔ Grafana iframe (right)
  * 3) DOCUMENT TITLE: Grafana → PMM
+ *
+ * The messenger itself is registered once in `lib/messenger`; this provider only
+ * owns subscriptions, each of which is torn down individually on unmount.
  */
 export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const navigationType = useNavigationType();
   const location = useLocation();
-  const isGrafanaPageRef = useRef<boolean>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isLoggedIn } = useAuth();
@@ -56,7 +54,6 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
   const src = location.pathname.replace(PMM_NEW_NAV_PATH, '');
   const isGrafanaPage =
     src.startsWith(GRAFANA_SUB_PATH) && !isMigratedPage(src);
-  isGrafanaPageRef.current = isGrafanaPage;
 
   const [isLoaded, setIsLoaded] = useState(false);
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -64,8 +61,6 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
 
   // Theme source
   const { colorMode, setFromGrafana } = useColorMode();
-  const setFromGrafanaRef = useRef(setFromGrafana);
-  setFromGrafanaRef.current = setFromGrafana;
 
   useEffect(() => {
     const canLoadGrafanaIframe =
@@ -73,105 +68,79 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     setIsLoaded(isGrafanaPage && canLoadGrafanaIframe);
   }, [isGrafanaPage, isLoggedIn, frontendSettings?.anonymousEnabled]);
 
-  // Register messenger, set iframe target, and add INCOMING listeners
-  useEffect(() => {
-    if (!isLoaded || !isBrowser()) return;
+  // -------- INCOMING FROM GRAFANA --------
 
-    const target = frameRef.current?.contentWindow;
-    if (target) {
-      messenger.setTargetWindow(target, '#grafana-iframe');
+  // Theme: apply without re-broadcast/persist (avoid ping-pong)
+  useMessengerListener<'GRAFANA_THEME_CHANGED', { theme?: ColorMode }>(
+    'GRAFANA_THEME_CHANGED',
+    (message) => {
+      // No normalization here — setFromGrafana already normalizes inside the hook.
+      if (!message.payload?.theme) return;
+      setFromGrafana(message.payload.theme).catch((err: unknown) => {
+        // eslint-disable-next-line no-console
+        console.warn('[GrafanaProvider] setFromGrafana failed:', err);
+      });
     }
-    messenger.register();
+  );
 
-    // -------- INCOMING FROM GRAFANA --------
+  // Location: navigate PMM when Grafana pushes/replace (skip POP/back)
+  useMessengerListener(
+    'LOCATION_CHANGE',
+    ({ payload: location }: LocationChangeMessage) => {
+      if (
+        !location ||
+        // dont navigate if we are not on grafana page
+        !isGrafanaPage
+      ) {
+        return;
+      }
 
-    // Theme: apply without re-broadcast/persist (avoid ping-pong)
-    messenger.addListener({
-      type: 'GRAFANA_THEME_CHANGED',
-      onMessage: (message: { payload?: { theme?: ColorMode } }) => {
-        // No normalization here — setFromGrafana already normalizes inside the hook.
-        if (!message.payload?.theme) return;
-        setFromGrafanaRef
-          .current(message.payload.theme)
-          .catch((err: unknown) => {
-            // eslint-disable-next-line no-console
-            console.warn('[GrafanaProvider] setFromGrafana failed:', err);
-          });
-      },
-    });
+      if (isGrafanaLoginPath(location.pathname)) {
+        handleGrafanaUserLoggedOut(queryClient);
+        return;
+      }
 
-    // Location: navigate PMM when Grafana pushes/replace (skip POP/back)
-    messenger.addListener({
-      type: 'LOCATION_CHANGE',
-      onMessage: ({ payload: location }: LocationChangeMessage) => {
-        if (
-          !location ||
-          // dont navigate if we are not on grafana page
-          !isGrafanaPageRef.current
-        ) {
-          return;
-        }
+      navigate(getLocationUrl(location), {
+        state: { fromGrafana: true },
+        replace: true,
+      });
+    }
+  );
 
-        if (isGrafanaLoginPath(location.pathname)) {
-          handleGrafanaUserLoggedOut(queryClient);
-          return;
-        }
-        navigate(getLocationUrl(location), {
-          state: { fromGrafana: true },
-          replace: true,
-        });
-      },
-    });
+  // Document title
+  useMessengerListener(
+    'DOCUMENT_TITLE_CHANGE',
+    ({ payload }: DocumentTitleUpdateMessage) => {
+      if (payload?.title) updateDocumentTitle(payload.title);
+    }
+  );
 
-    // Document title
-    messenger.addListener({
-      type: 'DOCUMENT_TITLE_CHANGE',
-      onMessage: ({ payload }: DocumentTitleUpdateMessage) => {
-        if (payload?.title) updateDocumentTitle(payload.title);
-      },
-    });
+  useMessengerListener('SETTINGS_CHANGED', () => {
+    refetchSettings();
+  });
 
-    messenger.addListener({
-      type: 'SETTINGS_CHANGED',
-      onMessage: () => refetchSettings(),
-    });
+  useMessengerListener('FRONTEND_SETTINGS_CHANGED', () => {
+    refetchFrontendSettings();
+  });
 
-    messenger.addListener({
-      type: 'FRONTEND_SETTINGS_CHANGED',
-      onMessage: () => refetchFrontendSettings(),
-    });
+  useMessengerListener('SERVICE_ADDED', () => {
+    refetchServiceTypes();
+  });
 
-    messenger.addListener({
-      type: 'SERVICE_ADDED',
-      onMessage: () => refetchServiceTypes(),
-    });
+  useMessengerListener('SERVICE_DELETED', () => {
+    refetchServiceTypes();
+  });
 
-    messenger.addListener({
-      type: 'SERVICE_DELETED',
-      onMessage: () => refetchServiceTypes(),
-    });
-
-    messenger.addListener({
-      type: 'TIMEZONE_CHANGED',
-      onMessage: () => {
-        queryClient.invalidateQueries({ queryKey: USER_PREFERENCES_QUERY_KEY });
-      },
-    });
-
-    // Cleanup once provider unmounts
-    return () => {
-      messenger.unregister();
-    };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, navigate]);
+  useMessengerListener('TIMEZONE_CHANGED', () => {
+    queryClient.invalidateQueries({ queryKey: USER_PREFERENCES_QUERY_KEY });
+  });
 
   // -------- OUTGOING TO GRAFANA --------
+  // Not gated on the iframe being mounted: the messenger buffers state-sync
+  // messages and replays them once Grafana announces itself.
 
   // PMM -> Grafana: propagate PMM location (except if it came from Grafana)
   useEffect(() => {
-    if (!isBrowser() || !isLoaded) return;
-
     const isGrafanaPage = location.pathname.includes('/graph');
     const isSourceGrafana = (location.state as LocationState)?.fromGrafana;
     const isBackNavigation = navigationType === 'POP';
@@ -189,16 +158,15 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
         action: navigationType,
       },
     });
-  }, [location, navigationType, isLoaded]);
+  }, [location, navigationType]);
 
   // PMM -> Grafana: propagate theme when left-side theme changes
   useEffect(() => {
-    if (!isLoaded || !isBrowser()) return;
     messenger.sendMessage({
       type: 'CHANGE_THEME',
       payload: { theme: colorMode }, // no extra normalization
     });
-  }, [colorMode, isLoaded]);
+  }, [colorMode]);
 
   return (
     <GrafanaContext.Provider

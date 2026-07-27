@@ -6,23 +6,51 @@ const testData = {
   id2: 'cac6a99a-b6c3-49a6-a50b-d528e30abc0e',
 };
 
+const created: CrossFrameMessenger[] = [];
+
+const track = <T extends CrossFrameMessenger>(messenger: T) => {
+  created.push(messenger);
+  return messenger;
+};
+
 const setup = () => {
   const iframe = document.createElement('iframe');
   document.body.appendChild(iframe);
 
-  const messenger = new CrossFrameMessenger('document')
-    .setTargetOrigin('*')
-    .setTargetWindow(iframe.contentWindow!, 'iframe')
-    .register();
+  const messenger = track(
+    new CrossFrameMessenger('document')
+      .setTargetOrigin('*')
+      .setTargetWindow(iframe.contentWindow!, 'iframe')
+      .register()
+  );
 
-  const iframeMessenger = new CrossFrameMessenger('iframe')
-    .setWindow(iframe.contentWindow!)
-    .setTargetOrigin('*')
-    .setTargetWindow(window!)
-    .register();
+  const iframeMessenger = track(
+    new CrossFrameMessenger('iframe')
+      .setWindow(iframe.contentWindow!)
+      .setTargetOrigin('*')
+      .setTargetWindow(window!)
+      .register()
+  );
 
   return { messenger, iframeMessenger };
 };
+
+/** A stand-in for a target frame, so we can assert on what gets posted. */
+const fakeFrame = () => {
+  const postMessage = jest.fn();
+  const frame = { postMessage, closed: false };
+  return { ...frame, postMessage, window: frame as unknown as Window };
+};
+
+const ready = (messenger: CrossFrameMessenger) =>
+  messenger.onMessageReceived({
+    data: { type: 'GRAFANA_READY' },
+  } as MessageEvent);
+
+afterEach(() => {
+  created.splice(0).forEach((messenger) => messenger.destroy());
+  document.body.innerHTML = '';
+});
 
 describe('CrossFrameMessenger', () => {
   it('sends a message', (done) => {
@@ -144,16 +172,206 @@ describe('CrossFrameMessenger', () => {
       messenger.sendMessage(msg);
     }, 500);
 
-    expect(
+    await expect(
       iframeMessenger.waitForMessage('MESSENGER_READY', 1000)
-    ).resolves.toBe(msg);
+    ).resolves.toBeUndefined();
   });
 
   it('throws if waiting exceeds timeout', async () => {
     const { iframeMessenger } = setup();
 
-    expect(
-      iframeMessenger.waitForMessage('MESSENGER_READY', 1000)
-    ).rejects.toBeUndefined();
+    await expect(
+      iframeMessenger.waitForMessage('MESSENGER_READY', 100)
+    ).rejects.toThrow('Timed out waiting for "MESSENGER_READY"');
+  });
+
+  describe('listeners', () => {
+    it('unsubscribes only the listener it belongs to', () => {
+      const messenger = track(new CrossFrameMessenger('document'));
+      const first = jest.fn();
+      const second = jest.fn();
+
+      const unsubscribe = messenger.addListener({
+        type: 'SETTINGS_CHANGED',
+        onMessage: first,
+      });
+      messenger.addListener({
+        type: 'SETTINGS_CHANGED',
+        onMessage: second,
+      });
+
+      unsubscribe();
+      messenger.onMessageReceived({
+        data: { type: 'SETTINGS_CHANGED' },
+      } as MessageEvent);
+
+      expect(first).not.toHaveBeenCalled();
+      expect(second).toHaveBeenCalledTimes(1);
+    });
+
+    it('delivers once when registered more than once', () => {
+      const messenger = track(
+        new CrossFrameMessenger('document').register().register()
+      );
+      const onMessage = jest.fn();
+      messenger.addListener({ type: 'SERVICE_ADDED', onMessage });
+
+      window.dispatchEvent(
+        new MessageEvent('message', { data: { type: 'SERVICE_ADDED' } })
+      );
+
+      expect(onMessage).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops delivering after destroy', () => {
+      const messenger = track(new CrossFrameMessenger('document').register());
+      const onMessage = jest.fn();
+      messenger.addListener({ type: 'SERVICE_ADDED', onMessage });
+
+      messenger.destroy();
+      window.dispatchEvent(
+        new MessageEvent('message', { data: { type: 'SERVICE_ADDED' } })
+      );
+
+      expect(onMessage).not.toHaveBeenCalled();
+    });
+
+    it('ignores messages without a type', () => {
+      const messenger = track(new CrossFrameMessenger('document'));
+      const onMessage = jest.fn();
+      messenger.addListener({ type: 'SERVICE_ADDED', onMessage });
+
+      messenger.onMessageReceived({ data: 'webpackHotUpdate' } as MessageEvent);
+
+      expect(onMessage).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('target resolution', () => {
+    it('resolves the target on every send', () => {
+      const first = fakeFrame();
+      const second = fakeFrame();
+      let current = first.window;
+
+      const messenger = track(
+        new CrossFrameMessenger('PMM')
+          .setTargetOrigin('*')
+          .setTargetResolver(() => current)
+      );
+
+      messenger.sendMessage({ type: 'MESSENGER_READY' });
+      current = second.window;
+      messenger.sendMessage({ type: 'MESSENGER_READY' });
+
+      expect(first.postMessage).toHaveBeenCalledTimes(1);
+      expect(second.postMessage).toHaveBeenCalledTimes(1);
+    });
+
+    it('drops a closed target and falls back to the resolver', () => {
+      const stale = fakeFrame();
+      const fresh = fakeFrame();
+
+      const messenger = track(
+        new CrossFrameMessenger('PMM')
+          .setTargetOrigin('*')
+          .setTargetWindow(stale.window)
+          .setTargetResolver(() => fresh.window)
+      );
+
+      stale.window.closed = true;
+      messenger.sendMessage({ type: 'MESSENGER_READY' });
+
+      expect(stale.postMessage).not.toHaveBeenCalled();
+      expect(fresh.postMessage).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('outbox', () => {
+    it('queues state-sync messages and replays only the latest per type', () => {
+      const frame = fakeFrame();
+      const messenger = track(
+        new CrossFrameMessenger('PMM').setTargetOrigin('*')
+      );
+
+      expect(
+        messenger.sendMessage({
+          type: 'CHANGE_THEME',
+          payload: { theme: 'light' },
+        })
+      ).toBe(false);
+      expect(
+        messenger.sendMessage({
+          type: 'CHANGE_THEME',
+          payload: { theme: 'dark' },
+        })
+      ).toBe(false);
+
+      messenger.setTargetResolver(() => frame.window);
+      ready(messenger);
+
+      expect(frame.postMessage).toHaveBeenCalledTimes(1);
+      expect(frame.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'CHANGE_THEME',
+          payload: { theme: 'dark' },
+        }),
+        '*'
+      );
+    });
+
+    it('drops messages that are meaningless once stale', () => {
+      const frame = fakeFrame();
+      const messenger = track(
+        new CrossFrameMessenger('PMM').setTargetOrigin('*')
+      );
+
+      expect(
+        messenger.sendMessage({
+          type: 'DASHBOARD_VARIABLES',
+          payload: { url: '/d/pmm-home' },
+        })
+      ).toBe(false);
+
+      messenger.setTargetResolver(() => frame.window);
+      ready(messenger);
+
+      expect(frame.postMessage).not.toHaveBeenCalled();
+    });
+
+    it('replays messages sent before the peer announced itself', () => {
+      const frame = fakeFrame();
+      const messenger = track(
+        new CrossFrameMessenger('PMM')
+          .setTargetOrigin('*')
+          .setTargetResolver(() => frame.window)
+      );
+
+      // Posted right away, but the peer may still be booting.
+      expect(messenger.sendMessage({ type: 'SETTINGS_CHANGED' })).toBe(true);
+      expect(messenger.isTargetReady()).toBe(false);
+
+      ready(messenger);
+
+      expect(frame.postMessage).toHaveBeenCalledTimes(2);
+      expect(messenger.isTargetReady()).toBe(true);
+
+      // Once the handshake is done nothing is retained any more.
+      messenger.sendMessage({ type: 'SETTINGS_CHANGED' });
+      ready(messenger);
+      expect(frame.postMessage).toHaveBeenCalledTimes(3);
+    });
+
+    it('rejects a request when there is no target instead of hanging', async () => {
+      const messenger = track(
+        new CrossFrameMessenger('PMM').setTargetOrigin('*')
+      );
+
+      await expect(
+        messenger.sendMessageWithResult({
+          type: 'DASHBOARD_VARIABLES',
+          payload: { url: '/d/pmm-home' },
+        })
+      ).rejects.toThrow('No target frame to handle "DASHBOARD_VARIABLES"');
+    });
   });
 });

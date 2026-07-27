@@ -4,13 +4,12 @@ import Typography from '@mui/material/Typography';
 import { Table } from '@percona/percona-ui';
 import { OpenAlertThresholdsModalMessage } from '@pmm/shared';
 import { Modal } from 'components/modal';
-import { useGrafana } from 'contexts/grafana';
 import {
   useDeleteNodeThreshold,
   useNodeThresholds,
   useSetNodeThreshold,
 } from 'hooks/api/useNodeThresholds';
-import messenger from 'lib/messenger';
+import { useMessengerListener } from 'hooks/utils/useMessengerListener';
 import { enqueueSnackbar } from 'notistack';
 import { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -25,7 +24,6 @@ const AlertThresholds = () => {
   const [nodeId, setNodeId] = useState<string>();
   const [nodeName, setNodeName] = useState<string>();
   const [open, setIsOpen] = useState(false);
-  const { isFrameLoaded } = useGrafana();
 
   const { data, isLoading } = useNodeThresholds(nodeId ?? '', {
     enabled: open && !!nodeId,
@@ -56,19 +54,14 @@ const AlertThresholds = () => {
     methods.reset(initialValues);
   }, [initialValues, methods]);
 
-  useEffect(() => {
-    if (!isFrameLoaded) {
-      return;
+  useMessengerListener(
+    'OPEN_ALERT_THRESHOLDS_MODAL',
+    (msg: OpenAlertThresholdsModalMessage) => {
+      setNodeId(msg.payload?.nodeId);
+      setNodeName(msg.payload?.nodeName);
+      setIsOpen(true);
     }
-    messenger.addListener({
-      type: 'OPEN_ALERT_THRESHOLDS_MODAL',
-      onMessage: (msg: OpenAlertThresholdsModalMessage) => {
-        setNodeId(msg.payload?.nodeId);
-        setNodeName(msg.payload?.nodeName);
-        setIsOpen(true);
-      },
-    });
-  }, [isFrameLoaded]);
+  );
 
   const handleClose = () => {
     setNodeId(undefined);

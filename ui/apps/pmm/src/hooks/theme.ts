@@ -72,7 +72,7 @@ export const useColorMode = () => {
       try {
         messenger.sendMessage({
           type: 'CHANGE_THEME',
-          payload: { mode: next },
+          payload: { theme: next },
         });
       } catch (err) {
         // eslint-disable-next-line no-console
