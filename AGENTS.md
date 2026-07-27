@@ -254,13 +254,13 @@ All long-running daemons expose on `127.0.0.1`:
 PMM development uses a **single "fat" Docker container** (`perconalab/pmm-server:3-dev-container`) that runs every server component (pmm-managed, grafana, victoriametrics, clickhouse, postgresql, qan-api2, vmproxy, pmm-agent, nginx, vmalert) under `supervisord`. The repo is bind-mounted into the container and Go/UI binaries are rebuilt on the host mount and hot-swapped into the running services. There is no host-level Go/Node build of the server; everything runs inside the container.
 
 ### Starting the environment
-- Docker (with compose plugin) is required. If `docker info` fails, the daemon isn't running — start it with `sudo dockerd > /tmp/dockerd.log 2>&1 &` (this VM uses Docker 29, which requires `/etc/docker/daemon.json` to set `"storage-driver": "fuse-overlayfs"` and `"features": {"containerd-snapshotter": false}`; run `sudo chmod 666 /var/run/docker.sock` so `make`/`docker` work without sudo).
+- Docker (with compose plugin) is required. If `docker info` fails, the daemon isn't running — start it with `sudo dockerd > /tmp/dockerd.log 2>&1 &` (this VM uses Docker 29, which requires `/etc/docker/daemon.json` to set `"storage-driver": "fuse-overlayfs"` and `"features": {"containerd-snapshotter": false}`). To run `make`/`docker` without `sudo`, add your user to the `docker` group (`sudo usermod -aG docker "$USER"` then `newgrp docker`) rather than loosening socket permissions.
 - Use the **dev** env file, not the stable one: `cp .env.dev.example .env` (sets the `3-dev-container` image and `GO_VERSION`). `.env.example` points at the release image `percona/pmm-server:3`, which lacks the dev toolchain.
 - `make env-up` pulls the image and starts the container (`--wait` until healthy). The UI/API is then at `https://localhost` (self-signed cert; default login `admin`/`admin`). `make env-down` / `make env-remove` stop it.
 
 ### Building/running server components (must run as ROOT in the container)
 - The `run-*` targets install to `/usr/sbin` and call `supervisorctl`, so they need root. Run them via `make env-root TARGET=<target>` from the host (the default `make env` runs as the `pmm` user and will fail: `/usr/sbin` is read-only for it and the root-owned Go module-cache volume is not writable). Example: `make env-root TARGET=run-managed-ci` rebuilds and restarts pmm-managed. Use the `-ci` variants in automation — the non-`-ci` targets (`run-managed`, `run-qan`, …) end with `tail -f` and never return.
-- Before the first build, fix git's bind-mount ownership complaint inside the container: `docker exec -u root pmm-server bash -lc "git config --global --add safe.directory '*'"`.
+- Before the first build, fix git's bind-mount ownership complaint inside the container: `docker exec -u root pmm-server bash -lc "git config --global --add safe.directory /root/go/src/github.com/percona/pmm"`.
 
 ### Lint & tests
 - `golangci-lint` is not preinstalled: run `make env-root TARGET=init` once to install `bin/golangci-lint`, then `make env-root TARGET=check` (buf lint + golangci-lint + go-sumtype; only lints changes since `merge-base main HEAD`).
