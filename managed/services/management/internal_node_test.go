@@ -197,7 +197,8 @@ func TestCheckNodeIsEligible(t *testing.T) {
 
 	s := NewManagementService(db, nil, nil, nil, nil, nil, nil, nil, nil, []string{internalNodePrefix})
 	expectedErr := status.New(codes.FailedPrecondition, fmt.Sprintf(
-		"Node '%s' is a part of the internal infrastructure of this PMM deployment and cannot monitor other services.", node.NodeName))
+		"Node '%s' is a part of the internal infrastructure of this PMM deployment and cannot monitor other services.", node.NodeName,
+	))
 
 	t.Run("a remote address on an internal Node is rejected", func(t *testing.T) {
 		err := s.checkNodeIsEligible(ctx, agent.AgentID, "mysql.example.com")
