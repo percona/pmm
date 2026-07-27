@@ -34,7 +34,7 @@ This guide provides the product-wide overview, architecture, domain model, conve
 
 | Audience | Location |
 |----------|----------|
-| Human contributors | [`CONTRIBUTING.md`](CONTRIBUTING.md), [`docs/process/`](docs/process/) |
+| Human contributors | [`CONTRIBUTING.md`](CONTRIBUTING.md), [`dev/docs/process/`](dev/docs/process/) |
 | AI agents | This file + component `AGENTS.md` guides |
 
 This file **summarizes and links** process docs; it does not replace them. Pull out operational rules here only when agents routinely get them wrong.
@@ -80,7 +80,7 @@ Follow the sections through [Git and pull request checklist](#git-and-pull-reque
 
 - Don't edit generated files (`.pb.go`, `.pb.gw.go`, `*_reform.go`, `*.pb.validate.go`, swagger specs, `json/client/`).
 - Don't use `gorm` in pmm-managed — **reform only**.
-- Don't amend/squash commits locally to address review feedback; push **new commits** ([`docs/process/GIT_AND_GITHUB.md`](docs/process/GIT_AND_GITHUB.md)).
+- Don't amend/squash commits locally to address review feedback; push **new commits** ([`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITHUB.md)).
 - Don't force-push to `main`/`v3`.
 - Don't skip the Feature Build link in PR descriptions for user-facing changes ([`.github/pull_request_template.md`](.github/pull_request_template.md)).
 - Don't run the full repo linter on every tiny edit; do run the **targeted linter** for what you changed, and run `make prepare-pr` before declaring Go/API work PR-ready.
@@ -150,7 +150,7 @@ Recurring tasks — follow in order before opening a PR.
 3. Implement handler/service logic in `managed/services/<domain>/`.
 4. Add or extend tests in `api-tests/<domain>/`.
 5. If UI-facing: add API module in `ui/apps/pmm/src/api/` and TanStack Query hooks in `ui/apps/pmm/src/hooks/api/`.
-6. If public API docs change: update [`docs/api/`](docs/api/) (PR template checkbox).
+6. If public API docs change: update [`documentation/api/`](documentation/api/) (PR template checkbox).
 
 ### Adding a DB table or migration
 
@@ -172,7 +172,7 @@ Recurring tasks — follow in order before opening a PR.
 
 ## Git and pull request checklist
 
-Full rules: [`docs/process/GIT_AND_GITHUB.md`](docs/process/GIT_AND_GITHUB.md). For commits and PR titles, use **[Conventional Commits](https://www.conventionalcommits.org/)** (`type(scope): summary`) — not the `PMM-XXXX` title style from the process doc. When opening PRs to the upstream Percona repo, confirm with reviewers if they expect conventional titles or `PMM-XXXX` titles from the process doc.
+Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITHUB.md). For commits and PR titles, use **[Conventional Commits](https://www.conventionalcommits.org/)** (`type(scope): summary`) — not the `PMM-XXXX` title style from the process doc. When opening PRs to the upstream Percona repo, confirm with reviewers if they expect conventional titles or `PMM-XXXX` titles from the process doc.
 
 | Item | Rule |
 |------|------|
@@ -199,7 +199,7 @@ Some areas span multiple directories. When working on them, read **both** the co
 | **ADRE / AI Assistant** | `managed/services/adre/` | `ui/apps/pmm/src/pages/adre/`, `components/adre/` | HolmesGPT integration, chat, usage |
 | **Investigations** | `managed/services/investigations/` | `ui/apps/pmm/src/pages/investigations/` | AI investigation workflows |
 | **OTEL** | `managed/otel/`, `dev/otel/` | Settings → OTEL tab | Log collectors, parser presets |
-| **User docs** | — | — | [`documentation/`](documentation/) (MkDocs), not [`docs/process/`](docs/process/) |
+| **User docs** | — | — | Pages in [`documentation/docs/`](documentation/docs/) (Markdown). How to write: [`docs-contributing.md`](documentation/docs-contributing.md) (workflow + local preview) and [`WRITERS-NOTES.md`](documentation/WRITERS-NOTES.md) (style, admonitions, variables, icons). MkDocs config in [`documentation/`](documentation/); not [`dev/docs/process/`](dev/docs/process/) |
 
 When these areas grow large enough to need their own conventions, extend [`managed/AGENTS.md`](managed/AGENTS.md) and [`ui/AGENTS.md`](ui/AGENTS.md) — do not duplicate architecture here.
 
@@ -263,6 +263,8 @@ Relationships:
 - An Agent runs on a Node (`runs_on_node_id`) and optionally monitors a Service (`service_id`)
 - A child Agent belongs to a parent PMM Agent (`pmm_agent_id`)
 
+Full schema, diagrams, and field-level detail: [`dev/docs/managed/data-model.md`](dev/docs/managed/data-model.md). Access-control (RBAC) architecture: [`dev/docs/managed/access-control.md`](dev/docs/managed/access-control.md).
+
 ## Repository Map
 
 Core components and per-area guides: see [Component Guides](#component-guides) above.
@@ -271,8 +273,8 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 
 | Directory | Purpose |
 |-----------|---------|
-| `/docs` | API documentation and process docs (tech stack, best practices, git workflow) |
-| `/documentation` | User-facing documentation (MkDocs) |
+| `/dev/docs` | Developer docs: process (git workflow, tech stack, best practices) and managed architecture (data model, access control); public API docs live in `documentation/api/` |
+| `/documentation` | User-facing documentation (MkDocs project root); pages live in `documentation/docs/` |
 | `/version` | Version info and feature flags |
 | `/dev` | Development utilities (e.g., mongo-rs-backups) |
 | `/.devcontainer` | Devcontainer setup for local development |
@@ -380,6 +382,8 @@ All long-running daemons expose on `127.0.0.1`:
 | `make env-up-rebuild` | Rebuild development container from scratch |
 | `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI |
 | `make run-qan-ui` | Inside devcontainer: webpack + livereload for the QAN Grafana plugin |
+| `make doc-build-preview` | Preview user docs (`documentation/docs/`) with live reload at http://localhost:8000 |
+| `make doc-build` | Build user docs (used in CI); `make doc-build-pdf` for the PDF |
 | `make gen` | Generate all code (protobuf, reform, mocks, format) |
 | `make check` | Run Go/API linters (buf, golangci-lint, go-sumtype) |
 | `make format` | Format code (gofumpt, goimports, gci) |
@@ -400,3 +404,6 @@ All long-running daemons expose on `127.0.0.1`:
 - `dev/docs/process/tech_stack.md` — technology choices and rationale
 - `dev/docs/process/best_practices.md` — coding best practices
 - `dev/docs/process/GIT_AND_GITHUB.md` — git workflow
+- `dev/docs/process/v2_to_v3_environment_variables.md` — v2→v3 environment variable migration
+- `dev/docs/managed/data-model.md` — inventory data model (schema + diagrams)
+- `dev/docs/managed/access-control.md` — access control (RBAC) architecture
