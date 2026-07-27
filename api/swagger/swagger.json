@@ -1902,6 +1902,58 @@
                         "description": "YAML template file content. Empty for built-in and SaaS templates.",
                         "type": "string",
                         "x-order": 10
+                      },
+                      "queries": {
+                        "description": "PromQL query steps for multi-query templates. Empty for single-expression templates.",
+                        "type": "array",
+                        "items": {
+                          "description": "TemplateQuery represents a PromQL query step in a multi-query alert template.",
+                          "type": "object",
+                          "properties": {
+                            "ref_id": {
+                              "description": "Reference ID of the query (e.g. \"A\").",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "expr": {
+                              "description": "PromQL query expression with templating parameters (placeholders kept intact).",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          }
+                        },
+                        "x-order": 11
+                      },
+                      "expressions": {
+                        "description": "Server-side expression steps for multi-query templates. Empty for single-expression templates.",
+                        "type": "array",
+                        "items": {
+                          "description": "TemplateExpression represents a server-side expression step in a multi-query alert template.",
+                          "type": "object",
+                          "properties": {
+                            "ref_id": {
+                              "description": "Reference ID of the expression (e.g. \"C\").",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "type": {
+                              "description": "Expression type. Currently only \"math\" is supported.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "expression": {
+                              "description": "Expression body referencing other steps by ref ID (e.g. \"$A \u003e $B\").",
+                              "type": "string",
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 12
+                      },
+                      "condition": {
+                        "description": "Reference ID of the step used as the alert condition (e.g. \"C\"). Empty for single-expression templates.",
+                        "type": "string",
+                        "x-order": 13
                       }
                     }
                   },
@@ -4236,6 +4288,12 @@
                     }
                   },
                   "x-order": 0
+                },
+                "expected_nodes": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Expected number of nodes in the cluster",
+                  "x-order": 1
                 }
               }
             }
@@ -12972,6 +13030,12 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 12
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 13
                     }
                   },
                   "x-order": 4
@@ -13052,6 +13116,12 @@
                       "format": "int64",
                       "x-nullable": true,
                       "x-order": 7
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 8
                     }
                   },
                   "x-order": 5
@@ -13663,6 +13733,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 10
@@ -13795,6 +13871,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 11
@@ -13921,6 +14003,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 13
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 14
                     }
                   },
                   "x-order": 12
@@ -14053,6 +14141,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 13
@@ -14203,6 +14297,12 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 15
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 16
                     }
                   },
                   "x-order": 15
@@ -14307,6 +14407,12 @@
                       },
                       "x-nullable": true,
                       "x-order": 11
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 12
                     }
                   },
                   "x-order": 16
