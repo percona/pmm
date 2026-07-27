@@ -19,6 +19,7 @@ package inventory
 import (
 	"context"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -1178,6 +1179,11 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(
 	ctx context.Context, agentID string,
 	p *inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams,
 ) (*inventoryv1.ChangeAgentResponse, error) {
+	err := as.checkInternalPgQANEnvOverride(agentID, p.Enable)
+	if err != nil {
+		return nil, err
+	}
+
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
 		Enabled:             p.Enable,
@@ -1212,21 +1218,6 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(
 	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
-	}
-	// Check if we're trying to modify the internal PostgreSQL QAN agent and if the environment variable is set
-	envVar, exists := os.LookupEnv(env.EnableInternalPgQAN)
-	if exists && envVar != "" {
-		a, err := models.FindAgentByID(as.db.Querier, agentID)
-		if err != nil {
-			return nil, status.Errorf(codes.NotFound, "agent with ID %q not found", agentID)
-		}
-		if pointer.GetString(a.PMMAgentID) == models.PMMServerAgentID {
-			return nil, status.Errorf(
-				codes.FailedPrecondition,
-				"QAN for PMM's internal PostgreSQL server is set to %s via an environment variable.",
-				envVar,
-			)
-		}
 	}
 
 	pgStatementsAgent, ok := agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent)
@@ -1765,6 +1756,41 @@ func (as *AgentsService) Remove(ctx context.Context, id string, force bool) erro
 // unexpectedAgentTypeError returns error for when a type assertion on the agent fails.
 func unexpectedAgentTypeError(agent inventoryv1.Agent) error {
 	return status.Errorf(codes.Internal, "unexpected agent type %T", agent)
+}
+
+// checkInternalPgQANEnvOverride rejects a request that would flip the enabled state of the QAN agent
+// of PMM's internal PostgreSQL server while that state is pinned by the PMM_ENABLE_INTERNAL_PG_QAN
+// environment variable. Parameters unrelated to the enabled state stay changeable, and the check runs
+// before anything is written so that a rejected request leaves the agent untouched.
+func (as *AgentsService) checkInternalPgQANEnvOverride(agentID string, enable *bool) error {
+	if enable == nil {
+		return nil
+	}
+
+	envValue, exists := os.LookupEnv(env.EnableInternalPgQAN)
+	if !exists || envValue == "" {
+		return nil
+	}
+
+	enabledByEnv, err := strconv.ParseBool(envValue)
+	if err != nil || *enable == enabledByEnv {
+		return nil
+	}
+
+	agent, err := models.FindAgentByID(as.db.Querier, agentID)
+	if err != nil {
+		return err
+	}
+
+	if agent.AgentType != models.QANPostgreSQLPgStatementsAgentType || pointer.GetString(agent.PMMAgentID) != models.PMMServerAgentID {
+		return nil
+	}
+
+	return status.Errorf(
+		codes.FailedPrecondition,
+		"QAN for PMM's internal PostgreSQL server is set to %s via an environment variable.",
+		envValue,
+	)
 }
 
 // Helper function to convert custom labels from protobuf to model format.
