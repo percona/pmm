@@ -9,6 +9,7 @@ Some tools also use a thin pointer file that simply routes them here — these a
 | Tool | Pointer file (→ reads `AGENTS.md`) |
 |------|------|
 | Claude Code | [CLAUDE.md](CLAUDE.md) |
+| Gemini CLI | [GEMINI.md](GEMINI.md) |
 | GitHub Copilot | [.github/copilot-instructions.md](.github/copilot-instructions.md) |
 
 Any other agent can read `AGENTS.md` directly — Cursor, for example, loads root and nested `AGENTS.md` files natively, so no Cursor-specific rule is needed. Personal AI-tool files (`.claude/`, `.cursor/`) are gitignored for local experimentation, except `.claude/settings.json` (committed team config).
