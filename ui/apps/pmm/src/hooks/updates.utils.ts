@@ -7,15 +7,11 @@ import { UserInfo } from 'types/user.types';
 
 type SnoozeUserInfo = Pick<UserInfo, 'snoozedAt' | 'snoozedPmmVersion'>;
 
-export const isUpdateSnoozeActive = ({
-  latest,
-  userInfo,
-  now = Date.now(),
-}: {
-  latest: LatestInfo | null;
-  userInfo: SnoozeUserInfo | null;
-  now?: number;
-}): boolean => {
+export const isUpdateSnoozeActive = (
+  latest: LatestInfo | null,
+  userInfo: SnoozeUserInfo | null,
+  now: number = Date.now()
+): boolean => {
   if (!latest || !userInfo) {
     return true;
   }

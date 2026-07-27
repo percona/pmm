@@ -10,11 +10,7 @@ export const useSnooze = () => {
   const { mutateAsync } = useUpdateUserInfo();
   const latest = versionInfo?.latest || null;
   const snoozeActive = useMemo(
-    () =>
-      isUpdateSnoozeActive({
-        latest,
-        userInfo: user?.info ?? null,
-      }),
+    () => isUpdateSnoozeActive(latest, user?.info ?? null),
     [latest, user]
   );
 
