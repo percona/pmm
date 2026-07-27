@@ -55,23 +55,21 @@ func splitURLCredentials(urlStr string) (string, string, string) {
 // vmAgentDeployment describes the deployment context that selects the
 // vmagent remote-write path.
 type vmAgentDeployment struct {
-	haEnabled     bool // PMM Server runs in HA (clustered) mode
-	isServerAgent bool // this is PMM Server's own built-in agent
+	// PMM Server runs in HA (clustered) mode.
+	haEnabled bool
+	// This is PMM Server's own built-in agent.
+	isServerAgent bool
 }
 
 // vmAgentConfig returns desired configuration of vmagent process.
 func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams, deployment vmAgentDeployment) *agentv1.SetStateRequest_AgentProcess {
-	// Push straight to VictoriaMetrics when the vmagent can reach it directly:
-	//   a) PMM Server's own agent in HA is in-cluster and reaches the VM the same way it did
-	//     before the write-proxy existed. Only remote clients need the server write-proxy, so
-	//     in HA the built-in agent is not routed through it.
-	//   b) standalone deployment with an externally configured VM.
+	// Remote-write routing:
+	//   * server agent in HA -> direct
+	//   * external VM in standalone -> direct
+	//   * everything else -> server write-proxy
 	if (deployment.haEnabled && deployment.isServerAgent) || (params.ExternalVM() && !deployment.haEnabled) {
 		return vmAgentConfigExternalVM(scrapeCfg, params)
 	}
-	// Scenarios:
-	// c) standalone deployment with internal VM.
-	// d) HA deployment, remote (non-server) client.
 	return vmAgentConfigServerProxy(scrapeCfg, deployment.haEnabled)
 }
 
@@ -81,7 +79,9 @@ func vmAgentConfigServerProxy(scrapeCfg string, dropInjectedAuth bool) *agentv1.
 	return buildVMAgentProcess(scrapeCfg, vmAgentSettings{
 		remoteWriteURL:   "{{.server_url}}/victoriametrics/api/v1/write",
 		dropInjectedAuth: dropInjectedAuth,
-		auth:             &basicAuth{username: "{{.server_username}}", password: "{{.server_password}}"}, //nolint:gosec // template placeholder, not a secret
+		// Template placeholders, not secrets.
+		//nolint:gosec
+		auth: &basicAuth{username: "{{.server_username}}", password: "{{.server_password}}"},
 	})
 }
 
@@ -111,9 +111,12 @@ type basicAuth struct {
 
 // vmAgentSettings captures settings that differ between deployment scenarios.
 type vmAgentSettings struct {
-	remoteWriteURL   string     // default for VMAGENT_remoteWrite_url, can be overridden by an injected value
-	dropInjectedAuth bool       // dropInjectedAuth discards injected VMAGENT_remoteWrite_basicAuth_*.
-	auth             *basicAuth // basic-auth default, applied only if not injected
+	// Default for VMAGENT_remoteWrite_url, can be overridden by an injected value.
+	remoteWriteURL string
+	// Discards injected VMAGENT_remoteWrite_basicAuth_*.
+	dropInjectedAuth bool
+	// Basic-auth default, applied only if not injected.
+	auth *basicAuth
 }
 
 // buildVMAgentProcess assembles the vmagent process configuration common to all scenarios.
