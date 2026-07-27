@@ -44,7 +44,7 @@ db.getSiblingDB("admin").createRole({
     },
     {
     "resource": { "db": "", "collection": "system.profile" },
-    "actions": [ "dbStats", "collStats", "indexStats" ]
+    "actions": [ "find", "dbStats", "collStats", "indexStats" ]
     }         
 ],
 "roles": [ ]

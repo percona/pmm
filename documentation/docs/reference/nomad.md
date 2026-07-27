@@ -20,6 +20,15 @@ Set the public address using either:
 - **UI**: go to **Configuration > Settings > Advanced settings** and set the public address, then restart PMM Server.
 
 
+Nomad requires **both** of the following to start:
+
+- `PMM_ENABLE_NOMAD=1`: enables the Nomad feature flag
+- `PMM_PUBLIC_ADDRESS=<your-pmm-server-address>`: the publicly reachable address of your PMM Server
+
+Setting `PMM_ENABLE_NOMAD=1` alone is not sufficient. If `PMM_PUBLIC_ADDRESS` is not set, PMM silently skips starting the Nomad server process with no error or warning.
+
+You can set the public address either as an environment variable at container start, or later via **Configuration > Settings > Advanced settings** in the PMM UI (though setting it via the UI requires restarting the container for Nomad to pick it up).
+
 ### Enable Nomad
 
 If you're an advanced user who needs Nomad for specific use cases, follow these steps to enable Nomad in PMM:
@@ -42,6 +51,7 @@ If you're an advanced user who needs Nomad for specific use cases, follow these 
     docker run -d \
     -e PMM_PUBLIC_ADDRESS=<your-pmm-address> \
     -e PMM_ENABLE_NOMAD=1 \
+    -e PMM_PUBLIC_ADDRESS=<your-pmm-server-address> \
     -p 4647:4647 \
     -p 443:8443 \
     --name pmm-server \
