@@ -256,10 +256,7 @@ export const addHighAvailability = ({ health }: HAInfo): NavItem => {
   item.icon = <HighAvailabilityIcon health={health} />;
   item.badgeAlwaysVisible = true;
 
-  item.children = [
-    NAV_HIGH_AVAILABILITY_OVERVIEW,
-    NAV_HIGH_AVAILABILITY_NODES,
-  ];
+  item.children = [NAV_HIGH_AVAILABILITY_OVERVIEW, NAV_HIGH_AVAILABILITY_NODES];
 
   return item;
 };
