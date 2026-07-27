@@ -795,12 +795,6 @@ export const NAV_HIGH_AVAILABILITY_OVERVIEW: NavItem = {
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-ha-health-overview/pmm-ha-overview`,
 };
 
-export const NAV_HIGH_AVAILABILITY_LEADER: NavItem = {
-  id: 'high-availability-leader',
-  text: 'Leader:',
-  type: 'menu-text',
-};
-
 export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
   id: 'high-availability-nodes',
   icon: 'arrow-link',
