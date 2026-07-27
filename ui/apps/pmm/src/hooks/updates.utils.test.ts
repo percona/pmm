@@ -23,10 +23,14 @@ const latestVersion = (overrides: Partial<LatestInfo> = {}): LatestInfo => ({
 describe('isUpdateSnoozeActive', () => {
   it('returns true when latest is missing so the popup does not flash', () => {
     expect(
-      isUpdateSnoozeActive(null, {
-        snoozedAt: null,
-        snoozedPmmVersion: '',
-      }, NOW)
+      isUpdateSnoozeActive(
+        null,
+        {
+          snoozedAt: null,
+          snoozedPmmVersion: '',
+        },
+        NOW
+      )
     ).toBe(true);
   });
 
