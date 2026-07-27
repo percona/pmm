@@ -261,15 +261,13 @@ PMM development uses a **single "fat" Docker container** (`perconalab/pmm-server
 ### Building/running server components (must run as ROOT in the container)
 - The `run-*` targets install to `/usr/sbin` and call `supervisorctl`, so they need root. Run them via `make env-root TARGET=<target>` from the host (the default `make env` runs as the `pmm` user and will fail: `/usr/sbin` is read-only for it and the root-owned Go module-cache volume is not writable). Example: `make env-root TARGET=run-managed-ci` rebuilds and restarts pmm-managed. Use the `-ci` variants in automation — the non-`-ci` targets (`run-managed`, `run-qan`, …) end with `tail -f` and never return.
 - Before the first build, fix git's bind-mount ownership complaint inside the container: `docker exec -u root pmm-server bash -lc "git config --global --add safe.directory '*'"`.
-- `go.mod` pins a newer Go (e.g. `go 1.26.4`) than the image ships (`GO_VERSION=1.25.x`); Go auto-downloads the newer toolchain into `/root/go` (works as root, fails as `pmm`).
 
 ### Lint & tests
 - `golangci-lint` is not preinstalled: run `make env-root TARGET=init` once to install `bin/golangci-lint`, then `make env-root TARGET=check` (buf lint + golangci-lint + go-sumtype; only lints changes since `merge-base main HEAD`).
 - `make env-root TARGET=test-common` runs the shared unit tests (no external deps). `managed`/`api-tests` suites need the running server + internal PostgreSQL.
 
-### UI development (Node/Yarn gap)
-- Node and Yarn are **not** present in the `3-dev-container` image. Install them in the container before `make ... build-ui`/`run-ui`: `docker exec -u root pmm-server bash -lc 'curl -fsSL https://rpm.nodesource.com/setup_22.x | bash - && dnf install -y nodejs && npm i -g yarn@1.22.22'`. This does not survive container recreation, so reinstall after `make env-remove`.
-- `make env-root TARGET=build-ui` builds the UI (yarn) and deploys it into Grafana; `run-ui` starts the Vite HMR dev server (port 5173). The image already ships a pre-built UI, so `https://localhost` works even without rebuilding it.
+### UI development
+- `make env-root TARGET=build-ui` builds the UI and deploys it into Grafana; `run-ui` starts the Vite HMR dev server (port 5173). The image already ships a pre-built UI, so `https://localhost` works even without rebuilding it.
 
 ### Notes
 - The built-in `pmm-agent` already self-monitors the server node and internal PostgreSQL (`pmm-managed`/`pmm-managed`). You can add more monitored services from the UI (Inventory → Add Service) or with `pmm-admin add ...` inside the container.
