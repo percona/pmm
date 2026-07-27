@@ -62,3 +62,5 @@ GEMINI.md
 !.cursor/rules/
 !.cursor/rules/**
 .cursorrules/
+# Machine-specific agent settings (paths, credentials); see AGENTS.md
+AGENTS.local.md
