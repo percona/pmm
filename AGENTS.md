@@ -177,10 +177,10 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 | Item | Rule |
 |------|------|
 | Branch name | `PMM-1234-short-description` (lowercase, dashes) |
-| Commit title | `type(scope): short imperative summary` — e.g. `feat(ui): add OTEL settings scroll`, `fix(managed): normalize log parser YAML` |
+| Commit title | `type(scope): short imperative summary` — e.g. `feat(ui): add pagination to the services table`, `fix(managed): handle missing agent in registry` |
 | PR title | Same format as commit title (squash merge uses the PR title) |
 | Types | `feat` (feature), `fix` (bug), `chore` (deps, lint, tooling), `refactor`, `test`, `docs` |
-| Scope | Optional but preferred: `ui`, `managed`, `api`, `agent`, `adre`, `investigations`, `dashboards`, … |
+| Scope | Optional but preferred: `ui`, `managed`, `api`, `agent`, `dashboards`, … |
 | Ticket | Put `PMM-XXXX` in the branch name and/or PR body, required in the title as well |
 | Review fixes | New commit per round — do not amend and force-push |
 | Merge | Squash and merge on GitHub |
@@ -190,18 +190,9 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 
 ---
 
-## Feature areas
+## User documentation
 
-Some areas span multiple directories. When working on them, read **both** the component guide and the paths below. These paths exist on branches that land the work (e.g. ADRE, OTEL); if a directory is missing on your branch, skip it.
-
-| Area | Backend | UI | Notes |
-|------|---------|-----|-------|
-| **ADRE / AI Assistant** | `managed/services/adre/` | `ui/apps/pmm/src/pages/adre/`, `components/adre/` | HolmesGPT integration, chat, usage |
-| **Investigations** | `managed/services/investigations/` | `ui/apps/pmm/src/pages/investigations/` | AI investigation workflows |
-| **OTEL** | `managed/otel/`, `dev/otel/` | Settings → OTEL tab | Log collectors, parser presets |
-| **User docs** | — | — | Pages in [`documentation/docs/`](documentation/docs/) (Markdown). How to write: [`docs-contributing.md`](documentation/docs-contributing.md) (workflow + local preview) and [`WRITERS-NOTES.md`](documentation/WRITERS-NOTES.md) (style, admonitions, variables, icons). MkDocs config in [`documentation/`](documentation/); not [`dev/docs/process/`](dev/docs/process/) |
-
-When these areas grow large enough to need their own conventions, extend [`managed/AGENTS.md`](managed/AGENTS.md) and [`ui/AGENTS.md`](ui/AGENTS.md) — do not duplicate architecture here.
+User-facing docs are Markdown under [`documentation/docs/`](documentation/docs/). How to write them: [`docs-contributing.md`](documentation/docs-contributing.md) (workflow + local preview) and [`WRITERS-NOTES.md`](documentation/WRITERS-NOTES.md) (style, admonitions, variables, icons). MkDocs config lives in [`documentation/`](documentation/); this is separate from the developer process docs in [`dev/docs/process/`](dev/docs/process/).
 
 ---
 
