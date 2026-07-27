@@ -89,4 +89,4 @@ make rpmbuild-el9         # Build RPM build environment image
 - `build/packages/rpm/server/SPECS/` — RPM spec files for server components
 - `build/packer/pmm.json` — Machine image definitions
 - `build/scripts/` — Build scripts for all artifact types
-- `build/docs/MIGRATION.md` — PMM v2→v3 build/packaging migration notes
+
