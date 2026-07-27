@@ -51,8 +51,16 @@ fuzzing/
 # QAN
 /qan-api2/logs/
 
+# PMM Demo backups (it would increase repository size significantly)
+dev/clickhouse-backups/
+
+# Exclude local AI skills/settings; team rules live in .cursor/rules/
 # Ignore AI-related files to support fast local experimentation
 .claude/
-.cursor/
+GEMINI.md
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 .cursorrules/
-CLAUDE.md
+# Machine-specific agent settings (paths, credentials); see AGENTS.md
+AGENTS.local.md

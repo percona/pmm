@@ -124,3 +124,5 @@ API definitions themselves are not unit-tested. Testing happens at:
 - `api/common/common.proto` — shared types used across all APIs
 - `api/inventory/v1/` — the core inventory API (nodes, services, agents) is a good reference for API patterns
 - `api/swagger/swagger.json` — merged OpenAPI spec
+- `api/MIGRATION_TO_V3.md` — v2→v3 API endpoint migration guide
+- `api/MIGRATION_EXAMPLES.md` — worked examples of API v2→v3 migrations
