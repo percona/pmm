@@ -97,7 +97,7 @@ func setup(t *testing.T) (context.Context, *ManagementService, func(t *testing.T
 		vmClient.AssertExpectations(t)
 	}
 
-	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
+	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil)
 
 	return ctx, s, teardown
 }

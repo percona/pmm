@@ -619,8 +619,11 @@ type UniversalNode struct {
 	InstanceId string `protobuf:"bytes,18,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
 	// True if this node is a PMM Server node (HA mode).
 	IsPmmServerNode bool `protobuf:"varint,19,opt,name=is_pmm_server_node,json=isPmmServerNode,proto3" json:"is_pmm_server_node,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// True if this node belongs to the internal infrastructure of a PMM deployment
+	// (e.g. the HA persistence layer) and must not host user monitoring workloads.
+	IsPmmInternalNode bool `protobuf:"varint,20,opt,name=is_pmm_internal_node,json=isPmmInternalNode,proto3" json:"is_pmm_internal_node,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *UniversalNode) Reset() {
@@ -782,6 +785,13 @@ func (x *UniversalNode) GetInstanceId() string {
 func (x *UniversalNode) GetIsPmmServerNode() bool {
 	if x != nil {
 		return x.IsPmmServerNode
+	}
+	return false
+}
+
+func (x *UniversalNode) GetIsPmmInternalNode() bool {
+	if x != nil {
+		return x.IsPmmInternalNode
 	}
 	return false
 }
@@ -1159,7 +1169,7 @@ const file_management_v1_node_proto_rawDesc = "" +
 	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\x12\x14\n" +
 	"\x05force\x18\x02 \x01(\bR\x05force\"2\n" +
 	"\x16UnregisterNodeResponse\x12\x18\n" +
-	"\awarning\x18\x01 \x01(\tR\awarning\"\x9d\t\n" +
+	"\awarning\x18\x01 \x01(\tR\awarning\"\xce\t\n" +
 	"\rUniversalNode\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x1b\n" +
 	"\tnode_type\x18\x02 \x01(\tR\bnodeType\x12\x1b\n" +
@@ -1185,7 +1195,8 @@ const file_management_v1_node_proto_rawDesc = "" +
 	"\bservices\x18\x11 \x03(\v2$.management.v1.UniversalNode.ServiceR\bservices\x12\x1f\n" +
 	"\vinstance_id\x18\x12 \x01(\tR\n" +
 	"instanceId\x12+\n" +
-	"\x12is_pmm_server_node\x18\x13 \x01(\bR\x0fisPmmServerNode\x1an\n" +
+	"\x12is_pmm_server_node\x18\x13 \x01(\bR\x0fisPmmServerNode\x12/\n" +
+	"\x14is_pmm_internal_node\x18\x14 \x01(\bR\x11isPmmInternalNode\x1an\n" +
 	"\aService\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -1255,7 +1266,6 @@ var (
 		(*timestamppb.Timestamp)(nil),  // 21: google.protobuf.Timestamp
 	}
 )
-
 var file_management_v1_node_proto_depIdxs = []int32{
 	16, // 0: management.v1.AddNodeParams.node_type:type_name -> inventory.v1.NodeType
 	11, // 1: management.v1.AddNodeParams.custom_labels:type_name -> management.v1.AddNodeParams.CustomLabelsEntry

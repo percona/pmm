@@ -66,7 +66,7 @@ func TestAnnotations(t *testing.T) {
 		vmClient := &mockVictoriaMetricsClient{}
 		vmClient.Test(t)
 
-		s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
+		s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil)
 
 		teardown := func(t *testing.T) {
 			t.Helper()
