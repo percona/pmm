@@ -181,7 +181,7 @@ Full rules: [`docs/process/GIT_AND_GITHUB.md`](docs/process/GIT_AND_GITHUB.md). 
 | PR title | Same format as commit title (squash merge uses the PR title) |
 | Types | `feat` (feature), `fix` (bug), `chore` (deps, lint, tooling), `refactor`, `test`, `docs` |
 | Scope | Optional but preferred: `ui`, `managed`, `api`, `agent`, `adre`, `investigations`, `dashboards`, … |
-| Ticket | Put `PMM-XXXX` in the branch name and/or PR body — not required in the title |
+| Ticket | Put `PMM-XXXX` in the branch name and/or PR body, required in the title as well |
 | Review fixes | New commit per round — do not amend and force-push |
 | Merge | Squash and merge on GitHub |
 | PR body | What/why, Feature Build link for features/fixes/improvements, link related PRs |
