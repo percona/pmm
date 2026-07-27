@@ -54,14 +54,14 @@ fuzzing/
 # PMM Demo backups (it would increase repository size significantly)
 dev/clickhouse-backups/
 
-# Exclude local AI skills/settings; team rules live in .cursor/rules/
-# Ignore AI-related files to support fast local experimentation
-.claude/
+# Local AI-tool files are gitignored for personal experimentation;
+# committed team config lives in .claude/settings.json.
+.claude/*
+!.claude/settings.json
+# Personal Claude Code memory override (the shared CLAUDE.md itself is committed)
 CLAUDE.local.md
 GEMINI.md
-.cursor/*
-!.cursor/rules/
-!.cursor/rules/**
+.cursor/
 .cursorrules/
-# Machine-specific agent settings (paths, credentials); see AGENTS.md
+# Machine-specific agent settings — paths only, never secrets; see AGENTS.md
 AGENTS.local.md

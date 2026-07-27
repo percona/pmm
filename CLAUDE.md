@@ -1,11 +1,5 @@
 # Claude Code — PMM
 
-Before planning or editing code in this repository:
+@AGENTS.md
 
-1. Read [AGENTS.md](AGENTS.md) in full.
-2. Read the component `AGENTS.md` for every path you touch (see the table in `AGENTS.md`).
-3. Follow [dev/docs/process/GIT_AND_GITHUB.md](dev/docs/process/GIT_AND_GITHUB.md) for commits and PRs.
-
-`AGENTS.md` is the single source of truth. Do not rely on memory or generic assumptions about PMM.
-
-When starting work, briefly state which `AGENTS.md` files you read.
+Do not assume PMM-specific behavior from general knowledge — verify against `AGENTS.md`, the component guides it links, and the code.
