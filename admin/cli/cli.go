@@ -29,6 +29,7 @@ import (
 	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
 	"github.com/percona/pmm/admin/pkg/flags"
+	"github.com/percona/pmm/utils/servererror"
 )
 
 // GlobalFlagsGetter supports retrieving GlobalFlags.
@@ -137,7 +138,14 @@ func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) erro
 		}
 	}
 
-	return err
+	// Transport-level failures never reach the cases above. Point the user at
+	// --server-insecure-tls when PMM Server presents a certificate we cannot verify.
+	var host string
+	if opts.ServerURL != nil {
+		host = opts.ServerURL.Hostname()
+	}
+
+	return servererror.WrapTLSError(err, host, opts.SkipTLSCertificateCheck)
 }
 
 func printSuccessResult(opts *flags.GlobalFlags, res commands.Result) {
@@ -164,11 +172,7 @@ func printErrorResponse(opts *flags.GlobalFlags, err commands.ErrorResponse) {
 		}
 		fmt.Printf("%s\n", b) //nolint:forbidigo
 	} else {
-		msg := e.Error
-		if e.Code == 401 {
-			msg += ". Please check username and password."
-		}
-		fmt.Println(msg) //nolint:forbidigo
+		fmt.Println(commands.ServerErrorMessage(e)) //nolint:forbidigo
 	}
 }
 

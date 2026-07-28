@@ -50,6 +50,15 @@ var (
 	_ fmt.GoStringer = nginxError("")
 )
 
+// applyAgentServerParams fills in the PMM Server connection parameters reported by the local
+// pmm-agent. An explicitly passed --server-insecure-tls is preserved: the flag is opt-in only,
+// so a user asking to skip validation must not have that request dropped just because the
+// local pmm-agent is configured to validate certificates.
+func applyAgentServerParams(globalFlags *flags.GlobalFlags, status *agentlocal.Status) {
+	globalFlags.ServerURL, _ = url.Parse(status.ServerURL)
+	globalFlags.SkipTLSCertificateCheck = globalFlags.SkipTLSCertificateCheck || status.ServerInsecureTLS
+}
+
 // SetupClients configures local and PMM Server API clients.
 func SetupClients(globalFlags *flags.GlobalFlags) {
 	//nolint:nestif
@@ -67,8 +76,7 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 			logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n"+
 				"Please use --server-url flag to specify PMM Server URL.", err)
 		}
-		globalFlags.ServerURL, _ = url.Parse(status.ServerURL)
-		globalFlags.SkipTLSCertificateCheck = status.ServerInsecureTLS
+		applyAgentServerParams(globalFlags, status)
 	} else {
 		if globalFlags.ServerURL.Path == "" {
 			globalFlags.ServerURL.Path = "/"
