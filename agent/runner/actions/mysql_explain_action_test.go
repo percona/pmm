@@ -17,7 +17,6 @@ package actions
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -46,6 +45,11 @@ func TestMySQLExplain(t *testing.T) {
 	ctx := context.Background()
 	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, q)
 
+	// Starting with MySQL 9.5, EXPLAIN returns the tree format instead of the traditional table.
+	// The version check also covers calendar-versioned releases (26.7 and newer).
+	// Assertions for the tree format are only partial, more checks should be done. See: PMM-14426.
+	treeExplainOutput := mySQLVendor != version.MariaDBVendor && mySQLVersion.Float() >= 9.5
+
 	const query = "SELECT * FROM city ORDER BY Population"
 
 	t.Run("Default", func(t *testing.T) {
@@ -69,11 +73,9 @@ func TestMySQLExplain(t *testing.T) {
 		require.NoError(t, err)
 
 		actual := strings.TrimSpace(string(er.ExplainResult))
-		switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
-		case "9.5-oracle", "9.6-oracle", "9.7-oracle":
-			// Explain output changed. More checks should be done. See: PMM-14426
+		if treeExplainOutput {
 			assert.Contains(t, actual, "Table scan on city")
-		default:
+		} else {
 			// Check some columns names
 			assert.Contains(t, actual, "id |select_type |table")
 			assert.Contains(t, actual, "|type |possible_keys |key  |key_len |ref  |rows")
@@ -107,11 +109,9 @@ func TestMySQLExplain(t *testing.T) {
 		m, err := objx.FromJSON(string(er.ExplainResult))
 		require.NoError(t, err)
 
-		switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
-		case "9.5-oracle", "9.6-oracle", "9.7-oracle":
-			// Explain output changed. More checks should be done. See: PMM-14426
+		if treeExplainOutput {
 			require.Empty(t, m.Get("warnings").InterSlice())
-		default:
+		} else {
 			assert.Equal(t, 1, m.Get("query_block.select_id").Int())
 
 			var table map[string]any
@@ -167,10 +167,7 @@ func TestMySQLExplain(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
 
-		switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
-		case "9.5-oracle", "9.6-oracle", "9.7-oracle":
-			// Explain output changed. More checks should be done. See: PMM-14426
-		default:
+		if !treeExplainOutput {
 			// Check some columns names
 			assert.Contains(t, actual[0], "id")
 			assert.Contains(t, actual[0], "select_type")
