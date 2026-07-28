@@ -76,6 +76,9 @@ format-changed:       ## Format the Go files changed on this branch (much faster
 	@files="$(CHANGED_GO_FILES)"; \
 	if [ -z "$$files" ]; then echo "No changed Go files."; else $(MAKE) format FILES="$$files"; fi
 
+format-fast:         ## Format only (without running goimports and gci)
+	@go tool gofumpt -l -w $(FILES)
+
 serve:                ## Serve API documentation with nginx
 	nginx -p . -c api/nginx/nginx.conf
 
