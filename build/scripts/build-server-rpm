@@ -55,37 +55,52 @@ is_build_needed() {
 prepare_specs() {
     local spec_name=$1
     local repo_name=$2
+    # When set, the package commit (and thus its S3 cache key) is derived from
+    # the last commit that touched these paths rather than HEAD. This keeps the
+    # cache key stable across pushes that don't change them, so the package is
+    # rebuilt only when the branch actually differs from its base in them.
+    local git_path=$3
 
-    sudo chown -R $(id -u):$(id -g) ${rpmbuild_dir}/SPECS ${rpmbuild_dir}/SOURCES
-    cp ${rpmbuild_dir}/SPECS/${spec_name}.spec ${rpmbuild_dir}/SOURCES/${spec_name}.spec
+    sudo chown -R $(id -u):$(id -g) "${rpmbuild_dir}/SPECS" "${rpmbuild_dir}/SOURCES"
+    cp "${rpmbuild_dir}/SPECS/${spec_name}.spec" "${rpmbuild_dir}/SOURCES/${spec_name}.spec"
     if [ -d "${root_dir}/sources/${repo_name}" ]; then
-        local git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
-        local full_commit=$(git -C "${git_dir}" rev-parse HEAD)
+        local git_dir
+        git_dir=$(dirname $(find "${root_dir}/sources/${repo_name}" -name .git | head -1))
+        local full_commit
+        if [ -n "${git_path}" ]; then
+            # git_path may hold several space-separated pathspecs, so it is intentionally left unquoted.
+            # shellcheck disable=SC2086
+            full_commit=$(git -C "${git_dir}" log -1 --format=%H -- ${git_path})
+        fi
+        # Fall back to HEAD when no path is given or the path has no history.
+        if [ -z "${full_commit}" ]; then
+            full_commit=$(git -C "${git_dir}" rev-parse HEAD)
+        fi
         local short_commit=${full_commit:0:7}
 
-        sed -i -e "s/global commit.*/global commit ${full_commit}/" ${rpmbuild_dir}/SOURCES/${spec_name}.spec
-        if [[ ${spec_name} != "grafana" ]]; then
-            sed -i -e "s/Version:.*/Version: ${pmm_version}/"       ${rpmbuild_dir}/SOURCES/${spec_name}.spec
+        sed -i -e "s/global commit.*/global commit ${full_commit}/" "${rpmbuild_dir}/SOURCES/${spec_name}.spec"
+        if [ "${spec_name}" != "grafana" ]; then
+            sed -i -e "s/Version:.*/Version: ${pmm_version}/"       "${rpmbuild_dir}/SOURCES/${spec_name}.spec"
         fi
 
         if [ -z "${full_pmm_version}" ]; then
             echo 'A full_pmm_version is not specified.'
             exit 1
         fi
-        sed -i -e "s/%define full_pmm_version.*/%define full_pmm_version ${full_pmm_version}/" ${rpmbuild_dir}/SOURCES/${spec_name}.spec
+        sed -i -e "s/%define full_pmm_version.*/%define full_pmm_version ${full_pmm_version}/" "${rpmbuild_dir}/SOURCES/${spec_name}.spec"
 
         if [ -n "$pmm_release" ]; then
-            sed -i -e "s/\(%define release.*\)/\1.$pmm_release/" ${rpmbuild_dir}/SOURCES/${spec_name}.spec
-            grep -r 'define release' ${rpmbuild_dir}/SOURCES/${spec_name}.spec
+            sed -i -e "s/\(%define release.*\)/\1.$pmm_release/" "${rpmbuild_dir}/SOURCES/${spec_name}.spec"
+            grep -r 'define release' "${rpmbuild_dir}/SOURCES/${spec_name}.spec"
         fi
-
+  
         if [ -f "${rpmbuild_dir}/SOURCES/${repo_name}-${short_commit}.tar.gz" ]; then
-            echo SOURCES/${repo_name}-${short_commit}.tar.gz already exists, skip archiving...
+            echo "SOURCES/${repo_name}-${short_commit}.tar.gz already exists, skip archiving..."
         else
             git -C "${git_dir}" archive \
                 --format=tar.gz \
-                --prefix=${repo_name}-${full_commit}/ \
-                -o ${rpmbuild_dir}/SOURCES/${repo_name}-${short_commit}.tar.gz \
+                --prefix="${repo_name}-${full_commit}/" \
+                -o "${rpmbuild_dir}/SOURCES/${repo_name}-${short_commit}.tar.gz" \
                 "${full_commit}"
         fi
     fi
@@ -94,7 +109,8 @@ prepare_specs() {
 build() {
     local spec_name=$1
     local repo_name=${2:-$1}
-    prepare_specs "${spec_name}" "${repo_name}"
+    local git_path=$3
+    prepare_specs "${spec_name}" "${repo_name}" "${git_path}"
     local rpm_version=$(get_rpm_version "${spec_name}")
     local CH_VERSION=${rpm_version%-*}
     local CH_TAG=${rpm_version#*-}
@@ -168,7 +184,7 @@ build() {
     fi
 }
 
-build "$1" "$2"
+build "$@"
 echo "build-server-rpm finished, spec_name: $1, repo_name: ${2:-$1}"
 
 # vim: expandtab shiftwidth=4 tabstop=4
