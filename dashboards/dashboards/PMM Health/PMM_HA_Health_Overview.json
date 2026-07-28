@@ -34415,7 +34415,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 22
+                "y": 24
             },
             "id": 201,
             "options": {
@@ -34472,7 +34472,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 22
+                "y": 24
             },
             "id": 202,
             "options": {
@@ -34643,7 +34643,7 @@
                 ]
             },
             "gridPos": {
-                "h": 8,
+                "h": 10,
                 "w": 24,
                 "x": 0,
                 "y": 14
@@ -34944,7 +34944,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 30
+                "y": 32
             },
             "id": 205,
             "panels": [],
@@ -35013,7 +35013,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 31
+                "y": 33
             },
             "id": 6,
             "options": {
@@ -35109,7 +35109,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 31
+                "y": 33
             },
             "id": 206,
             "options": {
@@ -35149,7 +35149,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 39
+                "y": 41
             },
             "id": 207,
             "panels": [],
@@ -35191,7 +35191,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 0,
-                "y": 40
+                "y": 42
             },
             "id": 208,
             "options": {
@@ -35258,7 +35258,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 8,
-                "y": 40
+                "y": 42
             },
             "id": 209,
             "options": {
@@ -35325,7 +35325,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 16,
-                "y": 40
+                "y": 42
             },
             "id": 210,
             "options": {
@@ -35363,7 +35363,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 46
+                "y": 48
             },
             "id": 211,
             "panels": [],
@@ -35444,7 +35444,7 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 47
+                "y": 49
             },
             "id": 212,
             "options": {
@@ -35520,7 +35520,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 55
+                "y": 57
             },
             "id": 105,
             "panels": [],
@@ -35597,21 +35597,9 @@
                         },
                         "properties": [
                             {
-                                "id": "custom.width",
-                                "value": 400
-                            },
-                            {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "type": "color-background",
-                                    "mode": "basic"
-                                }
-                            },
-                            {
-                                "id": "color",
-                                "value": {
-                                    "mode": "fixed",
-                                    "fixedColor": "#5794F2"
+                                    "type": "auto"
                                 }
                             }
                         ]
@@ -35654,7 +35642,7 @@
                 "h": 10,
                 "w": 24,
                 "x": 0,
-                "y": 56
+                "y": 58
             },
             "id": 50,
             "options": {
@@ -35686,7 +35674,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "label_replace(\n  max by(node_id) (\n    (pmm_ha_leader_status == 1)\n    and on(node_id)\n    label_replace(\n      kube_pod_info{\n        exported_namespace=\"$namespace\",\n        exported_pod=~\"${release}-${pmm_suffix_regex}\"\n      },\n      \"node_id\", \"$1\", \"exported_pod\", \"(.*)\"\n    )\n  ),\n  \"exported_pod\", \"$1\", \"node_id\", \"(.*)\"\n)",
+                    "expr": "label_replace(\n  max by(node_id) (\n    pmm_ha_leader_status\n    and on(node_id)\n    label_replace(\n      kube_pod_info{\n        exported_namespace=\"$namespace\",\n        exported_pod=~\"${release}-${pmm_suffix_regex}\"\n      },\n      \"node_id\", \"$1\", \"exported_pod\", \"(.*)\"\n    )\n  ),\n  \"exported_pod\", \"$1\", \"node_id\", \"(.*)\"\n)",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
@@ -35731,7 +35719,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 66
+                "y": 68
             },
             "id": 101,
             "panels": [],
@@ -35832,29 +35820,27 @@
                             {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "type": "auto"
+                                    "type": "color-background",
+                                    "mode": "basic"
                                 }
                             },
                             {
                                 "id": "mappings",
                                 "value": [
                                     {
+                                        "type": "value",
                                         "options": {
                                             "0": {
+                                                "color": "yellow",
                                                 "index": 1,
                                                 "text": "Replica"
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
+                                            },
                                             "1": {
+                                                "color": "green",
                                                 "index": 0,
                                                 "text": "Primary"
                                             }
-                                        },
-                                        "type": "value"
+                                        }
                                     },
                                     {
                                         "type": "value",
@@ -35914,7 +35900,7 @@
                 "h": 10,
                 "w": 24,
                 "x": 0,
-                "y": 67
+                "y": 69
             },
             "id": 10,
             "options": {
@@ -36005,7 +35991,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 77
+                "y": 79
             },
             "id": 102,
             "panels": [],
@@ -36102,38 +36088,32 @@
                             {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "type": "auto"
+                                    "type": "color-background",
+                                    "mode": "basic"
                                 }
                             },
                             {
                                 "id": "mappings",
                                 "value": [
                                     {
+                                        "type": "value",
                                         "options": {
                                             "0": {
+                                                "color": "yellow",
                                                 "index": 1,
                                                 "text": "Follower"
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
+                                            },
                                             "1": {
+                                                "color": "green",
                                                 "index": 0,
                                                 "text": "Leader"
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
+                                            },
                                             "2": {
+                                                "color": "yellow",
                                                 "index": 2,
                                                 "text": "Replica"
                                             }
-                                        },
-                                        "type": "value"
+                                        }
                                     }
                                 ]
                             }
@@ -36150,17 +36130,9 @@
                                 "value": 160
                             },
                             {
-                                "id": "color",
-                                "value": {
-                                    "mode": "fixed",
-                                    "fixedColor": "#5794F2"
-                                }
-                            },
-                            {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "type": "color-background",
-                                    "mode": "basic"
+                                    "type": "auto"
                                 }
                             }
                         ]
@@ -36168,10 +36140,10 @@
                 ]
             },
             "gridPos": {
-                "h": 20,
+                "h": 10,
                 "w": 24,
                 "x": 0,
-                "y": 78
+                "y": 80
             },
             "id": 20,
             "options": {
@@ -36250,7 +36222,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 98
+                "y": 90
             },
             "id": 103,
             "panels": [],
@@ -36359,10 +36331,10 @@
                 ]
             },
             "gridPos": {
-                "h": 22,
+                "h": 10,
                 "w": 24,
                 "x": 0,
-                "y": 99
+                "y": 91
             },
             "id": 30,
             "options": {
@@ -36431,7 +36403,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 121
+                "y": 101
             },
             "id": 104,
             "panels": [],
@@ -36521,7 +36493,7 @@
                 "h": 10,
                 "w": 24,
                 "x": 0,
-                "y": 122
+                "y": 102
             },
             "id": 40,
             "options": {
@@ -36665,17 +36637,9 @@
                                 "value": 200
                             },
                             {
-                                "id": "color",
-                                "value": {
-                                    "mode": "fixed",
-                                    "fixedColor": "#5794F2"
-                                }
-                            },
-                            {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "type": "color-background",
-                                    "mode": "basic"
+                                    "type": "auto"
                                 }
                             }
                         ]
@@ -36698,7 +36662,7 @@
                 "h": 10,
                 "w": 24,
                 "x": 0,
-                "y": 132
+                "y": 112
             },
             "id": 41,
             "options": {
