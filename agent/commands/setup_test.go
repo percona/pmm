@@ -46,39 +46,63 @@ func TestSkipRegistration(t *testing.T) {
 		return path
 	}
 
+	// serverKnows answers as PMM Server which still has the Agent registered.
+	serverKnows := func(*config.Config, *logrus.Entry) bool { return false }
+
+	// serverForgot answers as PMM Server which was reinstalled and knows nothing about the Agent.
+	serverForgot := func(*config.Config, *logrus.Entry) bool { return true }
+
+	// serverNotAsked fails the test if PMM Server is asked at all.
+	serverNotAsked := func(*config.Config, *logrus.Entry) bool {
+		t.Errorf("PMM Server should not be asked about the registration")
+		return false
+	}
+
 	t.Run("a new Agent registers", func(t *testing.T) {
 		t.Parallel()
 
 		cfg := &config.Config{Server: config.Server{Address: serverAddress}}
-		assert.False(t, skipRegistration(cfg, writeConfigFile(t, serverAddress), logrus.WithField("test", t.Name())))
+		path := writeConfigFile(t, serverAddress)
+		assert.False(t, skipRegistration(cfg, path, serverNotAsked, logrus.WithField("test", t.Name())))
 	})
 
 	t.Run("a registered Agent does not register again", func(t *testing.T) {
 		t.Parallel()
 
 		cfg := &config.Config{ID: agentID, Server: config.Server{Address: serverAddress}}
-		assert.True(t, skipRegistration(cfg, writeConfigFile(t, serverAddress), logrus.WithField("test", t.Name())))
+		path := writeConfigFile(t, serverAddress)
+		assert.True(t, skipRegistration(cfg, path, serverKnows, logrus.WithField("test", t.Name())))
+	})
+
+	t.Run("a registered Agent registers again when PMM Server does not know it", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := &config.Config{ID: agentID, Server: config.Server{Address: serverAddress}}
+		path := writeConfigFile(t, serverAddress)
+		assert.False(t, skipRegistration(cfg, path, serverForgot, logrus.WithField("test", t.Name())))
 	})
 
 	t.Run("a registered Agent registers with a different PMM Server", func(t *testing.T) {
 		t.Parallel()
 
 		cfg := &config.Config{ID: agentID, Server: config.Server{Address: "new-pmm.example.com:443"}}
-		assert.False(t, skipRegistration(cfg, writeConfigFile(t, serverAddress), logrus.WithField("test", t.Name())))
+		path := writeConfigFile(t, serverAddress)
+		assert.False(t, skipRegistration(cfg, path, serverNotAsked, logrus.WithField("test", t.Name())))
 	})
 
 	t.Run("a registered Agent registers again when forced", func(t *testing.T) {
 		t.Parallel()
 
 		cfg := &config.Config{ID: agentID, Server: config.Server{Address: serverAddress}, Setup: config.Setup{Force: true}}
-		assert.False(t, skipRegistration(cfg, writeConfigFile(t, serverAddress), logrus.WithField("test", t.Name())))
+		path := writeConfigFile(t, serverAddress)
+		assert.False(t, skipRegistration(cfg, path, serverNotAsked, logrus.WithField("test", t.Name())))
 	})
 
 	t.Run("registration is skipped on demand", func(t *testing.T) {
 		t.Parallel()
 
 		cfg := &config.Config{ID: agentID, Setup: config.Setup{SkipRegistration: true, Force: true}}
-		assert.True(t, skipRegistration(cfg, "not-exist.yaml", logrus.WithField("test", t.Name())))
+		assert.True(t, skipRegistration(cfg, "not-exist.yaml", serverNotAsked, logrus.WithField("test", t.Name())))
 	})
 
 	t.Run("a registered Agent registers when the configuration file cannot be read", func(t *testing.T) {
@@ -88,6 +112,6 @@ func TestSkipRegistration(t *testing.T) {
 		require.NoError(t, os.Remove(path))
 
 		cfg := &config.Config{ID: agentID, Server: config.Server{Address: serverAddress}}
-		assert.False(t, skipRegistration(cfg, path, logrus.WithField("test", t.Name())))
+		assert.False(t, skipRegistration(cfg, path, serverNotAsked, logrus.WithField("test", t.Name())))
 	})
 }

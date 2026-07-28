@@ -30,11 +30,39 @@ import (
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
+// registrationCheck reports whether PMM Server no longer knows the Agent described by cfg,
+// so that the Node has to be registered again.
+type registrationCheck func(cfg *config.Config, l *logrus.Entry) bool
+
+// mustRegisterOnServer reports whether PMM Server no longer knows this Agent. The server may have
+// been reinstalled, or restored from a backup taken before the Agent was registered, leaving the
+// Agent with an ID nothing recognizes. An unreachable server is not an answer: an Agent has to be
+// able to start while PMM Server has no leader yet, so its registration is kept in that case.
+func mustRegisterOnServer(cfg *config.Config, l *logrus.Entry) bool {
+	u := cfg.Server.URL()
+	if u == nil {
+		// register reports the missing server address with an actionable message
+		return true
+	}
+	setServerTransport(u, cfg.Server.InsecureTLS, l)
+
+	known, err := serverKnowsAgent(cfg.ID)
+	if err != nil {
+		l.Warnf("Failed to check the registration of pmm-agent %s with %s, keeping it: %s", cfg.ID, cfg.Server.Address, err)
+		return false
+	}
+	if !known {
+		fmt.Printf("PMM Server at %s does not know pmm-agent %s, registering the Node again.\n", cfg.Server.Address, cfg.ID)
+	}
+
+	return !known
+}
+
 // skipRegistration reports whether `pmm-agent setup` can leave the Node registration as it is.
 // An Agent which already holds an ID is registered with PMM Server, and registering it again makes
-// the server drop the Node together with every Service on it. That is only done on demand, or when
-// the Agent is being pointed at a different PMM Server, which does not know it yet.
-func skipRegistration(cfg *config.Config, configFilepath string, l *logrus.Entry) bool {
+// the server drop the Node together with every Service on it. That is only done on demand, when the
+// Agent is being pointed at a different PMM Server, or when the server no longer knows the Agent.
+func skipRegistration(cfg *config.Config, configFilepath string, mustRegister registrationCheck, l *logrus.Entry) bool {
 	if cfg.Setup.SkipRegistration {
 		return true
 	}
@@ -47,8 +75,11 @@ func skipRegistration(cfg *config.Config, configFilepath string, l *logrus.Entry
 		l.Warnf("Failed to read the configuration file %s, registering the Node: %s", configFilepath, err)
 		return false
 	}
+	if fileCfg.Server.Address != cfg.Server.Address {
+		return false
+	}
 
-	return fileCfg.Server.Address == cfg.Server.Address
+	return !mustRegister(cfg, l)
 }
 
 // Setup implements `pmm-agent setup` command.
@@ -92,7 +123,7 @@ func Setup() {
 		os.Exit(1)
 	}
 
-	if skipRegistration(cfg, configFilepath, l) {
+	if skipRegistration(cfg, configFilepath, mustRegisterOnServer, l) {
 		fmt.Printf("Node is already registered with %s, pmm-agent ID is %s. Use --force to register it again.\n",
 			cfg.Server.Address, cfg.ID)
 	} else {
