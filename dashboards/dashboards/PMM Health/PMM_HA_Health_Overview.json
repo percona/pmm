@@ -34750,7 +34750,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(max by(node_id) (pmm_ha_leader_status) == 1) or (label_replace(vector(0), \"node_id\", \"No active instance\", \"\", \"\") unless on() (max(pmm_ha_leader_status) == 1))",
+                    "expr": "(\n  max by(node_id) (\n    (pmm_ha_leader_status == 1)\n    and on(node_id)\n    label_replace(\n      kube_pod_info{\n        exported_namespace=\"$namespace\",\n        exported_pod=~\"${release}-${pmm_suffix_regex}\"\n      },\n      \"node_id\", \"$1\", \"exported_pod\", \"(.*)\"\n    )\n  )\n)\nor (\n  label_replace(vector(0), \"node_id\", \"No active instance\", \"\", \"\")\n  unless on() (\n    max(\n      (pmm_ha_leader_status == 1)\n      and on(node_id)\n      label_replace(\n        kube_pod_info{\n          exported_namespace=\"$namespace\",\n          exported_pod=~\"${release}-${pmm_suffix_regex}\"\n        },\n        \"node_id\", \"$1\", \"exported_pod\", \"(.*)\"\n      )\n    ) == 1\n  )\n)",
                     "instant": true,
                     "legendFormat": "{{node_id}}",
                     "range": false,
@@ -34770,7 +34770,7 @@
                         "mode": "fixed"
                     },
                     "mappings": [],
-                    "noValue": "No primary",
+                    "noValue": "No active instance",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -34820,7 +34820,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "max by(name) (patroni_primary) == 1",
+                    "expr": "(\n  max by(name) (\n    (patroni_primary == 1)\n    and on(name)\n    label_replace(\n      kube_pod_info{\n        exported_namespace=\"$namespace\",\n        exported_pod=~\"${release}-pg-db-.*\",\n        exported_pod!~\".*(${pg_exclude_regex}).*\"\n      },\n      \"name\", \"$1\", \"exported_pod\", \"(.*)\"\n    )\n  )\n)\nor (\n  label_replace(vector(0), \"name\", \"No active instance\", \"\", \"\")\n  unless on() (\n    max(\n      (patroni_primary == 1)\n      and on(name)\n      label_replace(\n        kube_pod_info{\n          exported_namespace=\"$namespace\",\n          exported_pod=~\"${release}-pg-db-.*\",\n          exported_pod!~\".*(${pg_exclude_regex}).*\"\n        },\n        \"name\", \"$1\", \"exported_pod\", \"(.*)\"\n      )\n    ) == 1\n  )\n)",
                     "instant": true,
                     "legendFormat": "{{name}}",
                     "range": false,
@@ -35376,19 +35376,40 @@
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "thresholds"
+                        "mode": "palette-classic"
                     },
                     "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
                         "axisPlacement": "auto",
-                        "fillOpacity": 70,
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 25,
+                        "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
                             "tooltip": false,
                             "viz": false
                         },
                         "insertNulls": false,
-                        "lineWidth": 0,
-                        "spanNulls": false
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
                     },
                     "mappings": [],
                     "max": 100,
@@ -35414,7 +35435,8 @@
                             }
                         ]
                     },
-                    "unit": "percent"
+                    "unit": "percent",
+                    "noValue": "No data"
                 },
                 "overrides": []
             },
@@ -35426,18 +35448,18 @@
             },
             "id": 212,
             "options": {
-                "alignValue": "left",
                 "legend": {
-                    "displayMode": "list",
+                    "calcs": [
+                        "mean",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
                     "placement": "bottom",
                     "showLegend": true
                 },
-                "mergeValues": true,
-                "rowHeight": 0.9,
-                "showValue": "auto",
                 "tooltip": {
                     "hideZeros": false,
-                    "mode": "single",
+                    "mode": "multi",
                     "sort": "none"
                 }
             },
@@ -35449,7 +35471,8 @@
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\", exported_pod!~\".*($health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\", exported_pod!~\".*($health_exclude_regex).*\"})\n) * 100",
                     "legendFormat": "\ud83e\udded PMM",
                     "range": true,
-                    "refId": "PMM"
+                    "refId": "PMM",
+                    "instant": false
                 },
                 {
                     "datasource": "Metrics",
@@ -35457,7 +35480,8 @@
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}|$health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}|$health_exclude_regex).*\"})\n) * 100",
                     "legendFormat": "\ud83d\udc18 PostgreSQL",
                     "range": true,
-                    "refId": "PostgreSQL"
+                    "refId": "PostgreSQL",
+                    "instant": false
                 },
                 {
                     "datasource": "Metrics",
@@ -35465,7 +35489,8 @@
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\", exported_pod!~\".*($health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\", exported_pod!~\".*($health_exclude_regex).*\"})\n) * 100",
                     "legendFormat": "\ud83d\uddb1\ufe0f ClickHouse",
                     "range": true,
-                    "refId": "ClickHouse"
+                    "refId": "ClickHouse",
+                    "instant": false
                 },
                 {
                     "datasource": "Metrics",
@@ -35473,7 +35498,8 @@
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\", exported_pod!~\".*($health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\", exported_pod!~\".*($health_exclude_regex).*\"})\n) * 100",
                     "legendFormat": "\ud83d\udcca VictoriaMetrics",
                     "range": true,
-                    "refId": "VictoriaMetrics"
+                    "refId": "VictoriaMetrics",
+                    "instant": false
                 },
                 {
                     "datasource": "Metrics",
@@ -35481,11 +35507,12 @@
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\", exported_pod!~\".*($health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\", exported_pod!~\".*($health_exclude_regex).*\"})\n) * 100",
                     "legendFormat": "\u2696\ufe0f HAProxy",
                     "range": true,
-                    "refId": "HAProxy"
+                    "refId": "HAProxy",
+                    "instant": false
                 }
             ],
             "title": "\u23f1\ufe0f Service Availability by Component",
-            "type": "state-timeline"
+            "type": "timeseries"
         },
         {
             "collapsed": false,
@@ -35651,7 +35678,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "label_replace(max by(node_id) (pmm_ha_leader_status), \"exported_pod\", \"$1\", \"node_id\", \"(.*)\")",
+                    "expr": "label_replace(\n  max by(node_id) (\n    (pmm_ha_leader_status == 1)\n    and on(node_id)\n    label_replace(\n      kube_pod_info{\n        exported_namespace=\"$namespace\",\n        exported_pod=~\"${release}-${pmm_suffix_regex}\"\n      },\n      \"node_id\", \"$1\", \"exported_pod\", \"(.*)\"\n    )\n  ),\n  \"exported_pod\", \"$1\", \"node_id\", \"(.*)\"\n)",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
@@ -35911,7 +35938,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by(exported_pod) (\n  label_replace(max by(name) (patroni_primary), \"exported_pod\", \"$1\", \"name\", \"(.*)\")\n  or\n  label_replace(\n    max by(node_name) (1 - clamp_max(pg_replication_is_replica, 1)),\n    \"exported_pod\", \"$1\", \"node_name\", \".*(${release}-pg-db-[a-zA-Z0-9-]+)\"\n  )\n  or\n  (max by(exported_pod) (\n    kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}\n  ) * 0 - 1)\n)",
+                    "expr": "max by(exported_pod) (\n  (\n    (\n      label_replace(max by(name) (patroni_primary), \"exported_pod\", \"$1\", \"name\", \"(.*)\")\n      or\n      label_replace(\n        max by(node_name) (1 - clamp_max(pg_replication_is_replica, 1)),\n        \"exported_pod\", \"$1\", \"node_name\", \".*(${release}-pg-db-[a-zA-Z0-9-]+)\"\n      )\n    )\n    and on(exported_pod)\n    max by(exported_pod) (\n      kube_pod_info{\n      exported_namespace=\"$namespace\",\n      exported_pod=~\"${release}-pg-db-.*\",\n      exported_pod!~\".*(${pg_exclude_regex}).*\"\n    }\n    )\n  )\n  or\n  (max by(exported_pod) (\n    kube_pod_info{\n      exported_namespace=\"$namespace\",\n      exported_pod=~\"${release}-pg-db-.*\",\n      exported_pod!~\".*(${pg_exclude_regex}).*\"\n    }\n  ) * 0 - 1)\n)",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
@@ -35922,7 +35949,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by(exported_pod) (\n  label_replace(\n    max by(name) (patroni_postgres_streaming) + on(name) max by(name) (patroni_primary),\n    \"exported_pod\", \"$1\", \"name\", \"(.*)\"\n  )\n  or\n  label_replace(\n    max by(node_name) (\n      (1 - clamp_max(pg_replication_is_replica, 1))\n      +\n      (clamp_max(pg_replication_is_replica, 1) * (pg_replication_lag_seconds < bool 60))\n    ),\n    \"exported_pod\", \"$1\", \"node_name\", \".*(${release}-pg-db-[a-zA-Z0-9-]+)\"\n  )\n  or\n  (max by(exported_pod) (\n    kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}\n  ) * 0 - 1)\n)",
+                    "expr": "max by(exported_pod) (\n  (\n    (\n      label_replace(\n        max by(name) (patroni_postgres_streaming) + on(name) max by(name) (patroni_primary),\n        \"exported_pod\", \"$1\", \"name\", \"(.*)\"\n      )\n      or\n      label_replace(\n        max by(node_name) (\n          (1 - clamp_max(pg_replication_is_replica, 1))\n          +\n          (clamp_max(pg_replication_is_replica, 1) * (pg_replication_lag_seconds < bool 60))\n        ),\n        \"exported_pod\", \"$1\", \"node_name\", \".*(${release}-pg-db-[a-zA-Z0-9-]+)\"\n      )\n    )\n    and on(exported_pod)\n    max by(exported_pod) (\n      kube_pod_info{\n      exported_namespace=\"$namespace\",\n      exported_pod=~\"${release}-pg-db-.*\",\n      exported_pod!~\".*(${pg_exclude_regex}).*\"\n    }\n    )\n  )\n  or\n  (max by(exported_pod) (\n    kube_pod_info{\n      exported_namespace=\"$namespace\",\n      exported_pod=~\"${release}-pg-db-.*\",\n      exported_pod!~\".*(${pg_exclude_regex}).*\"\n    }\n  ) * 0 - 1)\n)",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
@@ -36656,7 +36683,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by(service_name, proxy, server) (haproxy_server_status)",
+                    "expr": "max by(service, proxy, server) (\n  haproxy_server_status{\n    namespace=\"$namespace\",\n    service=~\"${release}-.*\"\n  }\n)",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
@@ -36676,13 +36703,13 @@
                             "Value": 3,
                             "proxy": 1,
                             "server": 2,
-                            "service_name": 0
+                            "service": 0
                         },
                         "renameByName": {
                             "Value": "Status",
                             "proxy": "Backend",
                             "server": "Server",
-                            "service_name": "Service"
+                            "service": "Service"
                         }
                     }
                 }
