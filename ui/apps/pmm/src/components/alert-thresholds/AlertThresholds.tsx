@@ -4,7 +4,6 @@ import Typography from '@mui/material/Typography';
 import { Table } from '@percona/percona-ui';
 import { OpenAlertThresholdsModalMessage } from '@pmm/shared';
 import { Modal } from 'components/modal';
-import { useGrafana } from 'contexts/grafana';
 import {
   useDeleteNodeThreshold,
   useNodeThresholds,
@@ -25,7 +24,6 @@ const AlertThresholds = () => {
   const [nodeId, setNodeId] = useState<string>();
   const [nodeName, setNodeName] = useState<string>();
   const [open, setIsOpen] = useState(false);
-  const { isFrameLoaded } = useGrafana();
 
   const { data, isLoading } = useNodeThresholds(nodeId ?? '', {
     enabled: open && !!nodeId,
@@ -57,10 +55,7 @@ const AlertThresholds = () => {
   }, [initialValues, methods]);
 
   useEffect(() => {
-    if (!isFrameLoaded) {
-      return;
-    }
-    messenger.addListener({
+    const handler = messenger.addListener({
       type: 'OPEN_ALERT_THRESHOLDS_MODAL',
       onMessage: (msg: OpenAlertThresholdsModalMessage) => {
         setNodeId(msg.payload?.nodeId);
@@ -68,7 +63,9 @@ const AlertThresholds = () => {
         setIsOpen(true);
       },
     });
-  }, [isFrameLoaded]);
+
+    return () => messenger.removeListener(handler);
+  });
 
   const handleClose = () => {
     setNodeId(undefined);

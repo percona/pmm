@@ -164,7 +164,7 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     };
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded, navigate]);
+  }, [isLoaded, setFromGrafana, navigate]);
 
   // -------- OUTGOING TO GRAFANA --------
 
