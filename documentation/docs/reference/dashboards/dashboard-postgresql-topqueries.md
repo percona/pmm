@@ -4,7 +4,6 @@ This dashboard analyzes query performance across your PostgreSQL instances, help
 
 ![PMM PostgreSQL Top Queries](../../images/PMM_PostgreSQL_Top_Queries.png)
 
-
 ### Transactions per Second
 Shows the rate of committed transactions for each PostgreSQL instance. The metric combines both regular and replicated transactions, displayed as operations per second with step interpolation for accurate counting between data points.
 
