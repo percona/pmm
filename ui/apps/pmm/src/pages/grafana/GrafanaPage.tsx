@@ -2,7 +2,6 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import { useGrafana } from 'contexts/grafana';
-import { useMessengerListener } from 'hooks/utils/useMessengerListener';
 import { PMM_BASE_PATH, PMM_HOME_URL } from 'lib/constants';
 import messenger from 'lib/messenger';
 import { constructUrl } from 'utils/link.utils';
@@ -32,29 +31,18 @@ export const GrafanaPage: FC = () => {
   );
   const [loading, setLoading] = useState(true);
 
-  useMessengerListener('GRAFANA_READY', () => {
-    setLoading(false);
-    // Answer the handshake so Grafana's own outbox drains too.
-    messenger.sendMessage({ type: 'MESSENGER_READY' });
-  });
-
-  // Show the frame anyway if Grafana never announces itself.
   useEffect(() => {
     if (!isFrameLoaded) {
       return;
     }
 
-    setLoading(true);
-    const timeoutId = setTimeout(() => setLoading(false), 5_000);
-
-    return () => clearTimeout(timeoutId);
-  }, [isFrameLoaded, src]);
+    messenger.waitForMessage('GRAFANA_READY', 5_000).finally(() => {
+      setLoading(false);
+    });
+  }, [isFrameLoaded]);
 
   const handleIframeLoad = useCallback(() => {
     const iframe = frameRef?.current;
-    // The frame may have navigated in place, which keeps its window identity —
-    // make the messenger wait for a fresh handshake before trusting the peer.
-    messenger.invalidateTarget();
     if (isGrafanaLoginPath(getIframePathname(iframe))) {
       handleGrafanaUserLoggedOut(queryClient);
       return;
