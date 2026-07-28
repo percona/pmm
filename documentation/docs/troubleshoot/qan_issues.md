@@ -106,3 +106,9 @@ docker run -e PMM_CLICKHOUSE_CONFIG=low-memory ... percona/pmm-server:3
     
 
 The `switch-config.sh` script is deprecated and will be removed in a future PMM release; use `PMM_CLICKHOUSE_CONFIG` instead.
+
+### Why do I see `?` instead of real query values?
+
+Your application is likely using server-side prepared statements (common with JDBC and ORM frameworks). 
+
+Performance Schema exposes prepared statement parameters as placeholders rather than real values. See [Prepared statements show placeholders instead of values](../use/qan/mysql.md#prepared-statements-show-placeholders-instead-of-values).

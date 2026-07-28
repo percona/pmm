@@ -119,19 +119,11 @@ While you can use both at the same time we recommend using only one--there is so
 
 The choice depends on the version and variant of your MySQL instance, and how much detail you want to see.
 
-!!! note "Query Analytics data sources and prepared statements"
+#### QAN data sources
 
-    Query Analytics (QAN) reads queries only from the slow query log written to a
-    file (`log_output=FILE`) or from Performance Schema. It cannot read the general
-    query log or a slow query log written to a table (`log_output=TABLE`).
-
-    If your application uses server-side prepared statements (common with drivers
-    such as JDBC), expect partial data on the Performance Schema source: query
-    examples appear as placeholders (`?`) instead of literal values, and EXPLAIN is
-    unavailable for them. This is how upstream MySQL exposes prepared statements to
-    Performance Schema, not a PMM limitation. The file-based slow query log records
-    executed statements with their real values, so examples and EXPLAIN are fuller
-    there.
+QAN reads queries only from the slow query log written to a file
+(`log_output=FILE`) or from Performance Schema. It does not support the
+general query log or a slow query log written to a table (`log_output=TABLE`).
 
 #### Data source comparison
 
