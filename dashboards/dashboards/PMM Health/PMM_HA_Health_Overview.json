@@ -35593,7 +35593,7 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Pod"
+                            "options": "Instance"
                         },
                         "properties": [
                             {
@@ -35603,7 +35603,15 @@
                             {
                                 "id": "custom.cellOptions",
                                 "value": {
-                                    "type": "auto"
+                                    "type": "color-background",
+                                    "mode": "basic"
+                                }
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "#5794F2"
                                 }
                             }
                         ]
@@ -36140,6 +36148,20 @@
                             {
                                 "id": "custom.width",
                                 "value": 160
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "#5794F2"
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background",
+                                    "mode": "basic"
+                                }
                             }
                         ]
                     }
@@ -36641,6 +36663,20 @@
                             {
                                 "id": "custom.width",
                                 "value": 200
+                            },
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "#5794F2"
+                                }
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background",
+                                    "mode": "basic"
+                                }
                             }
                         ]
                     },
