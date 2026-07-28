@@ -8,11 +8,13 @@ Some tools also use a thin pointer file that simply routes them here — these a
 
 | Tool | Pointer file (→ reads `AGENTS.md`) |
 |------|------|
-| Cursor | `.cursor/rules/pmm-agents-entrypoint.mdc` (`alwaysApply: true`) |
 | Claude Code | [CLAUDE.md](CLAUDE.md) |
+| Gemini CLI | [GEMINI.md](GEMINI.md) |
 | GitHub Copilot | [.github/copilot-instructions.md](.github/copilot-instructions.md) |
 
-Any other agent can read `AGENTS.md` directly. Tool-specific local files (e.g. `.claude/`, `.cursor/`) stay gitignored for personal experimentation.
+Any other agent can read `AGENTS.md` directly — Cursor, for example, loads root and nested `AGENTS.md` files natively, so no Cursor-specific rule is needed. Personal AI-tool files (`.claude/`, `.cursor/`) are gitignored for local experimentation, except `.claude/settings.json` (committed team config).
+
+If an `AGENTS.local.md` (repo root) or `~/AGENTS.local.md` (home) is present, read it at session start too — it holds machine-specific paths (gitignored). **Never put secrets there**; keep credentials in environment variables or a secret store.
 
 ## Maintaining This Document
 
@@ -78,7 +80,7 @@ Follow the sections through [Git and pull request checklist](#git-and-pull-reque
 7. For Go/API changes: run `make prepare-pr` (gen + license check + Go lint + format + `go mod tidy` — subsumes step 6 for Go).
 8. Update `AGENTS.md` (and the component guide) only if you changed structure, conventions, or workflows.
 
-For **user-visible changes** (metric, dashboard, API, exporter, UI), passing unit tests is not enough — deploy to a running server and verify against real data before calling it done. See [Running PMM locally](#running-pmm-locally-build-deploy-iterate), [Registering databases to test against](#registering-databases-to-test-against), and [Definition of done: verify, don't assume](#definition-of-done-verify-dont-assume).
+For **user-visible changes** (metric, dashboard, API, exporter, UI), passing unit tests is not enough — run PMM on a live server and verify against real data before calling it done (see [Definition of Done](#definition-of-done) and the full procedure in [`dev/docs/process/running-and-verifying-locally.md`](dev/docs/process/running-and-verifying-locally.md)).
 
 ### Don'ts
 
@@ -261,7 +263,7 @@ Confirm each instance appears as a monitored target (Inventory, and the metric s
 
 ---
 
-## Definition of done: verify, don't assume
+## Definition of Done: verify, don't assume
 
 Before calling a change complete, verify every item that applies — never report done on a check you didn't run:
 
@@ -275,21 +277,7 @@ Before calling a change complete, verify every item that applies — never repor
 
 If a change is architecturally significant or spans multiple components, propose a short plan before mass-editing. Never delete or weaken tests just to make them pass, and don't invent APIs or fields — check the proto/generated code.
 
-For any **user-visible** change (metric, dashboard, API, exporter, UI), "it compiles and unit tests pass" is **not done** — reproduce the problem, deploy the fix to a running server with real data, and confirm with evidence:
-
-**1. Understand and reproduce first.** Read the ticket fully. Restate in your own words what's broken vs. expected and which component it touches (exporter, pmm-managed, dashboard, API, UI). Reproduce the current (broken) behavior on a running server **before** changing code, so you can prove the fix later.
-
-**2. Iterate until it actually works.** After each change, hot-swap the binary ([iterate loop](#running-pmm-locally-build-deploy-iterate)), re-run the relevant tests, and re-check behavior on the running server. If anything is wrong — fix, redeploy, re-test. Don't stop at the first green compile.
-
-**3. Verify by evidence — do every item that applies, for every version tested:**
-
-- **Dashboards:** derive the **full** list of dashboards the change affects from the changed metric/feature (e.g. MySQL Instance Summary, MySQL Instance Overview, QAN, and any dashboard rendering the changed metric) — list them explicitly, then open **each** for **every** instance. Screenshot it, **open the screenshot**, and confirm panels are populated with correct values (non-empty, non-`NaN`). Don't verify just one dashboard.
-- **Metrics / API:** query the underlying data directly, not just the rendered panel — VictoriaMetrics' Prometheus-compatible API on the server (e.g. `GET /prometheus/api/v1/query?query=<metric>`) and/or the pmm-managed REST API. Confirm the value is correct for each version.
-- **Logs:** check `pmm-managed`, `vmagent`, and the relevant exporter (e.g. `mysqld_exporter`) for scrape errors and `unsupported`/parse warnings — for every version. Server logs are in `/srv/logs/` on `pmm-server`; exporter and vmagent logs live on the monitored-node containers created by pmm-qa (`docker logs <node-container>`).
-
-**4. End with a proof section.** State what was broken, what you changed and why, and give side-by-side evidence (screenshots + metric/API values + log excerpts) for every version. When a change is version-sensitive, call out explicitly that the old version still works (no regression) and the new version now works.
-
-> Red flags — none of these count as verification: "it looks right", "it's a small change", "I'll verify later". If you didn't run it and look at the result, it isn't done.
+For any **user-visible** change (metric, dashboard, API, exporter, UI), unit tests are **not** enough: run PMM on a live server, reproduce the issue, deploy the fix, and verify with evidence — dashboards, metrics/API, and logs, across the supported version matrix. Full procedure (run/iterate loop, registering test databases, the evidence protocol): [`dev/docs/process/running-and-verifying-locally.md`](dev/docs/process/running-and-verifying-locally.md).
 
 ---
 
@@ -518,7 +506,7 @@ All long-running daemons expose on `127.0.0.1`:
 | `make env-up` | Start development container (PMM Server) |
 | `make env-up-rebuild` | Rebuild development container from scratch |
 | `make env TARGET=<t>` | Run `make <t>` **inside** the `pmm-server` container (bash shell if `TARGET` omitted) |
-| `make env TARGET=run-managed-ci` | Rebuild + hot-swap the pmm-managed binary (no image rebuild); see [iterate loop](#running-pmm-locally-build-deploy-iterate). Also `run-agent-ci`, `run-qan-ci`, `run-vmproxy-ci`, `run-all` |
+| `make env TARGET=run-managed-ci` | Rebuild + hot-swap the pmm-managed binary (no image rebuild); see [running and verifying locally](dev/docs/process/running-and-verifying-locally.md). Also `run-agent-ci`, `run-qan-ci`, `run-vmproxy-ci`, `run-all` |
 | `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI |
 | `make run-qan-ui` | Inside devcontainer: webpack + livereload for the QAN Grafana plugin |
 | `make doc-build-preview` | Preview user docs (`documentation/docs/`) with live reload at http://localhost:8000 |
@@ -543,6 +531,7 @@ All long-running daemons expose on `127.0.0.1`:
 - `dev/docs/process/tech_stack.md` — technology choices and rationale
 - `dev/docs/process/best_practices.md` — coding best practices
 - `dev/docs/process/GIT_AND_GITHUB.md` — git workflow
+- `dev/docs/process/running-and-verifying-locally.md` — run PMM locally, register test DBs, evidence-based verification for user-visible changes
 - `dev/docs/process/v2_to_v3_environment_variables.md` — v2→v3 environment variable migration
 - `dev/docs/managed/data-model.md` — inventory data model (schema + diagrams)
 - `dev/docs/managed/access-control.md` — access control (RBAC) architecture
