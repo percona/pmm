@@ -25,27 +25,27 @@ import (
 
 // https://goreleaser.com/templates/
 var (
-	// Component name, e.g. "pmm-managed" or "mongodb_exporter".
+	// ProjectName is component name, e.g. "pmm-managed" or "mongodb_exporter".
 	// {{ .ProjectName }} for GoReleaser.
 	ProjectName string
 
-	// Component version, e.g. "2.1.2-beta1" for pmm-managed or "0.6.3" for mongodb_exporter.
+	// Version is component version, e.g. "2.1.2-beta1" for pmm-managed or "0.6.3" for mongodb_exporter.
 	// {{ .Version }} for GoReleaser.
 	Version string
 
-	// PMM version. Empty for non-PMM builds.
+	// PMMVersion is PMM version. Empty for non-PMM builds.
 	// For example, "2.1.2-beta1" for mongodb_exporter when built with PMM Client, empty otherwise.
 	PMMVersion string
 
-	// Build UNIX timestamp, e.g. "1545226908".
+	// Timestamp is build UNIX timestamp, e.g. "1545226908".
 	// {{ .Timestamp }} for GoReleaser.
 	Timestamp string
 
-	// Full git commit hash, e.g. "6559a94ab33831deeda04193f74413b735edb1a1".
+	// FullCommit is full git commit hash, e.g. "6559a94ab33831deeda04193f74413b735edb1a1".
 	// {{ .FullCommit }} for GoReleaser.
 	FullCommit string
 
-	// Git branch name, e.g. "master".
+	// Branch is Git branch name, e.g. "master".
 	Branch string
 )
 
