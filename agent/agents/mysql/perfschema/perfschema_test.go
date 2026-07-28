@@ -285,6 +285,8 @@ func TestPerfSchema(t *testing.T) {
 	var rowsExamined float32
 	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(t.Context(), db.WithTag("pmm-agent-tests:MySQLVersion"))
 	t.Logf("MySQL version: %s, vendor: %s", mySQLVersion, mySQLVendor)
+	// MySQL 8.0 and newer, including calendar-versioned releases (26.7 and newer).
+	mySQL8Plus := mySQLVendor != version.MariaDBVendor && mySQLVersion.Float() >= 8.0
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
 	versionVendor := fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor)
 	switch {
@@ -310,8 +312,8 @@ func TestPerfSchema(t *testing.T) {
 			"SELECT * FROM `city`": "9c799bdb2460f79b3423b77cd10403da",
 		}
 
-	// MySQL 8.0 and newer, including calendar-versioned releases (26.7 and newer), use SHA-256 digests.
-	case mySQLVendor != version.MariaDBVendor && mySQLVersion.Float() >= 8.0:
+	// These versions use SHA-256 digests.
+	case mySQL8Plus:
 		digests = map[string]string{
 			"SELECT `sleep` (?)":   "0b1b1c39d4ee2dda7df2a532d0a23406d86bd34e2cd7f22e3f7e9dedadff9b69",
 			"SELECT * FROM `city`": "950bdc225cf73c9096ba499351ed4376f4526abad3d8ceabc168b6b28cfc9eab",
@@ -542,7 +544,7 @@ func TestPerfSchema(t *testing.T) {
 
 		require.NoError(t, m.refreshHistoryCache(t.Context()))
 		var example string
-		isTruncated := !(mySQLVendor != version.MariaDBVendor && mySQLVersion.Float() >= 8.0)
+		isTruncated := !mySQL8Plus
 
 		switch {
 		// Perf schema truncates queries with non-utf8 characters.

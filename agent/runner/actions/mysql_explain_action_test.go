@@ -45,10 +45,11 @@ func TestMySQLExplain(t *testing.T) {
 	ctx := context.Background()
 	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, q)
 
+	isMariaDB := mySQLVendor == version.MariaDBVendor
 	// Starting with MySQL 9.5, EXPLAIN returns the tree format instead of the traditional table.
 	// The version check also covers calendar-versioned releases (26.7 and newer).
 	// Assertions for the tree format are only partial, more checks should be done. See: PMM-14426.
-	treeExplainOutput := mySQLVendor != version.MariaDBVendor && mySQLVersion.Float() >= 9.5
+	treeExplainOutput := !isMariaDB && mySQLVersion.Float() >= 9.5
 
 	const query = "SELECT * FROM city ORDER BY Population"
 
@@ -117,23 +118,22 @@ func TestMySQLExplain(t *testing.T) {
 
 		assert.Equal(t, 1, m.Get("query_block.select_id").Int())
 
-		var table map[string]any
+		tablePath := "query_block.ordering_operation.table"
 		switch {
-		case mySQLVendor != version.MariaDBVendor:
-			table = m.Get("query_block.ordering_operation.table").MSI()
-		case mySQLVersion.Float() >= 11:
-			table = m.Get("query_block.nested_loop[0].read_sorted_file.filesort.table").MSI()
-		default:
-			table = m.Get("query_block.read_sorted_file.filesort.table").MSI()
+		case isMariaDB && mySQLVersion.Float() >= 11:
+			tablePath = "query_block.nested_loop[0].read_sorted_file.filesort.table"
+		case isMariaDB:
+			tablePath = "query_block.read_sorted_file.filesort.table"
 		}
+		table := m.Get(tablePath).MSI()
 		require.NotNil(t, table)
 
 		assert.Equal(t, "city", table["table_name"])
-		if mySQLVersion.String() != "5.6" && mySQLVendor != version.MariaDBVendor {
+		if !isMariaDB && mySQLVersion.String() != "5.6" {
 			assert.Equal(t, []any{"ID", "Name", "CountryCode", "District", "Population"}, table["used_columns"])
 		}
 
-		if mySQLVendor != version.MariaDBVendor {
+		if !isMariaDB {
 			require.Len(t, m.Get("warnings").InterSlice(), 1)
 			assert.Equal(t, 1003, m.Get("warnings[0].Code").Int())
 			assert.Equal(t, "Note", m.Get("warnings[0].Level").String())
@@ -169,7 +169,7 @@ func TestMySQLExplain(t *testing.T) {
 		require.Len(t, actual, 2)
 
 		if treeExplainOutput {
-			return
+			t.Skip("Tree EXPLAIN output has no traditional columns to assert on. See: PMM-14426.")
 		}
 
 		// Check some columns names
