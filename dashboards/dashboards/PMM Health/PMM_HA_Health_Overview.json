@@ -36755,7 +36755,8 @@
                 "query": "label_values(grafana_live_node_num_nodes, instance)",
                 "refresh": 1,
                 "regex": "/^(.*)-\\d+$/",
-                "type": "query"
+                "type": "query",
+                "hide": 2
             },
             {
                 "current": {
