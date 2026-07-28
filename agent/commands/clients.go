@@ -34,8 +34,6 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	agentlocalClient "github.com/percona/pmm/api/agentlocal/v1/json/client"
-	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
-	aservice "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 	"github.com/percona/pmm/utils/tlsconfig"
@@ -137,36 +135,6 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	}
 
 	managementClient.Default.SetTransport(transport)
-	inventoryClient.Default.SetTransport(transport)
-}
-
-// serverKnowsAgent reports whether PMM Server has an Agent with the given ID.
-// An error is returned when PMM Server could not be asked, so that the caller can tell
-// "the Agent is gone" apart from "the answer is unknown".
-//
-// This method is not thread-safe.
-func serverKnowsAgent(agentID string) (bool, error) {
-	_, err := inventoryClient.Default.AgentsService.GetAgent(&aservice.GetAgentParams{
-		AgentID: agentID,
-		Context: context.Background(),
-	})
-	if err == nil {
-		return true, nil
-	}
-
-	e, ok := errors.AsType[*aservice.GetAgentDefault](err)
-	if !ok {
-		return false, err
-	}
-
-	switch e.Code() {
-	// PMM Server either does not know this Agent, or does not accept its credentials. Registering
-	// again is the only way forward, and it reports a credentials problem with a clear message.
-	case http.StatusNotFound, http.StatusUnauthorized, http.StatusForbidden:
-		return false, nil
-	default:
-		return false, err
-	}
 }
 
 // ParseKeyValuePair parses --custom-labels flag value.

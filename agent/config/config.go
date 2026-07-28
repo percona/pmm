@@ -339,7 +339,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		return configFileF, err
 	}
 	l.Infof("Loading configuration file %s.", configFileF)
-	fileCfg, err := LoadFromFile(configFileF, &cfg.Encryption)
+	fileCfg, err := loadFromFile(configFileF, &cfg.Encryption)
 	if err != nil {
 		return configFileF, err
 	}
@@ -512,8 +512,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	setupCmd.Flag("az", "Node availability zone [PMM_AGENT_SETUP_AZ]").
 		Envar("PMM_AGENT_SETUP_AZ").StringVar(&cfg.Setup.Az)
 
-	setupCmd.Flag("force", "Register the Node even if this pmm-agent is registered already, removing the Node with"+
-		" that name together with all dependent Services and Agents if one exists [PMM_AGENT_SETUP_FORCE]").
+	setupCmd.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist [PMM_AGENT_SETUP_FORCE]").
 		Envar("PMM_AGENT_SETUP_FORCE").BoolVar(&cfg.Setup.Force)
 	setupCmd.Flag("skip-registration", "Skip registration on PMM Server [PMM_AGENT_SETUP_SKIP_REGISTRATION]").
 		Envar("PMM_AGENT_SETUP_SKIP_REGISTRATION").BoolVar(&cfg.Setup.SkipRegistration)
@@ -534,12 +533,11 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	return app, configFileF
 }
 
-// LoadFromFile loads the configuration stored in the file at the given path,
-// ignoring both command-line flags and environment variables.
+// loadFromFile loads configuration from file.
 // As a special case, if file does not exist, it returns ConfigFileDoesNotExistError.
 // Other errors are returned if file exists, but configuration can't be loaded due to permission problems,
 // YAML parsing problems, etc.
-func LoadFromFile(path string, enc *Encryption) (*Config, error) {
+func loadFromFile(path string, enc *Encryption) (*Config, error) {
 	_, err := os.Stat(path)
 	if errors.Is(err, fs.ErrNotExist) {
 		return nil, ConfigFileDoesNotExistError(path)
