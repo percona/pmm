@@ -51,6 +51,9 @@ export const SHOW_UPDATE_INFO_DELAY_MS = 5000;
 export const SHOW_UPDATE_MODAL_AFTER_MS = 60 * 60 * 1000;
 // 7 days — UI-owned snooze window (settings update_snooze_duration was removed)
 export const DEFAULT_UPDATE_SNOOZE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
+// QA/dev only: localStorage.setItem(UPDATE_SNOOZE_DURATION_OVERRIDE_KEY, '10000')
+export const UPDATE_SNOOZE_DURATION_OVERRIDE_KEY =
+  'pmm-ui.dev.updateSnoozeDurationMs';
 
 export const DOCS_URLS = {
   qan: 'https://per.co.na/QAN',

@@ -1,11 +1,30 @@
 import {
   DEFAULT_UPDATE_SNOOZE_DURATION_MS,
   SHOW_UPDATE_MODAL_AFTER_MS,
+  UPDATE_SNOOZE_DURATION_OVERRIDE_KEY,
 } from 'lib/constants';
 import { LatestInfo } from 'types/updates.types';
 import { UserInfo } from 'types/user.types';
 
 type SnoozeUserInfo = Pick<UserInfo, 'snoozedAt' | 'snoozedPmmVersion'>;
+
+export const getUpdateSnoozeDurationMs = (): number => {
+  try {
+    const raw = localStorage.getItem(UPDATE_SNOOZE_DURATION_OVERRIDE_KEY);
+    if (raw == null) {
+      return DEFAULT_UPDATE_SNOOZE_DURATION_MS;
+    }
+
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      return DEFAULT_UPDATE_SNOOZE_DURATION_MS;
+    }
+
+    return parsed;
+  } catch {
+    return DEFAULT_UPDATE_SNOOZE_DURATION_MS;
+  }
+};
 
 export const isUpdateSnoozeActive = (
   latest: LatestInfo | null,
@@ -28,7 +47,6 @@ export const isUpdateSnoozeActive = (
   }
 
   return (
-    now - new Date(userInfo.snoozedAt).getTime() <=
-    DEFAULT_UPDATE_SNOOZE_DURATION_MS
+    now - new Date(userInfo.snoozedAt).getTime() <= getUpdateSnoozeDurationMs()
   );
 };
