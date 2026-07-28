@@ -13,11 +13,11 @@ You'll see different alert levels depending on what's found:
 
 - **Notice**: AHI is working normally, or it's disabled.
 - **Warning**: contention is building up and starting to affect performance.
-- **Major**: contention is high enough that the AHI is likely hurting more than helping. Increase AHI partitions or disable AHI altogether.
+- **Error**: contention is high enough that the AHI is likely hurting more than helping. Increase AHI partitions or disable AHI altogether.
 
 ## Resolution
 
-### If you're seeing Warning or Major alerts
+### If you're seeing Warning or Error alerts
 
 Increase the number of AHI partitions. This splits the internal lock across more structures, reducing contention:
 
