@@ -4,8 +4,6 @@ FROM $PMM_SERVER_IMAGE
 ARG PMM_SERVER_IMAGE
 ARG GO_VERSION
 
-ENV GONOPROXY='github.com/percona,github.com/Percona-Lab'
-ENV GONOSUMDB='github.com/percona,github.com/Percona-Lab'
 ENV GOPRIVATE='github.com/percona,github.com/Percona-Lab'
 
 USER root
@@ -18,8 +16,7 @@ RUN mkdir -p $GOPATH/src/github.com/percona/pmm
 WORKDIR $GOPATH/src/github.com/percona/pmm
 
 COPY ./ ./
-# setup.sh uses a task from Makefile.devcontainer but expects it to be in the default Makefile
-COPY ./Makefile.devcontainer ./Makefile
+COPY ./.devcontainer/Makefile ./Makefile
 
 RUN --mount=type=cache,target=/var/cache/dnf \
     bash ./.devcontainer/setup.sh

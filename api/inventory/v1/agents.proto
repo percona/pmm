@@ -241,6 +241,8 @@ message MongoDBExporter {
   repeated string environment_variable_names = 29;
   // Connection timeout for exporter (if set).
   google.protobuf.Duration connection_timeout = 30;
+  // Enable collecting histogram bucket metrics from getDiagnosticData.
+  bool enable_diagnostic_data_histograms = 31;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -1139,6 +1141,8 @@ message AddMongoDBExporterParams {
   google.protobuf.Duration connection_timeout = 23 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Enable collecting histogram bucket metrics from getDiagnosticData.
+  bool enable_diagnostic_data_histograms = 24;
 }
 
 message ChangeMongoDBExporterParams {
@@ -1188,6 +1192,8 @@ message ChangeMongoDBExporterParams {
   google.protobuf.Duration connection_timeout = 22 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Enable collecting histogram bucket metrics from getDiagnosticData.
+  optional bool enable_diagnostic_data_histograms = 23;
 }
 
 // Add/Change PostgresExporter
