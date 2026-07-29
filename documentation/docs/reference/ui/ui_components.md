@@ -80,4 +80,4 @@ Explore metrics lets you visually browse and filter available metrics without wr
 
 This adds the **Explore metrics** option under **Explore** in the left sidebar. For more information, see [Grafana Metrics Drilldown](https://grafana.com/docs/grafana-cloud/visualizations/simplified-exploration/metrics).
 
-![Explore metrics in the PMM sidebar](../../images/PMM_Explore_metrics.jpg)
+![Explore metrics in the PMM sidebar](../../images/PMM_Explore_metrics.png)
