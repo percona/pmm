@@ -31,11 +31,8 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/auth"
 )
-
-// nodeRollbackTimeout bounds the best-effort node rollback when service-account
-// creation fails, on a context detached from the (possibly canceled) request.
-const nodeRollbackTimeout = 10 * time.Second
 
 // RegisterNode performs the registration of a new node.
 func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) { //nolint:gocognit
@@ -126,53 +123,18 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 		return nil, e
 	}
 
-	// Always mint a dedicated Grafana service-account token for this node rather than
-	// handing the caller's incoming token back to the agent. The caller's token may be
-	// short-lived (the one-step UI install token has a 15-minute TTL); if the agent
-	// adopted it as its standing credential it would stop working once it expired, and
-	// later `pmm-admin add`/inventory calls would fail with a Grafana
-	// "Auth method is not service account token" 401. The node service-account token
-	// created here has no TTL, so the agent keeps a durable credential.
-	// CreateServiceAccount authenticates to Grafana with the caller's auth headers,
-	// which the /management. auth rule already requires to have the Admin role.
-	_, res.Token, e = s.grafanaClient.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
-	if e != nil {
-		// The node, pmm-agent and node-exporter rows were already committed above, but
-		// minting the token (an external Grafana call we deliberately keep outside the
-		// DB transaction) failed. Roll the node back so the operator can simply retry
-		// instead of being blocked by a half-registered node with no usable token, which
-		// would otherwise require --force (and wipe any sibling services) to clear.
-		nodeID := registeredNodeID(res)
-		if nodeID != "" {
-			// Use a detached context: CreateServiceAccount often fails precisely because
-			// the request ctx was canceled/timed out, and reusing it here would make the
-			// rollback a no-op and leave the orphan behind.
-			rbCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), nodeRollbackTimeout)
-			rbErr := s.db.InTransactionContext(rbCtx, nil, func(tx *reform.TX) error {
-				return models.RemoveNode(tx.Querier, nodeID, models.RemoveCascade)
-			})
-			cancel()
-			if rbErr != nil {
-				s.l.WithField("node_id", nodeID).WithError(rbErr).Warn("Failed to roll back node after service-account creation failed")
-			}
+	authHeaders, _ := auth.GetHeadersFromContext(ctx)
+	token := auth.GetTokenFromHeaders(authHeaders)
+	if token != "" {
+		res.Token = token
+	} else {
+		_, res.Token, e = s.grafanaClient.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
+		if e != nil {
+			return nil, e
 		}
-		return nil, e
 	}
 
 	return res, nil
-}
-
-// registeredNodeID returns the node ID just written into the registration response,
-// regardless of node type.
-func registeredNodeID(res *managementv1.RegisterNodeResponse) string {
-	switch {
-	case res.GenericNode != nil:
-		return res.GenericNode.NodeId
-	case res.ContainerNode != nil:
-		return res.ContainerNode.NodeId
-	default:
-		return ""
-	}
 }
 
 // UnregisterNode unregisters the node.
@@ -326,19 +288,25 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 		})
 	}
 
-	result, _, err := s.vmClient.Query(ctx, upQuery, time.Now())
+	metrics, err := s.queryNodeUpMetrics(ctx, upQuery, false)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute an instant VM query: %w", err)
+		return nil, err
 	}
 
-	metrics := make(map[string]int, len(result.(model.Vector))) //nolint:forcetypeassert
-	for _, v := range result.(model.Vector) {                   //nolint:forcetypeassert
-		nodeID := string(v.Metric[model.LabelName("node_id")])
-		// Sometimes we may see several metrics for the same node, so we just take the first one.
-		if _, ok := metrics[nodeID]; !ok {
-			metrics[nodeID] = int(v.Value)
+	// Same fallback as ListServices: while vmagents replay buffered data after an outage,
+	// VM has no fresh samples although nodes are fine. Use the last sample within
+	// staleStatusWindow for nodes whose pmm-agent is currently connected.
+	staleMetrics := map[string]int{}
+	for _, node := range nodes {
+		if _, ok := metrics[node.NodeID]; !ok {
+			staleMetrics, err = s.queryNodeUpMetrics(ctx, upQuery, true)
+			if err != nil {
+				return nil, err
+			}
+			break
 		}
 	}
+	connectedCache := make(map[string]bool)
 
 	res := make([]*managementv1.UniversalNode, len(nodes))
 	for i, node := range nodes {
@@ -366,15 +334,14 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 			IsPmmServerNode: node.IsPMMServerNode,
 		}
 
-		if metric, ok := metrics[node.NodeID]; ok {
-			switch metric {
-			// We assume there can only be metric values of either 1(UP) or 0(DOWN).
-			case 0:
-				uNode.Status = managementv1.UniversalNode_STATUS_DOWN
-			case 1:
-				uNode.Status = managementv1.UniversalNode_STATUS_UP
-			}
-		} else {
+		freshUp, hasFresh := metrics[node.NodeID]
+		staleUp, hasStale := staleMetrics[node.NodeID]
+		switch {
+		case hasFresh:
+			uNode.Status = nodeStatusFromUp(freshUp)
+		case hasStale && s.nodeHasConnectedPMMAgent(agents, node.NodeID, connectedCache):
+			uNode.Status = nodeStatusFromUp(staleUp)
+		default:
 			uNode.Status = managementv1.UniversalNode_STATUS_UNKNOWN
 		}
 
@@ -403,17 +370,24 @@ func (s *ManagementService) GetNode(ctx context.Context, req *managementv1.GetNo
 		return nil, err
 	}
 
-	result, _, err := s.vmClient.Query(ctx, fmt.Sprintf(nodeUpQuery, req.NodeId), time.Now())
+	metrics, err := s.queryNodeUpMetrics(ctx, fmt.Sprintf(nodeUpQuery, req.NodeId), false)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute an instant VM query: %w", err)
+		return nil, err
 	}
 
-	metrics := make(map[string]int, len(result.(model.Vector))) //nolint:forcetypeassert
-	for _, v := range result.(model.Vector) {                   //nolint:forcetypeassert
-		nodeID := string(v.Metric[model.LabelName("node_id")])
-		// Sometimes we may see several metrics for the same node, so we just take the first one.
-		if _, ok := metrics[nodeID]; !ok {
-			metrics[nodeID] = int(v.Value)
+	// Same fallback as ListNodes: use the last sample within staleStatusWindow
+	// when there is no fresh one and the node's pmm-agent is connected.
+	staleMetrics := map[string]int{}
+	connectedCache := make(map[string]bool)
+	var nodeAgents []*models.Agent
+	if _, ok := metrics[node.NodeID]; !ok {
+		staleMetrics, err = s.queryNodeUpMetrics(ctx, fmt.Sprintf(nodeUpQuery, req.NodeId), true)
+		if err != nil {
+			return nil, err
+		}
+		nodeAgents, err = models.FindAgents(s.db.WithContext(ctx), models.AgentFilters{NodeID: node.NodeID})
+		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -440,19 +414,85 @@ func (s *ManagementService) GetNode(ctx context.Context, req *managementv1.GetNo
 		IsPmmServerNode: node.IsPMMServerNode,
 	}
 
-	if metric, ok := metrics[node.NodeID]; ok {
-		switch metric {
-		// We assume there can only be metric values of either 1(UP) or 0(DOWN).
-		case 0:
-			uNode.Status = managementv1.UniversalNode_STATUS_DOWN
-		case 1:
-			uNode.Status = managementv1.UniversalNode_STATUS_UP
-		}
-	} else {
+	freshUp, hasFresh := metrics[node.NodeID]
+	staleUp, hasStale := staleMetrics[node.NodeID]
+	switch {
+	case hasFresh:
+		uNode.Status = nodeStatusFromUp(freshUp)
+	case hasStale && s.nodeHasConnectedPMMAgent(nodeAgents, node.NodeID, connectedCache):
+		uNode.Status = nodeStatusFromUp(staleUp)
+	default:
 		uNode.Status = managementv1.UniversalNode_STATUS_UNKNOWN
 	}
 
 	return &managementv1.GetNodeResponse{
 		Node: uNode,
 	}, nil
+}
+
+// queryNodeUpMetrics returns the values of the node "up" metrics keyed by node ID.
+// With stale=true it returns the most recent sample within staleStatusWindow instead
+// of only fresh (non-stale) samples.
+func (s *ManagementService) queryNodeUpMetrics(ctx context.Context, query string, stale bool) (map[string]int, error) {
+	if stale {
+		query = fmt.Sprintf("last_over_time(%s[%s])", query, staleStatusWindow)
+	}
+
+	result, _, err := s.vmClient.Query(ctx, query, time.Now())
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute an instant VM query: %w", err)
+	}
+
+	vector, ok := result.(model.Vector)
+	if !ok {
+		return nil, fmt.Errorf("unexpected VM query result type %T", result)
+	}
+	metrics := make(map[string]int, len(vector))
+	for _, v := range vector {
+		nodeID := string(v.Metric[model.LabelName("node_id")])
+		// Sometimes we may see several metrics for the same node, so we just take the first one.
+		if _, ok := metrics[nodeID]; !ok {
+			metrics[nodeID] = int(v.Value)
+		}
+	}
+	return metrics, nil
+}
+
+// nodeStatusFromUp converts an "up" metric value to a node status.
+func nodeStatusFromUp(up int) managementv1.UniversalNode_Status {
+	// We assume there can only be metric values of either 1(UP) or 0(DOWN).
+	switch up {
+	case 0:
+		return managementv1.UniversalNode_STATUS_DOWN
+	case 1:
+		return managementv1.UniversalNode_STATUS_UP
+	default:
+		return managementv1.UniversalNode_STATUS_UNKNOWN
+	}
+}
+
+// nodeHasConnectedPMMAgent reports whether a pmm-agent providing this node's metrics is
+// currently connected. The connectedCache map memoizes registry lookups within one request.
+func (s *ManagementService) nodeHasConnectedPMMAgent(agents []*models.Agent, nodeID string, connectedCache map[string]bool) bool {
+	for _, agent := range agents {
+		if pointer.GetString(agent.NodeID) != nodeID && pointer.GetString(agent.RunsOnNodeID) != nodeID {
+			continue
+		}
+		pmmAgentID := pointer.GetString(agent.PMMAgentID)
+		if agent.AgentType == models.PMMAgentType {
+			pmmAgentID = agent.AgentID
+		}
+		if pmmAgentID == "" {
+			continue
+		}
+		connected, ok := connectedCache[pmmAgentID]
+		if !ok {
+			connected = s.r.IsConnected(pmmAgentID)
+			connectedCache[pmmAgentID] = connected
+		}
+		if connected {
+			return true
+		}
+	}
+	return false
 }
