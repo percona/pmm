@@ -165,7 +165,7 @@ func printErrorResponse(opts *flags.GlobalFlags, err commands.ErrorResponse) {
 		fmt.Printf("%s\n", b) //nolint:forbidigo
 	} else {
 		msg := e.Error
-		if e.Code == 401 {
+		if e.Code == 401 { //nolint:mnd
 			msg += ". Please check username and password."
 		}
 		fmt.Println(msg) //nolint:forbidigo

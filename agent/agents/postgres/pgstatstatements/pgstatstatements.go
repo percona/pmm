@@ -129,7 +129,7 @@ func newPgStatStatementsQAN(
 		maxQueryLength:         maxQueryLength,
 		disableCommentsParsing: disableCommentsParsing,
 		l:                      l,
-		changes:                make(chan agents.Change, 10),
+		changes:                make(chan agents.Change, 10), //nolint:mnd
 		statementsCache:        statementCache,
 	}, nil
 }
