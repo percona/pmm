@@ -18,11 +18,11 @@ RUN mkdir -p $GOPATH/src/github.com/percona/pmm
 WORKDIR $GOPATH/src/github.com/percona/pmm
 
 COPY ./ ./
-# setup.py uses a task from Makefile.devcontainer but expects it to be in the default Makefile
+# setup.sh uses a task from Makefile.devcontainer but expects it to be in the default Makefile
 COPY ./Makefile.devcontainer ./Makefile
 
 RUN --mount=type=cache,target=/var/cache/dnf \
-    python ./.devcontainer/setup.py
+    bash ./.devcontainer/setup.sh
 
 RUN mv -f $GOPATH/src/github.com/percona/pmm/bin/* $GOPATH/bin/
 

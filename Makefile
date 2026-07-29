@@ -11,10 +11,12 @@ endif
 env-up: 							## Start devcontainer
 	COMPOSE_PROFILES=$(PROFILES) \
 	docker compose -f ./docker-compose.dev.yml up -d --wait --wait-timeout 100
+	$(MAKE) env-pg-config
 
 env-up-rebuild: env-update-image	## Rebuild and start devcontainer. Useful for custom $PMM_SERVER_IMAGE
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker compose -f ./docker-compose.dev.yml up --build -d
+	docker compose -f ./docker-compose.dev.yml up --build -d --wait --wait-timeout 100
+	$(MAKE) env-pg-config
 
 env-update-image:					## Pull latest dev image
 	COMPOSE_PROFILES=$(PROFILES) \
@@ -25,7 +27,11 @@ env-compose-up: env-update-image
 	docker compose up --detach --renew-anon-volumes --remove-orphans --wait --wait-timeout 100
 
 env-devcontainer:
-	docker exec -it --workdir=/root/go/src/github.com/percona/pmm --user root pmm-server python .devcontainer/setup.py
+	docker exec -it --workdir=/root/go/src/github.com/percona/pmm --user root pmm-server bash .devcontainer/setup.sh
+
+# PostgreSQL is initialized by the entrypoint on the first container start, not at image build time.
+env-pg-config:
+	docker exec --workdir=/root/go/src/github.com/percona/pmm --user root pmm-server bash .devcontainer/setup.sh --postgres-only
 
 env-down:							## Stop devcontainer
 	COMPOSE_PROFILES=$(PROFILES) \
