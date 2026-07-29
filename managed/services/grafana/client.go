@@ -142,7 +142,7 @@ func CurrentUserHTTPResponse(err error) (int, map[string]string) {
 		}
 		return http.StatusForbidden, map[string]string{"message": msg}
 	default:
-		if cErr.Code >= 500 {
+		if cErr.Code >= 500 { //nolint:mnd
 			return http.StatusBadGateway, map[string]string{"message": "Bad Gateway"}
 		}
 		// Other Grafana 4xx responses are treated as upstream errors for this proxy endpoint.

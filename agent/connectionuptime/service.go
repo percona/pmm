@@ -153,7 +153,7 @@ func (c *Service) GetConnectedUpTimeUntil(toTime time.Time) float32 {
 
 	if len(c.events) == 1 {
 		if c.events[0].Connected {
-			return 100
+			return 100 //nolint:mnd
 		}
 		return 0
 	}
@@ -183,7 +183,7 @@ func (c *Service) GetConnectedUpTimeUntil(toTime time.Time) float32 {
 	startTime := maxTime(expiredTime, c.events[0].Timestamp)
 	totalTime := toTime.Sub(startTime).Milliseconds()
 
-	return float32(connectedTimeMs) / float32(totalTime) * 100
+	return float32(connectedTimeMs) / float32(totalTime) * 100 //nolint:mnd
 }
 
 func maxTime(t1, t2 time.Time) time.Time {
