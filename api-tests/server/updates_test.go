@@ -54,7 +54,7 @@ func TestCheckUpdates(t *testing.T) {
 
 	require.NotEmpty(t, res.Payload.Installed)
 	assert.True(t, strings.HasPrefix(res.Payload.Installed.Version, "3."),
-		"installed.version = %q should have '2.' or '3.' prefix", res.Payload.Installed.Version)
+		"installed.version = %q should 3.' prefix", res.Payload.Installed.Version)
 	assert.NotEmpty(t, res.Payload.Installed.FullVersion)
 	require.NotEmpty(t, res.Payload.Installed.Timestamp)
 	ts := time.Time(res.Payload.Installed.Timestamp)
