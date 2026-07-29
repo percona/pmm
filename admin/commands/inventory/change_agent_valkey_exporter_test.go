@@ -43,7 +43,7 @@ func TestValkeyExporterChangeAgent(t *testing.T) {
 				Password:    new("redis_pass"),
 				TLS:         new(true),
 				PushMetrics: new(false),
-				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
+				LogLevelNoFatalChangeFlags: flags.LogLevelNoFatalChangeFlags{
 					LogLevel: new(flags.LogLevel("debug")),
 				},
 				CustomLabels: &map[string]string{"environment": "test"},
