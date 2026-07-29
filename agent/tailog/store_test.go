@@ -84,7 +84,8 @@ func TestStoreStripsColorCodes(t *testing.T) {
 	t.Parallel()
 
 	s := NewStore(5)
-	writeLines(t, s,
+	writeLines(
+		t, s,
 		"\x1b[31mred\x1b[0m",
 		"\x1b[33myellow\x1b[0m",
 		"\x1b[36mblue\x1b[0m",
