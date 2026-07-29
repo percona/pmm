@@ -110,7 +110,7 @@ func (res *listResult) String() string {
 
 func convertTabs(template string) (string, error) {
 	var buf bytes.Buffer
-	w := tabwriter.NewWriter(&buf, 4, 4, 8, ' ', tabwriter.TabIndent)
+	w := tabwriter.NewWriter(&buf, 4, 4, 8, ' ', tabwriter.TabIndent) //nolint:mnd
 	_, err := io.WriteString(w, template)
 	if err != nil {
 		return "", err
