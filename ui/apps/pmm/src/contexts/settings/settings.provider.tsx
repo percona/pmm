@@ -28,7 +28,7 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
       backupManagementEnabled: false,
       azurediscoverEnabled: false,
       enableAccessControl: false,
-    }
+    },
   });
   const readonlySettings = useReadonlySettings({
     enabled: user?.isAnonymous === false && !user?.isPMMAdmin,
@@ -67,7 +67,13 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
       // check if pmm-compat-app plugin is enabled
       newUIEnabled: frontendSettings.data.apps['pmm-compat-app']?.preload,
     };
-  }, [user?.isAnonymous, user?.isPMMAdmin, frontendSettings.data, settings.data, readonlySettings.data]);
+  }, [
+    user?.isAnonymous,
+    user?.isPMMAdmin,
+    frontendSettings.data,
+    settings.data,
+    readonlySettings.data,
+  ]);
 
   return (
     <SettingsContext.Provider
