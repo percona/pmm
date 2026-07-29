@@ -477,16 +477,9 @@ export const NAV_EXPLORE: NavItem = {
 //
 export const NAV_ALERTS_TEMPLATES: NavItem = {
   id: 'alerts-templates',
-  text: 'Alert templates',
+  text: 'Templates',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alert-rule-templates`,
   matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/alerting/new-from-template/*`],
-};
-
-export const NAV_ALERTS_FIRED: NavItem = {
-  id: 'alerts-fired',
-  text: 'Fired alerts',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alerts`,
-  matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/alerting/:datasource/:id/view`],
 };
 
 export const NAV_ALERTS_RULES: NavItem = {
@@ -512,6 +505,12 @@ export const NAV_ALERTS_GROUPS: NavItem = {
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/groups`,
 };
 
+export const NAV_ALERTS_STATUS: NavItem = {
+  id: 'alerts-status',
+  text: 'Status',
+  url: `${PMM_NEW_NAV_PATH}/alerting/status`,
+};
+
 export const NAV_ALERTS_CONTACT_POINTS: NavItem = {
   id: 'alerts-contact-points',
   text: 'Contact points',
@@ -535,7 +534,7 @@ export const NAV_ALERTS: NavItem = {
   id: 'alerts',
   icon: 'alerts',
   text: 'Alerts',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alerts`,
+  url: `${PMM_NEW_NAV_PATH}/alerting/status`,
 };
 
 export const NAV_ADVISORS: NavItem = {
@@ -577,17 +576,6 @@ export const NAV_INVENTORY: NavItem = {
       text: 'Nodes',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes`,
       matches: ['*'],
-    },
-    {
-      id: 'install-pmm-client',
-      text: 'Install PMM Client',
-      url: `${PMM_NEW_NAV_PATH}/install-client`,
-      matches: ['*'],
-      badge: {
-        label: 'Preview',
-        color: 'default',
-        variant: 'filled',
-      },
     },
   ],
 };

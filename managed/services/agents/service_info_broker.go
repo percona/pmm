@@ -57,7 +57,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second), //nolint:mnd
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -75,7 +75,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 			Type: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
 			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported},
 				nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second), //nolint:mnd
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -87,7 +87,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second), //nolint:mnd
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
@@ -98,7 +98,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
 			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second), //nolint:mnd
 		}
 	case models.ExternalServiceType:
 		exporterURL, err := agent.ExporterURL(q)
@@ -109,7 +109,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE,
 			Dsn:     exporterURL,
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second), //nolint:mnd
 		}
 	case models.HAProxyServiceType:
 		exporterURL, err := agent.ExporterURL(q)
@@ -120,7 +120,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 			Dsn:     exporterURL,
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second), //nolint:mnd
 		}
 
 	case models.ValkeyServiceType:
@@ -128,9 +128,9 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		request = &agentv1.ServiceInfoRequest{
 			Tls:  agent.TLS,
 			Type: inventoryv1.ServiceType_SERVICE_TYPE_VALKEY_SERVICE,
-			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second},
+			Dsn: agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second}, //nolint:mnd
 				nil, pmmAgentVersion),
-			Timeout: durationpb.New(3 * time.Second),
+			Timeout: durationpb.New(3 * time.Second), //nolint:mnd
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
