@@ -86,8 +86,8 @@ func TestCheckUpdates(t *testing.T) {
 
 		assert.NotEqual(t, res.Payload.Installed.FullVersion, res.Payload.Latest.Version)
 		assert.NotEqual(t, res.Payload.Installed.Timestamp, res.Payload.Latest.Timestamp)
-		assert.True(t, strings.HasPrefix(res.Payload.LatestNewsURL, "https://per.co.na/pmm/2."), "latest_news_url = %q", res.Payload.LatestNewsURL)
-		assert.True(t, strings.HasPrefix(res.Payload.Latest.ReleaseNotesURL, "https://per.co.na/pmm/2."), "latest_news_url = %q", res.Payload.Latest.ReleaseNotesURL)
+		assert.True(t, strings.HasPrefix(res.Payload.LatestNewsURL, "https://per.co.na/pmm/3."), "latest_news_url = %q", res.Payload.LatestNewsURL)
+		assert.True(t, strings.HasPrefix(res.Payload.Latest.ReleaseNotesURL, "https://per.co.na/pmm/3."), "latest_news_url = %q", res.Payload.Latest.ReleaseNotesURL)
 	}
 	assert.NotEmpty(t, res.Payload.LastCheck)
 
