@@ -43,7 +43,7 @@ The host's `yarn link` global registry isn't visible inside the devcontainer, so
 
 1. Clone `percona-ui` alongside `pmm` on the host (so it sits at `../percona-ui` relative to the repo root).
 2. Uncomment the volume mapping in `docker-compose.dev.yml`
-3. `make env-up` (or `make env-up-rebuild` if the container was already running) then `make env` from the host.
+3. Run `make env-up` then `make env` from the host.
 4. Inside the container:
    ```bash
    cd /root/go/src/github.com/percona/percona-ui

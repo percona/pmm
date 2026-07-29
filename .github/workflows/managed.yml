@@ -23,10 +23,9 @@ jobs:
     timeout-minutes: 30
 
     env:
-      PMM_SERVER_IMAGE: perconalab/pmm-server:3-dev-latest
+      PMM_SERVER_IMAGE: ghcr.io/percona/pmm:3-dev-container
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-      PMM_CONTAINER: ghcr.io/percona/pmm:3-dev-container
 
     steps:
       - name: Check out code
@@ -54,11 +53,9 @@ jobs:
             -e PMM_RELEASE_PATH=/root/go/bin \
             -e PMM_ENABLE_ACCESS_CONTROL=1 \
             -e PMM_ENABLE_TELEMETRY=0 \
-            -e PMM_RELEASE_VERSION=3.7.0 \
+            -e PMM_RELEASE_VERSION=3.9.0 \
             -e GOMODCACHE=/home/pmm/.cache/go/mod \
             -e GOCACHE=/home/pmm/.cache/go-build \
-            -e GONOPROXY=github.com/percona,github.com/Percona-Lab \
-            -e GONOSUMDB=github.com/percona,github.com/Percona-Lab \
             -e GOPRIVATE=github.com/percona,github.com/Percona-Lab \
             -w /root/go/src/github.com/percona/pmm \
             -v ./:/root/go/src/github.com/percona/pmm \
@@ -67,8 +64,8 @@ jobs:
             -v ./managed/data/advisors/:/usr/local/percona/advisors/ \
             -v ./managed/data/checks/:/usr/local/percona/checks/ \
             -v ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/ \
-            -v ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro \
-            ${PMM_CONTAINER:-perconalab/pmm-server:3-dev-container}
+            -v ./.devcontainer/Makefile:/root/go/src/github.com/percona/pmm/Makefile:ro \
+            ${PMM_SERVER_IMAGE}
           sleep 20
           docker exec -t pmm-server id
           docker logs pmm-server
