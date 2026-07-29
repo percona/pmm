@@ -5665,7 +5665,7 @@
             "type": "stat"
         },
         {
-            "description": "",
+            "description": "Query Cache was removed in Oracle MySQL 8.0 and Percona Server 8.0, so no data is expected there. MariaDB still provides a query cache.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -5701,7 +5701,6 @@
                 "y": 24
             },
             "id": 469,
-            "description": "Query Cache was removed in Oracle MySQL 8.0 and Percona Server 8.0, so no data is expected there. MariaDB still provides a query cache.",
             "interval": "",
             "links": [],
             "maxDataPoints": 100,
