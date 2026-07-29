@@ -24,21 +24,21 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
     if (user?.isAnonymous && frontendSettings.data) {
       return {
         sshKey: '',
-         metricsResolutions: {
-           hr: '1m',
-           mr: '1m',
-           lr: '1m',
-         },
-         dataRetention: '30d',
-         pmmPublicAddress: '',
-         updatesEnabled: false,
-         telemetryEnabled: false,
-         advisorEnabled: false,
-         alertingEnabled: false,
-         backupManagementEnabled: false,
-         azurediscoverEnabled: false,
-         enableAccessControl: false,
-         frontend: frontendSettings.data,
+        metricsResolutions: {
+          hr: '1m',
+          mr: '1m',
+          lr: '1m',
+        },
+        dataRetention: '30d',
+        pmmPublicAddress: '',
+        updatesEnabled: false,
+        telemetryEnabled: false,
+        advisorEnabled: false,
+        alertingEnabled: false,
+        backupManagementEnabled: false,
+        azurediscoverEnabled: false,
+        enableAccessControl: false,
+        frontend: frontendSettings.data,
         // check if pmm-compat-app plugin is enabled
         newUIEnabled: frontendSettings.data.apps['pmm-compat-app']?.preload,
       };
