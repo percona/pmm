@@ -115,15 +115,12 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 	// l is closed by runGRPCServer
 
 	var wg sync.WaitGroup
-	wg.Add(2) //nolint:mnd
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		s.runGRPCServer(serverCtx, l)
-	}()
-	go func() {
-		defer wg.Done()
+	})
+	wg.Go(func() {
 		s.runJSONServer(serverCtx, l.Addr().String())
-	}()
+	})
 
 	select {
 	case <-s.reload:
@@ -177,7 +174,7 @@ func (s *Server) Status(_ context.Context, req *agentlocal.StatusRequest) (*agen
 		AgentsInfo:       agentsInfo,
 		ConfigFilepath:   s.configFilepath,
 		AgentVersion:     version.Version,
-		ConnectionUptime: roundFloat(upTime, 2),
+		ConnectionUptime: roundFloat(upTime, 2), //nolint:mnd
 	}, nil
 }
 

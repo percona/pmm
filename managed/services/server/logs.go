@@ -142,7 +142,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 		b []byte
 		m time.Time
 	)
-	files := make([]fileContent, 0, 20)
+	files := make([]fileContent, 0, 20) //nolint:mnd
 	// add logs
 	logs, err := filepath.Glob("/srv/logs/*.log")
 	if err != nil {
