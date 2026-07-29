@@ -49,9 +49,10 @@ const OverviewTable: FC<Props> = ({
         noDataMessage={Messages.noData}
         muiTopToolbarProps={{
           sx: {
-            // vertically center the buttons
+            mb: 0.5,
             [`& > .${boxClasses.root}`]: {
-              alignItems: 'center',
+              alignItems: 'flex-start',
+              alignContent: 'flex-start',
               flexDirection: 'row-reverse',
             },
           },
@@ -75,7 +76,9 @@ const OverviewTable: FC<Props> = ({
         muiTableContainerProps={{
           sx: {
             flex: 1,
-            borderRadius: 2,
+            // TODO: use theme.shape.borderRadiusMd (8px) once percona-ui
+            // publishes the Shape tokens (percona-ui#37, not in 1.0.23)
+            borderRadius: '8px',
             border: '1px solid',
             borderColor: 'divider',
           },
@@ -84,6 +87,12 @@ const OverviewTable: FC<Props> = ({
           onMouseEnter: onRowHover,
           'data-testid': `query-${row.original.queryId}-row`,
         })}
+        muiTableBodyCellProps={{
+          sx: { py: 1, px: 1 },
+        }}
+        muiTableHeadCellProps={{
+          sx: { px: 1 },
+        }}
       />
     </RealtimeTableWrapper>
   );
