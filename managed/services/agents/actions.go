@@ -28,9 +28,9 @@ import (
 )
 
 var (
-	defaultActionTimeout      = durationpb.New(10 * time.Second)
-	defaultQueryActionTimeout = durationpb.New(15 * time.Second) // should be less than checks.resultTimeout
-	defaultPtActionTimeout    = durationpb.New(30 * time.Second) // Percona-toolkit action timeout
+	defaultActionTimeout      = durationpb.New(10 * time.Second) //nolint:mnd
+	defaultQueryActionTimeout = durationpb.New(15 * time.Second) //nolint:mnd // should be less than checks.resultTimeout
+	defaultPtActionTimeout    = durationpb.New(30 * time.Second) //nolint:mnd // Percona-toolkit action timeout
 )
 
 // ActionsService handles sending actions to pmm agents.
