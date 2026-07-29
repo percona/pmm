@@ -53,15 +53,15 @@ func NewReform(driver, dbName string, printf reform.Printf) *Reform {
 			Name:        "response_seconds",
 			Help:        "Response durations in seconds.",
 			ConstLabels: constLabels,
-			Objectives:  map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+			Objectives:  map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001}, //nolint:mnd
 		}, []string{"statement", "error"}),
 	}
 }
 
 func statement(query string) string {
 	query = strings.ToLower(strings.TrimSpace(query))
-	parts := strings.SplitN(query, " ", 2)
-	if len(parts) != 2 {
+	parts := strings.SplitN(query, " ", 2) //nolint:mnd
+	if len(parts) != 2 {                   //nolint:mnd
 		return query
 	}
 	return parts[0]
