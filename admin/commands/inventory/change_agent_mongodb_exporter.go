@@ -84,10 +84,11 @@ type ChangeAgentMongodbExporterCommand struct {
 	TLSCaFile                     *string `help:"TLS CA certificate file"`
 
 	// MongoDB specific options
-	AuthenticationMechanism *string `help:"Authentication mechanism for MongoDB"`
-	AuthenticationDatabase  *string `help:"Authentication database for MongoDB"`
-	StatsCollections        *string `help:"List of comma-separated collection names to collect"`
-	CollectionsLimit        *int32  `help:"Collections limit"`
+	AuthenticationMechanism        *string `help:"Authentication mechanism for MongoDB"`
+	AuthenticationDatabase         *string `help:"Authentication database for MongoDB"`
+	StatsCollections               *string `help:"List of comma-separated collection names to collect"`
+	CollectionsLimit               *int32  `help:"Collections limit"`
+	EnableDiagnosticDataHistograms *bool   `help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
 
 	// Exporter options
 	DisableCollectors []string       `help:"List of collector names to disable"`
@@ -140,25 +141,26 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 	}
 
 	body := &agents.ChangeAgentParamsBodyMongodbExporter{
-		Enable:                        cmd.Enable,
-		Username:                      cmd.Username,
-		Password:                      cmd.Password,
-		AgentPassword:                 cmd.AgentPassword,
-		TLS:                           cmd.TLS,
-		TLSSkipVerify:                 cmd.TLSSkipVerify,
-		TLSCertificateKey:             tlsCertificateKey,
-		TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
-		TLSCa:                         tlsCa,
-		AuthenticationMechanism:       cmd.AuthenticationMechanism,
-		AuthenticationDatabase:        cmd.AuthenticationDatabase,
-		StatsCollections:              statsCollections,
-		CollectionsLimit:              cmd.CollectionsLimit,
-		DisableCollectors:             cmd.DisableCollectors,
-		ExposeExporter:                cmd.ExposeExporter,
-		EnablePushMetrics:             cmd.PushMetrics,
-		LogLevel:                      convertLogLevelPtr(cmd.LogLevel),
-		ConnectionTimeout:             commands.DurationString(cmd.ConnectionTimeout),
-		SkipConnectionCheck:           cmd.SkipConnectionCheck,
+		Enable:                         cmd.Enable,
+		Username:                       cmd.Username,
+		Password:                       cmd.Password,
+		AgentPassword:                  cmd.AgentPassword,
+		TLS:                            cmd.TLS,
+		TLSSkipVerify:                  cmd.TLSSkipVerify,
+		TLSCertificateKey:              tlsCertificateKey,
+		TLSCertificateKeyFilePassword:  cmd.TLSCertificateKeyFilePassword,
+		TLSCa:                          tlsCa,
+		AuthenticationMechanism:        cmd.AuthenticationMechanism,
+		AuthenticationDatabase:         cmd.AuthenticationDatabase,
+		StatsCollections:               statsCollections,
+		CollectionsLimit:               cmd.CollectionsLimit,
+		EnableDiagnosticDataHistograms: cmd.EnableDiagnosticDataHistograms,
+		DisableCollectors:              cmd.DisableCollectors,
+		ExposeExporter:                 cmd.ExposeExporter,
+		EnablePushMetrics:              cmd.PushMetrics,
+		LogLevel:                       convertLogLevelPtr(cmd.LogLevel),
+		ConnectionTimeout:              commands.DurationString(cmd.ConnectionTimeout),
+		SkipConnectionCheck:            cmd.SkipConnectionCheck,
 	}
 
 	if customLabels != nil {
@@ -231,6 +233,13 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 	}
 	if cmd.CollectionsLimit != nil {
 		changes = append(changes, fmt.Sprintf("changed collections limit to %d", *cmd.CollectionsLimit))
+	}
+	if cmd.EnableDiagnosticDataHistograms != nil {
+		if *cmd.EnableDiagnosticDataHistograms {
+			changes = append(changes, "enabled diagnostic data histograms")
+		} else {
+			changes = append(changes, "disabled diagnostic data histograms")
+		}
 	}
 	if cmd.DisableCollectors != nil {
 		changes = append(changes, fmt.Sprintf("updated disabled collectors: %v", cmd.DisableCollectors))

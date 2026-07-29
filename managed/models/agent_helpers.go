@@ -130,6 +130,7 @@ type MongoDBExtendedOptionsParams interface {
 	GetStatsCollections() []string
 	GetCollectionsLimit() int32
 	GetEnableAllCollectors() bool
+	GetEnableDiagnosticDataHistograms() bool
 }
 
 // MongoDBOptionsFromRequest creates MongoDBOptionsParams object from request.
@@ -149,6 +150,7 @@ func MongoDBOptionsFromRequest(params MongoDBOptionsParams) MongoDBOptions {
 			mdbOptions.StatsCollections = extendedOptions.GetStatsCollections()
 			mdbOptions.CollectionsLimit = extendedOptions.GetCollectionsLimit()
 			mdbOptions.EnableAllCollectors = extendedOptions.GetEnableAllCollectors()
+			mdbOptions.EnableDiagnosticDataHistograms = extendedOptions.GetEnableDiagnosticDataHistograms()
 		}
 	}
 
@@ -1067,14 +1069,15 @@ type ChangeAzureOptions struct {
 
 // ChangeMongoDBOptions contains MongoDBOptions fields that can be changed.
 type ChangeMongoDBOptions struct {
-	TLSCertificateKey             *string
-	TLSCertificateKeyFilePassword *string
-	TLSCa                         *string
-	AuthenticationMechanism       *string
-	AuthenticationDatabase        *string
-	StatsCollections              []string // nil = no change, empty = clear, populated = set
-	CollectionsLimit              *int32
-	EnableAllCollectors           *bool
+	TLSCertificateKey              *string
+	TLSCertificateKeyFilePassword  *string
+	TLSCa                          *string
+	AuthenticationMechanism        *string
+	AuthenticationDatabase         *string
+	StatsCollections               []string // nil = no change, empty = clear, populated = set
+	CollectionsLimit               *int32
+	EnableAllCollectors            *bool
+	EnableDiagnosticDataHistograms *bool
 }
 
 // ChangeMySQLOptions contains MySQLOptions fields that can be changed.
@@ -1399,6 +1402,9 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		}
 		if params.MongoDBOptions.EnableAllCollectors != nil {
 			row.MongoDBOptions.EnableAllCollectors = *params.MongoDBOptions.EnableAllCollectors
+		}
+		if params.MongoDBOptions.EnableDiagnosticDataHistograms != nil {
+			row.MongoDBOptions.EnableDiagnosticDataHistograms = *params.MongoDBOptions.EnableDiagnosticDataHistograms
 		}
 	}
 
