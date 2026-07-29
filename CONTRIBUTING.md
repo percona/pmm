@@ -114,7 +114,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 ### PMM Server
 
 * Clone [pmm repository](https://github.com/percona/pmm)
-* Run `make env-up` to start development container. This will be slow on first run; all subsequent runs will be much faster because the container image will be reused. It is recommended to pull the most recent image from time to time (run `make env-update-image`) or rebuild the devcontainer (run `make env-up-rebuild`) so things don't get stale.
+* Run `make env-up` to start development container. This will be slow on first run; all subsequent runs will be much faster because the container image will be reused. It is recommended to pull the most recent image from time to time (run `make env-update-image`) so things don't get stale.
 * To run pmm-managed with your code changes, just run `make run-managed`. It updates `pmm-managed` running in the container.
 
 ### PMM Client
