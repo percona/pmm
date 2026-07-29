@@ -1,14 +1,14 @@
 # Contributing notes
 
-**pmm-managed** is a core component of PMM Server. As such, its development and testing are best done inside a PMM Server container, which we call a "devcontainer." For details, see [PMM's architecture](https://docs.percona.com/percona-monitoring-and-management/3/reference/index.html).
+**pmm-managed** is a core component of PMM Server. As such, its development and testing are best done inside a specially crafted "devcontainer", which allows the developer to provision dev tools into a regular PMM Server container. For details, see [PMM architecture](https://docs.percona.com/percona-monitoring-and-management/3/reference/index.html).
 
 # Devcontainer setup
 
 1. Install Docker and Docker Compose.
 
-2. Check out the `main` branch, which is the main branch for PMM 2.x development.
+2. Clone this repo and check out the `main` branch.
 
-3. Run `make` to see a list of targets that can be run on host:
+3. Run `make` to see a list of targets that can be run on the host:
 
 ```
 $ make
@@ -24,7 +24,7 @@ Please use `make <target>` where <target> is one of:
 
 ```
 $ make env TARGET=help
-docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-server make help
+docker exec -it --workdir=/root/go/src/github.com/percona/pmm/managed pmm-server make help
 Please use `make <target>` where <target> is one of:
   gen                       Generate files.
   install                   Install pmm-managed binary.
@@ -39,10 +39,10 @@ Alternatively, it is possible to run `make env` to get inside the devcontainer a
 
 ```
 $ make env
-docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-server make _bash
+docker exec -it --workdir=/root/go/src/github.com/percona/pmm/managed pmm-server make _bash
 /bin/bash
 [root@pmm-server pmm-managed]# make test
-make[1]: Entering directory `/root/go/src/github.com/percona/pmm-managed'
+make[1]: Entering directory `/root/go/src/github.com/percona/pmm/managed'
 go test -timeout=30s -p 1 ./...
 ...
 ```
@@ -130,7 +130,7 @@ Alert Templates are located in the `data/templates` folder. If you want to contr
 
 # Internals
 
-There are three makefiles: `Makefile` (host), `Makefile.devcontainer`, and `Makefile.include`. `Makefile.devcontainer` is mounted on top of `Makefile` inside the devcontainer (see `docker-compose.yml`) to enable `make env TARGET=target-name` usage.
+There are three makefiles: `Makefile` (host), `.devcontainer/Makefile`, and `Makefile.include`. `.devcontainer/Makefile` is mounted on top of `Makefile` inside the devcontainer (see `docker-compose.dev.yml`) to enable `make env TARGET=target-name` usage.
 
 Devcontainer initialization code is located in `.devcontainer/setup.py`. It provisions several binaries required for code development.
 
