@@ -12,10 +12,10 @@ import {
   NAV_ALERTS_RULES,
   NAV_ALERTS,
   NAV_ALERTS_CONTACT_POINTS,
-  NAV_ALERTS_FIRED,
   NAV_ALERTS_NOTIFICATION_POLICIES,
   NAV_ALERTS_SETTINGS,
   NAV_ALERTS_TEMPLATES,
+  NAV_ALERTS_STATUS,
   NAV_CHANGE_PASSWORD,
   NAV_CONFIGURATION,
   NAV_DASHBOARDS,
@@ -138,25 +138,30 @@ export const addAlerting = (
   unifiedAlertingEnabled = false,
   user?: User
 ): NavItem => {
-  const children: NavItem[] = [];
+  const children: NavItem[] = [NAV_ALERTS_RULES];
 
-  children.push(NAV_ALERTS_RULES);
-  children.push(NAV_ALERTS_CONTACT_POINTS);
-  children.push(NAV_ALERTS_NOTIFICATION_POLICIES);
-  children.push(NAV_ALERTS_SILENCES);
-  children.push(NAV_ALERTS_GROUPS);
+  if (alertingEnabled) {
+    children.push(NAV_ALERTS_STATUS);
 
-  if (unifiedAlertingEnabled) {
-    if (alertingEnabled) {
-      children.push(NAV_ALERTS_FIRED);
-    }
-
-    if (user?.isPMMAdmin) {
-      children.push(NAV_ALERTS_SETTINGS);
-    }
-
-    if (alertingEnabled && user?.isEditor) {
+    if (user?.isEditor) {
       children.push(NAV_ALERTS_TEMPLATES);
+    }
+  }
+
+  if (user) {
+    children.push(NAV_ALERTS_SILENCES);
+
+    if (!user.isAnonymous) {
+      children.push(NAV_ALERTS_GROUPS);
+
+      if (unifiedAlertingEnabled && user.isPMMAdmin) {
+        children.push(NAV_ALERTS_SETTINGS);
+      }
+    }
+
+    if (unifiedAlertingEnabled) {
+      children.push(NAV_ALERTS_CONTACT_POINTS);
+      children.push(NAV_ALERTS_NOTIFICATION_POLICIES);
     }
   }
 
