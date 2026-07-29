@@ -48,7 +48,7 @@ func GetPostgreSQLVersion(ctx context.Context, q reform.DBTXContext) (PostgreSQL
 	}
 
 	text := postgresDBRegexp.FindStringSubmatch(version)
-	if len(text) < 2 {
+	if len(text) < 2 { //nolint:mnd
 		return PostgreSQLVersion{}, errors.New("postgresql version not found")
 	}
 

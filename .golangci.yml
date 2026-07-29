@@ -24,7 +24,6 @@ linters:
     - godox               # we sometimes leave TODOS right in the code
     - gomoddirectives     # we use replace directives
     - gomodguard          # deprecated
-    - mnd                 # too annoying
     - nlreturn            # too annoying
     - paralleltest
     - protogetter         # we need direct access to proto fields

@@ -291,13 +291,13 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 
 	if v.Installed.BuildTime != nil {
 		// return only date
-		t := v.Installed.BuildTime.UTC().Truncate(24 * time.Hour)
+		t := v.Installed.BuildTime.UTC().Truncate(24 * time.Hour) //nolint:mnd
 		res.Installed.Timestamp = timestamppb.New(t)
 	}
 
 	if v.Latest.DockerImage != "" {
 		// return only date
-		t := v.Latest.BuildTime.UTC().Truncate(24 * time.Hour)
+		t := v.Latest.BuildTime.UTC().Truncate(24 * time.Hour) //nolint:mnd
 		res.Latest.Timestamp = timestamppb.New(t)
 	}
 
@@ -708,13 +708,13 @@ func (s *Server) writeSSHKey(sshKey string) error {
 		return fmt.Errorf("failed to lookup OS user %s: %w", username, err)
 	}
 	sshDirPath := path.Join(usr.HomeDir, ".ssh")
-	err = os.MkdirAll(sshDirPath, 0o700)
+	err = os.MkdirAll(sshDirPath, 0o700) //nolint:mnd
 	if err != nil {
 		return fmt.Errorf("failed to create SSH dir %s: %w", sshDirPath, err)
 	}
 
 	keysPath := path.Join(sshDirPath, "authorized_keys")
-	err = os.WriteFile(keysPath, []byte(sshKey), 0o600)
+	err = os.WriteFile(keysPath, []byte(sshKey), 0o600) //nolint:mnd
 	if err != nil {
 		return fmt.Errorf("failed to write SSH keys to %s: %w", keysPath, err)
 	}

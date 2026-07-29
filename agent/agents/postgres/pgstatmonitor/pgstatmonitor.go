@@ -166,7 +166,7 @@ func newPgStatMonitorQAN(
 		dbCloser:               dbCloser,
 		agentID:                agentID,
 		l:                      l,
-		changes:                make(chan agents.Change, 10),
+		changes:                make(chan agents.Change, 10), //nolint:mnd
 		monitorCache:           newStatMonitorCache(l),
 		maxQueryLength:         maxQueryLength,
 		disableQueryExamples:   disableQueryExamples,
@@ -189,7 +189,7 @@ func getPGVersion(q *reform.Querier) (pgVersion, error) {
 	return pgVersion(parsed), err
 }
 
-//nolint:cyclop
+//nolint:mnd,cyclop
 func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitorPrerelease, error) {
 	var result string
 	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ pg_stat_monitor_version()", queryTag)).Scan(&result)
@@ -635,9 +635,9 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			}
 
 			if (currentPSM.TotalPlanTime - prevPSM.TotalPlanTime) != 0 {
-				mb.Postgresql.MPlanTimeSum = float32(currentPSM.TotalPlanTime-prevPSM.TotalPlanTime) / 1000
-				mb.Postgresql.MPlanTimeMin = float32(currentPSM.MinPlanTime) / 1000
-				mb.Postgresql.MPlanTimeMax = float32(currentPSM.MaxPlanTime) / 1000
+				mb.Postgresql.MPlanTimeSum = float32(currentPSM.TotalPlanTime-prevPSM.TotalPlanTime) / 1000 //nolint:mnd
+				mb.Postgresql.MPlanTimeMin = float32(currentPSM.MinPlanTime) / 1000                         //nolint:mnd
+				mb.Postgresql.MPlanTimeMax = float32(currentPSM.MaxPlanTime) / 1000                         //nolint:mnd
 				mb.Postgresql.MPlanTimeCnt = count
 			}
 

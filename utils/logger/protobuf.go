@@ -184,7 +184,7 @@ func maskString(s string) string {
 	switch {
 	case n == 0:
 		return s
-	case n <= 4:
+	case n <= 4: //nolint:mnd
 		return maskedString
 	default:
 		return s[:2] + maskedString + s[n-2:]
@@ -204,7 +204,7 @@ func MaskDSN(s string) string {
 
 	// Handle scheme://user:pass@host... by keeping scheme:// unchanged.
 	if schemeSep := strings.Index(left, "://"); schemeSep >= 0 {
-		credStart := schemeSep + 3
+		credStart := schemeSep + 3 //nolint:mnd
 		if credStart < len(left) {
 			prefix = left[:credStart]
 			left = left[credStart:]

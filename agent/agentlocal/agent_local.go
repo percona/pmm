@@ -173,7 +173,7 @@ func (s *Server) Status(_ context.Context, req *agentlocal.StatusRequest) (*agen
 		AgentsInfo:       agentsInfo,
 		ConfigFilepath:   s.configFilepath,
 		AgentVersion:     version.Version,
-		ConnectionUptime: roundFloat(upTime, 2),
+		ConnectionUptime: roundFloat(upTime, 2), //nolint:mnd
 	}, nil
 }
 

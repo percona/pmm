@@ -586,7 +586,7 @@ func SaveToFile(path string, cfg *Config, comment string) error {
 		}
 	}
 
-	return os.WriteFile(path, res, 0o640) //nolint:gosec
+	return os.WriteFile(path, res, 0o640) //nolint:gosec,mnd
 }
 
 // IsWritable checks if specified path is writable.

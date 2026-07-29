@@ -319,8 +319,8 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	group string, column string, isTotal bool,
 ) ([]*qanpbv1.Point, error) {
 	// Align to minutes
-	periodStartToSec = periodStartToSec / 60 * 60
-	periodStartFromSec = periodStartFromSec / 60 * 60
+	periodStartToSec = periodStartToSec / 60 * 60     //nolint:mnd
+	periodStartFromSec = periodStartFromSec / 60 * 60 //nolint:mnd
 
 	// If time range is bigger then two hour - amount of sparklines points = 120 to avoid huge data in response.
 	// Otherwise amount of sparklines points is equal to minutes in time range to not mess up calculation.
@@ -329,15 +329,15 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	// reduce amount of point if period less then 2h.
 	if timePeriod < int64(minFullTimeFrame.Seconds()) {
 		// minimum point is 1 minute
-		amountOfPoints = timePeriod / 60
+		amountOfPoints = timePeriod / 60 //nolint:mnd
 	}
 
 	// how many full minutes we can fit into given amount of points.
-	minutesInPoint := (periodStartToSec - periodStartFromSec) / 60 / amountOfPoints
+	minutesInPoint := (periodStartToSec - periodStartFromSec) / 60 / amountOfPoints //nolint:mnd
 	// we need aditional point to show this minutes
-	remainder := ((periodStartToSec - periodStartFromSec) / 60) % amountOfPoints
+	remainder := ((periodStartToSec - periodStartFromSec) / 60) % amountOfPoints //nolint:mnd
 	amountOfPoints += remainder / minutesInPoint
-	timeFrame := minutesInPoint * 60
+	timeFrame := minutesInPoint * 60 //nolint:mnd
 
 	arg := map[string]any{
 		"dimension_val":     dimensionVal,

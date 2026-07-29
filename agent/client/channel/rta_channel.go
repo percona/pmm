@@ -143,7 +143,7 @@ func (c *RTAChannel) Send(msg *rtav1.CollectRequest) {
 	// Do not waste resources in case debug level is not enabled.
 	if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 		// do not use default compact representation for large/complex messages
-		if size := proto.Size(msg); size < 100 {
+		if size := proto.Size(msg); size < 100 { //nolint:mnd
 			c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
 		} else {
 			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(msg))

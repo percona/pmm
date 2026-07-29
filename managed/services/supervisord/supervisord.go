@@ -463,7 +463,7 @@ func (s *Service) reload(name string) error {
 func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings) ([]byte, error) {
 	clickhouseDatabase := envvars.GetEnv("PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
 	clickhouseAddr := envvars.GetEnv("PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
-	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
+	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2) //nolint:mnd
 	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
 	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
 	vmSearchDisableCache := envvars.GetEnv("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
@@ -479,7 +479,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 	templateParams := map[string]any{
 		"DataRetentionHours":           int(settings.DataRetention.Hours()),
-		"DataRetentionDays":            int(settings.DataRetention.Hours() / 24),
+		"DataRetentionDays":            int(settings.DataRetention.Hours() / 24), //nolint:mnd
 		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
 		"VMSearchDisableCache":         vmSearchDisableCache,
 		"VMSearchMaxQueryLen":          vmSearchMaxQueryLen,
@@ -582,7 +582,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	restore := oldCfg != nil
 	defer func() {
 		if restore {
-			err = os.WriteFile(path, oldCfg, 0o664) //nolint:gosec
+			err = os.WriteFile(path, oldCfg, 0o664) //nolint:gosec,mnd
 			if err != nil {
 				s.l.Errorf("Failed to restore: %v.", err)
 			}
@@ -594,7 +594,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	}()
 
 	// write and reload
-	err = os.WriteFile(path, cfg, 0o664) //nolint:gosec
+	err = os.WriteFile(path, cfg, 0o664) //nolint:gosec,mnd
 	if err != nil {
 		return false, err
 	}
