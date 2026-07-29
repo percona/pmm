@@ -521,9 +521,11 @@ func TestPGStatStatementsQPS(t *testing.T) {
 
 		runTimes := 7000
 		t.Cleanup(func() {
+			tables := make([]string, 0, runTimes)
 			for i := range runTimes {
-				_, _ = db.Exec(fmt.Sprintf("drop table if exists t%d", i))
+				tables = append(tables, fmt.Sprintf("t%d", i))
 			}
+			_, _ = db.Exec("drop table if exists " + strings.Join(tables, ", "))
 		})
 
 		for i := range runTimes {
