@@ -66,7 +66,7 @@ cd <pmm-qa-checkout>/qa-integration/pmm_qa   # path is machine-specific — keep
 ./virtenv/bin/python pmm-framework.py --verbose --pmm-server-password=admin \
   --client-version=3-dev-latest --database PS=5.7   # older supported
 ./virtenv/bin/python pmm-framework.py --verbose --pmm-server-password=admin \
-  --client-version=3-dev-latest --database PS=8.0   # latest supported
+  --client-version=3-dev-latest --database PS=8.4   # latest supported
 ```
 
 **Don't invent version numbers** — the valid versions per engine live in pmm-qa's `scripts/database_options.py` (imported into `pmm-framework.py` as `database_configs`; e.g. Percona Server = `5.7`, `8.0`, `8.4`, default `8.0`). Check there for what actually exists rather than assuming a release is out.
