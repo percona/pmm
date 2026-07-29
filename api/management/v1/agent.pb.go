@@ -914,8 +914,10 @@ type UniversalAgent_MongoDBOptions struct {
 	CollectionsLimit int32 `protobuf:"varint,6,opt,name=collections_limit,json=collectionsLimit,proto3" json:"collections_limit,omitempty"`
 	// True if all collectors are enabled.
 	EnableAllCollectors bool `protobuf:"varint,7,opt,name=enable_all_collectors,json=enableAllCollectors,proto3" json:"enable_all_collectors,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// True if diagnostic data histograms are enabled.
+	EnableDiagnosticDataHistograms bool `protobuf:"varint,8,opt,name=enable_diagnostic_data_histograms,json=enableDiagnosticDataHistograms,proto3" json:"enable_diagnostic_data_histograms,omitempty"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
 }
 
 func (x *UniversalAgent_MongoDBOptions) Reset() {
@@ -993,6 +995,13 @@ func (x *UniversalAgent_MongoDBOptions) GetCollectionsLimit() int32 {
 func (x *UniversalAgent_MongoDBOptions) GetEnableAllCollectors() bool {
 	if x != nil {
 		return x.EnableAllCollectors
+	}
+	return false
+}
+
+func (x *UniversalAgent_MongoDBOptions) GetEnableDiagnosticDataHistograms() bool {
+	if x != nil {
+		return x.EnableDiagnosticDataHistograms
 	}
 	return false
 }
@@ -1100,7 +1109,7 @@ var File_management_v1_agent_proto protoreflect.FileDescriptor
 
 const file_management_v1_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\"\xa0\x19\n" +
+	"\x19management/v1/agent.proto\x12\rmanagement.v1\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x19inventory/v1/agents.proto\x1a\x1cinventory/v1/log_level.proto\"\xeb\x19\n" +
 	"\x0eUniversalAgent\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x121\n" +
 	"\x15is_agent_password_set\x18\x02 \x01(\bR\x12isAgentPasswordSet\x12\x1d\n" +
@@ -1165,7 +1174,7 @@ const file_management_v1_agent_proto_rawDesc = "" +
 	"\x14is_client_secret_set\x18\x02 \x01(\bR\x11isClientSecretSet\x12%\n" +
 	"\x0eresource_group\x18\x03 \x01(\tR\rresourceGroup\x12'\n" +
 	"\x0fsubscription_id\x18\x04 \x01(\tR\x0esubscriptionId\x12\x1b\n" +
-	"\ttenant_id\x18\x05 \x01(\tR\btenantId\x1a\xa4\x03\n" +
+	"\ttenant_id\x18\x05 \x01(\tR\btenantId\x1a\xef\x03\n" +
 	"\x0eMongoDBOptions\x12:\n" +
 	"\x1ais_tls_certificate_key_set\x18\x01 \x01(\bR\x16isTlsCertificateKeySet\x12T\n" +
 	"(is_tls_certificate_key_file_password_set\x18\x02 \x01(\bR\"isTlsCertificateKeyFilePasswordSet\x129\n" +
@@ -1173,7 +1182,8 @@ const file_management_v1_agent_proto_rawDesc = "" +
 	"\x17authentication_database\x18\x04 \x01(\tR\x16authenticationDatabase\x12+\n" +
 	"\x11stats_collections\x18\x05 \x03(\tR\x10statsCollections\x12+\n" +
 	"\x11collections_limit\x18\x06 \x01(\x05R\x10collectionsLimit\x122\n" +
-	"\x15enable_all_collectors\x18\a \x01(\bR\x13enableAllCollectors\x1a\xa4\x01\n" +
+	"\x15enable_all_collectors\x18\a \x01(\bR\x13enableAllCollectors\x12I\n" +
+	"!enable_diagnostic_data_histograms\x18\b \x01(\bR\x1eenableDiagnosticDataHistograms\x1a\xa4\x01\n" +
 	"\x11PostgreSQLOptions\x12#\n" +
 	"\x0eis_ssl_key_set\x18\x01 \x01(\bR\visSslKeySet\x120\n" +
 	"\x14auto_discovery_limit\x18\x02 \x01(\x05R\x12autoDiscoveryLimit\x128\n" +
