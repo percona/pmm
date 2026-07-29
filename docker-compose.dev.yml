@@ -38,8 +38,7 @@ services:
       - 35730:35730
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
-      - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro
-      - ./managed/testdata/updater/:/home/pmm/.config/systemd/user/
+      - ./.devcontainer/Makefile:/root/go/src/github.com/percona/pmm/Makefile:ro
       # clickhouse config for backup/restore
       - ./dev/clickhouse-config.xml:/etc/clickhouse-server/config.xml:ro
       # caching

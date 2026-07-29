@@ -69,7 +69,7 @@ func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1
 	}
 
 	for _, tag := range tags {
-		if len(tag) > 100 {
+		if len(tag) > 100 { //nolint:mnd
 			msg := "tag length cannot exceed 100 characters, tag: " + tag
 			return nil, status.Error(codes.InvalidArgument, msg)
 		}

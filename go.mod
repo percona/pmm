@@ -203,7 +203,7 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/google/btree v1.1.3 // indirect
-	github.com/google/cel-go v0.28.0 // indirect
+	github.com/google/cel-go v0.29.0 // indirect
 	github.com/google/go-containerregistry v0.21.5 // indirect
 	github.com/google/go-dap v0.12.0 // indirect
 	github.com/google/go-github/v28 v28.1.1 // indirect

@@ -196,7 +196,7 @@ func (c *Channel) send(msg *agentv1.ServerMessage) {
 	// Do not waste resources in case debug level is not enabled.
 	if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 		// do not use default compact representation for large/complex messages
-		if size := proto.Size(msg); size < 100 {
+		if size := proto.Size(msg); size < 100 { //nolint:mnd
 			c.l.Debugf("Sending message (%d bytes): %s.", size, logger.RedactMessage(msg))
 		} else {
 			c.l.Debugf("Sending message (%d bytes):\n%s\n", size, prototext.Format(logger.RedactMessage(msg)))
@@ -231,7 +231,7 @@ func (c *Channel) runReceiver() {
 		// Do not waste resources in case debug level is not enabled.
 		if c.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 			// do not use default compact representation for large/complex messages
-			if size := proto.Size(msg); size < 100 {
+			if size := proto.Size(msg); size < 100 { //nolint:mnd
 				c.l.Debugf("Received message (%d bytes): %s.", size, logger.RedactMessage(msg))
 			} else {
 				c.l.Debugf("Received message (%d bytes):\n%s\n", size, prototext.Format(logger.RedactMessage(msg)))
