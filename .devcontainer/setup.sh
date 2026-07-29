@@ -71,7 +71,7 @@ configure_postgres() {
     fi
 
     echo "Configuring $conf..."
-    original=$(cat "$conf")
+    original=$(< "$conf")
     # Allow connecting from any host, needed to connect from host to PG running in docker.
     # Also turn fsync off: create database operations with fsync on are very slow on Ubuntu,
     # and having fsync off in a dev environment is fine.
@@ -79,7 +79,7 @@ configure_postgres() {
         -e "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" \
         -e "s/#fsync = on/fsync = off/" \
         "$conf"
-    if [ "$original" != "$(cat "$conf")" ]; then
+    if [ "$original" != "$(< "$conf")" ]; then
         changed=1
     fi
 
