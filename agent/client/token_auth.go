@@ -25,7 +25,7 @@ type tokenAuth struct {
 }
 
 // GetRequestMetadata implements credentials.PerRPCCredentials interface.
-func (t *tokenAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) { //nolint:revive
+func (t *tokenAuth) GetRequestMetadata(context.Context, ...string) (map[string]string, error) {
 	return map[string]string{
 		"Authorization": "Bearer " + t.token,
 	}, nil

@@ -18,7 +18,7 @@ You'll find these options in the left-side menu:
 
 | Icon | Name | What you can do |
 |:----:|------|-----------------|
-| :material-home-outline:  | Home | Access the main dashboard with overview panels for database connections, queries, anomaly detection, and upgrade status. |
+| :material-home-outline:  | Home | Access the main dashboard with overview panels for database connections, queries, and anomaly detection. |
 | :simple-mysql:                  | MySQL | View specialized dashboards for MySQL database performance monitoring. |
 | :simple-postgresql:             | PostgreSQL | Access PostgreSQL-specific monitoring dashboards and metrics. |
 | :material-monitor-dashboard:| Operating System  | Monitor server-level metrics including CPU, memory, disk, and network performance. |

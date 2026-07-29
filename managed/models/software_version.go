@@ -17,9 +17,9 @@ package models
 
 import (
 	"database/sql/driver"
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
@@ -36,7 +36,7 @@ func (sn SoftwareName) Validate() error {
 		XbcloudSoftwareName,
 		QpressSoftwareName:
 	default:
-		return errors.Errorf("invalid software name %q", sn)
+		return fmt.Errorf("invalid software name %q", sn)
 	}
 
 	return nil

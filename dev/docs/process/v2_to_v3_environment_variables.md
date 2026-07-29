@@ -19,9 +19,9 @@ Below is a list of affected variables and their new names.
 | `METRICS_RESOLUTION_MR`                       | `PMM_METRICS_RESOLUTION_MR`                |                                                              |
 | `OAUTH_PMM_CLIENT_ID`                         | `PMM_DEV_OAUTH_CLIENT_ID`                  | Removed in PMM v3                                            |
 | `OAUTH_PMM_CLIENT_SECRET`                     | `PMM_DEV_OAUTH_CLIENT_SECRET`              | Removed in PMM v3                                            |
-| `PERCONA_TEST_AUTH_HOST`                      |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS`    |
+| `PERCONA_TEST_AUTH_HOST`                      |                                            | Removed in PMM v3, use `PMM_PERCONA_PLATFORM_ADDRESS`        |
 | `PERCONA_TEST_CHECKS_FILE`                    | `PMM_DEV_ADVISOR_CHECKS_FILE`              |                                                              |
-| `PERCONA_TEST_CHECKS_HOST`                    |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS`    |
+| `PERCONA_TEST_CHECKS_HOST`                    |                                            | Removed in PMM v3, use `PMM_PERCONA_PLATFORM_ADDRESS`        |
 | `PERCONA_TEST_CHECKS_INTERVAL`                |                                            | Removed in PMM v3 as it wasn't actually used.                |
 | `PERCONA_TEST_CHECKS_PUBLIC_KEY`              |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY` |
 | `PERCONA_TEST_NICER_API`                      |                                            | Removed in PMM v3                                            |
@@ -35,7 +35,7 @@ Below is a list of affected variables and their new names.
 | `PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE` | `PMM_DISABLE_BUILTIN_CLICKHOUSE`           |                                                              |
 | `PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES`   | `PMM_DISABLE_BUILTIN_POSTGRES`             |                                                              |
 | `PERCONA_TEST_INTERFACE_TO_BIND`              | `PMM_INTERFACE_TO_BIND`                    |                                                              |
-| `PERCONA_TEST_PLATFORM_ADDRESS`               | `PMM_DEV_PERCONA_PLATFORM_ADDRESS`         |                                                              |
+| `PERCONA_TEST_PLATFORM_ADDRESS`               | `PMM_PERCONA_PLATFORM_ADDRESS`             |                                                              |
 | `PERCONA_TEST_PLATFORM_INSECURE`              | `PMM_DEV_PERCONA_PLATFORM_INSECURE`        |                                                              |
 | `PERCONA_TEST_PLATFORM_PUBLIC_KEY`            | `PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY`      | Removed in PMM v3                                            |
 | `PERCONA_TEST_POSTGRES_ADDR`                  | `PMM_POSTGRES_ADDR`                        |                                                              |
@@ -45,7 +45,7 @@ Below is a list of affected variables and their new names.
 | `PERCONA_TEST_POSTGRES_SSL_KEY_PATH`          | `PMM_POSTGRES_SSL_KEY_PATH`                |                                                              |
 | `PERCONA_TEST_POSTGRES_SSL_MODE`              | `PMM_POSTGRES_SSL_MODE`                    |                                                              |
 | `PERCONA_TEST_POSTGRES_DBPASSWORD`            | `PMM_POSTGRES_DBPASSWORD`                  |                                                              |
-| `PERCONA_TEST_SAAS_HOST`                      |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS`    |
+| `PERCONA_TEST_SAAS_HOST`                      |                                            | Removed in PMM v3, use `PMM_PERCONA_PLATFORM_ADDRESS`        |
 | `PERCONA_TEST_POSTGRES_USERNAME`              | `PMM_POSTGRES_USERNAME`                    |                                                              |
 | `PERCONA_TEST_STARLARK_ALLOW_RECURSION`       | `PMM_DEV_ADVISOR_STARLARK_ALLOW_RECURSION` |                                                              |
 | `PMM_TEST_TELEMETRY_DISABLE_SEND`             | `PMM_DEV_TELEMETRY_DISABLE_SEND`           |                                                              |
@@ -54,7 +54,7 @@ Below is a list of affected variables and their new names.
 | `PERCONA_TEST_TELEMETRY_HOST`                 | `PMM_DEV_TELEMETRY_HOST`                   |                                                              |
 | `PERCONA_TEST_TELEMETRY_INTERVAL`             | `PMM_DEV_TELEMETRY_INTERVAL`               |                                                              |
 | `PERCONA_TEST_TELEMETRY_RETRY_BACKOFF`        | `PMM_DEV_TELEMETRY_RETRY_BACKOFF`          |                                                              |
-| `PERCONA_TEST_VERSION_SERVICE_URL`            |                                            | Removed in PMM v3, use `PMM_DEV_PERCONA_PLATFORM_ADDRESS`    |
+| `PERCONA_TEST_VERSION_SERVICE_URL`            |                                            | Removed in PMM v3, use `PMM_PERCONA_PLATFORM_ADDRESS`        |
 
 
 ## Changes to environment variables in v3+

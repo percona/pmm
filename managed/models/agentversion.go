@@ -16,10 +16,10 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/hashicorp/go-version"
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
@@ -43,7 +43,7 @@ func (e AgentNotSupportedError) Error() string {
 func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Version) error {
 	pmmAgent, err := FindAgentByID(q, pmmAgentID)
 	if err != nil {
-		return errors.Errorf("failed to get PMM Agent: %s", err)
+		return fmt.Errorf("failed to get PMM Agent: %w", err)
 	}
 	return IsAgentSupported(pmmAgent, functionalityPrefix, pmmMinVersion)
 }
@@ -54,20 +54,20 @@ func IsAgentSupported(agentModel *Agent, functionalityPrefix string, pmmMinVersi
 		return errors.New("nil agent")
 	}
 	if agentModel.Version == nil {
-		return errors.Errorf("pmm agent %q has no version info", agentModel.AgentID)
+		return fmt.Errorf("pmm agent %q has no version info", agentModel.AgentID)
 	}
 	pmmAgentVersion, err := version.NewVersion(*agentModel.Version)
 	if err != nil {
-		return errors.Errorf("failed to parse PMM agent version %q: %s", *agentModel.Version, err)
+		return fmt.Errorf("failed to parse PMM agent version %q: %w", *agentModel.Version, err)
 	}
 
 	if pmmAgentVersion.LessThan(pmmMinVersion) {
-		return errors.WithStack(AgentNotSupportedError{
+		return AgentNotSupportedError{
 			AgentID:         agentModel.AgentID,
 			Functionality:   functionalityPrefix,
 			AgentVersion:    *agentModel.Version,
 			MinAgentVersion: pmmMinVersion.String(),
-		})
+		}
 	}
 	return nil
 }
@@ -81,6 +81,6 @@ func IsPostgreSQLSSLSniSupported(q *reform.Querier, pmmAgentID string) (bool, er
 	case err == nil:
 		return true, nil
 	default:
-		return false, errors.Wrap(err, "couldn't compare PMM Agent version")
+		return false, fmt.Errorf("couldn't compare PMM Agent version: %w", err)
 	}
 }

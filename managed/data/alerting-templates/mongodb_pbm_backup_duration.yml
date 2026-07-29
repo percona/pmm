@@ -4,8 +4,8 @@ templates:
     version: 1
     summary: PBM backup duration
     expr: |-
-      (max by (name,node_name) (mongodb_pbm_backup_duration_seconds{status="done"}))
-      > [[ .threshold ]]
+      (max by (name,node_name,service_name) (mongodb_pbm_backup_duration_seconds{status="done"}))
+      > bool [[ .threshold ]]
     params:
       - name: threshold
         summary: PBM backup duration

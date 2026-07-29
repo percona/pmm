@@ -432,11 +432,7 @@ resources:
 To monitor your databases, install PMM Client on each database host and connect it to PMM Server:
 {.power-number}
 
-1. [Install PMM Client](../install-pmm/install-pmm-client/index.md) on your database hosts:
-  ```sh
-  # Install PMM Client
-  curl -fsSL https://www.percona.com/downloads/pmm3/pmm-client.sh | sh
-  ```
+1. [Install PMM Client](../install-pmm/install-pmm-client/index.md) on your database hosts.
 
 2. Get the PMM Server address:
   ```sh

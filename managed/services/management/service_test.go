@@ -18,6 +18,7 @@ package management
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -40,7 +41,7 @@ import (
 
 func TestServiceService(t *testing.T) {
 	t.Run("Remove", func(t *testing.T) {
-		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
+		setup := func(t *testing.T) (context.Context, *ManagementService, func(t *testing.T)) {
 			t.Helper()
 
 			ctx := logger.Set(t.Context(), t.Name())
@@ -90,10 +91,10 @@ func TestServiceService(t *testing.T) {
 
 			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
 
-			return ctx, s, teardown, vmdb
+			return ctx, s, teardown
 		}
 		t.Run("No params", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{})
@@ -102,7 +103,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Not found", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: "some-service-name"})
@@ -111,7 +112,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Wrong service type", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
@@ -128,7 +129,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Basic", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
@@ -166,7 +167,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("RDS", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
@@ -220,7 +221,7 @@ func TestServiceService(t *testing.T) {
 		})
 
 		t.Run("Azure", func(t *testing.T) {
-			ctx, s, teardown, _ := setup(t)
+			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
 			node, err := models.CreateNode(s.db.Querier, models.RemoteAzureDatabaseNodeType, &models.CreateNodeParams{
@@ -339,7 +340,7 @@ func TestServiceService(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
 			t.Cleanup(func() { teardown(t) })
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Once()
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Twice()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()      // PMM Server PG Stat Statements agent
@@ -348,6 +349,62 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, err)
 			assert.Len(t, response.Services, 1) // PMM Server PostgreSQL service
 			assert.Len(t, response.Services[0].Agents, 3)
+		})
+
+		t.Run("StaleMetricsConnectedAgent", func(t *testing.T) {
+			ctx, s, teardown, _ := setup(t)
+			t.Cleanup(func() { teardown(t) })
+
+			services, err := models.FindServices(s.db.Querier, models.ServiceFilters{})
+			require.NoError(t, err)
+			require.Len(t, services, 1)
+
+			staleSample := model.Vector{&model.Sample{
+				Metric: model.Metric{"service_id": model.LabelValue(services[0].ServiceID)},
+				Value:  1,
+			}}
+			isStaleQuery := func(q string) bool { return strings.Contains(q, "last_over_time") }
+			vmClient := s.vmClient.(*mockVictoriaMetricsClient)
+			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleSample, nil, nil).Once()
+			// agentToAPI + connectivity gate for the stale-status fallback
+			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Twice()
+			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()
+			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()
+
+			response, err := s.ListServices(ctx, &managementv1.ListServicesRequest{})
+
+			require.NoError(t, err)
+			require.Len(t, response.Services, 1)
+			assert.Equal(t, managementv1.UniversalService_STATUS_UP, response.Services[0].Status)
+		})
+
+		t.Run("StaleMetricsDisconnectedAgent", func(t *testing.T) {
+			ctx, s, teardown, _ := setup(t)
+			t.Cleanup(func() { teardown(t) })
+
+			services, err := models.FindServices(s.db.Querier, models.ServiceFilters{})
+			require.NoError(t, err)
+			require.Len(t, services, 1)
+
+			staleSample := model.Vector{&model.Sample{
+				Metric: model.Metric{"service_id": model.LabelValue(services[0].ServiceID)},
+				Value:  1,
+			}}
+			isStaleQuery := func(q string) bool { return strings.Contains(q, "last_over_time") }
+			vmClient := s.vmClient.(*mockVictoriaMetricsClient)
+			vmClient.On("Query", ctx, mock.MatchedBy(func(q string) bool { return !isStaleQuery(q) }), mock.Anything).Return(model.Vector{}, nil, nil).Once()
+			vmClient.On("Query", ctx, mock.MatchedBy(isStaleQuery), mock.Anything).Return(staleSample, nil, nil).Once()
+			// agentToAPI + connectivity gate for the stale-status fallback
+			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(false).Twice()
+			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()
+			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()
+
+			response, err := s.ListServices(ctx, &managementv1.ListServicesRequest{})
+
+			require.NoError(t, err)
+			require.Len(t, response.Services, 1)
+			assert.Equal(t, managementv1.UniversalService_STATUS_UNKNOWN, response.Services[0].Status)
 		})
 
 		t.Run("RDS", func(t *testing.T) {
@@ -386,7 +443,7 @@ func TestServiceService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Once()
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Twice()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pmmAgent.AgentID).Return(true).Once()        // PMM Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
@@ -439,7 +496,7 @@ func TestServiceService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Once()
+			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil).Twice()
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pmmAgent.AgentID).Return(true).Once()        // PMM Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter

@@ -25,7 +25,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer" // register SQL driver
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -168,12 +167,12 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 	historyCache, err := newHistoryCache(historyMap{}, retainHistory, getPerfschemaHistorySize(*params.Querier, params.LogEntry), params.LogEntry)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create cache")
+		return nil, fmt.Errorf("cannot create cache: %w", err)
 	}
 
 	summaryCache, err := newSummaryCache(summaryMap{}, retainSummaries, getPerfschemaSummarySize(*params.Querier, params.LogEntry), params.LogEntry)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create cache")
+		return nil, fmt.Errorf("cannot create cache: %w", err)
 	}
 
 	return &PerfSchema{
@@ -270,7 +269,7 @@ func (m *PerfSchema) Changes() <-chan agents.Change {
 }
 
 // Describe implements prometheus.Collector.
-func (m *PerfSchema) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+func (m *PerfSchema) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 
@@ -317,7 +316,7 @@ func (m *PerfSchema) refreshHistoryCache(ctx context.Context) error {
 	if m.useLong == nil {
 		sqlVersion, vendor, err := version.GetMySQLVersion(ctx, m.q)
 		if err != nil {
-			return errors.Wrap(err, "cannot get MySQL version")
+			return fmt.Errorf("cannot get MySQL version: %w", err)
 		}
 		m.useLong = new(vendor == version.MariaDBVendor && sqlVersion.Float() >= 11)
 	}

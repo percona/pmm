@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package pgstatstatements runs built-in QAN Agent for PostgreSQL pg stats statements.
+// Package pgstatstatements runs built-in PGStatStatementsQAN Agent for PostgreSQL pg stats statements.
 package pgstatstatements
 
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -27,7 +28,6 @@ import (
 
 	"github.com/blang/semver"
 	_ "github.com/lib/pq" // register SQL driver
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -55,7 +55,7 @@ var (
 
 type statementsMap map[int64]*pgStatStatementsExtended
 
-// PGStatStatementsQAN QAN services connects to PostgreSQL and extracts stats.
+// PGStatStatementsQAN connects to PostgreSQL and extracts stats using pg_stat_statements.
 type PGStatStatementsQAN struct { //nolint:revive
 	q                      *reform.Querier
 	dbCloser               io.Closer
@@ -81,7 +81,7 @@ const (
 	pgssMaxQuery = "SELECT /* " + queryTag + " */ setting FROM pg_settings WHERE name = 'pg_stat_statements.max'"
 )
 
-// New creates new PGStatStatementsQAN QAN service.
+// New creates new PGStatStatementsQAN service.
 func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	sqlDB, err := sql.Open("postgres", params.DSN)
 	if err != nil {
@@ -119,7 +119,7 @@ func newPgStatStatementsQAN(
 	cacheSize := getPgStatStatementsCacheSize(q, l)
 	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, cacheSize, l)
 	if err != nil {
-		return nil, errors.Wrap(err, "cannot create cache")
+		return nil, fmt.Errorf("cannot create cache: %w", err)
 	}
 
 	return &PGStatStatementsQAN{
@@ -226,7 +226,7 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 }
 
 // getStatStatementsExtended returns the current state of pg_stat_statements table with extended information (database, username, tables)
-// and the previous cashed state.
+// and the previous cached state.
 func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	ctx context.Context,
 ) (statementsMap, statementsMap, error) {
@@ -261,7 +261,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 
 	rows, err := q.Query(fmt.Sprintf("SELECT /* %s */ %s FROM %s %s", queryTag, columns, q.QualifiedView(view), "WHERE queryid IS NOT NULL AND query IS NOT NULL"))
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "couldn't get rows from pg_stat_statements")
+		return nil, nil, fmt.Errorf("couldn't get rows from pg_stat_statements: %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -299,7 +299,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 		err = ctx.Err()
 	}
 	if err != nil {
-		err = errors.Wrap(err, "failed to fetch pg_stat_statements")
+		err = fmt.Errorf("failed to fetch pg_stat_statements: %w", err)
 	}
 
 	return current, prev, err
@@ -437,7 +437,7 @@ func (m *PGStatStatementsQAN) Changes() <-chan agents.Change {
 }
 
 // Describe implements prometheus.Collector.
-func (m *PGStatStatementsQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+func (m *PGStatStatementsQAN) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 

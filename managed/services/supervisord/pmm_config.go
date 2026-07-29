@@ -123,6 +123,7 @@ command =
         -c pg_stat_statements.track=all
         -c pg_stat_statements.save=off
         -c logging_collector=off
+        -c max_connections=2000
 autorestart = true
 autostart = true
 startretries = 10
@@ -140,7 +141,7 @@ redirect_stderr = true
 
 [program:clickhouse]
 priority = 2
-command = /usr/bin/clickhouse-server --config-file=/etc/clickhouse-server/config.xml
+command = /usr/bin/clickhouse-server --config-file=/etc/clickhouse-server/{{ .ClickHouseConfig }}-config.xml
 autorestart = true
 autostart = true
 startretries = 10

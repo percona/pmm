@@ -85,39 +85,34 @@ This happens when the ClickHouse schema migration is interrupted during the upgr
 
 If you're running PMM Server with less than 16 GB RAM and seeing "memory limit exceeded" errors in ClickHouse logs, switch to the low-memory configuration.
 
-PMM includes two ClickHouse profiles:
+PMM includes two built-in ClickHouse profiles:
 
-- **default**: optimized for performance (16 GB+ RAM)
+- **default**: optimized for performance on hosts with 16 GB RAM or more
 - **low-memory**: optimized for constrained environments, based on [ClickHouse recommendations](https://clickhouse.com/docs/operations/tips#using-less-than-16gb-of-ram)
 
 ### Switch to low-memory configuration
 
-```bash
-docker exec -it -u pmm pmm-server ./switch-config.sh low
-```
+Set the `PMM_CLICKHOUSE_CONFIG` environment variable when starting PMM Server:
 
-To switch back:
-```bash
-docker exec -it -u pmm pmm-server ./switch-config.sh default
-```
+=== "Docker"
+    ```bash
+    docker run ... -e PMM_CLICKHOUSE_CONFIG=low-memory percona/pmm-server:3
+    ```
 
-The script stops ClickHouse, updates the configuration, and restarts the service.
+=== "Podman"
+    ```bash
+    podman run ... -e PMM_CLICKHOUSE_CONFIG=low-memory percona/pmm-server:3
+    ```
 
-### Persistent configuration
+The setting persists across container restarts and upgrades without any additional steps.
 
-If you run PMM Server with the `--rm` flag, run the switch script each time the container starts. For systemd, add to your unit file:
-```ini
-ExecStartPost=/usr/bin/docker exec -u pmm pmm-server ./switch-config.sh low
-```
-
-See [Install PMM Server with Podman](../install-pmm/install-pmm-server/deployment-options/podman/index.md) for systemd configuration examples.
+To switch back to the default profile, set `PMM_CLICKHOUSE_CONFIG=default` or remove the variable.
 
 !!! note "Configuration details"
     Both configuration files are located in `/etc/clickhouse-server/` inside the PMM Server container:
     
     - `default-config.xml`: default profile
     - `low-memory-config.xml`: low-memory profile
-    
-    The script is available at `/etc/clickhouse-server/switch-config.sh` or `/opt/switch-config.sh`.
-    
-    When switching profiles, both `config.xml` and `users.xml` are updated to point to the selected profile.
+
+!!! warning "Deprecated: switch-config.sh"
+    The `switch-config.sh` script previously used to switch profiles is deprecated as of PMM 3.9.0 and will be removed in a future release. Use `PMM_CLICKHOUSE_CONFIG` instead.

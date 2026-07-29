@@ -21,8 +21,8 @@ import (
 )
 
 const (
-	delayIncrease = 0.5  // +50%
-	delayJitter   = 0.25 // ±25%
+	delayIncrease = 0.5 // +50%
+	delayJitter   = 0.5 // ±50%
 )
 
 // Backoff encapsulates delay manipulation.
@@ -33,10 +33,10 @@ type Backoff struct {
 }
 
 // New returns new reset backoff.
-func New(min, max time.Duration) *Backoff {
+func New(minD, maxD time.Duration) *Backoff {
 	b := &Backoff{
-		delayBaseMin: min,
-		delayBaseMax: max,
+		delayBaseMin: minD,
+		delayBaseMax: maxD,
 	}
 	b.Reset()
 	return b

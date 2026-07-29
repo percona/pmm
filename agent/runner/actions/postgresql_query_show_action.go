@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/utils/templates"
@@ -43,7 +42,7 @@ func NewPostgreSQLQueryShowAction(id string, timeout time.Duration, params *agen
 	tmpDir := filepath.Join(tempDir, postgreSQLQueryShowActionType, id)
 	dsn, err := templates.RenderDSN(params.Dsn, params.TlsFiles, tmpDir)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &postgresqlQueryShowAction{
@@ -80,19 +79,19 @@ func (a *postgresqlQueryShowAction) Run(ctx context.Context) ([]byte, error) {
 
 	connector, err := pq.NewConnector(a.dsn)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
 
 	rows, err := db.QueryContext(ctx, "SHOW /* pmm-agent */ ALL")
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	return agentv1.MarshalActionQuerySQLResult(columns, dataRows)
 }

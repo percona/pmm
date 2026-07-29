@@ -17,9 +17,9 @@ package agents
 
 import (
 	"context"
+	"errors"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"

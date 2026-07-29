@@ -155,7 +155,7 @@ Foreign-key constraints:
 		defer cancel()
 
 		_, err = a.Run(ctx)
-		expected := "Table not found: sql: no rows in result set"
+		expected := "table not found: sql: no rows in result set"
 		require.EqualError(t, err, expected)
 
 		var count int

@@ -17,12 +17,12 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/validators"
@@ -36,14 +36,14 @@ func GetSettings(q reform.DBTX) (*Settings, error) {
 	var b []byte
 	err := q.QueryRow("SELECT settings FROM settings").Scan(&b)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select settings")
+		return nil, fmt.Errorf("failed to select settings: %w", err)
 	}
 
 	var s Settings
 
 	err = json.Unmarshal(b, &s) //nolint:musttag
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal settings")
+		return nil, fmt.Errorf("failed to unmarshal settings: %w", err)
 	}
 	s.fillDefaults()
 
@@ -102,9 +102,6 @@ type ChangeSettingsParams struct {
 
 	// List of items in format 'db.table.column' to be encrypted.
 	EncryptedItems []string
-
-	// Duration for which an update is snoozed
-	UpdateSnoozeDuration time.Duration
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -147,10 +144,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EnableUpdates != nil {
 		settings.Updates.Enabled = params.EnableUpdates
-	}
-
-	if params.UpdateSnoozeDuration != 0 {
-		settings.Updates.SnoozeDuration = params.UpdateSnoozeDuration
 	}
 
 	if params.EnableTelemetry != nil {
@@ -277,11 +270,11 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		if err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
-				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
+				return fmt.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
-				return errors.Errorf("%s: minimal resolution is 1s", v.fieldName)
+				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return errors.Errorf("%s: unknown error for", v.fieldName)
+				return fmt.Errorf("%s: unknown error: %w", v.fieldName, err)
 			}
 		}
 	}
@@ -303,11 +296,11 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		if err != nil {
 			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
-				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
+				return fmt.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
-				return errors.Errorf("%s: minimal resolution is 1s", v.fieldName)
+				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return errors.Errorf("%s: unknown error for", v.fieldName)
+				return fmt.Errorf("%s: unknown error: %w", v.fieldName, err)
 			}
 		}
 	}
@@ -321,7 +314,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			case validators.MinDurationError:
 				return errors.New("data_retention: minimal resolution is 24h")
 			default:
-				return errors.New("data_retention: unknown error")
+				return fmt.Errorf("data_retention: unknown error: %w", err)
 			}
 		}
 	}
@@ -341,12 +334,12 @@ func SaveSettings(q reform.DBTX, s *Settings) error {
 
 	b, err := json.Marshal(s)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal settings")
+		return fmt.Errorf("failed to marshal settings: %w", err)
 	}
 
 	_, err = q.Exec("UPDATE settings SET settings = $1", b)
 	if err != nil {
-		return errors.Wrap(err, "failed to update settings")
+		return fmt.Errorf("failed to update settings: %w", err)
 	}
 
 	return nil

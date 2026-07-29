@@ -29,11 +29,11 @@
 ### Environment Variables
 For consistency, environment variables should keep to the following suggestions:
 - Use the `PMM_DEV_` prefix for any environment variable that is to be used for *only* development/test purposes i.e., 
-variables that are not meant for end-users in any circumstance e.g., `PMM_DEV_PERCONA_PLATFORM_ADDRESS`
+variables that are not meant for end-users in any circumstance e.g., `PMM_DEV_TELEMETRY_FILE`
 - Use the `PMM_TEST_` prefix for any variable that is not part of PMM GA functionality.
 - Use the `PMM_` prefix for variables that is part of PMM GA functionality.
 - Use a sub-prefix if a number of env vars relate to one component, e.g., `PMM_HA_`
-- The use of PERCONA_ prefix is prohibited (exception: PMM_PERCONA_PLATFORM_URL, since it's part of a proper name, not a prefix)
+- The use of PERCONA_ prefix is prohibited (exception: the `PMM_PERCONA_PLATFORM_` proper name, e.g. `PMM_PERCONA_PLATFORM_ADDRESS`, since it's part of a proper name, not a prefix)
 ## Code style
 
 - `gofumpt -s ` (note the `-s`)

@@ -56,6 +56,10 @@ const (
 	defaultVMSearchMaxQueryDuration     = "90s"
 	defaultVMSearchLogSlowQueryDuration = "30s"
 	defaultVMPromscrapeStreamParse      = "true"
+	// 0 keeps VictoriaMetrics' native default of no ingestion rate limit. A hard cap risks
+	// pausing ingestion on large legitimate fleets, so the limit is left opt-in via the
+	// VM_maxIngestionRate environment variable for deployments that need to throttle bursts.
+	defaultVMMaxIngestionRate = "0"
 )
 
 // Service is responsible for interactions with Supervisord via supervisorctl.
@@ -230,14 +234,12 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 
 // StartSupervisedService starts given service.
 func (s *Service) StartSupervisedService(serviceName string) error {
-	_, err := s.supervisorctl("start", serviceName)
-	return err
+	return s.supervisorctl("start", serviceName)
 }
 
 // StopSupervisedService stops given service.
 func (s *Service) StopSupervisedService(serviceName string) error {
-	_, err := s.supervisorctl("stop", serviceName)
-	return err
+	return s.supervisorctl("stop", serviceName)
 }
 
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
@@ -260,6 +262,7 @@ command =
 		--search.logSlowQueryDuration={{ .VMSearchLogSlowQueryDuration }}
 		--search.maxQueryDuration={{ .VMSearchMaxQueryDuration }}
 		--promscrape.streamParse={{ .VMPromscrapeStreamParse }}
+		--maxIngestionRate={{ .VMMaxIngestionRate }}
 		--http.pathPrefix=/prometheus
 		--envflag.enable
 		--envflag.prefix=VM_
@@ -405,20 +408,20 @@ redirect_stderr = true
 {{end}}
 `))
 
-func (s *Service) supervisorctl(args ...string) ([]byte, error) { //nolint:unparam
+func (s *Service) supervisorctl(args ...string) error {
 	if s.supervisorctlPath == "" {
-		return nil, errors.New("supervisorctl not found")
+		return errors.New("supervisorctl not found")
 	}
 
 	cmd := exec.Command(s.supervisorctlPath, args...) //nolint:gosec,noctx
 	cmdLine := strings.Join(cmd.Args, " ")
 	s.l.Debugf("Running %q...", cmdLine)
 	pdeathsig.Set(cmd, unix.SIGKILL)
-	b, err := cmd.Output()
+	_, err := cmd.Output()
 	if err != nil {
-		return b, fmt.Errorf("%s failed: %w", cmdLine, err)
+		return fmt.Errorf("%s failed: %w", cmdLine, err)
 	}
-	return b, nil
+	return nil
 }
 
 // parseStatus parses `supervisorctl status <name>` output, returns true if <name> is running,
@@ -441,7 +444,7 @@ func parseStatus(status string) *bool {
 
 // reload asks supervisord to reload configuration.
 func (s *Service) reload(name string) error {
-	_, err := s.supervisorctl("reread")
+	err := s.supervisorctl("reread")
 	if err != nil {
 		s.l.Warn(err)
 	}
@@ -453,8 +456,7 @@ func (s *Service) reload(name string) error {
 		return nil
 	}
 
-	_, err = s.supervisorctl("update", name)
-	return err
+	return s.supervisorctl("update", name)
 }
 
 // marshalConfig marshals supervisord program configuration.
@@ -473,6 +475,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	vmSearchMaxQueryDuration := envvars.GetEnv("VM_search_maxQueryDuration", defaultVMSearchMaxQueryDuration)
 	vmSearchLogSlowQueryDuration := envvars.GetEnv("VM_search_logSlowQueryDuration", defaultVMSearchLogSlowQueryDuration)
 	vmPromscrapeStreamParse := envvars.GetEnv("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
+	vmMaxIngestionRate := envvars.GetEnv("VM_maxIngestionRate", defaultVMMaxIngestionRate)
 
 	templateParams := map[string]any{
 		"DataRetentionHours":           int(settings.DataRetention.Hours()),
@@ -487,6 +490,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMSearchMaxQueryDuration":     vmSearchMaxQueryDuration,
 		"VMSearchLogSlowQueryDuration": vmSearchLogSlowQueryDuration,
 		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
+		"VMMaxIngestionRate":           vmMaxIngestionRate,
 		"VMURL":                        s.vmParams.URL(),
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"NomadEnabled":                 settings.IsNomadEnabled(),

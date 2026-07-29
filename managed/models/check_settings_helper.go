@@ -16,7 +16,9 @@
 package models
 
 import (
-	"github.com/pkg/errors"
+	"errors"
+	"fmt"
+
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -29,7 +31,7 @@ func FindCheckSettings(q *reform.Querier) (map[string]Interval, error) {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, err
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	cs := make(map[string]Interval)
@@ -52,7 +54,7 @@ func FindCheckSettingsByName(q *reform.Querier, name string) (*CheckSettings, er
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, err
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return cs, nil
@@ -67,7 +69,7 @@ func CreateCheckSettings(q *reform.Querier, name string, interval Interval) (*Ch
 
 	err := q.Insert(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create check setting")
+		return nil, fmt.Errorf("failed to create check setting: %w", err)
 	}
 
 	return row, nil
@@ -84,7 +86,7 @@ func ChangeCheckSettings(q *reform.Querier, name string, interval Interval) (*Ch
 
 	err = q.Update(row)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to update check setting")
+		return nil, fmt.Errorf("failed to update check setting: %w", err)
 	}
 
 	return row, nil

@@ -15,12 +15,12 @@
 package perfschema
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
@@ -57,7 +57,7 @@ func queryIDWithSchema(schema, queryID string) string {
 func getSummaries(q *reform.Querier) (summaryMap, error) {
 	rows, err := q.SelectRows(eventsStatementsSummaryByDigestView, "WHERE DIGEST IS NOT NULL AND DIGEST_TEXT IS NOT NULL")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to query events_statements_summary_by_digest")
+		return nil, fmt.Errorf("failed to query events_statements_summary_by_digest: %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -76,7 +76,7 @@ func getSummaries(q *reform.Querier) (summaryMap, error) {
 		res[queryID] = &ess
 	}
 	if !errors.Is(err, reform.ErrNoRows) {
-		return nil, errors.Wrap(err, "failed to fetch events_statements_summary_by_digest")
+		return nil, fmt.Errorf("failed to fetch events_statements_summary_by_digest: %w", err)
 	}
 	return res, nil
 }
