@@ -46,7 +46,7 @@ func (c *Client) handlePBMSwitchRequest(ctx context.Context, req *agentv1.PBMSwi
 	// TODO following line is a quick patch. Come up with something better.
 	dsn = strings.Replace(dsn, "directConnection=true", "directConnection=false", 1)
 
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second) //nolint:mnd
 	defer cancel()
 
 	output, err := exec.CommandContext(

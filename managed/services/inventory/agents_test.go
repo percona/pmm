@@ -178,19 +178,21 @@ func TestAgents(t *testing.T) {
 			require.NoError(t, err)
 
 			actualAgent, err := as.AddMongoDBExporter(ctx, &inventoryv1.AddMongoDBExporterParams{
-				PmmAgentId:       pmmAgentID,
-				ServiceId:        ms.ServiceId,
-				Username:         "username",
-				StatsCollections: nil,
-				CollectionsLimit: 0, // no limit
+				PmmAgentId:                     pmmAgentID,
+				ServiceId:                      ms.ServiceId,
+				Username:                       "username",
+				StatsCollections:               nil,
+				CollectionsLimit:               0, // no limit
+				EnableDiagnosticDataHistograms: true,
 			})
 			require.NoError(t, err)
 			expectedMongoDBExporter = &inventoryv1.MongoDBExporter{
-				AgentId:    "00000000-0000-4000-8000-00000000000a",
-				PmmAgentId: pmmAgentID,
-				ServiceId:  ms.ServiceId,
-				Username:   "username",
-				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				AgentId:                        "00000000-0000-4000-8000-00000000000a",
+				PmmAgentId:                     pmmAgentID,
+				ServiceId:                      ms.ServiceId,
+				Username:                       "username",
+				Status:                         inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				EnableDiagnosticDataHistograms: true,
 			}
 			assert.Equal(t, expectedMongoDBExporter, actualAgent.GetMongodbExporter())
 
