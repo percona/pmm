@@ -39,6 +39,7 @@ var (
 	v2_42_0                    = version.MustParse("2.42.0-0")
 	v2_43_0                    = version.MustParse("2.43.0-0")
 	v2_43_2                    = version.MustParse("2.43.2-0")
+	v3_10_0                    = version.MustParse("3.10.0-0")
 )
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
@@ -120,6 +121,9 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 		}
 		if !pmmAgentVersion.Less(v2_43_2) { // >= 2.43.2, enable pbm collector by default
 			args = append(args, "--collector.pbm")
+		}
+		if !pmmAgentVersion.Less(v3_10_0) && exporter.MongoDBOptions.EnableDiagnosticDataHistograms {
+			args = append(args, "--collector.diagnosticdata-histograms")
 		}
 
 		args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)

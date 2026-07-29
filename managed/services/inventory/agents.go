@@ -418,14 +418,15 @@ func (as *AgentsService) ChangeMongoDBExporter(
 
 	// Set MongoDBOptions
 	params.MongoDBOptions = &models.ChangeMongoDBOptions{
-		TLSCertificateKey:             p.TlsCertificateKey,
-		TLSCertificateKeyFilePassword: p.TlsCertificateKeyFilePassword,
-		TLSCa:                         p.TlsCa,
-		AuthenticationMechanism:       p.AuthenticationMechanism,
-		AuthenticationDatabase:        p.AuthenticationDatabase,
-		StatsCollections:              p.StatsCollections,
-		CollectionsLimit:              p.CollectionsLimit,
-		EnableAllCollectors:           p.EnableAllCollectors,
+		TLSCertificateKey:              p.TlsCertificateKey,
+		TLSCertificateKeyFilePassword:  p.TlsCertificateKeyFilePassword,
+		TLSCa:                          p.TlsCa,
+		AuthenticationMechanism:        p.AuthenticationMechanism,
+		AuthenticationDatabase:         p.AuthenticationDatabase,
+		StatsCollections:               p.StatsCollections,
+		CollectionsLimit:               p.CollectionsLimit,
+		EnableAllCollectors:            p.EnableAllCollectors,
+		EnableDiagnosticDataHistograms: p.EnableDiagnosticDataHistograms,
 	}
 
 	// Set ExporterOptions

@@ -216,6 +216,11 @@
                             "description": "True if all collectors are enabled.",
                             "type": "boolean",
                             "x-order": 6
+                          },
+                          "enable_diagnostic_data_histograms": {
+                            "description": "True if diagnostic data histograms are enabled.",
+                            "type": "boolean",
+                            "x-order": 7
                           }
                         },
                         "x-order": 16
@@ -1775,6 +1780,11 @@
                                   "description": "True if all collectors are enabled.",
                                   "type": "boolean",
                                   "x-order": 6
+                                },
+                                "enable_diagnostic_data_histograms": {
+                                  "description": "True if diagnostic data histograms are enabled.",
+                                  "type": "boolean",
+                                  "x-order": 7
                                 }
                               },
                               "x-order": 16
@@ -2572,6 +2582,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 35
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 36
                     }
                   },
                   "x-order": 1
@@ -4579,6 +4594,11 @@
                           "description": "Connection timeout for exporter (if set).",
                           "type": "string",
                           "x-order": 20
+                        },
+                        "enable_diagnostic_data_histograms": {
+                          "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                          "type": "boolean",
+                          "x-order": 21
                         }
                       },
                       "x-order": 1
