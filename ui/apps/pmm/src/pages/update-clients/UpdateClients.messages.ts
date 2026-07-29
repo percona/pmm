@@ -9,8 +9,8 @@ export const Messages = {
   inProgress: 'In progress',
   step: 'Step 2 of 2: Update PMM Client instances',
   stepDescription:
-    "To complete this update, it's crucial to also update all of your PMM Client instances. Before proceeding with the Client update process, check the instances that require updates in the list below and review the provided instructions.",
-  howToUpdate: 'How to update PMM Client',
+    'PMM server is now updated. You must update your PMM Client instances as well to ensure compatibility and access the latest features. Track their update status in the table below.',
+  howToUpdate: 'How to update docs',
   refreshList: 'Refresh list',
   refreshing: 'Refreshing...',
   table: {
