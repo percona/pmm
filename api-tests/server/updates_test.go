@@ -64,7 +64,7 @@ func TestCheckUpdates(t *testing.T) {
 
 	require.NotEmpty(t, res.Payload.Latest)
 	assert.True(t, strings.HasPrefix(res.Payload.Installed.Version, "3."),
-		"installed.version = %q should have '2.' or '3.' prefix", res.Payload.Installed.Version)
+		"installed.version = %q should have '3.' prefix", res.Payload.Installed.Version)
 	assert.NotEmpty(t, res.Payload.Installed.FullVersion)
 
 	if res.Payload.UpdateAvailable {
