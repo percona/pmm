@@ -42,7 +42,7 @@ $ make env
 docker exec -it pmm-server --workdir=/root/go/src/github.com/percona/pmm/managed make _bash
 /bin/bash
 [root@pmm-server pmm-managed]# make test
-make[1]: Entering directory `/root/go/src/github.com/percona/managed'
+make[1]: Entering directory `/root/go/src/github.com/percona/pmm/managed'
 go test -timeout=30s -p 1 ./...
 ...
 ```
