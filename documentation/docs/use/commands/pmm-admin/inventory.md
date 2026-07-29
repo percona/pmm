@@ -144,6 +144,9 @@ You can also use `pmm-admin list` to see agents alongside their services.
 - `--enable-all-collectors`
 :   Enable all collectors
 
+- `--enable-diagnostic-data-histograms`
+:   Enable histogram metrics from MongoDB's `getDiagnosticData` command. Not included in `--enable-all-collectors`. Enabling this may significantly increase `mongodb_exporter` memory usage.
+
 - `--disable-collectors`
 :   Comma-separated list of collectors to disable
 
