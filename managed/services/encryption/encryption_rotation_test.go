@@ -16,6 +16,7 @@
 package encryption
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -39,10 +40,11 @@ const (
 	// pmm-managed-password encrypted with originalEncryptionKey
 	originalPasswordHash = `AYxEFsZuL5xZb5IxGGh8NI6GrjDxCzFGxIcHe94UXcg+dnZphu7GQSgmZm633XvZ8CBU2wo=` //nolint:gosec
 
-	// MySQL TLS material stored in agents.mysql_options. tls_ca is kept as plaintext
-	// PEM, while tls_cert and tls_key are stored encrypted at rest. These are used to
-	// reproduce PMM-15188: encryption key rotation must decrypt-then-re-encrypt the
-	// custom option columns instead of re-encrypting them during the decrypt phase.
+	// MySQL TLS material stored in agents.mysql_options and used to reproduce
+	// PMM-15188: the tls_ca value is kept as plaintext PEM while tls_cert and tls_key
+	// are stored encrypted at rest, so encryption key rotation must decrypt then
+	// re-encrypt these custom option columns instead of re-encrypting them during the
+	// decrypt phase.
 	testMySQLTLSCa = `-----BEGIN CERTIFICATE-----
 MIIBderTESTca0000000000000000000000000000000000000000000000000000
 -----END CERTIFICATE-----
@@ -101,13 +103,14 @@ func TestEncryptionRotation(t *testing.T) {
 // the original PEM material with a single Decrypt call.
 func checkMySQLOptionsDecryptable(db *sql.DB) error {
 	var raw string
-	err := db.QueryRow(`SELECT mysql_options FROM agents WHERE agent_id = $1`, "1").Scan(&raw)
+	err := db.QueryRowContext(context.Background(), `SELECT mysql_options FROM agents WHERE agent_id = $1`, "1").Scan(&raw)
 	if err != nil {
 		return err
 	}
 
 	o := models.MySQLOptions{}
-	if err := json.Unmarshal([]byte(raw), &o); err != nil {
+	err = json.Unmarshal([]byte(raw), &o)
+	if err != nil {
 		return err
 	}
 
@@ -190,7 +193,7 @@ func insertTestData(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec(
+	_, err = db.ExecContext(context.Background(),
 		`INSERT INTO agents (agent_id, agent_type, username, password, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 			`VALUES ('1', 'pmm-agent', $1, $2, '1', NULL, false, '', $3, $4, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', $5, '{"rds_basic_metrics_disabled": true, "rds_enhanced_metrics_disabled": true}', '{"push_metrics": false, "expose_exporter": false}')`,
 		originalUsernameHash, originalPasswordHash, now, now, string(mysqlOptions),
