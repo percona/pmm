@@ -760,6 +760,34 @@ describe('AdvisorInsights', () => {
     expect(input).toHaveValue('');
   });
 
+  it('marks rows with documentation using a non-clickable indicator', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    const indicators = screen.getAllByTestId('insight-read-more-indicator');
+    expect(indicators).toHaveLength(2);
+    // it replaced a "Read more" link: it must not be a click target itself,
+    // the real link lives in the details pane
+    expect(screen.queryByRole('link', { name: /read more/i })).toBeNull();
+    expect(indicators[0].closest('a')).toBeNull();
+  });
+
+  it('omits the documentation indicator when the insight has no URL', async () => {
+    vi.mocked(advisorsApi.listInsights).mockResolvedValue({
+      totalItems: 1,
+      totalPages: 1,
+      results: [{ ...TEST_ITEM, readMoreUrl: '' }],
+    });
+    renderComponent();
+
+    await waitForRows();
+
+    expect(
+      screen.queryByTestId('insight-read-more-indicator')
+    ).not.toBeInTheDocument();
+  });
+
   it('filters by check name from the row menu, then clears', async () => {
     renderComponent();
 

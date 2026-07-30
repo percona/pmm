@@ -3,7 +3,7 @@ export const Messages = {
   description:
     'Results of the advisor checks that ran against your monitored services.',
   noData: 'No advisor insights found',
-  readMore: 'Read more',
+  readMoreAvailable: 'Documentation available in the details pane',
   read: 'Read',
   unread: 'Unread',
   markAsRead: 'Mark as read',
