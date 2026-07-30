@@ -395,10 +395,12 @@ nav:
       - Percona Alerting:
           - alert/index.md
           - alert/alert_rules.md
+          - alert/alert-status.md
           - alert/contact_points.md
           - alert/templates_list.md
           - alert/silence_alerts.md
           - alert/disable_alerts.md
+        
       - Back up and restore:
           - backup/index.md
           - backup/prepare_storage_location.md
