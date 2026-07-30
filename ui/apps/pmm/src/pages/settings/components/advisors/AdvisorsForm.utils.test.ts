@@ -63,9 +63,17 @@ describe('toPayload', () => {
     expect(payload.advisorHistoryRetention).toBe('1209600s');
     expect(payload.enableAdvisorNotifications).toBe(true);
     expect(payload.advisorNotificationSeverityThreshold).toBe(Severity.warning);
-    expect(payload.advisorNotificationEmailAddresses).toEqual([
-      'dba@example.com',
-      'oncall@example.com',
-    ]);
+    expect(payload.advisorNotificationEmailAddresses).toEqual({
+      values: ['dba@example.com', 'oncall@example.com'],
+    });
+  });
+
+  it('wraps an emptied recipient list so the API clears it', () => {
+    const payload = toPayload({
+      ...toFormValues(TEST_SETTINGS),
+      advisorNotificationEmails: '',
+    });
+
+    expect(payload.advisorNotificationEmailAddresses).toEqual({ values: [] });
   });
 });

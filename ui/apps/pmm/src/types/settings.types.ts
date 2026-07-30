@@ -23,6 +23,11 @@ export interface AdvisorRunIntervals {
   frequentInterval: string;
 }
 
+/** common.StringArray — lets the API tell an unset list from one cleared to empty. */
+export interface StringArray {
+  values: string[];
+}
+
 export interface GetReadonlySettingsResponse {
   settings: ReadonlySettings;
 }
@@ -56,7 +61,7 @@ export interface UpdateSettingsPayload {
   advisorHistoryRetention?: string;
   enableAdvisorNotifications?: boolean;
   advisorNotificationSeverityThreshold?: Severity;
-  advisorNotificationEmailAddresses?: string[];
+  advisorNotificationEmailAddresses?: StringArray;
   enableBackupManagement?: boolean;
   enableAzurediscover?: boolean;
   enableUpdates?: boolean;

@@ -46,8 +46,8 @@ export const toPayload = (
     advisorHistoryRetention: `${Math.round(parseFloat(values.advisorRetention)) * SECONDS_IN_DAY}s`,
     enableAdvisorNotifications: values.advisorNotifications,
     advisorNotificationSeverityThreshold: values.advisorSeverityThreshold,
-    advisorNotificationEmailAddresses: splitEmailAddresses(
-      values.advisorNotificationEmails
-    ),
+    advisorNotificationEmailAddresses: {
+      values: splitEmailAddresses(values.advisorNotificationEmails),
+    },
   };
 };
