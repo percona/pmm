@@ -46,6 +46,14 @@ upgrade_pg14_to_pg18() {
 
     echo "PostgreSQL 14 data found at $PG14_DATA. Migrating to PostgreSQL 18..."
 
+    # PMM 2 data directories predate the superuser password file, so generate one when it is
+    # missing: initdb seeds the new cluster's postgres role from it. The dump below does not
+    # need it, since it connects over the socket, which pg_hba matches with a local trust rule.
+    if [ ! -f "$POSTGRES_PASSWORD_FILE" ]; then
+        echo "No superuser password file at $POSTGRES_PASSWORD_FILE. Generating one..."
+        store_postgres_password "$(openssl rand -hex 16)"
+    fi
+
     local PGPASSWORD
     PGPASSWORD=$(cat "$POSTGRES_PASSWORD_FILE")
     export PGPASSWORD
@@ -56,16 +64,24 @@ upgrade_pg14_to_pg18() {
 
     mkdir -p "$BACKUP_DIR"
 
-    echo "Dumping pmm-managed database..."
-    "$PG14_BIN/pg_dump" -h /run/postgresql -U postgres -F p \
-        -f "${BACKUP_DIR}/pg18-upgrade-pmm-managed.sql" pmm-managed
-
-    # Skip the grafana dump when Grafana is configured to use an external database.
-    if [ -z "${GF_DATABASE_URL}" ] && [ -z "${GF_DATABASE_HOST}" ]; then
-        echo "Dumping grafana database..."
+    # Dump whichever databases the old cluster actually has: a PMM 2 installation may never
+    # have kept Grafana in PostgreSQL, and dumping a database that is not there would abort
+    # the upgrade and leave the container restarting.
+    local db dump
+    for db in pmm-managed grafana; do
+        if [ "$db" = "grafana" ] && { [ -n "${GF_DATABASE_URL}" ] || [ -n "${GF_DATABASE_HOST}" ]; }; then
+            echo "Grafana is configured to use an external database, skipping its dump."
+            continue
+        fi
+        if [ -z "$("$PG14_BIN/psql" -h /run/postgresql -U postgres -tAc \
+            "SELECT 1 FROM pg_database WHERE datname = '$db'")" ]; then
+            echo "No $db database in $PG14_DATA, skipping its dump."
+            continue
+        fi
+        echo "Dumping $db database..."
         "$PG14_BIN/pg_dump" -h /run/postgresql -U postgres -F p \
-            -f "${BACKUP_DIR}/pg18-upgrade-grafana.sql" grafana
-    fi
+            -f "${BACKUP_DIR}/pg18-upgrade-${db}.sql" "$db"
+    done
 
     echo "Stopping PostgreSQL 14..."
     "$PG14_BIN/pg_ctl" stop -D "$PG14_DATA" -w
@@ -80,7 +96,6 @@ upgrade_pg14_to_pg18() {
     # pg_database_owner, so ownership is what lets the role create tables in it.
     # Both roles use their own name as the password, same as the ansible tasks that
     # provision them on a fresh installation.
-    local db dump
     for db in pmm-managed grafana; do
         dump="${BACKUP_DIR}/pg18-upgrade-${db}.sql"
         if [ ! -f "$dump" ]; then

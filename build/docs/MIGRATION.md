@@ -117,10 +117,10 @@ The old server is started on the socket in `/run/postgresql`, and each database 
   /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14 -w
 ```
 
-The `grafana` database is skipped when `GF_DATABASE_URL` or `GF_DATABASE_HOST` is set, because Grafana then keeps its data in an external database.
+Only databases that are actually present are dumped. The `grafana` one is skipped when `GF_DATABASE_URL` or `GF_DATABASE_HOST` is set, because Grafana then keeps its data in an external database, and also when the old cluster never held it — a PMM 2 installation may not have.
 
 2. Initialize the PostgreSQL 18 data directory
-The new cluster is created with the same authentication settings as a fresh installation, reusing the existing superuser password:
+The new cluster is created with the same authentication settings as a fresh installation, reusing the existing superuser password. Data directories that predate PMM 3.7 have no `/srv/.postgres_password`, in which case a password is generated first, since `initdb` seeds the new cluster's `postgres` role from that file. An existing password file is left untouched:
 ```
   install -d -m 750 /srv/postgres18
   /usr/pgsql-18/bin/initdb -D /srv/postgres18 --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile=/srv/.postgres_password
