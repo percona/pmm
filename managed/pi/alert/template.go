@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"regexp"
 	"sync"
 
 	"github.com/percona/promconfig"
@@ -168,12 +167,23 @@ func (r *Template) validateParams() error {
 }
 
 // validateOverridableParams ensures every parameter marked `overridable: true`
-// is a float threshold in a multi-expression template and is actually referenced
-// as a `[[ .name ]]` token inside one of the expression steps. These are the
-// preconditions for the dynamic-thresholds rule builder to inject the
-// pmm_alert_threshold query and swap the token — see
-// managed/services/alerting/rule_builder.go.
+// is a float threshold referenced as a `[[ .name ]]` token in a shape the
+// dynamic-thresholds rule builder can rewrite: inside an expression step for
+// multi-expression templates, or as the RHS of the final comparison for
+// single-expression templates — see managed/services/alerting/rule_builder.go.
 func (r *Template) validateOverridableParams() error {
+	if !r.UsesMultipleExpressions() {
+		overridableCount := 0
+		for _, param := range r.Params {
+			if param.Overridable {
+				overridableCount++
+			}
+		}
+		if overridableCount > 1 {
+			return fmt.Errorf("single-expression templates support at most one overridable parameter, got %d", overridableCount)
+		}
+	}
+
 	for _, param := range r.Params {
 		if !param.Overridable {
 			continue
@@ -183,12 +193,15 @@ func (r *Template) validateOverridableParams() error {
 			return fmt.Errorf("parameter '%s' is overridable but not a float", param.Name)
 		}
 
-		if !r.UsesMultipleExpressions() {
-			return fmt.Errorf("parameter '%s' is overridable but the template is not multi-expression", param.Name)
+		if r.UsesMultipleExpressions() {
+			if !r.paramReferencedInExpressions(param.Name) {
+				return fmt.Errorf("overridable parameter '%s' is not referenced as a [[ .%s ]] token in any expression step", param.Name, param.Name)
+			}
+			continue
 		}
 
-		if !r.paramReferencedInExpressions(param.Name) {
-			return fmt.Errorf("overridable parameter '%s' is not referenced as a [[ .%s ]] token in any expression step", param.Name, param.Name)
+		if _, err := FindSingleExprThresholdRef(r.Expr, param.Name); err != nil {
+			return err
 		}
 	}
 
@@ -206,10 +219,4 @@ func (r *Template) paramReferencedInExpressions(name string) bool {
 	}
 
 	return false
-}
-
-// paramTokenRegexp builds a regexp matching the `[[ .name ]]` template token with
-// flexible whitespace, e.g. `[[.name]]` or `[[  .name  ]]`.
-func paramTokenRegexp(name string) *regexp.Regexp {
-	return regexp.MustCompile(`\[\[\s*\.` + regexp.QuoteMeta(name) + `\s*\]\]`)
 }

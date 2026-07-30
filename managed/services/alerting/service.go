@@ -351,6 +351,8 @@ func validateUserTemplate(t *alert.Template) error {
 		return nil
 	}
 
+	// Dry-run fills placeholders only; it does not exercise the single-expression
+	// threshold join rewrite in buildGrafanaRuleData.
 	_, err := fillExprWithParams(t.Expr, params)
 	return err
 }

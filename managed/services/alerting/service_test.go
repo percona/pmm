@@ -42,10 +42,59 @@ import (
 )
 
 const (
-	testBadTemplates = "../../testdata/alerting-templates/bad"
-	testTemplates    = "../../testdata/alerting-templates/user2"
-	testTemplates2   = "../../testdata/alerting-templates/user"
+	testBadTemplates      = "../../testdata/alerting-templates/bad"
+	testTemplates         = "../../testdata/alerting-templates/user2"
+	testTemplates2        = "../../testdata/alerting-templates/user"
+	builtinTemplatesData  = "../../data/alerting-templates"
 )
+
+// TestBuiltInOverridableTemplates is a golden list of built-in templates whose
+// float params carry overridable: true. Single-expression entries must preserve
+// node_name through the LHS so the PromQL on (node_name) join matches; templates
+// that aggregate by (cluster) and drop node_name must not be marked overridable
+// (e.g. mongodb_replication_lag, mongodb_too_many_chunk_migrations,
+// mongodb_pbm_backup_stale).
+func TestBuiltInOverridableTemplates(t *testing.T) {
+	t.Parallel()
+
+	type pair struct {
+		template string
+		param    string
+	}
+
+	want := []pair{
+		{"pmm_mysql_too_many_connections", "threshold"},
+		{"pmm_node_high_cpu_load", "threshold"},
+		{"pmm_postgresql_table_bloat_dual_threshold", "bloat_threshold"},
+		{"pmm_postgresql_table_bloat_dual_threshold", "size_threshold"},
+	}
+
+	files, err := filepath.Glob(filepath.Join(builtinTemplatesData, "*.yml"))
+	require.NoError(t, err)
+	require.NotEmpty(t, files)
+
+	var got []pair
+	for _, file := range files {
+		b, err := os.ReadFile(file) //nolint:gosec
+		require.NoError(t, err)
+
+		templates, err := alert.Parse(strings.NewReader(string(b)), &alert.ParseParams{
+			DisallowUnknownFields:    true,
+			DisallowInvalidTemplates: true,
+		})
+		require.NoError(t, err)
+		require.Len(t, templates, 1)
+
+		tmpl := templates[0]
+		for _, param := range tmpl.Params {
+			if param.Overridable {
+				got = append(got, pair{template: tmpl.Name, param: param.Name})
+			}
+		}
+	}
+
+	assert.Equal(t, want, got)
+}
 
 func TestCollect(t *testing.T) {
 	ctx := t.Context()

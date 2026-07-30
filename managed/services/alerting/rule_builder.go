@@ -81,7 +81,46 @@ func buildGrafanaRuleData(
 		return buildMultiExpressionRuleData(template, metricsDatasourceUID, ruleID, params, filters)
 	}
 
-	expr, err := fillAndFilterExpr(template.Expr, params, filters)
+	return buildSingleExpressionRuleData(template, metricsDatasourceUID, ruleID, params, filters)
+}
+
+func buildSingleExpressionRuleData(
+	template *alert.Template,
+	metricsDatasourceUID string,
+	ruleID string,
+	params map[string]string,
+	filters []*alertingv1.Filter,
+) ([]services.Data, string, error) {
+	names := overridableParamNames(template)
+	if ruleID == "" {
+		names = nil
+	}
+
+	if len(names) == 0 {
+		expr, err := fillAndFilterExpr(template.Expr, params, filters)
+		if err != nil {
+			return nil, "", err
+		}
+
+		data, err := newPromQueryData(metricsDatasourceUID, "A", expr)
+		if err != nil {
+			return nil, "", err
+		}
+
+		return []services.Data{data}, "A", nil
+	}
+
+	if len(names) > 1 {
+		return nil, "", fmt.Errorf("single-expression templates support at most one overridable parameter, got %d", len(names))
+	}
+
+	ref, err := alert.FindSingleExprThresholdRef(template.Expr, names[0])
+	if err != nil {
+		return nil, "", err
+	}
+
+	raw := ref.LHS + thresholdJoinExpr(ref, ruleID, names[0])
+	expr, err := fillAndFilterExpr(raw, params, filters)
 	if err != nil {
 		return nil, "", err
 	}
@@ -201,6 +240,27 @@ func allocateThresholdRefIDs(template *alert.Template) map[string]string {
 // carries rule_id/param/job/instance labels that would otherwise break matching).
 func thresholdQueryExpr(ruleID, paramName string) string {
 	return fmt.Sprintf(`max by (%s) (%s{rule_id=%q, param=%q})`, thresholdJoinLabel, thresholdMetricName, ruleID, paramName)
+}
+
+// thresholdJoinExpr renders `<op>[ bool] on (node_name) group_left() <thresholdQueryExpr>`.
+func thresholdJoinExpr(ref alert.SingleExprThresholdRef, ruleID, paramName string) string {
+	boolPart := ""
+	if ref.Bool {
+		boolPart = "bool "
+	}
+
+	return ref.Operator + " " + boolPart + "on (" + thresholdJoinLabel + ") group_left() " + thresholdQueryExpr(ruleID, paramName)
+}
+
+func overridableParamNames(template *alert.Template) []string {
+	names := make([]string, 0, len(template.Params))
+	for _, param := range template.Params {
+		if param.Overridable {
+			names = append(names, param.Name)
+		}
+	}
+
+	return names
 }
 
 // swapOverridableToken replaces every `[[ .name ]]` token (with flexible

@@ -17,11 +17,13 @@ package alerting
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	alertingv1 "github.com/percona/pmm/api/alerting/v1"
 	"github.com/percona/pmm/managed/pi/alert"
 )
 
@@ -153,4 +155,127 @@ func TestBuildGrafanaRuleDataNonOverridableUnchanged(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, data, 2) // A + C, no injected query
 	assert.Equal(t, "$A > 80", mathExpr(t, data[1].Model))
+}
+
+func TestBuildGrafanaRuleDataSingleExprOverridableThreshold(t *testing.T) {
+	t.Parallel()
+
+	const mysqlExpr = `max_over_time(mysql_global_status_threads_connected[5m]) / ignoring (job)
+mysql_global_variables_max_connections
+* 100
+> bool [[ .threshold ]]`
+
+	wantExpr := `max_over_time(mysql_global_status_threads_connected[5m]) / ignoring (job)
+mysql_global_variables_max_connections
+* 100
+> bool on (node_name) group_left() max by (node_name) (pmm_alert_threshold{rule_id="rid-mysql", param="threshold"})`
+
+	tmpl := &alert.Template{
+		Expr: mysqlExpr,
+		Params: []alert.Parameter{
+			{Name: "threshold", Summary: "s", Type: alert.Float, Overridable: true, Value: 80},
+		},
+	}
+
+	data, condition, err := buildGrafanaRuleData(tmpl, "metrics-uid", "rid-mysql", map[string]string{"threshold": "80"}, nil)
+	require.NoError(t, err)
+	assert.Equal(t, "A", condition)
+	require.Len(t, data, 1)
+
+	expr := modelExpr(t, data[0].Model)
+	assert.Equal(t, wantExpr, expr)
+	assert.NotContains(t, expr, "80")
+}
+
+func TestBuildGrafanaRuleDataSingleExprOverridableNoBool(t *testing.T) {
+	t.Parallel()
+
+	tmpl := &alert.Template{
+		Expr: "a > [[ .threshold ]]",
+		Params: []alert.Parameter{
+			{Name: "threshold", Summary: "s", Type: alert.Float, Overridable: true, Value: 86400},
+		},
+	}
+
+	data, _, err := buildGrafanaRuleData(tmpl, "metrics-uid", "rid-1", map[string]string{"threshold": "86400"}, nil)
+	require.NoError(t, err)
+	require.Len(t, data, 1)
+
+	expr := modelExpr(t, data[0].Model)
+	assert.Equal(t, `a > on (node_name) group_left() max by (node_name) (pmm_alert_threshold{rule_id="rid-1", param="threshold"})`, expr)
+	assert.NotContains(t, expr, "bool")
+}
+
+func TestBuildGrafanaRuleDataSingleExprOverridableWithFilter(t *testing.T) {
+	t.Parallel()
+
+	tmpl := &alert.Template{
+		Expr: "up > bool [[ .threshold ]]",
+		Params: []alert.Parameter{
+			{Name: "threshold", Summary: "s", Type: alert.Float, Overridable: true, Value: 0},
+		},
+	}
+
+	data, _, err := buildGrafanaRuleData(tmpl, "metrics-uid", "rid-1", map[string]string{"threshold": "0"}, []*alertingv1.Filter{{
+		Type:   alertingv1.FilterType_FILTER_TYPE_MATCH,
+		Label:  "service_name",
+		Regexp: "mysql-1",
+	}})
+	require.NoError(t, err)
+	require.Len(t, data, 1)
+
+	expr := modelExpr(t, data[0].Model)
+	assert.True(t, strings.HasPrefix(expr, "label_match("))
+	assert.Contains(t, expr, "pmm_alert_threshold")
+}
+
+func TestBuildGrafanaRuleDataSingleExprNonOverridableUnchanged(t *testing.T) {
+	t.Parallel()
+
+	tmpl := &alert.Template{
+		Expr: "up > bool [[ .threshold ]]",
+		Params: []alert.Parameter{
+			{Name: "threshold", Summary: "s", Type: alert.Float, Value: 80},
+		},
+	}
+
+	data, _, err := buildGrafanaRuleData(tmpl, "metrics-uid", "rid-1", map[string]string{"threshold": "80"}, nil)
+	require.NoError(t, err)
+	require.Len(t, data, 1)
+	assert.Equal(t, "up > bool 80", modelExpr(t, data[0].Model))
+}
+
+func TestBuildGrafanaRuleDataSingleExprEmptyRuleIDUnchanged(t *testing.T) {
+	t.Parallel()
+
+	tmpl := &alert.Template{
+		Expr: "up > bool [[ .threshold ]]",
+		Params: []alert.Parameter{
+			{Name: "threshold", Summary: "s", Type: alert.Float, Overridable: true, Value: 80},
+		},
+	}
+
+	data, _, err := buildGrafanaRuleData(tmpl, "metrics-uid", "", map[string]string{"threshold": "80"}, nil)
+	require.NoError(t, err)
+	require.Len(t, data, 1)
+	assert.Equal(t, "up > bool 80", modelExpr(t, data[0].Model))
+}
+
+func TestBuildGrafanaRuleDataSingleExprMultipleOverridableRejected(t *testing.T) {
+	t.Parallel()
+
+	tmpl := &alert.Template{
+		Expr: "a > [[ .threshold ]]",
+		Params: []alert.Parameter{
+			{Name: "threshold", Summary: "s", Type: alert.Float, Overridable: true, Value: 80},
+			{Name: "other", Summary: "s", Type: alert.Float, Overridable: true, Value: 90},
+		},
+	}
+
+	_, _, err := buildGrafanaRuleData(tmpl, "metrics-uid", "rid-1", map[string]string{
+		"threshold": "80",
+		"other":     "90",
+	}, nil)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "single-expression templates support at most one overridable parameter")
 }
