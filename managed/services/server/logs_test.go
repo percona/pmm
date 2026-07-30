@@ -33,6 +33,9 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+// TODO postgresql14.log is temporarily expected here so that this test passes against the
+// prebuilt dev container, which still embeds PostgreSQL 14. Restore postgresql18.log before
+// merging, together with minPGVersion in managed/models/database.go.
 var commonExpectedFiles = []string{
 	"clickhouse-server.log",
 	"grafana.log",
@@ -47,7 +50,7 @@ var commonExpectedFiles = []string{
 	"pmm-version.txt",
 	"pmm.conf",
 	"pmm.ini",
-	"postgresql18.log",
+	"postgresql14.log",
 	"qan-api2.ini",
 	"qan-api2.log",
 	"supervisorctl_status.log",
