@@ -160,29 +160,6 @@ ensure_postgres_password() {
     fi
 }
 
-update_pg_hba_auth() {
-    local hba="$POSTGRES_DATA_DIR/pg_hba.conf"
-
-    if [ ! -f "$hba" ]; then
-        return 1
-    fi
-
-    if ! grep -Eq '^[[:space:]]*host[[:space:]].*[[:space:]]trust[[:space:]]*$' "$hba"; then
-        return 1
-    fi
-
-    echo "Updating $hba to require scram-sha-256 for host connections..."
-    local tmp
-    tmp=$(mktemp)
-    sed -E 's/^([[:space:]]*host[[:space:]].*[[:space:]])trust([[:space:]]*)$/\1scram-sha-256\2/' "$hba" > "$tmp"
-    mv "$tmp" "$hba"
-
-    if "$PG_BIN/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
-        "$PG_BIN/pg_ctl" reload -D "$POSTGRES_DATA_DIR"
-    fi
-}
-
 upgrade_pg14_to_pg18
 init_postgres_cluster
 ensure_postgres_password
-update_pg_hba_auth || true
