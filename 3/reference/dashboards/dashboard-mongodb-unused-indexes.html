@@ -7,19 +7,19 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Dashboards are a compilation of visualizations, including charts and metrics, that enable you to view performance metrics from node to single query for multiple databases in a centralized location.">
+        <meta name="description" content="This dashboard helps you find MongoDB indexes that have not been used since the last mongod service restart. These indexes are candidates for review and possible removal to reduce write overhead, disk usage, and memory pressure.">
       
       
         <meta name="author" content="Percona LLC">
       
       
-        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/use/dashboards-panels/index.html">
+        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/reference/dashboards/dashboard-mongodb-unused-indexes.html">
       
       
-        <link rel="prev" href="../metrics/extend_metrics.html">
+        <link rel="prev" href="dashboard-mongodb-collection_overview.html">
       
       
-        <link rel="next" href="manage-dashboards/create-folders.html">
+        <link rel="next" href="dashboard-mongodb-oplog-details.html">
       
       
         
@@ -30,7 +30,7 @@
     
     
       
-        <title>Dashboards overview - Percona Monitoring and Management</title>
+        <title>MongoDB Unused Indexes - Percona Monitoring and Management</title>
       
     
     
@@ -96,7 +96,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Dashboards overview" />
+                 <meta property="og:title" content="Percona Monitoring and Management - MongoDB Unused Indexes" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -119,7 +119,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dashboards-overview" class="md-skip">
+        <a href="#mongodb-unused-indexes" class="md-skip">
           Skip to content
         </a>
       
@@ -226,7 +226,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Dashboards overview
+              MongoDB Unused Indexes
             
           </span>
         </div>
@@ -3635,20 +3635,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -3669,7 +3667,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -3687,7 +3685,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../using-pmm.html" class="md-nav__link">
+      <a href="../../use/using-pmm.html" class="md-nav__link">
         
   
   
@@ -3762,7 +3760,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/ui/ui_components.html" class="md-nav__link">
+      <a href="../ui/ui_components.html" class="md-nav__link">
         
   
   
@@ -3790,7 +3788,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/ui/log_in.html" class="md-nav__link">
+      <a href="../ui/log_in.html" class="md-nav__link">
         
   
   
@@ -3818,7 +3816,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/ui/timezone.html" class="md-nav__link">
+      <a href="../ui/timezone.html" class="md-nav__link">
         
   
   
@@ -3854,7 +3852,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../dashboard-inventory.html" class="md-nav__link">
+      <a href="../../use/dashboard-inventory.html" class="md-nav__link">
         
   
   
@@ -3882,7 +3880,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../remove-services.html" class="md-nav__link">
+      <a href="../../use/remove-services.html" class="md-nav__link">
         
   
   
@@ -3907,20 +3905,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5" >
         
           
           <label class="md-nav__link" for="__nav_6_5" id="__nav_6_5_label" tabindex="0">
@@ -3941,7 +3937,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -3959,7 +3955,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../monitor.html" class="md-nav__link">
+      <a href="../../use/monitor.html" class="md-nav__link">
         
   
   
@@ -4034,7 +4030,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../metrics/index.html" class="md-nav__link">
+      <a href="../../use/metrics/index.html" class="md-nav__link">
         
   
   
@@ -4062,7 +4058,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../metrics/extend_metrics.html" class="md-nav__link">
+      <a href="../../use/metrics/extend_metrics.html" class="md-nav__link">
         
   
   
@@ -4095,20 +4091,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5_3" >
         
           
           <label class="md-nav__link" for="__nav_6_5_3" id="__nav_6_5_3_label" tabindex="0">
@@ -4129,7 +4123,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_5_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_5_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6_5_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -4144,37 +4138,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Dashboards overview
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="index.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../use/dashboards-panels/index.html" class="md-nav__link">
         
   
   
@@ -4190,37 +4157,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#available-dashboards" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Available dashboards
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -4280,7 +4216,7 @@
   
   
     <li class="md-nav__item">
-      <a href="manage-dashboards/create-folders.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/manage-dashboards/create-folders.html" class="md-nav__link">
         
   
   
@@ -4308,7 +4244,7 @@
   
   
     <li class="md-nav__item">
-      <a href="manage-dashboards/manage-folders.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/manage-dashboards/manage-folders.html" class="md-nav__link">
         
   
   
@@ -4336,7 +4272,7 @@
   
   
     <li class="md-nav__item">
-      <a href="manage-dashboards/set-custom-dashboard.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/manage-dashboards/set-custom-dashboard.html" class="md-nav__link">
         
   
   
@@ -4372,7 +4308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="share-dashboards/share_dashboard.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/share-dashboards/share_dashboard.html" class="md-nav__link">
         
   
   
@@ -4400,7 +4336,7 @@
   
   
     <li class="md-nav__item">
-      <a href="annotate/annotate.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/annotate/annotate.html" class="md-nav__link">
         
   
   
@@ -4491,7 +4427,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../qan/index.html" class="md-nav__link">
+      <a href="../../use/qan/index.html" class="md-nav__link">
         
   
   
@@ -4566,7 +4502,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../qan/QAN-stored-metrics.html" class="md-nav__link">
+      <a href="../../use/qan/QAN-stored-metrics.html" class="md-nav__link">
         
   
   
@@ -4641,7 +4577,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../qan/panels/overview.html" class="md-nav__link">
+      <a href="../../use/qan/panels/overview.html" class="md-nav__link">
         
   
   
@@ -4669,7 +4605,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../qan/panels/filters.html" class="md-nav__link">
+      <a href="../../use/qan/panels/filters.html" class="md-nav__link">
         
   
   
@@ -4697,7 +4633,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../qan/panels/details.html" class="md-nav__link">
+      <a href="../../use/qan/panels/details.html" class="md-nav__link">
         
   
   
@@ -4733,7 +4669,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../qan/mysql.html" class="md-nav__link">
+      <a href="../../use/qan/mysql.html" class="md-nav__link">
         
   
   
@@ -4761,7 +4697,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../qan/qan_mongo.html" class="md-nav__link">
+      <a href="../../use/qan/qan_mongo.html" class="md-nav__link">
         
   
   
@@ -4797,7 +4733,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../qan/QAN-realtime-analytics.html" class="md-nav__link">
+      <a href="../../use/qan/QAN-realtime-analytics.html" class="md-nav__link">
         
   
   
@@ -12322,18 +12258,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13" checked>
         
           
           <label class="md-nav__link" for="__nav_13" id="__nav_13_label" tabindex="0">
@@ -12354,7 +12292,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_13_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_13">
             <span class="md-nav__icon md-icon"></span>
             
@@ -12419,7 +12357,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/index.html" class="md-nav__link">
+      <a href="../index.html" class="md-nav__link">
         
   
   
@@ -12494,7 +12432,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/third-party/victoria.html" class="md-nav__link">
+      <a href="../third-party/victoria.html" class="md-nav__link">
         
   
   
@@ -12522,7 +12460,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/third-party/clickhouse.html" class="md-nav__link">
+      <a href="../third-party/clickhouse.html" class="md-nav__link">
         
   
   
@@ -12550,7 +12488,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/third-party/postgresql.html" class="md-nav__link">
+      <a href="../third-party/postgresql.html" class="md-nav__link">
         
   
   
@@ -12586,7 +12524,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/pmm_components_and_versions.html" class="md-nav__link">
+      <a href="../pmm_components_and_versions.html" class="md-nav__link">
         
   
   
@@ -12614,7 +12552,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/personal_data_handling.html" class="md-nav__link">
+      <a href="../personal_data_handling.html" class="md-nav__link">
         
   
   
@@ -12800,7 +12738,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/index.html" class="md-nav__link">
+      <a href="../../use/commands/index.html" class="md-nav__link">
         
   
   
@@ -12875,7 +12813,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/pmm-admin/pmm-admin.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-admin/pmm-admin.html" class="md-nav__link">
         
   
   
@@ -12903,7 +12841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/pmm-admin/add.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-admin/add.html" class="md-nav__link">
         
   
   
@@ -12931,7 +12869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/pmm-admin/inventory.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-admin/inventory.html" class="md-nav__link">
         
   
   
@@ -12959,7 +12897,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/pmm-admin/config.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-admin/config.html" class="md-nav__link">
         
   
   
@@ -12987,7 +12925,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/pmm-admin/status.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-admin/status.html" class="md-nav__link">
         
   
   
@@ -13023,7 +12961,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../commands/pmm-agent.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-agent.html" class="md-nav__link">
         
   
   
@@ -13064,18 +13002,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2" checked>
         
           
           <label class="md-nav__link" for="__nav_13_2" id="__nav_13_2_label" tabindex="0">
@@ -13096,7 +13036,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_13_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_13_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_13_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -13161,7 +13101,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-home.html" class="md-nav__link">
+      <a href="dashboard-home.html" class="md-nav__link">
         
   
   
@@ -13189,7 +13129,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-advanced-data-exploration.html" class="md-nav__link">
+      <a href="dashboard-advanced-data-exploration.html" class="md-nav__link">
         
   
   
@@ -13217,7 +13157,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-victoriametrics.html" class="md-nav__link">
+      <a href="dashboard-victoriametrics.html" class="md-nav__link">
         
   
   
@@ -13245,7 +13185,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-victoriametrics-agents-overview.html" class="md-nav__link">
+      <a href="dashboard-victoriametrics-agents-overview.html" class="md-nav__link">
         
   
   
@@ -13328,7 +13268,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-env-overview.html" class="md-nav__link">
+      <a href="dashboard-env-overview.html" class="md-nav__link">
         
   
   
@@ -13411,7 +13351,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/kubernetes_cluster_summary.html" class="md-nav__link">
+      <a href="kubernetes_cluster_summary.html" class="md-nav__link">
         
   
   
@@ -13439,7 +13379,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/kubernetes_monitor_operators.html" class="md-nav__link">
+      <a href="kubernetes_monitor_operators.html" class="md-nav__link">
         
   
   
@@ -13467,7 +13407,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/kubernetes_monitor_db_clusters_managed.html" class="md-nav__link">
+      <a href="kubernetes_monitor_db_clusters_managed.html" class="md-nav__link">
         
   
   
@@ -13550,7 +13490,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-cpu-utilization-details.html" class="md-nav__link">
+      <a href="dashboard-cpu-utilization-details.html" class="md-nav__link">
         
   
   
@@ -13578,7 +13518,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-disk-details.html" class="md-nav__link">
+      <a href="dashboard-disk-details.html" class="md-nav__link">
         
   
   
@@ -13606,7 +13546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-network-details.html" class="md-nav__link">
+      <a href="dashboard-network-details.html" class="md-nav__link">
         
   
   
@@ -13634,7 +13574,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-memory-details.html" class="md-nav__link">
+      <a href="dashboard-memory-details.html" class="md-nav__link">
         
   
   
@@ -13662,7 +13602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-node-temperature-details.html" class="md-nav__link">
+      <a href="dashboard-node-temperature-details.html" class="md-nav__link">
         
   
   
@@ -13690,7 +13630,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-nodes-compare.html" class="md-nav__link">
+      <a href="dashboard-nodes-compare.html" class="md-nav__link">
         
   
   
@@ -13718,7 +13658,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-nodes-overview.html" class="md-nav__link">
+      <a href="dashboard-nodes-overview.html" class="md-nav__link">
         
   
   
@@ -13746,7 +13686,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-node-summary.html" class="md-nav__link">
+      <a href="dashboard-node-summary.html" class="md-nav__link">
         
   
   
@@ -13774,7 +13714,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-numa-details.html" class="md-nav__link">
+      <a href="dashboard-numa-details.html" class="md-nav__link">
         
   
   
@@ -13802,7 +13742,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-processes-details.html" class="md-nav__link">
+      <a href="dashboard-processes-details.html" class="md-nav__link">
         
   
   
@@ -13885,7 +13825,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-prometheus-exporter-status.html" class="md-nav__link">
+      <a href="dashboard-prometheus-exporter-status.html" class="md-nav__link">
         
   
   
@@ -13913,7 +13853,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-prometheus-exporters-overview.html" class="md-nav__link">
+      <a href="dashboard-prometheus-exporters-overview.html" class="md-nav__link">
         
   
   
@@ -13996,7 +13936,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-amazon-aurora-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-amazon-aurora-details.html" class="md-nav__link">
         
   
   
@@ -14024,7 +13964,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-command-handler-counters-compare.html" class="md-nav__link">
+      <a href="dashboard-mysql-command-handler-counters-compare.html" class="md-nav__link">
         
   
   
@@ -14052,7 +13992,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-innodb-compression-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-innodb-compression-details.html" class="md-nav__link">
         
   
   
@@ -14080,7 +14020,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-innodb-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-innodb-details.html" class="md-nav__link">
         
   
   
@@ -14108,7 +14048,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-myisam-aria-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-myisam-aria-details.html" class="md-nav__link">
         
   
   
@@ -14136,7 +14076,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-myrocks-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-myrocks-details.html" class="md-nav__link">
         
   
   
@@ -14164,7 +14104,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-instance-summary.html" class="md-nav__link">
+      <a href="dashboard-mysql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -14192,7 +14132,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-instances-compare.html" class="md-nav__link">
+      <a href="dashboard-mysql-instances-compare.html" class="md-nav__link">
         
   
   
@@ -14220,7 +14160,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-instances-overview.html" class="md-nav__link">
+      <a href="dashboard-mysql-instances-overview.html" class="md-nav__link">
         
   
   
@@ -14248,7 +14188,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-wait-event-analyses-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-wait-event-analyses-details.html" class="md-nav__link">
         
   
   
@@ -14276,7 +14216,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-performance-schema-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-performance-schema-details.html" class="md-nav__link">
         
   
   
@@ -14304,7 +14244,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-query-response-time-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-query-response-time-details.html" class="md-nav__link">
         
   
   
@@ -14332,7 +14272,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-replication-summary.html" class="md-nav__link">
+      <a href="dashboard-mysql-replication-summary.html" class="md-nav__link">
         
   
   
@@ -14360,7 +14300,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-group-replication-summary.html" class="md-nav__link">
+      <a href="dashboard-mysql-group-replication-summary.html" class="md-nav__link">
         
   
   
@@ -14388,7 +14328,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-table-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-table-details.html" class="md-nav__link">
         
   
   
@@ -14416,7 +14356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mysql-user-details.html" class="md-nav__link">
+      <a href="dashboard-mysql-user-details.html" class="md-nav__link">
         
   
   
@@ -14449,18 +14389,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_13_2_7" checked>
         
           
           <label class="md-nav__link" for="__nav_13_2_7" id="__nav_13_2_7_label" tabindex="0">
@@ -14481,7 +14423,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_13_2_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_13_2_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_13_2_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -14499,7 +14441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-collection_overview.html" class="md-nav__link">
+      <a href="dashboard-mongodb-collection_overview.html" class="md-nav__link">
         
   
   
@@ -14524,10 +14466,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-unused-indexes.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MongoDB Unused Indexes
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="dashboard-mongodb-unused-indexes.html" class="md-nav__link md-nav__link--active">
         
   
   
@@ -14543,6 +14512,154 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#about-unused-indexes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        About Unused Indexes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-uptime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instance Uptime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unused-indexes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unused Indexes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#indexes-monitored" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Indexes Monitored
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unused-index-candidates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unused Index Candidates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Unused Index Candidates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unused-indexes-by-collection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unused Indexes by Collection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#index-access-activity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Index Access Activity
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Index Access Activity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#index-accesses-since-restart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Index Accesses Since Restart
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#least-used-indexes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Least Used Indexes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -14555,7 +14672,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-oplog-details.html" class="md-nav__link">
+      <a href="dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
@@ -14583,7 +14700,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-cluster-summary.html" class="md-nav__link">
+      <a href="dashboard-mongodb-cluster-summary.html" class="md-nav__link">
         
   
   
@@ -14611,7 +14728,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-instance-summary.html" class="md-nav__link">
+      <a href="dashboard-mongodb-instance-summary.html" class="md-nav__link">
         
   
   
@@ -14639,7 +14756,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-instances-overview.html" class="md-nav__link">
+      <a href="dashboard-mongodb-instances-overview.html" class="md-nav__link">
         
   
   
@@ -14667,7 +14784,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-instances-compare.html" class="md-nav__link">
+      <a href="dashboard-mongodb-instances-compare.html" class="md-nav__link">
         
   
   
@@ -14695,7 +14812,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-replset-summary.html" class="md-nav__link">
+      <a href="dashboard-mongodb-replset-summary.html" class="md-nav__link">
         
   
   
@@ -14723,7 +14840,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-router-summary.html" class="md-nav__link">
+      <a href="dashboard-mongodb-router-summary.html" class="md-nav__link">
         
   
   
@@ -14751,7 +14868,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-inmemory-details.html" class="md-nav__link">
+      <a href="dashboard-mongodb-inmemory-details.html" class="md-nav__link">
         
   
   
@@ -14779,7 +14896,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-mmapv1-details.html" class="md-nav__link">
+      <a href="dashboard-mongodb-mmapv1-details.html" class="md-nav__link">
         
   
   
@@ -14807,7 +14924,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-wiredtiger-details.html" class="md-nav__link">
+      <a href="dashboard-mongodb-wiredtiger-details.html" class="md-nav__link">
         
   
   
@@ -14835,7 +14952,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-mongodb-backup-details.html" class="md-nav__link">
+      <a href="dashboard-mongodb-backup-details.html" class="md-nav__link">
         
   
   
@@ -14918,7 +15035,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-postgresql-instance-summary.html" class="md-nav__link">
+      <a href="dashboard-postgresql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -14946,7 +15063,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-postgresql-instances-compare.html" class="md-nav__link">
+      <a href="dashboard-postgresql-instances-compare.html" class="md-nav__link">
         
   
   
@@ -14974,7 +15091,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
+      <a href="dashboard-postgresql-instances-overview.html" class="md-nav__link">
         
   
   
@@ -15002,7 +15119,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
+      <a href="dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
         
   
   
@@ -15030,7 +15147,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-postgresql-replication.html" class="md-nav__link">
+      <a href="dashboard-postgresql-replication.html" class="md-nav__link">
         
   
   
@@ -15058,7 +15175,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-postgresql-topqueries.html" class="md-nav__link">
+      <a href="dashboard-postgresql-topqueries.html" class="md-nav__link">
         
   
   
@@ -15141,7 +15258,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-proxysql-instance-summary.html" class="md-nav__link">
+      <a href="dashboard-proxysql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -15224,7 +15341,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-valkey-redis-overview.html" class="md-nav__link">
+      <a href="dashboard-valkey-redis-overview.html" class="md-nav__link">
         
   
   
@@ -15252,7 +15369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-valkey-redis-clients.html" class="md-nav__link">
+      <a href="dashboard-valkey-redis-clients.html" class="md-nav__link">
         
   
   
@@ -15280,7 +15397,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-valkey-redis-cluster-details.html" class="md-nav__link">
+      <a href="dashboard-valkey-redis-cluster-details.html" class="md-nav__link">
         
   
   
@@ -15308,7 +15425,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-valkey-redis-command-detail.html" class="md-nav__link">
+      <a href="dashboard-valkey-redis-command-detail.html" class="md-nav__link">
         
   
   
@@ -15336,7 +15453,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-valkey-redis-load.html" class="md-nav__link">
+      <a href="dashboard-valkey-redis-load.html" class="md-nav__link">
         
   
   
@@ -15364,7 +15481,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-valkey-redis-memory.html" class="md-nav__link">
+      <a href="dashboard-valkey-redis-memory.html" class="md-nav__link">
         
   
   
@@ -15392,7 +15509,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-valkey-redis-network.html" class="md-nav__link">
+      <a href="dashboard-valkey-redis-network.html" class="md-nav__link">
         
   
   
@@ -15420,7 +15537,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-valkey-redis-persistence-details.html" class="md-nav__link">
+      <a href="dashboard-valkey-redis-persistence-details.html" class="md-nav__link">
         
   
   
@@ -15448,7 +15565,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-valkey-redis-replication.html" class="md-nav__link">
+      <a href="dashboard-valkey-redis-replication.html" class="md-nav__link">
         
   
   
@@ -15476,7 +15593,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-valkey-redis-slowlog.html" class="md-nav__link">
+      <a href="dashboard-valkey-redis-slowlog.html" class="md-nav__link">
         
   
   
@@ -15559,7 +15676,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-ha-health-overview.html" class="md-nav__link">
+      <a href="dashboard-ha-health-overview.html" class="md-nav__link">
         
   
   
@@ -15587,7 +15704,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-pxc-galera-node-summary.html" class="md-nav__link">
+      <a href="dashboard-pxc-galera-node-summary.html" class="md-nav__link">
         
   
   
@@ -15615,7 +15732,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-pxc-galera-nodes-compare.html" class="md-nav__link">
+      <a href="dashboard-pxc-galera-nodes-compare.html" class="md-nav__link">
         
   
   
@@ -15643,7 +15760,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+      <a href="dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
         
   
   
@@ -15671,7 +15788,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
+      <a href="dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
   
@@ -15715,7 +15832,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/labels-reference.html" class="md-nav__link">
+      <a href="../labels-reference.html" class="md-nav__link">
         
   
   
@@ -15743,7 +15860,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/nomad.html" class="md-nav__link">
+      <a href="../nomad.html" class="md-nav__link">
         
   
   
@@ -15771,7 +15888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/glossary.html" class="md-nav__link">
+      <a href="../glossary.html" class="md-nav__link">
         
   
   
@@ -15799,7 +15916,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/faq.html" class="md-nav__link">
+      <a href="../faq.html" class="md-nav__link">
         
   
   
@@ -15827,7 +15944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/trademark-policy.html" class="md-nav__link">
+      <a href="../trademark-policy.html" class="md-nav__link">
         
   
   
@@ -15855,7 +15972,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../reference/copyright.html" class="md-nav__link">
+      <a href="../copyright.html" class="md-nav__link">
         
   
   
@@ -16124,7 +16241,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
                       <div data-banner="data-banner" class="edit-contrib-banner">
   <div class="banner-content">
     <!-- Edit link centered -->
-    <a href="https://github.com/percona/pmm/edit/main/documentation/docs/use/dashboards-panels/index.md" title="Edit this page on GitHub" class="edit-page-link">
+    <a href="https://github.com/percona/pmm/edit/main/documentation/docs/reference/dashboards/dashboard-mongodb-unused-indexes.md" title="Edit this page on GitHub" class="edit-page-link">
       <span class="edit-page-icon">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
@@ -16175,13 +16292,130 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#available-dashboards" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Available dashboards
+        Overview
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#about-unused-indexes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        About Unused Indexes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-uptime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instance Uptime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#unused-indexes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unused Indexes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#indexes-monitored" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Indexes Monitored
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unused-index-candidates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unused Index Candidates
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Unused Index Candidates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unused-indexes-by-collection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unused Indexes by Collection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#index-access-activity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Index Access Activity
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Index Access Activity">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#index-accesses-since-restart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Index Accesses Since Restart
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#least-used-indexes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Least Used Indexes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -16206,379 +16440,45 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     
       
     
-    <a href="https://github.com/percona/pmm/raw/main/documentation/docs/use/dashboards-panels/index.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/main/documentation/docs/reference/dashboards/dashboard-mongodb-unused-indexes.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="dashboards-overview">Dashboards overview<a class="headerlink" href="#dashboards-overview" title="Permanent link">&para;</a></h1>
-<p>Dashboards are a compilation of visualizations, including charts and metrics, that enable you to view performance metrics from node to single query for multiple databases in a centralized location.</p>
-<p>A dashboard is a group of one or more panels organized and arranged into rows. Panels refer to individual components or visual elements that display specific data or visualizations within the dashboard&rsquo;s layout. These panels are the building blocks that collectively form a dashboard, providing a means to present and visualize data in various formats. Dashboards are grouped into folders. You can customize these by renaming them or creating new ones.</p>
-<p>Dashboards provide insightful and actionable data, enabling you to gain an overview of your system status quickly. These dashboards enable you to drill down into specific time frames, apply filters, and analyze data trends for troubleshooting and performance optimization. Customizable dashboards and real-time alerting facilitate seamless monitoring of database performance.</p>
-<h2 id="available-dashboards">Available dashboards<a class="headerlink" href="#available-dashboards" title="Permanent link">&para;</a></h2>
-<p>Performance Monitoring and Management (PMM) offers a range of dashboards you can access. Some of these dashboards are as follows:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:9"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><input id="__tabbed_1_4" name="__tabbed_1" type="radio" /><input id="__tabbed_1_5" name="__tabbed_1" type="radio" /><input id="__tabbed_1_6" name="__tabbed_1" type="radio" /><input id="__tabbed_1_7" name="__tabbed_1" type="radio" /><input id="__tabbed_1_8" name="__tabbed_1" type="radio" /><input id="__tabbed_1_9" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Insight</label><label for="__tabbed_1_2">PMM</label><label for="__tabbed_1_3">OS</label><label for="__tabbed_1_4">MySQL</label><label for="__tabbed_1_5">MongoDB</label><label for="__tabbed_1_6">PostgreSQL</label><label for="__tabbed_1_7">Valkey/Redis</label><label for="__tabbed_1_8">ProxySQL</label><label for="__tabbed_1_9">HA</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<table>
-<thead>
-<tr>
-<th>Dashboard</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-advanced-data-exploration.html">Advanced Data Exploration</a></td>
-<td>Explore and analyze metrics with custom queries</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-home.html">Home Dashboard</a></td>
-<td>Overview of monitored environments and quick access to key dashboards</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-prometheus-exporter-status.html">Prometheus Exporter Status</a></td>
-<td>Monitor exporter health and availability</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-prometheus-exporters-overview.html">Prometheus Exporters Overview</a></td>
-<td>Resource usage (CPU, memory) across all exporters</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-victoriametrics.html">VictoriaMetrics</a></td>
-<td>VictoriaMetrics performance and storage metrics</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-victoriametrics-agents-overview.html">VictoriaMetrics Agents Overview</a></td>
-<td>VictoriaMetrics agents status and data collection</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="tabbed-block">
-<table>
-<thead>
-<tr>
-<th>Dashboard</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="../dashboard-inventory.html">PMM Inventory</a></td>
-<td>Manage monitored services, nodes, and agents</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-env-overview.html">Environment Overview</a></td>
-<td>High-level view of all monitored environments</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-env-overview.html">Environment Summary</a></td>
-<td>Aggregated metrics across environments</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="tabbed-block">
-<table>
-<thead>
-<tr>
-<th>Dashboard</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-cpu-utilization-details.html">CPU Utilization Details</a></td>
-<td>CPU usage, load averages, and core utilization</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-disk-details.html">Disk Details</a></td>
-<td>Disk I/O, latency, and space utilization</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-network-details.html">Network Details</a></td>
-<td>Network traffic, errors, and interface statistics</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-memory-details.html">Memory Details</a></td>
-<td>Memory usage, swap, and caching</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-node-temperature-details.html">Node Temperature Details</a></td>
-<td>Hardware temperature monitoring</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-nodes-compare.html">Nodes Compare</a></td>
-<td>Side-by-side comparison of multiple nodes</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-nodes-overview.html">Nodes Overview</a></td>
-<td>Summary view of all monitored nodes</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-node-summary.html">Node Summary</a></td>
-<td>System information and resource usage for a single node</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-numa-details.html">NUMA Details</a></td>
-<td>NUMA node memory allocation and performance</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-processes-details.html">Processes Details</a></td>
-<td>Process-level CPU, memory, and I/O metrics</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="tabbed-block">
-<table>
-<thead>
-<tr>
-<th>Dashboard</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-amazon-aurora-details.html">MySQL Amazon Aurora Details</a></td>
-<td>Aurora-specific metrics and replication</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-command-handler-counters-compare.html">MySQL Command/Handler Counters Compare</a></td>
-<td>Compare command execution patterns across instances</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-innodb-compression-details.html">MySQL InnoDB Compression Details</a></td>
-<td>InnoDB compression efficiency and performance</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-innodb-details.html">MySQL InnoDB Details</a></td>
-<td>InnoDB storage engine metrics and buffer pool statistics</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-myisam-aria-details.html">MySQL MyISAM/Aria Details</a></td>
-<td>MyISAM and Aria storage engine performance</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-myrocks-details.html">MySQL MyRocks Details</a></td>
-<td>MyRocks storage engine metrics</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-instance-summary.html">MySQL Instance Summary</a></td>
-<td>MySQL instance health and performance overview</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-instances-compare.html">MySQL Instances Compare</a></td>
-<td>Compare metrics across multiple MySQL instances</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-instances-overview.html">MySQL Instances Overview</a></td>
-<td>Summary of all monitored MySQL instances</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-wait-event-analyses-details.html">MySQL Wait Event Analyses Details</a></td>
-<td>Identify and analyze wait events and bottlenecks</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-performance-schema-details.html">MySQL Performance Schema Details</a></td>
-<td>Performance Schema instrumentation and metrics</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-query-response-time-details.html">MySQL Query Response Time Details</a></td>
-<td>Query response time distribution analysis</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-replication-summary.html">MySQL Replication Summary</a></td>
-<td>Replication status, lag, and topology</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-group-replication-summary.html">MySQL Group Replication Summary</a></td>
-<td>Group replication health and performance</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-table-details.html">MySQL Table Details</a></td>
-<td>Table-level statistics and performance</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mysql-user-details.html">MySQL User Details</a></td>
-<td>User connection and activity monitoring</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="tabbed-block">
-<table>
-<thead>
-<tr>
-<th>Dashboard</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mongodb-collection_overview.html">MongoDB Collection Overview</a></td>
-<td>Collection-level statistics</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mongodb-oplog-details.html">MongoDB Oplog Details</a></td>
-<td>Oplog operations and replication</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mongodb-cluster-summary.html">MongoDB Cluster Summary</a></td>
-<td>Sharded cluster health and performance overview</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mongodb-instance-summary.html">MongoDB Instance Summary</a></td>
-<td>MongoDB instance metrics and operations</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mongodb-instances-compare.html">MongoDB Instances Compare</a></td>
-<td>Compare metrics across MongoDB instances</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mongodb-replset-summary.html">MongoDB ReplSet Summary</a></td>
-<td>Replica set health, lag, and member status</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mongodb-inmemory-details.html">MongoDB InMemory Details</a></td>
-<td>InMemory storage engine performance</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mongodb-mmapv1-details.html">MongoDB MMAPv1 Details</a></td>
-<td>MMAPv1 storage engine metrics</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mongodb-wiredtiger-details.html">MongoDB WiredTiger Details</a></td>
-<td>WiredTiger storage engine performance and caching</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="tabbed-block">
-<table>
-<thead>
-<tr>
-<th>Dashboard</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-postgresql-instances-overview.html">PostgreSQL Instances Overview</a></td>
-<td>High-level overview of all PostgreSQL instances</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-postgresql-instance-summary.html">PostgreSQL Instance Summary</a></td>
-<td>PostgreSQL instance health and performance</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-postgresql-instances-compare.html">PostgreSQL Instances Compare</a></td>
-<td>Compare metrics across PostgreSQL instances</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="tabbed-block">
-<table>
-<thead>
-<tr>
-<th>Dashboard</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-valkey-redis-overview.html">Valkey/Redis Overview</a></td>
-<td>Deployment health and performance summary</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-valkey-redis-clients.html">Valkey/Redis Clients</a></td>
-<td>Client connections and blocked clients</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-valkey-redis-cluster-details.html">Valkey/Redis Cluster Details</a></td>
-<td>Cluster topology and replication offsets</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-valkey-redis-command-detail.html">Valkey/Redis Command Details</a></td>
-<td>Command throughput and latency patterns</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-valkey-redis-load.html">Valkey/Redis Load</a></td>
-<td>Workload distribution and I/O threading</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-valkey-redis-memory.html">Valkey/Redis Memory</a></td>
-<td>Memory usage and eviction patterns</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-valkey-redis-network.html">Valkey/Redis Network</a></td>
-<td>Network bandwidth and traffic patterns</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-valkey-redis-persistence-details.html">Valkey/Redis Persistence</a></td>
-<td>RDB and AOF operations</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-valkey-redis-replication.html">Valkey/Redis Replication</a></td>
-<td>Replication lag and synchronization status</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-valkey-redis-slowlog.html">Valkey/Redis Slowlog</a></td>
-<td>Slow command identification and bottleneck detection</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="tabbed-block">
-<table>
-<thead>
-<tr>
-<th>Dashboard</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-proxysql-instance-summary.html">ProxySQL Instance Summary</a></td>
-<td>ProxySQL performance, connection pooling, and query routing</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="tabbed-block">
-<table>
-<thead>
-<tr>
-<th>Dashboard</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-pxc-galera-node-summary.html">PXC/Galera Node Summary</a></td>
-<td>Individual node health in PXC/Galera clusters</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-mongodb-cluster-summary.html">PXC/Galera Cluster Summary</a></td>
-<td>Cluster-wide health and replication flow</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/dashboard-pxc-galera-nodes-compare.html">PXC/Galera Nodes Compare</a></td>
-<td>Compare metrics across PXC/Galera nodes</td>
-</tr>
-<tr>
-<td><a href="../../reference/dashboards/">HAProxy Instance Summary</a></td>
-<td>HAProxy load balancer performance and backend health</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
+<h1 id="mongodb-unused-indexes">MongoDB Unused Indexes<a class="headerlink" href="#mongodb-unused-indexes" title="Permanent link">&para;</a></h1>
+<p>This dashboard helps you find MongoDB indexes that have not been used since the last <code>mongod</code> service restart. These indexes are candidates for review and possible removal to reduce write overhead, disk usage, and memory pressure.</p>
+<p>Use the filters at the top to scope the view to a specific environment, cluster, replica set, MongoDB node, or database.</p>
+<p><strong>Requirements:</strong> the <code>indexstats</code> collector must be enabled on the MongoDB exporter. Index usage is recorded only on the node that executes the query, so review all replica set members before dropping an index.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<h3 id="about-unused-indexes">About Unused Indexes<a class="headerlink" href="#about-unused-indexes" title="Permanent link">&para;</a></h3>
+<p>Explains how the dashboard interprets index usage and what to verify before dropping an index.</p>
+<h3 id="instance-uptime">Instance Uptime<a class="headerlink" href="#instance-uptime" title="Permanent link">&para;</a></h3>
+<p>Shows the minimum uptime among the selected MongoDB node(s) since the last restart, in days.</p>
+<p>Use this to understand how long index usage has been tracked. A recently restarted instance may not have had enough time for indexes to be used yet.</p>
+<h3 id="unused-indexes">Unused Indexes<a class="headerlink" href="#unused-indexes" title="Permanent link">&para;</a></h3>
+<p>Shows the number of indexes with zero accesses since restart. The default <code>_id_</code> index is excluded.</p>
+<p>A non-zero value means there are indexes that have not been used on the selected node(s). Review the table below before taking action.</p>
+<h3 id="indexes-monitored">Indexes Monitored<a class="headerlink" href="#indexes-monitored" title="Permanent link">&para;</a></h3>
+<p>Shows the total number of indexes reported by the <code>indexstats</code> collector for the selected filters.</p>
+<p>Use this together with <strong>Unused Indexes</strong> to understand what share of monitored indexes appear unused.</p>
+<h2 id="unused-index-candidates">Unused Index Candidates<a class="headerlink" href="#unused-index-candidates" title="Permanent link">&para;</a></h2>
+<h3 id="unused-indexes-by-collection">Unused Indexes by Collection<a class="headerlink" href="#unused-indexes-by-collection" title="Permanent link">&para;</a></h3>
+<p>Lists indexes with zero accesses since the last <code>mongod</code> restart. Columns include cluster, database, collection, index name, and service.</p>
+<p>This panel uses the same core metric and zero-access rule as the MongoDB Unused Indexes advisor check. The advisor evaluates each node separately; the dashboard groups by <code>service_name</code> so you can see per-node results when multiple replica set members are selected:</p>
+<div class="highlight"><pre><span></span><code><span class="k">avg</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="o">(</span><span class="nv">cluster</span><span class="p">,</span><span class="w"> </span><span class="nv">collection</span><span class="p">,</span><span class="w"> </span><span class="nv">database</span><span class="p">,</span><span class="w"> </span><span class="nv">key_name</span><span class="p">,</span><span class="w"> </span><span class="nv">service_name</span><span class="o">)</span><span class="w"> </span><span class="o">(</span>
+<span class="w">  </span><span class="nv">mongodb_indexstats_accesses_ops</span><span class="p">{</span><span class="nl">service_name</span><span class="o">=~</span><span class="p">&quot;</span><span class="s">$service_name</span><span class="p">&quot;,</span><span class="w"> </span><span class="nl">key_name</span><span class="o">!=</span><span class="p">&quot;</span><span class="s">_id_</span><span class="p">&quot;}</span>
+<span class="o">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span>
+</code></pre></div>
+<p>Review each index with your application team before dropping it. On replica sets, an index may appear unused on one member but still be required on another.</p>
+<h2 id="index-access-activity">Index Access Activity<a class="headerlink" href="#index-access-activity" title="Permanent link">&para;</a></h2>
+<h3 id="index-accesses-since-restart">Index Accesses Since Restart<a class="headerlink" href="#index-accesses-since-restart" title="Permanent link">&para;</a></h3>
+<p>Shows index access counts over time for the selected filters. Flat lines at zero indicate unused indexes.</p>
+<p>Use this to distinguish indexes that have never been used from indexes that were used earlier but are idle now.</p>
+<h3 id="least-used-indexes">Least Used Indexes<a class="headerlink" href="#least-used-indexes" title="Permanent link">&para;</a></h3>
+<p>Shows the 20 indexes with the lowest access counts since restart.</p>
+<p>Use this to find rarely used indexes that are not yet at zero but may still be candidates for review.</p>
 
 
 
@@ -16601,7 +16501,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 30, 2026 00:06:35 UTC">July 30, 2026</span>
   </span>
 
     
@@ -16611,7 +16511,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 30, 2026 00:06:35 UTC">July 30, 2026</span>
   </span>
 
     
