@@ -962,6 +962,27 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		assert.Nil(t, agent.LogLevel)
 	})
 
+	t.Run("FailWhenRequestedThroughParamsOfAnotherAgentType", func(t *testing.T) {
+		_, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		t.Setenv(env.EnableInternalPgQAN, "true")
+
+		// The inventory API picks the Change*Agent method from the request payload and not from
+		// the type of the agent being changed, so any of them can be pointed at the internal QAN
+		// agent. The guard must hold no matter which one was called.
+		_, err := as.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, internalPgQANAgentID, &inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentParams{
+			Enable:   new(false),
+			LogLevel: inventoryv1.LogLevel_LOG_LEVEL_DEBUG.Enum(),
+		})
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "QAN for PMM's internal PostgreSQL server is set to true via an environment variable."), err)
+
+		agent, err := models.FindAgentByID(as.db.Querier, internalPgQANAgentID)
+		require.NoError(t, err)
+		assert.True(t, agent.Disabled)
+		assert.Nil(t, agent.LogLevel)
+	})
+
 	t.Run("SucceedForParametersUnrelatedToEnvVar", func(t *testing.T) {
 		_, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
