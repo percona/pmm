@@ -102,7 +102,7 @@ Unlike the sections above, this one describes an upgrade between PMM v3 releases
 
 The upgrade is performed automatically on the first start of a PMM Server that ships PostgreSQL 18, so no manual intervention is required. It is driven by `build/docker/server/entrypoint.sh`, which runs `build/ansible/roles/postgres/files/postgres-migration` before supervisord starts. The steps below document what that script does.
 
-The upgrade runs only when `/srv/postgres14` exists and `/srv/postgres18` does not, which makes it a one-time operation. It is skipped entirely when the embedded PostgreSQL is not in use, i.e. when `PMM_HA_ENABLE` or `PMM_DISABLE_BUILTIN_POSTGRES` is enabled. In those cases the external database has to be upgraded by its owner.
+The upgrade runs only when `/srv/postgres14` exists and `/srv/postgres18` does not, which makes it a one-time operation. The new cluster is built in `/srv/postgres18.new` and moved into place only once it is fully restored, so `/srv/postgres18` existing always means a finished cluster. An interrupted attempt leaves nothing but a staging directory, which the next start discards before retrying. It is skipped entirely when the embedded PostgreSQL is not in use, i.e. when `PMM_HA_ENABLE` or `PMM_DISABLE_BUILTIN_POSTGRES` is enabled. In those cases the external database has to be upgraded by its owner.
 
 Both the PostgreSQL 14 and 18 binaries are shipped in the image, so the upgrade is a logical dump and restore rather than an in-place `pg_upgrade`. This also means the upgrade path is only available as long as the PostgreSQL 14 binaries remain in the image; upgrading from an older PMM v3 release after they are dropped requires an intermediate upgrade. Make sure the volume holding `/srv` has enough free space for a plain-text dump of both databases plus a second data directory. The dumps are removed once the upgrade completes, so that part of the requirement is transient.
 
@@ -120,16 +120,16 @@ The old server is started on the socket in `/run/postgresql`, and each database 
 Only databases that are actually present are dumped. The `grafana` one is skipped when `GF_DATABASE_URL` or `GF_DATABASE_HOST` is set, because Grafana then keeps its data in an external database, and also when the old cluster never held it — a PMM 2 installation may not have.
 
 2. Initialize the PostgreSQL 18 data directory
-The new cluster is created with the same authentication settings as a fresh installation, reusing the existing superuser password. Data directories that predate PMM 3.7 have no `/srv/.postgres_password`, in which case a password is generated first, since `initdb` seeds the new cluster's `postgres` role from that file. An existing password file is left untouched:
+The new cluster is created in `/srv/postgres18.new` with the same authentication settings as a fresh installation, reusing the existing superuser password. Data directories that predate PMM 3.7 have no `/srv/.postgres_password`, in which case a password is generated first, since `initdb` seeds the new cluster's `postgres` role from that file. An existing password file is left untouched:
 ```
-  install -d -m 750 /srv/postgres18
-  /usr/pgsql-18/bin/initdb -D /srv/postgres18 --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile=/srv/.postgres_password
+  install -d -m 750 /srv/postgres18.new
+  /usr/pgsql-18/bin/initdb -D /srv/postgres18.new --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile=/srv/.postgres_password
 ```
 
 3. Recreate the roles and databases, then restore the dumps
 The dumps contain no role definitions, so each role is recreated and made the owner of its database. Ownership is what matters here: since PostgreSQL 15 the `public` schema belongs to `pg_database_owner`, so the owner can create tables in it while a plain `GRANT ALL PRIVILEGES ON DATABASE` cannot. This is done for every database dumped in step 1:
 ```
-  /usr/pgsql-18/bin/pg_ctl start -D /srv/postgres18 -o "-c logging_collector=off" -w
+  /usr/pgsql-18/bin/pg_ctl start -D /srv/postgres18.new -o "-c logging_collector=off" -w
   /usr/pgsql-18/bin/psql -h /run/postgresql -U postgres -d postgres \
       -c "CREATE ROLE \"pmm-managed\" LOGIN PASSWORD 'pmm-managed'" \
       -c "CREATE DATABASE \"pmm-managed\" OWNER \"pmm-managed\""
@@ -140,12 +140,16 @@ The dumps contain no role definitions, so each role is recreated and made the ow
 The extension is registered per database, so it has to be created again in the new cluster:
 ```
   /usr/pgsql-18/bin/psql -h /run/postgresql -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public"
-  /usr/pgsql-18/bin/pg_ctl stop -D /srv/postgres18 -w
+  /usr/pgsql-18/bin/pg_ctl stop -D /srv/postgres18.new -w
   unset PGPASSWORD
 ```
 
-5. Keep the old data directory for rollback and discard the dumps
-`/srv/postgres14` is renamed to `/srv/postgres14.old` rather than removed. The rename also prevents the upgrade from running a second time. That directory is the rollback artifact, so the `pg18-upgrade-*.sql` dumps are deleted once it is in place; only those files are touched, since `/srv/backup` also holds user backups. A failed upgrade never reaches this point, so its dumps are left behind to inspect.
+5. Publish the new cluster, keep the old directory for rollback and discard the dumps
+```
+  mv /srv/postgres18.new /srv/postgres18
+```
+
+That move is the point at which the upgrade counts as done. `/srv/postgres14` is then renamed to `/srv/postgres14.old` rather than removed. The rename also prevents the upgrade from running a second time. That directory is the rollback artifact, so the `pg18-upgrade-*.sql` dumps are deleted once it is in place; only those files are touched, since `/srv/backup` also holds user backups. A failed upgrade never reaches this point, so its dumps are left behind to inspect.
 
 To roll back, shut PMM Server down, remove `/srv/postgres18`, rename `/srv/postgres14.old` back to `/srv/postgres14` and start the previous PMM Server image. Once the upgrade is confirmed to be successful, `/srv/postgres14.old` can be removed to reclaim disk space.
 

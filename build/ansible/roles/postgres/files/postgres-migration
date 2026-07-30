@@ -13,16 +13,29 @@ store_postgres_password() {
     chmod 600 "$POSTGRES_PASSWORD_FILE"
 }
 
-# Creates a cluster with the authentication settings PMM expects. The password file must
-# already exist: initdb seeds the postgres superuser from it.
+# Creates a cluster in the given directory with the authentication settings PMM expects.
+# The password file must already exist: initdb seeds the postgres superuser from it.
 initdb_cluster() {
-    echo "Initialising PostgreSQL at $POSTGRES_DATA_DIR..."
-    install -d -m 750 "$POSTGRES_DATA_DIR"
-    "$PG_BIN/initdb" -D "$POSTGRES_DATA_DIR" \
+    local data_dir=$1
+
+    echo "Initialising PostgreSQL at $data_dir..."
+    install -d -m 750 "$data_dir"
+    "$PG_BIN/initdb" -D "$data_dir" \
         --auth-host=scram-sha-256 \
         --auth-local=trust \
         --username=postgres \
         --pwfile="$POSTGRES_PASSWORD_FILE"
+}
+
+# Moves a finished cluster into place. Until this runs, POSTGRES_DATA_DIR does not exist, so
+# an interrupted attempt is retried on the next start rather than leaving a half-built cluster
+# that both the upgrade and the fresh install would skip. The rename is within /srv, so it is
+# atomic.
+publish_cluster() {
+    local staged=$1
+
+    echo "Moving $staged into place at $POSTGRES_DATA_DIR..."
+    mv "$staged" "$POSTGRES_DATA_DIR"
 }
 
 # pg_stat_statements is registered per cluster, so every new one needs it.
@@ -39,6 +52,7 @@ upgrade_pg14_to_pg18() {
     local PG14_DATA="/srv/postgres14"
     local PG14_BIN="/usr/pgsql-14/bin"
     local BACKUP_DIR="/srv/backup"
+    local STAGE_DIR="${POSTGRES_DATA_DIR}.new"
 
     if [ ! -d "$PG14_DATA" ] || [ -d "$POSTGRES_DATA_DIR" ]; then
         return
@@ -86,11 +100,13 @@ upgrade_pg14_to_pg18() {
     echo "Stopping PostgreSQL 14..."
     "$PG14_BIN/pg_ctl" stop -D "$PG14_DATA" -w
 
-    initdb_cluster
+    # Build the new cluster off to the side; a leftover from an interrupted attempt is discarded.
+    rm -rf "${STAGE_DIR:?}"
+    initdb_cluster "$STAGE_DIR"
 
     # Start pg18 and restore
     echo "Starting PostgreSQL 18..."
-    "$PG_BIN/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off" -w
+    "$PG_BIN/pg_ctl" start -D "$STAGE_DIR" -o "-c logging_collector=off" -w
 
     # Each role owns its database: since PostgreSQL 15 the public schema belongs to
     # pg_database_owner, so ownership is what lets the role create tables in it.
@@ -112,9 +128,11 @@ upgrade_pg14_to_pg18() {
     create_pg_stat_statements
 
     echo "Stopping PostgreSQL 18..."
-    "$PG_BIN/pg_ctl" stop -D "$POSTGRES_DATA_DIR" -w
+    "$PG_BIN/pg_ctl" stop -D "$STAGE_DIR" -w
 
     unset PGPASSWORD
+
+    publish_cluster "$STAGE_DIR"
 
     echo "Renaming $PG14_DATA to ${PG14_DATA}.old for rollback safety..."
     mv "$PG14_DATA" "${PG14_DATA}.old"
@@ -132,6 +150,8 @@ upgrade_pg14_to_pg18() {
 # Creates the cluster when there is no data directory to reuse. Runs after the pg14
 # upgrade so that an upgradable cluster is never replaced by an empty one.
 init_postgres_cluster() {
+    local STAGE_DIR="${POSTGRES_DATA_DIR}.new"
+
     if [ -d "$POSTGRES_DATA_DIR" ]; then
         return
     fi
@@ -142,13 +162,16 @@ init_postgres_cluster() {
     POSTGRES_PASSWORD=$(openssl rand -hex 16)
     store_postgres_password "$POSTGRES_PASSWORD"
 
-    initdb_cluster
+    rm -rf "${STAGE_DIR:?}"
+    initdb_cluster "$STAGE_DIR"
 
     export PGPASSWORD="$POSTGRES_PASSWORD"
-    "$PG_BIN/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off" -w
+    "$PG_BIN/pg_ctl" start -D "$STAGE_DIR" -o "-c logging_collector=off" -w
     create_pg_stat_statements
-    "$PG_BIN/pg_ctl" stop -D "$POSTGRES_DATA_DIR" -w
+    "$PG_BIN/pg_ctl" stop -D "$STAGE_DIR" -w
     unset PGPASSWORD
+
+    publish_cluster "$STAGE_DIR"
 }
 
 ensure_postgres_password() {
