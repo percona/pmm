@@ -1902,6 +1902,58 @@
                         "description": "YAML template file content. Empty for built-in and SaaS templates.",
                         "type": "string",
                         "x-order": 10
+                      },
+                      "queries": {
+                        "description": "PromQL query steps for multi-query templates. Empty for single-expression templates.",
+                        "type": "array",
+                        "items": {
+                          "description": "TemplateQuery represents a PromQL query step in a multi-query alert template.",
+                          "type": "object",
+                          "properties": {
+                            "ref_id": {
+                              "description": "Reference ID of the query (e.g. \"A\").",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "expr": {
+                              "description": "PromQL query expression with templating parameters (placeholders kept intact).",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          }
+                        },
+                        "x-order": 11
+                      },
+                      "expressions": {
+                        "description": "Server-side expression steps for multi-query templates. Empty for single-expression templates.",
+                        "type": "array",
+                        "items": {
+                          "description": "TemplateExpression represents a server-side expression step in a multi-query alert template.",
+                          "type": "object",
+                          "properties": {
+                            "ref_id": {
+                              "description": "Reference ID of the expression (e.g. \"C\").",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "type": {
+                              "description": "Expression type. Currently only \"math\" is supported.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "expression": {
+                              "description": "Expression body referencing other steps by ref ID (e.g. \"$A \u003e $B\").",
+                              "type": "string",
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 12
+                      },
+                      "condition": {
+                        "description": "Reference ID of the step used as the alert condition (e.g. \"C\"). Empty for single-expression templates.",
+                        "type": "string",
+                        "x-order": 13
                       }
                     }
                   },
@@ -4941,6 +4993,11 @@
                         "description": "Connection timeout for exporter (if set).",
                         "type": "string",
                         "x-order": 20
+                      },
+                      "enable_diagnostic_data_histograms": {
+                        "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                        "type": "boolean",
+                        "x-order": 21
                       }
                     }
                   },
@@ -6907,6 +6964,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 22
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 23
                     }
                   },
                   "x-order": 3
@@ -8614,6 +8676,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 20
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 21
                     }
                   },
                   "x-order": 3
@@ -10694,6 +10761,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 20
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 21
                     }
                   },
                   "x-order": 4
@@ -12700,6 +12772,12 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 21
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 22
                     }
                   },
                   "x-order": 2
@@ -14824,6 +14902,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 20
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 21
                     }
                   },
                   "x-order": 2
@@ -20683,6 +20766,11 @@
                             "description": "True if all collectors are enabled.",
                             "type": "boolean",
                             "x-order": 6
+                          },
+                          "enable_diagnostic_data_histograms": {
+                            "description": "True if diagnostic data histograms are enabled.",
+                            "type": "boolean",
+                            "x-order": 7
                           }
                         },
                         "x-order": 16
@@ -22242,6 +22330,11 @@
                                   "description": "True if all collectors are enabled.",
                                   "type": "boolean",
                                   "x-order": 6
+                                },
+                                "enable_diagnostic_data_histograms": {
+                                  "description": "True if diagnostic data histograms are enabled.",
+                                  "type": "boolean",
+                                  "x-order": 7
                                 }
                               },
                               "x-order": 16
@@ -23039,6 +23132,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 35
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 36
                     }
                   },
                   "x-order": 1
@@ -25046,6 +25144,11 @@
                           "description": "Connection timeout for exporter (if set).",
                           "type": "string",
                           "x-order": 20
+                        },
+                        "enable_diagnostic_data_histograms": {
+                          "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                          "type": "boolean",
+                          "x-order": 21
                         }
                       },
                       "x-order": 1
@@ -31441,7 +31544,7 @@
                   "x-order": 2
                 },
                 "data_retention": {
-                  "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
+                  "description": "A number of full days for Prometheus and QAN data retention. Must be specified in seconds in JSON, for example: 2592000s.",
                   "type": "string",
                   "x-order": 3
                 },

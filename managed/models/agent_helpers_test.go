@@ -842,14 +842,15 @@ func TestAgentHelpers(t *testing.T) {
 			statsCollections := []string{"stats1", "stats2"}
 			agent, err := models.ChangeAgent(q, "A8", &models.ChangeAgentParams{
 				MongoDBOptions: &models.ChangeMongoDBOptions{
-					TLSCertificateKey:             new("new_cert_key"),
-					TLSCertificateKeyFilePassword: new("new_password"),
-					TLSCa:                         new("new_ca"),
-					AuthenticationMechanism:       new("SCRAM-SHA-256"),
-					AuthenticationDatabase:        new("admin"),
-					StatsCollections:              statsCollections,
-					CollectionsLimit:              new(int32(500)),
-					EnableAllCollectors:           new(false),
+					TLSCertificateKey:              new("new_cert_key"),
+					TLSCertificateKeyFilePassword:  new("new_password"),
+					TLSCa:                          new("new_ca"),
+					AuthenticationMechanism:        new("SCRAM-SHA-256"),
+					AuthenticationDatabase:         new("admin"),
+					StatsCollections:               statsCollections,
+					CollectionsLimit:               new(int32(500)),
+					EnableAllCollectors:            new(false),
+					EnableDiagnosticDataHistograms: new(true),
 				},
 			})
 			require.NoError(t, err)
@@ -861,6 +862,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, statsCollections, agent.MongoDBOptions.StatsCollections)
 			assert.Equal(t, int32(500), agent.MongoDBOptions.CollectionsLimit)
 			assert.False(t, agent.MongoDBOptions.EnableAllCollectors)
+			assert.True(t, agent.MongoDBOptions.EnableDiagnosticDataHistograms)
 
 			// Verify persistence in database
 			persistedAgent, err := models.FindAgentByID(q, "A8")
@@ -873,6 +875,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, statsCollections, persistedAgent.MongoDBOptions.StatsCollections)
 			assert.Equal(t, int32(500), persistedAgent.MongoDBOptions.CollectionsLimit)
 			assert.False(t, persistedAgent.MongoDBOptions.EnableAllCollectors)
+			assert.True(t, persistedAgent.MongoDBOptions.EnableDiagnosticDataHistograms)
 		})
 
 		t.Run("ChangeQANOptions", func(t *testing.T) {
@@ -1382,14 +1385,15 @@ func TestAgentHelpers(t *testing.T) {
 
 				// MongoDB options
 				MongoDBOptions: &models.ChangeMongoDBOptions{
-					TLSCertificateKey:             new("comprehensive-mongo-cert-key"),
-					TLSCertificateKeyFilePassword: new("comprehensive-mongo-password"),
-					TLSCa:                         new("comprehensive-mongo-ca"),
-					AuthenticationMechanism:       new("SCRAM-SHA-256"),
-					AuthenticationDatabase:        new("admin"),
-					StatsCollections:              mongoCollections,
-					CollectionsLimit:              new(int32(1000)),
-					EnableAllCollectors:           new(true),
+					TLSCertificateKey:              new("comprehensive-mongo-cert-key"),
+					TLSCertificateKeyFilePassword:  new("comprehensive-mongo-password"),
+					TLSCa:                          new("comprehensive-mongo-ca"),
+					AuthenticationMechanism:        new("SCRAM-SHA-256"),
+					AuthenticationDatabase:         new("admin"),
+					StatsCollections:               mongoCollections,
+					CollectionsLimit:               new(int32(1000)),
+					EnableAllCollectors:            new(true),
+					EnableDiagnosticDataHistograms: new(true),
 				},
 
 				// MySQL options
@@ -1478,14 +1482,15 @@ func TestAgentHelpers(t *testing.T) {
 				},
 
 				MongoDBOptions: models.MongoDBOptions{
-					TLSCertificateKey:             "comprehensive-mongo-cert-key",
-					TLSCertificateKeyFilePassword: "comprehensive-mongo-password",
-					TLSCa:                         "comprehensive-mongo-ca",
-					AuthenticationMechanism:       "SCRAM-SHA-256",
-					AuthenticationDatabase:        "admin",
-					StatsCollections:              mongoCollections,
-					CollectionsLimit:              1000,
-					EnableAllCollectors:           true,
+					TLSCertificateKey:              "comprehensive-mongo-cert-key",
+					TLSCertificateKeyFilePassword:  "comprehensive-mongo-password",
+					TLSCa:                          "comprehensive-mongo-ca",
+					AuthenticationMechanism:        "SCRAM-SHA-256",
+					AuthenticationDatabase:         "admin",
+					StatsCollections:               mongoCollections,
+					CollectionsLimit:               1000,
+					EnableAllCollectors:            true,
+					EnableDiagnosticDataHistograms: true,
 				},
 
 				MySQLOptions: models.MySQLOptions{
