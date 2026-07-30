@@ -123,12 +123,12 @@ reload-dashboards:
 # 	bin/pmm-managed.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
 
 psql:                           ## Open database for the pmm-managed instance in psql shell
-	env PGPASSWORD=pmm-managed psql -U pmm-managed pmm-managed
+	PGPASSWORD=pmm-managed psql -U pmm-managed pmm-managed
 
 psql-test:                      ## Open database used in unit tests in psql shell
-	env psql -U postgres pmm-managed-dev
+	psql -U postgres pmm-managed-dev
 
-dlv/attach:                     ## Attach Delve to `pmm-managed`
+dlv-managed:                     ## Attach Delve to `pmm-managed`
 	go tool dlv --listen=:2345 --headless=true --api-version=2 --continue=true --accept-multiclient attach $(shell pgrep pmm-managed)
 
 refresh-swagger:                ## Refresh swagger files

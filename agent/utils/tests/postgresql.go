@@ -61,7 +61,7 @@ func OpenTestPostgreSQL(tb testing.TB) *sql.DB {
 	require.NoError(tb, err)
 
 	db.SetMaxIdleConns(pgMaxIdleConns)
-	db.SetMaxOpenConns(10)
+	db.SetMaxOpenConns(10) //nolint:mnd
 	db.SetConnMaxLifetime(0)
 
 	waitForTestDataLoad(tb, db)

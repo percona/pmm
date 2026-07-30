@@ -159,7 +159,7 @@ func New(
 			Subsystem:  prometheusSubsystem,
 			Name:       "check_execution_time_seconds",
 			Help:       "Time taken to execute checks per service type, advisor, and check name",
-			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001}, //nolint:mnd
 		}, []string{"service_type", "advisor", "check_name"}),
 	}
 
@@ -521,7 +521,7 @@ func (s *Service) minPMMAgentVersion(c check.Check) *version.Parsed {
 	switch c.Version {
 	case 1:
 		return s.minPMMAgentVersionForType(c.Type)
-	case 2:
+	case 2: //nolint:mnd
 		res := pmmAgent2_6_0 // minimum version that can be used with advisors
 		for _, query := range c.Queries {
 			v := s.minPMMAgentVersionForType(query.Type)
@@ -1454,7 +1454,7 @@ func (s *Service) UpdateAdvisorsList(ctx context.Context) {
 		}
 
 		advisors = append(advisors, check.Advisor{
-			Version:     2,
+			Version:     2, //nolint:mnd
 			Name:        "dev",
 			Summary:     "Dev Advisor",
 			Description: "Advisor used for developing checks",
@@ -1599,7 +1599,7 @@ func (s *Service) filterSupportedChecks(advisors []check.Advisor) []check.Adviso
 					s.l.Warnf("Unsupported check type: %s.", c.Type)
 					continue LOOP
 				}
-			case 2:
+			case 2: //nolint:mnd
 				for _, query := range c.Queries {
 					if ok := isQueryTypeSupported(query.Type); !ok {
 						s.l.Warnf("Unsupported query type: %s.", query.Type)
