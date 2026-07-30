@@ -8,9 +8,7 @@ import { TextMetrics } from '../Metrics.types';
 export const useMetricsDetails = (): [any[], TextMetrics, boolean, string[]] => {
   const {
     contextActions,
-    panelState: {
-      queryId, groupBy, from, to, labels, totals,
-    },
+    panelState: { queryId, groupBy, from, to, labels, totals },
   } = useContext(QueryAnalyticsProvider);
   const [metrics, setMetrics] = useState<any[]>([]);
   const [textMetrics, setTextMetrics] = useState<TextMetrics>({});

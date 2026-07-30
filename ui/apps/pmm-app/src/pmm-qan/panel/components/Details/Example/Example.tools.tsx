@@ -5,20 +5,22 @@ import { Databases, logger } from 'shared/core';
 import { Highlight } from 'shared/components/Hightlight/Highlight';
 import ParseError from './ParseError/ParseError';
 
-export const getExample = (databaseType) => (example: any): any => {
-  if (databaseType === Databases.mongodb) {
-    try {
-      return <ReactJSON key={example || ''} json={JSON.parse(example)} />;
-    } catch (e) {
-      logger.error(e);
+export const getExample =
+  (databaseType) =>
+  (example: any): any => {
+    if (databaseType === Databases.mongodb) {
+      try {
+        return <ReactJSON key={example || ''} json={JSON.parse(example)} />;
+      } catch (e) {
+        logger.error(e);
+      }
+
+      return <ParseError />;
     }
 
-    return <ParseError />;
-  }
-
-  return (
-    <Highlight key={example || ''} language="sql">
-      {sqlFormatter.format(example || '')}
-    </Highlight>
-  );
-};
+    return (
+      <Highlight key={example || ''} language="sql">
+        {sqlFormatter.format(example || '')}
+      </Highlight>
+    );
+  };

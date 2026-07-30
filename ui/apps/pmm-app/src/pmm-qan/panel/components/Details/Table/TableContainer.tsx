@@ -1,7 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import {
-  Collapse, Tab, TabContent, TabsBar,
-} from '@grafana/ui';
+import { Collapse, Tab, TabContent, TabsBar } from '@grafana/ui';
 import { Databases } from 'shared/core';
 import { Messages } from 'pmm-qan/panel/components/Details/Details.messages';
 import { TableCreate } from './components/TableCreate/TableCreate';
@@ -11,12 +9,7 @@ import { TableTabs } from './TableContainer.constants';
 import { TableContainerProps } from './TableContainer.types';
 import { useTables } from './TableContainer.hooks';
 
-const TableCreateContainer: FC<TableContainerProps> = ({
-  databaseType,
-  example,
-  database,
-  ...explains
-}) => {
+const TableCreateContainer: FC<TableContainerProps> = ({ databaseType, example, database, ...explains }) => {
   const [tables] = useTables(example, explains, databaseType);
   const [isTableTableOpen, setTableTableOpen] = useState(true);
   const [isTableStatusOpen, setTableStatusOpen] = useState(true);
@@ -80,9 +73,11 @@ const TableCreateContainer: FC<TableContainerProps> = ({
     </>
   ) : (
     <div>
-      {explains.classicExplain.error
-        ? <pre data-testid="classic-explain-error">{explains.classicExplain.error}</pre>
-        : <pre>{Messages.cantExtractTables}</pre>}
+      {explains.classicExplain.error ? (
+        <pre data-testid="classic-explain-error">{explains.classicExplain.error}</pre>
+      ) : (
+        <pre>{Messages.cantExtractTables}</pre>
+      )}
     </div>
   );
 };

@@ -1,6 +1,4 @@
-import React, {
-  FC, useState, useRef, useEffect,
-} from 'react';
+import React, { FC, useState, useRef, useEffect } from 'react';
 import { Latency, Sparkline, TimeDistribution } from 'shared/components/Elements/Charts';
 import { humanize } from 'shared/components/helpers/Humanization';
 import { Overlay } from 'shared/components/Elements/Overlay/Overlay';
@@ -16,9 +14,7 @@ import { TopQuery } from '../TopQuery/TopQuery';
 import { BarChart } from '../../BarChart/BarChart';
 import { OVERLAY_LOADER_SIZE } from '../Details.constants';
 
-const Metrics: FC<MetricsProps> = ({
-  databaseType, totals, metrics, textMetrics = {}, loading, groupBy,
-}) => {
+const Metrics: FC<MetricsProps> = ({ databaseType, totals, metrics, textMetrics = {}, loading, groupBy }) => {
   const styles = useStyles2(getStyles);
   const isHistogramAvailable = databaseType === Databases.postgresql && !totals && groupBy === 'queryid';
   const [histogramData, histogramLoading] = useHistogram(isHistogramAvailable);
@@ -38,9 +34,7 @@ const Metrics: FC<MetricsProps> = ({
   );
 
   const rateColumn = (totals) => (item) => {
-    const {
-      sparkline, metricName, isRate, units, metric, pipeTypes,
-    } = item;
+    const { sparkline, metricName, isRate, units, metric, pipeTypes } = item;
     const polygonChartProps = {
       data: sparkline,
       ykey: 'metric',
@@ -51,9 +45,7 @@ const Metrics: FC<MetricsProps> = ({
     return (
       <div className={styles.metricColumn}>
         <span className={styles.metricData}>
-          {`${isRate ? humanize.transform(metric.rate, pipeTypes.ratePipe) : '0'} ${
-            units
-          }`}
+          {`${isRate ? humanize.transform(metric.rate, pipeTypes.ratePipe) : '0'} ${units}`}
         </span>
         <span className={styles.sparkline}>{sparkline && <Sparkline {...polygonChartProps} />}</span>
       </div>
@@ -143,11 +135,7 @@ const Metrics: FC<MetricsProps> = ({
           isOpen={isTopQueryOpen}
           onToggle={() => setTopQueryVisibility(!isTopQueryOpen)}
         >
-          <TopQuery
-            databaseType={databaseType}
-            query={topQuery}
-            queryId={topQueryId}
-          />
+          <TopQuery databaseType={databaseType} query={topQuery} queryId={topQueryId} />
         </Collapse>
       ) : null}
       <Collapse
@@ -159,7 +147,11 @@ const Metrics: FC<MetricsProps> = ({
         <Table columns={columns} data={metrics} loading={loading} noData={null} />
       </Collapse>
       {isHistogramAvailable && histogramData && (
-        <div ref={histogramRef} data-testid="histogram-collapse-container" className={styles.histogramWrapper}>
+        <div
+          ref={histogramRef}
+          data-testid="histogram-collapse-container"
+          className={styles.histogramWrapper}
+        >
           <Collapse
             collapsible
             label={MetricsTabs.histogram}

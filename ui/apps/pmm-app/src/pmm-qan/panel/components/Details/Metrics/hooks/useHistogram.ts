@@ -9,11 +9,9 @@ import { getChartDataFromHistogramItems } from '../Metrics.utils';
 export const useHistogram = (isHistogramAvailable: boolean): [ChartData<'bar'> | undefined, boolean] => {
   const theme = useTheme2();
   const {
-    panelState: {
-      queryId, from, to, labels,
-    },
+    panelState: { queryId, from, to, labels },
   } = useContext(QueryAnalyticsProvider);
-  const [data, setData] = useState<ChartData<'bar'>|undefined>();
+  const [data, setData] = useState<ChartData<'bar'> | undefined>();
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {

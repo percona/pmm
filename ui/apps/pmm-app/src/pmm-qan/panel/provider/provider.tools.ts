@@ -8,24 +8,25 @@ import {
   FILTERS_NAMES,
 } from '../QueryAnalytics.constants';
 
-const setFilters = (query) => FILTERS_NAMES.reduce((acc, filterName) => {
-  const filters = query.getAll(`var-${filterName}`);
+const setFilters = (query) =>
+  FILTERS_NAMES.reduce((acc, filterName) => {
+    const filters = query.getAll(`var-${filterName}`);
 
-  if (!filters.length) {
+    if (!filters.length) {
+      return acc;
+    }
+
+    // if there's only one empty filter use default value
+    if (filters.length === 1 && filters[0] === '') {
+      acc[filterName] = [ALL_VARIABLE_TEXT];
+
+      return acc;
+    }
+
+    acc[filterName] = filters;
+
     return acc;
-  }
-
-  // if there's only one empty filter use default value
-  if (filters.length === 1 && filters[0] === '') {
-    acc[filterName] = [ALL_VARIABLE_TEXT];
-
-    return acc;
-  }
-
-  acc[filterName] = filters;
-
-  return acc;
-}, {});
+  }, {});
 
 interface GrafanaVariables {
   columns?: string;
@@ -57,9 +58,8 @@ export const refreshGrafanaVariables = (state) => {
   const variablesQuery: GrafanaVariables = {};
 
   Object.keys(labels).forEach((key) => {
-    const variables = labels[key].length > 1
-      ? labels[key].filter((label) => label !== ALL_VARIABLE_TEXT)
-      : labels[key];
+    const variables =
+      labels[key].length > 1 ? labels[key].filter((label) => label !== ALL_VARIABLE_TEXT) : labels[key];
 
     variablesQuery[`var-${key}`] = variables.map((variable) => (variable === 'na' ? '' : variable));
   });
@@ -144,19 +144,20 @@ export const parseURL = (query) => ({
   openDetailsTab: query.get('details_tab') || 'details',
   dimensionSearchText: query.get('dimensionSearchText') || '',
 });
-export const setLabels = (filters) => Object.keys(filters)
-  .filter((filter) => filters[filter])
-  .reduce((labels, filter) => {
-    const [group, value] = filter.split(';');
+export const setLabels = (filters) =>
+  Object.keys(filters)
+    .filter((filter) => filters[filter])
+    .reduce((labels, filter) => {
+      const [group, value] = filter.split(';');
 
-    // TODO: using '--' because final form think that it is a nested fields
-    //  need to replace it with something better
-    if (labels[group]) {
-      labels[group].push(value.replace(/--/gi, '.').replace(/^na$/, ''));
-    } else {
-      // eslint-disable-next-line no-param-reassign
-      labels[group] = [value.replace(/--/gi, '.').replace(/^na$/, '')];
-    }
+      // TODO: using '--' because final form think that it is a nested fields
+      //  need to replace it with something better
+      if (labels[group]) {
+        labels[group].push(value.replace(/--/gi, '.').replace(/^na$/, ''));
+      } else {
+        // eslint-disable-next-line no-param-reassign
+        labels[group] = [value.replace(/--/gi, '.').replace(/^na$/, '')];
+      }
 
-    return labels;
-  }, {});
+      return labels;
+    }, {});

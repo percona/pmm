@@ -13,7 +13,11 @@ interface QueryTooltipProps {
   float?: string;
 }
 export const QueryTooltip = ({
-  query, queryId, children, show = true, float = 'none',
+  query,
+  queryId,
+  children,
+  show = true,
+  float = 'none',
 }: QueryTooltipProps) => {
   const styles = useStyles(getStyles);
 
@@ -26,7 +30,9 @@ export const QueryTooltip = ({
       title={() => (
         <div className={styles.queryTooltipDataWrapper}>
           {queryId ? <h5 className={styles.queryId}>{`Query Id: ${queryId}`}</h5> : null}
-          {query ? <Highlight language="sql">{sqlFormatter.format(query, { language: 'pl/sql' })}</Highlight> : null}
+          {query ? (
+            <Highlight language="sql">{sqlFormatter.format(query, { language: 'pl/sql' })}</Highlight>
+          ) : null}
         </div>
       )}
     >

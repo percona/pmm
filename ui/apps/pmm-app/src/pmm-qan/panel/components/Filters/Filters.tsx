@@ -1,6 +1,4 @@
-import React, {
-  FC, useEffect, useMemo, useRef, useState,
-} from 'react';
+import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 import { Form } from 'react-final-form';
 import { cx } from '@emotion/css';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
@@ -76,21 +74,22 @@ export const Filters: FC = () => {
   );
 
   const FilterInput = useMemo(
-    () => ({ filter }) => (
-      <Input
-        suffix={<Filter className={styles.icon} />}
-        placeholder="Filter by..."
-        data-testid="filters-search-field"
-        onChange={(e: React.FormEvent<HTMLInputElement>) => {
-          const element = e.target as HTMLInputElement;
+    () =>
+      ({ filter }) => (
+        <Input
+          suffix={<Filter className={styles.icon} />}
+          placeholder="Filter by..."
+          data-testid="filters-search-field"
+          onChange={(e: React.FormEvent<HTMLInputElement>) => {
+            const element = e.target as HTMLInputElement;
 
-          setFilter(element.value);
-          e.stopPropagation();
-        }}
-        value={filter}
-        className={styles.filtersField}
-      />
-    ),
+            setFilter(element.value);
+            e.stopPropagation();
+          }}
+          value={filter}
+          className={styles.filtersField}
+        />
+      ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
@@ -110,10 +109,7 @@ export const Filters: FC = () => {
             setFilter('');
           }}
         >
-          <div
-            ref={filtersWrapperRef}
-            className={cx({ [styles.filtersDisabled]: loadingDetails })}
-          >
+          <div ref={filtersWrapperRef} className={cx({ [styles.filtersDisabled]: loadingDetails })}>
             <FiltersHeader loading={loading} />
             <Overlay isPending={loading}>
               <Scrollbar className={styles.filtersWrapper}>

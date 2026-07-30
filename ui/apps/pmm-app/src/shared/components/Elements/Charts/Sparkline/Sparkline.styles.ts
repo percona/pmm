@@ -3,7 +3,7 @@ import { css } from '@emotion/css';
 export const styles = {
   graphWrapper: css`
     background: transparent;
-    borderBottom: 1px solid grey;
+    borderbottom: 1px solid grey;
   `,
   tippy: css`
     .tippy-content {
@@ -12,7 +12,7 @@ export const styles = {
       border-radius: 3px;
       font-size: 13px;
       padding: 5px 10px;
-      opacity: 0.9
+      opacity: 0.9;
     }
 
     .tippy-arrow {

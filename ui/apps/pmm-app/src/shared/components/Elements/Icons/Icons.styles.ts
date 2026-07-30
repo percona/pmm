@@ -9,9 +9,10 @@ export const getStyles = stylesFactory((theme: GrafanaTheme) => {
   return {
     icon: css`
       path,
-       polygon, circle {
-        fill: ${iconsFill}
+      polygon,
+      circle {
+        fill: ${iconsFill};
       }
-  `,
+    `,
   };
 });

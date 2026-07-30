@@ -30,7 +30,8 @@ describe('QueryAnalytics.tools::', () => {
       },
     }));
     const result = buildShareLink(1624401010000, 1642417914429);
-    const expected = 'https://localhost.com/graph?page_number=2&page_size=25&from=1624401010000&to=1642417914429&orgId=1';
+    const expected =
+      'https://localhost.com/graph?page_number=2&page_size=25&from=1624401010000&to=1642417914429&orgId=1';
 
     expect(result).toBe(expected);
   });

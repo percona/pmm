@@ -19,8 +19,7 @@ export const ClassicExplain = ({ classicExplain }) => {
       <ReplacedQueryMessage originalQuery={explain?.explained_query} isVisible={explain?.is_dml} />
       <Scrollbar>
         {classicExplain.error ? <pre data-testid="classic-explain-error">{classicExplain.error}</pre> : null}
-        {!classicExplain.error
-        && processedExplain.rows.length ? (
+        {!classicExplain.error && processedExplain.rows.length ? (
           <div data-testid="classic-explain-value">
             <Table
               className={styles.tableCellWrap}
@@ -29,7 +28,7 @@ export const ClassicExplain = ({ classicExplain }) => {
               noData={null}
             />
           </div>
-          ) : null}
+        ) : null}
         {!classicExplain.error && !processedExplain.rows.length ? (
           <pre data-testid="classic-explain-no-data">{Messages.noClassicExplain}</pre>
         ) : null}

@@ -1,7 +1,5 @@
 import { Pagination } from 'antd';
-import React, {
-  FC, useCallback, useContext, useEffect, useMemo, useRef, useState,
-} from 'react';
+import React, { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import './Overview.scss';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
 import 'shared/components/Elements/Spinner/Spinner';
@@ -22,9 +20,7 @@ export const Overview: FC = () => {
 
   const {
     contextActions,
-    panelState: {
-      queryId, querySelected, totals, pageNumber, pageSize, orderBy, loadingDetails,
-    },
+    panelState: { queryId, querySelected, totals, pageNumber, pageSize, orderBy, loadingDetails },
   } = useContext(QueryAnalyticsProvider);
   const styles = getStyles(theme, querySelected);
   const tableWrapperRef = useRef<HTMLDivElement>(null);

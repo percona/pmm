@@ -17,12 +17,7 @@ import { ConfigProvider } from 'antd';
 import { getAntdTheme } from 'shared/core/theme';
 import { applyPmmCssVariables } from 'shared/components/helpers/getPmmTheme';
 import { QueryAnalyticsProvider, UrlParametersProvider } from './provider/provider';
-import {
-  Details,
-  Filters,
-  ManageColumns,
-  Overview,
-} from './components';
+import { Details, Filters, ManageColumns, Overview } from './components';
 import 'shared/styles.scss';
 import 'shared/style.less';
 import './qan.scss';
@@ -70,12 +65,7 @@ const QueryAnalyticsPanel: FC<QueryAnalyticsPanelProps> = ({ grafanaTheme }) => 
     // Force remount when theme changes to ensure Ant Design components (Table, Select, Checkbox)
     // pick up the new theme from ConfigProvider. Without this, components render with wrong colors
     // until page refresh (e.g., dark mode Table in light theme).
-    <div
-      key={grafanaTheme.type}
-      className="query-analytics-grid"
-      id="antd"
-      ref={queryAnalyticsWrapper}
-    >
+    <div key={grafanaTheme.type} className="query-analytics-grid" id="antd" ref={queryAnalyticsWrapper}>
       <div className="overview-filters">
         <Filters />
       </div>
@@ -107,9 +97,7 @@ const QueryAnalyticsPanel: FC<QueryAnalyticsPanelProps> = ({ grafanaTheme }) => 
               pane2Style={{ minHeight: '20%', zIndex: 999 }}
             >
               <Overview />
-              <div className={styles.detailsWrapper}>
-                {querySelected ? <Details /> : null}
-              </div>
+              <div className={styles.detailsWrapper}>{querySelected ? <Details /> : null}</div>
             </SplitPane>
           </div>
         </div>
@@ -121,10 +109,7 @@ const QueryAnalyticsPanel: FC<QueryAnalyticsPanelProps> = ({ grafanaTheme }) => 
 const QueryAnalyticsRoot: FC<any> = (props) => {
   const grafanaTheme = useTheme();
 
-  const antdTheme = useMemo(
-    () => getAntdTheme(grafanaTheme),
-    [grafanaTheme],
-  );
+  const antdTheme = useMemo(() => getAntdTheme(grafanaTheme), [grafanaTheme]);
 
   // Apply CSS variables for QAN theme (dropdowns, backgrounds, text colors)
   // useLayoutEffect runs synchronously before browser paint, ensuring styles are applied before render

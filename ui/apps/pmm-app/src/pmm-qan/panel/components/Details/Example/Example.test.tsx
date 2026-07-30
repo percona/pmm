@@ -6,7 +6,9 @@ import Example from './Example';
 import { ExampleInterface } from './Example.types';
 
 jest.mock('shared/components/helpers/notification-manager');
-jest.mock('@microlink/react-json-view', () => ({ src = {} }) => <div className="json" data-src={JSON.stringify(src)} />);
+jest.mock('@microlink/react-json-view', () => ({ src = {} }) => (
+  <div className="json" data-src={JSON.stringify(src)} />
+));
 
 describe('Example tab page render test', () => {
   it('Component shows error text when there is no examples', () => {
@@ -57,7 +59,8 @@ describe('Example tab page render test', () => {
         },
       ],
     };
-    const innerExample = '{"ns":"admin.system.version","op":"command","command":{"collStats":"system.version","scale":{"$numberInt":"1"},"lsid":{"id":{"$binary":{"base64":"7bcIiWGnQ7eH3G+AfVMdEA==","subType":"04"}}},"$clusterTime":{"clusterTime":{"$timestamp":{"t":1588860655,"i":1}},"signature":{"hash":{"$binary":{"base64":"AAAAAAAAAAAAAAAAAAAAAAAAAAA=","subType":"00"}},"keyId":{"$numberLong":"0"}}},"$db":"admin","$readPreference":{"mode":"primaryPreferred"}}}';
+    const innerExample =
+      '{"ns":"admin.system.version","op":"command","command":{"collStats":"system.version","scale":{"$numberInt":"1"},"lsid":{"id":{"$binary":{"base64":"7bcIiWGnQ7eH3G+AfVMdEA==","subType":"04"}}},"$clusterTime":{"clusterTime":{"$timestamp":{"t":1588860655,"i":1}},"signature":{"hash":{"$binary":{"base64":"AAAAAAAAAAAAAAAAAAAAAAAAAAA=","subType":"00"}},"keyId":{"$numberLong":"0"}}},"$db":"admin","$readPreference":{"mode":"primaryPreferred"}}}';
     const { container } = render(<Example {...props} />);
 
     expect(container.querySelector('.json')?.getAttribute('data-src')).toContain(innerExample);

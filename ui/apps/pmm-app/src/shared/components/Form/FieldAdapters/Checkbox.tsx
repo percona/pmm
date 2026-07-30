@@ -11,20 +11,22 @@ export interface CheckboxProps extends Omit<HTMLProps<HTMLInputElement>, 'value'
 export const getFocusCss = ({ v1: { colors } }: GrafanaTheme2) => css`
   outline: 2px dotted transparent;
   outline-offset: 2px;
-  box-shadow: 0 0 0 2px ${(colors as any).pageBg}, 0 0 0px 4px ${colors.formFocusOutline};
+  box-shadow:
+    0 0 0 2px ${(colors as any).pageBg},
+    0 0 0px 4px ${colors.formFocusOutline};
   transition: all 0.2s cubic-bezier(0.19, 1, 0.22, 1);
 `;
 
 export const getLabelStyles = ({ v1: { typography, spacing, colors } }: GrafanaTheme2) => ({
   label: css`
-      font-size: ${typography.size.sm};
-      font-weight: ${typography.weight.semibold};
-      line-height: 1.25;
-      margin: ${spacing.formLabelMargin};
-      padding: ${spacing.formLabelPadding};
-      color: ${colors.formLabel};
-      max-width: 480px;
-    `,
+    font-size: ${typography.size.sm};
+    font-weight: ${typography.weight.semibold};
+    line-height: 1.25;
+    margin: ${spacing.formLabelMargin};
+    padding: ${spacing.formLabelPadding};
+    color: ${colors.formLabel};
+    max-width: 480px;
+  `,
 });
 
 export const getCheckboxStyles = (theme: GrafanaTheme2) => {
@@ -94,9 +96,7 @@ export const getCheckboxStyles = (theme: GrafanaTheme2) => {
 };
 
 export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
-  ({
-    label, value, onChange, disabled, ...inputProps
-  }, ref) => {
+  ({ label, value, onChange, disabled, ...inputProps }, ref) => {
     const handleOnChange = useCallback(
       (e: React.ChangeEvent<HTMLInputElement>) => {
         if (onChange) {

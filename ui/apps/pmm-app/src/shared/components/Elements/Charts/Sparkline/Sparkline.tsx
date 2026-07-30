@@ -1,6 +1,4 @@
-import React, {
-  MutableRefObject, RefObject, useContext, useEffect, useRef, useState,
-} from 'react';
+import React, { MutableRefObject, RefObject, useContext, useEffect, useRef, useState } from 'react';
 import Tippy from '@tippyjs/react';
 import { followCursor } from 'tippy.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -71,14 +69,10 @@ export const Sparkline = ({
   const yAxisLength = height - 2 * margin;
 
   const [maxX, minX] = findXRange(appLoadPolygonChart, xkey);
-  const scaleX = scaleLinear()
-    .domain([minX, maxX])
-    .range([0, xAxisLength]);
+  const scaleX = scaleLinear().domain([minX, maxX]).range([0, xAxisLength]);
 
   const [maxY, minY] = findYRange(appLoadPolygonChart, ykey);
-  const scaleY = scaleLinear()
-    .domain([maxY, minY])
-    .range([0, yAxisLength]);
+  const scaleY = scaleLinear().domain([maxY, minY]).range([0, yAxisLength]);
 
   const drawData = appLoadPolygonChart.map((item) => ({
     x: scaleX(moment(item.timestamp)),
@@ -117,11 +111,11 @@ export const Sparkline = ({
 
       // TODO: respect other time zones
       const tzFn = timeZone === 'utc' ? moment.utc : moment;
-      const dateToShow = tzFn(appLoadPolygonChart[columnNumber][xkey])
-        .format('YYYY-MM-DD HH:mm:ss Z');
+      const dateToShow = tzFn(appLoadPolygonChart[columnNumber][xkey]).format('YYYY-MM-DD HH:mm:ss Z');
 
       // eslint-disable-next-line max-len
-      const isTimeBased = metricName.endsWith('_time') || metricName.endsWith('_wait') || metricName === 'load';
+      const isTimeBased =
+        metricName.endsWith('_time') || metricName.endsWith('_wait') || metricName === 'load';
       const load = humanize.transform(value, 'number');
 
       return !value ? `NA at ${dateToShow}` : `${load} ${isTimeBased ? '' : '/ sec'} at ${dateToShow}`;

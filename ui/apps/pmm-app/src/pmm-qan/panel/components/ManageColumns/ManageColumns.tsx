@@ -1,9 +1,5 @@
-import React, {
-  useCallback, useContext, useEffect, useState,
-} from 'react';
-import {
-  Divider, Select, Tooltip,
-} from 'antd';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { Divider, Select, Tooltip } from 'antd';
 import { cx } from '@emotion/css';
 import { useTheme } from '@grafana/ui';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
@@ -19,9 +15,7 @@ export const ManageColumns = (props) => {
   const theme = useTheme();
   const styles = getStyles(theme);
 
-  const {
-    onlyAdd, currentMetric, placeholder, width, mainMetric,
-  } = props;
+  const { onlyAdd, currentMetric, placeholder, width, mainMetric } = props;
   const {
     contextActions,
     panelState: { columns },
@@ -58,34 +52,35 @@ export const ManageColumns = (props) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const swapWithMain = useCallback(() => contextActions.swapMainColumn(currentMetric), [currentMetric]);
 
-  const Placeholder = () => (!onlyAdd ? (
-    <Tooltip
-      title={() => (
-        <div className={styles.metricsTooltip}>
-          <b className={styles.placeholder}>{placeholder && METRIC_CATALOGUE[placeholder].humanizeName}</b>
-          <span className={styles.placeholder}>
-            {placeholder && METRIC_CATALOGUE[placeholder].tooltipText}
+  const Placeholder = () =>
+    !onlyAdd ? (
+      <Tooltip
+        title={() => (
+          <div className={styles.metricsTooltip}>
+            <b className={styles.placeholder}>{placeholder && METRIC_CATALOGUE[placeholder].humanizeName}</b>
+            <span className={styles.placeholder}>
+              {placeholder && METRIC_CATALOGUE[placeholder].tooltipText}
+            </span>
+          </div>
+        )}
+        placement="topLeft"
+      >
+        <div>
+          <span className={cx(styles.placeholder, styles.placeholderPadding)}>
+            {placeholder && METRIC_CATALOGUE[placeholder].humanizeName}
           </span>
         </div>
-      )}
-      placement="topLeft"
-    >
-      <div>
-        <span className={cx(styles.placeholder, styles.placeholderPadding)}>
-          {placeholder && METRIC_CATALOGUE[placeholder].humanizeName}
-        </span>
+      </Tooltip>
+    ) : (
+      <div className={styles.placeholderAdd}>
+        {!isDropdownOpen && (
+          <div>
+            <i className={cx('fa fa-plus-circle', styles.iconMargin)} />
+            <span>Add column</span>
+          </div>
+        )}
       </div>
-    </Tooltip>
-  ) : (
-    <div className={styles.placeholderAdd}>
-      {!isDropdownOpen && (
-        <div>
-          <i className={cx('fa fa-plus-circle', styles.iconMargin)} />
-          <span>Add column</span>
-        </div>
-      )}
-    </div>
-  ));
+    );
 
   const dropdownRender = (menu) => (
     <div className={styles.addColumnWrapper}>
@@ -113,9 +108,9 @@ export const ManageColumns = (props) => {
         showSearch
         style={{ width: width || '125px' }}
         placeholder={<Placeholder />}
-        filterOption={(value, option) => String(option?.props.label)
-          .toLowerCase()
-          .includes(value.toLowerCase())}
+        filterOption={(value, option) =>
+          String(option?.props.label).toLowerCase().includes(value.toLowerCase())
+        }
         onChange={changeColumn}
         onDropdownVisibleChange={(open) => setDropdownOpen(open)}
         popupMatchSelectWidth={false}

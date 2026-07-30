@@ -11,13 +11,15 @@ enum LOG_LEVELS {
   NONE = 5,
 }
 
-const truncate = (length = 30) => (str = '') => {
-  if (typeof str !== 'string') {
-    return str;
-  }
+const truncate =
+  (length = 30) =>
+  (str = '') => {
+    if (typeof str !== 'string') {
+      return str;
+    }
 
-  return `${str.substr(0, length - 3)}...`;
-};
+    return `${str.substr(0, length - 3)}...`;
+  };
 
 let CONFIG_LOG_LEVEL: LOG_LEVELS = LOG_LEVELS.DEBUG;
 
@@ -31,21 +33,20 @@ export const setLogLevel = (level: LOG_LEVELS) => {
 
 const LOG_LEVEL_KEYS = Object.keys(LOG_LEVELS).slice(5);
 
-const createLogMethod = (loggerFunc: (...attrs: any[]) => void, level: LOG_LEVELS) => (
-  first: any,
-  ...rest: any[]
-) => {
-  if (level >= CONFIG_LOG_LEVEL) {
-    const key = LOG_LEVEL_KEYS[level];
+const createLogMethod =
+  (loggerFunc: (...attrs: any[]) => void, level: LOG_LEVELS) =>
+  (first: any, ...rest: any[]) => {
+    if (level >= CONFIG_LOG_LEVEL) {
+      const key = LOG_LEVEL_KEYS[level];
 
-    console.group(`[${key}]`, truncate(50)(first));
-    loggerFunc(first);
-    rest.forEach((paragraph) => {
-      loggerFunc(paragraph);
-    });
-    console.groupEnd();
-  }
-};
+      console.group(`[${key}]`, truncate(50)(first));
+      loggerFunc(first);
+      rest.forEach((paragraph) => {
+        loggerFunc(paragraph);
+      });
+      console.groupEnd();
+    }
+  };
 
 export const logger = {
   debug: createLogMethod(console.debug, LOG_LEVELS.DEBUG),

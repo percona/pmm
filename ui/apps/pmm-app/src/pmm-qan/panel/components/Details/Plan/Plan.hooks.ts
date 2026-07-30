@@ -5,7 +5,9 @@ import { PlanService } from './Plan.service';
 import { QueryPlan } from './Plan.types';
 
 export const usePlan = (): [QueryPlan | undefined, boolean] => {
-  const { panelState: { queryId } } = useContext(QueryAnalyticsProvider);
+  const {
+    panelState: { queryId },
+  } = useContext(QueryAnalyticsProvider);
   const [plan, setPlan] = useState<QueryPlan | undefined>();
   const [loading, setLoading] = useState<boolean>(false);
 

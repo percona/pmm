@@ -29,7 +29,7 @@ const grafanaESModules = [
   'get-user-locale',
   'memoize',
   'mimic-function',
-  '@wojtekmaj/date-utils'
+  '@wojtekmaj/date-utils',
 ];
 
 module.exports = {

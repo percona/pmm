@@ -12,9 +12,9 @@ const Example: FC<ExampleInterface> = ({ databaseType, examples, loading }) => {
     <Overlay isPending={loading} size={OVERLAY_LOADER_SIZE}>
       {isExample && !loading
         ? examples
-          .filter(({ example }) => example)
-          .map((example) => example.example)
-          .map(getExample(databaseType))
+            .filter(({ example }) => example)
+            .map((example) => example.example)
+            .map(getExample(databaseType))
         : null}
       {!isExample ? <pre>{Messages.noExamplesFound}</pre> : null}
     </Overlay>

@@ -7,6 +7,4 @@ const spinnerStyle = css`
   color: rgb(211, 211, 211);
 `;
 
-Spin.setDefaultIndicator(
-  <Spinner className={spinnerStyle} data-testid="loading-spinner" />,
-);
+Spin.setDefaultIndicator(<Spinner className={spinnerStyle} data-testid="loading-spinner" />);

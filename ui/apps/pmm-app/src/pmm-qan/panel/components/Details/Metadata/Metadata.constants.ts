@@ -1,5 +1,5 @@
 // Part of names from https://github.com/percona/pmm/blob/main/dev/docs/managed/data-model.md
-export const metadataNames: {[key: string]: {name: string}} = {
+export const metadataNames: { [key: string]: { name: string } } = {
   service_name: {
     name: 'Service name',
   },

@@ -1,7 +1,5 @@
 import React, { FC } from 'react';
-import {
-  Icon, IconName, Tooltip, useTheme,
-} from '@grafana/ui';
+import { Icon, IconName, Tooltip, useTheme } from '@grafana/ui';
 import { getStyles } from './LinkTooltip.styles';
 
 export interface LinkTooltipProps {
@@ -26,7 +24,7 @@ export const LinkTooltip: FC<LinkTooltipProps> = ({
 
   return (
     <Tooltip
-      content={(
+      content={
         <div className={styles.contentWrapper}>
           <span>{tooltipText}</span>
           {link && linkText && (
@@ -35,7 +33,7 @@ export const LinkTooltip: FC<LinkTooltipProps> = ({
             </a>
           )}
         </div>
-      )}
+      }
       data-testid={dataTestId}
     >
       <div>

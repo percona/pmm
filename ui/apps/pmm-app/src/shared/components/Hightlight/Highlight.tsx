@@ -16,15 +16,8 @@ export const Highlight = ({ children, className, language }: HighlightProps) => 
   }, [ref]);
 
   return (
-    <pre
-      data-testid="highlight-pre"
-      className={cx(className, styles.highlightWrapper)}
-    >
-      <code
-        data-testid="highlight-code"
-        className={`language-${language}`}
-        ref={ref}
-      >
+    <pre data-testid="highlight-pre" className={cx(className, styles.highlightWrapper)}>
+      <code data-testid="highlight-code" className={`language-${language}`} ref={ref}>
         {children}
       </code>
     </pre>
