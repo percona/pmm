@@ -41,7 +41,6 @@
 <a name="types--primitives"></a><a name="1.1"></a>
 
 - [1.1](#types--primitives) **Primitives**: When you access a primitive type you work directly on its value.
-
   - `string`
   - `number`
   - `boolean`
@@ -64,7 +63,6 @@
 <a name="types--complex"></a><a name="1.2"></a>
 
 - [1.2](#types--complex) **Complex**: When you access a complex type you work on a reference to its value.
-
   - `object`
   - `array`
   - `function`
@@ -2020,7 +2018,6 @@
 <a name="comparison--if"></a><a name="15.2"></a>
 
 - [15.2](#comparison--if) Conditional statements such as the `if` statement evaluate their expression using coercion with the `ToBoolean` abstract method and always follow these simple rules:
-
   - **Objects** evaluate to **true**
   - **Undefined** evaluates to **false**
   - **Null** evaluates to **false**
@@ -3474,7 +3471,6 @@
 - [23.10](#naming--uppercase) You may optionally uppercase a constant only if it (1) is exported, (2) is a `const` (it can not be reassigned), and (3) the programmer can trust it (and its nested properties) to never change.
 
   > Why? This is an additional tool to assist in situations where the programmer would be unsure if a variable might ever change. UPPERCASE_VARIABLES are letting the programmer know that they can trust the variable (and its properties) not to change.
-
   - What about all `const` variables? - This is unnecessary, so uppercasing should not be used for constants within a file. It should be used for exported constants however.
   - What about exported objects? - Uppercase at the top level of export (e.g. `EXPORTED_OBJECT.key`) and maintain that all nested properties do not change.
 
