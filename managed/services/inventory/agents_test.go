@@ -999,6 +999,9 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, inventoryv1.LogLevel_LOG_LEVEL_DEBUG, agent.GetQanPostgresqlPgstatementsAgent().LogLevel)
 		assert.Equal(t, int32(2048), agent.GetQanPostgresqlPgstatementsAgent().MaxQueryLength)
+		// The agent stays disabled even though the variable enables QAN: the variable is only read
+		// when the fixtures create the agent, and nothing reconciles the stored state with it
+		// afterwards. Asserted to pin down current behaviour, not because it is desirable.
 		assert.True(t, agent.GetQanPostgresqlPgstatementsAgent().Disabled)
 	})
 
@@ -1021,14 +1024,16 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		ss, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
-		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
-		// One state update for adding the agent, another one for changing it.
-		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005").Times(2)
+		as.r.(*mockAgentsRegistry).On("IsConnected", mock.Anything).Return(true)
 
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
 		})
 		require.NoError(t, err)
+		pmmAgentID := pmmAgent.GetPmmAgent().AgentId
+
+		// One state update for adding the QAN agent, another one for changing it.
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgentID).Times(2)
 
 		ps, err := ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-postgres",
@@ -1039,7 +1044,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		require.NoError(t, err)
 
 		added, err := as.AddQANPostgreSQLPgStatementsAgent(ctx, &inventoryv1.AddQANPostgreSQLPgStatementsAgentParams{
-			PmmAgentId:          pmmAgent.GetPmmAgent().AgentId,
+			PmmAgentId:          pmmAgentID,
 			ServiceId:           ps.ServiceId,
 			Username:            "username",
 			SkipConnectionCheck: true,
