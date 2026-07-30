@@ -36,7 +36,9 @@ const singleRoot = [
     category: 'OVERALL_SLOWNESS',
     category_label: 'Overall Slowness',
     snippet_count: 1,
-    snippets: [{ name: 'diag/slow-query.sh', title: 'Slow Query', description: '' }],
+    snippets: [
+      { name: 'diag/slow-query.sh', title: 'Slow Query', description: '' },
+    ],
   },
 ];
 
@@ -44,7 +46,9 @@ function renderBrowser(ui: ReactNode) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
   });
-  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+  return render(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+  );
 }
 
 describe('CategoryBrowser', () => {
@@ -58,10 +62,14 @@ describe('CategoryBrowser', () => {
     renderBrowser(<CategoryBrowser onSnippetsChange={vi.fn()} />);
 
     await waitFor(() => {
-      expect(screen.getByRole('combobox', { name: 'Subcategory 1' })).toBeTruthy();
+      expect(
+        screen.getByRole('combobox', { name: 'Subcategory 1' })
+      ).toBeTruthy();
     });
     expect(screen.queryByRole('combobox', { name: /^Category$/ })).toBeNull();
-    expect(screen.getByRole('combobox', { name: 'Subcategory 2' })).toBeTruthy();
+    expect(
+      screen.getByRole('combobox', { name: 'Subcategory 2' })
+    ).toBeTruthy();
   });
 
   it('shows the Category control when the listing has multiple roots', async () => {
@@ -75,7 +83,9 @@ describe('CategoryBrowser', () => {
           category: 'OVERALL_SLOWNESS',
           category_label: 'Overall Slowness',
           snippet_count: 1,
-          snippets: [{ name: 'diag/other.sh', title: 'Other', description: '' }],
+          snippets: [
+            { name: 'diag/other.sh', title: 'Other', description: '' },
+          ],
         },
       ],
     });
@@ -85,7 +95,9 @@ describe('CategoryBrowser', () => {
     await waitFor(() => {
       expect(screen.getByRole('combobox', { name: /^Category$/ })).toBeTruthy();
     });
-    expect(screen.getByRole('combobox', { name: 'Subcategory 1' })).toBeTruthy();
+    expect(
+      screen.getByRole('combobox', { name: 'Subcategory 1' })
+    ).toBeTruthy();
   });
 
   it('surfaces a load error', async () => {

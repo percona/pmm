@@ -17,7 +17,11 @@
 
 import { describe, expect, it } from 'vitest';
 import type { SectionField } from '@sep/api';
-import { buildBatchPayload, fieldDeclaresGate, namespaceField } from '../src/CollectPane';
+import {
+  buildBatchPayload,
+  fieldDeclaresGate,
+  namespaceField,
+} from '../src/CollectPane';
 import type { AtwSnippetSummary } from '../src/types';
 
 const snippets: AtwSnippetSummary[] = [
@@ -34,7 +38,7 @@ describe('buildBatchPayload', () => {
         'defaults-file': '/etc/my.cnf',
         overrides: {},
       },
-      [],
+      []
     );
 
     expect(payload.executor_host).toBe('db-1');
@@ -52,7 +56,7 @@ describe('buildBatchPayload', () => {
           snip1: { minutes: 10 },
         },
       },
-      snippets,
+      snippets
     );
 
     expect(payload.items).toEqual([
@@ -72,7 +76,7 @@ describe('buildBatchPayload', () => {
           snip0: { minutes: 5, note: '', executor_host: 'ignored' },
         },
       },
-      [snippets[0]],
+      [snippets[0]]
     );
 
     expect(payload.shared_args).toEqual({});
@@ -88,7 +92,11 @@ describe('buildBatchPayload', () => {
 
 describe('namespaceField', () => {
   it('prefixes a leaf field name', () => {
-    const field: SectionField = { type: 'string', name: 'minutes', label: 'Minutes' };
+    const field: SectionField = {
+      type: 'string',
+      name: 'minutes',
+      label: 'Minutes',
+    };
     expect(namespaceField(field, 'overrides.snip0.')).toMatchObject({
       name: 'overrides.snip0.minutes',
       label: 'Minutes',
@@ -116,14 +124,18 @@ describe('namespaceField', () => {
       discriminator: 'overrides.snip1.source.mode',
     });
     if (result.type === 'one_of') {
-      expect(result.branches[0].fields[0].name).toBe('overrides.snip1.source.path');
+      expect(result.branches[0].fields[0].name).toBe(
+        'overrides.snip1.source.path'
+      );
     }
   });
 });
 
 describe('fieldDeclaresGate', () => {
   it('is false for a plain field', () => {
-    expect(fieldDeclaresGate({ type: 'string', name: 'minutes', label: 'Minutes' })).toBe(false);
+    expect(
+      fieldDeclaresGate({ type: 'string', name: 'minutes', label: 'Minutes' })
+    ).toBe(false);
   });
 
   it('is true when a field declares a requires gate', () => {
