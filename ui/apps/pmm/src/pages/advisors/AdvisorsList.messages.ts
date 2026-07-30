@@ -44,6 +44,7 @@ export const Messages = {
   details: {
     title: 'Advisor check details',
     maximize: 'Maximize',
+    minimize: 'Minimize',
     close: 'Close',
     clone: 'Clone',
     checkName: 'Check name',

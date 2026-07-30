@@ -106,7 +106,6 @@ const AdvisorsList: FC = () => {
   const { mutate: deleteCheck, isPending: isDeleting } =
     useDeleteAdvisorCheck();
 
-  const [detailsMaximized, setDetailsMaximized] = useState(false);
   const [checkForm, setCheckForm] = useState<{
     mode: AdvisorCheckFormMode;
     checkName?: string;
@@ -151,10 +150,8 @@ const AdvisorsList: FC = () => {
     setSearchParams(next, { replace: true });
   };
 
-  const openDetails = (check: AdvisorCheckRow, maximized = false) => {
-    setDetailsMaximized(maximized);
+  const openDetails = (check: AdvisorCheckRow) =>
     patchParams((p) => p.set('details', check.checkName), { resetPage: false });
-  };
 
   const setSearch = (value: string) =>
     patchParams((p) => {
@@ -655,8 +652,7 @@ const AdvisorsList: FC = () => {
           )}
           muiTableBodyRowProps={({ row }) => ({
             'data-testid': `advisor-row-${row.original.checkName}`,
-            // double-click opens the check details overlay maximized
-            onDoubleClick: () => openDetails(row.original, true),
+            onDoubleClick: () => openDetails(row.original),
           })}
           muiTableContainerProps={{
             sx: {
@@ -669,7 +665,6 @@ const AdvisorsList: FC = () => {
         />
         <AdvisorCheckDetailsPane
           check={detailsCheck}
-          initialMaximized={detailsMaximized}
           onClose={() =>
             patchParams((p) => p.delete('details'), { resetPage: false })
           }

@@ -82,26 +82,26 @@ const Field: FC<FieldProps> = ({ label, children, span = 1 }) => (
 
 interface InsightDetailsPaneProps {
   insight: Insight | null;
-  // open the pane already maximized (e.g. when triggered by a row double-click)
-  initialMaximized?: boolean;
   onClose: () => void;
 }
 
 export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
   insight,
-  initialMaximized = false,
   onClose,
 }) => {
-  const [maximized, setMaximized] = useState(false);
+  const [maximized, setMaximized] = useState(true);
   const { navOpen } = useNavigation();
   const open = !!insight;
   // the pane never covers the main navigation
   const sidebarWidth = navOpen ? DRAWER_WIDTH : DRAWER_CLOSED_WIDTH;
 
-  // apply the requested height on each open, reset on close
+  // every open starts maximized, however it was triggered; minimizing to the
+  // 60vh peek height is an explicit choice and does not carry to the next open
   useEffect(() => {
-    setMaximized(open ? initialMaximized : false);
-  }, [open, initialMaximized]);
+    if (open) {
+      setMaximized(true);
+    }
+  }, [open]);
 
   const m = Messages.details;
   const labels = Object.entries(insight?.labels ?? {});
@@ -132,7 +132,7 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
         <Stack direction="row" gap={1}>
           <IconButton
             size="small"
-            aria-label={m.maximize}
+            aria-label={maximized ? m.minimize : m.maximize}
             onClick={() => setMaximized((current) => !current)}
             data-testid="insight-details-maximize"
           >

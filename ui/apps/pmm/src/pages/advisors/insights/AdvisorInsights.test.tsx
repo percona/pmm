@@ -434,9 +434,9 @@ describe('AdvisorInsights', () => {
     expect(pane).toBeInTheDocument();
     expect(screen.getByText(Messages.details.title)).toBeInTheDocument();
     expect(screen.getByTestId('insight-details-maximize')).toBeInTheDocument();
-    // opened from the menu, the pane starts at the default (non-maximized) height
+    // every open starts maximized, including from the row menu
     expect(
-      within(pane).getByTestId('OpenInFullOutlinedIcon')
+      within(pane).getByTestId('CloseFullscreenOutlinedIcon')
     ).toBeInTheDocument();
 
     // content from the selected insight
@@ -489,6 +489,37 @@ describe('AdvisorInsights', () => {
     // a maximized pane shows the "collapse" toggle icon
     expect(
       within(pane).getByTestId('CloseFullscreenOutlinedIcon')
+    ).toBeInTheDocument();
+  });
+
+  it('opens the details overlay maximized when deep-linked', async () => {
+    renderComponent('/advisors/insights?insight=result-1');
+
+    const pane = await screen.findByTestId('insight-details-pane');
+    expect(
+      within(pane).getByTestId('CloseFullscreenOutlinedIcon')
+    ).toBeInTheDocument();
+  });
+
+  it('minimizes the details overlay only when the toggle is clicked', async () => {
+    renderComponent('/advisors/insights?insight=result-1');
+
+    const pane = await screen.findByTestId('insight-details-pane');
+    fireEvent.click(screen.getByTestId('insight-details-maximize'));
+
+    // the toggle drops it to the 60vh peek height
+    expect(
+      within(pane).getByTestId('OpenInFullOutlinedIcon')
+    ).toBeInTheDocument();
+
+    // the choice does not stick: the next open is maximized again
+    fireEvent.click(screen.getByTestId('insight-details-close'));
+    await waitForRows();
+    fireEvent.dblClick(screen.getByTestId('insight-row-result-1'));
+
+    const reopened = await screen.findByTestId('insight-details-pane');
+    expect(
+      within(reopened).getByTestId('CloseFullscreenOutlinedIcon')
     ).toBeInTheDocument();
   });
 

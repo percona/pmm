@@ -25,6 +25,7 @@ export const Messages = {
   details: {
     title: 'Advisor insight details',
     maximize: 'Maximize',
+    minimize: 'Minimize',
     close: 'Close',
     summary: 'Summary',
     severity: 'Severity',

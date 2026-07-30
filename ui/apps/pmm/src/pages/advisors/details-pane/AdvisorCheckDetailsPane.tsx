@@ -69,8 +69,6 @@ const Field: FC<FieldProps> = ({ label, children, span = 1 }) => (
 
 interface AdvisorCheckDetailsPaneProps {
   check: AdvisorCheckRow | null;
-  // open the pane already maximized (e.g. triggered by a row double-click)
-  initialMaximized?: boolean;
   onClose: () => void;
   // clone the current check into a new editable check
   onClone?: () => void;
@@ -80,12 +78,11 @@ interface AdvisorCheckDetailsPaneProps {
 
 export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
   check,
-  initialMaximized = false,
   onClose,
   onClone,
   onEdit,
 }) => {
-  const [maximized, setMaximized] = useState(false);
+  const [maximized, setMaximized] = useState(true);
   const { navOpen } = useNavigation();
   const open = !!check;
   // the pane never covers the main navigation
@@ -123,10 +120,13 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
     });
   };
 
-  // apply the requested height on each open, reset on close
+  // every open starts maximized, however it was triggered; minimizing to the
+  // 60vh peek height is an explicit choice and does not carry to the next open
   useEffect(() => {
-    setMaximized(open ? initialMaximized : false);
-  }, [open, initialMaximized]);
+    if (open) {
+      setMaximized(true);
+    }
+  }, [open]);
 
   const m = Messages.details;
 
@@ -167,7 +167,7 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
         <Stack direction="row" gap={1}>
           <IconButton
             size="small"
-            aria-label={m.maximize}
+            aria-label={maximized ? m.minimize : m.maximize}
             onClick={() => setMaximized((current) => !current)}
             data-testid="check-details-maximize"
           >

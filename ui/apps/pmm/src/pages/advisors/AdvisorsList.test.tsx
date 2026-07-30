@@ -457,6 +457,37 @@ describe('AdvisorsList', () => {
     expect(within(pane).getByTestId('check-edit')).toBeDisabled();
   });
 
+  it('opens the details pane maximized when deep-linked', async () => {
+    renderComponent('/advisors?details=mysql_version_check');
+
+    const pane = await screen.findByTestId('check-details-pane');
+    expect(
+      within(pane).getByTestId('CloseFullscreenOutlinedIcon')
+    ).toBeInTheDocument();
+  });
+
+  it('minimizes the details pane only when the toggle is clicked', async () => {
+    renderComponent('/advisors?details=mysql_version_check');
+
+    const pane = await screen.findByTestId('check-details-pane');
+    fireEvent.click(screen.getByTestId('check-details-maximize'));
+
+    // the toggle drops it to the 60vh peek height
+    expect(
+      within(pane).getByTestId('OpenInFullOutlinedIcon')
+    ).toBeInTheDocument();
+
+    // the choice does not stick: the next open is maximized again
+    fireEvent.click(screen.getByTestId('check-details-close'));
+    await waitForRows();
+    fireEvent.dblClick(screen.getByTestId('advisor-row-mysql_version_check'));
+
+    const reopened = await screen.findByTestId('check-details-pane');
+    expect(
+      within(reopened).getByTestId('CloseFullscreenOutlinedIcon')
+    ).toBeInTheDocument();
+  });
+
   it('opens the editor from the details pane for a user-defined check', async () => {
     renderComponent('/advisors?details=postgresql_super_role');
 

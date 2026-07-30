@@ -204,12 +204,8 @@ const AdvisorInsights: FC = () => {
   };
 
   const [actionMenu, setActionMenu] = useState<RowActionMenuState | null>(null);
-  const [detailsMaximized, setDetailsMaximized] = useState(false);
-
-  const openDetails = (insight: Insight, maximized = false) => {
-    setDetailsMaximized(maximized);
+  const openDetails = (insight: Insight) =>
     patchParams((p) => p.set('insight', insight.id), { resetPage: false });
-  };
 
   const { data, isLoading, isFetching, refetch } = useInsights(params);
 
@@ -675,8 +671,7 @@ const AdvisorInsights: FC = () => {
             return {
               'data-testid': `insight-row-${row.original.id}`,
               'data-check-disabled': checkDisabled ? 'true' : undefined,
-              // double-click opens the details overlay maximized
-              onDoubleClick: () => openDetails(row.original, true),
+              onDoubleClick: () => openDetails(row.original),
               sx: checkDisabled ? { opacity: 0.5 } : undefined,
             };
           }}
@@ -806,7 +801,6 @@ const AdvisorInsights: FC = () => {
         </Menu>
         <InsightDetailsPane
           insight={detailsInsight}
-          initialMaximized={detailsMaximized}
           onClose={() =>
             patchParams((p) => p.delete('insight'), { resetPage: false })
           }
