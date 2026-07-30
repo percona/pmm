@@ -340,6 +340,15 @@ After configuring your database server, add a MongoDB service using either the u
         --host=127.0.0.1 \
         --port=27017
         ```
+    === "With diagnostic log"
+        ```sh
+        pmm-admin add mongodb \
+        --username=pmm \
+        --password=your_secure_password \
+        --query-source=mongolog \
+        --host=127.0.0.1 \
+        --port=27017
+        ```
 
     === "Replica Set or Sharded cluster component"
         ```sh
@@ -360,16 +369,6 @@ After configuring your database server, add a MongoDB service using either the u
         --port=27017 \
         --cluster=my_cluster_or_rs_name \
         --tls-skip-verify
-        ```
-
-    === "With diagnostic log"
-        ```sh
-        pmm-admin add mongodb \
-        --username=pmm \
-        --password=your_secure_password \
-        --query-source=mongolog \
-        --host=127.0.0.1 \
-        --port=27017
         ```
 
     === "SSL/TLS secured MongoDB"
