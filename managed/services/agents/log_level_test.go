@@ -77,10 +77,11 @@ func TestWithLogLevel(t *testing.T) {
 	}
 }
 
-// TestWithLogLevelFlagValkey covers PMM-15201: valkey_exporter parses its command line with the
+// TestWithValkeyLogLevel covers PMM-15201: valkey_exporter parses its command line with the
 // standard library flag package, which rejects --log.level and exits with code 2, leaving the
-// agent in the DONE state.
-func TestWithLogLevelFlagValkey(t *testing.T) {
+// agent in the DONE state. The per-level matrix lives in TestValkeyExporterConfig, so only the
+// flag spelling and the fatal fallback are checked here.
+func TestWithValkeyLogLevel(t *testing.T) {
 	t.Parallel()
 
 	supported := version.MustParse("2.28.0")
@@ -89,10 +90,7 @@ func TestWithLogLevelFlagValkey(t *testing.T) {
 		level    *string
 		expected []string
 	}{
-		"debug": {new("debug"), []string{"--log-level=debug"}},
-		"info":  {new("info"), []string{"--log-level=info"}},
-		"warn":  {new("warn"), []string{"--log-level=warn"}},
-		"error": {new("error"), []string{"--log-level=error"}},
+		"dashed flag": {new("info"), []string{"--log-level=info"}},
 		// valkey_exporter silently falls back to info on an unknown level, so a stored
 		// "fatal" must be translated rather than passed through.
 		"fatal falls back to error": {new("fatal"), []string{"--log-level=error"}},
@@ -101,7 +99,7 @@ func TestWithLogLevelFlagValkey(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			actual := withLogLevelFlag(nil, valkeyLogLevelFlag, tc.level, supported, false)
+			actual := withValkeyLogLevel(nil, tc.level, supported)
 			assert.Equal(t, tc.expected, actual)
 			for _, arg := range actual {
 				assert.NotContains(t, arg, "--log.level", "valkey_exporter rejects the dotted flag")

@@ -40,9 +40,15 @@ func withLogLevel(args []string, logLevel *string, pmmAgentVersion *version.Pars
 	return withLogLevelFlag(args, logLevelFlag, logLevel, pmmAgentVersion, supportLogLevelFatal)
 }
 
-// withLogLevelFlag appends "<flag>=<level>" for exporters which spell the log level flag
+// withValkeyLogLevel appends the --log-level CLI arg for valkey_exporter, which spells the flag
+// differently than the kingpin-based exporters and has no fatal level.
+func withValkeyLogLevel(args []string, logLevel *string, pmmAgentVersion *version.Parsed) []string {
+	return withLogLevelFlag(args, valkeyLogLevelFlag, logLevel, pmmAgentVersion, false)
+}
+
+// withLogLevelFlag appends "<flagName>=<level>" for exporters which spell the log level flag
 // differently than the kingpin-based majority.
-func withLogLevelFlag(args []string, flag string, logLevel *string, pmmAgentVersion *version.Parsed, supportLogLevelFatal bool) []string {
+func withLogLevelFlag(args []string, flagName string, logLevel *string, pmmAgentVersion *version.Parsed, supportLogLevelFatal bool) []string {
 	level := pointer.GetString(logLevel)
 	if level == "" || pmmAgentVersion.Less(exporterLogLevelCommandVersion) {
 		return args
@@ -54,5 +60,5 @@ func withLogLevelFlag(args []string, flag string, logLevel *string, pmmAgentVers
 		level = "error"
 	}
 
-	return append(args, flag+"="+level)
+	return append(args, flagName+"="+level)
 }

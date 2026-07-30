@@ -45,7 +45,7 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 
 	args = append(args, "--redis.addr="+exporter.DSN(service, dsnParams, nil, pmmAgentVersion))
 	args = append(args, "--connection-timeout="+connectionTimeout.String())
-	args = withLogLevelFlag(args, valkeyLogLevelFlag, exporter.LogLevel, pmmAgentVersion, false)
+	args = withValkeyLogLevel(args, exporter.LogLevel, pmmAgentVersion)
 	sort.Strings(args)
 
 	res := &agentv1.SetStateRequest_AgentProcess{

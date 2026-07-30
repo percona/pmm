@@ -281,5 +281,21 @@ Configuration changes applied:
 			require.Error(t, err)
 			assert.Contains(t, strings.ToLower(err.Error()), "log-level")
 		})
+
+		// valkey_exporter has no fatal level, so the flag must reject it the same way
+		// `pmm-admin inventory add agent valkey-exporter` does.
+		t.Run("FatalLogLevelRejected", func(t *testing.T) {
+			t.Parallel()
+
+			cli := []string{"change-agent", "valkey-exporter", "test-agent-id", "--log-level=fatal"}
+
+			var cmd ChangeAgentValkeyExporterCommand
+			parser, err := kong.New(&cmd)
+			require.NoError(t, err)
+
+			_, err = parser.Parse(cli[2:])
+			require.Error(t, err)
+			assert.Contains(t, strings.ToLower(err.Error()), "log-level")
+		})
 	})
 }

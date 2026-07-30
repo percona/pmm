@@ -104,7 +104,9 @@ func TestValkeyExporterConfig(t *testing.T) {
 
 				actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
 				require.Contains(t, actual.Args, tc.expected)
-				require.NotContains(t, actual.Args, "--log.level="+tc.logLevel)
+				for _, arg := range actual.Args {
+					require.NotContains(t, arg, "--log.level", "valkey_exporter rejects the dotted flag")
+				}
 			})
 		}
 	})
