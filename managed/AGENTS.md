@@ -172,7 +172,6 @@ PMM supports HA via **Raft consensus** (`services/ha/`):
 ### Test Data
 - `testdata/pg/` — PostgreSQL fixtures
 - `testdata/victoriametrics/` — VictoriaMetrics configs
-- `testdata/updater/` — Update test fixtures
 
 ## Code Generation
 

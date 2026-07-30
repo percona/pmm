@@ -46,7 +46,7 @@ func (pf *ProfilerFingerprinter) Fingerprint(doc proto.SystemProfile) (fingerpri
 	}
 
 	// Parse the namespace to separate database and collection names
-	parts := strings.SplitN(doc.Ns, ".", 2)
+	parts := strings.SplitN(doc.Ns, ".", 2) //nolint:mnd
 	fp.Database = parts[0]
 	if len(parts) > 1 {
 		fp.Collection = parts[1]
