@@ -1406,13 +1406,13 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	}
 	defer db.Close() //nolint:errcheck
 
-	var countRoles int
-	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&countRoles)
+	var roleCount int
+	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&roleCount)
 	if err != nil {
 		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
-	if countRoles == 0 {
+	if roleCount == 0 {
 		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
 		if err != nil {
 			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
@@ -1428,13 +1428,13 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 		}
 	}
 
-	var countDatabases int
-	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
+	var dbCount int
+	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&dbCount)
 	if err != nil {
 		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
-	if countDatabases == 0 {
+	if dbCount == 0 {
 		// The role owns the database: since PostgreSQL 15 the public schema belongs to
 		// pg_database_owner, so ownership is what lets the role create tables in it.
 		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE DATABASE "%s" OWNER "%s"`, params.Name, params.Username))
