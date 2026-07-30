@@ -33,8 +33,8 @@ Each PMM component has a dedicated guide with architecture, directory structure,
 | **qan-api2** (query analytics) | [qan-api2/AGENTS.md](qan-api2/AGENTS.md) | `qan-api2/**` |
 | **vmproxy** (VictoriaMetrics proxy) | [vmproxy/AGENTS.md](vmproxy/AGENTS.md) | `vmproxy/**` |
 | **UI** (React frontend) | [ui/AGENTS.md](ui/AGENTS.md) | `ui/**` |
-| **Dashboards** (Grafana dashboard definitions) | [dashboards/dashboards/AGENTS.md](dashboards/dashboards/AGENTS.md) | `dashboards/dashboards/**` |
-| **QAN App** (Grafana plugin & QAN panel) | [dashboards/pmm-app/AGENTS.md](dashboards/pmm-app/AGENTS.md) | `dashboards/pmm-app/**` |
+| **Dashboards** (Grafana dashboard definitions) | [dashboards/AGENTS.md](dashboards/AGENTS.md) | `dashboards/**` |
+| **QAN App** (Grafana plugin & QAN panel) | [ui/apps/pmm-app/AGENTS.md](ui/apps/pmm-app/AGENTS.md) | `ui/apps/pmm-app/**` |
 | **API Tests** (integration tests) | [api-tests/AGENTS.md](api-tests/AGENTS.md) | `api-tests/**` |
 | **Build & Packaging** | [build/AGENTS.md](build/AGENTS.md) | `build/**` |
 
@@ -111,8 +111,8 @@ Relationships:
 | `/qan-api2` | qan-api2 | Query Analytics API: ClickHouse ingestion and analytics | [qan-api2/AGENTS.md](qan-api2/AGENTS.md) |
 | `/vmproxy` | vmproxy | VictoriaMetrics reverse proxy with LBAC filtering | [vmproxy/AGENTS.md](vmproxy/AGENTS.md) |
 | `/ui` | UI | React/TypeScript PMM frontend (Vite, MUI, TanStack Query) | [ui/AGENTS.md](ui/AGENTS.md) |
-| `/dashboards/dashboards` | Grafana Dashboards | Grafana dashboard JSON definitions for MySQL, MongoDB, PostgreSQL, OS, and more | [dashboards/dashboards/AGENTS.md](dashboards/dashboards/AGENTS.md) |
-| `/dashboards/pmm-app` | QAN App | Grafana application plugin bundling dashboards and the Query Analytics panel | [dashboards/pmm-app/AGENTS.md](dashboards/pmm-app/AGENTS.md) |
+| `/dashboards` | Grafana Dashboards | Grafana dashboard JSON definitions for MySQL, MongoDB, PostgreSQL, OS, and more | [dashboards/AGENTS.md](dashboards/AGENTS.md) |
+| `/ui/apps/pmm-app` | QAN App | Grafana application plugin bundling dashboards and the Query Analytics panel | [ui/apps/pmm-app/AGENTS.md](ui/apps/pmm-app/AGENTS.md) |
 | `/api-tests` | API Tests | Integration tests against live PMM Server | [api-tests/AGENTS.md](api-tests/AGENTS.md) |
 | `/build` | Build & Packaging | Docker, RPM/DEB, Packer, Ansible | [build/AGENTS.md](build/AGENTS.md) |
 
@@ -226,8 +226,7 @@ All long-running daemons expose on `127.0.0.1`:
 | Target | Purpose |
 |--------|---------|
 | `make env-up` | Start development container (PMM Server) |
-| `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI |
-| `make run-qan-ui` | Inside devcontainer: webpack + livereload for the QAN Grafana plugin |
+| `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI, plus webpack + livereload and dashboard JSON sync for the QAN Grafana plugin |
 | `make gen` | Generate all code (protobuf, reform, mocks, format) |
 | `make check` | Run linters (buf, golangci-lint, go-sumtype) |
 | `make format` | Format code (gofumpt, goimports, gci) |

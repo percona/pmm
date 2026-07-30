@@ -1,0 +1,8 @@
+# development
+.env/
+docker-compose.*.y*ml
+
+# PMM-specific
+video/
+pr.browsers.json
+tests/output/
