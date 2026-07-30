@@ -52,7 +52,8 @@ func TestRegisterErrorMessage(t *testing.T) {
 
 		msg := registerErrorMessage(
 			registerDefault(http.StatusUnauthorized, grpcUnauthenticated, "Invalid username or password"),
-			"pmm-server", false)
+			"pmm-server", false,
+		)
 		assert.Equal(t, "Invalid username or password\nPlease check username and password", msg)
 	})
 
@@ -63,7 +64,8 @@ func TestRegisterErrorMessage(t *testing.T) {
 		// credentials must not be blamed for them.
 		msg := registerErrorMessage(
 			registerDefault(http.StatusUnauthorized, grpcInternal, "Internal server error."),
-			"pmm-server", false)
+			"pmm-server", false,
+		)
 		assert.Equal(t, "Internal server error.\nPlease check PMM Server logs", msg)
 	})
 
@@ -73,7 +75,8 @@ func TestRegisterErrorMessage(t *testing.T) {
 		// Not a credentials problem: the user authenticated but lacks the required role.
 		msg := registerErrorMessage(
 			registerDefault(http.StatusForbidden, grpcPermissionDenied, "Access denied"),
-			"pmm-server", false)
+			"pmm-server", false,
+		)
 		assert.Equal(t, "Access denied\nPlease check that your PMM user has sufficient permissions", msg)
 	})
 
@@ -82,7 +85,8 @@ func TestRegisterErrorMessage(t *testing.T) {
 
 		msg := registerErrorMessage(
 			registerDefault(http.StatusConflict, grpcAlreadyExists, "Node with name \"node\" already exists."),
-			"pmm-server", false)
+			"pmm-server", false,
+		)
 		assert.Equal(t, "Node with name \"node\" already exists. If you want override node, use --force option", msg)
 	})
 
