@@ -2262,20 +2262,22 @@ func (x *ListInsightsFilterValuesResponse) GetNodeNames() []string {
 // InsightsFilters select Advisor insights by attribute; all present fields must match.
 type InsightsFilters struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
+	// Filter by check name.
+	CheckName string `protobuf:"bytes,1,opt,name=check_name,json=checkName,proto3" json:"check_name,omitempty"`
 	// Filter by service name (partial, case-insensitive match).
-	ServiceName string `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	ServiceName string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 	// Filter by node name (partial, case-insensitive match).
-	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	NodeName string `protobuf:"bytes,3,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
 	// Filter by advisor category.
-	Category string `protobuf:"bytes,3,opt,name=category,proto3" json:"category,omitempty"`
+	Category string `protobuf:"bytes,4,opt,name=category,proto3" json:"category,omitempty"`
 	// Filter by severity.
-	Severity *v1.Severity `protobuf:"varint,4,opt,name=severity,proto3,enum=management.v1.Severity,oneof" json:"severity,omitempty"`
+	Severity *v1.Severity `protobuf:"varint,5,opt,name=severity,proto3,enum=management.v1.Severity,oneof" json:"severity,omitempty"`
 	// Filter by outcome.
-	Status *AdvisorCheckResultStatus `protobuf:"varint,5,opt,name=status,proto3,enum=advisors.v1.AdvisorCheckResultStatus,oneof" json:"status,omitempty"`
+	Status *AdvisorCheckResultStatus `protobuf:"varint,6,opt,name=status,proto3,enum=advisors.v1.AdvisorCheckResultStatus,oneof" json:"status,omitempty"`
 	// Filter by read state.
-	IsRead *bool `protobuf:"varint,6,opt,name=is_read,json=isRead,proto3,oneof" json:"is_read,omitempty"`
+	IsRead *bool `protobuf:"varint,7,opt,name=is_read,json=isRead,proto3,oneof" json:"is_read,omitempty"`
 	// Filter by batch ID.
-	BatchId       string `protobuf:"bytes,7,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
+	BatchId       string `protobuf:"bytes,8,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2308,6 +2310,13 @@ func (x *InsightsFilters) ProtoReflect() protoreflect.Message {
 // Deprecated: Use InsightsFilters.ProtoReflect.Descriptor instead.
 func (*InsightsFilters) Descriptor() ([]byte, []int) {
 	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *InsightsFilters) GetCheckName() string {
+	if x != nil {
+		return x.CheckName
+	}
+	return ""
 }
 
 func (x *InsightsFilters) GetServiceName() string {
@@ -2635,15 +2644,17 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	" ListInsightsFilterValuesResponse\x12#\n" +
 	"\rservice_names\x18\x01 \x03(\tR\fserviceNames\x12\x1d\n" +
 	"\n" +
-	"node_names\x18\x02 \x03(\tR\tnodeNames\"\xc8\x02\n" +
-	"\x0fInsightsFilters\x12!\n" +
-	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12\x1b\n" +
-	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x12\x1a\n" +
-	"\bcategory\x18\x03 \x01(\tR\bcategory\x128\n" +
-	"\bseverity\x18\x04 \x01(\x0e2\x17.management.v1.SeverityH\x00R\bseverity\x88\x01\x01\x12B\n" +
-	"\x06status\x18\x05 \x01(\x0e2%.advisors.v1.AdvisorCheckResultStatusH\x01R\x06status\x88\x01\x01\x12\x1c\n" +
-	"\ais_read\x18\x06 \x01(\bH\x02R\x06isRead\x88\x01\x01\x12\x19\n" +
-	"\bbatch_id\x18\a \x01(\tR\abatchIdB\v\n" +
+	"node_names\x18\x02 \x03(\tR\tnodeNames\"\xe7\x02\n" +
+	"\x0fInsightsFilters\x12\x1d\n" +
+	"\n" +
+	"check_name\x18\x01 \x01(\tR\tcheckName\x12!\n" +
+	"\fservice_name\x18\x02 \x01(\tR\vserviceName\x12\x1b\n" +
+	"\tnode_name\x18\x03 \x01(\tR\bnodeName\x12\x1a\n" +
+	"\bcategory\x18\x04 \x01(\tR\bcategory\x128\n" +
+	"\bseverity\x18\x05 \x01(\x0e2\x17.management.v1.SeverityH\x00R\bseverity\x88\x01\x01\x12B\n" +
+	"\x06status\x18\x06 \x01(\x0e2%.advisors.v1.AdvisorCheckResultStatusH\x01R\x06status\x88\x01\x01\x12\x1c\n" +
+	"\ais_read\x18\a \x01(\bH\x02R\x06isRead\x88\x01\x01\x12\x19\n" +
+	"\bbatch_id\x18\b \x01(\tR\abatchIdB\v\n" +
 	"\t_severityB\t\n" +
 	"\a_statusB\n" +
 	"\n" +

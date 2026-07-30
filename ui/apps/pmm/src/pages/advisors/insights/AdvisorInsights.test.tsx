@@ -760,6 +760,55 @@ describe('AdvisorInsights', () => {
     expect(input).toHaveValue('');
   });
 
+  it('filters by check name from the row menu, then clears', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('insight-result-1-actions'));
+    fireEvent.click(await screen.findByTestId('action-filter-by-check-name'));
+
+    await waitFor(() =>
+      expect(advisorsApi.listInsights).toHaveBeenCalledWith(
+        expect.objectContaining({
+          checkName: 'mysql_version_check',
+          pageIndex: 0,
+        })
+      )
+    );
+
+    fireEvent.click(screen.getByTestId('clear-filters'));
+
+    await waitFor(() =>
+      expect(advisorsApi.listInsights).toHaveBeenLastCalledWith(
+        expect.objectContaining({ checkName: undefined })
+      )
+    );
+  });
+
+  it('scopes bulk mark-as-read to the check-name filter', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('insight-result-1-actions'));
+    fireEvent.click(await screen.findByTestId('action-filter-by-check-name'));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('mark-filtered-read')).toBeEnabled()
+    );
+    fireEvent.click(screen.getByTestId('mark-filtered-read'));
+
+    // the filter must reach the API, or the bulk action would mark far more
+    // insights read than the filtered list shows
+    await waitFor(() =>
+      expect(advisorsApi.markInsightsRead).toHaveBeenCalledWith(
+        { filters: { checkName: 'mysql_version_check' }, isRead: true },
+        expect.anything()
+      )
+    );
+  });
+
   it('filters by a batch ID typed into the input and committed with Enter', async () => {
     renderComponent();
 

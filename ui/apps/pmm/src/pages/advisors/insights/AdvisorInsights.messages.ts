@@ -17,6 +17,7 @@ export const Messages = {
     viewDetails: 'View details',
     rerunNow: 'Re-run now',
     filterByBatchId: 'Filter by batch ID',
+    filterByCheckName: 'Filter by name',
     copyAsText: 'Copy as text',
     copyUrl: 'Copy URL',
     disableCheck: 'Disable check for this service',

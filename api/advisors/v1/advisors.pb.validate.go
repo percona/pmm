@@ -4002,6 +4002,8 @@ func (m *InsightsFilters) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for CheckName
+
 	// no validation rules for ServiceName
 
 	// no validation rules for NodeName

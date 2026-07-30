@@ -333,20 +333,22 @@ message ListInsightsFilterValuesResponse {
 
 // InsightsFilters select Advisor insights by attribute; all present fields must match.
 message InsightsFilters {
+  // Filter by check name.
+  string check_name = 1;
   // Filter by service name (partial, case-insensitive match).
-  string service_name = 1;
+  string service_name = 2;
   // Filter by node name (partial, case-insensitive match).
-  string node_name = 2;
+  string node_name = 3;
   // Filter by advisor category.
-  string category = 3;
+  string category = 4;
   // Filter by severity.
-  optional management.v1.Severity severity = 4;
+  optional management.v1.Severity severity = 5;
   // Filter by outcome.
-  optional AdvisorCheckResultStatus status = 5;
+  optional AdvisorCheckResultStatus status = 6;
   // Filter by read state.
-  optional bool is_read = 6;
+  optional bool is_read = 7;
   // Filter by batch ID.
-  string batch_id = 7;
+  string batch_id = 8;
 }
 
 message MarkInsightsReadRequest {

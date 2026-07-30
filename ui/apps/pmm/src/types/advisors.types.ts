@@ -196,6 +196,7 @@ export interface InsightsFilters {
   serviceName?: string;
   nodeName?: string;
   category?: string;
+  checkName?: string;
   severity?: Severity;
   status?: AdvisorCheckResultStatus;
   isRead?: boolean;

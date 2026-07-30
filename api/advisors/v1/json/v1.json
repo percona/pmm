@@ -2117,20 +2117,25 @@
                   "description": "InsightsFilters select Advisor insights by attribute; all present fields must match.",
                   "type": "object",
                   "properties": {
+                    "check_name": {
+                      "description": "Filter by check name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
                     "service_name": {
                       "description": "Filter by service name (partial, case-insensitive match).",
                       "type": "string",
-                      "x-order": 0
+                      "x-order": 1
                     },
                     "node_name": {
                       "description": "Filter by node name (partial, case-insensitive match).",
                       "type": "string",
-                      "x-order": 1
+                      "x-order": 2
                     },
                     "category": {
                       "description": "Filter by advisor category.",
                       "type": "string",
-                      "x-order": 2
+                      "x-order": 3
                     },
                     "severity": {
                       "description": "Severity represents severity level of the check result or alert.",
@@ -2148,7 +2153,7 @@
                         "SEVERITY_DEBUG"
                       ],
                       "x-nullable": true,
-                      "x-order": 3
+                      "x-order": 4
                     },
                     "status": {
                       "description": "AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.",
@@ -2161,18 +2166,18 @@
                         "ADVISOR_CHECK_RESULT_STATUS_ERROR"
                       ],
                       "x-nullable": true,
-                      "x-order": 4
+                      "x-order": 5
                     },
                     "is_read": {
                       "description": "Filter by read state.",
                       "type": "boolean",
                       "x-nullable": true,
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "batch_id": {
                       "description": "Filter by batch ID.",
                       "type": "string",
-                      "x-order": 6
+                      "x-order": 7
                     }
                   },
                   "x-order": 2

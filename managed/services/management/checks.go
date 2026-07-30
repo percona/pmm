@@ -183,6 +183,7 @@ func (s *ChecksAPIService) MarkInsightsRead(
 			ServiceName: req.Filters.ServiceName,
 			NodeName:    req.Filters.NodeName,
 			Category:    req.Filters.Category,
+			CheckName:   req.Filters.CheckName,
 			BatchID:     req.Filters.BatchId,
 			IsRead:      req.Filters.IsRead,
 		}

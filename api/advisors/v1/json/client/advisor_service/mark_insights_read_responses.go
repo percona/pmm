@@ -524,6 +524,9 @@ MarkInsightsReadParamsBodyFilters InsightsFilters select Advisor insights by att
 swagger:model MarkInsightsReadParamsBodyFilters
 */
 type MarkInsightsReadParamsBodyFilters struct {
+	// Filter by check name.
+	CheckName string `json:"check_name,omitempty"`
+
 	// Filter by service name (partial, case-insensitive match).
 	ServiceName string `json:"service_name,omitempty"`
 

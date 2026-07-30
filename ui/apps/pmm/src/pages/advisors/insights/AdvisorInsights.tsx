@@ -62,6 +62,7 @@ interface InsightFilters {
   serviceName: string;
   nodeName: string;
   category: string;
+  checkName: string;
   severity: string;
   status: string;
   isRead: string;
@@ -72,6 +73,7 @@ const FILTER_PARAM: Record<keyof InsightFilters, string> = {
   serviceName: 'service',
   nodeName: 'node',
   category: 'category',
+  checkName: 'check',
   severity: 'severity',
   status: 'status',
   isRead: 'read',
@@ -136,6 +138,7 @@ const AdvisorInsights: FC = () => {
     serviceName: searchParams.get(FILTER_PARAM.serviceName) || '',
     nodeName: searchParams.get(FILTER_PARAM.nodeName) || '',
     category: searchParams.get(FILTER_PARAM.category) || '',
+    checkName: searchParams.get(FILTER_PARAM.checkName) || '',
     severity: searchParams.get(FILTER_PARAM.severity) || '',
     status: searchParams.get(FILTER_PARAM.status) || '',
     isRead: searchParams.get(FILTER_PARAM.isRead) || '',
@@ -192,6 +195,7 @@ const AdvisorInsights: FC = () => {
     serviceName: filters.serviceName || undefined,
     nodeName: filters.nodeName || undefined,
     category: filters.category || undefined,
+    checkName: filters.checkName || undefined,
     severity: (filters.severity as Severity) || undefined,
     status: (filters.status as AdvisorCheckResultStatus) || undefined,
     isRead: filters.isRead === '' ? undefined : filters.isRead === 'true',
@@ -740,6 +744,20 @@ const AdvisorInsights: FC = () => {
               <FilterAltOutlinedIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>{Messages.actions.filterByBatchId}</ListItemText>
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              if (actionMenu) {
+                updateFilter('checkName', actionMenu.insight.checkName);
+              }
+              setActionMenu(null);
+            }}
+            data-testid="action-filter-by-check-name"
+          >
+            <ListItemIcon>
+              <FilterAltOutlinedIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>{Messages.actions.filterByCheckName}</ListItemText>
           </MenuItem>
           <MenuItem
             onClick={() => {
