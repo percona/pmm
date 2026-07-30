@@ -47,14 +47,14 @@ make env         # shell into the container
 Then **inside the container**:
 
 ```bash
-make run-qan-ui
+make run-ui
 ```
 
-`run-qan-ui` runs `yarn install` under `dashboards/pmm-app`, symlinks `dashboards/pmm-app/dist` into `/srv/grafana/plugins/pmm-app/dist`, injects the livereload snippet into Grafana's `index.html` via `setup-livereload`, and starts the webpack watcher.
+`run-ui` installs dependencies for the whole `ui/` workspace (including this app), symlinks `ui/apps/pmm-app/dist` into `/srv/grafana/plugins/pmm-app/dist`, injects the livereload snippet into Grafana's `index.html` via `setup-livereload`, and starts every app's dev script through Turborepo — for `pmm-app` that's the webpack watcher plus a chokidar-based watcher that syncs dashboard JSON changes automatically.
 
-Open `https://localhost/graph/d/pmm-qan/` — the livereload server on port `35730` reloads the page whenever webpack finishes a rebuild.
+Open `https://localhost/graph/d/pmm-qan/` — the livereload server on port `35730` reloads the page whenever webpack finishes a rebuild, and dashboard JSON edits show up within Grafana's normal 60s provisioning poll with no extra commands.
 
-For a one-off build (no watch), use `make build-qan-ui` instead.
+For a one-off build (no watch), use `make build-ui` instead.
 
 ### Standalone with Docker Compose
 
