@@ -166,8 +166,8 @@ func TestSetupClientsAddsTrailingPath(t *testing.T) {
 }
 
 // TestSetupClientsClonesTransport guards against reconfiguring TLS on http.DefaultTransport.
-// go-openapi hands that global out, so mutating it in place would leak PMM's TLS settings into
-// every other HTTP client in the process - and, in tests, into every later test in the binary.
+// Because go-openapi hands that global out, mutating it in place would leak PMM's TLS settings
+// into every other HTTP client in the process - and, in tests, into every later test in the binary.
 func TestSetupClientsClonesTransport(t *testing.T) {
 	// Not parallel: SetupClients configures the package-level API clients.
 	def, ok := http.DefaultTransport.(*http.Transport)

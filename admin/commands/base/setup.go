@@ -83,7 +83,8 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 			logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n"+
 				"Please use --server-url flag to specify PMM Server URL.", err)
 		}
-		if err := applyAgentServerParams(globalFlags, status); err != nil {
+		err = applyAgentServerParams(globalFlags, status)
+		if err != nil {
 			logrus.Fatalf("Failed to parse PMM Server URL %q reported by local pmm-agent: %s.\n"+
 				"Please use --server-url flag to specify PMM Server URL.", status.ServerURL, err)
 		}
