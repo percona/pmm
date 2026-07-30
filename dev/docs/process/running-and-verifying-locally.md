@@ -83,7 +83,7 @@ For any user-visible change, "it compiles and unit tests pass" is **not done** �
 
 **3. Verify by evidence — do every item that applies, for every version tested:**
 
-- **Dashboards:** derive the **full** list of dashboards the change affects from the changed metric/feature (e.g. MySQL Instance Summary, MySQL Instance Overview, QAN, and any dashboard rendering the changed metric) — list them explicitly, then open **each** for **every** instance. Screenshot it, **open the screenshot**, and confirm panels are populated with correct values (non-empty, non-`NaN`). Don't verify just one dashboard.
+- **Dashboards:** derive the **full** list of dashboards the change affects from the changed metric/feature (e.g. MySQL Instance Summary, MySQL Instance Overview, QAN, and any dashboard rendering the changed metric) — list them explicitly, then open **each** for **every** instance. Screenshot it, **open the screenshot**, and confirm panels are populated with correct values (non-empty, non-`NaN`, non-`N/A`, non-`No Data`, etc..). Don't verify just one dashboard.
 - **Metrics / API:** query the underlying data directly, not just the rendered panel — VictoriaMetrics' Prometheus-compatible API on the server (e.g. `GET /prometheus/api/v1/query?query=<metric>`) and/or the pmm-managed REST API. Confirm the value is correct for each version.
 - **Logs:** check `pmm-managed`, `vmagent`, and the relevant exporter (e.g. `mysqld_exporter`) for scrape errors and `unsupported`/parse warnings — for every version. Server logs are in `/srv/logs/` on `pmm-server`; exporter and vmagent logs live on the monitored-node containers created by pmm-qa (`docker logs <node-container>`).
 
