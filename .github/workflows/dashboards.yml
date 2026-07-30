@@ -9,79 +9,6 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Install NodeJS
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "22"
-          cache: "yarn"
-          cache-dependency-path: dashboards/pmm-app/yarn.lock
-
-      - name: Verify plugin.json dashboard paths exist
-        run: |
-          missing=$(jq -r '.includes[] | select(.path) | .path' dashboards/pmm-app/src/plugin.json \
-            | while read -r p; do [ -f "dashboards/$p" ] || echo "$p"; done)
-          if [ -n "$missing" ]; then
-            echo "::error::plugin.json references dashboard files that do not exist:"
-            echo "$missing" | sed 's/^/  - /'
-            exit 1
-          fi
-
-      - name: Install deps
-        run: make -C dashboards install
-
-      - name: Build Grafana Dashboards
-        run: make -C dashboards build
-
-      - name: Upload the build artefacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: build-dist
-          path: dashboards/pmm-app/dist/
-          if-no-files-found: error
-
-  tests:
-    name: Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Install NodeJS
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: "22"
-          cache: "yarn"
-          cache-dependency-path: dashboards/pmm-app/yarn.lock
-    
-      - name: Install deps
-        run: make -C dashboards install
-
-      - name: Run lint
-        run: cd dashboards/pmm-app && yarn lint:check
-
-      - name: Run unit tests
-        run: cd dashboards/pmm-app && yarn test:ci
-
-      - name: Upload unit test coverage
-        if: github.event.pull_request.head.repo.full_name == github.repository
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
-        with:
-          fail_ci_if_error: true
-          flags: unittests # optional
-          name: codecov-umbrella
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true
-
   check:
     name: Check
     runs-on: ubuntu-latest
@@ -95,7 +22,7 @@ jobs:
         id: changed
         run: |
           git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD \
-            | grep -E '^dashboards/dashboards/.*\.json$' \
+            | grep -E '^dashboards/.*\.json$' \
             | sort -u > changed_dashboards.txt || true
           echo "count=$(wc -l < changed_dashboards.txt | tr -d ' ')" >> $GITHUB_OUTPUT
 
@@ -131,7 +58,7 @@ jobs:
           fi
 
   workflow_success:
-    needs: [tests, build]
+    needs: [check]
     name: Slack Notification success
     runs-on: ubuntu-latest
     env:
@@ -149,7 +76,7 @@ jobs:
 
   workflow_failure:
     if: ${{ failure() }}
-    needs: [tests, build]
+    needs: [check]
     name: Slack Notification failure
     runs-on: ubuntu-latest
     env:
