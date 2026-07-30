@@ -75,7 +75,7 @@ Query keys follow the pattern: `['domain:action', params]` (e.g., `['services:li
 
 ### UI/Auth State (React Context)
 
-Providers are composed in `Providers.tsx`:
+Providers are composed in `Providers.tsx`, all wrapped by `ThemeContextProvider` (theme from `@percona/percona-ui`) in `App.tsx`:
 
 - `AuthProvider` — authentication state
 - `UserProvider` — current user info
@@ -84,7 +84,6 @@ Providers are composed in `Providers.tsx`:
 - `GrafanaProvider` — Grafana integration state
 - `NavigationProvider` — sidebar navigation
 - `TourProvider` — onboarding tour
-- `ThemeContextProvider` — theme from `@percona/percona-ui`
 
 ## API Layer
 
@@ -97,7 +96,7 @@ API calls are organized in `src/api/` using axios. Each API module provides type
 - **Storybook (component catalog):** https://percona.github.io/percona-ui
 - **Source & theme options:** https://github.com/percona/percona-ui
 
-The app is wrapped in `ThemeContextProvider` (see `Providers.tsx`); style with the theme-aware `sx` prop rather than ad-hoc CSS.
+The app is wrapped in `ThemeContextProvider` (see `App.tsx`); style with the theme-aware `sx` prop rather than ad-hoc CSS.
 
 ## Patterns and Conventions
 
