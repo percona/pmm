@@ -832,8 +832,10 @@ type MongoDBExporter struct {
 	EnvironmentVariableNames []string `protobuf:"bytes,29,rep,name=environment_variable_names,json=environmentVariableNames,proto3" json:"environment_variable_names,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,30,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms bool `protobuf:"varint,31,opt,name=enable_diagnostic_data_histograms,json=enableDiagnosticDataHistograms,proto3" json:"enable_diagnostic_data_histograms,omitempty"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
 }
 
 func (x *MongoDBExporter) Reset() {
@@ -1011,6 +1013,13 @@ func (x *MongoDBExporter) GetConnectionTimeout() *durationpb.Duration {
 		return x.ConnectionTimeout
 	}
 	return nil
+}
+
+func (x *MongoDBExporter) GetEnableDiagnosticDataHistograms() bool {
+	if x != nil {
+		return x.EnableDiagnosticDataHistograms
+	}
+	return false
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -6116,8 +6125,10 @@ type AddMongoDBExporterParams struct {
 	EnableAllCollectors bool `protobuf:"varint,22,opt,name=enable_all_collectors,json=enableAllCollectors,proto3" json:"enable_all_collectors,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,23,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms bool `protobuf:"varint,24,opt,name=enable_diagnostic_data_histograms,json=enableDiagnosticDataHistograms,proto3" json:"enable_diagnostic_data_histograms,omitempty"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
 }
 
 func (x *AddMongoDBExporterParams) Reset() {
@@ -6311,6 +6322,13 @@ func (x *AddMongoDBExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+func (x *AddMongoDBExporterParams) GetEnableDiagnosticDataHistograms() bool {
+	if x != nil {
+		return x.EnableDiagnosticDataHistograms
+	}
+	return false
+}
+
 type ChangeMongoDBExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -6357,8 +6375,10 @@ type ChangeMongoDBExporterParams struct {
 	ExposeExporter *bool `protobuf:"varint,21,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,22,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms *bool `protobuf:"varint,23,opt,name=enable_diagnostic_data_histograms,json=enableDiagnosticDataHistograms,proto3,oneof" json:"enable_diagnostic_data_histograms,omitempty"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
 }
 
 func (x *ChangeMongoDBExporterParams) Reset() {
@@ -6543,6 +6563,13 @@ func (x *ChangeMongoDBExporterParams) GetConnectionTimeout() *durationpb.Duratio
 		return x.ConnectionTimeout
 	}
 	return nil
+}
+
+func (x *ChangeMongoDBExporterParams) GetEnableDiagnosticDataHistograms() bool {
+	if x != nil && x.EnableDiagnosticDataHistograms != nil {
+		return *x.EnableDiagnosticDataHistograms
+	}
+	return false
 }
 
 type AddPostgresExporterParams struct {
@@ -11087,7 +11114,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa0\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xeb\b\n" +
 	"\x0fMongoDBExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11113,7 +11140,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0fexpose_exporter\x18\x1b \x01(\bR\x0eexposeExporter\x12K\n" +
 	"\x13metrics_resolutions\x18\x1c \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12<\n" +
 	"\x1aenvironment_variable_names\x18\x1d \x03(\tR\x18environmentVariableNames\x12H\n" +
-	"\x12connection_timeout\x18\x1e \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x1e \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x12I\n" +
+	"!enable_diagnostic_data_histograms\x18\x1f \x01(\bR\x1eenableDiagnosticDataHistograms\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc2\a\n" +
@@ -11664,7 +11692,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0f_agent_passwordB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\xcd\t\n" +
+	"\x10_expose_exporter\"\x98\n" +
+	"\n" +
 	"\x18AddMongoDBExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11691,10 +11720,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0fexpose_exporter\x18\x14 \x01(\bR\x0eexposeExporter\x12<\n" +
 	"\x1aenvironment_variable_names\x18\x15 \x03(\tR\x18environmentVariableNames\x122\n" +
 	"\x15enable_all_collectors\x18\x16 \x01(\bR\x13enableAllCollectors\x12R\n" +
-	"\x12connection_timeout\x18\x17 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x17 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12I\n" +
+	"!enable_diagnostic_data_histograms\x18\x18 \x01(\bR\x1eenableDiagnosticDataHistograms\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8f\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x85\r\n" +
 	"\x1bChangeMongoDBExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11719,7 +11749,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15enable_all_collectors\x18\x13 \x01(\bH\x0fR\x13enableAllCollectors\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x14 \x01(\x0e2\x16.inventory.v1.LogLevelH\x10R\blogLevel\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x15 \x01(\bH\x11R\x0eexposeExporter\x88\x01\x01\x12R\n" +
-	"\x12connection_timeout\x18\x16 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeoutB\t\n" +
+	"\x12connection_timeout\x18\x16 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12N\n" +
+	"!enable_diagnostic_data_histograms\x18\x17 \x01(\bH\x12R\x1eenableDiagnosticDataHistograms\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11738,7 +11769,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16_enable_all_collectorsB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\xbc\a\n" +
+	"\x10_expose_exporterB$\n" +
+	"\"_enable_diagnostic_data_histograms\"\xbc\a\n" +
 	"\x19AddPostgresExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
