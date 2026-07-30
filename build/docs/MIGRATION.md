@@ -45,7 +45,7 @@ We suggest to keep the old data for some time in case you need to roll PMM Serve
 ## Migration steps for individual components
 The following sections describe the migration steps for individual components. They are meant to be used as a reference for the migration process so that the user can understand what is happening during the migration. 
 
-### Migration steps for PostgreSQL
+### Migration steps for PostgreSQL (v11 to v14)
 
 1. Stop the following processes:
     - pmm-agent (will stop all exporters)
@@ -62,9 +62,9 @@ The following sections describe the migration steps for individual components. T
   unset PGPASSWORD
 ```
 
-3. Move the database directory to /srv/backup/posgres14
+3. Move the database directory to /srv/backup/postgres14
 ```
-  mv /srv/posgres14 /srv/backup/
+  mv /srv/postgres14 /srv/backup/
 ```
 
 4. Recreate the following files or directories setting the ownership to `pmm` user:
@@ -85,7 +85,7 @@ Remember to pass the data volume to the instance so it can bootstrap the databas
 ```
   # Read the postgres password from the secure file
   PGPASSWORD=$(cat /srv/.postgres_password)
-  PGPASSWORD="$PGPASSWORD" /usr/pgsql-14/bin/pg_restore --host=/run/postgresql --username=postgres --file=/srv/backup/postgres.sql -S postgres
+  PGPASSWORD="$PGPASSWORD" /usr/pgsql-14/bin/pg_restore --host=/run/postgresql --username=postgres --file=/srv/backup/pmm-managed.sql -S postgres
   PGPASSWORD="$PGPASSWORD" /usr/pgsql-14/bin/pg_restore --host=/run/postgresql --username=postgres --file=/srv/backup/grafana.sql -S postgres
   unset PGPASSWORD
 ```
@@ -95,6 +95,65 @@ Remember to pass the data volume to the instance so it can bootstrap the databas
     - grafana
     - pmm-managed
     - pmm-agent
+
+### Migration steps for PostgreSQL (v14 to v18)
+
+Unlike the sections above, this one describes an upgrade between PMM v3 releases. Earlier PMM v3 releases used PostgreSQL 14 for the embedded database, while newer ones use PostgreSQL 18. Since the on-disk format is not compatible between major PostgreSQL releases, the data directory cannot simply be reused.
+
+The upgrade is performed automatically on the first start of a PMM Server that ships PostgreSQL 18, so no manual intervention is required. It is driven by `build/docker/server/entrypoint.sh`, which runs `build/ansible/roles/postgres/files/postgres-migration` before supervisord starts. The steps below document what that script does.
+
+The upgrade runs only when `/srv/postgres14` exists and `/srv/postgres18` does not, which makes it a one-time operation. It is skipped entirely when the embedded PostgreSQL is not in use, i.e. when `PMM_HA_ENABLE` or `PMM_DISABLE_BUILTIN_POSTGRES` is enabled. In those cases the external database has to be upgraded by its owner.
+
+Both the PostgreSQL 14 and 18 binaries are shipped in the image, so the upgrade is a logical dump and restore rather than an in-place `pg_upgrade`. This also means the upgrade path is only available as long as the PostgreSQL 14 binaries remain in the image; upgrading from an older PMM v3 release after they are dropped requires an intermediate upgrade. Make sure the volume holding `/srv` has enough free space for a plain-text dump of both databases plus a second data directory.
+
+1. Dump the databases from PostgreSQL 14
+The old server is started on the socket in `/run/postgresql`, and each database is dumped to `/srv/backup`:
+```
+  PGPASSWORD=$(cat /srv/.postgres_password)
+  export PGPASSWORD
+  /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off" -w
+  /usr/pgsql-14/bin/pg_dump -h /run/postgresql -U postgres -F p -f /srv/backup/pg18-upgrade-pmm-managed.sql pmm-managed
+  /usr/pgsql-14/bin/pg_dump -h /run/postgresql -U postgres -F p -f /srv/backup/pg18-upgrade-grafana.sql grafana
+  /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14 -w
+  unset PGPASSWORD
+```
+
+The `grafana` database is skipped when `GF_DATABASE_URL` or `GF_DATABASE_HOST` is set, because Grafana then keeps its data in an external database.
+
+2. Initialize the PostgreSQL 18 data directory
+The new cluster is created with the same authentication settings as a fresh installation, reusing the existing superuser password:
+```
+  install -d -m 750 /srv/postgres18
+  /usr/pgsql-18/bin/initdb -D /srv/postgres18 --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile=/srv/.postgres_password
+```
+
+3. Recreate the roles and databases, then restore the dumps
+The dumps contain no role definitions, so `pmm-managed` and `grafana` are recreated as the owners of their databases. Each of them is also granted `CREATE` on the `public` schema, which PostgreSQL 15 and later no longer grant by default:
+```
+  /usr/pgsql-18/bin/pg_ctl start -D /srv/postgres18 -o "-c logging_collector=off" -w
+  PGPASSWORD=$(cat /srv/.postgres_password)
+  export PGPASSWORD
+  /usr/pgsql-18/bin/psql -h /run/postgresql -U postgres -d postgres -c "CREATE ROLE \"pmm-managed\" LOGIN PASSWORD 'pmm-managed'"
+  /usr/pgsql-18/bin/psql -h /run/postgresql -U postgres -d postgres -c "CREATE DATABASE \"pmm-managed\" OWNER \"pmm-managed\""
+  /usr/pgsql-18/bin/psql -h /run/postgresql -U postgres -d pmm-managed -c "GRANT CREATE ON SCHEMA public TO \"pmm-managed\""
+  /usr/pgsql-18/bin/psql -h /run/postgresql -U postgres -d pmm-managed -f /srv/backup/pg18-upgrade-pmm-managed.sql
+  unset PGPASSWORD
+```
+
+The same is done for `grafana` when its dump was taken in step 1.
+
+4. Recreate the pg_stat_statements extension
+The extension is registered per database, so it has to be created again in the new cluster:
+```
+  /usr/pgsql-18/bin/psql -h /run/postgresql -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public"
+  /usr/pgsql-18/bin/pg_ctl stop -D /srv/postgres18 -w
+```
+
+5. Keep the old data directory for rollback
+`/srv/postgres14` is renamed to `/srv/postgres14.old` rather than removed. The rename also prevents the upgrade from running a second time. To roll back, shut PMM Server down, remove `/srv/postgres18`, rename `/srv/postgres14.old` back to `/srv/postgres14` and start the previous PMM Server image. Once the upgrade is confirmed to be successful, `/srv/postgres14.old` and the dumps in `/srv/backup` can be removed to reclaim disk space.
+
+6. Start the processes
+Supervisord starts the new server as `/usr/pgsql-18/bin/postgres -D /srv/postgres18` and writes its log to `/srv/logs/postgresql18.log`. The remaining processes (grafana, pmm-managed, pmm-agent) are started as usual, and pmm-managed applies its schema migrations on the restored database.
 
 ### Migration steps for ClickHouse
 
