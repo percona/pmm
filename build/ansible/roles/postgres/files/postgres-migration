@@ -4,6 +4,7 @@ set -o pipefail
 
 declare POSTGRES_DATA_DIR="${POSTGRES_DATA_DIR:-/srv/postgres18}"
 declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:-/srv/.postgres_password}"
+declare PG_BIN="/usr/pgsql-18/bin"
 
 # ── pg14 → pg18 upgrade ───────────────────────────────────────────────────────
 # Runs once when /srv/postgres14 exists and /srv/postgres18 does not.
@@ -11,7 +12,6 @@ declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:-/srv/.postgres_passwor
 upgrade_pg14_to_pg18() {
     local PG14_DATA="/srv/postgres14"
     local PG14_BIN="/usr/pgsql-14/bin"
-    local PG18_BIN="/usr/pgsql-18/bin"
     local BACKUP_DIR="/srv/backup"
 
     if [ ! -d "$PG14_DATA" ] || [ -d "$POSTGRES_DATA_DIR" ]; then
@@ -34,7 +34,7 @@ upgrade_pg14_to_pg18() {
     "$PG14_BIN/pg_dump" -h /run/postgresql -U postgres -F p \
         -f "${BACKUP_DIR}/pg18-upgrade-pmm-managed.sql" pmm-managed
 
-    # Skip grafana dump when an external database is configured (HA mode).
+    # Skip the grafana dump when Grafana is configured to use an external database.
     if [ -z "${GF_DATABASE_URL}" ] && [ -z "${GF_DATABASE_HOST}" ]; then
         echo "Dumping grafana database..."
         "$PG14_BIN/pg_dump" -h /run/postgresql -U postgres -F p \
@@ -44,12 +44,10 @@ upgrade_pg14_to_pg18() {
     echo "Stopping PostgreSQL 14..."
     "$PG14_BIN/pg_ctl" stop -D "$PG14_DATA" -w
 
-    unset PGPASSWORD
-
     # Initialise pg18
     echo "Initialising PostgreSQL 18 at $POSTGRES_DATA_DIR..."
     install -d -m 750 "$POSTGRES_DATA_DIR"
-    "$PG18_BIN/initdb" -D "$POSTGRES_DATA_DIR" \
+    "$PG_BIN/initdb" -D "$POSTGRES_DATA_DIR" \
         --auth-host=scram-sha-256 \
         --auth-local=trust \
         --username=postgres \
@@ -57,41 +55,32 @@ upgrade_pg14_to_pg18() {
 
     # Start pg18 and restore
     echo "Starting PostgreSQL 18..."
-    "$PG18_BIN/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off" -w
+    "$PG_BIN/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off" -w
 
-    PGPASSWORD=$(cat "$POSTGRES_PASSWORD_FILE")
-    export PGPASSWORD
-
-    echo "Creating pmm-managed role and database..."
-    "$PG18_BIN/psql" -h /run/postgresql -U postgres -d postgres \
-        -c "CREATE ROLE \"pmm-managed\" LOGIN PASSWORD 'pmm-managed'"
-    "$PG18_BIN/psql" -h /run/postgresql -U postgres -d postgres \
-        -c "CREATE DATABASE \"pmm-managed\" OWNER \"pmm-managed\""
-    "$PG18_BIN/psql" -h /run/postgresql -U postgres -d pmm-managed \
-        -c "GRANT CREATE ON SCHEMA public TO \"pmm-managed\""
-    echo "Restoring pmm-managed database..."
-    "$PG18_BIN/psql" -h /run/postgresql -U postgres -d pmm-managed \
-        -f "${BACKUP_DIR}/pg18-upgrade-pmm-managed.sql"
-
-    if [ -f "${BACKUP_DIR}/pg18-upgrade-grafana.sql" ]; then
-        echo "Creating grafana role and database..."
-        "$PG18_BIN/psql" -h /run/postgresql -U postgres -d postgres \
-            -c "CREATE ROLE grafana LOGIN PASSWORD 'grafana'"
-        "$PG18_BIN/psql" -h /run/postgresql -U postgres -d postgres \
-            -c "CREATE DATABASE grafana OWNER grafana"
-        "$PG18_BIN/psql" -h /run/postgresql -U postgres -d grafana \
-            -c "GRANT CREATE ON SCHEMA public TO grafana"
-        echo "Restoring grafana database..."
-        "$PG18_BIN/psql" -h /run/postgresql -U postgres -d grafana \
-            -f "${BACKUP_DIR}/pg18-upgrade-grafana.sql"
-    fi
+    # Each role owns its database: since PostgreSQL 15 the public schema belongs to
+    # pg_database_owner, so ownership is what lets the role create tables in it.
+    # Both roles use their own name as the password, same as the ansible tasks that
+    # provision them on a fresh installation.
+    local db dump
+    for db in pmm-managed grafana; do
+        dump="${BACKUP_DIR}/pg18-upgrade-${db}.sql"
+        if [ ! -f "$dump" ]; then
+            continue
+        fi
+        echo "Creating $db role and database..."
+        "$PG_BIN/psql" -h /run/postgresql -U postgres -d postgres \
+            -c "CREATE ROLE \"$db\" LOGIN PASSWORD '$db'" \
+            -c "CREATE DATABASE \"$db\" OWNER \"$db\""
+        echo "Restoring $db database..."
+        "$PG_BIN/psql" -h /run/postgresql -U postgres -d "$db" -f "$dump"
+    done
 
     echo "Ensuring pg_stat_statements extension..."
-    "$PG18_BIN/psql" -h /run/postgresql -U postgres -d postgres \
+    "$PG_BIN/psql" -h /run/postgresql -U postgres -d postgres \
         -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public"
 
     echo "Stopping PostgreSQL 18..."
-    "$PG18_BIN/pg_ctl" stop -D "$POSTGRES_DATA_DIR" -w
+    "$PG_BIN/pg_ctl" stop -D "$POSTGRES_DATA_DIR" -w
 
     unset PGPASSWORD
 
@@ -116,8 +105,8 @@ ensure_postgres_password() {
     echo "Generating postgres superuser password..."
     POSTGRES_PASSWORD=$(openssl rand -hex 16)
 
-    if ! /usr/pgsql-18/bin/pg_ctl status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
-        /usr/pgsql-18/bin/pg_ctl start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
+    if ! "$PG_BIN/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
+        "$PG_BIN/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
         STARTED=1
     fi
 
@@ -128,7 +117,7 @@ ensure_postgres_password() {
     chmod 600 "$POSTGRES_PASSWORD_FILE"
 
     if [ "$STARTED" -eq 1 ]; then
-        /usr/pgsql-18/bin/pg_ctl stop -D "$POSTGRES_DATA_DIR"
+        "$PG_BIN/pg_ctl" stop -D "$POSTGRES_DATA_DIR"
     fi
 }
 
@@ -149,8 +138,8 @@ update_pg_hba_auth() {
     sed -E 's/^([[:space:]]*host[[:space:]].*[[:space:]])trust([[:space:]]*)$/\1scram-sha-256\2/' "$hba" > "$tmp"
     mv "$tmp" "$hba"
 
-    if /usr/pgsql-18/bin/pg_ctl status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
-        /usr/pgsql-18/bin/pg_ctl reload -D "$POSTGRES_DATA_DIR"
+    if "$PG_BIN/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
+        "$PG_BIN/pg_ctl" reload -D "$POSTGRES_DATA_DIR"
     fi
 }
 

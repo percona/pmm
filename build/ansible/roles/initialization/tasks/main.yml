@@ -61,34 +61,24 @@
 
   - name: Create Grafana DB
     block:
-      - name: Create grafana database in postgres
-        postgresql_db:
-          name: grafana
-          login_user: postgres
-          state: present
-        environment:
-          PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
-
       - name: Create grafana user in postgres
         postgresql_user:
-          db: grafana
           name: grafana
           password: grafana
-          priv: 'ALL'
           expires: infinity
           login_user: postgres
           state: present
         environment:
           PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
-      - name: Grant CREATE on public schema to grafana user
-        postgresql_privs:
-          database: grafana
-          privs: CREATE
-          type: schema
-          objs: public
-          roles: grafana
+      # Since PostgreSQL 15 the public schema belongs to pg_database_owner, so owning the
+      # database is what lets the user create tables in it.
+      - name: Create grafana database in postgres
+        postgresql_db:
+          name: grafana
+          owner: grafana
           login_user: postgres
+          state: present
         environment:
           PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
     when:

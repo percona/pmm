@@ -115,7 +115,6 @@ The old server is started on the socket in `/run/postgresql`, and each database 
   /usr/pgsql-14/bin/pg_dump -h /run/postgresql -U postgres -F p -f /srv/backup/pg18-upgrade-pmm-managed.sql pmm-managed
   /usr/pgsql-14/bin/pg_dump -h /run/postgresql -U postgres -F p -f /srv/backup/pg18-upgrade-grafana.sql grafana
   /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14 -w
-  unset PGPASSWORD
 ```
 
 The `grafana` database is skipped when `GF_DATABASE_URL` or `GF_DATABASE_HOST` is set, because Grafana then keeps its data in an external database.
@@ -128,25 +127,21 @@ The new cluster is created with the same authentication settings as a fresh inst
 ```
 
 3. Recreate the roles and databases, then restore the dumps
-The dumps contain no role definitions, so `pmm-managed` and `grafana` are recreated as the owners of their databases. Each of them is also granted `CREATE` on the `public` schema, which PostgreSQL 15 and later no longer grant by default:
+The dumps contain no role definitions, so each role is recreated and made the owner of its database. Ownership is what matters here: since PostgreSQL 15 the `public` schema belongs to `pg_database_owner`, so the owner can create tables in it while a plain `GRANT ALL PRIVILEGES ON DATABASE` cannot. This is done for every database dumped in step 1:
 ```
   /usr/pgsql-18/bin/pg_ctl start -D /srv/postgres18 -o "-c logging_collector=off" -w
-  PGPASSWORD=$(cat /srv/.postgres_password)
-  export PGPASSWORD
-  /usr/pgsql-18/bin/psql -h /run/postgresql -U postgres -d postgres -c "CREATE ROLE \"pmm-managed\" LOGIN PASSWORD 'pmm-managed'"
-  /usr/pgsql-18/bin/psql -h /run/postgresql -U postgres -d postgres -c "CREATE DATABASE \"pmm-managed\" OWNER \"pmm-managed\""
-  /usr/pgsql-18/bin/psql -h /run/postgresql -U postgres -d pmm-managed -c "GRANT CREATE ON SCHEMA public TO \"pmm-managed\""
+  /usr/pgsql-18/bin/psql -h /run/postgresql -U postgres -d postgres \
+      -c "CREATE ROLE \"pmm-managed\" LOGIN PASSWORD 'pmm-managed'" \
+      -c "CREATE DATABASE \"pmm-managed\" OWNER \"pmm-managed\""
   /usr/pgsql-18/bin/psql -h /run/postgresql -U postgres -d pmm-managed -f /srv/backup/pg18-upgrade-pmm-managed.sql
-  unset PGPASSWORD
 ```
-
-The same is done for `grafana` when its dump was taken in step 1.
 
 4. Recreate the pg_stat_statements extension
 The extension is registered per database, so it has to be created again in the new cluster:
 ```
   /usr/pgsql-18/bin/psql -h /run/postgresql -U postgres -d postgres -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public"
   /usr/pgsql-18/bin/pg_ctl stop -D /srv/postgres18 -w
+  unset PGPASSWORD
 ```
 
 5. Keep the old data directory for rollback

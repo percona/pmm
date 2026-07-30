@@ -81,32 +81,22 @@
   environment:
     PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
-- name: Create pmm-managed database
-  postgresql_db:
-    name: pmm-managed
-    state: present
-  environment:
-    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
-
 - name: Create pmm-managed user
   postgresql_user:
-    db: pmm-managed
     name: pmm-managed
     password: pmm-managed
-    priv: "ALL"
     expires: infinity
     state: present
   environment:
     PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
-- name: Grant CREATE on public schema to pmm-managed user
-  postgresql_privs:
-    database: pmm-managed
-    privs: CREATE
-    type: schema
-    objs: public
-    roles: pmm-managed
-    login_user: postgres
+# Since PostgreSQL 15 the public schema belongs to pg_database_owner, so owning the
+# database is what lets the user create tables in it.
+- name: Create pmm-managed database
+  postgresql_db:
+    name: pmm-managed
+    owner: pmm-managed
+    state: present
   environment:
     PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
@@ -118,32 +108,20 @@
   environment:
     PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
-- name: Create grafana database in postgres
-  postgresql_db:
-    name: grafana
-    state: present
-  environment:
-    PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
-
 - name: Create grafana user in postgres
   postgresql_user:
-    db: grafana
     name: grafana
     password: grafana
-    priv: 'ALL'
     expires: infinity
     state: present
   environment:
     PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
-- name: Grant CREATE on public schema to grafana user
-  postgresql_privs:
-    database: grafana
-    privs: CREATE
-    type: schema
-    objs: public
-    roles: grafana
-    login_user: postgres
+- name: Create grafana database in postgres
+  postgresql_db:
+    name: grafana
+    owner: grafana
+    state: present
   environment:
     PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 

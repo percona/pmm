@@ -1281,7 +1281,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		if params.HANodeID != "" {
 			return nil, fmt.Errorf("cannot auto-provision database in HA mode: %w", errCV)
 		}
-		err := initWithRoot(params)
+		err := initWithRoot(ctx, params)
 		if err != nil {
 			return nil, err
 		}
@@ -1292,53 +1292,12 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	err := ensureSchemaGrant(params)
-	if err != nil {
-		return nil, err
-	}
-
-	err = migrateDB(db, params)
+	err := migrateDB(db, params)
 	if err != nil {
 		return nil, err
 	}
 
 	return db, nil
-}
-
-// ensureSchemaGrant grants CREATE on the public schema to the database user.
-// PostgreSQL 15+ revoked the default CREATE privilege on the public schema from PUBLIC,
-// so it must be granted explicitly before migrations can create tables.
-// Skipped for HA mode and when the embedded postgres password file is absent (external PostgreSQL).
-func ensureSchemaGrant(params SetupDBParams) error {
-	if params.HANodeID != "" {
-		return nil
-	}
-
-	if params.Logf != nil {
-		params.Logf("Ensuring CREATE privilege on schema public for %s", params.Username)
-	}
-
-	passwordFile := "/srv/.postgres_password" //nolint:gosec
-	passwordBytes, err := os.ReadFile(passwordFile)
-	if err != nil {
-		if os.IsNotExist(err) {
-			// No password file means external PostgreSQL — skip.
-			return nil
-		}
-		return fmt.Errorf("failed to read postgres password from %s: %w", passwordFile, err)
-	}
-
-	db, err := OpenDB(SetupDBParams{Address: params.Address, Name: params.Name, Username: "postgres", Password: string(passwordBytes)})
-	if err != nil {
-		return fmt.Errorf("failed to open the database: %w", err)
-	}
-	defer db.Close() //nolint:errcheck
-
-	_, err = db.Exec(fmt.Sprintf(`GRANT CREATE ON SCHEMA public TO "%s"`, params.Username))
-	if err != nil {
-		return fmt.Errorf("failed to grant CREATE on schema public to %s: %w", params.Username, err)
-	}
-	return nil
 }
 
 // EncryptDB encrypts a set of columns in a specific database and table.
@@ -1426,7 +1385,7 @@ func checkVersion(ctx context.Context, db reform.DBTXContext) error {
 }
 
 // initWithRoot tries to create the user and the database.
-func initWithRoot(params SetupDBParams) error {
+func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	if params.Logf != nil {
 		params.Logf("Creating database %s and role %s", params.Name, params.Username)
 	}
@@ -1445,43 +1404,40 @@ func initWithRoot(params SetupDBParams) error {
 	}
 	defer db.Close() //nolint:errcheck
 
-	var countDatabases int
-	err = db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
-	if err != nil {
-		return fmt.Errorf("failed to select records from the database: %w", err)
-	}
-
-	if countDatabases == 0 {
-		_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, params.Name))
-		if err != nil {
-			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
-		}
-	}
-
 	var countRoles int
-	err = db.QueryRow(`SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&countRoles)
+	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&countRoles)
 	if err != nil {
 		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
 	if countRoles == 0 {
-		_, err = db.Exec(fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
 		if err != nil {
 			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
-		}
-
-		_, err = db.Exec(fmt.Sprintf(`GRANT ALL PRIVILEGES ON DATABASE "%s" TO "%s"`, params.Name, params.Username))
-		if err != nil {
-			return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
 		}
 	} else {
 		// Role exists but authentication failed (e.g. pg_hba.conf switched from trust to
 		// scram-sha-256 during an upgrade, leaving the role with no usable password hash).
 		// initWithRoot is only ever called after a 28000/28P01 auth error, so resetting the
 		// password to the currently configured value is OK.
-		_, err = db.Exec(fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
 		if err != nil {
 			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
+		}
+	}
+
+	var countDatabases int
+	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
+	if err != nil {
+		return fmt.Errorf("failed to select records from the database: %w", err)
+	}
+
+	if countDatabases == 0 {
+		// The role owns the database: since PostgreSQL 15 the public schema belongs to
+		// pg_database_owner, so ownership is what lets the role create tables in it.
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE DATABASE "%s" OWNER "%s"`, params.Name, params.Username))
+		if err != nil {
+			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
 		}
 	}
 
