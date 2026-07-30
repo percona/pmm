@@ -1412,8 +1412,13 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
+	// CREATE USER, ALTER USER and CREATE DATABASE accept no bind parameters, so the name and
+	// the password are quoted instead. Interpolating them raw lets either one close its quote
+	// and append further statements, which run as the postgres superuser.
+	quotedUser := pq.QuoteIdentifier(params.Username)
+
 	if roleCount == 0 {
-		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE USER %s LOGIN PASSWORD %s`, quotedUser, pq.QuoteLiteral(params.Password)))
 		if err != nil {
 			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
 		}
@@ -1422,7 +1427,7 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 		// scram-sha-256 during an upgrade, leaving the role with no usable password hash).
 		// initWithRoot is only ever called after a 28000/28P01 auth error, so resetting the
 		// password to the currently configured value is OK.
-		_, err = db.ExecContext(ctx, fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`ALTER USER %s WITH PASSWORD %s`, quotedUser, pq.QuoteLiteral(params.Password)))
 		if err != nil {
 			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
 		}
@@ -1437,7 +1442,7 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	if dbCount == 0 {
 		// The role owns the database: since PostgreSQL 15 the public schema belongs to
 		// pg_database_owner, so ownership is what lets the role create tables in it.
-		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE DATABASE "%s" OWNER "%s"`, params.Name, params.Username))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE DATABASE %s OWNER %s`, pq.QuoteIdentifier(params.Name), quotedUser))
 		if err != nil {
 			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
 		}
