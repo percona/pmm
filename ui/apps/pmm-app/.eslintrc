@@ -1,5 +1,5 @@
 {
-  "extends": ["./.config/.eslintrc", "plugin:react/recommended", "airbnb"],
+  "extends": ["./.config/.eslintrc", "plugin:react/recommended", "airbnb", "prettier", "prettier/react"],
   "env": {
     "jest/globals": true,
     "browser": true
@@ -41,7 +41,7 @@
     "react/display-name": ["off"],
     "max-len": ["error", { "code": 110, "ignoreStrings": true, "ignoreRegExpLiterals": true }],
     "prettier/prettier": ["off"],
-    "quotes": ["error", "single"],
+    "quotes": ["error", "single", { "avoidEscape": true }],
     "import/extensions": ["off"],
     "import/no-extraneous-dependencies": [
       "error",
