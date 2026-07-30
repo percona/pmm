@@ -9,6 +9,7 @@ interface ModalWindow {
   closeOnEscape?: boolean;
   isVisible: boolean;
   title: ReactNode | string;
+  children?: ReactNode;
 }
 
 export const Modal: FC<ModalWindow> = (props) => {
