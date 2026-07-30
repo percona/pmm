@@ -8,29 +8,20 @@ import {
 
 describe('processPromiseResults::', () => {
   it('should return array of fulfilled promise results', async () => {
-    const requests = [
-      Promise.resolve(),
-      Promise.resolve(),
-    ];
+    const requests = [Promise.resolve(), Promise.resolve()];
     const results = await processPromiseResults(requests);
 
     expect(results.map(filterFulfilled).length).toBe(2);
   });
   it('should return one fulfilled promise and two rejected', async () => {
-    const requests = [
-      Promise.reject(),
-      Promise.resolve(),
-      Promise.reject(),
-    ];
+    const requests = [Promise.reject(), Promise.resolve(), Promise.reject()];
     const results = await processPromiseResults(requests);
 
     expect(results.filter(filterFulfilled).length).toBe(1);
     expect(results.filter(filterRejected).length).toBe(2);
   });
   it('should return one fulfilled promise with value', async () => {
-    const requests = [
-      Promise.resolve('done'),
-    ];
+    const requests = [Promise.resolve('done')];
     const results = await processPromiseResults(requests);
     const fulfilled = results.filter(filterFulfilled);
 
@@ -40,10 +31,7 @@ describe('processPromiseResults::', () => {
   it('should return two rejected promises with value', async () => {
     const error1 = new Error('rejected 1');
     const error2 = new Error('rejected 2');
-    const requests = [
-      Promise.reject(error1),
-      Promise.reject(error2),
-    ];
+    const requests = [Promise.reject(error1), Promise.reject(error2)];
     const results = await processPromiseResults(requests);
     const rejected = results.filter(filterRejected) as RejectedPromiseResult[];
 

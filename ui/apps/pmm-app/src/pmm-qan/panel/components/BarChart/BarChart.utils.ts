@@ -2,9 +2,13 @@ import { ChartOptions } from 'chart.js';
 import { GetDefaultOptionsProps } from './BarChart.types';
 
 export const getDefaultOptions = ({
-  options, orientation, barWidth, showLegend, theme,
+  options,
+  orientation,
+  barWidth,
+  showLegend,
+  theme,
 }: GetDefaultOptionsProps): ChartOptions<'bar'> => {
-  const indexAxis: 'x'|'y'| undefined = orientation && orientation === 'horizontal' ? 'y' : 'x';
+  const indexAxis: 'x' | 'y' | undefined = orientation && orientation === 'horizontal' ? 'y' : 'x';
 
   const defaultOptions = {
     indexAxis,
@@ -67,8 +71,10 @@ export const getDefaultOptions = ({
     },
   };
 
-  return options ? {
-    ...defaultOptions,
-    ...options,
-  } : defaultOptions;
+  return options
+    ? {
+        ...defaultOptions,
+        ...options,
+      }
+    : defaultOptions;
 };

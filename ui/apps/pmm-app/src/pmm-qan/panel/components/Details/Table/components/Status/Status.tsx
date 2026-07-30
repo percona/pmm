@@ -5,9 +5,7 @@ import { Messages } from '../../../Details.messages';
 import { TableProps } from '../Table.types';
 import { useTableStatus } from './Status.hooks';
 
-export const Status: FC<TableProps> = ({
-  tableName, databaseType, example, database,
-}) => {
+export const Status: FC<TableProps> = ({ tableName, databaseType, example, database }) => {
   const [data, status] = useTableStatus(databaseType, example, tableName, database);
 
   return (

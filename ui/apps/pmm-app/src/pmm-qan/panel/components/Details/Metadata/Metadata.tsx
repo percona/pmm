@@ -41,11 +41,7 @@ const Metadata = ({ metadata, loading }) => {
         isOpen={metadataOpen}
         onToggle={() => setMetadataOpen((open) => !open)}
       >
-        <Table
-          columns={columns}
-          data={metadata}
-          loading={loading}
-        />
+        <Table columns={columns} data={metadata} loading={loading} />
       </Collapse>
     </Overlay>
   );

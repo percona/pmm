@@ -28,9 +28,10 @@ export const RadioButtonGroup: FC<RadioButtonGroupProps> = ({
 }) => {
   const theme = useTheme();
   const styles = getStyles(theme);
-  const isActive = useCallback((key: string) => (
-    selected ? key === selected : key === value
-  ), [selected, value]);
+  const isActive = useCallback(
+    (key: string) => (selected ? key === selected : key === value),
+    [selected, value],
+  );
 
   return (
     <div className={cx(styles.radioButtonGroup, className)} data-testid={dataTestId}>

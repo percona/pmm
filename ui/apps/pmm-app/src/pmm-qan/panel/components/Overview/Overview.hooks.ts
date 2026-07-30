@@ -7,9 +7,7 @@ import { getDefaultColumns } from './components/DefaultColumns/DefaultColumns';
 
 export const useOverviewTable = (setTotal): [DataInterface, boolean] => {
   const {
-    panelState: {
-      labels, columns, pageNumber, pageSize, orderBy, from, to, groupBy, dimensionSearchText,
-    },
+    panelState: { labels, columns, pageNumber, pageSize, orderBy, from, to, groupBy, dimensionSearchText },
   } = useContext(QueryAnalyticsProvider);
   const [data, setData] = useState<DataInterface>({ rows: [], columns: [] });
   const [loading, setLoading] = useState(false);
@@ -35,7 +33,9 @@ export const useOverviewTable = (setTotal): [DataInterface, boolean] => {
 
         const mainMetric = columns[0];
         // eslint-disable-next-line max-len
-        const metricsColumns = columns.map((key, index) => getOverviewColumn(key, index, result.rows[0], orderBy, mainMetric));
+        const metricsColumns = columns.map((key, index) =>
+          getOverviewColumn(key, index, result.rows[0], orderBy, mainMetric),
+        );
 
         const allColumns = [...defaultColumns, ...metricsColumns];
 

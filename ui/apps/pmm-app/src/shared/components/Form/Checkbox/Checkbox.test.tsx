@@ -5,7 +5,9 @@ import { CheckboxField } from './Checkbox';
 
 xdescribe('Checkbox field test', () => {
   it('Checkbox renders correct without props', () => {
-    const { asFragment } = render(<Form onSubmit={jest.fn()} render={() => <CheckboxField name="test_field" />} />);
+    const { asFragment } = render(
+      <Form onSubmit={jest.fn()} render={() => <CheckboxField name="test_field" />} />,
+    );
 
     const firstRender = asFragment();
 

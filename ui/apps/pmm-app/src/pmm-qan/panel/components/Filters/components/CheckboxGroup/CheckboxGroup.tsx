@@ -7,17 +7,15 @@ import { RawTimeRange } from '@grafana/data';
 import { getStyles } from './CheckboxGroup.styles';
 import { CheckboxGroupProps } from './CheckboxGroup.types';
 
-export const CheckboxGroup: FC<CheckboxGroupProps> = (
-  {
-    name,
-    items,
-    group,
-    showAll,
-    filter: searchFilterBy,
-    getDashboardURL,
-    rawTime,
-  },
-) => {
+export const CheckboxGroup: FC<CheckboxGroupProps> = ({
+  name,
+  items,
+  group,
+  showAll,
+  filter: searchFilterBy,
+  getDashboardURL,
+  rawTime,
+}) => {
   const theme = useTheme();
   const styles = getStyles(theme);
 
@@ -32,14 +30,14 @@ export const CheckboxGroup: FC<CheckboxGroupProps> = (
   const searchFilter = (item) => {
     if (!item.value) {
       return (
-        'n/a'.includes(searchFilterBy.toLowerCase())
-        || name.toLowerCase().includes(searchFilterBy.toLowerCase())
+        'n/a'.includes(searchFilterBy.toLowerCase()) ||
+        name.toLowerCase().includes(searchFilterBy.toLowerCase())
       );
     }
 
     return (
-      item.value.toLowerCase().includes(searchFilterBy.toLowerCase())
-      || name.toLowerCase().includes(searchFilterBy.toLowerCase())
+      item.value.toLowerCase().includes(searchFilterBy.toLowerCase()) ||
+      name.toLowerCase().includes(searchFilterBy.toLowerCase())
     );
   };
 
@@ -56,10 +54,7 @@ export const CheckboxGroup: FC<CheckboxGroupProps> = (
         <span className={styles.filterHeader} data-testid="checkbox-group-header">
           {name}
         </span>
-        <span
-          className={styles.showModeSwitcher}
-          data-testid="show-top-switcher"
-        >
+        <span className={styles.showModeSwitcher} data-testid="show-top-switcher">
           {`${filteredData.filter(searchFilter).length}`}
         </span>
       </p>
@@ -83,39 +78,34 @@ export const CheckboxGroup: FC<CheckboxGroupProps> = (
 };
 
 export interface FilterCheckboxProps {
-  hidden?: boolean,
+  hidden?: boolean;
   item: any;
   rawTime: RawTimeRange;
   group: string;
   getDashboardURL?: (value: string) => string;
 }
 
-export const FilterCheckbox: FC<FilterCheckboxProps> = (
-  {
-    hidden,
-    getDashboardURL,
-    item,
-    group,
-    rawTime,
-  },
-) => {
+export const FilterCheckbox: FC<FilterCheckboxProps> = ({
+  hidden,
+  getDashboardURL,
+  item,
+  group,
+  rawTime,
+}) => {
   const theme = useTheme();
   const styles = getStyles(theme);
 
   const valueExists = item.main_metric_percent !== undefined;
-  const dashboardURL = getDashboardURL && getDashboardURL(item.value)
-    ? `${getDashboardURL(item.value)}&from=${rawTime.from}&to=${rawTime.to}`
-    : '';
+  const dashboardURL =
+    getDashboardURL && getDashboardURL(item.value)
+      ? `${getDashboardURL(item.value)}&from=${rawTime.from}&to=${rawTime.to}`
+      : '';
 
   return (
-    <div
-      hidden={hidden}
-      className={styles.label}
-      data-testid={`filter-checkbox-${item.value}`}
-    >
+    <div hidden={hidden} className={styles.label} data-testid={`filter-checkbox-${item.value}`}>
       <span className={styles.filterName}>
         <CheckboxField
-              // TODO: using '--' because final form think that it is a nested fields
+          // TODO: using '--' because final form think that it is a nested fields
           name={`${group};${item.value ? item.value.replace(/\./gi, '--') : 'na'}`}
           label={item.value || 'n/a'}
           disabled={!valueExists}

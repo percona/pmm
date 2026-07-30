@@ -1,7 +1,5 @@
 import React, { useMemo } from 'react';
-import {
-  Button, Field, Input, useStyles,
-} from '@grafana/ui';
+import { Button, Field, Input, useStyles } from '@grafana/ui';
 import { Form, Field as FinalField } from 'react-final-form';
 import validators from 'shared/components/helpers/validators';
 import { Messages } from './PlaceholdersForm.messages';

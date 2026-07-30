@@ -969,7 +969,7 @@ export const METRIC_CATALOGUE = {
   },
   tmp_table_on_disk: {
     humanizeName: 'Tmp Table on Disk',
-    tooltipText: 'The query\'s temporary table was stored on disk',
+    tooltipText: "The query's temporary table was stored on disk",
     simpleName: 'tmp_table_on_disk',
     serviceTypes: [Databases.mysql],
     metricRelation: (data) => {
@@ -1230,7 +1230,8 @@ export const METRIC_CATALOGUE = {
   },
   locks_database_acquire_wait_count_read_shared: {
     humanizeName: 'Locks Database Acquire Wait Count Read Shared',
-    tooltipText: 'Number of times a read lock at the database level was requested but had to wait before being granted',
+    tooltipText:
+      'Number of times a read lock at the database level was requested but had to wait before being granted',
     simpleName: 'locks_database_acquire_wait_count_read_shared',
     serviceTypes: [Databases.mongodb],
     metricRelation: (data) => {

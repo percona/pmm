@@ -29,20 +29,20 @@ Build (webpack) → dist/
 
 ### Key Technology Choices
 
-| Technology | Role |
-|------------|------|
-| **TypeScript** | Type-safe development |
-| **React 18** | UI framework |
-| **Webpack** | Build tooling (Grafana plugin scaffolding) |
-| **Yarn 1.x** | Package manager, hoisted from the `ui/` workspace root |
-| **SCSS / LESS** | Styling |
-| **@grafana/data, @grafana/ui, @grafana/runtime** | Grafana plugin SDK (`>=11.x.x`) |
-| **Ant Design** | Additional UI components (QAN panel) |
-| **axios** | HTTP client for QAN API calls |
-| **react-table** | Table rendering in QAN Overview |
-| **d3** | Data visualization |
-| **Jest 29** | Unit testing (`@swc/jest`, `jest-environment-jsdom`) |
-| **chokidar** | Dashboard JSON file watcher for local dev (`scripts/watch-dashboards.mjs`) |
+| Technology                                       | Role                                                                       |
+| ------------------------------------------------ | -------------------------------------------------------------------------- |
+| **TypeScript**                                   | Type-safe development                                                      |
+| **React 18**                                     | UI framework                                                               |
+| **Webpack**                                      | Build tooling (Grafana plugin scaffolding)                                 |
+| **Yarn 1.x**                                     | Package manager, hoisted from the `ui/` workspace root                     |
+| **SCSS / LESS**                                  | Styling                                                                    |
+| **@grafana/data, @grafana/ui, @grafana/runtime** | Grafana plugin SDK (`>=11.x.x`)                                            |
+| **Ant Design**                                   | Additional UI components (QAN panel)                                       |
+| **axios**                                        | HTTP client for QAN API calls                                              |
+| **react-table**                                  | Table rendering in QAN Overview                                            |
+| **d3**                                           | Data visualization                                                         |
+| **Jest 29**                                      | Unit testing (`@swc/jest`, `jest-environment-jsdom`)                       |
+| **chokidar**                                     | Dashboard JSON file watcher for local dev (`scripts/watch-dashboards.mjs`) |
 
 ## QAN Panel
 
@@ -50,18 +50,19 @@ The Query Analytics panel lives in `src/pmm-qan/` and is registered as a `PanelP
 
 ### Key Sub-Components
 
-| Component | Path | Purpose |
-|-----------|------|---------|
-| **QueryAnalytics** | `pmm-qan/panel/QueryAnalytics.tsx` | Root panel component |
-| **Overview** | `pmm-qan/panel/components/Overview/` | Main query table with sortable metrics columns |
-| **Details** | `pmm-qan/panel/components/Details/` | Query detail view: Explain, Metrics, Metadata, Table |
-| **Filters** | `pmm-qan/panel/components/Filters/` | Filter sidebar (dimension, value filtering) |
-| **BarChart** | `pmm-qan/panel/components/BarChart/` | Time-distribution bar chart |
-| **ManageColumns** | `pmm-qan/panel/components/ManageColumns/` | Column visibility picker |
+| Component          | Path                                      | Purpose                                              |
+| ------------------ | ----------------------------------------- | ---------------------------------------------------- |
+| **QueryAnalytics** | `pmm-qan/panel/QueryAnalytics.tsx`        | Root panel component                                 |
+| **Overview**       | `pmm-qan/panel/components/Overview/`      | Main query table with sortable metrics columns       |
+| **Details**        | `pmm-qan/panel/components/Details/`       | Query detail view: Explain, Metrics, Metadata, Table |
+| **Filters**        | `pmm-qan/panel/components/Filters/`       | Filter sidebar (dimension, value filtering)          |
+| **BarChart**       | `pmm-qan/panel/components/BarChart/`      | Time-distribution bar chart                          |
+| **ManageColumns**  | `pmm-qan/panel/components/ManageColumns/` | Column visibility picker                             |
 
 ### Shared Code
 
 `src/shared/` contains reusable code across the QAN panel:
+
 - `components/` — common UI elements (Table, Modal, Charts, Icons, Form controls)
 - `components/helpers/` — humanization, formatting, validators
 - `components/hooks/` — shared React hooks (e.g., window size)
@@ -70,6 +71,7 @@ The Query Analytics panel lives in `src/pmm-qan/` and is registered as a `PanelP
 ## Patterns and Conventions
 
 ### Do
+
 - Co-locate test files next to components (`*.test.tsx`)
 - Use `@testing-library/react` for component tests
 - Use `@grafana/data` and `@grafana/ui` APIs for Grafana integration
@@ -77,6 +79,7 @@ The Query Analytics panel lives in `src/pmm-qan/` and is registered as a `PanelP
 - Follow the Grafana plugin SDK conventions for panel lifecycle
 
 ### Don't
+
 - Don't modify files under `.config/` — they are scaffolded by `@grafana/create-plugin` and carry "do not edit" warnings
 - Don't introduce new state management libraries — use React state/context as in existing QAN code
 - Don't duplicate dashboard JSON inside `src/` — the canonical source is the top-level `dashboards/` folder, reached through the `src/dashboards` symlink

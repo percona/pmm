@@ -9,9 +9,7 @@ import { TableCheckboxProps, TableProps } from './Table.types';
 const TableCheckbox = (props: TableCheckboxProps) => {
   const theme = useTheme();
   const styles = getCheckboxStyles(theme);
-  const {
-    checked, onChange, style, title,
-  } = props;
+  const { checked, onChange, style, title } = props;
 
   return (
     <label className={cx(styles.checkboxContainer, 'checkbox-container--main', 'no-gap')}>
@@ -35,7 +33,12 @@ export const Table: FC<TableProps> = ({
   const styles = getStyles(theme);
   const {
     // @ts-ignore
-    getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, selectedFlatRows,
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    selectedFlatRows,
   } = useTable(
     {
       columns,

@@ -1,8 +1,6 @@
 import React, { FC } from 'react';
 import { Field, Form } from 'react-final-form';
-import {
-  Button, Icon, Input, useTheme,
-} from '@grafana/ui';
+import { Button, Icon, Input, useTheme } from '@grafana/ui';
 import { Messages } from 'pmm-qan/panel/QueryAnalytics.messages';
 import { getStyles } from './Search.styles';
 import { SearchProps } from './Search.types';

@@ -14,9 +14,8 @@ export const getMetricSparklineKey = (metricName) => {
       return `m_${metricName}_sum_per_sec`;
   }
 };
-export const getAdditionalPoint = (last, previous) => new Date(
-  (+moment(last) || 0) - ((+moment(previous) || 0) - (+moment(last) || 0)),
-).toISOString();
+export const getAdditionalPoint = (last, previous) =>
+  new Date((+moment(last) || 0) - ((+moment(previous) || 0) - (+moment(last) || 0))).toISOString();
 export const isMetricExists = (metric) => metric === 'NaN' || metric === undefined || metric === '';
 export const findYRange = (array, key) => {
   const values = array.map((arrayItem) => +arrayItem[key] || 0);

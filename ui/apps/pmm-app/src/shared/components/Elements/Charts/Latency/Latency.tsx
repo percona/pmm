@@ -1,6 +1,4 @@
-import React, {
-  useEffect, useRef, useState,
-} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import Tooltip from 'antd/es/tooltip';
 import { humanize } from '../../../helpers/Humanization';
@@ -27,20 +25,16 @@ export const Latency = (props) => {
     const chart = d3.select(graphContainer.current);
 
     chart.selectAll('*').remove();
-    const svg = chart
-      .append('svg')
-      .attr('height', '20')
-      .attr('width', width);
+    const svg = chart.append('svg').attr('height', '20').attr('width', width);
 
-    const x = d3.scaleLog()
+    const x = d3
+      .scaleLog()
       .domain([0.00001, 10000])
       .range([2, width - 2])
       .clamp(true)
       .nice();
 
-    const {
-      min = 0, max = 0, avg = 0, p99 = 0,
-    } = data;
+    const { min = 0, max = 0, avg = 0, p99 = 0 } = data;
     const minStr = `⌜ Min: ${humanize.transform(min, measurement)}`;
     const maxStr = `⌟ Max: ${humanize.transform(max, measurement)}`;
     const avgStr = `◦ Avg: ${humanize.transform(avg, measurement)}`;
@@ -106,11 +100,11 @@ export const Latency = (props) => {
         getPopupContainer={() => document.querySelector('#antd') || document.body}
         placement="left"
         overlayClassName={styles.latencyTooltip}
-        title={(
+        title={
           <pre style={{ backgroundColor: 'transparent', border: 'none' }}>
             <span>{tooltip}</span>
           </pre>
-        )}
+        }
       >
         <div className={`${className || ''} d3-bar-chart-container`} ref={graphContainer} data-tip="" />
       </Tooltip>

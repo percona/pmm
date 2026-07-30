@@ -7,15 +7,15 @@ export const getStyles = stylesFactory((theme: GrafanaTheme) => {
 
   return {
     radioButtonGroup: css`
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    ${mq} {
-      flex-direction: column;
-      label {
-        justify-content: center;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      ${mq} {
+        flex-direction: column;
+        label {
+          justify-content: center;
+        }
       }
-    }
-  `,
+    `,
   };
 });

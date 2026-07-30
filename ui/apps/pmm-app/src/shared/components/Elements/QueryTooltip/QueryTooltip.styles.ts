@@ -9,7 +9,7 @@ export const getStyles = ({ spacing, border }: GrafanaTheme) => ({
     .ant-tooltip-content {
       width: 600px;
       box-sizing: border-box;
-    
+
       /* Popup shadow */
       box-shadow: 0px 2px 10px rgba(50, 116, 217, 0.25);
       border-radius: ${border.radius.sm};

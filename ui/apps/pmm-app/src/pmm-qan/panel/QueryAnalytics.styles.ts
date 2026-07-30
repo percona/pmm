@@ -64,8 +64,8 @@ export const getStyles = stylesFactory((theme: GrafanaTheme, querySelected: bool
 
       .table-body,
       .table-body > div,
-      div:has([data-testid="table-loading"]),
-      [data-testid="table-loading"] {
+      div:has([data-testid='table-loading']),
+      [data-testid='table-loading'] {
         height: ${tableHeight};
         max-height: ${tableHeight};
       }

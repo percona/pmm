@@ -67,14 +67,14 @@ export const getStyles = stylesFactory((theme: GrafanaTheme) => {
       width: 20px;
     `,
     tableCellWrap: css`
-    /* This wraps the long line inside the cell */
-    table {
-      td {
-        /* This keeps word 'NULL' from line braking */
-        min-width: 4rem;
-        word-break: break-all;
+      /* This wraps the long line inside the cell */
+      table {
+        td {
+          /* This keeps word 'NULL' from line braking */
+          min-width: 4rem;
+          word-break: break-all;
+        }
       }
-    }
-  `,
+    `,
   };
 });

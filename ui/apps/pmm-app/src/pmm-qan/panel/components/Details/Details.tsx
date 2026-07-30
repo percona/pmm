@@ -1,10 +1,6 @@
-import React, {
-  FC, useContext, useEffect, useState,
-} from 'react';
+import React, { FC, useContext, useEffect, useState } from 'react';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
-import {
-  Button, Tab, TabContent, TabsBar, useTheme,
-} from '@grafana/ui';
+import { Button, Tab, TabContent, TabsBar, useTheme } from '@grafana/ui';
 import { cx } from '@emotion/css';
 import { Scrollbar } from 'shared/components/Elements/Scrollbar/Scrollbar';
 import { Databases } from 'shared/core';
@@ -27,9 +23,7 @@ export const DetailsSection: FC = () => {
   const styles = getStyles(theme);
   const {
     contextActions: { closeDetails, setActiveTab, setLoadingDetails },
-    panelState: {
-      queryId, groupBy, totals, openDetailsTab, database,
-    },
+    panelState: { queryId, groupBy, totals, openDetailsTab, database },
   } = useContext(QueryAnalyticsProvider);
 
   const [loading, examples, databaseType] = useDetails();
@@ -80,14 +74,7 @@ export const DetailsSection: FC = () => {
             textMetrics={textMetrics}
             loading={metricsLoading}
           />
-          {metadata
-            ? (
-              <Metadata
-                metadata={metadataToShow}
-                loading={metricsLoading}
-              />
-            )
-            : null}
+          {metadata ? <Metadata metadata={metadataToShow} loading={metricsLoading} /> : null}
         </>
       ),
     },

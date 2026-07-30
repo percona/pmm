@@ -14,7 +14,8 @@ import { Dimension } from '../Dimension/Dimension';
 import { getStyles } from './DefaultColumns.styles';
 
 // eslint-disable-next-line max-len
-const getAllColumns = (columns) => (columns - 1) * FIXED_COLUMN_WIDTH + COLUMN_WIDTH * 1.8 + ROW_NUMBER_COLUMN_WIDTH;
+const getAllColumns = (columns) =>
+  (columns - 1) * FIXED_COLUMN_WIDTH + COLUMN_WIDTH * 1.8 + ROW_NUMBER_COLUMN_WIDTH;
 
 // Get width of a main column based on a number of available metrics columns
 export const getMainColumnWidth = (columns) => {

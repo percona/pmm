@@ -13,7 +13,7 @@ export const styles = {
     z-index: 2;
   `,
   overlay: css`
-    background: rgba(22, 23, 25, .3);
+    background: rgba(22, 23, 25, 0.3);
     height: 100%;
     position: absolute;
     width: 100%;

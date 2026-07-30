@@ -4,9 +4,7 @@ import { Highlight } from 'shared/components/Hightlight/Highlight';
 import { TableProps } from '../Table.types';
 import { useShowCreateTable } from './TableCreate.hooks';
 
-export const TableCreate: FC<TableProps> = ({
-  tableName, databaseType, example, database,
-}) => {
+export const TableCreate: FC<TableProps> = ({ tableName, databaseType, example, database }) => {
   const [showCreateTable] = useShowCreateTable(databaseType, example, tableName, database);
 
   return (

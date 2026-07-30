@@ -1,6 +1,4 @@
-import React, {
-  FC, ReactElement, ReactNode, useCallback, useEffect, useState,
-} from 'react';
+import React, { FC, ReactElement, ReactNode, useCallback, useEffect, useState } from 'react';
 import {
   Column,
   HeaderGroup,
@@ -69,48 +67,41 @@ export const Table: FC<TableProps> = ({
 
   const theme = useTheme();
   const styles = getStyles(theme);
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-    selectedFlatRows,
-    state,
-  }: any = useTable(
-    {
-      columns,
-      data,
-      manualSortBy: true,
-      disableSortRemove: true,
-      initialState: {
-        sortBy: orderBy ? [{ id: orderBy.replace('-', ''), desc: !orderBy.startsWith('-') }] : [],
-      } as TableState,
-    } as TableOptions<any>,
-    useSortBy,
-    useRowSelect,
-    (hooks) => {
-      hooks.visibleColumns.push((columns) => [
-        {
-          id: 'number',
-          width: 40,
-          sortable: false,
-          HeaderAccessor: () => (
-            <div data-testid="row-number-header" className={styles.rowNumberCell}>
-              #
-            </div>
-          ),
-          Cell: ({ row }: { row: any }) => (
-            <div data-testid="row-number-cell" className={styles.rowNumberCell}>
-              {rowNumber ? rowNumber(row.index) : row.index}
-            </div>
-          ),
-        },
-        ...columns,
-      ]);
-    },
-    useBlockLayout,
-  );
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, selectedFlatRows, state }: any =
+    useTable(
+      {
+        columns,
+        data,
+        manualSortBy: true,
+        disableSortRemove: true,
+        initialState: {
+          sortBy: orderBy ? [{ id: orderBy.replace('-', ''), desc: !orderBy.startsWith('-') }] : [],
+        } as TableState,
+      } as TableOptions<any>,
+      useSortBy,
+      useRowSelect,
+      (hooks) => {
+        hooks.visibleColumns.push((columns) => [
+          {
+            id: 'number',
+            width: 40,
+            sortable: false,
+            HeaderAccessor: () => (
+              <div data-testid="row-number-header" className={styles.rowNumberCell}>
+                #
+              </div>
+            ),
+            Cell: ({ row }: { row: any }) => (
+              <div data-testid="row-number-cell" className={styles.rowNumberCell}>
+                {rowNumber ? rowNumber(row.index) : row.index}
+              </div>
+            ),
+          },
+          ...columns,
+        ]);
+      },
+      useBlockLayout,
+    );
 
   useEffect(() => {
     if (onRowSelection) {
@@ -212,10 +203,7 @@ export const Table: FC<TableProps> = ({
           ) : null}
           {!loading ? (
             <div {...getTableProps()} className="table">
-              <div
-                {...getTableBodyProps()}
-                className={cx('table-body')}
-              >
+              <div {...getTableBodyProps()} className={cx('table-body')}>
                 <Scrollbar forceVisible="x">
                   {headerGroups.map(RenderHeader)}
                   {!!rows.length && rows.map(RenderRow)}

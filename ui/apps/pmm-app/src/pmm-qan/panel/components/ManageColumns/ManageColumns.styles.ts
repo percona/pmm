@@ -74,7 +74,9 @@ export const getStyles = stylesFactory((theme: GrafanaTheme) => {
     addColumnWrapper: css`
       width: 430px;
       background-color: rgba(47, 47, 50, 0.5);
-      box-shadow: rgba(255, 255, 255, 0.1) -1px 0px 0px 0px, rgba(0, 0, 0, 0.3) 1px 1px 0px 0px;
+      box-shadow:
+        rgba(255, 255, 255, 0.1) -1px 0px 0px 0px,
+        rgba(0, 0, 0, 0.3) 1px 1px 0px 0px;
 
       .fields__select-field .ant-slider-mark-text {
         color: white;

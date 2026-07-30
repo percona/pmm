@@ -12,6 +12,8 @@ export const OverflowTooltip = ({ children, ...props }) => {
   }, [ref]);
 
   return (
-    <span ref={ref} title={title} {...props}>{children}</span>
+    <span ref={ref} title={title} {...props}>
+      {children}
+    </span>
   );
 };

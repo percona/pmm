@@ -5,13 +5,7 @@ import { DatabasesType, QueryExampleResponseItem } from './Details.types';
 
 export const useDetails = (): [boolean, QueryExampleResponseItem[], DatabasesType] => {
   const {
-    panelState: {
-      queryId,
-      groupBy,
-      from,
-      to,
-      labels,
-    },
+    panelState: { queryId, groupBy, from, to, labels },
   } = useContext(QueryAnalyticsProvider);
   const [loading, setLoading] = useState<boolean>(false);
   const [examples, setExamples] = useState<QueryExampleResponseItem[]>([]);

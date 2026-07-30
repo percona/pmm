@@ -15,11 +15,9 @@ interface PluginTooltipInterface {
 export const PluginTooltip = ({ text, links }: PluginTooltipInterface) => (
   <Tooltip
     placement="topLeft"
-    title={(
+    title={
       <>
-        {text}
-        {' '}
-        <br />
+        {text} <br />
         {links.map((link) => (
           <div key={link.url}>
             <a
@@ -34,7 +32,7 @@ export const PluginTooltip = ({ text, links }: PluginTooltipInterface) => (
           </div>
         ))}
       </>
-    )}
+    }
     style={{ background: 'deepskyblue' }}
   >
     <QuestionCircleFilled style={{ marginLeft: '5px' }} />

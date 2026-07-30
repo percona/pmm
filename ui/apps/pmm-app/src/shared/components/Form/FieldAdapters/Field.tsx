@@ -15,34 +15,34 @@ export interface FieldProps {
 
 export const getFieldStyles = stylesFactory((theme: GrafanaTheme) => ({
   label: css`
-      font-size: ${theme.typography.size.md};
-      font-weight: ${theme.typography.weight.semibold};
-      line-height: 1.25;
-      margin: ${theme.spacing.formLabelMargin};
-      padding: ${theme.spacing.formLabelPadding};
-      color: ${theme.colors.formLabel};
-      max-width: 480px;
-    `,
+    font-size: ${theme.typography.size.md};
+    font-weight: ${theme.typography.weight.semibold};
+    line-height: 1.25;
+    margin: ${theme.spacing.formLabelMargin};
+    padding: ${theme.spacing.formLabelPadding};
+    color: ${theme.colors.formLabel};
+    max-width: 480px;
+  `,
   labelContent: css`
-      display: flex;
-      align-items: center;
-    `,
+    display: flex;
+    align-items: center;
+  `,
   field: css`
-      display: flex;
-      flex-direction: column;
-      margin-bottom: ${theme.spacing.formSpacingBase * 2}px;
-    `,
+    display: flex;
+    flex-direction: column;
+    margin-bottom: ${theme.spacing.formSpacingBase * 2}px;
+  `,
   fieldHorizontal: css`
-      flex-direction: row;
-      justify-content: space-between;
-      flex-wrap: wrap;
-    `,
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  `,
   fieldValidationWrapper: css`
-      margin-top: ${theme.spacing.formSpacingBase / 2}px;
-    `,
+    margin-top: ${theme.spacing.formSpacingBase / 2}px;
+  `,
   fieldValidationWrapperHorizontal: css`
-      flex: 1 1 100%;
-    `,
+    flex: 1 1 100%;
+  `,
 }));
 
 export const Field: React.FC<FieldProps> = ({
@@ -71,15 +71,11 @@ export const Field: React.FC<FieldProps> = ({
       {label && (
         <div className={cx(styles.label, className)}>
           <label htmlFor={inputId}>
-            <div className={styles.labelContent}>
-              {`${label}${required ? ' *' : ''}`}
-            </div>
+            <div className={styles.labelContent}>{`${label}${required ? ' *' : ''}`}</div>
           </label>
         </div>
       )}
-      <div>
-        {React.cloneElement(children, { invalid, disabled, loading })}
-      </div>
+      <div>{React.cloneElement(children, { invalid, disabled, loading })}</div>
     </div>
   );
 };

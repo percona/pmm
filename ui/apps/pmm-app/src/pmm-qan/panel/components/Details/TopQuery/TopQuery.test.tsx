@@ -9,11 +9,7 @@ jest.mock('shared/components/helpers/notification-manager');
 describe('TopQuery::', () => {
   it('should render query and tooltip icon', () => {
     const { container, getByText } = render(
-      <TopQuery
-        databaseType={Databases.postgresql}
-        query="test"
-        queryId="testId"
-      />,
+      <TopQuery databaseType={Databases.postgresql} query="test" queryId="testId" />,
     );
 
     expect(getByText('test')).not.toBeNull();
@@ -33,11 +29,7 @@ describe('TopQuery::', () => {
           },
         }}
       >
-        <TopQuery
-          databaseType={Databases.postgresql}
-          query="test"
-          queryId="testId"
-        />
+        <TopQuery databaseType={Databases.postgresql} query="test" queryId="testId" />
       </QueryAnalyticsProvider.Provider>,
     );
 

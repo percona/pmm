@@ -21,13 +21,21 @@ describe('RadioButton::', () => {
   });
 
   it('Renders with active class', () => {
-    const { container } = render(<RadioButton {...testProps} active>Test</RadioButton>);
+    const { container } = render(
+      <RadioButton {...testProps} active>
+        Test
+      </RadioButton>,
+    );
 
     expect(container.querySelector('label')?.className).toContain('active');
   });
 
   it('Renders with disabled class', () => {
-    const { container } = render(<RadioButton {...testProps} disabled>Test</RadioButton>);
+    const { container } = render(
+      <RadioButton {...testProps} disabled>
+        Test
+      </RadioButton>,
+    );
 
     expect(container.querySelector('label')?.className).toContain('disabled');
   });

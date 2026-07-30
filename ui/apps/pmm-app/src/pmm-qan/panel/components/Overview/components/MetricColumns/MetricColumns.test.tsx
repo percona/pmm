@@ -70,7 +70,9 @@ describe('NonTimeMetric::', () => {
   });
 
   it('should render time metric correct without value and without cnt', async () => {
-    const { container } = render(<NonTimeMetric value={undefined} percentage={10} cnt={undefined} units="test" />);
+    const { container } = render(
+      <NonTimeMetric value={undefined} percentage={10} cnt={undefined} units="test" />,
+    );
     const span = container.querySelector('div > span');
 
     expect(span?.textContent).toBe('N/A');
