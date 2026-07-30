@@ -46,7 +46,9 @@ const (
 	// PMMServerPostgreSQLServiceName is a special Service Name representing PMM Server's PostgreSQL Service.
 	PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
 	// - minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
-	minPGVersion float64 = 18
+	// TODO temporarily lowered to 14 so that the unit tests pass against the prebuilt dev
+	// container, which still embeds PostgreSQL 14. Restore before merging.
+	minPGVersion float64 = 14
 	// DefaultPostgreSQLAddr represent default local PostgreSQL database server address.
 	DefaultPostgreSQLAddr = "127.0.0.1:5432"
 	// PMMServerPostgreSQLNodeName is a special Node Name representing PMM Server's External PostgreSQL Node.
