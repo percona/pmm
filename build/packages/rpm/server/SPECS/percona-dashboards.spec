@@ -6,7 +6,7 @@
 %global commit		      ad4af6808bcd361284e8eb8cd1f36b1e98e32bce
 %global shortcommit	    %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         27
+%define release         28
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
 %define clickhouse_datasource_version 4.19.0
@@ -46,14 +46,14 @@ using VictoriaMetrics datasource.
 %build
 node -v
 npm version
-make -C dashboards release
+cd ui && yarn install --frozen-lockfile && yarn turbo run build --filter=pmm-app
 
 
 %install
 install -d %{buildroot}%{_datadir}/%{name}/panels/pmm-app
 
 # cp -a ./dashboards/panels %{buildroot}%{_datadir}/%{name}
-cp -a ./dashboards/pmm-app/dist %{buildroot}%{_datadir}/%{name}/panels/pmm-app
+cp -a ./ui/apps/pmm-app/dist %{buildroot}%{_datadir}/%{name}/panels/pmm-app
 unzip -q %{SOURCE1} -d %{buildroot}%{_datadir}/%{name}/panels
 unzip -q %{SOURCE2} -d %{buildroot}%{_datadir}/%{name}/panels
 echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
@@ -66,6 +66,9 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 
 %changelog
+* Thu Jul 30 2026 Fábio Silva <fabio.dasilva@percona.com> - 3.0.0-28
+- PMM-15028 Build pmm-app from ui/apps/pmm-app (moved out of dashboards/)
+
 * Wed Jul 15 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-27
 - PMM-15099 Bump clickhouse datasource plugin to 4.19.0
 

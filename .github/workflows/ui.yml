@@ -9,7 +9,6 @@ on:
       - "api-tests/**"
       - "dev/docs/**"
       - "documentation/**"
-      - "dashboards/**"
       - "managed/**"
       - "qan-api2/**"
       - "vmproxy/**"
@@ -40,6 +39,17 @@ jobs:
           node-version-file: ui/.nvmrc
           cache: pnpm
           cache-dependency-path: ui/pnpm-lock.yaml
+
+      - name: Verify plugin.json dashboard paths exist
+        working-directory: ${{ github.workspace }}
+        run: |
+          missing=$(jq -r '.includes[] | select(.path) | .path' ui/apps/pmm-app/src/plugin.json \
+            | while read -r p; do [ -f "$p" ] || echo "$p"; done)
+          if [ -n "$missing" ]; then
+            echo "::error::plugin.json references dashboard files that do not exist:"
+            echo "$missing" | sed 's/^/  - /'
+            exit 1
+          fi
 
       - name: Check formatting
         run: make format-check
