@@ -132,7 +132,8 @@ func (e BoolParamDefinitionValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = BoolParamDefinitionValidationError{}
@@ -246,7 +247,8 @@ func (e FloatParamDefinitionValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = FloatParamDefinitionValidationError{}
@@ -352,7 +354,8 @@ func (e StringParamDefinitionValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = StringParamDefinitionValidationError{}
@@ -606,7 +609,8 @@ func (e ParamDefinitionValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ParamDefinitionValidationError{}
@@ -618,6 +622,220 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ParamDefinitionValidationError{}
+
+// Validate checks the field values on TemplateQuery with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *TemplateQuery) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TemplateQuery with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in TemplateQueryMultiError, or
+// nil if none found.
+func (m *TemplateQuery) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TemplateQuery) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for RefId
+
+	// no validation rules for Expr
+
+	if len(errors) > 0 {
+		return TemplateQueryMultiError(errors)
+	}
+
+	return nil
+}
+
+// TemplateQueryMultiError is an error wrapping multiple validation errors
+// returned by TemplateQuery.ValidateAll() if the designated constraints
+// aren't met.
+type TemplateQueryMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TemplateQueryMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TemplateQueryMultiError) AllErrors() []error { return m }
+
+// TemplateQueryValidationError is the validation error returned by
+// TemplateQuery.Validate if the designated constraints aren't met.
+type TemplateQueryValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TemplateQueryValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TemplateQueryValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TemplateQueryValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TemplateQueryValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TemplateQueryValidationError) ErrorName() string { return "TemplateQueryValidationError" }
+
+// Error satisfies the builtin error interface
+func (e TemplateQueryValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTemplateQuery.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = TemplateQueryValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TemplateQueryValidationError{}
+
+// Validate checks the field values on TemplateExpression with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TemplateExpression) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TemplateExpression with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TemplateExpressionMultiError, or nil if none found.
+func (m *TemplateExpression) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TemplateExpression) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for RefId
+
+	// no validation rules for Type
+
+	// no validation rules for Expression
+
+	if len(errors) > 0 {
+		return TemplateExpressionMultiError(errors)
+	}
+
+	return nil
+}
+
+// TemplateExpressionMultiError is an error wrapping multiple validation errors
+// returned by TemplateExpression.ValidateAll() if the designated constraints
+// aren't met.
+type TemplateExpressionMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TemplateExpressionMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TemplateExpressionMultiError) AllErrors() []error { return m }
+
+// TemplateExpressionValidationError is the validation error returned by
+// TemplateExpression.Validate if the designated constraints aren't met.
+type TemplateExpressionValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TemplateExpressionValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TemplateExpressionValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TemplateExpressionValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TemplateExpressionValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TemplateExpressionValidationError) ErrorName() string {
+	return "TemplateExpressionValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TemplateExpressionValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTemplateExpression.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = TemplateExpressionValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TemplateExpressionValidationError{}
 
 // Validate checks the field values on Template with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
@@ -749,6 +967,76 @@ func (m *Template) validate(all bool) error {
 
 	// no validation rules for Yaml
 
+	for idx, item := range m.GetQueries() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, TemplateValidationError{
+						field:  fmt.Sprintf("Queries[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, TemplateValidationError{
+						field:  fmt.Sprintf("Queries[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return TemplateValidationError{
+					field:  fmt.Sprintf("Queries[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for idx, item := range m.GetExpressions() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, TemplateValidationError{
+						field:  fmt.Sprintf("Expressions[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, TemplateValidationError{
+						field:  fmt.Sprintf("Expressions[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return TemplateValidationError{
+					field:  fmt.Sprintf("Expressions[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Condition
+
 	if len(errors) > 0 {
 		return TemplateMultiError(errors)
 	}
@@ -813,7 +1101,8 @@ func (e TemplateValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = TemplateValidationError{}
@@ -943,7 +1232,8 @@ func (e ListTemplatesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListTemplatesRequestValidationError{}
@@ -1083,7 +1373,8 @@ func (e ListTemplatesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListTemplatesResponseValidationError{}
@@ -1196,7 +1487,8 @@ func (e CreateTemplateRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = CreateTemplateRequestValidationError{}
@@ -1298,7 +1590,8 @@ func (e CreateTemplateResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = CreateTemplateResponseValidationError{}
@@ -1422,7 +1715,8 @@ func (e UpdateTemplateRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UpdateTemplateRequestValidationError{}
@@ -1524,7 +1818,8 @@ func (e UpdateTemplateResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = UpdateTemplateResponseValidationError{}
@@ -1637,7 +1932,8 @@ func (e DeleteTemplateRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DeleteTemplateRequestValidationError{}
@@ -1739,7 +2035,8 @@ func (e DeleteTemplateResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DeleteTemplateResponseValidationError{}
@@ -1843,7 +2140,8 @@ func (e FilterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = FilterValidationError{}
@@ -1996,7 +2294,8 @@ func (e ParamValueValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ParamValueValidationError{}
@@ -2236,7 +2535,8 @@ func (e CreateRuleRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = CreateRuleRequestValidationError{}
@@ -2338,7 +2638,8 @@ func (e CreateRuleResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = CreateRuleResponseValidationError{}

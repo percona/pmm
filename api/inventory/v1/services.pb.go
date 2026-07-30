@@ -3288,7 +3288,7 @@ var (
 	file_inventory_v1_services_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_inventory_v1_services_proto_msgTypes  = make([]protoimpl.MessageInfo, 42)
 	file_inventory_v1_services_proto_goTypes   = []any{
-		(ServiceType)(0),                       // 0: inventory.v1.ServiceType
+		ServiceType(0),                         // 0: inventory.v1.ServiceType
 		(*MySQLService)(nil),                   // 1: inventory.v1.MySQLService
 		(*MongoDBService)(nil),                 // 2: inventory.v1.MongoDBService
 		(*PostgreSQLService)(nil),              // 3: inventory.v1.PostgreSQLService

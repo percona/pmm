@@ -17,17 +17,16 @@ package server
 
 import (
 	"context"
+	"errors"
+	"math"
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -111,7 +110,6 @@ func TestServer(t *testing.T) {
 				"PMM_METRICS_RESOLUTION_LR=3s",
 				"PMM_DATA_RETENTION=240h",
 				"PMM_PUBLIC_ADDRESS=1.2.3.4:5678",
-				"PMM_UPDATE_SNOOZE_DURATION=24h",
 			})
 			require.Empty(t, errs)
 			assert.True(t, *s.envSettings.EnableUpdates)
@@ -121,7 +119,6 @@ func TestServer(t *testing.T) {
 			assert.Equal(t, 3*time.Second, s.envSettings.MetricsResolutions.LR)
 			assert.Equal(t, 10*24*time.Hour, s.envSettings.DataRetention)
 			assert.Equal(t, "1.2.3.4:5678", *s.envSettings.PMMPublicAddress)
-			assert.Equal(t, 24*time.Hour, s.envSettings.UpdateSnoozeDuration)
 		})
 
 		t.Run("Untypical", func(t *testing.T) {
@@ -209,47 +206,38 @@ func TestServer(t *testing.T) {
 
 		ctx := context.TODO()
 
-		s.envSettings.EnableUpdates = pointer.ToBool(true)
+		s.envSettings.EnableUpdates = new(true)
 		expected := status.New(codes.FailedPrecondition, "Updates are configured via PMM_ENABLE_UPDATES environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableUpdates: pointer.ToBool(false),
+			EnableUpdates: new(false),
 		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableUpdates: pointer.ToBool(true),
-		}))
-
-		s.envSettings.UpdateSnoozeDuration = 24 * time.Hour
-		expected = status.New(codes.FailedPrecondition, "Update snooze duration is set via PMM_UPDATE_SNOOZE_DURATION environment variable.")
-		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			UpdateSnoozeDuration: durationpb.New(12 * time.Hour),
-		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			UpdateSnoozeDuration: durationpb.New(24 * time.Hour),
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableUpdates: new(true),
 		}))
 
-		s.envSettings.EnableTelemetry = pointer.ToBool(true)
+		s.envSettings.EnableTelemetry = new(true)
 		expected = status.New(codes.FailedPrecondition, "Telemetry is configured via PMM_ENABLE_TELEMETRY environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableTelemetry: pointer.ToBool(false),
+			EnableTelemetry: new(false),
 		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableTelemetry: pointer.ToBool(true),
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableTelemetry: new(true),
 		}))
 
-		s.envSettings.EnableInternalPgQAN = pointer.ToBool(true)
+		s.envSettings.EnableInternalPgQAN = new(true)
 		expected = status.New(codes.FailedPrecondition, "QAN for internal PostgreSQL is already configured via an environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableInternalPgQan: pointer.ToBool(false),
+			EnableInternalPgQan: new(false),
 		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableInternalPgQan: pointer.ToBool(true),
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableInternalPgQan: new(true),
 		}))
 
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableAdvisor: pointer.ToBool(false),
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableAdvisor: new(false),
 		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableAdvisor: pointer.ToBool(true),
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableAdvisor: new(true),
 		}))
 	})
 
@@ -264,7 +252,7 @@ func TestServer(t *testing.T) {
 		ctx := context.TODO()
 
 		s, err := server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
-			EnableTelemetry: pointer.ToBool(true),
+			EnableTelemetry: new(true),
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
@@ -282,15 +270,55 @@ func TestServer(t *testing.T) {
 
 		ctx := context.TODO()
 		s, err := server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
-			EnableAlerting: pointer.ToBool(false),
+			EnableAlerting: new(false),
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
 
 		s, err = server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
-			EnableAlerting: pointer.ToBool(true),
+			EnableAlerting: new(true),
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
 	})
+}
+
+func TestConvertDefaultRoleID(t *testing.T) {
+	tests := []struct {
+		name   string
+		roleID int
+		want   uint32
+	}{
+		{
+			name:   "positive",
+			roleID: 1,
+			want:   1,
+		},
+		{
+			name:   "zero",
+			roleID: 0,
+			want:   0,
+		},
+		{
+			name:   "negative",
+			roleID: -1,
+			want:   0,
+		},
+		{
+			name:   "max uint32",
+			roleID: math.MaxUint32,
+			want:   math.MaxUint32,
+		},
+		{
+			name:   "greater than max uint32",
+			roleID: math.MaxUint32 + 1,
+			want:   0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, convertDefaultRoleID(tt.roleID))
+		})
+	}
 }

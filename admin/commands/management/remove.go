@@ -15,8 +15,7 @@
 package management
 
 import (
-	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
+	"errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -63,7 +62,7 @@ func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 		}
 
 		servicesRes, err := inventoryClient.Default.ServicesService.ListServices(&services.ListServicesParams{
-			NodeID:      pointer.ToString(status.NodeID),
+			NodeID:      new(status.NodeID),
 			ServiceType: cmd.serviceType(),
 			Context:     commands.Ctx,
 		})
@@ -87,8 +86,7 @@ func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 			serviceID = servicesRes.Payload.External[0].ServiceID
 		}
 		if serviceID == "" {
-			//nolint:revive
-			return nil, errors.New(`We could not find a service associated with the local node. Please provide "Service ID" or "Service name".`)
+			return nil, errors.New(`could not find a service associated with the local node; please provide "Service ID" or "Service name"`)
 		}
 	case cmd.ServiceName != "" && cmd.ServiceID == "":
 		serviceID = cmd.ServiceName

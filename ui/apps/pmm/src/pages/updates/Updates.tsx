@@ -8,9 +8,10 @@ import {
 } from '@mui/material';
 import { Card } from '@mui/material';
 import { FC } from 'react';
-import Welcome from 'assets/welcome.svg';
+import Welcome from 'assets/mountains.jpg';
 import { UpdateCard } from './update-card';
 import { Messages } from './Updates.messages';
+import { Icon } from 'components/icon';
 import { Page } from 'components/page';
 import { PMM_NEW_NAV_PATH, PMM_SETTINGS_URL } from 'lib/constants';
 import { useUpdates } from 'contexts/updates';
@@ -38,11 +39,25 @@ export const Updates: FC = () => {
     <Page title={settings?.newUIEnabled ? Messages.titleNewUI : Messages.title}>
       {!settings?.newUIEnabled && (
         <Card variant="outlined">
-          <CardMedia
-            sx={{ height: 140 }}
-            image={Welcome}
-            title="green iguana"
-          />
+          <Stack sx={{ position: 'relative' }}>
+            <CardMedia sx={{ height: 240 }} image={Welcome} />
+            <Stack
+              sx={{
+                inset: 0,
+                position: 'absolute',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Icon
+                name="pmm-titled-outlined"
+                sx={{
+                  height: 112,
+                  width: 'auto',
+                }}
+              />
+            </Stack>
+          </Stack>
           <CardContent sx={{ p: 3 }}>
             <Stack gap={1}>
               <Typography variant="h3">{Messages.welcome.title}</Typography>

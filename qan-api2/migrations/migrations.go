@@ -121,8 +121,7 @@ func Run(dsn string, templateData map[string]any, isCluster bool, clusterName st
 	}
 
 	// If the database is in dirty state, try to fix it (PMM-14305)
-	var errDirty migrate.ErrDirty
-	if errors.As(err, &errDirty) {
+	if errDirty, ok := errors.AsType[*migrate.ErrDirty](err); ok {
 		l.Infof("Migration %d was unsuccessful, trying to fix it...", errDirty.Version)
 
 		ver := errDirty.Version - 1

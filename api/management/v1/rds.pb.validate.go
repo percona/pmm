@@ -140,7 +140,8 @@ func (e DiscoverRDSInstanceValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DiscoverRDSInstanceValidationError{}
@@ -246,7 +247,8 @@ func (e DiscoverRDSRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DiscoverRDSRequestValidationError{}
@@ -382,7 +384,8 @@ func (e DiscoverRDSResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = DiscoverRDSResponseValidationError{}
@@ -530,6 +533,36 @@ func (m *AddRDSServiceParams) validate(all bool) error {
 
 	// no validation rules for MaxPostgresqlExporterConnections
 
+	if d := m.GetConnectionTimeout(); d != nil {
+		dur, err := d.AsDuration(), d.CheckValid()
+		if err != nil {
+			err = AddRDSServiceParamsValidationError{
+				field:  "ConnectionTimeout",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+
+			gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+			if dur < gte {
+				err := AddRDSServiceParamsValidationError{
+					field:  "ConnectionTimeout",
+					reason: "value must be greater than or equal to 0s",
+				}
+				if !all {
+					return err
+				}
+				errors = append(errors, err)
+			}
+
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddRDSServiceParamsMultiError(errors)
 	}
@@ -597,7 +630,8 @@ func (e AddRDSServiceParamsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = AddRDSServiceParamsValidationError{}
@@ -929,7 +963,8 @@ func (e RDSServiceResultValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RDSServiceResultValidationError{}

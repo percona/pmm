@@ -15,16 +15,28 @@ export default defineConfig({
       'react/jsx-runtime',
       'react/jsx-dev-runtime',
       '@emotion/react',
-      '@emotion/styled'
+      '@emotion/styled',
     ],
     alias: {
       // Force React to resolve from main project's node_modules
-      'react': path.resolve(__dirname, '../../node_modules/react'),
+      react: path.resolve(__dirname, '../../node_modules/react'),
       'react-dom': path.resolve(__dirname, '../../node_modules/react-dom'),
-      'react/jsx-runtime': path.resolve(__dirname, '../../node_modules/react/jsx-runtime'),
-      'react/jsx-dev-runtime': path.resolve(__dirname, '../../node_modules/react/jsx-dev-runtime'),
-      '@emotion/react': path.resolve(__dirname, '../../node_modules/@emotion/react'),
-      '@emotion/styled': path.resolve(__dirname, '../../node_modules/@emotion/styled')
+      'react/jsx-runtime': path.resolve(
+        __dirname,
+        '../../node_modules/react/jsx-runtime'
+      ),
+      'react/jsx-dev-runtime': path.resolve(
+        __dirname,
+        '../../node_modules/react/jsx-dev-runtime'
+      ),
+      '@emotion/react': path.resolve(
+        __dirname,
+        '../../node_modules/@emotion/react'
+      ),
+      '@emotion/styled': path.resolve(
+        __dirname,
+        '../../node_modules/@emotion/styled'
+      ),
     },
   },
   optimizeDeps: {

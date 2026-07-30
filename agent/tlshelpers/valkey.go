@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package tlshelpers contains helpers for databases tls connections.
 package tlshelpers
 
 import (

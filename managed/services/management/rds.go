@@ -17,18 +17,18 @@ package management
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"net/http"
 	"sort"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"github.com/aws/aws-sdk-go-v2/service/rds/types"
 	"github.com/aws/smithy-go"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
@@ -39,6 +39,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/duration"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -140,7 +141,7 @@ func listRegions(partitions []string) []string {
 }
 
 // DiscoverRDS discovers RDS instances.
-func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.DiscoverRDSRequest) (*managementv1.DiscoverRDSResponse, error) {
+func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.DiscoverRDSRequest) (*managementv1.DiscoverRDSResponse, error) { //nolint:gocognit
 	l := logger.Get(ctx).WithField("component", "discover/rds")
 
 	settings, err := models.GetSettings(s.db.Querier)
@@ -164,7 +165,7 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 
 	cfg, err := config.LoadDefaultConfig(ctx, opts...)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, fmt.Errorf("failed to load RDS default config: %w", err)
 	}
 
 	// do not break our API if some AWS region is slow or down
@@ -258,7 +259,9 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 }
 
 // AddRDS adds RDS instance.
-func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDSServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:cyclop,maintidx
+//
+//nolint:gocognit,cyclop,maintidx
+func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDSServiceParams) (*managementv1.AddServiceResponse, error) {
 	rds := &managementv1.RDSServiceResult{}
 
 	pmmAgentID := models.PMMServerAgentID
@@ -335,6 +338,10 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 
 		switch req.Engine {
 		case managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL:
+			if len(req.PostgresqlDisableCollectors) != 0 {
+				s.l.Warn("postgresql_disable_collectors is ignored for MySQL RDS engine.")
+			}
+
 			// add MySQL Service
 			service, err := models.AddNewService(tx.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName:    req.ServiceName,
@@ -344,7 +351,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				ReplicationSet: req.ReplicationSet,
 				CustomLabels:   req.CustomLabels,
 				Address:        &req.Address,
-				Port:           pointer.ToUint16(uint16(req.Port)), //nolint:gosec // port is not expected to overflow uint16
+				Port:           new(uint16(req.Port)), //nolint:gosec // port is not expected to overflow uint16
 			})
 			if err != nil {
 				return err
@@ -364,7 +371,9 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
-					PushMetrics: isPushMode(metricsMode),
+					PushMetrics:        isPushMode(metricsMode),
+					DisabledCollectors: req.MysqlDisableCollectors,
+					ConnectionTimeout:  duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
@@ -380,10 +389,12 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			rds.MysqldExporter = invMySQLdExporter.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
 
 			if !req.SkipConnectionCheck {
-				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, mysqldExporter); err != nil {
+				err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, mysqldExporter)
+				if err != nil {
 					return err
 				}
-				if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, mysqldExporter); err != nil {
+				err = s.sib.GetInfoFromService(ctx, tx.Querier, service, mysqldExporter)
+				if err != nil {
 					return err
 				}
 			}
@@ -415,6 +426,10 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			return nil
 		// PostgreSQL RDS
 		case managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL:
+			if len(req.MysqlDisableCollectors) != 0 {
+				s.l.Warn("mysql_disable_collectors is ignored for PostgreSQL RDS engine.")
+			}
+
 			// add PostgreSQL Service
 			service, err := models.AddNewService(tx.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName:    req.ServiceName,
@@ -424,7 +439,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				ReplicationSet: req.ReplicationSet,
 				CustomLabels:   req.CustomLabels,
 				Address:        &req.Address,
-				Port:           pointer.ToUint16(uint16(req.Port)), //nolint:gosec // port is not expected to overflow uint16
+				Port:           new(uint16(req.Port)), //nolint:gosec // port is not expected to overflow uint16
 				Database:       req.Database,
 			})
 			if err != nil {
@@ -445,13 +460,15 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				ExporterOptions: models.ExporterOptions{
-					PushMetrics: isPushMode(metricsMode),
+					PushMetrics:        isPushMode(metricsMode),
+					DisabledCollectors: req.PostgresqlDisableCollectors,
+					ConnectionTimeout:  duration.OptionalFromProto(req.ConnectionTimeout),
 				},
 				MySQLOptions: models.MySQLOptions{
 					TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 				},
 				PostgreSQLOptions: models.PostgreSQLOptions{
-					AutoDiscoveryLimit:     pointer.ToInt32(req.AutoDiscoveryLimit),
+					AutoDiscoveryLimit:     new(req.AutoDiscoveryLimit),
 					MaxExporterConnections: req.MaxPostgresqlExporterConnections,
 				},
 			})
@@ -465,10 +482,12 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 			rds.PostgresqlExporter = invPostgresExporter.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
 
 			if !req.SkipConnectionCheck {
-				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, postgresExporter); err != nil {
+				err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, postgresExporter)
+				if err != nil {
 					return err
 				}
-				if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, postgresExporter); err != nil {
+				err = s.sib.GetInfoFromService(ctx, tx.Querier, service, postgresExporter)
+				if err != nil {
 					return err
 				}
 			}

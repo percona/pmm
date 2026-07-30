@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -47,7 +48,8 @@ func NewContinuousFileReader(filename string, l Logger) (*ContinuousFileReader, 
 		return nil, err
 	}
 
-	if _, err = f.Seek(0, io.SeekEnd); err != nil {
+	_, err = f.Seek(0, io.SeekEnd)
+	if err != nil {
 		l.Warnf("Failed to seek file to the end: %s.", err)
 	}
 
@@ -65,25 +67,25 @@ func (r *ContinuousFileReader) NextLine() (string, error) {
 	r.m.Lock()
 	defer r.m.Unlock()
 
-	var line string
+	var line strings.Builder
 	for {
 		l, err := r.r.ReadString('\n')
 		r.l.Tracef("ReadLine: %q %v", l, err)
-		line += l
+		line.WriteString(l)
 
 		switch {
 		case err == nil:
 			// Full line successfully read - return it.
-			return line, nil
+			return line.String(), nil
 
 		case r.closed:
 			// If file is closed, err would be os.PathError{"read", filename, os.ErrClosed}.
 			// Return simple io.EOF instead.
-			return line, io.EOF
+			return line.String(), io.EOF
 
 		case err != io.EOF:
 			// Return unexpected error as is.
-			return line, err
+			return line.String(), err
 
 		default:
 			// err is io.EOF, but reader is not closed - reopen or sleep.
@@ -133,7 +135,8 @@ func (r *ContinuousFileReader) needsReopen() bool {
 
 // reopen reopens log file.
 func (r *ContinuousFileReader) reopen() {
-	if err := r.f.Close(); err != nil {
+	err := r.f.Close()
+	if err != nil {
 		r.l.Warnf("Failed to close file %s: %s.", r.f.Name(), err)
 	}
 

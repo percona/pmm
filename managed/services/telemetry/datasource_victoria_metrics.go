@@ -13,14 +13,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package telemetry provides telemetry functionality.
 package telemetry
 
 import (
 	"context"
 	"time"
 
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
@@ -99,10 +98,10 @@ func (d *dataSourceVictoriaMetrics) FetchMetrics(ctx context.Context, config Con
 	return metrics, nil
 }
 
-func (d *dataSourceVictoriaMetrics) Init(ctx context.Context) error { //nolint:revive
+func (d *dataSourceVictoriaMetrics) Init(context.Context) error {
 	return nil
 }
 
-func (d *dataSourceVictoriaMetrics) Dispose(ctx context.Context) error { //nolint:revive
+func (d *dataSourceVictoriaMetrics) Dispose(context.Context) error {
 	return nil
 }

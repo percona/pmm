@@ -1,77 +1,96 @@
 # MongoDB Backup Details dashboard
 
-This dashboard helps you monitor and manage your Percona Backup for MongoDB (PBM) environment directly within PMM. It consolidates backup configuration, agent health, and backup history into a single view, so you don't need to switch between tools.
+This dashboard helps you monitor your Percona Backup for MongoDB (PBM) environment directly within PMM. 
 
-The dashboard works with both replica sets and sharded clusters. Use the filters at the top to narrow down to specific environments, clusters, or replica sets.
+It brings together backup configuration, agent health, and backup history in one place, so you don't need to switch between tools.
+
+The dashboard works with both replica sets and sharded clusters. 
+
+Use the filters at the top to narrow down to specific environments, clusters, or replica sets.
 
 ![MongoDB Backup Details dashboard](../../images/BackupDetails_Dashboard.png)
 
+!!! note
+    This dashboard requires MongoDB services to be added with the `--cluster` parameter. If panels show no data, see [Add MongoDB service to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-3-add-mongodb-service-to-pmm).
 
-This dashboard requires the MongoDB service to be added with the `--cluster` parameter. If panels show no data, see [Add MongoDB service to PMM](../../install-pmm/install-pmm-client/connect-database/mongodb.md#step-3-add-mongodb-service-to-pmm).
+## Overview 
 
-## Backup Configured
+### Backup Configured
 
-Shows whether PBM is configured with remote backup storage for your MongoDB environment. A green **YES** indicates backups are properly configured, while a red **NO** means backup storage is not set up.
+Shows whether PBM has a remote storage location configured. A green **YES** means backup storage is set up while a red **NO** means it isn't.
 
-If you see **NO**, verify that PBM has a remote storage location (S3, Azure Blob, or filesystem) defined. See [Configure backup storage](https://docs.percona.com/percona-backup-mongodb/install/backup-storage.html).
+Check this first when opening the dashboard. If it shows **NO**, no backups are running regardless of what other panels show. Configure a remote storage location (S3, Azure Blob, or filesystem) in PBM before relying on this dashboard for backup monitoring. 
 
-## PITR Status
+See [Configure backup storage](https://docs.percona.com/percona-backup-mongodb/install/backup-storage.html).
 
-Shows whether Point-in-Time Recovery (PITR) oplog streaming is enabled. A green **ON** confirms PITR is active, while a red **OFF** indicates this feature is not currently enabled.
+### PITR Status
 
-PITR allows restoration to any point in time rather than just to specific backup snapshots. If your recovery requirements need granular restore points, ensure this is enabled in your PBM configuration.
+Shows whether Point-in-Time Recovery (PITR) oplog streaming is enabled. A green **ON** means PITR is active; a red **OFF** means it isn't.
 
-## Backup Agents
+PITR lets you restore to any moment in time, not just to the nearest backup snapshot. If your recovery objectives require granular restores, and this shows **OFF**, enable PITR in your PBM configuration.
+
+### Backup Agents
 
 Shows the total number of PBM agents currently monitored by PMM.
 
-Use this to verify that all expected agents across your MongoDB environment are registered and reporting. If this count doesn't match your expected number of nodes, you may have agents that failed to register or are offline.
+Compare this against the number of nodes you expect to be covered. A lower count means some agents have gone offline or failed to register. Any node without a running agent won't be backed up, so investigate immediately if the count doesn't match.
 
-Backups will fail if agents are down or offline. If the count is lower than expected, check agent status immediately.
+### Last Successful Backup
 
-## Last Successful Backup
+Shows the name of the most recent backup that completed successfully.
 
-Shows the name of the most recent successful backup.
+Use this as your quick recovery point check: it tells you exactly how far back you'd need to restore if something went wrong right now. 
 
-Use this to quickly confirm your current recovery point and verify that backups are running as expected. If this shows an old backup or **N/A**, investigate why recent backups may have failed.
+If it shows an old backup or **N/A**, investigate why backups stopped completing.
 
-## Backup Agent Summary
+## Status
 
-Shows the distribution of PBM agent statuses across your environment using a donut chart. Green represents agents with **OK** status, while red indicates agents that need attention (**CHECK**).
+### Backup Agent Summary
 
-Use this for a quick health check of your backup infrastructure. A predominantly green chart means your agents are healthy. Red segments indicate agents requiring investigation—drill down using the Backup Agent Status panel to identify specific hosts.
+Shows the distribution of PBM agent statuses across your environment as a donut chart. Green represents agents with **OK** status; red represents agents that need attention (**CHECK**).
 
-## Backup Agent Status
+A predominantly green chart means your backup infrastructure is healthy. Any red segments mean some agents have issues and backups on those nodes are at risk. 
 
-Shows the current status of each individual PBM agent, displayed as a hexagon grid with one hexagon per host. Green means **OK**, red means **CHECK**.
+When you see red, move to the **Backup Agent Status** panel to find out which specific hosts are affected.
 
-Use this to pinpoint exactly which agents need investigation when the Backup Agent Summary shows problems. Hover over a hexagon to see the hostname and quickly identify which nodes require attention.
+### Backup Agent Status
 
-## Backup Agent Status Over Time
+Shows the current status of each individual PBM agent as a hexagon grid, with one hexagon per host. Green means **OK**; red means **CHECK**.
 
-Shows how agent status has changed over the selected time range using a color-coded timeline. Green bars indicate **OK** status, red bars show **FAIL** or **DOWN** states.
+Use this to pinpoint exactly which nodes have agent problems after the **Backup Agent Summary** flags an issue. Hover over a hexagon to see the hostname.
 
-Use this to identify patterns and troubleshoot intermittent issues. This historical view helps correlate backup failures with other events like network issues or maintenance windows, and verify that previously problematic agents have stabilized.
+Arbiter nodes always show **FAIL** here. This is expected, because the PBM agent can't run on arbiters.
 
-Arbiter nodes will appear with a **FAIL** status. This is expected, as the PBM agent is not required on arbiter nodes and cannot run on them.
+### Backup Agent Status Over Time
 
-## Backup History
+Shows each agent's status history over the selected time range as a color-coded timeline. Green bars indicate **OK**; red bars indicate **FAIL** or **DOWN**.
 
-Shows a historical record of backup operations across your MongoDB infrastructure, including environment, cluster, backup name, size, and duration.
+Use this to tell the difference between a one-off failure and a recurring problem. Repeated red bars on the same node point to an underlying issue rather than a transient blip. 
 
-Use this to verify that scheduled backups are running successfully and to identify failed operations. The size and duration columns help spot anomalies—unusually small backups may indicate incomplete data capture, while long durations may signal performance issues.
+You can also use the timeline to correlate failures with events like deployments, network changes, or maintenance windows, and to confirm that a previously failing agent has fully recovered.
 
-The current status reporting may not capture the full range of error states available in PBM's native tools (including "stuck" or "incompatible" backups). This will be improved in an upcoming release.
+## Details
 
-## Backup Sizes
+### Backup History
 
-Shows the size of each backup in a bar chart format.
+Shows a record of backup operations across your MongoDB infrastructure, including environment, cluster, backup name, size, and duration.
 
-Use this to track storage requirements and plan capacity. Monitor for unusual changes—unexpectedly small backups could indicate incomplete data capture, while sudden increases might signal data growth that requires storage planning.
+Use this to verify your backup schedule is running and to catch failures before they affect your recovery options. 
 
-## Backup Duration
+Watch for two things: unusually small backups can mean data wasn't fully captured, and longer-than-normal durations can point to storage or network problems.
 
-Shows how long each backup operation took to complete, displayed in seconds.
+Note that status reporting here may not cover all PBM error states, such as "stuck" or "incompatible" backups. Use PBM's native tools for a complete picture until this is improved in a future release.
 
-Use this to identify performance issues in your backup process. Backups taking unusually long may signal problems with your MongoDB setup, network bandwidth, or storage performance. Tracking duration trends also helps you plan maintenance windows more accurately.
+### Backup Sizes
 
+Shows the size of each backup as a bar chart.
+
+Use this to track storage consumption over time and plan capacity. A sudden drop in size can mean a backup didn't capture all your data; a sudden increase may signal unexpected data growth that needs storage planning.
+
+### Backup Duration
+
+Shows how long each backup operation took to complete, in seconds.
+
+Use this to catch performance problems early. If a backup that normally takes a few minutes suddenly takes much longer, something changed: your dataset may have grown, storage may be slower, or there may be a network issue worth investigating. 
+
+Tracking duration trends also helps you schedule maintenance windows accurately.

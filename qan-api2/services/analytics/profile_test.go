@@ -26,6 +26,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/metadata"
 	jsonpb "google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
@@ -334,7 +335,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		}
 
 		got, err := s.GetReport(makeContext(t), &in)
-		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		require.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_queryid.json")
 
 		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
@@ -372,7 +373,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		}
 
 		got, err := s.GetReport(makeContext(t), &in)
-		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		require.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_service_name.json")
 
 		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
@@ -410,7 +411,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		}
 
 		got, err := s.GetReport(makeContext(t), &in)
-		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		require.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_database.json")
 
 		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
@@ -448,7 +449,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		}
 
 		got, err := s.GetReport(makeContext(t), &in)
-		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		require.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_schema.json")
 
 		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
@@ -486,7 +487,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		}
 
 		got, err := s.GetReport(makeContext(t), &in)
-		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		require.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_username.json")
 
 		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
@@ -524,7 +525,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		}
 
 		got, err := s.GetReport(makeContext(t), &in)
-		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		require.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_client_host.json")
 
 		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
@@ -548,7 +549,7 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 	}
 
 	genDimensionvalues := func(dimKey string, amount int) []string {
-		arr := []string{}
+		arr := make([]string, 0, amount)
 		for i := range amount {
 			arr = append(arr, fmt.Sprintf("%s%d", dimKey, i))
 		}
@@ -685,7 +686,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 		}
 
 		got, err := s.GetReport(makeContext(t), &in)
-		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		require.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_sparklines_60_points.json")
 
 		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
@@ -724,7 +725,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 		}
 
 		got, err := s.GetReport(makeContext(t), &in)
-		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		require.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_sparklines_90_points.json")
 
 		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
@@ -763,7 +764,7 @@ func TestService_GetReport_Search(t *testing.T) {
 		}
 
 		got, err := s.GetReport(makeContext(t), &in)
-		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		require.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Search_search_queryid.json")
 
 		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
@@ -794,7 +795,7 @@ func TestService_GetReport_Search(t *testing.T) {
 		}
 
 		got, err := s.GetReport(makeContext(t), &in)
-		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		require.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Search_search_fingerprint.json")
 
 		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
@@ -825,7 +826,7 @@ func TestService_GetReport_Search(t *testing.T) {
 		}
 
 		got, err := s.GetReport(makeContext(t), &in)
-		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		require.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Search_search_service_name.json")
 
 		marshaler := jsonpb.MarshalOptions{Indent: "\t"}
@@ -863,7 +864,7 @@ func TestServiceGetReportSpecialMetrics(t *testing.T) {
 		}
 
 		got, err := s.GetReport(makeContext(t), &in)
-		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		require.NoError(t, err, "Unexpected error in Service.GetReport()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestServiceGetReportSpecialMetrics_num_queries_with_errors.json")
 
 		marshaler := jsonpb.MarshalOptions{Indent: "\t"}

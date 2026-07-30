@@ -40,32 +40,35 @@ type TemplateRenderer struct {
 }
 
 // RenderTemplate replaces placeholders with real values in text.
-func (tr *TemplateRenderer) RenderTemplate(name, text string, templateParams map[string]interface{}) ([]byte, error) {
+func (tr *TemplateRenderer) RenderTemplate(name, text string, templateParams map[string]any) ([]byte, error) {
 	t := template.New(name)
 	t.Delims(tr.TemplateLeftDelim, tr.TemplateRightDelim)
 	t.Option("missingkey=error")
 
 	var buf bytes.Buffer
-	if _, err := t.Parse(text); err != nil {
+	_, err := t.Parse(text)
+	if err != nil {
 		return nil, err
 	}
-	if err := t.Execute(&buf, templateParams); err != nil {
+	err = t.Execute(&buf, templateParams)
+	if err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil
 }
 
 // RenderFiles creates temporary files and returns paths to created files.
-func (tr *TemplateRenderer) RenderFiles(templateParams map[string]interface{}) (map[string]interface{}, error) {
+func (tr *TemplateRenderer) RenderFiles(templateParams map[string]any) (map[string]any, error) {
 	// render files only if they are present to avoid creating temporary directory for every agent
 	if len(tr.TextFiles) == 0 {
 		return templateParams, nil
 	}
 
-	if err := os.RemoveAll(tr.TempDir); err != nil {
+	err := os.RemoveAll(tr.TempDir)
+	if err != nil {
 		return nil, err
 	}
-	err := os.MkdirAll(tr.TempDir, 0o700) //nolint:mnd
+	err = os.MkdirAll(tr.TempDir, 0o700) //nolint:mnd
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +111,7 @@ func RenderDSN(dsn string, files *agentv1.TextFiles, tempDir string) (string, er
 			TempDir:            tempDir,
 		}
 
-		templateParams, err := tr.RenderFiles(make(map[string]interface{}))
+		templateParams, err := tr.RenderFiles(make(map[string]any))
 		if err != nil {
 			return "", err
 		}
@@ -124,7 +127,8 @@ func RenderDSN(dsn string, files *agentv1.TextFiles, tempDir string) (string, er
 
 // CleanupTempDir removes the temporary directory.
 func CleanupTempDir(tempDir string, logger *logrus.Entry) {
-	if err := os.RemoveAll(tempDir); err != nil {
+	err := os.RemoveAll(tempDir)
+	if err != nil {
 		if logger != nil {
 			logger.Debugf("failed to remove the temporary directory: %s", err)
 		}

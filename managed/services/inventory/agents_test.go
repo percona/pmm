@@ -16,11 +16,11 @@
 package inventory
 
 import (
+	"context"
 	"reflect"
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -64,13 +64,13 @@ func TestAgents(t *testing.T) {
 			as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
 			as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
 			as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-				mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-				mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-				mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+				mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+				mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+				mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 			as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-				mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-				mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-				mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+				mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+				mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+				mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 			as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate").Return()
 
 			pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
@@ -110,7 +110,7 @@ func TestAgents(t *testing.T) {
 				ctx,
 				"00000000-0000-4000-8000-000000000006",
 				&inventoryv1.ChangeNodeExporterParams{
-					Enable: pointer.ToBool(false),
+					Enable: new(false),
 					// passing an empty map to remove custom labels
 					CustomLabels: &common.StringMap{},
 					MetricsResolutions: &common.MetricsResolutions{
@@ -141,23 +141,25 @@ func TestAgents(t *testing.T) {
 			ms, err = ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 			})
 			require.NoError(t, err)
 
 			actualAgent, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
-				PmmAgentId: pmmAgentID,
-				ServiceId:  ms.ServiceId,
-				Username:   "username",
+				PmmAgentId:        pmmAgentID,
+				ServiceId:         ms.ServiceId,
+				Username:          "username",
+				ConnectionTimeout: durationpb.New(11 * time.Second),
 			})
 			require.NoError(t, err)
 			expectedMySQLdExporter = &inventoryv1.MySQLdExporter{
-				AgentId:    "00000000-0000-4000-8000-000000000008",
-				PmmAgentId: "00000000-0000-4000-8000-000000000005",
-				ServiceId:  ms.ServiceId,
-				Username:   "username",
-				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				AgentId:           "00000000-0000-4000-8000-000000000008",
+				PmmAgentId:        "00000000-0000-4000-8000-000000000005",
+				ServiceId:         ms.ServiceId,
+				Username:          "username",
+				Status:            inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				ConnectionTimeout: durationpb.New(11 * time.Second),
 			}
 			assert.Equal(t, expectedMySQLdExporter, actualAgent.GetMysqldExporter())
 
@@ -170,25 +172,27 @@ func TestAgents(t *testing.T) {
 			ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-mongo",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(27017),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(27017)),
 			})
 			require.NoError(t, err)
 
 			actualAgent, err := as.AddMongoDBExporter(ctx, &inventoryv1.AddMongoDBExporterParams{
-				PmmAgentId:       pmmAgentID,
-				ServiceId:        ms.ServiceId,
-				Username:         "username",
-				StatsCollections: nil,
-				CollectionsLimit: 0, // no limit
+				PmmAgentId:                     pmmAgentID,
+				ServiceId:                      ms.ServiceId,
+				Username:                       "username",
+				StatsCollections:               nil,
+				CollectionsLimit:               0, // no limit
+				EnableDiagnosticDataHistograms: true,
 			})
 			require.NoError(t, err)
 			expectedMongoDBExporter = &inventoryv1.MongoDBExporter{
-				AgentId:    "00000000-0000-4000-8000-00000000000a",
-				PmmAgentId: pmmAgentID,
-				ServiceId:  ms.ServiceId,
-				Username:   "username",
-				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				AgentId:                        "00000000-0000-4000-8000-00000000000a",
+				PmmAgentId:                     pmmAgentID,
+				ServiceId:                      ms.ServiceId,
+				Username:                       "username",
+				Status:                         inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				EnableDiagnosticDataHistograms: true,
 			}
 			assert.Equal(t, expectedMongoDBExporter, actualAgent.GetMongodbExporter())
 
@@ -223,23 +227,25 @@ func TestAgents(t *testing.T) {
 			ps, err = ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-postgres",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(5432),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(5432)),
 			})
 			require.NoError(t, err)
 
 			actualAgent, err := as.AddPostgresExporter(ctx, &inventoryv1.AddPostgresExporterParams{
-				PmmAgentId: pmmAgentID,
-				ServiceId:  ps.ServiceId,
-				Username:   "username",
+				PmmAgentId:        pmmAgentID,
+				ServiceId:         ps.ServiceId,
+				Username:          "username",
+				ConnectionTimeout: durationpb.New(13 * time.Second),
 			})
 			require.NoError(t, err)
 			expectedPostgresExporter = &inventoryv1.PostgresExporter{
-				AgentId:    "00000000-0000-4000-8000-00000000000d",
-				PmmAgentId: pmmAgentID,
-				ServiceId:  ps.ServiceId,
-				Username:   "username",
-				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				AgentId:           "00000000-0000-4000-8000-00000000000d",
+				PmmAgentId:        pmmAgentID,
+				ServiceId:         ps.ServiceId,
+				Username:          "username",
+				Status:            inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				ConnectionTimeout: durationpb.New(13 * time.Second),
 			}
 			assert.Equal(t, expectedPostgresExporter, actualAgent.GetPostgresExporter())
 
@@ -274,8 +280,8 @@ func TestAgents(t *testing.T) {
 			valkey, err = ss.AddValkey(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-valkey",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(6379),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(6379)),
 			})
 			require.NoError(t, err)
 
@@ -346,8 +352,7 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("FilterByAgentType", func(t *testing.T) {
-			agentType := models.ExternalExporterType
-			actualAgents, err := as.List(ctx, models.AgentFilters{AgentType: &agentType})
+			actualAgents, err := as.List(ctx, models.AgentFilters{AgentType: new(models.ExternalExporterType)})
 			require.NoError(t, err)
 			require.Len(t, actualAgents, 1)
 			assert.Equal(t, expectedExternalExporter, actualAgents[0])
@@ -464,6 +469,34 @@ func TestAgents(t *testing.T) {
 			Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 		}
 		assert.Equal(t, expectedAgent, agent.GetRdsExporter())
+
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
+
+		changedAgent, err := as.ChangeRDSExporter(ctx, "00000000-0000-4000-8000-000000000006", &inventoryv1.ChangeRDSExporterParams{})
+		require.NoError(t, err)
+		expectedAgent = &inventoryv1.RDSExporter{
+			AgentId:      "00000000-0000-4000-8000-000000000006",
+			PmmAgentId:   "pmm-server",
+			NodeId:       "00000000-0000-4000-8000-000000000005",
+			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+			CustomLabels: map[string]string{"baz": "qux"},
+			Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+		}
+		assert.Equal(t, expectedAgent, changedAgent.GetRdsExporter())
+
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
+
+		changedAgent, err = as.ChangeRDSExporter(ctx, "00000000-0000-4000-8000-000000000006", &inventoryv1.ChangeRDSExporterParams{})
+		require.NoError(t, err)
+		expectedAgent = &inventoryv1.RDSExporter{
+			AgentId:      "00000000-0000-4000-8000-000000000006",
+			PmmAgentId:   "pmm-server",
+			NodeId:       "00000000-0000-4000-8000-000000000005",
+			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
+			CustomLabels: map[string]string{"baz": "qux"},
+			Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+		}
+		assert.Equal(t, expectedAgent, changedAgent.GetRdsExporter())
 	})
 
 	t.Run("AddExternalExporter", func(t *testing.T) {
@@ -541,13 +574,13 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
@@ -562,8 +595,8 @@ func TestAgents(t *testing.T) {
 		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mongo",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
 		})
 		require.NoError(t, err)
 		actualAgent, err := as.AddMongoDBExporter(ctx, &inventoryv1.AddMongoDBExporterParams{
@@ -633,13 +666,13 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
@@ -654,8 +687,8 @@ func TestAgents(t *testing.T) {
 		ps, err := ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-postgres",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(5432),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(5432)),
 		})
 		require.NoError(t, err)
 
@@ -689,13 +722,13 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
@@ -712,8 +745,8 @@ func TestAgents(t *testing.T) {
 		s, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
 		})
 		require.NoError(t, err)
 
@@ -858,8 +891,8 @@ func TestAgents(t *testing.T) {
 		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mongo-rta",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
 		})
 		require.NoError(t, err)
 
@@ -899,7 +932,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		// Try to change the internal PostgreSQL QAN agent (pmm-server's agent)
 		// The agent with ID "00000000-0000-4000-8000-000000000004" is the internal PostgreSQL QAN agent
 		_, err := as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
-			Enable: pointer.ToBool(false),
+			Enable: new(false),
 		})
 
 		// Expect a FailedPrecondition error
@@ -919,7 +952,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 
 		// Try to change the internal PostgreSQL QAN agent
 		agent, err := as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
-			Enable: pointer.ToBool(false),
+			Enable: new(false),
 		})
 
 		// Should succeed
@@ -929,7 +962,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		// Change it back to enabled
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
 		agent, err = as.ChangeQANPostgreSQLPgStatementsAgent(ctx, "00000000-0000-4000-8000-000000000004", &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
-			Enable: pointer.ToBool(true),
+			Enable: new(true),
 		})
 
 		// Should succeed
@@ -968,8 +1001,8 @@ func TestChangeRTAMongoDBAgent(t *testing.T) {
 		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mongo-rta",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
 		})
 		require.NoError(t, err)
 
@@ -990,5 +1023,267 @@ func TestChangeRTAMongoDBAgent(t *testing.T) {
 		})
 		require.NoError(t, err)
 		assert.Equal(t, durationpb.New(5*time.Second), resp.GetRtaMongodbAgent().RtaOptions.CollectInterval)
+	})
+}
+
+func TestChangeAgentConnectionCheck(t *testing.T) {
+	// Adds a pmm-agent, a PostgreSQL service and a postgres_exporter (without connection check)
+	// and returns the exporter's agent ID. Expects stateUpdates calls to RequestStateUpdate:
+	// one is made here (AddPostgresExporter), plus one per successful change.
+	addPostgresExporter := func(t *testing.T, ss *ServicesService, as *AgentsService, ctx context.Context, stateUpdates int) string {
+		t.Helper()
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005").Times(stateUpdates)
+
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+
+		ps, err := ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-postgres",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(5432)),
+		})
+		require.NoError(t, err)
+
+		exporter, err := as.AddPostgresExporter(ctx, &inventoryv1.AddPostgresExporterParams{
+			PmmAgentId:          pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:           ps.ServiceId,
+			Username:            "username",
+			SkipConnectionCheck: true,
+		})
+		require.NoError(t, err)
+
+		return exporter.GetPostgresExporter().AgentId
+	}
+
+	// Adds a pmm-agent, a MySQL service and a mysqld_exporter (without connection check) and returns the exporter's agent ID.
+	addMysqldExporter := func(t *testing.T, ss *ServicesService, as *AgentsService, ctx context.Context, stateUpdates int) string {
+		t.Helper()
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005").Times(stateUpdates)
+
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+
+		ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
+		ms, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
+		})
+		require.NoError(t, err)
+
+		exporter, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
+			PmmAgentId:          pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:           ms.ServiceId,
+			Username:            "username",
+			SkipConnectionCheck: true,
+		})
+		require.NoError(t, err)
+
+		return exporter.GetMysqldExporter().AgentId
+	}
+
+	connectionCheckCall := func(as *AgentsService, ctx context.Context) *mock.Call {
+		return as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name()))
+	}
+
+	t.Run("CheckRunsOnCredentialChange", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addPostgresExporter(t, ss, as, ctx, 2)
+
+		connectionCheckCall(as, ctx).Return(nil).Once()
+
+		resp, err := as.ChangePostgresExporter(ctx, agentID, &inventoryv1.ChangePostgresExporterParams{
+			Username: new("new-username"),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "new-username", resp.GetPostgresExporter().Username)
+	})
+
+	t.Run("RollbackOnFailedCheck", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addPostgresExporter(t, ss, as, ctx, 1)
+
+		checkErr := status.Error(codes.FailedPrecondition, "Connection check failed: FATAL: password authentication failed.")
+		connectionCheckCall(as, ctx).Return(checkErr).Once()
+
+		_, err := as.ChangePostgresExporter(ctx, agentID, &inventoryv1.ChangePostgresExporterParams{
+			Username: new("wrong-username"),
+			Password: new("wrong-password"),
+		})
+		tests.AssertGRPCError(t, status.Convert(checkErr), err)
+
+		// The change must be rolled back.
+		agent, err := as.Get(ctx, agentID)
+		require.NoError(t, err)
+		assert.Equal(t, "username", agent.(*inventoryv1.PostgresExporter).Username)
+	})
+
+	t.Run("NoCheckForUnrelatedChange", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addPostgresExporter(t, ss, as, ctx, 2)
+
+		// No CheckConnectionToService or GetInfoFromService expectations:
+		// changing only labels must not trigger a connection check.
+		resp, err := as.ChangePostgresExporter(ctx, agentID, &inventoryv1.ChangePostgresExporterParams{
+			CustomLabels: &common.StringMap{Values: map[string]string{"environment": "test"}},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{"environment": "test"}, resp.GetPostgresExporter().CustomLabels)
+	})
+
+	t.Run("SkipConnectionCheckHonored", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addPostgresExporter(t, ss, as, ctx, 2)
+
+		// No CheckConnectionToService or GetInfoFromService expectations:
+		// the explicit skip flag must bypass the check.
+		resp, err := as.ChangePostgresExporter(ctx, agentID, &inventoryv1.ChangePostgresExporterParams{
+			Username:            new("new-username"),
+			Password:            new("new-password"),
+			SkipConnectionCheck: new(true),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "new-username", resp.GetPostgresExporter().Username)
+	})
+
+	t.Run("MysqldOmittedSkipRunsCheck", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMysqldExporter(t, ss, as, ctx, 2)
+
+		connectionCheckCall(as, ctx).Return(nil).Once()
+
+		// SkipConnectionCheck left nil (omitted) -> GetSkipConnectionCheck() == false -> check runs.
+		resp, err := as.ChangeMySQLdExporter(ctx, agentID, &inventoryv1.ChangeMySQLdExporterParams{
+			Username: new("new-username"), // AffectsConnection() == true
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "new-username", resp.GetMysqldExporter().Username)
+	})
+
+	t.Run("MysqldExplicitFalseSkipRunsCheck", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMysqldExporter(t, ss, as, ctx, 2)
+
+		connectionCheckCall(as, ctx).Return(nil).Once()
+
+		// Explicit false must behave identically to omitted: the check still runs.
+		resp, err := as.ChangeMySQLdExporter(ctx, agentID, &inventoryv1.ChangeMySQLdExporterParams{
+			Username:            new("new-username"),
+			SkipConnectionCheck: new(false),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, "new-username", resp.GetMysqldExporter().Username)
+	})
+}
+
+// TestAddAgentConnectionCheck locks in the Add-side connection-check behavior that
+// executeAgentAdd centralizes: exporters run the check AND fetch service info, while
+// QAN agents run only the check. The service-info broker is deliberately left
+// unregistered on the QAN path so an unexpected GetInfoFromService call would fail.
+func TestAddAgentConnectionCheck(t *testing.T) {
+	connectionCheckCall := func(as *AgentsService, ctx context.Context) *mock.Call {
+		return as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name()))
+	}
+
+	serviceInfoCall := func(as *AgentsService, ctx context.Context) *mock.Call {
+		return as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name()))
+	}
+
+	t.Run("QANRunsCheckWithoutServiceInfo", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005").Once()
+
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+
+		ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
+		ms, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
+		})
+		require.NoError(t, err)
+
+		// Only the connection check is expected. GetInfoFromService is intentionally not
+		// registered, so a call to it would panic as an unexpected mock invocation.
+		connectionCheckCall(as, ctx).Return(nil).Once()
+
+		_, err = as.AddQANMySQLPerfSchemaAgent(ctx, &inventoryv1.AddQANMySQLPerfSchemaAgentParams{
+			PmmAgentId: pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:  ms.ServiceId,
+			Username:   "username",
+		})
+		require.NoError(t, err)
+
+		as.sib.(*mockServiceInfoBroker).AssertNotCalled(t, "GetInfoFromService")
+	})
+
+	t.Run("ExporterRunsCheckWithServiceInfo", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", "00000000-0000-4000-8000-000000000005").Return(true)
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005").Once()
+
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+
+		ps, err := ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-postgres",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(5432)),
+		})
+		require.NoError(t, err)
+
+		// Exporters trigger both the connection check and the service-info fetch.
+		connectionCheckCall(as, ctx).Return(nil).Once()
+		serviceInfoCall(as, ctx).Return(nil).Once()
+
+		_, err = as.AddPostgresExporter(ctx, &inventoryv1.AddPostgresExporterParams{
+			PmmAgentId: pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:  ps.ServiceId,
+			Username:   "username",
+		})
+		require.NoError(t, err)
 	})
 }

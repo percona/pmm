@@ -17,10 +17,10 @@ package backup
 
 import (
 	"database/sql"
+	"errors"
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -115,10 +115,10 @@ func TestDeleteArtifact(t *testing.T) {
 		require.NoError(t, err)
 		go func() {
 			tx, err := db.BeginTx(t.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable})
-			require.NoError(t, err)
+			assert.NoError(t, err)
 
 			err = models.RemoveRestoreHistoryItem(tx.Querier, ri.ID)
-			require.NoError(t, err)
+			assert.NoError(t, err)
 
 			time.Sleep(time.Second * 3)
 			err = tx.Commit()
@@ -167,14 +167,14 @@ func TestDeleteArtifact(t *testing.T) {
 			Return(nil).Once()
 
 		err := removalService.DeleteArtifact(mockedStorage, artifact.ID, true)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// Removing files running in goroutine, need to wait some time.
 		time.Sleep(time.Second * 3)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
 		assert.Nil(t, artifact)
-		assert.ErrorIs(t, err, models.ErrNotFound)
+		require.ErrorIs(t, err, models.ErrNotFound)
 	})
 
 	t.Run("successful delete pitr", func(t *testing.T) {
@@ -199,7 +199,7 @@ func TestDeleteArtifact(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		chunksRet := []*oplogChunk{
+		chunksRet := []*OplogChunk{
 			{FName: "chunk1"},
 			{FName: "chunk2"},
 			{FName: "chunk3"},
@@ -224,14 +224,14 @@ func TestDeleteArtifact(t *testing.T) {
 			Return(nil).Once()
 
 		err = removalService.DeleteArtifact(mockedStorage, artifact.ID, true)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		// Removing files running in goroutine, need to wait some time.
 		time.Sleep(time.Second * 3)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
 		assert.Nil(t, artifact)
-		assert.ErrorIs(t, err, models.ErrNotFound)
+		require.ErrorIs(t, err, models.ErrNotFound)
 	})
 
 	mockedPbmPITRService.AssertExpectations(t)
@@ -287,12 +287,10 @@ func TestTrimPITRArtifact(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	restoreTo := time.Unix(123, 456)
-
 	artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
 		Metadata: &models.Metadata{
 			FileList:  []models.File{{Name: "dir2", IsDirectory: true}, {Name: "file4"}, {Name: "file5"}, {Name: "file6"}},
-			RestoreTo: &restoreTo,
+			RestoreTo: new(time.Unix(123, 456)),
 		},
 	})
 	require.NoError(t, err)
@@ -337,7 +335,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 	})
 
 	t.Run("successful", func(t *testing.T) {
-		chunksRet := []*oplogChunk{
+		chunksRet := []*OplogChunk{
 			{FName: "chunk1"},
 			{FName: "chunk2"},
 			{FName: "chunk3"},
@@ -371,6 +369,46 @@ func TestTrimPITRArtifact(t *testing.T) {
 		require.NotNil(t, artifact)
 		assert.Equal(t, models.SuccessBackupStatus, artifact.Status)
 		assert.Len(t, artifact.MetadataList, 2)
+	})
+
+	t.Run("trimming all remaining metadata", func(t *testing.T) {
+		chunksRet := []*OplogChunk{
+			{FName: "chunkA"},
+		}
+
+		mockedStorage.On("RemoveRecursive", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/dir2/").
+			Return(nil).Once()
+		mockedStorage.On("Remove", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/file4").
+			Return(nil).Once()
+		mockedStorage.On("Remove", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/file5").
+			Return(nil).Once()
+		mockedStorage.On("Remove", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/file6").
+			Return(nil).Once()
+		mockedStorage.On("RemoveRecursive", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/dir3/").
+			Return(nil).Once()
+		mockedStorage.On("Remove", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/file7").
+			Return(nil).Once()
+		mockedStorage.On("Remove", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/file8").
+			Return(nil).Once()
+		mockedStorage.On("Remove", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "artifact_folder/file9").
+			Return(nil).Once()
+
+		// All metadata is removed, so there is no remaining restore point and
+		// every PITR chunk is deleted (until == nil). Trimming must not panic
+		// indexing an empty MetadataList.
+		mockedPbmPITRService.On("GetPITRFiles", mock.Anything, mock.Anything, locationRes, mock.Anything, mock.Anything).Return(chunksRet, nil).Once()
+		mockedStorage.On("Remove", mock.Anything, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, "chunkA").
+			Return(nil).Once()
+
+		err := removalService.TrimPITRArtifact(mockedStorage, artifact.ID, 2)
+		require.NoError(t, err)
+
+		time.Sleep(time.Second * 2)
+
+		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
+		require.NoError(t, err)
+		require.NotNil(t, artifact)
+		assert.Empty(t, artifact.MetadataList)
 	})
 
 	mockedStorage.AssertExpectations(t)
@@ -413,7 +451,7 @@ func TestLockArtifact(t *testing.T) {
 		res, oldStatus, err := removalService.lockArtifact(artifact.ID, models.FailedToDeleteBackupStatus)
 		assert.Nil(t, res)
 		assert.Empty(t, oldStatus)
-		assert.ErrorIs(t, err, ErrIncorrectArtifactStatus)
+		require.ErrorIs(t, err, ErrIncorrectArtifactStatus)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
 		require.NoError(t, err)
@@ -425,7 +463,7 @@ func TestLockArtifact(t *testing.T) {
 		res, oldStatus, err := removalService.lockArtifact(artifact.ID, models.DeletingBackupStatus)
 		assert.Nil(t, res)
 		assert.Empty(t, oldStatus)
-		assert.ErrorIs(t, err, ErrIncorrectArtifactStatus)
+		require.ErrorIs(t, err, ErrIncorrectArtifactStatus)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
 		require.NoError(t, err)
@@ -507,7 +545,7 @@ func TestReleaseArtifact(t *testing.T) {
 
 	t.Run("wrong releasing status", func(t *testing.T) {
 		err := removalService.releaseArtifact(artifact.ID, models.PendingBackupStatus)
-		assert.ErrorIs(t, err, ErrIncorrectArtifactStatus)
+		require.ErrorIs(t, err, ErrIncorrectArtifactStatus)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
 		require.NoError(t, err)
@@ -517,7 +555,7 @@ func TestReleaseArtifact(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		err := removalService.releaseArtifact(artifact.ID, models.SuccessBackupStatus)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		artifact, err = models.FindArtifactByID(db.Querier, artifact.ID)
 		require.NoError(t, err)

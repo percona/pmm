@@ -26,9 +26,6 @@ const (
 	// PlatformInsecure allows PMM to skip TLS verification when connecting to Percona Platform.
 	PlatformInsecure = "PMM_DEV_PERCONA_PLATFORM_INSECURE"
 
-	// PlatformPublicKey is used to store the public key for Percona Platform.
-	PlatformPublicKey = "PMM_DEV_PERCONA_PLATFORM_PUBLIC_KEY"
-
 	// InterfaceToBind specifies the network interface that the PMM Server should bind to.
 	InterfaceToBind = "PMM_INTERFACE_TO_BIND"
 
@@ -39,13 +36,16 @@ const (
 	PlatformAPITimeout = "PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT"
 
 	// PlatformAddress is the environment variable name used to store the URL for Percona Platform.
-	PlatformAddress = "PMM_DEV_PERCONA_PLATFORM_ADDRESS"
+	PlatformAddress = "PMM_PERCONA_PLATFORM_ADDRESS"
 
 	// EnableInternalPgQAN is used to enable Query Analytics for PMM's internal PostgreSQL.
 	EnableInternalPgQAN = "PMM_ENABLE_INTERNAL_PG_QAN"
 
 	// ClickHouseNodes is used to store the ClickHouse nodes.
 	ClickHouseNodes = "PMM_CLICKHOUSE_NODES"
+
+	// ClickHouseConfig specifies the configuration for ClickHouse.
+	ClickHouseConfig = "PMM_CLICKHOUSE_CONFIG"
 )
 
 // GetBool returns the boolean value of the environment variable.

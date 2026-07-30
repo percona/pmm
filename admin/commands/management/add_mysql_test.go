@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
@@ -154,9 +155,7 @@ func TestRun(t *testing.T) {
 		}
 		_, err := cmd.RunCmd()
 
-		if assert.Error(t, err) {
-			expected := "Unrecognized option. To create a user, see https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql/mysql.html#create-a-database-account-for-pmm"
-			assert.Equal(t, expected, err.Error())
-		}
+		expected := "Unrecognized option. To create a user, see https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/connect-database/mysql/mysql.html#create-a-database-account-for-pmm"
+		require.EqualError(t, err, expected)
 	})
 }

@@ -157,6 +157,17 @@ func TestNodes(t *testing.T) {
 		err := ns.Remove(ctx, "no-such-id", false)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-id" not found.`), err)
 	})
+
+	t.Run("RemovePMMServerNode", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		defer teardown(t)
+
+		expected := status.New(codes.PermissionDenied, `PMM Server node can't be removed.`)
+		err := ns.Remove(ctx, models.PMMServerNodeID, false)
+		tests.AssertGRPCError(t, expected, err)
+		err = ns.Remove(ctx, models.PMMServerNodeID, true)
+		tests.AssertGRPCError(t, expected, err)
+	})
 }
 
 func TestAddNode(t *testing.T) {
@@ -376,7 +387,8 @@ func TestAddNode(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
-		_, err := ns.AddNode(ctx,
+		_, err := ns.AddNode(
+			ctx,
 			&inventoryv1.AddNodeRequest{
 				Node: &inventoryv1.AddNodeRequest_Generic{
 					Generic: &inventoryv1.AddGenericNodeParams{NodeName: ""},

@@ -20,7 +20,6 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/stretchr/testify/assert"
@@ -55,14 +54,13 @@ func TestNodeExporterChangeAgent(t *testing.T) {
 
 		t.Run("EnableAgent", func(t *testing.T) {
 			customLabels := map[string]string{"env": "production", "region": "us-west"}
-			logLevel := flags.LogLevel("info")
 			cmd := &ChangeAgentNodeExporterCommand{
 				AgentID:      agentID,
-				Enable:       pointer.ToBool(true),
+				Enable:       new(true),
 				CustomLabels: &customLabels,
-				PushMetrics:  pointer.ToBool(true),
+				PushMetrics:  new(true),
 			}
-			cmd.LogLevel = &logLevel
+			cmd.LogLevel = new(flags.LogLevel("info"))
 
 			result, err := cmd.RunCmd()
 			require.NoError(t, err)
@@ -83,8 +81,8 @@ func TestNodeExporterChangeAgent(t *testing.T) {
 		t.Run("DisableAgent", func(t *testing.T) {
 			cmd := &ChangeAgentNodeExporterCommand{
 				AgentID:        agentID,
-				Enable:         pointer.ToBool(false),
-				ExposeExporter: pointer.ToBool(true),
+				Enable:         new(false),
+				ExposeExporter: new(true),
 			}
 
 			result, err := cmd.RunCmd()
@@ -217,7 +215,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentNodeExporterCommand{
 			AgentID: agentID,
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()

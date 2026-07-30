@@ -19,6 +19,10 @@ export const ReleaseNotes: FC<ReleaseNotesProps> = ({ content }) => {
           height: 'auto',
           maxWidth: '100%',
         },
+        table: {
+          display: 'block',
+          overflowX: 'auto',
+        },
         'table, tr, th, td': {
           p: 1,
           textAlign: 'left',
@@ -73,7 +77,11 @@ export const ReleaseNotes: FC<ReleaseNotesProps> = ({ content }) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           a: ({ ref, ...props }) => <Link {...props} />,
           i: ({ className }) => (className ? IconMap[className] || null : null),
-          code: ({ children }) => <CodeBlock>{children}</CodeBlock>,
+          // CodeBlock renders its own <pre>, so unwrap the markdown one
+          pre: ({ children }) => <>{children}</>,
+          code: ({ children, className }) => (
+            <CodeBlock className={className}>{children}</CodeBlock>
+          ),
         }}
       >
         {content}

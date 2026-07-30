@@ -131,7 +131,7 @@ func file_extensions_v1_redact_proto_rawDescGZIP() []byte {
 var (
 	file_extensions_v1_redact_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_extensions_v1_redact_proto_goTypes   = []any{
-		(RedactType)(0),                   // 0: extensions.v1.RedactType
+		RedactType(0),                     // 0: extensions.v1.RedactType
 		(*descriptorpb.FieldOptions)(nil), // 1: google.protobuf.FieldOptions
 	}
 )

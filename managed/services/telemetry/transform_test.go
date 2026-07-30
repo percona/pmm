@@ -18,8 +18,9 @@ package telemetry
 import (
 	"testing"
 
-	telemetryv1 "github.com/percona/saas/gen/telemetry/generic"
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestTransformToJSON(t *testing.T) {
@@ -34,7 +35,7 @@ func TestTransformToJSON(t *testing.T) {
 		name    string
 		args    args
 		want    []*telemetryv1.GenericReport_Metric
-		wantErr assert.ErrorAssertionFunc
+		wantErr require.ErrorAssertionFunc
 	}{
 		{
 			name: "nil metrics",
@@ -43,7 +44,7 @@ func TestTransformToJSON(t *testing.T) {
 				metrics: nil,
 			},
 			want:    nil,
-			wantErr: assert.NoError,
+			wantErr: require.NoError,
 		},
 		{
 			name: "empty metrics",
@@ -52,7 +53,7 @@ func TestTransformToJSON(t *testing.T) {
 				metrics: noMetrics,
 			},
 			want:    noMetrics,
-			wantErr: assert.NoError,
+			wantErr: require.NoError,
 		},
 		{
 			name: "no Transform in config",
@@ -61,7 +62,7 @@ func TestTransformToJSON(t *testing.T) {
 				metrics: noMetrics,
 			},
 			want:    noMetrics,
-			wantErr: assert.NoError,
+			wantErr: require.NoError,
 		},
 		{
 			name: "no Metrics config",
@@ -70,7 +71,7 @@ func TestTransformToJSON(t *testing.T) {
 				metrics: noMetrics,
 			},
 			want:    noMetrics,
-			wantErr: assert.NoError,
+			wantErr: require.NoError,
 		},
 		{
 			name: "no Metric Name config",
@@ -79,7 +80,7 @@ func TestTransformToJSON(t *testing.T) {
 				metrics: noMetrics,
 			},
 			want:    noMetrics,
-			wantErr: assert.NoError,
+			wantErr: require.NoError,
 		},
 		{
 			name: "invalid seq",
@@ -93,7 +94,7 @@ func TestTransformToJSON(t *testing.T) {
 				},
 			},
 			want:    nil,
-			wantErr: assert.Error,
+			wantErr: require.Error,
 		},
 		{
 			name: "correct seq",
@@ -109,7 +110,7 @@ func TestTransformToJSON(t *testing.T) {
 			want: []*telemetryv1.GenericReport_Metric{
 				{Key: configJSON().Transform.Metric, Value: `{"v":[{"b":"v1","my-metric":"v1"},{"b":"v1","my-metric":"v1"}]}`},
 			},
-			wantErr: assert.NoError,
+			wantErr: require.NoError,
 		},
 		{
 			name: "happy path",
@@ -123,7 +124,7 @@ func TestTransformToJSON(t *testing.T) {
 			want: []*telemetryv1.GenericReport_Metric{
 				{Key: configJSON().Transform.Metric, Value: `{"v":[{"my-metric":"v1"},{"my-metric":"v2"}]}`},
 			},
-			wantErr: assert.NoError,
+			wantErr: require.NoError,
 		},
 		{
 			name: "test_mysql_plugins_with_an_missing_metric",
@@ -145,17 +146,14 @@ func TestTransformToJSON(t *testing.T) {
 			want: []*telemetryv1.GenericReport_Metric{
 				{Key: "metric", Value: `{"v":[{"licence":"GPL","name":"INNODB_TABLES","status":"ACTIVE","type":"INFORMATION SCHEMA"}]}`},
 			},
-			wantErr: assert.NoError,
+			wantErr: require.NoError,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := transformToJSON(tt.args.config, tt.args.metrics)
-			if !tt.wantErr(t, err) {
-				t.Logf("config: %v", tt.args.config)
-				return
-			}
+			tt.wantErr(t, err)
 			assert.Equalf(t, tt.want, got, "transformToJSON(%v, %v)", tt.args.config, tt.args.metrics)
 		})
 	}
@@ -173,7 +171,7 @@ func TestTransformExportValues(t *testing.T) {
 		name    string
 		args    args
 		want    []*telemetryv1.GenericReport_Metric
-		wantErr assert.ErrorAssertionFunc
+		wantErr require.ErrorAssertionFunc
 	}{
 		{
 			name: "nil metrics",
@@ -182,7 +180,7 @@ func TestTransformExportValues(t *testing.T) {
 				metrics: nil,
 			},
 			want:    nil,
-			wantErr: assert.NoError,
+			wantErr: require.NoError,
 		},
 		{
 			name: "empty metrics",
@@ -191,7 +189,7 @@ func TestTransformExportValues(t *testing.T) {
 				metrics: noMetrics,
 			},
 			want:    noMetrics,
-			wantErr: assert.NoError,
+			wantErr: require.NoError,
 		},
 		{
 			name: "no Transform in config",
@@ -200,7 +198,7 @@ func TestTransformExportValues(t *testing.T) {
 				metrics: noMetrics,
 			},
 			want:    noMetrics,
-			wantErr: assert.NoError,
+			wantErr: require.NoError,
 		},
 		{
 			name: "no Metrics config",
@@ -209,7 +207,7 @@ func TestTransformExportValues(t *testing.T) {
 				metrics: noMetrics,
 			},
 			want:    noMetrics,
-			wantErr: assert.NoError,
+			wantErr: require.NoError,
 		},
 		{
 			name: "invalid data source",
@@ -221,7 +219,7 @@ func TestTransformExportValues(t *testing.T) {
 				},
 			},
 			want:    nil,
-			wantErr: assert.Error,
+			wantErr: require.Error,
 		},
 		{
 			name: "happy path",
@@ -236,17 +234,14 @@ func TestTransformExportValues(t *testing.T) {
 				{Key: "metric-a", Value: "1"},
 				{Key: "metric-b", Value: "1"},
 			},
-			wantErr: assert.NoError,
+			wantErr: require.NoError,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := transformExportValues(tt.args.config, tt.args.metrics)
-			if !tt.wantErr(t, err) {
-				t.Logf("config: %v", tt.args.config)
-				return
-			}
+			tt.wantErr(t, err)
 			assert.Equalf(t, tt.want, got, "transformExportValues(%v, %v)", tt.args.config, tt.args.metrics)
 		})
 	}

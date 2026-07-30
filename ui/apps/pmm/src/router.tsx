@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate, createBrowserRouter } from 'react-router-dom';
+import { Settings } from 'pages/settings';
 import { Updates } from 'pages/updates';
 import { UpdateClients } from 'pages/update-clients/UpdateClients';
 import { MainWithNav } from 'components/main/MainWithNav';
@@ -9,9 +10,10 @@ import { RealtimeSelection } from 'pages/rta/selection';
 import Providers from 'Providers';
 import { PMM_NEW_NAV_PATH } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
-import { Redirect } from 'components/redirect';
+import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import { AlertsPage } from 'pages/alerting/status';
 
 const router = createBrowserRouter(
   [
@@ -40,6 +42,19 @@ const router = createBrowserRouter(
               element: <HelpCenter />,
             },
             {
+              path: 'alerting',
+              children: [
+                {
+                  path: 'status',
+                  element: <AlertsPage />,
+                },
+              ],
+            },
+            {
+              path: 'settings/:tab?',
+              element: <Settings />,
+            },
+            {
               path: 'rta',
               children: [
                 {
@@ -59,6 +74,15 @@ const router = createBrowserRouter(
                   element: <RealtimeOverviewPage />,
                 },
               ],
+            },
+            // Fallback
+            {
+              path: 'graph/settings/:tab?',
+              element: <SettingsRedirect />,
+            },
+            {
+              path: 'graph/alerting/alerts',
+              element: <Navigate to="/alerting/status" replace />,
             },
             // Grafana routes are handled at the Main component level
             {

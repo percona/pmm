@@ -21,7 +21,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/stretchr/testify/assert"
@@ -63,18 +62,17 @@ func TestMysqldExporterChangeAgent(t *testing.T) {
 			customLabels := map[string]string{"env": "staging", "version": "8.0"}
 			cmd := &ChangeAgentMysqldExporterCommand{
 				AgentID:                   agentID,
-				Enable:                    pointer.ToBool(true),
-				Username:                  pointer.ToString("new-user"),
-				Password:                  pointer.ToString("new-password"),
-				TLS:                       pointer.ToBool(true),
-				TLSSkipVerify:             pointer.ToBool(false),
+				Enable:                    new(true),
+				Username:                  new("new-user"),
+				Password:                  new("new-password"),
+				TLS:                       new(true),
+				TLSSkipVerify:             new(false),
 				CustomLabels:              &customLabels,
-				PushMetrics:               pointer.ToBool(true),
-				ExposeExporter:            pointer.ToBool(true),
-				TablestatsGroupTableLimit: pointer.ToInt32(2000),
+				PushMetrics:               new(true),
+				ExposeExporter:            new(true),
+				TablestatsGroupTableLimit: new(int32(2000)),
 			}
-			logLevel := flags.LogLevel("debug")
-			cmd.LogLevel = &logLevel
+			cmd.LogLevel = new(flags.LogLevel("debug"))
 
 			result, err := cmd.RunCmd()
 			require.NoError(t, err)
@@ -101,7 +99,7 @@ func TestMysqldExporterChangeAgent(t *testing.T) {
 		t.Run("DisableAgentWithCollectors", func(t *testing.T) {
 			cmd := &ChangeAgentMysqldExporterCommand{
 				AgentID:           agentID,
-				Enable:            pointer.ToBool(false),
+				Enable:            new(false),
 				DisableCollectors: []string{"info_schema.innodb_metrics", "info_schema.processlist"},
 			}
 
@@ -154,7 +152,7 @@ func TestMysqldExporterChangeAgent(t *testing.T) {
 
 		cmd := &ChangeAgentMysqldExporterCommand{
 			AgentID: agentID,
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()
@@ -169,9 +167,9 @@ func TestMysqldExporterChangeAgent(t *testing.T) {
 		t.Run("NonExistentTLSFiles", func(t *testing.T) {
 			cmd := &ChangeAgentMysqldExporterCommand{
 				AgentID:     "test-agent-id",
-				TLSCaFile:   pointer.ToString("/non/existent/ca.pem"),
-				TLSCertFile: pointer.ToString("/non/existent/cert.pem"),
-				TLSKeyFile:  pointer.ToString("/non/existent/key.pem"),
+				TLSCaFile:   new("/non/existent/ca.pem"),
+				TLSCertFile: new("/non/existent/cert.pem"),
+				TLSKeyFile:  new("/non/existent/key.pem"),
 			}
 
 			result, err := cmd.RunCmd()
@@ -338,6 +336,41 @@ Configuration changes applied:
 		expectedJSON := `{
 			"mysqld_exporter": {
 				"disable_collectors": null
+			}
+		}`
+		assert.JSONEq(t, expectedJSON, capturedRequestBody)
+	})
+
+	t.Run("KongParsingWithSkipConnectionCheck", func(t *testing.T) {
+		agentID := "test-mysqld-skip"
+
+		var capturedRequestBody string
+
+		cleanup := setupChangeAgentTestServer(t, agentID, "", &capturedRequestBody)
+		defer cleanup()
+
+		var cmd ChangeAgentMysqldExporterCommand
+		parser := kong.Must(&cmd)
+
+		args := []string{agentID, "--skip-connection-check"}
+
+		ctx, err := parser.Parse(args)
+		require.NoError(t, err)
+		require.NotNil(t, ctx)
+
+		require.NotNil(t, cmd.SkipConnectionCheck)
+		assert.True(t, *cmd.SkipConnectionCheck)
+
+		result, err := cmd.RunCmd()
+		require.NoError(t, err)
+		require.NotNil(t, result)
+
+		// Positive counterpart to KongParsingWithMinimalFlags: when the flag IS passed,
+		// the request body must carry skip_connection_check: true (not omitted).
+		expectedJSON := `{
+			"mysqld_exporter": {
+				"disable_collectors": null,
+				"skip_connection_check": true
 			}
 		}`
 		assert.JSONEq(t, expectedJSON, capturedRequestBody)

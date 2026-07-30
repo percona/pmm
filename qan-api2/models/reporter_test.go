@@ -16,8 +16,11 @@
 package models
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
+	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/prometheus/prometheus/model/labels"
@@ -150,7 +153,7 @@ func TestHeadersToLbacFilter(t *testing.T) {
 		ctx := setup(t, `["{custom_label=\"value\",service_type=\"mysql\"}"]`)
 		filter, err := headersToLbacFilter(ctx)
 		require.NoError(t, err)
-		require.Equal(t, filter, "((hasAny(labels.key, ['custom_label']) AND hasAny(labels.value, ['value'])) AND service_type = 'mysql')")
+		require.Equal(t, "((hasAny(labels.key, ['custom_label']) AND hasAny(labels.value, ['value'])) AND service_type = 'mysql')", filter)
 	})
 }
 
@@ -281,4 +284,82 @@ func TestMatchersToSQL(t *testing.T) {
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "unsupported matcher type")
 	})
+}
+
+func TestQueryDimensionTemplate(t *testing.T) {
+	type tmplArgs struct {
+		MainMetric    string
+		DimensionName string
+		Dimensions    map[string][]string
+		Labels        map[string][]string
+		LbacFilter    string
+	}
+
+	whitespace := regexp.MustCompile(`\s+`)
+	render := func(t *testing.T, args tmplArgs) string {
+		t.Helper()
+		var buf bytes.Buffer
+		require.NoError(t, queryDimensionTmpl.Execute(&buf, args))
+		return strings.TrimSpace(whitespace.ReplaceAllString(buf.String(), " "))
+	}
+
+	testCases := []struct {
+		name     string
+		args     tmplArgs
+		expected string
+	}{
+		{
+			// No filters: enumerate every value (sumIf predicate is the constant 1).
+			name: "no dimension filters",
+			args: tmplArgs{MainMetric: "m_query_time_sum", DimensionName: "service_name"},
+			expected: "SELECT 'service_name' AS key, service_name AS value, " +
+				"sumIf(m_query_time_sum, 1 ) AS main_metric_sum " +
+				"FROM metrics WHERE (period_start >= ?) AND (period_start <= ?) " +
+				"GROUP BY service_name WITH TOTALS ORDER BY main_metric_sum DESC, value ASC",
+		},
+		{
+			name: "single dimension filter",
+			args: tmplArgs{
+				MainMetric:    "m_query_time_sum",
+				DimensionName: "service_name",
+				Dimensions:    map[string][]string{"environment": {"prod", "dev"}},
+			},
+			expected: "SELECT 'service_name' AS key, service_name AS value, " +
+				"sumIf(m_query_time_sum, environment IN ('prod', 'dev') ) AS main_metric_sum " +
+				"FROM metrics WHERE (period_start >= ?) AND (period_start <= ?) " +
+				"GROUP BY service_name WITH TOTALS ORDER BY main_metric_sum DESC, value ASC",
+		},
+		{
+			// text/template ranges maps in sorted key order, so the predicate is deterministic.
+			name: "multiple dimension filters ANDed in sorted key order",
+			args: tmplArgs{
+				MainMetric:    "num_queries",
+				DimensionName: "username",
+				Dimensions:    map[string][]string{"environment": {"prod"}, "cluster": {"c1", "c2"}},
+			},
+			expected: "SELECT 'username' AS key, username AS value, " +
+				"sumIf(num_queries, cluster IN ('c1', 'c2') AND environment IN ('prod') ) AS main_metric_sum " +
+				"FROM metrics WHERE (period_start >= ?) AND (period_start <= ?) " +
+				"GROUP BY username WITH TOTALS ORDER BY main_metric_sum DESC, value ASC",
+		},
+		{
+			name: "LBAC filter is added to WHERE",
+			args: tmplArgs{
+				MainMetric:    "m_query_time_sum",
+				DimensionName: "service_name",
+				LbacFilter:    "service_type = 'mysql'",
+			},
+			expected: "SELECT 'service_name' AS key, service_name AS value, " +
+				"sumIf(m_query_time_sum, 1 ) AS main_metric_sum " +
+				"FROM metrics WHERE (period_start >= ?) AND (period_start <= ?) " +
+				"AND (service_type = 'mysql') " +
+				"GROUP BY service_name WITH TOTALS ORDER BY main_metric_sum DESC, value ASC",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			require.Equal(t, tc.expected, render(t, tc.args))
+		})
+	}
 }

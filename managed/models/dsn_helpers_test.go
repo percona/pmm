@@ -68,7 +68,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 				ServiceType: models.MySQLServiceType,
 				ServiceName: "Service-2 on N1",
 				NodeID:      "N1",
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(3306),
 			},
 			&models.Service{
@@ -83,63 +83,63 @@ func TestFindDSNByServiceID(t *testing.T) {
 				ServiceType: models.MongoDBServiceType,
 				ServiceName: "Service-4 on N1",
 				NodeID:      "N1",
-				Address:     pointer.ToString("127.0.0.1"),
+				Address:     new("127.0.0.1"),
 				Port:        pointer.ToUint16OrNil(27017),
 			},
 			&models.Agent{
 				AgentID:      "PA1",
 				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("N1"),
+				RunsOnNodeID: new("N1"),
 			},
 			&models.Agent{
 				AgentID:      "PA2",
 				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("N1"),
-				Version:      pointer.ToString("2.12.0"),
+				RunsOnNodeID: new("N1"),
+				Version:      new("2.12.0"),
 			},
 			&models.Agent{
 				AgentID:      "A1",
 				AgentType:    models.MySQLdExporterType,
-				PMMAgentID:   pointer.ToString("PA1"),
+				PMMAgentID:   new("PA1"),
 				RunsOnNodeID: nil,
-				ServiceID:    pointer.ToString("S1"),
+				ServiceID:    new("S1"),
 			},
 			&models.Agent{
 				AgentID:      "A2",
 				AgentType:    models.MySQLdExporterType,
-				PMMAgentID:   pointer.ToString("PA1"),
+				PMMAgentID:   new("PA1"),
 				RunsOnNodeID: nil,
-				Username:     pointer.ToString("pmm-user"),
-				ServiceID:    pointer.ToString("S2"),
+				Username:     new("pmm-user"),
+				ServiceID:    new("S2"),
 			},
 			&models.Agent{
 				AgentID:      "A3",
 				AgentType:    models.QANMySQLSlowlogAgentType,
-				PMMAgentID:   pointer.ToString("PA1"),
+				PMMAgentID:   new("PA1"),
 				RunsOnNodeID: nil,
-				Username:     pointer.ToString("pmm-user"),
-				ServiceID:    pointer.ToString("S2"),
+				Username:     new("pmm-user"),
+				ServiceID:    new("S2"),
 			},
 			&models.Agent{
 				AgentID:      "A4",
 				AgentType:    models.QANMySQLPerfSchemaAgentType,
-				PMMAgentID:   pointer.ToString("PA1"),
+				PMMAgentID:   new("PA1"),
 				RunsOnNodeID: nil,
-				ServiceID:    pointer.ToString("S2"),
+				ServiceID:    new("S2"),
 			},
 			&models.Agent{
 				AgentID:      "A6",
 				AgentType:    models.MySQLdExporterType,
-				PMMAgentID:   pointer.ToString("PA2"),
+				PMMAgentID:   new("PA2"),
 				RunsOnNodeID: nil,
-				ServiceID:    pointer.ToString("S3"),
+				ServiceID:    new("S3"),
 			},
 			&models.Agent{
 				AgentID:      "A7",
 				AgentType:    models.MySQLdExporterType,
-				PMMAgentID:   pointer.ToString("PA2"),
+				PMMAgentID:   new("PA2"),
 				RunsOnNodeID: nil,
-				ServiceID:    pointer.ToString("S3"),
+				ServiceID:    new("S3"),
 				TLS:          true,
 				MySQLOptions: models.MySQLOptions{
 					TLSCa:   "content-of-tls-ca",
@@ -150,10 +150,10 @@ func TestFindDSNByServiceID(t *testing.T) {
 			&models.Agent{
 				AgentID:      "A8",
 				AgentType:    models.MongoDBExporterType,
-				PMMAgentID:   pointer.ToString("PA2"),
+				PMMAgentID:   new("PA2"),
 				RunsOnNodeID: nil,
-				Username:     pointer.ToString("pmm-user{{"),
-				ServiceID:    pointer.ToString("S4"),
+				Username:     new("pmm-user{{"),
+				ServiceID:    new("S4"),
 				TLS:          true,
 				MongoDBOptions: models.MongoDBOptions{
 					TLSCertificateKey:             "content-of-tls-certificate-key",
@@ -163,8 +163,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 			},
 		} {
 			if v, ok := str.(*models.Agent); ok {
-				encryptedAgent := models.EncryptAgent(*v)
-				str = &encryptedAgent
+				str = new(models.EncryptAgent(*v))
 			}
 			require.NoError(t, q.Insert(str))
 		}
@@ -202,7 +201,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 
 		dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(q, "S1", "PA1", "test")
 		require.NoError(t, err)
-		expected := "unix(/var/run/mysqld/mysqld.sock)/test?timeout=1s"
+		expected := "unix(/var/run/mysqld/mysqld.sock)/test?timeout=2s"
 		assert.Equal(t, expected, dsn)
 		assert.NotNil(t, agent)
 	})
@@ -213,9 +212,9 @@ func TestFindDSNByServiceID(t *testing.T) {
 
 		dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(q, "S4", "PA2", "test")
 		require.NoError(t, err)
-		expected := "mongodb://pmm-user%7B%7B@127.0.0.1:27017/test?connectTimeoutMS=1000" +
+		expected := "mongodb://pmm-user%7B%7B@127.0.0.1:27017/test?connectTimeoutMS=2000" +
 			"&directConnection=true" +
-			"&serverSelectionTimeoutMS=1000&ssl=true" +
+			"&serverSelectionTimeoutMS=2000&ssl=true" +
 			"&tlsCaFile=[[.TextFiles.caFilePlaceholder]]" +
 			"&tlsCertificateKeyFile=[[.TextFiles.certificateKeyFilePlaceholder]]" +
 			"&tlsCertificateKeyFilePassword=passwordoftls"

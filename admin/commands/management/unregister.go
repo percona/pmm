@@ -15,8 +15,8 @@
 package management
 
 import (
-	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
+	"fmt"
+
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/agentlocal"
@@ -82,7 +82,7 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 
 	params := &mservice.UnregisterNodeParams{
 		NodeID:  nodeID,
-		Force:   pointer.ToBool(cmd.Force),
+		Force:   new(cmd.Force),
 		Context: commands.Ctx,
 	}
 
@@ -131,5 +131,5 @@ func nodeIDFromNodeName(nodeName string) (string, error) {
 			return node.NodeID, nil
 		}
 	}
-	return "", errors.Errorf("node %s is not found", nodeName)
+	return "", fmt.Errorf("node %s is not found", nodeName)
 }

@@ -1902,6 +1902,58 @@
                         "description": "YAML template file content. Empty for built-in and SaaS templates.",
                         "type": "string",
                         "x-order": 10
+                      },
+                      "queries": {
+                        "description": "PromQL query steps for multi-query templates. Empty for single-expression templates.",
+                        "type": "array",
+                        "items": {
+                          "description": "TemplateQuery represents a PromQL query step in a multi-query alert template.",
+                          "type": "object",
+                          "properties": {
+                            "ref_id": {
+                              "description": "Reference ID of the query (e.g. \"A\").",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "expr": {
+                              "description": "PromQL query expression with templating parameters (placeholders kept intact).",
+                              "type": "string",
+                              "x-order": 1
+                            }
+                          }
+                        },
+                        "x-order": 11
+                      },
+                      "expressions": {
+                        "description": "Server-side expression steps for multi-query templates. Empty for single-expression templates.",
+                        "type": "array",
+                        "items": {
+                          "description": "TemplateExpression represents a server-side expression step in a multi-query alert template.",
+                          "type": "object",
+                          "properties": {
+                            "ref_id": {
+                              "description": "Reference ID of the expression (e.g. \"C\").",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "type": {
+                              "description": "Expression type. Currently only \"math\" is supported.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "expression": {
+                              "description": "Expression body referencing other steps by ref ID (e.g. \"$A \u003e $B\").",
+                              "type": "string",
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 12
+                      },
+                      "condition": {
+                        "description": "Reference ID of the step used as the alert condition (e.g. \"C\"). Empty for single-expression templates.",
+                        "type": "string",
+                        "x-order": 13
                       }
                     }
                   },
@@ -4236,6 +4288,12 @@
                     }
                   },
                   "x-order": 0
+                },
+                "expected_nodes": {
+                  "type": "integer",
+                  "format": "int32",
+                  "title": "Expected number of nodes in the cluster",
+                  "x-order": 1
                 }
               }
             }
@@ -4763,6 +4821,11 @@
                           "type": "string"
                         },
                         "x-order": 22
+                      },
+                      "connection_timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 23
                       }
                     }
                   },
@@ -4925,6 +4988,16 @@
                           "type": "string"
                         },
                         "x-order": 19
+                      },
+                      "connection_timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 20
+                      },
+                      "enable_diagnostic_data_histograms": {
+                        "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                        "type": "boolean",
+                        "x-order": 21
                       }
                     }
                   },
@@ -5072,6 +5145,11 @@
                           }
                         },
                         "x-order": 17
+                      },
+                      "connection_timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 18
                       }
                     }
                   },
@@ -5207,6 +5285,11 @@
                           }
                         },
                         "x-order": 15
+                      },
+                      "connection_timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 16
                       }
                     }
                   },
@@ -6392,6 +6475,11 @@
                           }
                         },
                         "x-order": 14
+                      },
+                      "connection_timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 15
                       }
                     }
                   },
@@ -6727,6 +6815,11 @@
                         "type": "string"
                       },
                       "x-order": 17
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 2
@@ -6866,6 +6959,16 @@
                       "description": "Enable all collectors.",
                       "type": "boolean",
                       "x-order": 21
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 22
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 23
                     }
                   },
                   "x-order": 3
@@ -6980,6 +7083,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 17
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 4
@@ -7067,6 +7175,11 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 12
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 13
                     }
                   },
                   "x-order": 5
@@ -7964,6 +8077,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 15
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 16
                     }
                   },
                   "x-order": 15
@@ -8389,6 +8507,11 @@
                         "type": "string"
                       },
                       "x-order": 22
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 23
                     }
                   },
                   "x-order": 2
@@ -8548,6 +8671,16 @@
                         "type": "string"
                       },
                       "x-order": 19
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 20
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 21
                     }
                   },
                   "x-order": 3
@@ -8692,6 +8825,11 @@
                         }
                       },
                       "x-order": 17
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 4
@@ -8824,6 +8962,11 @@
                         }
                       },
                       "x-order": 15
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 16
                     }
                   },
                   "x-order": 5
@@ -9928,6 +10071,11 @@
                         }
                       },
                       "x-order": 14
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 15
                     }
                   },
                   "x-order": 15
@@ -10444,6 +10592,11 @@
                         "type": "string"
                       },
                       "x-order": 22
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 23
                     }
                   },
                   "x-order": 3
@@ -10603,6 +10756,16 @@
                         "type": "string"
                       },
                       "x-order": 19
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 20
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 21
                     }
                   },
                   "x-order": 4
@@ -10747,6 +10910,11 @@
                         }
                       },
                       "x-order": 17
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 5
@@ -10879,6 +11047,11 @@
                         }
                       },
                       "x-order": 15
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 16
                     }
                   },
                   "x-order": 6
@@ -12031,6 +12204,11 @@
                         }
                       },
                       "x-order": 14
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 15
                     }
                   },
                   "x-order": 17
@@ -12412,6 +12590,11 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 16
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 17
                     }
                   },
                   "x-order": 1
@@ -12584,6 +12767,17 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 20
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 21
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 22
                     }
                   },
                   "x-order": 2
@@ -12737,6 +12931,11 @@
                       "format": "int32",
                       "x-nullable": true,
                       "x-order": 17
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 3
@@ -12852,6 +13051,17 @@
                       "type": "boolean",
                       "x-nullable": true,
                       "x-order": 11
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 13
                     }
                   },
                   "x-order": 4
@@ -12932,6 +13142,12 @@
                       "format": "int64",
                       "x-nullable": true,
                       "x-order": 7
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 8
                     }
                   },
                   "x-order": 5
@@ -13543,6 +13759,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 10
@@ -13675,6 +13897,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 11
@@ -13801,6 +14029,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 13
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 14
                     }
                   },
                   "x-order": 12
@@ -13933,6 +14167,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 13
@@ -14078,6 +14318,17 @@
                       ],
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 15
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 16
                     }
                   },
                   "x-order": 15
@@ -14182,6 +14433,12 @@
                       },
                       "x-nullable": true,
                       "x-order": 11
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 12
                     }
                   },
                   "x-order": 16
@@ -14476,6 +14733,11 @@
                         "type": "string"
                       },
                       "x-order": 22
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 23
                     }
                   },
                   "x-order": 1
@@ -14635,6 +14897,16 @@
                         "type": "string"
                       },
                       "x-order": 19
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 20
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 21
                     }
                   },
                   "x-order": 2
@@ -14779,6 +15051,11 @@
                         }
                       },
                       "x-order": 17
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 3
@@ -14911,6 +15188,11 @@
                         }
                       },
                       "x-order": 15
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 16
                     }
                   },
                   "x-order": 4
@@ -16063,6 +16345,11 @@
                         }
                       },
                       "x-order": 14
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 15
                     }
                   },
                   "x-order": 15
@@ -20479,6 +20766,11 @@
                             "description": "True if all collectors are enabled.",
                             "type": "boolean",
                             "x-order": 6
+                          },
+                          "enable_diagnostic_data_histograms": {
+                            "description": "True if diagnostic data histograms are enabled.",
+                            "type": "boolean",
+                            "x-order": 7
                           }
                         },
                         "x-order": 16
@@ -20648,6 +20940,11 @@
                           }
                         },
                         "x-order": 41
+                      },
+                      "connection_timeout": {
+                        "description": "Connection timeout for exporter (if set).",
+                        "type": "string",
+                        "x-order": 42
                       }
                     }
                   },
@@ -22033,6 +22330,11 @@
                                   "description": "True if all collectors are enabled.",
                                   "type": "boolean",
                                   "x-order": 6
+                                },
+                                "enable_diagnostic_data_histograms": {
+                                  "description": "True if diagnostic data histograms are enabled.",
+                                  "type": "boolean",
+                                  "x-order": 7
                                 }
                               },
                               "x-order": 16
@@ -22202,6 +22504,11 @@
                                 }
                               },
                               "x-order": 41
+                            },
+                            "connection_timeout": {
+                              "description": "Connection timeout for exporter (if set).",
+                              "type": "string",
+                              "x-order": 42
                             }
                           }
                         },
@@ -22539,6 +22846,11 @@
                         "type": "string"
                       },
                       "x-order": 32
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 33
                     }
                   },
                   "x-order": 0
@@ -22815,6 +23127,16 @@
                       "description": "If true, adds Real-Time Analytics agent for the provided service.",
                       "type": "boolean",
                       "x-order": 34
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 35
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 36
                     }
                   },
                   "x-order": 1
@@ -23076,6 +23398,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 32
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 33
                     }
                   },
                   "x-order": 2
@@ -23279,6 +23606,11 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 21
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 22
                     }
                   },
                   "x-order": 3
@@ -23814,6 +24146,27 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 33
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 34
+                    },
+                    "mysql_disable_collectors": {
+                      "description": "List of collector names to disable in the MySQL database exporter.\nApplies only when engine is DISCOVER_RDS_ENGINE_MYSQL, otherwise it is ignored.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 35
+                    },
+                    "postgresql_disable_collectors": {
+                      "description": "List of collector names to disable in the PostgreSQL database exporter.\nApplies only when engine is DISCOVER_RDS_ENGINE_POSTGRESQL, otherwise it is ignored.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 36
                     }
                   },
                   "x-order": 6
@@ -24024,6 +24377,11 @@
                       "description": "Custom password for exporter endpoint /metrics.",
                       "type": "string",
                       "x-order": 23
+                    },
+                    "connection_timeout": {
+                      "description": "Connection timeout for exporter (if set).",
+                      "type": "string",
+                      "x-order": 24
                     }
                   },
                   "x-order": 7
@@ -24283,6 +24641,11 @@
                             "type": "string"
                           },
                           "x-order": 22
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 23
                         }
                       },
                       "x-order": 1
@@ -24776,6 +25139,16 @@
                             "type": "string"
                           },
                           "x-order": 19
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 20
+                        },
+                        "enable_diagnostic_data_histograms": {
+                          "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                          "type": "boolean",
+                          "x-order": 21
                         }
                       },
                       "x-order": 1
@@ -25280,6 +25653,11 @@
                             }
                           },
                           "x-order": 17
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 18
                         }
                       },
                       "x-order": 1
@@ -25688,6 +26066,11 @@
                             }
                           },
                           "x-order": 15
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 16
                         }
                       },
                       "x-order": 1
@@ -26451,6 +26834,11 @@
                             "type": "string"
                           },
                           "x-order": 22
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 23
                         }
                       },
                       "x-order": 3
@@ -26797,6 +27185,11 @@
                             }
                           },
                           "x-order": 17
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 18
                         }
                       },
                       "x-order": 6
@@ -27083,6 +27476,11 @@
                             }
                           },
                           "x-order": 14
+                        },
+                        "connection_timeout": {
+                          "description": "Connection timeout for exporter (if set).",
+                          "type": "string",
+                          "x-order": 15
                         }
                       },
                       "x-order": 1
@@ -27278,6 +27676,11 @@
                     "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
                   ],
                   "x-order": 24
+                },
+                "connection_timeout": {
+                  "description": "Connection timeout for exporter (if set).",
+                  "type": "string",
+                  "x-order": 25
                 }
               }
             }
@@ -31051,11 +31454,6 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
-                    },
-                    "update_snooze_duration": {
-                      "type": "string",
-                      "title": "Duration for which an update is snoozed",
-                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -31146,7 +31544,7 @@
                   "x-order": 2
                 },
                 "data_retention": {
-                  "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
+                  "description": "A number of full days for Prometheus and QAN data retention. Must be specified in seconds in JSON, for example: 2592000s.",
                   "type": "string",
                   "x-order": 3
                 },
@@ -31233,11 +31631,6 @@
                   "type": "boolean",
                   "x-nullable": true,
                   "x-order": 13
-                },
-                "update_snooze_duration": {
-                  "description": "A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.",
-                  "type": "string",
-                  "x-order": 14
                 }
               }
             }
@@ -31379,11 +31772,6 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
-                    },
-                    "update_snooze_duration": {
-                      "type": "string",
-                      "title": "Duration for which an update is snoozed",
-                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -31719,181 +32107,6 @@
                   "description": "Last check time.",
                   "type": "string",
                   "format": "date-time",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/server/updates:getStatus": {
-      "post": {
-        "description": "Returns PMM Server update status.",
-        "tags": [
-          "ServerService"
-        ],
-        "summary": "Update status",
-        "operationId": "UpdateStatus",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "auth_token": {
-                  "description": "Authentication token.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "log_offset": {
-                  "description": "Progress log offset.",
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "log_lines": {
-                  "description": "Progress log lines.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 0
-                },
-                "log_offset": {
-                  "description": "Progress log offset for the next request.",
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 1
-                },
-                "done": {
-                  "description": "True when update is done.",
-                  "type": "boolean",
-                  "x-order": 2
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/server/updates:start": {
-      "post": {
-        "description": "Starts PMM Server update.",
-        "tags": [
-          "ServerService"
-        ],
-        "summary": "Start update",
-        "operationId": "StartUpdate",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "new_image": {
-                  "type": "string",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "auth_token": {
-                  "description": "Authentication token for getting update statuses.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "log_offset": {
-                  "description": "Progress log offset.",
-                  "type": "integer",
-                  "format": "int64",
                   "x-order": 1
                 }
               }

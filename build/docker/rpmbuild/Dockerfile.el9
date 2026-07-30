@@ -1,7 +1,7 @@
 # keep that format for easier search
-ARG GO_VERSION=1.25.9
+ARG GO_VERSION
 
-FROM golang:${GO_VERSION} AS golang
+FROM golang:$GO_VERSION AS golang
 
 FROM oraclelinux:9-slim
 

@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
@@ -37,7 +38,7 @@ func TestRenderDSN(t *testing.T) {
 
 	dir := filepath.Join(os.TempDir(), fmt.Sprintf("pg_action_%05d", rand.Int63n(99999))) //nolint:gosec
 	err := os.MkdirAll(dir, 0o750)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	inDSN := "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database" +
 		"?connect_timeout=1&ssl_ca_file={{.TextFiles.caFilePlaceholder}}&" +
@@ -61,7 +62,7 @@ func TestRenderDSN(t *testing.T) {
 	}
 
 	outDSN, err := RenderDSN(inDSN, files, dir)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, wantDSN, outDSN)
 
 	assert.True(t, fileExist(filepath.Join(dir, caFilePlaceholder)))
@@ -74,14 +75,12 @@ func TestRenderDSN(t *testing.T) {
 
 	// Cleanup
 	err = os.RemoveAll(dir)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func fileExist(file string) bool {
-	if _, err := os.Stat(file); err == nil {
-		return true
-	}
-	return false
+	_, err := os.Stat(file)
+	return err == nil
 }
 
 func fileContentMatch(file, content string) bool {

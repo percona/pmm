@@ -19,11 +19,15 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
         },
         sidebarOpen
           ? {
-              p: 2,
+              pt: 1.5,
+              pr: 0.875,
+              pb: 0.5,
+              pl: 1.75,
             }
           : {
+              pt: 1.5,
               px: 1,
-              py: 2,
+              pb: 0.5,
             },
       ]}
     >
@@ -31,10 +35,11 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
         sx={[
           {
             width: '150px',
-            height: '40px',
+            height: '48px',
 
             '.shown-on-hover': {
               position: 'absolute',
+              top: 16,
               left: -999,
             },
           },
@@ -56,9 +61,11 @@ const NavigationHeading: FC<NavigationHeadingProps> = memo(
           name="pmm-titled"
           className="hidden-on-hover"
           sx={(theme) => ({
-            left: sidebarOpen ? 16 : 8,
-            height: '40px',
+            left: sidebarOpen ? 14 : 8,
+            top: sidebarOpen ? 12 : 16,
+            height: sidebarOpen ? '48px' : '40px',
             width: 'auto',
+            color: sidebarOpen ? undefined : 'transparent',
             position: 'absolute',
             ...logoMixin(theme),
           })}

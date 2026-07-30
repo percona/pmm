@@ -18,7 +18,6 @@ package scheduler
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
@@ -27,7 +26,7 @@ import (
 func TestValidation(t *testing.T) {
 	t.Parallel()
 
-	t.Run("mySQL task", func(t *testing.T) {
+	t.Run("MySQL task", func(t *testing.T) {
 		t.Parallel()
 
 		tests := []struct {
@@ -132,7 +131,7 @@ func TestValidation(t *testing.T) {
 					DataModel:  models.LogicalDataModel,
 					Mode:       models.Snapshot,
 				},
-				errMsg: "unsupported backup data model for mySQL: logical",
+				errMsg: "unsupported backup data model for MySQL: logical",
 			},
 			{
 				name: "unsupported incremental backup mode",
@@ -143,7 +142,7 @@ func TestValidation(t *testing.T) {
 					DataModel:  models.PhysicalDataModel,
 					Mode:       models.Incremental,
 				},
-				errMsg: "unsupported backup mode for mySQL: incremental",
+				errMsg: "unsupported backup mode for MySQL: incremental",
 			},
 			{
 				name: "unsupported PITR backup mode",
@@ -154,7 +153,7 @@ func TestValidation(t *testing.T) {
 					DataModel:  models.PhysicalDataModel,
 					Mode:       models.PITR,
 				},
-				errMsg: "unsupported backup mode for mySQL: pitr",
+				errMsg: "unsupported backup mode for MySQL: pitr",
 			},
 		}
 
@@ -164,7 +163,7 @@ func TestValidation(t *testing.T) {
 				_, err := NewMySQLBackupTask(tt.params)
 
 				if tt.errMsg != "" {
-					assert.EqualError(t, err, tt.errMsg)
+					require.EqualError(t, err, tt.errMsg)
 					return
 				}
 
@@ -289,7 +288,7 @@ func TestValidation(t *testing.T) {
 					DataModel:  models.LogicalDataModel,
 					Mode:       models.Incremental,
 				},
-				errMsg: "unsupported backup mode for mongoDB: incremental",
+				errMsg: "unsupported backup mode for MongoDB: incremental",
 			},
 			{
 				name: "no error on physical snapshot backups",
@@ -321,7 +320,7 @@ func TestValidation(t *testing.T) {
 				_, err := NewMongoDBBackupTask(tt.params)
 
 				if tt.errMsg != "" {
-					assert.EqualError(t, err, tt.errMsg)
+					require.EqualError(t, err, tt.errMsg)
 					return
 				}
 

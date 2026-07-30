@@ -17,6 +17,7 @@ package analytics
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -129,7 +130,7 @@ func TestService_GetQueryExample(t *testing.T) {
 			}
 			got, err := s.GetQueryExample(context.TODO(), tt.in)
 			if (err != nil) != tt.wantErr {
-				assert.Errorf(t, err, "Service.GetQueryExample() error = %v, wantErr %v", err, tt.wantErr)
+				require.Errorf(t, err, "Service.GetQueryExample() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			if tt.want == nil {
 				assert.Nil(t, got, "Service.GetQueryExample() returned not nil")
@@ -263,7 +264,7 @@ func TestService_GetMetricsError(t *testing.T) {
 			}
 			_, err := s.GetMetrics(context.TODO(), tt.in)
 			if (err != nil) != tt.wantErr {
-				assert.Errorf(t, err, "Service.GetMetrics() error = %v, wantErr %v", err, tt.wantErr)
+				require.Errorf(t, err, "Service.GetMetrics() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -288,7 +289,7 @@ func TestService_GetMetrics(t *testing.T) {
 			FilterBy:        "B305F6354FA21F2A",
 		}
 		got, err := s.GetMetrics(context.TODO(), in)
-		assert.NoError(t, err, "Unexpected error in Service.GetMetrics()")
+		require.NoError(t, err, "Unexpected error in Service.GetMetrics()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetMetrics_group_by_queryid.json")
 
 		marshaler := protojson.MarshalOptions{Indent: "\t"}
@@ -312,7 +313,7 @@ func TestService_GetMetrics(t *testing.T) {
 			FilterBy:        "B305F6354FA21F2A",
 		}
 		got, err := s.GetMetrics(context.TODO(), in)
-		assert.NoError(t, err, "Unexpected error in Service.GetMetrics()")
+		require.NoError(t, err, "Unexpected error in Service.GetMetrics()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetMetrics_sparklines_90_points.json")
 
 		marshaler := protojson.MarshalOptions{Indent: "\t"}
@@ -336,7 +337,7 @@ func TestService_GetMetrics(t *testing.T) {
 			Totals:          true,
 		}
 		got, err := s.GetMetrics(context.TODO(), in)
-		assert.NoError(t, err, "Unexpected error in Service.GetMetrics()")
+		require.NoError(t, err, "Unexpected error in Service.GetMetrics()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetMetrics_total.json")
 
 		marshaler := protojson.MarshalOptions{Indent: "\t"}
@@ -530,7 +531,7 @@ func TestService_GetLabels(t *testing.T) {
 		fields{rm: rm, mm: mm},
 		request,
 		nil,
-		fmt.Errorf("error in selecting object details labels: cannot select object details labels"),
+		errors.New("error in selecting object details labels: cannot select object details labels"),
 	}
 
 	t.Run(tt.name, func(t *testing.T) {

@@ -14,6 +14,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 
+	_ "github.com/percona/pmm/api/extensions/v1"
 	v1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -2501,14 +2502,14 @@ var File_agent_v1_collector_proto protoreflect.FileDescriptor
 
 const file_agent_v1_collector_proto_rawDesc = "" +
 	"\n" +
-	"\x18agent/v1/collector.proto\x12\bagent.v1\x1a\x19inventory/v1/agents.proto\"\xabh\n" +
+	"\x18agent/v1/collector.proto\x12\bagent.v1\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\"\xb1h\n" +
 	"\rMetricsBucket\x126\n" +
 	"\x06common\x18\x01 \x01(\v2\x1e.agent.v1.MetricsBucket.CommonR\x06common\x123\n" +
 	"\x05mysql\x18\x02 \x01(\v2\x1d.agent.v1.MetricsBucket.MySQLR\x05mysql\x129\n" +
 	"\amongodb\x18\x03 \x01(\v2\x1f.agent.v1.MetricsBucket.MongoDBR\amongodb\x12B\n" +
 	"\n" +
 	"postgresql\x18\x04 \x01(\v2\".agent.v1.MetricsBucket.PostgreSQLR\n" +
-	"postgresql\x1a\xd6\t\n" +
+	"postgresql\x1a\xdc\t\n" +
 	"\x06Common\x12\x18\n" +
 	"\aqueryid\x18\x01 \x01(\tR\aqueryid\x12/\n" +
 	"\x13explain_fingerprint\x18\x19 \x01(\tR\x12explainFingerprint\x12-\n" +
@@ -2517,8 +2518,8 @@ const file_agent_v1_collector_proto_rawDesc = "" +
 	"\vfingerprint\x18\x02 \x01(\tR\vfingerprint\x12\x1a\n" +
 	"\bdatabase\x18\x03 \x01(\tR\bdatabase\x12\x16\n" +
 	"\x06schema\x18\x04 \x01(\tR\x06schema\x12\x16\n" +
-	"\x06tables\x18\x05 \x03(\tR\x06tables\x12\x1a\n" +
-	"\busername\x18\x06 \x01(\tR\busername\x12\x1f\n" +
+	"\x06tables\x18\x05 \x03(\tR\x06tables\x12 \n" +
+	"\busername\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12\x1f\n" +
 	"\vclient_host\x18\a \x01(\tR\n" +
 	"clientHost\x12\x19\n" +
 	"\bagent_id\x18\b \x01(\tR\aagentId\x126\n" +
@@ -2814,7 +2815,7 @@ var (
 	file_agent_v1_collector_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_agent_v1_collector_proto_msgTypes  = make([]protoimpl.MessageInfo, 8)
 	file_agent_v1_collector_proto_goTypes   = []any{
-		(ExampleType)(0),                 // 0: agent.v1.ExampleType
+		ExampleType(0),                   // 0: agent.v1.ExampleType
 		(*MetricsBucket)(nil),            // 1: agent.v1.MetricsBucket
 		(*HistogramItem)(nil),            // 2: agent.v1.HistogramItem
 		(*MetricsBucket_Common)(nil),     // 3: agent.v1.MetricsBucket.Common
@@ -2823,7 +2824,7 @@ var (
 		(*MetricsBucket_PostgreSQL)(nil), // 6: agent.v1.MetricsBucket.PostgreSQL
 		nil,                              // 7: agent.v1.MetricsBucket.Common.CommentsEntry
 		nil,                              // 8: agent.v1.MetricsBucket.Common.ErrorsEntry
-		(v1.AgentType)(0),                // 9: inventory.v1.AgentType
+		v1.AgentType(0),                  // 9: inventory.v1.AgentType
 	}
 )
 

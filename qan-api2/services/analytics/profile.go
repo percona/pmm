@@ -26,7 +26,7 @@ import (
 )
 
 // GetReport implements rpc to get report for given filtering.
-func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*qanpb.GetReportResponse, error) {
+func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*qanpb.GetReportResponse, error) { //nolint:gocognit
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
 		return nil, fmt.Errorf("from-date: %v or to-date: %v cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
 	}
@@ -59,7 +59,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 		labels[label.Key] = label.Value
 	}
 
-	var columns []string //nolint:prealloc
+	columns := make([]string, 0, len(in.Columns))
 	for _, col := range in.Columns {
 		// TODO: remove when UI starts using num_queries instead.
 		if col == "count" {
@@ -127,7 +127,8 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 		limit,
 		specialColumns,
 		commonColumns,
-		sumColumns)
+		sumColumns,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +169,8 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 			labels,
 			group,
 			mainMetric,
-			isTotal)
+			isTotal,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -236,8 +238,8 @@ func makeStats(metricNameRoot string, total, res models.M, numQueries float32, p
 func getOrderBy(reqOrder, defaultOrder string) (string, string) {
 	var queryOrder, orderCol string
 	direction := "ASC"
-	if strings.HasPrefix(reqOrder, "-") {
-		reqOrder = strings.TrimPrefix(reqOrder, "-")
+	if after, ok := strings.CutPrefix(reqOrder, "-"); ok {
+		reqOrder = after
 		direction = "DESC"
 	}
 

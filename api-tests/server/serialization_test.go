@@ -33,6 +33,8 @@ import (
 
 // This test checks if all (even empty) fields are present in json responses.
 func TestSerialization(t *testing.T) {
+	t.Parallel()
+
 	// Get json filed names from settings model
 	var settings server.GetSettingsOKBodySettings
 	jsonFields := extractJSONTagNames(settings)
@@ -48,12 +50,14 @@ func TestSerialization(t *testing.T) {
 
 	resp, err := http.DefaultClient.Do(req)
 	require.NoError(t, err)
-	defer resp.Body.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, resp.Body.Close())
+	})
 
 	b, err := io.ReadAll(resp.Body)
 	require.NoError(t, err)
 
-	var data map[string]interface{}
+	var data map[string]any
 	err = json.Unmarshal(b, &data)
 	require.NoError(t, err)
 
@@ -66,8 +70,8 @@ func TestSerialization(t *testing.T) {
 func extractJSONTagNames(v any) []string {
 	var res []string
 	t := reflect.ValueOf(v).Type()
-	for i := 0; i < t.NumField(); i++ {
-		if tag, ok := t.Field(i).Tag.Lookup("json"); ok {
+	for field := range t.Fields() {
+		if tag, ok := field.Tag.Lookup("json"); ok {
 			s := strings.Split(tag, ",")
 			res = append(res, s[0])
 		}

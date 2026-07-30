@@ -3,7 +3,20 @@ templates:
   - name: pmm_valkey_down
     version: 1
     summary: Valkey down
-    expr: sum by (service_name, node_name) (redis_up) == bool 0 and on(node_name) pmm_managed_inventory_agents{agent_type="valkey_exporter", disabled="0"}
+    expr: |
+      (
+        # enabled exporters we should be watching (from inventory — always present)
+        max by (service_id, service_name, node_name) (
+          pmm_managed_inventory_agents{agent_type="valkey_exporter", disabled="0"}
+        )
+        # drop the ones that are up → leaves down + missing (value 1)
+        unless on (service_id) (max by (service_id) (redis_up) == 1)
+      )
+      or
+      # baseline 0 for every enabled service so healthy ones stay Normal (not MissingSeries)
+      0 * max by (service_id, service_name, node_name) (
+        pmm_managed_inventory_agents{agent_type="valkey_exporter", disabled="0"}
+      )
     for: 1m
     severity: critical
     annotations:

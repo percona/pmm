@@ -16,6 +16,7 @@ package inventory
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
@@ -82,13 +83,17 @@ type ChangeAgentMysqldExporterCommand struct {
 	TLSKeyFile    *string `help:"TLS certificate key file"`
 
 	// Exporter options
-	TablestatsGroupTableLimit *int32   `help:"Tablestats group collectors by table limit"`
-	DisableCollectors         []string `help:"List of collector names to disable"`
-	ExposeExporter            *bool    `help:"Expose the exporter process on all public interfaces"`
-	PushMetrics               *bool    `help:"Enable push metrics with vmagent"`
+	TablestatsGroupTableLimit *int32         `help:"Tablestats group collectors by table limit"`
+	DisableCollectors         []string       `help:"List of collector names to disable"`
+	ExposeExporter            *bool          `help:"Expose the exporter process on all public interfaces"`
+	PushMetrics               *bool          `help:"Enable push metrics with vmagent"`
+	ConnectionTimeout         *time.Duration `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+
+	// Connection check
+	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
 // RunCmd executes the ChangeAgentMysqldExporterCommand and returns the result.
@@ -143,6 +148,8 @@ func (cmd *ChangeAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 		ExposeExporter:            cmd.ExposeExporter,
 		EnablePushMetrics:         cmd.PushMetrics,
 		LogLevel:                  convertLogLevelPtr(cmd.LogLevel),
+		ConnectionTimeout:         commands.DurationString(cmd.ConnectionTimeout),
+		SkipConnectionCheck:       cmd.SkipConnectionCheck,
 	}
 
 	if customLabels != nil {

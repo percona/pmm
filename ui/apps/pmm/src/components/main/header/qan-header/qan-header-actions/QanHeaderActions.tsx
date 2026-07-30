@@ -12,7 +12,10 @@ export const QanHeaderActions: FC = () => {
 
   const handleCopy = async () => {
     try {
-      const path = constructUrl(location).replace(/\/pmm-ui\/(next\/)?graph\//, '');
+      const path = constructUrl(location).replace(
+        /\/pmm-ui\/(next\/)?graph\//,
+        ''
+      );
       const res = location.pathname.includes('/graph')
         ? await createShortUrl(path)
         : { url: window.location.href };
@@ -30,7 +33,7 @@ export const QanHeaderActions: FC = () => {
   };
 
   return (
-    <Stack gap={1} flex={1} flexDirection="row" justifyContent="flex-end">
+    <Stack gap={1} flexShrink={0} flexDirection="row" alignItems="center">
       <Tooltip title="Share session settings" arrow>
         <IconButton
           data-testid="qan-header-actions-copy-button"

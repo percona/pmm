@@ -161,7 +161,8 @@ func (e HttpErrorValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = HttpErrorValidationError{}

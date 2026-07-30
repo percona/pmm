@@ -122,7 +122,8 @@ func (e ListNodesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListNodesRequestValidationError{}
@@ -226,7 +227,8 @@ func (e HANodeValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = HANodeValidationError{}
@@ -295,6 +297,8 @@ func (m *ListNodesResponse) validate(all bool) error {
 
 	}
 
+	// no validation rules for ExpectedNodes
+
 	if len(errors) > 0 {
 		return ListNodesResponseMultiError(errors)
 	}
@@ -362,7 +366,8 @@ func (e ListNodesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListNodesResponseValidationError{}
@@ -462,7 +467,8 @@ func (e StatusRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = StatusRequestValidationError{}
@@ -564,7 +570,8 @@ func (e StatusResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = StatusResponseValidationError{}

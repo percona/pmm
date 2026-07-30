@@ -78,7 +78,7 @@ func TestAdvisorMetrics(t *testing.T) {
 				tc.query, time.Now())
 
 			var actualValues []string
-			for _, s := range strings.Split(result.String(), "\n") {
+			for s := range strings.SplitSeq(result.String(), "\n") {
 				// remove the timestamp from the values
 				metric := strings.Split(s, " @")
 				actualValues = append(actualValues, metric[0])

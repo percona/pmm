@@ -40,35 +40,42 @@ var (
 		prometheus.BuildFQName(prometheusNamespace, prometheusSubsystem, "current"),
 		"Current number of rows in cache.",
 		[]string{"agent_id", "cache_type"},
-		nil)
+		nil,
+	)
 	mUpdatedNDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(prometheusNamespace, prometheusSubsystem, "updated_n"),
 		"Number of updated rows in cache.",
 		[]string{"agent_id", "cache_type"},
-		nil)
+		nil,
+	)
 	mAddedNDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(prometheusNamespace, prometheusSubsystem, "added_n"),
 		"Number of rows added to cache.",
 		[]string{"agent_id", "cache_type"},
-		nil)
+		nil,
+	)
 	mRemovedNDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(prometheusNamespace, prometheusSubsystem, "removed_n"),
 		"Number of rows removed from cache.",
 		[]string{"agent_id", "cache_type"},
-		nil)
+		nil,
+	)
 	mTrimmedNDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(prometheusNamespace, prometheusSubsystem, "trimmed_n"),
 		"Number of rows trimmed from cache.",
 		[]string{"agent_id", "cache_type"},
-		nil)
+		nil,
+	)
 	mOldestDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(prometheusNamespace, prometheusSubsystem, "oldest"),
 		"Timestamp of oldest row in cache.",
 		[]string{"agent_id", "cache_type"},
-		nil)
+		nil,
+	)
 	mNewestDesc = prometheus.NewDesc(
 		prometheus.BuildFQName(prometheusNamespace, prometheusSubsystem, "newest"),
 		"Timestamp of newest row in cache.",
 		[]string{"agent_id", "cache_type"},
-		nil)
+		nil,
+	)
 )

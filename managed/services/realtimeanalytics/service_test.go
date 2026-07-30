@@ -22,7 +22,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -90,8 +89,8 @@ func TestListServices(t *testing.T) {
 	mongodbService, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "test-mongodb",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(27017),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(27017)),
 		Cluster:     "test-cluster",
 	})
 	require.NoError(t, err)
@@ -99,23 +98,23 @@ func TestListServices(t *testing.T) {
 	_, err = models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "test-mysql",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(27017),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(27017)),
 	})
 	require.NoError(t, err)
 
 	_, err = models.AddNewService(db.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "test-external",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(27017),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(27017)),
 	})
 	require.NoError(t, err)
 
 	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
 	require.NoError(t, err)
 
-	pmmAgent.Version = pointer.To("3.7.0")
+	pmmAgent.Version = new("3.7.0")
 	err = db.Update(pmmAgent)
 	require.NoError(t, err)
 
@@ -167,15 +166,15 @@ func TestListServices(t *testing.T) {
 		service2, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "mongodb-old",
 			NodeID:      node2.NodeID,
-			Address:     pointer.ToString("127.0.0.2"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.2"),
+			Port:        new(uint16(27017)),
 			Cluster:     "cluster-2",
 		})
 		require.NoError(t, err)
 		pmmAgent2, err := models.CreatePMMAgent(db.Querier, node2.NodeID, nil)
 		require.NoError(t, err)
 
-		pmmAgent2.Version = pointer.To("3.6.0")
+		pmmAgent2.Version = new("3.6.0")
 		err = db.Update(pmmAgent2)
 		require.NoError(t, err)
 
@@ -209,8 +208,8 @@ func TestListSessions(t *testing.T) {
 	service, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "test-mongodb",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(27017),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(27017)),
 		Cluster:     "test-cluster",
 	})
 	require.NoError(t, err)
@@ -225,7 +224,7 @@ func TestListSessions(t *testing.T) {
 		Username:   "test-user",
 		Password:   "test-pass",
 		Disabled:   false,
-		RTAOptions: models.RTAOptions{CollectInterval: pointer.To(2 * time.Second)},
+		RTAOptions: models.RTAOptions{CollectInterval: new(2 * time.Second)},
 	})
 	require.NoError(t, err)
 
@@ -291,7 +290,7 @@ func TestStartSession(t *testing.T) {
 	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
 	require.NoError(t, err)
 
-	pmmAgent.Version = pointer.To("3.7.0")
+	pmmAgent.Version = new("3.7.0")
 	err = db.Update(pmmAgent)
 	require.NoError(t, err)
 
@@ -299,8 +298,8 @@ func TestStartSession(t *testing.T) {
 	service1, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb-1",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(27017),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(27017)),
 		Cluster:     "cluster-1",
 	})
 	require.NoError(t, err)
@@ -332,10 +331,9 @@ func TestStartSession(t *testing.T) {
 		assert.NotNil(t, resp.Session.StartTime)
 
 		// Verify RTA agent was created
-		agentType := models.RTAMongoDBAgentType
 		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
 			ServiceID: service1.ServiceID,
-			AgentType: &agentType,
+			AgentType: new(models.RTAMongoDBAgentType),
 		})
 		require.NoError(t, err)
 		require.Len(t, agents, 1)
@@ -360,10 +358,9 @@ func TestStartSession(t *testing.T) {
 		assert.Equal(t, resp1.Session.StartTime, resp2.Session.StartTime)
 
 		// Should still have only one agent
-		agentType := models.RTAMongoDBAgentType
 		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
 			ServiceID: service1.ServiceID,
-			AgentType: &agentType,
+			AgentType: new(models.RTAMongoDBAgentType),
 		})
 		require.NoError(t, err)
 		require.Len(t, agents, 1)
@@ -374,8 +371,8 @@ func TestStartSession(t *testing.T) {
 		service2, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "mongodb-2",
 			NodeID:      node.NodeID,
-			Address:     pointer.ToString("127.0.0.2"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.2"),
+			Port:        new(uint16(27017)),
 			Cluster:     "cluster-1",
 		})
 		require.NoError(t, err)
@@ -387,7 +384,7 @@ func TestStartSession(t *testing.T) {
 			Username:   "test-user",
 			Password:   "test-pass",
 			Disabled:   true,
-			RTAOptions: models.RTAOptions{CollectInterval: pointer.To(2 * time.Second)},
+			RTAOptions: models.RTAOptions{CollectInterval: new(2 * time.Second)},
 		})
 		require.NoError(t, err)
 
@@ -399,10 +396,9 @@ func TestStartSession(t *testing.T) {
 		assert.NotNil(t, resp.Session.StartTime)
 
 		// Verify RTA agent was created
-		agentType := models.RTAMongoDBAgentType
 		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
 			ServiceID: service2.ServiceID,
-			AgentType: &agentType,
+			AgentType: new(models.RTAMongoDBAgentType),
 		})
 		require.NoError(t, err)
 		require.Len(t, agents, 1)
@@ -421,8 +417,8 @@ func TestStartSession(t *testing.T) {
 		service2, err := models.AddNewService(db.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "external-1",
 			NodeID:      node.NodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
 		})
 		require.NoError(t, err)
 		_, err = svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
@@ -438,8 +434,8 @@ func TestStartSession(t *testing.T) {
 		service3, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "external-psmdb-1",
 			NodeID:      node.NodeID,
-			Address:     pointer.ToString("127.0.0.2"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.2"),
+			Port:        new(uint16(27017)),
 		})
 		require.NoError(t, err)
 		_, err = svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
@@ -461,7 +457,7 @@ func TestStartSession(t *testing.T) {
 		pmmAgentOld, err := models.CreatePMMAgent(db.Querier, nodeOld.NodeID, nil)
 		require.NoError(t, err)
 
-		pmmAgentOld.Version = pointer.To("3.6.0")
+		pmmAgentOld.Version = new("3.6.0")
 		err = db.Update(pmmAgentOld)
 		require.NoError(t, err)
 
@@ -469,8 +465,8 @@ func TestStartSession(t *testing.T) {
 		serviceOld, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "mongodb-old",
 			NodeID:      nodeOld.NodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
 			Cluster:     "cluster-2",
 		})
 		require.NoError(t, err)
@@ -511,8 +507,8 @@ func TestStopSession(t *testing.T) {
 	service1, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb-1",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(27017),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(27017)),
 		Cluster:     "cluster-1",
 	})
 	require.NoError(t, err)
@@ -520,8 +516,8 @@ func TestStopSession(t *testing.T) {
 	service2, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb-2",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(27017),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(27017)),
 		Cluster:     "cluster-2",
 	})
 	require.NoError(t, err)
@@ -533,7 +529,7 @@ func TestStopSession(t *testing.T) {
 		Username:   "test-user",
 		Password:   "test-pass",
 		Disabled:   false,
-		RTAOptions: models.RTAOptions{CollectInterval: pointer.To(2 * time.Second)},
+		RTAOptions: models.RTAOptions{CollectInterval: new(2 * time.Second)},
 	})
 	require.NoError(t, err)
 
@@ -543,7 +539,7 @@ func TestStopSession(t *testing.T) {
 		Username:   "test-user",
 		Password:   "test-pass",
 		Disabled:   false,
-		RTAOptions: models.RTAOptions{CollectInterval: pointer.To(2 * time.Second)},
+		RTAOptions: models.RTAOptions{CollectInterval: new(2 * time.Second)},
 	})
 	require.NoError(t, err)
 
@@ -562,10 +558,9 @@ func TestStopSession(t *testing.T) {
 		assert.NotNil(t, resp)
 
 		// Verify RTA agent was disabled
-		agentType := models.RTAMongoDBAgentType
 		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
 			ServiceID: service1.ServiceID,
-			AgentType: &agentType,
+			AgentType: new(models.RTAMongoDBAgentType),
 		})
 		require.NoError(t, err)
 		require.Len(t, agents, 1)
@@ -587,10 +582,9 @@ func TestStopSession(t *testing.T) {
 		assert.NotNil(t, resp)
 
 		// Should still have only one agent
-		agentType := models.RTAMongoDBAgentType
 		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
 			ServiceID: service2.ServiceID,
-			AgentType: &agentType,
+			AgentType: new(models.RTAMongoDBAgentType),
 		})
 		require.NoError(t, err)
 		require.Len(t, agents, 1)
@@ -610,8 +604,8 @@ func TestStopSession(t *testing.T) {
 		service3, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "mongodb-3",
 			NodeID:      node.NodeID,
-			Address:     pointer.ToString("127.0.0.3"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.3"),
+			Port:        new(uint16(27017)),
 			Cluster:     "cluster-3",
 		})
 		require.NoError(t, err)
@@ -632,10 +626,9 @@ func TestStopSession(t *testing.T) {
 		assert.NotNil(t, resp)
 
 		// Verify no agent was created (disable non-existent is a no-op)
-		agentType := models.RTAMongoDBAgentType
 		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
 			ServiceID: service3.ServiceID,
-			AgentType: &agentType,
+			AgentType: new(models.RTAMongoDBAgentType),
 		})
 		require.NoError(t, err)
 		require.Empty(t, agents, "No agent should be created when disabling non-existent agent")
@@ -645,8 +638,8 @@ func TestStopSession(t *testing.T) {
 		service2, err := models.AddNewService(db.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "external-1",
 			NodeID:      node.NodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
 		})
 		require.NoError(t, err)
 		_, err = svc.StopSession(t.Context(), &rtav1.StopSessionRequest{
@@ -675,8 +668,8 @@ func TestSearchQueries(t *testing.T) {
 	service1, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb-1",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(27017),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(27017)),
 		Cluster:     "cluster-1",
 	})
 	require.NoError(t, err)
@@ -684,8 +677,8 @@ func TestSearchQueries(t *testing.T) {
 	service2, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "mongodb-2",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(27017),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(27017)),
 		Cluster:     "cluster-2",
 	})
 	require.NoError(t, err)
@@ -788,24 +781,31 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 	return lis.Dial()
 }
 
-func getTestClient(t *testing.T) (rtav1.CollectorServiceClient, func()) {
+func getTestClient(t *testing.T) rtav1.CollectorServiceClient {
 	t.Helper()
 
 	conn, err := grpc.NewClient(
 		"passthrough:///bufnet",
 		grpc.WithContextDialer(bufDialer),
-		grpc.WithTransportCredentials(insecure.NewCredentials()))
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
 	if err != nil {
 		t.Fatalf("Failed to dial bufnet: %v", err)
 	}
 
 	client := rtav1.NewCollectorServiceClient(conn)
+	t.Cleanup(func() {
+		require.NoError(t, conn.Close())
+	})
 
-	return client, func() { _ = conn.Close() }
+	return client
 }
 
 func TestService_Collect(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	// Create test data
@@ -817,8 +817,8 @@ func TestService_Collect(t *testing.T) {
 	service, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "test-mongodb",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(27017),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(27017)),
 		Cluster:     "test-cluster",
 	})
 	require.NoError(t, err)
@@ -833,7 +833,7 @@ func TestService_Collect(t *testing.T) {
 		Username:   "test-user",
 		Password:   "test-pass",
 		Disabled:   false,
-		RTAOptions: models.RTAOptions{CollectInterval: pointer.To(2 * time.Second)},
+		RTAOptions: models.RTAOptions{CollectInterval: new(2 * time.Second)},
 	})
 	require.NoError(t, err)
 
@@ -852,24 +852,26 @@ func TestService_Collect(t *testing.T) {
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			interceptors.Stream(grpcMetrics.StreamServerInterceptor()),
 			interceptors.StreamServiceEnabledInterceptor(),
-			grpc_validator.StreamServerInterceptor())),
+			grpc_validator.StreamServerInterceptor(),
+		)),
 	)
 	rtav1.RegisterCollectorServiceServer(s, svc)
 
+	serveError := make(chan error)
 	go func() {
-		err := s.Serve(lis)
-		if err != nil {
-			panic(err)
-		}
+		serveError <- s.Serve(lis)
 	}()
+	t.Cleanup(func() {
+		s.GracefulStop()
+		require.NoError(t, <-serveError)
+	})
 
 	time.Sleep(1 * time.Second) // Give server time to start
 
-	client, cleanup := getTestClient(t)
-	defer cleanup()
+	client := getTestClient(t)
 
 	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
-	defer cancel()
+	t.Cleanup(cancel)
 
 	streamCtx := agentv1.AddAgentConnectMetadata(ctx, &agentv1.AgentConnectMetadata{
 		ID:      pmmAgent.AgentID,

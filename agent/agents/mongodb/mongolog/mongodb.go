@@ -65,7 +65,7 @@ func newMongo(mongoDSN string, l *logrus.Entry, params *Params) *MongoDB {
 		logFilePrefix:  params.LogFilePrefix,
 		maxQueryLength: params.MaxQueryLength,
 		l:              l,
-		changes:        make(chan agents.Change, 10),
+		changes:        make(chan agents.Change, 10), //nolint:mnd
 	}
 }
 
@@ -83,7 +83,8 @@ func (m *MongoDB) Run(ctx context.Context) {
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 	log = mongolog.New(m.mongoDSN, m.l, m, m.agentID, m.logFilePrefix, m.maxQueryLength)
-	if err := log.Start(ctx); err != nil {
+	err := log.Start(ctx)
+	if err != nil {
 		m.l.Errorf("can't run mongolog, reason: %v", err)
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
 		return
@@ -106,18 +107,21 @@ func (m *MongoDB) Write(r *report.Report) error {
 	return nil
 }
 
-type Mongolog interface { //nolint:revive
+// Mongolog represents the internal engine that collects and processes MongoDB log data.
+type Mongolog interface {
+	// Start begins log collection and processing until the context is canceled.
 	Start(ctx context.Context) error
+	// Stop halts log collection and processing.
 	Stop() error
 }
 
 // Describe implements prometheus.Collector.
-func (m *MongoDB) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+func (m *MongoDB) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (m *MongoDB) Collect(ch chan<- prometheus.Metric) { //nolint:revive
+func (m *MongoDB) Collect(_ chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 

@@ -414,8 +414,8 @@ var (
 	file_backup_v1_common_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 	file_backup_v1_common_proto_msgTypes  = make([]protoimpl.MessageInfo, 4)
 	file_backup_v1_common_proto_goTypes   = []any{
-		(DataModel)(0),                // 0: backup.v1.DataModel
-		(BackupMode)(0),               // 1: backup.v1.BackupMode
+		DataModel(0),                  // 0: backup.v1.DataModel
+		BackupMode(0),                 // 1: backup.v1.BackupMode
 		(*File)(nil),                  // 2: backup.v1.File
 		(*PbmMetadata)(nil),           // 3: backup.v1.PbmMetadata
 		(*Metadata)(nil),              // 4: backup.v1.Metadata

@@ -231,7 +231,8 @@ func (e RestoreHistoryItemValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RestoreHistoryItemValidationError{}
@@ -333,7 +334,8 @@ func (e ListRestoresRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListRestoresRequestValidationError{}
@@ -469,7 +471,8 @@ func (e ListRestoresResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = ListRestoresResponseValidationError{}
@@ -587,7 +590,8 @@ func (e RestoreServiceGetLogsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RestoreServiceGetLogsRequestValidationError{}
@@ -726,7 +730,8 @@ func (e RestoreServiceGetLogsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RestoreServiceGetLogsResponseValidationError{}
@@ -879,7 +884,8 @@ func (e RestoreBackupRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RestoreBackupRequestValidationError{}
@@ -983,7 +989,8 @@ func (e RestoreBackupResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause)
+		cause,
+	)
 }
 
 var _ error = RestoreBackupResponseValidationError{}

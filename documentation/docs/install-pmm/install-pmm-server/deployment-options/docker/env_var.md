@@ -25,6 +25,17 @@ Fine-tune data retention and collection intervals to balance monitoring detail w
 !!! tip "Performance impact"
     Higher resolution (lower values) provides more detailed metrics but increases storage requirements and system load. For high-traffic production environments, consider increasing these values.
 
+### Built-in ClickHouse configuration
+Select the configuration profile for the built-in ClickHouse instance 
+
+| Variable | Default | Description | Example |
+|----------|---------|-------------|----------|
+| `PMM_CLICKHOUSE_CONFIG` | `default` | Use `low-memory` for PMM Server environments with less than 16 GB RAM. | `low-memory` |
+
+!!! note "low-memory config" 
+    While this configuration attempts to optimize ClickHouse for low-memory environments, we highly recommend users to follow our configuration guide. 
+    For details, see [ClickHouse memory issues](../../../../troubleshoot/qan_issues.md#clickhouse-memory-issues-in-low-memory-environments).
+
 ### Feature controls
 Enable or disable specific PMM features:
 
@@ -35,13 +46,13 @@ Enable or disable specific PMM features:
 | `PMM_ENABLE_ALERTING` | `true` | Enables Percona Alerting system |
 | `PMM_ENABLE_BACKUP_MANAGEMENT` | `true` | Enables backup features |
 | `PMM_ENABLE_AZURE_DISCOVER` | `false` | Enables Azure database discovery |
-| `PMM_ENABLE_INTERNAL_PG_QAN` | `0` (disabled) | Enables Query Analytics for PMM Server's internal PostgreSQL. Useful for troubleshooting or HA scenarios. Set to `1` to enable. Can also be controlled via **PMM Configuration > Settings > Advanced Settings**. See [QAN for PMM Server's internal PostgreSQL](../../../../use/qan/QAN-stored-metrics.md#monitor-pmm-servers-internal-postgresql)
+| `PMM_ENABLE_INTERNAL_PG_QAN` | `0` (disabled) | Enables Query Analytics for PMM Server's internal PostgreSQL. Useful for troubleshooting or HA scenarios. Set to `1` to enable. Can also be controlled via **Configuration > Settings > Advanced settings**. See [QAN for PMM Server's internal PostgreSQL](../../../../use/qan/QAN-stored-metrics.md#monitor-pmm-servers-internal-postgresql)
 
 ### Debugging and troubleshooting
 Use these variables when diagnosing issues with PMM Server:
 
 | Variable | Default | Purpose |
-|----------|---------|---------|
+|----------|---------|-------|
 | `PMM_DEBUG` | `false` | Enables verbose logging |
 | `PMM_TRACE` | `false` | Enables detailed trace logging |
 
@@ -155,19 +166,22 @@ Control how PMM Server presents itself on the network:
 
 | Variable | Description |
 |----------|-------------|
-| `PMM_PUBLIC_ADDRESS` | External DNS/IP for PMM server |
+| `PMM_PUBLIC_ADDRESS` | External DNS/IP for PMM Server. Also required for Nomad to start. Setting `PMM_ENABLE_NOMAD=1` without this variable has no effect. |
 | `PMM_INTERFACE_TO_BIND` | Network interface binding |
 
 ### Database connections
 Configure connections to external database services:
 
 | Variable | Purpose |
-|----------|----------|
+| `PMM_CLICKHOUSE_CONFIG` | Set to `low-memory` to activate the built-in ClickHouse profile optimized for hosts with less than 16 GB RAM. Omit or set to `default` for standard deployments. See [ClickHouse memory issues](../../../../troubleshoot/qan_issues.md#clickhouse-memory-issues-in-low-memory-environments). |
 | `PMM_CLICKHOUSE_*` | ClickHouse connection settings |
 | `PMM_POSTGRES_*` | PostgreSQL connection settings |
 
 
 ### Nomad Garbage Collection (GC) settings
+
+!!! note
+    To enable Nomad, you must set **both** `PMM_ENABLE_NOMAD=1` and `PMM_PUBLIC_ADDRESS=<your-pmm-server-address>`. Setting `PMM_ENABLE_NOMAD=1` alone is not sufficient — without a public address, Nomad does not start. See [Configure Nomad](../../../../reference/nomad.md#prerequisites) for details.
 
 Control Nomad client-side garbage collection (GC) directly from PMM using environment variables. 
 

@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -37,12 +36,12 @@ func TestExternalExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentExternalExporterCommand{
 				AgentID:       "test-agent-external-update",
-				Enable:        pointer.ToBool(true),
-				Username:      pointer.ToString("external_user"),
-				ListenPort:    pointer.ToInt64(9104),
-				MetricsScheme: pointer.ToString("https"),
-				MetricsPath:   pointer.ToString("/custom/metrics"),
-				PushMetrics:   pointer.ToBool(true),
+				Enable:        new(true),
+				Username:      new("external_user"),
+				ListenPort:    new(int64(9104)),
+				MetricsScheme: new("https"),
+				MetricsPath:   new("/custom/metrics"),
+				PushMetrics:   new(true),
 				CustomLabels:  &map[string]string{"service": "external", "environment": "production"},
 			}
 
@@ -76,8 +75,8 @@ func TestExternalExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentExternalExporterCommand{
 				AgentID:     "test-agent-external-disable",
-				Enable:      pointer.ToBool(false),
-				PushMetrics: pointer.ToBool(false),
+				Enable:      new(false),
+				PushMetrics: new(false),
 			}
 
 			result, err := cmd.RunCmd()
@@ -100,9 +99,9 @@ func TestExternalExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentExternalExporterCommand{
 				AgentID:       "test-agent-external-metrics",
-				ListenPort:    pointer.ToInt64(8080),
-				MetricsScheme: pointer.ToString("http"),
-				MetricsPath:   pointer.ToString("/metrics"),
+				ListenPort:    new(int64(8080)),
+				MetricsScheme: new("http"),
+				MetricsPath:   new("/metrics"),
 			}
 
 			result, err := cmd.RunCmd()
@@ -220,7 +219,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentExternalExporterCommand{
 			AgentID: "invalid-agent-external",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()

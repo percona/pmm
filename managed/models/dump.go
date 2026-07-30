@@ -24,7 +24,7 @@ import (
 
 // DumpStatus represents the status of a dump process.
 //
-//go:generate ../../bin/reform
+//go:generate go tool reform
 type DumpStatus string
 
 const (
@@ -67,6 +67,7 @@ type Dump struct {
 	IgnoreLoad   bool           `reform:"ignore_load"`
 	CreatedAt    time.Time      `reform:"created_at"`
 	UpdatedAt    time.Time      `reform:"updated_at"`
+	Encrypted    bool           `reform:"encrypted"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

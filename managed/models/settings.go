@@ -47,7 +47,7 @@ type MetricsResolutions struct {
 func (r MetricsResolutions) Value() (driver.Value, error) { return jsonValue(r) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (r *MetricsResolutions) Scan(src interface{}) error { return jsonScan(r, src) }
+func (r *MetricsResolutions) Scan(src any) error { return jsonScan(r, src) }
 
 // Advisors contains settings related to the Portal Advisors.
 type Advisors struct {
@@ -64,8 +64,7 @@ type Settings struct {
 	PMMPublicAddress string `json:"pmm_public_address"`
 
 	Updates struct {
-		Enabled        *bool         `json:"enabled"`
-		SnoozeDuration time.Duration `json:"snooze_duration"`
+		Enabled *bool `json:"enabled"`
 	} `json:"updates"`
 
 	Telemetry struct {
@@ -231,9 +230,5 @@ func (s *Settings) fillDefaults() {
 
 	if s.SaaS.AdvisorRunIntervals.FrequentInterval == 0 {
 		s.SaaS.AdvisorRunIntervals.FrequentInterval = 4 * time.Hour //nolint:mnd
-	}
-
-	if s.Updates.SnoozeDuration == 0 {
-		s.Updates.SnoozeDuration = DefaultSnoozeDuration
 	}
 }

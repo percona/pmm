@@ -75,7 +75,7 @@ func (r *roster) get(groupID string) (string, []string, error) {
 	defer r.rw.RUnlock()
 
 	parts := strings.Split(groupID, ":")
-	ok := len(parts) == 2
+	ok := len(parts) == 2 //nolint:mnd
 
 	PMMAgentID := parts[0]
 	agentIDs := r.m[groupID]
@@ -84,9 +84,8 @@ func (r *roster) get(groupID string) (string, []string, error) {
 		if !ok {
 			agentIDs = []string{PMMAgentID}
 		} else {
-			rdsExporterType := models.RDSExporterType
 			awsAccessKey := strings.TrimPrefix(parts[1], rdsPrefix)
-			filters := models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: &rdsExporterType, AWSAccessKey: awsAccessKey}
+			filters := models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: new(models.RDSExporterType), AWSAccessKey: awsAccessKey}
 			agents, err := models.FindAgents(r.db.Querier, filters)
 			if err != nil {
 				return "", nil, err

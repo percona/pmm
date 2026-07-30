@@ -5,14 +5,14 @@
 This file is read by every AI agent at session start. **You are responsible for keeping it accurate.** After completing work, check whether any of these apply:
 
 - Added, removed, or renamed a top-level directory or component
-- Added or removed a component guide in `.github/instructions/`
+- Added or removed a per-component `AGENTS.md`
 - Changed the tech stack (new dependency in `go.mod`, new tool, removed technology)
 - Changed build targets in `Makefile` / `Makefile.include`
 - Changed global conventions (code style, error handling, testing patterns)
 - Changed architecture or data-flow (new pipeline, changed communication protocol)
 - Changed the development environment (`docker-compose.yml`, `.devcontainer/`)
 
-If any apply, update the relevant sections of this file. Also update the matching component guide in `.github/instructions/` if one exists for the affected area.
+If any apply, update the relevant sections of this file. Also update the matching per-component `AGENTS.md` if one exists for the affected area.
 
 Do **not** update this file for routine code changes (bug fixes, minor feature implementation) that don't alter the repo's structure or conventions.
 
@@ -26,17 +26,17 @@ Each PMM component has a dedicated guide with architecture, directory structure,
 
 | Component | Guide | Scope |
 |-----------|-------|-------|
-| **pmm-managed** (server backend) | [managed.instructions.md](.github/instructions/managed.instructions.md) | `managed/**` |
-| **pmm-agent** (client agent) | [agent.instructions.md](.github/instructions/agent.instructions.md) | `agent/**` |
-| **pmm-admin** (CLI) | [admin.instructions.md](.github/instructions/admin.instructions.md) | `admin/**` |
-| **APIs** (protobuf definitions) | [api.instructions.md](.github/instructions/api.instructions.md) | `api/**` |
-| **qan-api2** (query analytics) | [qan-api2.instructions.md](.github/instructions/qan-api2.instructions.md) | `qan-api2/**` |
-| **vmproxy** (VictoriaMetrics proxy) | [vmproxy.instructions.md](.github/instructions/vmproxy.instructions.md) | `vmproxy/**` |
-| **UI** (React frontend) | [ui.instructions.md](.github/instructions/ui.instructions.md) | `ui/**` |
-| **Dashboards** (Grafana dashboard definitions) | [dashboards.instructions.md](.github/instructions/dashboards.instructions.md) | `dashboards/dashboards/**` |
-| **QAN App** (Grafana plugin & QAN panel) | [qan-app.instructions.md](.github/instructions/qan-app.instructions.md) | `dashboards/pmm-app/**` |
-| **API Tests** (integration tests) | [api-tests.instructions.md](.github/instructions/api-tests.instructions.md) | `api-tests/**` |
-| **Build & Packaging** | [build.instructions.md](.github/instructions/build.instructions.md) | `build/**` |
+| **pmm-managed** (server backend) | [managed/AGENTS.md](managed/AGENTS.md) | `managed/**` |
+| **pmm-agent** (client agent) | [agent/AGENTS.md](agent/AGENTS.md) | `agent/**` |
+| **pmm-admin** (CLI) | [admin/AGENTS.md](admin/AGENTS.md) | `admin/**` |
+| **APIs** (protobuf definitions) | [api/AGENTS.md](api/AGENTS.md) | `api/**` |
+| **qan-api2** (query analytics) | [qan-api2/AGENTS.md](qan-api2/AGENTS.md) | `qan-api2/**` |
+| **vmproxy** (VictoriaMetrics proxy) | [vmproxy/AGENTS.md](vmproxy/AGENTS.md) | `vmproxy/**` |
+| **UI** (React frontend) | [ui/AGENTS.md](ui/AGENTS.md) | `ui/**` |
+| **Dashboards** (Grafana dashboard definitions) | [dashboards/dashboards/AGENTS.md](dashboards/dashboards/AGENTS.md) | `dashboards/dashboards/**` |
+| **QAN App** (Grafana plugin & QAN panel) | [dashboards/pmm-app/AGENTS.md](dashboards/pmm-app/AGENTS.md) | `dashboards/pmm-app/**` |
+| **API Tests** (integration tests) | [api-tests/AGENTS.md](api-tests/AGENTS.md) | `api-tests/**` |
+| **Build & Packaging** | [build/AGENTS.md](build/AGENTS.md) | `build/**` |
 
 ---
 
@@ -104,17 +104,17 @@ Relationships:
 
 | Directory | Component | Purpose | Guide |
 |-----------|-----------|---------|-------|
-| `/managed` | pmm-managed | Server backend: inventory, APIs, VictoriaMetrics, Grafana, backup, alerting, HA | [managed.instructions.md](.github/instructions/managed.instructions.md) |
-| `/agent` | pmm-agent | Client agent: exporters, QAN/RTA collectors, actions, backup/restore jobs | [agent.instructions.md](.github/instructions/agent.instructions.md) |
-| `/admin` | pmm-admin | CLI for managing monitored services | [admin.instructions.md](.github/instructions/admin.instructions.md) |
-| `/api` | APIs | Protobuf definitions and generated gRPC/REST/Swagger clients | [api.instructions.md](.github/instructions/api.instructions.md) |
-| `/qan-api2` | qan-api2 | Query Analytics API: ClickHouse ingestion and analytics | [qan-api2.instructions.md](.github/instructions/qan-api2.instructions.md) |
-| `/vmproxy` | vmproxy | VictoriaMetrics reverse proxy with LBAC filtering | [vmproxy.instructions.md](.github/instructions/vmproxy.instructions.md) |
-| `/ui` | UI | React/TypeScript PMM frontend (Vite, MUI, TanStack Query) | [ui.instructions.md](.github/instructions/ui.instructions.md) |
-| `/dashboards/dashboards` | Grafana Dashboards | Grafana dashboard JSON definitions for MySQL, MongoDB, PostgreSQL, OS, and more | [dashboards.instructions.md](.github/instructions/dashboards.instructions.md) |
-| `/dashboards/pmm-app` | QAN App | Grafana application plugin bundling dashboards and the Query Analytics panel | [qan-app.instructions.md](.github/instructions/qan-app.instructions.md) |
-| `/api-tests` | API Tests | Integration tests against live PMM Server | [api-tests.instructions.md](.github/instructions/api-tests.instructions.md) |
-| `/build` | Build & Packaging | Docker, RPM/DEB, Packer, Ansible | [build.instructions.md](.github/instructions/build.instructions.md) |
+| `/managed` | pmm-managed | Server backend: inventory, APIs, VictoriaMetrics, Grafana, backup, alerting, HA | [managed/AGENTS.md](managed/AGENTS.md) |
+| `/agent` | pmm-agent | Client agent: exporters, QAN/RTA collectors, actions, backup/restore jobs | [agent/AGENTS.md](agent/AGENTS.md) |
+| `/admin` | pmm-admin | CLI for managing monitored services | [admin/AGENTS.md](admin/AGENTS.md) |
+| `/api` | APIs | Protobuf definitions and generated gRPC/REST/Swagger clients | [api/AGENTS.md](api/AGENTS.md) |
+| `/qan-api2` | qan-api2 | Query Analytics API: ClickHouse ingestion and analytics | [qan-api2/AGENTS.md](qan-api2/AGENTS.md) |
+| `/vmproxy` | vmproxy | VictoriaMetrics reverse proxy with LBAC filtering | [vmproxy/AGENTS.md](vmproxy/AGENTS.md) |
+| `/ui` | UI | React/TypeScript PMM frontend (Vite, MUI, TanStack Query) | [ui/AGENTS.md](ui/AGENTS.md) |
+| `/dashboards/dashboards` | Grafana Dashboards | Grafana dashboard JSON definitions for MySQL, MongoDB, PostgreSQL, OS, and more | [dashboards/dashboards/AGENTS.md](dashboards/dashboards/AGENTS.md) |
+| `/dashboards/pmm-app` | QAN App | Grafana application plugin bundling dashboards and the Query Analytics panel | [dashboards/pmm-app/AGENTS.md](dashboards/pmm-app/AGENTS.md) |
+| `/api-tests` | API Tests | Integration tests against live PMM Server | [api-tests/AGENTS.md](api-tests/AGENTS.md) |
+| `/build` | Build & Packaging | Docker, RPM/DEB, Packer, Ansible | [build/AGENTS.md](build/AGENTS.md) |
 
 ### Supporting Directories
 
@@ -122,7 +122,6 @@ Relationships:
 |-----------|---------|
 | `/docs` | API documentation and process docs (tech stack, best practices, git workflow) |
 | `/documentation` | User-facing documentation (MkDocs) |
-| `/tools` | Development tools (mockery, buf, golangci-lint, etc.) |
 | `/version` | Version info and feature flags |
 | `/dev` | Development utilities (e.g., mongo-rs-backups) |
 | `/.devcontainer` | Devcontainer setup for local development |
@@ -163,7 +162,7 @@ Relationships:
 | **Kong** | CLI framework for pmm-admin |
 | **Docker Compose** | Development environment |
 | **Ansible** | Server provisioning and configuration |
-| **Packer** | Machine image builds (AMI, OVA, Azure, DigitalOcean) |
+| **Packer** | Machine image builds (AMI) |
 
 ## Global Development Conventions
 
@@ -181,7 +180,7 @@ Relationships:
 - Use `status.Error()` with proper gRPC codes for API errors
 - Wrap errors with context: `fmt.Errorf("descriptive context: %w", err)`
 - Return early on errors to avoid deep nesting
-- Use `errors.Is()` and `errors.As()` for type checking
+- Use `errors.Is()`, `errors.As()` or `errors.AsType()` for error inspection
 - Use standard `errors` package, not `github.com/pkg/errors`
 - Check `reform.ErrNoRows` for "not found" scenarios in pmm-managed
 
@@ -206,7 +205,7 @@ Relationships:
 
 ### Code Generation
 - Protobuf/gRPC: `make gen` from repo root
-- reform ORM: `//go:generate ../../bin/reform` (pmm-managed only)
+- reform ORM: `//go:generate go tool reform` (pmm-managed only)
 - Mocks: `mockery` per `.mockery.yaml`
 - **Never edit generated files** (`.pb.go`, `.pb.gw.go`, `*_reform.go`, `*.pb.validate.go`, swagger specs, `json/client/`)
 
@@ -227,7 +226,8 @@ All long-running daemons expose on `127.0.0.1`:
 | Target | Purpose |
 |--------|---------|
 | `make env-up` | Start development container (PMM Server) |
-| `make env-up-rebuild` | Rebuild development container from scratch |
+| `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI |
+| `make run-qan-ui` | Inside devcontainer: webpack + livereload for the QAN Grafana plugin |
 | `make gen` | Generate all code (protobuf, reform, mocks, format) |
 | `make check` | Run linters (buf, golangci-lint, go-sumtype) |
 | `make format` | Format code (gofumpt, goimports, gci) |
@@ -239,11 +239,11 @@ All long-running daemons expose on `127.0.0.1`:
 ## Key Files to Reference
 
 - `Makefile`, `Makefile.include` — build and development targets
-- `docker-compose.dev.yml` — development environment (PMM Server, renderer, watchtower)
+- `docker-compose.dev.yml` — development environment (PMM Server, renderer)
 - `docker-compose.yml` — community/quickstart compose (stable image, minimal config)
 - `go.mod` — Go module definition
 - `.golangci.yml` — linter configuration
 - `.mockery.yaml` — mock generation configuration
-- `docs/process/tech_stack.md` — technology choices and rationale
-- `docs/process/best_practices.md` — coding best practices
-- `docs/process/GIT_AND_GITHUB.md` — git workflow
+- `dev/docs/process/tech_stack.md` — technology choices and rationale
+- `dev/docs/process/best_practices.md` — coding best practices
+- `dev/docs/process/GIT_AND_GITHUB.md` — git workflow

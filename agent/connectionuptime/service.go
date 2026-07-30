@@ -17,6 +17,7 @@ package connectionuptime
 
 import (
 	"context"
+	"slices"
 	"sync"
 	"time"
 
@@ -84,8 +85,8 @@ func (c *Service) deleteOldEvents(toTime time.Time) {
 	// The latest expired element in the slice will be the first one to calculate
 	// uptime correctly during set up window time
 	boundaryTimestamp := toTime.Add(-c.windowPeriod)
-	for i := len(c.events) - 1; i >= 0; i-- {
-		if c.events[i].Timestamp.Before(boundaryTimestamp) {
+	for i, v := range slices.Backward(c.events) {
+		if v.Timestamp.Before(boundaryTimestamp) {
 			c.removeFirstElementsUntilIndex(i)
 
 			return
@@ -152,7 +153,7 @@ func (c *Service) GetConnectedUpTimeUntil(toTime time.Time) float32 {
 
 	if len(c.events) == 1 {
 		if c.events[0].Connected {
-			return 100
+			return 100 //nolint:mnd
 		}
 		return 0
 	}
@@ -182,7 +183,7 @@ func (c *Service) GetConnectedUpTimeUntil(toTime time.Time) float32 {
 	startTime := maxTime(expiredTime, c.events[0].Timestamp)
 	totalTime := toTime.Sub(startTime).Milliseconds()
 
-	return float32(connectedTimeMs) / float32(totalTime) * 100
+	return float32(connectedTimeMs) / float32(totalTime) * 100 //nolint:mnd
 }
 
 func maxTime(t1, t2 time.Time) time.Time {

@@ -57,5 +57,5 @@ func TestProcessActionRunAndCancel(t *testing.T) {
 	_, err := p.Run(ctx)
 
 	// check
-	assert.Error(t, err)
+	require.Error(t, err)
 }

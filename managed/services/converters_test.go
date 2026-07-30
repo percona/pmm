@@ -19,7 +19,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -45,13 +44,22 @@ func TestToAPIAgent(t *testing.T) {
 	service, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 		ServiceName: "test-mongodb",
 		NodeID:      node.NodeID,
-		Address:     pointer.ToString("127.0.0.1"),
-		Port:        pointer.ToUint16(27017),
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(27017)),
 		Cluster:     "test-cluster",
 	})
 	require.NoError(t, err)
 
 	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
+	require.NoError(t, err)
+
+	mysqlService, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "test-mysql",
+		NodeID:      node.NodeID,
+		Address:     new("127.0.0.1"),
+		Port:        new(uint16(3306)),
+		Cluster:     "test-cluster",
+	})
 	require.NoError(t, err)
 
 	type args struct {
@@ -75,11 +83,11 @@ func TestToAPIAgent(t *testing.T) {
 					ServiceID:     &service.ServiceID,
 					AgentType:     models.RTAMongoDBAgentType,
 					Disabled:      false,
-					Username:      pointer.To("test-user"),
-					Password:      pointer.To("test-pass"),
+					Username:      new("test-user"),
+					Password:      new("test-pass"),
 					TLS:           true,
 					TLSSkipVerify: true,
-					RTAOptions:    models.RTAOptions{CollectInterval: pointer.To(2 * time.Second)},
+					RTAOptions:    models.RTAOptions{CollectInterval: new(2 * time.Second)},
 					Status:        inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_RUNNING)],
 				},
 			},
@@ -96,6 +104,38 @@ func TestToAPIAgent(t *testing.T) {
 			},
 			wantErr: nil,
 		},
+		{
+			name: "mysqld exporter with ExporterOptions timeout",
+			args: args{
+				q: db.Querier,
+				agent: &models.Agent{
+					AgentID:    "mysqld-agent-1",
+					PMMAgentID: &pmmAgent.AgentID,
+					ServiceID:  &mysqlService.ServiceID,
+					AgentType:  models.MySQLdExporterType,
+					Disabled:   false,
+					Username:   new("exporter-user"),
+					Status:     inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN)],
+					MySQLOptions: models.MySQLOptions{
+						TableCountTablestatsGroupLimit: 1000,
+					},
+					ExporterOptions: models.ExporterOptions{
+						ConnectionTimeout: new(9 * time.Second),
+					},
+				},
+			},
+			want: &inventoryv1.MySQLdExporter{
+				AgentId:                   "mysqld-agent-1",
+				PmmAgentId:                pmmAgent.AgentID,
+				ServiceId:                 mysqlService.ServiceID,
+				Username:                  "exporter-user",
+				Disabled:                  false,
+				Status:                    inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
+				TablestatsGroupTableLimit: 1000,
+				ConnectionTimeout:         durationpb.New(9 * time.Second),
+			},
+			wantErr: nil,
+		},
 	}
 
 	for _, tt := range tests {
@@ -104,7 +144,7 @@ func TestToAPIAgent(t *testing.T) {
 
 			got, err := ToAPIAgent(tt.args.q, tt.args.agent)
 			if tt.wantErr != nil {
-				assert.ErrorIs(t, err, tt.wantErr)
+				require.ErrorIs(t, err, tt.wantErr)
 			} else {
 				assert.Equalf(t, tt.want, got, "ToAPIAgent(%v, %v)", tt.args.q, tt.args.agent)
 			}

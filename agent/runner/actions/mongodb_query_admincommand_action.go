@@ -19,12 +19,11 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
@@ -37,7 +36,7 @@ type mongodbQueryAdmincommandAction struct {
 	dsn     string
 	files   *agentv1.TextFiles //nolint:unused
 	command string
-	arg     interface{}
+	arg     any
 	tmpDir  string
 }
 
@@ -48,13 +47,13 @@ func NewMongoDBQueryAdmincommandAction(
 	dsn string,
 	files *agentv1.TextFiles,
 	command string,
-	arg interface{},
+	arg any,
 	tempDir string,
 ) (Action, error) {
 	tmpDir := filepath.Join(tempDir, mongoDBQueryAdminCommandActionType, id)
 	dsn, err := templates.RenderDSN(dsn, files, tmpDir)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return &mongodbQueryAdmincommandAction{
@@ -90,26 +89,27 @@ func (a *mongodbQueryAdmincommandAction) DSN() string {
 // Run runs an action and returns output and error.
 func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error) {
 	defer templates.CleanupTempDir(a.tmpDir, logrus.WithField("component", mongoDBQueryAdminCommandActionType))
-	opts, err := mongo_fix.ClientOptionsForDSN(a.dsn)
+	opts, err := mongofix.ClientOptionsForDSN(a.dsn)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 	defer client.Disconnect(ctx) //nolint:errcheck
 
-	runCommand := bson.D{{a.command, a.arg}} //nolint:govet
+	runCommand := bson.D{{Key: a.command, Value: a.arg}}
 	res := client.Database("admin").RunCommand(ctx, runCommand)
 
-	var doc map[string]interface{}
-	if err = res.Decode(&doc); err != nil {
-		return nil, errors.WithStack(err)
+	var doc map[string]any
+	err = res.Decode(&doc)
+	if err != nil {
+		return nil, err
 	}
 
-	data := []map[string]interface{}{doc}
+	data := []map[string]any{doc}
 	return agentv1.MarshalActionQueryDocsResult(data)
 }
 

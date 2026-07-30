@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,17 +38,17 @@ func TestQANMongoDBMongologAgentChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentQANMongoDBMongologAgentCommand{
 				AgentID:                       "test-agent-qan-mongolog-update",
-				Enable:                        pointer.ToBool(true),
-				Username:                      pointer.ToString("mongodb_user"),
-				Password:                      pointer.ToString("mongodb_pass"),
-				TLS:                           pointer.ToBool(true),
-				TLSSkipVerify:                 pointer.ToBool(false),
-				TLSCertificateKeyFilePassword: pointer.ToString("cert_password"),
-				AuthenticationMechanism:       pointer.ToString("SCRAM-SHA-256"),
-				AuthenticationDatabase:        pointer.ToString("admin"),
-				MaxQueryLength:                pointer.ToInt32(2048),
+				Enable:                        new(true),
+				Username:                      new("mongodb_user"),
+				Password:                      new("mongodb_pass"),
+				TLS:                           new(true),
+				TLSSkipVerify:                 new(false),
+				TLSCertificateKeyFilePassword: new("cert_password"),
+				AuthenticationMechanism:       new("SCRAM-SHA-256"),
+				AuthenticationDatabase:        new("admin"),
+				MaxQueryLength:                new(int32(2048)),
 				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("debug")),
+					LogLevel: new(flags.LogLevel("debug")),
 				},
 				CustomLabels: &map[string]string{"service": "mongodb", "environment": "production"},
 			}
@@ -88,8 +87,8 @@ func TestQANMongoDBMongologAgentChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentQANMongoDBMongologAgentCommand{
 				AgentID:        "test-agent-qan-mongolog-disable",
-				Enable:         pointer.ToBool(false),
-				MaxQueryLength: pointer.ToInt32(1024),
+				Enable:         new(false),
+				MaxQueryLength: new(int32(1024)),
 			}
 
 			result, err := cmd.RunCmd()
@@ -215,7 +214,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentQANMongoDBMongologAgentCommand{
 			AgentID: "invalid-agent-qan-mongolog",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()

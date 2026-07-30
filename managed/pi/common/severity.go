@@ -13,7 +13,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package common //nolint:revive
+// Package common provides shared types and utilities used across Percona Intelligence (PI) services.
+package common
 
 import (
 	"fmt"
@@ -22,7 +23,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-//go:generate ../../../bin/stringer -type=Severity -linecomment
+//go:generate go tool stringer -type=Severity -linecomment
 
 // Severity represents alert severity level as present in Advisors.
 type Severity int //nolint:recvcheck

@@ -17,103 +17,18 @@
 package inventory
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"testing"
 
-	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventory/v1/json/client"
+	"github.com/stretchr/testify/assert"
+
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
-	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
-func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddNodeOKBody {
+func assertPostgreSQLServiceExists(t *testing.T, res *services.ListServicesOK, serviceID string) {
 	t.Helper()
 
-	params := &nodes.AddNodeParams{
-		Body: nodes.AddNodeBody{
-			RemoteRDS: &nodes.AddNodeParamsBodyRemoteRDS{
-				NodeName: nodeName,
-				Address:  pmmapitests.TestString(t, "rds-address"),
-				Region:   pmmapitests.TestString(t, "rds-region"),
-			},
-		},
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.NodesService.AddNode(params)
-	require.NoError(t, err)
-	require.NotNil(t, res)
-
-	return res.Payload
-}
-
-func addRemoteAzureDatabaseNode(t pmmapitests.TestingT, nodeName string) *nodes.AddNodeOKBody {
-	t.Helper()
-
-	params := &nodes.AddNodeParams{
-		Body: nodes.AddNodeBody{
-			RemoteAzure: &nodes.AddNodeParamsBodyRemoteAzure{
-				NodeName: nodeName,
-				Address:  pmmapitests.TestString(t, "azure-address"),
-				Region:   pmmapitests.TestString(t, "azure-region"),
-			},
-		},
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.NodesService.AddNode(params)
-	require.NoError(t, err)
-	require.NotNil(t, res)
-
-	return res.Payload
-}
-
-func addService(t pmmapitests.TestingT, body services.AddServiceBody) *services.AddServiceOKBody {
-	t.Helper()
-
-	params := &services.AddServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-
-	res, err := client.Default.ServicesService.AddService(params)
-	require.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addNodeExporter(t pmmapitests.TestingT, pmmAgentID string, customLabels map[string]string) *agents.AddAgentOK {
-	res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-		Body: agents.AddAgentBody{
-			NodeExporter: &agents.AddAgentParamsBodyNodeExporter{
-				PMMAgentID:   pmmAgentID,
-				CustomLabels: customLabels,
-			},
-		},
-		Context: pmmapitests.Context,
-	})
-	require.NoError(t, err)
-	require.NotNil(t, res)
-	require.NotNil(t, res.Payload.NodeExporter)
-	require.Equal(t, pmmAgentID, res.Payload.NodeExporter.PMMAgentID)
-	return res
-}
-
-func addAgent(t pmmapitests.TestingT, body agents.AddAgentBody) *agents.AddAgentOKBody {
-	t.Helper()
-
-	res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	})
-	require.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func assertPostgreSQLServiceExists(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool { //nolint:unparam
-	t.Helper()
-
-	return assert.Conditionf(t, func() bool {
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.Postgresql {
 			if v.ServiceID == serviceID {
 				return true
@@ -123,10 +38,10 @@ func assertPostgreSQLServiceExists(t pmmapitests.TestingT, res *services.ListSer
 	}, "There should be PostgreSQL service with id `%s`", serviceID)
 }
 
-func assertMySQLServiceExists(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool { //nolint:unparam
+func assertMySQLServiceExists(t *testing.T, res *services.ListServicesOK, serviceID string) {
 	t.Helper()
 
-	return assert.Conditionf(t, func() bool {
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.Mysql {
 			if v.ServiceID == serviceID {
 				return true
@@ -136,10 +51,10 @@ func assertMySQLServiceExists(t pmmapitests.TestingT, res *services.ListServices
 	}, "There should be MySQL service with id `%s`", serviceID)
 }
 
-func assertMySQLServiceNotExist(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool { //nolint:unparam
+func assertMySQLServiceNotExist(t *testing.T, res *services.ListServicesOK, serviceID string) {
 	t.Helper()
 
-	return assert.Conditionf(t, func() bool {
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.Mysql {
 			if v.ServiceID == serviceID {
 				return false
@@ -149,10 +64,10 @@ func assertMySQLServiceNotExist(t pmmapitests.TestingT, res *services.ListServic
 	}, "There should not be MySQL service with id `%s`", serviceID)
 }
 
-func assertExternalServiceExists(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool { //nolint:unparam
+func assertExternalServiceExists(t *testing.T, res *services.ListServicesOK, serviceID string) {
 	t.Helper()
 
-	return assert.Conditionf(t, func() bool {
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.External {
 			if v.ServiceID == serviceID {
 				return true
@@ -162,10 +77,10 @@ func assertExternalServiceExists(t pmmapitests.TestingT, res *services.ListServi
 	}, "There should be External service with id `%s`", serviceID)
 }
 
-func assertExternalServiceNotExist(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool {
+func assertExternalServiceNotExist(t *testing.T, res *services.ListServicesOK, serviceID string) {
 	t.Helper()
 
-	return assert.Conditionf(t, func() bool {
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.External {
 			if v.ServiceID == serviceID {
 				return false
@@ -175,10 +90,10 @@ func assertExternalServiceNotExist(t pmmapitests.TestingT, res *services.ListSer
 	}, "There should not be External service with id `%s`", serviceID)
 }
 
-func assertHAProxyServiceExists(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool { //nolint:unparam
+func assertHAProxyServiceExists(t *testing.T, res *services.ListServicesOK, serviceID string) {
 	t.Helper()
 
-	return assert.Conditionf(t, func() bool {
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.Haproxy {
 			if v.ServiceID == serviceID {
 				return true
@@ -188,10 +103,10 @@ func assertHAProxyServiceExists(t pmmapitests.TestingT, res *services.ListServic
 	}, "There should be HAProxy service with id `%s`", serviceID)
 }
 
-func assertHAProxyServiceNotExist(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool {
+func assertHAProxyServiceNotExist(t *testing.T, res *services.ListServicesOK, serviceID string) {
 	t.Helper()
 
-	return assert.Conditionf(t, func() bool {
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.Haproxy {
 			if v.ServiceID == serviceID {
 				return false
@@ -201,8 +116,10 @@ func assertHAProxyServiceNotExist(t pmmapitests.TestingT, res *services.ListServ
 	}, "There should not be HAProxy service with id `%s`", serviceID)
 }
 
-func assertMySQLExporterExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, mySqldExporterID string) bool { //nolint:unparam
-	return assert.Conditionf(t, func() bool {
+func assertMySQLExporterExists(t *testing.T, res *agents.ListAgentsOK, mySqldExporterID string) {
+	t.Helper()
+
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.MysqldExporter {
 			if v.AgentID == mySqldExporterID {
 				return true
@@ -212,8 +129,10 @@ func assertMySQLExporterExists(t pmmapitests.TestingT, res *agents.ListAgentsOK,
 	}, "There should be MySQL agent with id `%s`", mySqldExporterID)
 }
 
-func assertMySQLExporterNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, mySqldExporterID string) bool {
-	return assert.Conditionf(t, func() bool {
+func assertMySQLExporterNotExists(t *testing.T, res *agents.ListAgentsOK, mySqldExporterID string) {
+	t.Helper()
+
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.MysqldExporter {
 			if v.AgentID == mySqldExporterID {
 				return false
@@ -223,8 +142,10 @@ func assertMySQLExporterNotExists(t pmmapitests.TestingT, res *agents.ListAgents
 	}, "There should not be MySQL agent with id `%s`", mySqldExporterID)
 }
 
-func assertPMMAgentExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, pmmAgentID string) bool {
-	return assert.Conditionf(t, func() bool {
+func assertPMMAgentExists(t *testing.T, res *agents.ListAgentsOK, pmmAgentID string) {
+	t.Helper()
+
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.PMMAgent {
 			if v.AgentID == pmmAgentID {
 				return true
@@ -234,8 +155,10 @@ func assertPMMAgentExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, pmmA
 	}, "There should be PMM-agent with id `%s`", pmmAgentID)
 }
 
-func assertPMMAgentNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, pmmAgentID string) bool { //nolint:unparam
-	return assert.Conditionf(t, func() bool {
+func assertPMMAgentNotExists(t *testing.T, res *agents.ListAgentsOK, pmmAgentID string) {
+	t.Helper()
+
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.PMMAgent {
 			if v.AgentID == pmmAgentID {
 				return false
@@ -245,8 +168,10 @@ func assertPMMAgentNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, p
 	}, "There should not be PMM-agent with id `%s`", pmmAgentID)
 }
 
-func assertNodeExporterExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, nodeExporterID string) bool { //nolint:unparam
-	return assert.Conditionf(t, func() bool {
+func assertNodeExporterExists(t *testing.T, res *agents.ListAgentsOK, nodeExporterID string) {
+	t.Helper()
+
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.NodeExporter {
 			if v.AgentID == nodeExporterID {
 				return true
@@ -256,8 +181,10 @@ func assertNodeExporterExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, 
 	}, "There should be Node exporter with id `%s`", nodeExporterID)
 }
 
-func assertNodeExporterNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, nodeExporterID string) bool { //nolint:unparam
-	return assert.Conditionf(t, func() bool {
+func assertNodeExporterNotExists(t *testing.T, res *agents.ListAgentsOK, nodeExporterID string) {
+	t.Helper()
+
+	assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.NodeExporter {
 			if v.AgentID == nodeExporterID {
 				return false

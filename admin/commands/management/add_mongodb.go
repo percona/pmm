@@ -16,6 +16,7 @@ package management
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -53,6 +54,10 @@ func (res *addMongoDBResult) String() string {
 //
 //nolint:lll
 type AddMongoDBCommand struct {
+	AddCommonFlags
+	flags.MetricsModeFlags
+	flags.LogLevelFatalFlags
+
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-mongodb" help:"Service name (autodetected default: ${hostname}-mongodb)"`
 	Address           string `arg:"" optional:"" help:"MongoDB address and port (default: 127.0.0.1:27017)"`
 	Socket            string `help:"Path to socket"`
@@ -63,30 +68,28 @@ type AddMongoDBCommand struct {
 	AgentPassword     string `help:"Custom password for /metrics endpoint"`
 	CredentialsSource string `type:"existingfile" help:"Credentials provider"`
 	// TODO add "auto"
-	QuerySource                   string            `default:"${mongoDbQuerySourceDefault}" enum:"${mongoDbQuerySourcesEnum}" help:"Source of queries, one of: ${mongoDbQuerySourcesEnum} (default: ${mongoDbQuerySourceDefault})"`
-	Environment                   string            `help:"Environment name"`
-	Cluster                       string            `help:"Cluster name"`
-	ReplicationSet                string            `help:"Replication set name"`
-	CustomLabels                  map[string]string `mapsep:"," help:"Custom user-assigned labels"`
-	SkipConnectionCheck           bool              `help:"Skip connection check"`
-	MaxQueryLength                int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
-	TLS                           bool              `help:"Use TLS to connect to the database"`
-	TLSSkipVerify                 bool              `help:"Skip TLS certificate verification"`
-	TLSCertificateKeyFile         string            `help:"Path to TLS certificate PEM file"`
-	TLSCertificateKeyFilePassword string            `help:"Password for certificate"`
-	TLSCaFile                     string            `help:"Path to certificate authority file"`
-	AuthenticationMechanism       string            `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
-	AuthenticationDatabase        string            `help:"Authentication database. Default is empty. Use $external for ssl certificates"`
-	EnableAllCollectors           bool              `help:"Enable all collectors"`
-	DisableCollectors             []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	StatsCollections              []string          `help:"Collections for collstats & indexstats"`
-	CollectionsLimit              int32             `name:"max-collections-limit" default:"-1" help:"Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, which let PMM automatically set this value"`
-	ExposeExporter                bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
-	AgentEnvVars                  []string          `name:"agent-env-vars" help:"Comma-separated list of environment variable names to pass to the exporter (values are read from the current environment), e.g. 'VAR1,VAR2'"`
-
-	AddCommonFlags
-	flags.MetricsModeFlags
-	flags.LogLevelFatalFlags
+	QuerySource                    string            `default:"${mongoDbQuerySourceDefault}" enum:"${mongoDbQuerySourcesEnum}" help:"Source of queries, one of: ${mongoDbQuerySourcesEnum} (default: ${mongoDbQuerySourceDefault})"`
+	Environment                    string            `help:"Environment name"`
+	Cluster                        string            `help:"Cluster name"`
+	ReplicationSet                 string            `help:"Replication set name"`
+	CustomLabels                   map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+	SkipConnectionCheck            bool              `help:"Skip connection check"`
+	MaxQueryLength                 int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
+	TLS                            bool              `help:"Use TLS to connect to the database"`
+	TLSSkipVerify                  bool              `help:"Skip TLS certificate verification"`
+	TLSCertificateKeyFile          string            `help:"Path to TLS certificate PEM file"`
+	TLSCertificateKeyFilePassword  string            `help:"Password for certificate"`
+	TLSCaFile                      string            `help:"Path to certificate authority file"`
+	AuthenticationMechanism        string            `help:"Authentication mechanism. Default is empty. Use MONGODB-X509 for ssl certificates"`
+	AuthenticationDatabase         string            `help:"Authentication database. Default is empty. Use $external for ssl certificates"`
+	EnableAllCollectors            bool              `help:"Enable all collectors"`
+	EnableDiagnosticDataHistograms bool              `help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
+	DisableCollectors              []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	StatsCollections               []string          `help:"Collections for collstats & indexstats"`
+	CollectionsLimit               int32             `name:"max-collections-limit" default:"-1" help:"Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, which let PMM automatically set this value"`
+	ExposeExporter                 bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	AgentEnvVars                   []string          `name:"agent-env-vars" help:"Comma-separated list of environment variable names to pass to the exporter (values are read from the current environment), e.g. 'VAR1,VAR2'"`
+	ConnectionTimeout              *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 }
 
 // GetServiceName returns the service name for AddMongoDBCommand.
@@ -159,7 +162,8 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.CredentialsSource != "" {
-		if err := cmd.GetCredentials(); err != nil {
+		err := cmd.GetCredentials()
+		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
 	}
@@ -196,13 +200,15 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 				AuthenticationMechanism:       cmd.AuthenticationMechanism,
 				AuthenticationDatabase:        cmd.AuthenticationDatabase,
 
-				MetricsMode: cmd.MetricsModeFlags.MetricsMode.EnumValue(),
+				MetricsMode: cmd.MetricsMode.EnumValue(),
 
-				EnableAllCollectors: cmd.EnableAllCollectors,
-				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-				StatsCollections:    commands.ParseDisableCollectors(cmd.StatsCollections),
-				CollectionsLimit:    cmd.CollectionsLimit,
-				LogLevel:            cmd.LogLevelFatalFlags.LogLevel.EnumValue(),
+				EnableAllCollectors:            cmd.EnableAllCollectors,
+				EnableDiagnosticDataHistograms: cmd.EnableDiagnosticDataHistograms,
+				DisableCollectors:              commands.ParseDisableCollectors(cmd.DisableCollectors),
+				StatsCollections:               commands.ParseDisableCollectors(cmd.StatsCollections),
+				CollectionsLimit:               cmd.CollectionsLimit,
+				LogLevel:                       cmd.LogLevel.EnumValue(),
+				ConnectionTimeout:              commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

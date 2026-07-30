@@ -76,7 +76,7 @@ func TestEnsureRetention(t *testing.T) {
 
 		// Returns nil, no dependency calls.
 		err = retentionService.EnforceRetention(wrongModetask.ID)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 	})
 
 	t.Run("successful snapshot", func(t *testing.T) {
@@ -145,27 +145,27 @@ func TestEnsureRetention(t *testing.T) {
 		createArtifact()
 		assert.Equal(t, 1, countArtifacts())
 		createArtifact()
-		assert.NoError(t, retentionService.EnforceRetention(task.ID))
+		require.NoError(t, retentionService.EnforceRetention(task.ID))
 		assert.Equal(t, 2, countArtifacts())
 
 		createArtifact()
 		createArtifact()
 		createArtifact()
-		assert.NoError(t, retentionService.EnforceRetention(task.ID))
+		require.NoError(t, retentionService.EnforceRetention(task.ID))
 		assert.Equal(t, 5, countArtifacts())
 
 		changeRetention(6)
-		assert.NoError(t, retentionService.EnforceRetention(task.ID))
+		require.NoError(t, retentionService.EnforceRetention(task.ID))
 		assert.Equal(t, 5, countArtifacts())
 
 		changeRetention(4)
 		mockedRemovalService.On("DeleteArtifact", mock.Anything, mock.Anything, true).Return(nil).Run(deleteArtifacts).Once()
-		assert.NoError(t, retentionService.EnforceRetention(task.ID))
+		require.NoError(t, retentionService.EnforceRetention(task.ID))
 		assert.Equal(t, 4, countArtifacts())
 
 		changeRetention(2)
 		mockedRemovalService.On("DeleteArtifact", mock.Anything, mock.Anything, true).Return(nil).Run(deleteArtifacts).Twice()
-		assert.NoError(t, retentionService.EnforceRetention(task.ID))
+		require.NoError(t, retentionService.EnforceRetention(task.ID))
 		assert.Equal(t, 2, countArtifacts())
 	})
 
@@ -237,7 +237,7 @@ func TestEnsureRetention(t *testing.T) {
 
 			err = retentionService.EnforceRetention(task.ID)
 			require.Error(t, err)
-			assert.Equal(t, "Can be only one artifact entity for PITR in the database but found 2", err.Error())
+			assert.Equal(t, "can be only one artifact entity for PITR in the database but found 2", err.Error())
 		})
 	})
 

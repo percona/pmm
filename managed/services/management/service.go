@@ -17,10 +17,11 @@ package management
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -36,6 +37,8 @@ import (
 
 // ManagementService allows to interact with services.
 type ManagementService struct { //nolint:revive
+	managementv1.UnimplementedManagementServiceServer
+
 	db            *reform.DB
 	r             agentsRegistry
 	state         agentsStateUpdater
@@ -46,14 +49,25 @@ type ManagementService struct { //nolint:revive
 	grafanaClient grafanaClient
 	vmClient      victoriaMetricsClient
 	l             *logrus.Entry
-
-	managementv1.UnimplementedManagementServiceServer
 }
 
-type statusMetrics struct {
-	status      int
-	serviceType string
+// upMetricSelectors match the per-service-type "up" metrics that back the service status.
+var upMetricSelectors = []string{
+	`pg_up{collector="exporter",job=~".*_hr$"}`,
+	`mysql_up{job=~".*_hr$"}`,
+	`mongodb_up{job=~".*_hr$"}`,
+	`proxysql_up{job=~".*_hr$"}`,
+	`haproxy_backend_status{state="UP"}`,
+	`redis_up{job=~".*_hr$"}`,
+	`up{service_type='external'}`,
 }
+
+// staleStatusWindow bounds how old an "up" sample may be to still derive a service status
+// when no fresh sample exists. Vmagents replay buffered data oldest-first after an outage,
+// so the newest sample VM has can be as old as the outage plus the replay backlog; the window
+// must comfortably cover both. It only applies while the service's pmm-agent is connected,
+// so a wide window does not keep dead clients' statuses alive.
+const staleStatusWindow = "24h"
 
 // NewManagementService creates a ManagementService instance.
 func NewManagementService(
@@ -119,31 +133,16 @@ func (s *ManagementService) AddService(ctx context.Context, req *managementv1.Ad
 }
 
 // ListServices returns a filtered list of Services with some attributes from Agents and Nodes.
-func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.ListServicesRequest) (*managementv1.ListServicesResponse, error) {
+func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.ListServicesRequest) (*managementv1.ListServicesResponse, error) { //nolint:gocognit
 	filters := models.ServiceFilters{
 		NodeID:        req.NodeId,
 		ServiceType:   services.ProtoToModelServiceType(req.ServiceType),
 		ExternalGroup: req.ExternalGroup,
 	}
 
-	query := `pg_up{collector="exporter",job=~".*_hr$"}
-		or mysql_up{job=~".*_hr$"}
-		or mongodb_up{job=~".*_hr$"}
-		or proxysql_up{job=~".*_hr$"}
-		or haproxy_backend_status{state="UP"}
-		or redis_up{job=~".*_hr$"}
-		or up{service_type='external'}
-	`
-	result, _, err := s.vmClient.Query(ctx, query, time.Now())
+	metrics, err := s.queryUpMetrics(ctx, false)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to execute an instant VM query")
-	}
-
-	metrics := make(map[string]statusMetrics, len(result.(model.Vector))) //nolint:forcetypeassert
-	for _, v := range result.(model.Vector) {                             //nolint:forcetypeassert
-		serviceID := string(v.Metric[model.LabelName("service_id")])
-		serviceType := string(v.Metric[model.LabelName("service_type")])
-		metrics[serviceID] = statusMetrics{status: int(v.Value), serviceType: serviceType}
+		return nil, err
 	}
 
 	var (
@@ -184,6 +183,24 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 		return nil, errTX
 	}
 
+	// vmagents replay buffered samples oldest-first after a disconnect, so during a fleet-wide
+	// reconnect VM can lag behind by many minutes while services are actually fine. For supported
+	// services without a fresh sample, fall back to the last sample within staleStatusWindow —
+	// gated below on the service's pmm-agent being connected, so a dead client stays UNKNOWN.
+	staleMetrics := map[string]int{}
+	for _, service := range services {
+		_, hasFresh := metrics[service.ServiceID]
+		_, isSupported := supportedServices[string(service.ServiceType)]
+		if !hasFresh && isSupported {
+			staleMetrics, err = s.queryUpMetrics(ctx, true)
+			if err != nil {
+				return nil, err
+			}
+			break
+		}
+	}
+	connectedCache := make(map[string]bool)
+
 	nodeMap := make(map[string]string, len(nodes))
 	for _, node := range nodes {
 		nodeMap[node.NodeID] = node.NodeName
@@ -216,21 +233,18 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 			Version:        pointer.GetString(service.Version),
 		}
 
-		if metric, ok := metrics[service.ServiceID]; ok {
-			switch metric.status {
-			// We assume there can only be values of either 1(UP) or 0(DOWN).
-			case 0:
-				svc.Status = managementv1.UniversalService_STATUS_DOWN
-			case 1:
-				svc.Status = managementv1.UniversalService_STATUS_UP
-			}
-		} else {
-			// In case there is no metric, we need to assign different values for supported and unsupported service types.
-			if _, ok := supportedServices[metric.serviceType]; ok {
-				svc.Status = managementv1.UniversalService_STATUS_UNKNOWN
-			} else {
-				svc.Status = managementv1.UniversalService_STATUS_UNSPECIFIED
-			}
+		_, isSupported := supportedServices[string(service.ServiceType)]
+		freshUp, hasFresh := metrics[service.ServiceID]
+		staleUp, hasStale := staleMetrics[service.ServiceID]
+		switch {
+		case hasFresh:
+			svc.Status = serviceStatusFromUp(freshUp)
+		case !isSupported:
+			svc.Status = managementv1.UniversalService_STATUS_UNSPECIFIED
+		case hasStale && s.hasConnectedPMMAgent(agents, service, connectedCache):
+			svc.Status = serviceStatusFromUp(staleUp)
+		default:
+			svc.Status = managementv1.UniversalService_STATUS_UNKNOWN
 		}
 
 		nodeName, ok := nodeMap[service.NodeID]
@@ -257,8 +271,72 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 	return &managementv1.ListServicesResponse{Services: resultSvc}, nil
 }
 
+// queryUpMetrics returns the values of the per-service "up" metrics keyed by service ID.
+// With stale=true it returns the most recent sample within staleStatusWindow instead of
+// only fresh (non-stale) samples.
+func (s *ManagementService) queryUpMetrics(ctx context.Context, stale bool) (map[string]int, error) {
+	selectors := make([]string, len(upMetricSelectors))
+	for i, sel := range upMetricSelectors {
+		if stale {
+			sel = fmt.Sprintf("last_over_time(%s[%s])", sel, staleStatusWindow)
+		}
+		selectors[i] = sel
+	}
+
+	result, _, err := s.vmClient.Query(ctx, strings.Join(selectors, " or "), time.Now())
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute an instant VM query: %w", err)
+	}
+
+	vector, ok := result.(model.Vector)
+	if !ok {
+		return nil, fmt.Errorf("unexpected VM query result type %T", result)
+	}
+	metrics := make(map[string]int, len(vector))
+	for _, v := range vector {
+		metrics[string(v.Metric[model.LabelName("service_id")])] = int(v.Value)
+	}
+	return metrics, nil
+}
+
+// serviceStatusFromUp converts an "up" metric value to a service status.
+func serviceStatusFromUp(up int) managementv1.UniversalService_Status {
+	// We assume there can only be values of either 1(UP) or 0(DOWN).
+	switch up {
+	case 0:
+		return managementv1.UniversalService_STATUS_DOWN
+	case 1:
+		return managementv1.UniversalService_STATUS_UP
+	default:
+		return managementv1.UniversalService_STATUS_UNKNOWN
+	}
+}
+
+// hasConnectedPMMAgent reports whether a pmm-agent that runs this service's exporters
+// is currently connected. The connectedCache map memoizes registry lookups within one request.
+func (s *ManagementService) hasConnectedPMMAgent(agents []*models.Agent, service *models.Service, connectedCache map[string]bool) bool {
+	for _, agent := range agents {
+		if !IsServiceAgent(agent, service) {
+			continue
+		}
+		pmmAgentID := pointer.GetString(agent.PMMAgentID)
+		if pmmAgentID == "" {
+			continue
+		}
+		connected, ok := connectedCache[pmmAgentID]
+		if !ok {
+			connected = s.r.IsConnected(pmmAgentID)
+			connectedCache[pmmAgentID] = connected
+		}
+		if connected {
+			return true
+		}
+	}
+	return false
+}
+
 // RemoveService removes a Service along with its Agents.
-func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*managementv1.RemoveServiceResponse, error) {
+func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*managementv1.RemoveServiceResponse, error) { //nolint:gocognit
 	err := s.validateRequest(req)
 	if err != nil {
 		return nil, err
@@ -330,7 +408,8 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 			}
 
 			if len(pmmAgentIDs) <= 1 {
-				if err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade); err != nil {
+				err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
+				if err != nil {
 					return err
 				}
 			}

@@ -9,48 +9,22 @@ import {
   Skeleton,
   Alert,
 } from '@mui/material';
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import { PMM_HOME_URL } from 'lib/constants';
 import { Messages } from './UpdateCard.messages';
 import { FetchingIcon } from 'components/fetching-icon';
-import { useCheckUpdates, useStartUpdate } from 'hooks/api/useUpdates';
+import { useCheckUpdates } from 'hooks/api/useUpdates';
 import { formatVersion } from './UpdateCard.utils';
-import { enqueueSnackbar } from 'notistack';
 import { UpdateStatus } from 'types/updates.types';
-import KeyboardDoubleArrowUp from '@mui/icons-material/KeyboardDoubleArrowUp';
+import CallMadeIcon from '@mui/icons-material/CallMade';
 import { UpdateInfo } from '../update-info';
-import { UpdateInProgressCard } from '../update-in-progress-card';
 import { useUpdates } from 'contexts/updates';
 import { ChangeLog } from '../change-log';
-import { capitalize } from 'utils/text.utils';
+import { UPGRADE_DOCS_HREF } from './UpdateCard.constants';
 
 export const UpdateCard: FC = () => {
-  const { inProgress, status, setStatus } = useUpdates();
+  const { status } = useUpdates();
   const { isLoading, data, error, isRefetching, refetch } = useCheckUpdates();
-  const { mutate: startUpdate } = useStartUpdate();
-  const [authToken, setAuthToken] = useState<string>();
-
-  const handleStartUpdate = async () => {
-    setStatus(UpdateStatus.Updating);
-    startUpdate(
-      {},
-      {
-        onSuccess: async (response) => {
-          if (response) {
-            setStatus(UpdateStatus.Restarting);
-            setAuthToken(response.authToken);
-          }
-        },
-        onError: (e) => {
-          const message = e.isAxiosError ? e.response?.data.message : e.message;
-          setStatus(UpdateStatus.Error);
-          enqueueSnackbar(message ? capitalize(message) : Messages.error, {
-            variant: 'error',
-          });
-        },
-      }
-    );
-  };
 
   if (isLoading)
     return (
@@ -74,16 +48,6 @@ export const UpdateCard: FC = () => {
     );
   }
 
-  if (inProgress && data.latest) {
-    return (
-      <UpdateInProgressCard
-        versionInfo={data.latest}
-        status={status}
-        authToken={authToken}
-      />
-    );
-  }
-
   return (
     <Card variant="outlined" sx={{ p: 1 }}>
       <CardContent>
@@ -97,7 +61,7 @@ export const UpdateCard: FC = () => {
             {Messages.upToDate}
           </Alert>
         )}
-        <Stack spacing={1}>
+        <Stack spacing={1.5}>
           {data.updateAvailable && data?.latest?.version && (
             <Typography variant="h4">
               {Messages.newUpdateAvailable(data.latest.version)}
@@ -110,24 +74,34 @@ export const UpdateCard: FC = () => {
             {data?.installed && formatVersion(data.installed)}
           </Typography>
           {data.updateAvailable && data.latest && (
-            <Typography>
+            <Stack spacing={1}>
               <Typography fontWeight="bold" component="strong">
                 {Messages.newVersion}
+                <Typography component="span">
+                  {data?.latest && formatVersion(data.latest)}
+                </Typography>
               </Typography>
-              {data?.latest && formatVersion(data.latest)}
-            </Typography>
+              <Typography>{Messages.deprecationWarning}</Typography>
+            </Stack>
           )}
         </Stack>
-        {data.updateAvailable && <UpdateInfo />}
+        {data.updateAvailable && (
+          <Stack spacing={1.5} mt={3}>
+            <Typography variant="h4">{Messages.howTo}</Typography>
+            <UpdateInfo />
+          </Stack>
+        )}
       </CardContent>
       {data.updateAvailable ? (
         <CardActions>
           <Button
-            endIcon={<KeyboardDoubleArrowUp />}
+            endIcon={<CallMadeIcon />}
             variant="contained"
-            onClick={handleStartUpdate}
+            href={UPGRADE_DOCS_HREF}
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            {Messages.updateNow}
+            {Messages.howToUpdateDocs}
           </Button>
         </CardActions>
       ) : (

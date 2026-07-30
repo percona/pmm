@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -40,21 +39,22 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 			defer cleanup()
 
 			cmd := &ChangeAgentMongodbExporterCommand{
-				AgentID:                 "test-agent-id",
-				Enable:                  pointer.ToBool(true),
-				Username:                pointer.ToString("newuser"),
-				Password:                pointer.ToString("newpass"),
-				TLS:                     pointer.ToBool(true),
-				TLSSkipVerify:           pointer.ToBool(false),
-				AuthenticationMechanism: pointer.ToString("SCRAM-SHA-256"),
-				AuthenticationDatabase:  pointer.ToString("admin"),
-				StatsCollections:        pointer.ToString("collection1,collection2"),
-				CollectionsLimit:        pointer.ToInt32(100),
-				DisableCollectors:       []string{"general_stats", "index_stats"},
-				ExposeExporter:          pointer.ToBool(true),
-				PushMetrics:             pointer.ToBool(false),
+				AgentID:                        "test-agent-id",
+				Enable:                         new(true),
+				Username:                       new("newuser"),
+				Password:                       new("newpass"),
+				TLS:                            new(true),
+				TLSSkipVerify:                  new(false),
+				AuthenticationMechanism:        new("SCRAM-SHA-256"),
+				AuthenticationDatabase:         new("admin"),
+				StatsCollections:               new("collection1,collection2"),
+				CollectionsLimit:               new(int32(100)),
+				EnableDiagnosticDataHistograms: new(true),
+				DisableCollectors:              []string{"general_stats", "index_stats"},
+				ExposeExporter:                 new(true),
+				PushMetrics:                    new(false),
 				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("debug")),
+					LogLevel: new(flags.LogLevel("debug")),
 				},
 				CustomLabels: &map[string]string{"environment": "test", "team": "backend"},
 			}
@@ -74,6 +74,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 					"authentication_database": "admin",
 					"stats_collections": ["collection1", "collection2"],
 					"collections_limit": 100,
+					"enable_diagnostic_data_histograms": true,
 					"disable_collectors": ["general_stats", "index_stats"],
 					"expose_exporter": true,
 					"enable_push_metrics": false,
@@ -98,9 +99,9 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentMongodbExporterCommand{
 				AgentID:           "test-agent-id",
-				Enable:            pointer.ToBool(false),
+				Enable:            new(false),
 				DisableCollectors: []string{"general_stats"},
-				PushMetrics:       pointer.ToBool(true),
+				PushMetrics:       new(true),
 			}
 
 			result, err := cmd.RunCmd()
@@ -158,6 +159,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 			"--authentication-database=testdb",
 			"--stats-collections=col1,col2",
 			"--collections-limit=50",
+			"--enable-diagnostic-data-histograms",
 			"--disable-collectors=general_stats,index_stats",
 			"--expose-exporter",
 			"--push-metrics",
@@ -189,6 +191,7 @@ func TestMongodbExporterChangeAgent(t *testing.T) {
 				"authentication_database": "testdb",
 				"stats_collections": ["col1", "col2"],
 				"collections_limit": 50,
+				"enable_diagnostic_data_histograms": true,
 				"disable_collectors": ["general_stats", "index_stats"],
 				"expose_exporter": true,
 				"enable_push_metrics": true,
@@ -233,6 +236,7 @@ Configuration changes applied:
   - changed authentication database to testdb
   - updated stats collections: col1,col2
   - changed collections limit to 50
+  - enabled diagnostic data histograms
   - updated disabled collectors: [general_stats index_stats]
   - enabled expose exporter
   - enabled push metrics
@@ -251,7 +255,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentMongodbExporterCommand{
 			AgentID: "invalid-agent",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()

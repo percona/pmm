@@ -16,6 +16,7 @@ package inventory
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/pkg/flags"
@@ -79,12 +80,16 @@ type ChangeAgentProxysqlExporterCommand struct {
 	TLSSkipVerify *bool `help:"Skip TLS certificate and hostname validation"`
 
 	// Exporter options
-	DisableCollectors []string `help:"List of collector names to disable"`
-	ExposeExporter    *bool    `help:"Expose the exporter process on all public interfaces"`
-	PushMetrics       *bool    `help:"Enable push metrics with vmagent"`
+	DisableCollectors []string       `help:"List of collector names to disable"`
+	ExposeExporter    *bool          `help:"Expose the exporter process on all public interfaces"`
+	PushMetrics       *bool          `help:"Enable push metrics with vmagent"`
+	ConnectionTimeout *time.Duration `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+
+	// Connection check
+	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
 // RunCmd executes the ChangeAgentProxysqlExporterCommand and returns the result.
@@ -95,16 +100,18 @@ func (cmd *ChangeAgentProxysqlExporterCommand) RunCmd() (commands.Result, error)
 	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	body := &agents.ChangeAgentParamsBodyProxysqlExporter{
-		Enable:            cmd.Enable,
-		Username:          cmd.Username,
-		Password:          cmd.Password,
-		TLS:               cmd.TLS,
-		TLSSkipVerify:     cmd.TLSSkipVerify,
-		DisableCollectors: cmd.DisableCollectors,
-		AgentPassword:     cmd.AgentPassword,
-		ExposeExporter:    cmd.ExposeExporter,
-		EnablePushMetrics: cmd.PushMetrics,
-		LogLevel:          convertLogLevelPtr(cmd.LogLevel),
+		Enable:              cmd.Enable,
+		Username:            cmd.Username,
+		Password:            cmd.Password,
+		TLS:                 cmd.TLS,
+		TLSSkipVerify:       cmd.TLSSkipVerify,
+		DisableCollectors:   cmd.DisableCollectors,
+		AgentPassword:       cmd.AgentPassword,
+		ExposeExporter:      cmd.ExposeExporter,
+		EnablePushMetrics:   cmd.PushMetrics,
+		LogLevel:            convertLogLevelPtr(cmd.LogLevel),
+		ConnectionTimeout:   commands.DurationString(cmd.ConnectionTimeout),
+		SkipConnectionCheck: cmd.SkipConnectionCheck,
 	}
 
 	if customLabels != nil {

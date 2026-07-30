@@ -105,8 +105,8 @@ var sparklinePointAllFields = []string{
 	"m_storage_time_reading_micros_sum_per_sec",
 }
 
-func getPointFieldsList(point *qanv1.Point, fields []string) []interface{} {
-	sparklinePointValuesMap := map[string]interface{}{
+func getPointFieldsList(point *qanv1.Point, fields []string) []any {
+	sparklinePointValuesMap := map[string]any{
 		"point":                                                          &point.Point,
 		"timestamp":                                                      &point.Timestamp,
 		"time_frame":                                                     &point.TimeFrame,
@@ -186,7 +186,7 @@ func getPointFieldsList(point *qanv1.Point, fields []string) []interface{} {
 		"m_storage_time_reading_micros_sum_per_sec":                      &point.MStorageTimeReadingMicrosSumPerSec,
 	}
 
-	sparklinePointValuesList := []interface{}{}
+	sparklinePointValuesList := make([]any, 0, len(fields))
 	for _, v := range fields {
 		sparklinePointValuesList = append(sparklinePointValuesList, sparklinePointValuesMap[v])
 	}

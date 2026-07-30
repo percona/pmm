@@ -21,7 +21,6 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -40,6 +39,10 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+// setup returns vmdb for the custom-label tests (currently skipped via t.Skip).
+// Keep it for future work; suppress unparam which otherwise reports the return value is unused.
+//
+//nolint:unparam
 func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(t *testing.T), context.Context, *mockPrometheusService) {
 	t.Helper()
 
@@ -108,8 +111,8 @@ func TestServices(t *testing.T) {
 		actualMySQLService, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
 		})
 		require.NoError(t, err)
 		expectedService := &inventoryv1.MySQLService{
@@ -148,13 +151,13 @@ func TestServices(t *testing.T) {
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server")
 		as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate")
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)
@@ -172,7 +175,7 @@ func TestServices(t *testing.T) {
 		mySQLService, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql-socket",
 			NodeID:      node.NodeId,
-			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
+			Socket:      new("/var/run/mysqld/mysqld.sock"),
 		})
 		require.NoError(t, err)
 
@@ -210,13 +213,13 @@ func TestServices(t *testing.T) {
 		as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate")
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "pmm-server").Times(0)
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
-			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
-			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+			mock.AnythingOfType(reflect.TypeFor[*reform.TX]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Service]().Name()),
+			mock.AnythingOfType(reflect.TypeFor[*models.Agent]().Name())).Return(nil)
 
 		node, err := ns.AddRemoteAzureDatabaseNode(ctx, &inventoryv1.AddRemoteAzureNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)
@@ -233,7 +236,7 @@ func TestServices(t *testing.T) {
 		mySQLService, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql-socket",
 			NodeID:      node.NodeId,
-			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
+			Socket:      new("/var/run/mysqld/mysqld.sock"),
 		})
 		require.NoError(t, err)
 
@@ -272,7 +275,7 @@ func TestServices(t *testing.T) {
 		actualMySQLService, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql-socket",
 			NodeID:      models.PMMServerNodeID,
-			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
+			Socket:      new("/var/run/mysqld/mysqld.sock"),
 		})
 		require.NoError(t, err)
 		expectedService := &inventoryv1.MySQLService{
@@ -310,8 +313,8 @@ func TestServices(t *testing.T) {
 		_, err = ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql-socket-conflict",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
+			Address:     new("127.0.0.1"),
+			Socket:      new("/var/run/mysqld/mysqld.sock"),
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
 	})
@@ -327,8 +330,8 @@ func TestServices(t *testing.T) {
 		_, err = ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql-invalid-port",
 			NodeID:      models.PMMServerNodeID,
-			Port:        pointer.ToUint16(3306),
-			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
+			Port:        new(uint16(3306)),
+			Socket:      new("/var/run/mysqld/mysqld.sock"),
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and port cannot be specified together.`), err)
 	})
@@ -344,10 +347,10 @@ func TestServices(t *testing.T) {
 		actualMongoDBService, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mongo",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(27017),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
 		})
-		assert.NoError(t, err)
+		require.NoError(t, err)
 
 		expectedMongoDBService := &inventoryv1.MongoDBService{
 			ServiceId:   "00000000-0000-4000-8000-000000000005",
@@ -386,8 +389,8 @@ func TestServices(t *testing.T) {
 			actualPostgreSQLService, err := ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-postgres",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(5432),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(5432)),
 			})
 			require.NoError(t, err)
 			expectedPostgreSQLService := &inventoryv1.PostgreSQLService{
@@ -427,7 +430,7 @@ func TestServices(t *testing.T) {
 			actualPostgreSQLService, err := ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-postgres",
 				NodeID:      models.PMMServerNodeID,
-				Socket:      pointer.ToString("/var/run/postgresql"),
+				Socket:      new("/var/run/postgresql"),
 			})
 			require.NoError(t, err)
 			expectedPostgreSQLService := &inventoryv1.PostgreSQLService{
@@ -466,9 +469,9 @@ func TestServices(t *testing.T) {
 			_, err = ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-postgres",
 				NodeID:      models.PMMServerNodeID,
-				Socket:      pointer.ToString("/var/run/postgresql"),
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(5432),
+				Socket:      new("/var/run/postgresql"),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(5432)),
 			})
 
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Socket and address cannot be specified together."), err)
@@ -485,8 +488,8 @@ func TestServices(t *testing.T) {
 			_, err = ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-postgres",
 				NodeID:      models.PMMServerNodeID,
-				Socket:      pointer.ToString("/var/run/postgresql"),
-				Port:        pointer.ToUint16(5432),
+				Socket:      new("/var/run/postgresql"),
+				Port:        new(uint16(5432)),
 			})
 
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Socket and port cannot be specified together."), err)
@@ -505,8 +508,8 @@ func TestServices(t *testing.T) {
 			actualValkeyService, err := ss.AddValkey(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-valkey",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(6379),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(6379)),
 			})
 			require.NoError(t, err)
 			expectedValkeyService := &inventoryv1.ValkeyService{
@@ -545,7 +548,7 @@ func TestServices(t *testing.T) {
 			actualValkeyService, err := ss.AddValkey(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-valkey",
 				NodeID:      models.PMMServerNodeID,
-				Socket:      pointer.ToString("/tmp/valkey.sock"),
+				Socket:      new("/tmp/valkey.sock"),
 			})
 			require.NoError(t, err)
 			expectedValkeyService := &inventoryv1.ValkeyService{
@@ -583,9 +586,9 @@ func TestServices(t *testing.T) {
 			_, err = ss.AddValkey(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-valkey",
 				NodeID:      models.PMMServerNodeID,
-				Socket:      pointer.ToString("/tmp/valkey.sock"),
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(6379),
+				Socket:      new("/tmp/valkey.sock"),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(6379)),
 			})
 
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Socket and address cannot be specified together."), err)
@@ -602,8 +605,8 @@ func TestServices(t *testing.T) {
 			_, err = ss.AddValkey(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-valkey",
 				NodeID:      models.PMMServerNodeID,
-				Socket:      pointer.ToString("/tmp/valkey.sock"),
-				Port:        pointer.ToUint16(6379),
+				Socket:      new("/tmp/valkey.sock"),
+				Port:        new(uint16(6379)),
 			})
 
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Socket and port cannot be specified together."), err)
@@ -621,8 +624,8 @@ func TestServices(t *testing.T) {
 		actualProxySQLService, err := ss.AddProxySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-proxysql",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(6033),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(6033)),
 		})
 		require.NoError(t, err)
 		expectedProxySQLService := &inventoryv1.ProxySQLService{
@@ -661,7 +664,7 @@ func TestServices(t *testing.T) {
 		actualProxySQLService, err := ss.AddProxySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-proxysql-socket",
 			NodeID:      models.PMMServerNodeID,
-			Socket:      pointer.ToString("/tmp/proxysql.sock"),
+			Socket:      new("/tmp/proxysql.sock"),
 		})
 		require.NoError(t, err)
 		expectedService := &inventoryv1.ProxySQLService{
@@ -699,8 +702,8 @@ func TestServices(t *testing.T) {
 		_, err = ss.AddProxySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-proxysql-socket-conflict",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Socket:      pointer.ToString("/tmp/proxysql.sock"),
+			Address:     new("127.0.0.1"),
+			Socket:      new("/tmp/proxysql.sock"),
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
 	})
@@ -716,8 +719,8 @@ func TestServices(t *testing.T) {
 		_, err = ss.AddProxySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-proxysql-invalid-port",
 			NodeID:      models.PMMServerNodeID,
-			Port:        pointer.ToUint16(6033),
-			Socket:      pointer.ToString("/tmp/proxysql.sock"),
+			Port:        new(uint16(6033)),
+			Socket:      new("/tmp/proxysql.sock"),
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and port cannot be specified together.`), err)
 	})
@@ -813,16 +816,16 @@ func TestServices(t *testing.T) {
 		_, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
 		})
 		require.NoError(t, err)
 
 		_, err = ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql",
 			NodeID:      models.PMMServerNodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
 		})
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Service with name "test-mysql" already exists.`), err)
 	})
@@ -834,8 +837,8 @@ func TestServices(t *testing.T) {
 		_, err := ss.AddMySQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-mysql",
 			NodeID:      "no-such-id",
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(3306),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
 		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-id" not found.`), err)
 	})
@@ -860,7 +863,7 @@ func TestServices(t *testing.T) {
 			actualMongoDBService, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-mongodb-socket",
 				NodeID:      models.PMMServerNodeID,
-				Socket:      pointer.ToString("/tmp/mongodb-27017.sock"),
+				Socket:      new("/tmp/mongodb-27017.sock"),
 			})
 			require.NoError(t, err)
 			expectedService := &inventoryv1.MongoDBService{
@@ -898,8 +901,8 @@ func TestServices(t *testing.T) {
 			_, err = ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-mongodb-socket-conflict",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Socket:      pointer.ToString("/tmp/mongodb-27017.sock"),
+				Address:     new("127.0.0.1"),
+				Socket:      new("/tmp/mongodb-27017.sock"),
 			})
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and address cannot be specified together.`), err)
 		})
@@ -915,8 +918,8 @@ func TestServices(t *testing.T) {
 			_, err = ss.AddProxySQL(ctx, &models.AddDBMSServiceParams{
 				ServiceName: "test-mongodb-invalid-port",
 				NodeID:      models.PMMServerNodeID,
-				Port:        pointer.ToUint16(27017),
-				Socket:      pointer.ToString("/tmp/mongodb-27017.sock"),
+				Port:        new(uint16(27017)),
+				Socket:      new("/tmp/mongodb-27017.sock"),
 			})
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Socket and port cannot be specified together.`), err)
 		})
@@ -943,8 +946,8 @@ func TestServices(t *testing.T) {
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 			})
 			require.NoError(t, err)
 
@@ -961,17 +964,17 @@ func TestServices(t *testing.T) {
 				},
 			)
 			assert.NotNil(t, response)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.NotNil(t, service)
 
 			labels, err := service.GetCustomLabels()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Len(t, labels, 2)
-			assert.Equal(t, labels["newKey"], "newValue")
-			assert.Equal(t, labels["newKey2"], "newValue2")
+			assert.Equal(t, "newValue", labels["newKey"])
+			assert.Equal(t, "newValue2", labels["newKey2"])
 		})
 
 		t.Run("Replace a label", func(t *testing.T) {
@@ -984,8 +987,8 @@ func TestServices(t *testing.T) {
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 				CustomLabels: map[string]string{
 					"newKey":  "newValue",
 					"newKey2": "newValue2",
@@ -1005,17 +1008,17 @@ func TestServices(t *testing.T) {
 				},
 			)
 
-			assert.NoError(t, err)
+			require.NoError(t, err)
 
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.NotNil(t, service)
 
 			labels, err := service.GetCustomLabels()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Len(t, labels, 2)
-			assert.Equal(t, labels["newKey"], "newValue")
-			assert.Equal(t, labels["newKey2"], "newValue-replaced")
+			assert.Equal(t, "newValue", labels["newKey"])
+			assert.Equal(t, "newValue-replaced", labels["newKey2"])
 		})
 	})
 
@@ -1039,8 +1042,8 @@ func TestServices(t *testing.T) {
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
 				NodeID:      models.PMMServerNodeID,
-				Address:     pointer.ToString("127.0.0.1"),
-				Port:        pointer.ToUint16(3306),
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
 				CustomLabels: map[string]string{
 					"newKey":  "newValue",
 					"newKey2": "newValue2",
@@ -1054,17 +1057,18 @@ func TestServices(t *testing.T) {
 				&models.ChangeStandardLabelsParams{
 					ServiceID: service.ServiceID,
 				},
-				nil)
-			assert.NoError(t, err)
+				nil,
+			)
+			require.NoError(t, err)
 
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.NotNil(t, service)
 
 			labels, err := service.GetCustomLabels()
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Len(t, labels, 1)
-			assert.Equal(t, labels["newKey3"], "newValue3")
+			assert.Equal(t, "newValue3", labels["newKey3"])
 		})
 	})
 }

@@ -18,7 +18,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/kong"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -39,19 +38,19 @@ func TestQANMySQLSlowlogAgentChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentQANMySQLSlowlogAgentCommand{
 				AgentID:              "test-agent-qan-slowlog-update",
-				Enable:               pointer.ToBool(true),
-				Username:             pointer.ToString("mysql_user"),
-				Password:             pointer.ToString("mysql_pass"),
-				TLS:                  pointer.ToBool(true),
-				TLSSkipVerify:        pointer.ToBool(false),
-				MaxSlowlogFileSize:   pointer.ToString("2GiB"),
-				MaxQueryLength:       pointer.ToInt32(2048),
-				DisableQueryExamples: pointer.ToBool(true),
+				Enable:               new(true),
+				Username:             new("mysql_user"),
+				Password:             new("mysql_pass"),
+				TLS:                  new(true),
+				TLSSkipVerify:        new(false),
+				MaxSlowlogFileSize:   new("2GiB"),
+				MaxQueryLength:       new(int32(2048)),
+				DisableQueryExamples: new(true),
 				LogLevelFatalChangeFlags: flags.LogLevelFatalChangeFlags{
-					LogLevel: pointer.To(flags.LogLevel("info")),
+					LogLevel: new(flags.LogLevel("info")),
 				},
 				CommentsParsingChangeFlags: flags.CommentsParsingChangeFlags{
-					CommentsParsing: pointer.ToString("off"),
+					CommentsParsing: new("off"),
 				},
 				CustomLabels: &map[string]string{"service": "mysql", "team": "db"},
 			}
@@ -90,10 +89,10 @@ func TestQANMySQLSlowlogAgentChangeAgent(t *testing.T) {
 
 			cmd := &ChangeAgentQANMySQLSlowlogAgentCommand{
 				AgentID:              "test-agent-qan-slowlog-disable",
-				Enable:               pointer.ToBool(false),
-				DisableQueryExamples: pointer.ToBool(true),
+				Enable:               new(false),
+				DisableQueryExamples: new(true),
 				CommentsParsingChangeFlags: flags.CommentsParsingChangeFlags{
-					CommentsParsing: pointer.ToString("off"),
+					CommentsParsing: new("off"),
 				},
 			}
 
@@ -230,7 +229,7 @@ Configuration changes applied:
 
 		cmd := &ChangeAgentQANMySQLSlowlogAgentCommand{
 			AgentID: "invalid-agent-qan-slowlog",
-			Enable:  pointer.ToBool(true),
+			Enable:  new(true),
 		}
 
 		result, err := cmd.RunCmd()

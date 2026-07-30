@@ -18,7 +18,6 @@ package models
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -27,7 +26,7 @@ func TestNode(t *testing.T) {
 	t.Run("UnifiedLabels", func(t *testing.T) {
 		node := &Node{
 			NodeID:       "node_id",
-			Region:       pointer.ToString("hidden"),
+			Region:       new("hidden"),
 			AZ:           "removed",
 			CustomLabels: []byte(`{"region": "region1", "az": "  "}`),
 		}

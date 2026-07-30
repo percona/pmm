@@ -20,7 +20,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -51,8 +50,8 @@ func TestService(t *testing.T) {
 		service, err := models.AddNewService(db.Querier, serviceType, &models.AddDBMSServiceParams{
 			ServiceName: serviceName,
 			NodeID:      node.NodeID,
-			Address:     pointer.ToString("127.0.0.1"),
-			Port:        pointer.ToUint16(60000),
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(60000)),
 		})
 		require.NoError(t, err)
 
@@ -144,6 +143,6 @@ func TestService(t *testing.T) {
 		assert.Empty(t, scheduler.scheduler.Jobs())
 
 		_, err = models.FindScheduledTaskByID(scheduler.db.Querier, dbTask.ID)
-		assert.ErrorIs(t, err, models.ErrNotFound)
+		require.ErrorIs(t, err, models.ErrNotFound)
 	})
 }
