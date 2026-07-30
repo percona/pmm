@@ -7,13 +7,15 @@ Easily connect your MySQL databasesâ€”whether self-hosted or running on AWS EC2â
 Get your MySQL instance connected to PMM in just a few steps:
 {.power-number}
 
-1. Create a dedicated MySQL user with the required permissions.  If you are using an [Administrative Connection](https://dev.mysql.com/doc/refman/8.4/en/administrative-connection-interface.html), you will also need to grant the `SERVICE_CONNECTION_ADMIN` privilege to the `pmm` user:
+1. Create a dedicated MySQL user with the permissions required for **metrics collection**. If you are using an [Administrative Connection](https://dev.mysql.com/doc/refman/8.4/en/administrative-connection-interface.html), you will also need to grant the `SERVICE_CONNECTION_ADMIN` privilege to the `pmm` user:
 
     ```sql
-    -- Create PMM user with required permissions
+    -- Create PMM user with permissions for metrics collection
     CREATE USER 'pmm'@'localhost' IDENTIFIED BY 'StrongPassword123!' WITH MAX_USER_CONNECTIONS 10;
     GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost';
     ```
+
+    Query Analytics setup depends on the query source. See [Configure data source](#configure-data-source).
 
 2. Register your MySQL instance with PMM:
 
@@ -54,14 +56,19 @@ For monitoring Amazon RDS MySQL instances, see [Connect Amazon RDS instance](../
 
     1. **[Prerequisites](#prerequisites)**: Ensure PMM Server is running and PMM Client is installed
     2. **[Create PMM user](#create-a-database-account-for-pmm)**: `CREATE USER 'pmm'@'localhost' IDENTIFIED BY '<StrongPassword>'`  
-    3. **[Grant permissions](#create-a-database-account-for-pmm)**: `GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost'`
-    4. **[Configure data source](#configuring-data-sources)**: Enable Slow Query Log or Performance Schema 
-    5. **[Add service](#adding-mysql-services-to-pmm)**: Use PMM UI or command line to add the MySQL instance
+    3. **[Grant permissions](#create-a-database-account-for-pmm)**: `GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'localhost'` (metrics collection only)
+    4. **[Configure data source](#configuring-data-sources)**: Enable Slow Query Log or Performance Schema, and complete the query-source-specific permissions
+    5. **[Add service](#adding-mysql-services-to-pmm)**: Use PMM UI or command line to add the MySQL instance, selecting the matching query source
     6. **[Verify connection](#verifying-the-setup)**: Check PMM Inventory and dashboards for data
 
 ### Prerequisites
 
 Before connecting MySQL to PMM, review the prerequisites for your monitoring setup:
+
+| Query source | Database QAN permissions | Host file access |
+| :--- | :--- | :--- |
+| **Performance Schema** (`perfschema`) | `SELECT` on Performance Schema (included in metrics grants) | Not required |
+| **Slow query log** (`slowlog`) | Not required beyond metrics grants | Read access to the slow query log file for `pmm-agent` |
 
 === "Local MySQL monitoring"
     - [PMM Server is installed](../../../install-pmm-server/index.md) and running.
@@ -95,7 +102,7 @@ For security best practices, connect PMM Client to your database using a dedicat
     - Avoid common words or patterns
     - Never use default, test, or example passwords in production
 
-This example creates a pmm user account that has just enough access to collect monitoring data without full administrative privileges:
+This example creates a pmm user for **dashboard metrics**. For Query Analytics, see [Configure data source](#configure-data-source).
 
 === "On MySQL 5.7/MariaDB 10.x"
 
@@ -141,11 +148,15 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
 ### Configure data source
 
 === "Slow query log"
-        
-    The *slow query log* records the details of queries that take more than a certain amount of time to complete. 
-    
-    With the database server configured to write this information to a file rather than a table, PMM Client parses the file and sends aggregated data to PMM Server via the Query Analytics part of `pmm-agent`.
-    
+
+    !!! note "Using Performance Schema?"
+        Skip this section and use [Performance Schema](#performance-schema) instead.
+
+    PMM reads the slow query log file via `pmm-agent`. Ensure:
+
+    - `pmm-agent` has read access to the slow query log file (root/sudo may be required with RPM/DEB packages)
+    - The monitoring user has `SELECT` to read `@@slow_query_log_file`; `RELOAD` only if using automatic log rotation (`--size-slow-logs`)
+
     #### Settings
     
     | Variable | Value | Description |
@@ -241,9 +252,12 @@ Here are the benefits and drawbacks of Slow query log and Performance Schema met
         If you prefer to handle log rotation manually, such as with [logrotate][LOGROTATE], you can disable PMM Client's automatic log rotation. To do this, set a negative value for the `--size-slow-logs` option when adding a service with the `pmm-admin add` command.
 
 === "Performance Schema"
-        
-    To configure a MySQL-based database server to use Performance Schema as a source of metrics:
-    
+
+    !!! note "Using slowlog?"
+        Skip this section and use [Slow query log](#slow-query-log) instead.
+
+    The `SELECT` grant from [Create a database account for PMM](#create-a-database-account-for-pmm) is sufficient. Enable and configure Performance Schema as described below.
+
     #### Applicable versions
     
     - **Percona Server for MySQL**: 5.6, 5.7, 8.0, 8.4
@@ -523,7 +537,7 @@ The **command line** (`pmm-admin`) deploys an exporter directly on the database 
         - **Port**: MySQL port (default: 3306)
         - **Username**: The PMM user created earlier
         - **Password**: Your PMM user password
-        - **Query Source**: Choose between **Slow Log** or **Performance Schema**
+        - **Query Source**: Choose **Slow Log** or **Performance Schema** to match your [Configure data source](#configure-data-source) setup
         - **PMM Agent**: Select which PMM agent should monitor this instance
         - **Disable query examples**: Check this option to prevent collection of actual query values in QAN. When enabled, PMM will continue to collect query metrics and statistics but will not store the actual query examples with real data values.
         - **Connection timeout**: How long PMM should wait when connecting to this service. Increase this for remote or high-latency databases. If the connection times out, PMM retries the next time it collects metrics. Leave empty to use the default of 2s.

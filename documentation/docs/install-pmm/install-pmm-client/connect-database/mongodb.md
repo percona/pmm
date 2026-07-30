@@ -9,26 +9,27 @@ Before you start, ensure you have:
 - [PMM Server installed](../../install-pmm-server/index.md) and running with a known IP address or hostname accessible from the Client node.
 - [PMM Client installed](../../install-pmm-client/index.md) and the nodes are registered with PMM Server.
 - admin privileges to install and configure PMM Client on the host.
-- preconfigured MongoDB user with appropriate monitoring privileges, or sufficient privileges to create the required roles and users.
 - MongoDB server version 6.0 or higher. PMM may work with MongoDB versions as old as 4.4, but we recommend using MongoDB 6.0+ for complete feature support.
 
-## Step 1: Set up MongoDB monitoring permissions
+| Query source | Database QAN permissions | Host file access |
+| :--- | :--- | :--- |
+| **Profiler** (default) | `find` on `system.profile` in `pmmMonitor` role | Not required |
+| **Mongolog** | Not required | Read access to the MongoDB log file for `pmm-agent` — [Step 1](#step-1-configure-query-analytics) |
 
-Set up MongoDB with a dedicated user for PMM and the required permissions. First, create custom roles with the necessary privileges, then assign them to a PMM-specific user.
+### Create MongoDB monitoring user
+
+PMM needs a dedicated MongoDB user for **dashboard metrics** (`mongodb_exporter`), regardless of the Query Analytics query source.
+
+Create custom roles with the necessary privileges, then assign them to a PMM-specific user.
 
 Role privileges depend on:
 
 - MongoDB version: 8.0+ requires the additional `directShardOperations` role for shard metrics
-- Required features: basic monitoring only, or monitoring plus backup management.
-- Query collection method: profiler or diagnostic log.
+- Required features: basic monitoring only, or monitoring plus backup management
 
-### Create monitoring role
+#### Create pmmMonitor role
 
-After connecting to your MongoDB instance, create a custom role with the privileges required for metric collection, working with Query Analytics (QAN) and optionally creating/restoring backups:
-  
-#### Minimum privileges
-
-This role grants the essential minimum privileges needed for monitoring and QAN:
+Include all three privilege blocks below for **Profiler** (default). If you use **mongolog**, omit the `system.profile` block.
 
 ```javascript
 db.getSiblingDB("admin").createRole({
@@ -44,13 +45,13 @@ db.getSiblingDB("admin").createRole({
     },
     {
     "resource": { "db": "", "collection": "system.profile" },
-    "actions": [ "dbStats", "collStats", "indexStats" ]
-    }         
+    "actions": [ "find", "dbStats", "collStats", "indexStats" ]
+    }
 ],
 "roles": [ ]
 })
 ```
-        
+
 #### Full backup management privileges
 
 If you plan to use PMM's backup features, also create a role with full backup management privileges:
@@ -68,7 +69,7 @@ db.getSiblingDB("admin").createRole({
 });
 ```
 
-### Create user and assign created role
+#### Create user and assign roles
 
 After creating the custom roles, create the PMM user and assign the roles based on your MongoDB version and requirements:
 
@@ -140,9 +141,9 @@ After creating the custom roles, create the PMM user and assign the roles based 
     })      
     ```
 
-## Step 2: Configure query source for MongoDB query analytics
+## Step 1: Configure Query Analytics
 
-PMM offers two methods for collecting MongoDB queries. Choose based on your environment's requirements and constraints.
+Complete the section for your query source before [adding the service](#step-2-add-mongodb-service-to-pmm).
 
 ### Compare query source methods
 
@@ -159,6 +160,9 @@ PMM offers two methods for collecting MongoDB queries. Choose based on your envi
 | Scales with DB count       | Linear degradation| Constant         |
 
 === "MongoDB Profiler (Default)"
+    !!! note "Using mongolog?"
+        Skip this section and use [Diagnostic Log](#diagnostic-log-recommended-for-scale) instead.
+
     Choose this standard method for simple setups with fewer than 100 databases, remote MongoDB instances, or when you need real-time query collection. 
 
     The MongoDB Profiler stores query performance data in `system.profile` collections for each database. PMM continuously reads from these collections to provide query analytics.
@@ -168,7 +172,7 @@ PMM offers two methods for collecting MongoDB queries. Choose based on your envi
     - Real-time query collection and analysis
     - No additional file system access required
     - Works with managed MongoDB services
-    - Immediate data availability after profiling is enabled 
+    - Immediate data availability after profiling is enabled
 
     To enable the MongoDB Profiler, choose one of the following methods:
 
@@ -222,27 +226,30 @@ PMM offers two methods for collecting MongoDB queries. Choose based on your envi
         db.setProfilingLevel(2, {slowms: 0})
         ```
 
-    If you have already [added a service](#step-3-add-mongodb-service-to-pmm), you should remove it and re-add it after changing the profiling level.   
+    If you have already [added a service](#step-2-add-mongodb-service-to-pmm), you should remove it and re-add it after changing the profiling level.   
 
 === "Diagnostic Log (Recommended for scale)"
-     Choose this method for production environments with 100+ databases, when experiencing connection pool issues, or when monitoring mongos routers.
+    !!! note "Using Profiler?"
+        Skip this section and use [MongoDB Profiler](#mongodb-profiler-default) instead.
 
-    Available from PMM 3.3.0+, this method reads query data directly from MongoDB's log files instead of querying the database. This eliminates connection pool usage and reduces performance impact.
+    Choose this method for production environments with 100+ databases, connection pool issues, or `mongos` routers.
+
+    Available from PMM 3.3.0+, this method reads query data from MongoDB log files instead of `system.profile`.
 
     Key advantages:
 
-    - Zero database connections required for metrics collection
-    - Eliminates connection pool errors completely
-    - Scales linearly regardless of database count
-    - Identical query analytics data as traditional profiler
+    - Zero database connections for query collection
+    - Scales regardless of database count
+    - Supports `mongos` routers
 
-    Prerequisites for Diagnostic Log: 
+    #### Requirements
 
     - MongoDB 5.0+ (tested with 5.0.20-17)
-    - Write access to the configured log directory for MongoDB process
-    - Read access to log file for PMM Agent user
+    - MongoDB process has write access to the log directory
+    - `pmm-agent` user has read access to the log file
+    - Monitoring user has `getCmdLineOpts` (included in `clusterMonitor` from Prerequisites)
 
-    To configure mongolog for MongoDB: 
+    To configure mongolog for MongoDB:
     {.power-number}
 
     1. Choose one of the following methods to configure MongoDB to log slow operations to the diagnostic log file:
@@ -321,9 +328,9 @@ PMM offers two methods for collecting MongoDB queries. Choose based on your envi
         - Avoid moving/renaming log files as this breaks mongolog's file tail
         - Do not delete active log files during rotation
       
-## Step 3: Add MongoDB service to PMM
+## Step 2: Add MongoDB service to PMM
 
-After configuring your database server, add a MongoDB service using either the user interface or the command line.
+After completing [Prerequisites](#prerequisites) and [Step 1](#step-1-configure-query-analytics) for your chosen query source, add a MongoDB service using either the user interface or the command line. Select the query source that matches your Step 1 configuration (`profiler` or `mongolog`).
 
 !!! caution alert alert-warning "Important"
     To monitor MongoDB sharded clusters, PMM requires access to all cluster components. Make sure to add all config servers, all shards, and at least one or two mongos routers. Otherwise, PMM will not be able to correctly collect metrics and populate dashboards.
@@ -409,7 +416,7 @@ After configuring your database server, add a MongoDB service using either the u
 
     1. Select **Inventory > Add service > MongoDB**.
 
-    2. Fill in the required fields.
+    2. Fill in the required fields, including **Query Source** (`Profiler` or `Diagnostic log (mongolog)`) to match your [Step 1](#step-1-configure-query-analytics) configuration.
 
     3. Click **Add service**.
 
@@ -430,7 +437,7 @@ After configuring your database server, add a MongoDB service using either the u
     
     Only variables already set in the `pmm-agent` environment will be passed to the exporter.
 
-## Step 4: Verify MongoDB service configuration
+## Step 3: Verify MongoDB service configuration
 
 After adding MongoDB service to PMM, verify that it's properly configured and collecting data. This ensures your monitoring setup is working correctly.
 {.power-number}

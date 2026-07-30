@@ -44,14 +44,13 @@ For a complete list of ports and detailed network configuration options, see [Ne
 
 To ensure successful database monitoring with PMM, confirm the following:
 
-- **Monitoring users**: Create database accounts with the required permissions  
-- **Log access**: Enable file system access to database logs (where applicable)  
-- **Performance Schema**: Recommended for enhanced MySQL monitoring  
+- **Monitoring users**: Permissions for dashboard metrics — see database-specific setup guides
+- **Query Analytics**: Depends on query source (Profiler/mongolog, slowlog/perfschema) — see the same guides
 
 === ":material-database: Core databases"
 
     - [MySQL monitoring requirements](../install-pmm-client/connect-database/mysql/mysql.md#create-a-database-account-for-pmm)  
-    - [MongoDB monitoring requirements](../install-pmm-client/connect-database/mongodb.md#create-a-database-account-and-set-permissions)  
+    - [MongoDB monitoring requirements](../install-pmm-client/connect-database/mongodb.md#prerequisites)  
     - [PostgreSQL monitoring requirements](../install-pmm-client/connect-database/postgresql.md#create-a-database-account-for-pmm)
 
 === ":material-cloud: Cloud services"
