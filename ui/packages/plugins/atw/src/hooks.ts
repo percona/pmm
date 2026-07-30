@@ -15,17 +15,28 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { apiClient } from '@sep/api';
 import type {
   AtwBatchExecuteResponse,
   AtwBatchExecuteWrite,
   AtwCategoryListing,
+  AtwConfig,
   AtwIncident,
   AtwIncidentExecution,
   AtwIncidentUpdate,
   AtwIncidentWrite,
   AtwMergedSchema,
+  AtwPage,
+  AtwPageParams,
+  AtwSendJobWrite,
+  AtwSendLog,
+  AtwSendLogDetail,
 } from './types';
 
 const ATW_BASE = '/apps/atw';
@@ -36,19 +47,47 @@ const ATW_STALE_TIME_MS = 5 * 60 * 1000;
 const EXECUTIONS_POLL_MS = 5000;
 
 /** Non-terminal task statuses — poll the execution list while any row is here. */
-const RUNNING_TASK_STATUSES = new Set(['running', 'pending']);
+const RUNNING_TASK_STATUSES: ReadonlySet<
+  NonNullable<AtwIncidentExecution['task_status']>
+> = new Set(['running', 'pending']);
 
-interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  offset: number;
-  limit: number;
-}
+/** Poll interval while a diagnostics send is still in flight (ms). */
+const SEND_JOB_POLL_MS = 2000;
+
+/** Non-terminal send statuses — poll while an attempt is still here. */
+const ACTIVE_SEND_STATUSES: ReadonlySet<AtwSendLog['status']> = new Set([
+  'pending',
+  'running',
+]);
+
+/** Rows per page for both incident and execution lists. */
+export const ATW_PAGE_SIZE = 20;
 
 const incidentsKey = ['atw', 'incidents'] as const;
 
 function incidentExecutionsKey(incidentId: string) {
   return ['atw', 'incidents', incidentId, 'executions'] as const;
+}
+
+function sendJobsKey(incidentId: string) {
+  return ['atw', 'incidents', incidentId, 'send-jobs'] as const;
+}
+
+/** Return whether a send attempt has not yet reached a terminal status. */
+export function isSendJobActive(job: AtwSendLog | undefined | null): boolean {
+  return Boolean(job && ACTIVE_SEND_STATUSES.has(job.status));
+}
+
+/**
+ * Read a send attempt's evidence under the shape the orchestrator writes.
+ *
+ * The column is free-form JSON, so the generated client types it opaquely; this
+ * is the single place that view is applied.
+ */
+export function sendJobDetail(
+  job: AtwSendLog | undefined | null
+): AtwSendLogDetail {
+  return (job?.detail ?? {}) as AtwSendLogDetail;
 }
 
 // ── Category browser ─────────────────────────────────────────────────────
@@ -68,14 +107,27 @@ export function useAtwCategories() {
 
 // ── Incident CRUD ────────────────────────────────────────────────────────
 
-export function useAtwIncidents() {
-  return useQuery<AtwIncident[]>({
-    queryKey: incidentsKey,
+/**
+ * List incidents newest-first, one page at a time.
+ *
+ * Returns the whole envelope rather than just `items`: the caller needs `total`
+ * to render pagination controls, and keeping the previous page in place while
+ * the next one loads stops the list collapsing to a spinner on every page flip.
+ */
+export function useAtwIncidents(
+  page: AtwPageParams = { offset: 0, limit: ATW_PAGE_SIZE }
+) {
+  return useQuery<AtwPage<AtwIncident>>({
+    queryKey: [...incidentsKey, page],
+    placeholderData: keepPreviousData,
     queryFn: async () => {
-      const { data } = await apiClient.get<PaginatedResponse<AtwIncident>>(
-        `${ATW_BASE}/incidents/`
+      const { data } = await apiClient.get<AtwPage<AtwIncident>>(
+        `${ATW_BASE}/incidents/`,
+        {
+          params: { offset: page.offset, limit: page.limit },
+        }
       );
-      return data.items;
+      return data;
     },
   });
 }
@@ -196,31 +248,119 @@ export function useAtwBatchExecute(incidentId: string) {
 // ── Incident execution history ───────────────────────────────────────────
 
 /**
- * List an incident's recorded executions, newest-first. Polls while any row is
- * still running so batch progress reflects each task independently — one
- * failing task never stalls the others.
+ * List an incident's recorded executions, newest-first. Polls while any row on
+ * the current page is still running, so batch progress reflects each task
+ * independently — one failing task never stalls the others.
+ *
+ * Only the current page is watched: a run on a later page is not polled until
+ * the user navigates to it. Newest-first ordering keeps freshly-started runs on
+ * page 1, where they are.
  */
-export function useAtwIncidentExecutions(incidentId: string | undefined) {
-  return useQuery<AtwIncidentExecution[]>({
+export function useAtwIncidentExecutions(
+  incidentId: string | undefined,
+  page: AtwPageParams = { offset: 0, limit: ATW_PAGE_SIZE }
+) {
+  return useQuery<AtwPage<AtwIncidentExecution>>({
     queryKey: incidentId
-      ? incidentExecutionsKey(incidentId)
-      : ['atw', 'incidents', 'executions'],
+      ? [...incidentExecutionsKey(incidentId), page]
+      : ['atw', 'incidents', 'executions', page],
     enabled: Boolean(incidentId),
+    placeholderData: keepPreviousData,
     queryFn: async () => {
-      const { data } = await apiClient.get<
-        PaginatedResponse<AtwIncidentExecution>
-      >(`${ATW_BASE}/incidents/${incidentId}/executions/`);
-      return data.items;
+      const { data } = await apiClient.get<AtwPage<AtwIncidentExecution>>(
+        `${ATW_BASE}/incidents/${incidentId}/executions/`,
+        { params: { offset: page.offset, limit: page.limit } }
+      );
+      return data;
     },
     refetchInterval: (query) => {
-      const rows = query.state.data;
+      const rows = query.state.data?.items;
       if (!rows) {
         return false;
       }
-      const anyRunning = rows.some((row) =>
-        RUNNING_TASK_STATUSES.has(row.task_status ?? '')
+      const anyRunning = rows.some(
+        (row) =>
+          row.task_status !== null &&
+          row.task_status !== undefined &&
+          RUNNING_TASK_STATUSES.has(row.task_status)
       );
       return anyRunning ? EXECUTIONS_POLL_MS : false;
     },
+  });
+}
+
+// ── Diagnostics send ─────────────────────────────────────────────────────
+
+/**
+ * Probe whether a diagnostics receiver is configured, so the Send action can
+ * carry the reasons it is unavailable. Returns no reasons on any error: a
+ * transient config blip should not silently withhold the action, and the POST's
+ * own 503 gate remains the real guard.
+ */
+export function useAtwConfig() {
+  return useQuery<AtwConfig>({
+    queryKey: ['atw', 'config'],
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<AtwConfig>(`${ATW_BASE}/config/`);
+        return data;
+      } catch {
+        return { send_disabled_reasons: [] };
+      }
+    },
+    staleTime: Infinity,
+    retry: false,
+  });
+}
+
+export function useStartSendJob(incidentId: string) {
+  const queryClient = useQueryClient();
+  return useMutation<AtwSendLog, Error, AtwSendJobWrite>({
+    mutationFn: async (body) => {
+      const { data } = await apiClient.post<AtwSendLog>(
+        `${ATW_BASE}/incidents/${incidentId}/send-jobs/`,
+        body
+      );
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: sendJobsKey(incidentId) });
+    },
+  });
+}
+
+/** Poll one send attempt until it reaches a terminal status. */
+export function useAtwSendJob(incidentId: string, jobId: string | null) {
+  return useQuery<AtwSendLog>({
+    queryKey: [...sendJobsKey(incidentId), jobId],
+    enabled: Boolean(jobId),
+    queryFn: async () => {
+      const { data } = await apiClient.get<AtwSendLog>(
+        `${ATW_BASE}/incidents/${incidentId}/send-jobs/${jobId}`
+      );
+      return data;
+    },
+    refetchInterval: (query) =>
+      isSendJobActive(query.state.data) ? SEND_JOB_POLL_MS : false,
+  });
+}
+
+/** List an incident's send attempts, newest-first, polling while any is active. */
+export function useAtwSendJobs(incidentId: string | undefined) {
+  return useQuery<AtwPage<AtwSendLog>>({
+    queryKey: incidentId
+      ? sendJobsKey(incidentId)
+      : ['atw', 'incidents', 'send-jobs'],
+    enabled: Boolean(incidentId),
+    queryFn: async () => {
+      const { data } = await apiClient.get<AtwPage<AtwSendLog>>(
+        `${ATW_BASE}/incidents/${incidentId}/send-jobs/`
+      );
+      return data;
+    },
+    refetchInterval: (query) =>
+      query.state.data?.items.some((row) => isSendJobActive(row))
+        ? SEND_JOB_POLL_MS
+        : false,
   });
 }

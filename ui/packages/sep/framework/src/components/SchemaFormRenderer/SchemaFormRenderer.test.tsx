@@ -262,6 +262,35 @@ describe('SchemaFormRenderer — field rendering', () => {
     const legend = screen.getByText('Basics');
     expect(legend.tagName.toLowerCase()).toBe('legend');
   });
+
+  it('shows a help icon only when a field has a description', () => {
+    const helpSections: FormSection[] = [
+      {
+        title: 'Basics',
+        fields: [
+          {
+            type: 'string',
+            name: 'title',
+            label: 'Title',
+            description: 'A title',
+          },
+          { type: 'string', name: 'code', label: 'Code' },
+        ],
+      },
+    ];
+    renderWithProviders(
+      <SchemaFormRenderer sections={helpSections} onSubmit={() => {}} />
+    );
+
+    // Notched-outline clone is aria-hidden; pin count + require a visible <label> hit.
+    expect(document.querySelectorAll('[data-help-for="Title"]')).toHaveLength(
+      2
+    );
+    expect(
+      document.querySelectorAll('label [data-help-for="Title"]')
+    ).toHaveLength(1);
+    expect(document.querySelectorAll('[data-help-for="Code"]')).toHaveLength(0);
+  });
 });
 
 describe('SchemaFormRenderer — section layout controls', () => {

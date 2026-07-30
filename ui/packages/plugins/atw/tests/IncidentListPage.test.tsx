@@ -20,7 +20,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
-import type { ReactElement } from 'react';
+import type { ReactNode } from 'react';
 import { IncidentListPage } from '../src/IncidentListPage';
 
 vi.mock('@sep/api', () => ({
@@ -48,14 +48,14 @@ function paginated<T>(items: T[]) {
   return { data: { items, total: items.length, offset: 0, limit: 50 } };
 }
 
-function renderPage(ui: ReactElement) {
+function renderPage(ui: ReactNode) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
   });
   return render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter>{ui}</MemoryRouter>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   );
 }
 
@@ -92,14 +92,21 @@ describe('IncidentListPage', () => {
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() => expect(screen.getByText(/No incidents yet/i)).toBeTruthy());
+    await waitFor(() =>
+      expect(screen.getByText(/No incidents yet/i)).toBeTruthy()
+    );
 
     await user.click(screen.getByRole('button', { name: /New incident/i }));
-    await user.type(screen.getByLabelText(/Name \(optional\)/i), '  Prod outage  ');
+    await user.type(
+      screen.getByLabelText(/Name \(optional\)/i),
+      '  Prod outage  '
+    );
     await user.click(screen.getByRole('button', { name: /^Create$/ }));
 
     await waitFor(() => {
-      expect(mockedApi.post).toHaveBeenCalledWith('/apps/atw/incidents/', { name: 'Prod outage' });
+      expect(mockedApi.post).toHaveBeenCalledWith('/apps/atw/incidents/', {
+        name: 'Prod outage',
+      });
     });
   });
 
@@ -110,7 +117,9 @@ describe('IncidentListPage', () => {
 
     renderPage(<IncidentListPage />);
 
-    await waitFor(() => expect(screen.getByText(/No incidents yet/i)).toBeTruthy());
+    await waitFor(() =>
+      expect(screen.getByText(/No incidents yet/i)).toBeTruthy()
+    );
 
     await user.click(screen.getByRole('button', { name: /New incident/i }));
     await user.click(screen.getByRole('button', { name: /^Create$/ }));
@@ -118,5 +127,33 @@ describe('IncidentListPage', () => {
     await waitFor(() => {
       expect(mockedApi.post).toHaveBeenCalledWith('/apps/atw/incidents/', {});
     });
+  });
+
+  it('renders pagination controls once the list exceeds one page', async () => {
+    mockedApi.get.mockResolvedValue({
+      data: { items: [incident], total: 40, offset: 0, limit: 20 },
+    });
+
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /Go to next page/i })
+      ).toBeTruthy();
+    });
+    expect(screen.getByText(/of 40/)).toBeTruthy();
+  });
+
+  it('omits pagination controls when a single page holds everything', async () => {
+    mockedApi.get.mockResolvedValue(paginated([incident]));
+
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('DB slowness')).toBeTruthy();
+    });
+    expect(
+      screen.queryByRole('button', { name: /Go to next page/i })
+    ).toBeNull();
   });
 });

@@ -123,3 +123,85 @@ export interface AtwIncidentExecution {
   task_history_id: number;
   task_status?: TaskHistoryStatus | null;
 }
+
+// ── Diagnostics send ─────────────────────────────────────────────────────
+//
+// STUB TYPES (backend-assumed): the send contracts below are served by the ATW
+// backend (SEP-1595) but are not yet in PMM's committed OpenAPI spec, so they
+// mirror the backend ``atw__AtwSendJobWrite`` / ``atw__AtwSendLogResponse`` /
+// ``atw__AtwConfigResponse`` schemas by hand.
+
+export type AtwSendStatus = 'pending' | 'running' | 'success' | 'failed';
+
+export interface AtwSendJobWrite {
+  case_ref: string;
+  execution_ids: string[];
+}
+
+export interface AtwSendLog {
+  case_ref: string;
+  /** Format: date-time */
+  created_at: string;
+  detail: Record<string, never>;
+  finished_at: string | null;
+  /** Format: uuid4 */
+  id: string;
+  /** Format: uuid4 */
+  incident_id: string;
+  requested_by: string;
+  started_at: string | null;
+  status: AtwSendStatus;
+}
+
+export interface AtwConfig {
+  send_disabled_reasons: string[];
+}
+
+/** One page of a paginated list endpoint, as the API envelope carries it. */
+export interface AtwPage<T> {
+  items: T[];
+  total: number;
+  offset: number;
+  limit: number;
+}
+
+/** The offset/limit window a paginated list is currently showing. */
+export interface AtwPageParams {
+  offset: number;
+  limit: number;
+}
+
+/**
+ * One execution snapshotted onto a send log's `detail`, so a failed attempt can
+ * be re-sent with the same selection even after the incident has moved on.
+ */
+export interface AtwSendLogExecution {
+  id: string;
+  task_history_id: number;
+  snippet_filename: string;
+}
+
+/** One resolution step the delivery plan reported while the send ran. */
+export interface AtwSendLogStep {
+  name: string;
+  status: 'running' | 'success';
+  outputs: Record<string, string> | null;
+}
+
+/**
+ * The evidence a send attempt records.
+ *
+ * The backend column is free-form JSON, so the response types it as an opaque
+ * record; this is the shape the orchestrator actually writes. Every field is
+ * optional because a row accumulates them as the attempt progresses — a pending
+ * row carries only `executions`.
+ */
+export interface AtwSendLogDetail {
+  executions?: AtwSendLogExecution[];
+  steps?: AtwSendLogStep[];
+  upload_response?: Record<string, unknown> | null;
+  upload_reference?: string | null;
+  bundle_size?: number;
+  file_count?: number;
+  error?: string;
+}

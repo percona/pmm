@@ -53,6 +53,8 @@ export { ServiceSelector } from './components/ServiceSelector';
 export type { ServiceSelectorProps } from './components/ServiceSelector';
 export { SchemaSelector } from './components/SchemaSelector';
 export type { SchemaSelectorProps } from './components/SchemaSelector';
+export { RemoteChoiceSelector } from './components/RemoteChoiceSelector';
+export type { RemoteChoiceSelectorProps } from './components/RemoteChoiceSelector';
 export { TableSelector } from './components/TableSelector';
 export type { TableSelectorProps } from './components/TableSelector';
 export { FreeSoloSelect } from './components/FreeSoloSelect';
@@ -136,6 +138,7 @@ export {
   useTables,
   useHosts,
   useResolvedServiceField,
+  useRemoteChoices,
 } from './hooks';
 export type {
   ServiceOption,
@@ -148,6 +151,7 @@ export type {
   UseSchemasOptions,
   UseTablesOptions,
   UseHostsOptions,
+  UseRemoteChoicesOptions,
   ResolvedServiceField,
 } from './hooks';
 export { cascadeParentResetKey } from './utils/cascadeParentResetKey';

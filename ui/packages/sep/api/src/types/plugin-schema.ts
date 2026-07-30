@@ -217,6 +217,25 @@ export interface ScriptPreviewField extends BaseField {
   language?: string;
 }
 
+// ── Dynamic, API-backed option source ────────────────────────────────────
+
+export interface RemoteChoiceField extends BaseField {
+  type: 'remote_choice';
+  /**
+   * Fully-resolved URL the renderer fetches `Choice`-compatible options from,
+   * relative to the `apiClient` base (`/api`). Schema synthesisers bake any
+   * plugin-specific path segments here at schema build time.
+   */
+  endpoint_url: string;
+  /**
+   * Optional sibling field name whose value drives (and parameterises) the
+   * option fetch. Omitted from the wire while unset.
+   */
+  depends_on?: string;
+  /** Offer free-text (free-solo) entry alongside the fetched options. */
+  allow_custom?: boolean;
+}
+
 // ── Discriminated union ─────────────────────────────────────────────────
 
 export type PluginField =
@@ -234,6 +253,7 @@ export type PluginField =
   | SchemaField
   | TableField
   | HostField
+  | RemoteChoiceField
   | ScriptPreviewField;
 
 // ── One-of group ─────────────────────────────────────────────────────────

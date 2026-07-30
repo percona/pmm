@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Alert,
   Box,
@@ -29,6 +29,7 @@ import {
   IconButton,
   Link as MuiLink,
   Stack,
+  TablePagination,
   TextField,
   Tooltip,
   Typography,
@@ -38,6 +39,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Link } from 'react-router-dom';
 import {
+  ATW_PAGE_SIZE,
   useAtwIncidents,
   useCreateAtwIncident,
   useDeleteAtwIncident,
@@ -51,10 +53,24 @@ import type { AtwIncident } from './types';
  * deleting, and opening one into its workspace.
  */
 export function IncidentListPage() {
-  const { data: incidents, isLoading, error } = useAtwIncidents();
+  const [page, setPage] = useState({ offset: 0, limit: ATW_PAGE_SIZE });
+  const { data, isLoading, error } = useAtwIncidents(page);
+  const incidents = data?.items;
   const createMutation = useCreateAtwIncident();
   const updateMutation = useUpdateAtwIncident();
   const deleteMutation = useDeleteAtwIncident();
+
+  useEffect(() => {
+    if (data && data.total > 0 && data.offset >= data.total) {
+      setPage((previous) => ({
+        offset: Math.max(
+          0,
+          (Math.ceil(data.total / previous.limit) - 1) * previous.limit
+        ),
+        limit: previous.limit,
+      }));
+    }
+  }, [data]);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [createName, setCreateName] = useState('');
@@ -193,6 +209,22 @@ export function IncidentListPage() {
             </Box>
           ))}
         </Stack>
+      )}
+
+      {data && data.total > data.limit && (
+        <TablePagination
+          component="div"
+          count={data.total}
+          page={Math.floor(data.offset / Math.max(data.limit, 1))}
+          rowsPerPage={data.limit}
+          onPageChange={(_event, newPage) =>
+            setPage((previous) => ({
+              offset: newPage * previous.limit,
+              limit: previous.limit,
+            }))
+          }
+          rowsPerPageOptions={[ATW_PAGE_SIZE]}
+        />
       )}
 
       {/* Create */}

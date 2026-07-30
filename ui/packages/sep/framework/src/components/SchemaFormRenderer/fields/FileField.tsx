@@ -18,6 +18,7 @@
 import { Controller, useFormContext } from 'react-hook-form';
 import { IconButton, InputAdornment, TextField } from '@mui/material';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+import { FieldLabelWithHelp } from '../FieldLabelWithHelp';
 import type { FileField as FileFieldType } from '../types';
 import { buildValidationRules } from '../utils/validationMapper';
 
@@ -42,7 +43,12 @@ export function FileField({ field }: FileFieldProps) {
       rules={rules}
       render={({ field: rhf, fieldState: { error } }) => (
         <TextField
-          label={field.label}
+          label={
+            <FieldLabelWithHelp
+              label={field.label}
+              description={field.description}
+            />
+          }
           required={field.required}
           fullWidth
           size="small"

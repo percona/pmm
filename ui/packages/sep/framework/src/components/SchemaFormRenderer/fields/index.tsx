@@ -30,6 +30,7 @@ import { ServiceField } from './ServiceField';
 import { SchemaField } from './SchemaField';
 import { TableField } from './TableField';
 import { HostField } from './HostField';
+import { RemoteChoiceField } from './RemoteChoiceField';
 import { ScriptPreviewField } from './ScriptPreviewField';
 
 export {
@@ -47,6 +48,7 @@ export {
   SchemaField,
   TableField,
   HostField,
+  RemoteChoiceField,
   ScriptPreviewField,
 };
 
@@ -92,6 +94,8 @@ export function FieldRenderer({ field }: FieldRendererProps) {
       return <HostField field={field} />;
     case 'script_preview':
       return <ScriptPreviewField field={field} />;
+    case 'remote_choice':
+      return <RemoteChoiceField field={field} />;
     default: {
       const exhaustive: never = field;
       void exhaustive;

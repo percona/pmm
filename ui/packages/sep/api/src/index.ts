@@ -101,6 +101,7 @@ export type {
   SchemaField,
   TableField,
   HostField,
+  RemoteChoiceField,
   ScriptPreviewField,
   Predicate,
   FieldGate,

@@ -25,6 +25,7 @@ import type {
   FieldError,
   FieldValues,
 } from 'react-hook-form';
+import { FieldLabelWithHelp } from './FieldLabelWithHelp';
 
 export interface SchemaSelectShellProps {
   /**
@@ -68,10 +69,13 @@ export function SchemaSelectShell({
   renderValue,
   children,
 }: SchemaSelectShellProps) {
+  const helpDescription =
+    typeof description === 'string' ? description : undefined;
+
   return (
     <FormControl fullWidth size="small" error={!!error}>
       <InputLabel id={labelId} shrink required={required}>
-        {label}
+        <FieldLabelWithHelp label={label} description={helpDescription} />
       </InputLabel>
       <Select
         {...field}
