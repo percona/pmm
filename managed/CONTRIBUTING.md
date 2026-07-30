@@ -132,7 +132,7 @@ Alert Templates are located in the `data/templates` folder. If you want to contr
 
 There are three makefiles: `Makefile` (host), `.devcontainer/Makefile`, and `Makefile.include`. `.devcontainer/Makefile` is mounted on top of `Makefile` inside the devcontainer (see `docker-compose.dev.yml`) to enable `make env TARGET=target-name` usage.
 
-Devcontainer initialization code is located in `.devcontainer/setup.py`. It provisions several binaries required for code development.
+Devcontainer initialization code is located in `.devcontainer/setup.sh`. It provisions several binaries required for code development.
 
 ## Code structure
 

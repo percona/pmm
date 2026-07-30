@@ -19,7 +19,7 @@ COPY ./ ./
 COPY ./.devcontainer/Makefile ./Makefile
 
 RUN --mount=type=cache,target=/var/cache/dnf \
-    python ./.devcontainer/setup.py
+    bash ./.devcontainer/setup.sh
 
 RUN mv -f $GOPATH/src/github.com/percona/pmm/bin/* $GOPATH/bin/
 
