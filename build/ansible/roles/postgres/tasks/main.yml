@@ -39,7 +39,7 @@
 
 - name: Create Postgres log file
   file:
-    path: /srv/logs/postgresql18.log
+    path: /srv/logs/postgresql.log
     state: touch
     force: yes
     group: root

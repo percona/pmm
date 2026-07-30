@@ -148,7 +148,7 @@ The extension is registered per database, so it has to be created again in the n
 `/srv/postgres14` is renamed to `/srv/postgres14.old` rather than removed. The rename also prevents the upgrade from running a second time. To roll back, shut PMM Server down, remove `/srv/postgres18`, rename `/srv/postgres14.old` back to `/srv/postgres14` and start the previous PMM Server image. Once the upgrade is confirmed to be successful, `/srv/postgres14.old` and the dumps in `/srv/backup` can be removed to reclaim disk space.
 
 6. Start the processes
-Supervisord starts the new server as `/usr/pgsql-18/bin/postgres -D /srv/postgres18` and writes its log to `/srv/logs/postgresql18.log`. The remaining processes (grafana, pmm-managed, pmm-agent) are started as usual, and pmm-managed applies its schema migrations on the restored database.
+Supervisord starts the new server as `/usr/pgsql-18/bin/postgres -D /srv/postgres18` and writes its log to `/srv/logs/postgresql.log`. The log file is no longer named after the major version, so a `/srv/logs/postgresql14.log` left over from the previous release can be deleted. The remaining processes (grafana, pmm-managed, pmm-agent) are started as usual, and pmm-managed applies its schema migrations on the restored database.
 
 ### Migration steps for ClickHouse
 
