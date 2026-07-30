@@ -18,8 +18,6 @@ package inventory
 
 import (
 	"context"
-	"os"
-	"strconv"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -1768,7 +1766,9 @@ func (as *AgentsService) checkInternalPgQANEnvOverride(agentID string, enable *b
 		return nil
 	}
 
-	enabledByEnv := internalPgQANEnabledByEnv()
+	// An invalid value is reported by the environment variable parser during startup, so
+	// env.LookupBool treats it as if the variable was not set at all.
+	enabledByEnv := env.LookupBool(env.EnableInternalPgQAN)
 	if enabledByEnv == nil || *enable == *enabledByEnv {
 		return nil
 	}
@@ -1787,24 +1787,6 @@ func (as *AgentsService) checkInternalPgQANEnvOverride(agentID string, enable *b
 		"QAN for PMM's internal PostgreSQL server is set to %t via an environment variable.",
 		*enabledByEnv,
 	)
-}
-
-// internalPgQANEnabledByEnv returns the state that PMM_ENABLE_INTERNAL_PG_QAN pins QAN for PMM's
-// internal PostgreSQL server to, or nil when the variable is unset or does not hold a boolean.
-// Invalid values are reported by the environment variable parser during startup, so they are
-// treated here as if the variable was not set at all.
-func internalPgQANEnabledByEnv() *bool {
-	value, exists := os.LookupEnv(env.EnableInternalPgQAN)
-	if !exists || value == "" {
-		return nil
-	}
-
-	enabled, err := strconv.ParseBool(value)
-	if err != nil {
-		return nil
-	}
-
-	return &enabled
 }
 
 // Helper function to convert custom labels from protobuf to model format.
