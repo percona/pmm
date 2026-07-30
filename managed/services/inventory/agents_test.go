@@ -1059,6 +1059,48 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		assert.True(t, agent.GetQanPostgresqlPgstatementsAgent().Disabled)
 	})
 
+	t.Run("SucceedForOtherAgentTypesOfPMMServer", func(t *testing.T) {
+		_, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// The postgres_exporter of PMM's internal PostgreSQL, running under the same pmm-agent
+		// as the QAN agent that the environment variable pins.
+		pgExporters, err := models.FindAgents(as.db.Querier, models.AgentFilters{
+			PMMAgentID: models.PMMServerAgentID,
+			AgentType:  new(models.PostgresExporterType),
+		})
+		require.NoError(t, err)
+		require.Len(t, pgExporters, 1)
+
+		t.Setenv(env.EnableInternalPgQAN, "true")
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, models.PMMServerAgentID)
+
+		// The environment variable covers QAN only, the other agents of PMM Server stay changeable.
+		agent, err := as.ChangePostgresExporter(ctx, pgExporters[0].AgentID, &inventoryv1.ChangePostgresExporterParams{
+			Enable: new(false),
+		})
+
+		require.NoError(t, err)
+		assert.True(t, agent.GetPostgresExporter().Disabled)
+	})
+
+	t.Run("SucceedWhenEnvVarValueIsNotABool", func(t *testing.T) {
+		_, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// A value that is not a boolean is reported by the environment variable parser during
+		// startup and pins nothing, exactly like an unset variable.
+		t.Setenv(env.EnableInternalPgQAN, "not-a-bool")
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, models.PMMServerAgentID)
+
+		agent, err := as.ChangeQANPostgreSQLPgStatementsAgent(ctx, internalPgQANAgentID, &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{
+			Enable: new(true),
+		})
+
+		require.NoError(t, err)
+		assert.False(t, agent.GetQanPostgresqlPgstatementsAgent().Disabled)
+	})
+
 	t.Run("SucceedWhenEnvVarNotSet", func(t *testing.T) {
 		_, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
