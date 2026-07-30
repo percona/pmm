@@ -79,7 +79,10 @@ export function IncidentWorkspacePage() {
           mt: 1,
           display: 'grid',
           gap: 2,
-          gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+          gridTemplateColumns: {
+            xs: 'minmax(0, 1fr)',
+            md: 'repeat(2, minmax(0, 1fr))',
+          },
           alignItems: 'start',
         }}
       >

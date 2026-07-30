@@ -83,6 +83,21 @@ describe('SendDialog', () => {
     expect(field.value).toBe('CS0001');
   });
 
+  it('states that the bundle carries both output files and logs', () => {
+    renderDialog(
+      <SendDialog
+        open
+        incidentId="inc-1"
+        executions={EXECUTIONS}
+        onClose={() => {}}
+      />
+    );
+
+    expect(
+      screen.getByText(/output files and captured logs are bundled/i)
+    ).toBeTruthy();
+  });
+
   it('lists every selected execution', () => {
     renderDialog(
       <SendDialog

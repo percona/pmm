@@ -25,8 +25,9 @@ vi.mock('@sep/api', () => ({
   apiClient: { get: vi.fn() },
 }));
 
-// The rows render collapsed, so the log viewer never mounts (unmountOnExit) and
-// the files dialog stays closed — neither fires a query in these tests.
+// No test here mounts the log viewer: rows that stay collapsed leave it unmounted
+// (unmountOnExit), and the rows that expand report no logs. The files dialog stays
+// closed throughout — so none of them fires a query.
 
 import { apiClient } from '@sep/api';
 const mockedApi = apiClient as unknown as { get: ReturnType<typeof vi.fn> };
@@ -116,6 +117,123 @@ describe('ResultsPane', () => {
     await waitFor(() => {
       expect(screen.getByText('Unknown')).toBeTruthy();
     });
+  });
+});
+
+// ── Recorded arguments ───────────────────────────────────────────────────
+
+/** Build one execution row, overriding only what a case cares about. */
+function executionWithArgs(overrides: Record<string, unknown>) {
+  return {
+    id: 'exec-args',
+    snippet_filename: 'diag/mongo.sh',
+    task_history_id: 21,
+    created_at: '2026-07-22T10:00:00Z',
+    task_status: 'success',
+    started_at: null,
+    finished_at: null,
+    // Keeps the expanded body on its no-logs branch, so these cases can open a
+    // row without mounting the log viewer and its token/stream machinery.
+    has_logs: false,
+    masked_args: null,
+    args_withheld: false,
+    ...overrides,
+  };
+}
+
+const MASKED_ARGS = '--port 27017 --password ***';
+
+describe('ResultsPane recorded arguments', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('renders the masked arguments in the collapsed summary', async () => {
+    mockedApi.get.mockResolvedValue(
+      paginated([executionWithArgs({ masked_args: MASKED_ARGS })])
+    );
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByText(MASKED_ARGS)).toBeTruthy();
+    });
+  });
+
+  it('renders the arguments in the expanded body as well as the summary', async () => {
+    mockedApi.get.mockResolvedValue(
+      paginated([executionWithArgs({ masked_args: MASKED_ARGS })])
+    );
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+    await waitFor(() => {
+      expect(screen.getByText('diag/mongo.sh')).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByText('diag/mongo.sh'));
+
+    await waitFor(() => {
+      expect(screen.getAllByText(MASKED_ARGS)).toHaveLength(2);
+    });
+  });
+
+  it('wraps the arguments in the body while the summary keeps them on one line', async () => {
+    const longArgs = `--dest /var/tmp/${'long-path-segment/'.repeat(12)} --password ***`;
+    mockedApi.get.mockResolvedValue(
+      paginated([executionWithArgs({ masked_args: longArgs })])
+    );
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+    await waitFor(() => {
+      expect(screen.getByText('diag/mongo.sh')).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByText('diag/mongo.sh'));
+
+    await waitFor(() => {
+      expect(screen.getAllByText(longArgs)).toHaveLength(2);
+    });
+    const [summaryLine, bodyLine] = screen.getAllByText(longArgs);
+    expect(getComputedStyle(summaryLine).whiteSpace).toBe('nowrap');
+    expect(getComputedStyle(summaryLine).textOverflow).toBe('ellipsis');
+    expect(getComputedStyle(bodyLine).whiteSpace).toBe('pre-wrap');
+  });
+
+  it('shows an empty state when the execution recorded no arguments', async () => {
+    mockedApi.get.mockResolvedValue(
+      paginated([
+        executionWithArgs({ masked_args: null, args_withheld: false }),
+      ])
+    );
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+    await waitFor(() => {
+      expect(screen.getByText('diag/mongo.sh')).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByText('diag/mongo.sh'));
+
+    await waitFor(() => {
+      expect(screen.getByText('No arguments')).toBeTruthy();
+    });
+  });
+
+  it('reports unavailable arguments distinctly from an execution that had none', async () => {
+    mockedApi.get.mockResolvedValue(
+      paginated([executionWithArgs({ masked_args: null, args_withheld: true })])
+    );
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+    await waitFor(() => {
+      expect(screen.getByText('diag/mongo.sh')).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByText('diag/mongo.sh'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Arguments unavailable')).toBeTruthy();
+    });
+    expect(screen.queryByText('No arguments')).toBeNull();
   });
 });
 

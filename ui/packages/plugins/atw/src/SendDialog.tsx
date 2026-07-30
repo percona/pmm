@@ -119,8 +119,8 @@ export function SendDialog({
         ) : (
           <>
             <DialogContentText sx={{ mb: 2 }}>
-              The selected executions&apos; output files are bundled and
-              attached to the support case.
+              The selected executions&apos; output files and captured logs are
+              bundled and attached to the support case.
             </DialogContentText>
 
             <TextField

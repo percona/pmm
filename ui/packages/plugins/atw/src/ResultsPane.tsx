@@ -68,7 +68,7 @@ interface ResendContext {
 }
 
 /**
- * Task statuses whose execution has output files worth sending.
+ * Task statuses whose execution is finished and therefore sendable.
  *
  * Mirrors the backend's own `TaskHistoryStatusEnum.is_finished()`; typing it
  * against the generated status union keeps a renamed or added status a compile
@@ -419,8 +419,14 @@ function ExecutionRow({
   onToggleSelected: () => void;
   onOpenFiles: () => void;
 }) {
-  const { snippet_filename, task_status, task_history_id, has_logs } =
-    execution;
+  const {
+    snippet_filename,
+    task_status,
+    task_history_id,
+    has_logs,
+    masked_args,
+    args_withheld,
+  } = execution;
   const selectable = isSelectable(execution);
 
   return (
@@ -429,7 +435,10 @@ function ExecutionRow({
       sx={{ mb: 1 }}
       slotProps={{ transition: { unmountOnExit: true } }}
     >
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+      <AccordionSummary
+        expandIcon={<ExpandMoreIcon />}
+        sx={{ '& .MuiAccordionSummary-content': { minWidth: 0 } }}
+      >
         <Stack
           direction="row"
           spacing={1}
@@ -450,12 +459,25 @@ function ExecutionRow({
               />
             </span>
           </Tooltip>
-          <Typography
-            variant="subtitle2"
-            sx={{ flexGrow: 1, wordBreak: 'break-all' }}
-          >
-            {snippet_filename}
-          </Typography>
+          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+            <Typography variant="subtitle2" sx={{ wordBreak: 'break-all' }}>
+              {snippet_filename}
+            </Typography>
+            {masked_args && (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{
+                  fontFamily: 'monospace',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {masked_args}
+              </Typography>
+            )}
+          </Box>
           {isTaskHistoryStatus(task_status) ? (
             <TaskHistoryStatusBadge status={task_status} />
           ) : (
@@ -476,6 +498,33 @@ function ExecutionRow({
             Files
           </Button>
         </Stack>
+
+        <Box sx={{ mb: 2 }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ display: 'block' }}
+          >
+            Arguments
+          </Typography>
+          {masked_args ? (
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{
+                fontFamily: 'monospace',
+                wordBreak: 'break-all',
+                whiteSpace: 'pre-wrap',
+              }}
+            >
+              {masked_args}
+            </Typography>
+          ) : (
+            <Typography variant="body2" color="text.secondary">
+              {args_withheld ? 'Arguments unavailable' : 'No arguments'}
+            </Typography>
+          )}
+        </Box>
 
         <Divider sx={{ mb: 2 }} />
 

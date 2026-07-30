@@ -112,12 +112,24 @@ export interface AtwBatchExecuteResponse {
 // ── Incident execution history ───────────────────────────────────────────
 
 export interface AtwIncidentExecution {
+  /**
+   * Whether the arguments were suppressed because they could not be masked
+   * safely — distinguishing that from an execution that genuinely ran with
+   * none.
+   */
+  args_withheld: boolean;
   /** Format: date-time */
   created_at: string;
   finished_at?: string | null;
   has_logs?: boolean | null;
   /** Format: uuid4 */
   id: string;
+  /**
+   * The command line the snippet ran with, credential values replaced by a
+   * fixed-width mask. `null` together with `args_withheld=false` means the
+   * execution recorded no arguments.
+   */
+  masked_args?: string | null;
   snippet_filename: string;
   started_at?: string | null;
   task_history_id: number;
