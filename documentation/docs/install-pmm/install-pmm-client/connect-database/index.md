@@ -1,36 +1,36 @@
 # Connect databases to PMM
-Percona Monitoring and Management (PMM) supports monitoring for MySQL/MariaDB, PostgreSQL, MongoDB, and various cloud database services. 
+
+PMM supports monitoring for MySQL, PostgreSQL, MongoDB, Valkey/Redis, major cloud database services, and infrastructure components.
+
+## Supported database versions
+
+PMM supports database versions that are within their active support lifecycle. For the full list of supported versions per product, see the [Percona Release Lifecycle Overview](https://www.percona.com/release-lifecycle-overview/).
+
+Connecting a database version that has reached end of life may work, but is not tested or supported. We recommend upgrading to a supported version to ensure full compatibility with PMM features.
 
 ## Supported database technologies
 
-- [MySQL](mysql/mysql.md) (and variants Percona Server for MySQL, Percona XtraDB Cluster, MariaDB)
-- [MongoDB](mongodb.md)
-- [PostgreSQL](postgresql.md)
-- [Valkey/Redis](valkey-redis.md)
-- [ProxySQL](proxysql.md)
-- [Amazon RDS](aws.md)
-- [Microsoft Azure](azure.md)
-- [Google Cloud Platform](google.md) (MySQL and PostgreSQL)
-- [Linux](linux.md)
-- [External services](external.md)
-- [HAProxy](haproxy.md)
-- [Remote instances](remote.md)
+| Database | Local monitoring | Remote monitoring | Query Analytics | Backup integration |
+|----------|:----------------:|:-----------------:|:---------------:|:-----------------:|
+| [MySQL](mysql/mysql.md)¹ | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> |
+| [PostgreSQL](postgresql.md) | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> |
+| [MongoDB](mongodb.md) | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> |
+| [Valkey / Redis](valkey-redis.md) | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> | <span style="color:red">✘</span> |
+| [Amazon RDS / Aurora](aws.md) | <span style="color:red">✘</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> |
+| [Microsoft Azure](azure.md) | <span style="color:red">✘</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> |
+| [Google Cloud SQL](google.md) | <span style="color:red">✘</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> |
+| [ProxySQL](proxysql.md) | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> | <span style="color:red">✘</span> |
+| [HAProxy](haproxy.md) | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> | <span style="color:red">✘</span> |
+| [Linux](linux.md) | <span style="color:green">✔</span> | <span style="color:red">✘</span> | <span style="color:red">✘</span> | <span style="color:red">✘</span> |
+| [External services](external.md) | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> | <span style="color:red">✘</span> |
+| [Remote instances](remote.md) | <span style="color:red">✘</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> | <span style="color:red">✘</span> |
 
-| Database type                                | Local monitoring | Remote monitoring | Query Analytics (QAN) | Performance schema | Backup integration |
-|----------------------------------------------|------------------|-------------------|------------------|---------------------|---------------------|
-| [MySQL/MariaDB](../connect-database/mysql/mysql.md)     | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> |
-| [PostgreSQL](../connect-database/postgresql.md)          | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> |
-| [MongoDB](../connect-database/mongodb.md)                | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> |
-| [Valkey/Redis](../connect-database/valkey-redis.md)           | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span>  | <span style="color:red">✘</span>  | <span style="color:red">✘</span> |
-| [AWS RDS/Aurora](../connect-database/aws.md)             | <span style="color:red">✘</span>  | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> |--->
-| [Azure Database](../connect-database/azure.md)           | <span style="color:red">✘</span>  | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> |
-| [Google Cloud SQL](../connect-database/google.md)        | <span style="color:red">✘</span>  | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span> |
-| [ProxySQL](../connect-database/proxysql.md)              | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span>  | <span style="color:red">✘</span>  | <span style="color:red">✘</span> |
-| [HAProxy](../connect-database/haproxy.md)                | <span style="color:green">✔</span> | <span style="color:green">✔</span> | <span style="color:red">✘</span>  | <span style="color:red">✘</span>  | <span style="color:red">✘</span> |
+¹ Includes Percona Server for MySQL, Percona XtraDB Cluster, and MariaDB.
 
 ## Modify existing services
 
 To change the parameters of a previously-added service, remove the service and re-add it with the new parameters.
 
 ## New to PMM?
+
 If you're setting up monitoring for the first time, follow the installation and setup instructions in the [PMM installation overview](../../index.md).
