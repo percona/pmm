@@ -201,14 +201,15 @@ func (c AzureOptions) IsEmpty() bool {
 
 // MongoDBOptions represents structure for special MongoDB options.
 type MongoDBOptions struct {
-	TLSCertificateKey             string   `json:"tls_certificate_key"`
-	TLSCertificateKeyFilePassword string   `json:"tls_certificate_key_file_password"`
-	TLSCa                         string   `json:"tls_ca"`
-	AuthenticationMechanism       string   `json:"authentication_mechanism"`
-	AuthenticationDatabase        string   `json:"authentication_database"`
-	StatsCollections              []string `json:"stats_collections"`
-	CollectionsLimit              int32    `json:"collections_limit"`
-	EnableAllCollectors           bool     `json:"enable_all_collectors"`
+	TLSCertificateKey              string   `json:"tls_certificate_key"`
+	TLSCertificateKeyFilePassword  string   `json:"tls_certificate_key_file_password"`
+	TLSCa                          string   `json:"tls_ca"`
+	AuthenticationMechanism        string   `json:"authentication_mechanism"`
+	AuthenticationDatabase         string   `json:"authentication_database"`
+	StatsCollections               []string `json:"stats_collections"`
+	CollectionsLimit               int32    `json:"collections_limit"`
+	EnableAllCollectors            bool     `json:"enable_all_collectors"`
+	EnableDiagnosticDataHistograms bool     `json:"enable_diagnostic_data_histograms"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -226,7 +227,8 @@ func (c MongoDBOptions) IsEmpty() bool {
 		c.AuthenticationDatabase == "" &&
 		len(c.StatsCollections) == 0 &&
 		c.CollectionsLimit == 0 &&
-		!c.EnableAllCollectors
+		!c.EnableAllCollectors &&
+		!c.EnableDiagnosticDataHistograms
 }
 
 // MySQLOptions represents structure for special MySQL options.

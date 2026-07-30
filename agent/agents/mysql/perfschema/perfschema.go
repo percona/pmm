@@ -183,7 +183,7 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 		maxQueryLength:         params.MaxQueryLength,
 		disableQueryExamples:   params.DisableQueryExamples,
 		l:                      params.LogEntry,
-		changes:                make(chan agents.Change, 10),
+		changes:                make(chan agents.Change, 10), //nolint:mnd
 		historyCache:           historyCache,
 		summaryCache:           summaryCache,
 		perfschemaRefreshRate:  params.PerfschemaRefreshRate,
