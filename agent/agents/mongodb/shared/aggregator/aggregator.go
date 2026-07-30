@@ -263,8 +263,8 @@ func (a *Aggregator) createResult(_ context.Context) *report.Result {
 	for _, v := range queryStats {
 		db := ""
 		collection := ""
-		s := strings.SplitN(v.Namespace, ".", 2)
-		if len(s) == 2 {
+		s := strings.SplitN(v.Namespace, ".", 2) //nolint:mnd
+		if len(s) == 2 {                         //nolint:mnd
 			db = s[0]
 			collection = s[1]
 		}
