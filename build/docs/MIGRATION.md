@@ -104,7 +104,7 @@ The upgrade is performed automatically on the first start of a PMM Server that s
 
 The upgrade runs only when `/srv/postgres14` exists and `/srv/postgres18` does not, which makes it a one-time operation. It is skipped entirely when the embedded PostgreSQL is not in use, i.e. when `PMM_HA_ENABLE` or `PMM_DISABLE_BUILTIN_POSTGRES` is enabled. In those cases the external database has to be upgraded by its owner.
 
-Both the PostgreSQL 14 and 18 binaries are shipped in the image, so the upgrade is a logical dump and restore rather than an in-place `pg_upgrade`. This also means the upgrade path is only available as long as the PostgreSQL 14 binaries remain in the image; upgrading from an older PMM v3 release after they are dropped requires an intermediate upgrade. Make sure the volume holding `/srv` has enough free space for a plain-text dump of both databases plus a second data directory.
+Both the PostgreSQL 14 and 18 binaries are shipped in the image, so the upgrade is a logical dump and restore rather than an in-place `pg_upgrade`. This also means the upgrade path is only available as long as the PostgreSQL 14 binaries remain in the image; upgrading from an older PMM v3 release after they are dropped requires an intermediate upgrade. Make sure the volume holding `/srv` has enough free space for a plain-text dump of both databases plus a second data directory. The dumps are removed once the upgrade completes, so that part of the requirement is transient.
 
 1. Dump the databases from PostgreSQL 14
 The old server is started on the socket in `/run/postgresql`, and each database is dumped to `/srv/backup`:
@@ -144,8 +144,10 @@ The extension is registered per database, so it has to be created again in the n
   unset PGPASSWORD
 ```
 
-5. Keep the old data directory for rollback
-`/srv/postgres14` is renamed to `/srv/postgres14.old` rather than removed. The rename also prevents the upgrade from running a second time. To roll back, shut PMM Server down, remove `/srv/postgres18`, rename `/srv/postgres14.old` back to `/srv/postgres14` and start the previous PMM Server image. Once the upgrade is confirmed to be successful, `/srv/postgres14.old` and the dumps in `/srv/backup` can be removed to reclaim disk space.
+5. Keep the old data directory for rollback and discard the dumps
+`/srv/postgres14` is renamed to `/srv/postgres14.old` rather than removed. The rename also prevents the upgrade from running a second time. That directory is the rollback artifact, so the `pg18-upgrade-*.sql` dumps are deleted once it is in place; only those files are touched, since `/srv/backup` also holds user backups. A failed upgrade never reaches this point, so its dumps are left behind to inspect.
+
+To roll back, shut PMM Server down, remove `/srv/postgres18`, rename `/srv/postgres14.old` back to `/srv/postgres14` and start the previous PMM Server image. Once the upgrade is confirmed to be successful, `/srv/postgres14.old` can be removed to reclaim disk space.
 
 6. Start the processes
 Supervisord starts the new server as `/usr/pgsql-18/bin/postgres -D /srv/postgres18` and writes its log to `/srv/logs/postgresql.log`. The log file is no longer named after the major version, so a `/srv/logs/postgresql14.log` left over from the previous release can be deleted. The remaining processes (grafana, pmm-managed, pmm-agent) are started as usual, and pmm-managed applies its schema migrations on the restored database.

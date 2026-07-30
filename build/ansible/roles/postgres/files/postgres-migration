@@ -119,6 +119,12 @@ upgrade_pg14_to_pg18() {
     echo "Renaming $PG14_DATA to ${PG14_DATA}.old for rollback safety..."
     mv "$PG14_DATA" "${PG14_DATA}.old"
 
+    # The renamed directory is the rollback artifact, so the dumps have served their purpose.
+    # Only the files written above are removed: /srv/backup also holds user backups. This is
+    # reached only on success, so a failed upgrade leaves the dumps behind to inspect.
+    echo "Removing the upgrade dumps from $BACKUP_DIR..."
+    rm -f "${BACKUP_DIR}"/pg18-upgrade-*.sql
+
     echo "PostgreSQL 14 to 18 migration completed successfully."
 }
 
