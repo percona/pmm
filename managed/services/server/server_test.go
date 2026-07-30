@@ -19,9 +19,12 @@ import (
 	"context"
 	"errors"
 	"math"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -321,4 +324,62 @@ func TestConvertDefaultRoleID(t *testing.T) {
 			assert.Equal(t, tt.want, convertDefaultRoleID(tt.roleID))
 		})
 	}
+}
+
+func TestUpdateStatus(t *testing.T) {
+	newServer := func(t *testing.T, initRunning bool, log string) *Server {
+		t.Helper()
+
+		old := pmmInitLog
+		pmmInitLog = filepath.Join(t.TempDir(), "pmm-init.log")
+		t.Cleanup(func() { pmmInitLog = old })
+		require.NoError(t, os.WriteFile(pmmInitLog, []byte(log), 0o600))
+
+		var sv mockSupervisordService
+		sv.Test(t)
+		sv.On("ProgramRunning", pmmInitProgram).Return(initRunning)
+
+		return &Server{
+			supervisord: &sv,
+			updater:     NewUpdater(1024, nil),
+			l:           logrus.WithField("component", "server-test"),
+		}
+	}
+
+	t.Run("done once pmm-init is no longer running", func(t *testing.T) {
+		s := newServer(t, false, "finishing up\n")
+
+		res, err := s.UpdateStatus(t.Context(), &serverv1.UpdateStatusRequest{})
+		require.NoError(t, err)
+		assert.True(t, res.Done)
+		assert.Equal(t, []string{"finishing up"}, res.LogLines, "the tail of the log must be delivered with the final response")
+		assert.Equal(t, uint32(13), res.LogOffset)
+	})
+
+	t.Run("not done while pmm-init is running", func(t *testing.T) {
+		s := newServer(t, true, "still working\n")
+
+		res, err := s.UpdateStatus(t.Context(), &serverv1.UpdateStatusRequest{})
+		require.NoError(t, err)
+		assert.False(t, res.Done)
+		assert.Equal(t, []string{"still working"}, res.LogLines)
+	})
+
+	t.Run("done even without a log to read", func(t *testing.T) {
+		s := newServer(t, false, "")
+		require.NoError(t, os.Remove(pmmInitLog))
+
+		res, err := s.UpdateStatus(t.Context(), &serverv1.UpdateStatusRequest{})
+		require.NoError(t, err)
+		assert.True(t, res.Done)
+		assert.Empty(t, res.LogLines)
+	})
+
+	t.Run("an unverifiable auth token is accepted", func(t *testing.T) {
+		s := newServer(t, false, "")
+
+		res, err := s.UpdateStatus(t.Context(), &serverv1.UpdateStatusRequest{AuthToken: "issued-by-the-previous-instance"})
+		require.NoError(t, err)
+		assert.True(t, res.Done)
+	})
 }

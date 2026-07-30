@@ -16,6 +16,7 @@
 package server
 
 import (
+	"net/url"
 	"strings"
 	"testing"
 	"time"
@@ -181,4 +182,22 @@ func TestListUpdates(t *testing.T) {
 		require.Error(t, err)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `PMM updates are disabled`)
 	})
+}
+
+// TestUpdateStatus covers the endpoint pre-3.9 clients poll after triggering an update: on a server
+// that has finished initializing it must report the update as done, without authentication.
+func TestUpdateStatus(t *testing.T) {
+	baseURL, err := url.Parse(pmmapitests.BaseURL.String())
+	require.NoError(t, err)
+	baseURL.User = nil
+	noAuthClient := serverClient.New(pmmapitests.Transport(baseURL, true), nil)
+
+	res, err := noAuthClient.ServerService.UpdateStatus(&server.UpdateStatusParams{
+		Body: server.UpdateStatusBody{
+			AuthToken: "issued-by-the-previous-instance",
+		},
+		Context: pmmapitests.Context,
+	})
+	require.NoError(t, err)
+	assert.True(t, res.Payload.Done)
 }

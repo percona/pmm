@@ -45,6 +45,9 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+// pmmInitProgram is the supervisord program running PMM Server initialization and upgrade tasks.
+const pmmInitProgram = "pmm-init"
+
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
 	serverv1.UnimplementedServerServiceServer
@@ -330,6 +333,53 @@ func (s *Server) ListChangeLogs(ctx context.Context, _ *serverv1.ListChangeLogsR
 	}
 
 	return res, nil
+}
+
+// UpdateStatus returns PMM Server initialization status.
+//
+// It exists for pre-3.9 clients: after triggering an update they keep polling it to learn when the
+// freshly started PMM Server has finished initializing. The request's authentication token is not
+// verified - it was issued by the PMM Server instance this one has replaced, so it is unverifiable
+// here by design.
+func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusRequest) (*serverv1.UpdateStatusResponse, error) {
+	if !s.supervisord.ProgramRunning(pmmInitProgram) {
+		// Deliver whatever is left in the log along with the final response.
+		lines, newOffset, err := s.updater.InitLog(req.GetLogOffset())
+		if err != nil {
+			s.l.Warn(err)
+		}
+
+		return &serverv1.UpdateStatusResponse{
+			LogLines:  lines,
+			LogOffset: newOffset,
+			Done:      true,
+		}, nil
+	}
+
+	// wait up to 30 seconds for new log lines
+	var lines []string
+	var newOffset uint32
+	var err error
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second) //nolint:mnd
+	defer cancel()
+	for ctx.Err() == nil {
+		lines, newOffset, err = s.updater.InitLog(req.GetLogOffset())
+		if err != nil {
+			s.l.Warn(err)
+		}
+
+		if len(lines) != 0 {
+			break
+		}
+
+		time.Sleep(200 * time.Millisecond) //nolint:mnd
+	}
+
+	return &serverv1.UpdateStatusResponse{
+		LogLines:  lines,
+		LogOffset: newOffset,
+		Done:      false,
+	}, nil
 }
 
 // convertSettings merges database settings and settings from environment variables into API response.

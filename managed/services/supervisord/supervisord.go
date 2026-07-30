@@ -234,12 +234,51 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 
 // StartSupervisedService starts given service.
 func (s *Service) StartSupervisedService(serviceName string) error {
-	return s.supervisorctl("start", serviceName)
+	_, err := s.supervisorctl("start", serviceName)
+	return err
 }
 
 // StopSupervisedService stops given service.
 func (s *Service) StopSupervisedService(serviceName string) error {
-	return s.supervisorctl("stop", serviceName)
+	_, err := s.supervisorctl("stop", serviceName)
+	return err
+}
+
+// ProgramRunning returns true if the given supervisord program is running or is going to be
+// restarted, false if it is not running, has exited as expected, or has failed for good.
+func (s *Service) ProgramRunning(program string) bool {
+	// First check with the status command in case we missed that event during maintail
+	// or a pmm-managed restart. See http://supervisord.org/subprocess.html#process-states
+	b, err := s.supervisorctl("status", program)
+	if err != nil {
+		// supervisorctl exits with a non-zero code when the program is not running,
+		// so the output is still worth parsing.
+		s.l.Debugf("Status command for '%s' failed: %s", program, err)
+	}
+	if status := parseStatus(string(b)); status != nil {
+		return *status
+	}
+
+	s.eventsM.Lock()
+	lastEvent := s.lastEvents[program]
+	s.eventsM.Unlock()
+
+	s.l.Debugf("Status result for '%s' not parsed, inspecting last event '%s'.", program, lastEvent)
+	switch lastEvent {
+	case stopping, starting, running:
+		return true
+	case exitedUnexpected: // will be restarted
+		return true
+	case exitedExpected, fatal: // will not be restarted
+		return false
+	case stopped: // we don't know
+		fallthrough
+	default:
+		// A run-once program that exited before this pmm-managed started reports EXITED with no
+		// event recorded, so this is an expected state rather than something worth warning about.
+		s.l.Debugf("Unhandled status result for '%s' (last event '%s'), assuming it is not running.", program, lastEvent)
+		return false
+	}
 }
 
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
@@ -408,20 +447,20 @@ redirect_stderr = true
 {{end}}
 `))
 
-func (s *Service) supervisorctl(args ...string) error {
+func (s *Service) supervisorctl(args ...string) ([]byte, error) {
 	if s.supervisorctlPath == "" {
-		return errors.New("supervisorctl not found")
+		return nil, errors.New("supervisorctl not found")
 	}
 
 	cmd := exec.Command(s.supervisorctlPath, args...) //nolint:gosec,noctx
 	cmdLine := strings.Join(cmd.Args, " ")
 	s.l.Debugf("Running %q...", cmdLine)
 	pdeathsig.Set(cmd, unix.SIGKILL)
-	_, err := cmd.Output()
+	b, err := cmd.Output()
 	if err != nil {
-		return fmt.Errorf("%s failed: %w", cmdLine, err)
+		return b, fmt.Errorf("%s failed: %w", cmdLine, err)
 	}
-	return nil
+	return b, nil
 }
 
 // parseStatus parses `supervisorctl status <name>` output, returns true if <name> is running,
@@ -444,7 +483,7 @@ func parseStatus(status string) *bool {
 
 // reload asks supervisord to reload configuration.
 func (s *Service) reload(name string) error {
-	err := s.supervisorctl("reread")
+	_, err := s.supervisorctl("reread")
 	if err != nil {
 		s.l.Warn(err)
 	}
@@ -456,7 +495,8 @@ func (s *Service) reload(name string) error {
 		return nil
 	}
 
-	return s.supervisorctl("update", name)
+	_, err = s.supervisorctl("update", name)
+	return err
 }
 
 // marshalConfig marshals supervisord program configuration.

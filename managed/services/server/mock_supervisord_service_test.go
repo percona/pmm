@@ -13,6 +13,24 @@ type mockSupervisordService struct {
 	mock.Mock
 }
 
+// ProgramRunning provides a mock function with given fields: program
+func (_m *mockSupervisordService) ProgramRunning(program string) bool {
+	ret := _m.Called(program)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ProgramRunning")
+	}
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(program)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
 // UpdateConfiguration provides a mock function with given fields: settings
 func (_m *mockSupervisordService) UpdateConfiguration(settings *models.Settings) error {
 	ret := _m.Called(settings)

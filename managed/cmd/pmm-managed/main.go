@@ -947,7 +947,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
-	updater := server.NewUpdater(db)
+	updater := server.NewUpdater(gRPCMessageMaxSize, db)
 
 	logs := server.NewLogs(version.FullInfo(), updater, vmParams)
 

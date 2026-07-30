@@ -42,6 +42,7 @@ import (
 )
 
 func TestUpdater(t *testing.T) {
+	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
 	const tmpDistributionFile = "/tmp/distribution"
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
@@ -246,7 +247,7 @@ func TestUpdater(t *testing.T) {
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
 				t.Parallel()
-				u := NewUpdater(db)
+				u := NewUpdater(gRPCMessageMaxSize, db)
 				parsed, err := version.Parse(tt.args.currentVersion)
 				require.NoError(t, err)
 				_, next := u.next(t.Context(), *parsed, tt.args.results)
@@ -278,7 +279,7 @@ func TestUpdater(t *testing.T) {
 
 	t.Run("TestLatest", func(t *testing.T) {
 		version.Version = "2.41.0"
-		u := NewUpdater(db)
+		u := NewUpdater(gRPCMessageMaxSize, db)
 
 		t.Run("LatestFromProduction", func(t *testing.T) {
 			_, latest, err := u.latest(t.Context())
@@ -311,7 +312,7 @@ func TestUpdater(t *testing.T) {
 		err := os.WriteFile(fileName, []byte(fileBody), 0o600)
 		require.NoError(t, err)
 
-		u := NewUpdater(db)
+		u := NewUpdater(gRPCMessageMaxSize, db)
 		_, latest, err := u.latest(t.Context())
 		require.NoError(t, err)
 		assert.Equal(t, "2.41.1", latest.Version.String())
@@ -328,7 +329,7 @@ func TestUpdater(t *testing.T) {
 		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
 		defer cancel()
 
-		u := NewUpdater(db)
+		u := NewUpdater(gRPCMessageMaxSize, db)
 		err = u.check(ctx)
 		require.Error(t, err)
 		tests.AssertGRPCError(t, grpcstatus.New(codes.FailedPrecondition, "PMM updates are disabled"), err)
@@ -368,9 +369,63 @@ func TestGetReleaseNotesClosesResponseBody(t *testing.T) {
 	http.DefaultClient.Transport = stubRoundTripper{statusCode: http.StatusNotFound, body: body}
 	t.Cleanup(func() { http.DefaultClient.Transport = origTransport })
 
-	u := NewUpdater(nil)
+	u := NewUpdater(0, nil)
 	text, err := u.getReleaseNotesText(t.Context(), *version.MustParse("3.0.0"))
 	require.NoError(t, err)
 	assert.Empty(t, text)
 	assert.True(t, body.closed, "response body must be closed on non-200 status")
+}
+
+func TestInitLog(t *testing.T) {
+	setLog := func(t *testing.T, content string) {
+		t.Helper()
+		old := pmmInitLog
+		pmmInitLog = filepath.Join(t.TempDir(), "pmm-init.log")
+		t.Cleanup(func() { pmmInitLog = old })
+		require.NoError(t, os.WriteFile(pmmInitLog, []byte(content), 0o600))
+	}
+
+	t.Run("reads from the given offset", func(t *testing.T) {
+		setLog(t, "first\nsecond\n")
+		u := NewUpdater(1024, nil)
+
+		lines, offset, err := u.InitLog(0)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"first", "second"}, lines)
+		assert.Equal(t, uint32(13), offset)
+
+		lines, offset, err = u.InitLog(offset)
+		require.NoError(t, err)
+		assert.Empty(t, lines)
+		assert.Equal(t, uint32(13), offset)
+	})
+
+	t.Run("skips an incomplete trailing line", func(t *testing.T) {
+		setLog(t, "done\nin progres")
+		u := NewUpdater(1024, nil)
+
+		lines, offset, err := u.InitLog(0)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"done"}, lines)
+		assert.Equal(t, uint32(5), offset)
+	})
+
+	t.Run("stops before exceeding the max gRPC message size", func(t *testing.T) {
+		setLog(t, "aaaa\nbbbb\ncccc\n")
+		u := NewUpdater(6, nil)
+
+		lines, offset, err := u.InitLog(0)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"aaaa"}, lines)
+		assert.Equal(t, uint32(5), offset)
+	})
+
+	t.Run("returns an error when the log is missing", func(t *testing.T) {
+		old := pmmInitLog
+		pmmInitLog = filepath.Join(t.TempDir(), "absent.log")
+		t.Cleanup(func() { pmmInitLog = old })
+
+		_, _, err := NewUpdater(1024, nil).InitLog(0)
+		require.Error(t, err)
+	})
 }
