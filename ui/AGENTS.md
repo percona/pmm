@@ -9,12 +9,13 @@ The `/ui` directory contains the PMM web frontend — a React/TypeScript applica
 
 ### Monorepo Structure
 
-The UI uses a **Yarn workspaces + Turborepo** monorepo with three packages:
+The UI uses a **Yarn workspaces + Turborepo** monorepo with four packages:
 
 | Package         | Path                  | Purpose                                                       |
 | --------------- | --------------------- | ------------------------------------------------------------- |
 | **pmm**         | `ui/apps/pmm/`        | Main PMM UI application (Vite + React)                        |
 | **pmm-compat**  | `ui/apps/pmm-compat/` | Grafana plugin for PMM ↔ Grafana integration (Webpack)        |
+| **pmm-app**     | `ui/apps/pmm-app/`    | Grafana app plugin bundling PMM dashboards and the Query Analytics panel (Webpack). See [ui/apps/pmm-app/AGENTS.md](apps/pmm-app/AGENTS.md). Its `src/dashboards` is a symlink to the top-level `/dashboards` folder, the canonical source of dashboard JSON. |
 | **@pmm/shared** | `ui/packages/shared/` | Shared code: cross-frame messaging, types, utilities (Rollup) |
 
 ### Key Technology Choices
@@ -137,7 +138,7 @@ make build
 make test
 ```
 
-Inside the PMM devcontainer (`make env-up` then `make env` from the repo root), `make run-ui` (main UI HMR via Vite on port 5173) and `make run-qan-ui` (QAN livereload on port 35730) replace `make dev` and wire the dev servers into the bundled Grafana automatically. See `ui/README.md` for details.
+Inside the PMM devcontainer (`make env-up` then `make env` from the repo root), `make run-ui` replaces `make dev` and wires all three dev servers into the bundled Grafana automatically: Vite HMR for the main UI (port 5173), and webpack + livereload for `pmm-compat` (port 35729) and `pmm-app`/QAN (port 35730), the latter also running a chokidar watcher that syncs dashboard JSON changes with no extra commands. See `ui/README.md` for details.
 
 ## Key Files to Reference
 
