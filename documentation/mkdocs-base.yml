@@ -448,7 +448,6 @@ nav:
   - Upgrade:
       - Upgrade PMM Server:
           - pmm-upgrade/index.md
-          - pmm-upgrade/ui_upgrade.md
           - pmm-upgrade/external_postgres_pmm_upgrade.md
           - Manual upgrade:
               - pmm-upgrade/upgrade_docker.md
@@ -478,6 +477,7 @@ nav:
       - troubleshoot/data_issues.md
   - Release notes:
       - Release notes index: release-notes/index.md
+      - "PMM 3.9.0 (2026-07-30)": release-notes/3.9.0.md
       - "PMM 3.8.1 (2026-05-10)": release-notes/3.8.1.md
       - "PMM 3.8.0 (2026-05-28)": release-notes/3.8.0.md
       - "PMM 3.7.1 (2026-04-30)": release-notes/3.7.1.md
@@ -558,6 +558,7 @@ nav:
               - reference/dashboards/dashboard-mysql-user-details.md
           - MongoDB dashboards:
               - reference/dashboards/dashboard-mongodb-collection_overview.md
+              - reference/dashboards/dashboard-mongodb-unused-indexes.md
               - reference/dashboards/dashboard-mongodb-oplog-details.md
               - reference/dashboards/dashboard-mongodb-cluster-summary.md
               - reference/dashboards/dashboard-mongodb-instance-summary.md
