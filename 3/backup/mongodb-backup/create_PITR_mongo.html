@@ -2800,9 +2800,20 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/mysql/mysql.html" class="md-nav__link">
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_4_4_1_2" id="__nav_5_4_4_1_2_label" tabindex="0">
+            
   
   
   <span class="md-ellipsis">
@@ -2816,7 +2827,79 @@
   
   
 
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_4_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    MySQL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/install-pmm-client/connect-database/mysql/mysql.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connect MySQL
+  
+
+    
+  </span>
+  
+  
+
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/install-pmm-client/connect-database/mysql/custom_queries.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running custom queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -9630,7 +9713,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Backup and Restore support matrix
+    MongoDB backup and restore support matrix
   
 
     
@@ -10963,34 +11046,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../pmm-upgrade/ui_upgrade.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Upgrade PMM Server from the UI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../pmm-upgrade/external_postgres_pmm_upgrade.html" class="md-nav__link">
         
   
@@ -11027,10 +11082,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_1_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_1_3" >
         
           
-          <label class="md-nav__link" for="__nav_9_1_4" id="__nav_9_1_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9_1_3" id="__nav_9_1_3_label" tabindex="0">
             
   
   
@@ -11048,8 +11103,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_9_1_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9_1_4">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_9_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9_1_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -11138,10 +11193,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_1_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_1_4" >
         
           
-          <label class="md-nav__link" for="__nav_9_1_5" id="__nav_9_1_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9_1_4" id="__nav_9_1_4_label" tabindex="0">
             
   
   
@@ -11159,8 +11214,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_9_1_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9_1_5">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_9_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9_1_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -11950,6 +12005,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.9.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.9.0 (2026-07-30)
   
 
     
@@ -16305,10 +16388,9 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <p>Point-in-Time Recovery (PITR) restores databases up to a specific moment in time. PITR includes restoring the data from a backup snapshot and replaying all events that occurred to this data up to a specified moment from <a href="https://docs.percona.com/percona-backup-mongodb/reference/glossary.html#oplog-slice">oplog slices</a>.</p>
 <p>Point-in-Time Recovery helps you prevent data loss during a disaster such as crashed database, accidental data deletion or drop of tables, or unwanted update of multiple fields instead of a single one.</p>
 <h2 id="compatibility-with-percona-backup-for-mongodb">Compatibility with Percona Backup for MongoDB<a class="headerlink" href="#compatibility-with-percona-backup-for-mongodb" title="Permanent link">&para;</a></h2>
-<p>PMM introduced the option to create PITR Backups for MongoDB in version 2.23, as part of the larger Backup Management feature. This implementation in PMM uses Percona Backup for MongoDB (pbm) behind the scenes.</p>
-<p>Percona Backup for MongoDB is a distributed, low-impact solution for achieving consistent backups of MongoDB sharded clusters and replica sets.
-Restoring PITR backups is available for backups based on pbm ≤ 2.0.1. To restore PITR backups, make sure you have pbm ≥ 2.0.1 installed.</p>
-<p>Percona Backup for MongoDB supports <a href="https://docs.percona.com/percona-server-for-mongodb/">Percona Server for MongoDB</a> and MongoDB Community ≤ 3.6, with <a href="https://docs.mongodb.com/manual/replication/">MongoDB Replication</a> enabled. For more information, see the <a href="https://docs.percona.com/percona-backup-mongodb/installation.html">Percona Backup for MongoDB documentation</a>.</p>
+<p>PMM introduced the option to create PITR backups for MongoDB in version 2.23 as part of the Backup Management feature. PMM uses Percona Backup for MongoDB (PBM) to create and restore these backups.</p>
+<p>PMM requires PBM 2.0.1 or later. PBM is a distributed, low-impact solution for achieving consistent backups of MongoDB sharded clusters and replica sets.</p>
+<p>PBM supports logical backups for MongoDB Community and Enterprise Edition with replication enabled. It supports logical, physical, and incremental backups for <a href="https://docs.percona.com/percona-server-for-mongodb/">Percona Server for MongoDB</a>. Check the <a href="https://docs.percona.com/percona-backup-mongodb/details/versions.html">PBM compatibility matrix</a> for the MongoDB versions supported by each PBM release.</p>
 <h2 id="how-does-it-work">How does it work?<a class="headerlink" href="#how-does-it-work" title="Permanent link">&para;</a></h2>
 <p>When point-in-time recovery (PITR) is enabled, pbm-agent periodically saves consecutive slices of the oplog.</p>
 <p>To start saving oplog, PBM requires a backup snapshot. Such snapshots are created when you activate a PITR-scheduled task in PMM.</p>
@@ -16385,7 +16467,7 @@ You can use the available oplog slices in your storage to restore a backup to an
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 28, 2026 10:01:59 UTC">May 28, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 30, 2026 08:12:05 UTC">July 30, 2026</span>
   </span>
 
     

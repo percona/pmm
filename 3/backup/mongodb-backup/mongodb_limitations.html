@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Creating and restoring MongoDB backups in PMM currently has the following limitations and requirements:">
+        <meta name="description" content="Documentation">
       
       
         <meta name="author" content="Percona LLC">
@@ -30,7 +30,7 @@
     
     
       
-        <title>MongoDB Backup and Restore support matrix - Percona Monitoring and Management</title>
+        <title>MongoDB backup and restore support matrix - Percona Monitoring and Management</title>
       
     
     
@@ -96,7 +96,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - MongoDB Backup and Restore support matrix" />
+                 <meta property="og:title" content="Percona Monitoring and Management - MongoDB backup and restore support matrix" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -226,7 +226,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              MongoDB Backup and Restore support matrix
+              MongoDB backup and restore support matrix
             
           </span>
         </div>
@@ -2800,9 +2800,20 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../../install-pmm/install-pmm-client/connect-database/mysql/mysql.html" class="md-nav__link">
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_4_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_4_4_1_2" id="__nav_5_4_4_1_2_label" tabindex="0">
+            
   
   
   <span class="md-ellipsis">
@@ -2816,7 +2827,79 @@
   
   
 
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_4_4_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_4_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    MySQL
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/install-pmm-client/connect-database/mysql/mysql.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connect MySQL
+  
+
+    
+  </span>
+  
+  
+
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../install-pmm/install-pmm-client/connect-database/mysql/custom_queries.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running custom queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -9537,7 +9620,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Backup and Restore support matrix
+    MongoDB backup and restore support matrix
   
 
     
@@ -9555,7 +9638,7 @@
   <span class="md-ellipsis">
     
   
-    MongoDB Backup and Restore support matrix
+    MongoDB backup and restore support matrix
   
 
     
@@ -9581,10 +9664,32 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#support-matrix" class="md-nav__link">
+  <a href="#pbm-version-compatibility" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Support matrix
+        PBM version compatibility
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitations-and-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limitations and requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-and-restore-support-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup and restore support matrix
       
     </span>
   </a>
@@ -10963,34 +11068,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../pmm-upgrade/ui_upgrade.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Upgrade PMM Server from the UI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../pmm-upgrade/external_postgres_pmm_upgrade.html" class="md-nav__link">
         
   
@@ -11027,10 +11104,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_1_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_1_3" >
         
           
-          <label class="md-nav__link" for="__nav_9_1_4" id="__nav_9_1_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9_1_3" id="__nav_9_1_3_label" tabindex="0">
             
   
   
@@ -11048,8 +11125,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_9_1_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9_1_4">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_9_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9_1_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -11138,10 +11215,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_1_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9_1_4" >
         
           
-          <label class="md-nav__link" for="__nav_9_1_5" id="__nav_9_1_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_9_1_4" id="__nav_9_1_4_label" tabindex="0">
             
   
   
@@ -11159,8 +11236,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_9_1_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9_1_5">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_9_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9_1_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -11950,6 +12027,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/3.9.0.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.9.0 (2026-07-30)
   
 
     
@@ -16219,10 +16324,32 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#support-matrix" class="md-nav__link">
+  <a href="#pbm-version-compatibility" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Support matrix
+        PBM version compatibility
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#limitations-and-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limitations and requirements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backup-and-restore-support-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backup and restore support matrix
       
     </span>
   </a>
@@ -16301,20 +16428,26 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 
 
-<h1 id="mongodb-backup-and-restore-support-matrix">MongoDB Backup and Restore support matrix<a class="headerlink" href="#mongodb-backup-and-restore-support-matrix" title="Permanent link">&para;</a></h1>
-<div class="admonition note">
-<p class="admonition-title">PBM version compatibility</p>
-<p>PMM is not compatible with Percona Backup for MongoDB (PBM) version 2.10 and above. Make sure to use PBM version 2.0.1 to 2.9.x.</p>
-</div>
+<h1 id="mongodb-backup-and-restore-support-matrix">MongoDB backup and restore support matrix<a class="headerlink" href="#mongodb-backup-and-restore-support-matrix" title="Permanent link">&para;</a></h1>
+<h2 id="pbm-version-compatibility">PBM version compatibility<a class="headerlink" href="#pbm-version-compatibility" title="Permanent link">&para;</a></h2>
+<p>PMM requires Percona Backup for MongoDB (PBM) 2.0.1 or later:</p>
+<ul>
+<li>PBM earlier than 2.0.1: not supported</li>
+<li>PBM 2.0.1 to 2.9.x: supported</li>
+<li>PBM 2.10.0 and later: supported, but requires PMM 3.9.0 or later</li>
+</ul>
+<p>To find a PBM version compatible with your MongoDB or Percona Server for MongoDB version, see the <a href="https://docs.percona.com/percona-backup-mongodb/details/versions.html">PBM compatibility matrix</a>.</p>
+<h2 id="limitations-and-requirements">Limitations and requirements<a class="headerlink" href="#limitations-and-requirements" title="Permanent link">&para;</a></h2>
 <p>Creating and restoring MongoDB backups in PMM currently has the following limitations and requirements:</p>
 <ul>
 <li>Physical backups and restores are supported only for <strong>Percona Server for MongoDB</strong>.</li>
 <li>Physical restores are not supported for deployments with arbiter nodes. For more information, see the <a href="https://docs.percona.com/percona-backup-mongodb/usage/restore.html#physical-restore-known-limitations">Percona Backup for MongoDB documentation</a>.</li>
 <li>Creating backups for sharded clusters is available straight from the UI. However, restoring these backup artifacts is only possible via the CLI, using Percona Backup for MongoDB. For information on restoring sharded backups, check the <a href="https://docs.percona.com/percona-backup-mongodb/usage/restore.html">PBM documentation</a>.</li>
 <li>Retention policy is supported only for snapshot types of scheduled backups and for the S3-compatible storage type.</li>
+<li>PMM can restore a backup only when the target service runs the same MongoDB version recorded in the backup artifact.</li>
 <li>Before restoring, make sure to prevent clients from accessing the database.</li>
 </ul>
-<h2 id="support-matrix">Support matrix<a class="headerlink" href="#support-matrix" title="Permanent link">&para;</a></h2>
+<h2 id="backup-and-restore-support-matrix">Backup and restore support matrix<a class="headerlink" href="#backup-and-restore-support-matrix" title="Permanent link">&para;</a></h2>
 <h2 id="backup-logical">Backup: Logical<a class="headerlink" href="#backup-logical" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -16466,7 +16599,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 30, 2026 08:12:05 UTC">July 30, 2026</span>
   </span>
 
     
