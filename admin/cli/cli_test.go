@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"sync"
 	"testing"
 
 	httptransport "github.com/go-openapi/runtime/client"
@@ -103,10 +104,17 @@ func TestChangeAgentAgainstMismatchedCertificate(t *testing.T) {
 	// Not parallel: SetupClients configures the package-level API clients.
 	const agentID = "722fbfc8-8497-4acc-839b-ec53983cf398"
 
-	var gotAuth string
+	// Written by the handler goroutine, read by the test goroutine.
+	var (
+		mu      sync.Mutex
+		gotAuth string
+	)
 
 	srv := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
 		gotAuth = r.Header.Get("Authorization")
+		mu.Unlock()
+
 		w.Header().Set("Content-Type", "application/json")
 		assert.NoError(t, json.NewEncoder(w).Encode(map[string]any{
 			"postgres_exporter": map[string]any{"agent_id": agentID},
@@ -153,6 +161,8 @@ func TestChangeAgentAgainstMismatchedCertificate(t *testing.T) {
 
 		// Credentials from --server-url must reach PMM Server; the ticket comment
 		// reported them being rejected.
+		mu.Lock()
+		defer mu.Unlock()
 		assert.Equal(t, "Basic YWRtaW46YWRtaW4=", gotAuth)
 	})
 }

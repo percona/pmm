@@ -74,7 +74,7 @@ func TestRegisterErrorMessage(t *testing.T) {
 		msg := registerErrorMessage(
 			registerDefault(http.StatusForbidden, grpcPermissionDenied, "Access denied"),
 			"pmm-server", false)
-		assert.Equal(t, "Access denied", msg)
+		assert.Equal(t, "Access denied\nPlease check that your PMM user has sufficient permissions", msg)
 	})
 
 	t.Run("node already exists", func(t *testing.T) {

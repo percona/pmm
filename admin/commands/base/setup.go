@@ -54,9 +54,16 @@ var (
 // pmm-agent. An explicitly passed --server-insecure-tls is preserved: the flag is opt-in only,
 // so a user asking to skip validation must not have that request dropped just because the
 // local pmm-agent is configured to validate certificates.
-func applyAgentServerParams(globalFlags *flags.GlobalFlags, status *agentlocal.Status) {
-	globalFlags.ServerURL, _ = url.Parse(status.ServerURL)
+func applyAgentServerParams(globalFlags *flags.GlobalFlags, status *agentlocal.Status) error {
+	u, err := url.Parse(status.ServerURL)
+	if err != nil {
+		return err
+	}
+
+	globalFlags.ServerURL = u
 	globalFlags.SkipTLSCertificateCheck = globalFlags.SkipTLSCertificateCheck || status.ServerInsecureTLS
+
+	return nil
 }
 
 // SetupClients configures local and PMM Server API clients.
@@ -76,7 +83,10 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 			logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n"+
 				"Please use --server-url flag to specify PMM Server URL.", err)
 		}
-		applyAgentServerParams(globalFlags, status)
+		if err := applyAgentServerParams(globalFlags, status); err != nil {
+			logrus.Fatalf("Failed to parse PMM Server URL %q reported by local pmm-agent: %s.\n"+
+				"Please use --server-url flag to specify PMM Server URL.", status.ServerURL, err)
+		}
 	} else {
 		if globalFlags.ServerURL.Path == "" {
 			globalFlags.ServerURL.Path = "/"
@@ -120,17 +130,24 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 	}
 
 	// disable HTTP/2, set TLS config
-	httpTransport, ok := transport.Transport.(*http.Transport)
+	defaultTransport, ok := transport.Transport.(*http.Transport)
 	if !ok {
 		panic("cannot assert transport as http.Transport")
 	}
 
+	// go-openapi hands out http.DefaultTransport, so work on a clone: reconfiguring TLS on
+	// the process-wide transport would leak into every other HTTP client in the process.
+	httpTransport := defaultTransport.Clone()
+
+	// A non-nil TLSNextProto is the documented way to disable HTTP/2, and it takes
+	// precedence over the ForceAttemptHTTP2 that Clone carries over from the default.
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 	if globalFlags.ServerURL.Scheme == "https" {
 		httpTransport.TLSClientConfig = tlsconfig.Get()
 		httpTransport.TLSClientConfig.ServerName = globalFlags.ServerURL.Hostname()
 		httpTransport.TLSClientConfig.InsecureSkipVerify = globalFlags.SkipTLSCertificateCheck
 	}
+	transport.Transport = httpTransport
 
 	inventoryClient.Default.SetTransport(transport)
 	managementClient.Default.SetTransport(transport)

@@ -52,13 +52,25 @@ func TestApplyAgentServerParams(t *testing.T) {
 				ServerInsecureTLS: tc.agentInsecureTLS,
 			}
 
-			applyAgentServerParams(globals, status)
+			require.NoError(t, applyAgentServerParams(globals, status))
 
 			assert.Equal(t, tc.expected, globals.SkipTLSCertificateCheck)
 			require.NotNil(t, globals.ServerURL)
 			assert.Equal(t, "https://admin:admin@pmm-server:8443/", globals.ServerURL.String())
 		})
 	}
+}
+
+// TestApplyAgentServerParamsInvalidURL checks that an unparseable URL is reported instead of
+// silently leaving ServerURL nil for SetupClients to dereference.
+func TestApplyAgentServerParamsInvalidURL(t *testing.T) {
+	t.Parallel()
+
+	globals := &flags.GlobalFlags{}                                        //nolint:exhaustruct
+	status := &agentlocal.Status{ServerURL: "https://pmm-server:8443/%zz"} //nolint:exhaustruct
+
+	require.Error(t, applyAgentServerParams(globals, status))
+	assert.Nil(t, globals.ServerURL)
 }
 
 // tlsConfigOf returns the TLS configuration the PMM Server API clients were set up with.
@@ -151,4 +163,28 @@ func TestSetupClientsAddsTrailingPath(t *testing.T) {
 	SetupClients(globals)
 
 	assert.Equal(t, "/", globals.ServerURL.Path)
+}
+
+// TestSetupClientsClonesTransport guards against reconfiguring TLS on http.DefaultTransport.
+// go-openapi hands that global out, so mutating it in place would leak PMM's TLS settings into
+// every other HTTP client in the process - and, in tests, into every later test in the binary.
+func TestSetupClientsClonesTransport(t *testing.T) {
+	// Not parallel: SetupClients configures the package-level API clients.
+	def, ok := http.DefaultTransport.(*http.Transport)
+	require.True(t, ok)
+
+	u, err := url.Parse("https://admin:admin@pmm-server-second:8443/")
+	require.NoError(t, err)
+
+	globals := &flags.GlobalFlags{ServerURL: u, SkipTLSCertificateCheck: true} //nolint:exhaustruct
+	SetupClients(globals)
+
+	assert.NotSame(t, def, tlsConfigOf(t), "SetupClients must configure a clone of http.DefaultTransport")
+
+	// The HTTP/2 machinery may install an empty TLS config on the global, but none of PMM's
+	// settings may end up there.
+	if c := def.TLSClientConfig; c != nil {
+		assert.Empty(t, c.ServerName)
+		assert.False(t, c.InsecureSkipVerify)
+	}
 }

@@ -43,8 +43,9 @@ func TestServerErrorMessage(t *testing.T) {
 		},
 		"internal error mapped to 401": {
 			// PMM-15186 reported this exact response being blamed on the credentials.
+			// The trailing period of the message must not be doubled up.
 			err:      Error{Code: 401, Error: "Internal server error.", GRPCCode: grpcInternal},
-			expected: "Internal server error.. Please check PMM Server logs.",
+			expected: "Internal server error. Please check PMM Server logs.",
 		},
 		"401 without a gRPC code": {
 			err:      Error{Code: 401, Error: "Unauthorized"},
@@ -56,7 +57,7 @@ func TestServerErrorMessage(t *testing.T) {
 		},
 		"forbidden": {
 			err:      Error{Code: 403, Error: "Access denied", GRPCCode: 7},
-			expected: "Access denied",
+			expected: "Access denied. Please check that your PMM user has sufficient permissions.",
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -100,7 +101,7 @@ func TestGetErrorFromGeneratedResponse(t *testing.T) {
 
 		e := GetError(resp)
 		assert.Equal(t, int32(13), e.GRPCCode)
-		assert.Equal(t, "Internal server error.. Please check PMM Server logs.", ServerErrorMessage(e))
+		assert.Equal(t, "Internal server error. Please check PMM Server logs.", ServerErrorMessage(e))
 	})
 
 	t.Run("without gRPC code", func(t *testing.T) {

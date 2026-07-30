@@ -14,14 +14,20 @@
 
 package commands
 
-import "github.com/percona/pmm/utils/servererror"
+import (
+	"strings"
+
+	"github.com/percona/pmm/utils/servererror"
+)
 
 // ServerErrorMessage renders a PMM Server error response for humans, adding a hint about the
 // likely cause where one can be derived from the response.
 func ServerErrorMessage(e Error) string {
 	msg := e.Error
 	if hint := servererror.AuthHint(e.Code, e.GRPCCode); hint != "" {
-		msg += ". " + hint + "."
+		// PMM Server messages usually already end with a period, so trim it instead of
+		// producing "Internal server error.. Please check PMM Server logs.".
+		msg = strings.TrimRight(msg, ". ") + ". " + hint + "."
 	}
 
 	return msg

@@ -86,8 +86,8 @@ func TestIsTLSCertificateError(t *testing.T) {
 	t.Run("bare x509 errors", func(t *testing.T) {
 		t.Parallel()
 
-		// macOS and Windows verify through the system verifier and do not always wrap
-		// the x509 error in tls.CertificateVerificationError.
+		// crypto/tls wraps these in tls.CertificateVerificationError itself, but errors
+		// constructed or re-wrapped by callers must be recognised too.
 		for name, err := range map[string]error{
 			"hostname":  x509.HostnameError{Certificate: &x509.Certificate{}, Host: "pmm-server-second"}, //nolint:exhaustruct
 			"authority": x509.UnknownAuthorityError{},                                                    //nolint:exhaustruct
@@ -192,10 +192,14 @@ func TestAuthHint(t *testing.T) {
 		"401 without a gRPC code": {401, 0, "Please check username and password"},
 		// Unauthenticated is conclusive on its own, whatever the status.
 		"unauthenticated behind another status": {500, grpcUnauthenticated, "Please check username and password"},
-		"permission denied":                     {403, grpcPermissionDenied, ""},
-		"not found":                             {404, grpcNotFound, ""},
-		"conflict":                              {409, 6, ""},
-		"success":                               {200, 0, ""},
+		// A valid user without the required role: nginx serves this as a static 403 body
+		// carrying code 7. Blaming the credentials for it was wrong.
+		"permission denied":                       {403, grpcPermissionDenied, "Please check that your PMM user has sufficient permissions"},
+		"403 without a gRPC code":                 {403, 0, "Please check that your PMM user has sufficient permissions"},
+		"permission denied behind another status": {500, grpcPermissionDenied, "Please check that your PMM user has sufficient permissions"},
+		"not found":                               {404, grpcNotFound, ""},
+		"conflict":                                {409, 6, ""},
+		"success":                                 {200, 0, ""},
 	} {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()

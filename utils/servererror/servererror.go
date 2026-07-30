@@ -29,10 +29,13 @@ import (
 // validation; pmm-admin and pmm-agent spell it the same way.
 const InsecureTLSFlag = "--server-insecure-tls"
 
-// codeUnauthenticated is the gRPC Unauthenticated status code. It is part of the wire format
-// (https://grpc.io/docs/guides/status-codes/) and is spelled out here rather than taken from
+// gRPC status codes carried in PMM Server response payloads. They are part of the wire format
+// (https://grpc.io/docs/guides/status-codes/) and are spelled out here rather than taken from
 // google.golang.org/grpc/codes so that pmm-admin does not have to link the gRPC packages.
-const codeUnauthenticated = 16
+const (
+	codePermissionDenied = 7
+	codeUnauthenticated  = 16
+)
 
 // IsTLSCertificateError reports whether err was caused by a failure to verify the TLS
 // certificate presented by PMM Server. PMM Server is shipped with a self-signed certificate
@@ -50,9 +53,10 @@ func IsTLSCertificateError(err error) bool {
 		invalidErr      x509.CertificateInvalidError
 	)
 
-	// tls.CertificateVerificationError wraps the x509 error on all platforms, but the
-	// bare x509 errors are matched as well since macOS and Windows verify certificates
-	// through the system verifier and do not always wrap them.
+	// Since Go 1.20 crypto/tls wraps both chain and host name failures in
+	// tls.CertificateVerificationError on every platform, including the macOS and Windows
+	// system verifiers. The bare x509 errors are matched too, so that errors constructed or
+	// re-wrapped by callers - and by this package's tests - are still recognised.
 	return errors.As(err, &verificationErr) ||
 		errors.As(err, &hostnameErr) ||
 		errors.As(err, &authorityErr) ||
@@ -83,16 +87,24 @@ func WrapTLSError(err error, host string, insecureTLS bool) error {
 // error reported by PMM Server. It returns an empty string when the response does not describe
 // one. The httpCode argument is the HTTP status and grpcCode the gRPC code carried in the
 // response payload, which is zero when PMM Server did not send one.
+//
+// Callers own the punctuation and the separator: pmm-admin appends the hint to a single-line
+// message, pmm-agent puts it on a line of its own.
 func AuthHint(httpCode int, grpcCode int32) string {
 	switch {
-	// PMM Server reports rejected credentials with the gRPC Unauthenticated code.
-	case grpcCode == codeUnauthenticated:
+	// PMM Server reports rejected credentials with the gRPC Unauthenticated code. It sends
+	// no gRPC code only on paths which never reach the API, so a bare HTTP 401 means the
+	// credentials were rejected as well.
+	case grpcCode == codeUnauthenticated,
+		httpCode == http.StatusUnauthorized && grpcCode == 0:
 		return "Please check username and password"
 
-	// PMM Server sends no gRPC code only on paths which never reach the API, so a bare
-	// HTTP 401 still means the credentials were rejected.
-	case httpCode == http.StatusUnauthorized && grpcCode == 0:
-		return "Please check username and password"
+	// The user authenticated but their role does not allow the request. nginx serves PMM
+	// Server's PermissionDenied as HTTP 403 with a static body carrying the same gRPC code,
+	// so this is not a credentials problem and must not be reported as one.
+	case grpcCode == codePermissionDenied,
+		httpCode == http.StatusForbidden && grpcCode == 0:
+		return "Please check that your PMM user has sufficient permissions"
 
 	// nginx auth_request accepts 401 and 403 only, so PMM Server maps every other
 	// authentication error - internal ones included - onto HTTP 401 as well. Those are not
