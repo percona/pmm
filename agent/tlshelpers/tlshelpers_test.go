@@ -18,6 +18,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
@@ -25,11 +26,16 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
+
+// customTLSDSN references the TLS config registered by RegisterMySQLCerts.
+// Parsing it fails unless that config is present in the driver registry.
+const customTLSDSN = "user:pass@tcp(127.0.0.1:3306)/db?tls=custom"
 
 // generateCertPair returns a self-signed certificate and its private key, both PEM-encoded.
 func generateCertPair(t *testing.T) (certPEM, keyPEM string) {
@@ -59,38 +65,89 @@ func generateCertPair(t *testing.T) (certPEM, keyPEM string) {
 	return certPEM, keyPEM
 }
 
-func TestRegisterMySQLCerts(t *testing.T) {
-	t.Parallel()
+// registeredMySQLTLSConfig returns the TLS config the driver resolves for tls=custom.
+func registeredMySQLTLSConfig(t *testing.T) *tls.Config {
+	t.Helper()
 
+	cfg, err := mysql.ParseDSN(customTLSDSN)
+	require.NoError(t, err)
+	require.NotNil(t, cfg.TLS)
+	return cfg.TLS
+}
+
+// requireNoMySQLTLSConfig asserts that no TLS config is registered under the custom name.
+func requireNoMySQLTLSConfig(t *testing.T) {
+	t.Helper()
+
+	_, err := mysql.ParseDSN(customTLSDSN)
+	require.ErrorContains(t, err, "unknown config name: custom")
+}
+
+// The subtests share the driver's package-level TLS config registry, so they must not run in parallel.
+func TestRegisterMySQLCerts(t *testing.T) {
 	t.Run("nil files is a no-op", func(t *testing.T) {
-		t.Parallel()
-		assert.NoError(t, RegisterMySQLCerts(nil, false))
+		t.Cleanup(DeregisterMySQLCerts)
+
+		require.NoError(t, RegisterMySQLCerts(nil, false))
+		requireNoMySQLTLSConfig(t)
+	})
+
+	t.Run("empty files still registers a config", func(t *testing.T) {
+		t.Cleanup(DeregisterMySQLCerts)
+
+		require.NoError(t, RegisterMySQLCerts(map[string]string{}, true))
+
+		cfg := registeredMySQLTLSConfig(t)
+		assert.True(t, cfg.InsecureSkipVerify)
+		assert.Empty(t, cfg.Certificates)
+		assert.Nil(t, cfg.RootCAs)
 	})
 
 	t.Run("valid cert, key and ca", func(t *testing.T) {
-		t.Parallel()
+		t.Cleanup(DeregisterMySQLCerts)
+
 		cert, key := generateCertPair(t)
 		files := map[string]string{
 			"tlsCert": cert,
 			"tlsKey":  key,
 			"tlsCa":   cert,
 		}
-		err := RegisterMySQLCerts(files, true)
-		require.NoError(t, err)
-		DeregisterMySQLCerts()
+		require.NoError(t, RegisterMySQLCerts(files, true))
+
+		cfg := registeredMySQLTLSConfig(t)
+		assert.True(t, cfg.InsecureSkipVerify)
+		assert.Len(t, cfg.Certificates, 1)
+		assert.NotNil(t, cfg.RootCAs)
 	})
 
 	t.Run("only ca provided", func(t *testing.T) {
-		t.Parallel()
+		t.Cleanup(DeregisterMySQLCerts)
+
 		cert, _ := generateCertPair(t)
 		files := map[string]string{"tlsCa": cert}
-		err := RegisterMySQLCerts(files, false)
-		require.NoError(t, err)
-		DeregisterMySQLCerts()
+		require.NoError(t, RegisterMySQLCerts(files, false))
+
+		cfg := registeredMySQLTLSConfig(t)
+		assert.False(t, cfg.InsecureSkipVerify)
+		assert.Empty(t, cfg.Certificates)
+		assert.NotNil(t, cfg.RootCAs)
+	})
+
+	t.Run("cert without key skips the client cert", func(t *testing.T) {
+		t.Cleanup(DeregisterMySQLCerts)
+
+		cert, _ := generateCertPair(t)
+		files := map[string]string{"tlsCert": cert, "tlsCa": cert}
+		require.NoError(t, RegisterMySQLCerts(files, false))
+
+		cfg := registeredMySQLTLSConfig(t)
+		assert.Empty(t, cfg.Certificates)
+		assert.NotNil(t, cfg.RootCAs)
 	})
 
 	t.Run("invalid cert/key pair", func(t *testing.T) {
-		t.Parallel()
+		t.Cleanup(DeregisterMySQLCerts)
+
 		files := map[string]string{
 			"tlsCert": "not a cert",
 			"tlsKey":  "not a key",
@@ -98,6 +155,7 @@ func TestRegisterMySQLCerts(t *testing.T) {
 		err := RegisterMySQLCerts(files, false)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "register MySQL client cert failed")
+		requireNoMySQLTLSConfig(t)
 	})
 }
 

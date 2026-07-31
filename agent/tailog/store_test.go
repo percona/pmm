@@ -15,6 +15,7 @@
 package tailog
 
 import (
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -174,4 +175,59 @@ func TestStoreResizeFromZero(t *testing.T) {
 	writeLines(t, s, "a", "b")
 	logs, _ = s.GetLogs()
 	assert.Equal(t, []string{"a", "b"}, logs)
+}
+
+// Store is used as an io.Writer for concurrent log output, so all its methods
+// must be safe to call in parallel. Run with -race to make this meaningful.
+func TestStoreConcurrentAccess(t *testing.T) {
+	t.Parallel()
+
+	const (
+		writers    = 4
+		readers    = 4
+		iterations = 100
+	)
+
+	// Each resizer shrinks and grows the ring in a loop.
+	resizeSteps := [][2]uint{{5, 20}, {8, 15}}
+
+	s := NewStore(10)
+
+	var wg sync.WaitGroup
+	wg.Add(writers + readers + len(resizeSteps))
+
+	for range writers {
+		go func() {
+			defer wg.Done()
+			for range iterations {
+				_, err := s.Write([]byte("line"))
+				assert.NoError(t, err)
+			}
+		}()
+	}
+
+	for range readers {
+		go func() {
+			defer wg.Done()
+			for range iterations {
+				logs, capacity := s.GetLogs()
+				assert.LessOrEqual(t, uint(len(logs)), capacity)
+			}
+		}()
+	}
+
+	for _, steps := range resizeSteps {
+		go func() {
+			defer wg.Done()
+			for range iterations {
+				s.Resize(steps[0])
+				s.Resize(steps[1])
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	logs, capacity := s.GetLogs()
+	assert.LessOrEqual(t, uint(len(logs)), capacity)
 }
