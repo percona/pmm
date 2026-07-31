@@ -72,12 +72,14 @@ checks:
 
           checkpoint_age_usage_perc = []
           chkpt_alert = 0
-          if len(docs[3]) == 0:
-              return None
-          for row in docs[3][0]["values"]:
-              checkpoint_age_usage_perc.append(row[1])
-              if float(row[1]) > 80:
-                  chkpt_alert = int(chkpt_alert) + 1
+          # Checkpoint age samples are optional. Without them only the
+          # checkpoint age error below is skipped, the write volume warning
+          # still applies since it needs docs[1] and docs[2] only.
+          if len(docs[3]) > 0:
+              for row in docs[3][0]["values"]:
+                  checkpoint_age_usage_perc.append(row[1])
+                  if float(row[1]) > 80:
+                      chkpt_alert = chkpt_alert + 1
 
           if chkpt_alert > 1:
               return {
