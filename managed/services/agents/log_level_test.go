@@ -23,6 +23,8 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+// TestWithLogLevel covers the pmm-agent version gate, the fatal downgrade and that args
+// passed in are preserved.
 func TestWithLogLevel(t *testing.T) {
 	t.Parallel()
 
