@@ -7,6 +7,11 @@ import { CodeLanguage } from 'types/util.types';
 export const queryLanguage = (query: RawQueryData): CodeLanguage =>
   query.mySqlPayload ? 'sql' : 'mongodb';
 
+// codeBlockLanguage maps a CodeLanguage to a Prism language understood by the
+// CodeBlock component. MongoDB has no Prism grammar; JavaScript is the closest fit.
+export const codeBlockLanguage = (language: CodeLanguage): string =>
+  language === 'mongodb' ? 'javascript' : language;
+
 // Transaction-control statements that add little value to Real-Time Analytics
 // and can dominate the list under transactional workloads (e.g. sysbench).
 // "WORK" is the optional SQL keyword (COMMIT WORK / ROLLBACK WORK).

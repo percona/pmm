@@ -242,6 +242,8 @@ message MongoDBExporter {
   repeated string environment_variable_names = 29;
   // Connection timeout for exporter (if set).
   google.protobuf.Duration connection_timeout = 30;
+  // Enable collecting histogram bucket metrics from getDiagnosticData.
+  bool enable_diagnostic_data_histograms = 31;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -1172,6 +1174,8 @@ message AddMongoDBExporterParams {
   google.protobuf.Duration connection_timeout = 23 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Enable collecting histogram bucket metrics from getDiagnosticData.
+  bool enable_diagnostic_data_histograms = 24;
 }
 
 message ChangeMongoDBExporterParams {
@@ -1221,6 +1225,8 @@ message ChangeMongoDBExporterParams {
   google.protobuf.Duration connection_timeout = 22 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Enable collecting histogram bucket metrics from getDiagnosticData.
+  optional bool enable_diagnostic_data_histograms = 23;
 }
 
 // Add/Change PostgresExporter
@@ -1381,6 +1387,8 @@ message ChangeProxySQLExporterParams {
   google.protobuf.Duration connection_timeout = 13 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Skip connection check.
+  optional bool skip_connection_check = 14;
 }
 
 // Add/Change QANMySQLPerfSchemaAgent
@@ -1606,6 +1614,8 @@ message ChangeQANMongoDBProfilerAgentParams {
   optional string authentication_database = 14;
   // Log level for exporter.
   optional LogLevel log_level = 15;
+  // Skip connection check.
+  optional bool skip_connection_check = 16;
 }
 
 // Add/Change QANMongoDBMongologAgent
@@ -1676,6 +1686,8 @@ message ChangeQANMongoDBMongologAgentParams {
   optional string authentication_database = 14;
   // Log level for exporter.
   optional LogLevel log_level = 15;
+  // Skip connection check.
+  optional bool skip_connection_check = 16;
 }
 
 // Add/Change QANPostgreSQLPgStatementsAgent
@@ -1743,6 +1755,8 @@ message ChangeQANPostgreSQLPgStatementsAgentParams {
   optional string tls_key = 13 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Log level for exporter.
   optional LogLevel log_level = 14;
+  // Skip connection check.
+  optional bool skip_connection_check = 15;
 }
 
 // Add/Change QANPostgreSQLPgStatMonitorAgent
@@ -1814,6 +1828,8 @@ message ChangeQANPostgreSQLPgStatMonitorAgentParams {
   optional string tls_key = 14 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Log level for exporter.
   optional LogLevel log_level = 15;
+  // Skip connection check.
+  optional bool skip_connection_check = 16;
 }
 
 // Add/Change RDSExporter
@@ -1907,6 +1923,8 @@ message ChangeExternalExporterParams {
   optional string metrics_path = 7;
   // Listen port for scraping metrics.
   optional uint32 listen_port = 8;
+  // Skip connection check.
+  optional bool skip_connection_check = 9;
 }
 
 // Add/Change AzureDatabaseExporter
@@ -2048,6 +2066,8 @@ message ChangeValkeyExporterParams {
   google.protobuf.Duration connection_timeout = 16 [(validate.rules).duration = {
     gte: {seconds: 0}
   }];
+  // Skip connection check.
+  optional bool skip_connection_check = 17;
 }
 
 // Add/Change RTAMongoDBAgent
@@ -2112,6 +2132,8 @@ message ChangeRTAMongoDBAgentParams {
   optional string authentication_mechanism = 11;
   // Real-Time Analytics options.
   optional RTAOptions rta_options = 12;
+  // Skip connection check.
+  optional bool skip_connection_check = 13;
 }
 
 // Add/Change RTAMySQLAgent

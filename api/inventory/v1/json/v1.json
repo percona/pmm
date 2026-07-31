@@ -621,6 +621,11 @@
                         "description": "Connection timeout for exporter (if set).",
                         "type": "string",
                         "x-order": 20
+                      },
+                      "enable_diagnostic_data_histograms": {
+                        "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                        "type": "boolean",
+                        "x-order": 21
                       }
                     }
                   },
@@ -2683,6 +2688,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 22
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 23
                     }
                   },
                   "x-order": 3
@@ -4481,6 +4491,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 20
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 21
                     }
                   },
                   "x-order": 3
@@ -6654,6 +6669,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 20
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 21
                     }
                   },
                   "x-order": 4
@@ -8753,6 +8773,12 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 21
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 22
                     }
                   },
                   "x-order": 2
@@ -9031,6 +9057,12 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 12
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 13
                     }
                   },
                   "x-order": 4
@@ -9111,6 +9143,12 @@
                       "format": "int64",
                       "x-nullable": true,
                       "x-order": 7
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 8
                     }
                   },
                   "x-order": 5
@@ -9722,6 +9760,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 10
@@ -9854,6 +9898,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 11
@@ -9980,6 +10030,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 13
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 14
                     }
                   },
                   "x-order": 12
@@ -10112,6 +10168,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 14
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 15
                     }
                   },
                   "x-order": 13
@@ -10262,6 +10324,12 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 15
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 16
                     }
                   },
                   "x-order": 15
@@ -10366,6 +10434,12 @@
                       },
                       "x-nullable": true,
                       "x-order": 11
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 12
                     }
                   },
                   "x-order": 16
@@ -10927,6 +11001,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 20
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 21
                     }
                   },
                   "x-order": 2

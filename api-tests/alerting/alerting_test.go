@@ -26,7 +26,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	gapi "github.com/grafana/grafana-api-golang-client"
+	"github.com/grafana/grafana-openapi-client-go/client/folders"
+	"github.com/grafana/grafana-openapi-client-go/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -46,10 +47,11 @@ func TestRulesAPI(t *testing.T) {
 
 	// Create grafana folder for test alert rules
 	gClient := pmmapitests.GetGrafanaClient(t)
-	folder, err := gClient.NewFolder(pmmapitests.TestString(t, "test-folder"))
+	createdFolder, err := gClient.Folders.CreateFolder(&models.CreateFolderCommand{Title: pmmapitests.TestString(t, "test-folder")})
 	require.NoError(t, err)
+	folder := createdFolder.Payload
 	t.Cleanup(func() {
-		_ = gClient.DeleteFolder(folder.UID, gapi.ForceDeleteFolderRules())
+		_, _ = gClient.Folders.DeleteFolder(folders.NewDeleteFolderParams().WithFolderUID(folder.UID).WithForceDeleteRules(new(true)))
 	})
 
 	dummyFilter := &alerting.CreateRuleParamsBodyFiltersItems0{
@@ -593,6 +595,80 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 	assert.YAMLEq(t, expectedYAML, tmpl.Yaml)
 
 	assert.NotEmpty(t, tmpl.CreatedAt)
+}
+
+func TestMultiQueryTemplateAPI(t *testing.T) {
+	t.Parallel()
+	client := alertingClient.Default.AlertingService
+
+	name := pmmapitests.TestString(t, "test-multi-query-template")
+	yml := fmt.Sprintf(`templates:
+  - name: %s
+    version: 1
+    summary: Multi-query CPU load
+    queries:
+      - ref_id: A
+        expr: |-
+          (1 - avg by(node_name) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100
+      - ref_id: B
+        expr: |-
+          label_replace(vector(10), "node_name", "pmm-server", "", "") or (group by(node_name) (node_cpu_seconds_total) * 0 + [[ .threshold ]])
+    expressions:
+      - ref_id: C
+        type: math
+        expression: "$A > $B"
+    condition: C
+    params:
+      - name: threshold
+        summary: A percentage from configured maximum
+        unit: "%%"
+        type: float
+        range: [0, 100]
+        value: 80
+    for: 5m
+    severity: warning
+    annotations:
+      summary: Node high CPU load ({{ $labels.node_name }})
+      description: '{{ $labels.node_name }} CPU load is more than [[ .threshold ]]%%.'
+`, name)
+
+	_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
+		Body:    alerting.CreateTemplateBody{Yaml: yml},
+		Context: pmmapitests.Context,
+	})
+	require.NoError(t, err)
+	t.Cleanup(func() { deleteTemplate(t, client, name) })
+
+	resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
+		Reload:  new(true),
+		Context: pmmapitests.Context,
+	})
+	require.NoError(t, err)
+
+	var tmpl *alerting.ListTemplatesOKBodyTemplatesItems0
+	for _, item := range resp.Payload.Templates {
+		if item.Name == name {
+			tmpl = item
+			break
+		}
+	}
+	require.NotNilf(t, tmpl, "template %s not found", name)
+
+	// Structured multi-query steps are exposed to API consumers, not just flattened into expr.
+	require.Len(t, tmpl.Queries, 2)
+	assert.Equal(t, "A", tmpl.Queries[0].RefID)
+	assert.Equal(t, "B", tmpl.Queries[1].RefID)
+	assert.Contains(t, tmpl.Queries[1].Expr, "[[ .threshold ]]") // placeholders kept intact
+
+	require.Len(t, tmpl.Expressions, 1)
+	assert.Equal(t, "C", tmpl.Expressions[0].RefID)
+	assert.Equal(t, "math", tmpl.Expressions[0].Type)
+	assert.Equal(t, "$A > $B", tmpl.Expressions[0].Expression)
+
+	assert.Equal(t, "C", tmpl.Condition)
+
+	// expr keeps the first query (ref A) for backward compatibility.
+	assert.Contains(t, tmpl.Expr, "node_cpu_seconds_total")
 }
 
 func deleteTemplate(t *testing.T, client alerting.ClientService, name string) {

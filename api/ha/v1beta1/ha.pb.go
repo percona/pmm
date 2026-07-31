@@ -177,7 +177,9 @@ func (x *HANode) GetStatus() string {
 type ListNodesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// List of nodes in the HA cluster.
-	Nodes         []*HANode `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	Nodes []*HANode `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	// Expected number of nodes in the cluster
+	ExpectedNodes int32 `protobuf:"varint,2,opt,name=expected_nodes,json=expectedNodes,proto3" json:"expected_nodes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -217,6 +219,13 @@ func (x *ListNodesResponse) GetNodes() []*HANode {
 		return x.Nodes
 	}
 	return nil
+}
+
+func (x *ListNodesResponse) GetExpectedNodes() int32 {
+	if x != nil {
+		return x.ExpectedNodes
+	}
+	return 0
 }
 
 type StatusRequest struct {
@@ -310,9 +319,10 @@ const file_ha_v1beta1_ha_proto_rawDesc = "" +
 	"\x06HANode\x12\x1b\n" +
 	"\tnode_name\x18\x01 \x01(\tR\bnodeName\x12(\n" +
 	"\x04role\x18\x02 \x01(\x0e2\x14.ha.v1beta1.NodeRoleR\x04role\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\"=\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\"d\n" +
 	"\x11ListNodesResponse\x12(\n" +
-	"\x05nodes\x18\x01 \x03(\v2\x12.ha.v1beta1.HANodeR\x05nodes\"\x0f\n" +
+	"\x05nodes\x18\x01 \x03(\v2\x12.ha.v1beta1.HANodeR\x05nodes\x12%\n" +
+	"\x0eexpected_nodes\x18\x02 \x01(\x05R\rexpectedNodes\"\x0f\n" +
 	"\rStatusRequest\"(\n" +
 	"\x0eStatusResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status*S\n" +

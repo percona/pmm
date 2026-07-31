@@ -226,7 +226,6 @@ All long-running daemons expose on `127.0.0.1`:
 | Target | Purpose |
 |--------|---------|
 | `make env-up` | Start development container (PMM Server) |
-| `make env-up-rebuild` | Rebuild development container from scratch |
 | `make run-ui` | Inside devcontainer: Vite HMR for the main PMM UI |
 | `make run-qan-ui` | Inside devcontainer: webpack + livereload for the QAN Grafana plugin |
 | `make gen` | Generate all code (protobuf, reform, mocks, format) |
@@ -240,7 +239,7 @@ All long-running daemons expose on `127.0.0.1`:
 ## Key Files to Reference
 
 - `Makefile`, `Makefile.include` — build and development targets
-- `docker-compose.dev.yml` — development environment (PMM Server, renderer, watchtower)
+- `docker-compose.dev.yml` — development environment (PMM Server, renderer)
 - `docker-compose.yml` — community/quickstart compose (stable image, minimal config)
 - `go.mod` — Go module definition
 - `.golangci.yml` — linter configuration

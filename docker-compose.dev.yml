@@ -38,8 +38,7 @@ services:
       - 35730:35730
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
-      - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro
-      - ./managed/testdata/updater/:/home/pmm/.config/systemd/user/
+      - ./.devcontainer/Makefile:/root/go/src/github.com/percona/pmm/Makefile:ro
       # clickhouse config for backup/restore
       - ./dev/clickhouse-config.xml:/etc/clickhouse-server/config.xml:ro
       # caching
@@ -80,20 +79,6 @@ services:
       - LOG_LEVEL=debug
     ports:
       - ${PMM_PORT_RENDERER:-8081}:8081
-
-  watchtower:
-    profiles:
-      - watchtower
-    image: ${WATCHTOWER_IMAGE:-perconalab/watchtower}
-    container_name: watchtower
-    hostname: watchtower
-    environment:
-      - WATCHTOWER_HTTP_LISTEN_PORT
-      - WATCHTOWER_HTTP_API_UPDATE
-      - WATCHTOWER_HTTP_API_TOKEN=${PMM_WATCHTOWER_TOKEN}
-      - WATCHTOWER_NO_RESTART
-    volumes:
-      - ${WATCHTOWER_DOCKER_PATH:-/var/run/docker.sock}:/var/run/docker.sock
 
 volumes:
   go-modules:

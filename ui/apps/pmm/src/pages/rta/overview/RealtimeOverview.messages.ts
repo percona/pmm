@@ -6,4 +6,5 @@ export const Messages = {
   hideCommit: 'Hide COMMIT',
   hideCommitTooltip:
     'Hide transaction-control statements (COMMIT, ROLLBACK, BEGIN, START TRANSACTION) from the list.',
+  export: 'Export',
 };

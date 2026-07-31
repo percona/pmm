@@ -3293,6 +3293,9 @@ type ChangeAgentOKBodyMongodbExporter struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
+
 	// metrics resolutions
 	MetricsResolutions *ChangeAgentOKBodyMongodbExporterMetricsResolutions `json:"metrics_resolutions,omitempty"`
 }
@@ -7886,6 +7889,9 @@ type ChangeAgentParamsBodyExternalExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort *int64 `json:"listen_port,omitempty"`
 
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyExternalExporterCustomLabels `json:"custom_labels,omitempty"`
 
@@ -8193,6 +8199,9 @@ type ChangeAgentParamsBodyMongodbExporter struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms *bool `json:"enable_diagnostic_data_histograms,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyMongodbExporterCustomLabels `json:"custom_labels,omitempty"`
@@ -9603,6 +9612,9 @@ type ChangeAgentParamsBodyProxysqlExporter struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyProxysqlExporterCustomLabels `json:"custom_labels,omitempty"`
 
@@ -9948,6 +9960,9 @@ type ChangeAgentParamsBodyQANMongodbMongologAgent struct {
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANMongodbMongologAgentCustomLabels `json:"custom_labels,omitempty"`
 
@@ -10292,6 +10307,9 @@ type ChangeAgentParamsBodyQANMongodbProfilerAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANMongodbProfilerAgentCustomLabels `json:"custom_labels,omitempty"`
@@ -11334,6 +11352,9 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatementsAgent struct {
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANPostgresqlPgstatementsAgentCustomLabels `json:"custom_labels,omitempty"`
 
@@ -11678,6 +11699,9 @@ type ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgent struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANPostgresqlPgstatmonitorAgentCustomLabels `json:"custom_labels,omitempty"`
@@ -12341,6 +12365,9 @@ type ChangeAgentParamsBodyRtaMongodbAgent struct {
 
 	// Authentication mechanism.
 	AuthenticationMechanism *string `json:"authentication_mechanism,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyRtaMongodbAgentCustomLabels `json:"custom_labels,omitempty"`
@@ -13010,6 +13037,9 @@ type ChangeAgentParamsBodyValkeyExporter struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyValkeyExporterCustomLabels `json:"custom_labels,omitempty"`

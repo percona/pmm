@@ -2,14 +2,14 @@ import Grid from '@mui/material/Grid';
 import { FC } from 'react';
 import { format, formatDuration } from 'date-fns';
 import { tz } from '@date-fns/tz';
-import { SyntaxHighlighter } from 'components/syntax-highlighter';
+import { CodeBlock } from '@percona/percona-ui';
 import { QueryData } from 'types/rta.types';
-import DetailsMetric from './DetailsMetric';
+import DetailsMetric from 'components/details-pane/DataPoint';
 import BigNumberMetric from './BigNumberMetric';
 import { Messages } from './QueryAndDetails.messages';
 import { TIME_FORMAT } from 'lib/constants';
 import { useUser } from 'contexts/user';
-import { queryLanguage } from '../table/OverviewTable.utils';
+import { codeBlockLanguage, queryLanguage } from '../table/OverviewTable.utils';
 
 type Props = {
   queryData: QueryData;
@@ -324,18 +324,14 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
           </GridItem>
         </Grid>
       </Grid>
-      <Grid
-        size={{ xs: 12, md: 6 }}
-        sx={{
-          maxHeight: '70vh',
-          overflow: 'auto',
-        }}
-      >
-        <SyntaxHighlighter
-          language={language}
-          showLineNumbers={true}
-          showCopyButton
+      <Grid size={{ xs: 12, md: 6 }}>
+        <CodeBlock
+          language={codeBlockLanguage(language)}
+          copyable
+          wrap
           content={queryText}
+          sx={{ maxHeight: '70vh', overflow: 'auto' }}
+          data-testid="query-text"
         />
       </Grid>
     </Grid>
