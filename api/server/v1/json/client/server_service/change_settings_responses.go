@@ -196,7 +196,7 @@ type ChangeSettingsBody struct {
 	// enable telemetry
 	EnableTelemetry *bool `json:"enable_telemetry,omitempty"`
 
-	// A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
+	// A number of full days for Prometheus and QAN data retention. Must be specified in seconds in JSON, for example: 2592000s.
 	DataRetention string `json:"data_retention,omitempty"`
 
 	// ssh key

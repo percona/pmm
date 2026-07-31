@@ -31,7 +31,7 @@ type Store struct {
 // NewStore creates Store.
 func NewStore(capacity uint) *Store {
 	return &Store{
-		log:      ring.New(int(capacity)), //nolint:gosec
+		log:      ring.New(int(capacity)),
 		capacity: capacity,
 	}
 }
@@ -61,7 +61,7 @@ func (l *Store) Resize(capacity uint) {
 
 	old := l.log
 
-	l.log = ring.New(int(capacity)) //nolint:gosec
+	l.log = ring.New(int(capacity))
 	l.capacity = capacity
 	if l.capacity == 0 {
 		return
