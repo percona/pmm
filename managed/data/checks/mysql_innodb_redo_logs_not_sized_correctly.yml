@@ -57,15 +57,18 @@ checks:
           if len(docs[1]) == 0 or len(docs[1][0]["values"]) == 0:
               return None
 
+          # Sample values arrive as strings and increase() can yield fractional
+          # results, so parse them as floats. int() would reject "123.5".
           for row in docs[1][0]["values"]:
-              logsWritten.append(row[1])
-              logs_written_tot = int(logs_written_tot) + int(row[1])
-              if logs_written_max < int(row[1]):
-                logs_written_max = int(row[1])
-              cnt = int(cnt) + 1
-              if int(row[1]) > redo_log_size:
-                  cnt_high = int(cnt_high) + 1
-          logs_written_avg = logs_written_tot / int(cnt) / 1024 / 1024
+              logs_written = float(row[1])
+              logsWritten.append(logs_written)
+              logs_written_tot = logs_written_tot + logs_written
+              if logs_written_max < logs_written:
+                logs_written_max = logs_written
+              cnt = cnt + 1
+              if logs_written > redo_log_size:
+                  cnt_high = cnt_high + 1
+          logs_written_avg = logs_written_tot / cnt / 1024 / 1024
 
           checkpoint_age_usage_perc = []
           chkpt_alert = 0
