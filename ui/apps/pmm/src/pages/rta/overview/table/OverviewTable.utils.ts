@@ -12,6 +12,15 @@ export const queryLanguage = (query: RawQueryData): CodeLanguage =>
 export const codeBlockLanguage = (language: CodeLanguage): string =>
   language === 'mongodb' ? 'javascript' : language;
 
+// Fields common to all database types are resolved from whichever payload is
+// present. Empty string when the database reports no value (e.g. a MySQL
+// connection that never ran USE has a NULL database).
+export const queryDatabaseName = (query: RawQueryData): string =>
+  query.mongoDbPayload?.databaseName ?? query.mySqlPayload?.databaseName ?? '';
+
+export const queryUsername = (query: RawQueryData): string =>
+  query.mongoDbPayload?.username ?? query.mySqlPayload?.username ?? '';
+
 // Transaction-control statements that add little value to Real-Time Analytics
 // and can dominate the list under transactional workloads (e.g. sysbench).
 // "WORK" is the optional SQL keyword (COMMIT WORK / ROLLBACK WORK).

@@ -84,6 +84,21 @@ describe('RealtimeOverview', () => {
     );
   });
 
+  it('should render database and user columns from the payload', async () => {
+    renderComponent();
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId(
+          `query-${TEST_MONGO_DB_QUERY_DATA.queryId}-database-cell`
+        )
+      ).toHaveTextContent('database-name')
+    );
+    expect(
+      screen.getByTestId(`query-${TEST_MONGO_DB_QUERY_DATA.queryId}-user-cell`)
+    ).toHaveTextContent('username');
+  });
+
   it("shouldn't call api if no serviceIds are provided", async () => {
     renderComponent({ initialEntry: '/rta/overview' });
 

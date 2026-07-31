@@ -5,7 +5,11 @@ import { Messages } from './OverviewTable.messages';
 import { QueryCell } from './query-cell';
 import { formatDuration } from 'date-fns';
 import UnavailableText from 'components/unavailable-text';
-import { queryLanguage } from './OverviewTable.utils';
+import {
+  queryDatabaseName,
+  queryLanguage,
+  queryUsername,
+} from './OverviewTable.utils';
 
 export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   {
@@ -30,6 +34,28 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     // @ts-expect-error - muiTableBodyCellProps is not typed correctly
     muiTableBodyCellProps: ({ row }) => ({
       'data-testid': `query-${row.original.queryId}-host-cell`,
+    }),
+  },
+  {
+    header: Messages.columns.database,
+    id: 'databaseName',
+    accessorFn: queryDatabaseName,
+    filterVariant: 'multi-select',
+    Cell: ({ cell }) => cell.getValue<string>() || <UnavailableText />,
+    // @ts-expect-error - muiTableBodyCellProps is not typed correctly
+    muiTableBodyCellProps: ({ row }) => ({
+      'data-testid': `query-${row.original.queryId}-database-cell`,
+    }),
+  },
+  {
+    header: Messages.columns.user,
+    id: 'username',
+    accessorFn: queryUsername,
+    filterVariant: 'multi-select',
+    Cell: ({ cell }) => cell.getValue<string>() || <UnavailableText />,
+    // @ts-expect-error - muiTableBodyCellProps is not typed correctly
+    muiTableBodyCellProps: ({ row }) => ({
+      'data-testid': `query-${row.original.queryId}-user-cell`,
     }),
   },
   {

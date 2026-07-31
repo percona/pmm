@@ -1,6 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { isTransactionControl, queryLanguage } from './OverviewTable.utils';
-import { TEST_MONGO_DB_QUERY_DATA, TEST_MYSQL_QUERY_DATA } from 'utils/testStubs';
+import {
+  isTransactionControl,
+  queryDatabaseName,
+  queryLanguage,
+  queryUsername,
+} from './OverviewTable.utils';
+import {
+  TEST_MONGO_DB_QUERY_DATA,
+  TEST_MYSQL_QUERY_DATA,
+} from 'utils/testStubs';
 import { RawQueryData } from 'types/rta.types';
 
 const withText = (queryText: string): RawQueryData => ({
@@ -15,6 +23,38 @@ describe('queryLanguage', () => {
 
   it('returns mongodb for MongoDB queries', () => {
     expect(queryLanguage(TEST_MONGO_DB_QUERY_DATA)).toBe('mongodb');
+  });
+});
+
+describe('queryDatabaseName', () => {
+  it('resolves the database from the MongoDB payload', () => {
+    expect(queryDatabaseName(TEST_MONGO_DB_QUERY_DATA)).toBe('database-name');
+  });
+
+  it('resolves the database from the MySQL payload', () => {
+    expect(queryDatabaseName(TEST_MYSQL_QUERY_DATA)).toBe('database-name');
+  });
+
+  it('returns an empty string when the payload has no database', () => {
+    expect(
+      queryDatabaseName({
+        ...TEST_MYSQL_QUERY_DATA,
+        mySqlPayload: {
+          ...TEST_MYSQL_QUERY_DATA.mySqlPayload!,
+          databaseName: '',
+        },
+      })
+    ).toBe('');
+  });
+});
+
+describe('queryUsername', () => {
+  it('resolves the user from the MongoDB payload', () => {
+    expect(queryUsername(TEST_MONGO_DB_QUERY_DATA)).toBe('username');
+  });
+
+  it('resolves the user from the MySQL payload', () => {
+    expect(queryUsername(TEST_MYSQL_QUERY_DATA)).toBe('username');
   });
 });
 

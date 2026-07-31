@@ -56,6 +56,9 @@ const OverviewTable: FC<Props> = ({
         }}
         {...tableProps}
         enableStickyHeader
+        // multi-select column filters (database, user) derive their options
+        // from the unique values present in the current result set
+        enableFacetedValues
         enableGlobalFilter={false}
         enableHiding={false}
         enableRowHoverAction
