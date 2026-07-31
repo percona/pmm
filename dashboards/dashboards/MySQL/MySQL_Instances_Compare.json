@@ -3357,7 +3357,7 @@
                     },
                     "id": 9003,
                     "options": {
-                        "content": "ℹ️ **Query Cache was removed in Oracle MySQL 8.0 and Percona Server 8.0, so empty charts are expected there. MariaDB still provides a query cache.**",
+                        "content": "ℹ️ **Query Cache was removed in Oracle MySQL 8.0 and Percona Server 8.0, so empty charts are expected there. MariaDB still ships a query cache, but it is disabled by default, so charts stay empty unless `query_cache_type` is enabled.**",
                         "mode": "markdown"
                     },
                     "pluginVersion": "8.3.5",
