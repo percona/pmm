@@ -156,7 +156,7 @@ func registerErrorMessage(err error, host string, insecureTLS bool) string {
 		}
 	}
 
-	if _, ok := err.(nginxError); ok { //nolint:errorlint
+	if _, ok := errors.AsType[nginxError](err); ok {
 		msg += ".\nPlease check pmm-managed logs."
 	}
 
