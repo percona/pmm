@@ -55,21 +55,17 @@ Unit and API tests don't need a real database, but validating a **metric, export
 
 ```bash
 cd <pmm-qa-checkout>/qa-integration/pmm_qa   # path is machine-specific — keep it in AGENTS.local.md
-./virtenv/bin/python pmm-framework.py --verbose \
-  --pmm-server-password=admin --client-version=3-dev-latest \
-  --database PS=8.0
+bash pmm-framework --pmm-server-password=admin --database ps=8.4
 ```
 
 **Test the version matrix.** When a change is version-sensitive (a new/changed metric, an exporter query, a parser, or anything that differs across DB releases), register the **oldest and newest supported versions** of the affected database and validate on **both** — the change must work on the newer version **and not regress** on the older one:
 
 ```bash
-./virtenv/bin/python pmm-framework.py --verbose --pmm-server-password=admin \
-  --client-version=3-dev-latest --database PS=5.7   # older supported
-./virtenv/bin/python pmm-framework.py --verbose --pmm-server-password=admin \
-  --client-version=3-dev-latest --database PS=8.4   # latest supported
+bash pmm-framework --pmm-server-password=admin --database ps=5.7   # oldest supported
+bash pmm-framework --pmm-server-password=admin --database ps=8.4   # newest supported
 ```
 
-**Don't invent version numbers** — the valid versions per engine live in pmm-qa's `scripts/database_options.py` (imported into `pmm-framework.py` as `database_configs`; e.g. Percona Server = `5.7`, `8.0`, `8.4`, default `8.0`). Check there for what actually exists rather than assuming a release is out.
+**Don't invent version numbers** — valid `--database` values are documented in pmm-qa's `README.md` and `scripts/database_options.py` (e.g. Percona Server `ps=5.7|8.0|8.4`). Check there for what actually exists rather than assuming a release is out.
 
 Confirm each instance appears as a monitored target (Inventory, and the metric shows up in VictoriaMetrics) **before** you start verifying.
 
