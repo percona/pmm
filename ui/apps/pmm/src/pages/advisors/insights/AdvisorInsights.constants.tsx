@@ -1,4 +1,4 @@
-import FileOpenOutlinedIcon from '@mui/icons-material/FileOpenOutlined';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
 import { format } from 'date-fns';
@@ -36,7 +36,7 @@ export const getInsightsColumns = (): MRT_ColumnDef<Insight>[] => [
             {/* indicator only — the link itself lives in the details pane, so
                 the icon must not compete with the row's own click targets */}
             <Tooltip title={Messages.readMoreAvailable} arrow>
-              <FileOpenOutlinedIcon
+              <DescriptionOutlinedIcon
                 fontSize="inherit"
                 color="action"
                 sx={{ verticalAlign: 'text-bottom' }}
