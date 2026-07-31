@@ -51,21 +51,21 @@ Machine-specific paths (pmm-qa checkout, screenshot dir) belong in a gitignored 
 
 ## Registering databases to test against
 
-Unit and API tests don't need a real database, but validating a **metric, exporter, dashboard, or QAN** change does — you need a live monitored instance producing real data. Spin one up with the [pmm-qa](https://github.com/percona/pmm-qa) framework and register it against your local server:
+Unit and API tests don't need a real database, but validating a **metric, exporter, dashboard, or QAN** change does — you need a live monitored instance producing real data. Spin one up with the [pmm-qa](https://github.com/percona/pmm-qa) framework's `pmm-framework` Bash CLI (needs Bash 4.4+ — on macOS use Homebrew Bash, not the system 3.2) and register it against your local server:
 
 ```bash
-cd <pmm-qa-checkout>/qa-integration/pmm_qa   # path is machine-specific — keep it in AGENTS.local.md
-bash pmm-framework --pmm-server-password=admin --database ps=8.4
+cd <pmm-qa-checkout>/qa-integration/pmm_qa/pmm-framework   # path is machine-specific — keep it in AGENTS.local.md
+./pmm-framework --pmm-server-password admin --database ps=8.4
 ```
 
 **Test the version matrix.** When a change is version-sensitive (a new/changed metric, an exporter query, a parser, or anything that differs across DB releases), register the **oldest and newest supported versions** of the affected database and validate on **both** — the change must work on the newer version **and not regress** on the older one:
 
 ```bash
-bash pmm-framework --pmm-server-password=admin --database ps=5.7   # oldest supported
-bash pmm-framework --pmm-server-password=admin --database ps=8.4   # newest supported
+./pmm-framework --pmm-server-password admin --database ps=5.7   # oldest supported
+./pmm-framework --pmm-server-password admin --database ps=8.4   # newest supported
 ```
 
-**Don't invent version numbers** — valid `--database` values are documented in pmm-qa's `README.md` and `scripts/database_options.py` (e.g. Percona Server `ps=5.7|8.0|8.4`). Check there for what actually exists rather than assuming a release is out.
+**Don't invent version numbers** — valid `--database` values are documented in the framework's `README.md` (`qa-integration/pmm_qa/pmm-framework/`) and `scripts/database_options.py` (e.g. Percona Server `ps=5.7|8.0|8.4`). Check there for what actually exists rather than assuming a release is out.
 
 Confirm each instance appears as a monitored target (Inventory, and the metric shows up in VictoriaMetrics) **before** you start verifying.
 
