@@ -62,8 +62,6 @@ func (res *changeAgentValkeyExporterResult) String() string {
 // ChangeAgentValkeyExporterCommand is used by Kong for CLI flags and commands.
 type ChangeAgentValkeyExporterCommand struct {
 	// Embedded flags
-	// valkey_exporter has no fatal level - it silently falls back to info - so the flag
-	// offers the same levels as `pmm-admin inventory add agent valkey-exporter`.
 	flags.LogLevelNoFatalChangeFlags
 
 	AgentID string `arg:"" help:"Valkey Exporter Agent ID"`

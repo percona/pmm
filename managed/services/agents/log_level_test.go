@@ -29,15 +29,17 @@ func TestWithLogLevel(t *testing.T) {
 	supported := version.MustParse("2.28.0")
 
 	for name, tc := range map[string]struct {
+		args                 []string
 		level                *string
 		pmmAgentVersion      *version.Parsed
 		supportLogLevelFatal bool
 		expected             []string
 	}{
-		"debug": {
+		"debug appended to existing args": {
+			args:            []string{"--web.listen-address=:42000"},
 			level:           new("debug"),
 			pmmAgentVersion: supported,
-			expected:        []string{"--log.level=debug"},
+			expected:        []string{"--web.listen-address=:42000", "--log.level=debug"},
 		},
 		"fatal supported": {
 			level:                new("fatal"),
@@ -71,47 +73,8 @@ func TestWithLogLevel(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			actual := withLogLevel(nil, tc.level, tc.pmmAgentVersion, tc.supportLogLevelFatal)
+			actual := withLogLevel(tc.args, tc.level, tc.pmmAgentVersion, tc.supportLogLevelFatal)
 			assert.Equal(t, tc.expected, actual)
 		})
 	}
-}
-
-// TestWithValkeyLogLevel covers PMM-15201: valkey_exporter parses its command line with the
-// standard library flag package, which rejects --log.level and exits with code 2, leaving the
-// agent in the DONE state. The per-level matrix lives in TestValkeyExporterConfig, so only the
-// flag spelling and the fatal fallback are checked here.
-func TestWithValkeyLogLevel(t *testing.T) {
-	t.Parallel()
-
-	supported := version.MustParse("2.28.0")
-
-	for name, tc := range map[string]struct {
-		level    *string
-		expected []string
-	}{
-		"dashed flag": {new("info"), []string{"--log-level=info"}},
-		// valkey_exporter silently falls back to info on an unknown level, so a stored
-		// "fatal" must be translated rather than passed through.
-		"fatal falls back to error": {new("fatal"), []string{"--log-level=error"}},
-		"no level":                  {nil, nil},
-	} {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-
-			actual := withValkeyLogLevel(nil, tc.level, supported)
-			assert.Equal(t, tc.expected, actual)
-			for _, arg := range actual {
-				assert.NotContains(t, arg, "--log.level", "valkey_exporter rejects the dotted flag")
-			}
-		})
-	}
-}
-
-// TestWithLogLevelAppends makes sure existing args are preserved.
-func TestWithLogLevelAppends(t *testing.T) {
-	t.Parallel()
-
-	args := withLogLevel([]string{"--web.listen-address=:42000"}, new("info"), version.MustParse("2.28.0"), false)
-	assert.Equal(t, []string{"--web.listen-address=:42000", "--log.level=info"}, args)
 }

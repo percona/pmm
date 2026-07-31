@@ -24,38 +24,21 @@ import (
 // Log level available in exporters with pmm 2.28.
 var exporterLogLevelCommandVersion = version.MustParse("2.27.99")
 
-const (
-	// Flag used by exporters which parse their command line with kingpin.
-	logLevelFlag = "--log.level"
-
-	// Flag used by valkey_exporter, which parses its command line with the standard library
-	// flag package. That package rejects --log.level and exits with code 2, which used to
-	// kill the exporter right after start and leave the agent DONE (PMM-15201).
-	valkeyLogLevelFlag = "--log-level"
-)
-
-// withLogLevel appends the --log.level CLI arg. The mysqld_exporter, node_exporter and
-// postgres_exporter binaries don't support --log.level=fatal.
+// withLogLevel appends the --log.level CLI arg used by the kingpin-based exporters, of which
+// mysqld_exporter, node_exporter and postgres_exporter don't support --log.level=fatal.
 func withLogLevel(args []string, logLevel *string, pmmAgentVersion *version.Parsed, supportLogLevelFatal bool) []string {
-	return withLogLevelFlag(args, logLevelFlag, logLevel, pmmAgentVersion, supportLogLevelFatal)
+	return withLogLevelFlag(args, "--log.level", logLevel, pmmAgentVersion, supportLogLevelFatal)
 }
 
-// withValkeyLogLevel appends the --log-level CLI arg for valkey_exporter, which spells the flag
-// differently than the kingpin-based exporters and has no fatal level.
-func withValkeyLogLevel(args []string, logLevel *string, pmmAgentVersion *version.Parsed) []string {
-	return withLogLevelFlag(args, valkeyLogLevelFlag, logLevel, pmmAgentVersion, false)
-}
-
-// withLogLevelFlag appends "<flagName>=<level>" for exporters which spell the log level flag
-// differently than the kingpin-based majority.
+// withLogLevelFlag appends "<flagName>=<level>" if pmm-agent is new enough, downgrading fatal
+// to error for exporters which don't support it.
 func withLogLevelFlag(args []string, flagName string, logLevel *string, pmmAgentVersion *version.Parsed, supportLogLevelFatal bool) []string {
 	level := pointer.GetString(logLevel)
 	if level == "" || pmmAgentVersion.Less(exporterLogLevelCommandVersion) {
 		return args
 	}
 
-	// Some exporters dropped support for the fatal level, so fall back to error to keep a
-	// previously stored "fatal" working.
+	// Keep a previously stored 'fatal' working on exporters which dropped that level.
 	if !supportLogLevelFatal && level == "fatal" {
 		level = "error"
 	}

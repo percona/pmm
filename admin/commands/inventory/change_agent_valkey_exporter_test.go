@@ -268,34 +268,25 @@ Configuration changes applied:
 			assert.Contains(t, strings.ToLower(err.Error()), "agent-id")
 		})
 
-		t.Run("InvalidLogLevel", func(t *testing.T) {
-			t.Parallel()
-
-			cli := []string{"change-agent", "valkey-exporter", "test-agent-id", "--log-level=invalid"}
-
-			var cmd ChangeAgentValkeyExporterCommand
-			parser, err := kong.New(&cmd)
-			require.NoError(t, err)
-
-			_, err = parser.Parse(cli[2:])
-			require.Error(t, err)
-			assert.Contains(t, strings.ToLower(err.Error()), "log-level")
-		})
-
 		// valkey_exporter has no fatal level, so the flag must reject it the same way
 		// `pmm-admin inventory add agent valkey-exporter` does.
-		t.Run("FatalLogLevelRejected", func(t *testing.T) {
-			t.Parallel()
+		for name, level := range map[string]string{
+			"InvalidLogLevel":       "invalid",
+			"FatalLogLevelRejected": "fatal",
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
 
-			cli := []string{"change-agent", "valkey-exporter", "test-agent-id", "--log-level=fatal"}
+				cli := []string{"change-agent", "valkey-exporter", "test-agent-id", "--log-level=" + level}
 
-			var cmd ChangeAgentValkeyExporterCommand
-			parser, err := kong.New(&cmd)
-			require.NoError(t, err)
+				var cmd ChangeAgentValkeyExporterCommand
+				parser, err := kong.New(&cmd)
+				require.NoError(t, err)
 
-			_, err = parser.Parse(cli[2:])
-			require.Error(t, err)
-			assert.Contains(t, strings.ToLower(err.Error()), "log-level")
-		})
+				_, err = parser.Parse(cli[2:])
+				require.Error(t, err)
+				assert.Contains(t, strings.ToLower(err.Error()), "log-level")
+			})
+		}
 	})
 }

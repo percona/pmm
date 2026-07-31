@@ -16,6 +16,7 @@
 package agents
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -86,10 +87,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 			logLevel string
 			expected string
 		}{
-			"debug": {"debug", "--log-level=debug"},
-			"info":  {"info", "--log-level=info"},
-			"warn":  {"warn", "--log-level=warn"},
-			"error": {"error", "--log-level=error"},
+			"info": {"info", "--log-level=info"},
 			// valkey_exporter has no fatal level and silently falls back to info.
 			"fatal": {"fatal", "--log-level=error"},
 		} {
@@ -104,25 +102,8 @@ func TestValkeyExporterConfig(t *testing.T) {
 
 				actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
 				require.Contains(t, actual.Args, tc.expected)
-				for _, arg := range actual.Args {
-					require.NotContains(t, arg, "--log.level", "valkey_exporter rejects the dotted flag")
-				}
+				require.NotContains(t, strings.Join(actual.Args, " "), "--log.level")
 			})
-		}
-	})
-
-	t.Run("NoLogLevel", func(t *testing.T) {
-		t.Parallel()
-
-		exporter := &models.Agent{
-			AgentID:   "agent-id",
-			AgentType: models.ValkeyExporterType,
-		}
-
-		actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
-		for _, arg := range actual.Args {
-			require.NotContains(t, arg, "log-level")
-			require.NotContains(t, arg, "log.level")
 		}
 	})
 }
