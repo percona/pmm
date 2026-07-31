@@ -3725,7 +3725,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "topk(10, rate(mysql_perf_schema_memory_events_alloc_bytes_total{service_name=~\"$service_name\", event_name=~\"$mem_event_name\"}[$interval]))",
+                    "expr": "topk(10, rate(mysql_perf_schema_memory_events_alloc_bytes_total{service_name=~\"$service_name\", event_name=~\"$mem_event_name\"}[$interval])>0) or topk(10, irate(mysql_perf_schema_memory_events_alloc_bytes_total{service_name=~\"$service_name\", event_name=~\"$mem_event_name\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -3828,7 +3828,7 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "topk(10, rate(mysql_perf_schema_memory_events_free_bytes_total{service_name=~\"$service_name\", event_name=~\"$mem_event_name\"}[$interval]))",
+                    "expr": "topk(10, rate(mysql_perf_schema_memory_events_free_bytes_total{service_name=~\"$service_name\", event_name=~\"$mem_event_name\"}[$interval])>0) or topk(10, irate(mysql_perf_schema_memory_events_free_bytes_total{service_name=~\"$service_name\", event_name=~\"$mem_event_name\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
