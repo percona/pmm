@@ -1,8 +1,9 @@
 # View alert status by node or service
 
-When you need the full alert picture for a node or service, go to **Alerts > Status**. It shows every active alert and its current state in a single view.
+Use the **Alert Status** page to see all active alerts for a node or service in one place, check their states, and silence them without switching views.
 
-This page is only available when **Percona Alerting** is enabled. To check, go to **Configuration > Settings > Advanced settings**.
+This page is only available when Percona Alerting is enabled. To check, go to **Configuration > Settings > Advanced settings**.
+
 
 ## Check alerts for a specific node
 
