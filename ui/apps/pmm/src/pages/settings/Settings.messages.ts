@@ -68,6 +68,7 @@ export const Messages = {
       retentionRange: (min: number, max: number) =>
         `Value should be in the range from ${min} to ${max}`,
       intervalMin: (min: number) => `Min ${min}`,
+      intervalWholeHours: 'Use whole hours',
       emailsRequired:
         'Add at least one recipient, or turn Advisor notifications off',
       emailInvalid: (email: string) =>

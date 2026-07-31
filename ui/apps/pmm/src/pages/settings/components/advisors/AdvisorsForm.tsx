@@ -97,7 +97,7 @@ export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
                       slotProps: {
                         htmlInput: {
                           min: MIN_ADVISOR_CHECK_INTERVAL,
-                          step: 0.1,
+                          step: 1,
                           'data-testid': `${name}-number-input`,
                         },
                       },

@@ -9,6 +9,7 @@ const {
   required,
   retentionRange,
   intervalMin,
+  intervalWholeHours,
   emailsRequired,
   emailInvalid,
   emailsMax,
@@ -49,6 +50,14 @@ export const advisorsSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: intervalMin(MIN_ADVISOR_CHECK_INTERVAL),
+          path: [field],
+        });
+      } else if (!Number.isInteger(n)) {
+        // the spinner can only produce whole hours, so typing must not slip a
+        // fraction past it
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: intervalWholeHours,
           path: [field],
         });
       }
