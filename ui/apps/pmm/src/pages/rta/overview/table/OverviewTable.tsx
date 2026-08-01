@@ -40,6 +40,9 @@ const OverviewTable: FC<Props> = ({
             pageSize: 25,
             pageIndex: 0,
           },
+          // Elapsed time is the key live metric; keep it visible even when
+          // the other columns overflow into a horizontal scroll.
+          columnPinning: { right: ['queryExecutionDurationMs'] },
         }}
         columns={OVERVIEW_TABLE_COLUMNS}
         data={queries}
@@ -56,6 +59,7 @@ const OverviewTable: FC<Props> = ({
         }}
         {...tableProps}
         enableStickyHeader
+        enableColumnPinning
         // multi-select column filters (database, user) derive their options
         // from the unique values present in the current result set
         enableFacetedValues
