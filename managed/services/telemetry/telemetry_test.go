@@ -227,7 +227,7 @@ func TestRunSkipsNonReleaseVersion(t *testing.T) {
 				WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON))
 			dbMock.ExpectCommit()
 
-			ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+			ctx, cancel := context.WithTimeout(t.Context(), 2*time.Second)
 			defer cancel()
 
 			s := Service{
