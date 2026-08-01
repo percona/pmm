@@ -144,6 +144,10 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 
 	db, addr, err := createConnection(ctx, m.dsn, m.files, m.tlsSkipVerify)
 	if err != nil {
+		// A shutdown during initialization is a normal stop, not an initialization failure.
+		if ctx.Err() != nil {
+			return
+		}
 		m.l.Errorf("Can't run Real-Time Analytics agent, reason: %v", err)
 		terminalStatus = inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR
 		return
@@ -159,6 +163,10 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 	// Verify the instance can actually serve RTA (not MariaDB, performance_schema on,
 	// sys.x$processlist readable) before reporting RUNNING.
 	if err := m.checkPrerequisites(ctx); err != nil {
+		// A shutdown during initialization is a normal stop, not an initialization failure.
+		if ctx.Err() != nil {
+			return
+		}
 		m.l.Errorf("Real-Time Analytics is not supported for this instance: %v", err)
 		terminalStatus = inventoryv1.AgentStatus_AGENT_STATUS_INITIALIZATION_ERROR
 		return

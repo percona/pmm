@@ -1734,77 +1734,46 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(
 
 // AddRTAMySQLAgent adds MySQL Real-Time Analytics Agent.
 func (as *AgentsService) AddRTAMySQLAgent(ctx context.Context, p *inventoryv1.AddRTAMySQLAgentParams) (*inventoryv1.AddAgentResponse, error) {
-	var agent *inventoryv1.RTAMySQLAgent
-
-	// Set MySQLOptions
-	mysqlOptions := models.MySQLOptions{
-		TLSCa:   p.GetTlsCa(),
-		TLSCert: p.GetTlsCert(),
-		TLSKey:  p.GetTlsKey(),
+	params := &models.CreateAgentParams{
+		PMMAgentID:    p.PmmAgentId,
+		ServiceID:     p.ServiceId,
+		Username:      p.Username,
+		Password:      p.Password,
+		CustomLabels:  p.CustomLabels,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		MySQLOptions: models.MySQLOptions{
+			TLSCa:   p.GetTlsCa(),
+			TLSCert: p.GetTlsCert(),
+			TLSKey:  p.GetTlsKey(),
+		},
+		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
-	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		params := &models.CreateAgentParams{
-			PMMAgentID:    p.PmmAgentId,
-			ServiceID:     p.ServiceId,
-			Username:      p.Username,
-			Password:      p.Password,
-			CustomLabels:  p.CustomLabels,
-			TLS:           p.Tls,
-			TLSSkipVerify: p.TlsSkipVerify,
-			MySQLOptions:  mysqlOptions,
-			LogLevel:      services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
-		}
-
-		// Set RTA options if provided
-		if p.RtaOptions != nil {
-			params.RTAOptions = *models.RTAOptionsFromRequest(p.RtaOptions)
-		}
-
-		row, err := models.CreateAgent(tx.Querier, models.RTAMySQLAgentType, params)
-		if err != nil {
-			return err
-		}
-
-		if !p.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
-			if err != nil {
-				return err
-			}
-
-			err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-
-			err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row)
-			if err != nil {
-				return err
-			}
-		}
-
-		aa, err := services.ToAPIAgent(tx.Querier, row)
-		if err != nil {
-			return err
-		}
-
-		agent = aa.(*inventoryv1.RTAMySQLAgent) //nolint:forcetypeassert
-
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	// Set RTA options if provided
+	if p.RtaOptions != nil {
+		params.RTAOptions = *models.RTAOptionsFromRequest(p.RtaOptions)
 	}
 
+	agent, err := as.executeAgentAdd(ctx, models.RTAMySQLAgentType, params, true)
+	if err != nil {
+		return nil, err
+	}
+
+	rtaMySQLAgent, ok := agent.(*inventoryv1.RTAMySQLAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
 	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 
 	res := &inventoryv1.AddAgentResponse{
 		Agent: &inventoryv1.AddAgentResponse_RtaMysqlAgent{
-			RtaMysqlAgent: agent,
+			RtaMysqlAgent: rtaMySQLAgent,
 		},
 	}
 
-	return res, e
+	return res, nil
 }
 
 // ChangeRTAMySQLAgent updates MySQL Real-Time Analytics Agent with given parameters.
@@ -1825,6 +1794,7 @@ func (as *AgentsService) ChangeRTAMySQLAgent(
 			TLSCert: p.TlsCert,
 			TLSKey:  p.TlsKey,
 		},
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
 	}
 
 	// Set RTA options if provided
@@ -1837,7 +1807,10 @@ func (as *AgentsService) ChangeRTAMySQLAgent(
 		return nil, err
 	}
 
-	agent := ag.(*inventoryv1.RTAMySQLAgent) //nolint:forcetypeassert
+	agent, ok := ag.(*inventoryv1.RTAMySQLAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(ag)
+	}
 	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{

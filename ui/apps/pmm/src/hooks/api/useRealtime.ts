@@ -126,12 +126,11 @@ export const useAvailableServices = (serviceTypes?: ServiceType[]) => {
   const {
     data: services = { mongodb: [], mysql: [] },
     isLoading: isLoadingServices,
-  } =
-    useQuery({
-      queryKey: [KEYS.AVAILABLE_SERVICES],
-      queryFn: () => getAvailableServices(serviceTypes),
-      enabled: !!user,
-    });
+  } = useQuery({
+    queryKey: [KEYS.AVAILABLE_SERVICES],
+    queryFn: () => getAvailableServices(serviceTypes),
+    enabled: !!user,
+  });
 
   const availableServices = useMemo<VersionedService[]>(() => {
     const runningServiceIds = (sessions || []).map(

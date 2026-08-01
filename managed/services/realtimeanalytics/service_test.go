@@ -488,6 +488,60 @@ func TestStartSession(t *testing.T) {
 		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s has pmm-agent with version not supporting Real-Time Analytics.",
 			serviceOld.ServiceID))
 	})
+
+	t.Run("existing RTA agent on pmm-agent that doesn't support RTA", func(t *testing.T) {
+		// An RTA agent created through the inventory API may be linked to a
+		// pmm-agent that predates RTA support for its service type. Starting a
+		// session for it must fail instead of enabling an agent that cannot run.
+		nodeOld, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: "test-node-3",
+		})
+		require.NoError(t, err)
+
+		pmmAgentOld, err := models.CreatePMMAgent(db.Querier, nodeOld.NodeID, nil)
+		require.NoError(t, err)
+
+		// 3.8.0 ships the MongoDB RTA collector but not the MySQL one.
+		pmmAgentOld.Version = new("3.8.0")
+		err = db.Update(pmmAgentOld)
+		require.NoError(t, err)
+
+		serviceMySQL, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mysql-old",
+			NodeID:      nodeOld.NodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
+			Cluster:     "cluster-3",
+		})
+		require.NoError(t, err)
+
+		_, err = models.CreateAgent(db.Querier, models.RTAMySQLAgentType, &models.CreateAgentParams{
+			PMMAgentID: pmmAgentOld.AgentID,
+			ServiceID:  serviceMySQL.ServiceID,
+			Username:   "test-user",
+			Password:   "test-pass",
+			Disabled:   true,
+			RTAOptions: models.RTAOptions{CollectInterval: new(2 * time.Second)},
+		})
+		require.NoError(t, err)
+
+		_, err = svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
+			ServiceId: serviceMySQL.ServiceID,
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Convert(err).Code())
+		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s has pmm-agent with version not supporting Real-Time Analytics.",
+			serviceMySQL.ServiceID))
+
+		// The agent must remain disabled.
+		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
+			ServiceID: serviceMySQL.ServiceID,
+			AgentType: new(models.RTAMySQLAgentType),
+		})
+		require.NoError(t, err)
+		require.Len(t, agents, 1)
+		assert.True(t, agents[0].Disabled)
+	})
 }
 
 func TestStopSession(t *testing.T) {

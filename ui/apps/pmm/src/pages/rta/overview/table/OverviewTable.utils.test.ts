@@ -4,6 +4,7 @@ import {
   queryDatabaseName,
   queryLanguage,
   queryUsername,
+  UNAVAILABLE_VALUE,
 } from './OverviewTable.utils';
 import {
   TEST_MONGO_DB_QUERY_DATA,
@@ -35,7 +36,7 @@ describe('queryDatabaseName', () => {
     expect(queryDatabaseName(TEST_MYSQL_QUERY_DATA)).toBe('database-name');
   });
 
-  it('returns an empty string when the payload has no database', () => {
+  it('returns the unavailable label when the payload has no database', () => {
     expect(
       queryDatabaseName({
         ...TEST_MYSQL_QUERY_DATA,
@@ -44,7 +45,7 @@ describe('queryDatabaseName', () => {
           databaseName: '',
         },
       })
-    ).toBe('');
+    ).toBe(UNAVAILABLE_VALUE);
   });
 });
 

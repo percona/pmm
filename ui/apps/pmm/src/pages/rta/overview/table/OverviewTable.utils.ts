@@ -12,14 +12,23 @@ export const queryLanguage = (query: RawQueryData): CodeLanguage =>
 export const codeBlockLanguage = (language: CodeLanguage): string =>
   language === 'mongodb' ? 'javascript' : language;
 
+// Sentinel for rows where the database reports no value (e.g. a MySQL
+// connection that never ran USE has a NULL database). Using a non-empty
+// label keeps the faceted multi-select filter options readable; an empty
+// string would produce a blank option and filter chip.
+export const UNAVAILABLE_VALUE = 'Unavailable';
+
 // Fields common to all database types are resolved from whichever payload is
-// present. Empty string when the database reports no value (e.g. a MySQL
-// connection that never ran USE has a NULL database).
+// present.
 export const queryDatabaseName = (query: RawQueryData): string =>
-  query.mongoDbPayload?.databaseName ?? query.mySqlPayload?.databaseName ?? '';
+  query.mongoDbPayload?.databaseName ||
+  query.mySqlPayload?.databaseName ||
+  UNAVAILABLE_VALUE;
 
 export const queryUsername = (query: RawQueryData): string =>
-  query.mongoDbPayload?.username ?? query.mySqlPayload?.username ?? '';
+  query.mongoDbPayload?.username ||
+  query.mySqlPayload?.username ||
+  UNAVAILABLE_VALUE;
 
 // Transaction-control statements that add little value to Real-Time Analytics
 // and can dominate the list under transactional workloads (e.g. sysbench).

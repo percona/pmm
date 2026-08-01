@@ -267,6 +267,19 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 
 		// RTA Agent exists - update its state if required
 		rtaAgent = existingRTAAgents[0]
+
+		// The agent may have been created through the inventory API against a
+		// pmm-agent that predates RTA support for this service type; don't
+		// enable or report a session that pmm-agent cannot run.
+		pmmAgent, err := models.FindAgentByID(tx.Querier, pointer.GetString(rtaAgent.PMMAgentID))
+		if err != nil {
+			return err
+		}
+		if !isRtaFeatureSupported(pointer.GetString(pmmAgent.Version), service.ServiceType) {
+			return status.Errorf(codes.FailedPrecondition,
+				"Service %s has pmm-agent with version not supporting Real-Time Analytics.", service.ServiceID)
+		}
+
 		if !rtaAgent.Disabled {
 			return nil // Already enabled, nothing to do
 		}

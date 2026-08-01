@@ -83,6 +83,8 @@ type ChangeAgentRTAMySQLAgentCommand struct {
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
+
+	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
 // RunCmd executes the ChangeAgentRTAMySQLAgentCommand and returns the result.
@@ -123,15 +125,16 @@ func (cmd *ChangeAgentRTAMySQLAgentCommand) RunCmd() (commands.Result, error) {
 	}
 
 	body := &agents.ChangeAgentParamsBodyRtaMysqlAgent{
-		Enable:        cmd.Enable,
-		Username:      cmd.Username,
-		Password:      cmd.Password,
-		TLS:           cmd.TLS,
-		TLSSkipVerify: cmd.TLSSkipVerify,
-		TLSCa:         tlsCa,
-		TLSCert:       tlsCert,
-		TLSKey:        tlsKey,
-		LogLevel:      convertLogLevelPtr(cmd.LogLevel),
+		Enable:              cmd.Enable,
+		Username:            cmd.Username,
+		Password:            cmd.Password,
+		TLS:                 cmd.TLS,
+		TLSSkipVerify:       cmd.TLSSkipVerify,
+		TLSCa:               tlsCa,
+		TLSCert:             tlsCert,
+		TLSKey:              tlsKey,
+		LogLevel:            convertLogLevelPtr(cmd.LogLevel),
+		SkipConnectionCheck: cmd.SkipConnectionCheck,
 	}
 
 	if customLabels != nil {

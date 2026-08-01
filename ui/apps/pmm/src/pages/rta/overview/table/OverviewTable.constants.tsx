@@ -9,6 +9,7 @@ import {
   queryDatabaseName,
   queryLanguage,
   queryUsername,
+  UNAVAILABLE_VALUE,
 } from './OverviewTable.utils';
 
 export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
@@ -41,7 +42,12 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     id: 'databaseName',
     accessorFn: queryDatabaseName,
     filterVariant: 'multi-select',
-    Cell: ({ cell }) => cell.getValue<string>() || <UnavailableText />,
+    Cell: ({ cell }) =>
+      cell.getValue<string>() === UNAVAILABLE_VALUE ? (
+        <UnavailableText />
+      ) : (
+        cell.getValue<string>()
+      ),
     // @ts-expect-error - muiTableBodyCellProps is not typed correctly
     muiTableBodyCellProps: ({ row }) => ({
       'data-testid': `query-${row.original.queryId}-database-cell`,
@@ -52,7 +58,12 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     id: 'username',
     accessorFn: queryUsername,
     filterVariant: 'multi-select',
-    Cell: ({ cell }) => cell.getValue<string>() || <UnavailableText />,
+    Cell: ({ cell }) =>
+      cell.getValue<string>() === UNAVAILABLE_VALUE ? (
+        <UnavailableText />
+      ) : (
+        cell.getValue<string>()
+      ),
     // @ts-expect-error - muiTableBodyCellProps is not typed correctly
     muiTableBodyCellProps: ({ row }) => ({
       'data-testid': `query-${row.original.queryId}-user-cell`,

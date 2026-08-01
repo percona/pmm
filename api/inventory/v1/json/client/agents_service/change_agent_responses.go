@@ -12693,8 +12693,11 @@ type ChangeAgentParamsBodyRtaMysqlAgent struct {
 	// Client certificate.
 	TLSCert *string `json:"tls_cert,omitempty"`
 
-	// Password for decrypting tls_cert.
+	// Client key.
 	TLSKey *string `json:"tls_key,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyRtaMysqlAgentCustomLabels `json:"custom_labels,omitempty"`

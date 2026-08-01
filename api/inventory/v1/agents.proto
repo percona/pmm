@@ -2161,7 +2161,7 @@ message AddRTAMySQLAgentParams {
   string tls_ca = 9;
   // Client certificate.
   string tls_cert = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
-  // Password for decrypting tls_cert.
+  // Client key.
   string tls_key = 11 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Skip connection check.
   bool skip_connection_check = 12;
@@ -2188,10 +2188,12 @@ message ChangeRTAMySQLAgentParams {
   optional string tls_ca = 8;
   // Client certificate.
   optional string tls_cert = 9 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
-  // Password for decrypting tls_cert.
+  // Client key.
   optional string tls_key = 10 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Real-Time Analytics options.
   optional RTAOptions rta_options = 11;
+  // Skip connection check.
+  optional bool skip_connection_check = 12;
 }
 
 // Remove

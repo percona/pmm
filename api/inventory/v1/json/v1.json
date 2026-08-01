@@ -3973,7 +3973,7 @@
                       "x-order": 9
                     },
                     "tls_key": {
-                      "description": "Password for decrypting tls_cert.",
+                      "description": "Client key.",
                       "type": "string",
                       "x-order": 10
                     },
@@ -10521,7 +10521,7 @@
                       "x-order": 8
                     },
                     "tls_key": {
-                      "description": "Password for decrypting tls_cert.",
+                      "description": "Client key.",
                       "type": "string",
                       "x-nullable": true,
                       "x-order": 9
@@ -10538,6 +10538,12 @@
                       },
                       "x-nullable": true,
                       "x-order": 10
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 11
                     }
                   },
                   "x-order": 17

@@ -11186,7 +11186,7 @@ type AddRTAMySQLAgentParams struct {
 	TlsCa string `protobuf:"bytes,9,opt,name=tls_ca,json=tlsCa,proto3" json:"tls_ca,omitempty"`
 	// Client certificate.
 	TlsCert string `protobuf:"bytes,10,opt,name=tls_cert,json=tlsCert,proto3" json:"tls_cert,omitempty"`
-	// Password for decrypting tls_cert.
+	// Client key.
 	TlsKey string `protobuf:"bytes,11,opt,name=tls_key,json=tlsKey,proto3" json:"tls_key,omitempty"`
 	// Skip connection check.
 	SkipConnectionCheck bool `protobuf:"varint,12,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
@@ -11337,12 +11337,14 @@ type ChangeRTAMySQLAgentParams struct {
 	TlsCa *string `protobuf:"bytes,8,opt,name=tls_ca,json=tlsCa,proto3,oneof" json:"tls_ca,omitempty"`
 	// Client certificate.
 	TlsCert *string `protobuf:"bytes,9,opt,name=tls_cert,json=tlsCert,proto3,oneof" json:"tls_cert,omitempty"`
-	// Password for decrypting tls_cert.
+	// Client key.
 	TlsKey *string `protobuf:"bytes,10,opt,name=tls_key,json=tlsKey,proto3,oneof" json:"tls_key,omitempty"`
 	// Real-Time Analytics options.
-	RtaOptions    *RTAOptions `protobuf:"bytes,11,opt,name=rta_options,json=rtaOptions,proto3,oneof" json:"rta_options,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	RtaOptions *RTAOptions `protobuf:"bytes,11,opt,name=rta_options,json=rtaOptions,proto3,oneof" json:"rta_options,omitempty"`
+	// Skip connection check.
+	SkipConnectionCheck *bool `protobuf:"varint,12,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ChangeRTAMySQLAgentParams) Reset() {
@@ -11450,6 +11452,13 @@ func (x *ChangeRTAMySQLAgentParams) GetRtaOptions() *RTAOptions {
 		return x.RtaOptions
 	}
 	return nil
+}
+
+func (x *ChangeRTAMySQLAgentParams) GetSkipConnectionCheck() bool {
+	if x != nil && x.SkipConnectionCheck != nil {
+		return *x.SkipConnectionCheck
+	}
+	return false
 }
 
 type RemoveAgentRequest struct {
@@ -13028,7 +13037,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"rtaOptions\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfc\x04\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcf\x05\n" +
 	"\x19ChangeRTAMySQLAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x128\n" +
@@ -13043,7 +13052,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	" \x01(\tB\x04\x88\xb5\x18\x01H\tR\x06tlsKey\x88\x01\x01\x12>\n" +
 	"\vrta_options\x18\v \x01(\v2\x18.inventory.v1.RTAOptionsH\n" +
 	"R\n" +
-	"rtaOptions\x88\x01\x01B\t\n" +
+	"rtaOptions\x88\x01\x01\x127\n" +
+	"\x15skip_connection_check\x18\f \x01(\bH\vR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\f\n" +
 	"\n" +
@@ -13056,7 +13066,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\t_tls_certB\n" +
 	"\n" +
 	"\b_tls_keyB\x0e\n" +
-	"\f_rta_options\"N\n" +
+	"\f_rta_optionsB\x18\n" +
+	"\x16_skip_connection_check\"N\n" +
 	"\x12RemoveAgentRequest\x12\"\n" +
 	"\bagent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aagentId\x12\x14\n" +
 	"\x05force\x18\x02 \x01(\bR\x05force\"\x15\n" +
@@ -13106,128 +13117,130 @@ func file_inventory_v1_agents_proto_rawDescGZIP() []byte {
 	return file_inventory_v1_agents_proto_rawDescData
 }
 
-var file_inventory_v1_agents_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_inventory_v1_agents_proto_msgTypes = make([]protoimpl.MessageInfo, 112)
-var file_inventory_v1_agents_proto_goTypes = []any{
-	(AgentType)(0),                                      // 0: inventory.v1.AgentType
-	(*PMMAgent)(nil),                                    // 1: inventory.v1.PMMAgent
-	(*VMAgent)(nil),                                     // 2: inventory.v1.VMAgent
-	(*NomadAgent)(nil),                                  // 3: inventory.v1.NomadAgent
-	(*NodeExporter)(nil),                                // 4: inventory.v1.NodeExporter
-	(*MySQLdExporter)(nil),                              // 5: inventory.v1.MySQLdExporter
-	(*MongoDBExporter)(nil),                             // 6: inventory.v1.MongoDBExporter
-	(*PostgresExporter)(nil),                            // 7: inventory.v1.PostgresExporter
-	(*ProxySQLExporter)(nil),                            // 8: inventory.v1.ProxySQLExporter
-	(*ValkeyExporter)(nil),                              // 9: inventory.v1.ValkeyExporter
-	(*QANMySQLPerfSchemaAgent)(nil),                     // 10: inventory.v1.QANMySQLPerfSchemaAgent
-	(*QANMySQLSlowlogAgent)(nil),                        // 11: inventory.v1.QANMySQLSlowlogAgent
-	(*QANMongoDBProfilerAgent)(nil),                     // 12: inventory.v1.QANMongoDBProfilerAgent
-	(*QANMongoDBMongologAgent)(nil),                     // 13: inventory.v1.QANMongoDBMongologAgent
-	(*RTAOptions)(nil),                                  // 14: inventory.v1.RTAOptions
-	(*RTAMongoDBAgent)(nil),                             // 15: inventory.v1.RTAMongoDBAgent
-	(*RTAMySQLAgent)(nil),                               // 16: inventory.v1.RTAMySQLAgent
-	(*QANPostgreSQLPgStatementsAgent)(nil),              // 17: inventory.v1.QANPostgreSQLPgStatementsAgent
-	(*QANPostgreSQLPgStatMonitorAgent)(nil),             // 18: inventory.v1.QANPostgreSQLPgStatMonitorAgent
-	(*RDSExporter)(nil),                                 // 19: inventory.v1.RDSExporter
-	(*ExternalExporter)(nil),                            // 20: inventory.v1.ExternalExporter
-	(*AzureDatabaseExporter)(nil),                       // 21: inventory.v1.AzureDatabaseExporter
-	(*ChangeCommonAgentParams)(nil),                     // 22: inventory.v1.ChangeCommonAgentParams
-	(*ListAgentsRequest)(nil),                           // 23: inventory.v1.ListAgentsRequest
-	(*ListAgentsResponse)(nil),                          // 24: inventory.v1.ListAgentsResponse
-	(*GetAgentRequest)(nil),                             // 25: inventory.v1.GetAgentRequest
-	(*GetAgentResponse)(nil),                            // 26: inventory.v1.GetAgentResponse
-	(*GetAgentLogsRequest)(nil),                         // 27: inventory.v1.GetAgentLogsRequest
-	(*GetAgentLogsResponse)(nil),                        // 28: inventory.v1.GetAgentLogsResponse
-	(*AddAgentRequest)(nil),                             // 29: inventory.v1.AddAgentRequest
-	(*AddAgentResponse)(nil),                            // 30: inventory.v1.AddAgentResponse
-	(*ChangeAgentRequest)(nil),                          // 31: inventory.v1.ChangeAgentRequest
-	(*ChangeAgentResponse)(nil),                         // 32: inventory.v1.ChangeAgentResponse
-	(*AddPMMAgentParams)(nil),                           // 33: inventory.v1.AddPMMAgentParams
-	(*AddNodeExporterParams)(nil),                       // 34: inventory.v1.AddNodeExporterParams
-	(*ChangeNodeExporterParams)(nil),                    // 35: inventory.v1.ChangeNodeExporterParams
-	(*AddMySQLdExporterParams)(nil),                     // 36: inventory.v1.AddMySQLdExporterParams
-	(*ChangeMySQLdExporterParams)(nil),                  // 37: inventory.v1.ChangeMySQLdExporterParams
-	(*AddMongoDBExporterParams)(nil),                    // 38: inventory.v1.AddMongoDBExporterParams
-	(*ChangeMongoDBExporterParams)(nil),                 // 39: inventory.v1.ChangeMongoDBExporterParams
-	(*AddPostgresExporterParams)(nil),                   // 40: inventory.v1.AddPostgresExporterParams
-	(*ChangePostgresExporterParams)(nil),                // 41: inventory.v1.ChangePostgresExporterParams
-	(*AddProxySQLExporterParams)(nil),                   // 42: inventory.v1.AddProxySQLExporterParams
-	(*ChangeProxySQLExporterParams)(nil),                // 43: inventory.v1.ChangeProxySQLExporterParams
-	(*AddQANMySQLPerfSchemaAgentParams)(nil),            // 44: inventory.v1.AddQANMySQLPerfSchemaAgentParams
-	(*ChangeQANMySQLPerfSchemaAgentParams)(nil),         // 45: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams
-	(*AddQANMySQLSlowlogAgentParams)(nil),               // 46: inventory.v1.AddQANMySQLSlowlogAgentParams
-	(*ChangeQANMySQLSlowlogAgentParams)(nil),            // 47: inventory.v1.ChangeQANMySQLSlowlogAgentParams
-	(*AddQANMongoDBProfilerAgentParams)(nil),            // 48: inventory.v1.AddQANMongoDBProfilerAgentParams
-	(*ChangeQANMongoDBProfilerAgentParams)(nil),         // 49: inventory.v1.ChangeQANMongoDBProfilerAgentParams
-	(*AddQANMongoDBMongologAgentParams)(nil),            // 50: inventory.v1.AddQANMongoDBMongologAgentParams
-	(*ChangeQANMongoDBMongologAgentParams)(nil),         // 51: inventory.v1.ChangeQANMongoDBMongologAgentParams
-	(*AddQANPostgreSQLPgStatementsAgentParams)(nil),     // 52: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams
-	(*ChangeQANPostgreSQLPgStatementsAgentParams)(nil),  // 53: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams
-	(*AddQANPostgreSQLPgStatMonitorAgentParams)(nil),    // 54: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams
-	(*ChangeQANPostgreSQLPgStatMonitorAgentParams)(nil), // 55: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams
-	(*AddRDSExporterParams)(nil),                        // 56: inventory.v1.AddRDSExporterParams
-	(*ChangeRDSExporterParams)(nil),                     // 57: inventory.v1.ChangeRDSExporterParams
-	(*AddExternalExporterParams)(nil),                   // 58: inventory.v1.AddExternalExporterParams
-	(*ChangeExternalExporterParams)(nil),                // 59: inventory.v1.ChangeExternalExporterParams
-	(*AddAzureDatabaseExporterParams)(nil),              // 60: inventory.v1.AddAzureDatabaseExporterParams
-	(*ChangeAzureDatabaseExporterParams)(nil),           // 61: inventory.v1.ChangeAzureDatabaseExporterParams
-	(*ChangeNomadAgentParams)(nil),                      // 62: inventory.v1.ChangeNomadAgentParams
-	(*AddValkeyExporterParams)(nil),                     // 63: inventory.v1.AddValkeyExporterParams
-	(*ChangeValkeyExporterParams)(nil),                  // 64: inventory.v1.ChangeValkeyExporterParams
-	(*AddRTAMongoDBAgentParams)(nil),                    // 65: inventory.v1.AddRTAMongoDBAgentParams
-	(*ChangeRTAMongoDBAgentParams)(nil),                 // 66: inventory.v1.ChangeRTAMongoDBAgentParams
-	(*AddRTAMySQLAgentParams)(nil),                      // 67: inventory.v1.AddRTAMySQLAgentParams
-	(*ChangeRTAMySQLAgentParams)(nil),                   // 68: inventory.v1.ChangeRTAMySQLAgentParams
-	(*RemoveAgentRequest)(nil),                          // 69: inventory.v1.RemoveAgentRequest
-	(*RemoveAgentResponse)(nil),                         // 70: inventory.v1.RemoveAgentResponse
-	nil,                                                 // 71: inventory.v1.PMMAgent.CustomLabelsEntry
-	nil,                                                 // 72: inventory.v1.NodeExporter.CustomLabelsEntry
-	nil,                                                 // 73: inventory.v1.MySQLdExporter.CustomLabelsEntry
-	nil,                                                 // 74: inventory.v1.MySQLdExporter.ExtraDsnParamsEntry
-	nil,                                                 // 75: inventory.v1.MongoDBExporter.CustomLabelsEntry
-	nil,                                                 // 76: inventory.v1.PostgresExporter.CustomLabelsEntry
-	nil,                                                 // 77: inventory.v1.ProxySQLExporter.CustomLabelsEntry
-	nil,                                                 // 78: inventory.v1.ValkeyExporter.CustomLabelsEntry
-	nil,                                                 // 79: inventory.v1.QANMySQLPerfSchemaAgent.CustomLabelsEntry
-	nil,                                                 // 80: inventory.v1.QANMySQLPerfSchemaAgent.ExtraDsnParamsEntry
-	nil,                                                 // 81: inventory.v1.QANMySQLSlowlogAgent.CustomLabelsEntry
-	nil,                                                 // 82: inventory.v1.QANMySQLSlowlogAgent.ExtraDsnParamsEntry
-	nil,                                                 // 83: inventory.v1.QANMongoDBProfilerAgent.CustomLabelsEntry
-	nil,                                                 // 84: inventory.v1.QANMongoDBMongologAgent.CustomLabelsEntry
-	nil,                                                 // 85: inventory.v1.RTAMongoDBAgent.CustomLabelsEntry
-	nil,                                                 // 86: inventory.v1.RTAMySQLAgent.CustomLabelsEntry
-	nil,                                                 // 87: inventory.v1.QANPostgreSQLPgStatementsAgent.CustomLabelsEntry
-	nil,                                                 // 88: inventory.v1.QANPostgreSQLPgStatMonitorAgent.CustomLabelsEntry
-	nil,                                                 // 89: inventory.v1.RDSExporter.CustomLabelsEntry
-	nil,                                                 // 90: inventory.v1.ExternalExporter.CustomLabelsEntry
-	nil,                                                 // 91: inventory.v1.AzureDatabaseExporter.CustomLabelsEntry
-	nil,                                                 // 92: inventory.v1.AddPMMAgentParams.CustomLabelsEntry
-	nil,                                                 // 93: inventory.v1.AddNodeExporterParams.CustomLabelsEntry
-	nil,                                                 // 94: inventory.v1.AddMySQLdExporterParams.CustomLabelsEntry
-	nil,                                                 // 95: inventory.v1.AddMySQLdExporterParams.ExtraDsnParamsEntry
-	nil,                                                 // 96: inventory.v1.AddMongoDBExporterParams.CustomLabelsEntry
-	nil,                                                 // 97: inventory.v1.AddPostgresExporterParams.CustomLabelsEntry
-	nil,                                                 // 98: inventory.v1.AddProxySQLExporterParams.CustomLabelsEntry
-	nil,                                                 // 99: inventory.v1.AddQANMySQLPerfSchemaAgentParams.CustomLabelsEntry
-	nil,                                                 // 100: inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntry
-	nil,                                                 // 101: inventory.v1.AddQANMySQLSlowlogAgentParams.CustomLabelsEntry
-	nil,                                                 // 102: inventory.v1.AddQANMySQLSlowlogAgentParams.ExtraDsnParamsEntry
-	nil,                                                 // 103: inventory.v1.AddQANMongoDBProfilerAgentParams.CustomLabelsEntry
-	nil,                                                 // 104: inventory.v1.AddQANMongoDBMongologAgentParams.CustomLabelsEntry
-	nil,                                                 // 105: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.CustomLabelsEntry
-	nil,                                                 // 106: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.CustomLabelsEntry
-	nil,                                                 // 107: inventory.v1.AddRDSExporterParams.CustomLabelsEntry
-	nil,                                                 // 108: inventory.v1.AddExternalExporterParams.CustomLabelsEntry
-	nil,                                                 // 109: inventory.v1.AddAzureDatabaseExporterParams.CustomLabelsEntry
-	nil,                                                 // 110: inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
-	nil,                                                 // 111: inventory.v1.AddRTAMongoDBAgentParams.CustomLabelsEntry
-	nil,                                                 // 112: inventory.v1.AddRTAMySQLAgentParams.CustomLabelsEntry
-	(AgentStatus)(0),                                    // 113: inventory.v1.AgentStatus
-	(LogLevel)(0),                                       // 114: inventory.v1.LogLevel
-	(*common.MetricsResolutions)(nil),                   // 115: common.MetricsResolutions
-	(*durationpb.Duration)(nil),                         // 116: google.protobuf.Duration
-	(*common.StringMap)(nil),                            // 117: common.StringMap
-}
+var (
+	file_inventory_v1_agents_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_inventory_v1_agents_proto_msgTypes  = make([]protoimpl.MessageInfo, 112)
+	file_inventory_v1_agents_proto_goTypes   = []any{
+		AgentType(0),                                        // 0: inventory.v1.AgentType
+		(*PMMAgent)(nil),                                    // 1: inventory.v1.PMMAgent
+		(*VMAgent)(nil),                                     // 2: inventory.v1.VMAgent
+		(*NomadAgent)(nil),                                  // 3: inventory.v1.NomadAgent
+		(*NodeExporter)(nil),                                // 4: inventory.v1.NodeExporter
+		(*MySQLdExporter)(nil),                              // 5: inventory.v1.MySQLdExporter
+		(*MongoDBExporter)(nil),                             // 6: inventory.v1.MongoDBExporter
+		(*PostgresExporter)(nil),                            // 7: inventory.v1.PostgresExporter
+		(*ProxySQLExporter)(nil),                            // 8: inventory.v1.ProxySQLExporter
+		(*ValkeyExporter)(nil),                              // 9: inventory.v1.ValkeyExporter
+		(*QANMySQLPerfSchemaAgent)(nil),                     // 10: inventory.v1.QANMySQLPerfSchemaAgent
+		(*QANMySQLSlowlogAgent)(nil),                        // 11: inventory.v1.QANMySQLSlowlogAgent
+		(*QANMongoDBProfilerAgent)(nil),                     // 12: inventory.v1.QANMongoDBProfilerAgent
+		(*QANMongoDBMongologAgent)(nil),                     // 13: inventory.v1.QANMongoDBMongologAgent
+		(*RTAOptions)(nil),                                  // 14: inventory.v1.RTAOptions
+		(*RTAMongoDBAgent)(nil),                             // 15: inventory.v1.RTAMongoDBAgent
+		(*RTAMySQLAgent)(nil),                               // 16: inventory.v1.RTAMySQLAgent
+		(*QANPostgreSQLPgStatementsAgent)(nil),              // 17: inventory.v1.QANPostgreSQLPgStatementsAgent
+		(*QANPostgreSQLPgStatMonitorAgent)(nil),             // 18: inventory.v1.QANPostgreSQLPgStatMonitorAgent
+		(*RDSExporter)(nil),                                 // 19: inventory.v1.RDSExporter
+		(*ExternalExporter)(nil),                            // 20: inventory.v1.ExternalExporter
+		(*AzureDatabaseExporter)(nil),                       // 21: inventory.v1.AzureDatabaseExporter
+		(*ChangeCommonAgentParams)(nil),                     // 22: inventory.v1.ChangeCommonAgentParams
+		(*ListAgentsRequest)(nil),                           // 23: inventory.v1.ListAgentsRequest
+		(*ListAgentsResponse)(nil),                          // 24: inventory.v1.ListAgentsResponse
+		(*GetAgentRequest)(nil),                             // 25: inventory.v1.GetAgentRequest
+		(*GetAgentResponse)(nil),                            // 26: inventory.v1.GetAgentResponse
+		(*GetAgentLogsRequest)(nil),                         // 27: inventory.v1.GetAgentLogsRequest
+		(*GetAgentLogsResponse)(nil),                        // 28: inventory.v1.GetAgentLogsResponse
+		(*AddAgentRequest)(nil),                             // 29: inventory.v1.AddAgentRequest
+		(*AddAgentResponse)(nil),                            // 30: inventory.v1.AddAgentResponse
+		(*ChangeAgentRequest)(nil),                          // 31: inventory.v1.ChangeAgentRequest
+		(*ChangeAgentResponse)(nil),                         // 32: inventory.v1.ChangeAgentResponse
+		(*AddPMMAgentParams)(nil),                           // 33: inventory.v1.AddPMMAgentParams
+		(*AddNodeExporterParams)(nil),                       // 34: inventory.v1.AddNodeExporterParams
+		(*ChangeNodeExporterParams)(nil),                    // 35: inventory.v1.ChangeNodeExporterParams
+		(*AddMySQLdExporterParams)(nil),                     // 36: inventory.v1.AddMySQLdExporterParams
+		(*ChangeMySQLdExporterParams)(nil),                  // 37: inventory.v1.ChangeMySQLdExporterParams
+		(*AddMongoDBExporterParams)(nil),                    // 38: inventory.v1.AddMongoDBExporterParams
+		(*ChangeMongoDBExporterParams)(nil),                 // 39: inventory.v1.ChangeMongoDBExporterParams
+		(*AddPostgresExporterParams)(nil),                   // 40: inventory.v1.AddPostgresExporterParams
+		(*ChangePostgresExporterParams)(nil),                // 41: inventory.v1.ChangePostgresExporterParams
+		(*AddProxySQLExporterParams)(nil),                   // 42: inventory.v1.AddProxySQLExporterParams
+		(*ChangeProxySQLExporterParams)(nil),                // 43: inventory.v1.ChangeProxySQLExporterParams
+		(*AddQANMySQLPerfSchemaAgentParams)(nil),            // 44: inventory.v1.AddQANMySQLPerfSchemaAgentParams
+		(*ChangeQANMySQLPerfSchemaAgentParams)(nil),         // 45: inventory.v1.ChangeQANMySQLPerfSchemaAgentParams
+		(*AddQANMySQLSlowlogAgentParams)(nil),               // 46: inventory.v1.AddQANMySQLSlowlogAgentParams
+		(*ChangeQANMySQLSlowlogAgentParams)(nil),            // 47: inventory.v1.ChangeQANMySQLSlowlogAgentParams
+		(*AddQANMongoDBProfilerAgentParams)(nil),            // 48: inventory.v1.AddQANMongoDBProfilerAgentParams
+		(*ChangeQANMongoDBProfilerAgentParams)(nil),         // 49: inventory.v1.ChangeQANMongoDBProfilerAgentParams
+		(*AddQANMongoDBMongologAgentParams)(nil),            // 50: inventory.v1.AddQANMongoDBMongologAgentParams
+		(*ChangeQANMongoDBMongologAgentParams)(nil),         // 51: inventory.v1.ChangeQANMongoDBMongologAgentParams
+		(*AddQANPostgreSQLPgStatementsAgentParams)(nil),     // 52: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams
+		(*ChangeQANPostgreSQLPgStatementsAgentParams)(nil),  // 53: inventory.v1.ChangeQANPostgreSQLPgStatementsAgentParams
+		(*AddQANPostgreSQLPgStatMonitorAgentParams)(nil),    // 54: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams
+		(*ChangeQANPostgreSQLPgStatMonitorAgentParams)(nil), // 55: inventory.v1.ChangeQANPostgreSQLPgStatMonitorAgentParams
+		(*AddRDSExporterParams)(nil),                        // 56: inventory.v1.AddRDSExporterParams
+		(*ChangeRDSExporterParams)(nil),                     // 57: inventory.v1.ChangeRDSExporterParams
+		(*AddExternalExporterParams)(nil),                   // 58: inventory.v1.AddExternalExporterParams
+		(*ChangeExternalExporterParams)(nil),                // 59: inventory.v1.ChangeExternalExporterParams
+		(*AddAzureDatabaseExporterParams)(nil),              // 60: inventory.v1.AddAzureDatabaseExporterParams
+		(*ChangeAzureDatabaseExporterParams)(nil),           // 61: inventory.v1.ChangeAzureDatabaseExporterParams
+		(*ChangeNomadAgentParams)(nil),                      // 62: inventory.v1.ChangeNomadAgentParams
+		(*AddValkeyExporterParams)(nil),                     // 63: inventory.v1.AddValkeyExporterParams
+		(*ChangeValkeyExporterParams)(nil),                  // 64: inventory.v1.ChangeValkeyExporterParams
+		(*AddRTAMongoDBAgentParams)(nil),                    // 65: inventory.v1.AddRTAMongoDBAgentParams
+		(*ChangeRTAMongoDBAgentParams)(nil),                 // 66: inventory.v1.ChangeRTAMongoDBAgentParams
+		(*AddRTAMySQLAgentParams)(nil),                      // 67: inventory.v1.AddRTAMySQLAgentParams
+		(*ChangeRTAMySQLAgentParams)(nil),                   // 68: inventory.v1.ChangeRTAMySQLAgentParams
+		(*RemoveAgentRequest)(nil),                          // 69: inventory.v1.RemoveAgentRequest
+		(*RemoveAgentResponse)(nil),                         // 70: inventory.v1.RemoveAgentResponse
+		nil,                                                 // 71: inventory.v1.PMMAgent.CustomLabelsEntry
+		nil,                                                 // 72: inventory.v1.NodeExporter.CustomLabelsEntry
+		nil,                                                 // 73: inventory.v1.MySQLdExporter.CustomLabelsEntry
+		nil,                                                 // 74: inventory.v1.MySQLdExporter.ExtraDsnParamsEntry
+		nil,                                                 // 75: inventory.v1.MongoDBExporter.CustomLabelsEntry
+		nil,                                                 // 76: inventory.v1.PostgresExporter.CustomLabelsEntry
+		nil,                                                 // 77: inventory.v1.ProxySQLExporter.CustomLabelsEntry
+		nil,                                                 // 78: inventory.v1.ValkeyExporter.CustomLabelsEntry
+		nil,                                                 // 79: inventory.v1.QANMySQLPerfSchemaAgent.CustomLabelsEntry
+		nil,                                                 // 80: inventory.v1.QANMySQLPerfSchemaAgent.ExtraDsnParamsEntry
+		nil,                                                 // 81: inventory.v1.QANMySQLSlowlogAgent.CustomLabelsEntry
+		nil,                                                 // 82: inventory.v1.QANMySQLSlowlogAgent.ExtraDsnParamsEntry
+		nil,                                                 // 83: inventory.v1.QANMongoDBProfilerAgent.CustomLabelsEntry
+		nil,                                                 // 84: inventory.v1.QANMongoDBMongologAgent.CustomLabelsEntry
+		nil,                                                 // 85: inventory.v1.RTAMongoDBAgent.CustomLabelsEntry
+		nil,                                                 // 86: inventory.v1.RTAMySQLAgent.CustomLabelsEntry
+		nil,                                                 // 87: inventory.v1.QANPostgreSQLPgStatementsAgent.CustomLabelsEntry
+		nil,                                                 // 88: inventory.v1.QANPostgreSQLPgStatMonitorAgent.CustomLabelsEntry
+		nil,                                                 // 89: inventory.v1.RDSExporter.CustomLabelsEntry
+		nil,                                                 // 90: inventory.v1.ExternalExporter.CustomLabelsEntry
+		nil,                                                 // 91: inventory.v1.AzureDatabaseExporter.CustomLabelsEntry
+		nil,                                                 // 92: inventory.v1.AddPMMAgentParams.CustomLabelsEntry
+		nil,                                                 // 93: inventory.v1.AddNodeExporterParams.CustomLabelsEntry
+		nil,                                                 // 94: inventory.v1.AddMySQLdExporterParams.CustomLabelsEntry
+		nil,                                                 // 95: inventory.v1.AddMySQLdExporterParams.ExtraDsnParamsEntry
+		nil,                                                 // 96: inventory.v1.AddMongoDBExporterParams.CustomLabelsEntry
+		nil,                                                 // 97: inventory.v1.AddPostgresExporterParams.CustomLabelsEntry
+		nil,                                                 // 98: inventory.v1.AddProxySQLExporterParams.CustomLabelsEntry
+		nil,                                                 // 99: inventory.v1.AddQANMySQLPerfSchemaAgentParams.CustomLabelsEntry
+		nil,                                                 // 100: inventory.v1.AddQANMySQLPerfSchemaAgentParams.ExtraDsnParamsEntry
+		nil,                                                 // 101: inventory.v1.AddQANMySQLSlowlogAgentParams.CustomLabelsEntry
+		nil,                                                 // 102: inventory.v1.AddQANMySQLSlowlogAgentParams.ExtraDsnParamsEntry
+		nil,                                                 // 103: inventory.v1.AddQANMongoDBProfilerAgentParams.CustomLabelsEntry
+		nil,                                                 // 104: inventory.v1.AddQANMongoDBMongologAgentParams.CustomLabelsEntry
+		nil,                                                 // 105: inventory.v1.AddQANPostgreSQLPgStatementsAgentParams.CustomLabelsEntry
+		nil,                                                 // 106: inventory.v1.AddQANPostgreSQLPgStatMonitorAgentParams.CustomLabelsEntry
+		nil,                                                 // 107: inventory.v1.AddRDSExporterParams.CustomLabelsEntry
+		nil,                                                 // 108: inventory.v1.AddExternalExporterParams.CustomLabelsEntry
+		nil,                                                 // 109: inventory.v1.AddAzureDatabaseExporterParams.CustomLabelsEntry
+		nil,                                                 // 110: inventory.v1.AddValkeyExporterParams.CustomLabelsEntry
+		nil,                                                 // 111: inventory.v1.AddRTAMongoDBAgentParams.CustomLabelsEntry
+		nil,                                                 // 112: inventory.v1.AddRTAMySQLAgentParams.CustomLabelsEntry
+		AgentStatus(0),                                      // 113: inventory.v1.AgentStatus
+		LogLevel(0),                                         // 114: inventory.v1.LogLevel
+		(*common.MetricsResolutions)(nil),                   // 115: common.MetricsResolutions
+		(*durationpb.Duration)(nil),                         // 116: google.protobuf.Duration
+		(*common.StringMap)(nil),                            // 117: common.StringMap
+	}
+)
 var file_inventory_v1_agents_proto_depIdxs = []int32{
 	71,  // 0: inventory.v1.PMMAgent.custom_labels:type_name -> inventory.v1.PMMAgent.CustomLabelsEntry
 	113, // 1: inventory.v1.VMAgent.status:type_name -> inventory.v1.AgentStatus
