@@ -866,7 +866,7 @@ func (o *SearchQueriesOKBodyQueriesItems0MongoDBPayload) UnmarshalBinary(b []byt
 
 /*
 SearchQueriesOKBodyQueriesItems0MySQLPayload QueryMySQLData holds MySQL-specific Real-Time Analytics query information.
-// The data is sourced from the sys.processlist view.
+// The data is sourced from the sys.x$processlist view.
 swagger:model SearchQueriesOKBodyQueriesItems0MySQLPayload
 */
 type SearchQueriesOKBodyQueriesItems0MySQLPayload struct {
@@ -874,10 +874,10 @@ type SearchQueriesOKBodyQueriesItems0MySQLPayload struct {
 	// MySQL instance address(host:port) that processing the query.
 	DBInstanceAddress string `json:"db_instance_address,omitempty"`
 
-	// Client program name connected to MySQL (program_name from sys.processlist).
+	// Client program name connected to MySQL (program_name from sys.x$processlist).
 	ProgramName string `json:"program_name,omitempty"`
 
-	// Database name (db from sys.processlist).
+	// Database name (db from sys.x$processlist).
 	DatabaseName string `json:"database_name,omitempty"`
 
 	// Command type the connection is executing ("Query", "Execute", etc).

@@ -137,7 +137,7 @@ func (s *Service) ListServices(ctx context.Context, req *rtav1.ListServicesReque
 
 		// PMM Agent that is linked to the requested service may be outdated and doesn't support RTA.
 		// In this case we cannot start RTA session for this service and should return an error.
-		if !isRtaFeatureSupported(*pmmAgents[0].Version, svc.ServiceType) {
+		if !isRtaFeatureSupported(pointer.GetString(pmmAgents[0].Version), svc.ServiceType) {
 			continue // skip services with unsupported pmm-agent version
 		}
 
@@ -377,7 +377,7 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 
 	// PMM Agent that is linked to the requested service may be outdated and doesn't support RTA.
 	// In this case we cannot start RTA session for this service and should return an error.
-	if !isRtaFeatureSupported(*pmmAgent.Version, service.ServiceType) {
+	if !isRtaFeatureSupported(pointer.GetString(pmmAgent.Version), service.ServiceType) {
 		return nil, status.Errorf(codes.FailedPrecondition,
 			"Service %s has pmm-agent with version not supporting Real-Time Analytics.", service.ServiceID)
 	}

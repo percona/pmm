@@ -31256,7 +31256,7 @@
                         "x-order": 8
                       },
                       "my_sql_payload": {
-                        "description": "QueryMySQLData holds MySQL-specific Real-Time Analytics query information.\nThe data is sourced from the sys.processlist view.",
+                        "description": "QueryMySQLData holds MySQL-specific Real-Time Analytics query information.\nThe data is sourced from the sys.x$processlist view.",
                         "type": "object",
                         "properties": {
                           "db_instance_address": {
@@ -31265,12 +31265,12 @@
                             "x-order": 0
                           },
                           "program_name": {
-                            "description": "Client program name connected to MySQL (program_name from sys.processlist).",
+                            "description": "Client program name connected to MySQL (program_name from sys.x$processlist).",
                             "type": "string",
                             "x-order": 1
                           },
                           "database_name": {
-                            "description": "Database name (db from sys.processlist).",
+                            "description": "Database name (db from sys.x$processlist).",
                             "type": "string",
                             "x-order": 2
                           },
