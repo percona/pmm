@@ -101,7 +101,6 @@ func (o *ListServicesOK) GetPayload() *ListServicesOKBody {
 }
 
 func (o *ListServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListServicesOKBody)
 
 	// response payload
@@ -175,7 +174,6 @@ func (o *ListServicesDefault) GetPayload() *ListServicesDefaultBody {
 }
 
 func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListServicesDefaultBody)
 
 	// response payload
@@ -191,7 +189,6 @@ ListServicesDefaultBody list services default body
 swagger:model ListServicesDefaultBody
 */
 type ListServicesDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -261,9 +258,7 @@ func (o *ListServicesDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -283,7 +278,6 @@ func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -312,7 +306,6 @@ ListServicesDefaultBodyDetailsItems0 list services default body details items0
 swagger:model ListServicesDefaultBodyDetailsItems0
 */
 type ListServicesDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -324,7 +317,6 @@ type ListServicesDefaultBodyDetailsItems0 struct {
 func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -362,7 +354,6 @@ func (o *ListServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListServicesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -426,7 +417,6 @@ ListServicesOKBody list services OK body
 swagger:model ListServicesOKBody
 */
 type ListServicesOKBody struct {
-
 	// mysql
 	Mysql []*ListServicesOKBodyMysqlItems0 `json:"mysql"`
 
@@ -736,9 +726,7 @@ func (o *ListServicesOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ListServicesOKBody) contextValidateMysql(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Mysql); i++ {
-
 		if o.Mysql[i] != nil {
 
 			if swag.IsZero(o.Mysql[i]) { // not required
@@ -758,16 +746,13 @@ func (o *ListServicesOKBody) contextValidateMysql(ctx context.Context, formats s
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListServicesOKBody) contextValidateMongodb(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Mongodb); i++ {
-
 		if o.Mongodb[i] != nil {
 
 			if swag.IsZero(o.Mongodb[i]) { // not required
@@ -787,16 +772,13 @@ func (o *ListServicesOKBody) contextValidateMongodb(ctx context.Context, formats
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListServicesOKBody) contextValidatePostgresql(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Postgresql); i++ {
-
 		if o.Postgresql[i] != nil {
 
 			if swag.IsZero(o.Postgresql[i]) { // not required
@@ -816,16 +798,13 @@ func (o *ListServicesOKBody) contextValidatePostgresql(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListServicesOKBody) contextValidateProxysql(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Proxysql); i++ {
-
 		if o.Proxysql[i] != nil {
 
 			if swag.IsZero(o.Proxysql[i]) { // not required
@@ -845,16 +824,13 @@ func (o *ListServicesOKBody) contextValidateProxysql(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListServicesOKBody) contextValidateHaproxy(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Haproxy); i++ {
-
 		if o.Haproxy[i] != nil {
 
 			if swag.IsZero(o.Haproxy[i]) { // not required
@@ -874,16 +850,13 @@ func (o *ListServicesOKBody) contextValidateHaproxy(ctx context.Context, formats
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListServicesOKBody) contextValidateExternal(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.External); i++ {
-
 		if o.External[i] != nil {
 
 			if swag.IsZero(o.External[i]) { // not required
@@ -903,16 +876,13 @@ func (o *ListServicesOKBody) contextValidateExternal(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListServicesOKBody) contextValidateValkey(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Valkey); i++ {
-
 		if o.Valkey[i] != nil {
 
 			if swag.IsZero(o.Valkey[i]) { // not required
@@ -932,7 +902,6 @@ func (o *ListServicesOKBody) contextValidateValkey(ctx context.Context, formats 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -961,7 +930,6 @@ ListServicesOKBodyExternalItems0 ExternalService represents a generic External s
 swagger:model ListServicesOKBodyExternalItems0
 */
 type ListServicesOKBodyExternalItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1026,7 +994,6 @@ ListServicesOKBodyHaproxyItems0 HAProxyService represents a generic HAProxy serv
 swagger:model ListServicesOKBodyHaproxyItems0
 */
 type ListServicesOKBodyHaproxyItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1082,7 +1049,6 @@ ListServicesOKBodyMongodbItems0 MongoDBService represents a generic MongoDB inst
 swagger:model ListServicesOKBodyMongodbItems0
 */
 type ListServicesOKBodyMongodbItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1153,7 +1119,6 @@ ListServicesOKBodyMysqlItems0 MySQLService represents a generic MySQL instance.
 swagger:model ListServicesOKBodyMysqlItems0
 */
 type ListServicesOKBodyMysqlItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1227,7 +1192,6 @@ ListServicesOKBodyPostgresqlItems0 PostgreSQLService represents a generic Postgr
 swagger:model ListServicesOKBodyPostgresqlItems0
 */
 type ListServicesOKBodyPostgresqlItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1304,7 +1268,6 @@ ListServicesOKBodyProxysqlItems0 ProxySQLService represents a generic ProxySQL i
 swagger:model ListServicesOKBodyProxysqlItems0
 */
 type ListServicesOKBodyProxysqlItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1375,7 +1338,6 @@ ListServicesOKBodyValkeyItems0 ValkeyService represents a generic Valkey instanc
 swagger:model ListServicesOKBodyValkeyItems0
 */
 type ListServicesOKBodyValkeyItems0 struct {
-
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
 

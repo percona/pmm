@@ -7,14 +7,16 @@
 package realtimeanalyticsv1
 
 import (
-	_ "github.com/percona/pmm/api/extensions/v1"
+	reflect "reflect"
+	sync "sync"
+	unsafe "unsafe"
+
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	durationpb "google.golang.org/protobuf/types/known/durationpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
-	unsafe "unsafe"
+
+	_ "github.com/percona/pmm/api/extensions/v1"
 )
 
 const (
@@ -468,14 +470,17 @@ func file_realtimeanalytics_v1_query_proto_rawDescGZIP() []byte {
 	return file_realtimeanalytics_v1_query_proto_rawDescData
 }
 
-var file_realtimeanalytics_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-var file_realtimeanalytics_v1_query_proto_goTypes = []any{
-	(*QueryMongoDBData)(nil),      // 0: realtimeanalytics.v1.QueryMongoDBData
-	(*QueryMySQLData)(nil),        // 1: realtimeanalytics.v1.QueryMySQLData
-	(*QueryData)(nil),             // 2: realtimeanalytics.v1.QueryData
-	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),   // 4: google.protobuf.Duration
-}
+var (
+	file_realtimeanalytics_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+	file_realtimeanalytics_v1_query_proto_goTypes  = []any{
+		(*QueryMongoDBData)(nil),      // 0: realtimeanalytics.v1.QueryMongoDBData
+		(*QueryMySQLData)(nil),        // 1: realtimeanalytics.v1.QueryMySQLData
+		(*QueryData)(nil),             // 2: realtimeanalytics.v1.QueryData
+		(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),   // 4: google.protobuf.Duration
+	}
+)
+
 var file_realtimeanalytics_v1_query_proto_depIdxs = []int32{
 	3, // 0: realtimeanalytics.v1.QueryMongoDBData.operation_start_time:type_name -> google.protobuf.Timestamp
 	4, // 1: realtimeanalytics.v1.QueryData.query_execution_duration:type_name -> google.protobuf.Duration
