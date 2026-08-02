@@ -16,7 +16,6 @@
 package supervisord
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -37,10 +36,6 @@ func TestDevContainer(t *testing.T) {
 
 		s := New("/etc/supervisord.d", &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}})
 		require.NotEmpty(t, s.supervisorctlPath)
-
-		ctx, cancel := context.WithCancel(t.Context())
-		defer cancel()
-		go s.Run(ctx)
 
 		// restore original files after test
 		originals := make(map[string][]byte)
