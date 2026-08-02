@@ -683,7 +683,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 			TextFiles:       builtinAgent.GetTextFiles(),
 			TLSSkipVerify:   builtinAgent.TlsSkipVerify,
 		}
-		agent, err = mysqlrta.New(params, l)
+		agent = mysqlrta.New(params, l)
 
 	case typeTestNoop:
 		agent = noop.New()

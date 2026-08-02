@@ -34,7 +34,8 @@ const (
 // and an error if connection can't be established.
 func createConnection(ctx context.Context, dsn string, files map[string]string, tlsSkipVerify bool) (*sql.DB, string, error) {
 	if files != nil {
-		if err := tlshelpers.RegisterMySQLCerts(files, tlsSkipVerify); err != nil {
+		err := tlshelpers.RegisterMySQLCerts(files, tlsSkipVerify)
+		if err != nil {
 			return nil, "", err
 		}
 	}
@@ -58,7 +59,8 @@ func createConnection(ctx context.Context, dsn string, files map[string]string, 
 	pingCtx, cancel := context.WithTimeout(ctx, mysqlQueryTimeout)
 	defer cancel()
 
-	if err = db.PingContext(pingCtx); err != nil {
+	err = db.PingContext(pingCtx)
+	if err != nil {
 		_ = db.Close()
 		return nil, "", err
 	}

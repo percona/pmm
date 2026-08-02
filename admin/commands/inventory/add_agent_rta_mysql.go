@@ -50,6 +50,8 @@ func (res *addAgentRTAMySQLAgentResult) String() string {
 
 // AddAgentRTAMySQLAgentCommand is used by Kong for CLI flags and commands.
 type AddAgentRTAMySQLAgentCommand struct {
+	flags.LogLevelFatalFlags
+
 	PMMAgentID          string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID           string            `arg:"" help:"Service identifier"`
 	Username            string            `arg:"" optional:"" help:"MySQL username for getting queries data"`
@@ -62,8 +64,6 @@ type AddAgentRTAMySQLAgentCommand struct {
 	TLSCertFile         string            `help:"Path to client certificate file"`
 	TLSKeyFile          string            `help:"Path to client key file"`
 	CollectInterval     *time.Duration    `placeholder:"DURATION" help:"Query collect interval (default: server-defined 2s)"`
-
-	flags.LogLevelFatalFlags
 }
 
 // RunCmd executes the AddAgentRTAMySQLAgentCommand and returns the result.

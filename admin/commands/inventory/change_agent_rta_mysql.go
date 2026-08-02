@@ -87,41 +87,40 @@ type ChangeAgentRTAMySQLAgentCommand struct {
 	SkipConnectionCheck *bool `help:"Skip connection check"`
 }
 
+// readFlagFile reads the file behind an optional CLI flag; a nil path means
+// the flag was not provided.
+func readFlagFile(path *string, what string) (*string, error) {
+	if path == nil {
+		return nil, nil //nolint:nilnil
+	}
+
+	content, err := commands.ReadFile(*path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read %s: %w", what, err)
+	}
+
+	return &content, nil
+}
+
 // RunCmd executes the ChangeAgentRTAMySQLAgentCommand and returns the result.
 func (cmd *ChangeAgentRTAMySQLAgentCommand) RunCmd() (commands.Result, error) {
-	var changes []string
-
 	// Parse custom labels if provided
 	customLabels := commands.ParseKeyValuePair(cmd.CustomLabels)
 
 	// Read TLS files if provided
-	var tlsCa, tlsCert, tlsKey *string
-
-	if cmd.TLSCaFile != nil {
-		content, err := commands.ReadFile(*cmd.TLSCaFile)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read TLS CA file: %w", err)
-		}
-
-		tlsCa = &content
+	tlsCa, err := readFlagFile(cmd.TLSCaFile, "TLS CA file")
+	if err != nil {
+		return nil, err
 	}
 
-	if cmd.TLSCertFile != nil {
-		content, err := commands.ReadFile(*cmd.TLSCertFile)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read TLS certificate file: %w", err)
-		}
-
-		tlsCert = &content
+	tlsCert, err := readFlagFile(cmd.TLSCertFile, "TLS certificate file")
+	if err != nil {
+		return nil, err
 	}
 
-	if cmd.TLSKeyFile != nil {
-		content, err := commands.ReadFile(*cmd.TLSKeyFile)
-		if err != nil {
-			return nil, fmt.Errorf("failed to read TLS key file: %w", err)
-		}
-
-		tlsKey = &content
+	tlsKey, err := readFlagFile(cmd.TLSKeyFile, "TLS key file")
+	if err != nil {
+		return nil, err
 	}
 
 	body := &agents.ChangeAgentParamsBodyRtaMysqlAgent{
@@ -162,7 +161,16 @@ func (cmd *ChangeAgentRTAMySQLAgentCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	// Track changes
+	return &changeAgentRTAMySQLAgentResult{
+		Agent:   resp.Payload.RtaMysqlAgent,
+		Changes: cmd.describeChanges(customLabels),
+	}, nil
+}
+
+// describeChanges lists the modifications applied by this command invocation.
+func (cmd *ChangeAgentRTAMySQLAgentCommand) describeChanges(customLabels *map[string]string) []string {
+	var changes []string
+
 	if cmd.Enable != nil {
 		if *cmd.Enable {
 			changes = append(changes, "enabled agent")
@@ -214,8 +222,5 @@ func (cmd *ChangeAgentRTAMySQLAgentCommand) RunCmd() (commands.Result, error) {
 		changes = append(changes, fmt.Sprintf("changed collect interval to %s", *cmd.CollectInterval))
 	}
 
-	return &changeAgentRTAMySQLAgentResult{
-		Agent:   resp.Payload.RtaMysqlAgent,
-		Changes: changes,
-	}, nil
+	return changes
 }

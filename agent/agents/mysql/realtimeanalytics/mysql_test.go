@@ -31,11 +31,13 @@ func TestCoerceValue(t *testing.T) {
 	assert.Equal(t, int64(123), coerceValue(sql.RawBytes("123")))
 	assert.Equal(t, int64(-5), coerceValue(sql.RawBytes("-5")))
 	assert.Equal(t, int64(2648724198000), coerceValue(sql.RawBytes("2648724198000")))
-	assert.Equal(t, 1.5, coerceValue(sql.RawBytes("1.5")))
+	assert.InEpsilon(t, 1.5, coerceValue(sql.RawBytes("1.5")), 0.0001)
 	assert.Equal(t, "COMMIT", coerceValue(sql.RawBytes("COMMIT")))
 	assert.Equal(t, "ACTIVE", coerceValue(sql.RawBytes("ACTIVE")))
 	// non-nil empty value stays an empty string (not nil)
-	assert.Equal(t, "", coerceValue(sql.RawBytes("")))
+	emptyValue := coerceValue(sql.RawBytes(""))
+	assert.NotNil(t, emptyValue)
+	assert.Empty(t, emptyValue)
 }
 
 func TestMapHelpers(t *testing.T) {
@@ -52,8 +54,8 @@ func TestMapHelpers(t *testing.T) {
 
 	assert.Equal(t, "7", mapString(row, "i"))
 	assert.Equal(t, "text", mapString(row, "s"))
-	assert.Equal(t, "", mapString(row, "missing"))
-	assert.Equal(t, "", mapString(row, "null"))
+	assert.Empty(t, mapString(row, "missing"))
+	assert.Empty(t, mapString(row, "null"))
 
 	assert.Equal(t, int64(7), mapInt(row, "i"))
 	assert.Equal(t, int64(2), mapInt(row, "f")) // truncates

@@ -40,12 +40,12 @@ import (
 
 const (
 	changesBufferSize = 10
-	// picosecondsPerNanosecond is used to convert MySQL picosecond latencies into Go durations.
+	// Number of picoseconds per nanosecond, used to convert MySQL picosecond latencies into Go durations.
 	picosecondsPerNanosecond = 1000
 )
 
 // currentQueriesSQL fetches currently running queries from the sys schema.
-// sys.x$processlist is the machine-readable (raw) version of sys.processlist
+// The sys.x$processlist view is the machine-readable (raw) version of sys.processlist
 // (https://dev.mysql.com/doc/refman/8.4/en/sys-processlist.html); it exposes
 // the same columns but with unformatted numeric latencies.
 // We select all columns so the complete row is preserved in the raw payload
@@ -99,7 +99,7 @@ type Params struct {
 // New creates new MySQLRTA service.
 // The DSN is expected to be already rendered by the caller (the supervisor renders
 // TLS file templates before constructing the agent).
-func New(params *Params, l *logrus.Entry) (*MySQLRTA, error) {
+func New(params *Params, l *logrus.Entry) *MySQLRTA {
 	var files map[string]string
 	if params.TextFiles != nil {
 		files = params.TextFiles.Files
@@ -115,7 +115,7 @@ func New(params *Params, l *logrus.Entry) (*MySQLRTA, error) {
 		collectInterval: params.CollectInterval,
 		l:               l,
 		changes:         make(chan agents.Change, changesBufferSize),
-	}, nil
+	}
 }
 
 // Run extracts currently running DB queries from MySQL
@@ -162,7 +162,8 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 
 	// Verify the instance can actually serve RTA (not MariaDB, performance_schema on,
 	// sys.x$processlist readable) before reporting RUNNING.
-	if err := m.checkPrerequisites(ctx); err != nil {
+	err = m.checkPrerequisites(ctx)
+	if err != nil {
 		// A shutdown during initialization is a normal stop, not an initialization failure.
 		if ctx.Err() != nil {
 			return
@@ -234,7 +235,8 @@ func (m *MySQLRTA) checkPrerequisites(ctx context.Context) error {
 	}
 
 	var performanceSchema sql.NullInt64
-	if err := m.db.QueryRowContext(checkCtx, "SELECT @@performance_schema").Scan(&performanceSchema); err != nil {
+	err = m.db.QueryRowContext(checkCtx, "SELECT @@performance_schema").Scan(&performanceSchema)
+	if err != nil {
 		return fmt.Errorf("failed to read @@performance_schema: %w", err)
 	}
 	if performanceSchema.Int64 != 1 {
@@ -246,9 +248,9 @@ func (m *MySQLRTA) checkPrerequisites(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("sys.x$processlist is not accessible: %w", err)
 	}
-	_ = rows.Close()
+	defer rows.Close() //nolint:errcheck
 
-	return nil
+	return rows.Err()
 }
 
 // collectProcessList queries sys.x$processlist and parses the result into a slice of *QueryData.
@@ -293,7 +295,8 @@ func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, 
 		results = append(results, queryData)
 	}
 
-	if err := rows.Err(); err != nil {
+	err = rows.Err()
+	if err != nil {
 		m.l.Warnf("Failed to iterate processlist rows: %v", err)
 		return nil, err
 	}
@@ -311,7 +314,8 @@ func scanRow(rows *sql.Rows, columns []string) (map[string]any, error) {
 		scanArgs[i] = &rawValues[i]
 	}
 
-	if err := rows.Scan(scanArgs...); err != nil {
+	err := rows.Scan(scanArgs...)
+	if err != nil {
 		return nil, err
 	}
 
@@ -337,10 +341,14 @@ func coerceValue(b sql.RawBytes) any {
 	}
 
 	s := string(b)
-	if i, err := strconv.ParseInt(s, 10, 64); err == nil {
+
+	i, intErr := strconv.ParseInt(s, 10, 64)
+	if intErr == nil {
 		return i
 	}
-	if f, err := strconv.ParseFloat(s, 64); err == nil {
+
+	f, floatErr := strconv.ParseFloat(s, 64)
+	if floatErr == nil {
 		return f
 	}
 
