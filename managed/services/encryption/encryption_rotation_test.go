@@ -193,7 +193,8 @@ func insertTestData(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	_, err = db.ExecContext(context.Background(),
+	_, err = db.ExecContext(
+		context.Background(),
 		`INSERT INTO agents (agent_id, agent_type, username, password, runs_on_node_id, pmm_agent_id, disabled, status, created_at, updated_at, tls, tls_skip_verify, qan_options, mysql_options, aws_options, exporter_options) `+
 			`VALUES ('1', 'pmm-agent', $1, $2, '1', NULL, false, '', $3, $4, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', $5, '{"rds_basic_metrics_disabled": true, "rds_enhanced_metrics_disabled": true}', '{"push_metrics": false, "expose_exporter": false}')`,
 		originalUsernameHash, originalPasswordHash, now, now, string(mysqlOptions),
