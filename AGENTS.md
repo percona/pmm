@@ -220,8 +220,8 @@ Full rules: [`dev/docs/process/GIT_AND_GITHUB.md`](dev/docs/process/GIT_AND_GITH
 
 - **Bot findings are claims to verify, not facts.** Check each against the actual code/tooling before acting — CodeRabbit mixes correct catches with false positives. Fix the real ones (state what you verified), skip the rest with a brief reason, and keep changes minimal.
 - **Fetching them:**
-  - With `gh` (local): `gh api repos/percona/pmm/pulls/<N>/comments` (inline) and `.../issues/<N>/comments` (top-level), or `gh pr view <N> --comments`.
-  - **No `gh` (Claude Code web / sandboxes):** make a **single** unauthenticated call — `curl -s https://api.github.com/repos/percona/pmm/pulls/<N>/comments` (all inline comments as JSON) — or use `WebFetch` on the PR URL. Don't loop over `api.github.com`; the unauthenticated limit is 60/hour.
+  - With `gh` (local): add `--paginate` for all pages — `gh api --paginate repos/percona/pmm/pulls/<N>/comments` (inline) and `.../issues/<N>/comments` (top-level), or `gh pr view <N> --comments`.
+  - **No `gh` (Claude Code web / sandboxes):** the unauthenticated limit is 60/hour, so don't loop — `curl -s 'https://api.github.com/repos/percona/pmm/pulls/<N>/comments?per_page=100'` gets up to 100 **inline** comments in one call (top-level ones live at `issues/<N>/comments`); for the complete thread use `WebFetch` on the PR URL.
 
 ---
 
