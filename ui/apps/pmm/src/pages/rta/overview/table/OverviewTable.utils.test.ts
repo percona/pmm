@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
+import { type MRT_Row } from 'material-react-table';
+import { QueryData } from 'types/rta.types';
 import {
+  filterCommaSeparated,
   isTransactionControl,
   queryDatabaseName,
   queryLanguage,
@@ -56,6 +59,46 @@ describe('queryUsername', () => {
 
   it('resolves the user from the MySQL payload', () => {
     expect(queryUsername(TEST_MYSQL_QUERY_DATA)).toBe('username');
+  });
+});
+
+describe('filterCommaSeparated', () => {
+  const rowWithValue = (value: string) =>
+    ({ getValue: () => value }) as unknown as MRT_Row<QueryData>;
+
+  it('matches a single lazy (substring, case-insensitive) term', () => {
+    expect(
+      filterCommaSeparated(rowWithValue('sbtest'), 'databaseName', 'SBT')
+    ).toBe(true);
+    expect(
+      filterCommaSeparated(rowWithValue('sbtest'), 'databaseName', 'orders')
+    ).toBe(false);
+  });
+
+  it('matches any term of a comma-separated list', () => {
+    expect(
+      filterCommaSeparated(
+        rowWithValue('orders'),
+        'databaseName',
+        'sbtest, ord'
+      )
+    ).toBe(true);
+    expect(
+      filterCommaSeparated(
+        rowWithValue('inventory'),
+        'databaseName',
+        'sbtest, ord'
+      )
+    ).toBe(false);
+  });
+
+  it('ignores empty terms and passes everything for a blank filter', () => {
+    expect(
+      filterCommaSeparated(rowWithValue('anything'), 'databaseName', ' , ,')
+    ).toBe(true);
+    expect(
+      filterCommaSeparated(rowWithValue('anything'), 'databaseName', '')
+    ).toBe(true);
   });
 });
 

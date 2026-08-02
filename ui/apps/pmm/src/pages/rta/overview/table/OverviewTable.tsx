@@ -9,7 +9,7 @@ import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
-import { filterElapsedTime } from './OverviewTable.utils';
+import { filterCommaSeparated, filterElapsedTime } from './OverviewTable.utils';
 
 interface Props {
   queries: QueryData[];
@@ -60,9 +60,6 @@ const OverviewTable: FC<Props> = ({
         {...tableProps}
         enableStickyHeader
         enableColumnPinning
-        // multi-select column filters (database, user) derive their options
-        // from the unique values present in the current result set
-        enableFacetedValues
         enableGlobalFilter={false}
         enableHiding={false}
         enableRowHoverAction
@@ -72,6 +69,9 @@ const OverviewTable: FC<Props> = ({
         }}
         renderTopToolbarCustomActions={actions}
         filterFns={{
+          // comma-separated list of lazy (substring) matches for Database/User
+          commaSeparatedFilterFn: (row, id, filterValue) =>
+            filterCommaSeparated(row as MRT_Row<QueryData>, id, filterValue),
           // default 'betweenInclusive' filter fails on values like '1.50', discarding the row that has 1.5 seconds
           timeRangeFilterFn: (row, id, filterValue) =>
             filterElapsedTime(row as MRT_Row<QueryData>, id, filterValue),

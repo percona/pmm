@@ -14,8 +14,8 @@ export const codeBlockLanguage = (language: CodeLanguage): string =>
 
 // Sentinel for rows where the database reports no value (e.g. a MySQL
 // connection that never ran USE has a NULL database). Using a non-empty
-// label keeps the faceted multi-select filter options readable; an empty
-// string would produce a blank option and filter chip.
+// label keeps the cell readable and lets such rows be found by typing
+// it into the column filter.
 export const UNAVAILABLE_VALUE = 'Unavailable';
 
 // Fields common to all database types are resolved from whichever payload is
@@ -54,6 +54,29 @@ export const isTransactionControl = (query: RawQueryData): boolean => {
     .replace(/\s+/g, ' ')
     .toUpperCase();
   return TRANSACTION_CONTROL_STATEMENTS.has(normalized);
+};
+
+// filterCommaSeparated matches a cell against a comma-separated list of
+// case-insensitive substrings; a row passes when any term matches. This keeps
+// the Database/User filters usable with thousands of distinct values, where a
+// value picker would not scale.
+export const filterCommaSeparated = (
+  row: MRT_Row<QueryData>,
+  id: string,
+  filterValue: string
+) => {
+  const terms = String(filterValue)
+    .split(',')
+    .map((term) => term.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (!terms.length) {
+    return true;
+  }
+
+  const value = String(row.getValue(id) ?? '').toLowerCase();
+
+  return terms.some((term) => value.includes(term));
 };
 
 export const filterElapsedTime = (

@@ -41,7 +41,7 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     header: Messages.columns.database,
     id: 'databaseName',
     accessorFn: queryDatabaseName,
-    filterVariant: 'multi-select',
+    filterFn: 'commaSeparatedFilterFn',
     Cell: ({ cell }) =>
       cell.getValue<string>() === UNAVAILABLE_VALUE ? (
         <UnavailableText />
@@ -57,7 +57,7 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     header: Messages.columns.user,
     id: 'username',
     accessorFn: queryUsername,
-    filterVariant: 'multi-select',
+    filterFn: 'commaSeparatedFilterFn',
     Cell: ({ cell }) =>
       cell.getValue<string>() === UNAVAILABLE_VALUE ? (
         <UnavailableText />
