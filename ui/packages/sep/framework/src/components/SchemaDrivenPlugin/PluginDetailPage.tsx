@@ -388,7 +388,7 @@ function DetailViewSectionCard({
 function ConnectivityWarningAlert({
   warning,
 }: {
-  warning: SepComponents['schemas']['ConnectivityWarning'];
+  warning: SepComponents['schemas']['framework__ConnectivityWarning'];
 }) {
   const [logOpen, setLogOpen] = useState(false);
   const message =
@@ -504,7 +504,7 @@ function OverviewTab({
         typeof connectivityWarning === 'object' && (
           <ConnectivityWarningAlert
             warning={
-              connectivityWarning as SepComponents['schemas']['ConnectivityWarning']
+              connectivityWarning as SepComponents['schemas']['framework__ConnectivityWarning']
             }
           />
         )}

@@ -16,7 +16,11 @@
  */
 
 import { apiClient } from './client';
-import type { SPAOAuthTokenResponse, User } from './types/api';
+import type {
+  SessionExchangeTokenResponse,
+  SPAOAuthTokenResponse,
+  User,
+} from './types/api';
 
 /**
  * POST /api/oauth/login
@@ -54,6 +58,40 @@ export async function postLogin(
 export async function postRefresh(): Promise<SPAOAuthTokenResponse> {
   const { data } =
     await apiClient.post<SPAOAuthTokenResponse>('/oauth/refresh');
+  return data;
+}
+
+/**
+ * POST /api/oauth/session
+ *
+ * Ambient auto-login from an existing PMM/Grafana session cookie. The browser
+ * sends the `grafana_session` cookie automatically; there is no request body.
+ * On success the backend sets the `HttpOnly` refresh cookie and returns the
+ * slim access shape; a 401 (no valid ambient session) means "not signed in".
+ */
+export async function postSession(): Promise<SPAOAuthTokenResponse> {
+  const { data } =
+    await apiClient.post<SPAOAuthTokenResponse>('/oauth/session');
+  return data;
+}
+
+/**
+ * POST /api/oauth/session/exchange
+ *
+ * Exchange an ambient PMM/Grafana session cookie for a short-lived SEP bearer.
+ * The browser sends the `grafana_session` cookie automatically; there is no
+ * request body. Unlike `postSession`, no cookie is set and no refresh token is
+ * issued — the caller holds the token in memory and re-exchanges before
+ * `expires_in` elapses. A 401 means "no valid ambient session".
+ *
+ * This is the endpoint the PMM-embedded token provider will call to replace
+ * the interim `SEP_INTERNAL_TOKEN` wiring in `apps/pmm/src/sep/bootstrap.ts`,
+ * whose service principal hardcodes `is_admin = False`.
+ */
+export async function postSessionExchange(): Promise<SessionExchangeTokenResponse> {
+  const { data } = await apiClient.post<SessionExchangeTokenResponse>(
+    '/oauth/session/exchange'
+  );
   return data;
 }
 

@@ -183,6 +183,7 @@ export type {
   DownloadLog,
   FileMetadata,
   TaskHistoryFilesMap,
+  UseTaskHistoryFilesOptions,
   TaskFileDownloadParams,
   UseSnippetPluginExecutionOptions,
 } from './hooks';

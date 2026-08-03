@@ -21,11 +21,23 @@ import { apiClient, type SepComponents } from '@sep/api';
 export type FileMetadata = SepComponents['schemas']['FileMetadata'];
 export type TaskHistoryFilesMap = Record<string, FileMetadata>;
 
-export function useTaskHistoryFiles(taskHistoryId: number | null | undefined) {
+export interface UseTaskHistoryFilesOptions {
+  /**
+   * React Query stale time in ms. The dialog keeps the default ``0`` so a
+   * re-open always re-lists; the history-table download affordance can pass a
+   * longer value to avoid re-hitting Nomad on every poll tick.
+   */
+  staleTime?: number;
+}
+
+export function useTaskHistoryFiles(
+  taskHistoryId: number | null | undefined,
+  options?: UseTaskHistoryFilesOptions
+) {
   return useQuery<TaskHistoryFilesMap>({
     queryKey: ['task-history-files', taskHistoryId],
     enabled: taskHistoryId !== null && taskHistoryId !== undefined,
-    staleTime: 0,
+    staleTime: options?.staleTime ?? 0,
     queryFn: async () => {
       const { data } = await apiClient.get<TaskHistoryFilesMap>(
         `/files/${taskHistoryId}`,

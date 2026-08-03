@@ -34,6 +34,7 @@ export function HostField({ field }: HostFieldProps) {
       required={field.required}
       dependsOn={field.depends_on}
       serviceTypes={serviceTypes}
+      allowCustom={field.allow_custom}
     />
   );
 }

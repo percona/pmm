@@ -132,6 +132,90 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/oauth/session': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Spa Session Login
+     * @description Authenticate the SPA from an ambient Grafana session cookie.
+     *
+     *     Read the ambient Grafana session cookie off the request, validate it against
+     *     Grafana, set the ``HttpOnly`` refresh cookie scoped to ``/api/oauth``, and
+     *     return the slim access assertion in JSON. A ``401`` (no valid ambient
+     *     session) tells the SPA to show its login screen.
+     *
+     *     :param request: The incoming request, carrying the ambient Grafana session
+     *         cookie.
+     *     :param response: The HTTP response on which to set the refresh cookie.
+     *     :return: The slim OAuth token response for the SPA.
+     *     :raises HTTPUnauthorizedException: If there is no valid ambient session.
+     */
+    post: operations['oauth_spa_session_login_api_oauth_session_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/oauth/session/exchange': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Spa Session Exchange
+     * @description Mint a short-lived SEP bearer from an ambient Grafana session.
+     *
+     *     Serves an embedded client that already carries the host's session cookie on
+     *     the same origin. Unlike ``POST /session``, set no cookie and issue no refresh
+     *     token: the caller holds the bearer in memory and exchanges again before it
+     *     expires, so the deployment never shares a long-lived credential.
+     *
+     *     Every exchange re-reads the identity from the provider and no validation is
+     *     cached, so a role change takes effect within one bearer lifetime. A
+     *     signed-out browser loses embedded access just as fast, because without the
+     *     session cookie it cannot obtain another bearer -- though whether a
+     *     *previously copied* host cookie stops working depends on the host revoking
+     *     its own session server-side, which is outside SEP's control.
+     *
+     *     Carries no auth dependency by design: the caller is not yet SEP-authenticated,
+     *     and the ambient session cookie is the credential being presented. No CSRF
+     *     primitive applies either -- ``IsCsrfValidated`` guards form data on the
+     *     server-rendered login route, and requiring a Bearer token cannot gate an
+     *     endpoint whose purpose is to issue one. That is safe because a cross-origin
+     *     attacker cannot read this response (the CORS posture is an explicit
+     *     per-environment origin allowlist, with the middleware absent when none is
+     *     configured), and the bearer-authenticated calls the token enables are
+     *     CSRF-exempt by design, since browsers never attach an ``Authorization``
+     *     header automatically.
+     *
+     *     Every failure -- no cookie, a rejected session, an unreachable provider --
+     *     denies with the same ``401`` rather than reporting a reason the route cannot
+     *     distinguish.
+     *
+     *     :param request: The incoming request, carrying the ambient session cookie.
+     *     :param response: The HTTP response, marked uncacheable so no intermediary
+     *         stores the minted bearer.
+     *     :return: The minted bearer and its lifetime.
+     *     :raises HTTPUnauthorizedException: If there is no valid ambient session.
+     */
+    post: operations['oauth_spa_session_exchange_api_oauth_session_exchange_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/oauth/token': {
     parameters: {
       query?: never;
@@ -283,31 +367,20 @@ export interface components {
      * @description Represent a Casdoor user.
      *
      *     :param id: The unique identifier of the user.
-     *     :type id: UUID4
      *     :param email: The email address of the user.
-     *     :type email: EmailStr
      *     :param first_name: The first name of the user.
-     *     :type first_name: str
      *     :param last_name: The last name of the user.
-     *     :type last_name: str
      *     :param is_admin: Whether the user has administrative privileges. Defaults to False.
-     *     :type is_admin: bool
      *     :param created_time: The datetime when the user was created. Defaults to current
      *         datetime.
-     *     :type created_time: datetime | None
      *     :param updated_time: The datetime when the user was last updated. Defaults to
      *         current datetime.
-     *     :type updated_time: datetime | None
      *     :param username: The user's Casdoor username.
-     *     :type username: CasdoorUsernameField
      *     :param owner: The user's Casdoor organization.
-     *     :type owner: str
-     *     :param is_forbidden: Whether the user has the `is_forbidden` attribute set in
+     *     :param is_forbidden: Whether the user has the ``is_forbidden`` attribute set in
      *         Casdoor. Defaults to False.
-     *     :type is_forbidden: bool
-     *     :param is_deleted: Whether the user has the `is_deleted` attribute set in Casdoor.
+     *     :param is_deleted: Whether the user has the ``is_deleted`` attribute set in Casdoor.
      *         Defaults to False.
-     *     :type is_deleted: bool
      */
     CasdoorUser: {
       /** Createdtime */
@@ -316,7 +389,7 @@ export interface components {
        * Email
        * @default
        */
-      email: string | '';
+      email: string;
       /**
        * Firstname
        * @default
@@ -340,7 +413,6 @@ export interface components {
        * @description Return True if the user is not forbidden nor deleted.
        *
        *     :return: True if the user is active.
-       *     :rtype: bool
        */
       readonly isActive: boolean;
       /**
@@ -436,6 +508,25 @@ export interface components {
      *     :type expires_in: TimedeltaSeconds
      */
     SPAOAuthTokenResponse: {
+      /** Access Token */
+      access_token: string;
+      /** Expires In */
+      expires_in: number;
+    };
+    /**
+     * SessionExchangeTokenResponse
+     * @description Represent the bearer returned when an ambient session is exchanged.
+     *
+     *     Mirror :class:`SPAOAuthTokenResponse`'s field names so a client's token
+     *     provider reads the same shape, but keep the contract separate: no refresh
+     *     token is issued and no cookie is set, so the holder renews by exchanging
+     *     again rather than by refreshing.
+     *
+     *     :param access_token: The short-lived token used to access protected
+     *         resources.
+     *     :param expires_in: The time duration after which the token expires.
+     */
+    SessionExchangeTokenResponse: {
       /** Access Token */
       access_token: string;
       /** Expires In */
@@ -561,6 +652,46 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  oauth_spa_session_login_api_oauth_session_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SPAOAuthTokenResponse'];
+        };
+      };
+    };
+  };
+  oauth_spa_session_exchange_api_oauth_session_exchange_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SessionExchangeTokenResponse'];
         };
       };
     };

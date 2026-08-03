@@ -155,6 +155,7 @@
         "title": "HostSystemObservationWrite",
         "type": "object"
       },
+      "JsonValue": {},
       "Node": {
         "description": "Represent a node in the inventory.\n\n:param address: The network address of the node.\n:type address: NonEmptyStr\n:param name: The name of the node.\n:type name: NonEmptyStr\n:param external_id: An external identifier for the node. Must be unique for source,\n    as defined by composite index ix_node_external_id_source.\n:type external_id: NonEmptyStr | None\n:param source: The source from which the node information is derived. Must be unique\n    for external_id, as defined by composite index ix_node_external_id_source.\n:type source: SourceEnum | None\n:param type: The type of the node (e.g., remote, generic).\n:type type: NonEmptyStr\n:param services: A list of services associated with the node.\n:type services: list[Service]",
         "properties": {
@@ -492,6 +493,12 @@
         "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[Union[SchemaResponse, SchemaCompactResponse]]",
         "type": "object"
+      },
+      "ReloadClassification": {
+        "description": "Declare the reload behavior of an overridable settings field.\n\n:cvar HOT: Field can be overridden via a DB row and the new value takes\n    effect on the next snapshot refresh, without restarting the service.\n    For a nested-model field, ``HOT`` permits both whole-object override\n    (``PATCH {parent: {...}}``) and per-child override (``parent__leaf``).\n:vartype HOT: str\n:cvar NESTED_ONLY: Nested-model field whose children may be overridden\n    (``parent__leaf``) while the parent itself rejects whole-object\n    override (``PATCH {parent: {...}}`` → 422). Children default to\n    HOT-inherit unless explicitly marked :func:`not_overridable_field`.\n:vartype NESTED_ONLY: str\n:cvar NOT_OVERRIDABLE: Field is not overridable from the database; YAML\n    and environment variables remain the only sources of truth.\n:vartype NOT_OVERRIDABLE: str",
+        "enum": ["hot", "nested_only", "not_overridable"],
+        "title": "ReloadClassification",
+        "type": "string"
       },
       "Schema": {
         "description": "Represent a database schema within a service.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param name: The name of the schema. Must be unique for service_id, as defined by\n    composite index ix_schema_name_service_id.\n:type name: NonEmptyStr\n:param service_id: The unique identifier of the service to which the schema belongs.\n    Must be unique for name, as defined by composite index\n    ix_schema_name_service_id.\n:type service_id: int\n:param service: The service to which the schema is associated.\n:type service: Service\n:param tables: A list of tables within the schema.\n:type tables: list[Table]",
@@ -1266,6 +1273,181 @@
         "title": "ServiceWrite",
         "type": "object"
       },
+      "SettingClassEnum": {
+        "description": "Enumerate settings classes that may have HOT override rows.\n\nThe wired classes are ``SEPSettings``, ``TasksSettings``,\n``SnippetsSettings``, ``MessagesSettings``, the global ``Settings``,\n``AlertSettings``, ``AlertsSettings``, ``AnonymizerSettings`` and\n``InventorySettings``.\n\nTo wire a new settings class:\n\n1. Add a member here whose value matches the Pydantic class ``__name__``.\n2. Generate an Alembic migration on every consumer track that extends the\n   ``CHECK`` constraint on ``settingoverride.setting_class``. The column\n   uses ``native_enum=False`` so the value list lives in a constraint,\n   not a PostgreSQL ``TYPE`` -- the migration ``ALTER``s the constraint.\n   Note that the column and ``CHECK`` constraint persist the enum member\n   *names* (e.g. ``SEP_SETTINGS``), which is distinct from the member\n   *value* (the Pydantic class name, e.g. ``SEPSettings``).\n3. Wire a ``ProxyEntry`` for the new class in the relevant service's\n   lifespan (``app/sep/main.py`` or ``app/tasks/main.py``).",
+        "enum": [
+          "SEPSettings",
+          "TasksSettings",
+          "SnippetsSettings",
+          "MessagesSettings",
+          "Settings",
+          "AlertSettings",
+          "AnonymizerSettings",
+          "AlertsSettings",
+          "InventorySettings"
+        ],
+        "title": "SettingClassEnum",
+        "type": "string"
+      },
+      "SettingClassGroup": {
+        "description": "One settings-class group in the LIST response.\n\n:param setting_class: The settings class this group represents.\n:type setting_class: SettingClassEnum\n:param settings: The fields declared on the settings class, with their\n    current values and metadata.\n:type settings: list[SettingResponse]\n:param is_app_owned: Whether this group belongs to a SEP app under\n    ``app/sep/apps/`` rather than core SEP wiring.\n:type is_app_owned: bool\n:param app_id: The owning app's registry key when ``is_app_owned`` is\n    ``True``; ``None`` for core groups.\n:type app_id: str | None\n:param app_display_name: The owning app's human-facing label when\n    ``is_app_owned`` is ``True``; ``None`` for core groups.\n:type app_display_name: str | None\n:param app_enabled: Whether the owning app is currently enabled when\n    ``is_app_owned`` is ``True``; ``None`` for core groups. Disabled\n    apps remain listed so the frontend can hide them without a second\n    lookup.\n:type app_enabled: bool | None",
+        "properties": {
+          "app_display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Display Name"
+          },
+          "app_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Enabled"
+          },
+          "app_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "App Id"
+          },
+          "is_app_owned": {
+            "default": false,
+            "title": "Is App Owned",
+            "type": "boolean"
+          },
+          "setting_class": {
+            "$ref": "#/components/schemas/SettingClassEnum"
+          },
+          "settings": {
+            "items": {
+              "$ref": "#/components/schemas/SettingResponse"
+            },
+            "title": "Settings",
+            "type": "array"
+          }
+        },
+        "required": ["setting_class", "settings"],
+        "title": "SettingClassGroup",
+        "type": "object"
+      },
+      "SettingResponse": {
+        "description": "Represent a single setting's metadata and current value.\n\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param key_path: Carry the canonical key segments for ``key`` such that\n    ``\"__\".join(key_path) == key``.\n:param value: The current value visible through the proxy, dumped to a\n    JSON-safe shape via the field's annotation. ``SecretStr`` fields are\n    redacted to ``\"**********\"``.\n:param default_value: The field's declared default value, dumped via the\n    same JSON serialiser. ``None`` when no default exists.\n:param type: A human-readable representation of the field's declared\n    annotation (for operator visibility; validation uses the actual\n    ``FieldInfo``).\n:param reload: The reload classification (HOT or NOT_OVERRIDABLE).\n:param description: The field's free-text description, or ``None``.\n:param is_secret: Whether the field's annotation contains a Pydantic secret\n    (``SecretStr`` / ``SecretBytes``) at any depth.\n:param is_complex: Whether the field's annotation is or contains a Pydantic\n    ``BaseModel`` subclass (true for nested submodels).\n:param has_override: Whether a row exists in the ``settingoverride`` table\n    for this ``(setting_class, key)`` pair, regardless of ``is_active``.\n:param is_advanced: Whether the setting is flagged ``advanced`` so the UI can\n    present it separately from everyday settings. Display-only:\n    it does not affect PATCH/DELETE eligibility.\n:param is_applicable: Whether the setting applies under current runtime state\n    (e.g. the active auth provider). ``False`` lets the UI present the field\n    as inert. Display-only, like ``is_advanced``: it does not block\n    PATCH/DELETE server-side; the runtime gate is the real enforcement.",
+        "properties": {
+          "default_value": {
+            "title": "Default Value"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "has_override": {
+            "title": "Has Override",
+            "type": "boolean"
+          },
+          "is_advanced": {
+            "default": false,
+            "title": "Is Advanced",
+            "type": "boolean"
+          },
+          "is_applicable": {
+            "default": true,
+            "title": "Is Applicable",
+            "type": "boolean"
+          },
+          "is_complex": {
+            "title": "Is Complex",
+            "type": "boolean"
+          },
+          "is_secret": {
+            "title": "Is Secret",
+            "type": "boolean"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "key_path": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Key Path",
+            "type": "array"
+          },
+          "reload": {
+            "$ref": "#/components/schemas/ReloadClassification"
+          },
+          "setting_class": {
+            "$ref": "#/components/schemas/SettingClassEnum"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value"
+          }
+        },
+        "required": [
+          "setting_class",
+          "key",
+          "value",
+          "default_value",
+          "type",
+          "reload",
+          "description",
+          "is_secret",
+          "is_complex",
+          "has_override"
+        ],
+        "title": "SettingResponse",
+        "type": "object"
+      },
+      "SettingsListResponse": {
+        "description": "The LIST endpoint response, grouping settings by class.\n\n:param groups: One :class:`SettingClassGroup` per settings class the\n    router was configured with.\n:type groups: list[SettingClassGroup]",
+        "properties": {
+          "groups": {
+            "items": {
+              "$ref": "#/components/schemas/SettingClassGroup"
+            },
+            "title": "Groups",
+            "type": "array"
+          }
+        },
+        "required": ["groups"],
+        "title": "SettingsListResponse",
+        "type": "object"
+      },
+      "SettingsPatch": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/JsonValue"
+        },
+        "description": "Batch PATCH payload: a flat ``{field_name: new_value, ...}`` mapping.\n\nAn empty body is rejected as 422 because a no-op PATCH is a client bug, not\na valid request. The server coerces each value to the field's declared\ntype via :func:`coerce_field_value`; validation is all-or-nothing -- if any\nkey fails, nothing is written.",
+        "minProperties": 1,
+        "title": "SettingsPatch",
+        "type": "object"
+      },
       "SourceEnum": {
         "const": "pmm",
         "description": "Enumeration of possible data sources for a node.\n\n:cvar PMM: Represents the PMM data source.\n:vartype PMM: str",
@@ -1527,6 +1709,189 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/admin/settings/": {
+      "get": {
+        "description": "List every exposed settings class with current values and metadata.\n\nLocal classes are read from their config singletons; remote classes\n(``remote_classes``) are fetched server-side from their owning sub-app\nand appended in declaration order; app-owned classes follow remote\ngroups with per-group app metadata. A failed remote fetch fails the\nwhole request with ``502`` -- the LIST never silently drops a remote\ngroup.\n\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:return: Grouped responses, one group per configured settings class.",
+        "operationId": "settings_list_settings_admin_settings__get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingsListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Settings",
+        "tags": ["settings"]
+      }
+    },
+    "/admin/settings/{setting_class}": {
+      "patch": {
+        "description": "Apply a batch of overrides for one settings class atomically.\n\nFor a remote class the batch is forwarded to the owning sub-app, which\nowns the validation and persistence; the upstream's per-field ``422``\n(and its ``detail``) is preserved so the UI can render inline messages.\n\nFor a local class: Phase A validates every key in ``body`` (existence on\nthe class, HOT classification, type/constraint coercion) and collects\nper-key errors. If any key fails, the whole batch is rejected with a\nstructured 422 and nothing is written. Phase B persists every valid entry\nin a single transaction, refreshes the proxy snapshot once, then fires\nthe rebind callbacks for any changed keys so a HOT target rebinds without\nwaiting for the next background refresh cycle.\n\n:param request: The incoming request; its ``app.state`` carries the\n    sub-app's rebind-callback registry.\n:param setting_class: The settings class the override targets.\n:param body: The batch of ``{key: value, ...}`` overrides.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:return: One :class:`SettingResponse` per applied key, in input order.\n:raises HTTPNotFoundException: If the class isn't exposed.\n:raises HTTPUnprocessableEntityException: If any key fails validation;\n    no rows are written.",
+        "operationId": "settings_patch_settings_admin_settings__setting_class__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "setting_class",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SettingClassEnum"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SettingsPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SettingResponse"
+                  },
+                  "title": "Response Settings Patch Settings Admin Settings  Setting Class  Patch",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Patch Settings",
+        "tags": ["settings"]
+      }
+    },
+    "/admin/settings/{setting_class}/{key}": {
+      "delete": {
+        "description": "Revert one override row to the field's declared default.\n\nFor a remote class the DELETE is forwarded to the owning sub-app, which\nowns the idempotency and ``NOT_OVERRIDABLE`` semantics; its status and\n``detail`` are preserved through the proxy.\n\nFor a local class the DELETE is idempotent: deleting a (class, key) pair\nthat has no override row succeeds with 204. Attempting to delete a field\nthe code declares NOT_OVERRIDABLE responds 409, since it cannot have an\noverride row in the first place and the operator's intent is\nunsatisfiable. A field only ``SETTINGS_OVERRIDE_ALLOWED_KEYS`` withheld\nmay still carry a row written before the restriction applied, so that\nrow is deleted normally and only the no-row case answers 409.\n\nAfter republishing the snapshot, fires the rebind callbacks for the\nreverted key so a HOT target rebinds to its restored value without\nwaiting for the next background refresh cycle.\n\n:param request: The incoming request; its ``app.state`` carries the\n    sub-app's rebind-callback registry.\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:raises HTTPNotFoundException: If the class isn't exposed or the key\n    doesn't exist on the class.\n:raises HTTPConflictException: If the field is NOT_OVERRIDABLE and has\n    no row to delete.\n:raises HTTPUnprocessableEntityException: If ``key`` names a\n    ``NESTED_ONLY`` parent (the whole parent cannot be overridden;\n    target an individual ``parent__leaf`` instead).\n:raises HTTPBadGatewayException: For a remote class, when the owning\n    sub-app returns a server error (status >= 500) or is unreachable.",
+        "operationId": "settings_delete_setting_admin_settings__setting_class___key__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "setting_class",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SettingClassEnum"
+            }
+          },
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Delete Setting",
+        "tags": ["settings"]
+      },
+      "get": {
+        "description": "Return one field's metadata and current value.\n\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:return: The structured response for the field.\n:raises HTTPNotFoundException: If the class isn't exposed or the key\n    doesn't exist on the class.",
+        "operationId": "settings_get_setting_admin_settings__setting_class___key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "setting_class",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SettingClassEnum"
+            }
+          },
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Get Setting",
+        "tags": ["settings"]
+      }
+    },
     "/nodes/": {
       "get": {
         "description": "List Nodes from Inventory.",

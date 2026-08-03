@@ -229,4 +229,247 @@ describe('HostSelector', () => {
       )
     ).toBeInTheDocument();
   });
+
+  describe('allow_custom (free-solo)', () => {
+    function CustomProbe() {
+      const methods = useForm<{ host: unknown }>({
+        defaultValues: { host: null },
+      });
+      return (
+        <FormProvider {...methods}>
+          <HostSelector name="host" label="Host" allowCustom />
+          <output data-testid="host-value">
+            {JSON.stringify(methods.watch('host'))}
+          </output>
+        </FormProvider>
+      );
+    }
+
+    const value = () => screen.getByTestId('host-value').textContent;
+
+    it('commits the host id when a host is picked', async () => {
+      mocked.get.mockResolvedValueOnce(
+        makeResponse([
+          { id: 'nomad-1', name: 'db-mysql-prod-01', address: '10.0.0.1' },
+          { id: 'nomad-2', name: 'db-mysql-prod-02', address: '10.0.0.2' },
+        ])
+      );
+      const client = makeClient();
+      const user = userEvent.setup();
+      render(
+        <Wrapper client={client}>
+          <CustomProbe />
+        </Wrapper>
+      );
+      await waitFor(() => expect(mocked.get).toHaveBeenCalled());
+      await user.click(screen.getByLabelText('Host'));
+      await user.click(await screen.findByText('db-mysql-prod-01'));
+      expect(value()).toBe('"nomad-1"');
+    });
+
+    it('commits a typed value as a string', async () => {
+      mocked.get.mockResolvedValueOnce(
+        makeResponse([
+          { id: 'nomad-1', name: 'db-mysql-prod-01', address: '10.0.0.1' },
+        ])
+      );
+      const client = makeClient();
+      const user = userEvent.setup();
+      render(
+        <Wrapper client={client}>
+          <CustomProbe />
+        </Wrapper>
+      );
+      await waitFor(() => expect(mocked.get).toHaveBeenCalled());
+      await user.type(screen.getByLabelText('Host'), 'custom-executor');
+      expect(value()).toBe('"custom-executor"');
+    });
+
+    it('back-compat: without allowCustom a typed value is not committed', async () => {
+      mocked.get.mockResolvedValueOnce(
+        makeResponse([
+          { id: 'nomad-1', name: 'db-mysql-prod-01', address: '10.0.0.1' },
+        ])
+      );
+      const client = makeClient();
+      const user = userEvent.setup();
+      function Probe() {
+        const methods = useForm<{ host: unknown }>({
+          defaultValues: { host: null },
+        });
+        return (
+          <FormProvider {...methods}>
+            <HostSelector name="host" label="Host" />
+            <output data-testid="bc-value">
+              {JSON.stringify(methods.watch('host'))}
+            </output>
+          </FormProvider>
+        );
+      }
+      render(
+        <Wrapper client={client}>
+          <Probe />
+        </Wrapper>
+      );
+      await waitFor(() => expect(mocked.get).toHaveBeenCalled());
+      await user.type(screen.getByLabelText('Host'), 'custom-executor');
+      expect(screen.getByTestId('bc-value').textContent).toBe('null');
+    });
+
+    it('unwraps a free-typed host through SchemaFormRenderer submit', async () => {
+      mocked.get.mockResolvedValue(
+        makeResponse([
+          { id: 'nomad-1', name: 'db-mysql-prod-01', address: '10.0.0.1' },
+        ])
+      );
+
+      const onSubmit = vi.fn();
+      const sections: FormSection[] = [
+        {
+          title: 'Target',
+          fields: [
+            {
+              type: 'host',
+              name: 'hostId',
+              label: 'Host',
+              required: true,
+              allow_custom: true,
+            },
+          ],
+        },
+      ];
+
+      const client = makeClient();
+      render(
+        <Wrapper client={client}>
+          <SchemaFormRenderer sections={sections} onSubmit={onSubmit} />
+        </Wrapper>
+      );
+
+      await waitFor(() =>
+        expect(mocked.get).toHaveBeenCalledWith('/sep/hosts/')
+      );
+
+      const user = userEvent.setup();
+      await user.type(screen.getByLabelText(/^Host\b/), 'custom-executor');
+      await user.click(screen.getByRole('button', { name: /Run/ }));
+
+      await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({ hostId: 'custom-executor' })
+      );
+    });
+
+    it('cascade auto-select commits a scalar host id when allowCustom is set', async () => {
+      mocked.get.mockImplementation((url: string) => {
+        if (url === '/sep/hosts/') {
+          return Promise.resolve(
+            makeResponse([
+              { id: 'node-a', name: 'Display A', address: '10.0.0.1' },
+              { id: 'node-b', name: 'Display B', address: '10.0.0.2' },
+            ])
+          );
+        }
+        if (url === '/sep/services/') {
+          return Promise.resolve({
+            data: {
+              items: [
+                {
+                  id: 7,
+                  name: 'mongo-svc',
+                  type: 'mongodb',
+                  node: {
+                    name: 'node-b',
+                    address: '10.0.0.2',
+                    type: 'generic',
+                  },
+                  node_id: 1,
+                  schemas: [],
+                },
+              ],
+              total: 1,
+              offset: 0,
+              limit: 200,
+            },
+          });
+        }
+        return Promise.reject(new Error(`unexpected url ${url}`));
+      });
+
+      const onSubmit = vi.fn();
+      const sections: FormSection[] = [
+        {
+          title: 'Task',
+          fields: [
+            {
+              type: 'service',
+              name: 'service_id',
+              label: 'Database Service',
+              required: true,
+              service_types: ['mongodb'],
+            },
+            {
+              type: 'host',
+              name: 'hostname',
+              label: 'Execution Host',
+              required: true,
+              depends_on: 'service_id',
+              allow_custom: true,
+            },
+          ],
+        },
+      ];
+
+      const client = makeClient();
+      render(
+        <Wrapper client={client}>
+          <SchemaFormRenderer sections={sections} onSubmit={onSubmit} />
+        </Wrapper>
+      );
+
+      await waitFor(() =>
+        expect(mocked.get).toHaveBeenCalledWith('/sep/hosts/')
+      );
+
+      const user = userEvent.setup();
+      await user.click(screen.getByLabelText(/^Database Service\b/));
+      await user.click(
+        await screen.findByRole('option', { name: 'mongo-svc (mongodb)' })
+      );
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/^Execution Host\b/)).toHaveValue(
+          'Display B'
+        );
+      });
+
+      await user.click(screen.getByRole('button', { name: /Run/ }));
+      await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({ hostname: 'node-b', service_id: 7 })
+      );
+    });
+
+    it('refetches /api/sep/hosts/ when the free-solo dropdown is opened', async () => {
+      mocked.get.mockResolvedValue(
+        makeResponse([
+          { id: 'nomad-1', name: 'db-mysql-prod-01', address: '10.0.0.1' },
+        ])
+      );
+
+      const client = makeClient();
+      render(
+        <Wrapper client={client}>
+          <CustomProbe />
+        </Wrapper>
+      );
+
+      await waitFor(() => expect(mocked.get).toHaveBeenCalledTimes(1));
+
+      const user = userEvent.setup();
+      await user.click(screen.getByLabelText('Host'));
+
+      await waitFor(() => expect(mocked.get).toHaveBeenCalledTimes(2));
+    });
+  });
 });

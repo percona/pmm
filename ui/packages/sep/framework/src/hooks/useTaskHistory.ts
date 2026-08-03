@@ -31,7 +31,8 @@ export type PaginatedTaskHistory =
   TasksComponents['schemas']['PaginatedResponse_TaskHistoryResponse_'];
 
 /** Optional JSON body for ``POST .../execute`` (chain wiring, schedule ETA, etc.). */
-export type TaskExecuteBody = SepComponents['schemas']['TaskExecuteWrite'];
+export type TaskExecuteBody =
+  SepComponents['schemas']['framework__TaskExecuteWrite'];
 
 // The poll-while-running status set is owned by the ``api`` package (the lower
 // layer) so the schema-driven list page and this hook share one definition.

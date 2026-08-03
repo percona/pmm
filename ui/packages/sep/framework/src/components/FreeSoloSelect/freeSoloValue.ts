@@ -17,14 +17,16 @@
 
 /**
  * Value normalization shared by the free-solo (`allow_custom`) path of the
- * reference selectors (`SchemaSelector`, `TableSelector`, `ServiceSelector`).
+ * reference selectors (`SchemaSelector`, `TableSelector`, `ServiceSelector`,
+ * `HostSelector`).
  *
  * A free-solo reference field collapses "pick from inventory" and "type a new
- * value" into one control. The committed react-hook-form value is an `int | str`
- * (mirroring the backend `SchemaRef(allow_custom=True)` contract resolving to
- * `int | str`):
+ * value" into one control. The committed react-hook-form value is an
+ * `int | str` (mirroring the backend `SchemaRef` / `HostRef(allow_custom=True)`
+ * contracts):
  *   - an inventory pick — or a typed value that exactly matches an inventory
- *     option's label — commits the inventory **id** (a `number`);
+ *     option's label — commits the inventory **id** (`number` for service /
+ *     schema / table, `string` for host);
  *   - a typed value with no matching option commits the raw **string**;
  *   - clearing the field commits `null`.
  *
@@ -34,7 +36,8 @@
 
 /** Minimal shape every reference option satisfies. */
 export interface ReferenceOption {
-  id: number;
+  /** Inventory id — numeric for service/schema/table, string for host. */
+  id: number | string;
   name: string;
 }
 
@@ -51,7 +54,9 @@ export type FreeSoloCommittedValue = number | string | null;
  *   - a `number` (inventory id) resolves to its matching option once the
  *     options have loaded; until then it shows empty rather than a bare numeric
  *     id (which would also mismatch `options` and trip an MUI warning);
- *   - a non-empty `string` is shown as a free-typed value;
+ *   - a non-empty `string` that matches an option's `id` (string host ids, or
+ *     a stringified numeric id) resolves to that option; otherwise it is shown
+ *     as a free-typed value;
  *   - an option object (a back-compat / persisted shape) resolves to the
  *     matching option, falling back to the object itself;
  *   - `''` / `null` / `undefined` show as empty.
@@ -67,7 +72,10 @@ export function toDisplayValue<T extends ReferenceOption>(
     return options.find((o) => o.id === stored) ?? null;
   }
   if (typeof stored === 'string') {
-    return stored;
+    const idMatch = options.find(
+      (o) => o.id === stored || String(o.id) === stored
+    );
+    return idMatch ?? stored;
   }
   if (
     typeof stored === 'object' &&

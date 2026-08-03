@@ -22,12 +22,17 @@ import { useSnackbar } from 'notistack';
 import { useHosts, type HostOption } from '../../hooks/useHosts';
 import { useResolvedServiceField } from '../../hooks/useResolvedServiceField';
 import type { ServiceType } from '../../hooks/useServices';
+import { FreeSoloSelect } from '../FreeSoloSelect';
 import { resolveExecutorHostForService } from './resolveExecutorHostForService';
 
 const EMPTY_OPTIONS: HostOption[] = [];
 
 export interface HostSelectorProps {
-  /** react-hook-form field name. Stores a `HostOption | null`. */
+  /**
+   * react-hook-form field name. Without `allowCustom`, stores a
+   * `HostOption | null`; with `allowCustom`, stores the committed
+   * `string | null` (executor id, free-typed value, or unset).
+   */
   name: string;
   label: string;
   required?: boolean;
@@ -46,10 +51,14 @@ export interface HostSelectorProps {
    * ``useServices()`` page-loop is intentionally not used here.
    */
   serviceTypes?: readonly ServiceType[];
+  /** Offer free-text (free-solo) entry alongside the inventory options. */
+  allowCustom?: boolean;
 }
 
 const getOptionLabel = (opt: HostOption | string) =>
   typeof opt === 'string' ? opt : opt.name;
+
+const getHostOptionLabel = (opt: HostOption) => opt.name;
 
 const isOptionEqualToValue = (a: HostOption, b: HostOption) => a.id === b.id;
 
@@ -70,17 +79,23 @@ function hostValueId(value: unknown): string | undefined {
  * Cascade auto-select for a single host field. Mounted only when ``dependsOn``
  * is set. Scalar parent ids rehydrate through {@link useResolvedServiceField}
  * (same path as task-name suggestion and other service consumers).
+ *
+ * When ``allowCustom`` is set the free-solo path stores a scalar id/string, so
+ * cascade commits ``match.id``; otherwise it commits the hydrated
+ * ``HostOption`` expected by the closed ``AutoCompleteInput``.
  */
 function HostServiceCascade({
   name,
   dependsOn,
   hosts,
   serviceTypes,
+  allowCustom,
 }: {
   name: string;
   dependsOn: string;
   hosts: HostOption[];
   serviceTypes?: readonly ServiceType[];
+  allowCustom: boolean;
 }) {
   const { setValue, getValues } = useFormContext();
   const { service, resetKey } = useResolvedServiceField(
@@ -110,10 +125,13 @@ function HostServiceCascade({
 
     const currentId = hostValueId(getValues(name));
     if (currentId === undefined || currentId === autoHostIdRef.current) {
-      setValue(name, match, { shouldDirty: false, shouldValidate: false });
+      setValue(name, allowCustom ? match.id : match, {
+        shouldDirty: false,
+        shouldValidate: false,
+      });
       autoHostIdRef.current = match.id;
     }
-  }, [resetKey, service, hosts, name, setValue, getValues]);
+  }, [resetKey, service, hosts, name, setValue, getValues, allowCustom]);
 
   return null;
 }
@@ -126,6 +144,7 @@ export function HostSelector({
   helperText,
   dependsOn,
   serviceTypes,
+  allowCustom,
 }: HostSelectorProps) {
   const {
     control,
@@ -164,16 +183,45 @@ export function HostSelector({
     text = 'No hosts available';
   }
 
+  const freeSolo = !!allowCustom;
+  const noOptionsText = isLoading ? 'Loading hosts…' : 'No hosts available';
+
+  const cascade = dependsOn ? (
+    <HostServiceCascade
+      name={name}
+      dependsOn={dependsOn}
+      hosts={hosts}
+      serviceTypes={serviceTypes}
+      allowCustom={freeSolo}
+    />
+  ) : null;
+
+  if (freeSolo) {
+    return (
+      <>
+        {cascade}
+        <FreeSoloSelect<HostOption>
+          name={name}
+          label={label}
+          options={hosts}
+          getOptionLabel={getHostOptionLabel}
+          required={required}
+          disabled={disabled || isError}
+          loading={isLoading}
+          helperText={text}
+          error={isError || !!fieldError}
+          noOptionsText={noOptionsText}
+          onOpen={() => {
+            void refetch();
+          }}
+        />
+      </>
+    );
+  }
+
   return (
     <>
-      {dependsOn ? (
-        <HostServiceCascade
-          name={name}
-          dependsOn={dependsOn}
-          hosts={hosts}
-          serviceTypes={serviceTypes}
-        />
-      ) : null}
+      {cascade}
       <AutoCompleteInput<HostOption>
         name={name}
         label={label}
@@ -188,7 +236,7 @@ export function HostSelector({
         autoCompleteProps={{
           getOptionLabel,
           isOptionEqualToValue,
-          noOptionsText: isLoading ? 'Loading hosts…' : 'No hosts available',
+          noOptionsText,
           onOpen: () => refetch(),
         }}
         textFieldProps={{ helperText: text, error: isError || !!fieldError }}

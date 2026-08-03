@@ -70,7 +70,11 @@ export type {
 } from './useTaskHistory';
 
 export { useTaskHistoryFiles } from './useTaskHistoryFiles';
-export type { FileMetadata, TaskHistoryFilesMap } from './useTaskHistoryFiles';
+export type {
+  FileMetadata,
+  TaskHistoryFilesMap,
+  UseTaskHistoryFilesOptions,
+} from './useTaskHistoryFiles';
 
 export { useTaskFileDownload } from './useTaskFileDownload';
 export type { TaskFileDownloadParams } from './useTaskFileDownload';

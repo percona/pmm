@@ -39,8 +39,23 @@ describe('toDisplayValue', () => {
     expect(toDisplayValue(10, [])).toBeNull();
   });
 
-  it('shows a stored free string verbatim', () => {
+  it('shows a stored free string verbatim when it matches no option id', () => {
     expect(toDisplayValue('custom_db', OPTIONS)).toBe('custom_db');
+  });
+
+  it('resolves a stored string that matches an option id to that option', () => {
+    expect(toDisplayValue('10', OPTIONS)).toEqual({ id: 10, name: 'app_prod' });
+  });
+
+  it('resolves a stored string host id to its option', () => {
+    const hosts: ReferenceOption[] = [
+      { id: 'nomad-1', name: 'db-mysql-prod-01' },
+      { id: 'nomad-2', name: 'db-mysql-prod-02' },
+    ];
+    expect(toDisplayValue('nomad-1', hosts)).toEqual({
+      id: 'nomad-1',
+      name: 'db-mysql-prod-01',
+    });
   });
 
   it('resolves a stored option object (back-compat) to the matching option', () => {
@@ -56,7 +71,7 @@ describe('toDisplayValue', () => {
     expect(toDisplayValue(undefined, OPTIONS)).toBeNull();
   });
 
-  it('keeps a numeric-looking custom string as a string (not resolved to an id)', () => {
+  it('keeps a numeric-looking custom string as a string when no option has that id', () => {
     expect(toDisplayValue('123', OPTIONS)).toBe('123');
   });
 });
@@ -66,6 +81,13 @@ describe('normalizeChange', () => {
     expect(
       normalizeChange({ id: 10, name: 'app_prod' }, OPTIONS, labelOf)
     ).toBe(10);
+  });
+
+  it('commits a string host id when a host option is picked', () => {
+    const hosts: ReferenceOption[] = [
+      { id: 'nomad-1', name: 'db-mysql-prod-01' },
+    ];
+    expect(normalizeChange(hosts[0], hosts, labelOf)).toBe('nomad-1');
   });
 
   it('commits a string for a typed value with no matching option', () => {

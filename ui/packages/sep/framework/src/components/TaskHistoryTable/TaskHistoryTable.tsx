@@ -36,6 +36,7 @@ import {
   useTaskHistory,
   useTaskHistoryByName,
 } from '../../hooks/useTaskHistory';
+import { useTaskHistoryFiles } from '../../hooks/useTaskHistoryFiles';
 import { SEP_TABLE_CLASS } from '../../constants';
 import { ChainDisplay } from './ChainDisplay';
 import { StatusBadge } from './StatusBadge';
@@ -44,6 +45,9 @@ import type {
   TaskHistoryEntry,
   TaskHistoryTableProps,
 } from './TaskHistoryTable.types';
+
+/** Cache file-list probes across history-table poll ticks. */
+const DOWNLOADABLE_FILES_STALE_TIME_MS = 30_000;
 
 function formatDateTime(value?: string | null): string {
   if (!value) {
@@ -76,12 +80,74 @@ function readMeta(entry: TaskHistoryEntry): MetaShape {
   return meta ?? {};
 }
 
-function hasDownloadableArtifacts(entry: TaskHistoryEntry): boolean {
-  return entry.has_logs;
+function canProbeDownloadableFiles(entry: TaskHistoryEntry): boolean {
+  return (
+    !isRunningStatus(entry.status) &&
+    entry.id !== null &&
+    entry.id !== undefined &&
+    Boolean(entry.task?.output_files_path)
+  );
 }
 
 function stopConfirmLabel(entry: TaskHistoryEntry): string {
   return entry.task?.name ?? `#${entry.id ?? ''}`;
+}
+
+interface DownloadFilesButtonProps {
+  entry: TaskHistoryEntry;
+  onDownloadFiles: TaskHistoryTableProps['onDownloadFiles'];
+  onOpenBuiltIn: (entry: TaskHistoryEntry) => void;
+}
+
+/**
+ * Render the Download files action only when the run has user-visible files.
+ *
+ * ``has_logs`` is the wrong signal: logs can exist when the output directory
+ * is empty (e.g. only the hidden ``.sep-run-result.json`` marker). Probe the
+ * files API and hide the button until a non-empty listing is confirmed.
+ */
+function DownloadFilesButton({
+  entry,
+  onDownloadFiles,
+  onOpenBuiltIn,
+}: DownloadFilesButtonProps) {
+  const shouldProbe = canProbeDownloadableFiles(entry);
+  const { data, isLoading, isError } = useTaskHistoryFiles(
+    shouldProbe ? entry.id : null,
+    {
+      staleTime: DOWNLOADABLE_FILES_STALE_TIME_MS,
+    }
+  );
+
+  if (
+    !shouldProbe ||
+    isLoading ||
+    isError ||
+    !data ||
+    Object.keys(data).length === 0
+  ) {
+    return null;
+  }
+
+  return (
+    <Tooltip title="Download files">
+      <span>
+        <IconButton
+          size="small"
+          aria-label="Download files"
+          onClick={() => {
+            if (onDownloadFiles) {
+              onDownloadFiles(entry);
+            } else {
+              onOpenBuiltIn(entry);
+            }
+          }}
+        >
+          <DownloadIcon fontSize="small" />
+        </IconButton>
+      </span>
+    </Tooltip>
+  );
 }
 
 interface ViewProps {
@@ -213,7 +279,6 @@ function TaskHistoryTableView({
         Cell: ({ row }) => {
           const entry = row.original;
           const running = isRunningStatus(entry.status);
-          const downloadable = hasDownloadableArtifacts(entry);
           return (
             <Stack direction="row" spacing={0.5}>
               <Tooltip title="View logs">
@@ -243,28 +308,11 @@ function TaskHistoryTableView({
                   </span>
                 </Tooltip>
               )}
-              {!running && downloadable && (
-                <Tooltip title="Download files">
-                  <span>
-                    <IconButton
-                      size="small"
-                      aria-label="Download files"
-                      onClick={() => {
-                        if (onDownloadFiles) {
-                          onDownloadFiles(entry);
-                        } else if (
-                          entry.id !== null &&
-                          entry.id !== undefined
-                        ) {
-                          setPendingFilesEntry(entry);
-                        }
-                      }}
-                    >
-                      <DownloadIcon fontSize="small" />
-                    </IconButton>
-                  </span>
-                </Tooltip>
-              )}
+              <DownloadFilesButton
+                entry={entry}
+                onDownloadFiles={onDownloadFiles}
+                onOpenBuiltIn={setPendingFilesEntry}
+              />
             </Stack>
           );
         },

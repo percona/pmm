@@ -47,6 +47,7 @@ export interface FreeSoloSelectProps<T extends ReferenceOption> {
   helperText?: string;
   error?: boolean;
   noOptionsText?: string;
+  onOpen?: () => void;
 }
 
 const isOptionEqualToValue = <T extends ReferenceOption>(
@@ -73,6 +74,7 @@ function FreeSoloAutocomplete<T extends ReferenceOption>({
   helperText,
   error,
   noOptionsText,
+  onOpen,
 }: Omit<FreeSoloSelectProps<T>, 'name'> & {
   field: ControllerRenderProps<FieldValues, string>;
   fieldError?: FieldError;
@@ -82,17 +84,26 @@ function FreeSoloAutocomplete<T extends ReferenceOption>({
   const labelOf = (option: T | string): string =>
     typeof option === 'string' ? option : getOptionLabel(option);
 
-  // If a value was typed as a free string before its inventory options had
-  // loaded, resolve it to the matching id once the options arrive — so an exact
-  // label match commits the id, not the string, regardless of load timing.
+  // Resolve a stored free string to the matching option id once the options
+  // arrive, so it renders as the option label rather than raw text — regardless
+  // of load timing. Two cases resolve:
+  //   - an exact label match (a value typed before options loaded);
+  //   - a string that matches an option id (stringified numeric inventory ids
+  //     like `"4"`, or string host ids like `"nomad-1"`).
   const { value: fieldValue, onChange } = field;
   useEffect(() => {
     if (typeof fieldValue === 'string' && fieldValue.trim() !== '') {
-      const match = options.find(
-        (o) => getOptionLabel(o) === fieldValue.trim()
+      const trimmed = fieldValue.trim();
+      const labelMatch = options.find((o) => getOptionLabel(o) === trimmed);
+      if (labelMatch) {
+        onChange(labelMatch.id);
+        return;
+      }
+      const idMatch = options.find(
+        (o) => o.id === trimmed || String(o.id) === trimmed
       );
-      if (match) {
-        onChange(match.id);
+      if (idMatch) {
+        onChange(idMatch.id);
       }
     }
     // Intentionally keyed on `options` only: re-resolve a stored string when the
@@ -120,6 +131,7 @@ function FreeSoloAutocomplete<T extends ReferenceOption>({
       getOptionLabel={labelOf}
       isOptionEqualToValue={isOptionEqualToValue}
       noOptionsText={noOptionsText}
+      onOpen={onOpen}
       data-testid={`${field.name}-autocomplete`}
       filterOptions={(opts, params) => {
         const filtered = filter(opts, params);

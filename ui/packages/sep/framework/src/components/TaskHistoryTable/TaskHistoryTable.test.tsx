@@ -57,8 +57,11 @@ const mockedApiClient = apiClient as unknown as {
 function makeEntry(
   id: number,
   status: TaskHistoryStatus,
-  overrides: Partial<TaskHistoryEntry> = {}
+  overrides: Omit<Partial<TaskHistoryEntry>, 'task'> & {
+    task?: Partial<TaskHistoryEntry['task']>;
+  } = {}
 ): TaskHistoryEntry {
+  const { task: taskOverride, ...rest } = overrides;
   return {
     id,
     status,
@@ -71,15 +74,35 @@ function makeEntry(
     duration: status === 'running' || status === 'pending' ? null : 30,
     executed_by: 'admin',
     has_logs: true,
-    task: { id, name: `task-${id}` } as TaskHistoryEntry['task'],
+    task: {
+      id,
+      name: `task-${id}`,
+      ...taskOverride,
+    } as TaskHistoryEntry['task'],
     execution_request: {
       task: `task-${id}`,
       target: `host-${id}`,
       meta: {},
       tracking: {},
     } as TaskHistoryEntry['execution_request'],
-    ...overrides,
+    ...rest,
   };
+}
+
+function mockFilesList(
+  filesByHistoryId: Record<
+    number,
+    Record<string, { size: number; is_dir: boolean }>
+  >
+) {
+  mockedApiClient.get.mockImplementation(async (url: string) => {
+    const match = /^\/files\/(\d+)$/.exec(url);
+    if (!match) {
+      return { data: {} };
+    }
+    const historyId = Number(match[1]);
+    return { data: filesByHistoryId[historyId] ?? {} };
+  });
 }
 
 function makeQueryClient() {
@@ -267,42 +290,90 @@ describe('TaskHistoryTable actions', () => {
     expect(onStopTask).not.toHaveBeenCalled();
   });
 
-  it('shows download button only for completed rows with downloadable artifacts', () => {
+  it('shows download button only for completed rows with downloadable files', async () => {
+    mockFilesList({
+      1: { 'output/result.txt': { size: 128, is_dir: false } },
+      2: {},
+    });
     const data = [
-      makeEntry(1, 'success', { has_logs: true }),
-      makeEntry(2, 'success', { has_logs: false }),
-      makeEntry(3, 'running', { has_logs: true }),
+      makeEntry(1, 'success', {
+        task: { output_files_path: 'run-script/local/output_files' },
+      }),
+      makeEntry(2, 'success', {
+        task: { output_files_path: 'run-script/local/output_files' },
+      }),
+      makeEntry(3, 'running', {
+        task: { output_files_path: 'run-script/local/output_files' },
+      }),
+      makeEntry(4, 'success', { has_logs: true }),
     ];
     render(
       <Wrapper client={client}>
         <TaskHistoryTable data={data} disablePolling />
       </Wrapper>
     );
+    await waitFor(() => {
+      expect(
+        screen.getAllByRole('button', { name: 'Download files' })
+      ).toHaveLength(1);
+    });
+  });
+
+  it('hides download button when the files API returns an empty listing', async () => {
+    mockFilesList({ 99: {} });
+    const data = [
+      makeEntry(99, 'success', {
+        has_logs: true,
+        task: { output_files_path: 'run-script/local/output_files' },
+      }),
+    ];
+    render(
+      <Wrapper client={client}>
+        <TaskHistoryTable data={data} disablePolling />
+      </Wrapper>
+    );
+    await waitFor(() => {
+      expect(mockedApiClient.get).toHaveBeenCalledWith(
+        '/files/99',
+        expect.objectContaining({ baseURL: '' })
+      );
+    });
     expect(
-      screen.getAllByRole('button', { name: 'Download files' })
-    ).toHaveLength(1);
+      screen.queryByRole('button', { name: 'Download files' })
+    ).not.toBeInTheDocument();
   });
 
   it('opens built-in files dialog when no onDownloadFiles callback provided', async () => {
-    mockedApiClient.get.mockResolvedValue({
-      data: { 'output/result.txt': { size: 512, is_dir: false } },
+    mockFilesList({
+      5: { 'output/result.txt': { size: 512, is_dir: false } },
     });
-    const data = [makeEntry(5, 'success', { has_logs: true })];
+    const data = [
+      makeEntry(5, 'success', {
+        task: { output_files_path: 'run-script/local/output_files' },
+      }),
+    ];
     render(
       <Wrapper client={client}>
         <TaskHistoryTable data={data} disablePolling />
       </Wrapper>
     );
     await userEvent.click(
-      screen.getByRole('button', { name: 'Download files' })
+      await screen.findByRole('button', { name: 'Download files' })
     );
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).getByText(/Download files/i)).toBeInTheDocument();
   });
 
   it('calls onDownloadFiles callback instead of opening built-in dialog when provided', async () => {
+    mockFilesList({
+      5: { 'output/result.txt': { size: 512, is_dir: false } },
+    });
     const onDownloadFiles = vi.fn();
-    const data = [makeEntry(5, 'success', { has_logs: true })];
+    const data = [
+      makeEntry(5, 'success', {
+        task: { output_files_path: 'run-script/local/output_files' },
+      }),
+    ];
     render(
       <Wrapper client={client}>
         <TaskHistoryTable
@@ -313,7 +384,7 @@ describe('TaskHistoryTable actions', () => {
       </Wrapper>
     );
     await userEvent.click(
-      screen.getByRole('button', { name: 'Download files' })
+      await screen.findByRole('button', { name: 'Download files' })
     );
     expect(onDownloadFiles).toHaveBeenCalledOnce();
     expect(onDownloadFiles.mock.calls[0][0].id).toBe(5);

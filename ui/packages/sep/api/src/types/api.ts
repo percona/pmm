@@ -33,6 +33,14 @@ export type SPAOAuthTokenResponse =
   components['schemas']['SPAOAuthTokenResponse'];
 
 /**
+ * Short-lived bearer returned by `POST /api/oauth/session/exchange`. Carries no
+ * refresh token and rides no cookie — the holder keeps it in memory and
+ * exchanges the ambient session again before it expires.
+ */
+export type SessionExchangeTokenResponse =
+  components['schemas']['SessionExchangeTokenResponse'];
+
+/**
  * @deprecated Use `SPAOAuthTokenResponse`. The full `OAuthToken` shape is
  * only returned by the legacy `/oauth/token` endpoint; the SPA uses the
  * cookie-based `/oauth/login` + `/oauth/refresh` flow.

@@ -14,16 +14,17 @@ export interface paths {
      * List Apps
      * @description List every configured app with its current enabled state.
      *
-     *     Returns one entry per ``SEP.APPS`` entry, in declaration order. Apps with
-     *     no row default to ``ENABLED`` (``enabled=True``, ``toggleable=True``);
-     *     protected apps (``inventory``) are forced to ``ENABLED`` and reported with
-     *     ``toggleable=False``. The list is non-paginated: app cardinality is bounded
-     *     (<20).
+     *     Returns one entry per registered app, in declaration order (each parent is
+     *     immediately followed by its child apps). Apps with no row default to
+     *     ``ENABLED`` (``enabled=True``, ``toggleable=True``); protected apps
+     *     (``inventory``) are forced to ``ENABLED`` and reported with
+     *     ``toggleable=False``. A child app (``parent_key`` set) is not independently
+     *     toggleable either (``toggleable=False``) and derives its lifecycle from the
+     *     parent via :attr:`~app.sep.apps.framework.base.BaseApp.state_key`. The list is
+     *     non-paginated: app cardinality is bounded (<20).
      *
      *     :param session: The database session.
-     *     :type session: SessionDep
      *     :return: The per-app info list.
-     *     :rtype: list[AppInfoResponse]
      */
     get: operations['admin_list_apps_api_admin_apps__get'];
     put?: never;
@@ -134,14 +135,16 @@ export interface paths {
      * List Apps For Navigation
      * @description Return per-app state for the current user's navigation.
      *
-     *     Protected apps are always reported ``enabled=True``. Non-protected apps
-     *     reflect their DB state (a missing row -> ``enabled=True``: a configured
-     *     plugin is active until explicitly disabled).
+     *     Protected apps are always reported ``enabled=True``. Every other app reflects
+     *     its *effective* state via :meth:`AppRegistry.resolve_effective_enabled`: its
+     *     own row must be ``ENABLED`` (a missing row -> ``enabled=True``: a configured
+     *     plugin is active until explicitly disabled) **and** every app it declares in
+     *     ``requires_apps`` must be effectively enabled, so the shell hides an app when
+     *     a dependency is off. A child app owns no row, so it resolves through its
+     *     parent via :attr:`~app.sep.apps.framework.base.BaseApp.state_key`.
      *
      *     :param session: The database session.
-     *     :type session: SessionDep
      *     :return: The per-app navigation list.
-     *     :rtype: list[AppKeyResponse]
      */
     get: operations['apps_list_apps_for_navigation_api_apps__get'];
     put?: never;
@@ -462,26 +465,12 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * Alters Api List
-     * @description List parent alters execute tasks.
-     */
-    get: operations['alters_alters_api_list_api_apps_alters__get'];
+    /** List */
+    get: operations['alters__list_paginated_api_apps_alters__get'];
     put?: never;
     /**
      * Alters Api Create
      * @description Create an alters task group from a JSON payload request body.
-     *
-     *     POSTs the parent execute task, dry-run derived sibling, and pre-checks
-     *     predecessor. Pre-checks are started manually from the detail page.
-     *
-     *     :param check_connectivity: Whether to verify the target database is
-     *         reachable after task creation. Defaults to ``True`` so callers that
-     *         omit the parameter still get a connectivity round-trip; pass
-     *         ``check_connectivity=false`` to opt out. Note that the form flow
-     *         defaults to ``False`` (HTML checkbox semantics — an unchecked box
-     *         submits no field); this asymmetry is intentional.
-     *     :type check_connectivity: bool
      */
     post: operations['alters_alters_api_create_api_apps_alters__post'];
     delete?: never;
@@ -575,7 +564,7 @@ export interface paths {
       cookie?: never;
     };
     /** List */
-    get: operations['archives__list_api_apps_archives__get'];
+    get: operations['archives__list_paginated_api_apps_archives__get'];
     put?: never;
     /** Create */
     post: operations['archives__create_api_apps_archives__post'];
@@ -659,8 +648,265 @@ export interface paths {
      *
      *     Categories with no matching snippets are omitted to keep the payload small;
      *     the ATW enum still defines the full taxonomy for validation (plugin schema).
+     *
+     *     :param session: The database session.
+     *     :return: One listing row per category that has at least one snippet.
      */
     get: operations['atw_atw_api_list_api_apps_atw__get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/apps/atw/config/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Atw Config
+     * @description Report whether the incident send action is available.
+     *
+     *     Not gated by the send guard -- this endpoint is what reports that guard, so
+     *     it must answer whether or not a receiver is configured.
+     *
+     *     :return: The reasons the send action is withheld; empty when it is offered.
+     */
+    get: operations['atw_atw_config_api_apps_atw_config__get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/apps/atw/execution-schema/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Atw Execution Schema
+     * @description Build one execution form covering several snippets, merging common parameters.
+     *
+     *     Unknown or unsafe filenames fail the whole request — a form the caller cannot
+     *     fill for every selected snippet is not a partial success.
+     *
+     *     :param snippet_filename: The selected snippet filenames, repeated per snippet
+     *         and deduplicated order-preserving.
+     *     :return: The shared section followed by each snippet's remaining fields.
+     *     :raises HTTPBadRequestException: When a filename is unsafe or malformed, failing
+     *         the whole request before any item is dispatched.
+     *     :raises HTTPNotFoundException: When a filename matches no snippet.
+     */
+    get: operations['atw_atw_execution_schema_api_apps_atw_execution_schema__get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/apps/atw/incidents/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Atw List Incidents
+     * @description List diagnostic incidents, newest first.
+     *
+     *     :param session: The database session.
+     *     :param pagination: The offset/limit window for the page.
+     *     :return: A paginated page of incidents, newest first.
+     */
+    get: operations['atw_atw_list_incidents_api_apps_atw_incidents__get'];
+    put?: never;
+    /**
+     * Atw Create Incident
+     * @description Create a diagnostic incident owned by the current user.
+     *
+     *     :param session: The database session.
+     *     :param current_user: The authenticated user, stamped as ``created_by``.
+     *     :param body: The incident create payload.
+     *     :return: The created incident.
+     */
+    post: operations['atw_atw_create_incident_api_apps_atw_incidents__post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/apps/atw/incidents/{incident_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Atw Get Incident
+     * @description Retrieve a single diagnostic incident by id.
+     *
+     *     :param incident: The incident resolved from the ``incident_id`` path parameter.
+     *     :return: The matching incident.
+     */
+    get: operations['atw_atw_get_incident_api_apps_atw_incidents__incident_id__get'];
+    put?: never;
+    post?: never;
+    /**
+     * Atw Delete Incident
+     * @description Delete a diagnostic incident and cascade its execution rows.
+     *
+     *     :param session: The database session.
+     *     :param incident: The incident resolved from the ``incident_id`` path parameter.
+     */
+    delete: operations['atw_atw_delete_incident_api_apps_atw_incidents__incident_id__delete'];
+    options?: never;
+    head?: never;
+    /**
+     * Atw Update Incident
+     * @description Update a diagnostic incident's name or support-case reference.
+     *
+     *     :param session: The database session.
+     *     :param incident: The incident resolved from the ``incident_id`` path parameter.
+     *     :param body: The partial update payload; unset fields are untouched.
+     *     :return: The updated incident.
+     */
+    patch: operations['atw_atw_update_incident_api_apps_atw_incidents__incident_id__patch'];
+    trace?: never;
+  };
+  '/api/apps/atw/incidents/{incident_id}/executions/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Atw List Incident Executions
+     * @description List one incident's snippet executions, newest first, with live task status.
+     *
+     *     Each row also reports the command line its snippet ran with, credential values
+     *     masked. A row whose snippet or upstream payload cannot supply what masking
+     *     needs reports its arguments as withheld; the page still returns.
+     *
+     *     :param session: The database session.
+     *     :param incident: The incident resolved from the ``incident_id`` path parameter.
+     *     :param pagination: The offset/limit window for the page.
+     *     :param tasks_api: The authenticated Tasks API client.
+     *     :return: A paginated page of executions hydrated from the Tasks API, each with
+     *         its masked arguments or the reason they are absent.
+     */
+    get: operations['atw_atw_list_incident_executions_api_apps_atw_incidents__incident_id__executions__get'];
+    put?: never;
+    /**
+     * Atw Batch Execute
+     * @description Execute several snippets against one incident, reporting each item separately.
+     *
+     *     A malformed selection fails the whole request up front: ``resolve_snippets``
+     *     runs the traversal guard over every filename before dispatch, so an unsafe
+     *     filename raises before any item runs. Past that guard, one failing item never
+     *     blocks the rest: each is dispatched and recorded inside its own guard, and the
+     *     response always carries an entry per requested item — an unresolved filename
+     *     becomes that item's error. A failed attempt produces no task-history row to
+     *     reference, so it is reported here rather than persisted.
+     *
+     *     The row-write guard rolls the shared session back before the loop continues,
+     *     or one failed write would leave the transaction aborted and doom every later
+     *     item on PostgreSQL; the dispatch guard rolls back defensively, having written
+     *     nothing itself. ``incident.id`` is read once up front because both a commit and
+     *     a rollback expire the instance, and re-reading it would trigger a lazy load.
+     *
+     *     :param session: The database session.
+     *     :param incident: The incident resolved from the ``incident_id`` path parameter.
+     *     :param body: The batch payload.
+     *     :param tasks_api: The authenticated Tasks API client.
+     *     :return: One outcome entry per requested item, in request order.
+     *     :raises HTTPBadRequestException: When any filename is unsafe or malformed,
+     *         failing the whole request before any item is dispatched.
+     */
+    post: operations['atw_atw_batch_execute_api_apps_atw_incidents__incident_id__executions__post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/apps/atw/incidents/{incident_id}/send-jobs/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Atw List Send Jobs
+     * @description List one incident's diagnostics send attempts, newest first.
+     *
+     *     :param session: The database session.
+     *     :param incident: The incident resolved from the ``incident_id`` path parameter.
+     *     :param pagination: The offset/limit window for the page.
+     *     :return: A paginated page of send attempts, newest first.
+     */
+    get: operations['atw_atw_list_send_jobs_api_apps_atw_incidents__incident_id__send_jobs__get'];
+    put?: never;
+    /**
+     * Atw Start Send Job
+     * @description Start delivering the selected executions' output files and logs to the support case.
+     *
+     *     The row is created before the task is queued so a broker failure is still
+     *     recorded as a failed attempt rather than vanishing: the row is the only place
+     *     a support engineer can see that a send was ever tried.
+     *
+     *     :param session: The database session.
+     *     :param incident: The incident resolved from the ``incident_id`` path parameter.
+     *     :param current_user: The authenticated user, stamped as ``requested_by``.
+     *     :param body: The send payload naming the case reference and executions.
+     *     :return: The created send log, pending.
+     *     :raises HTTPUnprocessableEntityException: When an execution id does not belong
+     *         to this incident.
+     *     :raises HTTPServiceUnavailableException: When the send could not be queued.
+     *     :raises HTTPBadRequestException: Propagated from the manager when the row
+     *         cannot be written.
+     */
+    post: operations['atw_atw_start_send_job_api_apps_atw_incidents__incident_id__send_jobs__post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/apps/atw/incidents/{incident_id}/send-jobs/{send_job_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Atw Get Send Job
+     * @description Retrieve one diagnostics send attempt, for the dialog to poll.
+     *
+     *     :param session: The database session.
+     *     :param incident: The incident resolved from the ``incident_id`` path parameter.
+     *     :param send_job_id: The send attempt's UUID.
+     *     :return: The matching send attempt.
+     *     :raises HTTPNotFoundException: If this incident has no such attempt.
+     */
+    get: operations['atw_atw_get_send_job_api_apps_atw_incidents__incident_id__send_jobs__send_job_id__get'];
     put?: never;
     post?: never;
     delete?: never;
@@ -698,19 +944,12 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /**
-     * Backup Mongo Api List
-     * @description List parent PBM backup config tasks.
-     */
-    get: operations['backup_mongo_backup_mongo_api_list_api_apps_backup_mongo__get'];
+    /** List */
+    get: operations['backup_mongo__list_paginated_api_apps_backup_mongo__get'];
     put?: never;
     /**
      * Backup Mongo Api Create
      * @description Create a backup task group from a JSON payload request body.
-     *
-     *     POSTs the parent ``pbm_config`` task, then derived ``pbm_logical``,
-     *     ``pbm_physical``, and ``pbm_status`` siblings via
-     *     :func:`~app.sep.apps.framework.cascade.cascade_create_tasks`.
      */
     post: operations['backup_mongo_backup_mongo_api_create_api_apps_backup_mongo__post'];
     delete?: never;
@@ -719,7 +958,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/apps/backup_mongo/restores/': {
+  '/api/apps/backup_mongo/restore/': {
     parameters: {
       query?: never;
       header?: never;
@@ -730,23 +969,20 @@ export interface paths {
      * Restore Mongo Api List
      * @description List parent PBM restore config tasks.
      */
-    get: operations['backup_mongo_restore_mongo_api_list_api_apps_backup_mongo_restores__get'];
+    get: operations['backup_mongo_restore_restore_mongo_api_list_api_apps_backup_mongo_restore__get'];
     put?: never;
     /**
      * Restore Mongo Api Create
      * @description Create a restore task group from a JSON payload request body.
-     *
-     *     POSTs the parent config task, restore leg, pbm-list helper, and optional
-     *     force-resync child for physical restores. Rolls back on any failure.
      */
-    post: operations['backup_mongo_restore_mongo_api_create_api_apps_backup_mongo_restores__post'];
+    post: operations['backup_mongo_restore_restore_mongo_api_create_api_apps_backup_mongo_restore__post'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/apps/backup_mongo/restores/schema': {
+  '/api/apps/backup_mongo/restore/schema': {
     parameters: {
       query?: never;
       header?: never;
@@ -759,7 +995,7 @@ export interface paths {
      *
      *     :return: The plugin schema instance.
      */
-    get: operations['backup_mongo_get_schema_api_apps_backup_mongo_restores_schema_get'];
+    get: operations['backup_mongo_restore_get_schema_api_apps_backup_mongo_restore_schema_get'];
     put?: never;
     post?: never;
     delete?: never;
@@ -768,7 +1004,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/apps/backup_mongo/restores/{task_name}': {
+  '/api/apps/backup_mongo/restore/{task_name}': {
     parameters: {
       query?: never;
       header?: never;
@@ -779,27 +1015,29 @@ export interface paths {
      * Restore Mongo Api Detail
      * @description Retrieve a single parent restore task with child task status.
      */
-    get: operations['backup_mongo_restore_mongo_api_detail_api_apps_backup_mongo_restores__task_name__get'];
+    get: operations['backup_mongo_restore_restore_mongo_api_detail_api_apps_backup_mongo_restore__task_name__get'];
     /**
      * Restore Mongo Api Update
      * @description Update a restore task from a JSON payload request body.
      *
      *     PUTs the parent config payload to the config task name and refreshes each
-     *     child leg (restore, pbm-list, optional force-resync) in place.
+     *     child leg (restore, pbm-list, optional force-resync) in place. The
+     *     ``EditableRestoreParent`` dependency resolves a satellite URL to the parent
+     *     and blocks protected or in-flight groups before any write.
      */
-    put: operations['backup_mongo_restore_mongo_api_update_api_apps_backup_mongo_restores__task_name__put'];
+    put: operations['backup_mongo_restore_restore_mongo_api_update_api_apps_backup_mongo_restore__task_name__put'];
     post?: never;
     /**
      * Restore Mongo Api Delete
      * @description Delete a restore task group.
      */
-    delete: operations['backup_mongo_restore_mongo_api_delete_api_apps_backup_mongo_restores__task_name__delete'];
+    delete: operations['backup_mongo_restore_restore_mongo_api_delete_api_apps_backup_mongo_restore__task_name__delete'];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/apps/backup_mongo/restores/{task_name}/execute': {
+  '/api/apps/backup_mongo/restore/{task_name}/execute': {
     parameters: {
       query?: never;
       header?: never;
@@ -809,10 +1047,10 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Restore Mongo Api Execute
-     * @description Execute a restore task.
+     * Backup Mongo Restores Api Execute
+     * @description Resolve, dispatch, and wrap a standard task execution.
      */
-    post: operations['backup_mongo_restore_mongo_api_execute_api_apps_backup_mongo_restores__task_name__execute_post'];
+    post: operations['backup_mongo_restore_backup_mongo_restores_api_execute_api_apps_backup_mongo_restore__task_name__execute_post'];
     delete?: never;
     options?: never;
     head?: never;
@@ -853,7 +1091,18 @@ export interface paths {
      * @description Retrieve a single parent backup task with derived sibling status.
      */
     get: operations['backup_mongo_backup_mongo_api_detail_api_apps_backup_mongo__task_name__get'];
-    put?: never;
+    /**
+     * Backup Mongo Api Update
+     * @description Update a backup task group from a JSON payload request body.
+     *
+     *     Cascade-updates the parent ``pbm_config`` task and its derived logical,
+     *     physical, status, and incremental siblings, re-stamping ``_form`` so the edit page keeps
+     *     prefilling. The ``EditableBackupParent`` dependency resolves a satellite URL
+     *     to the parent and blocks protected or in-flight groups before any write.
+     *     Rejects a parent rename with a conflict and surfaces a partial cascade
+     *     failure as an HTTP 500 naming the failed legs.
+     */
+    put: operations['backup_mongo_backup_mongo_api_update_api_apps_backup_mongo__task_name__put'];
     post?: never;
     /**
      * Backup Mongo Api Delete
@@ -972,7 +1221,7 @@ export interface paths {
       cookie?: never;
     };
     /** List */
-    get: operations['checksums__list_api_apps_checksums__get'];
+    get: operations['checksums__list_paginated_api_apps_checksums__get'];
     put?: never;
     /** Create */
     post: operations['checksums__create_api_apps_checksums__post'];
@@ -1055,9 +1304,10 @@ export interface paths {
      * @description Return Dipper execution history rows.
      *
      *     :param tasks_api: Async client for the tasks sub-app.
-     *     :type tasks_api: RemoteAPI
-     *     :return: Paginated task-history response filtered to Dipper runs.
-     *     :rtype: dict[str, Any]
+     *     :param pagination: Validated offset/limit forwarded to the upstream history call.
+     *     :return: A paginated envelope of task-history rows filtered to Dipper runs. Because
+     *         the ``dipper/`` filter runs client-side, ``total`` is the filtered count of the
+     *         current page, not a global count across all pages.
      */
     get: operations['dipper_dipper_api_list_api_apps_dipper__get'];
     put?: never;
@@ -1278,6 +1528,42 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/apps/inventory/services/{service_id}/check-connectivity/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Inventory Service Check Connectivity
+     * @description Run a database connectivity probe for a service from its executor host.
+     *
+     *     Backs the React connectivity control on the service detail page. A probe
+     *     that ran but could not connect is reported as HTTP 200 with
+     *     ``success=false`` and the upstream message in ``error``; only a probe that
+     *     could not be attempted at all is an error status. This three-segment
+     *     literal path cannot collide with the two-segment
+     *     ``/{entity}/{item_id:int}`` detail matcher.
+     *
+     *     :param service: The service to probe, resolved from the path id.
+     *     :param tasks_api: Authenticated Tasks ``RemoteAPI`` client.
+     *     :return: The upstream probe result.
+     *     :raises HTTPBadRequestException: When the service cannot be probed —
+     *         unsupported type, missing node or port, or no executor registered for
+     *         the node address.
+     *     :raises HTTPBadGatewayException: When the Tasks API is unreachable or
+     *         returns an unparseable body.
+     */
+    post: operations['inventory_inventory_service_check_connectivity_api_apps_inventory_services__service_id__check_connectivity__post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/apps/inventory/services/{service_id}/system-observation': {
     parameters: {
       query?: never;
@@ -1388,6 +1674,12 @@ export interface paths {
     /**
      * Inventory List Entity
      * @description List inventory nodes, services, schemas, or tables.
+     *
+     *     :param request: Inbound request; its query string carries entity filters.
+     *     :param entity: Inventory entity type (nodes, services, schemas, tables).
+     *     :param inventory_api: Async client for the Inventory sub-app.
+     *     :param pagination: Validated offset/limit forwarded to the upstream call.
+     *     :return: A paginated envelope echoing the requested window.
      */
     get: operations['inventory_inventory_list_entity_api_apps_inventory__entity___get'];
     put?: never;
@@ -1549,6 +1841,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/apps/mysql_backups/services/{service_id}/backups': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Service Backups
+     * @description Return a page of a MySQL service's completed backup runs, newest run first.
+     *
+     *     The ``service_id`` path parameter is resolved by
+     *     :data:`~app.sep.apps.mysql_backups.deps.ResolvedMysqlService`, which lets an
+     *     unknown service surface as a ``404``. A resolvable service with no recorded
+     *     runs yields an empty page, so a caller building a restore selector is never
+     *     blocked by an empty catalog but is still told when the service itself is
+     *     unknown.
+     *
+     *     :param service: The inventory service resolved from the ``service_id`` path
+     *         parameter.
+     *     :param session: The database session the catalog is queried on.
+     *     :param pagination: The requested offset/limit window.
+     *     :return: The requested page of the service's recorded backup runs, newest
+     *         run first.
+     */
+    get: operations['mysql_backups_list_service_backups_api_apps_mysql_backups_services__service_id__backups_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/apps/mysql_backups/{task_name}': {
     parameters: {
       query?: never;
@@ -1599,7 +1925,7 @@ export interface paths {
      * Report Config
      * @description Return upload configuration status.
      *
-     *     :return: JSON with ``upload_disabled_reasons`` — empty list means upload is ready.
+     *     :return: JSON response with ``upload_disabled_reasons``.
      *     :rtype: JSONResponse
      */
     get: operations['report_report_config_api_apps_report_config_get'];
@@ -1622,7 +1948,7 @@ export interface paths {
      * Report Generate Json Api
      * @description Generate a report and return as JSON.
      *
-     *     :param pmm_api: The PMM API client.
+     *     :param pmm_api: PMM API client dependency.
      *     :type pmm_api: PMMRemoteAPI
      *     :param since: Relative start of the report period.
      *     :type since: str
@@ -1630,11 +1956,11 @@ export interface paths {
      *     :type until: str
      *     :param full: Include all check results and full backup history.
      *     :type full: bool
-     *     :param refresh: Force a refresh of advisor checks before fetching results.
+     *     :param refresh: Force advisor refresh before fetching results.
      *     :type refresh: bool
      *     :param sections: Optional list of sections to include.
      *     :type sections: list[str] | None
-     *     :return: JSON response with the full report data.
+     *     :return: JSON response with full report data.
      *     :rtype: JSONResponse
      */
     get: operations['report_report_generate_json_api_api_apps_report_generate_json_get'];
@@ -1646,7 +1972,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/api/apps/report/generate/pdf': {
+  '/api/apps/report/pdf-jobs': {
     parameters: {
       query?: never;
       header?: never;
@@ -1656,30 +1982,75 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Report Generate Pdf Api
-     * @description Generate a report and return it as a downloadable PDF.
+     * Report Start Pdf Job Api
+     * @description Enqueue PDF rendering from a report JSON snapshot.
      *
-     *     :param pmm_api: The PMM API client.
-     *     :type pmm_api: PMMRemoteAPI
-     *     :param since: Relative start of the report period.
-     *     :type since: str
-     *     :param until: Relative end of the report period.
-     *     :type until: str
-     *     :param full: Include all check results and full backup history.
-     *     :type full: bool
-     *     :param refresh: Force a refresh of advisor checks before fetching results.
-     *     :type refresh: bool
-     *     :return: PDF file response.
-     *     :rtype: Response
+     *     :param body: Request body containing the report snapshot.
+     *     :type body: ReportSnapshotWrite
+     *     :return: PDF job status response.
+     *     :rtype: ReportJobResponse
      */
-    post: operations['report_report_generate_pdf_api_api_apps_report_generate_pdf_post'];
+    post: operations['report_report_start_pdf_job_api_api_apps_report_pdf_jobs_post'];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/api/apps/report/upload': {
+  '/api/apps/report/pdf-jobs/{job_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Report Pdf Job Api
+     * @description Return PDF job status.
+     *
+     *     :param job_id: Celery task identifier.
+     *     :type job_id: str
+     *     :return: PDF job status response.
+     *     :rtype: ReportJobResponse
+     */
+    get: operations['report_report_pdf_job_api_api_apps_report_pdf_jobs__job_id__get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/apps/report/pdf-jobs/{job_id}/pdf': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Report Download Pdf Api
+     * @description Download a ready PDF result for a report job.
+     *
+     *     :param job_id: Celery task identifier.
+     *     :type job_id: str
+     *     :return: PDF file response.
+     *     :rtype: Response
+     *     :raises HTTPInternalServerErrorException: If the Celery job failed.
+     *     :raises HTTPConflictException: If the PDF result is not ready yet.
+     *     :raises HTTPGoneException: If the staged PDF artifact has expired.
+     */
+    get: operations['report_report_download_pdf_api_api_apps_report_pdf_jobs__job_id__pdf_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/apps/report/upload-jobs': {
     parameters: {
       query?: never;
       header?: never;
@@ -1689,23 +2060,41 @@ export interface paths {
     get?: never;
     put?: never;
     /**
-     * Report Upload Api
-     * @description Generate a report, convert to PDF, and upload to ServiceNow.
+     * Report Start Upload Job Api
+     * @description Enqueue ServiceNow upload from a report JSON snapshot.
      *
-     *     :param pmm_api: The PMM API client.
-     *     :type pmm_api: PMMRemoteAPI
-     *     :param since: Relative start of the report period.
-     *     :type since: str
-     *     :param until: Relative end of the report period.
-     *     :type until: str
-     *     :param full: Include all check results and full backup history.
-     *     :type full: bool
-     *     :param refresh: Force a refresh of advisor checks before fetching results.
-     *     :type refresh: bool
-     *     :return: JSON response with the upload result.
-     *     :rtype: JSONResponse
+     *     :param body: Request body containing the report snapshot.
+     *     :type body: ReportSnapshotWrite
+     *     :return: Upload job status response.
+     *     :rtype: ReportJobResponse
+     *     :raises HTTPServiceUnavailableException: If ServiceNow upload is not configured.
      */
-    post: operations['report_report_upload_api_api_apps_report_upload_post'];
+    post: operations['report_report_start_upload_job_api_api_apps_report_upload_jobs_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/apps/report/upload-jobs/{job_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Report Upload Job Api
+     * @description Return ServiceNow upload job status.
+     *
+     *     :param job_id: Celery task identifier.
+     *     :type job_id: str
+     *     :return: Upload job status response.
+     *     :rtype: ReportJobResponse
+     */
+    get: operations['report_report_upload_job_api_api_apps_report_upload_jobs__job_id__get'];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -1721,7 +2110,7 @@ export interface paths {
     };
     /**
      * List
-     * @description List every discovered script as its list-row projection.
+     * @description List scripts as a server-filtered, sorted, paginated projection.
      */
     get: operations['snippets_snippets_api_list_api_apps_snippets__get'];
     put?: never;
@@ -1839,6 +2228,33 @@ export interface paths {
      *     :return: The plugin schema instance.
      */
     get: operations['snippets_get_schema_api_apps_snippets_schema_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/apps/snippets/service_types': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Snippets Api Service Types
+     * @description List the distinct service types across the whole snippets dataset.
+     *
+     *     Backs the list page's service-type filter so its options reflect every value
+     *     in the dataset rather than only the loaded page.
+     *
+     *     :param session: The SEP database session.
+     *     :return: The sorted distinct service types and whether any snippet is
+     *         uncategorized (absent or blank service type).
+     */
+    get: operations['snippets_snippets_api_service_types_api_apps_snippets_service_types_get'];
     put?: never;
     post?: never;
     delete?: never;
@@ -2028,9 +2444,8 @@ export interface paths {
      * @description List task definitions for the read-only plugin UI.
      *
      *     :param tasks_api: Async client for the tasks sub-app.
-     *     :type tasks_api: TaskAPI
-     *     :return: Task rows for the schema-driven list view.
-     *     :rtype: list[TaskListResponse]
+     *     :param pagination: Validated offset/limit forwarded to the upstream Tasks API.
+     *     :return: A paginated envelope of task rows for the schema-driven list view.
      */
     get: operations['task_manager_tasks_api_list_api_apps_tasks__get'];
     put?: never;
@@ -2092,6 +2507,101 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/apps/topology/collect': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Topology Collect
+     * @description Dispatch one or more topology collector tasks. Returns the task ids.
+     *
+     *     Hosts are pulled from the inventory MySQL service list; no inventory
+     *     persistence side effects occur. With ``shards > 1`` the host list is
+     *     split round-robin across the first N executor hosts so geographically
+     *     split inventories run in parallel.
+     *
+     *     :param body: Collection request (shard count, optional executor, timeouts).
+     *     :param inventory_api: Remote inventory API client used to source MySQL hosts.
+     *     :param tasks_api: Remote Tasks API client used to dispatch collector tasks.
+     *     :return: Dispatched task history ids plus the executor targets and counts.
+     */
+    post: operations['topology_topology_collect_api_apps_topology_collect_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/apps/topology/result': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Topology Result
+     * @description Return the merged graph for the supplied task history ids.
+     *
+     *     Status mirrors the underlying tasks: ``running`` while any are pending
+     *     or running, ``failed`` when any task failed and produced no usable
+     *     output, ``ok`` once every task is finished. The React client caches
+     *     the response via TanStack Query (long ``staleTime``) and stops
+     *     polling once status flips to ``ok``, so the server doesn't bother
+     *     with HTTP cache validation here.
+     *
+     *     :param tasks_api: Remote Tasks API client used to fetch task histories and logs.
+     *     :param current_user: Authenticated caller; results are scoped to their own tasks.
+     *     :param ids: Comma-separated task history ids to merge into one graph.
+     *     :return: Aggregate status plus the merged graph (when ready) and task-id lists.
+     */
+    get: operations['topology_topology_result_api_apps_topology_result_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/sep/admin/connectivity-check/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Check Connectivity
+     * @description Probe the requested external / inter-service endpoints and report status.
+     *
+     *     Probe only the services named in ``body.targets``, running the selected
+     *     probes concurrently. Each is isolated: one endpoint's failure is classified
+     *     independently and never fails the whole response, which always returns
+     *     ``200`` with one entry per requested service, in request order. Tasks and
+     *     Nomad share a single ``/hosts/`` probe, so requesting either (or both) runs
+     *     it once.
+     *
+     *     :param body: The request naming which services to probe.
+     *     :param pmm_api: The PMM client dependency, or ``None`` when unconfigured.
+     *     :param inventory_api: The authenticated Inventory API client.
+     *     :param tasks_api: The authenticated Tasks API client.
+     *     :return: One normalized connectivity result per requested service.
+     */
+    post: operations['sep_check_connectivity_api_sep_admin_connectivity_check__post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/sep/admin/settings/': {
     parameters: {
       query?: never;
@@ -2105,8 +2615,10 @@ export interface paths {
      *
      *     Local classes are read from their config singletons; remote classes
      *     (``remote_classes``) are fetched server-side from their owning sub-app
-     *     and appended in declaration order. A failed remote fetch fails the whole
-     *     request with ``502`` -- the LIST never silently drops a remote group.
+     *     and appended in declaration order; app-owned classes follow remote
+     *     groups with per-group app metadata. A failed remote fetch fails the
+     *     whole request with ``502`` -- the LIST never silently drops a remote
+     *     group.
      *
      *     :param session: The sub-app's database session.
      *     :param remote_api: The client for remote settings classes (``None`` when
@@ -2133,11 +2645,11 @@ export interface paths {
      * Export Settings
      * @description Return the merged effective configuration as a YAML attachment.
      *
-     *     Aggregates the three SEP-wired settings classes locally and fans out to
-     *     ``GET /admin/settings/`` on the Tasks API for ``TasksSettings``. Values
-     *     use the same dump path as the settings LIST endpoints. On upstream failure,
-     *     re-raise as :class:`~app.core.exceptions.HTTPBadGatewayException` — no
-     *     partial export.
+     *     Aggregates the SEP-wired core settings classes and app-owned settings
+     *     classes locally and fans out to ``GET /admin/settings/`` on the Tasks API
+     *     for ``TasksSettings``. Values use the same dump path as the settings LIST
+     *     endpoints. On upstream failure, re-raise as
+     *     :class:`~app.core.exceptions.HTTPBadGatewayException` — no partial export.
      *
      *     When ``keys`` is omitted the full merged export is returned exactly as
      *     before. When provided, each entry is a fully-qualified selector
@@ -2146,8 +2658,8 @@ export interface paths {
      *     upstream call; the Tasks fan-out is skipped entirely unless a selector
      *     targets ``TasksSettings``, and Tasks keys are validated against the fetched
      *     block. Output blocks always follow the canonical declaration order
-     *     (``SEP_ADMIN_SETTINGS_CLASSES`` then ``TasksSettings``), independent of
-     *     selector order.
+     *     (``SEP_ADMIN_SETTINGS_CLASSES``, then app-owned classes, then
+     *     ``TasksSettings``), independent of selector order.
      *
      *     :param session: The active database session for SEP override queries.
      *     :type session: AsyncSession
@@ -2249,10 +2761,13 @@ export interface paths {
      *     owns the idempotency and ``NOT_OVERRIDABLE`` semantics; its status and
      *     ``detail`` are preserved through the proxy.
      *
-     *     For a local class: idempotent -- deleting a (class, key) pair that has no
-     *     override row succeeds with 204. Attempting to delete a NOT_OVERRIDABLE
-     *     field responds 409 -- the field cannot have an override row in the first
-     *     place, so the operator's intent is unsatisfiable.
+     *     For a local class the DELETE is idempotent: deleting a (class, key) pair
+     *     that has no override row succeeds with 204. Attempting to delete a field
+     *     the code declares NOT_OVERRIDABLE responds 409, since it cannot have an
+     *     override row in the first place and the operator's intent is
+     *     unsatisfiable. A field only ``SETTINGS_OVERRIDE_ALLOWED_KEYS`` withheld
+     *     may still carry a row written before the restriction applied, so that
+     *     row is deleted normally and only the no-row case answers 409.
      *
      *     After republishing the snapshot, fires the rebind callbacks for the
      *     reverted key so a HOT target rebinds to its restored value without
@@ -2267,7 +2782,8 @@ export interface paths {
      *         the router wires none).
      *     :raises HTTPNotFoundException: If the class isn't exposed or the key
      *         doesn't exist on the class.
-     *     :raises HTTPConflictException: If the field is NOT_OVERRIDABLE.
+     *     :raises HTTPConflictException: If the field is NOT_OVERRIDABLE and has
+     *         no row to delete.
      *     :raises HTTPUnprocessableEntityException: If ``key`` names a
      *         ``NESTED_ONLY`` parent (the whole parent cannot be overridden;
      *         target an individual ``parent__leaf`` instead).
@@ -2801,117 +3317,6 @@ export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
     /**
-     * ATWCategoryListing
-     * @description Represent one ATW category row and its snippet members.
-     *
-     *     :param category_root: The top-level product/category root.
-     *     :type category_root: str
-     *     :param parent_category: The parent category enum name.
-     *     :type parent_category: str
-     *     :param parent_category_label: The parent category display label.
-     *     :type parent_category_label: str
-     *     :param category: The ATW leaf category enum name.
-     *     :type category: str
-     *     :param category_label: The ATW leaf category display label.
-     *     :type category_label: str
-     *     :param snippet_count: Number of snippets in this category.
-     *     :type snippet_count: int
-     *     :param snippets: Snippet summaries belonging to this category.
-     *     :type snippets: list[ATWSnippetSummary]
-     */
-    ATWCategoryListing: {
-      /** Category */
-      category: string;
-      /** Category Label */
-      category_label: string;
-      /** Category Root */
-      category_root: string;
-      /** Parent Category */
-      parent_category: string;
-      /** Parent Category Label */
-      parent_category_label: string;
-      /** Snippet Count */
-      snippet_count: number;
-      /** Snippets */
-      snippets: components['schemas']['ATWSnippetSummary'][];
-    };
-    /**
-     * ATWSnippetSummary
-     * @description Represent one snippet entry under an ATW category.
-     *
-     *     :param name: The snippet filename, used as its API identifier.
-     *     :type name: str
-     *     :param title: The snippet display title.
-     *     :type title: str
-     *     :param description: The snippet free-text description.
-     *     :type description: str
-     */
-    ATWSnippetSummary: {
-      /** Description */
-      description: string;
-      /** Name */
-      name: string;
-      /** Title */
-      title: string;
-    };
-    /**
-     * AlertDetailResponse
-     * @description Wrap the response for the alert detail endpoint.
-     *
-     *     :param alert: The alert metadata.
-     *     :type alert: AlertInfo
-     *     :param snippets: Snippets associated with this alert.
-     *     :type snippets: list[SnippetResponse]
-     */
-    AlertDetailResponse: {
-      alert: components['schemas']['AlertInfo'];
-      /** Snippets */
-      snippets: components['schemas']['SnippetResponse'][];
-    };
-    /**
-     * AlertGroup
-     * @description Group alerts sharing a service type.
-     *
-     *     :param service_type: The service type enum value.
-     *     :type service_type: AlertServiceType
-     *     :param label: Human-readable label for the service type.
-     *     :type label: str
-     *     :param alerts: Alerts belonging to this group.
-     *     :type alerts: list[AlertSummary]
-     */
-    AlertGroup: {
-      /** Alerts */
-      alerts: components['schemas']['AlertSummary'][];
-      /** Label */
-      label: string;
-      service_type: components['schemas']['AlertServiceType'];
-    };
-    /**
-     * AlertInfo
-     * @description Represent a normalized alert entry with its identifier and display label.
-     *
-     *     Accept a plain string identifier, a dict with ``name`` (required) and
-     *     optional ``label`` and ``service_type``, or keyword arguments.  Invalid
-     *     inputs raise ``ValidationError``.  The ``service_type`` field is optional
-     *     and, when absent, callers fall back to the snippet-level ``service_type``.
-     *
-     *     :param name: The alert identifier as declared in snippet frontmatter.
-     *     :type name: NonEmptyStr
-     *     :param label: The human-readable display label for the alert.
-     *     :type label: str
-     *     :param service_type: The service type the alert applies to, overriding
-     *         the snippet-level ``service_type``.  ``None`` means "fall back to the
-     *         snippet-level value".
-     *     :type service_type: AlertServiceType | None
-     */
-    AlertInfo: {
-      /** Label */
-      label: string;
-      /** Name */
-      name: string;
-      service_type?: components['schemas']['AlertServiceType'] | null;
-    };
-    /**
      * AlertServiceType
      * @description Enumerate the supported service types for alert-related features.
      *
@@ -2926,355 +3331,6 @@ export interface components {
      * @enum {string}
      */
     AlertServiceType: 'generic' | 'mysql' | 'mongodb' | 'postgresql';
-    /**
-     * AlertSummary
-     * @description Represent a minimal alert for the listing endpoint.
-     *
-     *     :param name: The alert identifier.
-     *     :type name: str
-     *     :param label: The human-readable display label.
-     *     :type label: str
-     */
-    AlertSummary: {
-      /** Label */
-      label: string;
-      /** Name */
-      name: string;
-    };
-    /**
-     * AltersCreate
-     * @description Represent the single model-first declaration of the Alters create form.
-     *
-     *     This one declaration drives the JSON create/update request body, the Jinja
-     *     ``Form()`` body, and — via
-     *     :func:`~app.sep.apps.framework.form_dsl.derive_app_schema` — the
-     *     ``GET /schema`` source. The mutual-exclusion and ``dsn`` conditional rules are
-     *     enforced by ``AppFormModel`` inheritance (the field-level ``Requires`` /
-     *     ``Forbidden`` gates plus ``__form_rules__``), not by a decorator.
-     *
-     *     The schema-display defaults for ``dsn_table`` and ``progress`` diverge from the
-     *     request-body defaults: the body defaults both to the empty string (so the
-     *     ``dsn_table`` forbidden gate passes for non-``dsn`` recursion, and an omitted
-     *     ``progress`` emits no value), while the form renders the Percona-Toolkit DSN
-     *     table and ``time,10`` via ``Ui(default=...)``.
-     *
-     *     :param task_name: The name of the task to be created.
-     *     :param hostname: The target hostname for the task execution.
-     *     :param service_id: The Inventory ID of the database service to connect to.
-     *     :param schema_id: The database schema ID on which the task will operate.
-     *     :param table_id: The table ID within the schema to be altered.
-     *     :param schema_name: Manual schema name when ``schema_id`` is not set.
-     *     :param table_name: Manual table name when ``table_id`` is not set.
-     *     :param recursion_method: The method for handling recursion.
-     *     :param alter: The specific alter command to be executed.
-     *     :param dsn_table: The DSN table for recursion method when using ``dsn``. When
-     *         recursion is ``dsn`` and this field is omitted or empty, it defaults to
-     *         ``D=percona,t=dsns`` (Percona Toolkit convention).
-     *     :param pause_file: Execution will be paused while the file specified by this param exists.
-     *     :param new_table_name: New table name before it is swapped.
-     *     :param print_arg: Print SQL statements to STDOUT.
-     *     :param progress: Print progress reports to STDERR while copying rows.
-     *     :param no_swap_tables: Swap the original table and the new, altered table.
-     *     :param no_drop_old_table: Drop the original table after renaming it.
-     *     :param no_drop_new_table: Drop the new table if copying the original table fails.
-     *     :param no_drop_triggers: Drop triggers on the old table.
-     *     :param tries: How many times to try critical operations.
-     *     :param set_vars: Set the MySQL variables in this comma-separated list of variable=value pairs.
-     *     :param critical_load: Examine SHOW GLOBAL STATUS after every chunk, and abort if the load is too high.
-     *     :param max_load: Examine SHOW GLOBAL STATUS after every chunk, and pause if any status variables are
-     *         higher than their thresholds.
-     *     :param chunk_time: Adjust the chunk size dynamically so each data-copy query takes this long to execute.
-     *     :param max_lag: Pause the data copy until all replicas lag is less than this value.
-     *     :param max_flow_ctl: Pause when PXC flow control exceeds this value.
-     *     :param extra_args: Additional command-line arguments to append to the pt-online-schema-change command.
-     *     :param pre_checks_mysql_config_file: Path to MySQL client defaults file on the executor
-     *         (user/password): pre-checks always use this path; execute/dry-run use pt-osc's
-     *         default ~/.my.cnf unless this is set to another path, then --defaults-file is added.
-     *     :param continue_on_pre_check_failure: When True, continue to the run task even if
-     *         pre-checks fail (overrides the schema's default ``on_failure="halt"`` policy).
-     */
-    AltersCreate: {
-      /**
-       * Alert On Fail
-       * @default false
-       */
-      alert_on_fail: boolean;
-      /** Alter */
-      alter: string;
-      /** Chunk Time */
-      chunk_time?: string | null;
-      /**
-       * Continue On Pre Check Failure
-       * @default false
-       */
-      continue_on_pre_check_failure: boolean;
-      /** Critical Load */
-      critical_load?: string | null;
-      /**
-       * Dsn Table
-       * @default
-       */
-      dsn_table: string;
-      /** Extra Args */
-      extra_args?: string | null;
-      /** Hostname */
-      hostname: string;
-      /** Max Flow Ctl */
-      max_flow_ctl?: string | null;
-      /** Max Lag */
-      max_lag?: string | null;
-      /** Max Load */
-      max_load?: string | null;
-      /** New Table Name */
-      new_table_name?: string | null;
-      /**
-       * No Drop New Table
-       * @default false
-       */
-      no_drop_new_table: boolean;
-      /**
-       * No Drop Old Table
-       * @default false
-       */
-      no_drop_old_table: boolean;
-      /**
-       * No Drop Triggers
-       * @default false
-       */
-      no_drop_triggers: boolean;
-      /**
-       * No Swap Tables
-       * @default false
-       */
-      no_swap_tables: boolean;
-      /** Pause File */
-      pause_file?: string | null;
-      /**
-       * Pre Checks Mysql Config File
-       * @default ~/.my.cnf
-       */
-      pre_checks_mysql_config_file: string;
-      /**
-       * Print Arg
-       * @default false
-       */
-      print_arg: boolean;
-      /**
-       * Progress
-       * @default
-       */
-      progress: string;
-      /**
-       * Recursion Method
-       * @default processlist
-       */
-      recursion_method: string;
-      /** Schema Id */
-      schema_id?: number | null;
-      /** Schema Name */
-      schema_name?: string | null;
-      /** Service Id */
-      service_id: number;
-      /** Set Vars */
-      set_vars?: string | null;
-      /** Table Id */
-      table_id?: number | null;
-      /** Table Name */
-      table_name?: string | null;
-      /** Task Name */
-      task_name: string;
-      /** Tries */
-      tries?: string | null;
-    };
-    /**
-     * AltersExecuteWrite
-     * @description Represent a JSON request body for executing an alters task.
-     *
-     *     :param eta: Optional future datetime to schedule execution.
-     *     :param chain_task_names: Optional list of task names to chain after this one.
-     *     :param chain_on_failure: Whether to run chained tasks even on failure.
-     */
-    AltersExecuteWrite: {
-      /** Chain On Failure */
-      chain_on_failure?: boolean | null;
-      /** Chain Task Names */
-      chain_task_names?: string[] | null;
-      /** Eta */
-      eta?: string | null;
-    };
-    /**
-     * AltersExecutionResponse
-     * @description Represent the response from POST /api/apps/alters/{task_name}/execute.
-     *
-     *     :param task_name: The name of the task that was executed.
-     *     :param task_id: The id of the task-history row created by the tasks API.
-     */
-    AltersExecutionResponse: {
-      /** Task Id */
-      task_id?: number | null;
-      /** Task Name */
-      task_name: string;
-    };
-    /**
-     * AltersTaskResponse
-     * @description Represent an alters task API response for list and detail surfaces.
-     *
-     *     The create/update routes return the
-     *     :data:`AltersTaskResponseCreate` / :data:`AltersTaskResponseUpdate` models
-     *     derived from this base; both add ``connectivity_warning`` per the framework's
-     *     derived create-response standard, so the always-null warning field stays off
-     *     list/detail rows.
-     *
-     *     :param name: The name of the alters task.
-     *     :param owner: The entity or user that owns the task.
-     *     :param service_type: The type of database service (always MySQL for alters).
-     *     :param status: The current execution status of the task.
-     *     :param id: The unique identifier for the alters task.
-     *     :param backend: The backend worker/engine executing the task.
-     *     :param data: The raw configuration and parameters used for the alter execution.
-     *     :param protected: Whether the task is protected from deletion or modification.
-     *     :param alert_on_fail: If True, notifications are sent upon task failure.
-     *     :param created_at: The timestamp when the task was first created.
-     *     :param updated_at: The timestamp of the last modification to the task.
-     *     :param created_by: The user who initiated the task.
-     *     :param last_updated_by: The user who last modified the task record.
-     */
-    AltersTaskResponse: {
-      /** Alert On Fail */
-      alert_on_fail: boolean;
-      backend: components['schemas']['TaskBackendEnum'];
-      /** Created At */
-      created_at?: string | null;
-      /** Created By */
-      created_by?: string | null;
-      /** Data */
-      data: Record<string, never>;
-      /** Id */
-      id?: number | null;
-      /** Last Updated By */
-      last_updated_by?: string | null;
-      /** Name */
-      name: string;
-      owner: components['schemas']['TaskOwner'];
-      /** Protected */
-      protected: boolean;
-      service_type?: components['schemas']['ServiceTypeEnum'] | null;
-      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
-      /** Updated At */
-      updated_at?: string | null;
-    };
-    /**
-     * AltersTaskResponseCreate
-     * @description Represent the create response for an alters task group, carrying the post-creation connectivity warning.
-     */
-    AltersTaskResponseCreate: {
-      /** Alert On Fail */
-      alert_on_fail: boolean;
-      backend: components['schemas']['TaskBackendEnum'];
-      connectivity_warning?:
-        | components['schemas']['ConnectivityWarning']
-        | null;
-      /** Created At */
-      created_at?: string | null;
-      /** Created By */
-      created_by?: string | null;
-      /** Data */
-      data: Record<string, never>;
-      /** Id */
-      id?: number | null;
-      /** Last Updated By */
-      last_updated_by?: string | null;
-      /** Name */
-      name: string;
-      owner: components['schemas']['TaskOwner'];
-      /** Protected */
-      protected: boolean;
-      service_type?: components['schemas']['ServiceTypeEnum'] | null;
-      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
-      /** Updated At */
-      updated_at?: string | null;
-    };
-    /**
-     * AltersTaskResponseUpdate
-     * @description Represent the update response for an alters task group, carrying the post-update connectivity warning.
-     */
-    AltersTaskResponseUpdate: {
-      /** Alert On Fail */
-      alert_on_fail: boolean;
-      backend: components['schemas']['TaskBackendEnum'];
-      connectivity_warning?:
-        | components['schemas']['ConnectivityWarning']
-        | null;
-      /** Created At */
-      created_at?: string | null;
-      /** Created By */
-      created_by?: string | null;
-      /** Data */
-      data: Record<string, never>;
-      /** Id */
-      id?: number | null;
-      /** Last Updated By */
-      last_updated_by?: string | null;
-      /** Name */
-      name: string;
-      owner: components['schemas']['TaskOwner'];
-      /** Protected */
-      protected: boolean;
-      service_type?: components['schemas']['ServiceTypeEnum'] | null;
-      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
-      /** Updated At */
-      updated_at?: string | null;
-    };
-    /**
-     * AppEntitySchema
-     * @description Describe one CRUD entity for a multi-entity schema-driven plugin.
-     *
-     *     Used when a plugin exposes several independent resources (for example
-     *     inventory nodes, services, schemas, and tables), each with its own list
-     *     view and create/edit forms. Task-style plugins omit ``entities`` and use
-     *     the root ``forms`` / ``list_view`` instead.
-     *
-     *     :param name: URL segment and API key for the entity (for example ``nodes``).
-     *     :type name: NonEmptyStr
-     *     :param display_name: Human-readable title for this entity's screens.
-     *     :type display_name: NonEmptyStr
-     *     :param description: Optional helper text for this entity. Defaults to
-     *         ``None``.
-     *     :type description: NonEmptyStr | None
-     *     :param forms: Form sections for create (and edit when the UI supports it).
-     *     :type forms: list[FormSection]
-     *     :param list_view: Column configuration for this entity's list table.
-     *     :type list_view: ListView
-     *     :param detail_highlights: Optional per-field syntax highlighter hints for
-     *         detail pages. Keys are field names; values are highlighting languages.
-     *         Defaults to an empty mapping.
-     *     :type detail_highlights: dict[NonEmptyStr, DetailHighlightLanguage]
-     *     :param cardinality_rules: Optional entity-wide cross-field cardinality
-     *         constraints. Defaults to ``None``.
-     *     :type cardinality_rules: list[CardinalityRule] | None
-     *     :param fail_when: Optional entity-wide predicate-only invariants.
-     *         Defaults to ``None``.
-     *     :type fail_when: list[FailRule] | None
-     */
-    AppEntitySchema: {
-      /** Cardinality Rules */
-      cardinality_rules?: components['schemas']['CardinalityRule'][] | null;
-      /** Description */
-      description?: string | null;
-      /** Detail Highlights */
-      detail_highlights?: {
-        [key: string]: components['schemas']['DetailHighlightLanguage'];
-      };
-      /** Display Name */
-      display_name: string;
-      /** Fail When */
-      fail_when?: components['schemas']['FailRule'][] | null;
-      /** Forms */
-      forms: components['schemas']['FormSection'][];
-      list_view: components['schemas']['ListView'];
-      /** Name */
-      name: string;
-    };
     /**
      * AppInfo
      * @description Represent the response of ``GET /api/sep/app-info``.
@@ -3332,25 +3388,33 @@ export interface components {
      * @description Represent a minimal per-app entry for the navigation shell.
      *
      *     :param app_key: The plugin module key.
-     *     :type app_key: str
      *     :param enabled: Whether the app is currently enabled.
-     *     :type enabled: bool
      *     :param sidebar: Whether the plugin appears in the sidebar.
-     *     :type sidebar: bool
      *     :param uri_path: The plugin's mount URI path.
-     *     :type uri_path: str
      *     :param display_name: The human-facing label for the app.
-     *     :type display_name: str
      *     :param custom_ui: Whether the app ships a bespoke React UI.
-     *     :type custom_ui: bool
      *     :param group: The nav group key this app nests under; ``None`` when the app
      *         renders as a top-level sidebar entry.
      *     :param nav_order: The app's sort position within the sidebar; ``None`` when
      *         unset.
+     *     :param react_route: The canonical React route the shell mounts and links to;
+     *         always concrete (defaulting to ``/apps/<app_key>``).
+     *     :param nav_icon: The sidebar icon key; ``None`` falls back to the shell's
+     *         default app icon.
+     *     :param blocking_dependencies: The effective-disabled ``requires_apps`` keys
+     *         that are the reason this app is effective-disabled. Empty when the app is
+     *         enabled or disabled by its own state; non-empty only for a
+     *         dependency-driven disablement, so the shell can name the required app on
+     *         the disabled splash.
      */
     AppKeyResponse: {
       /** App Key */
       app_key: string;
+      /**
+       * Blocking Dependencies
+       * @default []
+       */
+      blocking_dependencies: string[];
       /** Custom Ui */
       custom_ui: boolean;
       /** Display Name */
@@ -3359,8 +3423,11 @@ export interface components {
       enabled: boolean;
       /** Group */
       group: string | null;
+      nav_icon: components['schemas']['nav_icons__NavIcon'] | null;
       /** Nav Order */
       nav_order: number | null;
+      /** React Route */
+      react_route: string;
       /** Sidebar */
       sidebar: boolean;
       /** Uri Path */
@@ -3379,83 +3446,6 @@ export interface components {
      * @enum {string}
      */
     AppLifecycleEnum: 'ENABLED' | 'DISABLED' | 'ENABLING' | 'DISABLING';
-    /**
-     * AppSchema
-     * @description Represent a plugin's complete schema: form sections, list view, capabilities.
-     *
-     *     :param name: The plugin identifier; must match Python identifier rules,
-     *         optionally with internal hyphens.
-     *     :type name: NonEmptyStr
-     *     :param display_name: The human-readable plugin title displayed in the UI.
-     *     :type display_name: NonEmptyStr
-     *     :param description: Optional helper text describing the plugin's
-     *         purpose. Defaults to ``None``.
-     *     :type description: NonEmptyStr | None
-     *     :param task_type: Optional task-type identifier used when creating tasks
-     *         via the shared task API. Defaults to ``None``.
-     *     :type task_type: NonEmptyStr | None
-     *     :param forms: Form sections for single-entity / task plugins. Defaults to
-     *         an empty list when ``entities`` is used instead.
-     *     :type forms: list[FormSection]
-     *     :param capabilities: Optional plugin-level feature flags. Defaults to
-     *         ``None``.
-     *     :type capabilities: Capabilities | None
-     *     :param list_view: List-view configuration when ``entities`` is unset
-     *         (single-entity / task plugins). Ignored when ``entities`` is set.
-     *     :type list_view: ListView | None
-     *     :param detail_view: Optional declarative layout for the task detail page's
-     *         section cards (task-style plugins only; ignored when ``entities`` is
-     *         set). Optional at the model layer for backwards compatibility. A
-     *         forward-looking guard refuses to load a plugin that sets
-     *         ``task_type`` without declaring ``detail_view``. Defaults to ``None``.
-     *     :type detail_view: DetailView | None
-     *     :param entities: Optional list of CRUD entities for multi-resource plugins.
-     *         When non-empty, the React shell renders one list/create/detail flow
-     *         per entity. Defaults to ``None`` (legacy single-entity mode).
-     *     :param cardinality_rules: Optional plugin-wide cross-field cardinality
-     *         constraints (task-style plugins only; ignored when ``entities`` is set).
-     *         Defaults to ``None``.
-     *     :type cardinality_rules: list[CardinalityRule] | None
-     *     :param fail_when: Optional plugin-wide predicate-only invariants (task-style
-     *         plugins only; ignored when ``entities`` is set). Defaults to ``None``.
-     *     :type fail_when: list[FailRule] | None
-     *     :param derived: Optional declarative specs for sibling tasks derived from
-     *         the parent task on cascade. Consumed by
-     *         :mod:`app.sep.apps.framework.cascade` to drive POST/PUT/DELETE
-     *         across the parent and N derived siblings. Defaults to ``None``.
-     *     :type derived: list[DerivedTask] | None
-     *     :param predecessors: Optional declarative specs for tasks that must run
-     *         before the parent. Consumed by
-     *         :mod:`app.sep.apps.framework.cascade` to drive POST/PUT/DELETE
-     *         across the predecessors and the parent, including the chain wiring
-     *         applied at execute time. Defaults to ``None``.
-     *     :type predecessors: list[ChainedPredecessor] | None
-     */
-    AppSchema: {
-      capabilities?: components['schemas']['Capabilities'] | null;
-      /** Cardinality Rules */
-      cardinality_rules?: components['schemas']['CardinalityRule'][] | null;
-      /** Derived */
-      derived?: components['schemas']['DerivedTask'][] | null;
-      /** Description */
-      description?: string | null;
-      detail_view?: components['schemas']['DetailView'] | null;
-      /** Display Name */
-      display_name: string;
-      /** Entities */
-      entities?: components['schemas']['AppEntitySchema'][] | null;
-      /** Fail When */
-      fail_when?: components['schemas']['FailRule'][] | null;
-      /** Forms */
-      forms?: components['schemas']['FormSection'][];
-      list_view?: components['schemas']['ListView'] | null;
-      /** Name */
-      name: string;
-      /** Predecessors */
-      predecessors?: components['schemas']['ChainedPredecessor'][] | null;
-      /** Task Type */
-      task_type?: string | null;
-    };
     /**
      * AppStateResponse
      * @description Represent the toggle endpoint's response.
@@ -3483,788 +3473,6 @@ export interface components {
       lifecycle_state: components['schemas']['AppLifecycleEnum'];
     };
     /**
-     * ArchivesCreate
-     * @description Represent an Archives creation form as a model-first ``TaskFormModel``.
-     *
-     *     Source, destination, and destination-host are discriminated-union one-of groups;
-     *     the schema / table / database references are collapsed free-solo fields
-     *     (``int`` inventory id or free-typed ``str`` name). The ``task_name`` /
-     *     ``hostname`` Task-section fields and the ``alert_on_fail`` capability control
-     *     are inherited from :class:`TaskFormModel`.
-     *
-     *     :param task_name: The human-readable task name; required and non-empty
-     *         (inherited from :class:`TaskFormModel`).
-     *     :param hostname: The executor host the task runs on; required and non-empty
-     *         (inherited from :class:`TaskFormModel`).
-     *     :param service_id: The inventory id of the source MySQL service (the host whose
-     *         rows are archived; the connectivity probe targets it).
-     *     :param swap_drop: The archive type; only ``PURGE_ONLY`` is currently supported.
-     *     :param source: The source rows, by schema+table or by query.
-     *     :param destination: The destination table or file; ``None`` when ``delete_data``.
-     *     :param host: The destination host, by service or manual entry; ``None`` reuses
-     *         the source host.
-     *     :param swp_table_suffix: The swap-table date suffix (SWAP_ARCHIVE_DROP only).
-     *     :param where: The WHERE clause filtering rows; required unless SWAP_DROP.
-     *     :param use_index: An index hint to optimise the query.
-     *     :param extra_args: Additional pt-archiver CLI arguments.
-     *     :param limit: The maximum rows per archiver run.
-     *     :param sleep: The sleep duration between chunk operations (seconds).
-     *     :param disable_binlog: Whether to disable binary logging for the operation.
-     *     :param disable_bulk_insert: Whether to disable the bulk-insert optimisation.
-     *     :param delete_data: Whether to delete source rows without archiving them.
-     */
-    ArchivesCreate: {
-      /**
-       * Alert On Fail
-       * @default false
-       */
-      alert_on_fail: boolean;
-      /** Delete Data */
-      delete_data?: boolean | null;
-      /** Destination */
-      destination?:
-        | (
-            | components['schemas']['DestByTable']
-            | components['schemas']['DestByFile']
-          )
-        | null;
-      /** Disable Binlog */
-      disable_binlog?: boolean | null;
-      /** Disable Bulk Insert */
-      disable_bulk_insert?: boolean | null;
-      /** Extra Args */
-      extra_args?: string | null;
-      /** Host */
-      host?:
-        | (
-            | components['schemas']['HostByService']
-            | components['schemas']['HostManual']
-          )
-        | null;
-      /** Hostname */
-      hostname: string;
-      /** Limit */
-      limit?: number | null;
-      /** Service Id */
-      service_id: number;
-      /** Sleep */
-      sleep?: number | null;
-      /** Source */
-      source:
-        | components['schemas']['SourceByTable']
-        | components['schemas']['SourceByQuery'];
-      /**
-       * Swap Drop
-       * @default 0
-       */
-      swap_drop: number;
-      /** Swp Table Suffix */
-      swp_table_suffix?: string | null;
-      /** Task Name */
-      task_name: string;
-      /** Use Index */
-      use_index?: string | null;
-      /** Where */
-      where?: string | null;
-    };
-    /**
-     * AvailableSyncer
-     * @description Provide template-facing metadata for an available syncer.
-     *
-     *     :param name: The fully qualified ``"module.ClassName"`` identifier matching
-     *         ``BaseSyncer.get_name()`` and the value persisted in
-     *         ``SyncInstance.syncer``. Used as the wire identifier in form payloads.
-     *     :type name: str
-     *     :param display_name: The human-readable label rendered in the dropdown
-     *         (the syncer class's short name with any trailing ``Syncer`` suffix
-     *         stripped).
-     *     :type display_name: str
-     */
-    AvailableSyncer: {
-      /** Display Name */
-      display_name: string;
-      /** Name */
-      name: string;
-    };
-    /**
-     * BackupCreate
-     * @description Declare the model-first create/update body and ``GET /schema`` source for MySQL Backups.
-     *
-     *     Declares each form field once, in section order (Task, General, Mydumper,
-     *     XtraBackup, Binlog, Encryption, Upload), with the DSL markers driving the
-     *     derived schema. Field declaration order is load-bearing: the derived section
-     *     order follows each section's first field, and the within-section order follows
-     *     declaration order, so the order here reproduces the hand-written schema
-     *     byte-for-byte. The conditional gating that the legacy ``schema.py`` declared
-     *     (per-mode ``forbidden`` gates, the upload-provider ``Contains`` gates, the
-     *     encryption requires/forbidden pair, and the per-mode bool ``FailRule``s in
-     *     :attr:`__form_rules__`) now lives on the model; ``AppFormModel`` extracts it
-     *     into the conditional-rule plan at class definition, so no
-     *     ``@apply_conditional_rules`` decorator is needed. The config sub-models
-     *     (:class:`BackupConfigAll` and friends) stay the serialization target the
-     *     payload builder populates, not this model's base class.
-     *
-     *     :cvar __form_rules__: The per-mode bool fail rules — a truthy mode-owned bool
-     *         outside its mode fails validation with a per-field message.
-     */
-    BackupCreate: {
-      /**
-       * Alert On Fail
-       * @default false
-       */
-      alert_on_fail: boolean;
-      /** Alias */
-      alias?: string | null;
-      /** Awscli S3 Upload Extra Args */
-      awscli_s3_upload_extra_args?: string | null;
-      /** Backup Dir */
-      backup_dir?: string | null;
-      backup_type: components['schemas']['app__sep__apps__mysql_backups__models__BackupType'];
-      /** Binlog Alternative Host */
-      binlog_alternative_host?: string | null;
-      /** Binlog Cmd */
-      binlog_cmd?: string | null;
-      /** Binlog Compress Cmd */
-      binlog_compress_cmd?: string | null;
-      /** Binlog Extra Args */
-      binlog_extra_args?: string | null;
-      /** Binlog Prefix */
-      binlog_prefix?: string | null;
-      /** Binlog Purge Days */
-      binlog_purge_days?: number | null;
-      /**
-       * Binlog Run All
-       * @default true
-       */
-      binlog_run_all: boolean;
-      /**
-       * Check Disk Space
-       * @default false
-       */
-      check_disk_space: boolean;
-      /**
-       * Compress
-       * @default false
-       */
-      compress: boolean;
-      /** Compression Algorithm */
-      compression_algorithm?:
-        | components['schemas']['app__sep__apps__mysql_backups__models__CompressionAlgorithm']
-        | null;
-      /** Defaults File */
-      defaults_file?: string | null;
-      /**
-       * Encrypt
-       * @default false
-       */
-      encrypt: boolean;
-      /**
-       * Encrypt Using Tmpdir
-       * @default false
-       */
-      encrypt_using_tmpdir: boolean;
-      /** Encryption Recipient */
-      encryption_recipient?: string | null;
-      /** Gs Bucket */
-      gs_bucket?: string | null;
-      /**
-       * Hardlink
-       * @default false
-       */
-      hardlink: boolean;
-      /** Hostname */
-      hostname: string;
-      /** Logging Dir */
-      logging_dir?: string | null;
-      /** Mydumper Daily Purge */
-      mydumper_daily_purge?: number | null;
-      /**
-       * Mydumper Desync Pxc
-       * @default false
-       */
-      mydumper_desync_pxc: boolean;
-      /**
-       * Mydumper Dump Triggers
-       * @default false
-       */
-      mydumper_dump_triggers: boolean;
-      /** Mydumper Extra Args */
-      mydumper_extra_args?: string | null;
-      /**
-       * Mydumper Use Numa
-       * @default false
-       */
-      mydumper_use_numa: boolean;
-      /** Mydumper Verbose */
-      mydumper_verbose?: number | null;
-      /** Mydumper Weekly Purge */
-      mydumper_weekly_purge?: number | null;
-      /**
-       * Only If Read Only
-       * @default false
-       */
-      only_if_read_only: boolean;
-      /**
-       * Only If Running Replica
-       * @default false
-       */
-      only_if_running_replica: boolean;
-      /**
-       * Post Run Encrypt
-       * @default false
-       */
-      post_run_encrypt: boolean;
-      /** Rsync Path */
-      rsync_path?: string | null;
-      /** S3 Bucket */
-      s3_bucket?: string | null;
-      /** S3 Storage Class */
-      s3_storage_class?: string | null;
-      /** Service Id */
-      service_id: number;
-      /**
-       * Skip S3 Safety Check
-       * @default false
-       */
-      skip_s3_safety_check: boolean;
-      /** Task Name */
-      task_name: string;
-      /** Upload */
-      upload: components['schemas']['UploadProvider'][];
-      /**
-       * Upload Quiet
-       * @default false
-       */
-      upload_quiet: boolean;
-      /**
-       * Use Ftwrl Guardian
-       * @default false
-       */
-      use_ftwrl_guardian: boolean;
-      /** Xtrabackup Aes256 Keyfile */
-      xtrabackup_aes256_keyfile?: string | null;
-      /** Xtrabackup Bin Cmd */
-      xtrabackup_bin_cmd?:
-        | ('xtrabackup' | 'mariadb-backup' | 'innobackupex')
-        | null;
-      /** Xtrabackup Copies */
-      xtrabackup_copies?: number | null;
-      /** Xtrabackup Defaults File */
-      xtrabackup_defaults_file?: string | null;
-      /**
-       * Xtrabackup Desync Pxc
-       * @default false
-       */
-      xtrabackup_desync_pxc: boolean;
-      /** Xtrabackup Extra Args */
-      xtrabackup_extra_args?: string | null;
-      /** Xtrabackup Incremental Cycle */
-      xtrabackup_incremental_cycle?:
-        | ('daily' | 'weekly' | '2' | '3' | '4' | '5' | '6' | '7')
-        | null;
-      /** Xtrabackup Incremental Method */
-      xtrabackup_incremental_method?: ('less_space' | 'fast_restore') | null;
-      /**
-       * Xtrabackup Kill Queries
-       * @default false
-       */
-      xtrabackup_kill_queries: boolean;
-      /** Xtrabackup Kill Queries Timeout */
-      xtrabackup_kill_queries_timeout?: number | null;
-      /** Xtrabackup Kill Query Type */
-      xtrabackup_kill_query_type?: ('select' | 'all') | null;
-      /** Xtrabackup Local Ssh Destination */
-      xtrabackup_local_ssh_destination?: string | null;
-      /**
-       * Xtrabackup Lock Ddl
-       * @default false
-       */
-      xtrabackup_lock_ddl: boolean;
-      /**
-       * Xtrabackup Prepare
-       * @default false
-       */
-      xtrabackup_prepare: boolean;
-      /** Xtrabackup Prepare Memory */
-      xtrabackup_prepare_memory?: string | null;
-      /**
-       * Xtrabackup Quiet
-       * @default false
-       */
-      xtrabackup_quiet: boolean;
-      /**
-       * Xtrabackup Replica Info
-       * @default false
-       */
-      xtrabackup_replica_info: boolean;
-      /**
-       * Xtrabackup Rsync
-       * @default false
-       */
-      xtrabackup_rsync: boolean;
-      /**
-       * Xtrabackup Stop Replica
-       * @default false
-       */
-      xtrabackup_stop_replica: boolean;
-      /**
-       * Xtrabackup Verify
-       * @default false
-       */
-      xtrabackup_verify: boolean;
-    };
-    /**
-     * BackupDerivedTaskSummary
-     * @description Represent one derived sibling in a backup task detail response.
-     *
-     *     :param name: The name of the derived task.
-     *     :type name: str
-     *     :param backup_type: The PBM backup type for this derived task.
-     *     :type backup_type: str
-     *     :param status: The latest execution status of the derived task.
-     *     :type status: TaskHistoryStatusEnum | None
-     */
-    BackupDerivedTaskSummary: {
-      /** Backup Type */
-      backup_type: string;
-      /** Name */
-      name: string;
-      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
-    };
-    /**
-     * BackupDetail
-     * @description Describe the full detail response for a single backup.
-     *
-     *     :param id: Primary key of the backup row.
-     *     :type id: int
-     *     :param created_at: UTC timestamp the backup was written.
-     *     :type created_at: datetime
-     *     :param templates: Templates captured in the backup.
-     *     :type templates: list[BackupDetailTemplate]
-     *     :param rules: Rules captured in the backup.
-     *     :type rules: list[BackupDetailRule]
-     *     :param contact_points: Contact points captured in the backup.
-     *     :type contact_points: list[BackupDetailContactPoint]
-     *     :param folders: Folders captured in the backup.
-     *     :type folders: list[BackupDetailFolder]
-     *     :param notification_policy_receiver: Top-level receiver from the captured
-     *         notification policy, or ``None`` when no policy was captured.
-     *     :type notification_policy_receiver: str | None
-     */
-    BackupDetail: {
-      /** Contact Points */
-      contact_points: components['schemas']['BackupDetailContactPoint'][];
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /** Folders */
-      folders: components['schemas']['BackupDetailFolder'][];
-      /** Id */
-      id: number;
-      /** Notification Policy Receiver */
-      notification_policy_receiver: string | null;
-      /** Rules */
-      rules: components['schemas']['BackupDetailRule'][];
-      /** Templates */
-      templates: components['schemas']['BackupDetailTemplate'][];
-    };
-    /**
-     * BackupDetailContactPoint
-     * @description Represent a contact-point entry inside a backup snapshot.
-     *
-     *     :param name: The contact point name.
-     *     :type name: str
-     *     :param type: The contact point type (e.g. ``"pagerduty"``).
-     *     :type type: str
-     */
-    BackupDetailContactPoint: {
-      /** Name */
-      name: string;
-      /** Type */
-      type: string;
-    };
-    /**
-     * BackupDetailFolder
-     * @description Represent a folder entry inside a backup snapshot.
-     *
-     *     :param title: The folder title.
-     *     :type title: str
-     */
-    BackupDetailFolder: {
-      /** Title */
-      title: string;
-    };
-    /**
-     * BackupDetailRule
-     * @description Represent a rule entry inside a backup snapshot.
-     *
-     *     :param title: The rule title.
-     *     :type title: str
-     */
-    BackupDetailRule: {
-      /** Title */
-      title: string;
-    };
-    /**
-     * BackupDetailTemplate
-     * @description Represent a template entry inside a backup snapshot.
-     *
-     *     :param name: The template name.
-     *     :type name: str
-     *     :param summary: The template summary blurb.
-     *     :type summary: str
-     */
-    BackupDetailTemplate: {
-      /** Name */
-      name: string;
-      /** Summary */
-      summary: string;
-    };
-    /** BackupPgCreateResponse */
-    BackupPgCreateResponse: {
-      /** Alert On Fail */
-      alert_on_fail: boolean;
-      backend: components['schemas']['TaskBackendEnum'];
-      /** Backup Type */
-      backup_type: string;
-      connectivity_warning?:
-        | components['schemas']['ConnectivityWarning']
-        | null;
-      /** Created At */
-      created_at?: string | null;
-      /** Created By */
-      created_by?: string | null;
-      /** Data */
-      data: Record<string, never>;
-      /** Host */
-      host?: string | null;
-      /** Hostname */
-      hostname?: string | null;
-      /** Id */
-      id?: number | null;
-      /** Last Updated By */
-      last_updated_by?: string | null;
-      /** Name */
-      name: string;
-      owner: components['schemas']['TaskOwner'];
-      /** Port */
-      port?: number | null;
-      /** Protected */
-      protected: boolean;
-      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
-      /** Updated At */
-      updated_at?: string | null;
-    };
-    /**
-     * BackupPgForm
-     * @description Define the model-first create/update body and schema source for backup_pg.
-     *
-     *     The single source of the JSON request body (the field types and defaults the
-     *     server validates) *and* the derived ``GET /schema`` form (driven by the
-     *     :class:`Ui` / reference / :class:`Choices` markers). Field set, types, and
-     *     model defaults match the JSON create contract; the form-display defaults that
-     *     differ from the model default (the pgBackRest tool paths, the default backup
-     *     type) are carried on ``Ui(default=...)`` so the runtime payload stays
-     *     unchanged while the schema renders those form defaults.
-     *
-     *     Field declaration order is load-bearing: it drives the derived form's
-     *     section and field order. ``backup_type`` is not a form field — the spec
-     *     builder injects :attr:`BackupType.PGBACKREST`. The ``task_name`` / ``hostname``
-     *     Task-section fields and the ``alert_on_fail`` capability control are inherited
-     *     from :class:`TaskFormModel` (``alert_on_fail`` is ``Hidden``, off-schema).
-     *     ``extra="forbid"`` rejects unknown fields (for example a stale FE submitting
-     *     ``host`` / ``port``, which the payload pins itself).
-     */
-    BackupPgForm: {
-      /**
-       * Alert On Fail
-       * @default false
-       */
-      alert_on_fail: boolean;
-      /** Backup Dir */
-      backup_dir: string;
-      /** Hostname */
-      hostname: string;
-      /** Logging Dir */
-      logging_dir?: string | null;
-      pgbackrest_backup_type?:
-        | components['schemas']['PgBackRestBackupType']
-        | null;
-      /** Pgbackrest Bin */
-      pgbackrest_bin?: string | null;
-      /** Pgbackrest Config File */
-      pgbackrest_config_file?: string | null;
-      /** Pgbackrest Datadir */
-      pgbackrest_datadir?: string | null;
-      /** Pgbackrest Incremental Cycle */
-      pgbackrest_incremental_cycle?: string | number | null;
-      /** Pgbackrest Retention Archive */
-      pgbackrest_retention_archive?: number | null;
-      /** Pgbackrest Retention Full */
-      pgbackrest_retention_full?: number | null;
-      /** Service Id */
-      service_id: number;
-      /** Stanza */
-      stanza: string;
-      /** Task Name */
-      task_name: string;
-    };
-    /**
-     * BackupResponse
-     * @description Represent a backup task API response.
-     *
-     *     :param id: The unique identifier for the backup task.
-     *     :type id: int | None
-     *     :param backend: The backend executing the task.
-     *     :type backend: TaskBackendEnum
-     *     :param data: The raw configuration and parameters for the task.
-     *     :type data: dict[str, Any]
-     *     :param hostname: The executor hostname target.
-     *     :type hostname: str | None
-     *     :param protected: Whether the task is protected from deletion or modification.
-     *     :type protected: bool
-     *     :param alert_on_fail: If True, notifications fire on task failure.
-     *     :type alert_on_fail: bool
-     *     :param created_at: When the task was created.
-     *     :type created_at: datetime | None
-     *     :param updated_at: When the task was last modified.
-     *     :type updated_at: datetime | None
-     *     :param created_by: The user who initiated the task.
-     *     :type created_by: str | None
-     *     :param last_updated_by: The user who last modified the task record.
-     *     :type last_updated_by: str | None
-     */
-    BackupResponse: {
-      /** Alert On Fail */
-      alert_on_fail: boolean;
-      backend: components['schemas']['TaskBackendEnum'];
-      backup_type?: components['schemas']['BackupType-Output'] | null;
-      /** Created At */
-      created_at?: string | null;
-      /** Created By */
-      created_by?: string | null;
-      /** Data */
-      data: Record<string, never>;
-      /** Hostname */
-      hostname?: string | null;
-      /** Id */
-      id?: number | null;
-      /** Last Updated By */
-      last_updated_by?: string | null;
-      /** Name */
-      name: string;
-      owner: components['schemas']['TaskOwner'];
-      /** Protected */
-      protected: boolean;
-      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
-      /** Updated At */
-      updated_at?: string | null;
-    };
-    /**
-     * BackupSummary
-     * @description Represent a compact backup row used by the list endpoint.
-     *
-     *     :param id: Primary key of the backup row.
-     *     :type id: int
-     *     :param created_at: UTC timestamp the backup was written.
-     *     :type created_at: datetime
-     *     :param metadata: Summary counts persisted alongside the backup snapshot.
-     *     :type metadata: dict[str, Any]
-     */
-    BackupSummary: {
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /** Id */
-      id: number;
-      /** Metadata */
-      metadata: Record<string, never>;
-    };
-    /**
-     * BackupTaskWrite
-     * @description Represent a JSON request body for creating a backup task group.
-     *
-     *     Mirrors :class:`BackupCreate` except ``backup_type``, which is always
-     *     ``pbm_config`` on create. POST creates the parent config task plus derived
-     *     logical, physical, and status siblings.
-     *
-     *     :param task_name: The name of the task to be created.
-     *     :type task_name: NonEmptyStr
-     *     :param hostname: The target hostname for the task execution.
-     *     :type hostname: NonEmptyStr
-     *     :param service_id: The Inventory ID of the MongoDB service to connect to.
-     *     :type service_id: int
-     *     :param alert_on_fail: If True, send an alert if the task fails.
-     *     :type alert_on_fail: bool
-     *     :param pitr_oplog_span_min: PITR oplog span in minutes.
-     *     :type pitr_oplog_span_min: int | None
-     *     :param pitr_enabled: Whether PITR is enabled.
-     *     :type pitr_enabled: bool
-     *     :param pitr_compression: PITR compression algorithm.
-     *     :type pitr_compression: str | None
-     *     :param storage_type: Storage backend type (``s3`` or ``filesystem``).
-     *     :type storage_type: str | None
-     *     :param storage_s3_region: S3 region when ``storage_type`` is ``s3``.
-     *     :type storage_s3_region: str | None
-     *     :param storage_s3_bucket: S3 bucket when ``storage_type`` is ``s3``.
-     *     :type storage_s3_bucket: str | None
-     *     :param storage_s3_prefix: S3 key prefix when ``storage_type`` is ``s3``.
-     *     :type storage_s3_prefix: str | None
-     *     :param storage_s3_endpoint_url: S3 endpoint URL when ``storage_type`` is ``s3``.
-     *     :type storage_s3_endpoint_url: str | None
-     *     :param storage_filesystem_path: Filesystem path when ``storage_type`` is
-     *         ``filesystem``.
-     *     :type storage_filesystem_path: str | None
-     *     :param backup_priority: Node priority mapping as YAML.
-     *     :type backup_priority: str | None
-     *     :param backup_compression: Backup snapshot compression algorithm.
-     *     :type backup_compression: CompressionAlgorithm | None
-     *     :param backup_compression_level: Backup compression level.
-     *     :type backup_compression_level: int | None
-     *     :param backup_timeouts_starting_status: PBM starting-status timeout in seconds.
-     *     :type backup_timeouts_starting_status: int | None
-     *     :param backup_oplog_span_min: Logical backup oplog span in minutes.
-     *     :type backup_oplog_span_min: float | None
-     *     :param backup_num_parallel_collections: Parallel collections for logical backup.
-     *     :type backup_num_parallel_collections: int | None
-     *     :param credentials_path: Path to MongoDB URI credentials on the Nomad node.
-     *     :type credentials_path: str | None
-     */
-    BackupTaskWrite: {
-      /**
-       * Alert On Fail
-       * @default false
-       */
-      alert_on_fail: boolean;
-      backup_compression?:
-        | components['schemas']['app__sep__apps__backup_mongo__models__CompressionAlgorithm']
-        | null;
-      /** Backup Compression Level */
-      backup_compression_level?: number | null;
-      /** Backup Num Parallel Collections */
-      backup_num_parallel_collections?: number | null;
-      /** Backup Oplog Span Min */
-      backup_oplog_span_min?: number | null;
-      /** Backup Priority */
-      backup_priority?: string | null;
-      /** Backup Timeouts Starting Status */
-      backup_timeouts_starting_status?: number | null;
-      /** Credentials Path */
-      credentials_path?: string | null;
-      /** Hostname */
-      hostname: string;
-      /** Pitr Compression */
-      pitr_compression?: string | null;
-      /**
-       * Pitr Enabled
-       * @default false
-       */
-      pitr_enabled: boolean;
-      /** Pitr Oplog Span Min */
-      pitr_oplog_span_min?: number | null;
-      /** Service Id */
-      service_id: number;
-      /** Storage Filesystem Path */
-      storage_filesystem_path?: string | null;
-      /** Storage S3 Bucket */
-      storage_s3_bucket?: string | null;
-      /** Storage S3 Endpoint Url */
-      storage_s3_endpoint_url?: string | null;
-      /** Storage S3 Prefix */
-      storage_s3_prefix?: string | null;
-      /** Storage S3 Region */
-      storage_s3_region?: string | null;
-      /** Storage Type */
-      storage_type?: string | null;
-      /** Task Name */
-      task_name: string;
-    };
-    /**
-     * BackupType
-     * @description Backup types.
-     * @enum {string}
-     */
-    'BackupType-Output': 'M' | 'X' | 'B';
-    /**
-     * BaseTaskResponse
-     * @description Represent the universal task-response surface for standard task apps.
-     *
-     *     Carry the fields shared by every standard ``TaskExecutionApp`` response:
-     *     the task identity and ownership, the resolved execution status, the stored
-     *     configuration, and the audit/anonymization metadata. A standard app whose
-     *     response has no app-specific fields uses this model directly; an app with
-     *     extras subclasses it. The model is parametrized by the task ``owner``, which
-     *     drives the ``anonymized_entities`` default-entity lookup.
-     *
-     *     :param name: The task name.
-     *     :param owner: The entity or user that owns the task.
-     *     :param service_type: The database service type, stamped by the builder;
-     *         ``None`` for an app without a fixed service type.
-     *     :param status: The latest known execution status; ``None`` until the task
-     *         runs.
-     *     :param id: The task's unique identifier.
-     *     :param backend: The backend worker/engine executing the task.
-     *     :param data: The raw configuration and parameters used for execution. Tasks
-     *         created through the JSON schema-driven path also carry a reserved additive
-     *         ``_form`` key holding the verbatim, validated create-form body for
-     *         prefilling an edit form; it is absent for tasks created through a legacy
-     *         form, so consumers must treat it as optional.
-     *     :param protected: Whether the task is protected from deletion or modification.
-     *     :param alert_on_fail: Whether a notification is sent on task failure.
-     *     :param anonymize_mask: Bitmask of PII entities to anonymize; ``None`` falls
-     *         back to the owner's configured defaults.
-     *     :param created_at: The timestamp when the task was first created.
-     *     :param updated_at: The timestamp of the last modification to the task.
-     *     :param created_by: Display name for the user who initiated the task (Casdoor
-     *         username when resolvable, otherwise the stored user id).
-     *     :param last_updated_by: Display name for the user who last modified the task
-     *         record (Casdoor username when resolvable, otherwise the stored user id).
-     *     :param connectivity_warning: A warning surfaced when the post-creation
-     *         database connectivity check fails. ``None`` when the check passes, is
-     *         opted out, or the task meta lacks the connectivity keys.
-     *     :param anonymized_entities: Sorted PII entity names derived from
-     *         ``anonymize_mask`` (or from the owner's configured defaults when the mask
-     *         is ``None``). Read-only; computed on serialisation.
-     */
-    BaseTaskResponse: {
-      /** Alert On Fail */
-      alert_on_fail: boolean;
-      /** Anonymize Mask */
-      anonymize_mask?: number | null;
-      /**
-       * Anonymized Entities
-       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
-       */
-      readonly anonymized_entities: string[];
-      backend: components['schemas']['TaskBackendEnum'];
-      connectivity_warning?:
-        | components['schemas']['ConnectivityWarning']
-        | null;
-      /** Created At */
-      created_at?: string | null;
-      /** Created By */
-      created_by?: string | null;
-      /** Data */
-      data: Record<string, never>;
-      /** Id */
-      id?: number | null;
-      /** Last Updated By */
-      last_updated_by?: string | null;
-      /** Name */
-      name: string;
-      owner: components['schemas']['TaskOwner'];
-      /** Protected */
-      protected: boolean;
-      service_type?: components['schemas']['ServiceTypeEnum'] | null;
-      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
-      /** Updated At */
-      updated_at?: string | null;
-    };
-    /**
      * BatchApprovalResponse
      * @description Successful response for the batch-approve endpoint.
      *
@@ -4290,477 +3498,71 @@ export interface components {
       /** Skipped Already Approved */
       skipped_already_approved: string[];
     };
-    /** Body_report_report_generate_pdf_api_api_apps_report_generate_pdf_post */
-    Body_report_report_generate_pdf_api_api_apps_report_generate_pdf_post: {
-      /**
-       * Full
-       * @default true
-       */
-      full: boolean;
-      /**
-       * Refresh
-       * @default false
-       */
-      refresh: boolean;
-      /**
-       * Since
-       * @default now-7d
-       */
-      since: string;
-      /**
-       * Until
-       * @default now
-       */
-      until: string;
-    };
-    /** Body_report_report_upload_api_api_apps_report_upload_post */
-    Body_report_report_upload_api_api_apps_report_upload_post: {
-      /**
-       * Full
-       * @default true
-       */
-      full: boolean;
-      /**
-       * Refresh
-       * @default false
-       */
-      refresh: boolean;
-      /**
-       * Since
-       * @default now-7d
-       */
-      since: string;
-      /**
-       * Until
-       * @default now
-       */
-      until: string;
+    /**
+     * ConnectivityCheckRequest
+     * @description Carry the required set of services to probe.
+     *
+     *     :param targets: The services to probe. Must name at least one; duplicates are
+     *         collapsed so a shared probe (Tasks/Nomad) still runs once.
+     */
+    ConnectivityCheckRequest: {
+      /** Targets */
+      targets: components['schemas']['ServiceEnum'][];
     };
     /**
-     * BoolField
-     * @description Represent a boolean toggle field.
+     * ConnectivityCheckResponse
+     * @description Represent a connectivity check result.
      *
-     *     :param field_type: The discriminator literal; always ``"bool"`` for this
-     *         class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["bool"]
+     *     :param success: Whether the connectivity check succeeded.
+     *     :param error: Error message if the check failed. Defaults to ``None``.
+     *     :param task_history_id: The ID of the task history record for this check.
      */
-    BoolField: {
-      /** Default */
-      default?: unknown | null;
-      /** Description */
-      description?: string | null;
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /** Label */
-      label: string;
-      /** Name */
-      name: string;
-      /**
-       * Required
-       * @default false
-       */
-      required: boolean;
-      /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'bool';
-    };
-    /**
-     * Capabilities
-     * @description Represent plugin-level feature flags.
-     *
-     *     :param chaining: Whether the plugin supports chaining tasks together.
-     *         Defaults to ``False``.
-     *     :type chaining: bool
-     *     :param alert_on_fail: Whether the plugin supports configuring a PMM
-     *         alert when a task fails. Defaults to ``False``.
-     *     :type alert_on_fail: bool
-     *     :param scheduling: Whether the plugin supports scheduling tasks on a
-     *         periodic interval. Defaults to ``False``.
-     *     :type scheduling: bool
-     *     :param stats: Whether the plugin supports rendering the aggregated
-     *         execution statistics card on its detail page. Defaults to
-     *         ``False``.
-     *     :type stats: bool
-     *     :param pii_anonymization: Whether the plugin wires ``anonymize_mask``
-     *         into task execution and the React detail page should surface which
-     *         PII entities are anonymized. This is a UI-rendering gate — the
-     *         anonymization always happens when configured; this flag controls
-     *         whether the detail view renders the "PII Anonymization" section.
-     *         Defaults to ``False``.
-     *     :type pii_anonymization: bool
-     */
-    Capabilities: {
-      /**
-       * Alert On Fail
-       * @default false
-       */
-      alert_on_fail: boolean;
-      /**
-       * Chaining
-       * @default false
-       */
-      chaining: boolean;
-      /**
-       * Pii Anonymization
-       * @default false
-       */
-      pii_anonymization: boolean;
-      /**
-       * Scheduling
-       * @default false
-       */
-      scheduling: boolean;
-      /**
-       * Stats
-       * @default false
-       */
-      stats: boolean;
-    };
-    /**
-     * CardinalityRule
-     * @description Express a cardinality constraint over a list of fields.
-     *
-     *     When ``when`` matches (or unconditionally if ``when`` is ``None``), the
-     *     count of present fields in ``fields`` must lie in ``[min, max]`` with
-     *     ``None`` bounds treated as unbounded.
-     *
-     *     :param when: The predicate that gates the rule. ``None`` means
-     *         unconditional.
-     *     :type when: Predicate | None
-     *     :param fields: The non-empty list of target field names.
-     *     :type fields: list[str]
-     *     :param min: Optional lower bound on the count of present fields.
-     *         Defaults to ``None``.
-     *     :type min: int | None
-     *     :param max: Optional upper bound on the count of present fields.
-     *         Defaults to ``None``.
-     *     :type max: int | None
-     *     :param message: Optional failure message. Defaults to ``None``.
-     *     :type message: str | None
-     */
-    CardinalityRule: {
-      /** Fields */
-      fields: string[];
-      /** Max */
-      max?: number | null;
-      /** Message */
-      message?: string | null;
-      /** Min */
-      min?: number | null;
-      /** When */
-      when?: {
-        [key: string]: unknown;
-      } | null;
-    };
-    /**
-     * ChainedPredecessor
-     * @description Represent a chained predecessor task that runs before the parent.
-     *
-     *     The cascade module (:mod:`app.sep.apps.framework.cascade`) consumes
-     *     this spec when POSTing, PUTting, or DELETEing a plugin's tasks: each
-     *     predecessor is created with ``data["parent"]`` linked to the parent's
-     *     name (when ``parent_link`` is true) and named
-     *     ``f"{parent_name}{name_suffix}"``. Create persists task records only;
-     *     when the user starts the chain, the consuming plugin fires
-     *     ``POST /execute/{first_predecessor_name}`` using
-     *     :func:`build_predecessor_chain_execute_body` for ``chain_task_names``
-     *     (remaining predecessors then parent) and ``chain_on_failure`` derived
-     *     from ``on_failure`` (``"halt"`` maps to ``False``, ``"continue"`` maps
-     *     to ``True``).
-     *
-     *     :param name_suffix: String appended to the parent's ``name`` to form
-     *         the predecessor's name (for example ``"-pre-checks"``).
-     *     :type name_suffix: NonEmptyStr
-     *     :param on_failure: Chain semantics when the predecessor terminates
-     *         non-successfully. ``"halt"`` (default) stops the chain;
-     *         ``"continue"`` lets the chain continue regardless. Translates to
-     *         the boolean ``chain_on_failure`` flag at execute time.
-     *     :type on_failure: Literal["halt", "continue"]
-     *     :param parent_link: When true, set ``data["parent"]`` on the
-     *         predecessor payload to the parent's ``name``. Defaults to ``True``.
-     *     :type parent_link: bool
-     */
-    ChainedPredecessor: {
-      /** Name Suffix */
-      name_suffix: string;
-      /**
-       * On Failure
-       * @default halt
-       * @enum {string}
-       */
-      on_failure: 'halt' | 'continue';
-      /**
-       * Parent Link
-       * @default true
-       */
-      parent_link: boolean;
-    };
-    /**
-     * ChecksumsForm
-     * @description Define the model-first create/update body and schema source for Checksums.
-     *
-     *     The single source of the JSON request body (the field types and defaults the
-     *     server validates) *and* the derived ``GET /schema`` form (driven by the
-     *     :class:`Ui` / reference / :class:`Choices` markers). Field set, types, and
-     *     model defaults match the previous hand-written request body; the form-display
-     *     defaults that differ from the model default are carried on ``Ui(default=...)``.
-     *
-     *     Field declaration order is load-bearing. The framework assembles the
-     *     ``pt-table-checksum`` CLI args as all ``ArgFormat`` value args (in field order)
-     *     followed by all flag args (in field order), and derives the form section order
-     *     (Task, Data, Recursion, Flags, Advanced) from each section's first field — so
-     *     the order here reproduces the historical arg string byte-for-byte. ``progress``
-     *     is declared last to land at the end of the value args, and ``Ui(order=...)``
-     *     pins the Advanced section's display order where it diverges from declaration
-     *     order. The ``task_name`` / ``hostname`` Task-section fields and the
-     *     ``alert_on_fail`` capability control are inherited from :class:`TaskFormModel`
-     *     (``alert_on_fail`` is ``Hidden``, off-schema).
-     */
-    ChecksumsForm: {
-      /**
-       * Alert On Fail
-       * @default false
-       */
-      alert_on_fail: boolean;
-      /**
-       * Binary Index
-       * @default false
-       */
-      binary_index: boolean;
-      /**
-       * Chunk Time
-       * @default
-       */
-      chunk_time: string;
-      /**
-       * Databases
-       * @default
-       */
-      databases: string;
-      /**
-       * Dsn Table
-       * @default
-       */
-      dsn_table: string;
-      /**
-       * Explain Arg
-       * @default false
-       */
-      explain_arg: boolean;
-      /**
-       * Fail On Stopped Replication
-       * @default false
-       */
-      fail_on_stopped_replication: boolean;
-      /** Hostname */
-      hostname: string;
-      /**
-       * Max Lag
-       * @default
-       */
-      max_lag: string;
-      /**
-       * Max Load
-       * @default
-       */
-      max_load: string;
-      /**
-       * Pause File
-       * @default
-       */
-      pause_file: string;
-      /**
-       * Progress
-       * @default
-       */
-      progress: string;
-      /**
-       * Recursion Method
-       * @default processlist
-       */
-      recursion_method: string;
-      /** Service Id */
-      service_id: number;
-      /**
-       * Set Vars
-       * @default
-       */
-      set_vars: string;
-      /**
-       * Tables
-       * @default
-       */
-      tables: string;
-      /** Task Name */
-      task_name: string;
-      /**
-       * Truncate Replicate Table
-       * @default false
-       */
-      truncate_replicate_table: boolean;
-    };
-    /**
-     * Choice
-     * @description Represent one option in a choice or multi-choice field.
-     *
-     *     :param label: The human-readable label displayed for the choice.
-     *     :type label: NonEmptyStr
-     *     :param value: The value submitted when the choice is selected.
-     *     :type value: NonEmptyStr
-     *     :param disabled: Whether the option is rendered non-selectable. Optional,
-     *         defaulting to ``None`` (selectable). Typed ``bool | None`` so the
-     *         discovery endpoint's ``exclude_none`` posture drops it from the wire
-     *         until a plugin opts in, keeping the addition byte-compatible with
-     *         existing schemas. UI hint only; enforcing rejection of a disabled
-     *         value is the consuming app's responsibility.
-     *     :type disabled: bool | None
-     *     :param disabled_reason: Optional explanatory text surfaced (for example,
-     *         in a tooltip) when the option is disabled. Defaults to ``None`` and
-     *         may only be set when ``disabled`` is ``True``.
-     *     :type disabled_reason: NonEmptyStr | None
-     */
-    Choice: {
-      /** Disabled */
-      disabled?: boolean | null;
-      /** Disabled Reason */
-      disabled_reason?: string | null;
-      /** Label */
-      label: string;
-      /** Value */
-      value: string;
-    };
-    /**
-     * ChoiceField
-     * @description Represent a single-select dropdown field.
-     *
-     *     :param field_type: The discriminator literal; always ``"choice"`` for this
-     *         class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["choice"]
-     *     :param choices: The non-empty list of options the user can choose from.
-     *     :type choices: list[Choice]
-     */
-    ChoiceField: {
-      /** Choices */
-      choices: components['schemas']['Choice'][];
-      /** Default */
-      default?: unknown | null;
-      /** Description */
-      description?: string | null;
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /** Label */
-      label: string;
-      /** Name */
-      name: string;
-      /**
-       * Required
-       * @default false
-       */
-      required: boolean;
-      /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'choice';
-    };
-    /**
-     * CollectorTypeEnum
-     * @description Define enum for Dipper collector types.
-     * @enum {string}
-     */
-    CollectorTypeEnum: 'environment' | 'pmm';
-    /**
-     * Column
-     * @description Represent one column in a plugin list view.
-     *
-     *     :param key: The task attribute path this column displays (for example,
-     *         ``"status"`` or ``"target.service"``).
-     *     :type key: NonEmptyStr
-     *     :param label: The human-readable column header.
-     *     :type label: NonEmptyStr
-     *     :param sortable: Whether the column can be used to sort the list.
-     *         Defaults to ``False``.
-     *     :type sortable: bool
-     *     :param format: Optional formatting hint applied when rendering the
-     *         column values. Defaults to ``None``.
-     *     :type format: ColumnFormat | None
-     */
-    Column: {
-      format?: components['schemas']['ColumnFormat'] | null;
-      /** Key */
-      key: string;
-      /** Label */
-      label: string;
-      /**
-       * Sortable
-       * @default false
-       */
-      sortable: boolean;
-    };
-    /**
-     * ColumnFormat
-     * @description Enumerate the supported list-view column formatting hints.
-     *
-     *     :cvar TEXT: Render the column value as plain text.
-     *     :vartype TEXT: str
-     *     :cvar CHIP: Render the column value as a Material UI chip.
-     *     :vartype CHIP: str
-     *     :cvar STATUS: Render the column value as a colour-coded status badge.
-     *     :vartype STATUS: str
-     *     :cvar DATE: Render the column value as an absolute date.
-     *     :vartype DATE: str
-     *     :cvar RELATIVE: Render the column value as a relative time (for example,
-     *         "2 hours ago").
-     *     :vartype RELATIVE: str
-     *     :cvar CODE: Render the column value in a monospaced code font.
-     *     :vartype CODE: str
-     *     :cvar ACTIONS: Row actions (for example delete); not bound to row data.
-     *         Use with a synthetic column key such as ``_actions``.
-     *     :vartype ACTIONS: str
-     *     :cvar SCHEDULE: Render a generic schedule cell for the row's task. The
-     *         frontend joins the row to its periodic task by name and shows the next
-     *         run (relative, with the absolute timestamp on hover) plus a periodicity
-     *         popover, or a muted "Not scheduled" chip when the task has no schedule.
-     *         Not bound to the column's own cell value.
-     *     :vartype SCHEDULE: str
-     * @enum {string}
-     */
-    ColumnFormat:
-      | 'text'
-      | 'chip'
-      | 'status'
-      | 'date'
-      | 'relative'
-      | 'code'
-      | 'actions'
-      | 'schedule';
-    /**
-     * ConnectivityWarning
-     * @description Represent a connectivity-check failure on a JSON API task-creation response.
-     *
-     *     :param target: The Nomad node the task targets.
-     *     :type target: str
-     *     :param service_type: The lowercase database service type (e.g. ``mysql``).
-     *     :type service_type: str
-     *     :param message: A human-readable description of the failure.
-     *     :type message: str
-     */
-    ConnectivityWarning: {
-      /** Message */
-      message: string;
-      /** Service Type */
-      service_type: string;
-      /** Target */
-      target: string;
+    ConnectivityCheckResponse: {
+      /** Error */
+      error?: string | null;
+      /** Success */
+      success: boolean;
       /** Task History Id */
-      task_history_id?: number | null;
+      task_history_id: number;
     };
+    /**
+     * ConnectivityResult
+     * @description Represent the outcome of probing a single external / inter-service endpoint.
+     *
+     *     :param service: Stable identifier of the probed service (e.g. ``"pmm"``).
+     *     :type service: str
+     *     :param reachable: ``True`` only when the endpoint answered successfully.
+     *     :type reachable: bool
+     *     :param status: Machine-readable outcome state.
+     *     :type status: ConnectivityStatusEnum
+     *     :param detail: Human-readable status / error, free of secrets.
+     *     :type detail: str
+     *     :param version: Optional remote version string when the probe exposes one.
+     *     :type version: str | None
+     */
+    ConnectivityResult: {
+      /** Detail */
+      detail: string;
+      /** Reachable */
+      reachable: boolean;
+      /** Service */
+      service: string;
+      status: components['schemas']['ConnectivityStatusEnum'];
+      /** Version */
+      version?: string | null;
+    };
+    /**
+     * ConnectivityStatusEnum
+     * @description Enumerate the mutually-exclusive outcomes of a connectivity probe.
+     * @enum {string}
+     */
+    ConnectivityStatusEnum:
+      | 'reachable'
+      | 'auth_failed'
+      | 'error'
+      | 'unreachable'
+      | 'ssl_error'
+      | 'timeout';
     /**
      * DashboardStatsResponse
      * @description Represent aggregate counts for the four dashboard stat cards.
@@ -4783,249 +3585,6 @@ export interface components {
       targets: number;
       /** Tasks */
       tasks: number;
-    };
-    /**
-     * DateTimeField
-     * @description Represent a datetime picker field.
-     *
-     *     :param field_type: The discriminator literal; always ``"datetime"`` for
-     *         this class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["datetime"]
-     */
-    DateTimeField: {
-      /** Default */
-      default?: unknown | null;
-      /** Description */
-      description?: string | null;
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /** Label */
-      label: string;
-      /** Name */
-      name: string;
-      /**
-       * Required
-       * @default false
-       */
-      required: boolean;
-      /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'datetime';
-    };
-    /**
-     * DerivedTask
-     * @description Represent a sibling task derived from a parent during cascade operations.
-     *
-     *     The cascade module (:mod:`app.sep.apps.framework.cascade`) consumes this
-     *     spec when POSTing, PUTting, or DELETEing a plugin's tasks: the parent task
-     *     is created first, then for each ``DerivedTask`` the parent payload is
-     *     deep-copied, ``name`` is suffixed with ``name_suffix``, ``arg_substitutions``
-     *     are applied to ``data["meta"]["args"]`` as literal :meth:`str.replace`
-     *     calls in dict insertion order, ``payload_substitutions`` are applied to
-     *     ``data["payload"]`` as literal :meth:`str.replace` calls in dict insertion
-     *     order, ``data_overrides`` entries are assigned directly onto ``data`` as
-     *     literal key/value pairs in iteration order, and ``data["parent"]`` is set
-     *     to the parent's name when ``parent_link`` is true.
-     *
-     *     :param name_suffix: String appended to the parent's ``name`` to form the
-     *         derived task's name (for example ``"-dry-run"``).
-     *     :type name_suffix: NonEmptyStr
-     *     :param arg_substitutions: Optional ordered mapping of literal substring
-     *         replacements applied to ``data["meta"]["args"]``. Each ``(old, new)``
-     *         pair is applied once via :meth:`str.replace` in dict insertion order.
-     *         Defaults to ``None`` (no substitutions).
-     *     :type arg_substitutions: dict[str, str] | None
-     *     :param payload_substitutions: Optional ordered mapping of literal substring
-     *         replacements applied to ``data["payload"]``. Each ``(old, new)``
-     *         pair is applied once via :meth:`str.replace` in dict insertion order.
-     *         Defaults to ``None`` (no substitutions).
-     *     :type payload_substitutions: dict[str, str] | None
-     *     :param data_overrides: Optional mapping of literal key→value pairs
-     *         assigned directly onto ``data`` after substitutions run. Each
-     *         pair becomes ``data[key] = value`` in iteration order. Use this
-     *         for plugin-specific identity fields (e.g. ``{"backup_type":
-     *         "pbm_logical"}``) that the framework should not name itself.
-     *         Defaults to ``None``.
-     *     :type data_overrides: dict[str, Any] | None
-     *     :param parent_link: When true, set ``data["parent"]`` on the derived
-     *         payload to the parent's ``name``. Defaults to ``True``.
-     *     :type parent_link: bool
-     */
-    DerivedTask: {
-      /** Arg Substitutions */
-      arg_substitutions?: {
-        [key: string]: string;
-      } | null;
-      /** Data Overrides */
-      data_overrides?: Record<string, never> | null;
-      /** Name Suffix */
-      name_suffix: string;
-      /**
-       * Parent Link
-       * @default true
-       */
-      parent_link: boolean;
-      /** Payload Substitutions */
-      payload_substitutions?: {
-        [key: string]: string;
-      } | null;
-    };
-    /**
-     * DestByFile
-     * @description Represent a file destination.
-     *
-     *     :param mode: The one-of discriminator (``"file"``).
-     *     :param dest_file: The file path the archived rows are written to.
-     */
-    DestByFile: {
-      /** Dest File */
-      dest_file: string;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      mode: 'file';
-    };
-    /**
-     * DestByTable
-     * @description Represent a table destination (collapsed free-solo references).
-     *
-     *     :param mode: The one-of discriminator (``"table"``).
-     *     :param dest_db: The destination schema — an inventory id, a free-typed name, or
-     *         ``None`` to reuse the source schema.
-     *     :param dest_table: The destination table — an inventory id or a free-typed name.
-     */
-    DestByTable: {
-      /** Dest Db */
-      dest_db?: number | string | null;
-      /** Dest Table */
-      dest_table: number | string;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      mode: 'table';
-    };
-    /**
-     * DetailField
-     * @description Declare one labelled field rendered inside a :class:`DetailSection`.
-     *
-     *     :param path: Dotted path into the task record (for example
-     *         ``"data.meta.command"``). Each segment must be a Python identifier,
-     *         optionally followed by one or more ``[N]`` array indices.
-     *     :type path: DetailPath
-     *     :param label: Human-readable label rendered alongside the resolved value.
-     *     :type label: NonEmptyStr
-     *     :param highlight: Optional syntax-highlighter hint. Defaults to ``None``.
-     *     :type highlight: DetailHighlightLanguage | None
-     */
-    DetailField: {
-      highlight?: components['schemas']['DetailHighlightLanguage'] | null;
-      /** Label */
-      label: string;
-      /** Path */
-      path: string;
-    };
-    /**
-     * DetailHighlightLanguage
-     * @description Enumerate supported syntax highlighters for detail fields.
-     * @enum {string}
-     */
-    DetailHighlightLanguage: 'sql' | 'json' | 'bash';
-    /**
-     * DetailSection
-     * @description Declare one titled section inside a :class:`DetailView`.
-     *
-     *     :param title: Heading rendered above the section's fields.
-     *     :type title: NonEmptyStr
-     *     :param fields: Ordered list of fields rendered inside the section. An
-     *         empty list is valid; the frontend hides the section when every
-     *         field resolves to an empty value.
-     *     :type fields: list[DetailField]
-     */
-    DetailSection: {
-      /** Fields */
-      fields: components['schemas']['DetailField'][];
-      /** Title */
-      title: string;
-    };
-    /**
-     * DetailView
-     * @description Declare the per-section detail-page layout for a task-style plugin.
-     *
-     *     Mirrors the role of :attr:`AppSchema.list_view` for the list table:
-     *     the React framework reads ``detail_view`` to render the task detail
-     *     page's section cards instead of inferring structure from the runtime
-     *     ``task.data`` shape.
-     *
-     *     :param sections: Ordered list of sections rendered on the detail page.
-     *         An empty list is valid; the frontend renders no section cards.
-     *         Section titles must be unique within a view so the React key can
-     *         be derived from the title without positional disambiguation.
-     *     :type sections: list[DetailSection]
-     */
-    DetailView: {
-      /** Sections */
-      sections: components['schemas']['DetailSection'][];
-    };
-    /**
-     * DipperExecuteWrite
-     * @description Define the JSON body for ``POST /api/apps/dipper/``.
-     *
-     *     :param service_id: Inventory ID of the database service to collect data from.
-     *     :type service_id: int
-     *     :param collector_type: Which collector script to run (environment or pmm).
-     *     :type collector_type: CollectorTypeEnum
-     *     :param executor_host: Nomad client hostname that will run the script.
-     *     :type executor_host: NonEmptyStr
-     *     :param sudo: Whether to invoke the script with ``sudo``. ``None`` defers
-     *         to the script's own sudo policy (the default).
-     *     :type sudo: bool | None
-     *     :param args: Per-parameter arguments keyed by script parameter name. Validated
-     *         server-side against the script's dynamic execution model.
-     *     :type args: dict[str, Any]
-     */
-    DipperExecuteWrite: {
-      /** Args */
-      args?: Record<string, never>;
-      /** @default environment */
-      collector_type: components['schemas']['CollectorTypeEnum'];
-      /** Executor Host */
-      executor_host: string;
-      /** Service Id */
-      service_id: number;
-      /** Sudo */
-      sudo?: boolean | null;
-    };
-    /**
-     * DipperExecutionResponse
-     * @description Represent the response from ``POST /api/apps/dipper/``.
-     *
-     *     :param task_id: ID of the task-history row created by the tasks API.
-     *     :type task_id: int | None
-     *     :param task_name: The execution task name used to dispatch the script.
-     *     :type task_name: str
-     *     :param snippet_filename: Composite path used to correlate history rows.
-     *     :type snippet_filename: str
-     *     :param service_id: Inventory ID of the database service.
-     *     :type service_id: int
-     *     :param collector_type: Collector type that was executed.
-     *     :type collector_type: CollectorTypeEnum
-     */
-    DipperExecutionResponse: {
-      collector_type: components['schemas']['CollectorTypeEnum'];
-      /** Service Id */
-      service_id: number;
-      /** Snippet Filename */
-      snippet_filename: string;
-      /** Task Id */
-      task_id?: number | null;
-      /** Task Name */
-      task_name: string;
     };
     /**
      * ExecutionEvent
@@ -5054,111 +3613,6 @@ export interface components {
       type: string;
     };
     /**
-     * ExecutorHostMetadata
-     * @description Represent one executor host option for display on the task detail page.
-     *
-     *     :param value: The executor host value submitted with task execution
-     *         requests (Nomad node name).
-     *     :type value: str
-     *     :param label: The human-readable label for the host (often an inventory
-     *         display name).
-     *     :type label: str
-     */
-    ExecutorHostMetadata: {
-      /** Label */
-      label: string;
-      /** Value */
-      value: string;
-    };
-    /**
-     * FailRule
-     * @description Express a predicate-only invariant: rule fails iff predicate matches.
-     *
-     *     :param fail_when: The predicate whose match triggers a failure.
-     *     :type fail_when: Predicate
-     *     :param error_fields: The field names the FE renderer should attach the
-     *         error to (informational hint; the runtime evaluator ignores this
-     *         list). May be empty when no field is logically responsible.
-     *     :type error_fields: list[str]
-     *     :param message: Optional failure message. Defaults to ``None``.
-     *     :type message: str | None
-     */
-    FailRule: {
-      /** Error Fields */
-      error_fields: string[];
-      /**
-       * Fail When
-       * @description Predicate wire shape — a single-key object whose key is the operator name (equals, truthy, all, any, xor, not, etc.). See the plan for the full operator catalogue.
-       */
-      fail_when: {
-        [key: string]: unknown;
-      };
-      /** Message */
-      message?: string | null;
-    };
-    /**
-     * FieldGate
-     * @description Express a binary self-cardinality gate at :class:`BaseField` scope.
-     *
-     *     Used by :attr:`BaseField.requires` and :attr:`BaseField.forbidden`. The
-     *     target field is the field carrying the rule (implicit self).
-     *
-     *     :param when: The predicate that gates the rule.
-     *     :type when: Predicate
-     *     :param message: Optional failure message surfaced when the rule fires.
-     *         Defaults to ``None``.
-     *     :type message: str | None
-     */
-    FieldGate: {
-      /** Message */
-      message?: string | null;
-      /**
-       * When
-       * @description Predicate wire shape — a single-key object whose key is the operator name (equals, truthy, all, any, xor, not, etc.). See the plan for the full operator catalogue.
-       */
-      when: {
-        [key: string]: unknown;
-      };
-    };
-    /**
-     * FileField
-     * @description Represent a file upload field.
-     *
-     *     :param field_type: The discriminator literal; always ``"file"`` for this
-     *         class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["file"]
-     *     :param accept: Optional list of accepted file types, using the same
-     *         syntax as the HTML ``accept`` attribute (for example, ``[".sql",
-     *         ".csv"]`` or ``["image/png"]``). Defaults to ``None``.
-     *     :type accept: list[str] | None
-     */
-    FileField: {
-      /** Accept */
-      accept?: string[] | null;
-      /** Default */
-      default?: unknown | null;
-      /** Description */
-      description?: string | null;
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /** Label */
-      label: string;
-      /** Name */
-      name: string;
-      /**
-       * Required
-       * @default false
-       */
-      required: boolean;
-      /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'file';
-    };
-    /**
      * FileMetadata
      * @description Represent file metadata for task artifacts.
      */
@@ -5174,224 +3628,10 @@ export interface components {
        */
       size: number;
     };
-    /**
-     * FloatField
-     * @description Represent a float numeric input field.
-     *
-     *     :param field_type: The discriminator literal; always ``"float"`` for this
-     *         class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["float"]
-     *     :param ge: Optional lower bound (inclusive) for accepted values. Defaults
-     *         to ``None``.
-     *     :type ge: float | None
-     *     :param le: Optional upper bound (inclusive) for accepted values. Defaults
-     *         to ``None``.
-     *     :type le: float | None
-     *     :param step: Optional step size for the input control. Defaults to
-     *         ``None``.
-     *     :type step: float | None
-     */
-    FloatField: {
-      /** Default */
-      default?: unknown | null;
-      /** Description */
-      description?: string | null;
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /** Ge */
-      ge?: number | null;
-      /** Label */
-      label: string;
-      /** Le */
-      le?: number | null;
-      /** Name */
-      name: string;
-      /**
-       * Required
-       * @default false
-       */
-      required: boolean;
-      /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
-      /** Step */
-      step?: number | null;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'float';
-    };
-    /**
-     * FormSection
-     * @description Represent a labelled group of related fields rendered as one fieldset.
-     *
-     *     :param title: The section heading displayed above the grouped fields.
-     *     :type title: NonEmptyStr
-     *     :param description: Optional helper text rendered beneath the section
-     *         heading. Defaults to ``None``.
-     *     :type description: NonEmptyStr | None
-     *     :param fields: The list of fields belonging to this section. May include
-     *         :class:`OneOfGroup` containers alongside leaf fields.
-     *     :type fields: list[AnyField]
-     *     :param cardinality_rules: Optional cross-field cardinality constraints
-     *         scoped to the fields in this section. Defaults to ``None``.
-     *     :type cardinality_rules: list[CardinalityRule] | None
-     *     :param fail_when: Optional predicate-only invariants scoped to this
-     *         section. Defaults to ``None``.
-     *     :type fail_when: list[FailRule] | None
-     *     :param collapsible: Whether the renderer may collapse this section behind
-     *         a toggle. Defaults to ``False``.
-     *     :type collapsible: bool
-     *     :param collapsed_by_default: Whether a collapsible section should start
-     *         collapsed. Ignored when ``collapsible`` is ``False``. Defaults to
-     *         ``False``.
-     *     :type collapsed_by_default: bool
-     *     :param render_after_submit: Whether this section should render after the
-     *         submit button instead of before it. Defaults to ``False``.
-     *     :type render_after_submit: bool
-     *     :param forbidden: Optional gates that hide the entire section when any
-     *         of them fires. The schema-driven React renderer skips the section
-     *         and unregisters every child field from the form so stale values
-     *         do not ship in the submission payload. Gates may reference any
-     *         field declared in the plugin schema (including fields in other
-     *         sections). Defaults to ``None`` — sections render unconditionally.
-     *         Backend ``fail_when`` and conditional-rule validation on hidden
-     *         sections still applies: hidden-section children arrive in the
-     *         submitted payload as **absent** (not zeroed or defaulted), so
-     *         ``truthy``/``present`` predicates silently pass while
-     *         ``falsy``/``absent`` predicates see the children as missing.
-     *         Author ``fail_when`` rules accordingly.
-     *     :type forbidden: list[FieldGate] | None
-     */
-    FormSection: {
-      /** Cardinality Rules */
-      cardinality_rules?: components['schemas']['CardinalityRule'][] | null;
-      /**
-       * Collapsed By Default
-       * @default false
-       */
-      collapsed_by_default: boolean;
-      /**
-       * Collapsible
-       * @default false
-       */
-      collapsible: boolean;
-      /** Description */
-      description?: string | null;
-      /** Fail When */
-      fail_when?: components['schemas']['FailRule'][] | null;
-      /** Fields */
-      fields: (
-        | components['schemas']['BoolField']
-        | components['schemas']['ChoiceField']
-        | components['schemas']['DateTimeField']
-        | components['schemas']['FileField']
-        | components['schemas']['FloatField']
-        | components['schemas']['HostField']
-        | components['schemas']['IntegerField']
-        | components['schemas']['MultiChoiceField']
-        | components['schemas']['SchemaField']
-        | components['schemas']['ScriptPreviewField']
-        | components['schemas']['ServiceField']
-        | components['schemas']['StringField']
-        | components['schemas']['TableField']
-        | components['schemas']['TextAreaField']
-        | components['schemas']['YamlField']
-        | components['schemas']['OneOfGroup']
-      )[];
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /**
-       * Render After Submit
-       * @default false
-       */
-      render_after_submit: boolean;
-      /** Title */
-      title: string;
-    };
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
       detail?: components['schemas']['ValidationError'][];
-    };
-    /**
-     * HostByService
-     * @description Represent a destination host taken from an inventory service.
-     *
-     *     :param mode: The one-of discriminator (``"service"``).
-     *     :param dest_service: The inventory id of the destination MySQL service; its
-     *         node address and port supply the destination host and port.
-     */
-    HostByService: {
-      /** Dest Service */
-      dest_service: number;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      mode: 'service';
-    };
-    /**
-     * HostField
-     * @description Represent an executor-target (Nomad / Celery) selector field.
-     *
-     *     The React renderer loads options from ``GET /api/sep/hosts/`` (an SEP
-     *     proxy endpoint that internally calls Tasks ``/hosts/`` and merges
-     *     Inventory display names server-side). Host selection is not cascaded
-     *     from another field — every dispatch form lists every available executor
-     *     target.
-     *
-     *     :param field_type: The discriminator literal; always ``"host"`` for this
-     *         class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["host"]
-     *     :param allow_custom: When ``True``, the selector also accepts a free-typed
-     *         value alongside the inventory options. ``None`` (the default) omits the
-     *         key from the wire so plugins that do not opt in stay byte-identical.
-     */
-    HostField: {
-      /** Allow Custom */
-      allow_custom?: boolean | null;
-      /** Default */
-      default?: unknown | null;
-      /** Description */
-      description?: string | null;
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /** Label */
-      label: string;
-      /** Name */
-      name: string;
-      /**
-       * Required
-       * @default false
-       */
-      required: boolean;
-      /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'host';
-    };
-    /**
-     * HostManual
-     * @description Represent a manually-entered destination host.
-     *
-     *     :param mode: The one-of discriminator (``"manual"``).
-     *     :param dest_host: The destination host address.
-     *     :param dest_port: The destination port (1-65535); defaults to the MySQL port.
-     */
-    HostManual: {
-      /** Dest Host */
-      dest_host: string;
-      /** Dest Port */
-      dest_port?: number | null;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      mode: 'manual';
     };
     /**
      * HostResponse
@@ -5415,174 +3655,6 @@ export interface components {
       name: string;
     };
     /**
-     * IndexBackupSummary
-     * @description Represent a compact backup row for the index "recent backups" widget.
-     *
-     *     Leaner than :class:`BackupSummary` (no ``metadata``): the list page only
-     *     renders the id and timestamp, so the index payload omits the summary counts.
-     *
-     *     :param id: Primary key of the backup row.
-     *     :type id: int
-     *     :param created_at: UTC timestamp the backup was written.
-     *     :type created_at: datetime
-     */
-    IndexBackupSummary: {
-      /**
-       * Created At
-       * Format: date-time
-       */
-      created_at: string;
-      /** Id */
-      id: number;
-    };
-    /**
-     * IndexPagerDutyStatus
-     * @description Describe the PagerDuty contact-point status on the index page.
-     *
-     *     :param configured: ``True`` when a SEP PagerDuty contact point exists in PMM.
-     *     :type configured: bool
-     *     :param uid: The contact point UID when configured, otherwise ``None``.
-     *     :type uid: str | None
-     */
-    IndexPagerDutyStatus: {
-      /** Configured */
-      configured: boolean;
-      /** Uid */
-      uid?: string | null;
-    };
-    /**
-     * IndexResponse
-     * @description Describe the response body for ``GET /api/apps/alerts/``.
-     *
-     *     Aggregate everything the React list page needs in a single call: the alert
-     *     templates grouped by service type, whether PMM is reachable, the PagerDuty
-     *     contact-point status, and the most recent backups.
-     *
-     *     :param groups: Alert templates grouped by service type. Only service types
-     *         with at least one template are included.
-     *     :type groups: list[IndexTemplateGroup]
-     *     :param pmm_connected: ``True`` when PMM is configured and reachable.
-     *     :type pmm_connected: bool
-     *     :param pagerduty: The PagerDuty status, or ``None`` when PMM is unreachable.
-     *     :type pagerduty: IndexPagerDutyStatus | None
-     *     :param recent_backups: The most recent alert backups, newest first.
-     *     :type recent_backups: list[IndexBackupSummary]
-     */
-    IndexResponse: {
-      /** Groups */
-      groups: components['schemas']['IndexTemplateGroup'][];
-      pagerduty: components['schemas']['IndexPagerDutyStatus'] | null;
-      /** Pmm Connected */
-      pmm_connected: boolean;
-      /** Recent Backups */
-      recent_backups: components['schemas']['IndexBackupSummary'][];
-    };
-    /**
-     * IndexTemplate
-     * @description Represent a single alert template row on the index page.
-     *
-     *     :param name: The display name of the alert template.
-     *     :type name: str
-     *     :param service_type: The service category this template applies to.
-     *     :type service_type: str
-     *     :param expression: The PromQL expression backing the alert.
-     *     :type expression: str
-     *     :param default_threshold: The default numeric threshold for the UI.
-     *     :type default_threshold: float
-     *     :param severity: The severity level (``"info"``, ``"warning"``, ``"critical"``).
-     *     :type severity: str
-     *     :param description: A human-readable description of the alert.
-     *     :type description: str
-     *     :param summary: A short summary template for notifications.
-     *     :type summary: str
-     *     :param in_pmm: ``True`` when a template of this name is already present in PMM.
-     *     :type in_pmm: bool
-     */
-    IndexTemplate: {
-      /** Default Threshold */
-      default_threshold: number;
-      /** Description */
-      description: string;
-      /** Expression */
-      expression: string;
-      /** In Pmm */
-      in_pmm: boolean;
-      /** Name */
-      name: string;
-      /** Service Type */
-      service_type: string;
-      /** Severity */
-      severity: string;
-      /** Summary */
-      summary: string;
-    };
-    /**
-     * IndexTemplateGroup
-     * @description Group index templates by service type.
-     *
-     *     :param service_type: The service type identifier (e.g. ``"mysql"``).
-     *     :type service_type: str
-     *     :param label: The human-readable service type label (e.g. ``"MySQL"``).
-     *     :type label: str
-     *     :param templates: The templates belonging to this service type.
-     *     :type templates: list[IndexTemplate]
-     */
-    IndexTemplateGroup: {
-      /** Label */
-      label: string;
-      /** Service Type */
-      service_type: string;
-      /** Templates */
-      templates: components['schemas']['IndexTemplate'][];
-    };
-    /**
-     * IntegerField
-     * @description Represent an integer numeric input field.
-     *
-     *     :param field_type: The discriminator literal; always ``"integer"`` for this
-     *         class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["integer"]
-     *     :param ge: Optional lower bound (inclusive) for accepted values. Defaults
-     *         to ``None``.
-     *     :type ge: int | None
-     *     :param le: Optional upper bound (inclusive) for accepted values. Defaults
-     *         to ``None``.
-     *     :type le: int | None
-     *     :param step: Optional step size for the input control. Defaults to
-     *         ``None``.
-     *     :type step: int | None
-     */
-    IntegerField: {
-      /** Default */
-      default?: unknown | null;
-      /** Description */
-      description?: string | null;
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /** Ge */
-      ge?: number | null;
-      /** Label */
-      label: string;
-      /** Le */
-      le?: number | null;
-      /** Name */
-      name: string;
-      /**
-       * Required
-       * @default false
-       */
-      required: boolean;
-      /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
-      /** Step */
-      step?: number | null;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'integer';
-    };
-    /**
      * InventorySelectorOption
      * @description Represent a minimal ``{id, name}`` option for inventory autocomplete selectors.
      *
@@ -5597,128 +3669,7 @@ export interface components {
       /** Name */
       name: string;
     };
-    /**
-     * InventorySyncStatusResponse
-     * @description Represent the inventory sync status response.
-     *
-     *     :param is_running: ``True`` when an inventory-wide sync is currently
-     *         in progress; ``False`` otherwise.
-     *     :type is_running: bool
-     */
-    InventorySyncStatusResponse: {
-      /** Is Running */
-      is_running: boolean;
-    };
-    /**
-     * InventorySyncTriggerWrite
-     * @description Carry the optional JSON body for the ad-hoc inventory sync trigger.
-     *
-     *     A ``None`` or empty ``syncer`` selects the sync-all path; a non-empty
-     *     string targets a single configured syncer by its fully qualified
-     *     ``"module.ClassName"`` identifier. Unknown fields are rejected with
-     *     HTTP 422 so a typo on the client never silently degrades to sync-all.
-     *
-     *     :param syncer: Fully qualified syncer name, or ``None`` for sync-all.
-     *     :type syncer: str | None
-     */
-    InventorySyncTriggerWrite: {
-      /** Syncer */
-      syncer?: string | null;
-    };
     JsonValue: unknown;
-    /**
-     * ListView
-     * @description Represent the list-view configuration for a plugin.
-     *
-     *     :param columns: The ordered list of columns displayed in the list view.
-     *     :type columns: list[Column]
-     *     :param default_sort: Optional key of the column to sort by on first
-     *         render. Prefix with ``-`` for descending order (for example,
-     *         ``"-lastRun"``). The unprefixed key must match one of the declared
-     *         column keys. Defaults to ``None``.
-     *     :type default_sort: NonEmptyStr | None
-     *     :param overview_hidden_fields: Additional task-level keys to suppress
-     *         from the auto-rendered "extras" loop on the plugin detail Overview
-     *         tab. The framework always hides a baseline set of internal fields
-     *         (``id``, ``backend``, ``protected``, ``data``, ``updated_at``,
-     *         ``last_updated_by``, ``connectivity_warning``); any keys listed here
-     *         are merged with that baseline. Defaults to ``[]``.
-     *     :type overview_hidden_fields: list[str]
-     */
-    ListView: {
-      /** Columns */
-      columns: components['schemas']['Column'][];
-      /** Default Sort */
-      default_sort?: string | null;
-      /** Overview Hidden Fields */
-      overview_hidden_fields?: string[];
-    };
-    /**
-     * MultiChoiceField
-     * @description Represent a multi-select dropdown field.
-     *
-     *     :param field_type: The discriminator literal; always ``"multi_choice"``
-     *         for this class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["multi_choice"]
-     *     :param choices: The non-empty list of options the user can choose from.
-     *     :type choices: list[Choice]
-     */
-    MultiChoiceField: {
-      /** Choices */
-      choices: components['schemas']['Choice'][];
-      /** Default */
-      default?: unknown | null;
-      /** Description */
-      description?: string | null;
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /** Label */
-      label: string;
-      /** Name */
-      name: string;
-      /**
-       * Required
-       * @default false
-       */
-      required: boolean;
-      /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'multi_choice';
-    };
-    /** MysqlBackupsCreateResponse */
-    MysqlBackupsCreateResponse: {
-      /** Alert On Fail */
-      alert_on_fail: boolean;
-      backend: components['schemas']['TaskBackendEnum'];
-      backup_type?: components['schemas']['BackupType-Output'] | null;
-      connectivity_warning?:
-        | components['schemas']['ConnectivityWarning']
-        | null;
-      /** Created At */
-      created_at?: string | null;
-      /** Created By */
-      created_by?: string | null;
-      /** Data */
-      data: Record<string, never>;
-      /** Hostname */
-      hostname?: string | null;
-      /** Id */
-      id?: number | null;
-      /** Last Updated By */
-      last_updated_by?: string | null;
-      /** Name */
-      name: string;
-      owner: components['schemas']['TaskOwner'];
-      /** Protected */
-      protected: boolean;
-      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
-      /** Updated At */
-      updated_at?: string | null;
-    };
     /**
      * Node
      * @description Represent a node in the inventory.
@@ -5761,144 +3712,10 @@ export interface components {
       /** Updated At */
       updated_at?: string | null;
     };
-    /**
-     * OneOfBranch
-     * @description Represent one mutually-exclusive branch inside a :class:`OneOfGroup`.
-     *
-     *     :param value: The discriminator value that selects this branch.
-     *     :param label: The human-readable label for the segmented-control option.
-     *     :param fields: The leaf fields revealed when this branch is active.
-     */
-    OneOfBranch: {
-      /** Fields */
-      fields: (
-        | components['schemas']['BoolField']
-        | components['schemas']['ChoiceField']
-        | components['schemas']['DateTimeField']
-        | components['schemas']['FileField']
-        | components['schemas']['FloatField']
-        | components['schemas']['HostField']
-        | components['schemas']['IntegerField']
-        | components['schemas']['MultiChoiceField']
-        | components['schemas']['SchemaField']
-        | components['schemas']['ScriptPreviewField']
-        | components['schemas']['ServiceField']
-        | components['schemas']['StringField']
-        | components['schemas']['TableField']
-        | components['schemas']['TextAreaField']
-        | components['schemas']['YamlField']
-      )[];
-      /** Label */
-      label: string;
-      /** Value */
-      value: string;
-    };
-    /**
-     * OneOfGroup
-     * @description Represent a labelled either/or field group with a segmented mode switch.
-     *
-     *     The React renderer binds :attr:`discriminator` to a ``ToggleButtonGroup``,
-     *     shows :attr:`description` as helper text, and renders only the active
-     *     branch's :attr:`~OneOfBranch.fields`. Inactive-branch leaves are forbidden
-     *     at validation time via rules synthesised from the group's branch contract.
-     *
-     *     :param field_type: The discriminator literal; always ``"one_of"`` for this
-     *         class. Serialised as the JSON key ``"type"``.
-     *     :param name: Stable group identifier used as the React list key. Not a
-     *         separate form value — :attr:`discriminator` names the mode field.
-     *     :param label: The human-readable group heading above the segmented control.
-     *     :param description: Optional helper text rendered beneath the group label.
-     *         Defaults to ``None``.
-     *     :param discriminator: Dotted path to the mode field (for example,
-     *         ``"source.mode"``) whose value selects the active branch.
-     *     :param default: Optional default branch :attr:`~OneOfBranch.value`. Must
-     *         match one of the declared branches when set. Defaults to ``None``.
-     *     :param branches: Two or more named branches, each owning its own field list.
-     */
-    OneOfGroup: {
-      /** Branches */
-      branches: components['schemas']['OneOfBranch'][];
-      /** Default */
-      default?: string | null;
-      /** Description */
-      description?: string | null;
-      /** Discriminator */
-      discriminator: string;
-      /** Label */
-      label: string;
-      /** Name */
-      name: string;
-      /**
-       * Type
-       * @default one_of
-       * @constant
-       * @enum {string}
-       */
-      type: 'one_of';
-    };
-    /**
-     * PagerDutyRequest
-     * @description Describe the request body for ``POST /api/apps/alerts/pagerduty``.
-     *
-     *     :param integration_key: The PagerDuty integration key. Must be non-empty
-     *         after stripping whitespace.
-     *     :type integration_key: NonEmptyStr
-     */
-    PagerDutyRequest: {
-      /** Integration Key */
-      integration_key: string;
-    };
-    /**
-     * PagerDutyResponse
-     * @description Describe the response body for the PagerDuty save / delete endpoints.
-     *
-     *     :param status: ``"created"``, ``"updated"`` (save) or ``"deleted"`` (delete).
-     *     :type status: Literal["created", "updated", "deleted"]
-     */
-    PagerDutyResponse: {
-      /**
-       * Status
-       * @enum {string}
-       */
-      status: 'created' | 'updated' | 'deleted';
-    };
-    /** PaginatedResponse[BackupResponse] */
-    PaginatedResponse_BackupResponse_: {
+    /** PaginatedResponse[Any] */
+    PaginatedResponse_Any_: {
       /** Items */
-      items: components['schemas']['BackupResponse'][];
-      /** Limit */
-      limit: number;
-      /** Offset */
-      offset: number;
-      /** Total */
-      total: number;
-    };
-    /** PaginatedResponse[BackupSummary] */
-    PaginatedResponse_BackupSummary_: {
-      /** Items */
-      items: components['schemas']['BackupSummary'][];
-      /** Limit */
-      limit: number;
-      /** Offset */
-      offset: number;
-      /** Total */
-      total: number;
-    };
-    /** PaginatedResponse[RestoreTaskResponse] */
-    PaginatedResponse_RestoreTaskResponse_: {
-      /** Items */
-      items: components['schemas']['RestoreTaskResponse'][];
-      /** Limit */
-      limit: number;
-      /** Offset */
-      offset: number;
-      /** Total */
-      total: number;
-    };
-    /** PaginatedResponse[RestoresResponse] */
-    PaginatedResponse_RestoresResponse_: {
-      /** Items */
-      items: components['schemas']['RestoresResponse'][];
+      items: unknown[];
       /** Limit */
       limit: number;
       /** Offset */
@@ -5917,6 +3734,17 @@ export interface components {
       /** Total */
       total: number;
     };
+    /** PaginatedResponse[SnippetResponse] */
+    PaginatedResponse_SnippetResponse_: {
+      /** Items */
+      items: components['schemas']['SnippetResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
     /** PaginatedResponse[TaskHistoryResponse] */
     PaginatedResponse_TaskHistoryResponse_: {
       /** Items */
@@ -5928,115 +3756,16 @@ export interface components {
       /** Total */
       total: number;
     };
-    /**
-     * PeriodicTaskSummary
-     * @description Represent read-only periodic-schedule metadata for a single task.
-     *
-     *     :param id: The periodic task's database identifier.
-     *     :type id: int
-     *     :param name: The periodic task's display name.
-     *     :type name: str
-     *     :param enabled: Whether the periodic schedule is currently enabled.
-     *     :type enabled: bool
-     *     :param period: A human-readable schedule description (cron or interval),
-     *         or ``None`` when unavailable.
-     *     :type period: str | None
-     *     :param next_run_at: The next scheduled run time in ISO 8601 format, or
-     *         ``None`` when not scheduled.
-     *     :type next_run_at: UTCDatetime | None
-     *     :param last_run_at: The last run time in ISO 8601 format, or ``None`` if
-     *         the schedule has never run.
-     *     :type last_run_at: UTCDatetime | None
-     *     :param total_run_count: The total number of times the schedule has run,
-     *         or ``None`` when unavailable.
-     *     :type total_run_count: int | None
-     *     :param chain_task_names: Ordered task names in the periodic execution
-     *         chain, if any.
-     *     :type chain_task_names: list[str]
-     */
-    PeriodicTaskSummary: {
-      /** Chain Task Names */
-      chain_task_names?: string[];
-      /** Enabled */
-      enabled: boolean;
-      /** Id */
-      id: number;
-      /** Last Run At */
-      last_run_at?: string | null;
-      /** Name */
-      name: string;
-      /** Next Run At */
-      next_run_at?: string | null;
-      /** Period */
-      period?: string | null;
-      /** Total Run Count */
-      total_run_count?: number | null;
-    };
-    /**
-     * PgBackRestBackupType
-     * @description PgBackRest backup types.
-     * @enum {string}
-     */
-    PgBackRestBackupType: 'incr' | 'diff';
-    /**
-     * PluginTaskResponse
-     * @description Represent a single plugin task entry returned by ``GET /api/apps/inventory/``.
-     *
-     *     :param name: Machine-readable task identifier (e.g. ``"inventory-sync"``).
-     *     :type name: str
-     *     :param display_name: Human-readable label for the schedule UI.
-     *     :type display_name: str
-     */
-    PluginTaskResponse: {
-      /** Display Name */
-      display_name: string;
-      /** Name */
-      name: string;
-    };
-    /**
-     * PushItemResult
-     * @description Represent a per-template result row returned by the push endpoint.
-     *
-     *     :param name: The template name the result applies to.
-     *     :type name: str
-     *     :param status: One of ``"success"``, ``"skipped"``, ``"error"``.
-     *     :type status: Literal["success", "skipped", "error"]
-     *     :param message: A human-readable description of the outcome.
-     *     :type message: str
-     */
-    PushItemResult: {
-      /** Message */
-      message: string;
-      /** Name */
-      name: string;
-      /**
-       * Status
-       * @enum {string}
-       */
-      status: 'success' | 'skipped' | 'error';
-    };
-    /**
-     * PushRequest
-     * @description Describe the request body for ``POST /api/apps/alerts/push``.
-     *
-     *     :param selected_templates: Names of templates to push to PMM. Must be a
-     *         non-empty list of non-empty strings.
-     *     :type selected_templates: list[NonEmptyStr]
-     */
-    PushRequest: {
-      /** Selected Templates */
-      selected_templates: string[];
-    };
-    /**
-     * PushResponse
-     * @description Wrap the per-template results returned by the push endpoint.
-     *
-     *     :param results: One :class:`PushItemResult` per template in the request.
-     *     :type results: list[PushItemResult]
-     */
-    PushResponse: {
-      /** Results */
-      results: components['schemas']['PushItemResult'][];
+    /** PaginatedResponse[dict[str, Any]] */
+    PaginatedResponse_dict_str__Any__: {
+      /** Items */
+      items: Record<string, never>[];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
     };
     /**
      * RefreshResponse
@@ -6072,460 +3801,6 @@ export interface components {
      * @enum {string}
      */
     ReloadClassification: 'hot' | 'nested_only' | 'not_overridable';
-    /**
-     * RestoreCreate
-     * @description Declare the model-first create/update body and ``GET /schema`` source for Restores.
-     *
-     *     Declares every restore form field once, in section order (Task, General,
-     *     Mydumper, XtraBackup, Binlog), with the DSL markers driving the derived
-     *     schema. The previously-inherited config models (:class:`RestoreConfigAll` and
-     *     :class:`BaseRestoreConfigServer`) stay the YAML-serialization targets the
-     *     payload builder populates via ``extract_model_from_instance``; this model
-     *     re-declares their fields directly so it can also carry presentation metadata.
-     *
-     *     The per-``backup_type`` section visibility is expressed in the view layout
-     *     (``restore/views.py``), not as field-level gates: several mode-specific config
-     *     fields carry non-``None`` defaults (``myloader_threads``, ``xb_parallel``,
-     *     ``master_port``), so a field-level ``Forbidden`` gate would reject those
-     *     defaults on a cross-mode restore. Keeping the model permissive preserves the
-     *     legacy payload contract byte-for-byte.
-     *
-     *     ``service_id`` / ``schema_id`` keep their str-accepting annotation (carrying
-     *     the ``"-1"`` ``UNKNOWN_SERVICE_SENTINEL``); their ``ServiceRef`` / ``SchemaRef``
-     *     markers drive only the ``GET /schema`` widgets, while the conditional,
-     *     404-tolerant resolution lives in ``deps.resolve_restore_entities``.
-     */
-    RestoreCreate: {
-      /**
-       * Alert On Fail
-       * @default false
-       */
-      alert_on_fail: boolean;
-      /** Backup Source */
-      backup_source: string;
-      backup_type: components['schemas']['app__sep__apps__mysql_backups__models__BackupType'];
-      /** Binlog Restore Extra Args */
-      binlog_restore_extra_args?: string | null;
-      /** Custom Mysql Init Command */
-      custom_mysql_init_command?: string | null;
-      /** Datadir */
-      datadir?: string | null;
-      /** Gpg Password File */
-      gpg_password_file?: string | null;
-      /** Hostname */
-      hostname: string;
-      /** Include Databases */
-      include_databases?: string | null;
-      /** Incremental Dest Path */
-      incremental_dest_path?: string | null;
-      /** Keyring File Data */
-      keyring_file_data?: string | null;
-      /**
-       * Kill Mysql
-       * @default false
-       */
-      kill_mysql: boolean;
-      /** Local Path */
-      local_path?: string | null;
-      /** Logging Dir */
-      logging_dir?: string | null;
-      /** Master Ip */
-      master_ip?: string | null;
-      /** Master Password */
-      master_password?: string | null;
-      /**
-       * Master Port
-       * @default 3306
-       */
-      master_port: number | null;
-      /** Master User */
-      master_user?: string | null;
-      /** Myloader Extra Args */
-      myloader_extra_args?: string | null;
-      /**
-       * Myloader Threads
-       * @default 4
-       */
-      myloader_threads: number | null;
-      /**
-       * Overwrite Tables
-       * @default false
-       */
-      overwrite_tables: boolean;
-      /** Port */
-      port?: number | null;
-      /** Post Script */
-      post_script?: string | null;
-      /** Pre Script */
-      pre_script?: string | null;
-      /**
-       * Restore Mycnf
-       * @default false
-       */
-      restore_mycnf: boolean;
-      /** @default s3cmd */
-      s3_tool: components['schemas']['S3Tool'];
-      /** Schema Id */
-      schema_id?: string | null;
-      /** Service Id */
-      service_id?: string | null;
-      /** Skip Databases */
-      skip_databases?: string | null;
-      /**
-       * Skip Incrementals
-       * @default false
-       */
-      skip_incrementals: boolean;
-      /**
-       * Slave From Master
-       * @default false
-       */
-      slave_from_master: boolean;
-      /** Ssh Key */
-      ssh_key?: string | null;
-      /**
-       * Ssh Port
-       * @default 22
-       */
-      ssh_port: number | null;
-      /**
-       * Ssh User
-       * @default percona
-       */
-      ssh_user: string | null;
-      /** Start File */
-      start_file?: string | null;
-      /** Start Position */
-      start_position?: number | null;
-      /** Stop File */
-      stop_file?: string | null;
-      /** Stop Position */
-      stop_position?: number | null;
-      /** Task Name */
-      task_name: string;
-      /** Use Sql File */
-      use_sql_file?: string | null;
-      /**
-       * Wait For Catchup
-       * @default false
-       */
-      wait_for_catchup: boolean;
-      /**
-       * Xb Parallel
-       * @default 4
-       */
-      xb_parallel: number | null;
-      /** Xb Prepare Memory */
-      xb_prepare_memory?: string | null;
-      /** Xtrabackup Aes256 Keyfile */
-      xtrabackup_aes256_keyfile?: string | null;
-      /** Xtrabackup Bin Cmd */
-      xtrabackup_bin_cmd?: components['schemas']['XtraBackupTool'] | null;
-      /** Xtrabackup Restore Args */
-      xtrabackup_restore_args?: string | null;
-    };
-    /**
-     * RestoreDerivedTaskSummary
-     * @description Represent one child task in a restore task group detail response.
-     *
-     *     :param name: The name of the child task.
-     *     :type name: str
-     *     :param status: The latest execution status of the child task.
-     *     :type status: TaskHistoryStatusEnum | None
-     */
-    RestoreDerivedTaskSummary: {
-      /** Name */
-      name: string;
-      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
-    };
-    /**
-     * RestoreExecuteWrite
-     * @description Represent a JSON request body for executing a restore task.
-     *
-     *     :param eta: Optional future datetime to schedule execution.
-     *     :type eta: FutureDatetime | None
-     *     :param chain_task_names: Optional list of task names to chain after this one.
-     *     :type chain_task_names: list[str] | None
-     *     :param chain_on_failure: Whether to run chained tasks even on failure.
-     *     :type chain_on_failure: bool | None
-     */
-    RestoreExecuteWrite: {
-      /** Chain On Failure */
-      chain_on_failure?: boolean | null;
-      /** Chain Task Names */
-      chain_task_names?: string[] | null;
-      /** Eta */
-      eta?: string | null;
-    };
-    /**
-     * RestoreExecutionResponse
-     * @description Represent the response from POST .../restores/{task_name}/execute.
-     *
-     *     :param task_name: The name of the task that was executed.
-     *     :type task_name: str
-     *     :param task_id: The id of the task-history row created by the tasks API.
-     *     :type task_id: int | None
-     */
-    RestoreExecutionResponse: {
-      /** Task Id */
-      task_id?: number | null;
-      /** Task Name */
-      task_name: string;
-    };
-    /**
-     * RestoreRequest
-     * @description Describe the request body for ``POST /api/apps/alerts/restore``.
-     *
-     *     :param backup_id: Primary key of the :class:`~app.sep.apps.alerts.models.AlertBackup`
-     *         row to restore from. Must be a positive integer.
-     *     :type backup_id: int
-     */
-    RestoreRequest: {
-      /** Backup Id */
-      backup_id: number;
-    };
-    /**
-     * RestoreResponse
-     * @description Wrap the summary returned by the restore endpoint.
-     *
-     *     :param status: ``"success"`` on a complete restore.
-     *     :type status: Literal["success"]
-     *     :param details: Per-section restore counts as returned by
-     *         :func:`~app.sep.apps.alerts.restore.restore_from_backup`.
-     *     :type details: dict[str, Any]
-     */
-    RestoreResponse: {
-      /** Details */
-      details: Record<string, never>;
-      /**
-       * Status
-       * @constant
-       * @enum {string}
-       */
-      status: 'success';
-    };
-    /**
-     * RestoreTaskDetailResponse
-     * @description Represent a restore task detail API response.
-     *
-     *     :param derived_tasks: Latest status for each restore child task.
-     *     :type derived_tasks: list[RestoreDerivedTaskSummary]
-     */
-    RestoreTaskDetailResponse: {
-      /** Alert On Fail */
-      alert_on_fail: boolean;
-      backend: components['schemas']['TaskBackendEnum'];
-      /** Backup Source */
-      backup_source: string;
-      /** Backup Type */
-      backup_type: string;
-      /** Created At */
-      created_at?: string | null;
-      /** Created By */
-      created_by?: string | null;
-      /** Data */
-      data: Record<string, never>;
-      /** Derived Tasks */
-      derived_tasks?: components['schemas']['RestoreDerivedTaskSummary'][];
-      /** Hostname */
-      hostname?: string | null;
-      /** Id */
-      id?: number | null;
-      /** Last Updated By */
-      last_updated_by?: string | null;
-      /** Name */
-      name: string;
-      owner: components['schemas']['TaskOwner'];
-      /** Protected */
-      protected: boolean;
-      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
-      /** Updated At */
-      updated_at?: string | null;
-    };
-    /**
-     * RestoreTaskResponse
-     * @description Represent a restore task API response.
-     *
-     *     :param id: The unique identifier for the restore task.
-     *     :type id: int | None
-     *     :param backend: The backend worker/engine executing the task.
-     *     :type backend: TaskBackendEnum
-     *     :param data: The raw configuration and parameters for the restore execution.
-     *     :type data: dict[str, Any]
-     *     :param protected: Whether the task is protected from deletion or modification.
-     *     :type protected: bool
-     *     :param alert_on_fail: If True, notifications are sent upon task failure.
-     *     :type alert_on_fail: bool
-     *     :param created_at: The timestamp when the task was first created.
-     *     :type created_at: datetime | None
-     *     :param updated_at: The timestamp of the last modification to the task.
-     *     :type updated_at: datetime | None
-     *     :param created_by: The user who initiated the task.
-     *     :type created_by: str | None
-     *     :param last_updated_by: The user who last modified the task record.
-     *     :type last_updated_by: str | None
-     */
-    RestoreTaskResponse: {
-      /** Alert On Fail */
-      alert_on_fail: boolean;
-      backend: components['schemas']['TaskBackendEnum'];
-      /** Backup Source */
-      backup_source: string;
-      /** Backup Type */
-      backup_type: string;
-      /** Created At */
-      created_at?: string | null;
-      /** Created By */
-      created_by?: string | null;
-      /** Data */
-      data: Record<string, never>;
-      /** Hostname */
-      hostname?: string | null;
-      /** Id */
-      id?: number | null;
-      /** Last Updated By */
-      last_updated_by?: string | null;
-      /** Name */
-      name: string;
-      owner: components['schemas']['TaskOwner'];
-      /** Protected */
-      protected: boolean;
-      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
-      /** Updated At */
-      updated_at?: string | null;
-    };
-    /**
-     * RestoreTaskWrite
-     * @description Represent a JSON request body for creating a restore task group.
-     *
-     *     Mirrors :class:`RestoreCreate` field-for-field with JSON-native types (notably
-     *     ``service_id: int | None``). Routes convert via
-     *     :func:`~app.sep.apps.backup_mongo.restore.deps.restore_create_from_write`
-     *     before building task payloads. See :class:`RestoreCreate` for why both models
-     *     remain.
-     *
-     *     POST always creates a parent config task plus restore, pbm-list, and optional
-     *     force-resync children.
-     *
-     *     :param task_name: The name of the task to be created.
-     *     :type task_name: NonEmptyStr
-     *     :param hostname: The target hostname for the task execution.
-     *     :type hostname: NonEmptyStr
-     *     :param service_id: Optional Inventory ID of the MongoDB service.
-     *     :type service_id: int | None
-     *     :param backup_type: Type of backup to restore from (logical or physical).
-     *     :type backup_type: BackupType
-     *     :param backup_source: Backup name or timestamp to restore from.
-     *     :type backup_source: NonEmptyStr
-     *     :param restore_batch_size: Number of documents to buffer.
-     *     :type restore_batch_size: int | None
-     *     :param restore_num_insertion_workers: Insertion workers per collection.
-     *     :type restore_num_insertion_workers: int | None
-     *     :param restore_num_parallel_collections: Parallel collections for logical restore.
-     *     :type restore_num_parallel_collections: int | None
-     *     :param restore_num_download_workers: Download workers for physical restore.
-     *     :type restore_num_download_workers: int | None
-     *     :param restore_max_download_buffer_mb: Max S3 download buffer in MB.
-     *     :type restore_max_download_buffer_mb: int | None
-     *     :param restore_download_chunk_mb: S3 download chunk size in MB.
-     *     :type restore_download_chunk_mb: int | None
-     *     :param restore_mongod_location: Custom path to mongod binaries.
-     *     :type restore_mongod_location: str | None
-     *     :param restore_mongod_location_map: Per-node mongod paths as YAML.
-     *     :type restore_mongod_location_map: str | None
-     *     :param credentials_path: Path to MongoDB URI credentials on the Nomad node.
-     *     :type credentials_path: str | None
-     */
-    RestoreTaskWrite: {
-      /** Backup Source */
-      backup_source: string;
-      backup_type: components['schemas']['app__sep__apps__backup_mongo__models__BackupType'];
-      /** Credentials Path */
-      credentials_path?: string | null;
-      /** Hostname */
-      hostname: string;
-      /** Restore Batch Size */
-      restore_batch_size?: number | null;
-      /** Restore Download Chunk Mb */
-      restore_download_chunk_mb?: number | null;
-      /** Restore Max Download Buffer Mb */
-      restore_max_download_buffer_mb?: number | null;
-      /** Restore Mongod Location */
-      restore_mongod_location?: string | null;
-      /** Restore Mongod Location Map */
-      restore_mongod_location_map?: string | null;
-      /** Restore Num Download Workers */
-      restore_num_download_workers?: number | null;
-      /** Restore Num Insertion Workers */
-      restore_num_insertion_workers?: number | null;
-      /** Restore Num Parallel Collections */
-      restore_num_parallel_collections?: number | null;
-      /** Service Id */
-      service_id?: number | null;
-      /** Task Name */
-      task_name: string;
-    };
-    /**
-     * RestoresResponse
-     * @description Represent a restore task API response.
-     *
-     *     Extend the standard task-response surface with the restore-specific
-     *     destination facts the detail view renders; the shared task identity,
-     *     status, audit, and anonymization fields come from
-     *     :class:`~app.sep.apps.framework.responses.BaseTaskResponse`.
-     *
-     *     :param backup_type: The backup type recorded in task config.
-     *     :param hostname: The executor hostname target.
-     *     :param host: The destination host recorded in task config.
-     *     :param port: The destination port recorded in task config.
-     */
-    RestoresResponse: {
-      /** Alert On Fail */
-      alert_on_fail: boolean;
-      /** Anonymize Mask */
-      anonymize_mask?: number | null;
-      /**
-       * Anonymized Entities
-       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
-       */
-      readonly anonymized_entities: string[];
-      backend: components['schemas']['TaskBackendEnum'];
-      backup_type?: components['schemas']['BackupType-Output'] | null;
-      connectivity_warning?:
-        | components['schemas']['ConnectivityWarning']
-        | null;
-      /** Created At */
-      created_at?: string | null;
-      /** Created By */
-      created_by?: string | null;
-      /** Data */
-      data: Record<string, never>;
-      /** Host */
-      host?: string | null;
-      /** Hostname */
-      hostname?: string | null;
-      /** Id */
-      id?: number | null;
-      /** Last Updated By */
-      last_updated_by?: string | null;
-      /** Name */
-      name: string;
-      owner: components['schemas']['TaskOwner'];
-      /** Port */
-      port?: number | null;
-      /** Protected */
-      protected: boolean;
-      service_type?: components['schemas']['ServiceTypeEnum'] | null;
-      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
-      /** Updated At */
-      updated_at?: string | null;
-    };
-    /**
-     * S3Tool
-     * @description Allowed tools to interact with S3-compatible services.
-     * @enum {string}
-     */
-    S3Tool: 's3cmd' | 'awscli';
     /**
      * Schema
      * @description Represent a database schema within a service.
@@ -6566,231 +3841,11 @@ export interface components {
       updated_at?: string | null;
     };
     /**
-     * SchemaField
-     * @description Represent an inventory database-schema selector field.
-     *
-     *     ``depends_on`` is a forward reference to another field's ``name`` in the
-     *     same plugin schema (typically a ``ServiceField``); the React renderer
-     *     cascades schema options from the selected service. The referenced field
-     *     is not validated at the schema level.
-     *
-     *     :param field_type: The discriminator literal; always ``"schema"`` for
-     *         this class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["schema"]
-     *     :param depends_on: The name of the field whose value drives the list of
-     *         available schemas.
-     *     :type depends_on: NonEmptyStr
-     *     :param allow_custom: Opt-in capability flag declaring that a consuming
-     *         renderer may offer free-text (free-solo) entry in addition to the
-     *         cascaded inventory options. Optional, defaulting to ``None`` (options
-     *         only). Typed ``bool | None`` so the discovery endpoint's
-     *         ``exclude_none`` posture drops it from the wire until a plugin opts
-     *         in, keeping the addition byte-compatible with existing schemas. The
-     *         built-in SchemaFormRenderer does not yet consume the flag; the
-     *         free-solo widget that reads it ships with the consuming plugin.
-     *     :type allow_custom: bool | None
+     * ServiceEnum
+     * @description Enumerate the probeable services, used as stable ``service`` identifiers.
+     * @enum {string}
      */
-    SchemaField: {
-      /** Allow Custom */
-      allow_custom?: boolean | null;
-      /** Default */
-      default?: unknown | null;
-      /** Depends On */
-      depends_on: string;
-      /** Description */
-      description?: string | null;
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /** Label */
-      label: string;
-      /** Name */
-      name: string;
-      /**
-       * Required
-       * @default false
-       */
-      required: boolean;
-      /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'schema';
-    };
-    /**
-     * ScriptExecuteWrite
-     * @description Define the JSON body for ``POST .../snippet/execute``.
-     *
-     *     The per-script frontmatter arguments go in ``args`` and are validated against
-     *     the script's dynamic execution model, while ``executor_host`` and ``sudo`` are
-     *     execution-level inputs the consumer's ``build_execution_meta`` reads.
-     *
-     *     :param executor_host: The hostname of the executor that will run the script.
-     *     :param sudo: Whether to invoke the script with sudo. The consumer's
-     *         ``build_execution_meta`` decides whether the script honours it.
-     *     :param args: Per-parameter arguments keyed by parameter name, validated
-     *         against the script's dynamic execution model.
-     */
-    ScriptExecuteWrite: {
-      /**
-       * Args
-       * @default {}
-       */
-      args: Record<string, never>;
-      /** Executor Host */
-      executor_host: string;
-      /**
-       * Sudo
-       * @default false
-       */
-      sudo: boolean;
-    };
-    /**
-     * ScriptExecutionResponse
-     * @description Represent the response from the script execute endpoint.
-     *
-     *     :param task_name: The Tasks-API task name the script executed under.
-     *     :param task_id: The id of the task-history row the Tasks API created, when the
-     *         upstream response carries one.
-     *     :param snippet_filename: The filename of the executed script.
-     */
-    ScriptExecutionResponse: {
-      /** Snippet Filename */
-      snippet_filename: string;
-      /** Task Id */
-      task_id?: number | null;
-      /** Task Name */
-      task_name: string;
-    };
-    /**
-     * ScriptPreviewField
-     * @description Represent a read-only field that renders a backend-fetched script preview.
-     *
-     *     The renderer fetches ``endpoint_url`` on mount, and re-fetches whenever
-     *     any sibling field listed in ``depends_on`` changes value (debounced and
-     *     cancellation-safe). The response shape is
-     *     ``{content: str, language: str, is_truncated: bool}``.
-     *
-     *     :param field_type: The discriminator literal; always
-     *         ``"script_preview"`` for this class. Serialised as the JSON key
-     *         ``"type"``.
-     *     :type field_type: Literal["script_preview"]
-     *     :param endpoint_url: The fully-resolved URL the renderer fetches preview
-     *         content from, relative to the FE ``apiClient`` base (``/api``). Schema
-     *         synthesisers should bake any plugin-specific path segments (for
-     *         example, ``/apps/snippets/{filename}/preview``) here at
-     *         schema build time rather than templating client-side.
-     *     :type endpoint_url: NonEmptyStr
-     *     :param depends_on: Names of sibling fields whose values trigger a
-     *         re-fetch when changed. Empty (the default) means fetch once on
-     *         mount.
-     *     :type depends_on: list[NonEmptyStr]
-     *     :param language: Optional default highlighter language hint used when
-     *         the backend response omits ``language``. Defaults to ``None``.
-     *     :type language: NonEmptyStr | None
-     */
-    ScriptPreviewField: {
-      /** Default */
-      default?: unknown | null;
-      /** Depends On */
-      depends_on?: string[];
-      /** Description */
-      description?: string | null;
-      /** Endpoint Url */
-      endpoint_url: string;
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /** Label */
-      label: string;
-      /** Language */
-      language?: string | null;
-      /** Name */
-      name: string;
-      /**
-       * Required
-       * @default false
-       */
-      required: boolean;
-      /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'script_preview';
-    };
-    /**
-     * ScriptPreviewResponse
-     * @description Represent the backend response for the preview endpoint.
-     *
-     *     :param content: The full text content of the snippet file (preamble,
-     *         frontmatter, and body concatenated).
-     *     :type content: str
-     *     :param language: A JS syntax-highlighter language identifier derived
-     *         from the snippet's MIME type (for example, ``"bash"`` or
-     *         ``"plaintext"``).
-     *     :type language: str
-     *     :param is_truncated: Whether the preview was truncated to fit
-     *         within the configured per-file character or line limit.
-     *     :type is_truncated: bool
-     */
-    ScriptPreviewResponse: {
-      /** Content */
-      content: string;
-      /** Is Truncated */
-      is_truncated: boolean;
-      /** Language */
-      language: string;
-    };
-    /**
-     * ServiceField
-     * @description Represent an inventory service selector field.
-     *
-     *     :param field_type: The discriminator literal; always ``"service"`` for
-     *         this class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["service"]
-     *     :param service_types: The list of service types the selector should offer
-     *         (for example, ``[ServiceTypeEnum.MYSQL]``).
-     *     :type service_types: list[ServiceTypeEnum]
-     *     :param allow_custom: Opt-in capability flag declaring that a consuming
-     *         renderer may offer free-text (free-solo) entry in addition to the
-     *         inventory options. Optional, defaulting to ``None`` (options only).
-     *         Typed ``bool | None`` so the discovery endpoint's ``exclude_none``
-     *         posture drops it from the wire until a plugin opts in, keeping the
-     *         addition byte-compatible with existing schemas. The built-in
-     *         SchemaFormRenderer does not yet consume the flag; the free-solo
-     *         widget that reads it ships with the consuming plugin.
-     *     :type allow_custom: bool | None
-     */
-    ServiceField: {
-      /** Allow Custom */
-      allow_custom?: boolean | null;
-      /** Default */
-      default?: unknown | null;
-      /** Description */
-      description?: string | null;
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /** Label */
-      label: string;
-      /** Name */
-      name: string;
-      /**
-       * Required
-       * @default false
-       */
-      required: boolean;
-      /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
-      /** Service Types */
-      service_types: components['schemas']['ServiceTypeEnum'][];
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'service';
-    };
+    ServiceEnum: 'pmm' | 'inventory' | 'tasks' | 'nomad';
     /**
      * ServiceResponse
      * @description Define the service API response.
@@ -6891,8 +3946,8 @@ export interface components {
      *
      *     The wired classes are ``SEPSettings``, ``TasksSettings``,
      *     ``SnippetsSettings``, ``MessagesSettings``, the global ``Settings``,
-     *     ``AlertSettings`` and ``AnonymizerSettings``. ``InventorySettings`` is
-     *     intentionally NOT here -- wrapping it is deferred to a follow-up ticket.
+     *     ``AlertSettings``, ``AlertsSettings``, ``AnonymizerSettings`` and
+     *     ``InventorySettings``.
      *
      *     To wire a new settings class:
      *
@@ -6915,7 +3970,9 @@ export interface components {
       | 'MessagesSettings'
       | 'Settings'
       | 'AlertSettings'
-      | 'AnonymizerSettings';
+      | 'AnonymizerSettings'
+      | 'AlertsSettings'
+      | 'InventorySettings';
     /**
      * SettingClassGroup
      * @description One settings-class group in the LIST response.
@@ -6925,8 +3982,33 @@ export interface components {
      *     :param settings: The fields declared on the settings class, with their
      *         current values and metadata.
      *     :type settings: list[SettingResponse]
+     *     :param is_app_owned: Whether this group belongs to a SEP app under
+     *         ``app/sep/apps/`` rather than core SEP wiring.
+     *     :type is_app_owned: bool
+     *     :param app_id: The owning app's registry key when ``is_app_owned`` is
+     *         ``True``; ``None`` for core groups.
+     *     :type app_id: str | None
+     *     :param app_display_name: The owning app's human-facing label when
+     *         ``is_app_owned`` is ``True``; ``None`` for core groups.
+     *     :type app_display_name: str | None
+     *     :param app_enabled: Whether the owning app is currently enabled when
+     *         ``is_app_owned`` is ``True``; ``None`` for core groups. Disabled
+     *         apps remain listed so the frontend can hide them without a second
+     *         lookup.
+     *     :type app_enabled: bool | None
      */
     SettingClassGroup: {
+      /** App Display Name */
+      app_display_name?: string | null;
+      /** App Enabled */
+      app_enabled?: boolean | null;
+      /** App Id */
+      app_id?: string | null;
+      /**
+       * Is App Owned
+       * @default false
+       */
+      is_app_owned: boolean;
       setting_class: components['schemas']['SettingClassEnum'];
       /** Settings */
       settings: components['schemas']['SettingResponse'][];
@@ -6936,39 +4018,32 @@ export interface components {
      * @description Represent a single setting's metadata and current value.
      *
      *     :param setting_class: The settings class the field belongs to.
-     *     :type setting_class: SettingClassEnum
      *     :param key: The field name on the settings class.
-     *     :type key: str
      *     :param key_path: Carry the canonical key segments for ``key`` such that
      *         ``"__".join(key_path) == key``.
-     *     :type key_path: list[str]
      *     :param value: The current value visible through the proxy, dumped to a
      *         JSON-safe shape via the field's annotation. ``SecretStr`` fields are
      *         redacted to ``"**********"``.
-     *     :type value: Any
      *     :param default_value: The field's declared default value, dumped via the
      *         same JSON serialiser. ``None`` when no default exists.
-     *     :type default_value: Any
      *     :param type: A human-readable representation of the field's declared
      *         annotation (for operator visibility; validation uses the actual
      *         ``FieldInfo``).
-     *     :type type: str
      *     :param reload: The reload classification (HOT or NOT_OVERRIDABLE).
-     *     :type reload: ReloadClassification
      *     :param description: The field's free-text description, or ``None``.
-     *     :type description: str | None
      *     :param is_secret: Whether the field's annotation contains a Pydantic secret
      *         (``SecretStr`` / ``SecretBytes``) at any depth.
-     *     :type is_secret: bool
      *     :param is_complex: Whether the field's annotation is or contains a Pydantic
      *         ``BaseModel`` subclass (true for nested submodels).
-     *     :type is_complex: bool
      *     :param has_override: Whether a row exists in the ``settingoverride`` table
      *         for this ``(setting_class, key)`` pair, regardless of ``is_active``.
-     *     :type has_override: bool
      *     :param is_advanced: Whether the setting is flagged ``advanced`` so the UI can
      *         present it separately from everyday settings. Display-only:
      *         it does not affect PATCH/DELETE eligibility.
+     *     :param is_applicable: Whether the setting applies under current runtime state
+     *         (e.g. the active auth provider). ``False`` lets the UI present the field
+     *         as inert. Display-only, like ``is_advanced``: it does not block
+     *         PATCH/DELETE server-side; the runtime gate is the real enforcement.
      */
     SettingResponse: {
       /** Default Value */
@@ -6982,6 +4057,11 @@ export interface components {
        * @default false
        */
       is_advanced: boolean;
+      /**
+       * Is Applicable
+       * @default true
+       */
+      is_applicable: boolean;
       /** Is Complex */
       is_complex: boolean;
       /** Is Secret */
@@ -7022,17 +4102,26 @@ export interface components {
       [key: string]: components['schemas']['JsonValue'];
     };
     /**
+     * SnippetApprovalFilter
+     * @description Enumerate the approval-status filter selections.
+     *
+     *     :cvar ALL: Do not filter on approval status.
+     *     :cvar APPROVED: Keep only approved snippets (``approved_at IS NOT NULL``).
+     *     :cvar NOT_APPROVED: Keep only unapproved snippets (``approved_at IS NULL``).
+     * @enum {string}
+     */
+    SnippetApprovalFilter: 'all' | 'approved' | 'not_approved';
+    /**
      * SnippetBatchApproveRequest
      * @description Represent the JSON body for ``PATCH /api/apps/snippets/approvals``.
      *
-     *     Unlike the Form-bound :class:`~app.sep.apps.snippets.deps.SnippetBatchApproveForm`
+     *     Unlike the Form-bound :class:`~app.sep.snippets.deps.SnippetBatchApproveForm`
      *     twin this is a plain Pydantic body — no ``Form()`` annotations — so FastAPI
      *     parses it as JSON.
      *
      *     :param filenames: Unique, non-empty list of snippet filenames to approve in a
      *         single atomic operation. Duplicates are silently deduplicated by
      *         ``UniqueList``.
-     *     :type filenames: UniqueList[NonEmptyStr]
      */
     SnippetBatchApproveRequest: {
       /** Filenames */
@@ -7051,6 +4140,11 @@ export interface components {
      *     :param description: The snippet's free-text description, or an empty
      *         string when no description is set in metadata.
      *     :type description: str
+     *     :param service_type: The snippet's free-form service type
+     *         (``service_type`` metadata field, for example ``"mysql"`` or
+     *         ``"mongodb"``), or ``None`` when the snippet declares no service
+     *         type. Distinct from the inventory ``ServiceTypeEnum``.
+     *     :type service_type: str | None
      *     :param size: Snippet file size in bytes.
      *     :type size: int
      *     :param md5_digest: 32-character MD5 hex digest of the snippet file.
@@ -7107,6 +4201,8 @@ export interface components {
       reason: string;
       /** Requires Sudo */
       requires_sudo: boolean;
+      /** Service Type */
+      service_type?: string | null;
       /** Size */
       size: number;
       /** Sudo Default */
@@ -7120,6 +4216,52 @@ export interface components {
       /** Updated By */
       updated_by?: string | null;
     };
+    /**
+     * SnippetServiceTypesResponse
+     * @description Carry the whole-dataset service-type facet for the list filter.
+     *
+     *     Sourced across every snippet (not the loaded page) so the list page's
+     *     service-type dropdown can offer every value the dataset contains.
+     *
+     *     :param service_types: The sorted distinct non-blank service types.
+     *     :param has_uncategorized: Whether any snippet has an absent or blank service
+     *         type (surfaced as the "Uncategorized" filter option).
+     */
+    SnippetServiceTypesResponse: {
+      /** Has Uncategorized */
+      has_uncategorized: boolean;
+      /** Service Types */
+      service_types: string[];
+    };
+    /**
+     * SnippetSortDirection
+     * @description Enumerate the sort direction.
+     *
+     *     :cvar ASC: Ascending order.
+     *     :cvar DESC: Descending order.
+     * @enum {string}
+     */
+    SnippetSortDirection: 'asc' | 'desc';
+    /**
+     * SnippetSortKey
+     * @description Enumerate the allowlisted public sort keys.
+     *
+     *     Membership is the type: an out-of-allowlist key fails to coerce at the
+     *     request boundary, so no raw client-supplied column name can reach a query.
+     *
+     *     :cvar CREATED_AT: Sort by the ``created_at`` column.
+     *     :cvar FILENAME: Sort by the ``filename`` column.
+     *     :cvar APPROVED_AT: Sort by the ``approved_at`` column.
+     *     :cvar TITLE: Sort by the ``meta.title`` JSON value.
+     *     :cvar SERVICE_TYPE: Sort by the ``meta.service_type`` JSON value.
+     * @enum {string}
+     */
+    SnippetSortKey:
+      | 'created_at'
+      | 'filename'
+      | 'approved_at'
+      | 'title'
+      | 'service_type';
     /**
      * SnippetsCapabilitiesResponse
      * @description Represent per-deployment capability flags for the Snippets plugin.
@@ -7143,41 +4285,6 @@ export interface components {
       manual_sync_enabled: boolean;
     };
     /**
-     * SourceByQuery
-     * @description Represent a custom-query source selection.
-     *
-     *     :param mode: The one-of discriminator (``"query"``).
-     *     :param source_query: The query defining the rows to archive.
-     */
-    SourceByQuery: {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      mode: 'query';
-      /** Source Query */
-      source_query: string;
-    };
-    /**
-     * SourceByTable
-     * @description Represent a schema+table source selection (collapsed free-solo references).
-     *
-     *     :param mode: The one-of discriminator (``"table"``).
-     *     :param source_db: The source schema — an inventory id or a free-typed name.
-     *     :param source_table: The source table — an inventory id or a free-typed name.
-     */
-    SourceByTable: {
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      mode: 'table';
-      /** Source Db */
-      source_db: number | string;
-      /** Source Table */
-      source_table: number | string;
-    };
-    /**
      * SourceEnum
      * @description Enumeration of possible data sources for a node.
      *
@@ -7187,111 +4294,6 @@ export interface components {
      * @enum {string}
      */
     SourceEnum: 'pmm';
-    /**
-     * StringField
-     * @description Represent a single-line string input field.
-     *
-     *     :param field_type: The discriminator literal; always ``"string"`` for this
-     *         class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["string"]
-     *     :param min_length: Optional minimum character length. Defaults to
-     *         ``None``.
-     *     :type min_length: int | None
-     *     :param max_length: Optional maximum character length. Defaults to
-     *         ``None``.
-     *     :type max_length: int | None
-     *     :param pattern: Optional regular expression the value must match.
-     *         Defaults to ``None``.
-     *     :type pattern: NonEmptyStr | None
-     *     :param placeholder: Optional placeholder text displayed when the field is
-     *         empty. Defaults to ``None``.
-     *     :type placeholder: NonEmptyStr | None
-     */
-    StringField: {
-      /** Default */
-      default?: unknown | null;
-      /** Description */
-      description?: string | null;
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /** Label */
-      label: string;
-      /** Max Length */
-      max_length?: number | null;
-      /** Min Length */
-      min_length?: number | null;
-      /** Name */
-      name: string;
-      /** Pattern */
-      pattern?: string | null;
-      /** Placeholder */
-      placeholder?: string | null;
-      /**
-       * Required
-       * @default false
-       */
-      required: boolean;
-      /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'string';
-    };
-    /**
-     * TableField
-     * @description Represent an inventory table selector field.
-     *
-     *     ``depends_on`` is a forward reference to another field's ``name`` in the
-     *     same plugin schema (typically a ``SchemaField``); the React renderer
-     *     cascades table options from the selected schema. The referenced field
-     *     is not validated at the schema level.
-     *
-     *     :param field_type: The discriminator literal; always ``"table"`` for this
-     *         class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["table"]
-     *     :param depends_on: The name of the field whose value drives the list of
-     *         available tables.
-     *     :type depends_on: NonEmptyStr
-     *     :param allow_custom: Opt-in capability flag declaring that a consuming
-     *         renderer may offer free-text (free-solo) entry in addition to the
-     *         cascaded inventory options. Optional, defaulting to ``None`` (options
-     *         only). Typed ``bool | None`` so the discovery endpoint's
-     *         ``exclude_none`` posture drops it from the wire until a plugin opts
-     *         in, keeping the addition byte-compatible with existing schemas. The
-     *         built-in SchemaFormRenderer does not yet consume the flag; the
-     *         free-solo widget that reads it ships with the consuming plugin.
-     *     :type allow_custom: bool | None
-     */
-    TableField: {
-      /** Allow Custom */
-      allow_custom?: boolean | null;
-      /** Default */
-      default?: unknown | null;
-      /** Depends On */
-      depends_on: string;
-      /** Description */
-      description?: string | null;
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /** Label */
-      label: string;
-      /** Name */
-      name: string;
-      /**
-       * Required
-       * @default false
-       */
-      required: boolean;
-      /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'table';
-    };
     /**
      * TaskBackendEnum
      * @description Control the choice of backends.
@@ -7305,50 +4307,6 @@ export interface components {
      * @enum {string}
      */
     TaskBackendEnum: 'nomad' | 'proxy' | 'celery';
-    /**
-     * TaskDetailResponse
-     * @description Represent the aggregate payload for ``GET /api/apps/tasks/{task_name}``.
-     *
-     *     Bundle the task definition, execution history, periodic schedules, and
-     *     executor host metadata into a single response for the React detail page.
-     *
-     *     :param task: The task definition as returned by the tasks API.
-     *     :type task: TaskResponse
-     *     :param execution_history: Paginated task history from the tasks API
-     *         (``items``, ``total``, ``offset``, ``limit``).
-     *     :type execution_history: dict[str, Any]
-     *     :param periodic_summary: Read-only summaries of periodic schedules
-     *         attached to this task.
-     *     :type periodic_summary: list[PeriodicTaskSummary]
-     *     :param executor_hosts: Executor hosts available for display, with
-     *         inventory-resolved labels when possible.
-     *     :type executor_hosts: list[ExecutorHostMetadata]
-     */
-    TaskDetailResponse: {
-      /** Execution History */
-      execution_history?: Record<string, never>;
-      /** Executor Hosts */
-      executor_hosts?: components['schemas']['ExecutorHostMetadata'][];
-      /** Periodic Summary */
-      periodic_summary?: components['schemas']['PeriodicTaskSummary'][];
-      task: components['schemas']['TaskResponse'];
-    };
-    /**
-     * TaskExecuteWrite
-     * @description Represent the default JSON request body for executing a task.
-     *
-     *     :param eta: Optional future datetime to schedule execution.
-     *     :param chain_task_names: Optional list of task names to chain after this one.
-     *     :param chain_on_failure: Whether to run chained tasks even on failure.
-     */
-    TaskExecuteWrite: {
-      /** Chain On Failure */
-      chain_on_failure?: boolean | null;
-      /** Chain Task Names */
-      chain_task_names?: string[] | null;
-      /** Eta */
-      eta?: string | null;
-    };
     /**
      * TaskExecutionRequest
      * @description Represent an execution request.
@@ -7387,19 +4345,6 @@ export interface components {
       tracking: Record<string, never> | null;
     } & {
       [key: string]: unknown;
-    };
-    /**
-     * TaskExecutionResponse
-     * @description Represent the default response from a task execute route.
-     *
-     *     :param task_name: The name of the task that was executed.
-     *     :param task_id: The id of the task-history row created by the tasks API.
-     */
-    TaskExecutionResponse: {
-      /** Task Id */
-      task_id?: number | null;
-      /** Task Name */
-      task_name: string;
     };
     /**
      * TaskHistoryResponse
@@ -7509,98 +4454,33 @@ export interface components {
       | 'lost'
       | 'stale';
     /**
-     * TaskListResponse
-     * @description Represent one task row in the read-only tasks plugin list API.
-     *
-     *     :param name: The unique name of the task.
-     *     :type name: str
-     *     :param backend: The backend system used for task execution.
-     *     :type backend: TaskBackendEnum
-     *     :param created_at: When the task was created, or ``None`` if unavailable.
-     *     :type created_at: UTCDatetime | None
-     *     :param created_by: Display name for the task creator (Casdoor username when
-     *         resolvable, otherwise the stored user id), or ``None`` if unknown.
-     *     :type created_by: str | None
-     *     :param last_updated_by: Display name for the user who last updated the
-     *         task (Casdoor username when resolvable, otherwise the stored user id),
-     *         or ``None`` if unknown.
-     *     :type last_updated_by: str | None
-     */
-    TaskListResponse: {
-      backend: components['schemas']['TaskBackendEnum'];
-      /** Created At */
-      created_at?: string | null;
-      /** Created By */
-      created_by?: string | null;
-      /** Last Updated By */
-      last_updated_by?: string | null;
-      /** Name */
-      name: string;
-    };
-    /**
-     * TaskOwner
-     * @description Control the choice of task owners.
-     *
-     *     :cvar ANY: Value for tasks without owner restrictions.
-     *     :vartype ANY: str
-     *     :cvar ALTERS: Value for schema change tasks.
-     *     :vartype ALTERS: str
-     *     :cvar ARCHIVER: Value for data archiver tasks.
-     *     :vartype ARCHIVER: str
-     *     :cvar BACKUPS: Value for backup tasks.
-     *     :vartype BACKUPS: str
-     *     :cvar RESTORES: Value for restore tasks.
-     *     :vartype RESTORES: str
-     *     :cvar CHECKSUMS: Value for checksum tasks.
-     *     :vartype CHECKSUMS: str
-     * @enum {string}
-     */
-    TaskOwner:
-      | 'ANY'
-      | 'ALTERS'
-      | 'ARCHIVER'
-      | 'BACKUPS'
-      | 'RESTORES'
-      | 'CHECKSUMS'
-      | 'BACKUP_MONGO'
-      | 'RESTORE_MONGO'
-      | 'BACKUP_PG';
-    /**
      * TaskResponse
      * @description Represent a task API response.
      *
      *     :param name: The name of the task.
-     *     :type name: str
      *     :param data: The task data stored in JSON format.
-     *     :type data: dict
      *     :param backend: The backend used for task execution. Defaults to Nomad.
-     *     :type backend: TaskBackendEnum
-     *     :param owner: The owner of the task. Defaults to TaskOwner.ANY.
-     *     :type owner: TaskOwner
+     *     :param owner: The owner of the task. Defaults to ``"ANY"``.
      *     :param is_template: Whether the task is a template. Defaults to False.
-     *     :type is_template: bool
      *     :param protected: Whether the task is protected from deletion. Defaults to False.
-     *     :type protected: bool
      *     :param alert_on_fail: Whether to trigger an alert on task failure and
      *         auto-resolve it on subsequent success. Defaults to False.
-     *     :type alert_on_fail: bool
      *     :param alert_detail_builder: The ``"module:function"`` path of a plugin
      *         callable that enriches this task's failure alert, or None.
-     *     :type alert_detail_builder: str | None
+     *     :param run_result_recorder: The ``"module:function"`` path of a plugin
+     *         callable that records this task's structured run result at terminal
+     *         status, or None.
+     *     :param output_files_path: The allocation-relative path where output files
+     *         generated by the task are expected, or None.
      *     :param deleted_at: The deletion timestamp, if applicable.
-     *     :type deleted_at: UTCDatetime | None
      *     :param anonymize_mask: The bitmask representing PII entities to be anonymized in
      *         logs and files generated by the task. Defaults to 0 (no anonymization).
-     *     :type anonymize_mask: int | None
      *     :param created_by: The user ID of the user who created the task.
-     *     :type created_by: str | None
      *     :param last_updated_by: The user ID of the user who last modified the task.
-     *     :type last_updated_by: str | None
      *     :param anonymized_entities: Sorted list of PII entity names derived from
      *         ``anonymize_mask`` (or from the owner's configured defaults when the
      *         mask is ``None``). Each name is the raw ``PIIEntity`` member name
      *         (e.g. ``"EMAIL_ADDRESS"``). Read-only; computed on serialisation.
-     *     :type anonymized_entities: list[str]
      */
     TaskResponse: {
       /** Alert Detail Builder */
@@ -7641,6 +4521,8 @@ export interface components {
       last_updated_by: string | null;
       /** Name */
       name: string;
+      /** Output Files Path */
+      output_files_path?: string | null;
       /**
        * Owner
        * @default ANY
@@ -7651,56 +4533,11 @@ export interface components {
        * @default false
        */
       protected: boolean;
+      /** Run Result Recorder */
+      run_result_recorder?: string | null;
       /** Updated At */
       updated_at?: string | null;
     };
-    /**
-     * TextAreaField
-     * @description Represent a multi-line string input field.
-     *
-     *     :param field_type: The discriminator literal; always ``"textarea"`` for
-     *         this class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["textarea"]
-     *     :param rows: Optional number of visible text rows. Defaults to ``None``.
-     *     :type rows: int | None
-     *     :param placeholder: Optional placeholder text displayed when the field is
-     *         empty. Defaults to ``None``.
-     *     :type placeholder: NonEmptyStr | None
-     */
-    TextAreaField: {
-      /** Default */
-      default?: unknown | null;
-      /** Description */
-      description?: string | null;
-      /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
-      /** Label */
-      label: string;
-      /** Name */
-      name: string;
-      /** Placeholder */
-      placeholder?: string | null;
-      /**
-       * Required
-       * @default false
-       */
-      required: boolean;
-      /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
-      /** Rows */
-      rows?: number | null;
-      /**
-       * @description discriminator enum property added by openapi-typescript
-       * @enum {string}
-       */
-      type: 'textarea';
-    };
-    /**
-     * UploadProvider
-     * @description Upload providers.
-     * @enum {string}
-     */
-    UploadProvider: 'rsync' | 's3' | 'gsutil';
     /** ValidationError */
     ValidationError: {
       /** Context */
@@ -7715,11 +4552,3999 @@ export interface components {
       type: string;
     };
     /**
-     * XtraBackupTool
-     * @description Allowed commands for XtraBackup-style restores.
+     * AlertDetailResponse
+     * @description Wrap the response for the alert detail endpoint.
+     *
+     *     :param alert: The alert metadata.
+     *     :type alert: AlertInfo
+     *     :param snippets: Snippets associated with this alert.
+     *     :type snippets: list[SnippetResponse]
+     */
+    alert_troubleshooting__AlertDetailResponse: {
+      alert: components['schemas']['alert_troubleshooting__AlertInfo'];
+      /** Snippets */
+      snippets: components['schemas']['SnippetResponse'][];
+    };
+    /**
+     * AlertGroup
+     * @description Group alerts sharing a service type.
+     *
+     *     :param service_type: The service type enum value.
+     *     :type service_type: AlertServiceType
+     *     :param label: Human-readable label for the service type.
+     *     :type label: str
+     *     :param alerts: Alerts belonging to this group.
+     *     :type alerts: list[AlertSummary]
+     */
+    alert_troubleshooting__AlertGroup: {
+      /** Alerts */
+      alerts: components['schemas']['alert_troubleshooting__AlertSummary'][];
+      /** Label */
+      label: string;
+      service_type: components['schemas']['AlertServiceType'];
+    };
+    /**
+     * AlertInfo
+     * @description Represent a normalized alert entry with its identifier and display label.
+     *
+     *     Accept a plain string identifier, a dict with ``name`` (required) and
+     *     optional ``label`` and ``service_type``, or keyword arguments.  Invalid
+     *     inputs raise ``ValidationError``.  The ``service_type`` field is optional
+     *     and, when absent, callers fall back to the snippet-level ``service_type``.
+     *
+     *     :param name: The alert identifier as declared in snippet frontmatter.
+     *     :type name: NonEmptyStr
+     *     :param label: The human-readable display label for the alert.
+     *     :type label: str
+     *     :param service_type: The service type the alert applies to, overriding
+     *         the snippet-level ``service_type``.  ``None`` means "fall back to the
+     *         snippet-level value".
+     *     :type service_type: AlertServiceType | None
+     */
+    alert_troubleshooting__AlertInfo: {
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      service_type?: components['schemas']['AlertServiceType'] | null;
+    };
+    /**
+     * AlertSummary
+     * @description Represent a minimal alert for the listing endpoint.
+     *
+     *     :param name: The alert identifier.
+     *     :type name: str
+     *     :param label: The human-readable display label.
+     *     :type label: str
+     */
+    alert_troubleshooting__AlertSummary: {
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+    };
+    /**
+     * BackupDetail
+     * @description Describe the full detail response for a single backup.
+     *
+     *     :param id: Primary key of the backup row.
+     *     :param created_at: UTC timestamp the backup was written.
+     *     :param templates: Templates captured in the backup.
+     *     :param rules: Rules captured in the backup.
+     *     :param contact_points: Contact points captured in the backup.
+     *     :param folders: Folders captured in the backup.
+     *     :param notification_policy_receiver: Top-level receiver from the captured
+     *         notification policy, or ``None`` when no policy was captured.
+     */
+    alerts__BackupDetail: {
+      /** Contact Points */
+      contact_points: components['schemas']['alerts__BackupDetailContactPoint'][];
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Folders */
+      folders: components['schemas']['alerts__BackupDetailFolder'][];
+      /** Id */
+      id: number;
+      /** Notification Policy Receiver */
+      notification_policy_receiver: string | null;
+      /** Rules */
+      rules: components['schemas']['alerts__BackupDetailRule'][];
+      /** Templates */
+      templates: components['schemas']['alerts__BackupDetailTemplate'][];
+    };
+    /**
+     * BackupDetailContactPoint
+     * @description Represent a contact-point entry inside a backup snapshot.
+     *
+     *     :param name: The contact point name.
+     *     :param type: The contact point type (e.g. ``"pagerduty"``).
+     */
+    alerts__BackupDetailContactPoint: {
+      /** Name */
+      name: string;
+      /** Type */
+      type: string;
+    };
+    /**
+     * BackupDetailFolder
+     * @description Represent a folder entry inside a backup snapshot.
+     *
+     *     :param title: The folder title.
+     */
+    alerts__BackupDetailFolder: {
+      /** Title */
+      title: string;
+    };
+    /**
+     * BackupDetailRule
+     * @description Represent a rule entry inside a backup snapshot.
+     *
+     *     :param title: The rule title.
+     */
+    alerts__BackupDetailRule: {
+      /** Title */
+      title: string;
+    };
+    /**
+     * BackupDetailTemplate
+     * @description Represent a template entry inside a backup snapshot.
+     *
+     *     :param name: The template name.
+     *     :param summary: The template summary blurb.
+     */
+    alerts__BackupDetailTemplate: {
+      /** Name */
+      name: string;
+      /** Summary */
+      summary: string;
+    };
+    /**
+     * BackupSummary
+     * @description Represent a compact backup row used by the list endpoint.
+     *
+     *     :param id: Primary key of the backup row.
+     *     :param created_at: UTC timestamp the backup was written.
+     *     :param metadata: Summary counts persisted alongside the backup snapshot.
+     */
+    alerts__BackupSummary: {
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Id */
+      id: number;
+      /** Metadata */
+      metadata: Record<string, never>;
+    };
+    /**
+     * IndexBackupSummary
+     * @description Represent a compact backup row for the index "recent backups" widget.
+     *
+     *     Leaner than :class:`BackupSummary` (no ``metadata``): the list page only
+     *     renders the id and timestamp, so the index payload omits the summary counts.
+     *
+     *     :param id: Primary key of the backup row.
+     *     :param created_at: UTC timestamp the backup was written.
+     */
+    alerts__IndexBackupSummary: {
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Id */
+      id: number;
+    };
+    /**
+     * IndexPagerDutyStatus
+     * @description Describe the PagerDuty contact-point status on the index page.
+     *
+     *     :param configured: ``True`` when a SEP PagerDuty contact point exists in PMM.
+     *     :param uid: The contact point UID when configured, otherwise ``None``.
+     */
+    alerts__IndexPagerDutyStatus: {
+      /** Configured */
+      configured: boolean;
+      /** Uid */
+      uid?: string | null;
+    };
+    /**
+     * IndexResponse
+     * @description Describe the response body for ``GET /api/apps/alerts/``.
+     *
+     *     Aggregate everything the React list page needs in a single call: the alert
+     *     templates grouped by service type, whether PMM is reachable, the PagerDuty
+     *     contact-point status, and the most recent backups.
+     *
+     *     :param groups: Alert templates grouped by service type. Only service types
+     *         with at least one template are included.
+     *     :param pmm_connected: ``True`` when PMM is configured and reachable.
+     *     :param pagerduty: The PagerDuty status, or ``None`` when PMM is unreachable.
+     *     :param recent_backups: The most recent alert backups, newest first.
+     */
+    alerts__IndexResponse: {
+      /** Groups */
+      groups: components['schemas']['alerts__IndexTemplateGroup'][];
+      pagerduty: components['schemas']['alerts__IndexPagerDutyStatus'] | null;
+      /** Pmm Connected */
+      pmm_connected: boolean;
+      /** Recent Backups */
+      recent_backups: components['schemas']['alerts__IndexBackupSummary'][];
+    };
+    /**
+     * IndexTemplate
+     * @description Represent a single alert template row on the index page.
+     *
+     *     :param name: The display name of the alert template.
+     *     :param service_type: The service category this template applies to.
+     *     :param expression: The PromQL expression backing the alert.
+     *     :param default_threshold: The default numeric threshold for the UI.
+     *     :param severity: The severity level (``"info"``, ``"warning"``, ``"critical"``).
+     *     :param description: A human-readable description of the alert.
+     *     :param summary: A short summary template for notifications.
+     *     :param in_pmm: ``True`` when a template of this name is already present in PMM.
+     */
+    alerts__IndexTemplate: {
+      /** Default Threshold */
+      default_threshold: number;
+      /** Description */
+      description: string;
+      /** Expression */
+      expression: string;
+      /** In Pmm */
+      in_pmm: boolean;
+      /** Name */
+      name: string;
+      /** Service Type */
+      service_type: string;
+      /** Severity */
+      severity: string;
+      /** Summary */
+      summary: string;
+    };
+    /**
+     * IndexTemplateGroup
+     * @description Group index templates by service type.
+     *
+     *     :param service_type: The service type identifier (e.g. ``"mysql"``).
+     *     :param label: The human-readable service type label (e.g. ``"MySQL"``).
+     *     :param templates: The templates belonging to this service type.
+     */
+    alerts__IndexTemplateGroup: {
+      /** Label */
+      label: string;
+      /** Service Type */
+      service_type: string;
+      /** Templates */
+      templates: components['schemas']['alerts__IndexTemplate'][];
+    };
+    /**
+     * PagerDutyRequest
+     * @description Describe the request body for ``POST /api/apps/alerts/pagerduty``.
+     *
+     *     :param integration_key: The PagerDuty integration key. Must be non-empty
+     *         after stripping whitespace.
+     */
+    alerts__PagerDutyRequest: {
+      /** Integration Key */
+      integration_key: string;
+    };
+    /**
+     * PagerDutyResponse
+     * @description Describe the response body for the PagerDuty save / delete endpoints.
+     *
+     *     :param status: ``"created"``, ``"updated"`` (save) or ``"deleted"`` (delete).
+     */
+    alerts__PagerDutyResponse: {
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: 'created' | 'updated' | 'deleted';
+    };
+    /** PaginatedResponse[BackupSummary] */
+    alerts__PaginatedResponse_BackupSummary_: {
+      /** Items */
+      items: components['schemas']['alerts__BackupSummary'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /**
+     * PushItemResult
+     * @description Represent a per-template result row returned by the push endpoint.
+     *
+     *     :param name: The template name the result applies to.
+     *     :param status: One of ``"success"``, ``"skipped"``, ``"error"``.
+     *     :param message: A human-readable description of the outcome.
+     */
+    alerts__PushItemResult: {
+      /** Message */
+      message: string;
+      /** Name */
+      name: string;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: 'success' | 'skipped' | 'error';
+    };
+    /**
+     * PushRequest
+     * @description Describe the request body for ``POST /api/apps/alerts/push``.
+     *
+     *     :param selected_templates: Names of templates to push to PMM. Must be a
+     *         non-empty list of non-empty strings.
+     */
+    alerts__PushRequest: {
+      /** Selected Templates */
+      selected_templates: string[];
+    };
+    /**
+     * PushResponse
+     * @description Wrap the per-template results returned by the push endpoint.
+     *
+     *     :param results: One :class:`PushItemResult` per template in the request.
+     */
+    alerts__PushResponse: {
+      /** Results */
+      results: components['schemas']['alerts__PushItemResult'][];
+    };
+    /**
+     * RestoreRequest
+     * @description Describe the request body for ``POST /api/apps/alerts/restore``.
+     *
+     *     :param backup_id: Primary key of the :class:`~app.sep.apps.alerts.models.AlertBackup`
+     *         row to restore from. Must be a positive integer.
+     */
+    alerts__RestoreRequest: {
+      /** Backup Id */
+      backup_id: number;
+    };
+    /**
+     * RestoreResponse
+     * @description Wrap the summary returned by the restore endpoint.
+     *
+     *     :param status: ``"success"`` on a complete restore.
+     *     :param details: Per-section restore counts as returned by
+     *         :func:`~app.sep.apps.alerts.restore.restore_from_backup`.
+     */
+    alerts__RestoreResponse: {
+      /** Details */
+      details: Record<string, never>;
+      /**
+       * Status
+       * @constant
+       * @enum {string}
+       */
+      status: 'success';
+    };
+    /**
+     * AltersCreate
+     * @description Represent the single model-first declaration of the Alters create form.
+     *
+     *     This one declaration drives the JSON create/update request body, the Jinja
+     *     ``Form()`` body, and — via
+     *     :func:`~app.sep.apps.framework.form_dsl.derive_app_schema` — the
+     *     ``GET /schema`` source. The mutual-exclusion and ``dsn`` conditional rules are
+     *     enforced by ``AppFormModel`` inheritance (the field-level ``Requires`` /
+     *     ``Forbidden`` gates plus ``__form_rules__``), not by a decorator.
+     *
+     *     The schema-display defaults for ``dsn_table`` and ``progress`` diverge from the
+     *     request-body defaults: the body defaults both to the empty string (so the
+     *     ``dsn_table`` forbidden gate passes for non-``dsn`` recursion, and an omitted
+     *     ``progress`` emits no value), while the form renders the Percona-Toolkit DSN
+     *     table and ``time,10`` via ``Ui(default=...)``.
+     *
+     *     :param task_name: The name of the task to be created.
+     *     :param hostname: The target hostname for the task execution.
+     *     :param service_id: The Inventory ID of the database service to connect to.
+     *     :param db_schema: The schema to alter — an inventory id or a free-typed name.
+     *     :param db_table: The table to alter — an inventory id or a free-typed name.
+     *     :param recursion_method: The method for handling recursion.
+     *     :param alter: The specific alter command to be executed.
+     *     :param dsn_table: The DSN table for recursion method when using ``dsn``. When
+     *         recursion is ``dsn`` and this field is omitted or empty, it defaults to
+     *         ``D=percona,t=dsns`` (Percona Toolkit convention).
+     *     :param pause_file: Execution will be paused while the file specified by this param exists.
+     *     :param new_table_name: New table name before it is swapped.
+     *     :param print_arg: Print SQL statements to STDOUT.
+     *     :param progress: Print progress reports to STDERR while copying rows.
+     *     :param no_swap_tables: Swap the original table and the new, altered table.
+     *     :param no_drop_old_table: Drop the original table after renaming it.
+     *     :param no_drop_new_table: Drop the new table if copying the original table fails.
+     *     :param no_drop_triggers: Drop triggers on the old table.
+     *     :param tries: How many times to try critical operations.
+     *     :param set_vars: Set the MySQL variables in this comma-separated list of variable=value pairs.
+     *     :param critical_load: Examine SHOW GLOBAL STATUS after every chunk, and abort if the load is too high.
+     *     :param max_load: Examine SHOW GLOBAL STATUS after every chunk, and pause if any status variables are
+     *         higher than their thresholds.
+     *     :param chunk_time: Adjust the chunk size dynamically so each data-copy query takes this long to execute.
+     *     :param max_lag: Pause the data copy until all replicas lag is less than this value.
+     *     :param max_flow_ctl: Pause when PXC flow control exceeds this value.
+     *     :param extra_args: Additional command-line arguments to append to the pt-online-schema-change command.
+     *     :param pre_checks_mysql_config_file: Path to MySQL client defaults file on the executor
+     *         (user/password): pre-checks always use this path; execute/dry-run use pt-osc's
+     *         default ~/.my.cnf unless this is set to another path, then --defaults-file is added.
+     *     :param continue_on_pre_check_failure: When True, continue to the run task even if
+     *         pre-checks fail (overrides the schema's default ``on_failure="halt"`` policy).
+     */
+    alters__AltersCreate: {
+      /**
+       * Alert On Fail
+       * @default false
+       */
+      alert_on_fail: boolean;
+      /** Alter */
+      alter: string;
+      /** Chunk Time */
+      chunk_time?: string | null;
+      /**
+       * Continue On Pre Check Failure
+       * @default false
+       */
+      continue_on_pre_check_failure: boolean;
+      /** Critical Load */
+      critical_load?: string | null;
+      /** Db Schema */
+      db_schema: number | string;
+      /** Db Table */
+      db_table: number | string;
+      /**
+       * Dsn Table
+       * @default
+       */
+      dsn_table: string;
+      /** Extra Args */
+      extra_args?: string | null;
+      /** Hostname */
+      hostname: string;
+      /** Max Flow Ctl */
+      max_flow_ctl?: string | null;
+      /** Max Lag */
+      max_lag?: string | null;
+      /** Max Load */
+      max_load?: string | null;
+      /** New Table Name */
+      new_table_name?: string | null;
+      /**
+       * No Drop New Table
+       * @default false
+       */
+      no_drop_new_table: boolean;
+      /**
+       * No Drop Old Table
+       * @default false
+       */
+      no_drop_old_table: boolean;
+      /**
+       * No Drop Triggers
+       * @default false
+       */
+      no_drop_triggers: boolean;
+      /**
+       * No Swap Tables
+       * @default false
+       */
+      no_swap_tables: boolean;
+      /** Pause File */
+      pause_file?: string | null;
+      /**
+       * Pre Checks Mysql Config File
+       * @default ~/.my.cnf
+       */
+      pre_checks_mysql_config_file: string;
+      /**
+       * Print Arg
+       * @default false
+       */
+      print_arg: boolean;
+      /**
+       * Progress
+       * @default
+       */
+      progress: string;
+      /**
+       * Recursion Method
+       * @default processlist
+       */
+      recursion_method: string;
+      /** Service Id */
+      service_id: number;
+      /** Set Vars */
+      set_vars?: string | null;
+      /** Task Name */
+      task_name: string;
+      /** Tries */
+      tries?: string | null;
+    };
+    /**
+     * AltersTaskResponse
+     * @description Represent an alters task API response for list and detail surfaces.
+     *
+     *     Add no fields of its own — the alters list/detail surface is exactly the
+     *     shared task-response surface. The create/update routes return the
+     *     :data:`AltersTaskResponseCreate` / :data:`AltersTaskResponseUpdate` models
+     *     derived from this base, which add ``connectivity_warning`` per the
+     *     framework's derived create-response standard.
+     */
+    alters__AltersTaskResponse: {
+      /** Alert On Fail */
+      alert_on_fail: boolean;
+      /** Anonymize Mask */
+      anonymize_mask?: number | null;
+      /**
+       * Anonymized Entities
+       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
+       */
+      readonly anonymized_entities: string[];
+      backend: components['schemas']['TaskBackendEnum'];
+      connectivity_warning?:
+        | components['schemas']['framework__ConnectivityWarning']
+        | null;
+      /** Created At */
+      created_at?: string | null;
+      /** Created By */
+      created_by?: string | null;
+      /** Data */
+      data: Record<string, never>;
+      /** Id */
+      id?: number | null;
+      /** Last Executed At */
+      last_executed_at?: string | null;
+      /** Last Updated By */
+      last_updated_by?: string | null;
+      /** Name */
+      name: string;
+      /** Protected */
+      protected: boolean;
+      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+      /** Updated At */
+      updated_at?: string | null;
+    };
+    /** PaginatedResponse[AltersTaskResponse] */
+    alters__PaginatedResponse_AltersTaskResponse_: {
+      /** Items */
+      items: components['schemas']['alters__AltersTaskResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /**
+     * ArchivesCreate
+     * @description Represent an Archives creation form as a model-first ``TaskFormModel``.
+     *
+     *     Source, destination, and destination-host are discriminated-union one-of groups;
+     *     the schema / table / database references are collapsed free-solo fields
+     *     (``int`` inventory id or free-typed ``str`` name). The ``task_name`` /
+     *     ``hostname`` Task-section fields and the ``alert_on_fail`` capability control
+     *     are inherited from :class:`TaskFormModel`.
+     *
+     *     :param task_name: The human-readable task name; required and non-empty
+     *         (inherited from :class:`TaskFormModel`).
+     *     :param hostname: The executor host the task runs on; required and non-empty
+     *         (inherited from :class:`TaskFormModel`).
+     *     :param service_id: The inventory id of the source MySQL service (the host whose
+     *         rows are archived; the connectivity probe targets it).
+     *     :param swap_drop: The archive type; only ``PURGE_ONLY`` is currently supported.
+     *     :param source: The source rows, by schema+table or by query.
+     *     :param destination: The destination table or file; ``None`` when ``delete_data``.
+     *     :param host: The destination host, by service or manual entry; ``None`` reuses
+     *         the source host.
+     *     :param swp_table_suffix: The swap-table date suffix (SWAP_ARCHIVE_DROP only).
+     *     :param where: The WHERE clause filtering rows; required unless SWAP_DROP.
+     *     :param use_index: An index hint to optimise the query.
+     *     :param extra_args: Additional pt-archiver CLI arguments.
+     *     :param limit: The maximum rows per archiver run.
+     *     :param sleep: The sleep duration between chunk operations (seconds).
+     *     :param disable_binlog: Whether to disable binary logging for the operation.
+     *     :param disable_bulk_insert: Whether to disable the bulk-insert optimisation.
+     *     :param delete_data: Whether to delete source rows without archiving them.
+     */
+    archives__ArchivesCreate: {
+      /**
+       * Alert On Fail
+       * @default false
+       */
+      alert_on_fail: boolean;
+      /** Delete Data */
+      delete_data?: boolean | null;
+      /** Destination */
+      destination?:
+        | (
+            | components['schemas']['archives__DestByTable']
+            | components['schemas']['archives__DestByFile']
+          )
+        | null;
+      /** Disable Binlog */
+      disable_binlog?: boolean | null;
+      /** Disable Bulk Insert */
+      disable_bulk_insert?: boolean | null;
+      /** Extra Args */
+      extra_args?: string | null;
+      /** Host */
+      host?:
+        | (
+            | components['schemas']['archives__HostByService']
+            | components['schemas']['archives__HostManual']
+          )
+        | null;
+      /** Hostname */
+      hostname: string;
+      /** Limit */
+      limit?: number | null;
+      /** Service Id */
+      service_id: number;
+      /** Sleep */
+      sleep?: number | null;
+      /** Source */
+      source:
+        | components['schemas']['archives__SourceByTable']
+        | components['schemas']['archives__SourceByQuery'];
+      /**
+       * Swap Drop
+       * @default 0
+       */
+      swap_drop: number;
+      /** Swp Table Suffix */
+      swp_table_suffix?: string | null;
+      /** Task Name */
+      task_name: string;
+      /** Use Index */
+      use_index?: string | null;
+      /** Where */
+      where?: string | null;
+    };
+    /**
+     * DestByFile
+     * @description Represent a file destination.
+     *
+     *     :param mode: The one-of discriminator (``"file"``).
+     *     :param dest_file: The file path the archived rows are written to.
+     */
+    archives__DestByFile: {
+      /** Dest File */
+      dest_file: string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      mode: 'file';
+    };
+    /**
+     * DestByTable
+     * @description Represent a table destination (collapsed free-solo references).
+     *
+     *     :param mode: The one-of discriminator (``"table"``).
+     *     :param dest_db: The destination schema — an inventory id, a free-typed name, or
+     *         ``None`` to reuse the source schema.
+     *     :param dest_table: The destination table — an inventory id or a free-typed name.
+     */
+    archives__DestByTable: {
+      /** Dest Db */
+      dest_db?: number | string | null;
+      /** Dest Table */
+      dest_table: number | string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      mode: 'table';
+    };
+    /**
+     * HostByService
+     * @description Represent a destination host taken from an inventory service.
+     *
+     *     :param mode: The one-of discriminator (``"service"``).
+     *     :param dest_service: The inventory id of the destination MySQL service; its
+     *         node address and port supply the destination host and port.
+     */
+    archives__HostByService: {
+      /** Dest Service */
+      dest_service: number;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      mode: 'service';
+    };
+    /**
+     * HostManual
+     * @description Represent a manually-entered destination host.
+     *
+     *     :param mode: The one-of discriminator (``"manual"``).
+     *     :param dest_host: The destination host address.
+     *     :param dest_port: The destination port (1-65535); defaults to the MySQL port.
+     */
+    archives__HostManual: {
+      /** Dest Host */
+      dest_host: string;
+      /** Dest Port */
+      dest_port?: number | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      mode: 'manual';
+    };
+    /**
+     * SourceByQuery
+     * @description Represent a custom-query source selection.
+     *
+     *     :param mode: The one-of discriminator (``"query"``).
+     *     :param source_query: The query defining the rows to archive.
+     */
+    archives__SourceByQuery: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      mode: 'query';
+      /** Source Query */
+      source_query: string;
+    };
+    /**
+     * SourceByTable
+     * @description Represent a schema+table source selection (collapsed free-solo references).
+     *
+     *     :param mode: The one-of discriminator (``"table"``).
+     *     :param source_db: The source schema — an inventory id or a free-typed name.
+     *     :param source_table: The source table — an inventory id or a free-typed name.
+     */
+    archives__SourceByTable: {
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      mode: 'table';
+      /** Source Db */
+      source_db: number | string;
+      /** Source Table */
+      source_table: number | string;
+    };
+    /**
+     * ATWBatchExecuteItemResponse
+     * @description Describe the outcome of one item in a batch execution.
+     *
+     *     :param snippet_filename: The snippet this item requested.
+     *     :param task_name: The Tasks-API task name the snippet dispatched under, when
+     *         the dispatch itself succeeded.
+     *     :param task_history_id: The created task-history id, when the Tasks API
+     *         returned one.
+     *     :param error: The failure detail when the item did not complete — a message
+     *         or a validation-error list, depending on what rejected it.
+     */
+    atw__ATWBatchExecuteItemResponse: {
+      /** Error */
+      error?:
+        | string
+        | {
+            [key: string]: unknown;
+          }[]
+        | null;
+      /** Snippet Filename */
+      snippet_filename: string;
+      /** Task History Id */
+      task_history_id?: number | null;
+      /** Task Name */
+      task_name?: string | null;
+    };
+    /**
+     * ATWBatchExecuteItemWrite
+     * @description Define one snippet execution within a batch.
+     *
+     *     :param snippet_filename: The snippet to execute.
+     *     :param args: Per-snippet arguments keyed by frontmatter parameter name;
+     *         they override same-named entries in the batch's ``shared_args``.
+     */
+    atw__ATWBatchExecuteItemWrite: {
+      /**
+       * Args
+       * @default {}
+       */
+      args: {
+        [key: string]: unknown;
+      };
+      /** Snippet Filename */
+      snippet_filename: string;
+    };
+    /**
+     * ATWBatchExecuteResponse
+     * @description Collect every item's outcome for one batch execution.
+     *
+     *     Partial success lives in the body: the request is created (``201``) whenever
+     *     the incident resolves, and each item carries its own dispatch result or error.
+     *
+     *     :param items: One entry per requested item, in request order.
+     */
+    atw__ATWBatchExecuteResponse: {
+      /** Items */
+      items: components['schemas']['atw__ATWBatchExecuteItemResponse'][];
+    };
+    /**
+     * ATWBatchExecuteWrite
+     * @description Define the batch-execute payload for one incident.
+     *
+     *     :param executor_host: The executor every item in the batch runs on.
+     *     :param sudo: The sudo choice applied to every item; snippets whose sudo
+     *         option is not optional ignore it.
+     *     :param shared_args: Arguments offered to every item, filtered per snippet to
+     *         the parameters that snippet declares.
+     *     :param items: The snippets to execute, at least one and at most
+     *         ``MAX_BATCH_SNIPPETS``.
+     */
+    atw__ATWBatchExecuteWrite: {
+      /** Execution Host */
+      executor_host: string;
+      /** Items */
+      items: components['schemas']['atw__ATWBatchExecuteItemWrite'][];
+      /**
+       * Shared Args
+       * @default {}
+       */
+      shared_args: {
+        [key: string]: unknown;
+      };
+      /**
+       * Sudo
+       * @default false
+       */
+      sudo: boolean;
+    };
+    /**
+     * ATWCategoryListing
+     * @description Represent one ATW category row and its snippet members.
+     *
+     *     :param category_root: The top-level product/category root.
+     *     :type category_root: str
+     *     :param parent_category: The parent category enum name.
+     *     :type parent_category: str
+     *     :param parent_category_label: The parent category display label.
+     *     :type parent_category_label: str
+     *     :param category: The ATW leaf category enum name.
+     *     :type category: str
+     *     :param category_label: The ATW leaf category display label.
+     *     :type category_label: str
+     *     :param snippet_count: Number of snippets in this category.
+     *     :type snippet_count: int
+     *     :param snippets: Snippet summaries belonging to this category.
+     *     :type snippets: list[ATWSnippetSummary]
+     */
+    atw__ATWCategoryListing: {
+      /** Category */
+      category: string;
+      /** Category Label */
+      category_label: string;
+      /** Category Root */
+      category_root: string;
+      /** Parent Category */
+      parent_category: string;
+      /** Parent Category Label */
+      parent_category_label: string;
+      /** Snippet Count */
+      snippet_count: number;
+      /** Snippets */
+      snippets: components['schemas']['atw__ATWSnippetSummary'][];
+    };
+    /**
+     * ATWIncidentExecutionResponse
+     * @description Represent one recorded incident execution, hydrated with live task status.
+     *
+     *     The hydrated fields are ``None`` when the Tasks API could not be reached for
+     *     that row; the locally-recorded fields are always present.
+     *
+     *     :param id: The execution row's UUID primary key.
+     *     :param snippet_filename: The executed snippet's filename.
+     *     :param task_history_id: The tasks-service execution this row references.
+     *     :param created_at: When the execution was recorded.
+     *     :param task_status: The upstream execution status.
+     *     :param started_at: When the upstream execution started.
+     *     :param finished_at: When the upstream execution finished.
+     *     :param has_logs: Whether the upstream execution has readable logs.
+     *     :param masked_args: The command line the snippet ran with, credential values
+     *         replaced by a fixed-width mask. ``None`` together with
+     *         ``args_withheld=False`` means the execution recorded no arguments.
+     *         Defaults to ``None``.
+     *     :param args_withheld: Whether the arguments were suppressed because they
+     *         could not be masked safely -- distinguishing that from an execution that
+     *         genuinely ran with none. Defaults to ``False``.
+     */
+    atw__ATWIncidentExecutionResponse: {
+      /**
+       * Args Withheld
+       * @default false
+       */
+      args_withheld: boolean;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Finished At */
+      finished_at?: string | null;
+      /** Has Logs */
+      has_logs?: boolean | null;
+      /**
+       * Id
+       * Format: uuid4
+       */
+      id: string;
+      /** Masked Args */
+      masked_args?: string | null;
+      /** Snippet Filename */
+      snippet_filename: string;
+      /** Started At */
+      started_at?: string | null;
+      /** Task History Id */
+      task_history_id: number;
+      task_status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+    };
+    /**
+     * ATWMergedSchemaResponse
+     * @description Represent the execution form for a batch of selected snippets.
+     *
+     *     A purpose-built DTO rather than a plain
+     *     :class:`~app.sep.apps.framework.schema.AppSchema`: the renderer needs to map
+     *     every non-shared field back to the snippet that declared it, and an
+     *     ``AppSchema`` section carries only a display title.
+     *
+     *     :param shared: The batch-level execution fields followed by every parameter
+     *         the selection declares identically.
+     *     :param per_snippet: The remaining per-snippet fields, in request order.
+     */
+    atw__ATWMergedSchemaResponse: {
+      /** Per Snippet */
+      per_snippet: components['schemas']['atw__ATWSnippetSchema'][];
+      /** Shared */
+      shared: (
+        | components['schemas']['framework__BoolField']
+        | components['schemas']['framework__ChoiceField']
+        | components['schemas']['framework__DateTimeField']
+        | components['schemas']['framework__FileField']
+        | components['schemas']['framework__FloatField']
+        | components['schemas']['framework__HostField']
+        | components['schemas']['framework__IntegerField']
+        | components['schemas']['framework__MultiChoiceField']
+        | components['schemas']['framework__MultiHostField']
+        | components['schemas']['framework__MultiSchemaField']
+        | components['schemas']['framework__MultiServiceField']
+        | components['schemas']['framework__MultiTableField']
+        | components['schemas']['framework__RemoteChoiceField']
+        | components['schemas']['framework__SchemaField']
+        | components['schemas']['framework__ScriptPreviewField']
+        | components['schemas']['framework__ServiceField']
+        | components['schemas']['framework__StringField']
+        | components['schemas']['framework__TableField']
+        | components['schemas']['framework__TextAreaField']
+        | components['schemas']['framework__YamlField']
+        | components['schemas']['framework__OneOfGroup']
+      )[];
+    };
+    /**
+     * ATWSnippetSchema
+     * @description Represent the fields one selected snippet still owns after merging.
+     *
+     *     :param snippet_filename: The snippet the remaining fields belong to.
+     *     :param fields: The snippet's parameter fields that did not merge into the
+     *         shared section.
+     */
+    atw__ATWSnippetSchema: {
+      /** Fields */
+      fields: (
+        | components['schemas']['framework__BoolField']
+        | components['schemas']['framework__ChoiceField']
+        | components['schemas']['framework__DateTimeField']
+        | components['schemas']['framework__FileField']
+        | components['schemas']['framework__FloatField']
+        | components['schemas']['framework__HostField']
+        | components['schemas']['framework__IntegerField']
+        | components['schemas']['framework__MultiChoiceField']
+        | components['schemas']['framework__MultiHostField']
+        | components['schemas']['framework__MultiSchemaField']
+        | components['schemas']['framework__MultiServiceField']
+        | components['schemas']['framework__MultiTableField']
+        | components['schemas']['framework__RemoteChoiceField']
+        | components['schemas']['framework__SchemaField']
+        | components['schemas']['framework__ScriptPreviewField']
+        | components['schemas']['framework__ServiceField']
+        | components['schemas']['framework__StringField']
+        | components['schemas']['framework__TableField']
+        | components['schemas']['framework__TextAreaField']
+        | components['schemas']['framework__YamlField']
+        | components['schemas']['framework__OneOfGroup']
+      )[];
+      /** Snippet Filename */
+      snippet_filename: string;
+    };
+    /**
+     * ATWSnippetSummary
+     * @description Represent one snippet entry under an ATW category.
+     *
+     *     :param name: The snippet filename, used as its API identifier.
+     *     :type name: str
+     *     :param title: The snippet display title.
+     *     :type title: str
+     *     :param description: The snippet free-text description.
+     *     :type description: str
+     */
+    atw__ATWSnippetSummary: {
+      /** Description */
+      description: string;
+      /** Name */
+      name: string;
+      /** Title */
+      title: string;
+    };
+    /**
+     * AtwConfigResponse
+     * @description Report whether the incident send action is available.
+     *
+     *     :param send_disabled_reasons: Why sending is unavailable; empty when the
+     *         receiver is configured and the action is offered.
+     */
+    atw__AtwConfigResponse: {
+      /** Send Disabled Reasons */
+      send_disabled_reasons: string[];
+    };
+    /**
+     * AtwIncidentResponse
+     * @description Represent a persisted diagnostic incident.
+     *
+     *     Every field is always present on a stored incident, so — unlike returning
+     *     the :class:`AtwIncident` table model directly — the generated client types
+     *     them as required rather than optional.
+     *
+     *     :param id: The incident's UUID primary key.
+     *     :param name: Human-readable incident label.
+     *     :param case_ref: Support-case reference, if set.
+     *     :param created_by: Username of the support engineer who created the incident.
+     *     :param created_at: When the incident was created.
+     *     :param updated_at: When the incident was last updated, if ever.
+     */
+    atw__AtwIncidentResponse: {
+      /** Case Ref */
+      case_ref: string | null;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Created By */
+      created_by: string;
+      /**
+       * Id
+       * Format: uuid4
+       */
+      id: string;
+      /** Name */
+      name: string;
+      /** Updated At */
+      updated_at: string | null;
+    };
+    /**
+     * AtwIncidentUpdate
+     * @description Define the PATCH payload — all fields optional; unset fields are untouched.
+     *
+     *     :param name: New incident label. Non-nullable when provided: an omitted
+     *         ``name`` is left unchanged, while an explicit null or empty string is
+     *         rejected with 422 (the column is NOT NULL). Typing it as a non-optional
+     *         ``NonEmptyStr`` with a ``None`` default keeps the omitted-field sentinel
+     *         out of the JSON schema, so the generated client advertises ``name?: string``
+     *         (not ``string | null``) — matching what the route actually accepts.
+     *     :param case_ref: New support-case reference; an explicit null clears it.
+     */
+    atw__AtwIncidentUpdate: {
+      /** Case Ref */
+      case_ref?: string | null;
+      /** Name */
+      name?: string;
+    };
+    /**
+     * AtwIncidentWrite
+     * @description Define the create payload; ``name`` defaults and ``created_by`` is server-stamped.
+     */
+    atw__AtwIncidentWrite: {
+      /** Case Ref */
+      case_ref?: string | null;
+      /** Name */
+      name?: string;
+    };
+    /**
+     * AtwSendJobWrite
+     * @description Define the payload starting one diagnostics send.
+     *
+     *     :param case_ref: The support-case reference to attach the bundle to.
+     *     :param execution_ids: The incident executions whose output files and logs to
+     *         send.
+     */
+    atw__AtwSendJobWrite: {
+      /** Case Ref */
+      case_ref: string;
+      /** Execution Ids */
+      execution_ids: string[];
+    };
+    /**
+     * AtwSendLogResponse
+     * @description Represent one recorded diagnostics send attempt.
+     *
+     *     Every field is always present on a stored attempt, so -- unlike returning the
+     *     :class:`AtwSendLog` table model directly -- the generated client types them as
+     *     required rather than optional.
+     *
+     *     :param id: The attempt's UUID primary key.
+     *     :param incident_id: The incident the attempt belongs to.
+     *     :param case_ref: The support-case reference the attempt targeted.
+     *     :param requested_by: Username of the support engineer who started it.
+     *     :param status: The attempt's lifecycle status.
+     *     :param started_at: When the worker picked it up, if it did.
+     *     :param finished_at: When it reached a terminal status, if it did.
+     *     :param created_at: When the attempt was requested.
+     *     :param detail: The attempt's recorded evidence.
+     */
+    atw__AtwSendLogResponse: {
+      /** Case Ref */
+      case_ref: string;
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Detail */
+      detail: Record<string, never>;
+      /** Finished At */
+      finished_at: string | null;
+      /**
+       * Id
+       * Format: uuid4
+       */
+      id: string;
+      /**
+       * Incident Id
+       * Format: uuid4
+       */
+      incident_id: string;
+      /** Requested By */
+      requested_by: string;
+      /** Started At */
+      started_at: string | null;
+      status: components['schemas']['atw__AtwSendStatusEnum'];
+    };
+    /**
+     * AtwSendStatusEnum
+     * @description Enumerate the lifecycle of one diagnostics send attempt.
+     *
+     *     The column stores member *names* (``PENDING``); the API serializes the
+     *     ``StrEnum`` *values* (``pending``).
      * @enum {string}
      */
-    XtraBackupTool: 'innobackupex' | 'xtrabackup' | 'mariadb-backup';
+    atw__AtwSendStatusEnum: 'pending' | 'running' | 'success' | 'failed';
+    /** PaginatedResponse[ATWIncidentExecutionResponse] */
+    atw__PaginatedResponse_ATWIncidentExecutionResponse_: {
+      /** Items */
+      items: components['schemas']['atw__ATWIncidentExecutionResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /** PaginatedResponse[AtwIncidentResponse] */
+    atw__PaginatedResponse_AtwIncidentResponse_: {
+      /** Items */
+      items: components['schemas']['atw__AtwIncidentResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /** PaginatedResponse[AtwSendLogResponse] */
+    atw__PaginatedResponse_AtwSendLogResponse_: {
+      /** Items */
+      items: components['schemas']['atw__AtwSendLogResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /**
+     * BackupDerivedTaskSummary
+     * @description Represent one derived sibling in a backup task detail response.
+     *
+     *     :param name: The name of the derived task.
+     *     :type name: str
+     *     :param backup_type: The PBM backup type for this derived task.
+     *     :type backup_type: str
+     *     :param status: The latest execution status of the derived task.
+     *     :type status: TaskHistoryStatusEnum | None
+     */
+    backup_mongo__BackupDerivedTaskSummary: {
+      /** Backup Type */
+      backup_type: string;
+      /** Name */
+      name: string;
+      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+    };
+    /**
+     * BackupTaskDetailResponse
+     * @description Represent a backup task detail API response.
+     *
+     *     :param derived_tasks: Latest status for each derived logical, physical,
+     *         status, and incremental sibling.
+     *     :type derived_tasks: list[BackupDerivedTaskSummary]
+     *     :param latest_pbm_status: Tail of the latest PBM status task stdout, if
+     *         available.
+     *     :type latest_pbm_status: str | None
+     */
+    backup_mongo__BackupTaskDetailResponse: {
+      /** Alert On Fail */
+      alert_on_fail: boolean;
+      /** Anonymize Mask */
+      anonymize_mask?: number | null;
+      /**
+       * Anonymized Entities
+       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
+       */
+      readonly anonymized_entities: string[];
+      backend: components['schemas']['TaskBackendEnum'];
+      /** Backup Type */
+      backup_type: string;
+      connectivity_warning?:
+        | components['schemas']['framework__ConnectivityWarning']
+        | null;
+      /** Created At */
+      created_at?: string | null;
+      /** Created By */
+      created_by?: string | null;
+      /** Data */
+      data: Record<string, never>;
+      /** Derived Tasks */
+      derived_tasks?: components['schemas']['backup_mongo__BackupDerivedTaskSummary'][];
+      /** Hostname */
+      hostname?: string | null;
+      /** Id */
+      id?: number | null;
+      /** Last Executed At */
+      last_executed_at?: string | null;
+      /** Last Updated By */
+      last_updated_by?: string | null;
+      /** Latest Pbm Status */
+      latest_pbm_status?: string | null;
+      /** Name */
+      name: string;
+      /** Protected */
+      protected: boolean;
+      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+      /** Updated At */
+      updated_at?: string | null;
+    };
+    /**
+     * BackupTaskResponse
+     * @description Represent a backup task API response.
+     *
+     *     :param backup_type: The PBM backup type stored on the task.
+     */
+    backup_mongo__BackupTaskResponse: {
+      /** Alert On Fail */
+      alert_on_fail: boolean;
+      /** Anonymize Mask */
+      anonymize_mask?: number | null;
+      /**
+       * Anonymized Entities
+       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
+       */
+      readonly anonymized_entities: string[];
+      backend: components['schemas']['TaskBackendEnum'];
+      /** Backup Type */
+      backup_type: string;
+      connectivity_warning?:
+        | components['schemas']['framework__ConnectivityWarning']
+        | null;
+      /** Created At */
+      created_at?: string | null;
+      /** Created By */
+      created_by?: string | null;
+      /** Data */
+      data: Record<string, never>;
+      /** Hostname */
+      hostname?: string | null;
+      /** Id */
+      id?: number | null;
+      /** Last Executed At */
+      last_executed_at?: string | null;
+      /** Last Updated By */
+      last_updated_by?: string | null;
+      /** Name */
+      name: string;
+      /** Protected */
+      protected: boolean;
+      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+      /** Updated At */
+      updated_at?: string | null;
+    };
+    /**
+     * BackupTaskWrite
+     * @description Represent a JSON request body for creating a backup task group.
+     *
+     *     Mirrors :class:`BackupCreate` except ``backup_type``, which is always
+     *     ``pbm_config`` on create. POST creates the parent config task plus derived
+     *     logical, physical, status, and incremental siblings.
+     *
+     *     :param task_name: The name of the task to be created.
+     *     :type task_name: NonEmptyStr
+     *     :param hostname: The target hostname for the task execution.
+     *     :type hostname: NonEmptyStr
+     *     :param service_id: The Inventory ID of the MongoDB service to connect to.
+     *     :type service_id: int
+     *     :param alert_on_fail: If True, send an alert if the task fails.
+     *     :type alert_on_fail: bool
+     *     :param pitr_oplog_span_min: PITR oplog span in minutes.
+     *     :type pitr_oplog_span_min: int | None
+     *     :param pitr_enabled: Whether PITR is enabled.
+     *     :type pitr_enabled: bool
+     *     :param pitr_compression: PITR compression algorithm.
+     *     :type pitr_compression: str | None
+     *     :param storage_type: Storage backend type (``s3`` or ``filesystem``); required.
+     *     :type storage_type: str
+     *     :param storage_s3_region: S3 region when ``storage_type`` is ``s3``.
+     *     :type storage_s3_region: str | None
+     *     :param storage_s3_bucket: S3 bucket when ``storage_type`` is ``s3``.
+     *     :type storage_s3_bucket: str | None
+     *     :param storage_s3_prefix: S3 key prefix when ``storage_type`` is ``s3``.
+     *     :type storage_s3_prefix: str | None
+     *     :param storage_s3_endpoint_url: S3 endpoint URL when ``storage_type`` is ``s3``.
+     *     :type storage_s3_endpoint_url: str | None
+     *     :param storage_filesystem_path: Filesystem path when ``storage_type`` is
+     *         ``filesystem``.
+     *     :type storage_filesystem_path: str | None
+     *     :param backup_priority: Node priority mapping as YAML.
+     *     :type backup_priority: str | None
+     *     :param backup_compression: Backup snapshot compression algorithm.
+     *     :type backup_compression: CompressionAlgorithm | None
+     *     :param backup_compression_level: Backup compression level.
+     *     :type backup_compression_level: int | None
+     *     :param backup_timeouts_starting_status: PBM starting-status timeout in seconds.
+     *     :type backup_timeouts_starting_status: int | None
+     *     :param backup_oplog_span_min: Logical backup oplog span in minutes.
+     *     :type backup_oplog_span_min: float | None
+     *     :param backup_num_parallel_collections: Parallel collections for logical backup.
+     *     :type backup_num_parallel_collections: int | None
+     *     :param backup_namespaces: Selective ``--ns`` namespaces for logical backups.
+     *     :type backup_namespaces: str | None
+     *     :param backup_with_users_and_roles: Opt-in ``--with-users-and-roles`` for ``db.*``.
+     *     :type backup_with_users_and_roles: bool
+     *     :param credentials_path: Path to MongoDB URI credentials on the Nomad node.
+     *     :type credentials_path: str | None
+     */
+    backup_mongo__BackupTaskWrite: {
+      /**
+       * Alert On Fail
+       * @default false
+       */
+      alert_on_fail: boolean;
+      backup_compression?:
+        | components['schemas']['backup_mongo__CompressionAlgorithm']
+        | null;
+      /** Backup Compression Level */
+      backup_compression_level?: number | null;
+      /** Backup Namespaces */
+      backup_namespaces?: string | null;
+      /** Backup Num Parallel Collections */
+      backup_num_parallel_collections?: number | null;
+      /** Backup Oplog Span Min */
+      backup_oplog_span_min?: number | null;
+      /** Backup Priority */
+      backup_priority?: string | null;
+      /** Backup Timeouts Starting Status */
+      backup_timeouts_starting_status?: number | null;
+      /**
+       * Backup With Users And Roles
+       * @default false
+       */
+      backup_with_users_and_roles: boolean;
+      /** Credentials Path */
+      credentials_path?: string | null;
+      /** Hostname */
+      hostname: string;
+      /** Pitr Compression */
+      pitr_compression?: string | null;
+      /**
+       * Pitr Enabled
+       * @default false
+       */
+      pitr_enabled: boolean;
+      /** Pitr Oplog Span Min */
+      pitr_oplog_span_min?: number | null;
+      /** Service Id */
+      service_id: number;
+      /** Storage Filesystem Path */
+      storage_filesystem_path?: string | null;
+      /** Storage S3 Bucket */
+      storage_s3_bucket?: string | null;
+      /** Storage S3 Endpoint Url */
+      storage_s3_endpoint_url?: string | null;
+      /** Storage S3 Prefix */
+      storage_s3_prefix?: string | null;
+      /** Storage S3 Region */
+      storage_s3_region?: string | null;
+      /** Storage Type */
+      storage_type: string;
+      /** Task Name */
+      task_name: string;
+    };
+    /**
+     * BackupType
+     * @description Backup types.
+     * @enum {string}
+     */
+    backup_mongo__BackupType:
+      | 'pbm_logical'
+      | 'pbm_physical'
+      | 'pbm_incremental'
+      | 'pbm_snapshot'
+      | 'pbm_config'
+      | 'pbm_status';
+    /**
+     * CompressionAlgorithm
+     * @description Represents algorithm of choice whem compressing wirteTiger datafiles.
+     * @enum {string}
+     */
+    backup_mongo__CompressionAlgorithm:
+      | 'gzip'
+      | 'snappy'
+      | 'lz4'
+      | 's2'
+      | 'pgzip'
+      | 'zstd';
+    /** PaginatedResponse[BackupTaskResponse] */
+    backup_mongo__PaginatedResponse_BackupTaskResponse_: {
+      /** Items */
+      items: components['schemas']['backup_mongo__BackupTaskResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /** PaginatedResponse[RestoreTaskResponse] */
+    backup_mongo__PaginatedResponse_RestoreTaskResponse_: {
+      /** Items */
+      items: components['schemas']['backup_mongo__RestoreTaskResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /**
+     * RestoreDerivedTaskSummary
+     * @description Represent one child task in a restore task group detail response.
+     *
+     *     :param name: The name of the child task.
+     *     :type name: str
+     *     :param status: The latest execution status of the child task.
+     *     :type status: TaskHistoryStatusEnum | None
+     */
+    backup_mongo__RestoreDerivedTaskSummary: {
+      /** Name */
+      name: string;
+      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+    };
+    /**
+     * RestoreTaskDetailResponse
+     * @description Represent a restore task detail API response.
+     *
+     *     :param derived_tasks: Latest status for each restore child task.
+     *     :type derived_tasks: list[RestoreDerivedTaskSummary]
+     */
+    backup_mongo__RestoreTaskDetailResponse: {
+      /** Alert On Fail */
+      alert_on_fail: boolean;
+      /** Anonymize Mask */
+      anonymize_mask?: number | null;
+      /**
+       * Anonymized Entities
+       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
+       */
+      readonly anonymized_entities: string[];
+      backend: components['schemas']['TaskBackendEnum'];
+      /** Backup Source */
+      backup_source: string;
+      /** Backup Type */
+      backup_type: string;
+      connectivity_warning?:
+        | components['schemas']['framework__ConnectivityWarning']
+        | null;
+      /** Created At */
+      created_at?: string | null;
+      /** Created By */
+      created_by?: string | null;
+      /** Data */
+      data: Record<string, never>;
+      /** Derived Tasks */
+      derived_tasks?: components['schemas']['backup_mongo__RestoreDerivedTaskSummary'][];
+      /** Hostname */
+      hostname?: string | null;
+      /** Id */
+      id?: number | null;
+      /** Last Executed At */
+      last_executed_at?: string | null;
+      /** Last Updated By */
+      last_updated_by?: string | null;
+      /** Name */
+      name: string;
+      /** Protected */
+      protected: boolean;
+      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+      /** Updated At */
+      updated_at?: string | null;
+    };
+    /**
+     * RestoreTaskResponse
+     * @description Represent a restore task API response.
+     *
+     *     Extend the standard task-response surface with the restore destination facts
+     *     the API surfaces; the shared task identity, status, audit, anonymization, and
+     *     connectivity fields come from
+     *     :class:`~app.sep.apps.framework.responses.BaseTaskResponse`.
+     *
+     *     :param hostname: The target hostname for the task execution.
+     *     :param backup_type: The PBM backup type for this restore.
+     *     :param backup_source: The backup name or timestamp to restore from.
+     */
+    backup_mongo__RestoreTaskResponse: {
+      /** Alert On Fail */
+      alert_on_fail: boolean;
+      /** Anonymize Mask */
+      anonymize_mask?: number | null;
+      /**
+       * Anonymized Entities
+       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
+       */
+      readonly anonymized_entities: string[];
+      backend: components['schemas']['TaskBackendEnum'];
+      /** Backup Source */
+      backup_source: string;
+      /** Backup Type */
+      backup_type: string;
+      connectivity_warning?:
+        | components['schemas']['framework__ConnectivityWarning']
+        | null;
+      /** Created At */
+      created_at?: string | null;
+      /** Created By */
+      created_by?: string | null;
+      /** Data */
+      data: Record<string, never>;
+      /** Hostname */
+      hostname?: string | null;
+      /** Id */
+      id?: number | null;
+      /** Last Executed At */
+      last_executed_at?: string | null;
+      /** Last Updated By */
+      last_updated_by?: string | null;
+      /** Name */
+      name: string;
+      /** Protected */
+      protected: boolean;
+      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+      /** Updated At */
+      updated_at?: string | null;
+    };
+    /**
+     * RestoreTaskWrite
+     * @description Represent a JSON request body for creating a restore task group.
+     *
+     *     Mirrors :class:`RestoreCreate` field-for-field with JSON-native types (notably
+     *     ``service_id: int | None``). Routes convert via
+     *     :func:`~app.sep.apps.backup_mongo.restore.deps.restore_create_from_write`
+     *     before building task payloads. See :class:`RestoreCreate` for why both models
+     *     remain.
+     *
+     *     POST always creates a parent config task plus restore, pbm-list, and optional
+     *     force-resync children.
+     *
+     *     :param task_name: The name of the task to be created.
+     *     :type task_name: NonEmptyStr
+     *     :param hostname: The target hostname for the task execution.
+     *     :type hostname: NonEmptyStr
+     *     :param service_id: Optional Inventory ID of the MongoDB service.
+     *     :type service_id: int | None
+     *     :param backup_type: Type of backup to restore from (logical or physical).
+     *     :type backup_type: BackupType
+     *     :param backup_source: Backup name or timestamp to restore from.
+     *     :type backup_source: NonEmptyStr
+     *     :param restore_namespace_filter: Optional database or collection namespace
+     *         filter for a logical restore.
+     *     :type restore_namespace_filter: str | None
+     *     :param restore_batch_size: Number of documents to buffer.
+     *     :type restore_batch_size: int | None
+     *     :param restore_num_insertion_workers: Insertion workers per collection.
+     *     :type restore_num_insertion_workers: int | None
+     *     :param restore_num_parallel_collections: Parallel collections for logical restore.
+     *     :type restore_num_parallel_collections: int | None
+     *     :param restore_num_download_workers: Download workers for physical restore.
+     *     :type restore_num_download_workers: int | None
+     *     :param restore_max_download_buffer_mb: Max S3 download buffer in MB.
+     *     :type restore_max_download_buffer_mb: int | None
+     *     :param restore_download_chunk_mb: S3 download chunk size in MB.
+     *     :type restore_download_chunk_mb: int | None
+     *     :param restore_mongod_location: Custom path to mongod binaries.
+     *     :type restore_mongod_location: str | None
+     *     :param restore_mongod_location_map: Per-node mongod paths as YAML.
+     *     :type restore_mongod_location_map: str | None
+     *     :param credentials_path: Path to MongoDB URI credentials on the Nomad node.
+     *     :type credentials_path: str | None
+     */
+    backup_mongo__RestoreTaskWrite: {
+      /** Backup Source */
+      backup_source: string;
+      backup_type: components['schemas']['backup_mongo__BackupType'];
+      /** Credentials Path */
+      credentials_path?: string | null;
+      /** Hostname */
+      hostname: string;
+      /** Restore Batch Size */
+      restore_batch_size?: number | null;
+      /** Restore Download Chunk Mb */
+      restore_download_chunk_mb?: number | null;
+      /** Restore Max Download Buffer Mb */
+      restore_max_download_buffer_mb?: number | null;
+      /** Restore Mongod Location */
+      restore_mongod_location?: string | null;
+      /** Restore Mongod Location Map */
+      restore_mongod_location_map?: string | null;
+      /** Restore Namespace Filter */
+      restore_namespace_filter?: string | null;
+      /** Restore Num Download Workers */
+      restore_num_download_workers?: number | null;
+      /** Restore Num Insertion Workers */
+      restore_num_insertion_workers?: number | null;
+      /** Restore Num Parallel Collections */
+      restore_num_parallel_collections?: number | null;
+      /** Service Id */
+      service_id?: number | null;
+      /** Task Name */
+      task_name: string;
+    };
+    /**
+     * BackupPgForm
+     * @description Define the model-first create/update body and schema source for backup_pg.
+     *
+     *     The single source of the JSON request body (the field types and defaults the
+     *     server validates) *and* the derived ``GET /schema`` form (driven by the
+     *     :class:`Ui` / reference / :class:`Choices` markers). Field set, types, and
+     *     model defaults match the JSON create contract; the form-display defaults that
+     *     differ from the model default (the pgBackRest tool paths, the default backup
+     *     type) are carried on ``Ui(default=...)`` so the runtime payload stays
+     *     unchanged while the schema renders those form defaults.
+     *
+     *     Field declaration order is load-bearing: it drives the derived form's
+     *     section and field order. ``backup_type`` is not a form field — the spec
+     *     builder injects :attr:`BackupType.PGBACKREST`. The ``task_name`` / ``hostname``
+     *     Task-section fields and the ``alert_on_fail`` capability control are inherited
+     *     from :class:`TaskFormModel` (``alert_on_fail`` is ``Hidden``, off-schema).
+     *     ``extra="forbid"`` rejects unknown fields (for example a stale FE submitting
+     *     ``host`` / ``port``, which the payload pins itself).
+     */
+    backup_pg__BackupPgForm: {
+      /**
+       * Alert On Fail
+       * @default false
+       */
+      alert_on_fail: boolean;
+      /** Backup Dir */
+      backup_dir: string;
+      /** Hostname */
+      hostname: string;
+      /** Logging Dir */
+      logging_dir?: string | null;
+      pgbackrest_backup_type?:
+        | components['schemas']['backup_pg__PgBackRestBackupType']
+        | null;
+      /** Pgbackrest Bin */
+      pgbackrest_bin?: string | null;
+      /** Pgbackrest Config File */
+      pgbackrest_config_file?: string | null;
+      /** Pgbackrest Datadir */
+      pgbackrest_datadir?: string | null;
+      /** Pgbackrest Incremental Cycle */
+      pgbackrest_incremental_cycle?: string | number | null;
+      /** Pgbackrest Retention Archive */
+      pgbackrest_retention_archive?: number | null;
+      /** Pgbackrest Retention Full */
+      pgbackrest_retention_full?: number | null;
+      /** Service Id */
+      service_id: number;
+      /** Stanza */
+      stanza: string;
+      /** Task Name */
+      task_name: string;
+    };
+    /**
+     * BackupTaskDetailResponse
+     * @description Represent a single pgBackRest backup task detail response.
+     *
+     *     Add the executor host and port resolved from the task's YAML config so the
+     *     FE detail view can render them alongside the parity Overview block; list
+     *     rows omit these to keep the table response compact.
+     *
+     *     :param host: The PostgreSQL host the task connects to.
+     *     :param port: The PostgreSQL port the task connects to.
+     */
+    backup_pg__BackupTaskDetailResponse: {
+      /** Alert On Fail */
+      alert_on_fail: boolean;
+      /** Anonymize Mask */
+      anonymize_mask?: number | null;
+      /**
+       * Anonymized Entities
+       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
+       */
+      readonly anonymized_entities: string[];
+      backend: components['schemas']['TaskBackendEnum'];
+      /** Backup Type */
+      backup_type: string;
+      connectivity_warning?:
+        | components['schemas']['framework__ConnectivityWarning']
+        | null;
+      /** Created At */
+      created_at?: string | null;
+      /** Created By */
+      created_by?: string | null;
+      /** Data */
+      data: Record<string, never>;
+      /** Host */
+      host?: string | null;
+      /** Hostname */
+      hostname?: string | null;
+      /** Id */
+      id?: number | null;
+      /** Last Executed At */
+      last_executed_at?: string | null;
+      /** Last Updated By */
+      last_updated_by?: string | null;
+      /** Name */
+      name: string;
+      /** Port */
+      port?: number | null;
+      /** Protected */
+      protected: boolean;
+      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+      /** Updated At */
+      updated_at?: string | null;
+    };
+    /**
+     * BackupTaskResponse
+     * @description Represent a pgBackRest backup task API response.
+     *
+     *     :param backup_type: The ``backup_type`` discriminator stored on the task.
+     */
+    backup_pg__BackupTaskResponse: {
+      /** Alert On Fail */
+      alert_on_fail: boolean;
+      /** Anonymize Mask */
+      anonymize_mask?: number | null;
+      /**
+       * Anonymized Entities
+       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
+       */
+      readonly anonymized_entities: string[];
+      backend: components['schemas']['TaskBackendEnum'];
+      /** Backup Type */
+      backup_type: string;
+      connectivity_warning?:
+        | components['schemas']['framework__ConnectivityWarning']
+        | null;
+      /** Created At */
+      created_at?: string | null;
+      /** Created By */
+      created_by?: string | null;
+      /** Data */
+      data: Record<string, never>;
+      /** Hostname */
+      hostname?: string | null;
+      /** Id */
+      id?: number | null;
+      /** Last Executed At */
+      last_executed_at?: string | null;
+      /** Last Updated By */
+      last_updated_by?: string | null;
+      /** Name */
+      name: string;
+      /** Protected */
+      protected: boolean;
+      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+      /** Updated At */
+      updated_at?: string | null;
+    };
+    /** PaginatedResponse[BackupTaskResponse] */
+    backup_pg__PaginatedResponse_BackupTaskResponse_: {
+      /** Items */
+      items: components['schemas']['backup_pg__BackupTaskResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /**
+     * PgBackRestBackupType
+     * @description PgBackRest backup types.
+     * @enum {string}
+     */
+    backup_pg__PgBackRestBackupType: 'incr' | 'diff';
+    /**
+     * ChecksumsForm
+     * @description Define the model-first create/update body and schema source for Checksums.
+     *
+     *     The single source of the JSON request body (the field types and defaults the
+     *     server validates) *and* the derived ``GET /schema`` form (driven by the
+     *     :class:`Ui` / reference / :class:`Choices` markers). Field set, types, and
+     *     model defaults match the previous hand-written request body; the form-display
+     *     defaults that differ from the model default are carried on ``Ui(default=...)``.
+     *
+     *     Field declaration order is load-bearing. The spec builder assembles
+     *     ``--databases`` / ``--tables`` from the multi-value reference fields, then the
+     *     framework's ``build_command_args`` emits the remaining ``ArgFormat`` value args
+     *     (in field order) followed by all flag args (in field order). Section order
+     *     (Task, Data, Recursion, Flags, Advanced) follows each section's first field.
+     *     ``progress`` is declared last to land at the end of the value args, and
+     *     ``Ui(order=...)`` pins the Advanced section's display order where it diverges
+     *     from declaration order. The ``task_name`` / ``hostname`` Task-section fields
+     *     and the ``alert_on_fail`` capability control are inherited from
+     *     :class:`TaskFormModel` (``alert_on_fail`` is ``Hidden``, off-schema).
+     */
+    checksums__ChecksumsForm: {
+      /**
+       * Alert On Fail
+       * @default false
+       */
+      alert_on_fail: boolean;
+      /**
+       * Binary Index
+       * @default false
+       */
+      binary_index: boolean;
+      /**
+       * Chunk Time
+       * @default
+       */
+      chunk_time: string;
+      /** Databases */
+      databases?: (number | string)[];
+      /**
+       * Dsn Table
+       * @default
+       */
+      dsn_table: string;
+      /**
+       * Explain Arg
+       * @default false
+       */
+      explain_arg: boolean;
+      /**
+       * Fail On Stopped Replication
+       * @default false
+       */
+      fail_on_stopped_replication: boolean;
+      /** Hostname */
+      hostname: string;
+      /**
+       * Max Lag
+       * @default
+       */
+      max_lag: string;
+      /**
+       * Max Load
+       * @default
+       */
+      max_load: string;
+      /**
+       * Pause File
+       * @default
+       */
+      pause_file: string;
+      /**
+       * Progress
+       * @default
+       */
+      progress: string;
+      /**
+       * Recursion Method
+       * @default processlist
+       */
+      recursion_method: string;
+      /** Service Id */
+      service_id: number;
+      /**
+       * Set Vars
+       * @default
+       */
+      set_vars: string;
+      /** Tables */
+      tables?: (number | string)[];
+      /** Task Name */
+      task_name: string;
+      /**
+       * Truncate Replicate Table
+       * @default false
+       */
+      truncate_replicate_table: boolean;
+    };
+    /**
+     * CollectorTypeEnum
+     * @description Define enum for Dipper collector types.
+     * @enum {string}
+     */
+    dipper__CollectorTypeEnum: 'environment' | 'pmm';
+    /**
+     * DipperExecuteWrite
+     * @description Define the JSON body for ``POST /api/apps/dipper/``.
+     *
+     *     :param service_id: Inventory ID of the database service to collect data from.
+     *     :type service_id: int
+     *     :param collector_type: Which collector script to run (environment or pmm).
+     *     :type collector_type: CollectorTypeEnum
+     *     :param executor_host: Nomad client hostname that will run the script.
+     *     :type executor_host: NonEmptyStr
+     *     :param sudo: Whether to invoke the script with ``sudo``. ``None`` defers
+     *         to the script's own sudo policy (the default).
+     *     :type sudo: bool | None
+     *     :param args: Per-parameter arguments keyed by script parameter name. Validated
+     *         server-side against the script's dynamic execution model.
+     *     :type args: dict[str, Any]
+     */
+    dipper__DipperExecuteWrite: {
+      /** Args */
+      args?: {
+        [key: string]: unknown;
+      };
+      /** @default environment */
+      collector_type: components['schemas']['dipper__CollectorTypeEnum'];
+      /** Execution Host */
+      executor_host: string;
+      /** Service Id */
+      service_id: number;
+      /** Sudo */
+      sudo?: boolean | null;
+    };
+    /**
+     * DipperExecutionResponse
+     * @description Represent the response from ``POST /api/apps/dipper/``.
+     *
+     *     :param task_id: ID of the task-history row created by the tasks API.
+     *     :type task_id: int | None
+     *     :param task_name: The execution task name used to dispatch the script.
+     *     :type task_name: str
+     *     :param snippet_filename: Composite path used to correlate history rows.
+     *     :type snippet_filename: str
+     *     :param service_id: Inventory ID of the database service.
+     *     :type service_id: int
+     *     :param collector_type: Collector type that was executed.
+     *     :type collector_type: CollectorTypeEnum
+     */
+    dipper__DipperExecutionResponse: {
+      collector_type: components['schemas']['dipper__CollectorTypeEnum'];
+      /** Service Id */
+      service_id: number;
+      /** Snippet Filename */
+      snippet_filename: string;
+      /** Task Id */
+      task_id?: number | null;
+      /** Task Name */
+      task_name: string;
+    };
+    /**
+     * AltersTaskResponseCreate
+     * @description Represent the create response for an alters task group, carrying the post-creation connectivity warning.
+     */
+    framework__AltersTaskResponseCreate: {
+      /** Alert On Fail */
+      alert_on_fail: boolean;
+      /** Anonymize Mask */
+      anonymize_mask?: number | null;
+      /**
+       * Anonymized Entities
+       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
+       */
+      readonly anonymized_entities: string[];
+      backend: components['schemas']['TaskBackendEnum'];
+      connectivity_warning?:
+        | components['schemas']['framework__ConnectivityWarning']
+        | null;
+      /** Created At */
+      created_at?: string | null;
+      /** Created By */
+      created_by?: string | null;
+      /** Data */
+      data: Record<string, never>;
+      /** Id */
+      id?: number | null;
+      /** Last Executed At */
+      last_executed_at?: string | null;
+      /** Last Updated By */
+      last_updated_by?: string | null;
+      /** Name */
+      name: string;
+      /** Protected */
+      protected: boolean;
+      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+      /** Updated At */
+      updated_at?: string | null;
+    };
+    /**
+     * AltersTaskResponseUpdate
+     * @description Represent the update response for an alters task group, carrying the post-update connectivity warning.
+     */
+    framework__AltersTaskResponseUpdate: {
+      /** Alert On Fail */
+      alert_on_fail: boolean;
+      /** Anonymize Mask */
+      anonymize_mask?: number | null;
+      /**
+       * Anonymized Entities
+       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
+       */
+      readonly anonymized_entities: string[];
+      backend: components['schemas']['TaskBackendEnum'];
+      connectivity_warning?:
+        | components['schemas']['framework__ConnectivityWarning']
+        | null;
+      /** Created At */
+      created_at?: string | null;
+      /** Created By */
+      created_by?: string | null;
+      /** Data */
+      data: Record<string, never>;
+      /** Id */
+      id?: number | null;
+      /** Last Executed At */
+      last_executed_at?: string | null;
+      /** Last Updated By */
+      last_updated_by?: string | null;
+      /** Name */
+      name: string;
+      /** Protected */
+      protected: boolean;
+      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+      /** Updated At */
+      updated_at?: string | null;
+    };
+    /**
+     * AppEntitySchema
+     * @description Describe one CRUD entity for a multi-entity schema-driven plugin.
+     *
+     *     Used when a plugin exposes several independent resources (for example
+     *     inventory nodes, services, schemas, and tables), each with its own list
+     *     view and create/edit forms. Task-style plugins omit ``entities`` and use
+     *     the root ``forms`` / ``list_view`` instead.
+     *
+     *     :param name: URL segment and API key for the entity (for example ``nodes``).
+     *     :type name: NonEmptyStr
+     *     :param display_name: Human-readable title for this entity's screens.
+     *     :type display_name: NonEmptyStr
+     *     :param description: Optional helper text for this entity. Defaults to
+     *         ``None``.
+     *     :type description: NonEmptyStr | None
+     *     :param forms: Form sections for create (and edit when the UI supports it).
+     *     :type forms: list[FormSection]
+     *     :param list_view: Column configuration for this entity's list table.
+     *     :type list_view: ListView
+     *     :param detail_highlights: Optional per-field syntax highlighter hints for
+     *         detail pages. Keys are field names; values are highlighting languages.
+     *         Defaults to an empty mapping.
+     *     :type detail_highlights: dict[NonEmptyStr, DetailHighlightLanguage]
+     *     :param cardinality_rules: Optional entity-wide cross-field cardinality
+     *         constraints. Defaults to ``None``.
+     *     :type cardinality_rules: list[CardinalityRule] | None
+     *     :param fail_when: Optional entity-wide predicate-only invariants.
+     *         Defaults to ``None``.
+     *     :type fail_when: list[FailRule] | None
+     */
+    framework__AppEntitySchema: {
+      /** Cardinality Rules */
+      cardinality_rules?:
+        | components['schemas']['framework__CardinalityRule'][]
+        | null;
+      /** Description */
+      description?: string | null;
+      /** Detail Highlights */
+      detail_highlights?: {
+        [key: string]: components['schemas']['framework__DetailHighlightLanguage'];
+      };
+      /** Display Name */
+      display_name: string;
+      /** Fail When */
+      fail_when?: components['schemas']['framework__FailRule'][] | null;
+      /** Forms */
+      forms: components['schemas']['framework__FormSection'][];
+      list_view: components['schemas']['framework__ListView'];
+      /** Name */
+      name: string;
+    };
+    /**
+     * AppSchema
+     * @description Represent a plugin's complete schema: form sections, list view, capabilities.
+     *
+     *     :param name: The plugin identifier; must match Python identifier rules,
+     *         optionally with internal hyphens.
+     *     :type name: NonEmptyStr
+     *     :param display_name: The human-readable plugin title displayed in the UI.
+     *     :type display_name: NonEmptyStr
+     *     :param description: Optional helper text describing the plugin's
+     *         purpose. Defaults to ``None``.
+     *     :type description: NonEmptyStr | None
+     *     :param task_type: Optional task-type identifier used when creating tasks
+     *         via the shared task API. Defaults to ``None``.
+     *     :type task_type: NonEmptyStr | None
+     *     :param forms: Form sections for single-entity / task plugins. Defaults to
+     *         an empty list when ``entities`` is used instead.
+     *     :type forms: list[FormSection]
+     *     :param capabilities: Optional plugin-level feature flags. Defaults to
+     *         ``None``.
+     *     :type capabilities: Capabilities | None
+     *     :param list_view: List-view configuration when ``entities`` is unset
+     *         (single-entity / task plugins). Ignored when ``entities`` is set.
+     *     :type list_view: ListView | None
+     *     :param detail_view: Optional declarative layout for the task detail page's
+     *         section cards (task-style plugins only; ignored when ``entities`` is
+     *         set). Optional at the model layer for backwards compatibility. A
+     *         forward-looking guard refuses to load a plugin that sets
+     *         ``task_type`` without declaring ``detail_view``. Defaults to ``None``.
+     *     :type detail_view: DetailView | None
+     *     :param entities: Optional list of CRUD entities for multi-resource plugins.
+     *         When non-empty, the React shell renders one list/create/detail flow
+     *         per entity. Defaults to ``None`` (legacy single-entity mode).
+     *     :param cardinality_rules: Optional plugin-wide cross-field cardinality
+     *         constraints (task-style plugins only; ignored when ``entities`` is set).
+     *         Defaults to ``None``.
+     *     :type cardinality_rules: list[CardinalityRule] | None
+     *     :param fail_when: Optional plugin-wide predicate-only invariants (task-style
+     *         plugins only; ignored when ``entities`` is set). Defaults to ``None``.
+     *     :type fail_when: list[FailRule] | None
+     *     :param derived: Optional declarative specs for sibling tasks derived from
+     *         the parent task on cascade. Consumed by
+     *         :mod:`app.sep.apps.framework.cascade` to drive POST/PUT/DELETE
+     *         across the parent and N derived siblings. Defaults to ``None``.
+     *     :type derived: list[DerivedTask] | None
+     *     :param predecessors: Optional declarative specs for tasks that must run
+     *         before the parent. Consumed by
+     *         :mod:`app.sep.apps.framework.cascade` to drive POST/PUT/DELETE
+     *         across the predecessors and the parent, including the chain wiring
+     *         applied at execute time. Defaults to ``None``.
+     *     :type predecessors: list[ChainedPredecessor] | None
+     *     :param related_apps: Optional separately registered apps the React shell
+     *         surfaces as sibling tabs (for example a restore app nested under a
+     *         backups parent). Defaults to ``None``.
+     *     :type related_apps: list[RelatedApp] | None
+     */
+    framework__AppSchema: {
+      capabilities?: components['schemas']['framework__Capabilities'] | null;
+      /** Cardinality Rules */
+      cardinality_rules?:
+        | components['schemas']['framework__CardinalityRule'][]
+        | null;
+      /** Derived */
+      derived?: components['schemas']['framework__DerivedTask'][] | null;
+      /** Description */
+      description?: string | null;
+      detail_view?: components['schemas']['framework__DetailView'] | null;
+      /** Display Name */
+      display_name: string;
+      /** Entities */
+      entities?: components['schemas']['framework__AppEntitySchema'][] | null;
+      /** Fail When */
+      fail_when?: components['schemas']['framework__FailRule'][] | null;
+      /** Forms */
+      forms?: components['schemas']['framework__FormSection'][];
+      list_view?: components['schemas']['framework__ListView'] | null;
+      /** Name */
+      name: string;
+      /** Predecessors */
+      predecessors?:
+        | components['schemas']['framework__ChainedPredecessor'][]
+        | null;
+      /** Related Apps */
+      related_apps?: components['schemas']['framework__RelatedApp'][] | null;
+      /** Task Type */
+      task_type?: string | null;
+    };
+    /** BackupPgCreateResponse */
+    framework__BackupPgCreateResponse: {
+      /** Alert On Fail */
+      alert_on_fail: boolean;
+      /** Anonymize Mask */
+      anonymize_mask?: number | null;
+      /**
+       * Anonymized Entities
+       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
+       */
+      readonly anonymized_entities: string[];
+      backend: components['schemas']['TaskBackendEnum'];
+      /** Backup Type */
+      backup_type: string;
+      connectivity_warning?:
+        | components['schemas']['framework__ConnectivityWarning']
+        | null;
+      /** Created At */
+      created_at?: string | null;
+      /** Created By */
+      created_by?: string | null;
+      /** Data */
+      data: Record<string, never>;
+      /** Host */
+      host?: string | null;
+      /** Hostname */
+      hostname?: string | null;
+      /** Id */
+      id?: number | null;
+      /** Last Executed At */
+      last_executed_at?: string | null;
+      /** Last Updated By */
+      last_updated_by?: string | null;
+      /** Name */
+      name: string;
+      /** Port */
+      port?: number | null;
+      /** Protected */
+      protected: boolean;
+      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+      /** Updated At */
+      updated_at?: string | null;
+    };
+    /**
+     * BaseTaskResponse
+     * @description Represent the universal task-response surface for standard task apps.
+     *
+     *     Carry the fields shared by every standard ``TaskExecutionApp`` response:
+     *     the task identity, the resolved execution status, the stored configuration,
+     *     and the audit/anonymization metadata. A standard app whose response has no
+     *     app-specific fields uses this model directly; an app with extras subclasses
+     *     it. The model is parametrized by the task ``owner``, which drives the
+     *     ``anonymized_entities`` default-entity lookup but is excluded from the
+     *     serialized detail/list payload (as is ``service_type``).
+     *
+     *     :param name: The task name.
+     *     :param owner: The task-category owner (for example ``BACKUPS``). Kept
+     *         as a model attribute for ``anonymized_entities`` and server-side
+     *         filtering; excluded from the serialized detail/list payload.
+     *     :param service_type: The database service type, stamped by the builder;
+     *         ``None`` for an app without a fixed service type. Excluded from the
+     *         serialized detail/list payload.
+     *     :param status: The latest known execution status; ``None`` until the task
+     *         runs.
+     *     :param last_executed_at: The most recent time the task finished executing
+     *         (``max`` ``finished_at`` across its history). Reported even while a
+     *         re-run is in progress (showing the prior completion); ``None`` until the
+     *         task has finished at least once.
+     *     :param id: The task's unique identifier.
+     *     :param backend: The backend worker/engine executing the task.
+     *     :param data: The raw configuration and parameters used for execution. Tasks
+     *         created through the JSON schema-driven path also carry a reserved additive
+     *         ``_form`` key holding the verbatim, validated create-form body for
+     *         prefilling an edit form; it is absent for tasks created through a legacy
+     *         form, so consumers must treat it as optional.
+     *     :param protected: Whether the task is protected from deletion or modification.
+     *     :param alert_on_fail: Whether a notification is sent on task failure.
+     *     :param anonymize_mask: Bitmask of PII entities to anonymize; ``None`` falls
+     *         back to the owner's configured defaults.
+     *     :param created_at: The timestamp when the task was first created.
+     *     :param updated_at: The timestamp of the last modification to the task.
+     *     :param created_by: Display name for the user who initiated the task (Casdoor
+     *         username when resolvable, otherwise the stored user id).
+     *     :param last_updated_by: Display name for the user who last modified the task
+     *         record (Casdoor username when resolvable, otherwise the stored user id).
+     *     :param connectivity_warning: A warning surfaced when the post-creation
+     *         database connectivity check fails. ``None`` when the check passes, is
+     *         opted out, or the task meta lacks the connectivity keys.
+     *     :param anonymized_entities: Sorted PII entity names derived from
+     *         ``anonymize_mask`` (or from the owner's configured defaults when the mask
+     *         is ``None``). Read-only; computed on serialisation.
+     */
+    framework__BaseTaskResponse: {
+      /** Alert On Fail */
+      alert_on_fail: boolean;
+      /** Anonymize Mask */
+      anonymize_mask?: number | null;
+      /**
+       * Anonymized Entities
+       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
+       */
+      readonly anonymized_entities: string[];
+      backend: components['schemas']['TaskBackendEnum'];
+      connectivity_warning?:
+        | components['schemas']['framework__ConnectivityWarning']
+        | null;
+      /** Created At */
+      created_at?: string | null;
+      /** Created By */
+      created_by?: string | null;
+      /** Data */
+      data: Record<string, never>;
+      /** Id */
+      id?: number | null;
+      /** Last Executed At */
+      last_executed_at?: string | null;
+      /** Last Updated By */
+      last_updated_by?: string | null;
+      /** Name */
+      name: string;
+      /** Protected */
+      protected: boolean;
+      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+      /** Updated At */
+      updated_at?: string | null;
+    };
+    /**
+     * BoolField
+     * @description Represent a boolean toggle field.
+     *
+     *     :param field_type: The discriminator literal; always ``"bool"`` for this
+     *         class. Serialised as the JSON key ``"type"``.
+     *     :type field_type: Literal["bool"]
+     */
+    framework__BoolField: {
+      /** Default */
+      default?: unknown | null;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'bool';
+    };
+    /**
+     * Capabilities
+     * @description Represent plugin-level feature flags.
+     *
+     *     :param chaining: Whether the plugin supports chaining tasks together.
+     *         Defaults to ``False``.
+     *     :type chaining: bool
+     *     :param alert_on_fail: Whether the plugin supports configuring a PMM
+     *         alert when a task fails. Defaults to ``False``.
+     *     :type alert_on_fail: bool
+     *     :param scheduling: Whether the plugin supports scheduling tasks on a
+     *         periodic interval. Defaults to ``False``.
+     *     :type scheduling: bool
+     *     :param stats: Whether the plugin supports rendering the aggregated
+     *         execution statistics card on its detail page. Defaults to
+     *         ``False``.
+     *     :type stats: bool
+     *     :param pii_anonymization: Whether the plugin wires ``anonymize_mask``
+     *         into task execution and the React detail page should surface which
+     *         PII entities are anonymized. This is a UI-rendering gate — the
+     *         anonymization always happens when configured; this flag controls
+     *         whether the detail view renders the "PII Anonymization" section.
+     *         Defaults to ``False``.
+     *     :type pii_anonymization: bool
+     */
+    framework__Capabilities: {
+      /**
+       * Alert On Fail
+       * @default false
+       */
+      alert_on_fail: boolean;
+      /**
+       * Chaining
+       * @default false
+       */
+      chaining: boolean;
+      /**
+       * Pii Anonymization
+       * @default false
+       */
+      pii_anonymization: boolean;
+      /**
+       * Scheduling
+       * @default false
+       */
+      scheduling: boolean;
+      /**
+       * Stats
+       * @default false
+       */
+      stats: boolean;
+    };
+    /**
+     * CardinalityRule
+     * @description Express a cardinality constraint over a list of fields.
+     *
+     *     When ``when`` matches (or unconditionally if ``when`` is ``None``), the
+     *     count of present fields in ``fields`` must lie in ``[min, max]`` with
+     *     ``None`` bounds treated as unbounded.
+     *
+     *     :param when: The predicate that gates the rule. ``None`` means
+     *         unconditional.
+     *     :type when: Predicate | None
+     *     :param fields: The non-empty list of target field names.
+     *     :type fields: list[str]
+     *     :param min: Optional lower bound on the count of present fields.
+     *         Defaults to ``None``.
+     *     :type min: int | None
+     *     :param max: Optional upper bound on the count of present fields.
+     *         Defaults to ``None``.
+     *     :type max: int | None
+     *     :param message: Optional failure message. Defaults to ``None``.
+     *     :type message: str | None
+     */
+    framework__CardinalityRule: {
+      /** Fields */
+      fields: string[];
+      /** Max */
+      max?: number | null;
+      /** Message */
+      message?: string | null;
+      /** Min */
+      min?: number | null;
+      /** When */
+      when?: {
+        [key: string]: unknown;
+      } | null;
+    };
+    /**
+     * ChainedPredecessor
+     * @description Represent a chained predecessor task that runs before the parent.
+     *
+     *     The cascade module (:mod:`app.sep.apps.framework.cascade`) consumes
+     *     this spec when POSTing, PUTting, or DELETEing a plugin's tasks: each
+     *     predecessor is created with ``data["parent"]`` linked to the parent's
+     *     name (when ``parent_link`` is true) and named
+     *     ``f"{parent_name}{name_suffix}"``. Create persists task records only;
+     *     when the user starts the chain, the consuming plugin fires
+     *     ``POST /execute/{first_predecessor_name}`` using
+     *     :func:`build_predecessor_chain_execute_body` for ``chain_task_names``
+     *     (remaining predecessors then parent) and ``chain_on_failure`` derived
+     *     from ``on_failure`` (``"halt"`` maps to ``False``, ``"continue"`` maps
+     *     to ``True``).
+     *
+     *     :param name_suffix: String appended to the parent's ``name`` to form
+     *         the predecessor's name (for example ``"-pre-checks"``).
+     *     :type name_suffix: NonEmptyStr
+     *     :param on_failure: Chain semantics when the predecessor terminates
+     *         non-successfully. ``"halt"`` (default) stops the chain;
+     *         ``"continue"`` lets the chain continue regardless. Translates to
+     *         the boolean ``chain_on_failure`` flag at execute time.
+     *     :type on_failure: Literal["halt", "continue"]
+     *     :param parent_link: When true, set ``data["parent"]`` on the
+     *         predecessor payload to the parent's ``name``. Defaults to ``True``.
+     *     :type parent_link: bool
+     */
+    framework__ChainedPredecessor: {
+      /** Name Suffix */
+      name_suffix: string;
+      /**
+       * On Failure
+       * @default halt
+       * @enum {string}
+       */
+      on_failure: 'halt' | 'continue';
+      /**
+       * Parent Link
+       * @default true
+       */
+      parent_link: boolean;
+    };
+    /**
+     * Choice
+     * @description Represent one option in a choice or multi-choice field.
+     *
+     *     :param label: The human-readable label displayed for the choice.
+     *     :type label: NonEmptyStr
+     *     :param value: The value submitted when the choice is selected.
+     *     :type value: NonEmptyStr
+     *     :param disabled: Whether the option is rendered non-selectable. Optional,
+     *         defaulting to ``None`` (selectable). Typed ``bool | None`` so the
+     *         discovery endpoint's ``exclude_none`` posture drops it from the wire
+     *         until a plugin opts in, keeping the addition byte-compatible with
+     *         existing schemas. UI hint only; enforcing rejection of a disabled
+     *         value is the consuming app's responsibility.
+     *     :type disabled: bool | None
+     *     :param disabled_reason: Optional explanatory text surfaced (for example,
+     *         in a tooltip) when the option is disabled. Defaults to ``None`` and
+     *         may only be set when ``disabled`` is ``True``.
+     *     :type disabled_reason: NonEmptyStr | None
+     */
+    framework__Choice: {
+      /** Disabled */
+      disabled?: boolean | null;
+      /** Disabled Reason */
+      disabled_reason?: string | null;
+      /** Label */
+      label: string;
+      /** Value */
+      value: string;
+    };
+    /**
+     * ChoiceField
+     * @description Represent a single-select dropdown field.
+     *
+     *     :param field_type: The discriminator literal; always ``"choice"`` for this
+     *         class. Serialised as the JSON key ``"type"``.
+     *     :type field_type: Literal["choice"]
+     *     :param choices: The non-empty list of options the user can choose from.
+     *     :type choices: list[Choice]
+     */
+    framework__ChoiceField: {
+      /** Choices */
+      choices: components['schemas']['framework__Choice'][];
+      /** Default */
+      default?: unknown | null;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'choice';
+    };
+    /**
+     * Column
+     * @description Represent one column in a plugin list view.
+     *
+     *     :param key: The task attribute path this column displays (for example,
+     *         ``"status"`` or ``"target.service"``).
+     *     :type key: NonEmptyStr
+     *     :param label: The human-readable column header.
+     *     :type label: NonEmptyStr
+     *     :param sortable: Whether the column can be used to sort the list.
+     *         Defaults to ``False``.
+     *     :type sortable: bool
+     *     :param format: Optional formatting hint applied when rendering the
+     *         column values. Defaults to ``None``.
+     *     :type format: ColumnFormat | None
+     */
+    framework__Column: {
+      format?: components['schemas']['framework__ColumnFormat'] | null;
+      /** Key */
+      key: string;
+      /** Label */
+      label: string;
+      /**
+       * Sortable
+       * @default false
+       */
+      sortable: boolean;
+    };
+    /**
+     * ColumnFormat
+     * @description Enumerate the supported list-view column formatting hints.
+     *
+     *     :cvar TEXT: Render the column value as plain text.
+     *     :vartype TEXT: str
+     *     :cvar CHIP: Render the column value as a Material UI chip.
+     *     :vartype CHIP: str
+     *     :cvar STATUS: Render the column value as a colour-coded status badge.
+     *     :vartype STATUS: str
+     *     :cvar DATE: Render the column value as an absolute date.
+     *     :vartype DATE: str
+     *     :cvar RELATIVE: Render the column value as a relative time (for example,
+     *         "2 hours ago").
+     *     :vartype RELATIVE: str
+     *     :cvar CODE: Render the column value in a monospaced code font.
+     *     :vartype CODE: str
+     *     :cvar ACTIONS: Row actions (for example delete); not bound to row data.
+     *         Use with a synthetic column key such as ``_actions``.
+     *     :vartype ACTIONS: str
+     *     :cvar SCHEDULE: Render a generic schedule cell for the row's task. The
+     *         frontend joins the row to its periodic task by name and shows the next
+     *         run (relative, with the absolute timestamp on hover) plus a periodicity
+     *         popover, or a muted "Not scheduled" chip when the task has no schedule.
+     *         Not bound to the column's own cell value.
+     *     :vartype SCHEDULE: str
+     * @enum {string}
+     */
+    framework__ColumnFormat:
+      | 'text'
+      | 'chip'
+      | 'status'
+      | 'date'
+      | 'relative'
+      | 'code'
+      | 'actions'
+      | 'schedule';
+    /**
+     * ConnectivityWarning
+     * @description Represent a connectivity-check failure on a JSON API task-creation response.
+     *
+     *     :param target: The Nomad node the task targets.
+     *     :param service_type: The lowercase database service type (e.g. ``mysql``).
+     *     :param message: A human-readable description of the failure.
+     *     :param task_history_id: The run-script task-history id whose log explains
+     *         the failure, or ``None`` when no task was created (e.g. the Tasks API
+     *         was unreachable). Optional for backward compatibility with existing
+     *         plugin consumers.
+     */
+    framework__ConnectivityWarning: {
+      /** Message */
+      message: string;
+      /** Service Type */
+      service_type: string;
+      /** Target */
+      target: string;
+      /** Task History Id */
+      task_history_id?: number | null;
+    };
+    /**
+     * DateTimeField
+     * @description Represent a datetime picker field.
+     *
+     *     :param field_type: The discriminator literal; always ``"datetime"`` for
+     *         this class. Serialised as the JSON key ``"type"``.
+     *     :type field_type: Literal["datetime"]
+     */
+    framework__DateTimeField: {
+      /** Default */
+      default?: unknown | null;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'datetime';
+    };
+    /**
+     * DerivedTask
+     * @description Represent a sibling task derived from a parent during cascade operations.
+     *
+     *     The cascade module (:mod:`app.sep.apps.framework.cascade`) consumes this
+     *     spec when POSTing, PUTting, or DELETEing a plugin's tasks: the parent task
+     *     is created first, then for each ``DerivedTask`` the parent payload is
+     *     deep-copied, ``name`` is suffixed with ``name_suffix``, ``arg_substitutions``
+     *     are applied to ``data["meta"]["args"]`` as literal :meth:`str.replace`
+     *     calls in dict insertion order, ``payload_substitutions`` are applied to
+     *     ``data["payload"]`` as literal :meth:`str.replace` calls in dict insertion
+     *     order, ``data_overrides`` entries are assigned directly onto ``data`` as
+     *     literal key/value pairs in iteration order, and ``data["parent"]`` is set
+     *     to the parent's name when ``parent_link`` is true.
+     *
+     *     :param name_suffix: String appended to the parent's ``name`` to form the
+     *         derived task's name (for example ``"-dry-run"``).
+     *     :type name_suffix: NonEmptyStr
+     *     :param arg_substitutions: Optional ordered mapping of literal substring
+     *         replacements applied to ``data["meta"]["args"]``. Each ``(old, new)``
+     *         pair is applied once via :meth:`str.replace` in dict insertion order.
+     *         Defaults to ``None`` (no substitutions).
+     *     :type arg_substitutions: dict[str, str] | None
+     *     :param payload_substitutions: Optional ordered mapping of literal substring
+     *         replacements applied to ``data["payload"]``. Each ``(old, new)``
+     *         pair is applied once via :meth:`str.replace` in dict insertion order.
+     *         Defaults to ``None`` (no substitutions).
+     *     :type payload_substitutions: dict[str, str] | None
+     *     :param data_overrides: Optional mapping of literal key→value pairs
+     *         assigned directly onto ``data`` after substitutions run. Each
+     *         pair becomes ``data[key] = value`` in iteration order. Use this
+     *         for plugin-specific identity fields (e.g. ``{"backup_type":
+     *         "pbm_logical"}``) that the framework should not name itself.
+     *         Defaults to ``None``.
+     *     :type data_overrides: dict[str, Any] | None
+     *     :param parent_link: When true, set ``data["parent"]`` on the derived
+     *         payload to the parent's ``name``. Defaults to ``True``.
+     *     :type parent_link: bool
+     */
+    framework__DerivedTask: {
+      /** Arg Substitutions */
+      arg_substitutions?: {
+        [key: string]: string;
+      } | null;
+      /** Data Overrides */
+      data_overrides?: Record<string, never> | null;
+      /** Name Suffix */
+      name_suffix: string;
+      /**
+       * Parent Link
+       * @default true
+       */
+      parent_link: boolean;
+      /** Payload Substitutions */
+      payload_substitutions?: {
+        [key: string]: string;
+      } | null;
+    };
+    /**
+     * DetailField
+     * @description Declare one labelled field rendered inside a :class:`DetailSection`.
+     *
+     *     :param path: Dotted path into the task record (for example
+     *         ``"data.meta.command"``). Each segment must be a Python identifier,
+     *         optionally followed by one or more ``[N]`` array indices.
+     *     :type path: DetailPath
+     *     :param label: Human-readable label rendered alongside the resolved value.
+     *     :type label: NonEmptyStr
+     *     :param highlight: Optional syntax-highlighter hint. Defaults to ``None``.
+     *     :type highlight: DetailHighlightLanguage | None
+     */
+    framework__DetailField: {
+      highlight?:
+        | components['schemas']['framework__DetailHighlightLanguage']
+        | null;
+      /** Label */
+      label: string;
+      /** Path */
+      path: string;
+    };
+    /**
+     * DetailHighlightLanguage
+     * @description Enumerate supported syntax highlighters for detail fields.
+     * @enum {string}
+     */
+    framework__DetailHighlightLanguage: 'sql' | 'json' | 'bash' | 'yaml';
+    /**
+     * DetailSection
+     * @description Declare one titled section inside a :class:`DetailView`.
+     *
+     *     :param title: Heading rendered above the section's fields.
+     *     :type title: NonEmptyStr
+     *     :param fields: Ordered list of fields rendered inside the section. An
+     *         empty list is valid; the frontend hides the section when every
+     *         field resolves to an empty value.
+     *     :type fields: list[DetailField]
+     */
+    framework__DetailSection: {
+      /** Fields */
+      fields: components['schemas']['framework__DetailField'][];
+      /** Title */
+      title: string;
+    };
+    /**
+     * DetailView
+     * @description Declare the per-section detail-page layout for a task-style plugin.
+     *
+     *     Mirrors the role of :attr:`AppSchema.list_view` for the list table:
+     *     the React framework reads ``detail_view`` to render the task detail
+     *     page's section cards instead of inferring structure from the runtime
+     *     ``task.data`` shape.
+     *
+     *     :param sections: Ordered list of sections rendered on the detail page.
+     *         An empty list is valid; the frontend renders no section cards.
+     *         Section titles must be unique within a view so the React key can
+     *         be derived from the title without positional disambiguation.
+     *     :type sections: list[DetailSection]
+     */
+    framework__DetailView: {
+      /** Sections */
+      sections: components['schemas']['framework__DetailSection'][];
+    };
+    /**
+     * FailRule
+     * @description Express a predicate-only invariant: rule fails iff predicate matches.
+     *
+     *     :param fail_when: The predicate whose match triggers a failure.
+     *     :type fail_when: Predicate
+     *     :param error_fields: The field names the FE renderer should attach the
+     *         error to (informational hint; the runtime evaluator ignores this
+     *         list). May be empty when no field is logically responsible.
+     *     :type error_fields: list[str]
+     *     :param message: Optional failure message. Defaults to ``None``.
+     *     :type message: str | None
+     */
+    framework__FailRule: {
+      /** Error Fields */
+      error_fields: string[];
+      /**
+       * Fail When
+       * @description Predicate wire shape — a single-key object whose key is the operator name (equals, truthy, all, any, xor, not, etc.). See the plan for the full operator catalogue.
+       */
+      fail_when: {
+        [key: string]: unknown;
+      };
+      /** Message */
+      message?: string | null;
+    };
+    /**
+     * FieldGate
+     * @description Express a binary self-cardinality gate at :class:`BaseField` scope.
+     *
+     *     Used by :attr:`BaseField.requires` and :attr:`BaseField.forbidden`. The
+     *     target field is the field carrying the rule (implicit self).
+     *
+     *     :param when: The predicate that gates the rule.
+     *     :type when: Predicate
+     *     :param message: Optional failure message surfaced when the rule fires.
+     *         Defaults to ``None``.
+     *     :type message: str | None
+     */
+    framework__FieldGate: {
+      /** Message */
+      message?: string | null;
+      /**
+       * When
+       * @description Predicate wire shape — a single-key object whose key is the operator name (equals, truthy, all, any, xor, not, etc.). See the plan for the full operator catalogue.
+       */
+      when: {
+        [key: string]: unknown;
+      };
+    };
+    /**
+     * FileField
+     * @description Represent a file upload field.
+     *
+     *     :param field_type: The discriminator literal; always ``"file"`` for this
+     *         class. Serialised as the JSON key ``"type"``.
+     *     :type field_type: Literal["file"]
+     *     :param accept: Optional list of accepted file types, using the same
+     *         syntax as the HTML ``accept`` attribute (for example, ``[".sql",
+     *         ".csv"]`` or ``["image/png"]``). Defaults to ``None``.
+     *     :type accept: list[str] | None
+     */
+    framework__FileField: {
+      /** Accept */
+      accept?: string[] | null;
+      /** Default */
+      default?: unknown | null;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'file';
+    };
+    /**
+     * FloatField
+     * @description Represent a float numeric input field.
+     *
+     *     :param field_type: The discriminator literal; always ``"float"`` for this
+     *         class. Serialised as the JSON key ``"type"``.
+     *     :type field_type: Literal["float"]
+     *     :param ge: Optional lower bound (inclusive) for accepted values. Defaults
+     *         to ``None``.
+     *     :type ge: float | None
+     *     :param le: Optional upper bound (inclusive) for accepted values. Defaults
+     *         to ``None``.
+     *     :type le: float | None
+     *     :param step: Optional step size for the input control. Defaults to
+     *         ``None``.
+     *     :type step: float | None
+     */
+    framework__FloatField: {
+      /** Default */
+      default?: unknown | null;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Ge */
+      ge?: number | null;
+      /** Label */
+      label: string;
+      /** Le */
+      le?: number | null;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /** Step */
+      step?: number | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'float';
+    };
+    /**
+     * FormSection
+     * @description Represent a labelled group of related fields rendered as one fieldset.
+     *
+     *     :param title: The section heading displayed above the grouped fields.
+     *     :type title: NonEmptyStr
+     *     :param description: Optional helper text rendered beneath the section
+     *         heading. Defaults to ``None``.
+     *     :type description: NonEmptyStr | None
+     *     :param fields: The list of fields belonging to this section. May include
+     *         :class:`OneOfGroup` containers alongside leaf fields.
+     *     :type fields: list[AnyField]
+     *     :param cardinality_rules: Optional cross-field cardinality constraints
+     *         scoped to the fields in this section. Defaults to ``None``.
+     *     :type cardinality_rules: list[CardinalityRule] | None
+     *     :param fail_when: Optional predicate-only invariants scoped to this
+     *         section. Defaults to ``None``.
+     *     :type fail_when: list[FailRule] | None
+     *     :param collapsible: Whether the renderer may collapse this section behind
+     *         a toggle. Defaults to ``False``.
+     *     :type collapsible: bool
+     *     :param collapsed_by_default: Whether a collapsible section should start
+     *         collapsed. Ignored when ``collapsible`` is ``False``. Defaults to
+     *         ``False``.
+     *     :type collapsed_by_default: bool
+     *     :param render_after_submit: Whether this section should render after the
+     *         submit button instead of before it. Defaults to ``False``.
+     *     :type render_after_submit: bool
+     *     :param forbidden: Optional gates that hide the entire section when any
+     *         of them fires. The schema-driven React renderer skips the section
+     *         and unregisters every child field from the form so stale values
+     *         do not ship in the submission payload. Gates may reference any
+     *         field declared in the plugin schema (including fields in other
+     *         sections). Defaults to ``None`` — sections render unconditionally.
+     *         Backend ``fail_when`` and conditional-rule validation on hidden
+     *         sections still applies: hidden-section children arrive in the
+     *         submitted payload as **absent** (not zeroed or defaulted), so
+     *         ``truthy``/``present`` predicates silently pass while
+     *         ``falsy``/``absent`` predicates see the children as missing.
+     *         Author ``fail_when`` rules accordingly.
+     *     :type forbidden: list[FieldGate] | None
+     */
+    framework__FormSection: {
+      /** Cardinality Rules */
+      cardinality_rules?:
+        | components['schemas']['framework__CardinalityRule'][]
+        | null;
+      /**
+       * Collapsed By Default
+       * @default false
+       */
+      collapsed_by_default: boolean;
+      /**
+       * Collapsible
+       * @default false
+       */
+      collapsible: boolean;
+      /** Description */
+      description?: string | null;
+      /** Fail When */
+      fail_when?: components['schemas']['framework__FailRule'][] | null;
+      /** Fields */
+      fields: (
+        | components['schemas']['framework__BoolField']
+        | components['schemas']['framework__ChoiceField']
+        | components['schemas']['framework__DateTimeField']
+        | components['schemas']['framework__FileField']
+        | components['schemas']['framework__FloatField']
+        | components['schemas']['framework__HostField']
+        | components['schemas']['framework__IntegerField']
+        | components['schemas']['framework__MultiChoiceField']
+        | components['schemas']['framework__MultiHostField']
+        | components['schemas']['framework__MultiSchemaField']
+        | components['schemas']['framework__MultiServiceField']
+        | components['schemas']['framework__MultiTableField']
+        | components['schemas']['framework__RemoteChoiceField']
+        | components['schemas']['framework__SchemaField']
+        | components['schemas']['framework__ScriptPreviewField']
+        | components['schemas']['framework__ServiceField']
+        | components['schemas']['framework__StringField']
+        | components['schemas']['framework__TableField']
+        | components['schemas']['framework__TextAreaField']
+        | components['schemas']['framework__YamlField']
+        | components['schemas']['framework__OneOfGroup']
+      )[];
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * Render After Submit
+       * @default false
+       */
+      render_after_submit: boolean;
+      /** Title */
+      title: string;
+    };
+    /**
+     * HostField
+     * @description Represent an executor-target (Nomad / Celery) selector field.
+     *
+     *     The React renderer loads options from ``GET /api/sep/hosts/`` (an SEP
+     *     proxy endpoint that internally calls Tasks ``/hosts/`` and merges
+     *     Inventory display names server-side). When ``depends_on`` is set (typically
+     *     a ``ServiceField``), the renderer may auto-select an executor from the
+     *     upstream service; when omitted every available executor is listed and no
+     *     cascade runs.
+     *
+     *     :param field_type: The discriminator literal; always ``"host"`` for this
+     *         class. Serialised as the JSON key ``"type"``.
+     *     :type field_type: Literal["host"]
+     *     :param depends_on: Optional name of the field whose value drives the
+     *         default executor selection. ``None`` (the default) omits the key from
+     *         the wire so plugins that do not opt in stay byte-identical.
+     *     :param allow_custom: When ``True``, the selector also accepts a free-typed
+     *         value alongside the inventory options. ``None`` (the default) omits the
+     *         key from the wire so plugins that do not opt in stay byte-identical.
+     */
+    framework__HostField: {
+      /** Allow Custom */
+      allow_custom?: boolean | null;
+      /** Default */
+      default?: unknown | null;
+      /** Depends On */
+      depends_on?: string | null;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'host';
+    };
+    /**
+     * IntegerField
+     * @description Represent an integer numeric input field.
+     *
+     *     :param field_type: The discriminator literal; always ``"integer"`` for this
+     *         class. Serialised as the JSON key ``"type"``.
+     *     :type field_type: Literal["integer"]
+     *     :param ge: Optional lower bound (inclusive) for accepted values. Defaults
+     *         to ``None``.
+     *     :type ge: int | None
+     *     :param le: Optional upper bound (inclusive) for accepted values. Defaults
+     *         to ``None``.
+     *     :type le: int | None
+     *     :param step: Optional step size for the input control. Defaults to
+     *         ``None``.
+     *     :type step: int | None
+     */
+    framework__IntegerField: {
+      /** Default */
+      default?: unknown | null;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Ge */
+      ge?: number | null;
+      /** Label */
+      label: string;
+      /** Le */
+      le?: number | null;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /** Step */
+      step?: number | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'integer';
+    };
+    /**
+     * ListView
+     * @description Represent the list-view configuration for a plugin.
+     *
+     *     :param columns: The ordered list of columns displayed in the list view.
+     *     :type columns: list[Column]
+     *     :param default_sort: Optional key of the column to sort by on first
+     *         render. Prefix with ``-`` for descending order (for example,
+     *         ``"-lastRun"``). The unprefixed key must match one of the declared
+     *         column keys. Defaults to ``None``.
+     *     :type default_sort: NonEmptyStr | None
+     *     :param overview_hidden_fields: Additional task-level keys to suppress
+     *         from the auto-rendered "extras" loop on the plugin detail Overview
+     *         tab. The framework always hides a baseline set of internal fields
+     *         (``id``, ``backend``, ``protected``, ``data``, ``updated_at``,
+     *         ``last_updated_by``, ``connectivity_warning``); any keys listed here
+     *         are merged with that baseline. Defaults to ``[]``.
+     *     :type overview_hidden_fields: list[str]
+     */
+    framework__ListView: {
+      /** Columns */
+      columns: components['schemas']['framework__Column'][];
+      /** Default Sort */
+      default_sort?: string | null;
+      /** Overview Hidden Fields */
+      overview_hidden_fields?: string[];
+    };
+    /**
+     * MultiChoiceField
+     * @description Represent a multi-select dropdown field.
+     *
+     *     :param field_type: The discriminator literal; always ``"multi_choice"``
+     *         for this class. Serialised as the JSON key ``"type"``.
+     *     :type field_type: Literal["multi_choice"]
+     *     :param choices: The non-empty list of options the user can choose from.
+     *     :type choices: list[Choice]
+     */
+    framework__MultiChoiceField: {
+      /** Choices */
+      choices: components['schemas']['framework__Choice'][];
+      /** Default */
+      default?: unknown | null;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'multi_choice';
+    };
+    /**
+     * MultiHostField
+     * @description Represent a multi-value executor-target selector field.
+     *
+     *     The multi-value counterpart of :class:`HostField`: the renderer commits a
+     *     list of executor targets instead of a single one. Derived from a
+     *     ``HostRef(multiple=True)`` marker on a ``list[...]`` / ``set[...]`` field.
+     *
+     *     Cascade auto-select is single-host only (:class:`HostField`). ``depends_on``
+     *     may still be emitted when ``Ui(depends_on=...)`` is set so derivation stays
+     *     uniform, but the multi-host renderer does not honour it today.
+     *
+     *     :param field_type: The discriminator literal; always ``"multi_host"`` for
+     *         this class. Serialised as the JSON key ``"type"``.
+     *     :param depends_on: Optional upstream field name mirrored from
+     *         ``Ui(depends_on=...)``. Emitted for wire uniformity with
+     *         :class:`HostField`; the current multi-host renderer ignores it (no
+     *         cascade). ``None`` (the default) omits the key from the wire.
+     *     :param allow_custom: When ``True``, the selector also accepts free-typed
+     *         values alongside the inventory options. ``None`` (the default) omits the
+     *         key from the wire so plugins that do not opt in stay byte-identical.
+     */
+    framework__MultiHostField: {
+      /** Allow Custom */
+      allow_custom?: boolean | null;
+      /** Default */
+      default?: unknown | null;
+      /** Depends On */
+      depends_on?: string | null;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'multi_host';
+    };
+    /**
+     * MultiSchemaField
+     * @description Represent a multi-value inventory database-schema selector field.
+     *
+     *     The multi-value counterpart of :class:`SchemaField`: the renderer commits a
+     *     list of schemas instead of a single one. Derived from a
+     *     ``SchemaRef(multiple=True)`` marker on a ``list[...]`` / ``set[...]`` field.
+     *
+     *     :param field_type: The discriminator literal; always ``"multi_schema"`` for
+     *         this class. Serialised as the JSON key ``"type"``.
+     *     :param depends_on: The name of the field whose value drives the list of
+     *         available schemas.
+     *     :param allow_custom: Opt-in flag for free-text (free-solo) entry alongside
+     *         the cascaded options. ``None`` (the default) omits the key from the wire
+     *         so plugins that do not opt in stay byte-identical.
+     */
+    framework__MultiSchemaField: {
+      /** Allow Custom */
+      allow_custom?: boolean | null;
+      /** Default */
+      default?: unknown | null;
+      /** Depends On */
+      depends_on: string;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'multi_schema';
+    };
+    /**
+     * MultiServiceField
+     * @description Represent a multi-value inventory service selector field.
+     *
+     *     The multi-value counterpart of :class:`ServiceField`: the renderer commits a
+     *     list of services instead of a single one. Derived from a
+     *     ``ServiceRef(multiple=True)`` marker on a ``list[...]`` / ``set[...]`` field.
+     *
+     *     :param field_type: The discriminator literal; always ``"multi_service"`` for
+     *         this class. Serialised as the JSON key ``"type"``.
+     *     :param service_types: The list of service types the selector should offer
+     *         (for example, ``[ServiceTypeEnum.MYSQL]``).
+     *     :param allow_custom: Opt-in flag for free-text (free-solo) entry alongside
+     *         the inventory options. ``None`` (the default) omits the key from the wire
+     *         so plugins that do not opt in stay byte-identical.
+     */
+    framework__MultiServiceField: {
+      /** Allow Custom */
+      allow_custom?: boolean | null;
+      /** Default */
+      default?: unknown | null;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /** Service Types */
+      service_types: components['schemas']['ServiceTypeEnum'][];
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'multi_service';
+    };
+    /**
+     * MultiTableField
+     * @description Represent a multi-value inventory table selector field.
+     *
+     *     The multi-value counterpart of :class:`TableField`: the renderer commits a
+     *     list of tables instead of a single one. Derived from a
+     *     ``TableRef(multiple=True)`` marker on a ``list[...]`` / ``set[...]`` field.
+     *
+     *     :param field_type: The discriminator literal; always ``"multi_table"`` for
+     *         this class. Serialised as the JSON key ``"type"``.
+     *     :param depends_on: The name of the field whose value drives the list of
+     *         available tables.
+     *     :param allow_custom: Opt-in flag for free-text (free-solo) entry alongside
+     *         the cascaded options. ``None`` (the default) omits the key from the wire
+     *         so plugins that do not opt in stay byte-identical.
+     */
+    framework__MultiTableField: {
+      /** Allow Custom */
+      allow_custom?: boolean | null;
+      /** Default */
+      default?: unknown | null;
+      /** Depends On */
+      depends_on: string;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'multi_table';
+    };
+    /** MysqlBackupsCreateResponse */
+    framework__MysqlBackupsCreateResponse: {
+      /** Alert On Fail */
+      alert_on_fail: boolean;
+      /** Anonymize Mask */
+      anonymize_mask?: number | null;
+      /**
+       * Anonymized Entities
+       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
+       */
+      readonly anonymized_entities: string[];
+      backend: components['schemas']['TaskBackendEnum'];
+      backup_type?: components['schemas']['mysql_backups__BackupType'] | null;
+      connectivity_warning?:
+        | components['schemas']['framework__ConnectivityWarning']
+        | null;
+      /** Created At */
+      created_at?: string | null;
+      /** Created By */
+      created_by?: string | null;
+      /** Data */
+      data: Record<string, never>;
+      /** Hostname */
+      hostname?: string | null;
+      /** Id */
+      id?: number | null;
+      /** Last Executed At */
+      last_executed_at?: string | null;
+      /** Last Updated By */
+      last_updated_by?: string | null;
+      /** Name */
+      name: string;
+      /** Protected */
+      protected: boolean;
+      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+      /** Updated At */
+      updated_at?: string | null;
+    };
+    /**
+     * OneOfBranch
+     * @description Represent one mutually-exclusive branch inside a :class:`OneOfGroup`.
+     *
+     *     :param value: The discriminator value that selects this branch.
+     *     :param label: The human-readable label for the segmented-control option.
+     *     :param fields: The leaf fields revealed when this branch is active.
+     */
+    framework__OneOfBranch: {
+      /** Fields */
+      fields: (
+        | components['schemas']['framework__BoolField']
+        | components['schemas']['framework__ChoiceField']
+        | components['schemas']['framework__DateTimeField']
+        | components['schemas']['framework__FileField']
+        | components['schemas']['framework__FloatField']
+        | components['schemas']['framework__HostField']
+        | components['schemas']['framework__IntegerField']
+        | components['schemas']['framework__MultiChoiceField']
+        | components['schemas']['framework__MultiHostField']
+        | components['schemas']['framework__MultiSchemaField']
+        | components['schemas']['framework__MultiServiceField']
+        | components['schemas']['framework__MultiTableField']
+        | components['schemas']['framework__RemoteChoiceField']
+        | components['schemas']['framework__SchemaField']
+        | components['schemas']['framework__ScriptPreviewField']
+        | components['schemas']['framework__ServiceField']
+        | components['schemas']['framework__StringField']
+        | components['schemas']['framework__TableField']
+        | components['schemas']['framework__TextAreaField']
+        | components['schemas']['framework__YamlField']
+      )[];
+      /** Label */
+      label: string;
+      /** Value */
+      value: string;
+    };
+    /**
+     * OneOfGroup
+     * @description Represent a labelled either/or field group with a segmented mode switch.
+     *
+     *     The React renderer binds :attr:`discriminator` to a ``ToggleButtonGroup``,
+     *     shows :attr:`description` as helper text, and renders only the active
+     *     branch's :attr:`~OneOfBranch.fields`. Inactive-branch leaves are forbidden
+     *     at validation time via rules synthesised from the group's branch contract.
+     *
+     *     :param field_type: The discriminator literal; always ``"one_of"`` for this
+     *         class. Serialised as the JSON key ``"type"``.
+     *     :param name: Stable group identifier used as the React list key. Not a
+     *         separate form value — :attr:`discriminator` names the mode field.
+     *     :param label: The human-readable group heading above the segmented control.
+     *     :param description: Optional helper text rendered beneath the group label.
+     *         Defaults to ``None``.
+     *     :param discriminator: Dotted path to the mode field (for example,
+     *         ``"source.mode"``) whose value selects the active branch.
+     *     :param default: Optional default branch :attr:`~OneOfBranch.value`. Must
+     *         match one of the declared branches when set. Defaults to ``None``.
+     *     :param branches: Two or more named branches, each owning its own field list.
+     */
+    framework__OneOfGroup: {
+      /** Branches */
+      branches: components['schemas']['framework__OneOfBranch'][];
+      /** Default */
+      default?: string | null;
+      /** Description */
+      description?: string | null;
+      /** Discriminator */
+      discriminator: string;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'one_of';
+    };
+    /** PaginatedResponse[BaseTaskResponse] */
+    framework__PaginatedResponse_BaseTaskResponse_: {
+      /** Items */
+      items: components['schemas']['framework__BaseTaskResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /**
+     * RelatedApp
+     * @description Declare a separately registered app surfaced as a sibling tab in the UI.
+     *
+     *     Consumed by the React ``SchemaDrivenPlugin`` shell to mount a nested
+     *     schema-driven flow for the related registry entry (for example
+     *     ``mysql_backups/restore``) under ``{route_base}/{route_segment}`` without
+     *     re-merging the child app's API router into the parent.
+     *
+     *     :param app_key: The scoped registry key of the related app (for example
+     *         ``mysql_backups/restore``).
+     *     :type app_key: NonEmptyStr
+     *     :param label: The human-readable tab label (for example ``Restore``).
+     *     :type label: NonEmptyStr
+     *     :param route_segment: The React sub-path segment under the parent's
+     *         ``route_base`` (for example ``restores``). Must be a single URL path
+     *         segment — no slashes — and must not be a reserved single-entity route
+     *         keyword (``new``, ``schedule``, ``task``).
+     *     :type route_segment: NonEmptyStr
+     */
+    framework__RelatedApp: {
+      /** App Key */
+      app_key: string;
+      /** Label */
+      label: string;
+      /** Route Segment */
+      route_segment: string;
+    };
+    /**
+     * RemoteChoiceField
+     * @description Represent a field whose options are fetched at render from an app endpoint.
+     *
+     *     The renderer fetches ``endpoint_url`` and renders the returned
+     *     ``Choice``-compatible options (``value`` / ``label`` / optional ``disabled``
+     *     / ``disabled_reason``). When ``depends_on`` is set, the fetch is
+     *     parameterised by the dependency's value (appended as a query parameter named
+     *     after ``depends_on``) and the field stays disabled/empty until the
+     *     dependency has a value. When ``allow_custom`` is set, the renderer also
+     *     accepts a free-typed value. The endpoint response contract is a JSON array
+     *     of objects shaped like :class:`Choice`: ``{"value": str, "label": str,
+     *     "disabled"?: bool, "disabled_reason"?: str}``.
+     *
+     *     :param field_type: The discriminator literal; always ``"remote_choice"``.
+     *         Serialised as the JSON key ``"type"``.
+     *     :param endpoint_url: The fully-resolved URL the renderer fetches options
+     *         from, relative to the frontend ``apiClient`` base (``/api``).
+     *     :param depends_on: Optional name of the sibling field whose value drives
+     *         (and parameterises) the option fetch. ``None`` (the default) omits the
+     *         key from the wire so plugins that do not cascade stay byte-identical.
+     *     :param allow_custom: When ``True``, the selector also accepts a free-typed
+     *         value. ``None`` (the default) omits the key from the wire so plugins
+     *         that do not opt in stay byte-identical.
+     */
+    framework__RemoteChoiceField: {
+      /** Allow Custom */
+      allow_custom?: boolean | null;
+      /** Default */
+      default?: unknown | null;
+      /** Depends On */
+      depends_on?: string | null;
+      /** Description */
+      description?: string | null;
+      /** Endpoint Url */
+      endpoint_url: string;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'remote_choice';
+    };
+    /**
+     * SchemaField
+     * @description Represent an inventory database-schema selector field.
+     *
+     *     ``depends_on`` is a forward reference to another field's ``name`` in the
+     *     same plugin schema (typically a ``ServiceField``); the React renderer
+     *     cascades schema options from the selected service. The referenced field
+     *     is not validated at the schema level.
+     *
+     *     :param field_type: The discriminator literal; always ``"schema"`` for
+     *         this class. Serialised as the JSON key ``"type"``.
+     *     :type field_type: Literal["schema"]
+     *     :param depends_on: The name of the field whose value drives the list of
+     *         available schemas.
+     *     :type depends_on: NonEmptyStr
+     *     :param allow_custom: Opt-in capability flag declaring that a consuming
+     *         renderer may offer free-text (free-solo) entry in addition to the
+     *         cascaded inventory options. Optional, defaulting to ``None`` (options
+     *         only). Typed ``bool | None`` so the discovery endpoint's
+     *         ``exclude_none`` posture drops it from the wire until a plugin opts
+     *         in, keeping the addition byte-compatible with existing schemas. The
+     *         built-in SchemaFormRenderer does not yet consume the flag; the
+     *         free-solo widget that reads it ships with the consuming plugin.
+     *     :type allow_custom: bool | None
+     */
+    framework__SchemaField: {
+      /** Allow Custom */
+      allow_custom?: boolean | null;
+      /** Default */
+      default?: unknown | null;
+      /** Depends On */
+      depends_on: string;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'schema';
+    };
+    /**
+     * ScriptExecuteWrite
+     * @description Define the JSON body for ``POST .../snippet/execute``.
+     *
+     *     The per-script frontmatter arguments go in ``args`` and are validated against
+     *     the script's dynamic execution model, while ``executor_host`` and ``sudo`` are
+     *     execution-level inputs the consumer's ``build_execution_meta`` reads.
+     *
+     *     :param executor_host: The hostname of the executor that will run the script.
+     *     :param sudo: Whether to invoke the script with sudo. The consumer's
+     *         ``build_execution_meta`` decides whether the script honours it.
+     *     :param args: Per-parameter arguments keyed by parameter name, validated
+     *         against the script's dynamic execution model.
+     */
+    framework__ScriptExecuteWrite: {
+      /**
+       * Args
+       * @default {}
+       */
+      args: {
+        [key: string]: unknown;
+      };
+      /** Execution Host */
+      executor_host: string;
+      /**
+       * Sudo
+       * @default false
+       */
+      sudo: boolean;
+    };
+    /**
+     * ScriptExecutionResponse
+     * @description Represent the response from the script execute endpoint.
+     *
+     *     :param task_name: The Tasks-API task name the script executed under.
+     *     :param task_id: The id of the task-history row the Tasks API created, when the
+     *         upstream response carries one.
+     *     :param snippet_filename: The filename of the executed script.
+     */
+    framework__ScriptExecutionResponse: {
+      /** Snippet Filename */
+      snippet_filename: string;
+      /** Task Id */
+      task_id?: number | null;
+      /** Task Name */
+      task_name: string;
+    };
+    /**
+     * ScriptPreviewField
+     * @description Represent a read-only field that renders a backend-fetched script preview.
+     *
+     *     The renderer fetches ``endpoint_url`` on mount, and re-fetches whenever
+     *     any sibling field listed in ``depends_on`` changes value (debounced and
+     *     cancellation-safe). The response shape is
+     *     ``{content: str, language: str, is_truncated: bool}``.
+     *
+     *     :param field_type: The discriminator literal; always
+     *         ``"script_preview"`` for this class. Serialised as the JSON key
+     *         ``"type"``.
+     *     :type field_type: Literal["script_preview"]
+     *     :param endpoint_url: The fully-resolved URL the renderer fetches preview
+     *         content from, relative to the FE ``apiClient`` base (``/api``). Schema
+     *         synthesisers should bake any plugin-specific path segments (for
+     *         example, ``/apps/snippets/{filename}/preview``) here at
+     *         schema build time rather than templating client-side.
+     *     :type endpoint_url: NonEmptyStr
+     *     :param depends_on: Names of sibling fields whose values trigger a
+     *         re-fetch when changed. Empty (the default) means fetch once on
+     *         mount.
+     *     :type depends_on: list[NonEmptyStr]
+     *     :param language: Optional default highlighter language hint used when
+     *         the backend response omits ``language``. Defaults to ``None``.
+     *     :type language: NonEmptyStr | None
+     */
+    framework__ScriptPreviewField: {
+      /** Default */
+      default?: unknown | null;
+      /** Depends On */
+      depends_on?: string[];
+      /** Description */
+      description?: string | null;
+      /** Endpoint Url */
+      endpoint_url: string;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Language */
+      language?: string | null;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'script_preview';
+    };
+    /**
+     * ScriptPreviewResponse
+     * @description Represent the backend response for the preview endpoint.
+     *
+     *     :param content: The full text content of the snippet file (preamble,
+     *         frontmatter, and body concatenated).
+     *     :param language: A JS syntax-highlighter language identifier derived
+     *         from the snippet's MIME type (for example, ``"bash"`` or
+     *         ``"plaintext"``).
+     *     :param is_truncated: Whether the preview was truncated to fit
+     *         within the configured per-file character or line limit.
+     */
+    framework__ScriptPreviewResponse: {
+      /** Content */
+      content: string;
+      /** Is Truncated */
+      is_truncated: boolean;
+      /** Language */
+      language: string;
+    };
+    /**
+     * ServiceField
+     * @description Represent an inventory service selector field.
+     *
+     *     :param field_type: The discriminator literal; always ``"service"`` for
+     *         this class. Serialised as the JSON key ``"type"``.
+     *     :type field_type: Literal["service"]
+     *     :param service_types: The list of service types the selector should offer
+     *         (for example, ``[ServiceTypeEnum.MYSQL]``).
+     *     :type service_types: list[ServiceTypeEnum]
+     *     :param allow_custom: Opt-in capability flag declaring that a consuming
+     *         renderer may offer free-text (free-solo) entry in addition to the
+     *         inventory options. Optional, defaulting to ``None`` (options only).
+     *         Typed ``bool | None`` so the discovery endpoint's ``exclude_none``
+     *         posture drops it from the wire until a plugin opts in, keeping the
+     *         addition byte-compatible with existing schemas. The built-in
+     *         SchemaFormRenderer does not yet consume the flag; the free-solo
+     *         widget that reads it ships with the consuming plugin.
+     *     :type allow_custom: bool | None
+     */
+    framework__ServiceField: {
+      /** Allow Custom */
+      allow_custom?: boolean | null;
+      /** Default */
+      default?: unknown | null;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /** Service Types */
+      service_types: components['schemas']['ServiceTypeEnum'][];
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'service';
+    };
+    /**
+     * StringField
+     * @description Represent a single-line string input field.
+     *
+     *     :param field_type: The discriminator literal; always ``"string"`` for this
+     *         class. Serialised as the JSON key ``"type"``.
+     *     :type field_type: Literal["string"]
+     *     :param min_length: Optional minimum character length. Defaults to
+     *         ``None``.
+     *     :type min_length: int | None
+     *     :param max_length: Optional maximum character length. Defaults to
+     *         ``None``.
+     *     :type max_length: int | None
+     *     :param pattern: Optional regular expression the value must match.
+     *         Defaults to ``None``.
+     *     :type pattern: NonEmptyStr | None
+     *     :param placeholder: Optional placeholder text displayed when the field is
+     *         empty. Defaults to ``None``.
+     *     :type placeholder: NonEmptyStr | None
+     */
+    framework__StringField: {
+      /** Default */
+      default?: unknown | null;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Max Length */
+      max_length?: number | null;
+      /** Min Length */
+      min_length?: number | null;
+      /** Name */
+      name: string;
+      /** Pattern */
+      pattern?: string | null;
+      /** Placeholder */
+      placeholder?: string | null;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'string';
+    };
+    /**
+     * TableField
+     * @description Represent an inventory table selector field.
+     *
+     *     ``depends_on`` is a forward reference to another field's ``name`` in the
+     *     same plugin schema (typically a ``SchemaField``); the React renderer
+     *     cascades table options from the selected schema. The referenced field
+     *     is not validated at the schema level.
+     *
+     *     :param field_type: The discriminator literal; always ``"table"`` for this
+     *         class. Serialised as the JSON key ``"type"``.
+     *     :type field_type: Literal["table"]
+     *     :param depends_on: The name of the field whose value drives the list of
+     *         available tables.
+     *     :type depends_on: NonEmptyStr
+     *     :param allow_custom: Opt-in capability flag declaring that a consuming
+     *         renderer may offer free-text (free-solo) entry in addition to the
+     *         cascaded inventory options. Optional, defaulting to ``None`` (options
+     *         only). Typed ``bool | None`` so the discovery endpoint's
+     *         ``exclude_none`` posture drops it from the wire until a plugin opts
+     *         in, keeping the addition byte-compatible with existing schemas. The
+     *         built-in SchemaFormRenderer does not yet consume the flag; the
+     *         free-solo widget that reads it ships with the consuming plugin.
+     *     :type allow_custom: bool | None
+     */
+    framework__TableField: {
+      /** Allow Custom */
+      allow_custom?: boolean | null;
+      /** Default */
+      default?: unknown | null;
+      /** Depends On */
+      depends_on: string;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'table';
+    };
+    /**
+     * TaskExecuteWrite
+     * @description Represent the default JSON request body for executing a task.
+     *
+     *     :param eta: Optional future datetime to schedule execution.
+     *     :param chain_task_names: Optional list of task names to chain after this one.
+     *     :param chain_on_failure: Whether to run chained tasks even on failure.
+     */
+    framework__TaskExecuteWrite: {
+      /** Chain On Failure */
+      chain_on_failure?: boolean | null;
+      /** Chain Task Names */
+      chain_task_names?: string[] | null;
+      /** Eta */
+      eta?: string | null;
+    };
+    /**
+     * TaskExecutionResponse
+     * @description Represent the default response from a task execute route.
+     *
+     *     :param task_name: The name of the task that was executed.
+     *     :param task_id: The id of the task-history row created by the tasks API.
+     */
+    framework__TaskExecutionResponse: {
+      /** Task Id */
+      task_id?: number | null;
+      /** Task Name */
+      task_name: string;
+    };
+    /**
+     * TextAreaField
+     * @description Represent a multi-line string input field.
+     *
+     *     :param field_type: The discriminator literal; always ``"textarea"`` for
+     *         this class. Serialised as the JSON key ``"type"``.
+     *     :type field_type: Literal["textarea"]
+     *     :param rows: Optional number of visible text rows. Defaults to ``None``.
+     *     :type rows: int | None
+     *     :param placeholder: Optional placeholder text displayed when the field is
+     *         empty. Defaults to ``None``.
+     *     :type placeholder: NonEmptyStr | None
+     */
+    framework__TextAreaField: {
+      /** Default */
+      default?: unknown | null;
+      /** Description */
+      description?: string | null;
+      /** Forbidden */
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
+      /** Label */
+      label: string;
+      /** Name */
+      name: string;
+      /** Placeholder */
+      placeholder?: string | null;
+      /**
+       * Required
+       * @default false
+       */
+      required: boolean;
+      /** Requires */
+      requires?: components['schemas']['framework__FieldGate'][] | null;
+      /** Rows */
+      rows?: number | null;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'textarea';
+    };
     /**
      * YamlField
      * @description Represent a YAML-syntax multi-line text input field.
@@ -7733,13 +8558,13 @@ export interface components {
      *         empty. Defaults to ``None``.
      *     :type placeholder: NonEmptyStr | None
      */
-    YamlField: {
+    framework__YamlField: {
       /** Default */
       default?: unknown | null;
       /** Description */
       description?: string | null;
       /** Forbidden */
-      forbidden?: components['schemas']['FieldGate'][] | null;
+      forbidden?: components['schemas']['framework__FieldGate'][] | null;
       /** Label */
       label: string;
       /** Name */
@@ -7752,7 +8577,7 @@ export interface components {
        */
       required: boolean;
       /** Requires */
-      requires?: components['schemas']['FieldGate'][] | null;
+      requires?: components['schemas']['framework__FieldGate'][] | null;
       /** Rows */
       rows?: number | null;
       /**
@@ -7761,135 +8586,355 @@ export interface components {
        */
       type: 'yaml';
     };
-    /** PaginatedResponse[BackupTaskResponse] */
-    app__core__pagination__models__PaginatedResponse_BackupTaskResponse___1: {
-      /** Items */
-      items: components['schemas']['app__sep__apps__backup_mongo__models__BackupTaskResponse'][];
-      /** Limit */
-      limit: number;
-      /** Offset */
-      offset: number;
-      /** Total */
-      total: number;
-    };
-    /** PaginatedResponse[BackupTaskResponse] */
-    app__core__pagination__models__PaginatedResponse_BackupTaskResponse___2: {
-      /** Items */
-      items: components['schemas']['app__sep__apps__backup_pg__models__BackupTaskResponse'][];
-      /** Limit */
-      limit: number;
-      /** Offset */
-      offset: number;
-      /** Total */
-      total: number;
-    };
     /**
-     * BackupExecuteWrite
-     * @description Represent a JSON request body for executing a backup task.
+     * AvailableSyncer
+     * @description Provide template-facing metadata for an available syncer.
      *
-     *     :param eta: Optional future datetime to schedule execution.
-     *     :type eta: FutureDatetime | None
-     *     :param chain_task_names: Optional list of task names to chain after this one.
-     *     :type chain_task_names: list[str] | None
-     *     :param chain_on_failure: Whether to run chained tasks even on failure.
-     *     :type chain_on_failure: bool | None
+     *     :param name: The fully qualified ``"module.ClassName"`` identifier matching
+     *         ``BaseSyncer.get_name()`` and the value persisted in
+     *         ``SyncInstance.syncer``. Used as the wire identifier in form payloads.
+     *     :type name: str
+     *     :param display_name: The human-readable label rendered in the dropdown
+     *         (the syncer class's short name with any trailing ``Syncer`` suffix
+     *         stripped).
+     *     :type display_name: str
      */
-    app__sep__apps__backup_mongo__models__BackupExecuteWrite: {
-      /** Chain On Failure */
-      chain_on_failure?: boolean | null;
-      /** Chain Task Names */
-      chain_task_names?: string[] | null;
-      /** Eta */
-      eta?: string | null;
-    };
-    /**
-     * BackupExecutionResponse
-     * @description Represent the response from POST /api/apps/backup_mongo/{task_name}/execute.
-     *
-     *     :param task_name: The name of the task that was executed.
-     *     :type task_name: str
-     *     :param task_id: The id of the task-history row created by the tasks API.
-     *     :type task_id: int | None
-     */
-    app__sep__apps__backup_mongo__models__BackupExecutionResponse: {
-      /** Task Id */
-      task_id?: number | null;
-      /** Task Name */
-      task_name: string;
-    };
-    /**
-     * BackupTaskDetailResponse
-     * @description Represent a backup task detail API response.
-     *
-     *     :param derived_tasks: Latest status for each derived logical, physical, and
-     *         status sibling.
-     *     :type derived_tasks: list[BackupDerivedTaskSummary]
-     *     :param latest_pbm_status: Tail of the latest PBM status task stdout, if
-     *         available.
-     *     :type latest_pbm_status: str | None
-     */
-    app__sep__apps__backup_mongo__models__BackupTaskDetailResponse: {
-      /** Alert On Fail */
-      alert_on_fail: boolean;
-      backend: components['schemas']['TaskBackendEnum'];
-      /** Backup Type */
-      backup_type: string;
-      /** Created At */
-      created_at?: string | null;
-      /** Created By */
-      created_by?: string | null;
-      /** Data */
-      data: Record<string, never>;
-      /** Derived Tasks */
-      derived_tasks?: components['schemas']['BackupDerivedTaskSummary'][];
-      /** Hostname */
-      hostname?: string | null;
-      /** Id */
-      id?: number | null;
-      /** Last Updated By */
-      last_updated_by?: string | null;
-      /** Latest Pbm Status */
-      latest_pbm_status?: string | null;
+    inventory__AvailableSyncer: {
+      /** Display Name */
+      display_name: string;
       /** Name */
       name: string;
-      owner: components['schemas']['TaskOwner'];
-      /** Protected */
-      protected: boolean;
-      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
-      /** Updated At */
-      updated_at?: string | null;
+    };
+    /**
+     * InventorySyncStatusResponse
+     * @description Represent the inventory sync status response.
+     *
+     *     :param is_running: ``True`` when an inventory-wide sync is currently
+     *         in progress; ``False`` otherwise.
+     *     :type is_running: bool
+     */
+    inventory__InventorySyncStatusResponse: {
+      /** Is Running */
+      is_running: boolean;
+    };
+    /**
+     * InventorySyncTriggerWrite
+     * @description Carry the optional JSON body for the ad-hoc inventory sync trigger.
+     *
+     *     A ``None`` or empty ``syncer`` selects the sync-all path; a non-empty
+     *     string targets a single configured syncer by its fully qualified
+     *     ``"module.ClassName"`` identifier. Unknown fields are rejected with
+     *     HTTP 422 so a typo on the client never silently degrades to sync-all.
+     *
+     *     :param syncer: Fully qualified syncer name, or ``None`` for sync-all.
+     *     :type syncer: str | None
+     */
+    inventory__InventorySyncTriggerWrite: {
+      /** Syncer */
+      syncer?: string | null;
+    };
+    /**
+     * PluginTaskResponse
+     * @description Represent a single plugin task entry returned by ``GET /api/apps/inventory/``.
+     *
+     *     :param name: Machine-readable task identifier (e.g. ``"inventory-sync"``).
+     *     :type name: str
+     *     :param display_name: Human-readable label for the schedule UI.
+     *     :type display_name: str
+     */
+    inventory__PluginTaskResponse: {
+      /** Display Name */
+      display_name: string;
+      /** Name */
+      name: string;
+    };
+    /**
+     * BackupCreate
+     * @description Declare the model-first create/update body and ``GET /schema`` source for MySQL Backups.
+     *
+     *     Declares each form field once, in section order (Task, General, Mydumper,
+     *     XtraBackup, Binlog, Encryption, Upload), with the DSL markers driving the
+     *     derived schema. Field declaration order is load-bearing: the derived section
+     *     order follows each section's first field, and the within-section order follows
+     *     declaration order, so the order here reproduces the hand-written schema
+     *     byte-for-byte. The conditional gating that the legacy ``schema.py`` declared
+     *     (per-mode ``forbidden`` gates, the upload-provider ``Contains`` gates, the
+     *     encryption requires/forbidden pair, and the per-mode bool ``FailRule``s in
+     *     :attr:`__form_rules__`) now lives on the model; ``AppFormModel`` extracts it
+     *     into the conditional-rule plan at class definition, so no
+     *     ``@apply_conditional_rules`` decorator is needed. The config sub-models
+     *     (:class:`BackupConfigAll` and friends) stay the serialization target the
+     *     payload builder populates, not this model's base class.
+     *
+     *     :cvar __form_rules__: The per-mode bool fail rules — a truthy mode-owned bool
+     *         outside its mode fails validation with a per-field message.
+     */
+    mysql_backups__BackupCreate: {
+      /**
+       * Alert On Fail
+       * @default false
+       */
+      alert_on_fail: boolean;
+      /** Alias */
+      alias?: string | null;
+      /** Awscli S3 Upload Extra Args */
+      awscli_s3_upload_extra_args?: string | null;
+      /** Backup Dir */
+      backup_dir?: string | null;
+      backup_type: components['schemas']['mysql_backups__BackupType'];
+      /** Binlog Alternative Host */
+      binlog_alternative_host?: string | null;
+      /** Binlog Cmd */
+      binlog_cmd?: string | null;
+      /** Binlog Compress Cmd */
+      binlog_compress_cmd?: string | null;
+      /** Binlog Extra Args */
+      binlog_extra_args?: string | null;
+      /** Binlog Prefix */
+      binlog_prefix?: string | null;
+      /** Binlog Purge Days */
+      binlog_purge_days?: number | null;
+      /**
+       * Binlog Run All
+       * @default true
+       */
+      binlog_run_all: boolean;
+      /**
+       * Check Disk Space
+       * @default false
+       */
+      check_disk_space: boolean;
+      /**
+       * Compress
+       * @default false
+       */
+      compress: boolean;
+      /** Compression Algorithm */
+      compression_algorithm?:
+        | components['schemas']['mysql_backups__CompressionAlgorithm']
+        | null;
+      /** Defaults File */
+      defaults_file?: string | null;
+      /**
+       * Encrypt
+       * @default false
+       */
+      encrypt: boolean;
+      /**
+       * Encrypt Using Tmpdir
+       * @default false
+       */
+      encrypt_using_tmpdir: boolean;
+      /** Encryption Recipient */
+      encryption_recipient?: string | null;
+      /** Gs Bucket */
+      gs_bucket?: string | null;
+      /**
+       * Hardlink
+       * @default false
+       */
+      hardlink: boolean;
+      /** Hostname */
+      hostname: string;
+      /** Logging Dir */
+      logging_dir?: string | null;
+      /** Mydumper Daily Purge */
+      mydumper_daily_purge?: number | null;
+      /**
+       * Mydumper Desync Pxc
+       * @default false
+       */
+      mydumper_desync_pxc: boolean;
+      /**
+       * Mydumper Dump Triggers
+       * @default false
+       */
+      mydumper_dump_triggers: boolean;
+      /** Mydumper Extra Args */
+      mydumper_extra_args?: string | null;
+      /**
+       * Mydumper Use Numa
+       * @default false
+       */
+      mydumper_use_numa: boolean;
+      /** Mydumper Verbose */
+      mydumper_verbose?: number | null;
+      /** Mydumper Weekly Purge */
+      mydumper_weekly_purge?: number | null;
+      /**
+       * Only If Read Only
+       * @default false
+       */
+      only_if_read_only: boolean;
+      /**
+       * Only If Running Replica
+       * @default false
+       */
+      only_if_running_replica: boolean;
+      /**
+       * Post Run Encrypt
+       * @default false
+       */
+      post_run_encrypt: boolean;
+      /** Rsync Path */
+      rsync_path?: string | null;
+      /** S3 Bucket */
+      s3_bucket?: string | null;
+      /** S3 Storage Class */
+      s3_storage_class?: string | null;
+      /** Service Id */
+      service_id: number;
+      /**
+       * Skip S3 Safety Check
+       * @default false
+       */
+      skip_s3_safety_check: boolean;
+      /** Task Name */
+      task_name: string;
+      /** Upload */
+      upload?: components['schemas']['mysql_backups__UploadProvider'][];
+      /**
+       * Upload Quiet
+       * @default false
+       */
+      upload_quiet: boolean;
+      /**
+       * Use Ftwrl Guardian
+       * @default false
+       */
+      use_ftwrl_guardian: boolean;
+      /** Xtrabackup Aes256 Keyfile */
+      xtrabackup_aes256_keyfile?: string | null;
+      /** Xtrabackup Bin Cmd */
+      xtrabackup_bin_cmd?:
+        | ('xtrabackup' | 'mariadb-backup' | 'innobackupex')
+        | null;
+      /** Xtrabackup Copies */
+      xtrabackup_copies?: number | null;
+      /** Xtrabackup Defaults File */
+      xtrabackup_defaults_file?: string | null;
+      /**
+       * Xtrabackup Desync Pxc
+       * @default false
+       */
+      xtrabackup_desync_pxc: boolean;
+      /** Xtrabackup Extra Args */
+      xtrabackup_extra_args?: string | null;
+      /** Xtrabackup Incremental Cycle */
+      xtrabackup_incremental_cycle?:
+        | ('daily' | 'weekly' | '2' | '3' | '4' | '5' | '6' | '7')
+        | null;
+      /** Xtrabackup Incremental Method */
+      xtrabackup_incremental_method?: ('less_space' | 'fast_restore') | null;
+      /**
+       * Xtrabackup Kill Queries
+       * @default false
+       */
+      xtrabackup_kill_queries: boolean;
+      /** Xtrabackup Kill Queries Timeout */
+      xtrabackup_kill_queries_timeout?: number | null;
+      /** Xtrabackup Kill Query Type */
+      xtrabackup_kill_query_type?: ('select' | 'all') | null;
+      /** Xtrabackup Local Ssh Destination */
+      xtrabackup_local_ssh_destination?: string | null;
+      /**
+       * Xtrabackup Lock Ddl
+       * @default false
+       */
+      xtrabackup_lock_ddl: boolean;
+      /**
+       * Xtrabackup Prepare
+       * @default false
+       */
+      xtrabackup_prepare: boolean;
+      /** Xtrabackup Prepare Memory */
+      xtrabackup_prepare_memory?: string | null;
+      /**
+       * Xtrabackup Quiet
+       * @default false
+       */
+      xtrabackup_quiet: boolean;
+      /**
+       * Xtrabackup Replica Info
+       * @default false
+       */
+      xtrabackup_replica_info: boolean;
+      /**
+       * Xtrabackup Rsync
+       * @default false
+       */
+      xtrabackup_rsync: boolean;
+      /**
+       * Xtrabackup Stop Replica
+       * @default false
+       */
+      xtrabackup_stop_replica: boolean;
+      /**
+       * Xtrabackup Verify
+       * @default false
+       */
+      xtrabackup_verify: boolean;
+    };
+    /**
+     * BackupRunResponse
+     * @description Expose one catalog record over the per-service query path.
+     *
+     *     :param id: The record's primary key.
+     *     :param service_name: The inventory service the backup was taken from.
+     *     :param hostname: The backup target host.
+     *     :param backup_type: The backup tool, ``"M"`` (mydumper) or ``"X"`` (xtrabackup).
+     *         Narrower than :class:`BackupType`: binlog runs are never catalogued, so
+     *         ``"B"`` never appears here.
+     *     :param location: The resolved on-disk directory the run produced.
+     *     :param upload_destination: The upload destination when one was configured.
+     *     :param size_bytes: The backup size in bytes, when the run reported it.
+     *     :param started_at: When the run started.
+     *     :param finished_at: When the run finished.
+     */
+    mysql_backups__BackupRunResponse: {
+      /**
+       * Backup Type
+       * @enum {string}
+       */
+      backup_type: 'M' | 'X';
+      /** Finished At */
+      finished_at: string | null;
+      /** Hostname */
+      hostname: string | null;
+      /** Id */
+      id: number;
+      /** Location */
+      location: string | null;
+      /** Service Name */
+      service_name: string | null;
+      /** Size Bytes */
+      size_bytes: number | null;
+      /** Started At */
+      started_at: string | null;
+      /** Upload Destination */
+      upload_destination: string | null;
     };
     /**
      * BackupTaskResponse
      * @description Represent a backup task API response.
      *
-     *     :param id: The unique identifier for the backup task.
-     *     :type id: int | None
-     *     :param backend: The backend worker/engine executing the task.
-     *     :type backend: TaskBackendEnum
-     *     :param backup_type: The PBM backup type stored on the task.
-     *     :type backup_type: str
-     *     :param data: The raw configuration and parameters for the backup execution.
-     *     :type data: dict[str, Any]
-     *     :param protected: Whether the task is protected from deletion or modification.
-     *     :type protected: bool
-     *     :param alert_on_fail: If True, notifications are sent upon task failure.
-     *     :type alert_on_fail: bool
-     *     :param created_at: The timestamp when the task was first created.
-     *     :type created_at: datetime | None
-     *     :param updated_at: The timestamp of the last modification to the task.
-     *     :type updated_at: datetime | None
-     *     :param created_by: The user who initiated the task.
-     *     :type created_by: str | None
-     *     :param last_updated_by: The user who last modified the task record.
-     *     :type last_updated_by: str | None
+     *     :param backup_type: The backup type recorded in task config.
      */
-    app__sep__apps__backup_mongo__models__BackupTaskResponse: {
+    mysql_backups__BackupTaskResponse: {
       /** Alert On Fail */
       alert_on_fail: boolean;
+      /** Anonymize Mask */
+      anonymize_mask?: number | null;
+      /**
+       * Anonymized Entities
+       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
+       */
+      readonly anonymized_entities: string[];
       backend: components['schemas']['TaskBackendEnum'];
-      /** Backup Type */
-      backup_type: string;
+      backup_type?: components['schemas']['mysql_backups__BackupType'] | null;
+      connectivity_warning?:
+        | components['schemas']['framework__ConnectivityWarning']
+        | null;
       /** Created At */
       created_at?: string | null;
       /** Created By */
@@ -7900,11 +8945,12 @@ export interface components {
       hostname?: string | null;
       /** Id */
       id?: number | null;
+      /** Last Executed At */
+      last_executed_at?: string | null;
       /** Last Updated By */
       last_updated_by?: string | null;
       /** Name */
       name: string;
-      owner: components['schemas']['TaskOwner'];
       /** Protected */
       protected: boolean;
       status?: components['schemas']['TaskHistoryStatusEnum'] | null;
@@ -7916,77 +8962,229 @@ export interface components {
      * @description Backup types.
      * @enum {string}
      */
-    app__sep__apps__backup_mongo__models__BackupType:
-      | 'pbm_logical'
-      | 'pbm_physical'
-      | 'pbm_snapshot'
-      | 'pbm_config'
-      | 'pbm_status';
+    mysql_backups__BackupType: 'M' | 'X' | 'B';
     /**
      * CompressionAlgorithm
-     * @description Represents algorithm of choice whem compressing wirteTiger datafiles.
+     * @description Enumeration for Compression Algorithms.
      * @enum {string}
      */
-    app__sep__apps__backup_mongo__models__CompressionAlgorithm:
-      | 'gzip'
-      | 'snappy'
-      | 'lz4'
-      | 's2'
-      | 'pgzip'
-      | 'zstd';
-    /**
-     * BackupExecuteWrite
-     * @description Represent a JSON request body for executing a backup task.
-     *
-     *     :param eta: Optional datetime to schedule execution. Must be in the future;
-     *         a past value is rejected with a 422 validation error.
-     *     :param chain_task_names: Optional list of task names to chain after.
-     *     :type chain_task_names: list[str] | None
-     *     :param chain_on_failure: Whether to run chained tasks even on failure.
-     *     :type chain_on_failure: bool | None
-     */
-    app__sep__apps__backup_pg__models__BackupExecuteWrite: {
-      /** Chain On Failure */
-      chain_on_failure?: boolean | null;
-      /** Chain Task Names */
-      chain_task_names?: string[] | null;
-      /** Eta */
-      eta?: string | null;
+    mysql_backups__CompressionAlgorithm: 'zstd' | 'lz4' | 'gzip' | 'quicklz';
+    /** PaginatedResponse[BackupRunResponse] */
+    mysql_backups__PaginatedResponse_BackupRunResponse_: {
+      /** Items */
+      items: components['schemas']['mysql_backups__BackupRunResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /** PaginatedResponse[BackupTaskResponse] */
+    mysql_backups__PaginatedResponse_BackupTaskResponse_: {
+      /** Items */
+      items: components['schemas']['mysql_backups__BackupTaskResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /** PaginatedResponse[RestoresResponse] */
+    mysql_backups__PaginatedResponse_RestoresResponse_: {
+      /** Items */
+      items: components['schemas']['mysql_backups__RestoresResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
     };
     /**
-     * BackupExecutionResponse
-     * @description Represent the response from the execute API endpoint.
+     * RestoreCreate
+     * @description Declare the model-first create/update body and ``GET /schema`` source for Restores.
      *
-     *     :param task_name: The name of the task that was executed.
-     *     :type task_name: str
-     *     :param task_id: The id of the task-history row created by the tasks API.
-     *     :type task_id: int | None
+     *     Declares every restore form field once, in section order (Task, General,
+     *     Mydumper, XtraBackup, Binlog), with the DSL markers driving the derived
+     *     schema. The previously-inherited config models (:class:`RestoreConfigAll` and
+     *     :class:`BaseRestoreConfigServer`) stay the YAML-serialization targets the
+     *     payload builder populates via ``extract_model_from_instance``; this model
+     *     re-declares their fields directly so it can also carry presentation metadata.
+     *
+     *     The per-``backup_type`` section visibility is expressed in the view layout
+     *     (``restore/views.py``), not as field-level gates: several mode-specific config
+     *     fields carry non-``None`` defaults (``myloader_threads``, ``xb_parallel``,
+     *     ``master_port``), so a field-level ``Forbidden`` gate would reject those
+     *     defaults on a cross-mode restore. Keeping the model permissive preserves the
+     *     legacy payload contract byte-for-byte.
+     *
+     *     ``service_id`` / ``schema_id`` keep their str-accepting annotation (carrying
+     *     the ``"-1"`` ``UNKNOWN_SERVICE_SENTINEL``); their ``ServiceRef`` / ``SchemaRef``
+     *     markers drive only the ``GET /schema`` widgets, while the conditional,
+     *     404-tolerant resolution lives in ``deps.resolve_restore_entities``.
      */
-    app__sep__apps__backup_pg__models__BackupExecutionResponse: {
-      /** Task Id */
-      task_id?: number | null;
+    mysql_backups__RestoreCreate: {
+      /**
+       * Alert On Fail
+       * @default false
+       */
+      alert_on_fail: boolean;
+      /** Backup Source */
+      backup_source: string;
+      backup_type: components['schemas']['mysql_backups__BackupType'];
+      /** Binlog Restore Extra Args */
+      binlog_restore_extra_args?: string | null;
+      /** Custom Mysql Init Command */
+      custom_mysql_init_command?: string | null;
+      /** Datadir */
+      datadir?: string | null;
+      /** Gpg Password File */
+      gpg_password_file?: string | null;
+      /** Hostname */
+      hostname: string;
+      /** Include Databases */
+      include_databases?: string | null;
+      /** Incremental Dest Path */
+      incremental_dest_path?: string | null;
+      /** Keyring File Data */
+      keyring_file_data?: string | null;
+      /**
+       * Kill Mysql
+       * @default false
+       */
+      kill_mysql: boolean;
+      /** Local Path */
+      local_path?: string | null;
+      /** Logging Dir */
+      logging_dir?: string | null;
+      /** Master Ip */
+      master_ip?: string | null;
+      /** Master Password */
+      master_password?: string | null;
+      /**
+       * Master Port
+       * @default 3306
+       */
+      master_port: number | null;
+      /** Master User */
+      master_user?: string | null;
+      /** Myloader Extra Args */
+      myloader_extra_args?: string | null;
+      /**
+       * Myloader Threads
+       * @default 4
+       */
+      myloader_threads: number | null;
+      /**
+       * Overwrite Tables
+       * @default false
+       */
+      overwrite_tables: boolean;
+      /** Port */
+      port?: number | null;
+      /** Post Script */
+      post_script?: string | null;
+      /** Pre Script */
+      pre_script?: string | null;
+      /**
+       * Restore Mycnf
+       * @default false
+       */
+      restore_mycnf: boolean;
+      /** @default s3cmd */
+      s3_tool: components['schemas']['mysql_backups__S3Tool'];
+      /** Schema Id */
+      schema_id?: string | null;
+      /** Service Id */
+      service_id?: string | null;
+      /** Skip Databases */
+      skip_databases?: string | null;
+      /**
+       * Skip Incrementals
+       * @default false
+       */
+      skip_incrementals: boolean;
+      /**
+       * Slave From Master
+       * @default false
+       */
+      slave_from_master: boolean;
+      /** Ssh Key */
+      ssh_key?: string | null;
+      /**
+       * Ssh Port
+       * @default 22
+       */
+      ssh_port: number | null;
+      /**
+       * Ssh User
+       * @default percona
+       */
+      ssh_user: string | null;
+      /** Start File */
+      start_file?: string | null;
+      /** Start Position */
+      start_position?: number | null;
+      /** Stop File */
+      stop_file?: string | null;
+      /** Stop Position */
+      stop_position?: number | null;
       /** Task Name */
       task_name: string;
+      /** Use Sql File */
+      use_sql_file?: string | null;
+      /**
+       * Wait For Catchup
+       * @default false
+       */
+      wait_for_catchup: boolean;
+      /**
+       * Xb Parallel
+       * @default 4
+       */
+      xb_parallel: number | null;
+      /** Xb Prepare Memory */
+      xb_prepare_memory?: string | null;
+      /** Xtrabackup Aes256 Keyfile */
+      xtrabackup_aes256_keyfile?: string | null;
+      /** Xtrabackup Bin Cmd */
+      xtrabackup_bin_cmd?:
+        | components['schemas']['mysql_backups__XtraBackupTool']
+        | null;
+      /** Xtrabackup Restore Args */
+      xtrabackup_restore_args?: string | null;
     };
     /**
-     * BackupTaskDetailResponse
-     * @description Represent a single pgBackRest backup task detail response.
+     * RestoresResponse
+     * @description Represent a restore task API response.
      *
-     *     Adds the executor host and port resolved from the task's YAML config so
-     *     the FE detail view can render them alongside the parity Overview block;
-     *     list rows omit these to keep the table response compact.
+     *     Extend the standard task-response surface with the restore-specific
+     *     destination facts the detail view renders; the shared task identity,
+     *     status, audit, and anonymization fields come from
+     *     :class:`~app.sep.apps.framework.responses.BaseTaskResponse`.
      *
-     *     :param host: The PostgreSQL host the task connects to.
-     *     :type host: str | None
-     *     :param port: The PostgreSQL port the task connects to.
-     *     :type port: int | None
+     *     :param backup_type: The backup type recorded in task config.
+     *     :param hostname: The executor hostname target.
+     *     :param host: The destination host recorded in task config.
+     *     :param port: The destination port recorded in task config.
      */
-    app__sep__apps__backup_pg__models__BackupTaskDetailResponse: {
+    mysql_backups__RestoresResponse: {
       /** Alert On Fail */
       alert_on_fail: boolean;
+      /** Anonymize Mask */
+      anonymize_mask?: number | null;
+      /**
+       * Anonymized Entities
+       * @description Return sorted PII entity names decoded from ``anonymize_mask``.
+       */
+      readonly anonymized_entities: string[];
       backend: components['schemas']['TaskBackendEnum'];
-      /** Backup Type */
-      backup_type: string;
+      backup_type?: components['schemas']['mysql_backups__BackupType'] | null;
+      connectivity_warning?:
+        | components['schemas']['framework__ConnectivityWarning']
+        | null;
       /** Created At */
       created_at?: string | null;
       /** Created By */
@@ -7999,11 +9197,12 @@ export interface components {
       hostname?: string | null;
       /** Id */
       id?: number | null;
+      /** Last Executed At */
+      last_executed_at?: string | null;
       /** Last Updated By */
       last_updated_by?: string | null;
       /** Name */
       name: string;
-      owner: components['schemas']['TaskOwner'];
       /** Port */
       port?: number | null;
       /** Protected */
@@ -8013,73 +9212,1108 @@ export interface components {
       updated_at?: string | null;
     };
     /**
-     * BackupTaskResponse
-     * @description Represent a pgBackRest backup task API response.
+     * S3Tool
+     * @description Allowed tools to interact with S3-compatible services.
+     * @enum {string}
+     */
+    mysql_backups__S3Tool: 's3cmd' | 'awscli';
+    /**
+     * UploadProvider
+     * @description Upload providers.
+     * @enum {string}
+     */
+    mysql_backups__UploadProvider: 'rsync' | 's3' | 'gsutil';
+    /**
+     * XtraBackupTool
+     * @description Allowed commands for XtraBackup-style restores.
+     * @enum {string}
+     */
+    mysql_backups__XtraBackupTool:
+      | 'innobackupex'
+      | 'xtrabackup'
+      | 'mariadb-backup';
+    /**
+     * NavIcon
+     * @description Enumerate the sidebar icon keys the React shell bundles.
+     * @enum {string}
+     */
+    nav_icons__NavIcon:
+      | 'assignment'
+      | 'code'
+      | 'support-agent'
+      | 'description'
+      | 'troubleshoot'
+      | 'table-chart'
+      | 'check-circle'
+      | 'mysql'
+      | 'mongo'
+      | 'postgresql'
+      | 'archive'
+      | 'science'
+      | 'bar-chart'
+      | 'account-tree';
+    /**
+     * AdvisorCheck
+     * @description A single advisor check definition (enabled only).
      *
-     *     :param id: The task identifier from the Tasks service, if assigned.
-     *     :type id: int | None
-     *     :param backend: The backend executing the task.
+     *     :param name: The unique check name.
+     *     :type name: str
+     *     :param description: Human-readable description of what the check tests.
+     *     :type description: str
+     *     :param summary: Short one-line summary of the check.
+     *     :type summary: str
+     *     :param family: The advisor family key this check belongs to, if any.
+     *     :type family: str | None
+     */
+    report__AdvisorCheck: {
+      /** Description */
+      description: string;
+      /** Family */
+      family?: string | null;
+      /** Name */
+      name: string;
+      /** Summary */
+      summary: string;
+    };
+    /**
+     * AdvisorFamily
+     * @description A group of advisor checks that share the same family.
+     *
+     *     :param family_key: Internal family key (e.g. ``"FAMILY_MYSQL"``).
+     *     :type family_key: str
+     *     :param display_name: Human-readable name shown in the report (e.g. ``"MySQL"``).
+     *     :type display_name: str
+     *     :param checks: All enabled checks belonging to this family.
+     *     :type checks: list[AdvisorCheck]
+     *     :param failed: Mapping of check name to its list of failed results.
+     *     :type failed: dict[str, list[FailedCheck]]
+     */
+    report__AdvisorFamily: {
+      /** Checks */
+      checks?: components['schemas']['report__AdvisorCheck'][];
+      /** Display Name */
+      display_name: string;
+      /** Failed */
+      failed?: {
+        [key: string]: components['schemas']['report__FailedCheck'][];
+      };
+      /** Family Key */
+      family_key: string;
+    };
+    /**
+     * AdvisorSection
+     * @description Aggregated advisor data for the report.
+     *
+     *     ``total_failed`` counts failed advisor results (rows), not distinct check names.
+     */
+    report__AdvisorSection: {
+      /** Families */
+      families?: components['schemas']['report__AdvisorFamily'][];
+      /** Refresh Issues */
+      refresh_issues?: string[];
+      /**
+       * Total Checks
+       * @default 0
+       */
+      total_checks: number;
+      /**
+       * Total Failed
+       * @default 0
+       */
+      total_failed: number;
+    };
+    /**
+     * AlertEntry
+     * @description A single alert annotation extracted from Grafana.
+     */
+    report__AlertEntry: {
+      /**
+       * Alertname
+       * @default
+       */
+      alertname: string;
+      /**
+       * Id
+       * @default 0
+       */
+      id: number;
+      /**
+       * Node Id
+       * @default
+       */
+      node_id: string;
+      /**
+       * Node Name
+       * @default
+       */
+      node_name: string;
+      /**
+       * Service
+       * @default
+       */
+      service: string;
+      /**
+       * Service Id
+       * @default
+       */
+      service_id: string;
+      /**
+       * Service Type
+       * @default
+       */
+      service_type: string;
+      /**
+       * Severity
+       * @default
+       */
+      severity: string;
+      /**
+       * Time
+       * @default 0
+       */
+      time: number;
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * AlertSection
+     * @description Aggregated alert data for the report.
+     *
+     *     :param total_alerts: Total number of alert annotations in the period.
+     *     :type total_alerts: int
+     *     :param alerts_per_service: Alert count keyed by service name.
+     *     :type alerts_per_service: dict[str, int]
+     *     :param alerts_per_rule: Alert count keyed by alert rule name.
+     *     :type alerts_per_rule: dict[str, int]
+     *     :param alerts_per_host: Alert count keyed by node name.
+     *     :type alerts_per_host: dict[str, int]
+     *     :param alerts_daily: Alert count keyed by date string (``YYYY-MM-DD``).
+     *     :type alerts_daily: dict[str, int]
+     *     :param alerts_daily_per_host: Daily alert count per host, keyed by date then host.
+     *     :type alerts_daily_per_host: dict[str, dict[str, int]]
+     *     :param alert_history: Full list of individual alert entries.
+     *     :type alert_history: list[AlertEntry]
+     */
+    report__AlertSection: {
+      /** Alert History */
+      alert_history?: components['schemas']['report__AlertEntry'][];
+      /** Alerts Daily */
+      alerts_daily?: {
+        [key: string]: number;
+      };
+      /** Alerts Daily Per Host */
+      alerts_daily_per_host?: {
+        [key: string]: {
+          [key: string]: number;
+        };
+      };
+      /** Alerts Per Host */
+      alerts_per_host?: {
+        [key: string]: number;
+      };
+      /** Alerts Per Rule */
+      alerts_per_rule?: {
+        [key: string]: number;
+      };
+      /** Alerts Per Service */
+      alerts_per_service?: {
+        [key: string]: number;
+      };
+      /**
+       * Total Alerts
+       * @default 0
+       */
+      total_alerts: number;
+    };
+    /**
+     * BackupEntry
+     * @description A single backup record.
+     *
+     *     :param id: Unique identifier for this backup entry.
+     *     :type id: str
+     *     :param alias: Human-readable alias for the backup schedule.
+     *     :type alias: str
+     *     :param name: Node name where the backup was taken.
+     *     :type name: str
+     *     :param type: Backup type (e.g. ``"physical"``, ``"logical"``).
+     *     :type type: str
+     *     :param status: Result status of the backup.
+     *     :type status: BackupStatus
+     *     :param size: Raw backup size value from the metric label, or ``"0"`` if unknown.
+     *     :type size: str
+     *     :param estimated_data: ``True`` when the time period or size data is estimated.
+     *     :type estimated_data: bool
+     *     :param enabled: Whether the backup schedule is currently enabled, if available.
+     *     :type enabled: bool | None
+     *     :param encryption: Encryption state label reported by PMM.
+     *     :type encryption: str
+     *     :param period: Dictionary with ``start``, ``end``, and ``duration`` of the backup.
+     *     :type period: dict[str, Any]
+     */
+    report__BackupEntry: {
+      /**
+       * Alias
+       * @default
+       */
+      alias: string;
+      /** Enabled */
+      enabled?: boolean | null;
+      /**
+       * Encryption
+       * @default Unknown
+       */
+      encryption: string;
+      /**
+       * Estimated Data
+       * @default true
+       */
+      estimated_data: boolean;
+      /** Id */
+      id: string;
+      /**
+       * Name
+       * @default
+       */
+      name: string;
+      /** Period */
+      period?: Record<string, never>;
+      /**
+       * Size
+       * @default 0
+       */
+      size: string;
+      /** @default unknown */
+      status: components['schemas']['report__BackupStatus'];
+      /**
+       * Type
+       * @default
+       */
+      type: string;
+    } & {
+      [key: string]: unknown;
+    };
+    /**
+     * BackupSection
+     * @description Aggregated backup data for the report.
+     *
+     *     :param total_backups: Total number of backup entries collected.
+     *     :type total_backups: int
+     *     :param backups_by_host: Backup count keyed by node name.
+     *     :type backups_by_host: dict[str, int]
+     *     :param backups_by_status: Backup count keyed by status string.
+     *     :type backups_by_status: dict[str, int]
+     *     :param backups_by_type: Backup count keyed by backup type.
+     *     :type backups_by_type: dict[str, int]
+     *     :param failed_backups: Subset of backups with a ``fail`` status.
+     *     :type failed_backups: list[BackupEntry]
+     *     :param all_backups: Complete list of all backup entries.
+     *     :type all_backups: list[BackupEntry]
+     */
+    report__BackupSection: {
+      /** All Backups */
+      all_backups?: components['schemas']['report__BackupEntry'][];
+      /** Backups By Host */
+      backups_by_host?: {
+        [key: string]: number;
+      };
+      /** Backups By Status */
+      backups_by_status?: {
+        [key: string]: number;
+      };
+      /** Backups By Type */
+      backups_by_type?: {
+        [key: string]: number;
+      };
+      /** Failed Backups */
+      failed_backups?: components['schemas']['report__BackupEntry'][];
+      /**
+       * Total Backups
+       * @default 0
+       */
+      total_backups: number;
+    };
+    /**
+     * BackupStatus
+     * @description Status values for a backup entry.
+     * @enum {string}
+     */
+    report__BackupStatus: 'pass' | 'fail' | 'inactive' | 'unknown';
+    /**
+     * CheckSeverity
+     * @description Severity levels for advisor check results.
+     * @enum {string}
+     */
+    report__CheckSeverity:
+      | 'SEVERITY_EMERGENCY'
+      | 'SEVERITY_ALERT'
+      | 'SEVERITY_CRITICAL'
+      | 'SEVERITY_ERROR'
+      | 'SEVERITY_WARNING'
+      | 'SEVERITY_NOTICE'
+      | 'SEVERITY_INFO'
+      | 'SEVERITY_DEBUG';
+    /**
+     * DiskUsageEntry
+     * @description Disk usage for a single mountpoint on a node.
+     *
+     *     :param node_name: Human-readable node hostname.
+     *     :type node_name: str
+     *     :param mountpoint: Filesystem mountpoint path (e.g. ``"/"``, ``"/data"``).
+     *     :type mountpoint: str
+     *     :param capacity_bytes: Total filesystem capacity in bytes.
+     *     :type capacity_bytes: int
+     *     :param used_start_bytes: Used bytes at the start of the report period.
+     *     :type used_start_bytes: float
+     *     :param used_end_bytes: Used bytes at the end of the report period.
+     *     :type used_end_bytes: float
+     *     :param used_peak_bytes: Peak used bytes observed during the report period.
+     *     :type used_peak_bytes: float
+     *     :param usage_percentage: End-of-period usage as a percentage of total capacity.
+     *     :type usage_percentage: int
+     */
+    report__DiskUsageEntry: {
+      /**
+       * Capacity Bytes
+       * @default 0
+       */
+      capacity_bytes: number;
+      /** Mountpoint */
+      mountpoint: string;
+      /** Node Name */
+      node_name: string;
+      /**
+       * Usage Percentage
+       * @default 0
+       */
+      usage_percentage: number;
+      /**
+       * Used End Bytes
+       * @default 0
+       */
+      used_end_bytes: number;
+      /**
+       * Used Peak Bytes
+       * @default 0
+       */
+      used_peak_bytes: number;
+      /**
+       * Used Start Bytes
+       * @default 0
+       */
+      used_start_bytes: number;
+    };
+    /**
+     * FailedCheck
+     * @description A single failed advisor check result.
+     *
+     *     :param name: The check name that failed.
+     *     :type name: str
+     *     :param description: Human-readable description of what the check tests.
+     *     :type description: str
+     *     :param summary: Short one-line summary of the check.
+     *     :type summary: str
+     *     :param severity: Severity level of the failure.
+     *     :type severity: CheckSeverity
+     *     :param node_name: Name of the node affected, if applicable.
+     *     :type node_name: str | None
+     *     :param node_id: PMM node ID of the affected node, if applicable.
+     *     :type node_id: str | None
+     *     :param service_name: Name of the service affected, if applicable.
+     *     :type service_name: str | None
+     *     :param service_id: PMM service ID of the affected service, if applicable.
+     *     :type service_id: str | None
+     *     :param read_more_url: URL linking to documentation for this check.
+     *     :type read_more_url: str
+     */
+    report__FailedCheck: {
+      /** Description */
+      description: string;
+      /** Name */
+      name: string;
+      /** Node Id */
+      node_id?: string | null;
+      /** Node Name */
+      node_name?: string | null;
+      /**
+       * Read More Url
+       * @default
+       */
+      read_more_url: string;
+      /** Service Id */
+      service_id?: string | null;
+      /** Service Name */
+      service_name?: string | null;
+      severity: components['schemas']['report__CheckSeverity'];
+      /** Summary */
+      summary: string;
+    };
+    /**
+     * InventorySection
+     * @description Aggregated inventory data for the report.
+     */
+    report__InventorySection: {
+      /** Entries */
+      entries?: components['schemas']['report__InventoryServiceEntry'][];
+    };
+    /**
+     * InventoryServiceEntry
+     * @description A monitored service with its agent connectivity status.
+     */
+    report__InventoryServiceEntry: {
+      /**
+       * Node Name
+       * @default
+       */
+      node_name: string;
+      /** Service Name */
+      service_name: string;
+      /** Service Type */
+      service_type: string;
+      /** @default OK */
+      status: components['schemas']['report__ServiceStatus'];
+    };
+    /**
+     * MonitoredSummary
+     * @description Summary of monitored nodes and services by type.
+     */
+    report__MonitoredSummary: {
+      /** Services By Type */
+      services_by_type?: {
+        [key: string]: number;
+      };
+      /**
+       * Total Nodes
+       * @default 0
+       */
+      total_nodes: number;
+      /**
+       * Total Services
+       * @default 0
+       */
+      total_services: number;
+    };
+    /**
+     * ReportData
+     * @description Complete report payload ready for rendering.
+     *
+     *     :param full: When ``True``, all check results and full backup history are included.
+     *     :type full: bool
+     *     :param refresh: When ``True``, advisor checks were refreshed before data collection.
+     *     :type refresh: bool
+     *     :param metadata: Report title, generation timestamp, and period labels.
+     *     :type metadata: ReportMetadata
+     *     :param monitored: Summary counts of monitored nodes and services.
+     *     :type monitored: MonitoredSummary
+     *     :param advisors: Advisor check results grouped by family.
+     *     :type advisors: AdvisorSection
+     *     :param alerts: Alert annotation history and aggregations.
+     *     :type alerts: AlertSection
+     *     :param backups: Backup status entries and aggregations.
+     *     :type backups: BackupSection
+     *     :param storage: Disk usage entries per node mountpoint.
+     *     :type storage: StorageSection
+     *     :param uptime: Service uptime entries for the report period.
+     *     :type uptime: UptimeSection
+     *     :param inventory: Monitored service inventory with connectivity status.
+     *     :type inventory: InventorySection
+     */
+    report__ReportData: {
+      advisors?: components['schemas']['report__AdvisorSection'];
+      alerts?: components['schemas']['report__AlertSection'];
+      backups?: components['schemas']['report__BackupSection'];
+      /**
+       * Full
+       * @default true
+       */
+      full: boolean;
+      inventory?: components['schemas']['report__InventorySection'];
+      metadata: components['schemas']['report__ReportMetadata'];
+      monitored?: components['schemas']['report__MonitoredSummary'];
+      /**
+       * Refresh
+       * @default false
+       */
+      refresh: boolean;
+      storage?: components['schemas']['report__StorageSection'];
+      uptime?: components['schemas']['report__UptimeSection'];
+    };
+    /**
+     * ReportJobResponse
+     * @description Expose async report job state.
+     *
+     *     :param job_id: Celery task identifier.
+     *     :param status: Lowercase Celery task state.
+     *     :param pdf_ready: Whether the PDF result exists and is downloadable.
+     *     :param result: Successful job result payload, if available.
+     *     :param error: Failed job error text, if available.
+     */
+    report__ReportJobResponse: {
+      /** Error */
+      error?: string | null;
+      /** Job Id */
+      job_id: string;
+      /**
+       * Pdf Ready
+       * @default false
+       */
+      pdf_ready: boolean;
+      /** Result */
+      result?:
+        | {
+            [key: string]: unknown;
+          }
+        | Record<string, never>
+        | null;
+      /** Status */
+      status: string;
+    };
+    /**
+     * ReportMetadata
+     * @description Metadata about a generated report.
+     *
+     *     :param title: Report title string.
+     *     :type title: str
+     *     :param generated_at: Timestamp when the report was generated.
+     *     :type generated_at: datetime
+     *     :param report_week: ISO week label, e.g. ``"Report 2026 Week 15"``.
+     *     :type report_week: str
+     *     :param report_interval: Human-readable date range string for the report period.
+     *     :type report_interval: str
+     */
+    report__ReportMetadata: {
+      /**
+       * Generated At
+       * Format: date-time
+       */
+      generated_at: string;
+      /**
+       * Report Interval
+       * @default
+       */
+      report_interval: string;
+      /**
+       * Report Week
+       * @default
+       */
+      report_week: string;
+      /**
+       * Title
+       * @default
+       */
+      title: string;
+    };
+    /**
+     * ReportSnapshotWrite
+     * @description Define report snapshot body for PDF/upload jobs.
+     *
+     *     :param report: Generated report snapshot reused for PDF/upload work.
+     */
+    report__ReportSnapshotWrite: {
+      report: components['schemas']['report__ReportData'];
+    };
+    /**
+     * ServiceStatus
+     * @description Agent connectivity status for an inventory service.
+     * @enum {string}
+     */
+    report__ServiceStatus: 'OK' | 'Not OK';
+    /**
+     * StorageSection
+     * @description Aggregated storage data for the report.
+     *
+     *     :param entries: List of per-mountpoint disk usage entries, sorted by usage descending.
+     *     :type entries: list[DiskUsageEntry]
+     */
+    report__StorageSection: {
+      /** Entries */
+      entries?: components['schemas']['report__DiskUsageEntry'][];
+    };
+    /**
+     * UptimeEntry
+     * @description Uptime for a single monitored service.
+     */
+    report__UptimeEntry: {
+      /** Service Name */
+      service_name: string;
+      /**
+       * Since
+       * @default
+       */
+      since: string;
+      /**
+       * Uptime
+       * Format: duration
+       */
+      uptime: string;
+    };
+    /**
+     * UptimeSection
+     * @description Aggregated uptime data for the report.
+     */
+    report__UptimeSection: {
+      /** Entries */
+      entries?: components['schemas']['report__UptimeEntry'][];
+    };
+    /**
+     * ExecutorHostMetadata
+     * @description Represent one executor host option for display on the task detail page.
+     *
+     *     :param value: The executor host value submitted with task execution
+     *         requests (Nomad node name).
+     *     :type value: str
+     *     :param label: The human-readable label for the host (often an inventory
+     *         display name).
+     *     :type label: str
+     */
+    tasks__ExecutorHostMetadata: {
+      /** Label */
+      label: string;
+      /** Value */
+      value: string;
+    };
+    /** PaginatedResponse[TaskListResponse] */
+    tasks__PaginatedResponse_TaskListResponse_: {
+      /** Items */
+      items: components['schemas']['tasks__TaskListResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /**
+     * PeriodicTaskSummary
+     * @description Represent read-only periodic-schedule metadata for a single task.
+     *
+     *     :param id: The periodic task's database identifier.
+     *     :type id: int
+     *     :param name: The periodic task's display name.
+     *     :type name: str
+     *     :param enabled: Whether the periodic schedule is currently enabled.
+     *     :type enabled: bool
+     *     :param period: A human-readable schedule description (cron or interval),
+     *         or ``None`` when unavailable.
+     *     :type period: str | None
+     *     :param next_run_at: The next scheduled run time in ISO 8601 format, or
+     *         ``None`` when not scheduled.
+     *     :type next_run_at: UTCDatetime | None
+     *     :param last_run_at: The last run time in ISO 8601 format, or ``None`` if
+     *         the schedule has never run.
+     *     :type last_run_at: UTCDatetime | None
+     *     :param total_run_count: The total number of times the schedule has run,
+     *         or ``None`` when unavailable.
+     *     :type total_run_count: int | None
+     *     :param last_run_status: The result of this schedule's own most recent run,
+     *         or ``None`` when the schedule has never run.
+     *     :param chain_task_names: Ordered task names in the periodic execution
+     *         chain, if any.
+     *     :type chain_task_names: list[str]
+     */
+    tasks__PeriodicTaskSummary: {
+      /** Chain Task Names */
+      chain_task_names?: string[];
+      /** Enabled */
+      enabled: boolean;
+      /** Id */
+      id: number;
+      /** Last Run At */
+      last_run_at?: string | null;
+      last_run_status?: components['schemas']['TaskHistoryStatusEnum'] | null;
+      /** Name */
+      name: string;
+      /** Next Run At */
+      next_run_at?: string | null;
+      /** Period */
+      period?: string | null;
+      /** Total Run Count */
+      total_run_count?: number | null;
+    };
+    /**
+     * TaskDetailResponse
+     * @description Represent the aggregate payload for ``GET /api/apps/tasks/{task_name}``.
+     *
+     *     Bundle the task definition, execution history, periodic schedules, and
+     *     executor host metadata into a single response for the React detail page.
+     *
+     *     :param task: The task definition as returned by the tasks API.
+     *     :type task: TaskResponse
+     *     :param execution_history: Paginated task history from the tasks API
+     *         (``items``, ``total``, ``offset``, ``limit``).
+     *     :type execution_history: dict[str, Any]
+     *     :param periodic_summary: Read-only summaries of periodic schedules
+     *         attached to this task.
+     *     :type periodic_summary: list[PeriodicTaskSummary]
+     *     :param executor_hosts: Executor hosts available for display, with
+     *         inventory-resolved labels when possible.
+     *     :type executor_hosts: list[ExecutorHostMetadata]
+     */
+    tasks__TaskDetailResponse: {
+      /** Execution History */
+      execution_history?: Record<string, never>;
+      /** Executor Hosts */
+      executor_hosts?: components['schemas']['tasks__ExecutorHostMetadata'][];
+      /** Periodic Summary */
+      periodic_summary?: components['schemas']['tasks__PeriodicTaskSummary'][];
+      task: components['schemas']['TaskResponse'];
+    };
+    /**
+     * TaskListResponse
+     * @description Represent one task row in the read-only tasks plugin list API.
+     *
+     *     :param name: The unique name of the task.
+     *     :type name: str
+     *     :param backend: The backend system used for task execution.
      *     :type backend: TaskBackendEnum
-     *     :param backup_type: The ``backup_type`` discriminator stored on the task.
-     *     :type backup_type: str
-     *     :param data: The raw task ``data`` payload.
-     *     :type data: dict[str, Any]
-     *     :param protected: Whether the task is protected from deletion.
-     *     :type protected: bool
-     *     :param alert_on_fail: Whether PMM alerts fire when the task fails.
-     *     :type alert_on_fail: bool
-     *     :param created_at: Creation timestamp.
-     *     :type created_at: datetime | None
-     *     :param updated_at: Last-modification timestamp.
-     *     :type updated_at: datetime | None
-     *     :param created_by: User that created the task.
+     *     :param created_at: When the task was created, or ``None`` if unavailable.
+     *     :type created_at: UTCDatetime | None
+     *     :param created_by: Display name for the task creator (Casdoor username when
+     *         resolvable, otherwise the stored user id), or ``None`` if unknown.
      *     :type created_by: str | None
-     *     :param last_updated_by: User that last modified the task record.
+     *     :param last_updated_by: Display name for the user who last updated the
+     *         task (Casdoor username when resolvable, otherwise the stored user id),
+     *         or ``None`` if unknown.
      *     :type last_updated_by: str | None
      */
-    app__sep__apps__backup_pg__models__BackupTaskResponse: {
-      /** Alert On Fail */
-      alert_on_fail: boolean;
+    tasks__TaskListResponse: {
       backend: components['schemas']['TaskBackendEnum'];
-      /** Backup Type */
-      backup_type: string;
       /** Created At */
       created_at?: string | null;
       /** Created By */
       created_by?: string | null;
-      /** Data */
-      data: Record<string, never>;
-      /** Hostname */
-      hostname?: string | null;
-      /** Id */
-      id?: number | null;
       /** Last Updated By */
       last_updated_by?: string | null;
       /** Name */
       name: string;
-      owner: components['schemas']['TaskOwner'];
-      /** Protected */
-      protected: boolean;
-      status?: components['schemas']['TaskHistoryStatusEnum'] | null;
-      /** Updated At */
-      updated_at?: string | null;
     };
     /**
-     * BackupType
-     * @description Backup types.
-     * @enum {string}
+     * ClusterNode
+     * @description Represent a synthetic cluster-group node in the topology graph.
      */
-    app__sep__apps__mysql_backups__models__BackupType: 'M' | 'X' | 'B';
+    topology__ClusterNode: {
+      data: components['schemas']['topology__ClusterNodeData'];
+      /** Id */
+      id: string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'cluster';
+    };
     /**
-     * CompressionAlgorithm
-     * @description Enumeration for Compression Algorithms.
-     * @enum {string}
+     * ClusterNodeData
+     * @description Represent the React-Flow ``data`` payload for a synthetic PXC cluster node.
      */
-    app__sep__apps__mysql_backups__models__CompressionAlgorithm:
-      | 'zstd'
-      | 'lz4'
-      | 'gzip'
-      | 'quicklz';
+    topology__ClusterNodeData: {
+      /** Cluster Name */
+      cluster_name: string;
+      /** Members */
+      members?: string[];
+      /** Size */
+      size?: string | null;
+      /** Status */
+      status?: string | null;
+    };
+    /**
+     * DualPrimaryEdge
+     * @description Represent a dual-primary (mutually replicating) edge.
+     */
+    topology__DualPrimaryEdge: {
+      /** Data */
+      data?: Record<string, never>;
+      /** Id */
+      id: string;
+      /** Source */
+      source: string;
+      /** Target */
+      target: string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'dual_primary';
+    };
+    /**
+     * MySQLClusterInfo
+     * @description Represent Percona XtraDB Cluster (wsrep) metadata for a host.
+     */
+    topology__MySQLClusterInfo: {
+      /** Cluster Name */
+      cluster_name: string;
+      /** Cluster Size */
+      cluster_size?: string | null;
+      /** Cluster Status */
+      cluster_status?: string | null;
+      /** Local State Comment */
+      local_state_comment?: string | null;
+    };
+    /**
+     * MySQLNode
+     * @description Represent a MySQL server node in the topology graph.
+     */
+    topology__MySQLNode: {
+      data: components['schemas']['topology__MySQLNodeData'];
+      /** Id */
+      id: string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'mysql';
+    };
+    /**
+     * MySQLNodeData
+     * @description Represent the React-Flow ``data`` payload for a MySQL node.
+     */
+    topology__MySQLNodeData: {
+      /** Address */
+      address?: string | null;
+      cluster?: components['schemas']['topology__MySQLClusterInfo'] | null;
+      /** Error */
+      error?: string | null;
+      /** Gtid Mode */
+      gtid_mode?: string | null;
+      /** Host Entry */
+      host_entry: string;
+      /** Port */
+      port?: number | null;
+      replication?:
+        | components['schemas']['topology__MySQLReplicationInfo']
+        | null;
+      server?: components['schemas']['topology__MySQLServerInfo'] | null;
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: 'ok' | 'error';
+    };
+    /**
+     * MySQLReplicationInfo
+     * @description Represent replication source/state for a replica host (``source_uuid`` stripped).
+     */
+    topology__MySQLReplicationInfo: {
+      /** Auto Position */
+      auto_position?: number | null;
+      /** Io Running */
+      io_running?: string | null;
+      /** Repl Filter */
+      repl_filter?: ('yes' | 'none') | null;
+      /** Repl Status */
+      repl_status?: ('ok' | 'err') | null;
+      /** Seconds Behind */
+      seconds_behind?: number | null;
+      /** Source Host */
+      source_host?: string | null;
+      /** Source Port */
+      source_port?: number | null;
+      /** Source Server Id */
+      source_server_id?: number | null;
+      /** Sql Running */
+      sql_running?: string | null;
+    };
+    /**
+     * MySQLServerInfo
+     * @description Represent MySQL server identity/mode collected per host.
+     */
+    topology__MySQLServerInfo: {
+      /** Hostname */
+      hostname?: string | null;
+      /** Log Bin */
+      log_bin?: ('ON' | 'OFF') | null;
+      /** Port */
+      port?: number | null;
+      /** Read Only */
+      read_only?: ('RW' | 'RO' | 'SR') | null;
+      /** Server Hash */
+      server_hash?: string | null;
+      /** Server Id */
+      server_id?: number | null;
+      /** Server Uuid */
+      server_uuid?: string | null;
+      /** Version */
+      version?: string | null;
+    };
+    /**
+     * ReplicationEdge
+     * @description Represent a primary -> replica replication edge.
+     */
+    topology__ReplicationEdge: {
+      data?: components['schemas']['topology__ReplicationEdgeData'] | null;
+      /** Id */
+      id: string;
+      /** Source */
+      source: string;
+      /** Target */
+      target: string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'replication';
+    };
+    /**
+     * ReplicationEdgeData
+     * @description Represent the React-Flow ``data`` payload for a replication edge.
+     */
+    topology__ReplicationEdgeData: {
+      /** Auto Position */
+      auto_position?: number | null;
+      /** Filter */
+      filter?: string | null;
+      /** Gtid Mode */
+      gtid_mode?: string | null;
+      /** Io Running */
+      io_running?: string | null;
+      /** Seconds Behind */
+      seconds_behind?: number | null;
+      /** Sql Running */
+      sql_running?: string | null;
+      /** Status */
+      status?: ('ok' | 'err') | null;
+    };
+    /**
+     * TopologyCollectResponse
+     * @description Represent the response body for ``POST /collect``.
+     *
+     *     ``task_history_ids`` lists the dispatched ``run-python`` tasks the
+     *     frontend then polls (``/result``) to assemble the topology graph.
+     *     ``targets`` echoes the executor hosts the work was sharded across so
+     *     the UI can surface where the collection ran.
+     *
+     *     :param task_history_ids: Created task history ids, one per shard.
+     *     :param targets: Executor hosts selected for topology collection.
+     *     :param host_count: Number of MySQL hosts included in the collection.
+     *     :param shard_count: Number of dispatched topology shards.
+     */
+    topology__TopologyCollectResponse: {
+      /** Host Count */
+      host_count: number;
+      /** Shard Count */
+      shard_count: number;
+      /** Targets */
+      targets: string[];
+      /** Task History Ids */
+      task_history_ids: number[];
+    };
+    /**
+     * TopologyCollectWrite
+     * @description Describe the request body for ``POST /collect``.
+     *
+     *     :param shards: Number of executor hosts to dispatch in parallel. Hosts
+     *         are split round-robin across the chosen executors. Capped at
+     *         :data:`MAX_TOPOLOGY_SHARDS`.
+     *     :param executor_host: Optional explicit executor. Must be used with
+     *         ``shards=1`` because it selects a single-shard run.
+     *     :param connect_timeout: Per-host MySQL TCP connect timeout (seconds).
+     *     :param read_timeout: Per-host MySQL read/write timeout (seconds).
+     */
+    topology__TopologyCollectWrite: {
+      /**
+       * Connect Timeout
+       * @default 5
+       */
+      connect_timeout: number;
+      /** Executor Host */
+      executor_host?: string | null;
+      /**
+       * Read Timeout
+       * @default 10
+       */
+      read_timeout: number;
+      /**
+       * Shards
+       * @default 1
+       */
+      shards: number;
+    };
+    /**
+     * TopologyGraph
+     * @description Represent the merged React-Flow ``{nodes, edges, summary}`` graph.
+     */
+    topology__TopologyGraph: {
+      /** Edges */
+      edges?: (
+        | components['schemas']['topology__ReplicationEdge']
+        | components['schemas']['topology__DualPrimaryEdge']
+      )[];
+      /** Nodes */
+      nodes?: (
+        | components['schemas']['topology__MySQLNode']
+        | components['schemas']['topology__ClusterNode']
+        | components['schemas']['topology__UnknownSourceNode']
+      )[];
+      summary: components['schemas']['topology__TopologyGraphSummary'];
+    };
+    /**
+     * TopologyGraphSummary
+     * @description Aggregate counts for the topology graph.
+     */
+    topology__TopologyGraphSummary: {
+      /** Cluster Count */
+      cluster_count: number;
+      /** Edge Count */
+      edge_count: number;
+      /** Error Count */
+      error_count: number;
+      /** Host Count */
+      host_count: number;
+      /** Ok Count */
+      ok_count: number;
+    };
+    /**
+     * TopologyResultResponse
+     * @description Represent the response body for ``GET /result``.
+     *
+     *     ``status`` is ``running`` while any of the underlying tasks is
+     *     still pending, ``ok`` once every task has finished, and ``failed``
+     *     when at least one task failed and produced no usable output.
+     *     ``graph`` is the merged React-Flow graph; ``pending_task_ids``
+     *     lists the still-running tasks for the UI's progress chip, and
+     *     ``failed_task_ids`` lets the UI warn when only some shards failed.
+     *
+     *     :param status: Aggregate topology collection status.
+     *     :param graph: Merged React-Flow graph when collection output is ready.
+     *     :param pending_task_ids: Task ids still pending or running.
+     *     :param failed_task_ids: Terminal task ids that did not finish successfully.
+     */
+    topology__TopologyResultResponse: {
+      /** Failed Task Ids */
+      failed_task_ids?: number[];
+      graph?: components['schemas']['topology__TopologyGraph'] | null;
+      /** Pending Task Ids */
+      pending_task_ids?: number[];
+      /**
+       * Status
+       * @enum {string}
+       */
+      status: 'running' | 'ok' | 'failed';
+    };
+    /**
+     * UnknownSourceNode
+     * @description Represent a synthetic node for a replication source absent from inventory.
+     */
+    topology__UnknownSourceNode: {
+      data: components['schemas']['topology__UnknownSourceNodeData'];
+      /** Id */
+      id: string;
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'unknown_source';
+    };
+    /**
+     * UnknownSourceNodeData
+     * @description Represent the React-Flow ``data`` payload for a replication source not in inventory.
+     */
+    topology__UnknownSourceNodeData: {
+      /** Address */
+      address?: string | null;
+      /** Port */
+      port?: number | null;
+      /** Reason */
+      reason?: string | null;
+    };
   };
   responses: never;
   parameters: never;
@@ -8210,7 +10444,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AlertGroup'][];
+          'application/json': components['schemas']['alert_troubleshooting__AlertGroup'][];
         };
       };
     };
@@ -8230,7 +10464,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
         };
       };
     };
@@ -8253,7 +10487,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AlertDetailResponse'];
+          'application/json': components['schemas']['alert_troubleshooting__AlertDetailResponse'];
         };
       };
       /** @description Validation Error */
@@ -8282,7 +10516,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['IndexResponse'];
+          'application/json': components['schemas']['alerts__IndexResponse'];
         };
       };
     };
@@ -8305,7 +10539,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PaginatedResponse_BackupSummary_'];
+          'application/json': components['schemas']['alerts__PaginatedResponse_BackupSummary_'];
         };
       };
       /** @description Validation Error */
@@ -8336,7 +10570,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BackupDetail'];
+          'application/json': components['schemas']['alerts__BackupDetail'];
         };
       };
       /** @description Validation Error */
@@ -8359,7 +10593,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['PagerDutyRequest'];
+        'application/json': components['schemas']['alerts__PagerDutyRequest'];
       };
     };
     responses: {
@@ -8369,7 +10603,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PagerDutyResponse'];
+          'application/json': components['schemas']['alerts__PagerDutyResponse'];
         };
       };
       /** @description Validation Error */
@@ -8398,7 +10632,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PagerDutyResponse'];
+          'application/json': components['schemas']['alerts__PagerDutyResponse'];
         };
       };
     };
@@ -8412,7 +10646,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['PushRequest'];
+        'application/json': components['schemas']['alerts__PushRequest'];
       };
     };
     responses: {
@@ -8422,7 +10656,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PushResponse'];
+          'application/json': components['schemas']['alerts__PushResponse'];
         };
       };
       /** @description Validation Error */
@@ -8445,7 +10679,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RestoreRequest'];
+        'application/json': components['schemas']['alerts__RestoreRequest'];
       };
     };
     responses: {
@@ -8455,7 +10689,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RestoreResponse'];
+          'application/json': components['schemas']['alerts__RestoreResponse'];
         };
       };
       /** @description Validation Error */
@@ -8469,9 +10703,11 @@ export interface operations {
       };
     };
   };
-  alters_alters_api_list_api_apps_alters__get: {
+  alters__list_paginated_api_apps_alters__get: {
     parameters: {
       query?: {
+        offset?: number;
+        limit?: number;
         service_type?: components['schemas']['ServiceTypeEnum'] | null;
         status?: components['schemas']['TaskHistoryStatusEnum'] | null;
       };
@@ -8487,7 +10723,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AltersTaskResponse'][];
+          'application/json': components['schemas']['alters__PaginatedResponse_AltersTaskResponse_'];
         };
       };
       /** @description Validation Error */
@@ -8512,7 +10748,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['AltersCreate'];
+        'application/json': components['schemas']['alters__AltersCreate'];
       };
     };
     responses: {
@@ -8522,7 +10758,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AltersTaskResponseCreate'];
+          'application/json': components['schemas']['framework__AltersTaskResponseCreate'];
         };
       };
       /** @description Validation Error */
@@ -8551,7 +10787,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
         };
       };
     };
@@ -8573,7 +10809,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AltersTaskResponse'];
+          'application/json': components['schemas']['alters__AltersTaskResponse'];
         };
       };
       /** @description Validation Error */
@@ -8600,7 +10836,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['AltersCreate'];
+        'application/json': components['schemas']['alters__AltersCreate'];
       };
     };
     responses: {
@@ -8610,7 +10846,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AltersTaskResponseUpdate'];
+          'application/json': components['schemas']['framework__AltersTaskResponseUpdate'];
         };
       };
       /** @description Validation Error */
@@ -8664,7 +10900,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['AltersExecuteWrite'];
+        'application/json': components['schemas']['framework__TaskExecuteWrite'];
       };
     };
     responses: {
@@ -8674,7 +10910,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AltersExecutionResponse'];
+          'application/json': components['schemas']['framework__TaskExecutionResponse'];
         };
       };
       /** @description Validation Error */
@@ -8688,9 +10924,11 @@ export interface operations {
       };
     };
   };
-  archives__list_api_apps_archives__get: {
+  archives__list_paginated_api_apps_archives__get: {
     parameters: {
       query?: {
+        offset?: number;
+        limit?: number;
         status?: components['schemas']['TaskHistoryStatusEnum'] | null;
       };
       header?: never;
@@ -8705,7 +10943,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BaseTaskResponse'][];
+          'application/json': components['schemas']['framework__PaginatedResponse_BaseTaskResponse_'];
         };
       };
       /** @description Validation Error */
@@ -8730,7 +10968,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ArchivesCreate'];
+        'application/json': components['schemas']['archives__ArchivesCreate'];
       };
     };
     responses: {
@@ -8740,7 +10978,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BaseTaskResponse'];
+          'application/json': components['schemas']['framework__BaseTaskResponse'];
         };
       };
       /** @description Validation Error */
@@ -8769,7 +11007,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
         };
       };
     };
@@ -8791,7 +11029,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BaseTaskResponse'];
+          'application/json': components['schemas']['framework__BaseTaskResponse'];
         };
       };
       /** @description Validation Error */
@@ -8818,7 +11056,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ArchivesCreate'];
+        'application/json': components['schemas']['archives__ArchivesCreate'];
       };
     };
     responses: {
@@ -8828,7 +11066,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BaseTaskResponse'];
+          'application/json': components['schemas']['framework__BaseTaskResponse'];
         };
       };
       /** @description Validation Error */
@@ -8882,7 +11120,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['TaskExecuteWrite'];
+        'application/json': components['schemas']['framework__TaskExecuteWrite'];
       };
     };
     responses: {
@@ -8892,7 +11130,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TaskExecutionResponse'];
+          'application/json': components['schemas']['framework__TaskExecutionResponse'];
         };
       };
       /** @description Validation Error */
@@ -8921,7 +11159,389 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ATWCategoryListing'][];
+          'application/json': components['schemas']['atw__ATWCategoryListing'][];
+        };
+      };
+    };
+  };
+  atw_atw_config_api_apps_atw_config__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__AtwConfigResponse'];
+        };
+      };
+    };
+  };
+  atw_atw_execution_schema_api_apps_atw_execution_schema__get: {
+    parameters: {
+      query: {
+        /** @description Snippet filenames to build a batch form for. */
+        snippet_filename: string[];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__ATWMergedSchemaResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  atw_atw_list_incidents_api_apps_atw_incidents__get: {
+    parameters: {
+      query?: {
+        offset?: number;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__PaginatedResponse_AtwIncidentResponse_'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  atw_atw_create_incident_api_apps_atw_incidents__post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['atw__AtwIncidentWrite'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__AtwIncidentResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  atw_atw_get_incident_api_apps_atw_incidents__incident_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        incident_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__AtwIncidentResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  atw_atw_delete_incident_api_apps_atw_incidents__incident_id__delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        incident_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  atw_atw_update_incident_api_apps_atw_incidents__incident_id__patch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        incident_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['atw__AtwIncidentUpdate'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__AtwIncidentResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  atw_atw_list_incident_executions_api_apps_atw_incidents__incident_id__executions__get: {
+    parameters: {
+      query?: {
+        offset?: number;
+        limit?: number;
+      };
+      header?: never;
+      path: {
+        incident_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__PaginatedResponse_ATWIncidentExecutionResponse_'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  atw_atw_batch_execute_api_apps_atw_incidents__incident_id__executions__post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        incident_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['atw__ATWBatchExecuteWrite'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__ATWBatchExecuteResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  atw_atw_list_send_jobs_api_apps_atw_incidents__incident_id__send_jobs__get: {
+    parameters: {
+      query?: {
+        offset?: number;
+        limit?: number;
+      };
+      header?: never;
+      path: {
+        incident_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__PaginatedResponse_AtwSendLogResponse_'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  atw_atw_start_send_job_api_apps_atw_incidents__incident_id__send_jobs__post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        incident_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['atw__AtwSendJobWrite'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__AtwSendLogResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  atw_atw_get_send_job_api_apps_atw_incidents__incident_id__send_jobs__send_job_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        send_job_id: string;
+        incident_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__AtwSendLogResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };
@@ -8941,17 +11561,17 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
         };
       };
     };
   };
-  backup_mongo_backup_mongo_api_list_api_apps_backup_mongo__get: {
+  backup_mongo__list_paginated_api_apps_backup_mongo__get: {
     parameters: {
       query?: {
-        status?: components['schemas']['TaskHistoryStatusEnum'] | null;
         offset?: number;
         limit?: number;
+        status?: components['schemas']['TaskHistoryStatusEnum'] | null;
       };
       header?: never;
       path?: never;
@@ -8965,7 +11585,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['app__core__pagination__models__PaginatedResponse_BackupTaskResponse___1'];
+          'application/json': components['schemas']['backup_mongo__PaginatedResponse_BackupTaskResponse_'];
         };
       };
       /** @description Validation Error */
@@ -8988,7 +11608,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['BackupTaskWrite'];
+        'application/json': components['schemas']['backup_mongo__BackupTaskWrite'];
       };
     };
     responses: {
@@ -8998,7 +11618,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['app__sep__apps__backup_mongo__models__BackupTaskDetailResponse'];
+          'application/json': components['schemas']['backup_mongo__BackupTaskDetailResponse'];
         };
       };
       /** @description Validation Error */
@@ -9012,7 +11632,7 @@ export interface operations {
       };
     };
   };
-  backup_mongo_restore_mongo_api_list_api_apps_backup_mongo_restores__get: {
+  backup_mongo_restore_restore_mongo_api_list_api_apps_backup_mongo_restore__get: {
     parameters: {
       query?: {
         status?: components['schemas']['TaskHistoryStatusEnum'] | null;
@@ -9031,7 +11651,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PaginatedResponse_RestoreTaskResponse_'];
+          'application/json': components['schemas']['backup_mongo__PaginatedResponse_RestoreTaskResponse_'];
         };
       };
       /** @description Validation Error */
@@ -9045,7 +11665,7 @@ export interface operations {
       };
     };
   };
-  backup_mongo_restore_mongo_api_create_api_apps_backup_mongo_restores__post: {
+  backup_mongo_restore_restore_mongo_api_create_api_apps_backup_mongo_restore__post: {
     parameters: {
       query?: never;
       header?: never;
@@ -9054,7 +11674,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RestoreTaskWrite'];
+        'application/json': components['schemas']['backup_mongo__RestoreTaskWrite'];
       };
     };
     responses: {
@@ -9064,7 +11684,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RestoreTaskDetailResponse'];
+          'application/json': components['schemas']['backup_mongo__RestoreTaskDetailResponse'];
         };
       };
       /** @description Validation Error */
@@ -9078,7 +11698,7 @@ export interface operations {
       };
     };
   };
-  backup_mongo_get_schema_api_apps_backup_mongo_restores_schema_get: {
+  backup_mongo_restore_get_schema_api_apps_backup_mongo_restore_schema_get: {
     parameters: {
       query?: never;
       header?: never;
@@ -9093,12 +11713,12 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
         };
       };
     };
   };
-  backup_mongo_restore_mongo_api_detail_api_apps_backup_mongo_restores__task_name__get: {
+  backup_mongo_restore_restore_mongo_api_detail_api_apps_backup_mongo_restore__task_name__get: {
     parameters: {
       query?: never;
       header?: never;
@@ -9115,7 +11735,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RestoreTaskDetailResponse'];
+          'application/json': components['schemas']['backup_mongo__RestoreTaskDetailResponse'];
         };
       };
       /** @description Validation Error */
@@ -9129,7 +11749,7 @@ export interface operations {
       };
     };
   };
-  backup_mongo_restore_mongo_api_update_api_apps_backup_mongo_restores__task_name__put: {
+  backup_mongo_restore_restore_mongo_api_update_api_apps_backup_mongo_restore__task_name__put: {
     parameters: {
       query?: never;
       header?: never;
@@ -9140,7 +11760,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RestoreTaskWrite'];
+        'application/json': components['schemas']['backup_mongo__RestoreTaskWrite'];
       };
     };
     responses: {
@@ -9150,7 +11770,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RestoreTaskResponse'];
+          'application/json': components['schemas']['backup_mongo__RestoreTaskResponse'];
         };
       };
       /** @description Validation Error */
@@ -9164,7 +11784,7 @@ export interface operations {
       };
     };
   };
-  backup_mongo_restore_mongo_api_delete_api_apps_backup_mongo_restores__task_name__delete: {
+  backup_mongo_restore_restore_mongo_api_delete_api_apps_backup_mongo_restore__task_name__delete: {
     parameters: {
       query?: never;
       header?: never;
@@ -9193,7 +11813,7 @@ export interface operations {
       };
     };
   };
-  backup_mongo_restore_mongo_api_execute_api_apps_backup_mongo_restores__task_name__execute_post: {
+  backup_mongo_restore_backup_mongo_restores_api_execute_api_apps_backup_mongo_restore__task_name__execute_post: {
     parameters: {
       query?: never;
       header?: never;
@@ -9204,7 +11824,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RestoreExecuteWrite'];
+        'application/json': components['schemas']['framework__TaskExecuteWrite'];
       };
     };
     responses: {
@@ -9214,7 +11834,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RestoreExecutionResponse'];
+          'application/json': components['schemas']['framework__TaskExecutionResponse'];
         };
       };
       /** @description Validation Error */
@@ -9243,7 +11863,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
         };
       };
     };
@@ -9265,7 +11885,42 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['app__sep__apps__backup_mongo__models__BackupTaskDetailResponse'];
+          'application/json': components['schemas']['backup_mongo__BackupTaskDetailResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  backup_mongo_backup_mongo_api_update_api_apps_backup_mongo__task_name__put: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        task_name: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['backup_mongo__BackupTaskWrite'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['backup_mongo__BackupTaskDetailResponse'];
         };
       };
       /** @description Validation Error */
@@ -9319,7 +11974,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['app__sep__apps__backup_mongo__models__BackupExecuteWrite'];
+        'application/json': components['schemas']['framework__TaskExecuteWrite'];
       };
     };
     responses: {
@@ -9329,7 +11984,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['app__sep__apps__backup_mongo__models__BackupExecutionResponse'];
+          'application/json': components['schemas']['framework__TaskExecutionResponse'];
         };
       };
       /** @description Validation Error */
@@ -9362,7 +12017,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['app__core__pagination__models__PaginatedResponse_BackupTaskResponse___2'];
+          'application/json': components['schemas']['backup_pg__PaginatedResponse_BackupTaskResponse_'];
         };
       };
       /** @description Validation Error */
@@ -9387,7 +12042,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['BackupPgForm'];
+        'application/json': components['schemas']['backup_pg__BackupPgForm'];
       };
     };
     responses: {
@@ -9397,7 +12052,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BackupPgCreateResponse'];
+          'application/json': components['schemas']['framework__BackupPgCreateResponse'];
         };
       };
       /** @description Validation Error */
@@ -9426,7 +12081,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
         };
       };
     };
@@ -9448,7 +12103,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['app__sep__apps__backup_pg__models__BackupTaskDetailResponse'];
+          'application/json': components['schemas']['backup_pg__BackupTaskDetailResponse'];
         };
       };
       /** @description Validation Error */
@@ -9475,7 +12130,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['BackupPgForm'];
+        'application/json': components['schemas']['backup_pg__BackupPgForm'];
       };
     };
     responses: {
@@ -9485,7 +12140,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BackupPgCreateResponse'];
+          'application/json': components['schemas']['framework__BackupPgCreateResponse'];
         };
       };
       /** @description Validation Error */
@@ -9539,7 +12194,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['app__sep__apps__backup_pg__models__BackupExecuteWrite'];
+        'application/json': components['schemas']['framework__TaskExecuteWrite'];
       };
     };
     responses: {
@@ -9549,7 +12204,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['app__sep__apps__backup_pg__models__BackupExecutionResponse'];
+          'application/json': components['schemas']['framework__TaskExecutionResponse'];
         };
       };
       /** @description Validation Error */
@@ -9563,9 +12218,11 @@ export interface operations {
       };
     };
   };
-  checksums__list_api_apps_checksums__get: {
+  checksums__list_paginated_api_apps_checksums__get: {
     parameters: {
       query?: {
+        offset?: number;
+        limit?: number;
         service_type?: components['schemas']['ServiceTypeEnum'] | null;
         status?: components['schemas']['TaskHistoryStatusEnum'] | null;
       };
@@ -9581,7 +12238,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BaseTaskResponse'][];
+          'application/json': components['schemas']['framework__PaginatedResponse_BaseTaskResponse_'];
         };
       };
       /** @description Validation Error */
@@ -9606,7 +12263,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ChecksumsForm'];
+        'application/json': components['schemas']['checksums__ChecksumsForm'];
       };
     };
     responses: {
@@ -9616,7 +12273,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BaseTaskResponse'];
+          'application/json': components['schemas']['framework__BaseTaskResponse'];
         };
       };
       /** @description Validation Error */
@@ -9645,7 +12302,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
         };
       };
     };
@@ -9667,7 +12324,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BaseTaskResponse'];
+          'application/json': components['schemas']['framework__BaseTaskResponse'];
         };
       };
       /** @description Validation Error */
@@ -9694,7 +12351,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ChecksumsForm'];
+        'application/json': components['schemas']['checksums__ChecksumsForm'];
       };
     };
     responses: {
@@ -9704,7 +12361,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BaseTaskResponse'];
+          'application/json': components['schemas']['framework__BaseTaskResponse'];
         };
       };
       /** @description Validation Error */
@@ -9758,7 +12415,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['TaskExecuteWrite'];
+        'application/json': components['schemas']['framework__TaskExecuteWrite'];
       };
     };
     responses: {
@@ -9768,7 +12425,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TaskExecutionResponse'];
+          'application/json': components['schemas']['framework__TaskExecutionResponse'];
         };
       };
       /** @description Validation Error */
@@ -9784,7 +12441,10 @@ export interface operations {
   };
   dipper_dipper_api_list_api_apps_dipper__get: {
     parameters: {
-      query?: never;
+      query?: {
+        offset?: number;
+        limit?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -9797,7 +12457,16 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': Record<string, never>;
+          'application/json': components['schemas']['PaginatedResponse_dict_str__Any__'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };
@@ -9811,7 +12480,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DipperExecuteWrite'];
+        'application/json': components['schemas']['dipper__DipperExecuteWrite'];
       };
     };
     responses: {
@@ -9821,7 +12490,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DipperExecutionResponse'];
+          'application/json': components['schemas']['dipper__DipperExecutionResponse'];
         };
       };
       /** @description Validation Error */
@@ -9839,7 +12508,7 @@ export interface operations {
     parameters: {
       query: {
         service_id: number;
-        collector_type: components['schemas']['CollectorTypeEnum'];
+        collector_type: components['schemas']['dipper__CollectorTypeEnum'];
       };
       header?: never;
       path?: never;
@@ -9853,7 +12522,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
         };
       };
       /** @description Validation Error */
@@ -9882,7 +12551,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
         };
       };
     };
@@ -9891,7 +12560,7 @@ export interface operations {
     parameters: {
       query: {
         service_id: number;
-        collector_type: components['schemas']['CollectorTypeEnum'];
+        collector_type: components['schemas']['dipper__CollectorTypeEnum'];
       };
       header?: never;
       path?: never;
@@ -9905,7 +12574,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ScriptPreviewResponse'];
+          'application/json': components['schemas']['framework__ScriptPreviewResponse'];
         };
       };
       /** @description Validation Error */
@@ -9934,7 +12603,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PluginTaskResponse'][];
+          'application/json': components['schemas']['inventory__PluginTaskResponse'][];
         };
       };
     };
@@ -9954,7 +12623,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AvailableSyncer'][];
+          'application/json': components['schemas']['inventory__AvailableSyncer'][];
         };
       };
     };
@@ -10005,7 +12674,38 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
+        };
+      };
+    };
+  };
+  inventory_inventory_service_check_connectivity_api_apps_inventory_services__service_id__check_connectivity__post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConnectivityCheckResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };
@@ -10051,7 +12751,7 @@ export interface operations {
     requestBody?: {
       content: {
         'application/json':
-          | components['schemas']['InventorySyncTriggerWrite']
+          | components['schemas']['inventory__InventorySyncTriggerWrite']
           | null;
       };
     };
@@ -10089,14 +12789,17 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['InventorySyncStatusResponse'];
+          'application/json': components['schemas']['inventory__InventorySyncStatusResponse'];
         };
       };
     };
   };
   inventory_inventory_list_entity_api_apps_inventory__entity___get: {
     parameters: {
-      query?: never;
+      query?: {
+        offset?: number;
+        limit?: number;
+      };
       header?: never;
       path: {
         entity: string;
@@ -10111,7 +12814,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown[];
+          'application/json': components['schemas']['PaginatedResponse_Any_'];
         };
       };
       /** @description Validation Error */
@@ -10271,7 +12974,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PaginatedResponse_BackupResponse_'];
+          'application/json': components['schemas']['mysql_backups__PaginatedResponse_BackupTaskResponse_'];
         };
       };
       /** @description Validation Error */
@@ -10296,7 +12999,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['BackupCreate'];
+        'application/json': components['schemas']['mysql_backups__BackupCreate'];
       };
     };
     responses: {
@@ -10306,7 +13009,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['MysqlBackupsCreateResponse'];
+          'application/json': components['schemas']['framework__MysqlBackupsCreateResponse'];
         };
       };
       /** @description Validation Error */
@@ -10339,7 +13042,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PaginatedResponse_RestoresResponse_'];
+          'application/json': components['schemas']['mysql_backups__PaginatedResponse_RestoresResponse_'];
         };
       };
       /** @description Validation Error */
@@ -10362,7 +13065,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RestoreCreate'];
+        'application/json': components['schemas']['mysql_backups__RestoreCreate'];
       };
     };
     responses: {
@@ -10372,7 +13075,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RestoresResponse'];
+          'application/json': components['schemas']['mysql_backups__RestoresResponse'];
         };
       };
       /** @description Validation Error */
@@ -10401,7 +13104,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
         };
       };
     };
@@ -10423,7 +13126,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RestoresResponse'];
+          'application/json': components['schemas']['mysql_backups__RestoresResponse'];
         };
       };
       /** @description Validation Error */
@@ -10448,7 +13151,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RestoreCreate'];
+        'application/json': components['schemas']['mysql_backups__RestoreCreate'];
       };
     };
     responses: {
@@ -10458,7 +13161,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RestoresResponse'];
+          'application/json': components['schemas']['mysql_backups__RestoresResponse'];
         };
       };
       /** @description Validation Error */
@@ -10512,7 +13215,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['TaskExecuteWrite'];
+        'application/json': components['schemas']['framework__TaskExecuteWrite'];
       };
     };
     responses: {
@@ -10522,7 +13225,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TaskExecutionResponse'];
+          'application/json': components['schemas']['framework__TaskExecutionResponse'];
         };
       };
       /** @description Validation Error */
@@ -10551,7 +13254,41 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
+        };
+      };
+    };
+  };
+  mysql_backups_list_service_backups_api_apps_mysql_backups_services__service_id__backups_get: {
+    parameters: {
+      query?: {
+        offset?: number;
+        limit?: number;
+      };
+      header?: never;
+      path: {
+        service_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['mysql_backups__PaginatedResponse_BackupRunResponse_'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };
@@ -10573,7 +13310,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BackupResponse'];
+          'application/json': components['schemas']['mysql_backups__BackupTaskResponse'];
         };
       };
       /** @description Validation Error */
@@ -10600,7 +13337,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['BackupCreate'];
+        'application/json': components['schemas']['mysql_backups__BackupCreate'];
       };
     };
     responses: {
@@ -10610,7 +13347,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['MysqlBackupsCreateResponse'];
+          'application/json': components['schemas']['framework__MysqlBackupsCreateResponse'];
         };
       };
       /** @description Validation Error */
@@ -10664,7 +13401,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['TaskExecuteWrite'];
+        'application/json': components['schemas']['framework__TaskExecuteWrite'];
       };
     };
     responses: {
@@ -10674,7 +13411,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TaskExecutionResponse'];
+          'application/json': components['schemas']['framework__TaskExecutionResponse'];
         };
       };
       /** @description Validation Error */
@@ -10743,18 +13480,80 @@ export interface operations {
       };
     };
   };
-  report_report_generate_pdf_api_api_apps_report_generate_pdf_post: {
+  report_report_start_pdf_job_api_api_apps_report_pdf_jobs_post: {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    requestBody?: {
+    requestBody: {
       content: {
-        'application/x-www-form-urlencoded': components['schemas']['Body_report_report_generate_pdf_api_api_apps_report_generate_pdf_post'];
+        'application/json': components['schemas']['report__ReportSnapshotWrite'];
       };
     };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['report__ReportJobResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  report_report_pdf_job_api_api_apps_report_pdf_jobs__job_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        job_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['report__ReportJobResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  report_report_download_pdf_api_api_apps_report_pdf_jobs__job_id__pdf_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        job_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
     responses: {
       /** @description Successful Response */
       200: {
@@ -10776,16 +13575,16 @@ export interface operations {
       };
     };
   };
-  report_report_upload_api_api_apps_report_upload_post: {
+  report_report_start_upload_job_api_api_apps_report_upload_jobs_post: {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    requestBody?: {
+    requestBody: {
       content: {
-        'application/x-www-form-urlencoded': components['schemas']['Body_report_report_upload_api_api_apps_report_upload_post'];
+        'application/json': components['schemas']['report__ReportSnapshotWrite'];
       };
     };
     responses: {
@@ -10795,7 +13594,38 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          'application/json': components['schemas']['report__ReportJobResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  report_report_upload_job_api_api_apps_report_upload_jobs__job_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        job_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['report__ReportJobResponse'];
         };
       };
       /** @description Validation Error */
@@ -10811,7 +13641,22 @@ export interface operations {
   };
   snippets_snippets_api_list_api_apps_snippets__get: {
     parameters: {
-      query?: never;
+      query?: {
+        offset?: number;
+        limit?: number;
+        /** @description Case-insensitive search over filename, title, description. */
+        search?: string | null;
+        /** @description Sort key; one of the allowlisted public sort keys. */
+        sort?: components['schemas']['SnippetSortKey'];
+        /** @description Sort direction. */
+        order?: components['schemas']['SnippetSortDirection'];
+        /** @description Approval-status filter. */
+        approval?: components['schemas']['SnippetApprovalFilter'];
+        /** @description Service-type equality filter, or omitted for no filter. */
+        service_type?: string | null;
+        /** @description When true, keep only snippets with no (absent or blank) service type. A separate flag so a real service type can never collide with a reserved sentinel. Takes precedence over 'service_type'. */
+        uncategorized?: boolean;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -10824,7 +13669,16 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['SnippetResponse'][];
+          'application/json': components['schemas']['PaginatedResponse_SnippetResponse_'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };
@@ -10917,7 +13771,27 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
+        };
+      };
+    };
+  };
+  snippets_snippets_api_service_types_api_apps_snippets_service_types_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['SnippetServiceTypesResponse'];
         };
       };
     };
@@ -11028,7 +13902,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ScriptExecuteWrite'];
+        'application/json': components['schemas']['framework__ScriptExecuteWrite'];
       };
     };
     responses: {
@@ -11038,7 +13912,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ScriptExecutionResponse'];
+          'application/json': components['schemas']['framework__ScriptExecutionResponse'];
         };
       };
       /** @description Validation Error */
@@ -11102,7 +13976,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ScriptPreviewResponse'];
+          'application/json': components['schemas']['framework__ScriptPreviewResponse'];
         };
       };
       /** @description Validation Error */
@@ -11134,7 +14008,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
         };
       };
       /** @description Validation Error */
@@ -11150,7 +14024,10 @@ export interface operations {
   };
   task_manager_tasks_api_list_api_apps_tasks__get: {
     parameters: {
-      query?: never;
+      query?: {
+        offset?: number;
+        limit?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -11163,7 +14040,16 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TaskListResponse'][];
+          'application/json': components['schemas']['tasks__PaginatedResponse_TaskListResponse_'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };
@@ -11183,7 +14069,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AppSchema'];
+          'application/json': components['schemas']['framework__AppSchema'];
         };
       };
     };
@@ -11191,7 +14077,7 @@ export interface operations {
   task_manager_tasks_api_detail_api_apps_tasks__task_name__get: {
     parameters: {
       query?: {
-        owner?: components['schemas']['TaskOwner'] | null;
+        owner?: string | null;
       };
       header?: never;
       path: {
@@ -11207,7 +14093,105 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TaskDetailResponse'];
+          'application/json': components['schemas']['tasks__TaskDetailResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  topology_topology_collect_api_apps_topology_collect_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['topology__TopologyCollectWrite'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['topology__TopologyCollectResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  topology_topology_result_api_apps_topology_result_get: {
+    parameters: {
+      query: {
+        /** @description Comma-separated task history ids */
+        ids: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['topology__TopologyResultResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  sep_check_connectivity_api_sep_admin_connectivity_check__post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConnectivityCheckRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ConnectivityResult'][];
         };
       };
       /** @description Validation Error */
@@ -11846,7 +14830,7 @@ export interface operations {
   tasks_list_task_execution_events_execution_events__task_history_id__get: {
     parameters: {
       query?: {
-        owner?: components['schemas']['TaskOwner'] | null;
+        owner?: string | null;
       };
       header?: never;
       path: {
@@ -11879,7 +14863,7 @@ export interface operations {
   tasks_list_task_history_files_files__task_history_id__get: {
     parameters: {
       query?: {
-        owner?: components['schemas']['TaskOwner'] | null;
+        owner?: string | null;
       };
       header?: never;
       path: {
@@ -11914,7 +14898,7 @@ export interface operations {
   tasks_download_task_history_file_files__task_history_id__download_get: {
     parameters: {
       query?: {
-        owner?: components['schemas']['TaskOwner'] | null;
+        owner?: string | null;
       };
       header?: never;
       path: {
@@ -11947,7 +14931,7 @@ export interface operations {
   tasks_task_logs_event_stream_stream_logs__task_history_id__get: {
     parameters: {
       query?: {
-        owner?: components['schemas']['TaskOwner'] | null;
+        owner?: string | null;
       };
       header?: never;
       path: {
@@ -11980,7 +14964,7 @@ export interface operations {
   tasks_task_execution_events_stream_stream_logs__task_history_id__execution_events_get: {
     parameters: {
       query?: {
-        owner?: components['schemas']['TaskOwner'] | null;
+        owner?: string | null;
       };
       header?: never;
       path: {

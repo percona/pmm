@@ -40,11 +40,19 @@ export type {
 } from './errors';
 
 // Auth
-export { postLogin, postRefresh, postLogout, fetchCurrentUser } from './auth';
+export {
+  postLogin,
+  postRefresh,
+  postSession,
+  postSessionExchange,
+  postLogout,
+  fetchCurrentUser,
+} from './auth';
 
 // Types (re-exported from generated OpenAPI schemas)
 export type {
   OAuthTokenResponse,
+  SessionExchangeTokenResponse,
   SPAOAuthTokenResponse,
   User,
 } from './types/api';
