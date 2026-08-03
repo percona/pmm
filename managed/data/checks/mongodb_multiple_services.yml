@@ -8,7 +8,7 @@ checks:
     technology: MONGODB
     category: Performance
     subcategory: Generic
-    #author: Parag Bhayani
+    # author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT
         query: avg by(node_name,rs_nm,cluster) (mongodb_ss_pid{node_name=~"{{.NodeName}}"})

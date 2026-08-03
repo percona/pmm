@@ -4,7 +4,7 @@ checks:
     name: postgresql_unsupported_check
     summary: Check for unsupported PostgreSQL
     description: Checks to see if the currently installed version is supported by percona
-    #author: Jorge Torralba
+    # author: Jorge Torralba
     category: Configuration
     subcategory: Version
     interval: standard

@@ -6,7 +6,7 @@ checks:
     summary: MongoDB Replica Set Topology
     description: This check returns warnings if the Replica Set has less than 3 data bearing nodes
     technology: MONGODB
-    #author: Corrado Pandiani
+    # author: Corrado Pandiani
     category: Configuration
     subcategory: Replication
     interval: standard

@@ -8,7 +8,7 @@ checks:
     technology: MONGODB
     category: Configuration
     subcategory: Generic
-    #author: Vinicius Grippa/Parag Bhayani
+    # author: Vinicius Grippa/Parag Bhayani
     queries:
       - type: MONGODB_GETCMDLINEOPTS
     script: |

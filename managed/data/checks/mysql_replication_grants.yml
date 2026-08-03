@@ -7,7 +7,7 @@ checks:
     interval: standard
     category: Security
     subcategory: Replication
-    #author: The Grinch
+    # author: The Grinch
     technology: MYSQL
     queries:
       - type: MYSQL_SELECT

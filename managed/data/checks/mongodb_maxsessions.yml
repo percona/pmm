@@ -8,7 +8,7 @@ checks:
     technology: MONGODB
     category: Configuration
     subcategory: Resources
-    #author: Vinodh Krishnaswamy/Parag Bhayani
+    # author: Vinodh Krishnaswamy/Parag Bhayani
     queries:
       - type: MONGODB_GETCMDLINEOPTS
     script: |

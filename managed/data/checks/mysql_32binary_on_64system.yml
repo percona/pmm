@@ -5,7 +5,7 @@ checks:
     summary: Check if binaries are 32 bits
     description: This check returns a warning if version_compile_machine equals i686.
     technology: MYSQL
-    #author: Carlos Tutte
+    # author: Carlos Tutte
     category: Configuration
     subcategory: Resources
     interval: standard

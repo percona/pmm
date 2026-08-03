@@ -8,7 +8,7 @@ checks:
     technology: MONGODB
     category: Query
     subcategory: Index
-    #author: Parag Bhayani
+    # author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT
         query: avg by(cl_role,cluster,node_name,rs_state) (mongodb_ss_shardedIndexConsistency_numShardedCollectionsWithInconsistentIndexes{rs_state="1", node_name=~"{{.NodeName}}"})

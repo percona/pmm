@@ -8,7 +8,7 @@ checks:
     technology: MONGODB
     category: Query
     subcategory: Index
-    #author: Parag Bhayani
+    # author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT
         query: avg by(node_name) (mongodb_instance_uptime_seconds{node_name=~"{{.NodeName}}"} / 86400)

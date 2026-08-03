@@ -5,7 +5,7 @@ checks:
     summary: MongoDB Non-Default Log Level
     description: This check returns warnings if MongoDB is not using the default log level.
     technology: MONGODB
-    #author: Vinicius Grippa
+    # author: Vinicius Grippa
     category: Configuration
     subcategory: Generic
     interval: standard

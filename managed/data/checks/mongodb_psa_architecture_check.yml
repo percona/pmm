@@ -8,7 +8,7 @@ checks:
     technology: MONGODB
     category: Configuration
     subcategory: Replication
-    #author: Parag Bhayani
+    # author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT
         query: avg by(cluster,node_name,set) (mongodb_mongod_replset_number_of_members{node_name=~"{{.NodeName}}"})

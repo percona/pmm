@@ -5,7 +5,7 @@ checks:
     summary: MonogDB IP bindings
     description: This check returns warnings if the MongoDB network binding is not set as recommended.
     technology: MONGODB
-    #author: Divyanshu  Soni
+    # author: Divyanshu Soni
     category: Security
     subcategory: Connection
     interval: standard

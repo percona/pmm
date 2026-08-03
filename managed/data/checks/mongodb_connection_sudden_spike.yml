@@ -8,7 +8,7 @@ checks:
     technology: MONGODB
     category: Configuration
     subcategory: Connection
-    #author: Parag Bhayani
+    # author: Parag Bhayani
     queries:
       - type: METRICS_RANGE
         query: avg by (node_name) (mongodb_connections{state="current", node_name=~"{{.NodeName}}"})

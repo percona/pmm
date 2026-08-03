@@ -8,7 +8,7 @@ checks:
     technology: MONGODB
     category: Performance
     subcategory: Replication
-    #author: Parag Bhayani
+    # author: Parag Bhayani
     queries:
       - type: MONGODB_GETDIAGNOSTICDATA
       - type: METRICS_RANGE

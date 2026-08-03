@@ -8,7 +8,7 @@ checks:
     technology: MONGODB
     category: Configuration
     subcategory: Resources
-    #author: Parag Bhayani
+    # author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT
         query: avg by(node_name) (node_memory_MemTotal_bytes{node_name=~"{{.NodeName}}"} / (1024*1024*1024))

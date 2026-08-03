@@ -7,7 +7,7 @@ checks:
     technology: MONGODB
     category: Configuration
     subcategory: Version
-    #author: Parag Bhayani
+    # author: Parag Bhayani
     interval: standard
     queries:
       - type: MONGODB_BUILDINFO

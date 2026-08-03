@@ -5,7 +5,7 @@ checks:
     summary: Checks mysql version for support
     description: This check warns against an unsupported mysql version
     technology: MYSQL
-    #author: Kedar Vaijanapurkar
+    # author: Kedar Vaijanapurkar
     category: Configuration
     subcategory: Version
     interval: standard

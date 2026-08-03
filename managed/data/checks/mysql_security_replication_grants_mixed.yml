@@ -5,7 +5,7 @@ checks:
     summary: Replication privileges
     description: Check if replication privileges is mixed with more elevated privileges
     interval: standard
-    #author: The Grinch
+    # author: The Grinch
     category: Security
     subcategory: Replication
     technology: MYSQL

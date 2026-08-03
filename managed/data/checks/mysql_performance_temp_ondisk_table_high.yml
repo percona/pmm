@@ -7,7 +7,7 @@ checks:
     technology: MYSQL
     category: Query
     subcategory: Index
-    #author: Kedar Vaijanapurkar
+    # author: Kedar Vaijanapurkar
     interval: standard
     queries:
       - type: MYSQL_SHOW

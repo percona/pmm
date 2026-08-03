@@ -8,7 +8,7 @@ checks:
     technology: MONGODB
     category: Performance
     subcategory: Replication
-    #author: Parag bhayani
+    # author: Parag bhayani
     queries:
       - type: METRICS_INSTANT
         query: avg by(cluster) (mongodb_mongos_sharding_chunks_is_balancer_running{node_name=~"{{.NodeName}}"})

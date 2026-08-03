@@ -8,7 +8,7 @@ checks:
     category: Performance
     subcategory: Replication
     technology: MONGODB
-    #author: Ivan Groenewold
+    # author: Ivan Groenewold
     interval: standard
     queries:
       - type: MONGODB_GETDIAGNOSTICDATA

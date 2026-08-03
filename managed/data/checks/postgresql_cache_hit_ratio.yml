@@ -5,7 +5,7 @@ checks:
     summary: PostgreSQL cache hit ratio
     description: This check the hitratio of one or more databases and complains when they are too low.
     technology: POSTGRESQL
-    #author: David Gonzales
+    # author: David Gonzales
     category: Performance
     subcategory: Generic
     interval: standard

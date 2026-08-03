@@ -6,7 +6,7 @@ checks:
     description: Checks if time zone is correctly loaded.
     interval: standard
     technology: MYSQL
-    #author:tibi/the grinch
+    # author: tibi/the grinch
     category: Configuration
     subcategory: Generic
     queries:

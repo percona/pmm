@@ -6,7 +6,7 @@ checks:
     summary: MongoDB Journal
     description: This check returns warnings if journal is disabled.
     technology: MONGODB
-    #author: Corrado Pandiani
+    # author: Corrado Pandiani
     category: Configuration
     subcategory: Generic
     interval: standard

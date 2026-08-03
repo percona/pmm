@@ -5,7 +5,7 @@ checks:
     summary: Checks if automatic_sp_privileges configuration is ON
     description: This check reviews the automatic_sp_privileges configuration is ON.
     technology: MYSQL
-    #author: Kedar Vaijanapurkar
+    # author: Kedar Vaijanapurkar
     category: Configuration
     subcategory: Generic
     interval: standard

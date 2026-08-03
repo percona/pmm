@@ -8,8 +8,7 @@ checks:
     technology: MONGODB
     category: Configuration
     subcategory: Resources
-    #category: configuration
-    #author: Parag Bhayani
+    # author: Parag Bhayani
     queries:
       - type: MONGODB_BUILDINFO
       - type: MONGODB_GETPARAMETER

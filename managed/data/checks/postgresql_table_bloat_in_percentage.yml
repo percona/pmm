@@ -5,7 +5,7 @@ checks:
     summary: PostgreSQL Table Bloat in percentage of the table size
     description: This check verifies the size of the table bloat in percentage of the total table size and alert accordingly
     technology: POSTGRESQL
-    #author: David Gonzalez
+    # author: David Gonzales
     category: Performance
     subcategory: Vacuum
     interval: standard

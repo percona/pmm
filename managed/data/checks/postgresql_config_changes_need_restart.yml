@@ -5,7 +5,7 @@ checks:
     summary: Configuration change requires restart/reload
     description: This check returns a warning if there is any setting/configuration that was changed and needs a server restart/reload.
     technology: POSTGRESQL
-    #author: Charly Batista
+    # author: Charly Batista
     category: Performance
     subcategory: Generic
     interval: standard

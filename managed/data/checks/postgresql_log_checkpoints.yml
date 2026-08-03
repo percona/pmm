@@ -5,7 +5,7 @@ checks:
     summary: PostgreSQL Checkpoints Logging Disabled
     description: This check returns a warning if the log_checkpoints configuration option is not enabled. It is recommended to enable the logging of checkpoint information, as that provides a lot of useful information with almost no drawbacks.
     technology: POSTGRESQL
-    #author: Sergey Kuzmichev
+    # author: Sergey Kuzmichev
     category: Configuration
     subcategory: Generic
     interval: standard

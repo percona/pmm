@@ -6,7 +6,7 @@ checks:
     description: Checks tables without primary keys.
     interval: standard
     technology: MYSQL
-    #author:tibi/the grinch
+    # author: tibi/the grinch
     category: Query
     subcategory: Index
     queries:

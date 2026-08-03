@@ -8,7 +8,7 @@ checks:
     technology: MYSQL
     category: Configuration
     subcategory: Replication
-    #author: tibi/the grinch
+    # author: tibi/the grinch
     queries:
       - type: MYSQL_SHOW
         query: VARIABLES

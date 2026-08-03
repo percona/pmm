@@ -8,9 +8,7 @@ checks:
     technology: MONGODB
     category: Configuration
     subcategory: Version
-    #category: configuration
-    #subcategory: version configuration
-    #author: Parag Bhayani
+    # author: Parag Bhayani
     queries:
       - type: MONGODB_BUILDINFO
     script: |

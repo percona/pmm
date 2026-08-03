@@ -5,7 +5,7 @@ checks:
     summary: Check log verbosity
     description: Checks that warnings are being printed on the log
     technology: MYSQL
-    #author: Carlos
+    # author: Carlos Tutte
     category: Configuration
     subcategory: Generic
     interval: standard

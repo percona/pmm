@@ -5,7 +5,7 @@ checks:
     summary: PostgreSQL Stale Replication Slot
     description: This check returns a warning if there is a stale replication slot. Stale replication slots will lead to WAL file accumulation and can result in a DB server outage.
     technology: POSTGRESQL
-    #author: Sergey Kuzmichev
+    # author: Sergey Kuzmichev
     category: Performance
     subcategory: Replication
     interval: standard

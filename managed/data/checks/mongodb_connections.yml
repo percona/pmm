@@ -8,9 +8,7 @@ checks:
     technology: MONGODB
     category: Configuration
     subcategory: Connection
-    #category: configuration
-    #subcategory: connection
-    #author: Parag Bhayani
+    # author: Parag Bhayani
     queries:
       - type: MONGODB_GETDIAGNOSTICDATA
     script: |

@@ -5,7 +5,7 @@ checks:
     summary: MongoDB localhost authentication bypass enabled
     description: This check returns warnings if MongoDB localhost bypass is enabled.
     technology: MONGODB
-    #author: Divyanshu Soni
+    # author: Divyanshu Soni
     category: Security
     subcategory: Authentication
     interval: standard

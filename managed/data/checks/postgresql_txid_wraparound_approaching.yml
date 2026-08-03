@@ -5,7 +5,7 @@ checks:
     summary: PostgreSQL Transaction ID Wraparound approaching
     description: This check verifies databases age and alert if the transaction ID wraparound issue is near
     technology: POSTGRESQL
-    #author: David Gonzalez
+    # author: David Gonzales
     category: Configuration
     subcategory: Vacuum
     interval: standard

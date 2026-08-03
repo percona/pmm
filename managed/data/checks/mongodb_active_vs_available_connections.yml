@@ -6,7 +6,7 @@ checks:
     summary: MongoDB Active vs Available Connections
     description: This check returns warnings if the ratio between active and available connections is higher than 75%
     technology: MONGODB
-    #author: Corrado Pandiani
+    # author: Corrado Pandiani
     category: Configuration
     subcategory: Generic
     interval: standard

@@ -4,7 +4,7 @@ checks:
     name: postgresql_tmpfiles_check
     summary: PostgreSQL temporary file statistics
     description: This check reports the number of temporary files and number of bytes written to disk since last stats reset.
-    #author: Jorge Torralba
+    # author: Jorge Torralba
     category: Performance
     subcategory: Generic
     interval: standard
