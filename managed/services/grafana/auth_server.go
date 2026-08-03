@@ -24,9 +24,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
-	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/lib/pq"
@@ -36,6 +34,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/cache"
 )
 
 const (
@@ -156,41 +155,13 @@ const lbacHeaderName = "X-Proxy-Filter"
 const authenticationErrorCode = 401
 
 const (
-	// Note: cacheInvalidationInterval is used to invalidate cache for grafana responses.
-	cacheInvalidationInterval = 60 * time.Second
-	authenticationTimeout     = 15 * time.Second
-	prometheusNamespace       = "pmm_managed"
-	prometheusSubsystem       = "auth"
+	authenticationTimeout = 15 * time.Second
+	prometheusNamespace   = "pmm_managed"
+	prometheusSubsystem   = "auth"
 )
 
-func statusCodeToString(code int) string {
-	switch code {
-	case http.StatusOK:
-		return "200"
-	case http.StatusBadRequest:
-		return "400"
-	case http.StatusUnauthorized:
-		return "401"
-	case http.StatusForbidden:
-		return "403"
-	case http.StatusNotFound:
-		return "404"
-	case http.StatusMethodNotAllowed:
-		return "405"
-	case http.StatusRequestTimeout:
-		return "408"
-	case http.StatusTooManyRequests:
-		return "429"
-	case http.StatusInternalServerError:
-		return "500"
-	case http.StatusServiceUnavailable:
-		return "503"
-	default:
-		return strconv.Itoa(code)
-	}
-}
-
-// authResult contains authentication response details.
+// authResult contains authentication response details that is a result of all
+// authentication and authorization (including LBAC) checks.
 type authResult struct {
 	// encoded filers to be added as proxy headers.
 	vmProxyFilters string
@@ -209,11 +180,6 @@ func (a authError) Error() string {
 // ErrFailGetUserID is returned when we cannot retrieve user ID.
 var errFailGetUserID = errors.New("failed to get user ID")
 
-type cacheItem struct {
-	u       authUser
-	created time.Time
-}
-
 type authMetrics struct {
 	// mAuthRequests tracks total auth requests by method, route, and response code.
 	mAuthRequests *prom.CounterVec
@@ -227,6 +193,9 @@ type authMetrics struct {
 	mDurations *prom.HistogramVec
 }
 
+// Note: cacheInvalidationInterval is used to invalidate cache for grafana responses.
+const cacheInvalidationInterval = 60 * time.Second
+
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
 	// c is the client used to interact with the Grafana API.
@@ -238,9 +207,8 @@ type AuthServer struct {
 
 	// cache stores authentication responses to reduce Grafana API calls.
 	// Stores positive responses only.
-	cache map[string]cacheItem
-	// rw protects the cache for concurrent access.
-	rw sync.RWMutex
+	// TODO: cache negative responces as well.
+	cache *cache.Cache[string, authUser]
 
 	// accessControl manages RBAC and LBAC filtering logic.
 	accessControl accessControl
@@ -251,15 +219,19 @@ type AuthServer struct {
 }
 
 // NewAuthServer creates new AuthServer.
-func NewAuthServer(c grafanaAuthUserGetter, db *reform.DB) *AuthServer {
+func NewAuthServer(ctx context.Context, c grafanaAuthUserGetter, db *reform.DB) *AuthServer {
+	cache, err := cache.New[string, authUser](ctx, cacheInvalidationInterval, cacheInvalidationInterval*2)
+	if err != nil {
+		panic(err)
+	}
 	s := &AuthServer{
-		c:     c,
-		db:    db,
-		l:     logrus.WithField("component", "grafana/auth"),
-		cache: make(map[string]cacheItem),
+		c:  c,
+		db: db,
+		l:  logrus.WithField("component", "grafana/auth"),
 		accessControl: &accessControlCache{
 			db: db,
 		},
+		cache: cache,
 		metrics: authMetrics{
 			mAuthRequests: prom.NewCounterVec(
 				prom.CounterOpts{
@@ -313,10 +285,7 @@ func (s *AuthServer) Collect(ch chan<- prom.Metric) {
 	s.metrics.mGrafanaAuthRequests.Collect(ch)
 	s.metrics.mCache.Collect(ch)
 
-	s.rw.RLock()
-	cacheSize := len(s.cache)
-	s.rw.RUnlock()
-	ch <- prom.MustNewConstMetric(s.metrics.mCacheSizeDesc, prom.GaugeValue, float64(cacheSize))
+	ch <- prom.MustNewConstMetric(s.metrics.mCacheSizeDesc, prom.GaugeValue, float64(s.cache.Size()))
 
 	s.metrics.mDurations.Collect(ch)
 }
@@ -335,29 +304,6 @@ func (s *AuthServer) incCacheHit() {
 
 func (s *AuthServer) incCacheMiss() {
 	s.metrics.mCache.WithLabelValues("miss").Inc()
-}
-
-// Run runs cache invalidator which removes expired cache items.
-func (s *AuthServer) Run(ctx context.Context) {
-	t := time.NewTicker(cacheInvalidationInterval)
-	defer t.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-
-		case <-t.C:
-			now := time.Now()
-			s.rw.Lock()
-			for key, item := range s.cache {
-				if now.Add(-cacheInvalidationInterval).After(item.created) {
-					delete(s.cache, key)
-				}
-			}
-			s.rw.Unlock()
-		}
-	}
 }
 
 // ServeHTTP serves internal location /auth_request for both authentication subrequests
@@ -660,15 +606,10 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	}
 
 	// lookup user in cache first.
-	s.rw.RLock()
-	item, ok := s.cache[hash]
-	s.rw.RUnlock()
-	// Check the item's age on read: the background invalidator runs only once per
-	// cacheInvalidationInterval, so without this an entry could be served for almost
-	// twice that long. Re-fetch once an entry is older than the interval.
-	if ok && time.Since(item.created) < cacheInvalidationInterval {
+	// sync.Map avoids global lock contention on this read-heavy hot path.
+	if user, ok := s.cache.Get(hash); ok {
 		s.incCacheHit()
-		return &item.u, nil
+		return &user, nil
 	}
 
 	s.incCacheMiss()
@@ -676,12 +617,7 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	if authErr != nil {
 		return nil, authErr
 	}
-	s.rw.Lock()
-	s.cache[hash] = cacheItem{
-		u:       *userAuthInfo,
-		created: time.Now(),
-	}
-	s.rw.Unlock()
+	s.cache.Set(hash, *userAuthInfo)
 
 	return userAuthInfo, nil
 }

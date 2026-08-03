@@ -1128,15 +1128,11 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	authServer := grafana.NewAuthServer(grafanaClient, db)
+	authServer := grafana.NewAuthServer(ctx, grafanaClient, db)
 	prom.MustRegister(authServer)
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
-
-	wg.Go(func() {
-		authServer.Run(ctx)
-	})
 
 	wg.Go(func() {
 		vmalert.Run(ctx)

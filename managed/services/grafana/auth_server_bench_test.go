@@ -29,7 +29,7 @@ func BenchmarkAuthServerAuthenticateUser(b *testing.B) {
 	l := logrus.WithField("benchmark", b.Name())
 
 	b.Run("localhost static endpoint", func(b *testing.B) {
-		s := NewAuthServer(newMockGrafanaAuthUserGetter(b), nil)
+		s := NewAuthServer(b.Context(), newMockGrafanaAuthUserGetter(b), nil)
 		req := httptest.NewRequestWithContext(b.Context(), http.MethodPost, connectionEndpoint, nil)
 		req.RemoteAddr = "127.0.0.1:12345"
 
@@ -47,7 +47,7 @@ func BenchmarkAuthServerAuthenticateUser(b *testing.B) {
 
 	b.Run("remote cache hit", func(b *testing.B) {
 		grafanaMock := newMockGrafanaAuthUserGetter(b)
-		s := NewAuthServer(grafanaMock, nil)
+		s := NewAuthServer(b.Context(), grafanaMock, nil)
 		req := httptest.NewRequestWithContext(b.Context(), http.MethodGet, "/v1/server/settings", nil)
 		req.RemoteAddr = "10.0.0.1:443"
 		req.Header.Set("Authorization", "Bearer hit")
@@ -74,7 +74,7 @@ func BenchmarkAuthServerAuthenticateUser(b *testing.B) {
 
 	b.Run("remote cache miss", func(b *testing.B) {
 		grafanaMock := newMockGrafanaAuthUserGetter(b)
-		s := NewAuthServer(grafanaMock, nil)
+		s := NewAuthServer(b.Context(), grafanaMock, nil)
 
 		grafanaMock.On("getAuthUser", mock.Anything, mock.Anything, mock.Anything).
 			Return(authUser{role: admin, userID: 42}, nil)
@@ -107,7 +107,7 @@ func BenchmarkAuthServerServeHTTP(b *testing.B) {
 		accessControlMock.AssertExpectations(b)
 	})
 
-	s := NewAuthServer(grafanaMock, nil)
+	s := NewAuthServer(b.Context(), grafanaMock, nil)
 	s.accessControl = accessControlMock
 
 	grafanaMock.On("getAuthUser", mock.Anything, mock.Anything, mock.Anything).

@@ -34,6 +34,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+
+	ucache "github.com/percona/pmm/utils/cache"
 )
 
 // newTestAuthServer creates an AuthServer with access-control cache disabled,
@@ -55,7 +57,7 @@ func newTestAuthServer(t *testing.T) (*AuthServer, *mockGrafanaAuthUserGetter, s
 	})
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	s := NewAuthServer(grafanaMock, db)
+	s := NewAuthServer(t.Context(), grafanaMock, db)
 	s.accessControl = accessControlMock
 
 	return s, grafanaMock, sqlMock
@@ -80,6 +82,10 @@ func setupLBACServer(t *testing.T) (*AuthServer, *mockGrafanaAuthUserGetter, sql
 		accessControlMock.AssertExpectations(t)
 	})
 	return s, grafanaMock, sqlMock
+}
+
+func cacheSize(s *AuthServer) int64 {
+	return s.cache.Size()
 }
 
 func roleRows(rows ...struct {
@@ -641,7 +647,7 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		headers := extractAuthHeaders(req)
 		hash, err := authCacheKey(headers)
 		require.NoError(t, err)
-		s.cache[hash] = cacheItem{u: authUser{role: viewer, userID: 11}, created: time.Now()}
+		s.cache.Set(hash, authUser{role: viewer, userID: 11})
 
 		got, authErr := s.getAuthUser(t.Context(), req, l)
 		require.Nil(t, authErr)
@@ -653,12 +659,16 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		t.Parallel()
 
 		s, grafanaMock, _ := newTestAuthServer(t)
+		shortTTLCache, err := ucache.New[string, authUser](t.Context(), time.Millisecond, time.Second)
+		require.NoError(t, err)
+		s.cache = shortTTLCache
 		req := mkReq(t, "Bearer stale")
 
 		headers := extractAuthHeaders(req)
 		hash, err := authCacheKey(headers)
 		require.NoError(t, err)
-		s.cache[hash] = cacheItem{u: authUser{role: viewer, userID: 1}, created: time.Now().Add(-cacheInvalidationInterval - time.Second)}
+		s.cache.Set(hash, authUser{role: viewer, userID: 1})
+		time.Sleep(2 * time.Millisecond)
 
 		want := authUser{role: admin, userID: 99}
 		grafanaMock.On("getAuthUser", mock.Anything, headers, mock.Anything).Return(want, nil).Once()
@@ -667,7 +677,9 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		require.Nil(t, authErr)
 		require.NotNil(t, got)
 		assert.Equal(t, want, *got)
-		assert.Equal(t, want, s.cache[hash].u)
+		item, ok := s.cache.Get(hash)
+		require.True(t, ok)
+		assert.Equal(t, want, item)
 	})
 
 	t.Run("cache miss calls grafana and caches response", func(t *testing.T) {
@@ -688,9 +700,9 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 
 		hash, err := authCacheKey(headers)
 		require.NoError(t, err)
-		item, ok := s.cache[hash]
+		item, ok := s.cache.Get(hash)
 		require.True(t, ok)
-		assert.Equal(t, want, item.u)
+		assert.Equal(t, want, item)
 	})
 
 	t.Run("grafana auth failure is returned", func(t *testing.T) {
@@ -708,7 +720,7 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		assert.Nil(t, got)
 		require.NotNil(t, authErr)
 		assert.Equal(t, codes.Unauthenticated, authErr.code)
-		assert.Empty(t, s.cache, "cache should be empty on auth failure")
+		assert.Zero(t, cacheSize(s), "cache should be empty on auth failure")
 	})
 }
 
@@ -726,7 +738,7 @@ func TestAuthServerProcessRequest(t *testing.T) {
 		res, authErr := s.processRequest(t.Context(), req, l)
 		assert.Nil(t, authErr)
 		assert.Nil(t, res)
-		assert.Empty(t, s.cache, "cache should be empty on none role path")
+		assert.Zero(t, cacheSize(s), "cache should be empty on none role path")
 	})
 
 	t.Run("authentication failure is propagated", func(t *testing.T) {
@@ -744,7 +756,7 @@ func TestAuthServerProcessRequest(t *testing.T) {
 		assert.Nil(t, res)
 		require.NotNil(t, authErr)
 		assert.Equal(t, codes.Unauthenticated, authErr.code)
-		assert.Empty(t, s.cache, "cache should be empty on auth failure")
+		assert.Zero(t, cacheSize(s), "cache should be empty on auth failure")
 	})
 
 	t.Run("authorization failure is propagated", func(t *testing.T) {
@@ -766,9 +778,9 @@ func TestAuthServerProcessRequest(t *testing.T) {
 
 		hash, err := authCacheKey(headers)
 		require.NoError(t, err)
-		item, ok := s.cache[hash]
+		item, ok := s.cache.Get(hash)
 		require.True(t, ok)
-		assert.Equal(t, userInfo, item.u)
+		assert.Equal(t, userInfo, item)
 
 		assert.Equal(t, errStaticAuthErrorPermissionDenied, authErr)
 	})

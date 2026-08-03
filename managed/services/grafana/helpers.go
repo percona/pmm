@@ -30,6 +30,34 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// statusCodeToString returns HTTP status code string presentation.
+func statusCodeToString(code int) string {
+	switch code {
+	case http.StatusOK:
+		return "200"
+	case http.StatusBadRequest:
+		return "400"
+	case http.StatusUnauthorized:
+		return "401"
+	case http.StatusForbidden:
+		return "403"
+	case http.StatusNotFound:
+		return "404"
+	case http.StatusMethodNotAllowed:
+		return "405"
+	case http.StatusRequestTimeout:
+		return "408"
+	case http.StatusTooManyRequests:
+		return "429"
+	case http.StatusInternalServerError:
+		return "500"
+	case http.StatusServiceUnavailable:
+		return "503"
+	default:
+		return strconv.Itoa(code)
+	}
+}
+
 // extractOriginalRequest replaces req.Method and req.URL.Path with values from original request.
 // Error is returned if original request information is missing or invalid.
 func extractOriginalRequest(req *http.Request) error {
