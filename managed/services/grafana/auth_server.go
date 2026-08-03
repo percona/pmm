@@ -160,6 +160,13 @@ const (
 	prometheusSubsystem   = "auth"
 )
 
+const (
+	// Ttl for auth response validiness in auth cache.
+	cacheItemTTL = 60 * time.Second
+	// Auth response cache cleanup interval.
+	cacheInvalidationInterval = 2 * cacheItemTTL
+)
+
 // authResult contains authentication response details that is a result of all
 // authentication and authorization (including LBAC) checks.
 type authResult struct {
@@ -193,9 +200,6 @@ type authMetrics struct {
 	mDurations *prom.HistogramVec
 }
 
-// Note: cacheInvalidationInterval is used to invalidate cache for grafana responses.
-const cacheInvalidationInterval = 60 * time.Second
-
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
 	// c is the client used to interact with the Grafana API.
@@ -207,7 +211,7 @@ type AuthServer struct {
 
 	// cache stores authentication responses to reduce Grafana API calls.
 	// Stores positive responses only.
-	// TODO: cache negative responces as well.
+	// TODO: cache negative response as well.
 	cache *cache.Cache[string, authUser]
 
 	// accessControl manages RBAC and LBAC filtering logic.
@@ -220,7 +224,7 @@ type AuthServer struct {
 
 // NewAuthServer creates new AuthServer.
 func NewAuthServer(ctx context.Context, c grafanaAuthUserGetter, db *reform.DB) *AuthServer {
-	cache, err := cache.New[string, authUser](ctx, cacheInvalidationInterval, cacheInvalidationInterval*2)
+	cache, err := cache.New[string, authUser](ctx, cacheItemTTL, cacheInvalidationInterval)
 	if err != nil {
 		panic(err)
 	}
