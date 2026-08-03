@@ -174,7 +174,7 @@ export const InlineCode: Story = {
         <Typography variant="body1">
           If you want to use the Code Block component instead of the inline code, then run{' '}
           <code>pnpm build</code> to compile the library, then import <code>{'{ CodeBlock }'}</code>{' '}
-          from <code>@percona/percona-ui</code> so you can use in your pages.
+          from <code>@percona/peak-ui</code> so you can use in your pages.
         </Typography>
       </div>
       <div>

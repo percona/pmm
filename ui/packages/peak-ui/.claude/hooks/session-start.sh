@@ -5,7 +5,7 @@ set -euo pipefail
 cd "${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 
 STORYBOOK_PORT=6006
-STORYBOOK_LOG="${TMPDIR:-/tmp}/percona-ui-storybook.log"
+STORYBOOK_LOG="${TMPDIR:-/tmp}/peak-ui-storybook.log"
 # Stored inside node_modules so it is wiped together with it and never committed.
 LOCK_HASH_FILE="node_modules/.claude-lockfile-hash"
 

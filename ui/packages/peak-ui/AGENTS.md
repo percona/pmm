@@ -2,7 +2,7 @@
 
 Guidance for any coding agent (Humans, Claude Code, Cursor, Codex, etc.). This is the single source of truth. `CLAUDE.md` imports it.
 
-Percona UI (`@percona/percona-ui`) is a React + MUI v7 component library published as an npm package (themed components, design tokens, form inputs). Zero infrastructure: no DB/Docker/services needed to build, test, or run Storybook.
+PEAK UI (`@percona/peak-ui`) is a React + MUI v7 component library published as an npm package (themed components, design tokens, form inputs). Zero infrastructure: no DB/Docker/services needed to build, test, or run Storybook.
 
 ## Commands
 

@@ -34,13 +34,13 @@ Sometimes a design for a new icon may come up in two ways:
 When a new custom icon comes up, it gets folded into the design system so it behaves like every other icon:
 
 1. **Added to Peak Design** — the SVG becomes a React component (in `src/components/icons/`) that wraps MUI's `SvgIcon` and uses `currentColor`, so it inherits theme color and `fontSize` exactly like a MUI icon. Never hardcode colors.
-2. **Exported from `@percona/percona-ui`** — so any consumer can import it by name.
+2. **Exported from `@percona/peak-ui`** — so any consumer can import it by name.
 3. **Listed on the Custom Icons page** — so it's discoverable and searchable alongside the rest.
 
 From then on, consumers import it exactly like any other component:
 
 ```tsx
-import { PerconaMyIcon } from '@percona/percona-ui';
+import { PerconaMyIcon } from '@percona/peak-ui';
 
 <PerconaMyIcon fontSize="medium" />;
 ```
