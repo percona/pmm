@@ -1,3 +1,5 @@
+.PHONY: dev ci format format-check lint test setup build release clean
+
 dev:
 	pnpm dev
 

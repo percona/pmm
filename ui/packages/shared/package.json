@@ -1,7 +1,7 @@
 {
   "name": "@pmm/shared",
   "version": "1.0.0",
-  "private": "true",
+  "private": true,
   "description": "",
   "keywords": [],
   "license": "AGPLv3",
@@ -13,13 +13,6 @@
   "main": "dist/esm/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./src/index.tsx"
-      ]
-    }
-  },
   "exports": {
     ".": "./src/index.ts"
   },
