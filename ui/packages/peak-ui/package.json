@@ -1,5 +1,5 @@
 {
-  "name": "@percona/percona-ui",
+  "name": "@percona/peak-ui",
   "type": "module",
   "version": "1.0.24",
   "private": false,
@@ -98,15 +98,15 @@
     "prism-react-renderer": "^2.4.1",
     "react-is": "18.3.1"
   },
-  "description": "Percona UI lib",
+  "description": "PEAK UI lib",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/percona/percona-ui.git"
+    "url": "git+https://github.com/percona/peak-ui.git"
   },
   "author": "Percona",
   "license": "AGPL-3.0-or-later",
   "bugs": {
-    "url": "https://github.com/percona/percona-ui/issues"
+    "url": "https://github.com/percona/peak-ui/issues"
   },
   "overrides": {
     "react-is": "18.3.1"
@@ -116,5 +116,5 @@
       "react-is": "18.3.1"
     }
   },
-  "homepage": "https://github.com/percona/percona-ui#readme"
+  "homepage": "https://github.com/percona/peak-ui#readme"
 }

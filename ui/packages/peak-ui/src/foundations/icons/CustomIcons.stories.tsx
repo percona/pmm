@@ -213,7 +213,7 @@ const CustomIconsGallery = () => {
   }, [query]);
 
   const handleCopy = (importName: string) => {
-    navigator.clipboard?.writeText(`import { ${importName} } from '@percona/percona-ui';`);
+    navigator.clipboard?.writeText(`import { ${importName} } from '@percona/peak-ui';`);
   };
 
   return (

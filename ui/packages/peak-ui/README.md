@@ -1,15 +1,15 @@
 # Peak Design
 
-Peak Design (`@percona/percona-ui`) is Percona's React component library built on top of [MUI v7](https://mui.com/). It provides themed UI components, design tokens, and [react-hook-form](https://react-hook-form.com/)-integrated form inputs for Percona products, with theme variants, such as PMM (for Percona Monitoring and Management native UI).
+Peak Design (`@percona/peak-ui`) is Percona's React component library built on top of [MUI v7](https://mui.com/). It provides themed UI components, design tokens, and [react-hook-form](https://react-hook-form.com/)-integrated form inputs for Percona products, with theme variants, such as PMM (for Percona Monitoring and Management native UI).
 
-Browse the components in [Storybook](https://percona.github.io/percona-ui/).
+Browse the components in [Storybook](https://percona.github.io/peak-ui/).
 
 ## Usage
 
 Install the package and its peer dependencies (for date/time picker inputs, also install a date adapter such as `date-fns` and set up MUI X `LocalizationProvider`):
 
 ```bash
-pnpm add @percona/percona-ui \
+pnpm add @percona/peak-ui \
   react react-dom \
   @mui/material @mui/icons-material @mui/utils @mui/x-date-pickers \
   @emotion/react @emotion/styled \
@@ -19,7 +19,7 @@ pnpm add @percona/percona-ui \
 Wrap your app in `ThemeContextProvider` with one of the exported theme options (`baseThemeOptions`, `pmmThemeOptions`, or `sepThemeOptions`), then use the components:
 
 ```tsx
-import { ThemeContextProvider, pmmThemeOptions, Card } from '@percona/percona-ui';
+import { ThemeContextProvider, pmmThemeOptions, Card } from '@percona/peak-ui';
 
 export const App = () => (
   <ThemeContextProvider themeOptions={pmmThemeOptions}>
