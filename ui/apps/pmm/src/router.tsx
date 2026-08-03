@@ -14,6 +14,9 @@ import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
+import { AtwApp } from '@sep/plugins-atw';
+import { SchemaDrivenPlugin } from '@sep/framework';
+import { SepPage } from './sep/SepPage';
 
 const router = createBrowserRouter(
   [
@@ -74,6 +77,36 @@ const router = createBrowserRouter(
                   element: <RealtimeOverviewPage />,
                 },
               ],
+            },
+            // SEP apps mounted as native routes. Both plugins compose their own
+            // <Routes>, so the paths are splats.
+            {
+              // ATW ("Collect Diagnostic Data") is now incident-first: AtwApp
+              // composes its own <Routes> (incident list at index, workspace at
+              // :incidentId), so this must be a splat. Backend API calls hit
+              // /apps/atw and the incident / batch-execution endpoints.
+              path: 'sep/atw/*',
+              element: (
+                <SepPage>
+                  <AtwApp />
+                </SepPage>
+              ),
+            },
+            {
+              path: 'sep/mysql-backups/*',
+              // routeBase must match the mount path (basename-stripped) so the
+              // plugin's absolute nav — detail back/edit/schedule links and the
+              // related-app (Restore) tab bar — resolves under /sep, not the
+              // SEP-default /apps/{name}. PMM_NEW_NAV_PATH is '' so this is the
+              // full path below the /pmm-ui basename.
+              element: (
+                <SepPage>
+                  <SchemaDrivenPlugin
+                    pluginName="mysql_backups"
+                    routeBase="/sep/mysql-backups"
+                  />
+                </SepPage>
+              ),
             },
             // Fallback
             {

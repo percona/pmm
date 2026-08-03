@@ -8,9 +8,9 @@ import {
   Divider,
   GlobalStyles,
   Link,
-  Stack,
   Typography,
 } from '@mui/material';
+import { PageContainer } from '@percona/percona-ui';
 import { useUser } from 'contexts/user';
 import { Messages } from './Page.messages';
 import { PMM_HOME_URL } from 'lib/constants';
@@ -23,6 +23,7 @@ export const Page: FC<PageProps> = ({
   topBar,
   footer,
   children,
+  maxWidth,
   fullWidth,
   surface,
   roles,
@@ -30,6 +31,9 @@ export const Page: FC<PageProps> = ({
   const { user } = useUser();
   updateDocumentTitle(title);
   const hasAccess = !roles || roles?.some((role) => user?.orgRole === role);
+  // Back-compat: `fullWidth` predates `maxWidth`; treat it as `maxWidth="full"`
+  // unless an explicit `maxWidth` is provided.
+  const resolvedMaxWidth = maxWidth ?? (fullWidth ? 'full' : undefined);
 
   return (
     <>
@@ -45,24 +49,7 @@ export const Page: FC<PageProps> = ({
           })}
         />
       )}
-      <Stack
-        sx={{
-          flex: 1,
-          width: '100%',
-          maxWidth: {
-            lg: 1000,
-          },
-          p: {
-            xs: 2,
-          },
-          px: {
-            md: fullWidth ? 4 : undefined,
-          },
-          mx: 'auto',
-          gap: 2,
-          mt: 1,
-        }}
-      >
+      <PageContainer maxWidth={resolvedMaxWidth}>
         {topBar}
         {!!title && <Typography variant="h2">{title}</Typography>}
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -86,7 +73,7 @@ export const Page: FC<PageProps> = ({
         </Box>
         <Divider />
         {footer !== undefined ? footer : <Footer />}
-      </Stack>
+      </PageContainer>
     </>
   );
 };

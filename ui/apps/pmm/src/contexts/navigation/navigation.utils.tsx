@@ -1,3 +1,5 @@
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import { MySqlIcon } from '@percona/percona-ui';
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
 import { User, UserPreferences } from 'types/user.types';
@@ -291,3 +293,23 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
 
   return NAV_HOME_PAGE;
 };
+
+// SEP apps mounted as native PMM routes (migration). Metadata (icons/labels/routes)
+// is lifted from SEP's appNavConfig as data only — no SEP nav component is used.
+// Role/flag gating arrives with real auth (Option B).
+export const addSepApps = (): NavItem[] => [
+  {
+    id: 'sep-atw',
+    text: 'Collect Diagnostic Data',
+    icon: MonitorHeartIcon,
+    url: '/sep/atw',
+    matches: ['/sep/atw'],
+  },
+  {
+    id: 'sep-mysql-backups',
+    text: 'MySQL Backups',
+    icon: MySqlIcon,
+    url: '/sep/mysql-backups',
+    matches: ['/sep/mysql-backups'],
+  },
+];

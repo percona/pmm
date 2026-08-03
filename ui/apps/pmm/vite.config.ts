@@ -9,7 +9,34 @@ const CERT_KEY = '/srv/nginx/certificate.key';
 const CERT_CRT = '/srv/nginx/certificate.crt';
 const hasNginxCerts = fs.existsSync(CERT_KEY) && fs.existsSync(CERT_CRT);
 const port = hasNginxCerts ? 5173 : 5174;
-const target = hasNginxCerts ? 'https://localhost:8443' : 'https://localhost';
+const target =
+  process.env.PMM_SERVER_URL ||
+  (hasNginxCerts ? 'https://localhost:8443' : 'https://localhost');
+
+// SEP backend. The dev server proxies SEP's API paths to it so the migrated SEP
+// plugins get real data. Interim auth (Option D): if SEP_INTERNAL_TOKEN is set,
+// inject it server-side as a Bearer token so no secret reaches the browser.
+// Replaced by the token-exchange provider (Option B) later — see src/sep/bootstrap.ts.
+const sepBackendUrl = process.env.SEP_BACKEND_URL || 'http://localhost:8000';
+const sepInternalToken = process.env.SEP_INTERNAL_TOKEN;
+const sepProxy = () => ({
+  target: sepBackendUrl,
+  secure: false,
+  changeOrigin: true,
+  configure: (proxy: {
+    on: (e: string, cb: (...a: unknown[]) => void) => void;
+  }) => {
+    if (!sepInternalToken) {
+      return;
+    }
+    proxy.on('proxyReq', (proxyReq: unknown) => {
+      (proxyReq as { setHeader: (k: string, v: string) => void }).setHeader(
+        'Authorization',
+        `Bearer ${sepInternalToken}`
+      );
+    });
+  },
+});
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -61,6 +88,12 @@ export default defineConfig({
         secure: false,
         changeOrigin: true,
       },
+      // SEP backend paths (no clash with PMM's /v1 + /graph).
+      '/api': sepProxy(),
+      '/sep_app': sepProxy(),
+      '/stream-logs': sepProxy(),
+      '/execution-events': sepProxy(),
+      '/files': sepProxy(),
     },
     host: '0.0.0.0',
     port,
