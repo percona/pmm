@@ -91,9 +91,9 @@ var rules = map[string]role{
 	"/v1/users/current/orgs":          none,
 
 	// must be available without authentication for health checking
+	// Handled in NGINX config.
 	"/v1/server/readyz":            none,
 	"/v1/server/leaderHealthCheck": none,
-	"/ping":                        none, // PMM 1.x variant
 
 	// must not be available without authentication as it can leak data
 	"/v1/server/version": viewer,
