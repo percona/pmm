@@ -1,8 +1,5 @@
 # View alert status by node or service
-
-Use the **Alert Status** page to see all active alerts for a node or service in one place, check their states, and silence them without switching views.
-
-This page is only available when Percona Alerting is enabled. To check, go to **Configuration > Settings > Advanced settings**.
+When alerts fire, you need to know which nodes or services are affected and what state each alert is in. Use the **Alert Status** page to get that picture at a glance, triage by state, and silence alerts without switching pages.
 
 
 ## Check alerts for a specific node
@@ -51,6 +48,15 @@ Silenced alerts stay visible in the table with a **Silenced** badge. To unsilenc
 ## Make custom alerts appear in this view
 
 Built-in PMM alert templates automatically include the labels that this page uses to group alerts by node and service. 
+
+The following templates show data even when no alert is firing, so you can see how close a node or service is to triggering an alert before it does:
+
+- **Node high CPU load**
+- **MongoDB DBPath disk space utilization**
+- **PostgreSQL high rate of transaction rollbacks**
+- **PostgreSQL connections in use**
+
+Support for more templates to show data when no alert is firing will be added in future releases.
 
 If your custom templates do not show up correctly, add these labels to the template definition:
 
