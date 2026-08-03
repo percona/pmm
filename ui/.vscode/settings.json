@@ -1,8 +1,5 @@
 {
   "typescript.preferences.autoImportSpecifierExcludeRegexes": ["^@mui/[^/]+$"],
-  "eslint.workingDirectories": [
-    {
-      "mode": "auto"
-    }
-  ]
+  "oxc.configPath": "oxlintrc.json",
+  "oxc.fmt.experimental": true
 }

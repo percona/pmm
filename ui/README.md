@@ -13,7 +13,7 @@ See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-m
 
 This repo uses the following stack across its packages:
 
-- Yarn (https://yarnpkg.com/)
+- pnpm (https://pnpm.io/)
 - Turborepo (https://turborepo.com/)
 - Typescript (https://www.typescriptlang.org/)
 - React (https://react.dev/)
@@ -94,10 +94,10 @@ Use this when you want to drive Vite from your IDE without `make env`. You still
 Prerequisites:
 
 - [Node 22](https://nodejs.org/en) (e.g. via [nvm](https://github.com/nvm-sh/nvm))
-- [Yarn](https://yarnpkg.com/) 1.x
+- [pnpm](https://pnpm.io/) 11.x (`corepack enable pnpm` picks up the pinned version)
 
 ```bash
-make setup       # yarn install across the workspace
+make setup       # pnpm install across the workspace
 make dev         # turbo dev → Vite on https://localhost:5174 (or 5173 if nginx certs are present)
 ```
 
