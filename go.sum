@@ -93,8 +93,8 @@ github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERo
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/Percona-Lab/kingpin/v2 v2.0.0-20251219125400-95ff74a47c0a h1:cSFSkTUvha9980XVr92QVhWAmRCvVjjml6EbrIgIX80=
 github.com/Percona-Lab/kingpin/v2 v2.0.0-20251219125400-95ff74a47c0a/go.mod h1:FNfzbagm1xiKLqjKilIqV3aS8I2pNJ1J6KggCdATuQA=
-github.com/Percona-Lab/spec v0.21.0-percona.0.20260803075049-f631d6dea82f h1:AajPRKG3j2vnH8xNFHy8GE6RWASZG8SbIzbOUfPQ6oo=
-github.com/Percona-Lab/spec v0.21.0-percona.0.20260803075049-f631d6dea82f/go.mod h1:b/mNUYIOQOyIiUzUzXEE8xzyZqf93KvM9hQGP91yfl0=
+github.com/Percona-Lab/spec v0.22.9-percona h1:t1PrSIzPNdcEU2lRMpfmZrb9Fyb4OS55Bup/fQmAihs=
+github.com/Percona-Lab/spec v0.22.9-percona/go.mod h1:b/mNUYIOQOyIiUzUzXEE8xzyZqf93KvM9hQGP91yfl0=
 github.com/ProtonMail/go-crypto v1.1.6 h1:ZcV+Ropw6Qn0AX9brlQLAUXfqLBc7Bl+f/DmNxpLfdw=
 github.com/ProtonMail/go-crypto v1.1.6/go.mod h1:rA3QumHc/FZ8pAHreoekgiAbzpNsfQAosU5td4SnOrE=
 github.com/PuerkitoBio/goquery v1.5.1/go.mod h1:GsLWisAFVj4WgDibEWF4pvYnkVQBpKBKeU+7zCJoLcc=

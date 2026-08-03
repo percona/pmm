@@ -2,7 +2,7 @@ module github.com/percona/pmm
 
 go 1.26.5
 
-replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.21.0-percona.0.20260803075049-f631d6dea82f
+replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.22.9-percona
 
 replace github.com/alecthomas/kingpin/v2 => github.com/Percona-Lab/kingpin/v2 v2.0.0-20251219125400-95ff74a47c0a
 
