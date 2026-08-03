@@ -65,7 +65,7 @@ func TestDefaultAgentEncryptionColumnsRoundTrip(t *testing.T) {
 	e := encryption.New()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-	err := db.InTransaction(func(tx *reform.TX) error {
+	err := db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		return e.EncryptItems(tx, models.DefaultAgentEncryptionColumnsV3)
 	})
 	require.NoError(t, err)
@@ -82,7 +82,7 @@ func TestDefaultAgentEncryptionColumnsRoundTrip(t *testing.T) {
 	assert.NotEqual(t, original.MySQL, encrypted.MySQL)
 	assert.NotEqual(t, original.PostgreSQL, encrypted.PostgreSQL)
 
-	err = db.InTransaction(func(tx *reform.TX) error {
+	err = db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		return e.DecryptItems(tx, models.DefaultAgentEncryptionColumnsV3)
 	})
 	require.NoError(t, err)

@@ -149,7 +149,7 @@ PMM supports HA via **Raft consensus** (`services/ha/`):
 - Don't edit generated files (`*_reform.go`, `*.pb.go`, `*.pb.gw.go`, swagger specs)
 - Don't skip `make gen` after proto/model changes
 - Don't comment on every line — only where clarity is needed
-- Don't inline comments (`code // comment`) — put comments on separate lines
+- Don't inline comments (`code // comment`) — put comments on separate lines; `//nolint` is the only exception
 - Don't inline `err != nil` checks (`if err := f(); err != nil`) — assign on one line, check on the next
 - Don't use named return values in functions
 - Don't commit test binaries or artifacts
