@@ -214,7 +214,7 @@ type AuthServer struct {
 	// Stores positive responses only.
 	// TODO: cache negative response as well.
 	cache *cache.Cache[string, authUser]
-	// authUserGroup deduplicates concurrent auth lookups for the same auth header set.
+	// authUserGroup deduplicates concurrent Grafana auth lookups for the same auth header set.
 	authUserGroup singleflight.Group
 
 	// accessControl manages RBAC and LBAC filtering logic.
