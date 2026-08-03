@@ -63,4 +63,4 @@ If your custom templates do not show up correctly, add these labels to the templ
 - `node_name`: identifies the monitored node.
 - `service_name`: identifies the monitored service.
 
-For instructions, see [Alert rules and alert templates](../alert/templates.md).
+For instructions, see [Alert rules and alert templates](../alert/alert_rules.md).
