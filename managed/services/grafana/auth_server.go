@@ -30,6 +30,7 @@ import (
 	"github.com/lib/pq"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/singleflight"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/reform.v1"
 
@@ -213,6 +214,8 @@ type AuthServer struct {
 	// Stores positive responses only.
 	// TODO: cache negative response as well.
 	cache *cache.Cache[string, authUser]
+	// authUserGroup deduplicates concurrent auth lookups for the same auth header set.
+	authUserGroup singleflight.Group
 
 	// accessControl manages RBAC and LBAC filtering logic.
 	accessControl accessControl
@@ -609,21 +612,56 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 		return nil, errStaticAuthErrorInternalError
 	}
 
-	// lookup user in cache first.
-	// sync.Map avoids global lock contention on this read-heavy hot path.
+	// Hot-path: lookup user in cache first.
 	if user, ok := s.cache.Get(hash); ok {
 		s.incCacheHit()
 		return &user, nil
 	}
-
 	s.incCacheMiss()
-	userAuthInfo, authErr := s.getGrafanaAuthUser(ctx, authHeaders, l)
-	if authErr != nil {
-		return nil, authErr
-	}
-	s.cache.Set(hash, *userAuthInfo)
 
-	return userAuthInfo, nil
+	// Cold-path: Cache miss / Stale data.
+	// Use single-flight to avoid calling Grafana for the same user's authHeaders.
+	// It appears when after restart the same vm-agent starts to send buffered metrics
+	// to server in parallel and all such requests have to be authenticated.
+	res, err, _ := s.authUserGroup.Do(hash, func() (any, error) {
+		// Recheck inside singleflight to avoid duplicate upstream calls when
+		// another goroutine already populated cache while we were waiting.
+		if user, ok := s.cache.Get(hash); ok {
+			return user, nil
+		}
+
+		// Note: there is no a separate timeout for requests to Grafana.
+		// Context here already has timeout from upper layer for the whole
+		// authentication process, including cache lookup and Grafana call.
+		userAuthInfo, authErr := s.getGrafanaAuthUser(ctx, authHeaders, l)
+		if authErr != nil {
+			// IMPORTANT: On error, we CALL Forget(hash) IMMEDIATELY.
+			// This prevents the error from getting stuck in the internal singleflight map
+			// and allows the next request to retry immediately (e.g. if the Grafana is being restored).
+			s.authUserGroup.Forget(hash)
+			return nil, authErr
+		}
+
+		// Store the retrieved user info in cache for future requests.
+		s.cache.Set(hash, *userAuthInfo)
+		return userAuthInfo, nil
+	})
+	if err != nil {
+		l.WithError(err).Error("Grafana user lookup failed.")
+		authErr := &authError{}
+		if errors.As(err, &authErr) {
+			return nil, authErr
+		}
+		return nil, errStaticAuthErrorInternalError
+	}
+
+	user, ok := res.(*authUser)
+	if !ok {
+		l.WithField("type", fmt.Sprintf("%T", res)).Error("Unexpected Grafana user result type.")
+		return nil, errStaticAuthErrorInternalError
+	}
+
+	return user, nil
 }
 
 // getGrafanaAuthUser calls Grafana to retrieve user's info. Passed authHeaders are used for authentication.
