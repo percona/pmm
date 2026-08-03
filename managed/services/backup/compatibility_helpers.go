@@ -18,7 +18,6 @@ package backup
 import (
 	"fmt"
 
-	"github.com/go-faster/errors"
 	"github.com/hashicorp/go-version"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -162,11 +161,11 @@ func mysqlXtrabackupBandFor(mysqlVersion *version.Version) mysqlXtrabackupBand {
 }
 
 func incompatibleXtrabackupError(message, xtrabackupVersionString, mysqlVersionString string) error {
-	return errors.Wrapf(
-		ErrIncompatibleXtrabackup,
-		message,
+	return fmt.Errorf(
+		message+": %w",
 		xtrabackupVersionString,
 		mysqlVersionString,
+		ErrIncompatibleXtrabackup,
 	)
 }
 
