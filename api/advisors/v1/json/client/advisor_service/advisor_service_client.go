@@ -69,6 +69,8 @@ type ClientService interface {
 
 	ListInsightsFilterValues(params *ListInsightsFilterValuesParams, opts ...ClientOption) (*ListInsightsFilterValuesOK, error)
 
+	ListRuns(params *ListRunsParams, opts ...ClientOption) (*ListRunsOK, error)
+
 	MarkInsightsRead(params *MarkInsightsReadParams, opts ...ClientOption) (*MarkInsightsReadOK, error)
 
 	StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...ClientOption) (*StartAdvisorChecksOK, error)
@@ -472,6 +474,50 @@ func (a *Client) ListInsightsFilterValues(params *ListInsightsFilterValuesParams
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListInsightsFilterValuesDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListRuns lists advisor runs
+
+Returns the chronological history of Advisor check executions with their totals.
+*/
+func (a *Client) ListRuns(params *ListRunsParams, opts ...ClientOption) (*ListRunsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListRunsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListRuns",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors/runs",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListRunsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListRunsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListRunsDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

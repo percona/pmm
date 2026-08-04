@@ -105,7 +105,7 @@ type Settings struct {
 		Enabled *bool `json:"enabled"`
 		// SeverityThreshold is the least-severe level that triggers a notification.
 		SeverityThreshold common.Severity `json:"severity_threshold"`
-		// EmailAddresses is the recipient list the batch summaries are sent to.
+		// EmailAddresses is the recipient list the run summaries are sent to.
 		EmailAddresses []string `json:"email_addresses"`
 	} `json:"advisor_notifications"`
 

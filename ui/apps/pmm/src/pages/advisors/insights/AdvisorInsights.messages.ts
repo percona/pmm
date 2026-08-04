@@ -16,7 +16,7 @@ export const Messages = {
     more: 'More actions',
     viewDetails: 'View details',
     rerunNow: 'Re-run now',
-    filterByBatchId: 'Filter by batch ID',
+    filterByRunId: 'Filter by run ID',
     filterByCheckName: 'Filter by name',
     copyAsText: 'Copy as text',
     copyUrl: 'Copy URL',
@@ -43,18 +43,17 @@ export const Messages = {
     cluster: 'Cluster',
     replicationSet: 'Replication set',
     region: 'Region',
-    az: 'AZ',
     checkedAt: 'Checked at',
     checkInterval: 'Check interval',
     checkId: 'Check ID',
     checkName: 'Check name',
-    batchId: 'Batch ID',
+    runId: 'Run ID',
     labels: 'Labels',
   },
   viewResults: 'View results',
   filters: {
     all: 'All',
-    batchId: 'Batch ID',
+    runId: 'Run ID',
     clear: 'Clear filters',
     refresh: 'Refresh',
     refreshTooltip:
@@ -77,7 +76,7 @@ export const Messages = {
   },
   success: {
     rerunStarted: (check: string, service: string) =>
-      `Check "${check}" started on ${service}, batch ID copied to clipboard.`,
+      `Check "${check}" started on ${service}, run ID copied to clipboard.`,
     checkEnabled: (check: string, service: string) =>
       `Check "${check}" enabled for ${service}`,
     checkDisabled: (check: string, service: string) =>

@@ -1188,7 +1188,7 @@ var databaseSchema = [][]string{
 	119: {
 		`CREATE TABLE advisor_insights (
 			id VARCHAR NOT NULL,
-			batch_id VARCHAR NOT NULL,
+			run_id VARCHAR NOT NULL,
 			check_name VARCHAR NOT NULL CHECK (check_name <> ''),
 			category VARCHAR NOT NULL,
 			subcategory VARCHAR NOT NULL,
@@ -1216,7 +1216,7 @@ var databaseSchema = [][]string{
 
 			PRIMARY KEY (id)
 		)`,
-		`CREATE INDEX advisor_insights_batch_id_idx ON advisor_insights (batch_id)`,
+		`CREATE INDEX advisor_insights_run_id_idx ON advisor_insights (run_id)`,
 		`CREATE INDEX advisor_insights_service_id_idx ON advisor_insights (service_id)`,
 		`CREATE INDEX advisor_insights_checked_at_idx ON advisor_insights (checked_at)`,
 	},
@@ -1274,6 +1274,26 @@ var databaseSchema = [][]string{
 		`UPDATE settings SET settings = settings #- '{sass,disabled_advisors}'`,
 
 		`DROP TABLE IF EXISTS check_settings`,
+	},
+	121: {
+		// One row per Advisor checks execution. Counts are denormalized on
+		// completion so a run keeps reporting correct totals after its insights
+		// have been pruned by the retention cleaner. Deliberately no foreign key
+		// from advisor_insights.run_id: insight pruning must not touch runs.
+		`CREATE TABLE advisor_runs (
+			id VARCHAR NOT NULL,
+			triggered_by VARCHAR NOT NULL,
+			started_at TIMESTAMP NOT NULL,
+			finished_at TIMESTAMP,
+			checks_count INTEGER NOT NULL,
+			services_count INTEGER NOT NULL,
+			findings_count INTEGER NOT NULL,
+			errors_count INTEGER NOT NULL,
+			severity_counts TEXT,
+
+			PRIMARY KEY (id)
+		)`,
+		`CREATE INDEX advisor_runs_started_at_idx ON advisor_runs (started_at)`,
 	},
 }
 

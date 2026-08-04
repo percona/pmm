@@ -79,12 +79,14 @@ const TEST_ITEM: Insight = {
   labels: {},
   checkedAt: '2026-07-05T10:00:00Z',
   isRead: true,
-  batchId: 'batch-1',
+  runId: 'run-1',
   triggeredBy: AdvisorCheckTriggeredBy.user,
   outcome: 'Installed version: 5.7.30',
   environment: 'prod',
   cluster: 'mysql-cluster',
   replicationSet: 'rs1',
+  region: '',
+  az: '',
 };
 
 const TEST_ITEM_UNREAD: Insight = {
@@ -98,8 +100,8 @@ const TEST_ITEM_UNREAD: Insight = {
   description: 'A user has the SUPER role',
   severity: Severity.error,
   isRead: false,
-  // recorded before batch grouping existed
-  batchId: '',
+  // recorded before run grouping existed
+  runId: '',
 };
 
 // same advisors fixture, with one check turned off for a single service
@@ -142,7 +144,7 @@ describe('AdvisorInsights', () => {
       results: [TEST_ITEM, TEST_ITEM_UNREAD],
     });
     vi.mocked(advisorsApi.markInsightsRead).mockResolvedValue();
-    vi.mocked(advisorsApi.startAdvisorChecks).mockResolvedValue('batch-123');
+    vi.mocked(advisorsApi.startAdvisorChecks).mockResolvedValue('run-123');
     vi.mocked(advisorsApi.changeAdvisorChecks).mockResolvedValue();
     vi.mocked(advisorsApi.listInsightsFilterValues).mockResolvedValue({
       serviceNames: ['mysql-prod', 'postgresql-prod'],
@@ -192,13 +194,13 @@ describe('AdvisorInsights', () => {
     );
   });
 
-  it('passes the batchId deep link to the API', async () => {
-    renderComponent('/advisors/insights?batchId=batch-42');
+  it('passes the runId deep link to the API', async () => {
+    renderComponent('/advisors/insights?runId=run-42');
 
     await waitForRows();
 
     expect(advisorsApi.listInsights).toHaveBeenCalledWith(
-      expect.objectContaining({ batchId: 'batch-42' })
+      expect.objectContaining({ runId: 'run-42' })
     );
   });
 
@@ -459,8 +461,8 @@ describe('AdvisorInsights', () => {
     expect(
       within(pane).getByText('Installed version: 5.7.30')
     ).toBeInTheDocument();
-    // not-yet-populated fields (Region, AZ) render an em-dash
-    expect(within(pane).getAllByText('—').length).toBeGreaterThanOrEqual(2);
+    // Region comes from labels, which this insight has none of
+    expect(within(pane).getAllByText('—').length).toBeGreaterThanOrEqual(1);
     // the history record ID is shown as Check ID
     expect(
       within(screen.getByTestId('details-field-check-id')).getByText('result-1')
@@ -475,6 +477,49 @@ describe('AdvisorInsights', () => {
         screen.queryByTestId('insight-details-pane')
       ).not.toBeInTheDocument()
     );
+  });
+
+  it('renders labels as chips verbatim and reads Region from its own field', async () => {
+    vi.mocked(advisorsApi.listInsights).mockResolvedValue({
+      totalItems: 1,
+      totalPages: 1,
+      results: [
+        {
+          ...TEST_ITEM,
+          region: 'us-east-1',
+          az: 'us-east-1f',
+          labels: {
+            az: 'us-east-1f',
+            // deliberately disagrees with the region field, to prove which one
+            // the Region column renders
+            region: 'stale-label-region',
+            agent_type: 'qan-mysql-slowlog-agent',
+          },
+        },
+      ],
+    });
+
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.click(screen.getByTestId('insight-result-1-actions'));
+    fireEvent.click(await screen.findByTestId('action-view-details'));
+
+    const pane = await screen.findByTestId('insight-details-pane');
+
+    const region = screen.getByTestId('details-field-region');
+    expect(within(region).getByText('us-east-1')).toBeInTheDocument();
+    expect(
+      within(region).queryByText('stale-label-region')
+    ).not.toBeInTheDocument();
+
+    expect(
+      within(pane).getByText('agent_type: qan-mysql-slowlog-agent')
+    ).toBeInTheDocument();
+    // AZ has no field of its own; it is only reachable as a label chip
+    expect(within(pane).getByText('az: us-east-1f')).toBeInTheDocument();
+    expect(screen.queryByTestId('details-field-az')).not.toBeInTheDocument();
   });
 
   it('opens the details overlay maximized on row double-click', async () => {
@@ -538,7 +583,7 @@ describe('AdvisorInsights', () => {
       '\n' +
       'Check Details:\n' +
       '  ID: result-1\n' +
-      '  Batch ID: batch-1\n' +
+      '  Run ID: run-1\n' +
       '  Check Name: mysql_version_check\n' +
       '  Category: Configuration\n' +
       '  Sub category: Version\n' +
@@ -706,7 +751,7 @@ describe('AdvisorInsights', () => {
       'aria-disabled',
       'true'
     );
-    expect(screen.getByTestId('action-filter-by-batch-id')).toHaveAttribute(
+    expect(screen.getByTestId('action-filter-by-run-id')).toHaveAttribute(
       'aria-disabled',
       'true'
     );
@@ -729,32 +774,32 @@ describe('AdvisorInsights', () => {
     );
   });
 
-  it('filters by batch ID from the row menu, populates the input, then clears', async () => {
+  it('filters by run ID from the row menu, populates the input, then clears', async () => {
     renderComponent();
 
     await waitForRows();
 
     fireEvent.click(screen.getByTestId('insight-result-1-actions'));
-    fireEvent.click(await screen.findByTestId('action-filter-by-batch-id'));
+    fireEvent.click(await screen.findByTestId('action-filter-by-run-id'));
 
     await waitFor(() =>
       expect(advisorsApi.listInsights).toHaveBeenCalledWith(
-        expect.objectContaining({ batchId: 'batch-1', pageIndex: 0 })
+        expect.objectContaining({ runId: 'run-1', pageIndex: 0 })
       )
     );
 
-    // the batch-id input reflects the applied filter
-    const input = within(screen.getByTestId('batch-id-filter')).getByRole(
+    // the run-id input reflects the applied filter
+    const input = within(screen.getByTestId('run-id-filter')).getByRole(
       'textbox',
       { hidden: true }
     );
-    expect(input).toHaveValue('batch-1');
+    expect(input).toHaveValue('run-1');
 
     fireEvent.click(screen.getByTestId('clear-filters'));
 
     await waitFor(() =>
       expect(advisorsApi.listInsights).toHaveBeenLastCalledWith(
-        expect.objectContaining({ batchId: undefined })
+        expect.objectContaining({ runId: undefined })
       )
     );
     expect(input).toHaveValue('');
@@ -837,26 +882,26 @@ describe('AdvisorInsights', () => {
     );
   });
 
-  it('filters by a batch ID typed into the input and committed with Enter', async () => {
+  it('filters by a run ID typed into the input and committed with Enter', async () => {
     renderComponent();
 
     await waitForRows();
 
-    const input = within(screen.getByTestId('batch-id-filter')).getByRole(
+    const input = within(screen.getByTestId('run-id-filter')).getByRole(
       'textbox',
       { hidden: true }
     );
-    fireEvent.change(input, { target: { value: 'batch-77' } });
+    fireEvent.change(input, { target: { value: 'run-77' } });
     fireEvent.keyDown(input, { key: 'Enter' });
 
     await waitFor(() =>
       expect(advisorsApi.listInsights).toHaveBeenCalledWith(
-        expect.objectContaining({ batchId: 'batch-77', pageIndex: 0 })
+        expect.objectContaining({ runId: 'run-77', pageIndex: 0 })
       )
     );
   });
 
-  it('re-runs the check from the row menu and links to the new batch', async () => {
+  it('re-runs the check from the row menu and links to the new run', async () => {
     renderComponent();
 
     await waitForRows();
@@ -880,13 +925,13 @@ describe('AdvisorInsights', () => {
         Messages.success.rerunStarted('MySQL version check', 'mysql-prod')
       )
     ).toBeInTheDocument();
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('batch-123');
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('run-123');
 
     fireEvent.click(screen.getByTestId('view-run-results'));
 
     await waitFor(() =>
       expect(advisorsApi.listInsights).toHaveBeenLastCalledWith(
-        expect.objectContaining({ batchId: 'batch-123' })
+        expect.objectContaining({ runId: 'run-123' })
       )
     );
   });

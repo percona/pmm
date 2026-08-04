@@ -458,8 +458,8 @@ StartAdvisorChecksOKBody start advisor checks OK body
 swagger:model StartAdvisorChecksOKBody
 */
 type StartAdvisorChecksOKBody struct {
-	// ID assigned to this batch; all check results produced by it share this batch_id.
-	BatchID string `json:"batch_id,omitempty"`
+	// ID assigned to this run; all check results produced by it share this run_id.
+	RunID string `json:"run_id,omitempty"`
 }
 
 // Validate validates this start advisor checks OK body

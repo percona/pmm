@@ -123,8 +123,8 @@ message StartAdvisorChecksRequest {
 }
 
 message StartAdvisorChecksResponse {
-  // ID assigned to this batch; all check results produced by it share this batch_id.
-  string batch_id = 1;
+  // ID assigned to this run; all check results produced by it share this run_id.
+  string run_id = 1;
 }
 
 message ListAdvisorChecksRequest {}
@@ -234,8 +234,8 @@ message ChangeAdvisorChecksResponse {}
 message Insight {
   // Unique identifier of the history record.
   string id = 1;
-  // ID of the batch this result belongs to; all results produced by one execution share it.
-  string batch_id = 2;
+  // ID of the run this result belongs to; all results produced by one execution share it.
+  string run_id = 2;
   // Name of the check that ran.
   string check_name = 3;
   // Category the check belongs to (top-level grouping).
@@ -280,6 +280,10 @@ message Insight {
   bool is_read = 23;
   // The actor that initiated the run.
   AdvisorCheckTriggeredBy triggered_by = 24;
+  // Cloud region of the node the service runs on, empty when not applicable.
+  string region = 25;
+  // Cloud availability zone of the node the service runs on, empty when not applicable.
+  string az = 26;
 }
 
 message ListInsightsRequest {
@@ -307,8 +311,8 @@ message ListInsightsRequest {
   string check_name = 11;
   // Filter by severity.
   optional management.v1.Severity severity = 12;
-  // Filter by batch ID.
-  string batch_id = 13;
+  // Filter by run ID.
+  string run_id = 13;
   // Filter by the actor that initiated the run.
   optional AdvisorCheckTriggeredBy triggered_by = 14;
 }
@@ -347,8 +351,8 @@ message InsightsFilters {
   optional AdvisorCheckResultStatus status = 6;
   // Filter by read state.
   optional bool is_read = 7;
-  // Filter by batch ID.
-  string batch_id = 8;
+  // Filter by run ID.
+  string run_id = 8;
 }
 
 message MarkInsightsReadRequest {
@@ -363,8 +367,68 @@ message MarkInsightsReadRequest {
 
 message MarkInsightsReadResponse {}
 
+// AdvisorRun is a single execution of Advisor checks. Its totals are recorded on
+// completion, so they stay accurate after the run's insights have been pruned.
+message AdvisorRun {
+  // ID shared by every insight the run produced.
+  string id = 1;
+  // The actor that initiated the run.
+  AdvisorCheckTriggeredBy triggered_by = 2;
+  // When the run began.
+  google.protobuf.Timestamp started_at = 3;
+  // When the run completed; unset while it is still running.
+  google.protobuf.Timestamp finished_at = 4;
+  // Number of distinct checks the run executed.
+  int32 checks_count = 5;
+  // Number of distinct services the run covered.
+  int32 services_count = 6;
+  // Number of findings, i.e. checks that detected an issue.
+  int32 findings_count = 7;
+  // Number of checks that could not be executed at all.
+  int32 errors_count = 8;
+  // Number of findings per severity, most severe first. A repeated field rather
+  // than a map so severity stays a typed enum instead of a free-form key.
+  repeated SeverityCount severity_counts = 9;
+}
+
+// SeverityCount is the number of findings a run produced at a single severity.
+message SeverityCount {
+  management.v1.Severity severity = 1;
+  int32 count = 2;
+}
+
+message ListRunsRequest {
+  // Maximum number of results per page.
+  optional int32 page_size = 1 [(validate.rules).int32.gte = 1];
+  // Index of the requested page, starts from 0.
+  optional int32 page_index = 2 [(validate.rules).int32.gte = 0];
+  // Filter by the actor that initiated the run.
+  optional AdvisorCheckTriggeredBy triggered_by = 3;
+  // Return only runs started at or after this time.
+  google.protobuf.Timestamp from = 4;
+  // Return only runs started at or before this time.
+  google.protobuf.Timestamp to = 5;
+}
+
+message ListRunsResponse {
+  // Total number of results.
+  int32 total_items = 1;
+  // Total number of pages.
+  int32 total_pages = 2;
+  // Runs, most recently started first.
+  repeated AdvisorRun results = 3;
+}
+
 // AdvisorService service provides public Management API methods for Advisor Service.
 service AdvisorService {
+  // ListRuns returns the history of Advisor check executions, most recent first.
+  rpc ListRuns(ListRunsRequest) returns (ListRunsResponse) {
+    option (google.api.http) = {get: "/v1/advisors/runs"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List Advisor Runs"
+      description: "Returns the chronological history of Advisor check executions with their totals."
+    };
+  }
   // ListInsights returns the history of Advisor check results (insights).
   rpc ListInsights(ListInsightsRequest) returns (ListInsightsResponse) {
     option (google.api.http) = {get: "/v1/advisors/insights"};

@@ -558,6 +558,12 @@ export const NAV_ADVISORS_INSIGHTS = {
   url: `${PMM_NEW_NAV_PATH}/advisors/insights`,
 };
 
+export const NAV_ADVISORS_RUNS = {
+  id: 'advisors-runs',
+  text: 'Advisor runs',
+  url: `${PMM_NEW_NAV_PATH}/advisors/runs`,
+};
+
 //
 // Inventory
 //

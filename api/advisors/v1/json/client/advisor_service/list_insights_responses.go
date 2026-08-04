@@ -538,8 +538,8 @@ type ListInsightsOKBodyResultsItems0 struct {
 	// Unique identifier of the history record.
 	ID string `json:"id,omitempty"`
 
-	// ID of the batch this result belongs to; all results produced by one execution share it.
-	BatchID string `json:"batch_id,omitempty"`
+	// ID of the run this result belongs to; all results produced by one execution share it.
+	RunID string `json:"run_id,omitempty"`
 
 	// Name of the check that ran.
 	CheckName string `json:"check_name,omitempty"`
@@ -618,6 +618,12 @@ type ListInsightsOKBodyResultsItems0 struct {
 	//  - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.
 	// Enum: ["ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED","ADVISOR_CHECK_TRIGGERED_BY_USER","ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"]
 	TriggeredBy *string `json:"triggered_by,omitempty"`
+
+	// Cloud region of the node the service runs on, empty when not applicable.
+	Region string `json:"region,omitempty"`
+
+	// Cloud availability zone of the node the service runs on, empty when not applicable.
+	Az string `json:"az,omitempty"`
 }
 
 // Validate validates this list insights OK body results items0

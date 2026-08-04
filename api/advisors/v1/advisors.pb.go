@@ -692,8 +692,8 @@ func (x *StartAdvisorChecksRequest) GetServiceIds() []string {
 
 type StartAdvisorChecksResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// ID assigned to this batch; all check results produced by it share this batch_id.
-	BatchId       string `protobuf:"bytes,1,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
+	// ID assigned to this run; all check results produced by it share this run_id.
+	RunId         string `protobuf:"bytes,1,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -728,9 +728,9 @@ func (*StartAdvisorChecksResponse) Descriptor() ([]byte, []int) {
 	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *StartAdvisorChecksResponse) GetBatchId() string {
+func (x *StartAdvisorChecksResponse) GetRunId() string {
 	if x != nil {
-		return x.BatchId
+		return x.RunId
 	}
 	return ""
 }
@@ -1696,8 +1696,8 @@ type Insight struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique identifier of the history record.
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// ID of the batch this result belongs to; all results produced by one execution share it.
-	BatchId string `protobuf:"bytes,2,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
+	// ID of the run this result belongs to; all results produced by one execution share it.
+	RunId string `protobuf:"bytes,2,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
 	// Name of the check that ran.
 	CheckName string `protobuf:"bytes,3,opt,name=check_name,json=checkName,proto3" json:"check_name,omitempty"`
 	// Category the check belongs to (top-level grouping).
@@ -1741,7 +1741,11 @@ type Insight struct {
 	// Whether the result has been marked as read.
 	IsRead bool `protobuf:"varint,23,opt,name=is_read,json=isRead,proto3" json:"is_read,omitempty"`
 	// The actor that initiated the run.
-	TriggeredBy   AdvisorCheckTriggeredBy `protobuf:"varint,24,opt,name=triggered_by,json=triggeredBy,proto3,enum=advisors.v1.AdvisorCheckTriggeredBy" json:"triggered_by,omitempty"`
+	TriggeredBy AdvisorCheckTriggeredBy `protobuf:"varint,24,opt,name=triggered_by,json=triggeredBy,proto3,enum=advisors.v1.AdvisorCheckTriggeredBy" json:"triggered_by,omitempty"`
+	// Cloud region of the node the service runs on, empty when not applicable.
+	Region string `protobuf:"bytes,25,opt,name=region,proto3" json:"region,omitempty"`
+	// Cloud availability zone of the node the service runs on, empty when not applicable.
+	Az            string `protobuf:"bytes,26,opt,name=az,proto3" json:"az,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1783,9 +1787,9 @@ func (x *Insight) GetId() string {
 	return ""
 }
 
-func (x *Insight) GetBatchId() string {
+func (x *Insight) GetRunId() string {
 	if x != nil {
-		return x.BatchId
+		return x.RunId
 	}
 	return ""
 }
@@ -1944,6 +1948,20 @@ func (x *Insight) GetTriggeredBy() AdvisorCheckTriggeredBy {
 	return AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED
 }
 
+func (x *Insight) GetRegion() string {
+	if x != nil {
+		return x.Region
+	}
+	return ""
+}
+
+func (x *Insight) GetAz() string {
+	if x != nil {
+		return x.Az
+	}
+	return ""
+}
+
 type ListInsightsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Maximum number of results per page.
@@ -1970,8 +1988,8 @@ type ListInsightsRequest struct {
 	CheckName string `protobuf:"bytes,11,opt,name=check_name,json=checkName,proto3" json:"check_name,omitempty"`
 	// Filter by severity.
 	Severity *v1.Severity `protobuf:"varint,12,opt,name=severity,proto3,enum=management.v1.Severity,oneof" json:"severity,omitempty"`
-	// Filter by batch ID.
-	BatchId string `protobuf:"bytes,13,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
+	// Filter by run ID.
+	RunId string `protobuf:"bytes,13,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
 	// Filter by the actor that initiated the run.
 	TriggeredBy   *AdvisorCheckTriggeredBy `protobuf:"varint,14,opt,name=triggered_by,json=triggeredBy,proto3,enum=advisors.v1.AdvisorCheckTriggeredBy,oneof" json:"triggered_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -2092,9 +2110,9 @@ func (x *ListInsightsRequest) GetSeverity() v1.Severity {
 	return v1.Severity(0)
 }
 
-func (x *ListInsightsRequest) GetBatchId() string {
+func (x *ListInsightsRequest) GetRunId() string {
 	if x != nil {
-		return x.BatchId
+		return x.RunId
 	}
 	return ""
 }
@@ -2276,8 +2294,8 @@ type InsightsFilters struct {
 	Status *AdvisorCheckResultStatus `protobuf:"varint,6,opt,name=status,proto3,enum=advisors.v1.AdvisorCheckResultStatus,oneof" json:"status,omitempty"`
 	// Filter by read state.
 	IsRead *bool `protobuf:"varint,7,opt,name=is_read,json=isRead,proto3,oneof" json:"is_read,omitempty"`
-	// Filter by batch ID.
-	BatchId       string `protobuf:"bytes,8,opt,name=batch_id,json=batchId,proto3" json:"batch_id,omitempty"`
+	// Filter by run ID.
+	RunId         string `protobuf:"bytes,8,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2361,9 +2379,9 @@ func (x *InsightsFilters) GetIsRead() bool {
 	return false
 }
 
-func (x *InsightsFilters) GetBatchId() string {
+func (x *InsightsFilters) GetRunId() string {
 	if x != nil {
-		return x.BatchId
+		return x.RunId
 	}
 	return ""
 }
@@ -2468,6 +2486,323 @@ func (*MarkInsightsReadResponse) Descriptor() ([]byte, []int) {
 	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{33}
 }
 
+// AdvisorRun is a single execution of Advisor checks. Its totals are recorded on
+// completion, so they stay accurate after the run's insights have been pruned.
+type AdvisorRun struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// ID shared by every insight the run produced.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// The actor that initiated the run.
+	TriggeredBy AdvisorCheckTriggeredBy `protobuf:"varint,2,opt,name=triggered_by,json=triggeredBy,proto3,enum=advisors.v1.AdvisorCheckTriggeredBy" json:"triggered_by,omitempty"`
+	// When the run began.
+	StartedAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
+	// When the run completed; unset while it is still running.
+	FinishedAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
+	// Number of distinct checks the run executed.
+	ChecksCount int32 `protobuf:"varint,5,opt,name=checks_count,json=checksCount,proto3" json:"checks_count,omitempty"`
+	// Number of distinct services the run covered.
+	ServicesCount int32 `protobuf:"varint,6,opt,name=services_count,json=servicesCount,proto3" json:"services_count,omitempty"`
+	// Number of findings, i.e. checks that detected an issue.
+	FindingsCount int32 `protobuf:"varint,7,opt,name=findings_count,json=findingsCount,proto3" json:"findings_count,omitempty"`
+	// Number of checks that could not be executed at all.
+	ErrorsCount int32 `protobuf:"varint,8,opt,name=errors_count,json=errorsCount,proto3" json:"errors_count,omitempty"`
+	// Number of findings per severity, most severe first. A repeated field rather
+	// than a map so severity stays a typed enum instead of a free-form key.
+	SeverityCounts []*SeverityCount `protobuf:"bytes,9,rep,name=severity_counts,json=severityCounts,proto3" json:"severity_counts,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *AdvisorRun) Reset() {
+	*x = AdvisorRun{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdvisorRun) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdvisorRun) ProtoMessage() {}
+
+func (x *AdvisorRun) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdvisorRun.ProtoReflect.Descriptor instead.
+func (*AdvisorRun) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *AdvisorRun) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *AdvisorRun) GetTriggeredBy() AdvisorCheckTriggeredBy {
+	if x != nil {
+		return x.TriggeredBy
+	}
+	return AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED
+}
+
+func (x *AdvisorRun) GetStartedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.StartedAt
+	}
+	return nil
+}
+
+func (x *AdvisorRun) GetFinishedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.FinishedAt
+	}
+	return nil
+}
+
+func (x *AdvisorRun) GetChecksCount() int32 {
+	if x != nil {
+		return x.ChecksCount
+	}
+	return 0
+}
+
+func (x *AdvisorRun) GetServicesCount() int32 {
+	if x != nil {
+		return x.ServicesCount
+	}
+	return 0
+}
+
+func (x *AdvisorRun) GetFindingsCount() int32 {
+	if x != nil {
+		return x.FindingsCount
+	}
+	return 0
+}
+
+func (x *AdvisorRun) GetErrorsCount() int32 {
+	if x != nil {
+		return x.ErrorsCount
+	}
+	return 0
+}
+
+func (x *AdvisorRun) GetSeverityCounts() []*SeverityCount {
+	if x != nil {
+		return x.SeverityCounts
+	}
+	return nil
+}
+
+// SeverityCount is the number of findings a run produced at a single severity.
+type SeverityCount struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Severity      v1.Severity            `protobuf:"varint,1,opt,name=severity,proto3,enum=management.v1.Severity" json:"severity,omitempty"`
+	Count         int32                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SeverityCount) Reset() {
+	*x = SeverityCount{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[35]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SeverityCount) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SeverityCount) ProtoMessage() {}
+
+func (x *SeverityCount) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[35]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SeverityCount.ProtoReflect.Descriptor instead.
+func (*SeverityCount) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{35}
+}
+
+func (x *SeverityCount) GetSeverity() v1.Severity {
+	if x != nil {
+		return x.Severity
+	}
+	return v1.Severity(0)
+}
+
+func (x *SeverityCount) GetCount() int32 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+type ListRunsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Maximum number of results per page.
+	PageSize *int32 `protobuf:"varint,1,opt,name=page_size,json=pageSize,proto3,oneof" json:"page_size,omitempty"`
+	// Index of the requested page, starts from 0.
+	PageIndex *int32 `protobuf:"varint,2,opt,name=page_index,json=pageIndex,proto3,oneof" json:"page_index,omitempty"`
+	// Filter by the actor that initiated the run.
+	TriggeredBy *AdvisorCheckTriggeredBy `protobuf:"varint,3,opt,name=triggered_by,json=triggeredBy,proto3,enum=advisors.v1.AdvisorCheckTriggeredBy,oneof" json:"triggered_by,omitempty"`
+	// Return only runs started at or after this time.
+	From *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=from,proto3" json:"from,omitempty"`
+	// Return only runs started at or before this time.
+	To            *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=to,proto3" json:"to,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRunsRequest) Reset() {
+	*x = ListRunsRequest{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[36]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRunsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRunsRequest) ProtoMessage() {}
+
+func (x *ListRunsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[36]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRunsRequest.ProtoReflect.Descriptor instead.
+func (*ListRunsRequest) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{36}
+}
+
+func (x *ListRunsRequest) GetPageSize() int32 {
+	if x != nil && x.PageSize != nil {
+		return *x.PageSize
+	}
+	return 0
+}
+
+func (x *ListRunsRequest) GetPageIndex() int32 {
+	if x != nil && x.PageIndex != nil {
+		return *x.PageIndex
+	}
+	return 0
+}
+
+func (x *ListRunsRequest) GetTriggeredBy() AdvisorCheckTriggeredBy {
+	if x != nil && x.TriggeredBy != nil {
+		return *x.TriggeredBy
+	}
+	return AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED
+}
+
+func (x *ListRunsRequest) GetFrom() *timestamppb.Timestamp {
+	if x != nil {
+		return x.From
+	}
+	return nil
+}
+
+func (x *ListRunsRequest) GetTo() *timestamppb.Timestamp {
+	if x != nil {
+		return x.To
+	}
+	return nil
+}
+
+type ListRunsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Total number of results.
+	TotalItems int32 `protobuf:"varint,1,opt,name=total_items,json=totalItems,proto3" json:"total_items,omitempty"`
+	// Total number of pages.
+	TotalPages int32 `protobuf:"varint,2,opt,name=total_pages,json=totalPages,proto3" json:"total_pages,omitempty"`
+	// Runs, most recently started first.
+	Results       []*AdvisorRun `protobuf:"bytes,3,rep,name=results,proto3" json:"results,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRunsResponse) Reset() {
+	*x = ListRunsResponse{}
+	mi := &file_advisors_v1_advisors_proto_msgTypes[37]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRunsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRunsResponse) ProtoMessage() {}
+
+func (x *ListRunsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_advisors_v1_advisors_proto_msgTypes[37]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRunsResponse.ProtoReflect.Descriptor instead.
+func (*ListRunsResponse) Descriptor() ([]byte, []int) {
+	return file_advisors_v1_advisors_proto_rawDescGZIP(), []int{37}
+}
+
+func (x *ListRunsResponse) GetTotalItems() int32 {
+	if x != nil {
+		return x.TotalItems
+	}
+	return 0
+}
+
+func (x *ListRunsResponse) GetTotalPages() int32 {
+	if x != nil {
+		return x.TotalPages
+	}
+	return 0
+}
+
+func (x *ListRunsResponse) GetResults() []*AdvisorRun {
+	if x != nil {
+		return x.Results
+	}
+	return nil
+}
+
 var File_advisors_v1_advisors_proto protoreflect.FileDescriptor
 
 const file_advisors_v1_advisors_proto_rawDesc = "" +
@@ -2516,9 +2851,9 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\x19StartAdvisorChecksRequest\x12\x14\n" +
 	"\x05names\x18\x01 \x03(\tR\x05names\x12\x1f\n" +
 	"\vservice_ids\x18\x02 \x03(\tR\n" +
-	"serviceIds\"7\n" +
-	"\x1aStartAdvisorChecksResponse\x12\x19\n" +
-	"\bbatch_id\x18\x01 \x01(\tR\abatchId\"\x1a\n" +
+	"serviceIds\"3\n" +
+	"\x1aStartAdvisorChecksResponse\x12\x15\n" +
+	"\x06run_id\x18\x01 \x01(\tR\x05runId\"\x1a\n" +
 	"\x18ListAdvisorChecksRequest\"N\n" +
 	"\x19ListAdvisorChecksResponse\x121\n" +
 	"\x06checks\x18\x01 \x03(\v2\x19.advisors.v1.AdvisorCheckR\x06checks\",\n" +
@@ -2574,10 +2909,10 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\badvisors\x18\x01 \x03(\v2\x14.advisors.v1.AdvisorR\badvisors\"[\n" +
 	"\x1aChangeAdvisorChecksRequest\x12=\n" +
 	"\x06params\x18\x01 \x03(\v2%.advisors.v1.ChangeAdvisorCheckParamsR\x06params\"\x1d\n" +
-	"\x1bChangeAdvisorChecksResponse\"\xd0\a\n" +
+	"\x1bChangeAdvisorChecksResponse\"\xf4\a\n" +
 	"\aInsight\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
-	"\bbatch_id\x18\x02 \x01(\tR\abatchId\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x15\n" +
+	"\x06run_id\x18\x02 \x01(\tR\x05runId\x12\x1d\n" +
 	"\n" +
 	"check_name\x18\x03 \x01(\tR\tcheckName\x12\x1a\n" +
 	"\bcategory\x18\x04 \x01(\tR\bcategory\x12 \n" +
@@ -2603,10 +2938,12 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\n" +
 	"checked_at\x18\x16 \x01(\v2\x1a.google.protobuf.TimestampR\tcheckedAt\x12\x17\n" +
 	"\ais_read\x18\x17 \x01(\bR\x06isRead\x12G\n" +
-	"\ftriggered_by\x18\x18 \x01(\x0e2$.advisors.v1.AdvisorCheckTriggeredByR\vtriggeredBy\x1a9\n" +
+	"\ftriggered_by\x18\x18 \x01(\x0e2$.advisors.v1.AdvisorCheckTriggeredByR\vtriggeredBy\x12\x16\n" +
+	"\x06region\x18\x19 \x01(\tR\x06region\x12\x0e\n" +
+	"\x02az\x18\x1a \x01(\tR\x02az\x1a9\n" +
 	"\vLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xba\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb6\x05\n" +
 	"\x13ListInsightsRequest\x12)\n" +
 	"\tpage_size\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01H\x00R\bpageSize\x88\x01\x01\x12+\n" +
 	"\n" +
@@ -2623,8 +2960,8 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	" \x01(\tR\bcategory\x12\x1d\n" +
 	"\n" +
 	"check_name\x18\v \x01(\tR\tcheckName\x128\n" +
-	"\bseverity\x18\f \x01(\x0e2\x17.management.v1.SeverityH\x04R\bseverity\x88\x01\x01\x12\x19\n" +
-	"\bbatch_id\x18\r \x01(\tR\abatchId\x12L\n" +
+	"\bseverity\x18\f \x01(\x0e2\x17.management.v1.SeverityH\x04R\bseverity\x88\x01\x01\x12\x15\n" +
+	"\x06run_id\x18\r \x01(\tR\x05runId\x12L\n" +
 	"\ftriggered_by\x18\x0e \x01(\x0e2$.advisors.v1.AdvisorCheckTriggeredByH\x05R\vtriggeredBy\x88\x01\x01B\f\n" +
 	"\n" +
 	"_page_sizeB\r\n" +
@@ -2644,7 +2981,7 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	" ListInsightsFilterValuesResponse\x12#\n" +
 	"\rservice_names\x18\x01 \x03(\tR\fserviceNames\x12\x1d\n" +
 	"\n" +
-	"node_names\x18\x02 \x03(\tR\tnodeNames\"\xe7\x02\n" +
+	"node_names\x18\x02 \x03(\tR\tnodeNames\"\xe3\x02\n" +
 	"\x0fInsightsFilters\x12\x1d\n" +
 	"\n" +
 	"check_name\x18\x01 \x01(\tR\tcheckName\x12!\n" +
@@ -2653,8 +2990,8 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\bcategory\x18\x04 \x01(\tR\bcategory\x128\n" +
 	"\bseverity\x18\x05 \x01(\x0e2\x17.management.v1.SeverityH\x00R\bseverity\x88\x01\x01\x12B\n" +
 	"\x06status\x18\x06 \x01(\x0e2%.advisors.v1.AdvisorCheckResultStatusH\x01R\x06status\x88\x01\x01\x12\x1c\n" +
-	"\ais_read\x18\a \x01(\bH\x02R\x06isRead\x88\x01\x01\x12\x19\n" +
-	"\bbatch_id\x18\b \x01(\tR\abatchIdB\v\n" +
+	"\ais_read\x18\a \x01(\bH\x02R\x06isRead\x88\x01\x01\x12\x15\n" +
+	"\x06run_id\x18\b \x01(\tR\x05runIdB\v\n" +
 	"\t_severityB\t\n" +
 	"\a_statusB\n" +
 	"\n" +
@@ -2663,7 +3000,40 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\x03ids\x18\x01 \x03(\tR\x03ids\x12\x17\n" +
 	"\ais_read\x18\x02 \x01(\bR\x06isRead\x126\n" +
 	"\afilters\x18\x03 \x01(\v2\x1c.advisors.v1.InsightsFiltersR\afilters\"\x1a\n" +
-	"\x18MarkInsightsReadResponse*\xa9\x01\n" +
+	"\x18MarkInsightsReadResponse\"\xb6\x03\n" +
+	"\n" +
+	"AdvisorRun\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12G\n" +
+	"\ftriggered_by\x18\x02 \x01(\x0e2$.advisors.v1.AdvisorCheckTriggeredByR\vtriggeredBy\x129\n" +
+	"\n" +
+	"started_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x12;\n" +
+	"\vfinished_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"finishedAt\x12!\n" +
+	"\fchecks_count\x18\x05 \x01(\x05R\vchecksCount\x12%\n" +
+	"\x0eservices_count\x18\x06 \x01(\x05R\rservicesCount\x12%\n" +
+	"\x0efindings_count\x18\a \x01(\x05R\rfindingsCount\x12!\n" +
+	"\ferrors_count\x18\b \x01(\x05R\verrorsCount\x12C\n" +
+	"\x0fseverity_counts\x18\t \x03(\v2\x1a.advisors.v1.SeverityCountR\x0eseverityCounts\"Z\n" +
+	"\rSeverityCount\x123\n" +
+	"\bseverity\x18\x01 \x01(\x0e2\x17.management.v1.SeverityR\bseverity\x12\x14\n" +
+	"\x05count\x18\x02 \x01(\x05R\x05count\"\xc1\x02\n" +
+	"\x0fListRunsRequest\x12)\n" +
+	"\tpage_size\x18\x01 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01H\x00R\bpageSize\x88\x01\x01\x12+\n" +
+	"\n" +
+	"page_index\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x00H\x01R\tpageIndex\x88\x01\x01\x12L\n" +
+	"\ftriggered_by\x18\x03 \x01(\x0e2$.advisors.v1.AdvisorCheckTriggeredByH\x02R\vtriggeredBy\x88\x01\x01\x12.\n" +
+	"\x04from\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x04from\x12*\n" +
+	"\x02to\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x02toB\f\n" +
+	"\n" +
+	"_page_sizeB\r\n" +
+	"\v_page_indexB\x0f\n" +
+	"\r_triggered_by\"\x87\x01\n" +
+	"\x10ListRunsResponse\x12\x1f\n" +
+	"\vtotal_items\x18\x01 \x01(\x05R\n" +
+	"totalItems\x12\x1f\n" +
+	"\vtotal_pages\x18\x02 \x01(\x05R\n" +
+	"totalPages\x121\n" +
+	"\aresults\x18\x03 \x03(\v2\x17.advisors.v1.AdvisorRunR\aresults*\xa9\x01\n" +
 	"\x14AdvisorCheckInterval\x12&\n" +
 	"\"ADVISOR_CHECK_INTERVAL_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fADVISOR_CHECK_INTERVAL_STANDARD\x10\x01\x12#\n" +
@@ -2682,8 +3052,9 @@ const file_advisors_v1_advisors_proto_rawDesc = "" +
 	"\x17AdvisorCheckTriggeredBy\x12*\n" +
 	"&ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fADVISOR_CHECK_TRIGGERED_BY_USER\x10\x01\x12(\n" +
-	"$ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER\x10\x022\xb6\x1a\n" +
-	"\x0eAdvisorService\x12\xe1\x01\n" +
+	"$ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER\x10\x022\x84\x1c\n" +
+	"\x0eAdvisorService\x12\xcb\x01\n" +
+	"\bListRuns\x12\x1c.advisors.v1.ListRunsRequest\x1a\x1d.advisors.v1.ListRunsResponse\"\x81\x01\x92Ae\x12\x11List Advisor Runs\x1aPReturns the chronological history of Advisor check executions with their totals.\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/advisors/runs\x12\xe1\x01\n" +
 	"\fListInsights\x12 .advisors.v1.ListInsightsRequest\x1a!.advisors.v1.ListInsightsResponse\"\x8b\x01\x92Ak\x12\x15List Advisor Insights\x1aRReturns the history of Advisor check results (insights), including their outcomes.\x82\xd3\xe4\x93\x02\x17\x12\x15/v1/advisors/insights\x12\xbc\x02\n" +
 	"\x18ListInsightsFilterValues\x12,.advisors.v1.ListInsightsFilterValuesRequest\x1a-.advisors.v1.ListInsightsFilterValuesResponse\"\xc2\x01\x92A\x94\x01\x12#List Advisor Insights Filter Values\x1amReturns the distinct service and node names present in the Advisor insights, for populating filter dropdowns.\x82\xd3\xe4\x93\x02$\x12\"/v1/advisors/insights:filterValues\x12\x8c\x02\n" +
 	"\x10MarkInsightsRead\x12$.advisors.v1.MarkInsightsReadRequest\x1a%.advisors.v1.MarkInsightsReadResponse\"\xaa\x01\x92A~\x12\x1aMark Advisor Insights Read\x1a`Sets the read state on the specified Advisor insights. Set is_read to false to mark them unread.\x82\xd3\xe4\x93\x02#:\x01*\"\x1e/v1/advisors/insights:markRead\x12\xb0\x02\n" +
@@ -2713,7 +3084,7 @@ func file_advisors_v1_advisors_proto_rawDescGZIP() []byte {
 
 var (
 	file_advisors_v1_advisors_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-	file_advisors_v1_advisors_proto_msgTypes  = make([]protoimpl.MessageInfo, 37)
+	file_advisors_v1_advisors_proto_msgTypes  = make([]protoimpl.MessageInfo, 41)
 	file_advisors_v1_advisors_proto_goTypes   = []any{
 		AdvisorCheckInterval(0),                     // 0: advisors.v1.AdvisorCheckInterval
 		AdvisorCheckTechnology(0),                   // 1: advisors.v1.AdvisorCheckTechnology
@@ -2753,16 +3124,20 @@ var (
 		(*InsightsFilters)(nil),                     // 35: advisors.v1.InsightsFilters
 		(*MarkInsightsReadRequest)(nil),             // 36: advisors.v1.MarkInsightsReadRequest
 		(*MarkInsightsReadResponse)(nil),            // 37: advisors.v1.MarkInsightsReadResponse
-		nil,                                         // 38: advisors.v1.AdvisorCheckQuery.ParametersEntry
-		nil,                                         // 39: advisors.v1.TestAdvisorCheckResult.LabelsEntry
-		nil,                                         // 40: advisors.v1.Insight.LabelsEntry
-		v1.Severity(0),                              // 41: management.v1.Severity
-		(*timestamppb.Timestamp)(nil),               // 42: google.protobuf.Timestamp
+		(*AdvisorRun)(nil),                          // 38: advisors.v1.AdvisorRun
+		(*SeverityCount)(nil),                       // 39: advisors.v1.SeverityCount
+		(*ListRunsRequest)(nil),                     // 40: advisors.v1.ListRunsRequest
+		(*ListRunsResponse)(nil),                    // 41: advisors.v1.ListRunsResponse
+		nil,                                         // 42: advisors.v1.AdvisorCheckQuery.ParametersEntry
+		nil,                                         // 43: advisors.v1.TestAdvisorCheckResult.LabelsEntry
+		nil,                                         // 44: advisors.v1.Insight.LabelsEntry
+		v1.Severity(0),                              // 45: management.v1.Severity
+		(*timestamppb.Timestamp)(nil),               // 46: google.protobuf.Timestamp
 	}
 )
 
 var file_advisors_v1_advisors_proto_depIdxs = []int32{
-	38, // 0: advisors.v1.AdvisorCheckQuery.parameters:type_name -> advisors.v1.AdvisorCheckQuery.ParametersEntry
+	42, // 0: advisors.v1.AdvisorCheckQuery.parameters:type_name -> advisors.v1.AdvisorCheckQuery.ParametersEntry
 	0,  // 1: advisors.v1.AdvisorCheck.interval:type_name -> advisors.v1.AdvisorCheckInterval
 	1,  // 2: advisors.v1.AdvisorCheck.technology:type_name -> advisors.v1.AdvisorCheckTechnology
 	4,  // 3: advisors.v1.AdvisorCheck.queries:type_name -> advisors.v1.AdvisorCheckQuery
@@ -2775,8 +3150,8 @@ var file_advisors_v1_advisors_proto_depIdxs = []int32{
 	5,  // 10: advisors.v1.UpdateAdvisorCheckRequest.check:type_name -> advisors.v1.AdvisorCheck
 	5,  // 11: advisors.v1.UpdateAdvisorCheckResponse.check:type_name -> advisors.v1.AdvisorCheck
 	5,  // 12: advisors.v1.TestAdvisorCheckRequest.check:type_name -> advisors.v1.AdvisorCheck
-	41, // 13: advisors.v1.TestAdvisorCheckResult.severity:type_name -> management.v1.Severity
-	39, // 14: advisors.v1.TestAdvisorCheckResult.labels:type_name -> advisors.v1.TestAdvisorCheckResult.LabelsEntry
+	45, // 13: advisors.v1.TestAdvisorCheckResult.severity:type_name -> management.v1.Severity
+	43, // 14: advisors.v1.TestAdvisorCheckResult.labels:type_name -> advisors.v1.TestAdvisorCheckResult.LabelsEntry
 	21, // 15: advisors.v1.TestAdvisorCheckResponse.results:type_name -> advisors.v1.TestAdvisorCheckResult
 	1,  // 16: advisors.v1.ListAdvisorCheckTestTargetsRequest.technology:type_name -> advisors.v1.AdvisorCheckTechnology
 	24, // 17: advisors.v1.ListAdvisorCheckTestTargetsResponse.targets:type_name -> advisors.v1.AdvisorCheckTestTarget
@@ -2784,50 +3159,61 @@ var file_advisors_v1_advisors_proto_depIdxs = []int32{
 	7,  // 19: advisors.v1.ChangeAdvisorChecksRequest.params:type_name -> advisors.v1.ChangeAdvisorCheckParams
 	0,  // 20: advisors.v1.Insight.interval:type_name -> advisors.v1.AdvisorCheckInterval
 	2,  // 21: advisors.v1.Insight.status:type_name -> advisors.v1.AdvisorCheckResultStatus
-	41, // 22: advisors.v1.Insight.severity:type_name -> management.v1.Severity
-	40, // 23: advisors.v1.Insight.labels:type_name -> advisors.v1.Insight.LabelsEntry
-	42, // 24: advisors.v1.Insight.checked_at:type_name -> google.protobuf.Timestamp
+	45, // 22: advisors.v1.Insight.severity:type_name -> management.v1.Severity
+	44, // 23: advisors.v1.Insight.labels:type_name -> advisors.v1.Insight.LabelsEntry
+	46, // 24: advisors.v1.Insight.checked_at:type_name -> google.protobuf.Timestamp
 	3,  // 25: advisors.v1.Insight.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
 	2,  // 26: advisors.v1.ListInsightsRequest.status:type_name -> advisors.v1.AdvisorCheckResultStatus
-	42, // 27: advisors.v1.ListInsightsRequest.from:type_name -> google.protobuf.Timestamp
-	42, // 28: advisors.v1.ListInsightsRequest.to:type_name -> google.protobuf.Timestamp
-	41, // 29: advisors.v1.ListInsightsRequest.severity:type_name -> management.v1.Severity
+	46, // 27: advisors.v1.ListInsightsRequest.from:type_name -> google.protobuf.Timestamp
+	46, // 28: advisors.v1.ListInsightsRequest.to:type_name -> google.protobuf.Timestamp
+	45, // 29: advisors.v1.ListInsightsRequest.severity:type_name -> management.v1.Severity
 	3,  // 30: advisors.v1.ListInsightsRequest.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
 	30, // 31: advisors.v1.ListInsightsResponse.results:type_name -> advisors.v1.Insight
-	41, // 32: advisors.v1.InsightsFilters.severity:type_name -> management.v1.Severity
+	45, // 32: advisors.v1.InsightsFilters.severity:type_name -> management.v1.Severity
 	2,  // 33: advisors.v1.InsightsFilters.status:type_name -> advisors.v1.AdvisorCheckResultStatus
 	35, // 34: advisors.v1.MarkInsightsReadRequest.filters:type_name -> advisors.v1.InsightsFilters
-	31, // 35: advisors.v1.AdvisorService.ListInsights:input_type -> advisors.v1.ListInsightsRequest
-	33, // 36: advisors.v1.AdvisorService.ListInsightsFilterValues:input_type -> advisors.v1.ListInsightsFilterValuesRequest
-	36, // 37: advisors.v1.AdvisorService.MarkInsightsRead:input_type -> advisors.v1.MarkInsightsReadRequest
-	8,  // 38: advisors.v1.AdvisorService.StartAdvisorChecks:input_type -> advisors.v1.StartAdvisorChecksRequest
-	10, // 39: advisors.v1.AdvisorService.ListAdvisorChecks:input_type -> advisors.v1.ListAdvisorChecksRequest
-	26, // 40: advisors.v1.AdvisorService.ListAdvisors:input_type -> advisors.v1.ListAdvisorsRequest
-	28, // 41: advisors.v1.AdvisorService.ChangeAdvisorChecks:input_type -> advisors.v1.ChangeAdvisorChecksRequest
-	12, // 42: advisors.v1.AdvisorService.GetAdvisorCheck:input_type -> advisors.v1.GetAdvisorCheckRequest
-	14, // 43: advisors.v1.AdvisorService.CreateAdvisorCheck:input_type -> advisors.v1.CreateAdvisorCheckRequest
-	16, // 44: advisors.v1.AdvisorService.UpdateAdvisorCheck:input_type -> advisors.v1.UpdateAdvisorCheckRequest
-	20, // 45: advisors.v1.AdvisorService.TestAdvisorCheck:input_type -> advisors.v1.TestAdvisorCheckRequest
-	23, // 46: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:input_type -> advisors.v1.ListAdvisorCheckTestTargetsRequest
-	18, // 47: advisors.v1.AdvisorService.DeleteAdvisorCheck:input_type -> advisors.v1.DeleteAdvisorCheckRequest
-	32, // 48: advisors.v1.AdvisorService.ListInsights:output_type -> advisors.v1.ListInsightsResponse
-	34, // 49: advisors.v1.AdvisorService.ListInsightsFilterValues:output_type -> advisors.v1.ListInsightsFilterValuesResponse
-	37, // 50: advisors.v1.AdvisorService.MarkInsightsRead:output_type -> advisors.v1.MarkInsightsReadResponse
-	9,  // 51: advisors.v1.AdvisorService.StartAdvisorChecks:output_type -> advisors.v1.StartAdvisorChecksResponse
-	11, // 52: advisors.v1.AdvisorService.ListAdvisorChecks:output_type -> advisors.v1.ListAdvisorChecksResponse
-	27, // 53: advisors.v1.AdvisorService.ListAdvisors:output_type -> advisors.v1.ListAdvisorsResponse
-	29, // 54: advisors.v1.AdvisorService.ChangeAdvisorChecks:output_type -> advisors.v1.ChangeAdvisorChecksResponse
-	13, // 55: advisors.v1.AdvisorService.GetAdvisorCheck:output_type -> advisors.v1.GetAdvisorCheckResponse
-	15, // 56: advisors.v1.AdvisorService.CreateAdvisorCheck:output_type -> advisors.v1.CreateAdvisorCheckResponse
-	17, // 57: advisors.v1.AdvisorService.UpdateAdvisorCheck:output_type -> advisors.v1.UpdateAdvisorCheckResponse
-	22, // 58: advisors.v1.AdvisorService.TestAdvisorCheck:output_type -> advisors.v1.TestAdvisorCheckResponse
-	25, // 59: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:output_type -> advisors.v1.ListAdvisorCheckTestTargetsResponse
-	19, // 60: advisors.v1.AdvisorService.DeleteAdvisorCheck:output_type -> advisors.v1.DeleteAdvisorCheckResponse
-	48, // [48:61] is the sub-list for method output_type
-	35, // [35:48] is the sub-list for method input_type
-	35, // [35:35] is the sub-list for extension type_name
-	35, // [35:35] is the sub-list for extension extendee
-	0,  // [0:35] is the sub-list for field type_name
+	3,  // 35: advisors.v1.AdvisorRun.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
+	46, // 36: advisors.v1.AdvisorRun.started_at:type_name -> google.protobuf.Timestamp
+	46, // 37: advisors.v1.AdvisorRun.finished_at:type_name -> google.protobuf.Timestamp
+	39, // 38: advisors.v1.AdvisorRun.severity_counts:type_name -> advisors.v1.SeverityCount
+	45, // 39: advisors.v1.SeverityCount.severity:type_name -> management.v1.Severity
+	3,  // 40: advisors.v1.ListRunsRequest.triggered_by:type_name -> advisors.v1.AdvisorCheckTriggeredBy
+	46, // 41: advisors.v1.ListRunsRequest.from:type_name -> google.protobuf.Timestamp
+	46, // 42: advisors.v1.ListRunsRequest.to:type_name -> google.protobuf.Timestamp
+	38, // 43: advisors.v1.ListRunsResponse.results:type_name -> advisors.v1.AdvisorRun
+	40, // 44: advisors.v1.AdvisorService.ListRuns:input_type -> advisors.v1.ListRunsRequest
+	31, // 45: advisors.v1.AdvisorService.ListInsights:input_type -> advisors.v1.ListInsightsRequest
+	33, // 46: advisors.v1.AdvisorService.ListInsightsFilterValues:input_type -> advisors.v1.ListInsightsFilterValuesRequest
+	36, // 47: advisors.v1.AdvisorService.MarkInsightsRead:input_type -> advisors.v1.MarkInsightsReadRequest
+	8,  // 48: advisors.v1.AdvisorService.StartAdvisorChecks:input_type -> advisors.v1.StartAdvisorChecksRequest
+	10, // 49: advisors.v1.AdvisorService.ListAdvisorChecks:input_type -> advisors.v1.ListAdvisorChecksRequest
+	26, // 50: advisors.v1.AdvisorService.ListAdvisors:input_type -> advisors.v1.ListAdvisorsRequest
+	28, // 51: advisors.v1.AdvisorService.ChangeAdvisorChecks:input_type -> advisors.v1.ChangeAdvisorChecksRequest
+	12, // 52: advisors.v1.AdvisorService.GetAdvisorCheck:input_type -> advisors.v1.GetAdvisorCheckRequest
+	14, // 53: advisors.v1.AdvisorService.CreateAdvisorCheck:input_type -> advisors.v1.CreateAdvisorCheckRequest
+	16, // 54: advisors.v1.AdvisorService.UpdateAdvisorCheck:input_type -> advisors.v1.UpdateAdvisorCheckRequest
+	20, // 55: advisors.v1.AdvisorService.TestAdvisorCheck:input_type -> advisors.v1.TestAdvisorCheckRequest
+	23, // 56: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:input_type -> advisors.v1.ListAdvisorCheckTestTargetsRequest
+	18, // 57: advisors.v1.AdvisorService.DeleteAdvisorCheck:input_type -> advisors.v1.DeleteAdvisorCheckRequest
+	41, // 58: advisors.v1.AdvisorService.ListRuns:output_type -> advisors.v1.ListRunsResponse
+	32, // 59: advisors.v1.AdvisorService.ListInsights:output_type -> advisors.v1.ListInsightsResponse
+	34, // 60: advisors.v1.AdvisorService.ListInsightsFilterValues:output_type -> advisors.v1.ListInsightsFilterValuesResponse
+	37, // 61: advisors.v1.AdvisorService.MarkInsightsRead:output_type -> advisors.v1.MarkInsightsReadResponse
+	9,  // 62: advisors.v1.AdvisorService.StartAdvisorChecks:output_type -> advisors.v1.StartAdvisorChecksResponse
+	11, // 63: advisors.v1.AdvisorService.ListAdvisorChecks:output_type -> advisors.v1.ListAdvisorChecksResponse
+	27, // 64: advisors.v1.AdvisorService.ListAdvisors:output_type -> advisors.v1.ListAdvisorsResponse
+	29, // 65: advisors.v1.AdvisorService.ChangeAdvisorChecks:output_type -> advisors.v1.ChangeAdvisorChecksResponse
+	13, // 66: advisors.v1.AdvisorService.GetAdvisorCheck:output_type -> advisors.v1.GetAdvisorCheckResponse
+	15, // 67: advisors.v1.AdvisorService.CreateAdvisorCheck:output_type -> advisors.v1.CreateAdvisorCheckResponse
+	17, // 68: advisors.v1.AdvisorService.UpdateAdvisorCheck:output_type -> advisors.v1.UpdateAdvisorCheckResponse
+	22, // 69: advisors.v1.AdvisorService.TestAdvisorCheck:output_type -> advisors.v1.TestAdvisorCheckResponse
+	25, // 70: advisors.v1.AdvisorService.ListAdvisorCheckTestTargets:output_type -> advisors.v1.ListAdvisorCheckTestTargetsResponse
+	19, // 71: advisors.v1.AdvisorService.DeleteAdvisorCheck:output_type -> advisors.v1.DeleteAdvisorCheckResponse
+	58, // [58:72] is the sub-list for method output_type
+	44, // [44:58] is the sub-list for method input_type
+	44, // [44:44] is the sub-list for extension type_name
+	44, // [44:44] is the sub-list for extension extendee
+	0,  // [0:44] is the sub-list for field type_name
 }
 
 func init() { file_advisors_v1_advisors_proto_init() }
@@ -2838,13 +3224,14 @@ func file_advisors_v1_advisors_proto_init() {
 	file_advisors_v1_advisors_proto_msgTypes[3].OneofWrappers = []any{}
 	file_advisors_v1_advisors_proto_msgTypes[27].OneofWrappers = []any{}
 	file_advisors_v1_advisors_proto_msgTypes[31].OneofWrappers = []any{}
+	file_advisors_v1_advisors_proto_msgTypes[36].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_advisors_v1_advisors_proto_rawDesc), len(file_advisors_v1_advisors_proto_rawDesc)),
 			NumEnums:      4,
-			NumMessages:   37,
+			NumMessages:   41,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

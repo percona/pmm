@@ -75,7 +75,7 @@ type Insight struct {
 	Labels         []byte            `reform:"labels"`
 	CheckedAt      time.Time         `reform:"checked_at"`
 	IsRead         bool              `reform:"is_read"`
-	BatchID        string            `reform:"batch_id"`
+	RunID          string            `reform:"run_id"`
 	TriggeredBy    CheckTriggeredBy  `reform:"triggered_by"`
 }
 

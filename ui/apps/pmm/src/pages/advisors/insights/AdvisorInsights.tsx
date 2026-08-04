@@ -133,7 +133,7 @@ const AdvisorInsights: FC = () => {
 
   // the URL query string is the single source of truth for filters +
   // pagination, so a shared link reproduces the exact same view
-  const batchId = searchParams.get('batchId') || undefined;
+  const runId = searchParams.get('runId') || undefined;
   const filters: InsightFilters = {
     serviceName: searchParams.get(FILTER_PARAM.serviceName) || '',
     nodeName: searchParams.get(FILTER_PARAM.nodeName) || '',
@@ -148,12 +148,12 @@ const AdvisorInsights: FC = () => {
     pageSize: Number(searchParams.get('pageSize')) || DEFAULT_PAGE_SIZE,
   };
 
-  // local mirror of the batch-id URL param, committed on blur/Enter so typing
+  // local mirror of the run-id URL param, committed on blur/Enter so typing
   // does not refetch (and spam history) on every keystroke
-  const [batchIdInput, setBatchIdInput] = useState(batchId ?? '');
+  const [runIdInput, setRunIdInput] = useState(runId ?? '');
   useEffect(() => {
-    setBatchIdInput(batchId ?? '');
-  }, [batchId]);
+    setRunIdInput(runId ?? '');
+  }, [runId]);
 
   // apply query-string changes; filter changes reset back to the first page
   const patchParams = (
@@ -177,10 +177,10 @@ const AdvisorInsights: FC = () => {
       }
     });
 
-  const hasActiveFilters = Object.values(filters).some(Boolean) || !!batchId;
+  const hasActiveFilters = Object.values(filters).some(Boolean) || !!runId;
 
   const handleClearFilters = () => {
-    // keep the chosen page size; drop every filter, the batch and the page
+    // keep the chosen page size; drop every filter, the run and the page
     const next = new URLSearchParams();
     const pageSize = searchParams.get('pageSize');
     if (pageSize) {
@@ -191,7 +191,7 @@ const AdvisorInsights: FC = () => {
 
   // filter portion of the query, shared with the bulk mark-as-read action
   const filterParams: InsightsFilters = {
-    batchId,
+    runId,
     serviceName: filters.serviceName || undefined,
     nodeName: filters.nodeName || undefined,
     category: filters.category || undefined,
@@ -245,12 +245,12 @@ const AdvisorInsights: FC = () => {
       .get(insight.checkName)
       ?.disabledServiceIds?.includes(insight.serviceId);
 
-  const applyBatchIdFilter = (newBatchId: string) =>
+  const applyRunIdFilter = (newRunId: string) =>
     patchParams((p) => {
-      if (newBatchId) {
-        p.set('batchId', newBatchId);
+      if (newRunId) {
+        p.set('runId', newRunId);
       } else {
-        p.delete('batchId');
+        p.delete('runId');
       }
     });
 
@@ -268,10 +268,10 @@ const AdvisorInsights: FC = () => {
     );
   };
 
-  const commitBatchIdInput = () => {
-    const trimmed = batchIdInput.trim();
-    if (trimmed !== (batchId ?? '')) {
-      applyBatchIdFilter(trimmed);
+  const commitRunIdInput = () => {
+    const trimmed = runIdInput.trim();
+    if (trimmed !== (runId ?? '')) {
+      applyRunIdFilter(trimmed);
     }
   };
 
@@ -283,8 +283,8 @@ const AdvisorInsights: FC = () => {
     startChecks(
       { names: [insight.checkName], serviceIds: [insight.serviceId] },
       {
-        onSuccess: (newBatchId) => {
-          void navigator.clipboard.writeText(newBatchId);
+        onSuccess: (newRunId) => {
+          void navigator.clipboard.writeText(newRunId);
           enqueueSnackbar(
             Messages.success.rerunStarted(checkSummary, insight.serviceName),
             {
@@ -295,7 +295,7 @@ const AdvisorInsights: FC = () => {
                   size="small"
                   onClick={() => {
                     closeSnackbar(key);
-                    applyBatchIdFilter(newBatchId);
+                    applyRunIdFilter(newRunId);
                   }}
                   data-testid="view-run-results"
                 >
@@ -484,18 +484,18 @@ const AdvisorInsights: FC = () => {
           <TextField
             size="small"
             // deterministic id: React's useId default breaks jsdom selector matching
-            id="batchId-filter-input"
-            label={Messages.filters.batchId}
-            value={batchIdInput}
-            onChange={(e) => setBatchIdInput(e.target.value)}
-            onBlur={commitBatchIdInput}
+            id="runId-filter-input"
+            label={Messages.filters.runId}
+            value={runIdInput}
+            onChange={(e) => setRunIdInput(e.target.value)}
+            onBlur={commitRunIdInput}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
-                commitBatchIdInput();
+                commitRunIdInput();
               }
             }}
             sx={{ minWidth: 260 }}
-            data-testid="batch-id-filter"
+            data-testid="run-id-filter"
           />
           {/* tight icon cluster so the toolbar stays on a single row */}
           <Stack direction="row" gap={0.5} sx={{ alignSelf: 'center' }}>
@@ -730,20 +730,20 @@ const AdvisorInsights: FC = () => {
             <ListItemText>{Messages.actions.rerunNow}</ListItemText>
           </MenuItem>
           <MenuItem
-            // rows recorded before batch grouping have no batch ID
-            disabled={!actionMenu?.insight.batchId}
+            // rows recorded before run grouping have no run ID
+            disabled={!actionMenu?.insight.runId}
             onClick={() => {
               if (actionMenu) {
-                applyBatchIdFilter(actionMenu.insight.batchId);
+                applyRunIdFilter(actionMenu.insight.runId);
               }
               setActionMenu(null);
             }}
-            data-testid="action-filter-by-batch-id"
+            data-testid="action-filter-by-run-id"
           >
             <ListItemIcon>
               <FilterAltOutlinedIcon fontSize="small" />
             </ListItemIcon>
-            <ListItemText>{Messages.actions.filterByBatchId}</ListItemText>
+            <ListItemText>{Messages.actions.filterByRunId}</ListItemText>
           </MenuItem>
           <MenuItem
             onClick={() => {

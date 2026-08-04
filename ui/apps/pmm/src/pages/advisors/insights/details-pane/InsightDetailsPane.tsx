@@ -186,13 +186,13 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
               </Typography>
             </Field>
 
-            <Field label={m.batchId}>
+            <Field label={m.runId}>
               <Stack direction="row" alignItems="center" gap={0.5}>
                 <Typography variant="body1" noWrap>
-                  {insight.batchId || EM_DASH}
+                  {insight.runId || EM_DASH}
                 </Typography>
-                {insight.batchId && (
-                  <CopyToClipboardButton textToCopy={insight.batchId} />
+                {insight.runId && (
+                  <CopyToClipboardButton textToCopy={insight.runId} />
                 )}
               </Stack>
             </Field>
@@ -295,10 +295,9 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
               </Stack>
             </Field>
             <Field label={m.region}>
-              <Typography variant="body1">{EM_DASH}</Typography>
-            </Field>
-            <Field label={m.az}>
-              <Typography variant="body1">{EM_DASH}</Typography>
+              <Typography variant="body1">
+                {insight.region || EM_DASH}
+              </Typography>
             </Field>
           </Box>
 

@@ -2096,8 +2096,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "batch_id": {
-                  "description": "ID assigned to this batch; all check results produced by it share this batch_id.",
+                "run_id": {
+                  "description": "ID assigned to this run; all check results produced by it share this run_id.",
                   "type": "string",
                   "x-order": 0
                 }
@@ -2574,8 +2574,8 @@
           },
           {
             "type": "string",
-            "description": "Filter by batch ID.",
-            "name": "batch_id",
+            "description": "Filter by run ID.",
+            "name": "run_id",
             "in": "query"
           },
           {
@@ -2621,8 +2621,8 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "batch_id": {
-                        "description": "ID of the batch this result belongs to; all results produced by one execution share it.",
+                      "run_id": {
+                        "description": "ID of the run this result belongs to; all results produced by one execution share it.",
                         "type": "string",
                         "x-order": 1
                       },
@@ -2771,6 +2771,16 @@
                           "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
                         ],
                         "x-order": 23
+                      },
+                      "region": {
+                        "description": "Cloud region of the node the service runs on, empty when not applicable.",
+                        "type": "string",
+                        "x-order": 24
+                      },
+                      "az": {
+                        "description": "Cloud availability zone of the node the service runs on, empty when not applicable.",
+                        "type": "string",
+                        "x-order": 25
                       }
                     }
                   },
@@ -2970,8 +2980,8 @@
                       "x-nullable": true,
                       "x-order": 6
                     },
-                    "batch_id": {
-                      "description": "Filter by batch ID.",
+                    "run_id": {
+                      "description": "Filter by run ID.",
                       "type": "string",
                       "x-order": 7
                     }
@@ -2987,6 +2997,207 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/advisors/runs": {
+      "get": {
+        "description": "Returns the chronological history of Advisor check executions with their totals.",
+        "tags": [
+          "AdvisorService"
+        ],
+        "summary": "List Advisor Runs",
+        "operationId": "ListRuns",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum number of results per page.",
+            "name": "page_size",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "Index of the requested page, starts from 0.",
+            "name": "page_index",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+              "ADVISOR_CHECK_TRIGGERED_BY_USER",
+              "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+            ],
+            "type": "string",
+            "default": "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+            "description": "Filter by the actor that initiated the run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
+            "name": "triggered_by",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Return only runs started at or after this time.",
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Return only runs started at or before this time.",
+            "name": "to",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "total_items": {
+                  "description": "Total number of results.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "total_pages": {
+                  "description": "Total number of pages.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 1
+                },
+                "results": {
+                  "description": "Runs, most recently started first.",
+                  "type": "array",
+                  "items": {
+                    "description": "AdvisorRun is a single execution of Advisor checks. Its totals are recorded on\ncompletion, so they stay accurate after the run's insights have been pruned.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "ID shared by every insight the run produced.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "triggered_by": {
+                        "description": "AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
+                        "type": "string",
+                        "default": "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                        "enum": [
+                          "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+                          "ADVISOR_CHECK_TRIGGERED_BY_USER",
+                          "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+                        ],
+                        "x-order": 1
+                      },
+                      "started_at": {
+                        "description": "When the run began.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 2
+                      },
+                      "finished_at": {
+                        "description": "When the run completed; unset while it is still running.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 3
+                      },
+                      "checks_count": {
+                        "description": "Number of distinct checks the run executed.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 4
+                      },
+                      "services_count": {
+                        "description": "Number of distinct services the run covered.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 5
+                      },
+                      "findings_count": {
+                        "description": "Number of findings, i.e. checks that detected an issue.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 6
+                      },
+                      "errors_count": {
+                        "description": "Number of checks that could not be executed at all.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 7
+                      },
+                      "severity_counts": {
+                        "description": "Number of findings per severity, most severe first. A repeated field rather\nthan a map so severity stays a typed enum instead of a free-form key.",
+                        "type": "array",
+                        "items": {
+                          "description": "SeverityCount is the number of findings a run produced at a single severity.",
+                          "type": "object",
+                          "properties": {
+                            "severity": {
+                              "description": "Severity represents severity level of the check result or alert.",
+                              "type": "string",
+                              "default": "SEVERITY_UNSPECIFIED",
+                              "enum": [
+                                "SEVERITY_UNSPECIFIED",
+                                "SEVERITY_EMERGENCY",
+                                "SEVERITY_ALERT",
+                                "SEVERITY_CRITICAL",
+                                "SEVERITY_ERROR",
+                                "SEVERITY_WARNING",
+                                "SEVERITY_NOTICE",
+                                "SEVERITY_INFO",
+                                "SEVERITY_DEBUG"
+                              ],
+                              "x-order": 0
+                            },
+                            "count": {
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 1
+                            }
+                          }
+                        },
+                        "x-order": 8
+                      }
+                    }
+                  },
+                  "x-order": 2
+                }
+              }
             }
           },
           "default": {

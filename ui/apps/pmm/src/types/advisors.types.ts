@@ -145,7 +145,7 @@ export enum AdvisorCheckTriggeredBy {
 }
 
 export interface StartAdvisorChecksResponse {
-  batchId: string;
+  runId: string;
 }
 
 export interface Insight {
@@ -167,12 +167,42 @@ export interface Insight {
   labels: Record<string, string>;
   checkedAt: string;
   isRead: boolean;
-  batchId: string;
+  runId: string;
   triggeredBy: AdvisorCheckTriggeredBy;
   outcome: string;
   environment: string;
   cluster: string;
   replicationSet: string;
+  region: string;
+  az: string;
+}
+
+export interface SeverityCount {
+  severity: Severity;
+  count: number;
+}
+
+// A single execution of Advisor checks. Totals are recorded when the run
+// completes, so they stay accurate after its insights have been pruned.
+export interface AdvisorRun {
+  id: string;
+  triggeredBy: AdvisorCheckTriggeredBy;
+  startedAt: string;
+  // unset while the run is still going
+  finishedAt?: string | null;
+  checksCount: number;
+  servicesCount: number;
+  findingsCount: number;
+  errorsCount: number;
+  severityCounts: SeverityCount[];
+}
+
+export interface ListRunsParams {
+  pageSize?: number;
+  pageIndex?: number;
+  triggeredBy?: AdvisorCheckTriggeredBy;
+  from?: string;
+  to?: string;
 }
 
 export interface ListInsightsParams {
@@ -186,7 +216,7 @@ export interface ListInsightsParams {
   status?: AdvisorCheckResultStatus;
   severity?: Severity;
   isRead?: boolean;
-  batchId?: string;
+  runId?: string;
   triggeredBy?: AdvisorCheckTriggeredBy;
   from?: string;
   to?: string;
@@ -200,7 +230,7 @@ export interface InsightsFilters {
   severity?: Severity;
   status?: AdvisorCheckResultStatus;
   isRead?: boolean;
-  batchId?: string;
+  runId?: string;
 }
 
 export interface MarkInsightsReadRequest {

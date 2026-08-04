@@ -15,6 +15,7 @@ import {
   listAdvisors,
   listInsightsFilterValues,
   listInsights,
+  listRuns,
   markInsightsRead,
   startAdvisorChecks,
   testAdvisorCheck,
@@ -23,6 +24,7 @@ import {
 import {
   Advisor,
   AdvisorCheck,
+  AdvisorRun,
   AdvisorCheckInput,
   AdvisorCheckTestTarget,
   AdvisorTechnology,
@@ -30,6 +32,7 @@ import {
   Insight,
   ListInsightsFilterValuesResponse,
   ListInsightsParams,
+  ListRunsParams,
   MarkInsightsReadRequest,
   StartAdvisorChecksRequest,
   TestAdvisorCheckRequest,
@@ -48,6 +51,7 @@ const KEYS = {
   DELETE_CHECK: 'advisors:delete-check',
   TEST_CHECK: 'advisors:test-check',
   INSIGHTS: 'advisors:insights',
+  RUNS: 'advisors:runs',
   INSIGHTS_FILTER_VALUES: 'advisors:insights-filter-values',
   MARK_READ: 'advisors:mark-read',
 };
@@ -100,6 +104,18 @@ export const useInsights = (
   useQuery({
     queryKey: [KEYS.INSIGHTS, params],
     queryFn: () => listInsights(params),
+    // keep showing the current page while the next one loads
+    placeholderData: keepPreviousData,
+    ...options,
+  });
+
+export const useRuns = (
+  params: ListRunsParams,
+  options?: Partial<UseQueryOptions<PaginatedResponse<AdvisorRun>>>
+) =>
+  useQuery({
+    queryKey: [KEYS.RUNS, params],
+    queryFn: () => listRuns(params),
     // keep showing the current page while the next one loads
     placeholderData: keepPreviousData,
     ...options,

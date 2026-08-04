@@ -58,12 +58,6 @@ ListInsightsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListInsightsParams struct {
-	/* BatchID.
-
-	   Filter by batch ID.
-	*/
-	BatchID *string
-
 	/* Category.
 
 	   Filter by advisor category.
@@ -111,6 +105,12 @@ type ListInsightsParams struct {
 	   Format: int32
 	*/
 	PageSize *int32
+
+	/* RunID.
+
+	   Filter by run ID.
+	*/
+	RunID *string
 
 	/* ServiceID.
 
@@ -233,17 +233,6 @@ func (o *ListInsightsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBatchID adds the batchID to the list insights params
-func (o *ListInsightsParams) WithBatchID(batchID *string) *ListInsightsParams {
-	o.SetBatchID(batchID)
-	return o
-}
-
-// SetBatchID adds the batchId to the list insights params
-func (o *ListInsightsParams) SetBatchID(batchID *string) {
-	o.BatchID = batchID
-}
-
 // WithCategory adds the category to the list insights params
 func (o *ListInsightsParams) WithCategory(category *string) *ListInsightsParams {
 	o.SetCategory(category)
@@ -321,6 +310,17 @@ func (o *ListInsightsParams) SetPageSize(pageSize *int32) {
 	o.PageSize = pageSize
 }
 
+// WithRunID adds the runID to the list insights params
+func (o *ListInsightsParams) WithRunID(runID *string) *ListInsightsParams {
+	o.SetRunID(runID)
+	return o
+}
+
+// SetRunID adds the runId to the list insights params
+func (o *ListInsightsParams) SetRunID(runID *string) {
+	o.RunID = runID
+}
+
 // WithServiceID adds the serviceID to the list insights params
 func (o *ListInsightsParams) WithServiceID(serviceID *string) *ListInsightsParams {
 	o.SetServiceID(serviceID)
@@ -393,22 +393,6 @@ func (o *ListInsightsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		return err
 	}
 	var res []error
-
-	if o.BatchID != nil {
-
-		// query param batch_id
-		var qrBatchID string
-
-		if o.BatchID != nil {
-			qrBatchID = *o.BatchID
-		}
-		qBatchID := qrBatchID
-		if qBatchID != "" {
-			if err := r.SetQueryParam("batch_id", qBatchID); err != nil {
-				return err
-			}
-		}
-	}
 
 	if o.Category != nil {
 
@@ -517,6 +501,22 @@ func (o *ListInsightsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 		qPageSize := swag.FormatInt32(qrPageSize)
 		if qPageSize != "" {
 			if err := r.SetQueryParam("page_size", qPageSize); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.RunID != nil {
+
+		// query param run_id
+		var qrRunID string
+
+		if o.RunID != nil {
+			qrRunID = *o.RunID
+		}
+		qRunID := qrRunID
+		if qRunID != "" {
+			if err := r.SetQueryParam("run_id", qRunID); err != nil {
 				return err
 			}
 		}

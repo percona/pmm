@@ -307,8 +307,8 @@ const AdvisorsList: FC = () => {
       startChecks(
         { names },
         {
-          onSuccess: (batchId) => {
-            void navigator.clipboard.writeText(batchId);
+          onSuccess: (runId) => {
+            void navigator.clipboard.writeText(runId);
             enqueueSnackbar(message, {
               variant: 'success',
               action: (key) => (
@@ -317,7 +317,7 @@ const AdvisorsList: FC = () => {
                   size="small"
                   onClick={() => {
                     closeSnackbar(key);
-                    navigate(`/advisors/insights?batchId=${batchId}`);
+                    navigate(`/advisors/insights?runId=${runId}`);
                   }}
                   data-testid="view-run-results"
                 >

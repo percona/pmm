@@ -70,7 +70,7 @@ func (s *ChecksAPIService) ListInsights(
 		NodeName:    req.NodeName,
 		Category:    req.Category,
 		CheckName:   req.CheckName,
-		BatchID:     req.BatchId,
+		RunID:       req.RunId,
 		IsRead:      req.IsRead,
 	}
 	if req.Status != nil {
@@ -111,7 +111,7 @@ func (s *ChecksAPIService) ListInsights(
 		items = append(items, &advisorsv1.Insight{
 			Id:             r.ID,
 			CheckName:      r.CheckName,
-			BatchId:        r.BatchID,
+			RunId:          r.RunID,
 			Category:       r.Category,
 			Subcategory:    r.Subcategory,
 			Severity:       managementv1.Severity(r.Severity), //nolint:gosec // severity is a bounded enum (0-8), no overflow
@@ -124,6 +124,8 @@ func (s *ChecksAPIService) ListInsights(
 			Environment:    r.Environment,
 			Cluster:        r.Cluster,
 			ReplicationSet: r.ReplicationSet,
+			Region:         r.Region,
+			Az:             r.AZ,
 			Status:         convertModelResultStatus(r.Status),
 			Summary:        r.Summary,
 			Description:    r.Description,
@@ -145,6 +147,79 @@ func (s *ChecksAPIService) ListInsights(
 	}
 
 	return &advisorsv1.ListInsightsResponse{
+		Results:    items,
+		TotalItems: int32(totalItems), //nolint:gosec
+		TotalPages: int32(totalPages),
+	}, nil
+}
+
+// ListRuns returns the paginated history of Advisor check executions.
+func (s *ChecksAPIService) ListRuns(
+	ctx context.Context,
+	req *advisorsv1.ListRunsRequest,
+) (*advisorsv1.ListRunsResponse, error) {
+	var pageIndex, pageSize int
+	if req.PageIndex != nil {
+		pageIndex = int(pointer.GetInt32(req.PageIndex))
+	}
+	if req.PageSize != nil {
+		pageSize = int(pointer.GetInt32(req.PageSize))
+	}
+
+	var filters models.AdvisorRunFilters
+	if req.TriggeredBy != nil {
+		if tb := convertAPITriggeredBy(*req.TriggeredBy); tb != "" {
+			filters.TriggeredBy = &tb
+		}
+	}
+	if req.From != nil {
+		from := req.From.AsTime()
+		filters.From = &from
+	}
+	if req.To != nil {
+		to := req.To.AsTime()
+		filters.To = &to
+	}
+
+	runs, totalItems, err := s.checksService.GetRuns(ctx, filters, pageIndex, pageSize)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get advisor runs: %w", err)
+	}
+
+	items := make([]*advisorsv1.AdvisorRun, 0, len(runs))
+	for _, r := range runs {
+		severityCounts, err := r.GetSeverityCounts()
+		if err != nil {
+			return nil, fmt.Errorf("failed to decode severity counts for advisor run '%s': %w", r.ID, err)
+		}
+
+		item := &advisorsv1.AdvisorRun{
+			Id:             r.ID,
+			TriggeredBy:    convertModelTriggeredBy(r.TriggeredBy),
+			StartedAt:      timestamppb.New(r.StartedAt),
+			ChecksCount:    int32(r.ChecksCount),   //nolint:gosec
+			ServicesCount:  int32(r.ServicesCount), //nolint:gosec
+			FindingsCount:  int32(r.FindingsCount), //nolint:gosec
+			ErrorsCount:    int32(r.ErrorsCount),   //nolint:gosec
+			SeverityCounts: convertSeverityCounts(severityCounts),
+		}
+		// left unset while the run is still going
+		if r.FinishedAt != nil {
+			item.FinishedAt = timestamppb.New(*r.FinishedAt)
+		}
+
+		items = append(items, item)
+	}
+
+	totalPages := 1
+	if pageSize > 0 {
+		totalPages = totalItems / pageSize
+		if totalItems%pageSize > 0 {
+			totalPages++
+		}
+	}
+
+	return &advisorsv1.ListRunsResponse{
 		Results:    items,
 		TotalItems: int32(totalItems), //nolint:gosec
 		TotalPages: int32(totalPages),
@@ -184,7 +259,7 @@ func (s *ChecksAPIService) MarkInsightsRead(
 			NodeName:    req.Filters.NodeName,
 			Category:    req.Filters.Category,
 			CheckName:   req.Filters.CheckName,
-			BatchID:     req.Filters.BatchId,
+			RunID:       req.Filters.RunId,
 			IsRead:      req.Filters.IsRead,
 		}
 		if req.Filters.Status != nil {
@@ -207,10 +282,10 @@ func (s *ChecksAPIService) MarkInsightsRead(
 	return &advisorsv1.MarkInsightsReadResponse{}, nil
 }
 
-// StartAdvisorChecks executes advisor checks and returns the ID assigned to this batch.
+// StartAdvisorChecks executes advisor checks and returns the ID assigned to this run.
 func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1.StartAdvisorChecksRequest) (*advisorsv1.StartAdvisorChecksResponse, error) {
 	// Start only specified checks from any group.
-	batchID, err := s.checksService.StartChecks(req.Names, req.ServiceIds)
+	runID, err := s.checksService.StartChecks(req.Names, req.ServiceIds)
 	if err != nil {
 		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
@@ -219,7 +294,7 @@ func (s *ChecksAPIService) StartAdvisorChecks(_ context.Context, req *advisorsv1
 		return nil, fmt.Errorf("failed to start advisor checks: %w", err)
 	}
 
-	return &advisorsv1.StartAdvisorChecksResponse{BatchId: batchID}, nil
+	return &advisorsv1.StartAdvisorChecksResponse{RunId: runID}, nil
 }
 
 // ListAdvisorChecks returns a list of available advisor checks and their statuses.
@@ -616,6 +691,23 @@ func convertModelTriggeredBy(triggeredBy models.CheckTriggeredBy) advisorsv1.Adv
 	default:
 		return advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED
 	}
+}
+
+// convertSeverityCounts converts a run's per-severity finding counts, ordered
+// most severe first so the API output is stable across calls.
+func convertSeverityCounts(counts map[models.Severity]int) []*advisorsv1.SeverityCount {
+	res := make([]*advisorsv1.SeverityCount, 0, len(counts))
+	for severity, count := range counts {
+		res = append(res, &advisorsv1.SeverityCount{
+			Severity: managementv1.Severity(severity), //nolint:gosec // severity is a bounded enum (0-8), no overflow
+			Count:    int32(count),                    //nolint:gosec
+		})
+	}
+	// lower enum values are more severe, emergency being 1
+	slices.SortFunc(res, func(a, b *advisorsv1.SeverityCount) int {
+		return int(a.Severity) - int(b.Severity)
+	})
+	return res
 }
 
 // convertAPITriggeredBy converts advisorsv1.AdvisorCheckTriggeredBy to models.CheckTriggeredBy.

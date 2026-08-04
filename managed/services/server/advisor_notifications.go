@@ -24,7 +24,7 @@ import (
 
 // validateAdvisorNotificationRecipients rejects a settings change that would leave Advisor
 // notifications enabled with nobody to notify, which would otherwise fail silently once a check
-// batch completed.
+// run completed.
 //
 // It resolves the effective post-change state rather than looking at the request alone, because
 // enablement and recipients are separate fields and either one may already be stored. Callers that

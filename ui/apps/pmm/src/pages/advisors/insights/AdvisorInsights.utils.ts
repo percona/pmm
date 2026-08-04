@@ -24,7 +24,7 @@ export const insightToText = (item: Insight): string => {
 
   const details: Array<[string, string]> = [
     ['ID', item.id],
-    ['Batch ID', item.batchId],
+    ['Run ID', item.runId],
     ['Check Name', item.checkName],
     ['Category', item.category],
     ['Sub category', item.subcategory],

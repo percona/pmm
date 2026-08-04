@@ -20,6 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	AdvisorService_ListRuns_FullMethodName                    = "/advisors.v1.AdvisorService/ListRuns"
 	AdvisorService_ListInsights_FullMethodName                = "/advisors.v1.AdvisorService/ListInsights"
 	AdvisorService_ListInsightsFilterValues_FullMethodName    = "/advisors.v1.AdvisorService/ListInsightsFilterValues"
 	AdvisorService_MarkInsightsRead_FullMethodName            = "/advisors.v1.AdvisorService/MarkInsightsRead"
@@ -41,6 +42,8 @@ const (
 //
 // AdvisorService service provides public Management API methods for Advisor Service.
 type AdvisorServiceClient interface {
+	// ListRuns returns the history of Advisor check executions, most recent first.
+	ListRuns(ctx context.Context, in *ListRunsRequest, opts ...grpc.CallOption) (*ListRunsResponse, error)
 	// ListInsights returns the history of Advisor check results (insights).
 	ListInsights(ctx context.Context, in *ListInsightsRequest, opts ...grpc.CallOption) (*ListInsightsResponse, error)
 	// ListInsightsFilterValues returns the distinct values usable as insights filters.
@@ -75,6 +78,16 @@ type advisorServiceClient struct {
 
 func NewAdvisorServiceClient(cc grpc.ClientConnInterface) AdvisorServiceClient {
 	return &advisorServiceClient{cc}
+}
+
+func (c *advisorServiceClient) ListRuns(ctx context.Context, in *ListRunsRequest, opts ...grpc.CallOption) (*ListRunsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListRunsResponse)
+	err := c.cc.Invoke(ctx, AdvisorService_ListRuns_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *advisorServiceClient) ListInsights(ctx context.Context, in *ListInsightsRequest, opts ...grpc.CallOption) (*ListInsightsResponse, error) {
@@ -213,6 +226,8 @@ func (c *advisorServiceClient) DeleteAdvisorCheck(ctx context.Context, in *Delet
 //
 // AdvisorService service provides public Management API methods for Advisor Service.
 type AdvisorServiceServer interface {
+	// ListRuns returns the history of Advisor check executions, most recent first.
+	ListRuns(context.Context, *ListRunsRequest) (*ListRunsResponse, error)
 	// ListInsights returns the history of Advisor check results (insights).
 	ListInsights(context.Context, *ListInsightsRequest) (*ListInsightsResponse, error)
 	// ListInsightsFilterValues returns the distinct values usable as insights filters.
@@ -248,6 +263,10 @@ type AdvisorServiceServer interface {
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
 type UnimplementedAdvisorServiceServer struct{}
+
+func (UnimplementedAdvisorServiceServer) ListRuns(context.Context, *ListRunsRequest) (*ListRunsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListRuns not implemented")
+}
 
 func (UnimplementedAdvisorServiceServer) ListInsights(context.Context, *ListInsightsRequest) (*ListInsightsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListInsights not implemented")
@@ -319,6 +338,24 @@ func RegisterAdvisorServiceServer(s grpc.ServiceRegistrar, srv AdvisorServiceSer
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&AdvisorService_ServiceDesc, srv)
+}
+
+func _AdvisorService_ListRuns_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRunsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdvisorServiceServer).ListRuns(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdvisorService_ListRuns_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdvisorServiceServer).ListRuns(ctx, req.(*ListRunsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _AdvisorService_ListInsights_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -562,6 +599,10 @@ var AdvisorService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "advisors.v1.AdvisorService",
 	HandlerType: (*AdvisorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ListRuns",
+			Handler:    _AdvisorService_ListRuns_Handler,
+		},
 		{
 			MethodName: "ListInsights",
 			Handler:    _AdvisorService_ListInsights_Handler,

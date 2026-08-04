@@ -3,6 +3,7 @@ import {
   AdvisorCheck,
   AdvisorCheckInput,
   AdvisorCheckTestTarget,
+  AdvisorRun,
   AdvisorTechnology,
   ChangeAdvisorCheckParams,
   ChangeAdvisorChecksRequest,
@@ -14,6 +15,7 @@ import {
   ListAdvisorsResponse,
   ListInsightsFilterValuesResponse,
   ListInsightsParams,
+  ListRunsParams,
   MarkInsightsReadRequest,
   StartAdvisorChecksRequest,
   StartAdvisorChecksResponse,
@@ -73,7 +75,7 @@ export const startAdvisorChecks = async (
     '/advisors/checks:start',
     payload
   );
-  return res.data.batchId;
+  return res.data.runId;
 };
 
 export const testAdvisorCheck = async (
@@ -106,10 +108,59 @@ export const changeAdvisorChecks = async (
   await api.post<EmptyResponse>('/advisors/checks:batchChange', payload);
 };
 
+// Fields whose value is a free-form map keyed by data, not by a schema field
+// name, so its keys must survive verbatim.
+const RAW_KEY_FIELDS = ['labels'];
+
+const camelizeKey = (key: string) =>
+  key.replace(/_([a-z0-9])/g, (_, char: string) => char.toUpperCase());
+
+// axios-case-converter camelizes every response key recursively, which rewrites
+// label names (service_name -> serviceName). Insights bypass that instance-wide
+// transform and are camelized here instead, so labels read exactly as stored.
+export const camelizeInsights = (value: unknown): unknown => {
+  if (Array.isArray(value)) {
+    return value.map(camelizeInsights);
+  }
+  if (value === null || typeof value !== 'object') {
+    return value;
+  }
+  return Object.fromEntries(
+    Object.entries(value).map(([key, val]) => [
+      camelizeKey(key),
+      RAW_KEY_FIELDS.includes(key) ? val : camelizeInsights(val),
+    ])
+  );
+};
+
 export const listInsights = async (
   params: ListInsightsParams
 ): Promise<PaginatedResponse<Insight>> => {
   const res = await api.get<PaginatedResponse<Insight>>('/advisors/insights', {
+    params,
+    // replaces the instance chain, so the JSON parse happens here too; falling
+    // back to the raw body on unparseable input keeps the error interceptor,
+    // which reads `data.message`, working as it does for every other endpoint
+    transformResponse: [
+      (raw: string) => {
+        if (typeof raw !== 'string' || !raw) {
+          return raw;
+        }
+        try {
+          return camelizeInsights(JSON.parse(raw));
+        } catch {
+          return raw;
+        }
+      },
+    ],
+  });
+  return res.data;
+};
+
+export const listRuns = async (
+  params: ListRunsParams
+): Promise<PaginatedResponse<AdvisorRun>> => {
+  const res = await api.get<PaginatedResponse<AdvisorRun>>('/advisors/runs', {
     params,
   });
   return res.data;

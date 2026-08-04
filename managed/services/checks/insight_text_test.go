@@ -35,7 +35,7 @@ func TestInsightToText(t *testing.T) {
 
 		r := &models.Insight{
 			ID:             "insight-1",
-			BatchID:        "batch-1",
+			RunID:          "run-1",
 			CheckName:      "mysql_version",
 			Subcategory:    "version_advisor",
 			Category:       "Performance",
@@ -62,7 +62,7 @@ func TestInsightToText(t *testing.T) {
 
 Check Details:
   ID: insight-1
-  Batch ID: batch-1
+  Run ID: run-1
   Check Name: mysql_version
   Category: Performance
   Sub category: version_advisor
@@ -92,7 +92,7 @@ Check Details:
 
 		r := &models.Insight{
 			ID:          "insight-2",
-			BatchID:     "batch-2",
+			RunID:       "run-2",
 			CheckName:   "pg_check",
 			Summary:     "Issue found",
 			Severity:    models.Severity(common.Error),
@@ -106,7 +106,7 @@ Check Details:
 
 Check Details:
   ID: insight-2
-  Batch ID: batch-2
+  Run ID: run-2
   Check Name: pg_check
   Interval: Standard
   Triggered By: User

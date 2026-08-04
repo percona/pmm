@@ -551,8 +551,8 @@ type MarkInsightsReadParamsBodyFilters struct {
 	// Filter by read state.
 	IsRead *bool `json:"is_read,omitempty"`
 
-	// Filter by batch ID.
-	BatchID string `json:"batch_id,omitempty"`
+	// Filter by run ID.
+	RunID string `json:"run_id,omitempty"`
 }
 
 // Validate validates this mark insights read params body filters

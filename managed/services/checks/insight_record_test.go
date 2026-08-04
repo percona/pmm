@@ -40,9 +40,12 @@ func TestNewCheckResultRecord(t *testing.T) {
 		Environment:    "prod",
 		Cluster:        "cluster-1",
 		ReplicationSet: "rs-1",
+		Region:         "us-east-1",
+		AZ:             "us-east-1f",
+		Labels:         map[string]string{"az": "us-east-1f", "region": "us-east-1", "k": "target-wins"},
 	}
 	checkedAt := models.Now()
-	ri := runInfo{batchID: "batch-1", triggeredBy: models.CheckTriggeredByUser}
+	ri := runInfo{runID: "run-1", triggeredBy: models.CheckTriggeredByUser}
 
 	t.Run("failed finding maps all fields", func(t *testing.T) {
 		t.Parallel()
@@ -73,15 +76,21 @@ func TestNewCheckResultRecord(t *testing.T) {
 		assert.Equal(t, "prod", rec.Environment)
 		assert.Equal(t, "cluster-1", rec.Cluster)
 		assert.Equal(t, "rs-1", rec.ReplicationSet)
+		assert.Equal(t, "us-east-1", rec.Region)
+		assert.Equal(t, "us-east-1f", rec.AZ)
 		assert.Equal(t, "https://example.com", rec.ReadMoreURL)
 		assert.Equal(t, models.Severity(common.Error), rec.Severity)
 		assert.Equal(t, checkedAt, rec.CheckedAt)
-		assert.Equal(t, "batch-1", rec.BatchID)
+		assert.Equal(t, "run-1", rec.RunID)
 		assert.Equal(t, models.CheckTriggeredByUser, rec.TriggeredBy)
 
 		labels, err := rec.GetLabels()
 		require.NoError(t, err)
-		assert.Equal(t, map[string]string{"k": "v"}, labels)
+		assert.Equal(t, map[string]string{
+			"az":     "us-east-1f",
+			"region": "us-east-1",
+			"k":      "target-wins",
+		}, labels)
 	})
 
 	t.Run("ok outcome falls back to check summary and info severity", func(t *testing.T) {
@@ -94,9 +103,10 @@ func TestNewCheckResultRecord(t *testing.T) {
 		assert.Equal(t, "Check passed", rec.Outcome)
 		assert.Equal(t, models.Severity(common.Info), rec.Severity)
 
+		// target labels are carried even when the check reports none of its own
 		labels, err := rec.GetLabels()
 		require.NoError(t, err)
-		assert.Empty(t, labels)
+		assert.Equal(t, target.Labels, labels)
 	})
 
 	t.Run("error outcome falls back to check summary and debug severity", func(t *testing.T) {

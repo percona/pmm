@@ -24,10 +24,10 @@ import (
 	"github.com/percona/pmm/managed/pi/common"
 )
 
-// maybeSendAdvisorNotification emails the completed batch's insights to the configured recipients
+// maybeSendAdvisorNotification emails the completed run's insights to the configured recipients
 // when notifications are enabled. It is best-effort: every failure is logged and swallowed so it
 // never affects the check run.
-func (s *Service) maybeSendAdvisorNotification(ctx context.Context, batchID string, triggeredBy models.CheckTriggeredBy) {
+func (s *Service) maybeSendAdvisorNotification(ctx context.Context, runID string, triggeredBy models.CheckTriggeredBy) {
 	settings, err := models.GetSettings(s.db.Querier)
 	if err != nil {
 		s.l.Warnf("Advisor notification: failed to load settings: %v", err)
@@ -40,14 +40,14 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, batchID stri
 	// ChangeSettings rejects this combination, so it only happens when notifications were enabled
 	// through PMM_ENABLE_ADVISOR_NOTIFICATIONS without recipients ever being configured.
 	if len(an.EmailAddresses) == 0 {
-		s.l.Warnf("Advisor notification: enabled, but no recipients are configured, so batch %s was "+
-			"not emailed. Set the Advisor notification email addresses in the PMM settings.", batchID)
+		s.l.Warnf("Advisor notification: enabled, but no recipients are configured, so run %s was "+
+			"not emailed. Set the Advisor notification email addresses in the PMM settings.", runID)
 		return
 	}
 
-	results, _, err := s.GetInsights(ctx, models.InsightFilters{BatchID: batchID}, 0, 0)
+	results, _, err := s.GetInsights(ctx, models.InsightFilters{RunID: runID}, 0, 0)
 	if err != nil {
-		s.l.Warnf("Advisor notification: failed to load results for batch %s: %v", batchID, err)
+		s.l.Warnf("Advisor notification: failed to load results for run %s: %v", runID, err)
 		return
 	}
 
@@ -79,15 +79,15 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, batchID stri
 		return
 	}
 
-	subject := fmt.Sprintf("PMM Advisor Insights: %d finding(s) for batch %s", len(texts), batchID)
-	body := buildAdvisorEmailReport(batchID, triggeredBy, threshold, sCounts, tCounts, texts)
+	subject := fmt.Sprintf("PMM Advisor Insights: %d finding(s) for run %s", len(texts), runID)
+	body := buildAdvisorEmailReport(runID, triggeredBy, threshold, sCounts, tCounts, texts)
 
 	err = s.sendAdvisorEmail(an.EmailAddresses, subject, body)
 	if err != nil {
-		s.l.Warnf("Advisor notification: failed to email batch %s: %v", batchID, err)
+		s.l.Warnf("Advisor notification: failed to email run %s: %v", runID, err)
 		return
 	}
-	s.l.Infof("Advisor notification: emailed %d insight(s) for batch %s", len(texts), batchID)
+	s.l.Infof("Advisor notification: emailed %d insight(s) for run %s", len(texts), runID)
 }
 
 // advisorTechnologies lists the technologies advisor checks run against, in report order, paired
@@ -106,7 +106,7 @@ var advisorTechnologies = []struct {
 // and per-technology summaries, suggested next steps, and then the insights (formatted like the
 // UI's "Copy to text") one after another.
 func buildAdvisorEmailReport(
-	batchID string,
+	runID string,
 	triggeredBy models.CheckTriggeredBy,
 	threshold common.Severity,
 	sCounts map[common.Severity]int,
@@ -116,9 +116,9 @@ func buildAdvisorEmailReport(
 	var b strings.Builder
 
 	fmt.Fprintf(&b, "Percona Monitoring and Management runs Advisor checks against your monitored "+
-		"databases to surface potential issues. This report covers batch %s, which was %s. It found %d "+
+		"databases to surface potential issues. This report covers run %s, which was %s. It found %d "+
 		"insight(s) at or above the %q severity level that may need your attention.\n\n",
-		batchID, triggerPhrase(triggeredBy), len(insights), capitalize(threshold.String()))
+		runID, triggerPhrase(triggeredBy), len(insights), capitalize(threshold.String()))
 
 	b.WriteString("Findings by severity:\n")
 	// Iterate from the most severe advisor level down to the configured threshold
@@ -149,7 +149,7 @@ func buildAdvisorEmailReport(
 	return b.String()
 }
 
-// triggerPhrase describes, in prose, how the batch run was initiated.
+// triggerPhrase describes, in prose, how the run was initiated.
 func triggerPhrase(triggeredBy models.CheckTriggeredBy) string {
 	switch triggeredBy {
 	case models.CheckTriggeredByScheduler:

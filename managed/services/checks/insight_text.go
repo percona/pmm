@@ -81,7 +81,7 @@ func insightToText(r *models.Insight) (string, error) {
 
 	details := [][2]string{
 		{"ID", r.ID},
-		{"Batch ID", r.BatchID},
+		{"Run ID", r.RunID},
 		{"Check Name", r.CheckName},
 		{"Category", r.Category},
 		{"Sub category", r.Subcategory},

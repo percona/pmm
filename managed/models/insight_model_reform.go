@@ -52,7 +52,7 @@ func (v *insightTableType) Columns() []string {
 		"labels",
 		"checked_at",
 		"is_read",
-		"batch_id",
+		"run_id",
 		"triggered_by",
 	}
 }
@@ -102,7 +102,7 @@ var InsightTable = &insightTableType{
 			{Name: "Labels", Type: "[]uint8", Column: "labels"},
 			{Name: "CheckedAt", Type: "time.Time", Column: "checked_at"},
 			{Name: "IsRead", Type: "bool", Column: "is_read"},
-			{Name: "BatchID", Type: "string", Column: "batch_id"},
+			{Name: "RunID", Type: "string", Column: "run_id"},
 			{Name: "TriggeredBy", Type: "CheckTriggeredBy", Column: "triggered_by"},
 		},
 		PKFieldIndex: 0,
@@ -137,7 +137,7 @@ func (s Insight) String() string {
 	res[21] = "Labels: " + reform.Inspect(s.Labels, true)
 	res[22] = "CheckedAt: " + reform.Inspect(s.CheckedAt, true)
 	res[23] = "IsRead: " + reform.Inspect(s.IsRead, true)
-	res[24] = "BatchID: " + reform.Inspect(s.BatchID, true)
+	res[24] = "RunID: " + reform.Inspect(s.RunID, true)
 	res[25] = "TriggeredBy: " + reform.Inspect(s.TriggeredBy, true)
 	return strings.Join(res, ", ")
 }
@@ -170,7 +170,7 @@ func (s *Insight) Values() []interface{} {
 		s.Labels,
 		s.CheckedAt,
 		s.IsRead,
-		s.BatchID,
+		s.RunID,
 		s.TriggeredBy,
 	}
 }
@@ -203,7 +203,7 @@ func (s *Insight) Pointers() []interface{} {
 		&s.Labels,
 		&s.CheckedAt,
 		&s.IsRead,
-		&s.BatchID,
+		&s.RunID,
 		&s.TriggeredBy,
 	}
 }

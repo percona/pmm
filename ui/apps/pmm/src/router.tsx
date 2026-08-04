@@ -15,6 +15,7 @@ import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AdvisorsList } from 'pages/advisors';
 import { AdvisorInsights } from 'pages/advisors/insights';
+import { AdvisorRuns } from 'pages/advisors/runs';
 import { AlertsPage } from 'pages/alerting/status';
 
 const router = createBrowserRouter(
@@ -87,6 +88,10 @@ const router = createBrowserRouter(
                 {
                   path: 'insights',
                   element: <AdvisorInsights />,
+                },
+                {
+                  path: 'runs',
+                  element: <AdvisorRuns />,
                 },
               ],
             },

@@ -59,6 +59,7 @@ type checksService interface { //nolint:interfacebloat
 	GetChecks() (map[string]check.Check, error)
 	GetAdvisors() ([]check.Advisor, error)
 	GetInsights(ctx context.Context, filters models.InsightFilters, pageIndex, pageSize int) ([]*models.Insight, int, error)
+	GetRuns(ctx context.Context, filters models.AdvisorRunFilters, pageIndex, pageSize int) ([]*models.AdvisorRun, int, error)
 	GetInsightsFilterValues(ctx context.Context) ([]string, []string, error)
 	MarkInsightsRead(ctx context.Context, ids []string, isRead bool) error
 	MarkInsightsReadByFilters(ctx context.Context, filters models.InsightFilters, isRead bool) error

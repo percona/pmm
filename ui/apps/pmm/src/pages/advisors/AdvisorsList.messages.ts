@@ -70,9 +70,9 @@ export const Messages = {
     confirm: 'Delete',
   },
   success: {
-    checksStarted: 'Advisor checks started, batch ID copied to clipboard',
+    checksStarted: 'Advisor checks started, run ID copied to clipboard',
     checkStarted: (summary: string) =>
-      `Check "${summary}" started, batch ID copied to clipboard`,
+      `Check "${summary}" started, run ID copied to clipboard`,
     checkEnabled: (summary: string) => `Check "${summary}" enabled`,
     checkDisabled: (summary: string) => `Check "${summary}" disabled`,
     checkDeleted: (summary: string) => `Check "${summary}" deleted`,

@@ -339,6 +339,43 @@ func (_m *mockChecksService) GetInsightsFilterValues(ctx context.Context) ([]str
 	return r0, r1, r2
 }
 
+// GetRuns provides a mock function with given fields: ctx, filters, pageIndex, pageSize
+func (_m *mockChecksService) GetRuns(ctx context.Context, filters models.AdvisorRunFilters, pageIndex int, pageSize int) ([]*models.AdvisorRun, int, error) {
+	ret := _m.Called(ctx, filters, pageIndex, pageSize)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetRuns")
+	}
+
+	var r0 []*models.AdvisorRun
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, models.AdvisorRunFilters, int, int) ([]*models.AdvisorRun, int, error)); ok {
+		return rf(ctx, filters, pageIndex, pageSize)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, models.AdvisorRunFilters, int, int) []*models.AdvisorRun); ok {
+		r0 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.AdvisorRun)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, models.AdvisorRunFilters, int, int) int); ok {
+		r1 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, models.AdvisorRunFilters, int, int) error); ok {
+		r2 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
 // ListTestTargets provides a mock function with given fields: ctx, technology
 func (_m *mockChecksService) ListTestTargets(ctx context.Context, technology check.Technology) ([]services.Target, error) {
 	ret := _m.Called(ctx, technology)

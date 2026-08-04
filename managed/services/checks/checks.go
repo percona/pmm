@@ -25,6 +25,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net/url"
 	"os"
 	"os/exec"
@@ -37,6 +38,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -179,6 +181,7 @@ func (s *Service) Run(ctx context.Context) {
 		// Keep going with whatever is already stored in the DB.
 		s.l.Errorf("Failed to reconcile built-in checks: %+v.", err)
 	}
+	s.finalizeInterruptedRuns(ctx)
 	s.UpdateAdvisorsList(ctx)
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -262,6 +265,22 @@ func (s *Service) GetInsights(ctx context.Context, filters models.InsightFilters
 	return results, total, nil
 }
 
+// GetRuns returns Advisor check executions matching the filters, plus the total
+// number of matches, ignoring pagination.
+func (s *Service) GetRuns(ctx context.Context, filters models.AdvisorRunFilters, pageIndex, pageSize int) ([]*models.AdvisorRun, int, error) {
+	runs, err := models.FindAdvisorRuns(ctx, s.db.Querier, filters, pageIndex, pageSize)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	total, err := models.CountAdvisorRuns(ctx, s.db.Querier, filters)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return runs, total, nil
+}
+
 // GetInsightsFilterValues returns the distinct service and node names present in the
 // Advisor insights.
 func (s *Service) GetInsightsFilterValues(ctx context.Context) ([]string, []string, error) {
@@ -291,11 +310,11 @@ func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interv
 	}
 
 	s.UpdateAdvisorsList(ctx)
-	ri := runInfo{batchID: uuid.NewString(), triggeredBy: models.CheckTriggeredByScheduler}
+	ri := runInfo{runID: uuid.NewString(), triggeredBy: models.CheckTriggeredByScheduler}
 	return s.run(ctx, intervalGroup, nil, nil, ri)
 }
 
-// StartChecks downloads and executes advisor checks in asynchronous way and returns the batch ID.
+// StartChecks downloads and executes advisor checks in asynchronous way and returns the run ID.
 // If checkNames specified then only matched checks will be executed.
 // If serviceIDs specified then the checks run only against those services.
 func (s *Service) StartChecks(checkNames, serviceIDs []string) (string, error) {
@@ -308,7 +327,7 @@ func (s *Service) StartChecks(checkNames, serviceIDs []string) (string, error) {
 		return "", services.ErrAdvisorsDisabled
 	}
 
-	ri := runInfo{batchID: uuid.NewString(), triggeredBy: models.CheckTriggeredByUser}
+	ri := runInfo{runID: uuid.NewString(), triggeredBy: models.CheckTriggeredByUser}
 
 	// Hand the request off to runChecksLoop, which owns the service lifecycle
 	// context. The loop only runs on the leader node, so a non-blocking send
@@ -319,12 +338,12 @@ func (s *Service) StartChecks(checkNames, serviceIDs []string) (string, error) {
 		s.l.Warn("Advisor checks run is already pending, skipping the request.")
 	}
 
-	return ri.batchID, nil
+	return ri.runID, nil
 }
 
-// runInfo identifies a single Advisor checks execution batch.
+// runInfo identifies a single Advisor checks execution run.
 type runInfo struct {
-	batchID     string
+	runID       string
 	triggeredBy models.CheckTriggeredBy
 }
 
@@ -340,6 +359,11 @@ func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNa
 	if err != nil {
 		return err
 	}
+
+	s.startRun(ctx, ri)
+	// Close the run out however execution ends, so a failure part-way through
+	// does not leave it reported as still running.
+	defer s.finishRun(ctx, ri.runID)
 
 	res, err := s.executeChecks(ctx, intervalGroup, checkNames, serviceIDs, ri)
 	if err != nil {
@@ -363,8 +387,8 @@ func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNa
 
 	s.resultsRegistry.set(res)
 
-	// Best-effort: email the completed batch to the configured Advisor contact point.
-	s.maybeSendAdvisorNotification(ctx, ri.batchID, ri.triggeredBy)
+	// Best-effort: email the completed run to the configured Advisor contact point.
+	s.maybeSendAdvisorNotification(ctx, ri.runID, ri.triggeredBy)
 
 	return nil
 }
@@ -1133,6 +1157,8 @@ func newInsightRecord(
 		Environment:    target.Environment,
 		Cluster:        target.Cluster,
 		ReplicationSet: target.ReplicationSet,
+		Region:         target.Region,
+		AZ:             target.AZ,
 		Status:         status,
 		Summary:        result.Summary,
 		Description:    c.Description,
@@ -1140,7 +1166,7 @@ func newInsightRecord(
 		ReadMoreURL:    result.ReadMoreURL,
 		Severity:       models.Severity(result.Severity),
 		CheckedAt:      checkedAt,
-		BatchID:        ri.batchID,
+		RunID:          ri.runID,
 		TriggeredBy:    ri.triggeredBy,
 	}
 	// OK and error outcomes carry no finding; fall back to the check's own summary
@@ -1157,8 +1183,12 @@ func newInsightRecord(
 	case models.CheckResultFailed:
 		// keep the severity reported by the finding
 	}
-	if len(result.Labels) != 0 {
-		_ = r.SetLabels(result.Labels)
+	// the target's node/service/agent labels take precedence over any the check script reported
+	labels := make(map[string]string, len(result.Labels)+len(target.Labels))
+	maps.Copy(labels, result.Labels)
+	maps.Copy(labels, target.Labels)
+	if len(labels) != 0 {
+		_ = r.SetLabels(labels)
 	}
 	return r
 }
@@ -1178,6 +1208,71 @@ func (s *Service) saveInsights(ctx context.Context, history []*models.Insight) e
 		}
 		return nil
 	})
+}
+
+// startRun records the beginning of a run. Failing to record it must not stop
+// the checks from running, so the error is only logged.
+func (s *Service) startRun(ctx context.Context, ri runInfo) {
+	run := &models.AdvisorRun{
+		ID:          ri.runID,
+		TriggeredBy: ri.triggeredBy,
+		StartedAt:   models.Now(),
+	}
+	err := models.StartAdvisorRun(ctx, s.db.Querier, run)
+	if err != nil {
+		s.l.Warnf("Failed to record the start of Advisor run %s: %+v", ri.runID, err)
+	}
+}
+
+// finishRun stamps a run as complete and stores the totals derived from the
+// insights it recorded.
+func (s *Service) finishRun(ctx context.Context, runID string) {
+	// The run is over either way, so record it even when the service context is
+	// already cancelled by a shutdown.
+	ctx = context.WithoutCancel(ctx)
+
+	err := s.completeRun(ctx, runID, models.Now())
+	if err != nil {
+		s.l.Warnf("Failed to record the completion of Advisor run %s: %+v", runID, err)
+	}
+}
+
+// completeRun derives a run's totals from its insights and marks it finished.
+func (s *Service) completeRun(ctx context.Context, runID string, finishedAt time.Time) error {
+	counts, err := models.ComputeAdvisorRunCounts(ctx, s.db.Querier, runID)
+	if err != nil {
+		return err
+	}
+	return models.FinishAdvisorRun(ctx, s.db.Querier, runID, finishedAt, counts)
+}
+
+// finalizeInterruptedRuns closes out runs left open by a restart. Their insights
+// are already persisted, so the last one recorded stands in for the completion
+// time; a run that produced none is closed at its start.
+func (s *Service) finalizeInterruptedRuns(ctx context.Context) {
+	runs, err := models.FindUnfinishedAdvisorRuns(ctx, s.db.Querier)
+	if err != nil {
+		s.l.Warnf("Failed to look for interrupted Advisor runs: %+v", err)
+		return
+	}
+
+	for _, run := range runs {
+		finishedAt, ok, err := models.LastInsightTimeForRun(ctx, s.db.Querier, run.ID)
+		if err != nil {
+			s.l.Warnf("Failed to read the last insight of interrupted Advisor run %s: %+v", run.ID, err)
+			continue
+		}
+		if !ok {
+			finishedAt = run.StartedAt
+		}
+
+		err = s.completeRun(ctx, run.ID, finishedAt)
+		if err != nil {
+			s.l.Warnf("Failed to close out interrupted Advisor run %s: %+v", run.ID, err)
+			continue
+		}
+		s.l.Infof("Closed out Advisor run %s, which was interrupted by a restart.", run.ID)
+	}
 }
 
 // executeCheck runs a single check against a single target. When scriptOutput is
@@ -1980,6 +2075,8 @@ func (s *Service) findTargets(ctx context.Context, serviceType models.ServiceTyp
 				Environment:    service.Environment,
 				Cluster:        service.Cluster,
 				ReplicationSet: service.ReplicationSet,
+				Region:         pointer.GetString(node.Region),
+				AZ:             node.AZ,
 				Labels:         labels,
 				DSN:            DSN,
 				Files:          agent.Files(),

@@ -369,7 +369,7 @@ func validateAdvisorSeverityThreshold(s common.Severity) error {
 }
 
 // maxAdvisorNotificationEmailAddresses caps the recipient list so a single settings change cannot
-// turn every batch completion into a mass mailing.
+// turn every run completion into a mass mailing.
 const maxAdvisorNotificationEmailAddresses = 20
 
 // validateAdvisorNotificationEmailAddresses accepts a nil or empty list ("do not change" and

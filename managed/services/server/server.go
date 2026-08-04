@@ -563,7 +563,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			settingsParams.AdvisorNotificationEmailAddresses = req.AdvisorNotificationEmailAddresses.Values
 		}
 
-		// Notifications with nobody to notify would fail silently at batch-completion time, so
+		// Notifications with nobody to notify would fail silently at run-completion time, so
 		// reject the combination here rather than at delivery. The effective state is checked, not
 		// just this request's fields, because either half may already be stored.
 		err = validateAdvisorNotificationRecipients(oldSettings, settingsParams)

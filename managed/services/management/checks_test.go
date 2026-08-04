@@ -192,6 +192,117 @@ func TestListAdvisorCheckTestTargets(t *testing.T) {
 	}, resp)
 }
 
+func TestListRuns(t *testing.T) {
+	t.Parallel()
+
+	t.Run("converts runs and pagination totals", func(t *testing.T) {
+		t.Parallel()
+
+		startedAt := time.Date(2026, time.August, 4, 19, 57, 28, 0, time.UTC)
+		finishedAt := startedAt.Add(2*time.Minute + 7*time.Second)
+		finished := &models.AdvisorRun{
+			ID:            "run-1",
+			TriggeredBy:   models.CheckTriggeredByUser,
+			StartedAt:     startedAt,
+			FinishedAt:    &finishedAt,
+			ChecksCount:   107,
+			ServicesCount: 3,
+			FindingsCount: 28,
+			ErrorsCount:   1,
+		}
+		require.NoError(t, finished.SetSeverityCounts(map[models.Severity]int{
+			models.Severity(common.Error):   4,
+			models.Severity(common.Warning): 22,
+		}))
+		// a run still in flight has no completion and no totals yet
+		running := &models.AdvisorRun{
+			ID:          "run-2",
+			TriggeredBy: models.CheckTriggeredByScheduler,
+			StartedAt:   startedAt.Add(5 * time.Minute),
+		}
+
+		var checksService mockChecksService
+		checksService.On("GetRuns", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return([]*models.AdvisorRun{finished, running}, 3, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.ListRuns(t.Context(), &advisorsv1.ListRunsRequest{
+			PageSize:  new(int32(2)),
+			PageIndex: new(int32(0)),
+		})
+		require.NoError(t, err)
+
+		expected := &advisorsv1.ListRunsResponse{
+			Results: []*advisorsv1.AdvisorRun{
+				{
+					Id:            "run-1",
+					TriggeredBy:   advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_USER,
+					StartedAt:     timestamppb.New(startedAt),
+					FinishedAt:    timestamppb.New(finishedAt),
+					ChecksCount:   107,
+					ServicesCount: 3,
+					FindingsCount: 28,
+					ErrorsCount:   1,
+					SeverityCounts: []*advisorsv1.SeverityCount{
+						{Severity: managementv1.Severity_SEVERITY_ERROR, Count: 4},
+						{Severity: managementv1.Severity_SEVERITY_WARNING, Count: 22},
+					},
+				},
+				{
+					Id:             "run-2",
+					TriggeredBy:    advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER,
+					StartedAt:      timestamppb.New(startedAt.Add(5 * time.Minute)),
+					SeverityCounts: []*advisorsv1.SeverityCount{},
+				},
+			},
+			TotalItems: 3,
+			TotalPages: 2,
+		}
+		assert.Equal(t, expected, resp)
+		checksService.AssertExpectations(t)
+	})
+
+	t.Run("converts filters", func(t *testing.T) {
+		t.Parallel()
+
+		from := time.Date(2026, time.August, 1, 0, 0, 0, 0, time.UTC)
+		to := time.Date(2026, time.August, 5, 0, 0, 0, 0, time.UTC)
+		triggeredBy := models.CheckTriggeredByScheduler
+
+		var checksService mockChecksService
+		checksService.On("GetRuns", mock.Anything, models.AdvisorRunFilters{
+			TriggeredBy: &triggeredBy,
+			From:        &from,
+			To:          &to,
+		}, 0, 25).Return([]*models.AdvisorRun{}, 0, nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		_, err := s.ListRuns(t.Context(), &advisorsv1.ListRunsRequest{
+			PageSize:    new(int32(25)),
+			TriggeredBy: new(advisorsv1.AdvisorCheckTriggeredBy_ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER),
+			From:        timestamppb.New(from),
+			To:          timestamppb.New(to),
+		})
+		require.NoError(t, err)
+		checksService.AssertExpectations(t)
+	})
+
+	t.Run("internal error", func(t *testing.T) {
+		t.Parallel()
+
+		var checksService mockChecksService
+		checksService.On("GetRuns", mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+			Return(nil, 0, errors.New("boom"))
+
+		s := NewChecksAPIService(&checksService)
+
+		_, err := s.ListRuns(t.Context(), &advisorsv1.ListRunsRequest{})
+		require.Error(t, err)
+	})
+}
+
 func TestListInsightsFilterValues(t *testing.T) {
 	t.Parallel()
 
@@ -265,6 +376,8 @@ func TestListInsights(t *testing.T) {
 			ReadMoreURL: "https://www.example.com",
 			Severity:    models.Severity(common.Critical),
 			CheckedAt:   checkedAt,
+			Region:      "us-east-1",
+			AZ:          "us-east-1f",
 		}
 		require.NoError(t, record.SetLabels(map[string]string{"label_key": "label_value"}))
 
@@ -301,6 +414,8 @@ func TestListInsights(t *testing.T) {
 					Severity:    managementv1.Severity_SEVERITY_CRITICAL,
 					Labels:      map[string]string{"label_key": "label_value"},
 					CheckedAt:   timestamppb.New(checkedAt),
+					Region:      "us-east-1",
+					Az:          "us-east-1f",
 				},
 			},
 			TotalItems: 3,
@@ -358,7 +473,7 @@ func TestMarkInsightsRead(t *testing.T) {
 			NodeName:    "node-1",
 			Category:    "security",
 			CheckName:   "mysql_version",
-			BatchID:     "batch-1",
+			RunID:       "run-1",
 			Severity:    &severity,
 			Status:      &status,
 			IsRead:      new(false),
@@ -373,7 +488,7 @@ func TestMarkInsightsRead(t *testing.T) {
 				NodeName:    "node-1",
 				Category:    "security",
 				CheckName:   "mysql_version",
-				BatchId:     "batch-1",
+				RunId:       "run-1",
 				Severity:    new(managementv1.Severity_SEVERITY_WARNING),
 				Status:      new(advisorsv1.AdvisorCheckResultStatus_ADVISOR_CHECK_RESULT_STATUS_FAILED),
 				IsRead:      new(false),

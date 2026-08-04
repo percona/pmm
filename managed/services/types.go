@@ -33,6 +33,8 @@ type Target struct {
 	Environment    string
 	Cluster        string
 	ReplicationSet string
+	Region         string
+	AZ             string
 	Labels         map[string]string
 	DSN            string
 	Files          map[string]string
@@ -49,17 +51,22 @@ func (t *Target) Copy() Target {
 	maps.Copy(files, t.Files)
 
 	return Target{
-		AgentID:       t.AgentID,
-		ServiceID:     t.ServiceID,
-		ServiceName:   t.ServiceName,
-		ServiceType:   t.ServiceType,
-		NodeID:        t.NodeID,
-		NodeName:      t.NodeName,
-		Labels:        labels,
-		DSN:           t.DSN,
-		Files:         files,
-		TDP:           new(*t.TDP),
-		TLSSkipVerify: t.TLSSkipVerify,
+		AgentID:        t.AgentID,
+		ServiceID:      t.ServiceID,
+		ServiceName:    t.ServiceName,
+		ServiceType:    t.ServiceType,
+		NodeID:         t.NodeID,
+		NodeName:       t.NodeName,
+		Environment:    t.Environment,
+		Cluster:        t.Cluster,
+		ReplicationSet: t.ReplicationSet,
+		Region:         t.Region,
+		AZ:             t.AZ,
+		Labels:         labels,
+		DSN:            t.DSN,
+		Files:          files,
+		TDP:            new(*t.TDP),
+		TLSSkipVerify:  t.TLSSkipVerify,
 	}
 }
 
