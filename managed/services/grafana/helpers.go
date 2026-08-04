@@ -266,11 +266,9 @@ var seed = maphash.MakeSeed()
 
 // authCacheKey builds a deterministic cache key directly from request auth headers.
 func authCacheKey(req *http.Request) uint64 {
-	var h maphash.Hash // Stack allocated, does not escape
+	var h maphash.Hash
 
 	// Seed ensures deterministic hashing across the lifetime of the process.
-	// If you need stable hashes across process restarts (e.g., for persistent Redis keys),
-	// use a fixed byte array with a custom implementation like xxHash instead.
 	h.SetSeed(seed)
 
 	authorization := req.Header.Get("Authorization")
@@ -282,20 +280,23 @@ func authCacheKey(req *http.Request) uint64 {
 
 	if authorization != "" && cookie == "" {
 		_, _ = h.WriteString(authorization)
-		_ = h.WriteByte(':') // Delimiter prevents concatenation collisions
+		// Delimiter prevents concatenation collisions
+		_ = h.WriteByte(':')
 
 		return h.Sum64()
 	}
 
 	if cookie != "" && authorization == "" {
-		_ = h.WriteByte(':') // Delimiter prevents concatenation collisions
+		// Delimiter prevents concatenation collisions
+		_ = h.WriteByte(':')
 		_, _ = h.WriteString(cookie)
 
 		return h.Sum64()
 	}
 
 	_, _ = h.WriteString(authorization)
-	_ = h.WriteByte(':') // Delimiter prevents concatenation collisions
+	// Delimiter prevents concatenation collisions
+	_ = h.WriteByte(':')
 	_, _ = h.WriteString(cookie)
 
 	return h.Sum64()

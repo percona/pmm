@@ -619,7 +619,7 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		req := mkReq(t, "Bearer cached")
 
 		hash := authCacheKey(req)
-		s.cache.Set(hash, authUser{role: viewer, userID: 11})
+		s.cache.Set(hash, cachedAuthUser{user: authUser{role: viewer, userID: 11}, authorization: "Bearer cached"})
 
 		got, authErr := s.getAuthUser(t.Context(), req, l)
 		require.NoError(t, authErr)
@@ -630,14 +630,14 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		t.Parallel()
 
 		s, grafanaMock, _ := newTestAuthServer(t)
-		shortTTLCache, err := ucache.New[uint64, authUser](t.Context(), time.Millisecond, time.Second)
+		shortTTLCache, err := ucache.New[uint64, cachedAuthUser](t.Context(), time.Millisecond, time.Second)
 		require.NoError(t, err)
 		s.cache = shortTTLCache
 		req := mkReq(t, "Bearer stale")
 
 		headers := extractAuthHeaders(req)
 		hash := authCacheKey(req)
-		s.cache.Set(hash, authUser{role: viewer, userID: 1})
+		s.cache.Set(hash, cachedAuthUser{user: authUser{role: viewer, userID: 1}, authorization: "Bearer stale"})
 		time.Sleep(2 * time.Millisecond)
 
 		want := authUser{role: admin, userID: 99}
@@ -648,7 +648,7 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		assert.Equal(t, want, got)
 		item, ok := s.cache.Get(hash)
 		require.True(t, ok)
-		assert.Equal(t, want, item)
+		assert.Equal(t, want, item.user)
 	})
 
 	t.Run("cache miss calls grafana and caches response", func(t *testing.T) {
@@ -669,7 +669,7 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		hash := authCacheKey(req)
 		item, ok := s.cache.Get(hash)
 		require.True(t, ok)
-		assert.Equal(t, want, item)
+		assert.Equal(t, want, item.user)
 	})
 
 	t.Run("grafana auth failure is returned", func(t *testing.T) {
@@ -744,7 +744,7 @@ func TestAuthServerProcessRequest(t *testing.T) {
 		hash := authCacheKey(req)
 		item, ok := s.cache.Get(hash)
 		require.True(t, ok)
-		assert.Equal(t, userInfo, item)
+		assert.Equal(t, userInfo, item.user)
 
 		assert.Equal(t, errStaticAuthErrorPermissionDenied, authErr)
 	})

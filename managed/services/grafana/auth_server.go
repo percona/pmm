@@ -206,6 +206,12 @@ type authMetrics struct {
 	mDurations *prom.HistogramVec
 }
 
+type cachedAuthUser struct {
+	user          authUser
+	authorization string
+	cookie        string
+}
+
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
 	// c is the client used to interact with the Grafana API.
@@ -218,7 +224,7 @@ type AuthServer struct {
 	// cache stores authentication responses to reduce Grafana API calls.
 	// Stores positive responses only.
 	// TODO: cache negative response as well.
-	cache *cache.Cache[uint64, authUser]
+	cache *cache.Cache[uint64, cachedAuthUser]
 	// authUserGroup deduplicates concurrent Grafana auth lookups for the same auth header set.
 	authUserGroup singleflight.Group
 
@@ -232,7 +238,7 @@ type AuthServer struct {
 
 // NewAuthServer creates new AuthServer.
 func NewAuthServer(ctx context.Context, c grafanaAuthUserGetter, db *reform.DB) *AuthServer {
-	cache, err := cache.New[uint64, authUser](ctx, cacheItemTTL, cacheInvalidationInterval)
+	cache, err := cache.New[uint64, cachedAuthUser](ctx, cacheItemTTL, cacheInvalidationInterval)
 	if err != nil {
 		panic(err)
 	}
@@ -559,11 +565,17 @@ func authorizeUser(minRole role, user authUser, l *logrus.Entry) error {
 }
 
 func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (authUser, error) {
+	authorization := req.Header.Get("Authorization")
+	cookie := req.Header.Get("Cookie")
+
 	hash := authCacheKey(req)
 	// Hot-path: lookup user in cache first.
-	if user, ok := s.cache.Get(hash); ok {
-		s.incCacheHit()
-		return user, nil
+	if cached, ok := s.cache.Get(hash); ok {
+		// Verify auth headers for this hash to prevent serving wrong user on rare hash collisions.
+		if cached.authorization == authorization && cached.cookie == cookie {
+			s.incCacheHit()
+			return cached.user, nil
+		}
 	}
 	s.incCacheMiss()
 
@@ -575,8 +587,10 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	res, err, _ := s.authUserGroup.Do(hashStr, func() (any, error) {
 		// Recheck inside singleflight to avoid duplicate upstream calls when
 		// another goroutine already populated cache while we were waiting.
-		if user, ok := s.cache.Get(hash); ok {
-			return user, nil
+		if cached, ok := s.cache.Get(hash); ok {
+			if cached.authorization == authorization && cached.cookie == cookie {
+				return cached.user, nil
+			}
 		}
 
 		// Note: there is no a separate timeout for requests to Grafana.
@@ -592,7 +606,11 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 		}
 
 		// Store the retrieved user info in cache for future requests.
-		s.cache.Set(hash, userAuthInfo)
+		s.cache.Set(hash, cachedAuthUser{
+			user:          userAuthInfo,
+			authorization: authorization,
+			cookie:        cookie,
+		})
 		return userAuthInfo, nil
 	})
 	if err != nil {
