@@ -84,8 +84,35 @@ describe('RealtimeOverview', () => {
     );
   });
 
-  it('should render database and user columns from the payload', async () => {
+  it('should hide the database and user columns by default', async () => {
     renderComponent();
+
+    await waitFor(() =>
+      screen.getByTestId(`query-${TEST_MONGO_DB_QUERY_DATA.queryId}-host-cell`)
+    );
+
+    expect(
+      screen.queryByTestId(
+        `query-${TEST_MONGO_DB_QUERY_DATA.queryId}-database-cell`
+      )
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(
+        `query-${TEST_MONGO_DB_QUERY_DATA.queryId}-user-cell`
+      )
+    ).not.toBeInTheDocument();
+  });
+
+  it('should render database and user columns from the payload once revealed', async () => {
+    renderComponent();
+
+    await waitFor(() =>
+      screen.getByTestId(`query-${TEST_MONGO_DB_QUERY_DATA.queryId}-host-cell`)
+    );
+
+    fireEvent.click(screen.getByLabelText('Show/Hide columns'));
+    fireEvent.click(await screen.findByLabelText('Database'));
+    fireEvent.click(screen.getByLabelText('User'));
 
     await waitFor(() =>
       expect(

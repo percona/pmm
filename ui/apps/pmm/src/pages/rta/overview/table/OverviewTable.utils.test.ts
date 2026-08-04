@@ -3,6 +3,7 @@ import { type MRT_Row } from 'material-react-table';
 import { QueryData } from 'types/rta.types';
 import {
   filterCommaSeparated,
+  formatElapsedTime,
   isTransactionControl,
   queryDatabaseName,
   queryLanguage,
@@ -59,6 +60,20 @@ describe('queryUsername', () => {
 
   it('resolves the user from the MySQL payload', () => {
     expect(queryUsername(TEST_MYSQL_QUERY_DATA)).toBe('username');
+  });
+});
+
+describe('formatElapsedTime', () => {
+  it.each([
+    [0.0512, '0.1s'],
+    [1.523, '1.5s'],
+    [9.94, '9.9s'],
+    [9.96, '10s'],
+    [10.44, '10s'],
+    [42.5, '43s'],
+    [3601.7, '3602s'],
+  ])('formats %j seconds as %j', (seconds, expected) => {
+    expect(formatElapsedTime(seconds)).toBe(expected);
   });
 });
 

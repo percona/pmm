@@ -1,15 +1,27 @@
 import {
   type MRT_Row,
+  type MRT_VisibilityState,
   type MaterialReactTableProps,
 } from 'material-react-table';
 import { Table, useNavigableRows } from '@percona/percona-ui';
-import type { FC } from 'react';
+import { useState, type FC } from 'react';
 import type { QueryData } from 'types/rta.types';
 import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
 import { filterCommaSeparated, filterElapsedTime } from './OverviewTable.utils';
+
+// Database and User are opt-in columns: showing them by default pushes the
+// query text and Elapsed time out of view, so they start hidden and users
+// reveal the ones they need from the Show/Hide columns menu.
+// The visibility state is held here rather than in initialState because the
+// percona-ui Table controls columnVisibility from its own localStorage state,
+// which cannot express a column that is hidden by default.
+const DEFAULT_COLUMN_VISIBILITY: MRT_VisibilityState = {
+  databaseName: false,
+  username: false,
+};
 
 interface Props {
   queries: QueryData[];
@@ -30,6 +42,9 @@ const OverviewTable: FC<Props> = ({
     data: queries,
     onChange: onNavigableQueriesChange,
   });
+  const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
+    DEFAULT_COLUMN_VISIBILITY
+  );
 
   return (
     <RealtimeTableWrapper>
@@ -58,10 +73,12 @@ const OverviewTable: FC<Props> = ({
           },
         }}
         {...tableProps}
+        state={{ ...tableProps.state, columnVisibility }}
+        onColumnVisibilityChange={setColumnVisibility}
         enableStickyHeader
         enableColumnPinning
         enableGlobalFilter={false}
-        enableHiding={false}
+        enableHiding
         enableRowHoverAction
         rowHoverAction={(row) => {
           refresh();

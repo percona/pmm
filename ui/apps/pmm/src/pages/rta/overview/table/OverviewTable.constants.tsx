@@ -3,9 +3,9 @@ import { type MRT_ColumnDef } from 'material-react-table';
 import { QueryData } from 'types/rta.types';
 import { Messages } from './OverviewTable.messages';
 import { QueryCell } from './query-cell';
-import { formatDuration } from 'date-fns';
 import UnavailableText from 'components/unavailable-text';
 import {
+  formatElapsedTime,
   queryDatabaseName,
   queryLanguage,
   queryUsername,
@@ -82,6 +82,9 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   {
     header: Messages.columns.elapsedTime,
     accessorKey: 'queryExecutionDurationMs',
+    // Pinned to the right edge, so every pixel here is taken from the query
+    // text; the compact value format is what keeps the column this narrow.
+    size: 120,
     filterVariant: 'range',
     filterFn: 'timeRangeFilterFn',
     muiTableHeadCellFilterTextFieldProps: {
@@ -89,14 +92,7 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     },
     Cell: ({ cell }) =>
       cell.getValue() ? (
-        `${formatDuration(
-          {
-            seconds: cell.getValue<number>(),
-          },
-          {
-            format: ['seconds'],
-          }
-        )}`
+        formatElapsedTime(cell.getValue<number>())
       ) : (
         <UnavailableText />
       ),

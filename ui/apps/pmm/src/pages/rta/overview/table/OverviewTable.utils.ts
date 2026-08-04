@@ -30,6 +30,17 @@ export const queryUsername = (query: RawQueryData): string =>
   query.mySqlPayload?.username ||
   UNAVAILABLE_VALUE;
 
+// formatElapsedTime renders a duration in seconds as compactly as it can be
+// read: the SI unit instead of the "seconds" word, and one decimal place only
+// below 10s — above that, hundredths of a second on a live view carry no
+// information and only widen the column.
+export const formatElapsedTime = (seconds: number): string => {
+  const rounded =
+    seconds < 10 ? Math.round(seconds * 10) / 10 : Math.round(seconds);
+
+  return `${rounded}s`;
+};
+
 // Transaction-control statements that add little value to Real-Time Analytics
 // and can dominate the list under transactional workloads (e.g. sysbench).
 // "WORK" is the optional SQL keyword (COMMIT WORK / ROLLBACK WORK).

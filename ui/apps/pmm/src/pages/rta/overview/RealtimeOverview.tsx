@@ -18,6 +18,7 @@ import { createRealtimeSessionsUrl } from 'utils/link.utils';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import Tooltip from '@mui/material/Tooltip';
@@ -148,20 +149,6 @@ const RealtimeOverviewPage: FC = () => {
                 refreshInterval={refreshInterval}
                 onRefreshIntervalChange={setRefreshInterval}
               />
-              <Tooltip title={Messages.hideCommitTooltip} arrow>
-                <FormControlLabel
-                  data-testid="overview-table-hide-commit-toggle"
-                  control={
-                    <Switch
-                      size="small"
-                      checked={hideCommit}
-                      onChange={(event) => setHideCommit(event.target.checked)}
-                    />
-                  }
-                  label={Messages.hideCommit}
-                  sx={{ whiteSpace: 'nowrap', mr: 0 }}
-                />
-              </Tooltip>
               <Button
                 data-testid={
                   fetching
@@ -224,6 +211,28 @@ const RealtimeOverviewPage: FC = () => {
                   {Messages.export}
                 </Button>
               )}
+              {/* Hide COMMIT filters the rows, it does not drive live updates:
+                  keep it out of the auto-refresh / playback group so that group
+                  reads as one control. */}
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{ my: 1, mx: 0.5 }}
+              />
+              <Tooltip title={Messages.hideCommitTooltip} arrow>
+                <FormControlLabel
+                  data-testid="overview-table-hide-commit-toggle"
+                  control={
+                    <Switch
+                      size="small"
+                      checked={hideCommit}
+                      onChange={(event) => setHideCommit(event.target.checked)}
+                    />
+                  }
+                  label={Messages.hideCommit}
+                  sx={{ whiteSpace: 'nowrap', mr: 0 }}
+                />
+              </Tooltip>
             </Stack>
             <Box sx={{ flex: '0 0 auto', ml: { md: 'auto' }, my: 1 }}>
               <Button
