@@ -15,7 +15,7 @@ import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertTemplates } from 'pages/alerting/templates';
 import { CreateAlertFromTemplate } from 'pages/alerting/create-rule';
-import { InstallClientPage } from 'pages/install-client';
+import { AlertsPage } from 'pages/alerting/status';
 
 const router = createBrowserRouter(
   [
@@ -44,8 +44,13 @@ const router = createBrowserRouter(
               element: <HelpCenter />,
             },
             {
-              path: 'install-client',
-              element: <InstallClientPage />,
+              path: 'alerting',
+              children: [
+                {
+                  path: 'status',
+                  element: <AlertsPage />,
+                },
+              ],
             },
             {
               path: 'settings/:tab?',
@@ -89,6 +94,10 @@ const router = createBrowserRouter(
             {
               path: 'graph/settings/:tab?',
               element: <SettingsRedirect />,
+            },
+            {
+              path: 'graph/alerting/alerts',
+              element: <Navigate to="/alerting/status" replace />,
             },
             // Grafana routes are handled at the Main component level
             {
