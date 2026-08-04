@@ -37,6 +37,8 @@ import (
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/v2"
+	// By default, it sets `GOMEMLIMIT` to 90% of cgroup's memory limit.
+	_ "github.com/KimMachineGun/automemlimit"
 	"github.com/alecthomas/kingpin/v2"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
