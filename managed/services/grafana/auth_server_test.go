@@ -150,7 +150,7 @@ func TestHTTPStatusForAuthError(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tc.want, httpStatusForAuthError(tc.code))
+			assert.Equal(t, tc.want, convertAuthErrorToHTTPStatus(tc.code))
 		})
 	}
 }
@@ -906,13 +906,10 @@ func TestAuthServerServeHTTP(t *testing.T) {
 		s.ServeHTTP(rw, req)
 
 		assert.Equal(t, http.StatusForbidden, rw.Code)
-		var body map[string]any
-		require.NoError(t, json.Unmarshal(rw.Body.Bytes(), &body))
-		code, ok := body["code"].(float64)
-		require.True(t, ok)
-		assert.InDelta(t, float64(codes.PermissionDenied), code, 0)
-		assert.Equal(t, errStaticAuthErrorPermissionDenied.message, body["error"])
-		assert.Equal(t, errStaticAuthErrorPermissionDenied.message, body["message"])
+		assert.Empty(t, rw.Body.String())
+		assert.Equal(t, strconv.Itoa(int(codes.PermissionDenied)), rw.Header().Get(authResponseCodeHeader))
+		assert.Equal(t, errStaticAuthErrorPermissionDenied.message, rw.Header().Get(authResponseErrorHeader))
+		assert.Equal(t, errStaticAuthErrorPermissionDenied.message, rw.Header().Get(authResponseMessageHeader))
 	})
 
 	t.Run("success with disabled LBAC", func(t *testing.T) {
@@ -1020,13 +1017,10 @@ func TestAuthServerServeHTTP(t *testing.T) {
 		s.ServeHTTP(rw, req)
 
 		assert.Equal(t, http.StatusUnauthorized, rw.Code)
-		var body map[string]any
-		require.NoError(t, json.Unmarshal(rw.Body.Bytes(), &body))
-		code, ok := body["code"].(float64)
-		require.True(t, ok)
-		assert.InDelta(t, float64(codes.Unauthenticated), code, 0)
-		assert.Equal(t, http.StatusText(http.StatusUnauthorized), body["error"])
-		assert.Equal(t, http.StatusText(http.StatusUnauthorized), body["message"])
+		assert.Empty(t, rw.Body.String())
+		assert.Equal(t, strconv.Itoa(int(codes.Unauthenticated)), rw.Header().Get(authResponseCodeHeader))
+		assert.Equal(t, http.StatusText(http.StatusUnauthorized), rw.Header().Get(authResponseErrorHeader))
+		assert.Equal(t, http.StatusText(http.StatusUnauthorized), rw.Header().Get(authResponseMessageHeader))
 	})
 
 	t.Run("enabled LBAC with full access role does not set proxy filter header", func(t *testing.T) {

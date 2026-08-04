@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
+	"strconv"
 	"strings"
 	"time"
 
@@ -149,11 +150,18 @@ var lbacPrefixes = []string{
 
 const lbacHeaderName = "X-Proxy-Filter"
 
-// nginx auth_request directive supports only 401 and 403 - every other code results in 500.
-// Our APIs can return codes.PermissionDenied which maps to 403 / http.StatusForbidden.
-// Our APIs MUST NOT return codes.Unauthenticated which maps to 401 / http.StatusUnauthorized
-// as this code is reserved for auth_request.
-const authenticationErrorCode = 401
+const (
+	// Nginx auth_request directive supports only 401 and 403 - every other code results in 500.
+	// Our APIs can return codes.PermissionDenied which maps to 403 / http.StatusForbidden.
+	// Our APIs MUST NOT return codes.Unauthenticated which maps to 401 / http.StatusUnauthorized
+	// as this code is reserved for auth_request.
+	authenticationErrorCode = 401
+	// HTTP headers used to pass auth error details back to NGINX.
+	// The same headers are parsed in NGINX configuration file.
+	authResponseCodeHeader    = "X-Auth-Code"
+	authResponseErrorHeader   = "X-Auth-Error"
+	authResponseMessageHeader = "X-Auth-Message"
+)
 
 const (
 	authenticationTimeout = 15 * time.Second
@@ -350,16 +358,9 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	authRes, authErr := s.processRequest(ctx, req, l)
 	if authErr != nil {
-		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
-		m := map[string]any{
-			"code":    int(authErr.code),
-			"error":   authErr.message,
-			"message": authErr.message, //nolint:goconst
-		}
-
-		status := httpStatusForAuthError(authErr.code)
+		status := convertAuthErrorToHTTPStatus(authErr.code)
 		s.incAuthRequests(req.Method, req.URL.Path, status)
-		writeResponseStatus(rw, status, m, l)
+		writeResponseErrorStatus(rw, status, int(authErr.code), authErr.message, authErr.message)
 		return
 	}
 
@@ -370,28 +371,25 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	s.incAuthRequests(req.Method, req.URL.Path, http.StatusOK)
 }
 
-// httpStatusForAuthError maps an authError code to the HTTP status nginx receives.
+// convertAuthErrorToHTTPStatus maps an authError code to the HTTP status nginx receives.
 // PermissionDenied uses 403 so nginx denies outright; the 401 re-run is a GET and would
 // wrongly pass method-specific rules. Authentication and internal errors stay 401.
-func httpStatusForAuthError(code codes.Code) int {
+func convertAuthErrorToHTTPStatus(code codes.Code) int {
 	if code == codes.PermissionDenied {
 		return http.StatusForbidden
 	}
 	return authenticationErrorCode
 }
 
-// writeResponseStatus sends an HTTP response header with the provided
-// status code and writes a JSON auth error payload.
-func writeResponseStatus(rw http.ResponseWriter, status int, msg map[string]any, l *logrus.Entry) {
-	// nginx ignores the auth_request subrequest body: on 401 it re-runs the request to
-	// /auth_request to fetch this body; on 403 it serves a static body via error_page 403.
-	rw.Header().Set("Content-Type", "application/json")
-
+// writeResponseErrorStatus sends an HTTP response header with the provided
+// status code and writes custom HTTP headers with auth error details.
+func writeResponseErrorStatus(rw http.ResponseWriter, status, authCode int, authError, authMessage string) {
+	// nginx ignores the auth_request subrequest body: we use custom HTTP headers
+	// to pass auth response error details to nginx.
+	rw.Header().Set(authResponseCodeHeader, strconv.Itoa(authCode))
+	rw.Header().Set(authResponseErrorHeader, authError)
+	rw.Header().Set(authResponseMessageHeader, authMessage)
 	rw.WriteHeader(status)
-	err := json.NewEncoder(rw).Encode(msg)
-	if err != nil {
-		l.WithError(err).Error("failed to encode response status to json.")
-	}
 }
 
 // addLBACFilters adds extra filters to requests proxied through VMProxy.
