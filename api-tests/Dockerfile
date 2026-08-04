@@ -5,8 +5,6 @@ ARG BUILD_TIME=unknown
 ARG GO_VERSION
 
 FROM golang:$GO_VERSION AS builder
-ENV GONOPROXY='github.com/percona,github.com/Percona-Lab'
-ENV GONOSUMDB='github.com/percona,github.com/Percona-Lab'
 ENV GOPRIVATE='github.com/percona,github.com/Percona-Lab'
 
 WORKDIR $GOPATH/pmm
