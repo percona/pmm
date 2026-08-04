@@ -61,8 +61,14 @@ run-all: run-agent-ci run-managed-ci run-qan-ci run-vmproxy-ci	## Run all go ser
 run: run-all                         ## Aliased to "run-all"
 	echo "run is aliased to run-all"
 
-ui-setup:                            ## Install UI dependencies
+UI_INSTALL_STAMP := ui/node_modules/.install.stamp
+UI_DEPS := ui/package.json ui/yarn.lock $(wildcard ui/apps/*/package.json) $(wildcard ui/packages/*/package.json)
+
+ui-setup: $(UI_INSTALL_STAMP)         ## Install UI dependencies (skips yarn install if deps are unchanged)
+
+$(UI_INSTALL_STAMP): $(UI_DEPS)
 	cd ui && pnpm install
+	@mkdir -p ui/node_modules && touch $@
 
 run-ui: ui-setup setup-livereload    ## Start vite dev server for UI with HMR, QAN webpack watch and dashboard JSON sync
 	mv /srv/grafana/plugins/pmm-compat-app /srv/grafana/plugins/pmm-compat-app.bak; \
