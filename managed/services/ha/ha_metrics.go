@@ -26,23 +26,27 @@ const (
 //
 // The following metrics are exposed (only when HA mode is enabled):
 //
-//   - pmm_ha_leader_status  – 1 if this node is the current Raft leader, 0
-//     otherwise.  Summing this across all nodes in the cluster enables the
-//     PMMHALeaderMissing (sum == 0) and PMMHASplitBrain (sum > 1) alerts.
+//   - pmm_ha_leader_status - 1 if this node is the current Raft leader, 0
+//     otherwise. Consumed by the pmm_ha_no_leader and pmm_ha_split_brain
+//     alert templates, which sum it across the cluster.
 //
-//   - pmm_ha_raft_term  – The current Raft consensus term.  Rapid growth
-//     (changes(pmm_ha_raft_term[10m]) > 5) triggers the PMMHALeaderFlapping
-//     alert that indicates an unstable network or crashing leader.
+//   - pmm_ha_raft_term - The current Raft consensus term. Rapid growth
+//     indicates an unstable network or a crashing leader. Consumed by the
+//     pmm_ha_leader_flapping alert template.
 //
-//   - pmm_ha_up{role="voter|nonvoter"}  – Always 1 for a live node, labelled
-//     with the node's Raft suffrage role.  count(pmm_ha_up{role="voter"}) < 3
-//     triggers the PMMHAQuorumAtRisk alert for a three-node cluster.
+//   - pmm_ha_up{role="voter|nonvoter"} - Always 1 for a live node. The role
+//     label reports whether the node is in the current Raft configuration. A
+//     node that goes down stops emitting the series rather than reporting 0.
+//
+//   - pmm_ha_expected_nodes - The number of nodes configured for this cluster,
+//     used as the denominator for node-down and quorum alerting.
 type HAMetricsCollector struct { //nolint:revive
 	haService *Service
 
-	mLeaderStatus *prom.Desc
-	mRaftTerm     *prom.Desc
-	mUp           *prom.Desc
+	mLeaderStatus  *prom.Desc
+	mRaftTerm      *prom.Desc
+	mUp            *prom.Desc
+	mExpectedNodes *prom.Desc
 }
 
 // NewHAMetricsCollector creates a new HAMetricsCollector backed by the
@@ -53,26 +57,29 @@ func NewHAMetricsCollector(haService *Service) *HAMetricsCollector {
 		mLeaderStatus: prom.NewDesc(
 			prom.BuildFQName(haPrometheusNamespace, haPrometheusSubsystem, "leader_status"),
 			"Reports whether this PMM node currently holds the Raft leader lease. "+
-				"Value is 1 for the leader and 0 for followers. "+
-				"Use sum(pmm_ha_leader_status) to detect split-brain (>1) or a missing leader (==0).",
+				"Value is 1 for the leader and 0 for followers.",
 			[]string{"node_id"},
 			nil,
 		),
 		mRaftTerm: prom.NewDesc(
 			prom.BuildFQName(haPrometheusNamespace, haPrometheusSubsystem, "raft_term"),
 			"The current Raft consensus term number as seen by this node. "+
-				"Rapid increases indicate leader instability or frequent elections (leader flapping). "+
-				"Use changes(pmm_ha_raft_term[10m]) > 5 to fire the PMMHALeaderFlapping alert.",
+				"Rapid increases indicate leader instability or frequent elections (leader flapping).",
 			[]string{"node_id"},
 			nil,
 		),
 		mUp: prom.NewDesc(
 			prom.BuildFQName(haPrometheusNamespace, haPrometheusSubsystem, "up"),
 			"Reports that this PMM node is up and participating in the cluster. "+
-				"The 'role' label indicates the node's Raft suffrage: 'voter' nodes participate "+
-				"in elections, 'nonvoter' nodes only replicate logs. "+
-				"Use count(pmm_ha_up{role=\"voter\"}) to evaluate quorum health.",
+				"The 'role' label is 'voter' when the node is in the current Raft configuration "+
+				"and votes in elections, and 'nonvoter' when it is absent from that configuration.",
 			[]string{"node_id", "role"},
+			nil,
+		),
+		mExpectedNodes: prom.NewDesc(
+			prom.BuildFQName(haPrometheusNamespace, haPrometheusSubsystem, "expected_nodes"),
+			"The number of PMM nodes configured for this HA cluster.",
+			[]string{"node_id"},
 			nil,
 		),
 	}
@@ -107,6 +114,7 @@ func (c *HAMetricsCollector) Collect(ch chan<- prom.Metric) {
 		role = "voter"
 	}
 	ch <- prom.MustNewConstMetric(c.mUp, prom.GaugeValue, 1, nodeID, role)
+	ch <- prom.MustNewConstMetric(c.mExpectedNodes, prom.GaugeValue, float64(m.ExpectedNodes), nodeID)
 }
 
 var _ prom.Collector = (*HAMetricsCollector)(nil)
