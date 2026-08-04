@@ -1,4 +1,4 @@
-import { Table, useNavigableRows } from '@percona/percona-ui';
+import { Table, useNavigableRows } from '@percona/peak-ui';
 import { type MRT_Row } from 'material-react-table';
 import { FC, useMemo, useState } from 'react';
 import { ALERT_STATUS_COLUMNS } from './AlertStatusTable.constants';

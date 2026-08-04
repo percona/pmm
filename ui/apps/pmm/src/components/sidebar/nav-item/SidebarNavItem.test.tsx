@@ -5,7 +5,7 @@ import { NavItemProps } from './SidebarNavItem.types';
 import { NavItem as NavTreeItem } from 'types/navigation.types';
 import { collapseClasses } from '@mui/material/Collapse';
 import { MemoryRouterProps } from 'react-router-dom';
-import { ThemeContextProvider, pmmThemeOptions } from '@percona/percona-ui';
+import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
 
 const TEST_NAV_TREE: NavTreeItem = {
   id: 'level-0',
