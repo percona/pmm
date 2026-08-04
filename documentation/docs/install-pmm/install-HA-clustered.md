@@ -817,6 +817,12 @@ View detailed role and health information for all PMM nodes in one place.
     - **Follower** status: which nodes are on standby
     - **Health** status: whether each node is responding
 
+### Get alerted about cluster problems
+
+Checking the High Availability page tells you the state of the cluster right now, but it does not notify you when that state changes. PMM ships alert templates that cover the failure modes of an HA cluster: no active leader, split-brain, a flapping leader, an unreachable node, and a quorum at risk.
+
+Like all alert templates, they do not create alert rules on their own: create a rule from each template and point it at a contact point. For the template list, the setup steps and the coverage limitations, see [PMM High Availability templates](../alert/templates_list.md#pmm_ha_alerts).
+
 ### Scale your deployment
 
 #### Scale PMM server replicas
