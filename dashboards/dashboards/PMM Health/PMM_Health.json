@@ -626,7 +626,7 @@
             "type": "row"
         },
         {
-            "collapsed": false,
+            "collapsed": true,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -634,1504 +634,1505 @@
                 "y": 1
             },
             "id": 291,
-            "panels": [],
+            "panels": [
+                {
+                    "datasource": "Metrics",
+                    "description": "The parameter shows how long a system has been “up” and running without a shut down or restart.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "decimals": 2,
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "rgba(245, 54, 54, 0.9)",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "rgba(237, 129, 40, 0.89)",
+                                        "value": 300
+                                    },
+                                    {
+                                        "color": "rgba(50, 172, 45, 0.97)",
+                                        "value": 3600
+                                    }
+                                ]
+                            },
+                            "unit": "s"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 3,
+                        "w": 3,
+                        "x": 0,
+                        "y": 2
+                    },
+                    "id": 321,
+                    "interval": "$interval",
+                    "maxDataPoints": 100,
+                    "options": {
+                        "colorMode": "value",
+                        "graphMode": "none",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "showPercentChange": false,
+                        "text": {
+                            "valueSize": 20
+                        },
+                        "textMode": "auto",
+                        "wideLayout": true
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "calculatedInterval": "10m",
+                            "datasource": "Metrics",
+                            "datasourceErrors": {},
+                            "errors": {},
+                            "expr": "avg by (node_name) ((node_time_seconds{node_name=~\"$node_name\"} - node_boot_time_seconds{node_name=~\"$node_name\"}) or (time() - node_boot_time_seconds{node_name=~\"$node_name\"}))",
+                            "format": "time_series",
+                            "interval": "5m",
+                            "intervalFactor": 1,
+                            "legendFormat": "",
+                            "metric": "",
+                            "refId": "A",
+                            "step": 300
+                        }
+                    ],
+                    "title": "System Uptime",
+                    "type": "stat"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "The system load is a measurement of the computational work the system is performing. Each running process either using or waiting for CPU resources adds 1 to the load.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "decimals": 2,
+                            "mappings": [
+                                {
+                                    "options": {
+                                        "match": "null",
+                                        "result": {
+                                            "text": "N/A"
+                                        }
+                                    },
+                                    "type": "special"
+                                }
+                            ],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "#299c46",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "rgba(237, 129, 40, 0.89)",
+                                        "value": 10
+                                    },
+                                    {
+                                        "color": "#d44a3a",
+                                        "value": 20
+                                    }
+                                ]
+                            },
+                            "unit": "none"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 3,
+                        "w": 3,
+                        "x": 3,
+                        "y": 2
+                    },
+                    "id": 323,
+                    "maxDataPoints": 100,
+                    "options": {
+                        "colorMode": "none",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "showPercentChange": false,
+                        "text": {
+                            "valueSize": 20
+                        },
+                        "textMode": "auto",
+                        "wideLayout": true
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "expr": "avg by (node_name) (avg_over_time(node_load1{node_name=~\"$node_name\"}[$interval]) or avg_over_time(node_load1{node_name=~\"$node_name\"}[5m]))",
+                            "format": "time_series",
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Load Average",
+                    "type": "stat"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "RAM (Random Access Memory) is the hardware in a computing device where the operating system, application programs and data in current use are kept so they can be quickly reached by the device's processor.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "decimals": 2,
+                            "mappings": [
+                                {
+                                    "options": {
+                                        "match": "null",
+                                        "result": {
+                                            "text": "N/A"
+                                        }
+                                    },
+                                    "type": "special"
+                                }
+                            ],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "bytes"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 3,
+                        "w": 3,
+                        "x": 6,
+                        "y": 2
+                    },
+                    "id": 327,
+                    "interval": "$interval",
+                    "maxDataPoints": 100,
+                    "options": {
+                        "colorMode": "none",
+                        "graphMode": "none",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "showPercentChange": false,
+                        "text": {
+                            "valueSize": 20
+                        },
+                        "textMode": "auto",
+                        "wideLayout": true
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "expr": "avg by (node_name) (node_memory_MemTotal_bytes{node_name=~\"$node_name\"})",
+                            "format": "time_series",
+                            "interval": "5m",
+                            "intervalFactor": 1,
+                            "refId": "A",
+                            "step": 300
+                        }
+                    ],
+                    "title": "RAM",
+                    "type": "stat"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Percent of Memory Available\nNote: on Modern Linux Kernels amount of Memory Available for application is not the same as Free+Cached+Buffers",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "decimals": 2,
+                            "mappings": [
+                                {
+                                    "options": {
+                                        "match": "null",
+                                        "result": {
+                                            "text": "N/A"
+                                        }
+                                    },
+                                    "type": "special"
+                                }
+                            ],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "#d44a3a",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "rgba(237, 129, 40, 0.89)",
+                                        "value": 5
+                                    },
+                                    {
+                                        "color": "#299c46",
+                                        "value": 10
+                                    }
+                                ]
+                            },
+                            "unit": "percent"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 3,
+                        "w": 3,
+                        "x": 9,
+                        "y": 2
+                    },
+                    "id": 329,
+                    "maxDataPoints": 100,
+                    "options": {
+                        "colorMode": "none",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "showPercentChange": false,
+                        "text": {
+                            "valueSize": 20
+                        },
+                        "textMode": "auto",
+                        "wideLayout": true
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "expr": "avg by (node_name) ((node_memory_MemAvailable_bytes{node_name=~\"$node_name\"} or (node_memory_MemFree_bytes{node_name=~\"$node_name\"} + node_memory_Buffers_bytes{node_name=~\"$node_name\"} + node_memory_Cached_bytes{node_name=~\"$node_name\"})) / node_memory_MemTotal_bytes{node_name=~\"$node_name\"} * 100)",
+                            "format": "time_series",
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Memory Available",
+                    "type": "stat"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "RAM + SWAP",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "decimals": 2,
+                            "mappings": [
+                                {
+                                    "options": {
+                                        "match": "null",
+                                        "result": {
+                                            "text": "N/A"
+                                        }
+                                    },
+                                    "type": "special"
+                                }
+                            ],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "bytes"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 3,
+                        "w": 3,
+                        "x": 12,
+                        "y": 2
+                    },
+                    "id": 331,
+                    "interval": "$interval",
+                    "maxDataPoints": 100,
+                    "options": {
+                        "colorMode": "none",
+                        "graphMode": "none",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "showPercentChange": false,
+                        "text": {
+                            "valueSize": 20
+                        },
+                        "textMode": "auto",
+                        "wideLayout": true
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "expr": "avg by (node_name) (node_memory_MemTotal_bytes{node_name=~\"$node_name\"}+node_memory_SwapTotal_bytes{node_name=~\"$node_name\"})",
+                            "format": "time_series",
+                            "interval": "5m",
+                            "intervalFactor": 1,
+                            "refId": "A",
+                            "step": 300
+                        }
+                    ],
+                    "title": "Virtual Memory",
+                    "type": "stat"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Sum of disk space on all partitions. Note  it can be significantly over-reported in some installations",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "decimals": 2,
+                            "mappings": [
+                                {
+                                    "options": {
+                                        "match": "null",
+                                        "result": {
+                                            "text": "N/A"
+                                        }
+                                    },
+                                    "type": "special"
+                                }
+                            ],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "bytes"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 3,
+                        "w": 3,
+                        "x": 15,
+                        "y": 2
+                    },
+                    "id": 333,
+                    "interval": "$interval",
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "Disk Space",
+                            "url": "/graph/d/node-disk/disk-details?$__url_time_range&$__all_variables"
+                        }
+                    ],
+                    "maxDataPoints": 100,
+                    "options": {
+                        "colorMode": "none",
+                        "graphMode": "none",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "showPercentChange": false,
+                        "text": {
+                            "valueSize": 20
+                        },
+                        "textMode": "auto",
+                        "wideLayout": true
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "expr": "avg by (node_name) (sum(avg(node_filesystem_size_bytes{node_name=~\"$node_name\",fstype=~\"(ext.|xfs|vfat|)\"}) without (mountpoint)) without (device,fstype))",
+                            "format": "time_series",
+                            "interval": "5m",
+                            "intervalFactor": 1,
+                            "refId": "A",
+                            "step": 300
+                        }
+                    ],
+                    "title": "Disk Space",
+                    "type": "stat"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Lowest percent of the disk space available",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "decimals": 2,
+                            "mappings": [
+                                {
+                                    "options": {
+                                        "match": "null",
+                                        "result": {
+                                            "text": "N/A"
+                                        }
+                                    },
+                                    "type": "special"
+                                }
+                            ],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "#d44a3a",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "rgba(237, 129, 40, 0.89)",
+                                        "value": 5
+                                    },
+                                    {
+                                        "color": "#299c46",
+                                        "value": 20
+                                    }
+                                ]
+                            },
+                            "unit": "percent"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 3,
+                        "w": 3,
+                        "x": 18,
+                        "y": 2
+                    },
+                    "id": 335,
+                    "maxDataPoints": 100,
+                    "options": {
+                        "colorMode": "none",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "showPercentChange": false,
+                        "text": {
+                            "valueSize": 20
+                        },
+                        "textMode": "auto",
+                        "wideLayout": true
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "expr": "min(node_filesystem_free_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}/node_filesystem_size_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"})*100",
+                            "format": "time_series",
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Min Space Available",
+                    "type": "stat"
+                },
+                {
+                    "fieldConfig": {
+                        "defaults": {},
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 3,
+                        "w": 3,
+                        "x": 21,
+                        "y": 2
+                    },
+                    "id": 1002,
+                    "options": {
+                        "code": {
+                            "language": "plaintext",
+                            "showLineNumbers": false,
+                            "showMiniMap": false
+                        },
+                        "content": "<h5 style='color:#e68a00;font-weight:bold;text-align:center'><a href=\"/graph/d/node-instance-summary/node-summary?var-node_name=$node_name\" target=\"_blank\">$node_name</a></h5>",
+                        "mode": "html"
+                    },
+                    "pluginVersion": "12.4.5",
+                    "title": "Node",
+                    "type": "text"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "The CPU time is measured in clock ticks or seconds. It is useful to measure CPU time as a percentage of the CPU's capacity, which is called the CPU usage.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 60,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "stepAfter",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "showValues": false,
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "normal"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 2,
+                            "links": [],
+                            "mappings": [],
+                            "max": 100,
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "percent"
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Max Core Utilization"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#bf1b00",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "idle"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#806EB7",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "iowait"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#E24D42",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "nice"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#1F78C1",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "softirq"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#FFF899",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "steal"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#8F3BB8",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "system"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#EAB839",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "user"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#508642",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Max Core Utilization"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.lineWidth",
+                                        "value": 0
+                                    },
+                                    {
+                                        "id": "custom.pointSize",
+                                        "value": 4
+                                    },
+                                    {
+                                        "id": "custom.showPoints",
+                                        "value": "always"
+                                    },
+                                    {
+                                        "id": "custom.stacking",
+                                        "value": {
+                                            "group": false,
+                                            "mode": "normal"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 83
+                    },
+                    "id": 337,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "expr": "avg by (node_name,mode) (clamp_max(((avg by (mode) ( (clamp_max(rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode!=\"idle\"}[$interval]),1)) or (clamp_max(irate(node_cpu_seconds_total{node_name=~\"$node_name\",mode!=\"idle\"}[5m]),1)) ))*100 or (avg_over_time(node_cpu_average{node_name=~\"$node_name\", mode!=\"total\", mode!=\"idle\"}[$interval]) or avg_over_time(node_cpu_average{node_name=~\"$node_name\", mode!=\"total\", mode!=\"idle\"}[5m]))),100))",
+                            "format": "time_series",
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "{{ mode }}",
+                            "refId": "B"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "expr": "clamp_max(max by () (sum  by (cpu) ( (clamp_max(rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode!=\"idle\",mode!=\"iowait\"}[$interval]),1)) or (clamp_max(irate(node_cpu_seconds_total{node_name=~\"$node_name\",mode!=\"idle\",mode!=\"iowait\"}[5m]),1)) )),1)",
+                            "format": "time_series",
+                            "hide": true,
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Max Core Utilization",
+                            "refId": "C"
+                        }
+                    ],
+                    "title": "CPU Usage",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "When a system is running with maximum CPU utilization, the transmitting and receiving threads must all share the available CPU. This will cause data to be queued more frequently to cope with the lack of CPU. CPU Saturation may be measured as the length of a wait queue, or the time spent waiting on the queue.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 20,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "stepAfter",
+                                "lineWidth": 2,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "showValues": false,
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 2,
+                            "links": [],
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Allocated"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#E0752D",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "CPU Load"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#64B0C8",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "IO Load "
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#EA6460",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Limit"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#1F78C1",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Max CPU Core Utilization"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#bf1b00",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Max Core Usage"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#bf1b00",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Normalized CPU Load"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#6ED0E0",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Max CPU Core Utilization"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.lineWidth",
+                                        "value": 0
+                                    },
+                                    {
+                                        "id": "custom.pointSize",
+                                        "value": 4
+                                    },
+                                    {
+                                        "id": "custom.showPoints",
+                                        "value": "always"
+                                    },
+                                    {
+                                        "id": "unit",
+                                        "value": "percentunit"
+                                    },
+                                    {
+                                        "id": "max",
+                                        "value": 1
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 12,
+                        "y": 83
+                    },
+                    "id": 339,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "calculatedInterval": "2s",
+                            "datasource": "Metrics",
+                            "datasourceErrors": {},
+                            "errors": {},
+                            "expr": "avg by (node_name) ((avg_over_time(node_procs_running{node_name=~\"$node_name\"}[$interval])-1) / scalar(count(node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"})) or (avg_over_time(node_procs_running{node_name=~\"$node_name\"}[5m])-1) / scalar(count(node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"})))",
+                            "format": "time_series",
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Normalized CPU Load",
+                            "metric": "",
+                            "refId": "B",
+                            "step": 300,
+                            "target": ""
+                        },
+                        {
+                            "calculatedInterval": "2s",
+                            "datasource": "Metrics",
+                            "datasourceErrors": {},
+                            "errors": {},
+                            "expr": "clamp_max(max by () (sum  by (cpu) ( (clamp_max(rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode!=\"idle\",mode!=\"iowait\"}[$interval]),1)) or (clamp_max(irate(node_cpu_seconds_total{node_name=~\"$node_name\",mode!=\"idle\",mode!=\"iowait\"}[5m]),1)) )),1)",
+                            "format": "time_series",
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Max CPU Core Utilization",
+                            "metric": "",
+                            "refId": "A",
+                            "step": 300,
+                            "target": ""
+                        }
+                    ],
+                    "title": "CPU Saturation and Max Core Usage",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Disk I/O includes read or write or input/output operations involving a physical disk. It is the speed with which the data transfer takes place between the hard disk drive and RAM.\n\nSwap Activity is memory management that involves swapping sections of memory to and from physical storage.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "Page Out (-) / Page In (+)",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 20,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "stepAfter",
+                                "lineWidth": 2,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "showValues": false,
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 2,
+                            "links": [],
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "Bps"
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Swap In (Reads)"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#6ed0e0",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Swap Out (Writes)"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#ef843c",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Total"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "color",
+                                        "value": {
+                                            "fixedColor": "#bf1b00",
+                                            "mode": "fixed"
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Disk Writes (Page Out)"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.transform",
+                                        "value": "negative-Y"
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Total"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.lineWidth",
+                                        "value": 0
+                                    }
+                                ]
+                            },
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Swap Out (Writes)"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.transform",
+                                        "value": "negative-Y"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 91
+                    },
+                    "id": 341,
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "Disk Performance",
+                            "url": "/graph/d/node-disk/disk-details?$__url_time_range&$__all_variables"
+                        }
+                    ],
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "calculatedInterval": "2s",
+                            "datasource": "Metrics",
+                            "datasourceErrors": {},
+                            "errors": {},
+                            "expr": "avg by (node_name) (rate(node_vmstat_pgpgin{node_name=\"$node_name\"}[$interval]) * 1024 or irate(node_vmstat_pgpgin{node_name=\"$node_name\"}[5m]) * 1024)",
+                            "format": "time_series",
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Disk Reads (Page In)",
+                            "metric": "",
+                            "refId": "A",
+                            "step": 300,
+                            "target": ""
+                        },
+                        {
+                            "calculatedInterval": "2s",
+                            "datasource": "Metrics",
+                            "datasourceErrors": {},
+                            "errors": {},
+                            "expr": "avg by (node_name) ((rate(node_vmstat_pgpgout{node_name=\"$node_name\"}[$interval]) * 1024 or irate(node_vmstat_pgpgout{node_name=\"$node_name\"}[5m]) * 1024))",
+                            "format": "time_series",
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Disk Writes (Page Out)",
+                            "metric": "",
+                            "refId": "B",
+                            "step": 300,
+                            "target": ""
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "expr": "avg by (node_name) ((rate(node_vmstat_pgpgin{node_name=\"$node_name\"}[$interval]) * 1024 or irate(node_vmstat_pgpgin{node_name=\"$node_name\"}[5m]) * 1024 ) + (rate(node_vmstat_pgpgout{node_name=\"$node_name\"}[$interval]) * 1024 or irate(node_vmstat_pgpgout{node_name=\"$node_name\"}[5m]) * 1024))",
+                            "format": "time_series",
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Total",
+                            "refId": "C"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "expr": "avg by (node_name) (rate(node_vmstat_pswpin{node_name=\"$node_name\"}[$interval]) * 4096 or irate(node_vmstat_pswpin{node_name=\"$node_name\"}[5m]) * 4096)",
+                            "format": "time_series",
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Swap In (Reads)",
+                            "refId": "D"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "expr": "avg by (node_name) (rate(node_vmstat_pswpout{node_name=\"$node_name\"}[$interval]) * 4096 or irate(node_vmstat_pswpout{node_name=\"$node_name\"}[5m]) * 4096)",
+                            "format": "time_series",
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Swap Out (Writes)",
+                            "refId": "E"
+                        }
+                    ],
+                    "title": "Disk I/O and Swap Activity",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Network traffic refers to the amount of data moving across a network at a given point in time.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "Outbound (-) / Inbound (+)",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 20,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "stepAfter",
+                                "lineWidth": 2,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "showValues": false,
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 2,
+                            "links": [],
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "Bps"
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "Outbound"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.transform",
+                                        "value": "negative-Y"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 12,
+                        "y": 91
+                    },
+                    "id": 343,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "max",
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "calculatedInterval": "2s",
+                            "datasource": "Metrics",
+                            "datasourceErrors": {},
+                            "errors": {},
+                            "expr": "avg by (node_name) (sum(rate(node_network_receive_bytes_total{node_name=\"$node_name\", device!=\"lo\"}[$interval])) or sum(irate(node_network_receive_bytes_total{node_name=\"$node_name\", device!=\"lo\"}[5m])) or sum(max_over_time(rdsosmetrics_network_rx{node_name=\"$node_name\"}[$interval])) or sum(max_over_time(rdsosmetrics_network_rx{node_name=\"$node_name\"}[5m])))",
+                            "format": "time_series",
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Inbound",
+                            "metric": "",
+                            "refId": "B",
+                            "step": 300,
+                            "target": ""
+                        },
+                        {
+                            "calculatedInterval": "2s",
+                            "datasource": "Metrics",
+                            "datasourceErrors": {},
+                            "errors": {},
+                            "expr": "avg by (node_name) (sum(rate(node_network_transmit_bytes_total{node_name=\"$node_name\", device!=\"lo\"}[$interval])) or sum(irate(node_network_transmit_bytes_total{node_name=\"$node_name\", device!=\"lo\"}[5m])) or\nsum(max_over_time(rdsosmetrics_network_tx{node_name=\"$node_name\"}[$interval])) or sum(max_over_time(rdsosmetrics_network_tx{node_name=\"$node_name\"}[5m])))",
+                            "format": "time_series",
+                            "interval": "$interval",
+                            "intervalFactor": 1,
+                            "legendFormat": "Outbound",
+                            "metric": "",
+                            "refId": "A",
+                            "step": 300,
+                            "target": ""
+                        }
+                    ],
+                    "title": "Network Traffic",
+                    "type": "timeseries"
+                }
+            ],
             "title": "Node Summary",
             "type": "row"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "The parameter shows how long a system has been “up” and running without a shut down or restart.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 2,
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "rgba(245, 54, 54, 0.9)",
-                                "value": 0
-                            },
-                            {
-                                "color": "rgba(237, 129, 40, 0.89)",
-                                "value": 300
-                            },
-                            {
-                                "color": "rgba(50, 172, 45, 0.97)",
-                                "value": 3600
-                            }
-                        ]
-                    },
-                    "unit": "s"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 0,
-                "y": 2
-            },
-            "id": 321,
-            "interval": "$interval",
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "text": {
-                    "valueSize": 20
-                },
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "calculatedInterval": "10m",
-                    "datasource": "Metrics",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (node_name) ((node_time_seconds{node_name=~\"$node_name\"} - node_boot_time_seconds{node_name=~\"$node_name\"}) or (time() - node_boot_time_seconds{node_name=~\"$node_name\"}))",
-                    "format": "time_series",
-                    "interval": "5m",
-                    "intervalFactor": 1,
-                    "legendFormat": "",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 300
-                }
-            ],
-            "title": "System Uptime",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "The system load is a measurement of the computational work the system is performing. Each running process either using or waiting for CPU resources adds 1 to the load.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 2,
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#299c46",
-                                "value": 0
-                            },
-                            {
-                                "color": "rgba(237, 129, 40, 0.89)",
-                                "value": 10
-                            },
-                            {
-                                "color": "#d44a3a",
-                                "value": 20
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 3,
-                "y": 2
-            },
-            "id": 323,
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "none",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "text": {
-                    "valueSize": 20
-                },
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "expr": "avg by (node_name) (avg_over_time(node_load1{node_name=~\"$node_name\"}[$interval]) or avg_over_time(node_load1{node_name=~\"$node_name\"}[5m]))",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "refId": "A"
-                }
-            ],
-            "title": "Load Average",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "RAM (Random Access Memory) is the hardware in a computing device where the operating system, application programs and data in current use are kept so they can be quickly reached by the device's processor.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 2,
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "bytes"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 6,
-                "y": 2
-            },
-            "id": 327,
-            "interval": "$interval",
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "none",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "text": {
-                    "valueSize": 20
-                },
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "expr": "avg by (node_name) (node_memory_MemTotal_bytes{node_name=~\"$node_name\"})",
-                    "format": "time_series",
-                    "interval": "5m",
-                    "intervalFactor": 1,
-                    "refId": "A",
-                    "step": 300
-                }
-            ],
-            "title": "RAM",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "Percent of Memory Available\nNote: on Modern Linux Kernels amount of Memory Available for application is not the same as Free+Cached+Buffers",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 2,
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#d44a3a",
-                                "value": 0
-                            },
-                            {
-                                "color": "rgba(237, 129, 40, 0.89)",
-                                "value": 5
-                            },
-                            {
-                                "color": "#299c46",
-                                "value": 10
-                            }
-                        ]
-                    },
-                    "unit": "percent"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 9,
-                "y": 2
-            },
-            "id": 329,
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "none",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "text": {
-                    "valueSize": 20
-                },
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "expr": "avg by (node_name) ((node_memory_MemAvailable_bytes{node_name=~\"$node_name\"} or (node_memory_MemFree_bytes{node_name=~\"$node_name\"} + node_memory_Buffers_bytes{node_name=~\"$node_name\"} + node_memory_Cached_bytes{node_name=~\"$node_name\"})) / node_memory_MemTotal_bytes{node_name=~\"$node_name\"} * 100)",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "refId": "A"
-                }
-            ],
-            "title": "Memory Available",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "RAM + SWAP",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 2,
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "bytes"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 12,
-                "y": 2
-            },
-            "id": 331,
-            "interval": "$interval",
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "none",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "text": {
-                    "valueSize": 20
-                },
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "expr": "avg by (node_name) (node_memory_MemTotal_bytes{node_name=~\"$node_name\"}+node_memory_SwapTotal_bytes{node_name=~\"$node_name\"})",
-                    "format": "time_series",
-                    "interval": "5m",
-                    "intervalFactor": 1,
-                    "refId": "A",
-                    "step": 300
-                }
-            ],
-            "title": "Virtual Memory",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "Sum of disk space on all partitions. Note  it can be significantly over-reported in some installations",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 2,
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "bytes"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 15,
-                "y": 2
-            },
-            "id": 333,
-            "interval": "$interval",
-            "links": [
-                {
-                    "targetBlank": true,
-                    "title": "Disk Space",
-                    "url": "/graph/d/node-disk/disk-details?$__url_time_range&$__all_variables"
-                }
-            ],
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "none",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "text": {
-                    "valueSize": 20
-                },
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "expr": "avg by (node_name) (sum(avg(node_filesystem_size_bytes{node_name=~\"$node_name\",fstype=~\"(ext.|xfs|vfat|)\"}) without (mountpoint)) without (device,fstype))",
-                    "format": "time_series",
-                    "interval": "5m",
-                    "intervalFactor": 1,
-                    "refId": "A",
-                    "step": 300
-                }
-            ],
-            "title": "Disk Space",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "Lowest percent of the disk space available",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 2,
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "#d44a3a",
-                                "value": 0
-                            },
-                            {
-                                "color": "rgba(237, 129, 40, 0.89)",
-                                "value": 5
-                            },
-                            {
-                                "color": "#299c46",
-                                "value": 20
-                            }
-                        ]
-                    },
-                    "unit": "percent"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 18,
-                "y": 2
-            },
-            "id": 335,
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "none",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "text": {
-                    "valueSize": 20
-                },
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "expr": "min(node_filesystem_free_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"}/node_filesystem_size_bytes{node_name=~\"$node_name\", fstype!~\"rootfs|selinuxfs|autofs|rpc_pipefs|tmpfs|shm|overlay|squashfs\"})*100",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "refId": "A"
-                }
-            ],
-            "title": "Min Space Available",
-            "type": "stat"
-        },
-        {
-            "fieldConfig": {
-                "defaults": {},
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 21,
-                "y": 2
-            },
-            "id": 1002,
-            "options": {
-                "code": {
-                    "language": "plaintext",
-                    "showLineNumbers": false,
-                    "showMiniMap": false
-                },
-                "content": "<h5 style='color:#e68a00;font-weight:bold;text-align:center'><a href=\"/graph/d/node-instance-summary/node-summary?var-node_name=$node_name\" target=\"_blank\">$node_name</a></h5>",
-                "mode": "html"
-            },
-            "pluginVersion": "12.4.5",
-            "title": "Node",
-            "type": "text"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "The CPU time is measured in clock ticks or seconds. It is useful to measure CPU time as a percentage of the CPU's capacity, which is called the CPU usage.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "barWidthFactor": 0.6,
-                        "drawStyle": "line",
-                        "fillOpacity": 60,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "insertNulls": false,
-                        "lineInterpolation": "stepAfter",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "showValues": false,
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "normal"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "decimals": 2,
-                    "links": [],
-                    "mappings": [],
-                    "max": 100,
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "percent"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Max Core Utilization"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#bf1b00",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "idle"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#806EB7",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "iowait"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#E24D42",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "nice"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#1F78C1",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "softirq"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#FFF899",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "steal"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#8F3BB8",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "system"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#EAB839",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "user"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#508642",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Max Core Utilization"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 0
-                            },
-                            {
-                                "id": "custom.pointSize",
-                                "value": 4
-                            },
-                            {
-                                "id": "custom.showPoints",
-                                "value": "always"
-                            },
-                            {
-                                "id": "custom.stacking",
-                                "value": {
-                                    "group": false,
-                                    "mode": "normal"
-                                }
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 5
-            },
-            "id": 337,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "mean",
-                        "max",
-                        "min"
-                    ],
-                    "displayMode": "table",
-                    "placement": "bottom",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "hideZeros": false,
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "expr": "avg by (node_name,mode) (clamp_max(((avg by (mode) ( (clamp_max(rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode!=\"idle\"}[$interval]),1)) or (clamp_max(irate(node_cpu_seconds_total{node_name=~\"$node_name\",mode!=\"idle\"}[5m]),1)) ))*100 or (avg_over_time(node_cpu_average{node_name=~\"$node_name\", mode!=\"total\", mode!=\"idle\"}[$interval]) or avg_over_time(node_cpu_average{node_name=~\"$node_name\", mode!=\"total\", mode!=\"idle\"}[5m]))),100))",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "{{ mode }}",
-                    "refId": "B"
-                },
-                {
-                    "datasource": "Metrics",
-                    "expr": "clamp_max(max by () (sum  by (cpu) ( (clamp_max(rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode!=\"idle\",mode!=\"iowait\"}[$interval]),1)) or (clamp_max(irate(node_cpu_seconds_total{node_name=~\"$node_name\",mode!=\"idle\",mode!=\"iowait\"}[5m]),1)) )),1)",
-                    "format": "time_series",
-                    "hide": true,
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "Max Core Utilization",
-                    "refId": "C"
-                }
-            ],
-            "title": "CPU Usage",
-            "type": "timeseries"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "When a system is running with maximum CPU utilization, the transmitting and receiving threads must all share the available CPU. This will cause data to be queued more frequently to cope with the lack of CPU. CPU Saturation may be measured as the length of a wait queue, or the time spent waiting on the queue.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "barWidthFactor": 0.6,
-                        "drawStyle": "line",
-                        "fillOpacity": 20,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "insertNulls": false,
-                        "lineInterpolation": "stepAfter",
-                        "lineWidth": 2,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "showValues": false,
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "decimals": 2,
-                    "links": [],
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "short"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Allocated"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#E0752D",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "CPU Load"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#64B0C8",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "IO Load "
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#EA6460",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Limit"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#1F78C1",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Max CPU Core Utilization"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#bf1b00",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Max Core Usage"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#bf1b00",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Normalized CPU Load"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#6ED0E0",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Max CPU Core Utilization"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 0
-                            },
-                            {
-                                "id": "custom.pointSize",
-                                "value": 4
-                            },
-                            {
-                                "id": "custom.showPoints",
-                                "value": "always"
-                            },
-                            {
-                                "id": "unit",
-                                "value": "percentunit"
-                            },
-                            {
-                                "id": "max",
-                                "value": 1
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 5
-            },
-            "id": 339,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "mean",
-                        "max",
-                        "min"
-                    ],
-                    "displayMode": "table",
-                    "placement": "bottom",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "hideZeros": false,
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "calculatedInterval": "2s",
-                    "datasource": "Metrics",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (node_name) ((avg_over_time(node_procs_running{node_name=~\"$node_name\"}[$interval])-1) / scalar(count(node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"})) or (avg_over_time(node_procs_running{node_name=~\"$node_name\"}[5m])-1) / scalar(count(node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"})))",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "Normalized CPU Load",
-                    "metric": "",
-                    "refId": "B",
-                    "step": 300,
-                    "target": ""
-                },
-                {
-                    "calculatedInterval": "2s",
-                    "datasource": "Metrics",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "clamp_max(max by () (sum  by (cpu) ( (clamp_max(rate(node_cpu_seconds_total{node_name=~\"$node_name\",mode!=\"idle\",mode!=\"iowait\"}[$interval]),1)) or (clamp_max(irate(node_cpu_seconds_total{node_name=~\"$node_name\",mode!=\"idle\",mode!=\"iowait\"}[5m]),1)) )),1)",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "Max CPU Core Utilization",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 300,
-                    "target": ""
-                }
-            ],
-            "title": "CPU Saturation and Max Core Usage",
-            "type": "timeseries"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "Disk I/O includes read or write or input/output operations involving a physical disk. It is the speed with which the data transfer takes place between the hard disk drive and RAM.\n\nSwap Activity is memory management that involves swapping sections of memory to and from physical storage.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "Page Out (-) / Page In (+)",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "barWidthFactor": 0.6,
-                        "drawStyle": "line",
-                        "fillOpacity": 20,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "insertNulls": false,
-                        "lineInterpolation": "stepAfter",
-                        "lineWidth": 2,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "showValues": false,
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "decimals": 2,
-                    "links": [],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "Bps"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Swap In (Reads)"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#6ed0e0",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Swap Out (Writes)"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#ef843c",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Total"
-                        },
-                        "properties": [
-                            {
-                                "id": "color",
-                                "value": {
-                                    "fixedColor": "#bf1b00",
-                                    "mode": "fixed"
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Disk Writes (Page Out)"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.transform",
-                                "value": "negative-Y"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Total"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.lineWidth",
-                                "value": 0
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Swap Out (Writes)"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.transform",
-                                "value": "negative-Y"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 13
-            },
-            "id": 341,
-            "links": [
-                {
-                    "targetBlank": true,
-                    "title": "Disk Performance",
-                    "url": "/graph/d/node-disk/disk-details?$__url_time_range&$__all_variables"
-                }
-            ],
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "mean",
-                        "max",
-                        "min"
-                    ],
-                    "displayMode": "table",
-                    "placement": "bottom",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "hideZeros": false,
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "calculatedInterval": "2s",
-                    "datasource": "Metrics",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (node_name) (rate(node_vmstat_pgpgin{node_name=\"$node_name\"}[$interval]) * 1024 or irate(node_vmstat_pgpgin{node_name=\"$node_name\"}[5m]) * 1024)",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "Disk Reads (Page In)",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 300,
-                    "target": ""
-                },
-                {
-                    "calculatedInterval": "2s",
-                    "datasource": "Metrics",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (node_name) ((rate(node_vmstat_pgpgout{node_name=\"$node_name\"}[$interval]) * 1024 or irate(node_vmstat_pgpgout{node_name=\"$node_name\"}[5m]) * 1024))",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "Disk Writes (Page Out)",
-                    "metric": "",
-                    "refId": "B",
-                    "step": 300,
-                    "target": ""
-                },
-                {
-                    "datasource": "Metrics",
-                    "expr": "avg by (node_name) ((rate(node_vmstat_pgpgin{node_name=\"$node_name\"}[$interval]) * 1024 or irate(node_vmstat_pgpgin{node_name=\"$node_name\"}[5m]) * 1024 ) + (rate(node_vmstat_pgpgout{node_name=\"$node_name\"}[$interval]) * 1024 or irate(node_vmstat_pgpgout{node_name=\"$node_name\"}[5m]) * 1024))",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "Total",
-                    "refId": "C"
-                },
-                {
-                    "datasource": "Metrics",
-                    "expr": "avg by (node_name) (rate(node_vmstat_pswpin{node_name=\"$node_name\"}[$interval]) * 4096 or irate(node_vmstat_pswpin{node_name=\"$node_name\"}[5m]) * 4096)",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "Swap In (Reads)",
-                    "refId": "D"
-                },
-                {
-                    "datasource": "Metrics",
-                    "expr": "avg by (node_name) (rate(node_vmstat_pswpout{node_name=\"$node_name\"}[$interval]) * 4096 or irate(node_vmstat_pswpout{node_name=\"$node_name\"}[5m]) * 4096)",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "Swap Out (Writes)",
-                    "refId": "E"
-                }
-            ],
-            "title": "Disk I/O and Swap Activity",
-            "type": "timeseries"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "Network traffic refers to the amount of data moving across a network at a given point in time.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "Outbound (-) / Inbound (+)",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "barWidthFactor": 0.6,
-                        "drawStyle": "line",
-                        "fillOpacity": 20,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "insertNulls": false,
-                        "lineInterpolation": "stepAfter",
-                        "lineWidth": 2,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "showValues": false,
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "decimals": 2,
-                    "links": [],
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "Bps"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Outbound"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.transform",
-                                "value": "negative-Y"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 13
-            },
-            "id": 343,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "mean",
-                        "max",
-                        "min"
-                    ],
-                    "displayMode": "table",
-                    "placement": "bottom",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "hideZeros": false,
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "calculatedInterval": "2s",
-                    "datasource": "Metrics",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (node_name) (sum(rate(node_network_receive_bytes_total{node_name=\"$node_name\", device!=\"lo\"}[$interval])) or sum(irate(node_network_receive_bytes_total{node_name=\"$node_name\", device!=\"lo\"}[5m])) or sum(max_over_time(rdsosmetrics_network_rx{node_name=\"$node_name\"}[$interval])) or sum(max_over_time(rdsosmetrics_network_rx{node_name=\"$node_name\"}[5m])))",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "Inbound",
-                    "metric": "",
-                    "refId": "B",
-                    "step": 300,
-                    "target": ""
-                },
-                {
-                    "calculatedInterval": "2s",
-                    "datasource": "Metrics",
-                    "datasourceErrors": {},
-                    "errors": {},
-                    "expr": "avg by (node_name) (sum(rate(node_network_transmit_bytes_total{node_name=\"$node_name\", device!=\"lo\"}[$interval])) or sum(irate(node_network_transmit_bytes_total{node_name=\"$node_name\", device!=\"lo\"}[5m])) or\nsum(max_over_time(rdsosmetrics_network_tx{node_name=\"$node_name\"}[$interval])) or sum(max_over_time(rdsosmetrics_network_tx{node_name=\"$node_name\"}[5m])))",
-                    "format": "time_series",
-                    "interval": "$interval",
-                    "intervalFactor": 1,
-                    "legendFormat": "Outbound",
-                    "metric": "",
-                    "refId": "A",
-                    "step": 300,
-                    "target": ""
-                }
-            ],
-            "title": "Network Traffic",
-            "type": "timeseries"
         },
         {
             "collapsed": true,
@@ -2139,7 +2140,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 21
+                "y": 2
             },
             "id": 1070,
             "panels": [
@@ -2188,7 +2189,7 @@
                         "h": 3,
                         "w": 6,
                         "x": 0,
-                        "y": 100
+                        "y": 3
                     },
                     "id": 1071,
                     "options": {
@@ -2251,7 +2252,7 @@
                         "h": 3,
                         "w": 6,
                         "x": 6,
-                        "y": 100
+                        "y": 3
                     },
                     "id": 1080,
                     "options": {
@@ -2314,7 +2315,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 12,
-                        "y": 100
+                        "y": 3
                     },
                     "id": 1078,
                     "options": {
@@ -2381,7 +2382,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 16,
-                        "y": 100
+                        "y": 3
                     },
                     "id": 1082,
                     "options": {
@@ -2445,7 +2446,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 20,
-                        "y": 100
+                        "y": 3
                     },
                     "id": 1081,
                     "options": {
@@ -2543,7 +2544,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 181
+                        "y": 84
                     },
                     "id": 1072,
                     "options": {
@@ -2644,7 +2645,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 181
+                        "y": 84
                     },
                     "id": 1058,
                     "options": {
@@ -2755,7 +2756,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 189
+                        "y": 92
                     },
                     "id": 1075,
                     "options": {
@@ -2848,7 +2849,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 189
+                        "y": 92
                     },
                     "id": 1077,
                     "options": {
@@ -2888,7 +2889,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 22
+                "y": 3
             },
             "id": 1056,
             "panels": [],
@@ -2940,7 +2941,7 @@
                 "h": 3,
                 "w": 4,
                 "x": 0,
-                "y": 23
+                "y": 4
             },
             "id": 1045,
             "options": {
@@ -2960,7 +2961,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3020,7 +3021,7 @@
                 "h": 3,
                 "w": 4,
                 "x": 4,
-                "y": 23
+                "y": 4
             },
             "id": 1060,
             "options": {
@@ -3040,7 +3041,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3084,7 +3085,7 @@
                 "h": 3,
                 "w": 4,
                 "x": 8,
-                "y": 23
+                "y": 4
             },
             "id": 1061,
             "options": {
@@ -3107,7 +3108,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3151,7 +3152,7 @@
                 "h": 3,
                 "w": 4,
                 "x": 12,
-                "y": 23
+                "y": 4
             },
             "id": 1062,
             "options": {
@@ -3174,7 +3175,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3218,7 +3219,7 @@
                 "h": 3,
                 "w": 4,
                 "x": 16,
-                "y": 23
+                "y": 4
             },
             "id": 1063,
             "options": {
@@ -3241,7 +3242,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3285,7 +3286,7 @@
                 "h": 3,
                 "w": 4,
                 "x": 20,
-                "y": 23
+                "y": 4
             },
             "id": 1064,
             "options": {
@@ -3308,7 +3309,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3368,7 +3369,7 @@
                 "h": 3,
                 "w": 4,
                 "x": 0,
-                "y": 26
+                "y": 7
             },
             "id": 1120,
             "options": {
@@ -3388,7 +3389,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3451,7 +3452,7 @@
                 "h": 3,
                 "w": 4,
                 "x": 12,
-                "y": 26
+                "y": 7
             },
             "id": 1121,
             "options": {
@@ -3471,7 +3472,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3552,7 +3553,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 29
+                "y": 10
             },
             "id": 1057,
             "options": {
@@ -3573,7 +3574,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3654,7 +3655,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 29
+                "y": 10
             },
             "id": 1073,
             "options": {
@@ -3675,7 +3676,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3767,7 +3768,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 37
+                "y": 18
             },
             "id": 1068,
             "options": {
@@ -3783,7 +3784,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3863,7 +3864,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 37
+                "y": 18
             },
             "id": 1066,
             "options": {
@@ -3879,7 +3880,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -3962,7 +3963,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 45
+                "y": 26
             },
             "id": 1116,
             "options": {
@@ -3978,7 +3979,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -4095,7 +4096,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 45
+                "y": 26
             },
             "id": 1114,
             "options": {
@@ -4111,7 +4112,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -4205,7 +4206,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 53
+                "y": 34
             },
             "id": 1108,
             "options": {
@@ -4221,7 +4222,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -4305,7 +4306,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 53
+                "y": 34
             },
             "id": 1125,
             "options": {
@@ -4321,7 +4322,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -4404,7 +4405,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 61
+                "y": 42
             },
             "id": 1126,
             "options": {
@@ -4420,7 +4421,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -4550,7 +4551,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 61
+                "y": 42
             },
             "id": 1117,
             "options": {
@@ -4560,7 +4561,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -4645,7 +4646,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 69
+                "y": 50
             },
             "id": 1109,
             "options": {
@@ -4661,7 +4662,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -4745,7 +4746,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 69
+                "y": 50
             },
             "id": 1115,
             "options": {
@@ -4761,7 +4762,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -4859,7 +4860,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 77
+                "y": 58
             },
             "id": 1122,
             "options": {
@@ -4875,7 +4876,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "editorMode": "code",
@@ -4997,7 +4998,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 77
+                "y": 58
             },
             "id": 1113,
             "options": {
@@ -5013,7 +5014,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "editorMode": "code",
@@ -5115,7 +5116,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 85
+                "y": 66
             },
             "id": 1118,
             "options": {
@@ -5131,7 +5132,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "editorMode": "code",
@@ -5233,7 +5234,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 85
+                "y": 66
             },
             "id": 1111,
             "options": {
@@ -5249,7 +5250,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "expr": "go_goroutines{job=\"pmm-managed\"}",
@@ -5376,7 +5377,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 93
+                "y": 74
             },
             "id": 1123,
             "options": {
@@ -5392,7 +5393,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "editorMode": "code",
@@ -5438,7 +5439,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 101
+                "y": 82
             },
             "id": 1033,
             "panels": [],
@@ -5490,7 +5491,7 @@
                 "h": 3,
                 "w": 6,
                 "x": 0,
-                "y": 102
+                "y": 83
             },
             "id": 1059,
             "options": {
@@ -5510,7 +5511,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -5553,7 +5554,7 @@
                 "h": 3,
                 "w": 6,
                 "x": 6,
-                "y": 102
+                "y": 83
             },
             "id": 1047,
             "options": {
@@ -5573,7 +5574,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -5614,7 +5615,7 @@
                 "h": 3,
                 "w": 3,
                 "x": 12,
-                "y": 102
+                "y": 83
             },
             "id": 1049,
             "maxDataPoints": 100,
@@ -5635,7 +5636,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -5690,7 +5691,7 @@
                 "h": 3,
                 "w": 3,
                 "x": 15,
-                "y": 102
+                "y": 83
             },
             "id": 1029,
             "maxDataPoints": 100,
@@ -5711,7 +5712,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -5766,7 +5767,7 @@
                 "h": 3,
                 "w": 3,
                 "x": 18,
-                "y": 102
+                "y": 83
             },
             "id": 1051,
             "maxDataPoints": 100,
@@ -5787,7 +5788,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -5842,7 +5843,7 @@
                 "h": 3,
                 "w": 3,
                 "x": 21,
-                "y": 102
+                "y": 83
             },
             "id": 1031,
             "maxDataPoints": 100,
@@ -5863,7 +5864,7 @@
                 "textMode": "auto",
                 "wideLayout": true
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -5942,7 +5943,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 105
+                "y": 86
             },
             "id": 1039,
             "options": {
@@ -5963,7 +5964,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -6043,7 +6044,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 105
+                "y": 86
             },
             "id": 1037,
             "options": {
@@ -6064,7 +6065,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.5",
+            "pluginVersion": "12.4.3",
             "targets": [
                 {
                     "datasource": "Metrics",
@@ -6154,7 +6155,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 113
+                "y": 94
             },
             "id": 1041,
             "options": {
@@ -6275,7 +6276,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 113
+                "y": 94
             },
             "id": 1043,
             "options": {
@@ -6407,7 +6408,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 121
+                "y": 102
             },
             "id": 1127,
             "options": {
@@ -6456,7 +6457,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 129
+                "y": 110
             },
             "id": 1009,
             "panels": [
@@ -6505,7 +6506,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 0,
-                        "y": 327
+                        "y": 230
                     },
                     "id": 1011,
                     "maxDataPoints": 100,
@@ -6590,7 +6591,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 5,
-                        "y": 327
+                        "y": 230
                     },
                     "id": 1013,
                     "maxDataPoints": 100,
@@ -6683,7 +6684,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 10,
-                        "y": 327
+                        "y": 230
                     },
                     "id": 1015,
                     "maxDataPoints": 100,
@@ -6765,7 +6766,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 15,
-                        "y": 327
+                        "y": 230
                     },
                     "id": 1017,
                     "maxDataPoints": 100,
@@ -6847,7 +6848,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 19,
-                        "y": 327
+                        "y": 230
                     },
                     "id": 1019,
                     "maxDataPoints": 100,
@@ -6953,7 +6954,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 330
+                        "y": 233
                     },
                     "id": 1021,
                     "options": {
@@ -7055,7 +7056,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 330
+                        "y": 233
                     },
                     "id": 1023,
                     "options": {
@@ -7155,7 +7156,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 338
+                        "y": 241
                     },
                     "id": 1025,
                     "options": {
@@ -7256,7 +7257,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 338
+                        "y": 241
                     },
                     "id": 1027,
                     "links": [
@@ -7316,7 +7317,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 130
+                "y": 111
             },
             "id": 1084,
             "panels": [
@@ -7365,7 +7366,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 0,
-                        "y": 328
+                        "y": 231
                     },
                     "id": 1094,
                     "options": {
@@ -7444,7 +7445,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 4,
-                        "y": 328
+                        "y": 231
                     },
                     "id": 1095,
                     "options": {
@@ -7523,7 +7524,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 8,
-                        "y": 328
+                        "y": 231
                     },
                     "id": 1096,
                     "options": {
@@ -7603,7 +7604,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 12,
-                        "y": 328
+                        "y": 231
                     },
                     "id": 1099,
                     "options": {
@@ -7683,7 +7684,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 16,
-                        "y": 328
+                        "y": 231
                     },
                     "id": 1098,
                     "options": {
@@ -7763,7 +7764,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 20,
-                        "y": 328
+                        "y": 231
                     },
                     "id": 1097,
                     "options": {
@@ -7861,7 +7862,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 0,
-                        "y": 331
+                        "y": 234
                     },
                     "id": 1101,
                     "maxDataPoints": 200,
@@ -7959,7 +7960,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 12,
-                        "y": 331
+                        "y": 234
                     },
                     "id": 1103,
                     "maxDataPoints": 200,
@@ -8067,7 +8068,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 0,
-                        "y": 336
+                        "y": 239
                     },
                     "id": 1105,
                     "maxDataPoints": 200,
@@ -8176,7 +8177,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 12,
-                        "y": 336
+                        "y": 239
                     },
                     "id": 1107,
                     "maxDataPoints": 200,
@@ -8220,7 +8221,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 131
+                "y": 112
             },
             "id": 1007,
             "panels": [
@@ -8279,7 +8280,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 0,
-                        "y": 360
+                        "y": 263
                     },
                     "id": 63,
                     "maxDataPoints": 100,
@@ -8327,7 +8328,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 4,
-                        "y": 360
+                        "y": 263
                     },
                     "id": 1001,
                     "options": {
@@ -8368,7 +8369,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 9,
-                        "y": 360
+                        "y": 263
                     },
                     "id": 65,
                     "options": {
@@ -8444,7 +8445,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 14,
-                        "y": 360
+                        "y": 263
                     },
                     "id": 67,
                     "links": [
@@ -8531,7 +8532,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 19,
-                        "y": 360
+                        "y": 263
                     },
                     "id": 69,
                     "links": [
@@ -8631,7 +8632,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 0,
-                        "y": 363
+                        "y": 266
                     },
                     "id": 85,
                     "links": [
@@ -8720,7 +8721,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 4,
-                        "y": 363
+                        "y": 266
                     },
                     "id": 86,
                     "maxDataPoints": 100,
@@ -8803,7 +8804,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 9,
-                        "y": 363
+                        "y": 266
                     },
                     "id": 1005,
                     "links": [
@@ -8891,7 +8892,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 14,
-                        "y": 363
+                        "y": 266
                     },
                     "id": 70,
                     "links": [
@@ -8979,7 +8980,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 19,
-                        "y": 363
+                        "y": 266
                     },
                     "id": 68,
                     "links": [
@@ -9136,7 +9137,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 366
+                        "y": 269
                     },
                     "id": 23,
                     "options": {
@@ -9292,7 +9293,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 366
+                        "y": 269
                     },
                     "id": 34,
                     "options": {
@@ -9402,7 +9403,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 374
+                        "y": 277
                     },
                     "id": 36,
                     "options": {
@@ -9539,7 +9540,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 374
+                        "y": 277
                     },
                     "id": 26,
                     "options": {
@@ -9731,6 +9732,6 @@
     "timezone": "",
     "title": "PMM Health",
     "uid": "pmm-health",
-    "version": 7,
+    "version": 13,
     "weekStart": ""
 }
