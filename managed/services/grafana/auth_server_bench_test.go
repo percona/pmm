@@ -39,8 +39,8 @@ func BenchmarkAuthServerAuthenticateUser(b *testing.B) {
 			if authErr != nil {
 				b.Fatalf("authenticateUser returned error: %v", authErr)
 			}
-			if got == nil {
-				b.Fatal("authenticateUser returned nil user")
+			if got == (authUser{}) {
+				b.Fatal("authenticateUser returned zero user")
 			}
 		}
 	})
@@ -66,8 +66,8 @@ func BenchmarkAuthServerAuthenticateUser(b *testing.B) {
 			if err != nil {
 				b.Fatalf("authenticateUser returned error: %v", err)
 			}
-			if got == nil {
-				b.Fatal("authenticateUser returned nil user")
+			if got == (authUser{}) {
+				b.Fatal("authenticateUser returned zero user")
 			}
 		}
 	})
@@ -79,11 +79,13 @@ func BenchmarkAuthServerAuthenticateUser(b *testing.B) {
 		grafanaMock.On("getAuthUser", mock.Anything, mock.Anything, mock.Anything).
 			Return(authUser{role: admin, userID: 42}, nil)
 
+		req := httptest.NewRequestWithContext(b.Context(), http.MethodGet, "/v1/server/settings", nil)
+		req.RemoteAddr = "10.0.0.1:4423"
+		req.Header.Set("Authorization", "Bearer ")
+
 		seq := 0
 		b.ReportAllocs()
 		for b.Loop() {
-			req := httptest.NewRequestWithContext(b.Context(), http.MethodGet, "/v1/server/settings", nil)
-			req.RemoteAddr = "10.0.0.1:443"
 			req.Header.Set("Authorization", "Bearer "+strconv.Itoa(seq))
 			seq++
 
@@ -91,8 +93,8 @@ func BenchmarkAuthServerAuthenticateUser(b *testing.B) {
 			if err != nil {
 				b.Fatalf("authenticateUser returned error: %v", err)
 			}
-			if got == nil {
-				b.Fatal("authenticateUser returned nil user")
+			if got == (authUser{}) {
+				b.Fatal("authenticateUser returned zero user")
 			}
 		}
 	})

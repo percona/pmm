@@ -18,10 +18,10 @@ package grafana
 import (
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/require"
 )
 
 func BenchmarkCleanPath(b *testing.B) {
@@ -30,13 +30,13 @@ func BenchmarkCleanPath(b *testing.B) {
 
 	b.ReportAllocs()
 
-	cleanedPath, err := cleanPath(unescapedURI)
-	require.NoError(b, err)
-	require.Equal(b, expectedCleanPath, cleanedPath)
+	// cleanedPath, err := cleanPath(unescapedURI)
+	// require.NoError(b, err)
+	// require.Equal(b, expectedCleanPath, cleanedPath)
 
 	b.ResetTimer()
 	for b.Loop() {
-		cleanedPath, err = cleanPath(unescapedURI)
+		cleanedPath, err := cleanPath(unescapedURI)
 		if err != nil {
 			b.Fatalf("cleanPath returned error: %v", err)
 		}
@@ -50,40 +50,43 @@ func BenchmarkAuthCacheKey(b *testing.B) {
 	b.ReportAllocs()
 
 	for _, tc := range []struct {
-		name    string
-		headers http.Header
+		name string
+		set  func(*http.Request)
 	}{
 		{
-			name:    "authorization-only",
-			headers: http.Header{"Authorization": []string{"Bearer token"}},
+			name: "authorization-only",
+			set: func(r *http.Request) {
+				r.Header.Set("Authorization", "Bearer token")
+			},
 		},
 		{
-			name:    "cookie-only",
-			headers: http.Header{"Cookie": []string{"grafana_session=abc"}},
+			name: "cookie-only",
+			set: func(r *http.Request) {
+				r.Header.Set("Cookie", "grafana_session=abc")
+			},
 		},
 		{
 			name: "authorization-and-cookie",
-			headers: http.Header{
-				"Authorization": []string{"Bearer token"},
-				"Cookie":        []string{"grafana_session=abc"},
+			set: func(r *http.Request) {
+				r.Header.Set("Authorization", "Bearer token")
+				r.Header.Set("Cookie", "grafana_session=abc")
 			},
 		},
 		{
 			name: "fallback-with-extra-header",
-			headers: http.Header{
-				"Authorization": []string{"Bearer token"},
-				"Cookie":        []string{"grafana_session=abc"},
-				"X-Extra":       []string{"1"},
+			set: func(r *http.Request) {
+				r.Header.Set("Authorization", "Bearer token")
+				r.Header.Set("Cookie", "grafana_session=abc")
+				r.Header.Set("X-Extra", "1")
 			},
 		},
 	} {
 		b.Run(tc.name, func(b *testing.B) {
+			req := httptest.NewRequestWithContext(b.Context(), http.MethodGet, "/", nil)
+			tc.set(req)
 			for b.Loop() {
-				key, err := authCacheKey(tc.headers)
-				if err != nil {
-					b.Fatalf("authCacheKey returned error: %v", err)
-				}
-				if key == "" {
+				key := authCacheKey(req)
+				if key == 0 {
 					b.Fatalf("authCacheKey returned empty key")
 				}
 			}

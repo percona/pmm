@@ -77,7 +77,7 @@ func setupLBACServer(t *testing.T) (*AuthServer, *mockGrafanaAuthUserGetter, sql
 	s, grafanaMock, sqlMock := newTestAuthServer(t)
 	accessControlMock := newMockAccessControl(t)
 	s.accessControl = accessControlMock
-	accessControlMock.On("isEnabled").Return(true)
+	accessControlMock.On("isEnabled").Return(true).Maybe()
 	t.Cleanup(func() {
 		accessControlMock.AssertExpectations(t)
 	})
@@ -86,6 +86,17 @@ func setupLBACServer(t *testing.T) (*AuthServer, *mockGrafanaAuthUserGetter, sql
 
 func cacheSize(s *AuthServer) int64 {
 	return s.cache.Size()
+}
+
+func requireAuthErrorCode(t *testing.T, err error, want codes.Code) {
+	t.Helper()
+
+	if authErr, ok := errors.AsType[*authError](err); ok {
+		assert.Equal(t, want, authErr.code)
+		return
+	}
+
+	require.Failf(t, "expected authError", "unexpected error type: %T", err)
 }
 
 func roleRows(rows ...struct {
@@ -165,9 +176,7 @@ func TestAuthServerNeedAddLBACFilters(t *testing.T) {
 		for _, prefix := range lbacPrefixes {
 			t.Run(prefix, func(t *testing.T) {
 				t.Parallel()
-
-				req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, prefix, nil)
-				assert.False(t, s.needAddLBACFilters(req))
+				assert.False(t, s.needAddLBACFilters(prefix))
 			})
 		}
 	})
@@ -186,9 +195,7 @@ func TestAuthServerNeedAddLBACFilters(t *testing.T) {
 		} {
 			t.Run(prefix, func(t *testing.T) {
 				t.Parallel()
-
-				req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, prefix, nil)
-				assert.False(t, s.needAddLBACFilters(req))
+				assert.False(t, s.needAddLBACFilters(prefix))
 			})
 		}
 	})
@@ -207,9 +214,7 @@ func TestAuthServerNeedAddLBACFilters(t *testing.T) {
 		for _, prefix := range lbacPrefixes {
 			t.Run(prefix, func(t *testing.T) {
 				t.Parallel()
-
-				req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, prefix, nil)
-				assert.True(t, s.needAddLBACFilters(req))
+				assert.True(t, s.needAddLBACFilters(prefix))
 			})
 		}
 	})
@@ -228,9 +233,7 @@ func TestAuthServerNeedAddLBACFilters(t *testing.T) {
 		} {
 			t.Run(prefix, func(t *testing.T) {
 				t.Parallel()
-
-				req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, prefix, nil)
-				assert.False(t, s.needAddLBACFilters(req))
+				assert.False(t, s.needAddLBACFilters(prefix))
 			})
 		}
 	})
@@ -314,47 +317,29 @@ func TestAuthServerAddLBACFilters(t *testing.T) {
 
 	log := logrus.WithField("test", t.Name())
 
-	t.Run("non proxied request skips", func(t *testing.T) {
+	t.Run("anonymous user is allowed without filters", func(t *testing.T) {
 		t.Parallel()
 		s, _, _ := setupLBACServer(t)
 
-		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/server/settings", nil)
-		filters, err := s.addLBACFilters(t.Context(), req, 1001, log)
+		filters, err := s.addLBACFilters(t.Context(), 0, log)
 		require.NoError(t, err)
 		assert.Empty(t, filters)
 	})
 
-	t.Run("cannot get user id when grafana auth fails", func(t *testing.T) {
+	t.Run("returns error when user has no assigned roles and default role assignment fails", func(t *testing.T) {
 		t.Parallel()
-		s, grafanaMock, _ := setupLBACServer(t)
+		s, _, sqlMock := setupLBACServer(t)
+		sqlMock.ExpectQuery("SELECT").WithArgs(1003).WillReturnRows(roleRows())
+		sqlMock.ExpectBegin()
+		sqlMock.ExpectQuery("SELECT").WillReturnError(assert.AnError)
+		sqlMock.ExpectRollback()
 
-		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/prometheus/api/v1/query", nil)
-		req.Header.Set("Authorization", "Bearer broken")
-
-		grafanaMock.On("getAuthUser", mock.Anything, mock.Anything, mock.Anything).
-			Return(authUser{}, &clientError{Code: http.StatusUnauthorized, ErrorMessage: http.StatusText(http.StatusUnauthorized)}).
-			Once()
-
-		filters, err := s.addLBACFilters(t.Context(), req, 0, log)
-		require.ErrorIs(t, err, errFailGetUserID)
-		assert.Empty(t, filters)
+		encoded, err := s.addLBACFilters(t.Context(), 1003, log)
+		require.ErrorIs(t, err, assert.AnError)
+		require.Empty(t, encoded)
 	})
 
-	t.Run("anonymous user is allowed without filters", func(t *testing.T) {
-		t.Parallel()
-		s, grafanaMock, _ := setupLBACServer(t)
-
-		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/prometheus/api/v1/query", nil)
-		grafanaMock.On("getAuthUser", mock.Anything, mock.Anything, mock.Anything).
-			Return(authUser{role: viewer, userID: 0}, nil).
-			Once()
-
-		filters, err := s.addLBACFilters(t.Context(), req, 0, log)
-		require.NoError(t, err)
-		assert.Empty(t, filters)
-	})
-
-	t.Run("encodes filters for proxied request", func(t *testing.T) {
+	t.Run("encodes filters for request when user has restricted roles", func(t *testing.T) {
 		t.Parallel()
 		s, _, sqlMock := setupLBACServer(t)
 		sqlMock.ExpectQuery("SELECT").WithArgs(1001).WillReturnRows(roleRows(
@@ -369,9 +354,8 @@ func TestAuthServerAddLBACFilters(t *testing.T) {
 				filter string
 			}{id: 2, title: "Role B", filter: "filter-b"},
 		))
-		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/prometheus/api/v1/query", nil)
 
-		encoded, err := s.addLBACFilters(t.Context(), req, 1001, log)
+		encoded, err := s.addLBACFilters(t.Context(), 1001, log)
 		require.NoError(t, err)
 		require.NotEmpty(t, encoded)
 
@@ -383,7 +367,7 @@ func TestAuthServerAddLBACFilters(t *testing.T) {
 		assert.Equal(t, []string{"filter-a", "filter-b"}, parsed)
 	})
 
-	t.Run("shall not add any filters if at least one role has full access", func(t *testing.T) {
+	t.Run("does not encode filters when at least one role has full access", func(t *testing.T) {
 		t.Parallel()
 		s, _, sqlMock := setupLBACServer(t)
 		sqlMock.ExpectQuery("SELECT").WithArgs(1002).WillReturnRows(roleRows(
@@ -398,25 +382,9 @@ func TestAuthServerAddLBACFilters(t *testing.T) {
 				filter string
 			}{id: 2, title: "Role B", filter: ""},
 		))
-		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/prometheus/api/v1/query", nil)
 
-		encoded, err := s.addLBACFilters(t.Context(), req, 1002, log)
+		encoded, err := s.addLBACFilters(t.Context(), 1002, log)
 		require.NoError(t, err)
-		require.Empty(t, encoded)
-	})
-
-	t.Run("returns error when user has no assigned roles and default role assignment fails", func(t *testing.T) {
-		t.Parallel()
-		s, _, sqlMock := setupLBACServer(t)
-		sqlMock.ExpectQuery("SELECT").WithArgs(1003).WillReturnRows(roleRows())
-		sqlMock.ExpectBegin()
-		sqlMock.ExpectQuery("SELECT").WillReturnError(assert.AnError)
-		sqlMock.ExpectRollback()
-
-		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/prometheus/api/v1/query", nil)
-
-		encoded, err := s.addLBACFilters(t.Context(), req, 1003, log)
-		require.ErrorIs(t, err, assert.AnError)
 		require.Empty(t, encoded)
 	})
 }
@@ -429,18 +397,22 @@ func TestAuthorizeUserAuthServer(t *testing.T) {
 	for _, tc := range []struct {
 		name    string
 		minRole role
-		user    *authUser
+		user    authUser
 		wantErr *authError
 	}{
-		{name: "nil user", minRole: viewer, user: nil, wantErr: errStaticAuthErrorInternalError},
-		{name: "grafana admin", minRole: admin, user: &authUser{role: grafanaAdmin}, wantErr: nil},
-		{name: "role allowed", minRole: viewer, user: &authUser{role: editor}, wantErr: nil},
-		{name: "role denied", minRole: admin, user: &authUser{role: viewer}, wantErr: errStaticAuthErrorPermissionDenied},
+		{name: "grafana admin", minRole: admin, user: authUser{role: grafanaAdmin}, wantErr: nil},
+		{name: "role allowed", minRole: viewer, user: authUser{role: editor}, wantErr: nil},
+		{name: "none role allowed on none route", minRole: none, user: authUser{role: none}, wantErr: nil},
+		{name: "role denied", minRole: admin, user: authUser{role: viewer}, wantErr: errStaticAuthErrorPermissionDenied},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			got := authorizeUser(tc.minRole, tc.user, l)
+			if tc.wantErr == nil {
+				require.NoError(t, got)
+				return
+			}
 			assert.Equal(t, tc.wantErr, got)
 		})
 	}
@@ -463,8 +435,7 @@ func TestAuthServerAuthenticateUser(t *testing.T) {
 				req.RemoteAddr = "127.0.0.1:12345"
 
 				got, err := s.authenticateUser(t.Context(), req, l)
-				require.Nil(t, err)
-				require.NotNil(t, got)
+				require.NoError(t, err)
 				assert.Equal(t, staticAuthUsers[path], got)
 			})
 		}
@@ -482,9 +453,8 @@ func TestAuthServerAuthenticateUser(t *testing.T) {
 		grafanaMock.On("getAuthUser", mock.Anything, mock.Anything, mock.Anything).Return(want, nil).Once()
 
 		got, err := s.authenticateUser(t.Context(), req, l)
-		require.Nil(t, err)
-		require.NotNil(t, got)
-		assert.Equal(t, want, *got)
+		require.NoError(t, err)
+		assert.Equal(t, want, got)
 	})
 
 	t.Run("localhost non-whitelisted path falls back to grafana auth", func(t *testing.T) {
@@ -499,9 +469,9 @@ func TestAuthServerAuthenticateUser(t *testing.T) {
 			Once()
 
 		got, err := s.authenticateUser(t.Context(), req, l)
-		assert.Nil(t, got)
-		require.NotNil(t, err)
-		assert.Equal(t, codes.Unauthenticated, err.code)
+		assert.Equal(t, authUser{}, got)
+		require.Error(t, err)
+		requireAuthErrorCode(t, err, codes.Unauthenticated)
 	})
 
 	t.Run("remote request goes through grafana auth", func(t *testing.T) {
@@ -516,9 +486,8 @@ func TestAuthServerAuthenticateUser(t *testing.T) {
 		grafanaMock.On("getAuthUser", mock.Anything, mock.Anything, mock.Anything).Return(want, nil).Once()
 
 		got, err := s.authenticateUser(t.Context(), req, l)
-		require.Nil(t, err)
-		require.NotNil(t, got)
-		assert.Equal(t, want, *got)
+		require.NoError(t, err)
+		assert.Equal(t, want, got)
 	})
 
 	t.Run("remote request with grafana failed auth returns unauthenticated", func(t *testing.T) {
@@ -534,9 +503,9 @@ func TestAuthServerAuthenticateUser(t *testing.T) {
 			Once()
 
 		got, err := s.authenticateUser(t.Context(), req, l)
-		assert.Nil(t, got)
-		require.NotNil(t, err)
-		assert.Equal(t, codes.Unauthenticated, err.code)
+		assert.Equal(t, authUser{}, got)
+		require.Error(t, err)
+		requireAuthErrorCode(t, err, codes.Unauthenticated)
 	})
 
 	t.Run("get empty user info for anonymous user", func(t *testing.T) {
@@ -551,9 +520,8 @@ func TestAuthServerAuthenticateUser(t *testing.T) {
 			Once()
 
 		got, err := s.authenticateUser(t.Context(), req, l)
-		require.Nil(t, err)
-		assert.NotNil(t, got)
-		assert.Equal(t, userInfo, *got)
+		require.NoError(t, err)
+		assert.Equal(t, userInfo, got)
 		// assert.True(t, len(s.cache) == 0, "cache should be empty on anonymous user")
 	})
 }
@@ -568,35 +536,39 @@ func TestAuthServerGetGrafanaAuthUser(t *testing.T) {
 		name        string
 		retUser     authUser
 		retErr      error
-		wantUser    *authUser
-		wantErr     *authError
-		mustBeError func(*testing.T, *authError)
+		wantUser    authUser
+		wantErr     error
+		wantErrCode codes.Code
+		mustBeError func(*testing.T, error)
 	}{
 		{
 			name:     "success",
 			retUser:  authUser{role: editor, userID: 7},
-			wantUser: &authUser{role: editor, userID: 7},
+			wantUser: authUser{role: editor, userID: 7},
 		},
 		{
-			name:    "unauthorized from grafana",
-			retErr:  &clientError{Code: http.StatusUnauthorized, ErrorMessage: http.StatusText(http.StatusUnauthorized)},
-			wantErr: &authError{code: codes.Unauthenticated, message: http.StatusText(http.StatusUnauthorized)},
+			name:        "unauthorized from grafana",
+			retErr:      &clientError{Code: http.StatusUnauthorized, ErrorMessage: http.StatusText(http.StatusUnauthorized)},
+			wantErr:     &authError{code: codes.Unauthenticated, message: http.StatusText(http.StatusUnauthorized)},
+			wantErrCode: codes.Unauthenticated,
 		},
 		{
-			name:    "forbidden from grafana",
-			retErr:  &clientError{Code: http.StatusForbidden, ErrorMessage: http.StatusText(http.StatusForbidden)},
-			wantErr: &authError{code: codes.Unauthenticated, message: http.StatusText(http.StatusForbidden)},
+			name:        "forbidden from grafana",
+			retErr:      &clientError{Code: http.StatusForbidden, ErrorMessage: http.StatusText(http.StatusForbidden)},
+			wantErr:     &authError{code: codes.Unauthenticated, message: http.StatusText(http.StatusForbidden)},
+			wantErrCode: codes.Unauthenticated,
 		},
 		{
-			name:    "upstream internal keeps internal code",
-			retErr:  &clientError{Code: http.StatusInternalServerError, ErrorMessage: http.StatusText(http.StatusInternalServerError)},
-			wantErr: &authError{code: codes.Internal, message: http.StatusText(http.StatusInternalServerError)},
+			name:        "upstream internal keeps internal code",
+			retErr:      &clientError{Code: http.StatusInternalServerError, ErrorMessage: http.StatusText(http.StatusInternalServerError)},
+			wantErr:     &authError{code: codes.Internal, message: http.StatusText(http.StatusInternalServerError)},
+			wantErrCode: codes.Internal,
 		},
 		{
 			name:    "generic error maps to static internal",
 			retErr:  errors.New("boom"),
 			wantErr: errStaticAuthErrorInternalError,
-			mustBeError: func(t *testing.T, got *authError) {
+			mustBeError: func(t *testing.T, got error) {
 				t.Helper()
 				assert.Equal(t, errStaticAuthErrorInternalError, got)
 			},
@@ -611,13 +583,15 @@ func TestAuthServerGetGrafanaAuthUser(t *testing.T) {
 			got, err := s.getGrafanaAuthUser(t.Context(), headers, l)
 
 			if tc.wantErr == nil {
-				require.Nil(t, err)
-				require.NotNil(t, got)
-				assert.Equal(t, *tc.wantUser, *got)
+				require.NoError(t, err)
+				assert.Equal(t, tc.wantUser, got)
 			} else {
-				require.Nil(t, got)
+				assert.Equal(t, authUser{}, got)
 				require.Error(t, err)
 				assert.Equal(t, tc.wantErr, err)
+				if tc.wantErrCode != 0 {
+					requireAuthErrorCode(t, err, tc.wantErrCode)
+				}
 				if tc.mustBeError != nil {
 					tc.mustBeError(t, err)
 				}
@@ -644,29 +618,25 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		s, _, _ := newTestAuthServer(t)
 		req := mkReq(t, "Bearer cached")
 
-		headers := extractAuthHeaders(req)
-		hash, err := authCacheKey(headers)
-		require.NoError(t, err)
+		hash := authCacheKey(req)
 		s.cache.Set(hash, authUser{role: viewer, userID: 11})
 
 		got, authErr := s.getAuthUser(t.Context(), req, l)
-		require.Nil(t, authErr)
-		require.NotNil(t, got)
-		assert.Equal(t, authUser{role: viewer, userID: 11}, *got)
+		require.NoError(t, authErr)
+		assert.Equal(t, authUser{role: viewer, userID: 11}, got)
 	})
 
 	t.Run("stale cache refreshes via grafana", func(t *testing.T) {
 		t.Parallel()
 
 		s, grafanaMock, _ := newTestAuthServer(t)
-		shortTTLCache, err := ucache.New[string, authUser](t.Context(), time.Millisecond, time.Second)
+		shortTTLCache, err := ucache.New[uint64, authUser](t.Context(), time.Millisecond, time.Second)
 		require.NoError(t, err)
 		s.cache = shortTTLCache
 		req := mkReq(t, "Bearer stale")
 
 		headers := extractAuthHeaders(req)
-		hash, err := authCacheKey(headers)
-		require.NoError(t, err)
+		hash := authCacheKey(req)
 		s.cache.Set(hash, authUser{role: viewer, userID: 1})
 		time.Sleep(2 * time.Millisecond)
 
@@ -674,9 +644,8 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		grafanaMock.On("getAuthUser", mock.Anything, headers, mock.Anything).Return(want, nil).Once()
 
 		got, authErr := s.getAuthUser(t.Context(), req, l)
-		require.Nil(t, authErr)
-		require.NotNil(t, got)
-		assert.Equal(t, want, *got)
+		require.NoError(t, authErr)
+		assert.Equal(t, want, got)
 		item, ok := s.cache.Get(hash)
 		require.True(t, ok)
 		assert.Equal(t, want, item)
@@ -694,12 +663,10 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		grafanaMock.On("getAuthUser", mock.Anything, headers, mock.Anything).Return(want, nil).Once()
 
 		got, authErr := s.getAuthUser(t.Context(), req, l)
-		require.Nil(t, authErr)
-		require.NotNil(t, got)
-		assert.Equal(t, want, *got)
+		require.NoError(t, authErr)
+		assert.Equal(t, want, got)
 
-		hash, err := authCacheKey(headers)
-		require.NoError(t, err)
+		hash := authCacheKey(req)
 		item, ok := s.cache.Get(hash)
 		require.True(t, ok)
 		assert.Equal(t, want, item)
@@ -717,9 +684,9 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 			Once()
 
 		got, authErr := s.getAuthUser(t.Context(), req, l)
-		assert.Nil(t, got)
-		require.NotNil(t, authErr)
-		assert.Equal(t, codes.Unauthenticated, authErr.code)
+		assert.Equal(t, authUser{}, got)
+		require.Error(t, authErr)
+		requireAuthErrorCode(t, authErr, codes.Unauthenticated)
 		assert.Zero(t, cacheSize(s), "cache should be empty on auth failure")
 	})
 }
@@ -736,8 +703,8 @@ func TestAuthServerProcessRequest(t *testing.T) {
 		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/server/readyz", nil)
 
 		res, authErr := s.processRequest(t.Context(), req, l)
-		assert.Nil(t, authErr)
-		assert.Nil(t, res)
+		require.NoError(t, authErr)
+		assert.Equal(t, authResult{}, res)
 		assert.Zero(t, cacheSize(s), "cache should be empty on none role path")
 	})
 
@@ -753,9 +720,9 @@ func TestAuthServerProcessRequest(t *testing.T) {
 			Once()
 
 		res, authErr := s.processRequest(t.Context(), req, l)
-		assert.Nil(t, res)
-		require.NotNil(t, authErr)
-		assert.Equal(t, codes.Unauthenticated, authErr.code)
+		assert.Equal(t, authResult{}, res)
+		require.Error(t, authErr)
+		requireAuthErrorCode(t, authErr, codes.Unauthenticated)
 		assert.Zero(t, cacheSize(s), "cache should be empty on auth failure")
 	})
 
@@ -766,18 +733,15 @@ func TestAuthServerProcessRequest(t *testing.T) {
 		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/server/settings", nil)
 		token := "viewer"
 		req.Header.Set("Authorization", "Bearer "+token)
-		headers := extractAuthHeaders(req)
-
 		userInfo := authUser{role: viewer, userID: 11}
 		grafanaMock.On("getAuthUser", mock.Anything, mock.Anything, mock.Anything).
 			Return(userInfo, nil).
 			Once()
 
 		res, authErr := s.processRequest(t.Context(), req, l)
-		assert.Nil(t, res)
+		assert.Equal(t, authResult{}, res)
 
-		hash, err := authCacheKey(headers)
-		require.NoError(t, err)
+		hash := authCacheKey(req)
 		item, ok := s.cache.Get(hash)
 		require.True(t, ok)
 		assert.Equal(t, userInfo, item)
@@ -809,12 +773,11 @@ func TestAuthServerProcessRequest(t *testing.T) {
 
 					res, authErr := s.processRequest(t.Context(), req, l)
 					if minRole <= role {
-						require.Nil(t, authErr)
-						// require.NotNil(t, res)
-						// assert.Empty(t, res.vmProxyFilters)
+						require.NoError(t, authErr)
+						assert.Equal(t, authResult{}, res)
 					} else {
 						assert.Equal(t, errStaticAuthErrorPermissionDenied, authErr)
-						require.Nil(t, res)
+						assert.Equal(t, authResult{}, res)
 					}
 				})
 			}
@@ -834,7 +797,7 @@ func TestAuthServerProcessRequest(t *testing.T) {
 
 		res, authErr := s.processRequest(t.Context(), req, l)
 		assert.Equal(t, errStaticAuthErrorPermissionDenied, authErr)
-		require.Nil(t, res)
+		assert.Equal(t, authResult{}, res)
 		// assert.True(t, len(s.cache) == 0, "cache should be empty on anonymous user")
 	})
 
@@ -850,8 +813,7 @@ func TestAuthServerProcessRequest(t *testing.T) {
 			Once()
 
 		res, authErr := s.processRequest(t.Context(), req, l)
-		assert.Nil(t, authErr)
-		assert.NotNil(t, res)
+		require.NoError(t, authErr)
 		assert.Empty(t, res.vmProxyFilters)
 		// assert.True(t, len(s.cache) == 0, "cache should be empty on anonymous user")
 	})
@@ -869,8 +831,7 @@ func TestAuthServerProcessRequest(t *testing.T) {
 			Once()
 
 		res, authErr := s.processRequest(t.Context(), req, l)
-		assert.Nil(t, authErr)
-		assert.NotNil(t, res)
+		require.NoError(t, authErr)
 		assert.Empty(t, res.vmProxyFilters)
 		// assert.True(t, len(s.cache) == 0, "cache should be empty on anonymous user")
 	})
@@ -890,7 +851,7 @@ func TestAuthServerServeHTTP(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, rw.Code)
 	})
 
-	t.Run("permission denied returns 403 json payload", func(t *testing.T) {
+	t.Run("permission denied returns 403 status code", func(t *testing.T) {
 		t.Parallel()
 
 		s, grafanaMock, _ := newTestAuthServer(t)
@@ -908,8 +869,8 @@ func TestAuthServerServeHTTP(t *testing.T) {
 		assert.Equal(t, http.StatusForbidden, rw.Code)
 		assert.Empty(t, rw.Body.String())
 		assert.Equal(t, strconv.Itoa(int(codes.PermissionDenied)), rw.Header().Get(authResponseCodeHeader))
-		assert.Equal(t, errStaticAuthErrorPermissionDenied.message, rw.Header().Get(authResponseErrorHeader))
-		assert.Equal(t, errStaticAuthErrorPermissionDenied.message, rw.Header().Get(authResponseMessageHeader))
+		assert.Equal(t, "Access denied.", rw.Header().Get(authResponseErrorHeader))
+		assert.Equal(t, "Access denied.", rw.Header().Get(authResponseMessageHeader))
 	})
 
 	t.Run("success with disabled LBAC", func(t *testing.T) {
@@ -986,6 +947,10 @@ func TestAuthServerServeHTTP(t *testing.T) {
 		s.ServeHTTP(rw, req)
 
 		assert.Equal(t, http.StatusForbidden, rw.Code)
+		assert.Empty(t, rw.Body.String())
+		assert.Equal(t, strconv.Itoa(int(codes.PermissionDenied)), rw.Header().Get(authResponseCodeHeader))
+		assert.Equal(t, "Access denied.", rw.Header().Get(authResponseErrorHeader))
+		assert.Equal(t, "Access denied.", rw.Header().Get(authResponseMessageHeader))
 	})
 
 	t.Run("none role route bypasses grafana authentication", func(t *testing.T) {

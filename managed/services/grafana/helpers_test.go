@@ -344,7 +344,7 @@ func TestExtractAuthHeaders(t *testing.T) {
 		{
 			name: "returns empty header when auth headers are missing",
 			set:  func(_ *http.Request) {},
-			want: http.Header{},
+			want: nil,
 		},
 		{
 			name: "ignores unrelated headers",
@@ -352,7 +352,7 @@ func TestExtractAuthHeaders(t *testing.T) {
 				req.Header.Set("X-Request-ID", "req-1")
 				req.Header.Set("Accept", "application/json")
 			},
-			want: http.Header{},
+			want: nil,
 		},
 		{
 			name: "skips empty authorization and cookie values",
@@ -360,7 +360,7 @@ func TestExtractAuthHeaders(t *testing.T) {
 				req.Header["Authorization"] = []string{""}
 				req.Header["Cookie"] = []string{""}
 			},
-			want: http.Header{},
+			want: nil,
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -378,55 +378,105 @@ func TestExtractAuthHeaders(t *testing.T) {
 func TestAuthCacheKey(t *testing.T) {
 	t.Parallel()
 
-	t.Run("empty headers", func(t *testing.T) {
+	t.Run("returns zero for missing auth headers", func(t *testing.T) {
 		t.Parallel()
 
-		key, err := authCacheKey(http.Header{})
-		require.NoError(t, err)
-		assert.Empty(t, key)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		key := authCacheKey(req)
+		assert.Zero(t, key)
 	})
 
-	t.Run("authorization fast path", func(t *testing.T) {
+	t.Run("returns non zero key for authorization header", func(t *testing.T) {
 		t.Parallel()
 
-		headers := http.Header{"Authorization": []string{"Bearer token"}}
-		key, err := authCacheKey(headers)
-		require.NoError(t, err)
-		assert.Equal(t, "a:Bearer token", key)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		req.Header.Set("Authorization", "Bearer token")
+		key := authCacheKey(req)
+		assert.NotZero(t, key)
 	})
 
-	t.Run("cookie fast path", func(t *testing.T) {
+	t.Run("returns non zero key for cookie header", func(t *testing.T) {
 		t.Parallel()
 
-		headers := http.Header{"Cookie": []string{"grafana_session=abc"}}
-		key, err := authCacheKey(headers)
-		require.NoError(t, err)
-		assert.Equal(t, "c:grafana_session=abc", key)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		req.Header.Set("Cookie", "grafana_session=abc")
+		key := authCacheKey(req)
+		assert.NotZero(t, key)
 	})
 
-	t.Run("authorization and cookie dual fast path", func(t *testing.T) {
+	t.Run("returns non zero key for combined authorization and cookie headers", func(t *testing.T) {
 		t.Parallel()
 
-		headers := http.Header{
-			"Authorization": []string{"Bearer token"},
-			"Cookie":        []string{"grafana_session=abc"},
-		}
-		key, err := authCacheKey(headers)
-		require.NoError(t, err)
-		assert.Equal(t, "ac:12:Bearer token|19:grafana_session=abc", key)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		req.Header.Set("Authorization", "Bearer token")
+		req.Header.Set("Cookie", "grafana_session=abc")
+		key := authCacheKey(req)
+		assert.NotZero(t, key)
 	})
 
-	t.Run("fallback is deterministic for same headers", func(t *testing.T) {
+	t.Run("produces deterministic key for the same auth headers", func(t *testing.T) {
 		t.Parallel()
 
-		headers1 := http.Header{"Authorization": []string{"Bearer token"}, "Cookie": []string{"grafana_session=abc"}}
-		headers2 := http.Header{"Cookie": []string{"grafana_session=abc"}, "Authorization": []string{"Bearer token"}}
+		req1 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		req1.Header.Set("Authorization", "Bearer token")
+		req1.Header.Set("Cookie", "grafana_session=abc")
+		key1 := authCacheKey(req1)
 
-		key1, err := authCacheKey(headers1)
-		require.NoError(t, err)
-		key2, err := authCacheKey(headers2)
-		require.NoError(t, err)
+		req2 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		req2.Header.Set("Authorization", "Bearer token")
+		req2.Header.Set("Cookie", "grafana_session=abc")
+		key2 := authCacheKey(req2)
 
 		assert.Equal(t, key1, key2)
+	})
+
+	t.Run("ignores unrelated headers", func(t *testing.T) {
+		t.Parallel()
+
+		req1 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		req1.Header.Set("Authorization", "Bearer token")
+		req1.Header.Set("Cookie", "grafana_session=abc")
+		key1 := authCacheKey(req1)
+
+		req2 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		req2.Header.Set("Authorization", "Bearer token")
+		req2.Header.Set("Cookie", "grafana_session=abc")
+		req2.Header.Set("X-Extra", "ignored")
+		key2 := authCacheKey(req2)
+
+		assert.Equal(t, key1, key2)
+	})
+
+	t.Run("changes key when auth header value changes", func(t *testing.T) {
+		t.Parallel()
+
+		req1 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		req1.Header.Set("Authorization", "Bearer token-a")
+
+		req2 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		req2.Header.Set("Authorization", "Bearer token-b")
+
+		assert.NotEqual(t, authCacheKey(req1), authCacheKey(req2))
+	})
+
+	t.Run("uses both headers when both are present", func(t *testing.T) {
+		t.Parallel()
+
+		reqAuthOnly := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		reqAuthOnly.Header.Set("Authorization", "Bearer token")
+
+		reqCookieOnly := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		reqCookieOnly.Header.Set("Cookie", "grafana_session=abc")
+
+		reqBoth := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
+		reqBoth.Header.Set("Authorization", "Bearer token")
+		reqBoth.Header.Set("Cookie", "grafana_session=abc")
+
+		keyAuthOnly := authCacheKey(reqAuthOnly)
+		keyCookieOnly := authCacheKey(reqCookieOnly)
+		keyBoth := authCacheKey(reqBoth)
+
+		assert.NotEqual(t, keyAuthOnly, keyBoth)
+		assert.NotEqual(t, keyCookieOnly, keyBoth)
 	})
 }

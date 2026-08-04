@@ -4667,7 +4667,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(irate(pmm_managed_auth_cache_total[$__rate_interval])) / sum(irate(pmm_managed_auth_cache_total[$__rate_interval]))",
+                    "expr": "sum(irate(pmm_managed_auth_cache_total{status=\"hit\"}[$__rate_interval])) / sum(irate(pmm_managed_auth_cache_total[$__rate_interval]))",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "rate",
