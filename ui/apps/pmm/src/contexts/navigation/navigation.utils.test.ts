@@ -1,23 +1,11 @@
-import { OrgRole, User } from 'types/user.types';
+import {
+  TEST_USER_ADMIN,
+  TEST_USER_ANONYMOUS,
+  TEST_USER_EDITOR,
+  TEST_USER_VIEWER,
+} from 'utils/testStubs';
+import { createAnonymousUser } from 'contexts/user/user.utils';
 import { addAlerting } from './navigation.utils';
-
-const baseUser = (overrides: Partial<User> = {}): User =>
-  ({
-    id: 1,
-    name: 'Test',
-    login: 'test',
-    isAnonymous: false,
-    orgId: 1,
-    orgRole: OrgRole.Viewer,
-    isAuthorized: true,
-    isViewer: true,
-    isEditor: false,
-    isPMMAdmin: false,
-    orgs: [],
-    info: {} as User['info'],
-    preferences: {} as User['preferences'],
-    ...overrides,
-  }) as User;
 
 const childIds = (item: ReturnType<typeof addAlerting>) =>
   (item.children || []).map((c) => c.id);
@@ -40,9 +28,7 @@ describe('addAlerting', () => {
   });
 
   it('adds silences for anonymous when UA is off, without groups or UA pages', () => {
-    const ids = childIds(
-      addAlerting(false, false, baseUser({ isAnonymous: true }))
-    );
+    const ids = childIds(addAlerting(false, false, TEST_USER_ANONYMOUS));
 
     expect(ids).toContain('alerts-rules');
     expect(ids).toContain('alerts-silences');
@@ -53,9 +39,7 @@ describe('addAlerting', () => {
   });
 
   it('adds silences, contact points and policies for anonymous when UA is on', () => {
-    const ids = childIds(
-      addAlerting(false, true, baseUser({ isAnonymous: true }))
-    );
+    const ids = childIds(addAlerting(false, true, TEST_USER_ANONYMOUS));
 
     expect(ids).toContain('alerts-rules');
     expect(ids).toContain('alerts-silences');
@@ -66,7 +50,7 @@ describe('addAlerting', () => {
   });
 
   it('adds silences and groups for authenticated user when UA is off', () => {
-    const ids = childIds(addAlerting(false, false, baseUser()));
+    const ids = childIds(addAlerting(false, false, TEST_USER_VIEWER));
 
     expect(ids).toContain('alerts-silences');
     expect(ids).toContain('alerts-groups');
@@ -76,7 +60,7 @@ describe('addAlerting', () => {
   });
 
   it('adds contact points and policies for authenticated user when UA is on', () => {
-    const ids = childIds(addAlerting(false, true, baseUser()));
+    const ids = childIds(addAlerting(false, true, TEST_USER_VIEWER));
 
     expect(ids).toContain('alerts-silences');
     expect(ids).toContain('alerts-groups');
@@ -85,22 +69,18 @@ describe('addAlerting', () => {
   });
 
   it('adds alert settings only for non-anonymous PMM admin when UA is on', () => {
-    expect(
-      childIds(addAlerting(false, true, baseUser({ isPMMAdmin: true })))
-    ).toContain('alerts-settings');
-    expect(
-      childIds(addAlerting(false, true, baseUser({ isPMMAdmin: false })))
-    ).not.toContain('alerts-settings');
-    expect(
-      childIds(addAlerting(false, false, baseUser({ isPMMAdmin: true })))
-    ).not.toContain('alerts-settings');
+    expect(childIds(addAlerting(false, true, TEST_USER_ADMIN))).toContain(
+      'alerts-settings'
+    );
+    expect(childIds(addAlerting(false, true, TEST_USER_VIEWER))).not.toContain(
+      'alerts-settings'
+    );
+    expect(childIds(addAlerting(false, false, TEST_USER_ADMIN))).not.toContain(
+      'alerts-settings'
+    );
     expect(
       childIds(
-        addAlerting(
-          false,
-          true,
-          baseUser({ isAnonymous: true, isPMMAdmin: true })
-        )
+        addAlerting(false, true, createAnonymousUser({ isPMMAdmin: true }))
       )
     ).not.toContain('alerts-settings');
   });
@@ -109,14 +89,14 @@ describe('addAlerting', () => {
     expect(childIds(addAlerting(true, false))).toContain('alerts-status');
     expect(childIds(addAlerting(false, false))).not.toContain('alerts-status');
 
-    expect(
-      childIds(addAlerting(true, false, baseUser({ isEditor: true })))
-    ).toContain('alerts-templates');
-    expect(
-      childIds(addAlerting(true, false, baseUser({ isEditor: false })))
-    ).not.toContain('alerts-templates');
-    expect(
-      childIds(addAlerting(false, false, baseUser({ isEditor: true })))
-    ).not.toContain('alerts-templates');
+    expect(childIds(addAlerting(true, false, TEST_USER_EDITOR))).toContain(
+      'alerts-templates'
+    );
+    expect(childIds(addAlerting(true, false, TEST_USER_VIEWER))).not.toContain(
+      'alerts-templates'
+    );
+    expect(childIds(addAlerting(false, false, TEST_USER_EDITOR))).not.toContain(
+      'alerts-templates'
+    );
   });
 });
