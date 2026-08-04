@@ -521,8 +521,15 @@ func TestPGStatStatementsQPS(t *testing.T) {
 
 		runTimes := 7000
 		t.Cleanup(func() {
-			for i := range runTimes {
-				_, _ = db.Exec(fmt.Sprintf("drop table if exists t%d", i))
+			// dropping all tables in a single statement would exceed max_locks_per_transaction
+			const dropBatchSize = 500
+			for i := 0; i < runTimes; i += dropBatchSize {
+				tables := make([]string, 0, dropBatchSize)
+				for j := i; j < min(i+dropBatchSize, runTimes); j++ {
+					tables = append(tables, fmt.Sprintf("t%d", j))
+				}
+				_, err := db.Exec("drop table if exists " + strings.Join(tables, ", "))
+				assert.NoError(t, err)
 			}
 		})
 

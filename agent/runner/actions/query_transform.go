@@ -69,7 +69,7 @@ func dmlToSelect(query string) (string, bool) {
 
 	m = updateRe.FindStringSubmatch(query)
 	// > 2 because we need at least a table name and a list of fields
-	if len(m) > 2 {
+	if len(m) > 2 { //nolint:mnd
 		return updateToSelect(m), true
 	}
 
@@ -79,17 +79,17 @@ func dmlToSelect(query string) (string, bool) {
 	}
 
 	m = insertRe.FindStringSubmatch(query)
-	if len(m) > 2 {
+	if len(m) > 2 { //nolint:mnd
 		return insertToSelect(m), true
 	}
 
 	m = insertSetRe.FindStringSubmatch(query)
-	if len(m) > 2 {
+	if len(m) > 2 { //nolint:mnd
 		return insertWithSetToSelect(m), true
 	}
 
 	m = insertReNoFields.FindStringSubmatch(query)
-	if len(m) > 2 {
+	if len(m) > 2 { //nolint:mnd
 		return insertToSelectNoFields(m), true
 	}
 
