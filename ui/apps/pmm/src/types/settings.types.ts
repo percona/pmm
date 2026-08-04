@@ -26,7 +26,6 @@ export interface GetReadonlySettingsResponse {
 }
 
 export interface Settings extends ReadonlySettings {
-  updateSnoozeDuration?: string;
   metricsResolutions?: MetricsResolutions;
   dataRetention?: string;
   sshKey?: string;
@@ -53,7 +52,6 @@ export interface UpdateSettingsPayload {
   enableAccessControl?: boolean;
   enableInternalPgQan?: boolean;
   awsPartitions?: string[];
-  updateSnoozeDuration?: string;
 }
 
 export interface FrontendSettings extends GetFrontendSettingsResponse {}
