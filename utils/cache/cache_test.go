@@ -15,7 +15,6 @@
 package cache
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -28,20 +27,14 @@ func TestNew_ReturnsErrorForInvalidInputs(t *testing.T) {
 	_, err := New[string, int](nil, time.Second, time.Second)
 	require.Error(t, err)
 
-	ctx, cancel := context.WithCancel(t.Context())
-	t.Cleanup(cancel)
-
-	_, err = New[string, int](ctx, time.Second, 0)
+	_, err = New[string, int](t.Context(), time.Second, 0)
 	require.Error(t, err)
 }
 
 func TestNew_ReturnsCacheForValidInputs(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithCancel(t.Context())
-	t.Cleanup(cancel)
-
-	c, err := New[string, int](ctx, time.Second, 10*time.Millisecond)
+	c, err := New[string, int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
 	if c == nil {
 		t.Fatal("expected cache instance")
@@ -51,10 +44,7 @@ func TestNew_ReturnsCacheForValidInputs(t *testing.T) {
 func TestSetGetDelete_StoresReadsAndRemovesValue(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithCancel(t.Context())
-	t.Cleanup(cancel)
-
-	c, err := New[string, int](ctx, time.Second, 10*time.Millisecond)
+	c, err := New[string, int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
 
 	c.Set("k", 42)
@@ -78,10 +68,7 @@ func TestSetGetDelete_StoresReadsAndRemovesValue(t *testing.T) {
 func TestGet_ReturnsMissForUnknownKey(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithCancel(t.Context())
-	t.Cleanup(cancel)
-
-	c, err := New[string, int](ctx, time.Second, 10*time.Millisecond)
+	c, err := New[string, int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
 
 	got, ok := c.Get("missing")
@@ -96,10 +83,7 @@ func TestGet_ReturnsMissForUnknownKey(t *testing.T) {
 func TestGet_ReturnsMissAfterTTLExpiration(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithCancel(t.Context())
-	t.Cleanup(cancel)
-
-	c, err := New[string, int](ctx, 10*time.Millisecond, time.Second)
+	c, err := New[string, int](t.Context(), 10*time.Millisecond, time.Second)
 	require.NoError(t, err)
 
 	c.Set("k", 7)
@@ -114,10 +98,7 @@ func TestGet_ReturnsMissAfterTTLExpiration(t *testing.T) {
 func TestSize_TracksInsertUpdateDeleteAndMissingDelete(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithCancel(t.Context())
-	t.Cleanup(cancel)
-
-	c, err := New[string, int](ctx, time.Second, 10*time.Millisecond)
+	c, err := New[string, int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
 
 	if got := c.Size(); got != 0 {
@@ -153,10 +134,7 @@ func TestSize_TracksInsertUpdateDeleteAndMissingDelete(t *testing.T) {
 func TestEvictionWorker_RemovesExpiredItemsAndUpdatesSize(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithCancel(t.Context())
-	t.Cleanup(cancel)
-
-	c, err := New[string, int](ctx, 15*time.Millisecond, 5*time.Millisecond)
+	c, err := New[string, int](t.Context(), 15*time.Millisecond, 5*time.Millisecond)
 	require.NoError(t, err)
 
 	c.Set("a", 1)
