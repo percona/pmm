@@ -8,6 +8,7 @@ import * as templatesApi from 'api/alert-templates';
 import {
   Severity,
   Template,
+  TemplateCategory,
   TemplateSource,
 } from 'types/alert-templates.types';
 import { AlertTemplates } from './AlertTemplates';
@@ -31,6 +32,7 @@ const makeTemplate = (
   annotations: {},
   source,
   yaml: `# ${name}\nexpr: up == 0\n`,
+  category: TemplateCategory.UNSPECIFIED,
 });
 
 const renderPage = () =>

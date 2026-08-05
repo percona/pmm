@@ -11,6 +11,7 @@ import {
   ParamUnit,
   Severity,
   Template,
+  TemplateCategory,
   TemplateSource,
 } from 'types/alert-templates.types';
 
@@ -40,6 +41,7 @@ const template: Template = {
   annotations: {},
   source: TemplateSource.USER_API,
   yaml: '',
+  category: TemplateCategory.MYSQL,
 };
 
 describe('CreateAlertFromTemplate utils', () => {

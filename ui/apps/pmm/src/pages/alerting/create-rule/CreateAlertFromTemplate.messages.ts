@@ -6,7 +6,7 @@ export const Messages = {
     details: 'Rule details',
     location: 'Folder & evaluation',
     filters: 'Filters',
-    advanced: 'Advanced (read-only)',
+    advanced: 'Advanced details',
   },
   fields: {
     template: 'Template',
@@ -17,7 +17,13 @@ export const Messages = {
     newFolder: 'New folder',
     group: 'Evaluation group',
     interval: 'Evaluation interval',
-    expr: 'Expression',
+  },
+  advanced: {
+    queries: 'Template queries',
+    expressions: 'Template expressions',
+    condition: 'Template condition',
+    expression: 'Template expression',
+    ruleAlert: 'Rule alert',
   },
   newFolderModal: {
     title: 'New folder',

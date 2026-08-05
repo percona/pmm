@@ -13,6 +13,7 @@ import {
   ParamUnit,
   Severity,
   Template,
+  TemplateCategory,
   TemplateSource,
 } from 'types/alert-templates.types';
 
@@ -27,6 +28,7 @@ const makeTemplate = (source: TemplateSource): Template => ({
   annotations: {},
   source,
   yaml: '',
+  category: TemplateCategory.UNSPECIFIED,
 });
 
 describe('alert-templates.utils', () => {

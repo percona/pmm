@@ -73,6 +73,19 @@ export interface ParamDefinition {
   string?: StringParamDefinition;
 }
 
+export interface TemplateQuery {
+  refId: string;
+  expr: string;
+}
+
+export interface TemplateExpression {
+  refId: string;
+  // Expression type; currently only "math".
+  type: string;
+  // References other steps by ref ID, e.g. "$A > [[ .threshold ]]".
+  expression: string;
+}
+
 export interface Template {
   name: string;
   summary: string;
@@ -88,6 +101,12 @@ export interface Template {
   createdAt?: string;
   // YAML file content; empty for built-in and SaaS templates.
   yaml: string;
+  // Query and expression steps for multi-expression templates. Both omitted for
+  // single-expression templates, which use `expr` instead.
+  queries?: TemplateQuery[];
+  expressions?: TemplateExpression[];
+  // Ref ID of the step used as the alert condition, e.g. "C".
+  condition?: string;
   category: TemplateCategory;
 }
 
