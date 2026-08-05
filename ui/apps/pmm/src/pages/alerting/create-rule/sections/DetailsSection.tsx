@@ -7,7 +7,7 @@ import { SEVERITY_OPTIONS } from '../CreateAlertFromTemplate.constants';
 import { Messages } from '../CreateAlertFromTemplate.messages';
 
 export const DetailsSection: FC = () => (
-  <Stack gap={2}>
+  <Stack>
     <Typography variant="h6">{Messages.sections.details}</Typography>
     <TextInput name="name" label={Messages.fields.name} isRequired />
     <SelectInput name="severity" label={Messages.fields.severity} isRequired>

@@ -21,7 +21,7 @@ export const FiltersSection: FC = () => {
   });
 
   return (
-    <Stack gap={2}>
+    <Stack>
       <Typography variant="h6">{Messages.sections.filters}</Typography>
       {fields.map((field, index) => (
         <Stack key={field.id} direction="row" gap={2} alignItems="flex-start">
@@ -47,13 +47,13 @@ export const FiltersSection: FC = () => {
             aria-label={Messages.filters.remove}
             data-testid={`remove-filter-${index}`}
             onClick={() => remove(index)}
-            sx={{ mt: 1 }}
+            sx={{ mt: 3 }}
           >
             <DeleteOutlineIcon />
           </IconButton>
         </Stack>
       ))}
-      <Stack direction="row">
+      <Stack direction="row" mt={2}>
         <Button
           type="button"
           variant="text"

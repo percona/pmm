@@ -15,7 +15,7 @@ export const AdvancedSection: FC<Props> = ({ template }) => {
   }
 
   return (
-    <Stack gap={1}>
+    <Stack gap={2}>
       <Typography variant="h6">{Messages.sections.advanced}</Typography>
       <TextField
         label={Messages.fields.expr}

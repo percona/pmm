@@ -80,7 +80,7 @@ export const ParamsSection: FC<Props> = ({ template }) => {
   }
 
   return (
-    <Stack gap={2}>
+    <Stack>
       <Typography variant="h6">{Messages.sections.params}</Typography>
       {template.params.map((param) => (
         <ParamField key={param.name} param={param} />
