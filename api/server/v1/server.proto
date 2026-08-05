@@ -102,18 +102,21 @@ message ListChangeLogsResponse {
 }
 
 message UpdateStatusRequest {
-  // Authentication token. Kept for compatibility with pre-3.9 clients; it is no longer verified.
-  string auth_token = 1 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
-  // Progress log offset.
-  uint32 log_offset = 2;
+  // Authentication token. Accepted from pre-3.9 clients.
+  string auth_token = 1 [
+    deprecated = true,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
+  // Progress log offset. Accepted from pre-3.9 clients but ignored.
+  uint32 log_offset = 2 [deprecated = true];
 }
 
 message UpdateStatusResponse {
-  // Progress log lines.
-  repeated string log_lines = 1;
-  // Progress log offset for the next request.
-  uint32 log_offset = 2;
-  // True when update is done.
+  // Progress log lines. Always empty, kept so pre-3.9 clients can parse the response.
+  repeated string log_lines = 1 [deprecated = true];
+  // Progress log offset for the next request. Always zero, kept so pre-3.9 clients can parse the response.
+  uint32 log_offset = 2 [deprecated = true];
+  // True once PMM Server has finished initializing.
   bool done = 3;
 }
 
@@ -286,7 +289,7 @@ service ServerService {
   // UpdateStatus returns PMM Server initialization status.
   //
   // It exists for pre-3.9 clients, which poll it after triggering an update to learn when the
-  // freshly started PMM Server has finished initializing.
+  // freshly started PMM Server has finished initializing. Only the "done" field is meaningful.
   rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse) {
     option (google.api.http) = {
       post: "/v1/server/updates:getStatus"

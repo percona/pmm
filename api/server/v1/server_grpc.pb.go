@@ -51,7 +51,7 @@ type ServerServiceClient interface {
 	// UpdateStatus returns PMM Server initialization status.
 	//
 	// It exists for pre-3.9 clients, which poll it after triggering an update to learn when the
-	// freshly started PMM Server has finished initializing.
+	// freshly started PMM Server has finished initializing. Only the "done" field is meaningful.
 	UpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatusResponse, error)
 	// GetSettings returns current PMM Server settings.
 	GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error)
@@ -179,7 +179,7 @@ type ServerServiceServer interface {
 	// UpdateStatus returns PMM Server initialization status.
 	//
 	// It exists for pre-3.9 clients, which poll it after triggering an update to learn when the
-	// freshly started PMM Server has finished initializing.
+	// freshly started PMM Server has finished initializing. Only the "done" field is meaningful.
 	UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error)
 	// GetSettings returns current PMM Server settings.
 	GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error)

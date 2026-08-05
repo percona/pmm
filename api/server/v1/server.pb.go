@@ -721,9 +721,13 @@ func (x *ListChangeLogsResponse) GetLastCheck() *timestamppb.Timestamp {
 
 type UpdateStatusRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Authentication token. Kept for compatibility with pre-3.9 clients; it is no longer verified.
+	// Authentication token. Accepted from pre-3.9 clients.
+	//
+	// Deprecated: Marked as deprecated in server/v1/server.proto.
 	AuthToken string `protobuf:"bytes,1,opt,name=auth_token,json=authToken,proto3" json:"auth_token,omitempty"`
-	// Progress log offset.
+	// Progress log offset. Accepted from pre-3.9 clients but ignored.
+	//
+	// Deprecated: Marked as deprecated in server/v1/server.proto.
 	LogOffset     uint32 `protobuf:"varint,2,opt,name=log_offset,json=logOffset,proto3" json:"log_offset,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -759,6 +763,7 @@ func (*UpdateStatusRequest) Descriptor() ([]byte, []int) {
 	return file_server_v1_server_proto_rawDescGZIP(), []int{12}
 }
 
+// Deprecated: Marked as deprecated in server/v1/server.proto.
 func (x *UpdateStatusRequest) GetAuthToken() string {
 	if x != nil {
 		return x.AuthToken
@@ -766,6 +771,7 @@ func (x *UpdateStatusRequest) GetAuthToken() string {
 	return ""
 }
 
+// Deprecated: Marked as deprecated in server/v1/server.proto.
 func (x *UpdateStatusRequest) GetLogOffset() uint32 {
 	if x != nil {
 		return x.LogOffset
@@ -775,11 +781,15 @@ func (x *UpdateStatusRequest) GetLogOffset() uint32 {
 
 type UpdateStatusResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Progress log lines.
+	// Progress log lines. Always empty, kept so pre-3.9 clients can parse the response.
+	//
+	// Deprecated: Marked as deprecated in server/v1/server.proto.
 	LogLines []string `protobuf:"bytes,1,rep,name=log_lines,json=logLines,proto3" json:"log_lines,omitempty"`
-	// Progress log offset for the next request.
+	// Progress log offset for the next request. Always zero, kept so pre-3.9 clients can parse the response.
+	//
+	// Deprecated: Marked as deprecated in server/v1/server.proto.
 	LogOffset uint32 `protobuf:"varint,2,opt,name=log_offset,json=logOffset,proto3" json:"log_offset,omitempty"`
-	// True when update is done.
+	// True once PMM Server has finished initializing.
 	Done          bool `protobuf:"varint,3,opt,name=done,proto3" json:"done,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -815,6 +825,7 @@ func (*UpdateStatusResponse) Descriptor() ([]byte, []int) {
 	return file_server_v1_server_proto_rawDescGZIP(), []int{13}
 }
 
+// Deprecated: Marked as deprecated in server/v1/server.proto.
 func (x *UpdateStatusResponse) GetLogLines() []string {
 	if x != nil {
 		return x.LogLines
@@ -822,6 +833,7 @@ func (x *UpdateStatusResponse) GetLogLines() []string {
 	return nil
 }
 
+// Deprecated: Marked as deprecated in server/v1/server.proto.
 func (x *UpdateStatusResponse) GetLogOffset() uint32 {
 	if x != nil {
 		return x.LogOffset
@@ -1673,16 +1685,16 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x16ListChangeLogsResponse\x126\n" +
 	"\aupdates\x18\x01 \x03(\v2\x1c.server.v1.DockerVersionInfoR\aupdates\x129\n" +
 	"\n" +
-	"last_check\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tlastCheck\"Y\n" +
-	"\x13UpdateStatusRequest\x12#\n" +
+	"last_check\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tlastCheck\"_\n" +
+	"\x13UpdateStatusRequest\x12%\n" +
 	"\n" +
-	"auth_token\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01R\tauthToken\x12\x1d\n" +
+	"auth_token\x18\x01 \x01(\tB\x06\x88\xb5\x18\x01\x18\x01R\tauthToken\x12!\n" +
 	"\n" +
-	"log_offset\x18\x02 \x01(\rR\tlogOffset\"f\n" +
-	"\x14UpdateStatusResponse\x12\x1b\n" +
-	"\tlog_lines\x18\x01 \x03(\tR\blogLines\x12\x1d\n" +
+	"log_offset\x18\x02 \x01(\rB\x02\x18\x01R\tlogOffset\"n\n" +
+	"\x14UpdateStatusResponse\x12\x1f\n" +
+	"\tlog_lines\x18\x01 \x03(\tB\x02\x18\x01R\blogLines\x12!\n" +
 	"\n" +
-	"log_offset\x18\x02 \x01(\rR\tlogOffset\x12\x12\n" +
+	"log_offset\x18\x02 \x01(\rB\x02\x18\x01R\tlogOffset\x12\x12\n" +
 	"\x04done\x18\x03 \x01(\bR\x04done\"\x95\x01\n" +
 	"\x12MetricsResolutions\x12)\n" +
 	"\x02hr\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x02hr\x12)\n" +

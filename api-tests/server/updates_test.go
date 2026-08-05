@@ -192,12 +192,24 @@ func TestUpdateStatus(t *testing.T) {
 	baseURL.User = nil
 	noAuthClient := serverClient.New(pmmapitests.Transport(baseURL, true), nil)
 
-	res, err := noAuthClient.ServerService.UpdateStatus(&server.UpdateStatusParams{
-		Body: server.UpdateStatusBody{
-			AuthToken: "issued-by-the-previous-instance",
-		},
-		Context: pmmapitests.Context,
-	})
-	require.NoError(t, err)
-	assert.True(t, res.Payload.Done)
+	for _, tc := range []struct {
+		name string
+		body server.UpdateStatusBody
+	}{
+		{"with a token issued by the previous instance", server.UpdateStatusBody{AuthToken: "unverifiable", LogOffset: 1024}},
+		{"without a token", server.UpdateStatusBody{}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			res, err := noAuthClient.ServerService.UpdateStatus(&server.UpdateStatusParams{
+				Body:    tc.body,
+				Context: pmmapitests.Context,
+			})
+			require.NoError(t, err)
+			assert.True(t, res.Payload.Done)
+			// Pre-3.9 clients join log_lines unconditionally, so it must marshal as an empty array.
+			assert.NotNil(t, res.Payload.LogLines)
+			assert.Empty(t, res.Payload.LogLines)
+			assert.Zero(t, res.Payload.LogOffset)
+		})
+	}
 }

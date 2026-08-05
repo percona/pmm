@@ -33138,12 +33138,12 @@
               "type": "object",
               "properties": {
                 "auth_token": {
-                  "description": "Authentication token. Kept for compatibility with pre-3.9 clients; it is no longer verified.",
+                  "description": "Authentication token. Accepted from pre-3.9 clients.",
                   "type": "string",
                   "x-order": 0
                 },
                 "log_offset": {
-                  "description": "Progress log offset.",
+                  "description": "Progress log offset. Accepted from pre-3.9 clients but ignored.",
                   "type": "integer",
                   "format": "int64",
                   "x-order": 1
@@ -33159,7 +33159,7 @@
               "type": "object",
               "properties": {
                 "log_lines": {
-                  "description": "Progress log lines.",
+                  "description": "Progress log lines. Always empty, kept so pre-3.9 clients can parse the response.",
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -33167,13 +33167,13 @@
                   "x-order": 0
                 },
                 "log_offset": {
-                  "description": "Progress log offset for the next request.",
+                  "description": "Progress log offset for the next request. Always zero, kept so pre-3.9 clients can parse the response.",
                   "type": "integer",
                   "format": "int64",
                   "x-order": 1
                 },
                 "done": {
-                  "description": "True when update is done.",
+                  "description": "True once PMM Server has finished initializing.",
                   "type": "boolean",
                   "x-order": 2
                 }

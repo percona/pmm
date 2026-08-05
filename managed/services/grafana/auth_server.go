@@ -86,7 +86,7 @@ var rules = map[string]role{
 	"/v1/management/Jobs":             viewer,
 	"/v1/server/AWSInstance":          none, // special case - used before Grafana can be accessed
 	"/v1/server/updates":              viewer,
-	"/v1/server/updates:getStatus":    none, // see /server.v1.ServerService/UpdateStatus above
+	"/v1/server/updates:getStatus":    none,
 	"/v1/server/settings":             admin,
 	"/v1/server/settings/readonly":    viewer,
 	"/v1/platform:":                   admin,

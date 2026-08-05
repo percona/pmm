@@ -189,10 +189,10 @@ UpdateStatusBody update status body
 swagger:model UpdateStatusBody
 */
 type UpdateStatusBody struct {
-	// Authentication token. Kept for compatibility with pre-3.9 clients; it is no longer verified.
+	// Authentication token. Accepted from pre-3.9 clients.
 	AuthToken string `json:"auth_token,omitempty"`
 
-	// Progress log offset.
+	// Progress log offset. Accepted from pre-3.9 clients but ignored.
 	LogOffset int64 `json:"log_offset,omitempty"`
 }
 
@@ -622,13 +622,13 @@ UpdateStatusOKBody update status OK body
 swagger:model UpdateStatusOKBody
 */
 type UpdateStatusOKBody struct {
-	// Progress log lines.
+	// Progress log lines. Always empty, kept so pre-3.9 clients can parse the response.
 	LogLines []string `json:"log_lines"`
 
-	// Progress log offset for the next request.
+	// Progress log offset for the next request. Always zero, kept so pre-3.9 clients can parse the response.
 	LogOffset int64 `json:"log_offset,omitempty"`
 
-	// True when update is done.
+	// True once PMM Server has finished initializing.
 	Done bool `json:"done,omitempty"`
 }
 

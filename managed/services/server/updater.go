@@ -16,12 +16,10 @@
 package server
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"sort"
@@ -45,16 +43,12 @@ const (
 	updateCheckResultFresh = updateCheckInterval + 10*time.Minute
 )
 
-var (
-	fileName   = "/etc/pmm-server-update-version.json"
-	pmmInitLog = "/srv/logs/pmm-init.log"
-)
+var fileName = "/etc/pmm-server-update-version.json"
 
 // Updater is a service to check for available PMM Server updates.
 type Updater struct {
-	l                  *logrus.Entry
-	db                 *reform.DB
-	gRPCMessageMaxSize uint32
+	l  *logrus.Entry
+	db *reform.DB
 
 	checkRW         sync.RWMutex
 	lastCheckResult *version.DockerVersionInfo
@@ -63,17 +57,14 @@ type Updater struct {
 	// releaseNotes holds a map of PMM server versions to their release notes.
 	releaseNotes   map[string]string
 	releaseNotesRW sync.RWMutex
-
-	initLogM sync.Mutex
 }
 
 // NewUpdater creates a new Updater service.
-func NewUpdater(gRPCMessageMaxSize uint32, db *reform.DB) *Updater {
+func NewUpdater(db *reform.DB) *Updater {
 	u := &Updater{
-		l:                  logrus.WithField("service", "updater"),
-		db:                 db,
-		gRPCMessageMaxSize: gRPCMessageMaxSize,
-		releaseNotes:       make(map[string]string),
+		l:            logrus.WithField("service", "updater"),
+		db:           db,
+		releaseNotes: make(map[string]string),
 	}
 	return u
 }
@@ -325,44 +316,6 @@ func (up *Updater) InstalledPMMVersion() version.PackageInfo {
 		Version:     version.Version,
 		FullVersion: version.PMMVersion,
 		BuildTime:   &t,
-	}
-}
-
-// InitLog returns some lines and a new offset from the pmm-init log starting from the given offset.
-// It may return zero lines and the same offset. Caller is expected to handle this.
-func (up *Updater) InitLog(offset uint32) ([]string, uint32, error) {
-	up.initLogM.Lock()
-	defer up.initLogM.Unlock()
-
-	f, err := os.Open(pmmInitLog)
-	if err != nil {
-		return nil, 0, fmt.Errorf("failed to open log file %s: %w", pmmInitLog, err)
-	}
-	defer f.Close() //nolint:errcheck,gosec,nolintlint
-
-	_, err = f.Seek(int64(offset), io.SeekStart)
-	if err != nil {
-		return nil, 0, fmt.Errorf("failed to seek to %d in log file %s: %w", offset, pmmInitLog, err)
-	}
-
-	lines := make([]string, 0, 10) //nolint:mnd
-	reader := bufio.NewReader(f)
-	newOffset := offset
-	var line string
-	for {
-		line, err = reader.ReadString('\n')
-		if err != nil {
-			if errors.Is(err, io.EOF) {
-				return lines, newOffset, nil
-			}
-			// return already read lines even with error
-			return lines, newOffset, fmt.Errorf("failed to read line from log file %s: %w", pmmInitLog, err)
-		}
-		newOffset += uint32(len(line)) //nolint:gosec
-		if newOffset-offset > up.gRPCMessageMaxSize {
-			return lines, newOffset - uint32(len(line)), nil //nolint:gosec
-		}
-		lines = append(lines, strings.TrimSuffix(line, "\n"))
 	}
 }
 
