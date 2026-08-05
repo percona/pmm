@@ -13,6 +13,7 @@ import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
+import { AlertsPage } from 'pages/alerting/status';
 
 const router = createBrowserRouter(
   [
@@ -39,6 +40,15 @@ const router = createBrowserRouter(
             {
               path: 'help',
               element: <HelpCenter />,
+            },
+            {
+              path: 'alerting',
+              children: [
+                {
+                  path: 'status',
+                  element: <AlertsPage />,
+                },
+              ],
             },
             {
               path: 'settings/:tab?',
@@ -69,6 +79,10 @@ const router = createBrowserRouter(
             {
               path: 'graph/settings/:tab?',
               element: <SettingsRedirect />,
+            },
+            {
+              path: 'graph/alerting/alerts',
+              element: <Navigate to="/alerting/status" replace />,
             },
             // Grafana routes are handled at the Main component level
             {

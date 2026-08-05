@@ -227,7 +227,7 @@ func (up *Updater) latestAvailableFromVersionService(ctx context.Context) ([]*ve
 
 func (up *Updater) parseDockerTag(tag string) ([]*version.DockerVersionInfo, *version.DockerVersionInfo, error) {
 	splitTag := strings.Split(tag, ":")
-	if len(splitTag) != 2 {
+	if len(splitTag) != 2 { //nolint:mnd
 		return nil, nil, fmt.Errorf("invalid tag: %s", tag)
 	}
 	parsed, err := version.Parse(splitTag[1])

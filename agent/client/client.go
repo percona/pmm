@@ -273,7 +273,7 @@ func (c *Client) Run(ctx context.Context) error {
 	c.supervisor.ClearChangesChannel()
 	c.SendActualStatuses()
 
-	oneDone := make(chan struct{}, 4)
+	oneDone := make(chan struct{}, 4) //nolint:mnd
 	go func() {
 		c.processActionResults(ctx)
 		c.l.Debug("processActionResults is finished")
@@ -1026,7 +1026,7 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 		err = fmt.Errorf("failed to decode Ping: %w", err)
 		return latency, clockDrift, err
 	}
-	latency = roundtrip / 2
+	latency = roundtrip / 2 //nolint:mnd
 	clockDrift = serverTime.Sub(start) - latency
 	return latency, clockDrift, err
 }

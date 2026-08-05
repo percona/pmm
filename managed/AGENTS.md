@@ -172,7 +172,6 @@ PMM supports HA via **Raft consensus** (`services/ha/`):
 ### Test Data
 - `testdata/pg/` — PostgreSQL fixtures
 - `testdata/victoriametrics/` — VictoriaMetrics configs
-- `testdata/updater/` — Update test fixtures
 
 ## Code Generation
 
@@ -195,3 +194,4 @@ Always run `make gen` after modifying `.proto` files, reform models, or interfac
 - `managed/utils/envvars/parser.go` — environment variable parsing
 - `docker-compose.yml` — development environment
 - `Makefile`, `Makefile.include` — build and development targets
+- `managed/CONTRIBUTING.md` — pmm-managed contribution notes (dev setup, patterns)

@@ -145,7 +145,7 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 	row.Name = template.Name
 	row.Version = template.Version
 	row.Summary = template.Summary
-	row.Expr = template.Expr
+	row.Expr = template.StoredExpr()
 	row.Params = p
 	row.For = time.Duration(template.For)
 	row.Severity = Severity(template.Severity)
@@ -199,7 +199,7 @@ func ConvertTemplate(template *alert.Template, source Source) (*Template, error)
 		Name:     template.Name,
 		Version:  template.Version,
 		Summary:  template.Summary,
-		Expr:     template.Expr,
+		Expr:     template.StoredExpr(),
 		Params:   p,
 		For:      time.Duration(template.For),
 		Severity: Severity(template.Severity),
